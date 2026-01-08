@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getInvoices } from '~/lib/invoices/server'
-import { Header } from '~/components/navigation'
 import { formatNaira } from '~/lib/currency'
 import { FileText, Plus, Eye } from 'lucide-react'
 
@@ -29,7 +28,6 @@ function InvoicesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>

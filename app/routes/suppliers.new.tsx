@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { createSupplier, type CreateSupplierInput } from '~/lib/suppliers/server'
-import { Header } from '~/components/navigation'
 import { ArrowLeft, X } from 'lucide-react'
 
 const addSupplier = createServerFn({ method: 'POST' })
@@ -57,7 +56,6 @@ function NewSupplierPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <main className="container mx-auto px-4 py-8">
         <button
           onClick={() => navigate({ to: '/suppliers' })}

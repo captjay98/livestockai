@@ -97,10 +97,14 @@ function CardExample() {
         </CardHeader>
         <CardFooter>
           <AlertDialog>
-            <AlertDialogTrigger render={<Button />}>
-              <PlusIcon data-icon="inline-start" />
-              Show Dialog
-            </AlertDialogTrigger>
+            <AlertDialogTrigger
+              render={
+                <Button>
+                  <PlusIcon data-icon="inline-start" />
+                  Show Dialog
+                </Button>
+              }
+            />
             <AlertDialogContent size="sm">
               <AlertDialogHeader>
                 <AlertDialogMedia>
@@ -160,12 +164,13 @@ function FormExample() {
           <CardAction>
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={<Button variant="ghost" size="icon" />}
-              >
-                <MoreVerticalIcon
-                />
-                <span className="sr-only">More options</span>
-              </DropdownMenuTrigger>
+                render={
+                  <Button variant="ghost" size="icon">
+                    <MoreVerticalIcon />
+                    <span className="sr-only">More options</span>
+                  </Button>
+                }
+              />
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuGroup>
                   <DropdownMenuLabel>File</DropdownMenuLabel>

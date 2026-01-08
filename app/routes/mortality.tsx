@@ -1,20 +1,26 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getMortalityAlerts } from '~/lib/mortality/server'
-import { getFarmsForUser } from '~/lib/farms/server'
+import { getMortalityAlerts, recordMortality } from '~/lib/mortality/server'
+import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
-import { FarmSelector } from '~/components/farm-selector'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog'
 import { Plus, AlertTriangle, TrendingDown, Users } from 'lucide-react'
-import { useState } from 'react'
-
-interface Farm {
-  id: string
-  name: string
-  type: string
-}
+import { useState, useEffect } from 'react'
+import { useFarm } from '~/components/farm-context'
 
 interface Alert {
   type: 'high_mortality' | 'low_stock'
@@ -26,33 +32,38 @@ interface Alert {
   rate: number
 }
 
-interface MortalityData {
-  farms: Farm[]
-  alerts: Alert[]
+interface Batch {
+  id: string
+  species: string
+  livestockType: string
+  currentQuantity: number
+  status: string
 }
 
-// Server function to get farms list
-const getFarms = createServerFn({ method: 'GET' }).handler(async () => {
-  try {
-    const session = await requireAuth()
-    const farms = await getFarmsForUser(session.user.id)
-    return { farms, alerts: [] }
-  } catch (error) {
-    if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-      throw redirect({ to: '/login' })
-    }
-    throw error
-  }
-})
+interface MortalityData {
+  alerts: Alert[]
+  batches: Batch[]
+}
 
-// Server function to get mortality data for a specific farm
+const MORTALITY_CAUSES = [
+  { value: 'disease', label: 'Disease' },
+  { value: 'predator', label: 'Predator Attack' },
+  { value: 'weather', label: 'Weather/Environment' },
+  { value: 'unknown', label: 'Unknown' },
+  { value: 'other', label: 'Other' },
+]
+
 const getMortalityForFarm = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const alerts = await getMortalityAlerts(session.user.id, data.farmId)
-      return { alerts, farms: [] as Farm[] }
+      const [alerts, allBatches] = await Promise.all([
+        getMortalityAlerts(session.user.id, data.farmId),
+        getBatchesForFarm(session.user.id, data.farmId),
+      ])
+      const batches = allBatches.filter(b => b.status === 'active')
+      return { alerts, batches }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -61,57 +72,144 @@ const getMortalityForFarm = createServerFn({ method: 'GET' })
     }
   })
 
-interface MortalitySearchParams {
-  farmId?: string
-}
+const recordMortalityAction = createServerFn({ method: 'POST' })
+  .inputValidator((data: {
+    batchId: string
+    quantity: number
+    date: string
+    cause: 'disease' | 'predator' | 'weather' | 'unknown' | 'other'
+    notes?: string
+  }) => data)
+  .handler(async ({ data }) => {
+    try {
+      const session = await requireAuth()
+      const id = await recordMortality(session.user.id, {
+        batchId: data.batchId,
+        quantity: data.quantity,
+        date: new Date(data.date),
+        cause: data.cause,
+        notes: data.notes,
+      })
+      return { success: true, id }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+        throw redirect({ to: '/login' })
+      }
+      throw error
+    }
+  })
 
 export const Route = createFileRoute('/mortality')({
   component: MortalityPage,
-  validateSearch: (search: Record<string, unknown>): MortalitySearchParams => ({
-    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
-  }),
-  loaderDeps: ({ search }) => ({ farmId: search.farmId }),
-  loader: async ({ deps }) => {
-    if (deps.farmId) {
-      return getMortalityForFarm({ data: { farmId: deps.farmId } })
-    }
-    return getFarms()
-  },
 })
 
 function MortalityPage() {
-  const { alerts, farms } = Route.useLoaderData() as MortalityData
-  const search = Route.useSearch()
-  const [selectedFarm, setSelectedFarm] = useState(search.farmId || '')
+  const { selectedFarmId } = useFarm()
+  const [data, setData] = useState<MortalityData>({ alerts: [], batches: [] })
+  const [isLoading, setIsLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    batchId: '',
+    quantity: '',
+    date: new Date().toISOString().split('T')[0],
+    cause: '' as 'disease' | 'predator' | 'weather' | 'unknown' | 'other' | '',
+    notes: '',
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleFarmChange = (farmId: string) => {
-    setSelectedFarm(farmId)
-    window.history.pushState({}, '', `/mortality?farmId=${farmId}`)
-    window.location.reload()
+  const loadData = async () => {
+    if (!selectedFarmId) {
+      setData({ alerts: [], batches: [] })
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const result = await getMortalityForFarm({ data: { farmId: selectedFarmId } })
+      setData(result)
+    } catch (error) {
+      console.error('Failed to load mortality data:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  if (!selectedFarm && farms.length > 0) {
+  useEffect(() => {
+    loadData()
+  }, [selectedFarmId])
+
+  const resetForm = () => {
+    setFormData({
+      batchId: '',
+      quantity: '',
+      date: new Date().toISOString().split('T')[0],
+      cause: '',
+      notes: '',
+    })
+    setError('')
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedFarmId || !formData.cause) return
+    
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      await recordMortalityAction({
+        data: {
+          batchId: formData.batchId,
+          quantity: parseInt(formData.quantity),
+          date: formData.date,
+          cause: formData.cause,
+          notes: formData.notes || undefined,
+        }
+      })
+      setDialogOpen(false)
+      resetForm()
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to record mortality')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const { alerts, batches } = data
+  const selectedBatch = batches.find(b => b.id === formData.batchId)
+
+  if (!selectedFarmId) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold">Mortality Tracking</h1>
-            <p className="text-muted-foreground mt-1">
-              Monitor and record livestock mortality
-            </p>
+            <p className="text-muted-foreground mt-1">Monitor and record livestock mortality</p>
           </div>
         </div>
-
         <Card>
           <CardContent className="py-12 text-center">
             <TrendingDown className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Select a farm</h3>
-            <p className="text-muted-foreground mb-4">
-              Choose a farm to view mortality tracking and alerts
-            </p>
-            <FarmSelector onFarmChange={handleFarmChange} />
+            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
+            <p className="text-muted-foreground">Select a farm from the sidebar to view mortality tracking</p>
           </CardContent>
         </Card>
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-6 px-4">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">Mortality Tracking</h1>
+            <p className="text-muted-foreground mt-1">Loading...</p>
+          </div>
+        </div>
       </div>
     )
   }
@@ -124,17 +222,121 @@ function MortalityPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Mortality Tracking</h1>
-          <p className="text-muted-foreground mt-1">
-            Monitor and record livestock mortality
-          </p>
+          <p className="text-muted-foreground mt-1">Monitor and record livestock mortality</p>
         </div>
-        <div className="flex gap-3">
-          <FarmSelector selectedFarmId={selectedFarm} onFarmChange={handleFarmChange} />
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Record Mortality
-          </Button>
-        </div>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger
+            render={
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Record Mortality
+              </Button>
+            }
+          />
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Record Mortality</DialogTitle>
+              <DialogDescription>Log livestock mortality for a batch</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="batchId">Batch</Label>
+                <Select
+                  value={formData.batchId}
+                  onValueChange={(value) => value && setFormData(prev => ({ ...prev, batchId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select batch'}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {batches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id}>
+                        {batch.species} ({batch.currentQuantity} {batch.livestockType})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quantity">Quantity</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  max={selectedBatch?.currentQuantity || 1000}
+                  value={formData.quantity}
+                  onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
+                  placeholder="Number of deaths"
+                  required
+                />
+                {selectedBatch && (
+                  <p className="text-sm text-muted-foreground">
+                    Max: {selectedBatch.currentQuantity} (current in batch)
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cause">Cause</Label>
+                <Select
+                  value={formData.cause}
+                  onValueChange={(value) => value && setFormData(prev => ({ ...prev, cause: value as any }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{formData.cause ? MORTALITY_CAUSES.find(c => c.value === formData.cause)?.label : 'Select cause'}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MORTALITY_CAUSES.map((cause) => (
+                      <SelectItem key={cause.value} value={cause.value}>
+                        {cause.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="date">Date</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Input
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Additional details"
+                />
+              </div>
+
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                  {error}
+                </div>
+              )}
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !formData.batchId || !formData.quantity || !formData.cause}
+                >
+                  {isSubmitting ? 'Recording...' : 'Record Mortality'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Alert Summary */}
@@ -146,9 +348,7 @@ function MortalityPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{criticalAlerts.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Require immediate attention
-            </p>
+            <p className="text-xs text-muted-foreground">Require immediate attention</p>
           </CardContent>
         </Card>
 
@@ -159,9 +359,7 @@ function MortalityPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning">{warningAlerts.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Monitor closely
-            </p>
+            <p className="text-xs text-muted-foreground">Monitor closely</p>
           </CardContent>
         </Card>
 
@@ -172,9 +370,7 @@ function MortalityPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{alerts.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Active monitoring alerts
-            </p>
+            <p className="text-xs text-muted-foreground">Active monitoring alerts</p>
           </CardContent>
         </Card>
       </div>
@@ -185,10 +381,8 @@ function MortalityPage() {
           <CardContent className="py-12 text-center">
             <TrendingDown className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No alerts</h3>
-            <p className="text-muted-foreground mb-4">
-              All batches are within normal mortality ranges
-            </p>
-            <Button>
+            <p className="text-muted-foreground mb-4">All batches are within normal mortality ranges</p>
+            <Button onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Record Mortality
             </Button>
@@ -210,9 +404,7 @@ function MortalityPage() {
                     <div className="flex items-start justify-between">
                       <div>
                         <CardTitle className="text-lg capitalize">{alert.batchSpecies}</CardTitle>
-                        <CardDescription className="text-destructive">
-                          {alert.message}
-                        </CardDescription>
+                        <CardDescription className="text-destructive">{alert.message}</CardDescription>
                       </div>
                       <Badge variant="destructive">Critical</Badge>
                     </div>
@@ -222,14 +414,7 @@ function MortalityPage() {
                       <div className="text-sm text-muted-foreground">
                         {alert.type === 'high_mortality' ? 'Recent Deaths' : 'Remaining Stock'}: {alert.quantity.toLocaleString()}
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          View Batch
-                        </Button>
-                        <Button size="sm">
-                          Record Mortality
-                        </Button>
-                      </div>
+                      <Button size="sm" onClick={() => setDialogOpen(true)}>Record Mortality</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -249,9 +434,7 @@ function MortalityPage() {
                     <div className="flex items-start justify-between">
                       <div>
                         <CardTitle className="text-lg capitalize">{alert.batchSpecies}</CardTitle>
-                        <CardDescription className="text-warning">
-                          {alert.message}
-                        </CardDescription>
+                        <CardDescription className="text-warning">{alert.message}</CardDescription>
                       </div>
                       <Badge variant="warning">Warning</Badge>
                     </div>
@@ -261,14 +444,7 @@ function MortalityPage() {
                       <div className="text-sm text-muted-foreground">
                         {alert.type === 'high_mortality' ? 'Recent Deaths' : 'Remaining Stock'}: {alert.quantity.toLocaleString()}
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          View Batch
-                        </Button>
-                        <Button size="sm">
-                          Record Mortality
-                        </Button>
-                      </div>
+                      <Button size="sm" onClick={() => setDialogOpen(true)}>Record Mortality</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -282,43 +458,37 @@ function MortalityPage() {
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Common mortality tracking tasks
-          </CardDescription>
+          <CardDescription>Common mortality tracking tasks</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            <Button variant="outline" className="h-auto p-4">
+            <Button variant="outline" className="h-auto p-4" onClick={() => setDialogOpen(true)}>
               <div className="text-center">
                 <Plus className="h-6 w-6 mx-auto mb-2" />
                 <div className="font-medium">Record Mortality</div>
-                <div className="text-xs text-muted-foreground">
-                  Add new mortality record
-                </div>
+                <div className="text-xs text-muted-foreground">Add new mortality record</div>
               </div>
             </Button>
 
-            <Link to="/batches" search={{ farmId: selectedFarm, status: 'active' }}>
+            <Link to="/batches">
               <Button variant="outline" className="h-auto p-4 w-full">
                 <div className="text-center">
                   <Users className="h-6 w-6 mx-auto mb-2" />
                   <div className="font-medium">View Batches</div>
-                  <div className="text-xs text-muted-foreground">
-                    Monitor active batches
-                  </div>
+                  <div className="text-xs text-muted-foreground">Monitor active batches</div>
                 </div>
               </Button>
             </Link>
 
-            <Button variant="outline" className="h-auto p-4">
-              <div className="text-center">
-                <TrendingDown className="h-6 w-6 mx-auto mb-2" />
-                <div className="font-medium">Mortality Report</div>
-                <div className="text-xs text-muted-foreground">
-                  Generate detailed reports
+            <Link to="/reports">
+              <Button variant="outline" className="h-auto p-4 w-full">
+                <div className="text-center">
+                  <TrendingDown className="h-6 w-6 mx-auto mb-2" />
+                  <div className="font-medium">Mortality Report</div>
+                  <div className="text-xs text-muted-foreground">Generate detailed reports</div>
                 </div>
-              </div>
-            </Button>
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

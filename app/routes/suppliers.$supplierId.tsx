@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getSupplierWithExpenses, deleteSupplier } from '~/lib/suppliers/server'
-import { Header } from '~/components/navigation'
 import { ArrowLeft, Phone, Mail, MapPin, Package, Trash2 } from 'lucide-react'
 import { formatNaira } from '~/lib/currency'
 
@@ -49,7 +48,6 @@ function SupplierDetailPage() {
   if (!supplier) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <main className="container mx-auto px-4 py-8">
           <p>Supplier not found</p>
         </main>
@@ -66,7 +64,6 @@ function SupplierDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <main className="container mx-auto px-4 py-8">
         <Link
           to="/suppliers"

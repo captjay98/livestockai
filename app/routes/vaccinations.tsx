@@ -1,20 +1,26 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getVaccinationsForFarm, getTreatmentsForFarm, getVaccinationAlerts } from '~/lib/vaccinations/server'
-import { getFarmsForUser } from '~/lib/farms/server'
+import { getVaccinationsForFarm, getTreatmentsForFarm, getVaccinationAlerts, createVaccination, createTreatment } from '~/lib/vaccinations/server'
+import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
-import { FarmSelector } from '~/components/farm-selector'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog'
 import { Plus, Syringe, Pill, AlertTriangle, Calendar } from 'lucide-react'
-import { useState } from 'react'
-
-interface Farm {
-  id: string
-  name: string
-  type: string
-}
+import { useState, useEffect } from 'react'
+import { useFarm } from '~/components/farm-context'
 
 interface Vaccination {
   id: string
@@ -37,41 +43,34 @@ interface Treatment {
   species: string
 }
 
-interface VaccinationData {
-  farms: Farm[]
-  vaccinations: Vaccination[]
-  treatments: Treatment[]
-  alerts: {
-    upcoming: any[]
-    overdue: any[]
-    totalAlerts: number
-  } | null
+interface Batch {
+  id: string
+  species: string
+  livestockType: string
+  currentQuantity: number
+  status: string
 }
 
-const getFarms = createServerFn({ method: 'GET' }).handler(async () => {
-  try {
-    const session = await requireAuth()
-    const farms = await getFarmsForUser(session.user.id)
-    return { farms, vaccinations: [], treatments: [], alerts: null }
-  } catch (error) {
-    if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-      throw redirect({ to: '/login' })
-    }
-    throw error
-  }
-})
+interface VaccinationData {
+  vaccinations: Vaccination[]
+  treatments: Treatment[]
+  batches: Batch[]
+  alerts: { upcoming: any[]; overdue: any[]; totalAlerts: number } | null
+}
 
 const getVaccinationDataForFarm = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const [vaccinations, treatments, alerts] = await Promise.all([
+      const [vaccinations, treatments, alerts, allBatches] = await Promise.all([
         getVaccinationsForFarm(session.user.id, data.farmId),
         getTreatmentsForFarm(session.user.id, data.farmId),
         getVaccinationAlerts(session.user.id, data.farmId),
+        getBatchesForFarm(session.user.id, data.farmId),
       ])
-      return { vaccinations, treatments, alerts, farms: [] as Farm[] }
+      const batches = allBatches.filter(b => b.status === 'active')
+      return { vaccinations, treatments, alerts, batches }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -80,36 +79,166 @@ const getVaccinationDataForFarm = createServerFn({ method: 'GET' })
     }
   })
 
-interface VaccinationSearchParams {
-  farmId?: string
-}
+const createVaccinationAction = createServerFn({ method: 'POST' })
+  .inputValidator((data: {
+    farmId: string
+    batchId: string
+    vaccineName: string
+    dateAdministered: string
+    dosage: string
+    nextDueDate?: string
+  }) => data)
+  .handler(async ({ data }) => {
+    try {
+      const session = await requireAuth()
+      const id = await createVaccination(session.user.id, data.farmId, {
+        batchId: data.batchId,
+        vaccineName: data.vaccineName,
+        dateAdministered: new Date(data.dateAdministered),
+        dosage: data.dosage,
+        nextDueDate: data.nextDueDate ? new Date(data.nextDueDate) : null,
+      })
+      return { success: true, id }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+        throw redirect({ to: '/login' })
+      }
+      throw error
+    }
+  })
+
+const createTreatmentAction = createServerFn({ method: 'POST' })
+  .inputValidator((data: {
+    farmId: string
+    batchId: string
+    medicationName: string
+    reason: string
+    date: string
+    dosage: string
+    withdrawalDays: number
+  }) => data)
+  .handler(async ({ data }) => {
+    try {
+      const session = await requireAuth()
+      const id = await createTreatment(session.user.id, data.farmId, {
+        batchId: data.batchId,
+        medicationName: data.medicationName,
+        reason: data.reason,
+        date: new Date(data.date),
+        dosage: data.dosage,
+        withdrawalDays: data.withdrawalDays,
+      })
+      return { success: true, id }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+        throw redirect({ to: '/login' })
+      }
+      throw error
+    }
+  })
 
 export const Route = createFileRoute('/vaccinations')({
   component: VaccinationsPage,
-  validateSearch: (search: Record<string, unknown>): VaccinationSearchParams => ({
-    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
-  }),
-  loaderDeps: ({ search }) => ({ farmId: search.farmId }),
-  loader: async ({ deps }) => {
-    if (deps.farmId) {
-      return getVaccinationDataForFarm({ data: { farmId: deps.farmId } })
-    }
-    return getFarms()
-  },
 })
 
 function VaccinationsPage() {
-  const { vaccinations, treatments, alerts, farms } = Route.useLoaderData() as VaccinationData
-  const search = Route.useSearch()
-  const [selectedFarm, setSelectedFarm] = useState(search.farmId || '')
+  const { selectedFarmId } = useFarm()
+  const [data, setData] = useState<VaccinationData>({ vaccinations: [], treatments: [], batches: [], alerts: null })
+  const [isLoading, setIsLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [recordType, setRecordType] = useState<'vaccination' | 'treatment'>('vaccination')
+  const [formData, setFormData] = useState({
+    batchId: '',
+    name: '',
+    date: new Date().toISOString().split('T')[0],
+    dosage: '',
+    nextDueDate: '',
+    reason: '',
+    withdrawalDays: '0',
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleFarmChange = (farmId: string) => {
-    setSelectedFarm(farmId)
-    window.history.pushState({}, '', `/vaccinations?farmId=${farmId}`)
-    window.location.reload()
+  const loadData = async () => {
+    if (!selectedFarmId) {
+      setData({ vaccinations: [], treatments: [], batches: [], alerts: null })
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const result = await getVaccinationDataForFarm({ data: { farmId: selectedFarmId } })
+      setData(result)
+    } catch (error) {
+      console.error('Failed to load vaccination data:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  if (!selectedFarm && farms.length > 0) {
+  useEffect(() => {
+    loadData()
+  }, [selectedFarmId])
+
+  const resetForm = () => {
+    setFormData({
+      batchId: '',
+      name: '',
+      date: new Date().toISOString().split('T')[0],
+      dosage: '',
+      nextDueDate: '',
+      reason: '',
+      withdrawalDays: '0',
+    })
+    setError('')
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedFarmId) return
+    
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      if (recordType === 'vaccination') {
+        await createVaccinationAction({
+          data: {
+            farmId: selectedFarmId,
+            batchId: formData.batchId,
+            vaccineName: formData.name,
+            dateAdministered: formData.date,
+            dosage: formData.dosage,
+            nextDueDate: formData.nextDueDate || undefined,
+          }
+        })
+      } else {
+        await createTreatmentAction({
+          data: {
+            farmId: selectedFarmId,
+            batchId: formData.batchId,
+            medicationName: formData.name,
+            reason: formData.reason,
+            date: formData.date,
+            dosage: formData.dosage,
+            withdrawalDays: parseInt(formData.withdrawalDays),
+          }
+        })
+      }
+      setDialogOpen(false)
+      resetForm()
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create record')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const { vaccinations, treatments, batches, alerts } = data
+
+  if (!selectedFarmId) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
@@ -121,11 +250,23 @@ function VaccinationsPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <Syringe className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Select a farm</h3>
-            <p className="text-muted-foreground mb-4">Choose a farm to view health records</p>
-            <FarmSelector onFarmChange={handleFarmChange} />
+            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
+            <p className="text-muted-foreground">Select a farm from the sidebar to view health records</p>
           </CardContent>
         </Card>
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-6 px-4">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">Health Management</h1>
+            <p className="text-muted-foreground mt-1">Loading...</p>
+          </div>
+        </div>
       </div>
     )
   }
@@ -137,15 +278,153 @@ function VaccinationsPage() {
           <h1 className="text-3xl font-bold">Health Management</h1>
           <p className="text-muted-foreground mt-1">Track vaccinations and treatments</p>
         </div>
-        <div className="flex gap-3">
-          <FarmSelector selectedFarmId={selectedFarm} onFarmChange={handleFarmChange} />
-          <Link to="/vaccinations/new" search={{ farmId: selectedFarm }}>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Record
-            </Button>
-          </Link>
-        </div>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger
+            render={
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Record
+              </Button>
+            }
+          />
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Health Record</DialogTitle>
+              <DialogDescription>Record vaccination or treatment</DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-4 mb-4">
+              <Button
+                type="button"
+                variant={recordType === 'vaccination' ? 'default' : 'outline'}
+                onClick={() => setRecordType('vaccination')}
+                className="flex-1"
+              >
+                <Syringe className="h-4 w-4 mr-2" />
+                Vaccination
+              </Button>
+              <Button
+                type="button"
+                variant={recordType === 'treatment' ? 'default' : 'outline'}
+                onClick={() => setRecordType('treatment')}
+                className="flex-1"
+              >
+                <Pill className="h-4 w-4 mr-2" />
+                Treatment
+              </Button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="batchId">Batch</Label>
+                <Select
+                  value={formData.batchId}
+                  onValueChange={(value) => value && setFormData(prev => ({ ...prev, batchId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select batch'}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {batches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id}>
+                        {batch.species} ({batch.currentQuantity} {batch.livestockType})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="name">{recordType === 'vaccination' ? 'Vaccine Name' : 'Medication Name'}</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder={recordType === 'vaccination' ? 'e.g., Newcastle Disease Vaccine' : 'e.g., Oxytetracycline'}
+                  required
+                />
+              </div>
+
+              {recordType === 'treatment' && (
+                <div className="space-y-2">
+                  <Label htmlFor="reason">Reason for Treatment</Label>
+                  <Input
+                    id="reason"
+                    value={formData.reason}
+                    onChange={(e) => setFormData(prev => ({ ...prev, reason: e.target.value }))}
+                    placeholder="e.g., Respiratory infection"
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="dosage">Dosage</Label>
+                <Input
+                  id="dosage"
+                  value={formData.dosage}
+                  onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
+                  placeholder="e.g., 0.5ml per bird"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="date">{recordType === 'vaccination' ? 'Date Administered' : 'Treatment Date'}</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  required
+                />
+              </div>
+
+              {recordType === 'vaccination' && (
+                <div className="space-y-2">
+                  <Label htmlFor="nextDueDate">Next Due Date (Optional)</Label>
+                  <Input
+                    id="nextDueDate"
+                    type="date"
+                    value={formData.nextDueDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nextDueDate: e.target.value }))}
+                  />
+                </div>
+              )}
+
+              {recordType === 'treatment' && (
+                <div className="space-y-2">
+                  <Label htmlFor="withdrawalDays">Withdrawal Period (Days)</Label>
+                  <Input
+                    id="withdrawalDays"
+                    type="number"
+                    min="0"
+                    value={formData.withdrawalDays}
+                    onChange={(e) => setFormData(prev => ({ ...prev, withdrawalDays: e.target.value }))}
+                    placeholder="Days before safe for consumption"
+                    required
+                  />
+                </div>
+              )}
+
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                  {error}
+                </div>
+              )}
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !formData.batchId || !formData.name || !formData.dosage}
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Record'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Alerts */}
@@ -242,9 +521,7 @@ function VaccinationsPage() {
                     <Syringe className="h-8 w-8 text-muted-foreground" />
                     <div>
                       <p className="font-medium">{vax.vaccineName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {vax.species} • {vax.dosage}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{vax.species} • {vax.dosage}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -282,16 +559,12 @@ function VaccinationsPage() {
                     <Pill className="h-8 w-8 text-muted-foreground" />
                     <div>
                       <p className="font-medium">{treatment.medicationName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {treatment.species} • {treatment.reason}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{treatment.species} • {treatment.reason}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm">{new Date(treatment.date).toLocaleDateString()}</p>
-                    <Badge variant="outline" className="text-xs">
-                      {treatment.withdrawalDays} day withdrawal
-                    </Badge>
+                    <Badge variant="outline" className="text-xs">{treatment.withdrawalDays} day withdrawal</Badge>
                   </div>
                 </div>
               ))}

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { createInvoice, type CreateInvoiceInput } from '~/lib/invoices/server'
 import { getCustomers } from '~/lib/customers/server'
 import { getFarms } from '~/lib/farms/server'
-import { Header } from '~/components/navigation'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { formatNaira } from '~/lib/currency'
 
@@ -85,7 +84,6 @@ function NewInvoicePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <main className="container mx-auto px-4 py-8">
         <button
           onClick={() => navigate({ to: '/invoices' })}

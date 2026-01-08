@@ -1,22 +1,27 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getFeedRecordsForFarm } from '~/lib/feed/server'
-import { FEED_TYPES } from '~/lib/feed/constants'
-import { getFarmsForUser } from '~/lib/farms/server'
+import { getFeedRecordsForFarm, createFeedRecord, FEED_TYPES } from '~/lib/feed/server'
+import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
-import { FarmSelector } from '~/components/farm-selector'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog'
 import { Plus, Wheat, TrendingUp, Package } from 'lucide-react'
-import { useState } from 'react'
-
-interface Farm {
-  id: string
-  name: string
-  type: string
-}
+import { useState, useEffect } from 'react'
+import { useFarm } from '~/components/farm-context'
 
 interface FeedRecord {
   id: string
@@ -29,9 +34,17 @@ interface FeedRecord {
   livestockType: string
 }
 
+interface Batch {
+  id: string
+  species: string
+  livestockType: string
+  currentQuantity: number
+  status: string
+}
+
 interface FeedData {
-  farms: Farm[]
   records: FeedRecord[]
+  batches: Batch[]
   summary: {
     totalQuantityKg: number
     totalCost: number
@@ -39,33 +52,24 @@ interface FeedData {
   } | null
 }
 
-const getFarms = createServerFn({ method: 'GET' }).handler(async () => {
-  try {
-    const session = await requireAuth()
-    const farms = await getFarmsForUser(session.user.id)
-    return { farms, records: [], summary: null }
-  } catch (error) {
-    if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-      throw redirect({ to: '/login' })
-    }
-    throw error
-  }
-})
-
 const getFeedDataForFarm = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const records = await getFeedRecordsForFarm(session.user.id, data.farmId)
+      const [records, allBatches] = await Promise.all([
+        getFeedRecordsForFarm(session.user.id, data.farmId),
+        getBatchesForFarm(session.user.id, data.farmId),
+      ])
       
+      const batches = allBatches.filter(b => b.status === 'active')
       const totalQuantityKg = records.reduce((sum, r) => sum + parseFloat(r.quantityKg), 0)
       const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
       
       return { 
         records, 
+        batches,
         summary: { totalQuantityKg, totalCost, recordCount: records.length },
-        farms: [] as Farm[]
       }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
@@ -75,36 +79,117 @@ const getFeedDataForFarm = createServerFn({ method: 'GET' })
     }
   })
 
-interface FeedSearchParams {
-  farmId?: string
-}
+const createFeedRecordAction = createServerFn({ method: 'POST' })
+  .inputValidator((data: {
+    farmId: string
+    batchId: string
+    feedType: string
+    quantityKg: number
+    cost: number
+    date: string
+  }) => data)
+  .handler(async ({ data }) => {
+    try {
+      const session = await requireAuth()
+      const id = await createFeedRecord(session.user.id, data.farmId, {
+        batchId: data.batchId,
+        feedType: data.feedType as any,
+        quantityKg: data.quantityKg,
+        cost: data.cost,
+        date: new Date(data.date),
+      })
+      return { success: true, id }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+        throw redirect({ to: '/login' })
+      }
+      throw error
+    }
+  })
 
 export const Route = createFileRoute('/feed')({
   component: FeedPage,
-  validateSearch: (search: Record<string, unknown>): FeedSearchParams => ({
-    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
-  }),
-  loaderDeps: ({ search }) => ({ farmId: search.farmId }),
-  loader: async ({ deps }) => {
-    if (deps.farmId) {
-      return getFeedDataForFarm({ data: { farmId: deps.farmId } })
-    }
-    return getFarms()
-  },
 })
 
 function FeedPage() {
-  const { records, summary, farms } = Route.useLoaderData() as FeedData
-  const search = Route.useSearch()
-  const [selectedFarm, setSelectedFarm] = useState(search.farmId || '')
+  const { selectedFarmId } = useFarm()
+  const [data, setData] = useState<FeedData>({ records: [], batches: [], summary: null })
+  const [isLoading, setIsLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    batchId: '',
+    feedType: '',
+    quantityKg: '',
+    cost: '',
+    date: new Date().toISOString().split('T')[0],
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleFarmChange = (farmId: string) => {
-    setSelectedFarm(farmId)
-    window.history.pushState({}, '', `/feed?farmId=${farmId}`)
-    window.location.reload()
+  const loadData = async () => {
+    if (!selectedFarmId) {
+      setData({ records: [], batches: [], summary: null })
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const result = await getFeedDataForFarm({ data: { farmId: selectedFarmId } })
+      setData(result)
+    } catch (error) {
+      console.error('Failed to load feed data:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  if (!selectedFarm && farms.length > 0) {
+  useEffect(() => {
+    loadData()
+  }, [selectedFarmId])
+
+  const resetForm = () => {
+    setFormData({
+      batchId: '',
+      feedType: '',
+      quantityKg: '',
+      cost: '',
+      date: new Date().toISOString().split('T')[0],
+    })
+    setError('')
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedFarmId) return
+    
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      await createFeedRecordAction({
+        data: {
+          farmId: selectedFarmId,
+          batchId: formData.batchId,
+          feedType: formData.feedType,
+          quantityKg: parseFloat(formData.quantityKg),
+          cost: parseFloat(formData.cost),
+          date: formData.date,
+        }
+      })
+      setDialogOpen(false)
+      resetForm()
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to record feed')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const { records, batches, summary } = data
+
+  if (!selectedFarmId) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
@@ -116,11 +201,25 @@ function FeedPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <Wheat className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Select a farm</h3>
-            <p className="text-muted-foreground mb-4">Choose a farm to view feed records</p>
-            <FarmSelector onFarmChange={handleFarmChange} />
+            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
+            <p className="text-muted-foreground">
+              Select a farm from the sidebar to view feed records
+            </p>
           </CardContent>
         </Card>
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-6 px-4">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">Feed Management</h1>
+            <p className="text-muted-foreground mt-1">Loading...</p>
+          </div>
+        </div>
       </div>
     )
   }
@@ -132,15 +231,118 @@ function FeedPage() {
           <h1 className="text-3xl font-bold">Feed Management</h1>
           <p className="text-muted-foreground mt-1">Track feed consumption and costs</p>
         </div>
-        <div className="flex gap-3">
-          <FarmSelector selectedFarmId={selectedFarm} onFarmChange={handleFarmChange} />
-          <Link to="/feed/new" search={{ farmId: selectedFarm }}>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Record Feed
-            </Button>
-          </Link>
-        </div>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger
+            render={
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Record Feed
+              </Button>
+            }
+          />
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Record Feed</DialogTitle>
+              <DialogDescription>Log feed consumption for a batch</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="batchId">Batch</Label>
+                <Select
+                  value={formData.batchId}
+                  onValueChange={(value) => value && setFormData(prev => ({ ...prev, batchId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select batch'}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {batches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id}>
+                        {batch.species} ({batch.currentQuantity} {batch.livestockType})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="feedType">Feed Type</Label>
+                <Select
+                  value={formData.feedType}
+                  onValueChange={(value) => value && setFormData(prev => ({ ...prev, feedType: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{formData.feedType ? FEED_TYPES.find(t => t.value === formData.feedType)?.label : 'Select feed type'}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FEED_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quantityKg">Quantity (kg)</Label>
+                <Input
+                  id="quantityKg"
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  value={formData.quantityKg}
+                  onChange={(e) => setFormData(prev => ({ ...prev, quantityKg: e.target.value }))}
+                  placeholder="Enter quantity in kilograms"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cost">Cost (₦)</Label>
+                <Input
+                  id="cost"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.cost}
+                  onChange={(e) => setFormData(prev => ({ ...prev, cost: e.target.value }))}
+                  placeholder="Enter cost in Naira"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="date">Date</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                  {error}
+                </div>
+              )}
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !formData.batchId || !formData.feedType || !formData.quantityKg || !formData.cost}
+                >
+                  {isSubmitting ? 'Recording...' : 'Record Feed'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {summary && (
@@ -190,12 +392,10 @@ function FeedPage() {
             <Wheat className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No feed records</h3>
             <p className="text-muted-foreground mb-4">Start tracking feed consumption</p>
-            <Link to="/feed/new" search={{ farmId: selectedFarm }}>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Record Feed
-              </Button>
-            </Link>
+            <Button onClick={() => setDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Record Feed
+            </Button>
           </CardContent>
         </Card>
       ) : (

@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getInvoiceById, updateInvoiceStatus, deleteInvoice } from '~/lib/invoices/server'
-import { Header } from '~/components/navigation'
 import { formatNaira } from '~/lib/currency'
 import { ArrowLeft, Trash2, Printer } from 'lucide-react'
 
@@ -38,7 +37,6 @@ function InvoiceDetailPage() {
   if (!invoice) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <main className="container mx-auto px-4 py-8">
           <p>Invoice not found</p>
         </main>
@@ -64,7 +62,6 @@ function InvoiceDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6 print:hidden">
           <Link
