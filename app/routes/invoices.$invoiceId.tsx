@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getInvoiceById, updateInvoiceStatus, deleteInvoice } from '~/lib/invoices/server'
 import { formatNaira } from '~/lib/currency'
-import { ArrowLeft, Trash2, Printer } from 'lucide-react'
+import { ArrowLeft, Trash2, Printer, Edit } from 'lucide-react'
 
 const fetchInvoice = createServerFn({ method: 'GET' })
   .inputValidator((data: { invoiceId: string }) => data)
@@ -73,15 +73,21 @@ function InvoiceDetailPage() {
           </Link>
           <div className="flex gap-2">
             <button
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3 min-h-[44px]"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </button>
+            <button
               onClick={handlePrint}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3 min-h-[44px]"
             >
               <Printer className="h-4 w-4 mr-2" />
               Print
             </button>
             <button
               onClick={handleDelete}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground h-9 px-3"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground h-9 px-3 min-h-[44px]"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete

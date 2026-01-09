@@ -246,25 +246,25 @@ function ReportsPage() {
 function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Revenue</div>
-          <div className="text-2xl font-bold text-green-700 dark:text-green-400">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
+        <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Revenue</div>
+          <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-400">
             {formatNaira(report.revenue.total)}
           </div>
         </div>
-        <div className="p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Expenses</div>
-          <div className="text-2xl font-bold text-red-700 dark:text-red-400">
+        <div className="p-3 sm:p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Expenses</div>
+          <div className="text-lg sm:text-2xl font-bold text-red-700 dark:text-red-400">
             {formatNaira(report.expenses.total)}
           </div>
         </div>
-        <div className={`p-4 rounded-lg ${report.profit >= 0 ? 'bg-blue-50 dark:bg-blue-950/20' : 'bg-orange-50 dark:bg-orange-950/20'}`}>
-          <div className="text-sm text-muted-foreground mb-1">Net Profit</div>
-          <div className={`text-2xl font-bold ${report.profit >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-orange-700 dark:text-orange-400'}`}>
+        <div className={`p-3 sm:p-4 rounded-lg col-span-2 sm:col-span-1 ${report.profit >= 0 ? 'bg-blue-50 dark:bg-blue-950/20' : 'bg-orange-50 dark:bg-orange-950/20'}`}>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Net Profit</div>
+          <div className={`text-lg sm:text-2xl font-bold ${report.profit >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-orange-700 dark:text-orange-400'}`}>
             {formatNaira(report.profit)}
           </div>
-          <div className="text-xs text-muted-foreground">{report.profitMargin}% margin</div>
+          <div className="text-[10px] sm:text-xs text-muted-foreground">{report.profitMargin}% margin</div>
         </div>
       </div>
 
@@ -299,22 +299,22 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
 function InventoryReportView({ report }: { report: InventoryReport }) {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-4">
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Poultry</div>
-          <div className="text-2xl font-bold">{report.summary.totalPoultry.toLocaleString()}</div>
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4">
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Poultry</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalPoultry.toLocaleString()}</div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Fish</div>
-          <div className="text-2xl font-bold">{report.summary.totalFish.toLocaleString()}</div>
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Fish</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalFish.toLocaleString()}</div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Mortality</div>
-          <div className="text-2xl font-bold">{report.summary.totalMortality.toLocaleString()}</div>
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Mortality</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalMortality.toLocaleString()}</div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Mortality Rate</div>
-          <div className="text-2xl font-bold">{report.summary.overallMortalityRate}%</div>
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Mortality Rate</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.overallMortalityRate}%</div>
         </div>
       </div>
 
@@ -361,20 +361,20 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
 function SalesReportView({ report }: { report: SalesReport }) {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Sales</div>
-          <div className="text-2xl font-bold">{report.summary.totalSales}</div>
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Sales</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalSales}</div>
         </div>
-        <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Revenue</div>
-          <div className="text-2xl font-bold text-green-700 dark:text-green-400">
+        <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Revenue</div>
+          <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-400">
             {formatNaira(report.summary.totalRevenue)}
           </div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">By Type</div>
-          <div className="text-sm">
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg col-span-2 sm:col-span-1">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">By Type</div>
+          <div className="text-xs sm:text-sm">
             {report.summary.byType.map(t => (
               <div key={t.type} className="flex justify-between">
                 <span className="capitalize">{t.type}:</span>
@@ -418,18 +418,18 @@ function SalesReportView({ report }: { report: SalesReport }) {
 function FeedReportView({ report }: { report: FeedReport }) {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Feed</div>
-          <div className="text-2xl font-bold">{report.summary.totalFeedKg.toLocaleString()} kg</div>
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Feed</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalFeedKg.toLocaleString()} kg</div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Cost</div>
-          <div className="text-2xl font-bold">{formatNaira(report.summary.totalCost)}</div>
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Cost</div>
+          <div className="text-lg sm:text-2xl font-bold">{formatNaira(report.summary.totalCost)}</div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">By Feed Type</div>
-          <div className="text-sm">
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg col-span-2 sm:col-span-1">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">By Feed Type</div>
+          <div className="text-xs sm:text-sm">
             {report.summary.byFeedType.map(t => (
               <div key={t.type} className="flex justify-between">
                 <span className="capitalize">{t.type.replace('_', ' ')}:</span>
@@ -469,26 +469,26 @@ function FeedReportView({ report }: { report: FeedReport }) {
 function EggReportView({ report }: { report: EggReport }) {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-5">
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Collected</div>
-          <div className="text-2xl font-bold">{report.summary.totalCollected.toLocaleString()}</div>
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-5">
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Collected</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalCollected.toLocaleString()}</div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Sold</div>
-          <div className="text-2xl font-bold">{report.summary.totalSold.toLocaleString()}</div>
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Sold</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalSold.toLocaleString()}</div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Total Broken</div>
-          <div className="text-2xl font-bold">{report.summary.totalBroken.toLocaleString()}</div>
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Broken</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalBroken.toLocaleString()}</div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Current Inventory</div>
-          <div className="text-2xl font-bold">{report.summary.currentInventory.toLocaleString()}</div>
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Current Inventory</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.currentInventory.toLocaleString()}</div>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground mb-1">Laying %</div>
-          <div className="text-2xl font-bold">{report.summary.averageLayingPercentage}%</div>
+        <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Laying %</div>
+          <div className="text-lg sm:text-2xl font-bold">{report.summary.averageLayingPercentage}%</div>
         </div>
       </div>
 

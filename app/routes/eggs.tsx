@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, Egg, Package, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Plus, Egg, Package, TrendingUp, AlertTriangle, Eye, Edit, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useFarm } from '~/components/farm-context'
 
@@ -340,37 +340,37 @@ function EggsPage() {
       </div>
 
       {summary && (
-        <div className="grid gap-6 md:grid-cols-4 mb-8">
+        <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-4 mb-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Collected</CardTitle>
-              <Egg className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Collected</CardTitle>
+              <Egg className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.totalCollected.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">{summary.recordCount} records</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{summary.totalCollected.toLocaleString()}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.recordCount} records</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Sold</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Sold</CardTitle>
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.totalSold.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Eggs sold</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{summary.totalSold.toLocaleString()}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Eggs sold</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Broken/Lost</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Broken/Lost</CardTitle>
+              <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.totalBroken.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{summary.totalBroken.toLocaleString()}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
                 {summary.totalCollected > 0 
                   ? `${((summary.totalBroken / summary.totalCollected) * 100).toFixed(1)}% loss rate`
                   : '0% loss rate'}
@@ -379,13 +379,13 @@ function EggsPage() {
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Current Inventory</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Current Inventory</CardTitle>
+              <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.currentInventory.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Eggs in stock</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{summary.currentInventory.toLocaleString()}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Eggs in stock</p>
             </CardContent>
           </Card>
         </div>
@@ -410,39 +410,49 @@ function EggsPage() {
             <CardDescription>Daily egg collection records</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {records.map((record) => {
                 const layingPct = record.currentQuantity > 0 
                   ? ((record.quantityCollected / record.currentQuantity) * 100).toFixed(1)
                   : '0'
                 return (
-                  <div key={record.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Egg className="h-8 w-8 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium capitalize">{record.species}</p>
-                        <p className="text-sm text-muted-foreground">
+                  <div key={record.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+                    <div className="flex items-center gap-3">
+                      <Egg className="h-8 w-8 text-muted-foreground shrink-0" />
+                      <div className="min-w-0">
+                        <p className="font-medium capitalize truncate">{record.species}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           {record.currentQuantity} birds • {layingPct}% laying
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-4 text-sm">
-                      <div className="text-center">
-                        <p className="font-medium text-green-600">+{record.quantityCollected}</p>
-                        <p className="text-muted-foreground">Collected</p>
+                    <div className="flex items-center justify-between sm:justify-end gap-3">
+                      <div className="flex gap-3 sm:gap-6 text-xs sm:text-sm">
+                        <div className="text-center">
+                          <p className="font-medium text-green-600">+{record.quantityCollected}</p>
+                          <p className="text-muted-foreground text-[10px]">Collected</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="font-medium text-blue-600">-{record.quantitySold}</p>
+                          <p className="text-muted-foreground text-[10px]">Sold</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="font-medium text-red-600">-{record.quantityBroken}</p>
+                          <p className="text-muted-foreground text-[10px]">Broken</p>
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <p className="font-medium text-blue-600">-{record.quantitySold}</p>
-                        <p className="text-muted-foreground">Sold</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="font-medium text-red-600">-{record.quantityBroken}</p>
-                        <p className="text-muted-foreground">Broken</p>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                    <Badge variant="outline">
-                      {new Date(record.date).toLocaleDateString()}
-                    </Badge>
                   </div>
                 )
               })}

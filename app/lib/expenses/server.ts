@@ -6,12 +6,16 @@ export { EXPENSE_CATEGORIES, type ExpenseCategory } from './constants'
 
 export interface CreateExpenseInput {
   farmId: string
+  batchId?: string | null
   category: 'feed' | 'medicine' | 'equipment' | 'utilities' | 'labor' | 'transport' | 'other'
   amount: number
   date: Date
   description: string
   supplierId?: string | null
   isRecurring?: boolean
+  // Optional feed details for inventory tracking
+  feedType?: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+  feedQuantityKg?: number
 }
 
 export async function createExpense(
@@ -20,19 +24,61 @@ export async function createExpense(
 ): Promise<string> {
   await verifyFarmAccess(userId, input.farmId)
 
-  const result = await db
-    .insertInto('expenses')
-    .values({
-      farmId: input.farmId,
-      category: input.category,
-      amount: input.amount.toString(),
-      date: input.date,
-      description: input.description,
-      supplierId: input.supplierId || null,
-      isRecurring: input.isRecurring || false,
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+  const result = await db.transaction().execute(async (tx) => {
+    // 1. Record the expense
+    const expense = await tx
+      .insertInto('expenses')
+      .values({
+        farmId: input.farmId,
+        batchId: input.batchId || null,
+        category: input.category,
+        amount: input.amount.toString(),
+        date: input.date,
+        description: input.description,
+        supplierId: input.supplierId || null,
+        isRecurring: input.isRecurring || false,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
+
+    // 2. If it's a feed expense with quantity, update inventory
+    if (input.category === 'feed' && input.feedType && input.feedQuantityKg) {
+      // Check if inventory record exists
+      const existing = await tx
+        .selectFrom('feed_inventory')
+        .select(['id', 'quantityKg'])
+        .where('farmId', '=', input.farmId)
+        .where('feedType', '=', input.feedType)
+        .executeTakeFirst()
+
+      if (existing) {
+        // Update existing stock
+        const newQuantity = (parseFloat(existing.quantityKg) + input.feedQuantityKg).toString()
+        await tx
+          .updateTable('feed_inventory')
+          .set({
+            quantityKg: newQuantity,
+            updatedAt: new Date()
+          })
+          .where('id', '=', existing.id)
+          .execute()
+      } else {
+        // Create new inventory record
+        await tx
+          .insertInto('feed_inventory')
+          .values({
+            farmId: input.farmId,
+            feedType: input.feedType,
+            quantityKg: input.feedQuantityKg.toString(),
+            minThresholdKg: '10.00', // Default threshold
+            updatedAt: new Date()
+          })
+          .execute()
+      }
+    }
+
+    return expense
+  })
 
   return result.id
 }
@@ -51,9 +97,11 @@ export async function getExpensesForFarm(
   let query = db
     .selectFrom('expenses')
     .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+    .leftJoin('batches', 'batches.id', 'expenses.batchId')
     .select([
       'expenses.id',
       'expenses.farmId',
+      'expenses.batchId',
       'expenses.category',
       'expenses.amount',
       'expenses.date',
@@ -62,6 +110,8 @@ export async function getExpensesForFarm(
       'expenses.isRecurring',
       'expenses.createdAt',
       'suppliers.name as supplierName',
+      'batches.species as batchSpecies',
+      'batches.livestockType as batchType',
     ])
     .where('expenses.farmId', '=', farmId)
 

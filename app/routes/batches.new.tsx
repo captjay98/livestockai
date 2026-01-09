@@ -1,7 +1,8 @@
 import { createFileRoute, useRouter, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
-import { createBatch, getSpeciesOptions } from '~/lib/batches/server'
+import { createBatch } from '~/lib/batches/server'
+import { getSpeciesOptions } from '~/lib/batches/constants'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
@@ -24,7 +25,7 @@ const createBatchAction = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      
+
       const batchId = await createBatch(session.user.id, {
         farmId: data.farmId,
         livestockType: data.livestockType,
@@ -33,7 +34,7 @@ const createBatchAction = createServerFn({ method: 'POST' })
         acquisitionDate: new Date(data.acquisitionDate),
         costPerUnit: data.costPerUnit,
       })
-      
+
       return { success: true, batchId }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
@@ -57,7 +58,7 @@ export const Route = createFileRoute('/batches/new')({
 function NewBatchPage() {
   const router = useRouter()
   const search = Route.useSearch()
-  
+
   const [formData, setFormData] = useState({
     farmId: search.farmId || '',
     livestockType: 'poultry' as 'poultry' | 'fish',
@@ -87,9 +88,9 @@ function NewBatchPage() {
           costPerUnit: parseFloat(formData.costPerUnit),
         }
       })
-      
+
       if (result.success) {
-        router.navigate({ 
+        router.navigate({
           to: '/batches',
           search: { farmId: formData.farmId }
         })

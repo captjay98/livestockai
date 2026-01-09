@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, Syringe, Pill, AlertTriangle, Calendar } from 'lucide-react'
+import { Plus, Syringe, Pill, AlertTriangle, Calendar, Eye, Edit, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useFarm } from '~/components/farm-context'
 
@@ -465,37 +465,37 @@ function VaccinationsPage() {
         </Card>
       )}
 
-      <div className="grid gap-6 md:grid-cols-3 mb-8">
+      <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-3 mb-8">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Vaccinations</CardTitle>
-            <Syringe className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Vaccinations</CardTitle>
+            <Syringe className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{vaccinations.length}</div>
-            <p className="text-xs text-muted-foreground">Total records</p>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{vaccinations.length}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Total records</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Treatments</CardTitle>
-            <Pill className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Treatments</CardTitle>
+            <Pill className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{treatments.length}</div>
-            <p className="text-xs text-muted-foreground">Total records</p>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{treatments.length}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Total records</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alerts</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Alerts</CardTitle>
+            <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{alerts?.totalAlerts || 0}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{alerts?.totalAlerts || 0}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               {alerts?.overdue.length || 0} overdue, {alerts?.upcoming.length || 0} upcoming
             </p>
           </CardContent>
@@ -516,22 +516,35 @@ function VaccinationsPage() {
           ) : (
             <div className="space-y-4">
               {vaccinations.map((vax) => (
-                <div key={vax.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={vax.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
                   <div className="flex items-center gap-4">
-                    <Syringe className="h-8 w-8 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{vax.vaccineName}</p>
+                    <Syringe className="h-8 w-8 text-muted-foreground shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{vax.vaccineName}</p>
                       <p className="text-sm text-muted-foreground">{vax.species} • {vax.dosage}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm">{new Date(vax.dateAdministered).toLocaleDateString()}</p>
-                    {vax.nextDueDate && (
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        Next: {new Date(vax.nextDueDate).toLocaleDateString()}
-                      </p>
-                    )}
+                  <div className="flex items-center justify-between sm:justify-end gap-3">
+                    <div className="text-right hidden sm:block">
+                      <p className="text-sm">{new Date(vax.dateAdministered).toLocaleDateString()}</p>
+                      {vax.nextDueDate && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Next: {new Date(vax.nextDueDate).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -554,17 +567,30 @@ function VaccinationsPage() {
           ) : (
             <div className="space-y-4">
               {treatments.map((treatment) => (
-                <div key={treatment.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={treatment.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
                   <div className="flex items-center gap-4">
-                    <Pill className="h-8 w-8 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{treatment.medicationName}</p>
+                    <Pill className="h-8 w-8 text-muted-foreground shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{treatment.medicationName}</p>
                       <p className="text-sm text-muted-foreground">{treatment.species} • {treatment.reason}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm">{new Date(treatment.date).toLocaleDateString()}</p>
-                    <Badge variant="outline" className="text-xs">{treatment.withdrawalDays} day withdrawal</Badge>
+                  <div className="flex items-center justify-between sm:justify-end gap-3">
+                    <div className="text-right hidden sm:block">
+                      <p className="text-sm">{new Date(treatment.date).toLocaleDateString()}</p>
+                      <Badge variant="outline" className="text-xs">{treatment.withdrawalDays} day withdrawal</Badge>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

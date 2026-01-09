@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getBatchesForFarm, getInventorySummary, createBatch, getSpeciesOptions } from '~/lib/batches/server'
+import { getBatchesForFarm, getInventorySummary, createBatch } from '~/lib/batches/server'
+import { getSpeciesOptions } from '~/lib/batches/constants'
 import { requireAuth } from '~/lib/auth/middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
@@ -18,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, Users, TrendingUp, AlertTriangle, Fish, Bird } from 'lucide-react'
+import { Plus, Users, TrendingUp, AlertTriangle, Fish, Bird, Eye, Edit, Trash2 } from 'lucide-react'
 import { useFarm } from '~/components/farm-context'
 import { useEffect, useState } from 'react'
 
@@ -40,12 +41,12 @@ interface Batch {
 interface InventorySummary {
   poultry: { batches: number; quantity: number; investment: number }
   fish: { batches: number; quantity: number; investment: number }
-  overall: { 
+  overall: {
     totalBatches: number
     activeBatches: number
     depletedBatches: number
     totalQuantity: number
-    totalInvestment: number 
+    totalInvestment: number
   }
 }
 
@@ -109,8 +110,8 @@ interface BatchSearchParams {
 export const Route = createFileRoute('/batches')({
   component: BatchesPage,
   validateSearch: (search: Record<string, unknown>): BatchSearchParams => ({
-    status: typeof search.status === 'string' && ['active', 'depleted', 'sold'].includes(search.status) 
-      ? search.status as 'active' | 'depleted' | 'sold' 
+    status: typeof search.status === 'string' && ['active', 'depleted', 'sold'].includes(search.status)
+      ? search.status as 'active' | 'depleted' | 'sold'
       : undefined,
     livestockType: typeof search.livestockType === 'string' && ['poultry', 'fish'].includes(search.livestockType)
       ? search.livestockType as 'poultry' | 'fish'
@@ -133,6 +134,16 @@ function BatchesPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  // View/Edit/Delete dialog states
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null)
+  const [editFormData, setEditFormData] = useState({
+    currentQuantity: '',
+    status: 'active' as 'active' | 'depleted' | 'sold',
+  })
 
   const speciesOptions = getSpeciesOptions(formData.livestockType)
 
@@ -172,7 +183,7 @@ function BatchesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFarmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -201,6 +212,44 @@ function BatchesPage() {
     if (type && (type === 'poultry' || type === 'fish')) {
       setFormData(prev => ({ ...prev, livestockType: type, species: '' }))
     }
+  }
+
+  const handleViewBatch = (batch: Batch) => {
+    setSelectedBatch(batch)
+    setViewDialogOpen(true)
+  }
+
+  const handleEditBatch = (batch: Batch) => {
+    setSelectedBatch(batch)
+    setEditFormData({
+      currentQuantity: batch.currentQuantity.toString(),
+      status: batch.status,
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleDeleteBatch = (batch: Batch) => {
+    setSelectedBatch(batch)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedBatch) return
+
+    // TODO: Implement update batch action
+    console.log('Update batch:', selectedBatch.id, editFormData)
+    setEditDialogOpen(false)
+    loadData()
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedBatch) return
+
+    // TODO: Implement delete batch action
+    console.log('Delete batch:', selectedBatch.id)
+    setDeleteDialogOpen(false)
+    loadData()
   }
 
   const { batches, summary } = data
@@ -372,48 +421,48 @@ function BatchesPage() {
 
       {/* Summary Cards */}
       {summary && (
-        <div className="grid gap-6 md:grid-cols-4 mb-8">
+        <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-4 mb-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Livestock</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Livestock</CardTitle>
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.overall.totalQuantity.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">{summary.overall.activeBatches} active batches</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{summary.overall.totalQuantity.toLocaleString()}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.overall.activeBatches} active batches</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Poultry</CardTitle>
-              <Bird className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Poultry</CardTitle>
+              <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.poultry.quantity.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">{summary.poultry.batches} batches</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{summary.poultry.quantity.toLocaleString()}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.poultry.batches} batches</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Fish</CardTitle>
-              <Fish className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Fish</CardTitle>
+              <Fish className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.fish.quantity.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">{summary.fish.batches} batches</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{summary.fish.quantity.toLocaleString()}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.fish.batches} batches</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Investment</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Investment</CardTitle>
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNaira(summary.overall.totalInvestment)}</div>
-              <p className="text-xs text-muted-foreground">{summary.overall.depletedBatches} depleted batches</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{formatNaira(summary.overall.totalInvestment)}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.overall.depletedBatches} depleted batches</p>
             </CardContent>
           </Card>
         </div>
@@ -492,7 +541,7 @@ function BatchesPage() {
                   <div className="flex flex-col gap-1">
                     <Badge variant={
                       batch.status === 'active' ? 'default' :
-                      batch.status === 'depleted' ? 'destructive' : 'secondary'
+                        batch.status === 'depleted' ? 'destructive' : 'secondary'
                     }>
                       {batch.status}
                     </Badge>
@@ -523,17 +572,187 @@ function BatchesPage() {
                     <span className="text-muted-foreground">Acquisition Date:</span>
                     <span>{new Date(batch.acquisitionDate).toLocaleDateString()}</span>
                   </div>
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 min-h-[44px]"
+                      onClick={() => handleViewBatch(batch)}
+                    >
+                      <Eye className="h-4 w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">View</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 min-h-[44px]"
+                      onClick={() => handleEditBatch(batch)}
+                    >
+                      <Edit className="h-4 w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Edit</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-destructive hover:text-destructive min-h-[44px] px-3"
+                      onClick={() => handleDeleteBatch(batch)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                
-                <div className="flex gap-2 mt-4">
-                  <Button variant="default" size="sm" className="flex-1">View Details</Button>
-                  <Button variant="outline" size="sm" className="flex-1">Edit</Button>
-                </div>
+
+
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      {/* View Batch Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Batch Details</DialogTitle>
+          </DialogHeader>
+          {selectedBatch && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                {selectedBatch.livestockType === 'poultry' ? <Bird className="h-5 w-5" /> : <Fish className="h-5 w-5" />}
+                <div>
+                  <p className="font-semibold text-lg capitalize">{selectedBatch.species}</p>
+                  <p className="text-sm text-muted-foreground">{selectedBatch.livestockType}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Status:</span>
+                  <Badge variant={
+                    selectedBatch.status === 'active' ? 'default' :
+                    selectedBatch.status === 'depleted' ? 'destructive' : 'secondary'
+                  }>
+                    {selectedBatch.status}
+                  </Badge>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Current Quantity:</span>
+                  <span className="font-medium">{selectedBatch.currentQuantity.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Initial Quantity:</span>
+                  <span>{selectedBatch.initialQuantity.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Cost per Unit:</span>
+                  <span>{formatNaira(selectedBatch.costPerUnit)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total Cost:</span>
+                  <span className="font-medium">{formatNaira(selectedBatch.totalCost)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Acquisition Date:</span>
+                  <span>{new Date(selectedBatch.acquisitionDate).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => {
+                  setViewDialogOpen(false)
+                  handleEditBatch(selectedBatch)
+                }}>
+                  Edit Batch
+                </Button>
+                <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Batch Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Batch</DialogTitle>
+            <DialogDescription>Update batch information</DialogDescription>
+          </DialogHeader>
+          {selectedBatch && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Species</Label>
+                <Input value={selectedBatch.species} disabled />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-current-quantity">Current Quantity</Label>
+                <Input
+                  id="edit-current-quantity"
+                  type="number"
+                  min="0"
+                  value={editFormData.currentQuantity}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, currentQuantity: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-status">Status</Label>
+                <Select
+                  value={editFormData.status}
+                  onValueChange={(value) => {
+                    if (value === 'active' || value === 'depleted' || value === 'sold') {
+                      setEditFormData(prev => ({ ...prev, status: value }))
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="depleted">Depleted</SelectItem>
+                    <SelectItem value="sold">Sold</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Batch</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this batch? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBatch && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-lg">
+                <p className="font-medium capitalize">{selectedBatch.species}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedBatch.currentQuantity.toLocaleString()} units • {selectedBatch.livestockType}
+                </p>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button variant="destructive" onClick={handleDeleteConfirm}>
+                  Delete Batch
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

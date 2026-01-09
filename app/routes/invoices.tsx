@@ -57,55 +57,49 @@ function InvoicesPage() {
             </Link>
           </div>
         ) : (
-          <div className="bg-card rounded-lg border overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="text-left py-3 px-4 font-medium">Invoice #</th>
-                    <th className="text-left py-3 px-4 font-medium">Customer</th>
-                    <th className="text-left py-3 px-4 font-medium">Date</th>
-                    <th className="text-left py-3 px-4 font-medium">Due Date</th>
-                    <th className="text-right py-3 px-4 font-medium">Amount</th>
-                    <th className="text-left py-3 px-4 font-medium">Status</th>
-                    <th className="text-right py-3 px-4 font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoices.map((invoice) => (
-                    <tr key={invoice.id} className="border-b last:border-0 hover:bg-muted/30">
-                      <td className="py-3 px-4 font-mono">{invoice.invoiceNumber}</td>
-                      <td className="py-3 px-4">{invoice.customerName}</td>
-                      <td className="py-3 px-4">{new Date(invoice.date).toLocaleDateString()}</td>
-                      <td className="py-3 px-4">
-                        {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : '-'}
-                      </td>
-                      <td className="py-3 px-4 text-right font-medium">
-                        {formatNaira(parseFloat(invoice.totalAmount))}
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
-                          invoice.status === 'partial' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
-                          {invoice.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <Link
-                          to={`/invoices/${invoice.id}`}
-                          className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-8 px-3"
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {invoices.map((invoice) => (
+              <div key={invoice.id} className="bg-card rounded-lg border overflow-hidden">
+                <div className="p-4 border-b">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-sm font-medium">{invoice.invoiceNumber}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
+                      invoice.status === 'partial' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {invoice.status}
+                    </span>
+                  </div>
+                  <p className="font-medium truncate">{invoice.customerName}</p>
+                </div>
+                <div className="p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Date:</span>
+                    <span>{new Date(invoice.date).toLocaleDateString()}</span>
+                  </div>
+                  {invoice.dueDate && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Due:</span>
+                      <span>{new Date(invoice.dueDate).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm pt-2 border-t">
+                    <span className="text-muted-foreground font-medium">Amount:</span>
+                    <span className="font-bold">{formatNaira(parseFloat(invoice.totalAmount))}</span>
+                  </div>
+                </div>
+                <div className="p-4 pt-0">
+                  <Link
+                    to={`/invoices/${invoice.id}`}
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-4 w-full"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </main>

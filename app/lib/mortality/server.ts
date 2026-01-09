@@ -1,5 +1,6 @@
 import { db } from '../db'
 import { getBatchById } from '../batches/server'
+import { getUserFarms } from '../auth/middleware'
 
 export interface CreateMortalityData {
   batchId: string
@@ -125,13 +126,13 @@ export async function getMortalityStats(userId: string, batchId: string) {
   const recentMortality = Number(recentStats?.recent_mortality || 0)
 
   // Calculate mortality rate
-  const mortalityRate = batch.initialQuantity > 0 
-    ? (totalMortality / batch.initialQuantity) * 100 
+  const mortalityRate = batch.initialQuantity > 0
+    ? (totalMortality / batch.initialQuantity) * 100
     : 0
 
   // Calculate recent mortality rate
-  const recentMortalityRate = batch.initialQuantity > 0 
-    ? (recentMortality / batch.initialQuantity) * 100 
+  const recentMortalityRate = batch.initialQuantity > 0
+    ? (recentMortality / batch.initialQuantity) * 100
     : 0
 
   return {
@@ -164,8 +165,8 @@ export async function getMortalityStats(userId: string, batchId: string) {
  * Get mortality trends for a batch (daily/weekly/monthly)
  */
 export async function getMortalityTrends(
-  userId: string, 
-  batchId: string, 
+  userId: string,
+  batchId: string,
   period: 'daily' | 'weekly' | 'monthly' = 'daily',
   days: number = 30
 ) {
@@ -210,14 +211,25 @@ export async function getMortalityTrends(
 }
 
 /**
- * Get mortality alerts for a farm
+ * Get mortality alerts for a farm or all farms
  */
-export async function getMortalityAlerts(_userId: string, farmId: string) {
-  // Get all active batches for the farm
+export async function getMortalityAlerts(userId: string, farmId?: string) {
+  // Determine target farms
+  let targetFarmIds: string[] = []
+  if (farmId) {
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) {
+      return []
+    }
+  }
+
+  // Get all active batches for the target farms
   const batches = await db
     .selectFrom('batches')
     .selectAll()
-    .where('farmId', '=', farmId)
+    .where('farmId', 'in', targetFarmIds)
     .where('status', '=', 'active')
     .execute()
 
@@ -235,8 +247,8 @@ export async function getMortalityAlerts(_userId: string, farmId: string) {
       .executeTakeFirst()
 
     const recentQuantity = Number(recentMortality?.quantity || 0)
-    const recentRate = batch.initialQuantity > 0 
-      ? (recentQuantity / batch.initialQuantity) * 100 
+    const recentRate = batch.initialQuantity > 0
+      ? (recentQuantity / batch.initialQuantity) * 100
       : 0
 
     // Alert if mortality rate > 5% in last 7 days
@@ -253,8 +265,8 @@ export async function getMortalityAlerts(_userId: string, farmId: string) {
     }
 
     // Alert if batch is nearly depleted (< 10% remaining)
-    const remainingPercentage = batch.initialQuantity > 0 
-      ? (batch.currentQuantity / batch.initialQuantity) * 100 
+    const remainingPercentage = batch.initialQuantity > 0
+      ? (batch.currentQuantity / batch.initialQuantity) * 100
       : 0
 
     if (remainingPercentage < 10 && remainingPercentage > 0) {

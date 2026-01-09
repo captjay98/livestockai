@@ -26,11 +26,11 @@ export function FarmSelector({ className }: FarmSelectorProps) {
       try {
         const farmData = await getFarms()
         setFarms(farmData)
-        
-        // Auto-select first farm if none selected
-        if (!selectedFarmId && farmData.length > 0) {
-          setSelectedFarmId(farmData[0].id)
-        }
+
+        // Auto-select logic removed to default to "All Farms" (null)
+        // if (!selectedFarmId && farmData.length > 0) {
+        //   setSelectedFarmId(farmData[0].id)
+        // }
       } catch (error) {
         console.error('Failed to load farms:', error)
       } finally {
@@ -63,15 +63,18 @@ export function FarmSelector({ className }: FarmSelectorProps) {
     <div className={cn('flex items-center gap-2', className)}>
       <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
       <Select
-        value={selectedFarmId || undefined}
-        onValueChange={(value) => value && setSelectedFarmId(value)}
+        value={selectedFarmId || 'all'}
+        onValueChange={(value) => setSelectedFarmId(value === 'all' ? null : value)}
       >
         <SelectTrigger className="flex-1">
           <SelectValue>
-            {selectedFarmId ? farms.find(f => f.id === selectedFarmId)?.name : 'Select farm'}
+            {selectedFarmId
+              ? farms.find(f => f.id === selectedFarmId)?.name
+              : 'All Farms'}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="all">All Farms</SelectItem>
           {farms.map((farm) => (
             <SelectItem key={farm.id} value={farm.id}>
               {farm.name}

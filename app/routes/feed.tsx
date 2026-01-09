@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getFeedRecordsForFarm, createFeedRecord, FEED_TYPES } from '~/lib/feed/server'
+import { getFeedRecordsForFarm, createFeedRecord, getFeedInventory } from '~/lib/feed/server'
+import { FEED_TYPES } from '~/lib/feed/constants'
 import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { formatNaira } from '~/lib/currency'
@@ -19,7 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, Wheat, TrendingUp, Package } from 'lucide-react'
+import { Plus, Wheat, TrendingUp, Package, Eye, Edit, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useFarm } from '~/components/farm-context'
 
@@ -42,9 +43,16 @@ interface Batch {
   status: string
 }
 
+interface FeedInventory {
+  feedType: string
+  quantityKg: string
+  minThresholdKg: string
+}
+
 interface FeedData {
   records: FeedRecord[]
   batches: Batch[]
+  inventory: FeedInventory[]
   summary: {
     totalQuantityKg: number
     totalCost: number
@@ -57,18 +65,20 @@ const getFeedDataForFarm = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const [records, allBatches] = await Promise.all([
+      const [records, allBatches, inventory] = await Promise.all([
         getFeedRecordsForFarm(session.user.id, data.farmId),
         getBatchesForFarm(session.user.id, data.farmId),
+        getFeedInventory(session.user.id, data.farmId),
       ])
-      
+
       const batches = allBatches.filter(b => b.status === 'active')
       const totalQuantityKg = records.reduce((sum, r) => sum + parseFloat(r.quantityKg), 0)
       const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
-      
-      return { 
-        records, 
+
+      return {
+        records,
         batches,
+        inventory,
         summary: { totalQuantityKg, totalCost, recordCount: records.length },
       }
     } catch (error) {
@@ -113,7 +123,7 @@ export const Route = createFileRoute('/feed')({
 
 function FeedPage() {
   const { selectedFarmId } = useFarm()
-  const [data, setData] = useState<FeedData>({ records: [], batches: [], summary: null })
+  const [data, setData] = useState<FeedData>({ records: [], batches: [], inventory: [], summary: null })
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
@@ -128,7 +138,7 @@ function FeedPage() {
 
   const loadData = async () => {
     if (!selectedFarmId) {
-      setData({ records: [], batches: [], summary: null })
+      setData({ records: [], batches: [], inventory: [], summary: null })
       setIsLoading(false)
       return
     }
@@ -162,7 +172,7 @@ function FeedPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFarmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -187,7 +197,7 @@ function FeedPage() {
     }
   }
 
-  const { records, batches, summary } = data
+  const { records, batches, inventory, summary } = data
 
   if (!selectedFarmId) {
     return (
@@ -335,7 +345,14 @@ function FeedPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !formData.batchId || !formData.feedType || !formData.quantityKg || !formData.cost}
+                  disabled={
+                    isSubmitting ||
+                    !formData.batchId ||
+                    !formData.feedType ||
+                    !formData.quantityKg ||
+                    !formData.cost ||
+                    (parseFloat(formData.quantityKg) > (parseFloat(inventory.find(i => i.feedType === formData.feedType)?.quantityKg || '0')))
+                  }
                 >
                   {isSubmitting ? 'Recording...' : 'Record Feed'}
                 </Button>
@@ -345,42 +362,78 @@ function FeedPage() {
         </Dialog>
       </div>
 
+      {inventory.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Package className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-semibold">Stock Levels</h2>
+          </div>
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+            {inventory.map((item) => {
+              const qty = parseFloat(item.quantityKg)
+              const threshold = parseFloat(item.minThresholdKg)
+              const isLow = qty <= threshold
+              const label = FEED_TYPES.find(t => t.value === item.feedType)?.label || item.feedType
+
+              return (
+                <Card key={item.feedType} className={isLow ? 'border-destructive/50 bg-destructive/5' : ''}>
+                  <CardHeader className="p-3 pb-0">
+                    <CardTitle className="text-xs uppercase text-muted-foreground">{label}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-3 pt-1">
+                    <div className="flex items-baseline gap-1">
+                      <span className={`text-xl font-bold ${isLow ? 'text-destructive' : ''}`}>
+                        {qty.toLocaleString()}
+                      </span>
+                      <span className="text-xs text-muted-foreground">kg</span>
+                    </div>
+                    {isLow && (
+                      <p className="text-[10px] text-destructive font-medium mt-1 uppercase">Low Stock</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {summary && (
-        <div className="grid gap-6 md:grid-cols-3 mb-8">
+        <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-3 mb-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Feed Used</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Feed Used</CardTitle>
+              <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.totalQuantityKg.toLocaleString()} kg</div>
-              <p className="text-xs text-muted-foreground">{summary.recordCount} records</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{summary.totalQuantityKg.toLocaleString()} kg</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.recordCount} records</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Feed Cost</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Feed Cost</CardTitle>
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNaira(summary.totalCost)}</div>
-              <p className="text-xs text-muted-foreground">All time</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{formatNaira(summary.totalCost)}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">All time</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Cost per kg</CardTitle>
-              <Wheat className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Avg Cost per kg</CardTitle>
+              <Wheat className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {summary.totalQuantityKg > 0 
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">
+                {summary.totalQuantityKg > 0
                   ? formatNaira(summary.totalCost / summary.totalQuantityKg)
                   : '₦0.00'}
               </div>
-              <p className="text-xs text-muted-foreground">Per kilogram</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Per kilogram</p>
             </CardContent>
           </Card>
         </div>
@@ -407,24 +460,32 @@ function FeedPage() {
           <CardContent>
             <div className="space-y-4">
               {records.map((record) => (
-                <div key={record.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={record.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
                   <div className="flex items-center gap-4">
-                    <Wheat className="h-8 w-8 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium capitalize">{record.species}</p>
+                    <Wheat className="h-8 w-8 text-muted-foreground shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-medium capitalize truncate">{record.species}</p>
                       <p className="text-sm text-muted-foreground">
                         {FEED_TYPES.find(t => t.value === record.feedType)?.label || record.feedType}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium">{parseFloat(record.quantityKg).toLocaleString()} kg</p>
-                    <p className="text-sm text-muted-foreground">{formatNaira(record.cost)}</p>
-                  </div>
-                  <div className="text-right">
-                    <Badge variant="outline">
-                      {new Date(record.date).toLocaleDateString()}
-                    </Badge>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-right">
+                      <p className="font-medium">{parseFloat(record.quantityKg).toLocaleString()} kg</p>
+                      <p className="text-sm text-muted-foreground">{formatNaira(record.cost)}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

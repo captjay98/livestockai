@@ -23,6 +23,7 @@ export interface Database {
   suppliers: SupplierTable
   invoices: InvoiceTable
   invoice_items: InvoiceItemTable
+  feed_inventory: FeedInventoryTable
 }
 
 // User & Auth - Better Auth tables use camelCase
@@ -200,6 +201,7 @@ export interface SaleTable {
 export interface ExpenseTable {
   id: Generated<string>
   farmId: string
+  batchId: string | null
   category: 'feed' | 'medicine' | 'equipment' | 'utilities' | 'labor' | 'transport' | 'other'
   amount: string  // DECIMAL(19,2) - returned as string from pg
   date: Date
@@ -207,6 +209,15 @@ export interface ExpenseTable {
   supplierId: string | null
   isRecurring: boolean
   createdAt: Generated<Date>
+}
+
+export interface FeedInventoryTable {
+  id: Generated<string>
+  farmId: string
+  feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+  quantityKg: string // DECIMAL(10,2)
+  minThresholdKg: string // DECIMAL(10,2)
+  updatedAt: Generated<Date>
 }
 
 // Contacts

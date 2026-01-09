@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, ShoppingCart, TrendingUp, Bird, Fish, Egg } from 'lucide-react'
+import { Plus, ShoppingCart, TrendingUp, Bird, Fish, Egg, Eye, Edit, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useFarm } from '~/components/farm-context'
 
@@ -139,6 +139,17 @@ function SalesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
+  // View/Edit/Delete dialog states
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null)
+  const [editFormData, setEditFormData] = useState({
+    quantity: '',
+    unitPrice: '',
+    customerId: '',
+  })
+
   const loadData = async () => {
     if (!selectedFarmId) {
       setData({ sales: [], summary: null, batches: [], customers: [] })
@@ -200,6 +211,45 @@ function SalesPage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleViewSale = (sale: Sale) => {
+    setSelectedSale(sale)
+    setViewDialogOpen(true)
+  }
+
+  const handleEditSale = (sale: Sale) => {
+    setSelectedSale(sale)
+    setEditFormData({
+      quantity: sale.quantity.toString(),
+      unitPrice: sale.unitPrice,
+      customerId: '',
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleDeleteSale = (sale: Sale) => {
+    setSelectedSale(sale)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedSale) return
+
+    // TODO: Implement update sale action
+    console.log('Update sale:', selectedSale.id, editFormData)
+    setEditDialogOpen(false)
+    loadData()
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedSale) return
+
+    // TODO: Implement delete sale action
+    console.log('Delete sale:', selectedSale.id)
+    setDeleteDialogOpen(false)
+    loadData()
   }
 
   const { sales, summary, batches, customers } = data
@@ -417,48 +467,48 @@ function SalesPage() {
       </div>
 
       {summary && (
-        <div className="grid gap-6 md:grid-cols-4 mb-8">
+        <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-4 mb-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Revenue</CardTitle>
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNaira(summary.total.revenue)}</div>
-              <p className="text-xs text-muted-foreground">{summary.total.count} sales</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{formatNaira(summary.total.revenue)}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.total.count} sales</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Poultry Sales</CardTitle>
-              <Bird className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Poultry Sales</CardTitle>
+              <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNaira(summary.poultry.revenue)}</div>
-              <p className="text-xs text-muted-foreground">{summary.poultry.quantity} birds sold</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{formatNaira(summary.poultry.revenue)}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.poultry.quantity} birds sold</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Fish Sales</CardTitle>
-              <Fish className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Fish Sales</CardTitle>
+              <Fish className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNaira(summary.fish.revenue)}</div>
-              <p className="text-xs text-muted-foreground">{summary.fish.quantity} fish sold</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{formatNaira(summary.fish.revenue)}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.fish.quantity} fish sold</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Egg Sales</CardTitle>
-              <Egg className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Egg Sales</CardTitle>
+              <Egg className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNaira(summary.eggs.revenue)}</div>
-              <p className="text-xs text-muted-foreground">{summary.eggs.quantity} eggs sold</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{formatNaira(summary.eggs.revenue)}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.eggs.quantity} eggs sold</p>
             </CardContent>
           </Card>
         </div>
@@ -483,37 +533,218 @@ function SalesPage() {
             <CardDescription>Recent sales transactions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {sales.map((sale) => (
-                <div key={sale.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                <div key={sale.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
                       {getTypeIcon(sale.livestockType)}
                     </div>
-                    <div>
-                      <p className="font-medium capitalize">
+                    <div className="min-w-0">
+                      <p className="font-medium capitalize truncate">
                         {sale.batchSpecies || sale.livestockType}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">
                         {sale.customerName || 'Walk-in customer'} • {sale.quantity} units
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium">{formatNaira(sale.totalAmount)}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {formatNaira(sale.unitPrice)}/unit
-                    </p>
+                  <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
+                    <div className="text-right hidden sm:block">
+                      <p className="font-medium">{formatNaira(sale.totalAmount)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatNaira(sale.unitPrice)}/unit
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="shrink-0 hidden sm:block">
+                      {new Date(sale.date).toLocaleDateString()}
+                    </Badge>
+                    <div className="flex gap-1 sm:gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                        onClick={() => handleViewSale(sale)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                        onClick={() => handleEditSale(sale)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]"
+                        onClick={() => handleDeleteSale(sale)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <Badge variant="outline">
-                    {new Date(sale.date).toLocaleDateString()}
-                  </Badge>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* View Sale Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Sale Details</DialogTitle>
+          </DialogHeader>
+          {selectedSale && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                  {getTypeIcon(selectedSale.livestockType)}
+                </div>
+                <div>
+                  <p className="font-semibold text-lg capitalize">
+                    {selectedSale.batchSpecies || selectedSale.livestockType}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{selectedSale.livestockType}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Customer:</span>
+                  <span className="font-medium">{selectedSale.customerName || 'Walk-in'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Quantity:</span>
+                  <span className="font-medium">{selectedSale.quantity.toLocaleString()} units</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Unit Price:</span>
+                  <span>{formatNaira(selectedSale.unitPrice)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total Amount:</span>
+                  <span className="font-bold text-lg">{formatNaira(selectedSale.totalAmount)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Date:</span>
+                  <span>{new Date(selectedSale.date).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => {
+                  setViewDialogOpen(false)
+                  handleEditSale(selectedSale)
+                }}>
+                  Edit Sale
+                </Button>
+                <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Sale Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Sale</DialogTitle>
+            <DialogDescription>Update sale information</DialogDescription>
+          </DialogHeader>
+          {selectedSale && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Product</Label>
+                <Input value={selectedSale.batchSpecies || selectedSale.livestockType} disabled />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-quantity">Quantity</Label>
+                <Input
+                  id="edit-quantity"
+                  type="number"
+                  min="1"
+                  value={editFormData.quantity}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, quantity: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-unit-price">Unit Price (₦)</Label>
+                <Input
+                  id="edit-unit-price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editFormData.unitPrice}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, unitPrice: e.target.value }))}
+                  required
+                />
+              </div>
+              {customers.length > 0 && (
+                <div className="space-y-2">
+                  <Label htmlFor="edit-customer">Customer (Optional)</Label>
+                  <Select
+                    value={editFormData.customerId}
+                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, customerId: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue>{editFormData.customerId ? customers.find(c => c.id === editFormData.customerId)?.name : 'Keep existing'}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Keep existing customer</SelectItem>
+                      {customers.map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          {customer.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Sale</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this sale? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedSale && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-lg">
+                <p className="font-medium capitalize">{selectedSale.batchSpecies || selectedSale.livestockType}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedSale.quantity} units • {formatNaira(selectedSale.totalAmount)}
+                </p>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button variant="destructive" onClick={handleDeleteConfirm}>
+                  Delete Sale
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

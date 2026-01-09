@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getSupplierWithExpenses, deleteSupplier } from '~/lib/suppliers/server'
-import { ArrowLeft, Phone, Mail, MapPin, Package, Trash2 } from 'lucide-react'
+import { ArrowLeft, Phone, Mail, MapPin, Package, Trash2, Edit } from 'lucide-react'
 import { formatNaira } from '~/lib/currency'
 
 interface Expense {
@@ -80,8 +80,14 @@ function SupplierDetailPage() {
           </div>
           <div className="flex gap-2">
             <button
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-10 px-4 min-h-[44px]"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </button>
+            <button
               onClick={handleDelete}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground h-10 px-4"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground h-10 px-4 min-h-[44px]"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete

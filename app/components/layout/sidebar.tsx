@@ -22,17 +22,23 @@ export function Sidebar({ className, onClose }: SidebarProps) {
   return (
     <div
       className={cn(
-        'flex flex-col h-full bg-sidebar border-r border-sidebar-border text-sidebar-foreground',
+        'flex flex-col h-full text-sidebar-foreground transition-all duration-300',
         className,
       )}
     >
-      <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2" onClick={onClose}>
-            <div className="bg-primary/10 p-2 rounded-lg">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            to="/"
+            className="flex items-center gap-3 transition-transform hover:scale-[1.02]"
+            onClick={onClose}
+          >
+            <div className="bg-primary/15 p-2.5 rounded-lg shadow-sm ring-1 ring-primary/20">
               <Building2 className="h-6 w-6 text-primary" />
             </div>
-            <span className="font-bold text-xl tracking-tight">JayFarms</span>
+            <span className="font-bold text-xl tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+              JayFarms
+            </span>
           </Link>
           {onClose && (
             <Button variant="ghost" size="icon" onClick={onClose} className="md:hidden">
@@ -40,14 +46,12 @@ export function Sidebar({ className, onClose }: SidebarProps) {
             </Button>
           )}
         </div>
+
+        <FarmSelector className="w-full shadow-sm rounded-lg" />
       </div>
 
-      <div className="px-3 py-3 border-b border-sidebar-border">
-        <FarmSelector className="w-full" />
-      </div>
-
-      <div className="flex-1 overflow-y-auto py-4 px-3">
-        <nav className="space-y-1">
+      <div className="flex-1 overflow-y-auto px-4 py-2 no-scrollbar">
+        <nav className="space-y-1.5">
           {navigation.map((item) => {
             const isActive =
               location.pathname.startsWith(item.href) &&
@@ -59,13 +63,18 @@ export function Sidebar({ className, onClose }: SidebarProps) {
                 to={item.href}
                 onClick={onClose}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                  'group flex items-center gap-3.5 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200',
                   isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
+                    ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
+                    : 'text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:translate-x-1',
                 )}
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon
+                  className={cn(
+                    "h-5 w-5 transition-colors",
+                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                  )}
+                />
                 {item.name}
               </Link>
             )
@@ -73,14 +82,14 @@ export function Sidebar({ className, onClose }: SidebarProps) {
         </nav>
       </div>
 
-      <div className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center justify-between mb-4 px-2">
+      <div className="p-4 m-4 mt-2 bg-sidebar-accent rounded-lg border border-sidebar-border shadow-sm">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-              <User className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-background border border-border shadow-sm flex items-center justify-center shrink-0">
+              <User className="h-5 w-5 text-muted-foreground" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium truncate">{userName}</p>
+              <p className="text-sm font-semibold truncate">{userName}</p>
               {userEmail && (
                 <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
               )}
@@ -91,7 +100,7 @@ export function Sidebar({ className, onClose }: SidebarProps) {
         <Link to="/login" onClick={onClose}>
           <Button
             variant="outline"
-            className="w-full justify-start gap-2"
+            className="w-full justify-start gap-2 rounded-lg bg-background/50 hover:bg-background border-border/50"
             size="sm"
           >
             <LogOut className="h-4 w-4" />

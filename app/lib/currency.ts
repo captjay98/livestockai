@@ -87,6 +87,21 @@ export function parseNaira(nairaString: string): Decimal | null {
 }
 
 /**
+ * Format amount as compact number (e.g., "1.5K", "2.3M", "8,500")
+ * @param num Number to format
+ * @returns Compact formatted number string
+ */
+export function formatCompactNumber(num: number): string {
+  if (num >= 1_000_000) {
+    return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
+  } else if (num >= 1_000) {
+    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K'
+  } else {
+    return num.toLocaleString()
+  }
+}
+
+/**
  * Format amount as compact currency (e.g., "₦1.5K", "₦2.3M")
  * @param amount Amount in Naira
  * @returns Compact formatted currency string

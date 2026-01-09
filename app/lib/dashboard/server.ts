@@ -1,5 +1,6 @@
 import { db } from '~/lib/db'
 import { sql } from 'kysely'
+import { getUserFarms } from '../auth/middleware'
 
 export interface DashboardStats {
   inventory: {
@@ -11,6 +12,8 @@ export interface DashboardStats {
     monthlyRevenue: number
     monthlyExpenses: number
     monthlyProfit: number
+    revenueChange: number
+    expensesChange: number
   }
   production: {
     eggsThisMonth: number
@@ -32,69 +35,100 @@ export interface DashboardStats {
   }>
 }
 
-export async function getDashboardStats(farmId?: string): Promise<DashboardStats> {
+export async function getDashboardStats(userId: string, farmId?: string): Promise<DashboardStats> {
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
+  // Determine target farms
+  let targetFarmIds: string[] = []
+  if (farmId) {
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) {
+      // Return empty stats if no farms
+      return {
+        inventory: { totalPoultry: 0, totalFish: 0, activeBatches: 0 },
+        financial: { monthlyRevenue: 0, monthlyExpenses: 0, monthlyProfit: 0 },
+        production: { eggsThisMonth: 0, layingPercentage: 0 },
+        alerts: { highMortality: [], upcomingVaccinations: [], overdueVaccinations: [], waterQualityAlerts: [] },
+        topCustomers: [],
+        recentTransactions: [],
+      }
+    }
+  }
+
   // Inventory summary
-  let batchQuery = db
+  const inventoryByType = await db
     .selectFrom('batches')
     .select([
       'livestockType',
       sql<number>`SUM(CAST("currentQuantity" AS INTEGER))`.as('total'),
     ])
     .where('status', '=', 'active')
+    .where('farmId', 'in', targetFarmIds)
     .groupBy('livestockType')
-
-  if (farmId) {
-    batchQuery = batchQuery.where('farmId', '=', farmId)
-  }
-
-  const inventoryByType = await batchQuery.execute()
+    .execute()
 
   const totalPoultry = inventoryByType.find(i => i.livestockType === 'poultry')?.total || 0
   const totalFish = inventoryByType.find(i => i.livestockType === 'fish')?.total || 0
 
-  let activeBatchesQuery = db
+  const activeBatchesResult = await db
     .selectFrom('batches')
     .select(sql<number>`COUNT(*)`.as('count'))
     .where('status', '=', 'active')
-
-  if (farmId) {
-    activeBatchesQuery = activeBatchesQuery.where('farmId', '=', farmId)
-  }
-
-  const activeBatchesResult = await activeBatchesQuery.executeTakeFirst()
+    .where('farmId', 'in', targetFarmIds)
+    .executeTakeFirst()
   const activeBatches = Number(activeBatchesResult?.count || 0)
 
   // Monthly revenue
-  let salesQuery = db
+  const salesResult = await db
     .selectFrom('sales')
     .select(sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as('total'))
     .where('date', '>=', startOfMonth)
     .where('date', '<=', endOfMonth)
-
-  if (farmId) {
-    salesQuery = salesQuery.where('farmId', '=', farmId)
-  }
-
-  const salesResult = await salesQuery.executeTakeFirst()
+    .where('farmId', 'in', targetFarmIds)
+    .executeTakeFirst()
   const monthlyRevenue = parseFloat(salesResult?.total || '0')
 
+  // Previous month revenue
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
+  const prevMonthSalesResult = await db
+    .selectFrom('sales')
+    .select(sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as('total'))
+    .where('date', '>=', prevMonthStart)
+    .where('date', '<=', prevMonthEnd)
+    .where('farmId', 'in', targetFarmIds)
+    .executeTakeFirst()
+  const prevMonthRevenue = parseFloat(prevMonthSalesResult?.total || '0')
+  const revenueChange = prevMonthRevenue > 0 
+    ? ((monthlyRevenue - prevMonthRevenue) / prevMonthRevenue) * 100 
+    : 0
+
   // Monthly expenses
-  let expensesQuery = db
+  const expensesResult = await db
     .selectFrom('expenses')
     .select(sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)`.as('total'))
     .where('date', '>=', startOfMonth)
     .where('date', '<=', endOfMonth)
-
-  if (farmId) {
-    expensesQuery = expensesQuery.where('farmId', '=', farmId)
-  }
-
-  const expensesResult = await expensesQuery.executeTakeFirst()
+    .where('farmId', 'in', targetFarmIds)
+    .executeTakeFirst()
   const monthlyExpenses = parseFloat(expensesResult?.total || '0')
+
+  // Previous month expenses
+  const prevMonthExpensesResult = await db
+    .selectFrom('expenses')
+    .select(sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)`.as('total'))
+    .where('date', '>=', prevMonthStart)
+    .where('date', '<=', prevMonthEnd)
+    .where('farmId', 'in', targetFarmIds)
+    .executeTakeFirst()
+  const prevMonthExpenses = parseFloat(prevMonthExpensesResult?.total || '0')
+  const expensesChange = prevMonthExpenses > 0 
+    ? ((monthlyExpenses - prevMonthExpenses) / prevMonthExpenses) * 100 
+    : 0
 
   // Egg production this month
   const eggsQuery = await db
@@ -105,7 +139,7 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
     ])
     .where('egg_records.date', '>=', startOfMonth)
     .where('egg_records.date', '<=', endOfMonth)
-    .$if(!!farmId, (qb) => qb.where('batches.farmId', '=', farmId!))
+    .where('batches.farmId', 'in', targetFarmIds)
     .executeTakeFirst()
 
   const eggsThisMonth = Number(eggsQuery?.totalEggs || 0)
@@ -116,13 +150,13 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
     .select(sql<number>`COALESCE(SUM("currentQuantity"), 0)`.as('total'))
     .where('species', 'ilike', '%layer%')
     .where('status', '=', 'active')
-    .$if(!!farmId, (qb) => qb.where('farmId', '=', farmId!))
+    .where('farmId', 'in', targetFarmIds)
     .executeTakeFirst()
 
   const layerBirds = Number(layerBirdsQuery?.total || 0)
   const daysInMonth = endOfMonth.getDate()
-  const layingPercentage = layerBirds > 0 
-    ? (eggsThisMonth / (layerBirds * daysInMonth)) * 100 
+  const layingPercentage = layerBirds > 0
+    ? (eggsThisMonth / (layerBirds * daysInMonth)) * 100
     : 0
 
   // High mortality batches (>5% mortality rate)
@@ -136,7 +170,7 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
       sql<number>`COALESCE(SUM(mortality_records.quantity), 0)`.as('totalDeaths'),
     ])
     .where('batches.status', '=', 'active')
-    .$if(!!farmId, (qb) => qb.where('batches.farmId', '=', farmId!))
+    .where('batches.farmId', 'in', targetFarmIds)
     .groupBy(['batches.id', 'batches.species', 'batches.initialQuantity'])
     .execute()
 
@@ -165,7 +199,7 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
     ])
     .where('vaccinations.nextDueDate', '>=', now)
     .where('vaccinations.nextDueDate', '<=', sevenDaysFromNow)
-    .$if(!!farmId, (qb) => qb.where('batches.farmId', '=', farmId!))
+    .where('batches.farmId', 'in', targetFarmIds)
     .orderBy('vaccinations.nextDueDate', 'asc')
     .limit(5)
     .execute()
@@ -182,7 +216,7 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
     ])
     .where('vaccinations.nextDueDate', '<', now)
     .where('batches.status', '=', 'active')
-    .$if(!!farmId, (qb) => qb.where('batches.farmId', '=', farmId!))
+    .where('batches.farmId', 'in', targetFarmIds)
     .orderBy('vaccinations.nextDueDate', 'asc')
     .limit(5)
     .execute()
@@ -200,16 +234,16 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
       'water_quality.ammoniaMgL',
     ])
     .where('batches.status', '=', 'active')
-    .$if(!!farmId, (qb) => qb.where('batches.farmId', '=', farmId!))
+    .where('batches.farmId', 'in', targetFarmIds)
     .orderBy('water_quality.date', 'desc')
     .limit(10)
     .execute()
 
   for (const record of recentWaterRecords) {
-    const ph = parseFloat(record.ph)
-    const temp = parseFloat(record.temperatureCelsius)
-    const oxygen = parseFloat(record.dissolvedOxygenMgL)
-    const ammonia = parseFloat(record.ammoniaMgL)
+    const ph = parseFloat(String(record.ph))
+    const temp = parseFloat(String(record.temperatureCelsius))
+    const oxygen = parseFloat(String(record.dissolvedOxygenMgL))
+    const ammonia = parseFloat(String(record.ammoniaMgL))
 
     if (ph < 6.5 || ph > 9.0) {
       waterAlerts.push({ batchId: record.batchId, parameter: 'pH', value: ph })
@@ -225,7 +259,7 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
     }
   }
 
-  // Top customers
+  // Top customers - join with sales to filter by farmId
   const topCustomers = await db
     .selectFrom('customers')
     .leftJoin('sales', 'sales.customerId', 'customers.id')
@@ -234,6 +268,10 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
       'customers.name',
       sql<string>`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`.as('totalSpent'),
     ])
+    .where((eb) => eb.or([
+      eb('sales.farmId', 'in', targetFarmIds),
+      eb('sales.farmId', 'is', null) // Avoid excluding customers with no sales in join if we want them? No, we want top customers for these farms.
+    ]))
     .groupBy(['customers.id', 'customers.name'])
     .orderBy(sql`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`, 'desc')
     .limit(5)
@@ -249,7 +287,7 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
       'totalAmount as amount',
       'date',
     ])
-    .$if(!!farmId, (qb) => qb.where('farmId', '=', farmId!))
+    .where('farmId', 'in', targetFarmIds)
     .orderBy('date', 'desc')
     .limit(5)
     .execute()
@@ -263,7 +301,7 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
       'amount',
       'date',
     ])
-    .$if(!!farmId, (qb) => qb.where('farmId', '=', farmId!))
+    .where('farmId', 'in', targetFarmIds)
     .orderBy('date', 'desc')
     .limit(5)
     .execute()
@@ -273,7 +311,7 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
       id: t.id,
       type: t.type as 'sale' | 'expense',
       description: t.description,
-      amount: parseFloat(t.amount),
+      amount: parseFloat(String(t.amount)),
       date: t.date,
     }))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -289,6 +327,8 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
       monthlyRevenue,
       monthlyExpenses,
       monthlyProfit: monthlyRevenue - monthlyExpenses,
+      revenueChange: Math.round(revenueChange * 10) / 10,
+      expensesChange: Math.round(expensesChange * 10) / 10,
     },
     production: {
       eggsThisMonth,
@@ -309,7 +349,7 @@ export async function getDashboardStats(farmId?: string): Promise<DashboardStats
     topCustomers: topCustomers.map(c => ({
       id: c.id,
       name: c.name,
-      totalSpent: parseFloat(c.totalSpent),
+      totalSpent: parseFloat(String(c.totalSpent)),
     })),
     recentTransactions,
   }

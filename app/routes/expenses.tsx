@@ -2,8 +2,10 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getExpensesForFarm, getExpensesSummary, createExpense } from '~/lib/expenses/server'
 import { EXPENSE_CATEGORIES } from '~/lib/expenses/constants'
-import { getSuppliers } from '~/lib/suppliers/server'
 import { requireAuth } from '~/lib/auth/middleware'
+import { getSuppliers } from '~/lib/suppliers/server'
+import { getBatchesForFarm } from '~/lib/batches/server'
+import { FEED_TYPES } from '~/lib/feed/constants'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
@@ -32,6 +34,9 @@ interface Expense {
   description: string
   supplierName: string | null
   isRecurring: boolean
+  batchId: string | null
+  batchSpecies: string | null
+  batchType: string | null
 }
 
 interface Supplier {
@@ -49,6 +54,7 @@ interface ExpensesData {
   expenses: Expense[]
   summary: ExpensesSummary | null
   suppliers: Supplier[]
+  batches: Array<{ id: string, species: string, livestockType: string, status: string }>
 }
 
 const getExpensesDataForFarm = createServerFn({ method: 'GET' })
@@ -56,12 +62,13 @@ const getExpensesDataForFarm = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const [expenses, summary, suppliers] = await Promise.all([
+      const [expenses, summary, suppliers, batches] = await Promise.all([
         getExpensesForFarm(session.user.id, data.farmId),
         getExpensesSummary(session.user.id, data.farmId),
         getSuppliers(),
+        getBatchesForFarm(session.user.id, data.farmId),
       ])
-      return { expenses, summary, suppliers }
+      return { expenses, summary, suppliers, batches }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -77,8 +84,11 @@ const createExpenseAction = createServerFn({ method: 'POST' })
     amount: number
     date: string
     description: string
+    batchId?: string
     supplierId?: string
     isRecurring?: boolean
+    feedType?: string
+    feedQuantityKg?: number
   }) => data)
   .handler(async ({ data }) => {
     try {
@@ -89,8 +99,11 @@ const createExpenseAction = createServerFn({ method: 'POST' })
         amount: data.amount,
         date: new Date(data.date),
         description: data.description,
+        batchId: data.batchId || null,
         supplierId: data.supplierId || null,
         isRecurring: data.isRecurring || false,
+        feedType: data.feedType as any,
+        feedQuantityKg: data.feedQuantityKg,
       })
       return { success: true, id }
     } catch (error) {
@@ -107,23 +120,26 @@ export const Route = createFileRoute('/expenses')({
 
 function ExpensesPage() {
   const { selectedFarmId } = useFarm()
-  const [data, setData] = useState<ExpensesData>({ expenses: [], summary: null, suppliers: [] })
+  const [data, setData] = useState<ExpensesData>({ expenses: [], summary: null, suppliers: [], batches: [] })
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
     category: '',
+    description: '',
     amount: '',
     date: new Date().toISOString().split('T')[0],
-    description: '',
+    batchId: '',
     supplierId: '',
     isRecurring: false,
+    feedType: '',
+    feedQuantityKg: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   const loadData = async () => {
     if (!selectedFarmId) {
-      setData({ expenses: [], summary: null, suppliers: [] })
+      setData({ expenses: [], summary: null, suppliers: [], batches: [] })
       setIsLoading(false)
       return
     }
@@ -146,11 +162,14 @@ function ExpensesPage() {
   const resetForm = () => {
     setFormData({
       category: '',
+      description: '',
       amount: '',
       date: new Date().toISOString().split('T')[0],
-      description: '',
+      batchId: '',
       supplierId: '',
       isRecurring: false,
+      feedType: '',
+      feedQuantityKg: '',
     })
     setError('')
   }
@@ -158,7 +177,7 @@ function ExpensesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFarmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -170,8 +189,11 @@ function ExpensesPage() {
           amount: parseFloat(formData.amount),
           date: formData.date,
           description: formData.description,
+          batchId: formData.batchId || undefined,
           supplierId: formData.supplierId || undefined,
           isRecurring: formData.isRecurring,
+          feedType: formData.category === 'feed' ? formData.feedType : undefined,
+          feedQuantityKg: formData.category === 'feed' ? parseFloat(formData.feedQuantityKg) : undefined,
         }
       })
       setDialogOpen(false)
@@ -184,7 +206,7 @@ function ExpensesPage() {
     }
   }
 
-  const { expenses, summary, suppliers } = data
+  const { expenses, summary, suppliers, batches } = data
 
   if (!selectedFarmId) {
     return (
@@ -278,6 +300,61 @@ function ExpensesPage() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="batchId">Batch (Optional)</Label>
+                <Select
+                  value={formData.batchId}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, batchId: value || '' }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select batch'}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None (General Farm Expense)</SelectItem>
+                    {batches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id}>
+                        {batch.species} ({batch.status})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {formData.category === 'feed' && (
+                <div className="grid grid-cols-2 gap-4 border p-3 rounded-lg bg-muted/30">
+                  <div className="space-y-2">
+                    <Label htmlFor="feedType">Feed Type</Label>
+                    <Select
+                      value={formData.feedType}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, feedType: value || '' }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue>{formData.feedType ? FEED_TYPES.find(t => t.value === formData.feedType)?.label : 'Select feed'}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FEED_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="feedQuantityKg">Quantity (kg)</Label>
+                    <Input
+                      id="feedQuantityKg"
+                      type="number"
+                      step="0.1"
+                      value={formData.feedQuantityKg}
+                      onChange={(e) => setFormData(prev => ({ ...prev, feedQuantityKg: e.target.value }))}
+                      placeholder="kg"
+                      required={formData.category === 'feed'}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
                 <Label htmlFor="amount">Amount (₦)</Label>
                 <Input
                   id="amount"
@@ -359,27 +436,27 @@ function ExpensesPage() {
       </div>
 
       {summary && (
-        <div className="grid gap-6 md:grid-cols-4 mb-8">
+        <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-4 mb-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-              <TrendingDown className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Expenses</CardTitle>
+              <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNaira(summary.total.amount)}</div>
-              <p className="text-xs text-muted-foreground">{summary.total.count} transactions</p>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{formatNaira(summary.total.amount)}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.total.count} transactions</p>
             </CardContent>
           </Card>
 
           {Object.entries(summary.byCategory).slice(0, 3).map(([category, catData]) => (
             <Card key={category}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{getCategoryLabel(category)}</CardTitle>
-                <Receipt className="h-4 w-4 text-muted-foreground" />
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+                <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">{getCategoryLabel(category)}</CardTitle>
+                <Receipt className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatNaira(catData.amount)}</div>
-                <p className="text-xs text-muted-foreground">{catData.count} transactions</p>
+              <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+                <div className="text-lg sm:text-2xl font-bold">{formatNaira(catData.amount)}</div>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{catData.count} transactions</p>
               </CardContent>
             </Card>
           ))}
@@ -412,9 +489,22 @@ function ExpensesPage() {
                     <Receipt className="h-8 w-8 text-muted-foreground" />
                     <div>
                       <p className="font-medium">{expense.description}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground flex items-center gap-1 flex-wrap">
                         {getCategoryLabel(expense.category)}
-                        {expense.supplierName && ` • ${expense.supplierName}`}
+                        {expense.batchSpecies && (
+                          <>
+                            <span className="text-muted-foreground/50 mx-1">•</span>
+                            <Badge variant="secondary" className="px-1 py-0 h-4 text-[10px] bg-primary/10 text-primary border-primary/20">
+                              {expense.batchSpecies}
+                            </Badge>
+                          </>
+                        )}
+                        {expense.supplierName && (
+                          <>
+                            <span className="text-muted-foreground/50 mx-1">•</span>
+                            {expense.supplierName}
+                          </>
+                        )}
                       </p>
                     </div>
                   </div>

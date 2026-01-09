@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getWaterQualityForFarm, getWaterQualityAlerts, createWaterQualityRecord, WATER_QUALITY_THRESHOLDS } from '~/lib/water-quality/server'
+import { getWaterQualityForFarm, getWaterQualityAlerts, createWaterQualityRecord } from '~/lib/water-quality/server'
+import { WATER_QUALITY_THRESHOLDS } from '~/lib/water-quality/constants'
 import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
@@ -18,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, Droplets, AlertTriangle } from 'lucide-react'
+import { Plus, Droplets, AlertTriangle, Eye, Edit, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useFarm } from '~/components/farm-context'
 
@@ -163,7 +164,7 @@ function WaterQualityPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFarmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -192,7 +193,7 @@ function WaterQualityPage() {
   const getWarning = (field: string, value: string): string | null => {
     if (!value) return null
     const num = parseFloat(value)
-    
+
     switch (field) {
       case 'ph':
         if (num < t.ph.min) return `Below safe range (min: ${t.ph.min})`
@@ -406,13 +407,12 @@ function WaterQualityPage() {
           <CardContent>
             <div className="space-y-3">
               {alerts.map((alert) => (
-                <div 
-                  key={alert.batchId} 
-                  className={`p-3 rounded-md border ${
-                    alert.severity === 'critical' 
-                      ? 'bg-destructive/10 border-destructive/20' 
+                <div
+                  key={alert.batchId}
+                  className={`p-3 rounded-md border ${alert.severity === 'critical'
+                      ? 'bg-destructive/10 border-destructive/20'
                       : 'bg-warning/10 border-warning/20'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <p className={`font-medium ${alert.severity === 'critical' ? 'text-destructive' : 'text-warning'}`}>
@@ -441,22 +441,22 @@ function WaterQualityPage() {
           <CardDescription>Optimal water quality parameters for fish</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="p-3 bg-muted rounded-md">
-              <p className="text-sm font-medium">pH Level</p>
-              <p className="text-lg">{t.ph.min} - {t.ph.max}</p>
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4">
+            <div className="p-2 sm:p-3 bg-muted rounded-md">
+              <p className="text-[10px] sm:text-sm font-medium">pH Level</p>
+              <p className="text-base sm:text-lg">{t.ph.min} - {t.ph.max}</p>
             </div>
-            <div className="p-3 bg-muted rounded-md">
-              <p className="text-sm font-medium">Temperature</p>
-              <p className="text-lg">{t.temperature.min}°C - {t.temperature.max}°C</p>
+            <div className="p-2 sm:p-3 bg-muted rounded-md">
+              <p className="text-[10px] sm:text-sm font-medium">Temperature</p>
+              <p className="text-base sm:text-lg">{t.temperature.min}°C - {t.temperature.max}°C</p>
             </div>
-            <div className="p-3 bg-muted rounded-md">
-              <p className="text-sm font-medium">Dissolved Oxygen</p>
-              <p className="text-lg">&gt; {t.dissolvedOxygen.min} mg/L</p>
+            <div className="p-2 sm:p-3 bg-muted rounded-md">
+              <p className="text-[10px] sm:text-sm font-medium">Dissolved Oxygen</p>
+              <p className="text-base sm:text-lg">&gt; {t.dissolvedOxygen.min} mg/L</p>
             </div>
-            <div className="p-3 bg-muted rounded-md">
-              <p className="text-sm font-medium">Ammonia</p>
-              <p className="text-lg">&lt; {t.ammonia.max} mg/L</p>
+            <div className="p-2 sm:p-3 bg-muted rounded-md">
+              <p className="text-[10px] sm:text-sm font-medium">Ammonia</p>
+              <p className="text-base sm:text-lg">&lt; {t.ammonia.max} mg/L</p>
             </div>
           </div>
         </CardContent>
@@ -488,21 +488,34 @@ function WaterQualityPage() {
                 const temp = parseFloat(record.temperatureCelsius)
                 const oxygen = parseFloat(record.dissolvedOxygenMgL)
                 const ammonia = parseFloat(record.ammoniaMgL)
-                
-                const hasIssue = 
+
+                const hasIssue =
                   ph < t.ph.min || ph > t.ph.max ||
                   temp < t.temperature.min || temp > t.temperature.max ||
                   oxygen < t.dissolvedOxygen.min ||
                   ammonia > t.ammonia.max
 
                 return (
-                  <div key={record.id} className={`p-4 border rounded-lg ${hasIssue ? 'border-warning' : ''}`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Droplets className="h-5 w-5 text-muted-foreground" />
-                        <span className="font-medium capitalize">{record.species}</span>
+                  <div key={record.id} className={`p-3 sm:p-4 border rounded-lg ${hasIssue ? 'border-warning' : ''}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Droplets className="h-5 w-5 text-muted-foreground shrink-0" />
+                        <span className="font-medium capitalize truncate">{record.species}</span>
                       </div>
-                      <Badge variant="outline">{new Date(record.date).toLocaleDateString()}</Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="hidden sm:inline-block">{new Date(record.date).toLocaleDateString()}</Badge>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                     <div className="grid grid-cols-4 gap-4 text-sm">
                       <div>

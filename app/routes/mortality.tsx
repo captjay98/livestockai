@@ -340,37 +340,37 @@ function MortalityPage() {
       </div>
 
       {/* Alert Summary */}
-      <div className="grid gap-6 md:grid-cols-3 mb-8">
+      <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-3 mb-8">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Critical Alerts</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-destructive" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Critical Alerts</CardTitle>
+            <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{criticalAlerts.length}</div>
-            <p className="text-xs text-muted-foreground">Require immediate attention</p>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold text-destructive">{criticalAlerts.length}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Require immediate attention</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Warning Alerts</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-warning" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Warning Alerts</CardTitle>
+            <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-warning" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning">{warningAlerts.length}</div>
-            <p className="text-xs text-muted-foreground">Monitor closely</p>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold text-warning">{warningAlerts.length}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Monitor closely</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Alerts</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Alerts</CardTitle>
+            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{alerts.length}</div>
-            <p className="text-xs text-muted-foreground">Active monitoring alerts</p>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{alerts.length}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Active monitoring alerts</p>
           </CardContent>
         </Card>
       </div>
@@ -461,31 +461,31 @@ function MortalityPage() {
           <CardDescription>Common mortality tracking tasks</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <Button variant="outline" className="h-auto p-4" onClick={() => setDialogOpen(true)}>
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
+            <Button variant="outline" className="h-auto p-3 sm:p-4" onClick={() => setDialogOpen(true)}>
               <div className="text-center">
-                <Plus className="h-6 w-6 mx-auto mb-2" />
-                <div className="font-medium">Record Mortality</div>
-                <div className="text-xs text-muted-foreground">Add new mortality record</div>
+                <Plus className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2" />
+                <div className="font-medium text-sm">Record Mortality</div>
+                <div className="text-[10px] text-muted-foreground hidden sm:block">Add new mortality record</div>
               </div>
             </Button>
 
             <Link to="/batches">
-              <Button variant="outline" className="h-auto p-4 w-full">
+              <Button variant="outline" className="h-auto p-3 sm:p-4 w-full">
                 <div className="text-center">
-                  <Users className="h-6 w-6 mx-auto mb-2" />
-                  <div className="font-medium">View Batches</div>
-                  <div className="text-xs text-muted-foreground">Monitor active batches</div>
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2" />
+                  <div className="font-medium text-sm">View Batches</div>
+                  <div className="text-[10px] text-muted-foreground hidden sm:block">Monitor active batches</div>
                 </div>
               </Button>
             </Link>
 
             <Link to="/reports">
-              <Button variant="outline" className="h-auto p-4 w-full">
+              <Button variant="outline" className="h-auto p-3 sm:p-4 w-full col-span-2 sm:col-span-1">
                 <div className="text-center">
-                  <TrendingDown className="h-6 w-6 mx-auto mb-2" />
-                  <div className="font-medium">Mortality Report</div>
-                  <div className="text-xs text-muted-foreground">Generate detailed reports</div>
+                  <TrendingDown className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2" />
+                  <div className="font-medium text-sm">Mortality Report</div>
+                  <div className="text-[10px] text-muted-foreground hidden sm:block">Generate detailed reports</div>
                 </div>
               </Button>
             </Link>

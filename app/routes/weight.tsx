@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, Scale, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Plus, Scale, TrendingUp, AlertTriangle, Eye, Edit, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useFarm } from '~/components/farm-context'
 
@@ -373,39 +373,39 @@ function WeightPage() {
         </Card>
       )}
 
-      <div className="grid gap-6 md:grid-cols-3 mb-8">
+      <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-3 mb-8">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Samples</CardTitle>
-            <Scale className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Samples</CardTitle>
+            <Scale className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{samples.length}</div>
-            <p className="text-xs text-muted-foreground">Weight records</p>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{samples.length}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Weight records</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Growth Alerts</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Growth Alerts</CardTitle>
+            <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{alerts.length}</div>
-            <p className="text-xs text-muted-foreground">{criticalAlerts.length} critical, {warningAlerts.length} warning</p>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{alerts.length}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">{criticalAlerts.length} critical, {warningAlerts.length} warning</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Latest Weight</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Latest Weight</CardTitle>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">
               {samples.length > 0 ? `${parseFloat(samples[0].averageWeightKg).toFixed(2)} kg` : 'N/A'}
             </div>
-            <p className="text-xs text-muted-foreground">{samples.length > 0 ? samples[0].species : 'No samples'}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">{samples.length > 0 ? samples[0].species : 'No samples'}</p>
           </CardContent>
         </Card>
       </div>
@@ -429,21 +429,33 @@ function WeightPage() {
             <CardDescription>Recent weight measurements</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {samples.map((sample) => (
-                <div key={sample.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <Scale className="h-8 w-8 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium capitalize">{sample.species}</p>
-                      <p className="text-sm text-muted-foreground">Sample size: {sample.sampleSize} {sample.livestockType}</p>
+                <div key={sample.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+                  <div className="flex items-center gap-3">
+                    <Scale className="h-8 w-8 text-muted-foreground shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-medium capitalize truncate">{sample.species}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Sample size: {sample.sampleSize} {sample.livestockType}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium text-lg">{parseFloat(sample.averageWeightKg).toFixed(2)} kg</p>
-                    <p className="text-sm text-muted-foreground">Average weight</p>
+                  <div className="flex items-center justify-between sm:justify-end gap-3">
+                    <div className="text-right hidden sm:block">
+                      <p className="font-medium text-lg">{parseFloat(sample.averageWeightKg).toFixed(2)} kg</p>
+                      <p className="text-sm text-muted-foreground">Average weight</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <Badge variant="outline">{new Date(sample.date).toLocaleDateString()}</Badge>
                 </div>
               ))}
             </div>

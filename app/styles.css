@@ -1,201 +1,246 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import "tailwindcss";
+@import 'tw-animate-css';
 @import '@fontsource-variable/inter';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.13 0.02 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.13 0.02 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.13 0.02 260);
-  --primary: oklch(0.48 0.16 260);
-  --primary-foreground: oklch(0.98 0.01 260);
-  --secondary: oklch(0.96 0.01 260);
-  --secondary-foreground: oklch(0.35 0.04 260);
-  --muted: oklch(0.96 0.01 260);
-  --muted-foreground: oklch(0.5 0.04 260);
-  --accent: oklch(0.94 0.02 260);
-  --accent-foreground: oklch(0.2 0.04 260);
-  --destructive: oklch(0.6 0.18 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --success: oklch(0.65 0.15 150);
-  --success-foreground: oklch(0.98 0 0);
-  --warning: oklch(0.82 0.12 85);
-  --warning-foreground: oklch(0.2 0.04 85);
-  --border: oklch(0.92 0.01 260);
-  --input: oklch(0.92 0.01 260);
-  --ring: oklch(0.48 0.16 260);
+  /* AYU LIGHT THEME */
+  --background: #fbfbfb;
+  /* Start slightly off-white for warmth */
+  --foreground: #5c6166;
+  /* Ayu Light UI FG */
 
-  --chart-1: oklch(0.48 0.16 260);
-  --chart-2: oklch(0.55 0.18 300);
-  --chart-3: oklch(0.6 0.15 220);
-  --chart-4: oklch(0.65 0.18 30);
-  --chart-5: oklch(0.7 0.15 80);
+  --card: #ffffff;
+  --card-foreground: #5c6166;
 
-  --radius: 0.625rem;
+  --popover: #ffffff;
+  --popover-foreground: #5c6166;
 
-  --sidebar: oklch(0.99 0 0);
-  --sidebar-foreground: oklch(0.13 0.02 260);
-  --sidebar-primary: oklch(0.48 0.16 260);
-  --sidebar-primary-foreground: oklch(0.98 0.01 260);
-  --sidebar-accent: oklch(0.94 0.02 260);
-  --sidebar-accent-foreground: oklch(0.2 0.04 260);
-  --sidebar-border: oklch(0.92 0.01 260);
-  --sidebar-ring: oklch(0.48 0.16 260);
+  --primary: #ff9940;
+  /* Ayu Orange */
+  --primary-foreground: #ffffff;
+
+  --secondary: #e6b673;
+  /* Aligned with Ayu accent logic, or softer orange/yellow */
+  --secondary: #f3f4f5;
+  /* Using Ayu generic UI bg for secondary backgrounds */
+  --secondary-foreground: #5c6166;
+
+  --muted: #f3f4f5;
+  --muted-foreground: #828a95;
+  /* Lighter text */
+
+  --accent: #ff9940;
+  /* Keeping consistency with primary */
+  --accent-foreground: #ffffff;
+
+  --destructive: #ff3333;
+  /* Standard red */
+  --destructive-foreground: #ffffff;
+
+  --border: #e6e4e4;
+  /* Soft border */
+  --input: #e6e4e4;
+  --ring: #ff9940;
+
+  --radius: 0.4rem;
+  /* Slightly reduced squircle for "sleek" vs "bubbly" */
+
+  /* 3D Glassmorphism Variables */
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-highlight: rgba(255, 255, 255, 0.5);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+  --depth-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+
+  --sidebar: #f8f9fa;
+  --sidebar-foreground: #5c6166;
+  --sidebar-primary: #ff9940;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f3f4f5;
+  --sidebar-accent-foreground: #5c6166;
+  --sidebar-border: #e6e4e4;
+  --sidebar-ring: #ff9940;
+}
+
+@utility glass {
+  background: color-mix(in srgb, var(--background) 70%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+}
+
+@utility depth-3d {
+  box-shadow: var(--depth-shadow);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@utility depth-3d-hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+}
+
+@utility depth-3d-active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
 }
 
 .dark {
-  --background: oklch(0.12 0.01 260);
-  --foreground: oklch(0.92 0.01 260);
-  --card: oklch(0.14 0.01 260);
-  --card-foreground: oklch(0.92 0.01 260);
-  --popover: oklch(0.14 0.01 260);
-  --popover-foreground: oklch(0.92 0.01 260);
-  --primary: oklch(0.6 0.18 260);
-  --primary-foreground: oklch(0.12 0.01 260);
-  --secondary: oklch(0.18 0.02 260);
-  --secondary-foreground: oklch(0.92 0.01 260);
-  --muted: oklch(0.18 0.02 260);
-  --muted-foreground: oklch(0.65 0.04 260);
-  --accent: oklch(0.18 0.02 260);
-  --accent-foreground: oklch(0.92 0.01 260);
-  --destructive: oklch(0.65 0.18 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --success: oklch(0.7 0.15 150);
-  --success-foreground: oklch(0.12 0.01 260);
-  --warning: oklch(0.85 0.12 85);
-  --warning-foreground: oklch(0.15 0.04 85);
-  --border: oklch(0.22 0.02 260);
-  --input: oklch(0.22 0.02 260);
-  --ring: oklch(0.6 0.18 260);
+  /* AYU DARK / MIRAGE THEME */
+  --background: #0b0e14;
+  /* Ayu Dark BG */
+  --foreground: #b3b1ad;
+  /* Ayu FG Common */
 
-  --chart-1: oklch(0.6 0.18 260);
-  --chart-2: oklch(0.65 0.2 300);
-  --chart-3: oklch(0.7 0.18 220);
-  --chart-4: oklch(0.75 0.2 30);
-  --chart-5: oklch(0.8 0.18 80);
+  --card: #151a21;
+  /* Slightly lighter than BG */
+  --card-foreground: #b3b1ad;
 
-  --sidebar: oklch(0.11 0.01 260);
-  --sidebar-foreground: oklch(0.92 0.01 260);
-  --sidebar-primary: oklch(0.6 0.18 260);
-  --sidebar-primary-foreground: oklch(0.98 0.01 260);
-  --sidebar-accent: oklch(0.18 0.02 260);
-  --sidebar-accent-foreground: oklch(0.92 0.01 260);
-  --sidebar-border: oklch(0.22 0.02 260);
-  --sidebar-ring: oklch(0.6 0.18 260);
+  --popover: #0b0e14;
+  --popover-foreground: #b3b1ad;
+
+  --primary: #ffb454;
+  /* Ayu Dark Orange */
+  --primary-foreground: #0b0e14;
+
+  --secondary: #1f2430;
+  /* Ayu Mirage BG */
+  --secondary-foreground: #b3b1ad;
+
+  --muted: #1f2430;
+  --muted-foreground: #707a8c;
+  /* Ayu Comment Color */
+
+  --accent: #ffb454;
+  --accent-foreground: #0b0e14;
+
+  --destructive: #ff5f5f;
+  /* Ayu Error Red-ish */
+  --destructive-foreground: #ffffff;
+
+  --border: #242936;
+  --input: #242936;
+  --ring: #ffb454;
+
+  --sidebar: #0f131a;
+  /* Just slightly off from main BG */
+  --sidebar-foreground: #b3b1ad;
+  --sidebar-primary: #ffb454;
+  --sidebar-primary-foreground: #0b0e14;
+  --sidebar-accent: #1f2430;
+  --sidebar-accent-foreground: #b3b1ad;
+  --sidebar-border: #242936;
+  --sidebar-ring: #ffb454;
 }
 
 @theme inline {
-  --font-sans: 'Inter Variable', sans-serif;
-
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-destructive: var(--destructive);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
   --color-background: var(--background);
-
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
-
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
 
   @keyframes accordion-down {
     from {
       height: 0;
     }
+
     to {
       height: var(--radix-accordion-content-height);
     }
   }
+
   @keyframes accordion-up {
     from {
       height: var(--radix-accordion-content-height);
     }
+
     to {
       height: 0;
     }
   }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these base styles to ensure your UI looks the same as before.
+*/
+@layer base {
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border, currentColor);
+  }
+}
+
+/* Base Styles */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply font-sans bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
-  }
-  html {
-    @apply font-sans;
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
   }
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Utilities */
+@utility card-hover {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 hover:bg-muted-foreground/40;
-}
-
-@utility mask-fade-right {
-  mask-image: linear-gradient(to right, black 85%, transparent 100%);
-}
-
-@utility no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+@utility soft-shadow {
+  box-shadow: 0 4px 20px -2px rgb(0 0 0 / 0.05), 0 0 0 1px rgb(0 0 0 / 0.02);
 }

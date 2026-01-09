@@ -32,18 +32,44 @@ export async function createFeedRecord(
     throw new Error('Batch not found or does not belong to this farm')
   }
 
-  const result = await db
-    .insertInto('feed_records')
-    .values({
-      batchId: input.batchId,
-      feedType: input.feedType,
-      quantityKg: input.quantityKg.toString(),
-      cost: input.cost.toString(),
-      date: input.date,
-      supplierId: input.supplierId || null,
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+  const result = await db.transaction().execute(async (tx) => {
+    // 1. Check current inventory
+    const inventory = await tx
+      .selectFrom('feed_inventory')
+      .select(['id', 'quantityKg'])
+      .where('farmId', '=', farmId)
+      .where('feedType', '=', input.feedType)
+      .executeTakeFirst()
+
+    if (!inventory || parseFloat(inventory.quantityKg) < input.quantityKg) {
+      throw new Error(`Insufficient inventory for ${input.feedType}. Available: ${inventory ? parseFloat(inventory.quantityKg) : 0}kg`)
+    }
+
+    // 2. Subtract from inventory
+    const newQuantity = (parseFloat(inventory.quantityKg) - input.quantityKg).toString()
+    await tx
+      .updateTable('feed_inventory')
+      .set({
+        quantityKg: newQuantity,
+        updatedAt: new Date()
+      })
+      .where('id', '=', inventory.id)
+      .execute()
+
+    // 3. Record the feed consumption
+    return await tx
+      .insertInto('feed_records')
+      .values({
+        batchId: input.batchId,
+        feedType: input.feedType,
+        quantityKg: input.quantityKg.toString(),
+        cost: input.cost.toString(),
+        date: input.date,
+        supplierId: input.supplierId || null,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
+  })
 
   return result.id
 }
@@ -191,4 +217,14 @@ export async function calculateFCR(
   const fcr = feedSummary.totalQuantityKg / totalWeightGain
 
   return Math.round(fcr * 100) / 100 // Round to 2 decimal places
+}
+
+export async function getFeedInventory(userId: string, farmId: string) {
+  await verifyFarmAccess(userId, farmId)
+
+  return db
+    .selectFrom('feed_inventory')
+    .selectAll()
+    .where('farmId', '=', farmId)
+    .execute()
 }
