@@ -1,15 +1,27 @@
-import { createFileRoute, useRouter, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
-import { createExpense, EXPENSE_CATEGORIES } from '~/lib/expenses/server'
+import { ArrowLeft } from 'lucide-react'
+import { EXPENSE_CATEGORIES, createExpense } from '~/lib/expenses/server'
 import { getSuppliers } from '~/lib/suppliers/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
-import { ArrowLeft } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 interface Supplier {
   id: string
@@ -31,15 +43,17 @@ const getFormData = createServerFn({ method: 'GET' }).handler(async () => {
 })
 
 const createExpenseAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    category: string
-    amount: number
-    date: string
-    description: string
-    supplierId?: string
-    isRecurring?: boolean
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      category: string
+      amount: number
+      date: string
+      description: string
+      supplierId?: string
+      isRecurring?: boolean
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -67,7 +81,9 @@ interface NewExpenseSearchParams {
 
 export const Route = createFileRoute('/expenses/new')({
   component: NewExpensePage,
-  validateSearch: (search: Record<string, unknown>): NewExpenseSearchParams => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): NewExpenseSearchParams => ({
     farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
   }),
   loader: () => getFormData(),
@@ -76,7 +92,7 @@ export const Route = createFileRoute('/expenses/new')({
 function NewExpensePage() {
   const router = useRouter()
   const search = Route.useSearch()
-  const { suppliers } = Route.useLoaderData() as { suppliers: Supplier[] }
+  const { suppliers } = Route.useLoaderData()
 
   const [formData, setFormData] = useState({
     category: '',
@@ -92,7 +108,7 @@ function NewExpensePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!search.farmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -106,7 +122,7 @@ function NewExpensePage() {
           description: formData.description,
           supplierId: formData.supplierId || undefined,
           isRecurring: formData.isRecurring,
-        }
+        },
       })
       router.navigate({ to: '/expenses', search: { farmId: search.farmId } })
     } catch (err) {
@@ -125,7 +141,9 @@ function NewExpensePage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Record Expense</h1>
-          <p className="text-muted-foreground mt-1">Log a new expense transaction</p>
+          <p className="text-muted-foreground mt-1">
+            Log a new expense transaction
+          </p>
         </div>
       </div>
 
@@ -140,10 +158,18 @@ function NewExpensePage() {
               <Label htmlFor="category">Category</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => value && setFormData(prev => ({ ...prev, category: value }))}
+                onValueChange={(value) =>
+                  value && setFormData((prev) => ({ ...prev, category: value }))
+                }
               >
                 <SelectTrigger>
-                  <SelectValue>{formData.category ? EXPENSE_CATEGORIES.find(c => c.value === formData.category)?.label : 'Select category'}</SelectValue>
+                  <SelectValue>
+                    {formData.category
+                      ? EXPENSE_CATEGORIES.find(
+                          (c) => c.value === formData.category,
+                        )?.label
+                      : 'Select category'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {EXPENSE_CATEGORIES.map((cat) => (
@@ -160,7 +186,12 @@ function NewExpensePage() {
               <Input
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 placeholder="e.g., 50 bags of starter feed"
                 required
               />
@@ -174,7 +205,9 @@ function NewExpensePage() {
                 min="0"
                 step="0.01"
                 value={formData.amount}
-                onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, amount: e.target.value }))
+                }
                 placeholder="Amount in Naira"
                 required
               />
@@ -186,7 +219,9 @@ function NewExpensePage() {
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 required
               />
             </div>
@@ -196,10 +231,20 @@ function NewExpensePage() {
                 <Label htmlFor="supplierId">Supplier (Optional)</Label>
                 <Select
                   value={formData.supplierId || undefined}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, supplierId: value || '' }))}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      supplierId: value || '',
+                    }))
+                  }
                 >
                   <SelectTrigger>
-                    <SelectValue>{formData.supplierId ? suppliers.find(s => s.id === formData.supplierId)?.name : 'Select supplier'}</SelectValue>
+                    <SelectValue>
+                      {formData.supplierId
+                        ? suppliers.find((s) => s.id === formData.supplierId)
+                            ?.name
+                        : 'Select supplier'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {suppliers.map((supplier) => (
@@ -217,7 +262,12 @@ function NewExpensePage() {
                 type="checkbox"
                 id="isRecurring"
                 checked={formData.isRecurring}
-                onChange={(e) => setFormData(prev => ({ ...prev, isRecurring: e.target.checked }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    isRecurring: e.target.checked,
+                  }))
+                }
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="isRecurring" className="text-sm font-normal">
@@ -232,12 +282,22 @@ function NewExpensePage() {
             )}
 
             <div className="flex gap-3">
-              <Button type="button" variant="outline" onClick={() => router.history.back()} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.history.back()}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.category || !formData.amount || !formData.description}
+                disabled={
+                  isSubmitting ||
+                  !formData.category ||
+                  !formData.amount ||
+                  !formData.description
+                }
               >
                 {isSubmitting ? 'Recording...' : 'Record Expense'}
               </Button>

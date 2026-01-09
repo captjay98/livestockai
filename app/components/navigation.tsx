@@ -1,22 +1,22 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import {
-  Building2,
-  Users,
-  TrendingDown,
   BarChart3,
+  Building2,
+  Droplets,
+  Egg,
+  FileText,
   Home,
   Menu,
-  X,
-  ShoppingCart,
   Receipt,
-  Wheat,
-  Egg,
   Scale,
+  ShoppingCart,
   Syringe,
-  Droplets,
-  UserCircle,
+  TrendingDown,
   Truck,
-  FileText,
+  UserCircle,
+  Users,
+  Wheat,
+  X,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '~/lib/utils'

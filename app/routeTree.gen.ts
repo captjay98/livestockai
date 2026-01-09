@@ -30,15 +30,18 @@ import { Route as FarmsIndexRouteImport } from './routes/farms.index'
 import { Route as WeightNewRouteImport } from './routes/weight.new'
 import { Route as WaterQualityNewRouteImport } from './routes/water-quality.new'
 import { Route as VaccinationsNewRouteImport } from './routes/vaccinations.new'
+import { Route as SuppliersNewRouteImport } from './routes/suppliers.new'
 import { Route as SuppliersSupplierIdRouteImport } from './routes/suppliers.$supplierId'
 import { Route as SalesNewRouteImport } from './routes/sales.new'
 import { Route as ReportsExportRouteImport } from './routes/reports.export'
+import { Route as InvoicesNewRouteImport } from './routes/invoices.new'
 import { Route as InvoicesInvoiceIdRouteImport } from './routes/invoices.$invoiceId'
 import { Route as FeedNewRouteImport } from './routes/feed.new'
 import { Route as FarmsNewRouteImport } from './routes/farms.new'
 import { Route as FarmsFarmIdRouteImport } from './routes/farms.$farmId'
 import { Route as ExpensesNewRouteImport } from './routes/expenses.new'
 import { Route as EggsNewRouteImport } from './routes/eggs.new'
+import { Route as CustomersNewRouteImport } from './routes/customers.new'
 import { Route as BatchesNewRouteImport } from './routes/batches.new'
 import { Route as FarmsFarmIdIndexRouteImport } from './routes/farms.$farmId.index'
 import { Route as FarmsFarmIdEditRouteImport } from './routes/farms.$farmId.edit'
@@ -148,6 +151,11 @@ const VaccinationsNewRoute = VaccinationsNewRouteImport.update({
   path: '/new',
   getParentRoute: () => VaccinationsRoute,
 } as any)
+const SuppliersNewRoute = SuppliersNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => SuppliersRoute,
+} as any)
 const SuppliersSupplierIdRoute = SuppliersSupplierIdRouteImport.update({
   id: '/$supplierId',
   path: '/$supplierId',
@@ -162,6 +170,11 @@ const ReportsExportRoute = ReportsExportRouteImport.update({
   id: '/export',
   path: '/export',
   getParentRoute: () => ReportsRoute,
+} as any)
+const InvoicesNewRoute = InvoicesNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => InvoicesRoute,
 } as any)
 const InvoicesInvoiceIdRoute = InvoicesInvoiceIdRouteImport.update({
   id: '/$invoiceId',
@@ -193,6 +206,11 @@ const EggsNewRoute = EggsNewRouteImport.update({
   path: '/new',
   getParentRoute: () => EggsRoute,
 } as any)
+const CustomersNewRoute = CustomersNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => CustomersRoute,
+} as any)
 const BatchesNewRoute = BatchesNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -212,7 +230,7 @@ const FarmsFarmIdEditRoute = FarmsFarmIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/batches': typeof BatchesRouteWithChildren
-  '/customers': typeof CustomersRoute
+  '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/eggs': typeof EggsRouteWithChildren
   '/expenses': typeof ExpensesRouteWithChildren
@@ -228,15 +246,18 @@ export interface FileRoutesByFullPath {
   '/water-quality': typeof WaterQualityRouteWithChildren
   '/weight': typeof WeightRouteWithChildren
   '/batches/new': typeof BatchesNewRoute
+  '/customers/new': typeof CustomersNewRoute
   '/eggs/new': typeof EggsNewRoute
   '/expenses/new': typeof ExpensesNewRoute
   '/farms/$farmId': typeof FarmsFarmIdRouteWithChildren
   '/farms/new': typeof FarmsNewRoute
   '/feed/new': typeof FeedNewRoute
   '/invoices/$invoiceId': typeof InvoicesInvoiceIdRoute
+  '/invoices/new': typeof InvoicesNewRoute
   '/reports/export': typeof ReportsExportRoute
   '/sales/new': typeof SalesNewRoute
   '/suppliers/$supplierId': typeof SuppliersSupplierIdRoute
+  '/suppliers/new': typeof SuppliersNewRoute
   '/vaccinations/new': typeof VaccinationsNewRoute
   '/water-quality/new': typeof WaterQualityNewRoute
   '/weight/new': typeof WeightNewRoute
@@ -247,7 +268,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/batches': typeof BatchesRouteWithChildren
-  '/customers': typeof CustomersRoute
+  '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/eggs': typeof EggsRouteWithChildren
   '/expenses': typeof ExpensesRouteWithChildren
@@ -262,14 +283,17 @@ export interface FileRoutesByTo {
   '/water-quality': typeof WaterQualityRouteWithChildren
   '/weight': typeof WeightRouteWithChildren
   '/batches/new': typeof BatchesNewRoute
+  '/customers/new': typeof CustomersNewRoute
   '/eggs/new': typeof EggsNewRoute
   '/expenses/new': typeof ExpensesNewRoute
   '/farms/new': typeof FarmsNewRoute
   '/feed/new': typeof FeedNewRoute
   '/invoices/$invoiceId': typeof InvoicesInvoiceIdRoute
+  '/invoices/new': typeof InvoicesNewRoute
   '/reports/export': typeof ReportsExportRoute
   '/sales/new': typeof SalesNewRoute
   '/suppliers/$supplierId': typeof SuppliersSupplierIdRoute
+  '/suppliers/new': typeof SuppliersNewRoute
   '/vaccinations/new': typeof VaccinationsNewRoute
   '/water-quality/new': typeof WaterQualityNewRoute
   '/weight/new': typeof WeightNewRoute
@@ -281,7 +305,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/batches': typeof BatchesRouteWithChildren
-  '/customers': typeof CustomersRoute
+  '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/eggs': typeof EggsRouteWithChildren
   '/expenses': typeof ExpensesRouteWithChildren
@@ -297,15 +321,18 @@ export interface FileRoutesById {
   '/water-quality': typeof WaterQualityRouteWithChildren
   '/weight': typeof WeightRouteWithChildren
   '/batches/new': typeof BatchesNewRoute
+  '/customers/new': typeof CustomersNewRoute
   '/eggs/new': typeof EggsNewRoute
   '/expenses/new': typeof ExpensesNewRoute
   '/farms/$farmId': typeof FarmsFarmIdRouteWithChildren
   '/farms/new': typeof FarmsNewRoute
   '/feed/new': typeof FeedNewRoute
   '/invoices/$invoiceId': typeof InvoicesInvoiceIdRoute
+  '/invoices/new': typeof InvoicesNewRoute
   '/reports/export': typeof ReportsExportRoute
   '/sales/new': typeof SalesNewRoute
   '/suppliers/$supplierId': typeof SuppliersSupplierIdRoute
+  '/suppliers/new': typeof SuppliersNewRoute
   '/vaccinations/new': typeof VaccinationsNewRoute
   '/water-quality/new': typeof WaterQualityNewRoute
   '/weight/new': typeof WeightNewRoute
@@ -334,15 +361,18 @@ export interface FileRouteTypes {
     | '/water-quality'
     | '/weight'
     | '/batches/new'
+    | '/customers/new'
     | '/eggs/new'
     | '/expenses/new'
     | '/farms/$farmId'
     | '/farms/new'
     | '/feed/new'
     | '/invoices/$invoiceId'
+    | '/invoices/new'
     | '/reports/export'
     | '/sales/new'
     | '/suppliers/$supplierId'
+    | '/suppliers/new'
     | '/vaccinations/new'
     | '/water-quality/new'
     | '/weight/new'
@@ -368,14 +398,17 @@ export interface FileRouteTypes {
     | '/water-quality'
     | '/weight'
     | '/batches/new'
+    | '/customers/new'
     | '/eggs/new'
     | '/expenses/new'
     | '/farms/new'
     | '/feed/new'
     | '/invoices/$invoiceId'
+    | '/invoices/new'
     | '/reports/export'
     | '/sales/new'
     | '/suppliers/$supplierId'
+    | '/suppliers/new'
     | '/vaccinations/new'
     | '/water-quality/new'
     | '/weight/new'
@@ -402,15 +435,18 @@ export interface FileRouteTypes {
     | '/water-quality'
     | '/weight'
     | '/batches/new'
+    | '/customers/new'
     | '/eggs/new'
     | '/expenses/new'
     | '/farms/$farmId'
     | '/farms/new'
     | '/feed/new'
     | '/invoices/$invoiceId'
+    | '/invoices/new'
     | '/reports/export'
     | '/sales/new'
     | '/suppliers/$supplierId'
+    | '/suppliers/new'
     | '/vaccinations/new'
     | '/water-quality/new'
     | '/weight/new'
@@ -422,7 +458,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BatchesRoute: typeof BatchesRouteWithChildren
-  CustomersRoute: typeof CustomersRoute
+  CustomersRoute: typeof CustomersRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   EggsRoute: typeof EggsRouteWithChildren
   ExpensesRoute: typeof ExpensesRouteWithChildren
@@ -588,6 +624,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VaccinationsNewRouteImport
       parentRoute: typeof VaccinationsRoute
     }
+    '/suppliers/new': {
+      id: '/suppliers/new'
+      path: '/new'
+      fullPath: '/suppliers/new'
+      preLoaderRoute: typeof SuppliersNewRouteImport
+      parentRoute: typeof SuppliersRoute
+    }
     '/suppliers/$supplierId': {
       id: '/suppliers/$supplierId'
       path: '/$supplierId'
@@ -608,6 +651,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/reports/export'
       preLoaderRoute: typeof ReportsExportRouteImport
       parentRoute: typeof ReportsRoute
+    }
+    '/invoices/new': {
+      id: '/invoices/new'
+      path: '/new'
+      fullPath: '/invoices/new'
+      preLoaderRoute: typeof InvoicesNewRouteImport
+      parentRoute: typeof InvoicesRoute
     }
     '/invoices/$invoiceId': {
       id: '/invoices/$invoiceId'
@@ -651,6 +701,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EggsNewRouteImport
       parentRoute: typeof EggsRoute
     }
+    '/customers/new': {
+      id: '/customers/new'
+      path: '/new'
+      fullPath: '/customers/new'
+      preLoaderRoute: typeof CustomersNewRouteImport
+      parentRoute: typeof CustomersRoute
+    }
     '/batches/new': {
       id: '/batches/new'
       path: '/new'
@@ -685,6 +742,18 @@ const BatchesRouteChildren: BatchesRouteChildren = {
 
 const BatchesRouteWithChildren =
   BatchesRoute._addFileChildren(BatchesRouteChildren)
+
+interface CustomersRouteChildren {
+  CustomersNewRoute: typeof CustomersNewRoute
+}
+
+const CustomersRouteChildren: CustomersRouteChildren = {
+  CustomersNewRoute: CustomersNewRoute,
+}
+
+const CustomersRouteWithChildren = CustomersRoute._addFileChildren(
+  CustomersRouteChildren,
+)
 
 interface EggsRouteChildren {
   EggsNewRoute: typeof EggsNewRoute
@@ -748,10 +817,12 @@ const FeedRouteWithChildren = FeedRoute._addFileChildren(FeedRouteChildren)
 
 interface InvoicesRouteChildren {
   InvoicesInvoiceIdRoute: typeof InvoicesInvoiceIdRoute
+  InvoicesNewRoute: typeof InvoicesNewRoute
 }
 
 const InvoicesRouteChildren: InvoicesRouteChildren = {
   InvoicesInvoiceIdRoute: InvoicesInvoiceIdRoute,
+  InvoicesNewRoute: InvoicesNewRoute,
 }
 
 const InvoicesRouteWithChildren = InvoicesRoute._addFileChildren(
@@ -781,10 +852,12 @@ const SalesRouteWithChildren = SalesRoute._addFileChildren(SalesRouteChildren)
 
 interface SuppliersRouteChildren {
   SuppliersSupplierIdRoute: typeof SuppliersSupplierIdRoute
+  SuppliersNewRoute: typeof SuppliersNewRoute
 }
 
 const SuppliersRouteChildren: SuppliersRouteChildren = {
   SuppliersSupplierIdRoute: SuppliersSupplierIdRoute,
+  SuppliersNewRoute: SuppliersNewRoute,
 }
 
 const SuppliersRouteWithChildren = SuppliersRoute._addFileChildren(
@@ -829,7 +902,7 @@ const WeightRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BatchesRoute: BatchesRouteWithChildren,
-  CustomersRoute: CustomersRoute,
+  CustomersRoute: CustomersRouteWithChildren,
   DashboardRoute: DashboardRoute,
   EggsRoute: EggsRouteWithChildren,
   ExpensesRoute: ExpensesRouteWithChildren,

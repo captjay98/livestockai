@@ -16,7 +16,7 @@ export interface CreateFeedRecordInput {
 export async function createFeedRecord(
   userId: string,
   farmId: string,
-  input: CreateFeedRecordInput
+  input: CreateFeedRecordInput,
 ): Promise<string> {
   await verifyFarmAccess(userId, farmId)
 
@@ -42,16 +42,20 @@ export async function createFeedRecord(
       .executeTakeFirst()
 
     if (!inventory || parseFloat(inventory.quantityKg) < input.quantityKg) {
-      throw new Error(`Insufficient inventory for ${input.feedType}. Available: ${inventory ? parseFloat(inventory.quantityKg) : 0}kg`)
+      throw new Error(
+        `Insufficient inventory for ${input.feedType}. Available: ${inventory ? parseFloat(inventory.quantityKg) : 0}kg`,
+      )
     }
 
     // 2. Subtract from inventory
-    const newQuantity = (parseFloat(inventory.quantityKg) - input.quantityKg).toString()
+    const newQuantity = (
+      parseFloat(inventory.quantityKg) - input.quantityKg
+    ).toString()
     await tx
       .updateTable('feed_inventory')
       .set({
         quantityKg: newQuantity,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where('id', '=', inventory.id)
       .execute()
@@ -77,7 +81,7 @@ export async function createFeedRecord(
 export async function getFeedRecordsForBatch(
   userId: string,
   farmId: string,
-  batchId: string
+  batchId: string,
 ) {
   await verifyFarmAccess(userId, farmId)
 
@@ -126,7 +130,7 @@ export async function getFeedRecordsForFarm(userId: string, farmId: string) {
 export async function getFeedSummaryForBatch(
   userId: string,
   farmId: string,
-  batchId: string
+  batchId: string,
 ) {
   await verifyFarmAccess(userId, farmId)
 
@@ -144,21 +148,20 @@ export async function getFeedSummaryForBatch(
 
   const totalQuantityKg = records.reduce(
     (sum, r) => sum + parseFloat(r.quantityKg),
-    0
+    0,
   )
   const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
 
-  const byType = records.reduce(
-    (acc, r) => {
-      if (!acc[r.feedType]) {
-        acc[r.feedType] = { quantityKg: 0, cost: 0 }
-      }
-      acc[r.feedType].quantityKg += parseFloat(r.quantityKg)
-      acc[r.feedType].cost += parseFloat(r.cost)
-      return acc
-    },
-    {} as Record<string, { quantityKg: number; cost: number }>
-  )
+  const byType: { [key: string]: { quantityKg: number; cost: number } | undefined } = {}
+  for (const r of records) {
+    const existing = byType[r.feedType]
+    if (existing) {
+      existing.quantityKg += parseFloat(r.quantityKg)
+      existing.cost += parseFloat(r.cost)
+    } else {
+      byType[r.feedType] = { quantityKg: parseFloat(r.quantityKg), cost: parseFloat(r.cost) }
+    }
+  }
 
   return {
     totalQuantityKg,
@@ -171,7 +174,7 @@ export async function getFeedSummaryForBatch(
 export async function calculateFCR(
   userId: string,
   farmId: string,
-  batchId: string
+  batchId: string,
 ): Promise<number | null> {
   await verifyFarmAccess(userId, farmId)
 
@@ -194,7 +197,7 @@ export async function calculateFCR(
 
   const firstWeight = parseFloat(weightSamples[0].averageWeightKg)
   const lastWeight = parseFloat(
-    weightSamples[weightSamples.length - 1].averageWeightKg
+    weightSamples[weightSamples.length - 1].averageWeightKg,
   )
   const weightGain = lastWeight - firstWeight
 

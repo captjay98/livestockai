@@ -15,7 +15,7 @@ export interface CreateInvoiceInput {
 export async function generateInvoiceNumber(): Promise<string> {
   const year = new Date().getFullYear()
   const prefix = `INV-${year}-`
-  
+
   const lastInvoice = await db
     .selectFrom('invoices')
     .select('invoiceNumber')
@@ -26,16 +26,24 @@ export async function generateInvoiceNumber(): Promise<string> {
 
   let nextNumber = 1
   if (lastInvoice) {
-    const lastNumber = parseInt(lastInvoice.invoiceNumber.replace(prefix, ''), 10)
+    const lastNumber = parseInt(
+      lastInvoice.invoiceNumber.replace(prefix, ''),
+      10,
+    )
     nextNumber = lastNumber + 1
   }
 
   return `${prefix}${nextNumber.toString().padStart(4, '0')}`
 }
 
-export async function createInvoice(input: CreateInvoiceInput): Promise<string> {
+export async function createInvoice(
+  input: CreateInvoiceInput,
+): Promise<string> {
   const invoiceNumber = await generateInvoiceNumber()
-  const totalAmount = input.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0)
+  const totalAmount = input.items.reduce(
+    (sum, item) => sum + item.quantity * item.unitPrice,
+    0,
+  )
 
   const result = await db
     .insertInto('invoices')
@@ -125,7 +133,7 @@ export async function getInvoiceById(invoiceId: string) {
 
   return {
     ...invoice,
-    items: items.map(item => ({
+    items: items.map((item) => ({
       ...item,
       unitPrice: parseFloat(item.unitPrice),
       total: parseFloat(item.total),
@@ -135,7 +143,7 @@ export async function getInvoiceById(invoiceId: string) {
 
 export async function updateInvoiceStatus(
   invoiceId: string,
-  status: 'unpaid' | 'partial' | 'paid'
+  status: 'unpaid' | 'partial' | 'paid',
 ) {
   await db
     .updateTable('invoices')
@@ -150,16 +158,23 @@ export async function deleteInvoice(invoiceId: string) {
     .where('invoiceId', '=', invoiceId)
     .execute()
 
-  await db
-    .deleteFrom('invoices')
-    .where('id', '=', invoiceId)
-    .execute()
+  await db.deleteFrom('invoices').where('id', '=', invoiceId).execute()
 }
 
-export async function createInvoiceFromSale(saleId: string): Promise<string | null> {
+export async function createInvoiceFromSale(
+  saleId: string,
+): Promise<string | null> {
   const sale = await db
     .selectFrom('sales')
-    .select(['id', 'farmId', 'customerId', 'livestockType', 'quantity', 'unitPrice', 'totalAmount'])
+    .select([
+      'id',
+      'farmId',
+      'customerId',
+      'livestockType',
+      'quantity',
+      'unitPrice',
+      'totalAmount',
+    ])
     .where('id', '=', saleId)
     .executeTakeFirst()
 
@@ -168,10 +183,12 @@ export async function createInvoiceFromSale(saleId: string): Promise<string | nu
   return createInvoice({
     customerId: sale.customerId,
     farmId: sale.farmId,
-    items: [{
-      description: `${sale.livestockType} - ${sale.quantity} units`,
-      quantity: sale.quantity,
-      unitPrice: parseFloat(sale.unitPrice),
-    }],
+    items: [
+      {
+        description: `${sale.livestockType} - ${sale.quantity} units`,
+        quantity: sale.quantity,
+        unitPrice: parseFloat(sale.unitPrice),
+      },
+    ],
   })
 }

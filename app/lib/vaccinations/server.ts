@@ -23,7 +23,7 @@ export interface CreateTreatmentInput {
 export async function createVaccination(
   userId: string,
   farmId: string,
-  input: CreateVaccinationInput
+  input: CreateVaccinationInput,
 ): Promise<string> {
   await verifyFarmAccess(userId, farmId)
 
@@ -57,7 +57,7 @@ export async function createVaccination(
 export async function createTreatment(
   userId: string,
   farmId: string,
-  input: CreateTreatmentInput
+  input: CreateTreatmentInput,
 ): Promise<string> {
   await verifyFarmAccess(userId, farmId)
 
@@ -136,7 +136,11 @@ export async function getTreatmentsForFarm(userId: string, farmId: string) {
     .execute()
 }
 
-export async function getUpcomingVaccinations(userId: string, farmId: string, daysAhead: number = 7) {
+export async function getUpcomingVaccinations(
+  userId: string,
+  farmId: string,
+  daysAhead: number = 7,
+) {
   await verifyFarmAccess(userId, farmId)
 
   const today = new Date()

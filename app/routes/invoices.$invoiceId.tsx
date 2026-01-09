@@ -1,8 +1,12 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getInvoiceById, updateInvoiceStatus, deleteInvoice } from '~/lib/invoices/server'
+import { ArrowLeft, Edit, Printer, Trash2 } from 'lucide-react'
+import {
+  deleteInvoice,
+  getInvoiceById,
+  updateInvoiceStatus,
+} from '~/lib/invoices/server'
 import { formatNaira } from '~/lib/currency'
-import { ArrowLeft, Trash2, Printer, Edit } from 'lucide-react'
 
 const fetchInvoice = createServerFn({ method: 'GET' })
   .inputValidator((data: { invoiceId: string }) => data)
@@ -11,7 +15,10 @@ const fetchInvoice = createServerFn({ method: 'GET' })
   })
 
 const changeStatus = createServerFn({ method: 'POST' })
-  .inputValidator((data: { invoiceId: string; status: 'unpaid' | 'partial' | 'paid' }) => data)
+  .inputValidator(
+    (data: { invoiceId: string; status: 'unpaid' | 'partial' | 'paid' }) =>
+      data,
+  )
   .handler(async ({ data }) => {
     await updateInvoiceStatus(data.invoiceId, data.status)
   })
@@ -72,9 +79,7 @@ function InvoiceDetailPage() {
             Back to Invoices
           </Link>
           <div className="flex gap-2">
-            <button
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3 min-h-[44px]"
-            >
+            <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3 min-h-[44px]">
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </button>
@@ -101,22 +106,34 @@ function InvoiceDetailPage() {
           <div className="flex justify-between items-start mb-8">
             <div>
               <h1 className="text-2xl font-bold">INVOICE</h1>
-              <p className="text-muted-foreground font-mono">{invoice.invoiceNumber}</p>
+              <p className="text-muted-foreground font-mono">
+                {invoice.invoiceNumber}
+              </p>
             </div>
             <div className="text-right">
               <h2 className="font-bold text-lg">{invoice.farmName}</h2>
-              <p className="text-sm text-muted-foreground">{invoice.farmLocation}</p>
+              <p className="text-sm text-muted-foreground">
+                {invoice.farmLocation}
+              </p>
             </div>
           </div>
 
           {/* Customer & Dates */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Bill To</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                Bill To
+              </h3>
               <p className="font-medium">{invoice.customerName}</p>
-              {invoice.customerPhone && <p className="text-sm">{invoice.customerPhone}</p>}
-              {invoice.customerEmail && <p className="text-sm">{invoice.customerEmail}</p>}
-              {invoice.customerLocation && <p className="text-sm">{invoice.customerLocation}</p>}
+              {invoice.customerPhone && (
+                <p className="text-sm">{invoice.customerPhone}</p>
+              )}
+              {invoice.customerEmail && (
+                <p className="text-sm">{invoice.customerEmail}</p>
+              )}
+              {invoice.customerLocation && (
+                <p className="text-sm">{invoice.customerLocation}</p>
+              )}
             </div>
             <div className="text-right">
               <div className="mb-2">
@@ -125,16 +142,22 @@ function InvoiceDetailPage() {
               </div>
               {invoice.dueDate && (
                 <div className="mb-2">
-                  <span className="text-sm text-muted-foreground">Due Date: </span>
+                  <span className="text-sm text-muted-foreground">
+                    Due Date:{' '}
+                  </span>
                   <span>{new Date(invoice.dueDate).toLocaleDateString()}</span>
                 </div>
               )}
               <div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
-                  invoice.status === 'partial' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-red-100 text-red-700'
-                }`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    invoice.status === 'paid'
+                      ? 'bg-green-100 text-green-700'
+                      : invoice.status === 'partial'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-red-100 text-red-700'
+                  }`}
+                >
                   {invoice.status.toUpperCase()}
                 </span>
               </div>
@@ -153,18 +176,32 @@ function InvoiceDetailPage() {
                 </tr>
               </thead>
               <tbody>
-                {invoice.items.map((item: { id: string; description: string; quantity: number; unitPrice: number; total: number }) => (
-                  <tr key={item.id} className="border-b">
-                    <td className="py-3">{item.description}</td>
-                    <td className="py-3 text-right">{item.quantity}</td>
-                    <td className="py-3 text-right">{formatNaira(item.unitPrice)}</td>
-                    <td className="py-3 text-right">{formatNaira(item.total)}</td>
-                  </tr>
-                ))}
+                {invoice.items.map(
+                  (item: {
+                    id: string
+                    description: string
+                    quantity: number
+                    unitPrice: number
+                    total: number
+                  }) => (
+                    <tr key={item.id} className="border-b">
+                      <td className="py-3">{item.description}</td>
+                      <td className="py-3 text-right">{item.quantity}</td>
+                      <td className="py-3 text-right">
+                        {formatNaira(item.unitPrice)}
+                      </td>
+                      <td className="py-3 text-right">
+                        {formatNaira(item.total)}
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={3} className="py-4 text-right font-medium">Total:</td>
+                  <td colSpan={3} className="py-4 text-right font-medium">
+                    Total:
+                  </td>
                   <td className="py-4 text-right text-xl font-bold">
                     {formatNaira(parseFloat(invoice.totalAmount))}
                   </td>
@@ -176,7 +213,9 @@ function InvoiceDetailPage() {
           {/* Notes */}
           {invoice.notes && (
             <div className="mb-8">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Notes</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                Notes
+              </h3>
               <p className="text-sm">{invoice.notes}</p>
             </div>
           )}

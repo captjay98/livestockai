@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { generateExportData, type ExportOptions } from '~/lib/export/server'
+import type {ExportOptions} from '~/lib/export/server';
+import {  generateExportData } from '~/lib/export/server'
 
 const exportReport = createServerFn({ method: 'GET' })
   .inputValidator((data: ExportOptions) => data)
@@ -12,10 +13,17 @@ export const Route = createFileRoute('/reports/export')({
   component: ExportPage,
   validateSearch: (search: Record<string, unknown>): ExportOptions => ({
     reportType: typeof search.type === 'string' ? search.type : 'profit-loss',
-    format: (search.format === 'xlsx' || search.format === 'pdf') ? search.format : 'xlsx',
+    format:
+      search.format === 'xlsx' || search.format === 'pdf'
+        ? search.format
+        : 'xlsx',
     farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
-    startDate: typeof search.startDate === 'string' ? search.startDate : getDefaultStartDate(),
-    endDate: typeof search.endDate === 'string' ? search.endDate : getDefaultEndDate(),
+    startDate:
+      typeof search.startDate === 'string'
+        ? search.startDate
+        : getDefaultStartDate(),
+    endDate:
+      typeof search.endDate === 'string' ? search.endDate : getDefaultEndDate(),
   }),
   loaderDeps: ({ search }) => ({ search }),
   loader: async ({ deps }) => {
@@ -47,7 +55,7 @@ function ExportPage() {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    
+
     // Redirect back to reports
     window.location.href = '/reports'
   }
@@ -56,7 +64,9 @@ function ExportPage() {
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
         <p className="text-lg">Generating export...</p>
-        <p className="text-sm text-muted-foreground mt-2">Your download should start automatically.</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Your download should start automatically.
+        </p>
       </div>
     </div>
   )

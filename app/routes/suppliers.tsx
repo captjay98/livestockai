@@ -1,8 +1,14 @@
-import { createFileRoute, Link, useRouter, redirect } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useRouter,
+} from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getSuppliers, createSupplier } from '~/lib/suppliers/server'
+import { Building2, Mail, MapPin, Package, Phone, Plus } from 'lucide-react'
+import { useState } from 'react'
+import { createSupplier, getSuppliers } from '~/lib/suppliers/server'
 import { requireAuth } from '~/lib/auth/middleware'
-import { Building2, Plus, Phone, MapPin, Package, Mail } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import {
   Dialog,
@@ -15,7 +21,6 @@ import {
 } from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { useState } from 'react'
 
 interface Supplier {
   id: string
@@ -23,7 +28,7 @@ interface Supplier {
   phone: string
   email: string | null
   location: string | null
-  products: string[] | null
+  products: Array<string> | null
 }
 
 const fetchSuppliers = createServerFn({ method: 'GET' }).handler(async () => {
@@ -39,13 +44,15 @@ const fetchSuppliers = createServerFn({ method: 'GET' }).handler(async () => {
 })
 
 const createSupplierAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    name: string
-    phone: string
-    email?: string
-    location?: string
-    products?: string
-  }) => data)
+  .inputValidator(
+    (data: {
+      name: string
+      phone: string
+      email?: string
+      location?: string
+      products?: string
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       await requireAuth()
@@ -54,7 +61,9 @@ const createSupplierAction = createServerFn({ method: 'POST' })
         phone: data.phone,
         email: data.email || null,
         location: data.location || null,
-        products: data.products ? data.products.split(',').map(p => p.trim()) : [],
+        products: data.products
+          ? data.products.split(',').map((p) => p.trim())
+          : [],
       })
       return { success: true }
     } catch (error) {
@@ -72,7 +81,7 @@ export const Route = createFileRoute('/suppliers')({
 
 function SuppliersPage() {
   const router = useRouter()
-  const suppliers = Route.useLoaderData() as Supplier[]
+  const suppliers = Route.useLoaderData()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
@@ -102,12 +111,10 @@ function SuppliersPage() {
     setError('')
 
     try {
-      const result = await createSupplierAction({ data: formData })
-      if (result.success) {
-        setDialogOpen(false)
-        resetForm()
-        router.invalidate()
-      }
+      await createSupplierAction({ data: formData })
+      setDialogOpen(false)
+      resetForm()
+      router.invalidate()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create supplier')
     } finally {
@@ -120,7 +127,9 @@ function SuppliersPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Suppliers</h1>
-          <p className="text-muted-foreground mt-1">Manage your feed and livestock suppliers</p>
+          <p className="text-muted-foreground mt-1">
+            Manage your feed and livestock suppliers
+          </p>
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -141,7 +150,9 @@ function SuppliersPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
                   placeholder="Business or contact name"
                   required
                 />
@@ -153,7 +164,9 @@ function SuppliersPage() {
                   id="phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                  }
                   placeholder="e.g., 08012345678"
                   required
                 />
@@ -165,7 +178,9 @@ function SuppliersPage() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, email: e.target.value }))
+                  }
                   placeholder="supplier@example.com"
                 />
               </div>
@@ -175,7 +190,12 @@ function SuppliersPage() {
                 <Input
                   id="location"
                   value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      location: e.target.value,
+                    }))
+                  }
                   placeholder="Based in..."
                 />
               </div>
@@ -185,7 +205,12 @@ function SuppliersPage() {
                 <Input
                   id="products"
                   value={formData.products}
-                  onChange={(e) => setFormData(prev => ({ ...prev, products: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      products: e.target.value,
+                    }))
+                  }
                   placeholder="e.g., Feed, Chicks, Medicine (comma separated)"
                 />
               </div>
@@ -197,10 +222,18 @@ function SuppliersPage() {
               )}
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={isSubmitting}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting || !formData.name || !formData.phone}>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !formData.name || !formData.phone}
+                >
                   {isSubmitting ? 'Adding...' : 'Add Supplier'}
                 </Button>
               </DialogFooter>
@@ -213,7 +246,9 @@ function SuppliersPage() {
         <div className="text-center py-12 bg-muted/50 rounded-lg glass">
           <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium mb-2">No suppliers yet</h3>
-          <p className="text-muted-foreground mb-4">Add your first supplier to track purchases</p>
+          <p className="text-muted-foreground mb-4">
+            Add your first supplier to track purchases
+          </p>
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Supplier
@@ -229,7 +264,9 @@ function SuppliersPage() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{supplier.name}</h3>
+                  <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                    {supplier.name}
+                  </h3>
                   {supplier.location && (
                     <p className="text-sm text-muted-foreground flex items-center mt-1">
                       <MapPin className="h-3 w-3 mr-1" />

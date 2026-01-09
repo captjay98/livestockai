@@ -1,12 +1,18 @@
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { createExpense, EXPENSE_CATEGORIES } from '~/lib/expenses/server'
-import { getSuppliers } from '~/lib/suppliers/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { Receipt } from 'lucide-react'
+import { EXPENSE_CATEGORIES, createExpenseFn } from '~/lib/expenses/server'
+import { getSuppliersFn } from '~/lib/suppliers/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -15,7 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
-import { Receipt } from 'lucide-react'
 
 interface Supplier {
   id: string
@@ -29,9 +34,13 @@ interface ExpenseDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function ExpenseDialog({ farmId, open, onOpenChange }: ExpenseDialogProps) {
+export function ExpenseDialog({
+  farmId,
+  open,
+  onOpenChange,
+}: ExpenseDialogProps) {
   const router = useRouter()
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
+  const [suppliers, setSuppliers] = useState<Array<Supplier>>([])
   const [formData, setFormData] = useState({
     category: '',
     amount: '',
@@ -48,8 +57,7 @@ export function ExpenseDialog({ farmId, open, onOpenChange }: ExpenseDialogProps
     onOpenChange(isOpen)
     if (isOpen) {
       try {
-        const session = await requireAuth()
-        const suppliersData = await getSuppliers()
+        const suppliersData = await getSuppliersFn()
         setSuppliers(suppliersData)
       } catch (err) {
         console.error('Failed to load suppliers:', err)
@@ -63,13 +71,18 @@ export function ExpenseDialog({ farmId, open, onOpenChange }: ExpenseDialogProps
     setError('')
 
     try {
-      await createExpense(farmId, {
-        category: formData.category as any,
-        amount: parseFloat(formData.amount),
-        date: new Date(formData.date),
-        description: formData.description,
-        supplierId: formData.supplierId || null,
-        isRecurring: formData.isRecurring,
+      await createExpenseFn({
+        data: {
+          expense: {
+            farmId,
+            category: formData.category as any,
+            amount: parseFloat(formData.amount),
+            date: new Date(formData.date),
+            description: formData.description,
+            supplierId: formData.supplierId || null,
+            isRecurring: formData.isRecurring,
+          },
+        },
       })
       handleOpenChange(false)
       setFormData({
@@ -96,19 +109,25 @@ export function ExpenseDialog({ farmId, open, onOpenChange }: ExpenseDialogProps
             <Receipt className="h-5 w-5" />
             Record Expense
           </DialogTitle>
-          <DialogDescription>
-            Log a new expense transaction
-          </DialogDescription>
+          <DialogDescription>Log a new expense transaction</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <Select
               value={formData.category}
-              onValueChange={(value) => value && setFormData(prev => ({ ...prev, category: value }))}
+              onValueChange={(value) =>
+                value && setFormData((prev) => ({ ...prev, category: value }))
+              }
             >
               <SelectTrigger>
-                <SelectValue>{formData.category ? EXPENSE_CATEGORIES.find(c => c.value === formData.category)?.label : 'Select category'}</SelectValue>
+                <SelectValue>
+                  {formData.category
+                    ? EXPENSE_CATEGORIES.find(
+                        (c) => c.value === formData.category,
+                      )?.label
+                    : 'Select category'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {EXPENSE_CATEGORIES.map((cat) => (
@@ -125,7 +144,12 @@ export function ExpenseDialog({ farmId, open, onOpenChange }: ExpenseDialogProps
             <Input
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               placeholder="e.g., 50 bags of starter feed"
               required
             />
@@ -140,7 +164,9 @@ export function ExpenseDialog({ farmId, open, onOpenChange }: ExpenseDialogProps
                 min="0"
                 step="0.01"
                 value={formData.amount}
-                onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, amount: e.target.value }))
+                }
                 placeholder="0.00"
                 required
               />
@@ -151,7 +177,9 @@ export function ExpenseDialog({ farmId, open, onOpenChange }: ExpenseDialogProps
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 required
               />
             </div>
@@ -162,10 +190,17 @@ export function ExpenseDialog({ farmId, open, onOpenChange }: ExpenseDialogProps
               <Label htmlFor="supplierId">Supplier (Optional)</Label>
               <Select
                 value={formData.supplierId || undefined}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, supplierId: value || '' }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, supplierId: value || '' }))
+                }
               >
                 <SelectTrigger>
-                  <SelectValue>{formData.supplierId ? suppliers.find(s => s.id === formData.supplierId)?.name : 'Select supplier'}</SelectValue>
+                  <SelectValue>
+                    {formData.supplierId
+                      ? suppliers.find((s) => s.id === formData.supplierId)
+                          ?.name
+                      : 'Select supplier'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {suppliers.map((supplier) => (
@@ -185,12 +220,22 @@ export function ExpenseDialog({ farmId, open, onOpenChange }: ExpenseDialogProps
           )}
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.category || !formData.amount || !formData.description}
+              disabled={
+                isSubmitting ||
+                !formData.category ||
+                !formData.amount ||
+                !formData.description
+              }
             >
               {isSubmitting ? 'Recording...' : 'Record Expense'}
             </Button>

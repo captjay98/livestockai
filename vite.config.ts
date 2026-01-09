@@ -9,10 +9,7 @@ export default defineConfig({
     port: 3000,
   },
   optimizeDeps: {
-    exclude: [
-      '@tanstack/start-server-core',
-      '@tanstack/react-start-server',
-    ],
+    exclude: ['@tanstack/start-server-core', '@tanstack/react-start-server'],
   },
   ssr: {
     external: ['node:stream', 'node:stream/web', 'node:async_hooks'],

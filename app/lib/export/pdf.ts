@@ -22,7 +22,6 @@ interface InvoiceData {
   notes?: string | null
 }
 
-
 /**
  * Generate PDF invoice
  */
@@ -41,13 +40,25 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.text(`Invoice #: ${invoice.invoiceNumber}`, 20, y)
-  doc.text(`Date: ${new Date(invoice.date).toLocaleDateString()}`, pageWidth - 20, y, { align: 'right' })
+  doc.text(
+    `Date: ${new Date(invoice.date).toLocaleDateString()}`,
+    pageWidth - 20,
+    y,
+    { align: 'right' },
+  )
   y += 6
   if (invoice.dueDate) {
-    doc.text(`Due Date: ${new Date(invoice.dueDate).toLocaleDateString()}`, pageWidth - 20, y, { align: 'right' })
+    doc.text(
+      `Due Date: ${new Date(invoice.dueDate).toLocaleDateString()}`,
+      pageWidth - 20,
+      y,
+      { align: 'right' },
+    )
     y += 6
   }
-  doc.text(`Status: ${invoice.status.toUpperCase()}`, pageWidth - 20, y, { align: 'right' })
+  doc.text(`Status: ${invoice.status.toUpperCase()}`, pageWidth - 20, y, {
+    align: 'right',
+  })
   y += 15
 
   // From section
@@ -112,7 +123,9 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(12)
   doc.text('Total:', 125, y)
-  doc.text(formatNaira(invoice.totalAmount), pageWidth - 25, y, { align: 'right' })
+  doc.text(formatNaira(invoice.totalAmount), pageWidth - 25, y, {
+    align: 'right',
+  })
 
   // Notes
   if (invoice.notes) {
@@ -128,11 +141,12 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   // Footer
   doc.setFontSize(8)
   doc.setFont('helvetica', 'italic')
-  doc.text('Thank you for your business!', pageWidth / 2, 280, { align: 'center' })
+  doc.text('Thank you for your business!', pageWidth / 2, 280, {
+    align: 'center',
+  })
 
   return doc
 }
-
 
 interface ReportPDFOptions {
   title: string
@@ -140,8 +154,10 @@ interface ReportPDFOptions {
   sections: Array<{
     title: string
     type: 'summary' | 'table'
-    data: Array<{ label: string; value: string }> | Array<Record<string, string | number>>
-    columns?: string[]
+    data:
+      | Array<{ label: string; value: string }>
+      | Array<Record<string, string | number>>
+    columns?: Array<string>
   }>
 }
 
@@ -163,13 +179,20 @@ export function generateReportPDF(options: ReportPDFOptions): jsPDF {
   if (options.period) {
     doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
-    doc.text(`Period: ${options.period.startDate} to ${options.period.endDate}`, pageWidth / 2, y, { align: 'center' })
+    doc.text(
+      `Period: ${options.period.startDate} to ${options.period.endDate}`,
+      pageWidth / 2,
+      y,
+      { align: 'center' },
+    )
     y += 5
   }
 
   // Generated date
   doc.setFontSize(8)
-  doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, y, { align: 'center' })
+  doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, y, {
+    align: 'center',
+  })
   y += 15
 
   // Sections
@@ -190,15 +213,18 @@ export function generateReportPDF(options: ReportPDFOptions): jsPDF {
       // Summary section (key-value pairs)
       doc.setFontSize(10)
       doc.setFont('helvetica', 'normal')
-      for (const item of section.data as Array<{ label: string; value: string }>) {
+      for (const item of section.data as Array<{
+        label: string
+        value: string
+      }>) {
         doc.text(`${item.label}:`, 25, y)
         doc.text(item.value, 100, y)
         y += 6
       }
-    } else if (section.type === 'table' && section.columns) {
+    } else if (section.columns) {
       // Table section
       const colWidth = (pageWidth - 40) / section.columns.length
-      
+
       // Header
       doc.setFillColor(240, 240, 240)
       doc.rect(20, y, pageWidth - 40, 7, 'F')
@@ -211,13 +237,16 @@ export function generateReportPDF(options: ReportPDFOptions): jsPDF {
 
       // Rows
       doc.setFont('helvetica', 'normal')
-      for (const row of section.data as Array<Record<string, string | number>>) {
+      for (const row of section.data as Array<
+        Record<string, string | number>
+      >) {
         if (y > 270) {
           doc.addPage()
           y = 20
         }
         section.columns.forEach((col, i) => {
-          const value = String(row[col.toLowerCase().replace(/ /g, '')] ?? row[col] ?? '')
+          const key = col.toLowerCase().replace(/ /g, '')
+          const value = String(key in row ? row[key] : row[col])
           doc.text(value.substring(0, 25), 25 + i * colWidth, y)
         })
         y += 6

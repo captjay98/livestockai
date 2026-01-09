@@ -1,18 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 
 /**
  * Property 5: Mortality Rate Calculation
  * Feature: poultry-fishery-tracker, Property 5: Mortality Rate Calculation
  * Validates: Requirements 4.3, 4.4
- * 
+ *
  * For any batch with initial_quantity > 0, the mortality rate SHALL equal:
  * (sum of mortality quantities / initial_quantity) × 100
  */
 describe('Property 5: Mortality Rate Calculation', () => {
   // Arbitrary for initial quantity (must be positive)
   const initialQuantityArb = fc.integer({ min: 1, max: 100000 })
-  
+
   // Arbitrary for mortality quantities
   const mortalityQuantityArb = fc.integer({ min: 0, max: 10000 })
 
@@ -21,7 +21,7 @@ describe('Property 5: Mortality Rate Calculation', () => {
    */
   function calculateMortalityRate(
     initialQuantity: number,
-    totalDeaths: number
+    totalDeaths: number,
   ): number {
     if (initialQuantity <= 0) return 0
     return (totalDeaths / initialQuantity) * 100
@@ -48,9 +48,9 @@ describe('Property 5: Mortality Rate Calculation', () => {
           const expected = (totalDeaths / initialQuantity) * 100
 
           expect(rate).toBeCloseTo(expected, 10)
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -61,13 +61,16 @@ describe('Property 5: Mortality Rate Calculation', () => {
         mortalityQuantityArb,
         (initialQuantity, deaths) => {
           const constrainedDeaths = constrainDeaths(initialQuantity, deaths)
-          const rate = calculateMortalityRate(initialQuantity, constrainedDeaths)
+          const rate = calculateMortalityRate(
+            initialQuantity,
+            constrainedDeaths,
+          )
 
           expect(rate).toBeGreaterThanOrEqual(0)
           expect(rate).toBeLessThanOrEqual(100)
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -77,7 +80,7 @@ describe('Property 5: Mortality Rate Calculation', () => {
         const rate = calculateMortalityRate(initialQuantity, 0)
         expect(rate).toBe(0)
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -87,21 +90,21 @@ describe('Property 5: Mortality Rate Calculation', () => {
         const rate = calculateMortalityRate(initialQuantity, initialQuantity)
         expect(rate).toBe(100)
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
   it('half deaths means 50% mortality rate', () => {
     fc.assert(
       fc.property(
-        fc.integer({ min: 2, max: 100000 }).filter(n => n % 2 === 0),
+        fc.integer({ min: 2, max: 100000 }).filter((n) => n % 2 === 0),
         (initialQuantity) => {
           const halfDeaths = initialQuantity / 2
           const rate = calculateMortalityRate(initialQuantity, halfDeaths)
           expect(rate).toBeCloseTo(50, 10)
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -127,9 +130,9 @@ describe('Property 5: Mortality Rate Calculation', () => {
           } else {
             expect(rate1).toBeCloseTo(rate2, 10)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -142,24 +145,28 @@ describe('Property 5: Mortality Rate Calculation', () => {
           // Calculate rate from individual records
           let runningTotal = 0
           let lastRate = 0
-          
+
           for (const deaths of mortalityRecords) {
-            const constrainedDeaths = Math.min(deaths, initialQuantity - runningTotal)
+            const constrainedDeaths = Math.min(
+              deaths,
+              initialQuantity - runningTotal,
+            )
             runningTotal += constrainedDeaths
             lastRate = calculateMortalityRate(initialQuantity, runningTotal)
           }
 
           // Calculate rate from total
-          const totalDeaths = constrainDeaths(initialQuantity, 
-            mortalityRecords.reduce((sum, q) => sum + q, 0)
+          const totalDeaths = constrainDeaths(
+            initialQuantity,
+            mortalityRecords.reduce((sum, q) => sum + q, 0),
           )
           const totalRate = calculateMortalityRate(initialQuantity, totalDeaths)
 
           // Both approaches should give the same result
           expect(lastRate).toBeCloseTo(totalRate, 10)
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 })

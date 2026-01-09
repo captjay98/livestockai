@@ -1,14 +1,41 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getEggRecordsForFarm, getEggSummaryForFarm, createEggRecord } from '~/lib/eggs/server'
+import {
+  AlertTriangle,
+  Edit,
+  Egg,
+  Eye,
+  Package,
+  Plus,
+  Trash2,
+  TrendingUp,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  createEggRecord,
+  getEggRecordsForFarm,
+  getEggSummaryForFarm,
+} from '~/lib/eggs/server'
 import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -18,8 +45,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, Egg, Package, TrendingUp, AlertTriangle, Eye, Edit, Trash2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
 import { useFarm } from '~/components/farm-context'
 
 interface EggRecord {
@@ -42,8 +67,8 @@ interface Batch {
 }
 
 interface EggData {
-  records: EggRecord[]
-  batches: Batch[]
+  records: Array<EggRecord>
+  batches: Array<Batch>
   summary: {
     totalCollected: number
     totalBroken: number
@@ -63,9 +88,11 @@ const getEggDataForFarm = createServerFn({ method: 'GET' })
         getEggSummaryForFarm(session.user.id, data.farmId),
         getBatchesForFarm(session.user.id, data.farmId),
       ])
-      const batches = allBatches.filter(b => b.status === 'active' && b.livestockType === 'poultry')
+      const batches = allBatches.filter(
+        (b) => b.status === 'active' && b.livestockType === 'poultry',
+      )
       return { records, summary, batches }
-    } catch (error) {
+    } catch (err) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
@@ -74,14 +101,16 @@ const getEggDataForFarm = createServerFn({ method: 'GET' })
   })
 
 const createEggRecordAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    batchId: string
-    date: string
-    quantityCollected: number
-    quantityBroken: number
-    quantitySold: number
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      date: string
+      quantityCollected: number
+      quantityBroken: number
+      quantitySold: number
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -93,7 +122,7 @@ const createEggRecordAction = createServerFn({ method: 'POST' })
         quantitySold: data.quantitySold,
       })
       return { success: true, id }
-    } catch (error) {
+    } catch (err) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
@@ -107,7 +136,11 @@ export const Route = createFileRoute('/eggs')({
 
 function EggsPage() {
   const { selectedFarmId } = useFarm()
-  const [data, setData] = useState<EggData>({ records: [], batches: [], summary: null })
+  const [data, setData] = useState<EggData>({
+    records: [],
+    batches: [],
+    summary: null,
+  })
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
@@ -129,10 +162,12 @@ function EggsPage() {
 
     setIsLoading(true)
     try {
-      const result = await getEggDataForFarm({ data: { farmId: selectedFarmId } })
+      const result = await getEggDataForFarm({
+        data: { farmId: selectedFarmId },
+      })
       setData(result)
-    } catch (error) {
-      console.error('Failed to load egg data:', error)
+    } catch (err) {
+      console.error('Failed:', err)
     } finally {
       setIsLoading(false)
     }
@@ -156,7 +191,7 @@ function EggsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFarmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -169,7 +204,7 @@ function EggsPage() {
           quantityCollected: parseInt(formData.quantityCollected),
           quantityBroken: parseInt(formData.quantityBroken) || 0,
           quantitySold: parseInt(formData.quantitySold) || 0,
-        }
+        },
       })
       setDialogOpen(false)
       resetForm()
@@ -182,10 +217,15 @@ function EggsPage() {
   }
 
   const { records, batches, summary } = data
-  const selectedBatch = batches.find(b => b.id === formData.batchId)
-  const layingPercentage = selectedBatch && formData.quantityCollected
-    ? ((parseInt(formData.quantityCollected) / selectedBatch.currentQuantity) * 100).toFixed(1)
-    : null
+  const selectedBatch = batches.find((b) => b.id === formData.batchId)
+  const layingPercentage =
+    selectedBatch && formData.quantityCollected
+      ? (
+          (parseInt(formData.quantityCollected) /
+            selectedBatch.currentQuantity) *
+          100
+        ).toFixed(1)
+      : null
 
   if (!selectedFarmId) {
     return (
@@ -193,7 +233,9 @@ function EggsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold">Egg Production</h1>
-            <p className="text-muted-foreground mt-1">Track daily egg collection and sales</p>
+            <p className="text-muted-foreground mt-1">
+              Track daily egg collection and sales
+            </p>
           </div>
         </div>
         <Card>
@@ -227,7 +269,9 @@ function EggsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Egg Production</h1>
-          <p className="text-muted-foreground mt-1">Track daily egg collection and sales</p>
+          <p className="text-muted-foreground mt-1">
+            Track daily egg collection and sales
+          </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger
@@ -248,10 +292,18 @@ function EggsPage() {
                 <Label htmlFor="batchId">Layer Batch</Label>
                 <Select
                   value={formData.batchId}
-                  onValueChange={(value) => value && setFormData(prev => ({ ...prev, batchId: value }))}
+                  onValueChange={(value) =>
+                    value &&
+                    setFormData((prev) => ({ ...prev, batchId: value }))
+                  }
                 >
                   <SelectTrigger>
-                    <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select layer batch'}</SelectValue>
+                    <SelectValue>
+                      {formData.batchId
+                        ? batches.find((b) => b.id === formData.batchId)
+                            ?.species
+                        : 'Select layer batch'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {batches.map((batch) => (
@@ -269,7 +321,9 @@ function EggsPage() {
                   id="date"
                   type="date"
                   value={formData.date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, date: e.target.value }))
+                  }
                   required
                 />
               </div>
@@ -281,7 +335,12 @@ function EggsPage() {
                   type="number"
                   min="0"
                   value={formData.quantityCollected}
-                  onChange={(e) => setFormData(prev => ({ ...prev, quantityCollected: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      quantityCollected: e.target.value,
+                    }))
+                  }
                   placeholder="Enter number of eggs collected"
                   required
                 />
@@ -300,7 +359,12 @@ function EggsPage() {
                     type="number"
                     min="0"
                     value={formData.quantityBroken}
-                    onChange={(e) => setFormData(prev => ({ ...prev, quantityBroken: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        quantityBroken: e.target.value,
+                      }))
+                    }
                     placeholder="0"
                   />
                 </div>
@@ -311,7 +375,12 @@ function EggsPage() {
                     type="number"
                     min="0"
                     value={formData.quantitySold}
-                    onChange={(e) => setFormData(prev => ({ ...prev, quantitySold: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        quantitySold: e.target.value,
+                      }))
+                    }
                     placeholder="0"
                   />
                 </div>
@@ -324,12 +393,21 @@ function EggsPage() {
               )}
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={isSubmitting}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !formData.batchId || !formData.quantityCollected}
+                  disabled={
+                    isSubmitting ||
+                    !formData.batchId ||
+                    !formData.quantityCollected
+                  }
                 >
                   {isSubmitting ? 'Recording...' : 'Record Eggs'}
                 </Button>
@@ -343,35 +421,51 @@ function EggsPage() {
         <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Collected</CardTitle>
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Total Collected
+              </CardTitle>
               <Egg className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-              <div className="text-lg sm:text-2xl font-bold">{summary.totalCollected.toLocaleString()}</div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">{summary.recordCount} records</p>
+              <div className="text-lg sm:text-2xl font-bold">
+                {summary.totalCollected.toLocaleString()}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                {summary.recordCount} records
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Sold</CardTitle>
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Total Sold
+              </CardTitle>
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-              <div className="text-lg sm:text-2xl font-bold">{summary.totalSold.toLocaleString()}</div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Eggs sold</p>
+              <div className="text-lg sm:text-2xl font-bold">
+                {summary.totalSold.toLocaleString()}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                Eggs sold
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Broken/Lost</CardTitle>
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Broken/Lost
+              </CardTitle>
               <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-              <div className="text-lg sm:text-2xl font-bold">{summary.totalBroken.toLocaleString()}</div>
+              <div className="text-lg sm:text-2xl font-bold">
+                {summary.totalBroken.toLocaleString()}
+              </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                {summary.totalCollected > 0 
+                {summary.totalCollected > 0
                   ? `${((summary.totalBroken / summary.totalCollected) * 100).toFixed(1)}% loss rate`
                   : '0% loss rate'}
               </p>
@@ -380,12 +474,18 @@ function EggsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Current Inventory</CardTitle>
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Current Inventory
+              </CardTitle>
               <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-              <div className="text-lg sm:text-2xl font-bold">{summary.currentInventory.toLocaleString()}</div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Eggs in stock</p>
+              <div className="text-lg sm:text-2xl font-bold">
+                {summary.currentInventory.toLocaleString()}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                Eggs in stock
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -396,7 +496,9 @@ function EggsPage() {
           <CardContent className="py-12 text-center">
             <Egg className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No egg records</h3>
-            <p className="text-muted-foreground mb-4">Start tracking egg production</p>
+            <p className="text-muted-foreground mb-4">
+              Start tracking egg production
+            </p>
             <Button onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Record Eggs
@@ -412,15 +514,24 @@ function EggsPage() {
           <CardContent>
             <div className="space-y-3 sm:space-y-4">
               {records.map((record) => {
-                const layingPct = record.currentQuantity > 0 
-                  ? ((record.quantityCollected / record.currentQuantity) * 100).toFixed(1)
-                  : '0'
+                const layingPct =
+                  record.currentQuantity > 0
+                    ? (
+                        (record.quantityCollected / record.currentQuantity) *
+                        100
+                      ).toFixed(1)
+                    : '0'
                 return (
-                  <div key={record.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+                  <div
+                    key={record.id}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3"
+                  >
                     <div className="flex items-center gap-3">
                       <Egg className="h-8 w-8 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
-                        <p className="font-medium capitalize truncate">{record.species}</p>
+                        <p className="font-medium capitalize truncate">
+                          {record.species}
+                        </p>
                         <p className="text-xs sm:text-sm text-muted-foreground">
                           {record.currentQuantity} birds • {layingPct}% laying
                         </p>
@@ -429,26 +540,50 @@ function EggsPage() {
                     <div className="flex items-center justify-between sm:justify-end gap-3">
                       <div className="flex gap-3 sm:gap-6 text-xs sm:text-sm">
                         <div className="text-center">
-                          <p className="font-medium text-green-600">+{record.quantityCollected}</p>
-                          <p className="text-muted-foreground text-[10px]">Collected</p>
+                          <p className="font-medium text-green-600">
+                            +{record.quantityCollected}
+                          </p>
+                          <p className="text-muted-foreground text-[10px]">
+                            Collected
+                          </p>
                         </div>
                         <div className="text-center">
-                          <p className="font-medium text-blue-600">-{record.quantitySold}</p>
-                          <p className="text-muted-foreground text-[10px]">Sold</p>
+                          <p className="font-medium text-blue-600">
+                            -{record.quantitySold}
+                          </p>
+                          <p className="text-muted-foreground text-[10px]">
+                            Sold
+                          </p>
                         </div>
                         <div className="text-center">
-                          <p className="font-medium text-red-600">-{record.quantityBroken}</p>
-                          <p className="text-muted-foreground text-[10px]">Broken</p>
+                          <p className="font-medium text-red-600">
+                            -{record.quantityBroken}
+                          </p>
+                          <p className="text-muted-foreground text-[10px]">
+                            Broken
+                          </p>
                         </div>
                       </div>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

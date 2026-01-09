@@ -49,9 +49,6 @@ export const auth = betterAuth({
   verification: {
     modelName: 'verification',
   },
-  trustedOrigins: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-  ],
+  trustedOrigins: ['http://localhost:3000', 'http://localhost:5173'],
   plugins: [tanstackStartCookies()], // Handle cookies for TanStack Start
 })

@@ -12,7 +12,7 @@ export interface CreateEggRecordInput {
 export async function createEggRecord(
   userId: string,
   farmId: string,
-  input: CreateEggRecordInput
+  input: CreateEggRecordInput,
 ): Promise<string> {
   await verifyFarmAccess(userId, farmId)
 
@@ -50,7 +50,7 @@ export async function createEggRecord(
 export async function getEggRecordsForBatch(
   userId: string,
   farmId: string,
-  batchId: string
+  batchId: string,
 ) {
   await verifyFarmAccess(userId, farmId)
 
@@ -110,7 +110,10 @@ export async function getEggSummaryForFarm(userId: string, farmId: string) {
     .where('batches.farmId', '=', farmId)
     .execute()
 
-  const totalCollected = records.reduce((sum, r) => sum + r.quantityCollected, 0)
+  const totalCollected = records.reduce(
+    (sum, r) => sum + r.quantityCollected,
+    0,
+  )
   const totalBroken = records.reduce((sum, r) => sum + r.quantityBroken, 0)
   const totalSold = records.reduce((sum, r) => sum + r.quantitySold, 0)
   const currentInventory = totalCollected - totalBroken - totalSold
@@ -128,7 +131,7 @@ export async function calculateLayingPercentage(
   userId: string,
   farmId: string,
   batchId: string,
-  date?: Date
+  date?: Date,
 ): Promise<number | null> {
   await verifyFarmAccess(userId, farmId)
 
@@ -162,14 +165,15 @@ export async function calculateLayingPercentage(
     return null
   }
 
-  const layingPercentage = (record.quantityCollected / batch.currentQuantity) * 100
+  const layingPercentage =
+    (record.quantityCollected / batch.currentQuantity) * 100
   return Math.round(layingPercentage * 100) / 100
 }
 
 export async function getEggInventory(
   userId: string,
   farmId: string,
-  batchId?: string
+  batchId?: string,
 ): Promise<number> {
   await verifyFarmAccess(userId, farmId)
 
@@ -189,7 +193,10 @@ export async function getEggInventory(
 
   const records = await query.execute()
 
-  const totalCollected = records.reduce((sum, r) => sum + r.quantityCollected, 0)
+  const totalCollected = records.reduce(
+    (sum, r) => sum + r.quantityCollected,
+    0,
+  )
   const totalBroken = records.reduce((sum, r) => sum + r.quantityBroken, 0)
   const totalSold = records.reduce((sum, r) => sum + r.quantitySold, 0)
 

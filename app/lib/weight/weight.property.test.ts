@@ -1,18 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 
 /**
  * Property 9: Average Daily Gain Calculation
  * Feature: poultry-fishery-tracker, Property 9: Average Daily Gain Calculation
  * Validates: Requirements 7.3
- * 
+ *
  * For any two consecutive weight samples with days_between > 0, the ADG SHALL equal:
  * (later_weight - earlier_weight) / days_between
  */
 describe('Property 9: Average Daily Gain Calculation', () => {
   // Arbitrary for weight in kg
   const weightArb = fc.double({ min: 0.01, max: 100, noNaN: true })
-  
+
   // Arbitrary for days between samples
   const daysArb = fc.integer({ min: 1, max: 365 })
 
@@ -23,7 +23,7 @@ describe('Property 9: Average Daily Gain Calculation', () => {
   function calculateADG(
     initialWeight: number,
     finalWeight: number,
-    daysBetween: number
+    daysBetween: number,
   ): number | null {
     if (daysBetween <= 0) return null
     return (finalWeight - initialWeight) / daysBetween
@@ -37,15 +37,15 @@ describe('Property 9: Average Daily Gain Calculation', () => {
         daysArb,
         (initialWeight, finalWeight, daysBetween) => {
           const adg = calculateADG(initialWeight, finalWeight, daysBetween)
-          
+
           expect(adg).not.toBeNull()
           if (adg !== null) {
             const expected = (finalWeight - initialWeight) / daysBetween
             expect(adg).toBeCloseTo(expected, 10)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -58,9 +58,9 @@ describe('Property 9: Average Daily Gain Calculation', () => {
         (initialWeight, finalWeight, daysBetween) => {
           const adg = calculateADG(initialWeight, finalWeight, daysBetween)
           expect(adg).toBeNull()
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -73,14 +73,14 @@ describe('Property 9: Average Daily Gain Calculation', () => {
         (initialWeight, weightGain, daysBetween) => {
           const finalWeight = initialWeight + weightGain
           const adg = calculateADG(initialWeight, finalWeight, daysBetween)
-          
+
           expect(adg).not.toBeNull()
           if (adg !== null) {
             expect(adg).toBeGreaterThan(0)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -93,14 +93,14 @@ describe('Property 9: Average Daily Gain Calculation', () => {
         (initialWeight, lossFactor, daysBetween) => {
           const finalWeight = initialWeight * lossFactor // weight loss
           const adg = calculateADG(initialWeight, finalWeight, daysBetween)
-          
+
           expect(adg).not.toBeNull()
           if (adg !== null) {
             expect(adg).toBeLessThan(0)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -108,13 +108,13 @@ describe('Property 9: Average Daily Gain Calculation', () => {
     fc.assert(
       fc.property(weightArb, daysArb, (weight, daysBetween) => {
         const adg = calculateADG(weight, weight, daysBetween)
-        
+
         expect(adg).not.toBeNull()
         if (adg !== null) {
           expect(adg).toBe(0)
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -129,17 +129,17 @@ describe('Property 9: Average Daily Gain Calculation', () => {
           const finalWeight = initialWeight + weightGain
           const adg1 = calculateADG(initialWeight, finalWeight, days1)
           const adg2 = calculateADG(initialWeight, finalWeight, days2)
-          
+
           expect(adg1).not.toBeNull()
           expect(adg2).not.toBeNull()
-          
+
           if (adg1 !== null && adg2 !== null) {
             // More days = lower ADG for same weight gain
             expect(adg1).toBeGreaterThan(adg2)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -151,18 +151,26 @@ describe('Property 9: Average Daily Gain Calculation', () => {
         fc.double({ min: 1.1, max: 5, noNaN: true }), // multiplier
         daysArb,
         (initialWeight, baseGain, multiplier, daysBetween) => {
-          const adg1 = calculateADG(initialWeight, initialWeight + baseGain, daysBetween)
-          const adg2 = calculateADG(initialWeight, initialWeight + baseGain * multiplier, daysBetween)
-          
+          const adg1 = calculateADG(
+            initialWeight,
+            initialWeight + baseGain,
+            daysBetween,
+          )
+          const adg2 = calculateADG(
+            initialWeight,
+            initialWeight + baseGain * multiplier,
+            daysBetween,
+          )
+
           expect(adg1).not.toBeNull()
           expect(adg2).not.toBeNull()
-          
+
           if (adg1 !== null && adg2 !== null) {
             expect(adg2 / adg1).toBeCloseTo(multiplier, 5)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -176,7 +184,7 @@ describe('Property 9: Average Daily Gain Calculation', () => {
         fc.integer({ min: 35, max: 42 }), // days to market
         (initialWeight, finalWeight, days) => {
           const adg = calculateADG(initialWeight, finalWeight, days)
-          
+
           expect(adg).not.toBeNull()
           if (adg !== null) {
             // ADG in grams (multiply by 1000)
@@ -184,9 +192,9 @@ describe('Property 9: Average Daily Gain Calculation', () => {
             expect(adgGrams).toBeGreaterThan(40)
             expect(adgGrams).toBeLessThan(80)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -198,20 +206,26 @@ describe('Property 9: Average Daily Gain Calculation', () => {
             weight: weightArb,
             daysFromStart: fc.integer({ min: 1, max: 30 }),
           }),
-          { minLength: 2, maxLength: 10 }
+          { minLength: 2, maxLength: 10 },
         ),
         (samples) => {
           // Sort by days
-          const sorted = [...samples].sort((a, b) => a.daysFromStart - b.daysFromStart)
-          
+          const sorted = [...samples].sort(
+            (a, b) => a.daysFromStart - b.daysFromStart,
+          )
+
           // Calculate ADG between first and last sample
           const first = sorted[0]
           const last = sorted[sorted.length - 1]
           const totalDays = last.daysFromStart - first.daysFromStart
-          
+
           if (totalDays > 0) {
-            const overallADG = calculateADG(first.weight, last.weight, totalDays)
-            
+            const overallADG = calculateADG(
+              first.weight,
+              last.weight,
+              totalDays,
+            )
+
             expect(overallADG).not.toBeNull()
             if (overallADG !== null) {
               // Overall ADG should equal total weight change / total days
@@ -219,9 +233,9 @@ describe('Property 9: Average Daily Gain Calculation', () => {
               expect(overallADG).toBeCloseTo(expected, 10)
             }
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 })

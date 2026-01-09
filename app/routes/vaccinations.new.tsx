@@ -1,15 +1,27 @@
-import { createFileRoute, useRouter, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
-import { createVaccination, createTreatment } from '~/lib/vaccinations/server'
+import { ArrowLeft, Pill, Syringe } from 'lucide-react'
+import { createTreatment, createVaccination } from '~/lib/vaccinations/server'
 import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
-import { ArrowLeft, Syringe, Pill } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 interface Batch {
   id: string
@@ -25,7 +37,7 @@ const getBatches = createServerFn({ method: 'GET' })
     try {
       const session = await requireAuth()
       const batches = await getBatchesForFarm(session.user.id, data.farmId)
-      return batches.filter(b => b.status === 'active')
+      return batches.filter((b) => b.status === 'active')
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -35,14 +47,16 @@ const getBatches = createServerFn({ method: 'GET' })
   })
 
 const createVaccinationAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    batchId: string
-    vaccineName: string
-    dateAdministered: string
-    dosage: string
-    nextDueDate?: string
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      vaccineName: string
+      dateAdministered: string
+      dosage: string
+      nextDueDate?: string
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -63,15 +77,17 @@ const createVaccinationAction = createServerFn({ method: 'POST' })
   })
 
 const createTreatmentAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    batchId: string
-    medicationName: string
-    reason: string
-    date: string
-    dosage: string
-    withdrawalDays: number
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      medicationName: string
+      reason: string
+      date: string
+      dosage: string
+      withdrawalDays: number
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -98,7 +114,9 @@ interface NewVaccinationSearchParams {
 
 export const Route = createFileRoute('/vaccinations/new')({
   component: NewVaccinationPage,
-  validateSearch: (search: Record<string, unknown>): NewVaccinationSearchParams => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): NewVaccinationSearchParams => ({
     farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
   }),
   loaderDeps: ({ search }) => ({ farmId: search.farmId }),
@@ -113,9 +131,11 @@ export const Route = createFileRoute('/vaccinations/new')({
 function NewVaccinationPage() {
   const router = useRouter()
   const search = Route.useSearch()
-  const batches = Route.useLoaderData() as Batch[]
+  const batches = Route.useLoaderData()
 
-  const [recordType, setRecordType] = useState<'vaccination' | 'treatment'>('vaccination')
+  const [recordType, setRecordType] = useState<'vaccination' | 'treatment'>(
+    'vaccination',
+  )
   const [formData, setFormData] = useState({
     batchId: '',
     name: '',
@@ -131,7 +151,7 @@ function NewVaccinationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!search.farmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -145,7 +165,7 @@ function NewVaccinationPage() {
             dateAdministered: formData.date,
             dosage: formData.dosage,
             nextDueDate: formData.nextDueDate || undefined,
-          }
+          },
         })
       } else {
         await createTreatmentAction({
@@ -157,10 +177,13 @@ function NewVaccinationPage() {
             date: formData.date,
             dosage: formData.dosage,
             withdrawalDays: parseInt(formData.withdrawalDays),
-          }
+          },
         })
       }
-      router.navigate({ to: '/vaccinations', search: { farmId: search.farmId } })
+      router.navigate({
+        to: '/vaccinations',
+        search: { farmId: search.farmId },
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create record')
     } finally {
@@ -177,7 +200,9 @@ function NewVaccinationPage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Add Health Record</h1>
-          <p className="text-muted-foreground mt-1">Record vaccination or treatment</p>
+          <p className="text-muted-foreground mt-1">
+            Record vaccination or treatment
+          </p>
         </div>
       </div>
 
@@ -213,15 +238,22 @@ function NewVaccinationPage() {
               <Label htmlFor="batchId">Batch</Label>
               <Select
                 value={formData.batchId}
-                onValueChange={(value) => value && setFormData(prev => ({ ...prev, batchId: value }))}
+                onValueChange={(value) =>
+                  value && setFormData((prev) => ({ ...prev, batchId: value }))
+                }
               >
                 <SelectTrigger>
-                  <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select batch'}</SelectValue>
+                  <SelectValue>
+                    {formData.batchId
+                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      : 'Select batch'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (
                     <SelectItem key={batch.id} value={batch.id}>
-                      {batch.species} ({batch.currentQuantity} {batch.livestockType})
+                      {batch.species} ({batch.currentQuantity}{' '}
+                      {batch.livestockType})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -230,13 +262,21 @@ function NewVaccinationPage() {
 
             <div className="space-y-2">
               <Label htmlFor="name">
-                {recordType === 'vaccination' ? 'Vaccine Name' : 'Medication Name'}
+                {recordType === 'vaccination'
+                  ? 'Vaccine Name'
+                  : 'Medication Name'}
               </Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder={recordType === 'vaccination' ? 'e.g., Newcastle Disease Vaccine' : 'e.g., Oxytetracycline'}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+                placeholder={
+                  recordType === 'vaccination'
+                    ? 'e.g., Newcastle Disease Vaccine'
+                    : 'e.g., Oxytetracycline'
+                }
                 required
               />
             </div>
@@ -247,7 +287,9 @@ function NewVaccinationPage() {
                 <Input
                   id="reason"
                   value={formData.reason}
-                  onChange={(e) => setFormData(prev => ({ ...prev, reason: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, reason: e.target.value }))
+                  }
                   placeholder="e.g., Respiratory infection"
                   required
                 />
@@ -259,7 +301,9 @@ function NewVaccinationPage() {
               <Input
                 id="dosage"
                 value={formData.dosage}
-                onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, dosage: e.target.value }))
+                }
                 placeholder="e.g., 0.5ml per bird"
                 required
               />
@@ -267,13 +311,17 @@ function NewVaccinationPage() {
 
             <div className="space-y-2">
               <Label htmlFor="date">
-                {recordType === 'vaccination' ? 'Date Administered' : 'Treatment Date'}
+                {recordType === 'vaccination'
+                  ? 'Date Administered'
+                  : 'Treatment Date'}
               </Label>
               <Input
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 required
               />
             </div>
@@ -285,7 +333,12 @@ function NewVaccinationPage() {
                   id="nextDueDate"
                   type="date"
                   value={formData.nextDueDate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, nextDueDate: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      nextDueDate: e.target.value,
+                    }))
+                  }
                 />
               </div>
             )}
@@ -298,7 +351,12 @@ function NewVaccinationPage() {
                   type="number"
                   min="0"
                   value={formData.withdrawalDays}
-                  onChange={(e) => setFormData(prev => ({ ...prev, withdrawalDays: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      withdrawalDays: e.target.value,
+                    }))
+                  }
                   placeholder="Days before safe for consumption"
                   required
                 />
@@ -312,12 +370,22 @@ function NewVaccinationPage() {
             )}
 
             <div className="flex gap-3">
-              <Button type="button" variant="outline" onClick={() => router.history.back()} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.history.back()}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.batchId || !formData.name || !formData.dosage}
+                disabled={
+                  isSubmitting ||
+                  !formData.batchId ||
+                  !formData.name ||
+                  !formData.dosage
+                }
               >
                 {isSubmitting ? 'Saving...' : 'Save Record'}
               </Button>

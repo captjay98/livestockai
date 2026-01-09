@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react'
-import { createServerFn } from '@tanstack/react-start'
-import { getFarmsForUser } from '~/lib/farms/server'
-import { requireAuth } from '~/lib/auth/middleware'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select'
+import { useEffect, useState } from 'react'
 import { Building2 } from 'lucide-react'
-import { cn } from '~/lib/utils'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select'
 import { useFarm } from './farm-context'
-
-const getFarms = createServerFn({ method: 'GET' }).handler(async () => {
-  const session = await requireAuth()
-  return await getFarmsForUser(session.user.id)
-})
+import { getFarmsForUserFn } from '~/lib/farms/server'
+import { cn } from '~/lib/utils'
 
 interface FarmSelectorProps {
   className?: string
@@ -18,13 +17,15 @@ interface FarmSelectorProps {
 
 export function FarmSelector({ className }: FarmSelectorProps) {
   const { selectedFarmId, setSelectedFarmId } = useFarm()
-  const [farms, setFarms] = useState<Array<{ id: string; name: string; type: string }>>([])
+  const [farms, setFarms] = useState<
+    Array<{ id: string; name: string; type: string }>
+  >([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const loadFarms = async () => {
       try {
-        const farmData = await getFarms()
+        const farmData = await getFarmsForUserFn()
         setFarms(farmData)
 
         // Auto-select logic removed to default to "All Farms" (null)
@@ -64,12 +65,14 @@ export function FarmSelector({ className }: FarmSelectorProps) {
       <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
       <Select
         value={selectedFarmId || 'all'}
-        onValueChange={(value) => setSelectedFarmId(value === 'all' ? null : value)}
+        onValueChange={(value) =>
+          setSelectedFarmId(value === 'all' ? null : value)
+        }
       >
         <SelectTrigger className="flex-1">
           <SelectValue>
             {selectedFarmId
-              ? farms.find(f => f.id === selectedFarmId)?.name
+              ? farms.find((f) => f.id === selectedFarmId)?.name
               : 'All Farms'}
           </SelectValue>
         </SelectTrigger>

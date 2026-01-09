@@ -11,7 +11,7 @@ export interface CreateWeightSampleInput {
 export async function createWeightSample(
   userId: string,
   farmId: string,
-  input: CreateWeightSampleInput
+  input: CreateWeightSampleInput,
 ): Promise<string> {
   await verifyFarmAccess(userId, farmId)
 
@@ -44,7 +44,7 @@ export async function createWeightSample(
 export async function getWeightSamplesForBatch(
   userId: string,
   farmId: string,
-  batchId: string
+  batchId: string,
 ) {
   await verifyFarmAccess(userId, farmId)
 
@@ -89,7 +89,7 @@ export async function getWeightSamplesForFarm(userId: string, farmId: string) {
 export async function calculateADG(
   userId: string,
   farmId: string,
-  batchId: string
+  batchId: string,
 ): Promise<{ adg: number; daysBetween: number; weightGain: number } | null> {
   await verifyFarmAccess(userId, farmId)
 
@@ -108,7 +108,9 @@ export async function calculateADG(
 
   const firstDate = new Date(firstSample.date)
   const lastDate = new Date(lastSample.date)
-  const daysBetween = Math.ceil((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24))
+  const daysBetween = Math.ceil(
+    (lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24),
+  )
 
   if (daysBetween <= 0) {
     return null
@@ -146,9 +148,9 @@ export async function getGrowthAlerts(userId: string, farmId: string) {
   // Expected ADG targets (kg/day)
   const expectedADG: Record<string, number> = {
     broiler: 0.05, // 50g/day
-    layer: 0.02,   // 20g/day
+    layer: 0.02, // 20g/day
     catfish: 0.015, // 15g/day
-    tilapia: 0.01,  // 10g/day
+    tilapia: 0.01, // 10g/day
   }
 
   for (const batch of batches) {

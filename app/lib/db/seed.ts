@@ -1,12 +1,12 @@
 /**
  * Database Seed Script
- * 
+ *
  * Creates initial admin user and sample data for development/testing.
  * Run with: bun run db:seed
  */
 
-import { db } from './index'
 import bcrypt from 'bcrypt'
+import { db } from './index'
 
 // Hash password using bcrypt (same as Better Auth)
 async function hashPassword(password: string): Promise<string> {
@@ -214,7 +214,6 @@ async function seed() {
     console.log('   Email: admin@jayfarms.com')
     console.log('   Password: admin123')
     console.log('\n⚠️  Remember to change the password in production!')
-
   } catch (error) {
     console.error('❌ Seed failed:', error)
     throw error

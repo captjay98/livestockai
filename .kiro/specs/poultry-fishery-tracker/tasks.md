@@ -23,7 +23,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Create nairaToKobo, koboToNaira, formatNaira functions in src/lib/currency.ts
     - _Requirements: 8.5_
 
-  - [x]* 1.4 Write property test for currency formatting
+  - [x]\* 1.4 Write property test for currency formatting
     - Install fast-check for property-based testing
     - **Property 11: Currency Formatting**
     - **Validates: Requirements 8.5**
@@ -52,11 +52,11 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Implement farm assignment for staff users
     - _Requirements: 1.5, 1.6, 2.4_
 
-  - [x]* 2.5 Write property test for authentication round-trip
+  - [x]\* 2.5 Write property test for authentication round-trip
     - **Property 1: Authentication Round-Trip**
     - **Validates: Requirements 1.2, 1.3**
 
-  - [x]* 2.6 Write property test for role-based access control
+  - [x]\* 2.6 Write property test for role-based access control
     - **Property 2: Role-Based Access Control**
     - **Validates: Requirements 1.5, 2.4**
 
@@ -75,7 +75,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Implement farm context for filtering
     - _Requirements: 2.1, 2.2_
 
-  - [x]* 4.3 Write property test for farm data isolation
+  - [x]\* 4.3 Write property test for farm data isolation
     - **Property 16: Farm Data Isolation**
     - **Validates: Requirements 2.2, 2.3, 10.7**
 
@@ -93,7 +93,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Show depleted batches separately
     - _Requirements: 3.1, 3.3, 3.4_
 
-  - [x]* 5.3 Write property test for inventory invariant
+  - [x]\* 5.3 Write property test for inventory invariant
     - **Property 4: Inventory Invariant**
     - **Validates: Requirements 3.2, 4.2, 8.2**
 
@@ -110,7 +110,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Show mortality rate statistics
     - _Requirements: 4.1, 4.3_
 
-  - [x]* 6.3 Write property test for mortality rate calculation
+  - [x]\* 6.3 Write property test for mortality rate calculation
     - **Property 5: Mortality Rate Calculation**
     - **Validates: Requirements 4.3, 4.4**
 
@@ -130,7 +130,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Show feed totals and FCR
     - _Requirements: 5.1, 5.2_
 
-  - [x]* 8.3 Write property test for FCR calculation
+  - [x]\* 8.3 Write property test for FCR calculation
     - **Property 6: Feed Conversion Ratio Calculation**
     - **Validates: Requirements 5.3**
 
@@ -147,11 +147,11 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Show laying percentage and inventory
     - _Requirements: 6.1, 6.2_
 
-  - [x]* 9.3 Write property test for laying percentage calculation
+  - [x]\* 9.3 Write property test for laying percentage calculation
     - **Property 7: Laying Percentage Calculation**
     - **Validates: Requirements 6.3**
 
-  - [x]* 9.4 Write property test for egg inventory calculation
+  - [x]\* 9.4 Write property test for egg inventory calculation
     - **Property 8: Egg Inventory Calculation**
     - **Validates: Requirements 6.4**
 
@@ -168,7 +168,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Show ADG and growth alerts
     - _Requirements: 7.1, 7.2, 7.4_
 
-  - [x]* 10.3 Write property test for ADG calculation
+  - [x]\* 10.3 Write property test for ADG calculation
     - **Property 9: Average Daily Gain Calculation**
     - **Validates: Requirements 7.3**
 
@@ -187,7 +187,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Display purchase history per customer
     - _Requirements: 15.1, 15.3_
 
-  - [x]* 12.3 Write property test for customer revenue aggregation
+  - [x]\* 12.3 Write property test for customer revenue aggregation
     - **Property 15: Customer Revenue Aggregation**
     - **Validates: Requirements 15.3, 15.4**
 
@@ -244,7 +244,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Show alerts for upcoming/overdue vaccinations
     - _Requirements: 14.1, 14.2, 14.3, 14.4_
 
-  - [x]* 17.3 Write property test for vaccination due date alerts
+  - [x]\* 17.3 Write property test for vaccination due date alerts
     - **Property 14: Vaccination Due Date Alerts**
     - **Validates: Requirements 14.3, 14.4**
 
@@ -260,7 +260,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Show alerts for out-of-range parameters
     - _Requirements: 17.1, 17.2, 17.3_
 
-  - [x]* 18.3 Write property test for water quality threshold alerts
+  - [x]\* 18.3 Write property test for water quality threshold alerts
     - **Property 12: Water Quality Threshold Alerts**
     - **Validates: Requirements 17.2, 17.4**
 
@@ -281,7 +281,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Add farm filter selector
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
 
-  - [x]* 19.3 Write property test for profit calculation
+  - [x]\* 19.3 Write property test for profit calculation
     - **Property 10: Profit Calculation**
     - **Validates: Requirements 10.2, 12.1**
 
@@ -307,7 +307,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Add download functionality
     - _Requirements: 18.3_
 
-  - [x]* 21.4 Write property test for invoice number sequencing
+  - [x]\* 21.4 Write property test for invoice number sequencing
     - **Property 13: Invoice Number Sequencing**
     - **Validates: Requirements 18.2**
 
@@ -355,7 +355,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - _Requirements: 13.2_
 
 - [x] 25. Data Persistence Testing
-  - [x]* 25.1 Write property test for data persistence round-trip
+  - [x]\* 25.1 Write property test for data persistence round-trip
     - **Property 3: Data Persistence Round-Trip**
     - **Validates: Requirements 11.1, 11.2, 11.3**
 
@@ -376,6 +376,7 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
 ## Pre-existing Setup
 
 The following are already configured in the project:
+
 - TanStack Start (full-stack React framework)
 - shadcn/ui with Base UI components
 - TailwindCSS 4 with custom teal-green theme

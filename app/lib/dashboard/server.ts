@@ -1,6 +1,6 @@
-import { db } from '~/lib/db'
 import { sql } from 'kysely'
 import { getUserFarms } from '../auth/middleware'
+import { db } from '~/lib/db'
 
 export interface DashboardStats {
   inventory: {
@@ -21,9 +21,23 @@ export interface DashboardStats {
   }
   alerts: {
     highMortality: Array<{ batchId: string; species: string; rate: number }>
-    upcomingVaccinations: Array<{ batchId: string; species: string; vaccineName: string; dueDate: Date }>
-    overdueVaccinations: Array<{ batchId: string; species: string; vaccineName: string; dueDate: Date }>
-    waterQualityAlerts: Array<{ batchId: string; parameter: string; value: number }>
+    upcomingVaccinations: Array<{
+      batchId: string
+      species: string
+      vaccineName: string
+      dueDate: Date
+    }>
+    overdueVaccinations: Array<{
+      batchId: string
+      species: string
+      vaccineName: string
+      dueDate: Date
+    }>
+    waterQualityAlerts: Array<{
+      batchId: string
+      parameter: string
+      value: number
+    }>
   }
   topCustomers: Array<{ id: string; name: string; totalSpent: number }>
   recentTransactions: Array<{
@@ -35,13 +49,16 @@ export interface DashboardStats {
   }>
 }
 
-export async function getDashboardStats(userId: string, farmId?: string): Promise<DashboardStats> {
+export async function getDashboardStats(
+  userId: string,
+  farmId?: string,
+): Promise<DashboardStats> {
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
   // Determine target farms
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (farmId) {
     targetFarmIds = [farmId]
   } else {
@@ -52,7 +69,12 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
         inventory: { totalPoultry: 0, totalFish: 0, activeBatches: 0 },
         financial: { monthlyRevenue: 0, monthlyExpenses: 0, monthlyProfit: 0 },
         production: { eggsThisMonth: 0, layingPercentage: 0 },
-        alerts: { highMortality: [], upcomingVaccinations: [], overdueVaccinations: [], waterQualityAlerts: [] },
+        alerts: {
+          highMortality: [],
+          upcomingVaccinations: [],
+          overdueVaccinations: [],
+          waterQualityAlerts: [],
+        },
         topCustomers: [],
         recentTransactions: [],
       }
@@ -71,8 +93,10 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
     .groupBy('livestockType')
     .execute()
 
-  const totalPoultry = inventoryByType.find(i => i.livestockType === 'poultry')?.total || 0
-  const totalFish = inventoryByType.find(i => i.livestockType === 'fish')?.total || 0
+  const totalPoultry =
+    inventoryByType.find((i) => i.livestockType === 'poultry')?.total || 0
+  const totalFish =
+    inventoryByType.find((i) => i.livestockType === 'fish')?.total || 0
 
   const activeBatchesResult = await db
     .selectFrom('batches')
@@ -85,7 +109,9 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
   // Monthly revenue
   const salesResult = await db
     .selectFrom('sales')
-    .select(sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as('total'))
+    .select(
+      sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as('total'),
+    )
     .where('date', '>=', startOfMonth)
     .where('date', '<=', endOfMonth)
     .where('farmId', 'in', targetFarmIds)
@@ -97,15 +123,18 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
   const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
   const prevMonthSalesResult = await db
     .selectFrom('sales')
-    .select(sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as('total'))
+    .select(
+      sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as('total'),
+    )
     .where('date', '>=', prevMonthStart)
     .where('date', '<=', prevMonthEnd)
     .where('farmId', 'in', targetFarmIds)
     .executeTakeFirst()
   const prevMonthRevenue = parseFloat(prevMonthSalesResult?.total || '0')
-  const revenueChange = prevMonthRevenue > 0 
-    ? ((monthlyRevenue - prevMonthRevenue) / prevMonthRevenue) * 100 
-    : 0
+  const revenueChange =
+    prevMonthRevenue > 0
+      ? ((monthlyRevenue - prevMonthRevenue) / prevMonthRevenue) * 100
+      : 0
 
   // Monthly expenses
   const expensesResult = await db
@@ -126,9 +155,10 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
     .where('farmId', 'in', targetFarmIds)
     .executeTakeFirst()
   const prevMonthExpenses = parseFloat(prevMonthExpensesResult?.total || '0')
-  const expensesChange = prevMonthExpenses > 0 
-    ? ((monthlyExpenses - prevMonthExpenses) / prevMonthExpenses) * 100 
-    : 0
+  const expensesChange =
+    prevMonthExpenses > 0
+      ? ((monthlyExpenses - prevMonthExpenses) / prevMonthExpenses) * 100
+      : 0
 
   // Egg production this month
   const eggsQuery = await db
@@ -155,9 +185,8 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
 
   const layerBirds = Number(layerBirdsQuery?.total || 0)
   const daysInMonth = endOfMonth.getDate()
-  const layingPercentage = layerBirds > 0
-    ? (eggsThisMonth / (layerBirds * daysInMonth)) * 100
-    : 0
+  const layingPercentage =
+    layerBirds > 0 ? (eggsThisMonth / (layerBirds * daysInMonth)) * 100 : 0
 
   // High mortality batches (>5% mortality rate)
   const mortalityQuery = await db
@@ -167,7 +196,9 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
       'batches.id as batchId',
       'batches.species',
       'batches.initialQuantity',
-      sql<number>`COALESCE(SUM(mortality_records.quantity), 0)`.as('totalDeaths'),
+      sql<number>`COALESCE(SUM(mortality_records.quantity), 0)`.as(
+        'totalDeaths',
+      ),
     ])
     .where('batches.status', '=', 'active')
     .where('batches.farmId', 'in', targetFarmIds)
@@ -175,12 +206,12 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
     .execute()
 
   const highMortality = mortalityQuery
-    .map(b => ({
+    .map((b) => ({
       batchId: b.batchId,
       species: b.species,
       rate: (Number(b.totalDeaths) / b.initialQuantity) * 100,
     }))
-    .filter(b => b.rate > 5)
+    .filter((b) => b.rate > 5)
     .sort((a, b) => b.rate - a.rate)
     .slice(0, 5)
 
@@ -222,7 +253,11 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
     .execute()
 
   // Water quality alerts
-  const waterAlerts: Array<{ batchId: string; parameter: string; value: number }> = []
+  const waterAlerts: Array<{
+    batchId: string
+    parameter: string
+    value: number
+  }> = []
   const recentWaterRecords = await db
     .selectFrom('water_quality')
     .innerJoin('batches', 'batches.id', 'water_quality.batchId')
@@ -249,13 +284,25 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
       waterAlerts.push({ batchId: record.batchId, parameter: 'pH', value: ph })
     }
     if (temp < 25 || temp > 30) {
-      waterAlerts.push({ batchId: record.batchId, parameter: 'Temperature', value: temp })
+      waterAlerts.push({
+        batchId: record.batchId,
+        parameter: 'Temperature',
+        value: temp,
+      })
     }
     if (oxygen < 5) {
-      waterAlerts.push({ batchId: record.batchId, parameter: 'Dissolved Oxygen', value: oxygen })
+      waterAlerts.push({
+        batchId: record.batchId,
+        parameter: 'Dissolved Oxygen',
+        value: oxygen,
+      })
     }
     if (ammonia > 0.02) {
-      waterAlerts.push({ batchId: record.batchId, parameter: 'Ammonia', value: ammonia })
+      waterAlerts.push({
+        batchId: record.batchId,
+        parameter: 'Ammonia',
+        value: ammonia,
+      })
     }
   }
 
@@ -266,14 +313,21 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
     .select([
       'customers.id',
       'customers.name',
-      sql<string>`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`.as('totalSpent'),
+      sql<string>`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`.as(
+        'totalSpent',
+      ),
     ])
-    .where((eb) => eb.or([
-      eb('sales.farmId', 'in', targetFarmIds),
-      eb('sales.farmId', 'is', null) // Avoid excluding customers with no sales in join if we want them? No, we want top customers for these farms.
-    ]))
+    .where((eb) =>
+      eb.or([
+        eb('sales.farmId', 'in', targetFarmIds),
+        eb('sales.farmId', 'is', null), // Avoid excluding customers with no sales in join if we want them? No, we want top customers for these farms.
+      ]),
+    )
     .groupBy(['customers.id', 'customers.name'])
-    .orderBy(sql`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`, 'desc')
+    .orderBy(
+      sql`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`,
+      'desc',
+    )
     .limit(5)
     .execute()
 
@@ -283,7 +337,9 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
     .select([
       'id',
       sql<'sale'>`'sale'`.as('type'),
-      sql<string>`CONCAT("livestockType", ' sale - ', quantity, ' units')`.as('description'),
+      sql<string>`CONCAT("livestockType", ' sale - ', quantity, ' units')`.as(
+        'description',
+      ),
       'totalAmount as amount',
       'date',
     ])
@@ -307,9 +363,9 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
     .execute()
 
   const recentTransactions = [...recentSales, ...recentExpenses]
-    .map(t => ({
+    .map((t) => ({
       id: t.id,
-      type: t.type as 'sale' | 'expense',
+      type: t.type,
       description: t.description,
       amount: parseFloat(String(t.amount)),
       date: t.date,
@@ -336,17 +392,21 @@ export async function getDashboardStats(userId: string, farmId?: string): Promis
     },
     alerts: {
       highMortality,
-      upcomingVaccinations: upcomingVaccinations.map(v => ({
-        ...v,
-        dueDate: v.dueDate!,
-      })).filter(v => v.dueDate),
-      overdueVaccinations: overdueVaccinations.map(v => ({
-        ...v,
-        dueDate: v.dueDate!,
-      })).filter(v => v.dueDate),
+      upcomingVaccinations: upcomingVaccinations
+        .filter((v) => v.dueDate)
+        .map((v) => ({
+          ...v,
+          dueDate: v.dueDate!,
+        })),
+      overdueVaccinations: overdueVaccinations
+        .filter((v) => v.dueDate)
+        .map((v) => ({
+          ...v,
+          dueDate: v.dueDate!,
+        })),
       waterQualityAlerts: waterAlerts.slice(0, 5),
     },
-    topCustomers: topCustomers.map(c => ({
+    topCustomers: topCustomers.map((c) => ({
       id: c.id,
       name: c.name,
       totalSpent: parseFloat(String(c.totalSpent)),

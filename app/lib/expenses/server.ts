@@ -1,5 +1,6 @@
+import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/lib/db'
-import { verifyFarmAccess } from '~/lib/auth/middleware'
+import { requireAuth, verifyFarmAccess } from '~/lib/auth/middleware'
 
 // Re-export constants for backward compatibility
 export { EXPENSE_CATEGORIES, type ExpenseCategory } from './constants'
@@ -7,7 +8,14 @@ export { EXPENSE_CATEGORIES, type ExpenseCategory } from './constants'
 export interface CreateExpenseInput {
   farmId: string
   batchId?: string | null
-  category: 'feed' | 'medicine' | 'equipment' | 'utilities' | 'labor' | 'transport' | 'other'
+  category:
+    | 'feed'
+    | 'medicine'
+    | 'equipment'
+    | 'utilities'
+    | 'labor'
+    | 'transport'
+    | 'other'
   amount: number
   date: Date
   description: string
@@ -20,7 +28,7 @@ export interface CreateExpenseInput {
 
 export async function createExpense(
   userId: string,
-  input: CreateExpenseInput
+  input: CreateExpenseInput,
 ): Promise<string> {
   await verifyFarmAccess(userId, input.farmId)
 
@@ -53,12 +61,14 @@ export async function createExpense(
 
       if (existing) {
         // Update existing stock
-        const newQuantity = (parseFloat(existing.quantityKg) + input.feedQuantityKg).toString()
+        const newQuantity = (
+          parseFloat(existing.quantityKg) + input.feedQuantityKg
+        ).toString()
         await tx
           .updateTable('feed_inventory')
           .set({
             quantityKg: newQuantity,
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .where('id', '=', existing.id)
           .execute()
@@ -71,7 +81,7 @@ export async function createExpense(
             feedType: input.feedType,
             quantityKg: input.feedQuantityKg.toString(),
             minThresholdKg: '10.00', // Default threshold
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .execute()
       }
@@ -83,6 +93,14 @@ export async function createExpense(
   return result.id
 }
 
+// Server function for client-side calls
+export const createExpenseFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { expense: CreateExpenseInput }) => data)
+  .handler(async ({ data }) => {
+    const session = await requireAuth()
+    return createExpense(session.user.id, data.expense)
+  })
+
 export async function getExpensesForFarm(
   userId: string,
   farmId: string,
@@ -90,7 +108,7 @@ export async function getExpensesForFarm(
     startDate?: Date
     endDate?: Date
     category?: string
-  }
+  },
 ) {
   await verifyFarmAccess(userId, farmId)
 
@@ -134,7 +152,7 @@ export async function getExpensesSummary(
   options?: {
     startDate?: Date
     endDate?: Date
-  }
+  },
 ) {
   await verifyFarmAccess(userId, farmId)
 
@@ -163,7 +181,7 @@ export async function getExpensesSummary(
 
   for (const row of results) {
     const count = Number(row.count)
-    const amount = parseFloat(row.totalAmount as string)
+    const amount = parseFloat(row.totalAmount)
     summary[row.category] = { count, amount }
     totalCount += count
     totalAmount += amount
@@ -181,7 +199,7 @@ export async function getTotalExpenses(
   options?: {
     startDate?: Date
     endDate?: Date
-  }
+  },
 ): Promise<number> {
   await verifyFarmAccess(userId, farmId)
 

@@ -1,21 +1,21 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 
 /**
  * Property 4: Inventory Invariant
  * Feature: poultry-fishery-tracker, Property 4: Inventory Invariant
  * Validates: Requirements 3.2, 4.2, 8.2
- * 
+ *
  * For any batch, the current_quantity SHALL always equal:
  * initial_quantity - sum(mortality quantities) - sum(sale quantities)
  */
 describe('Property 4: Inventory Invariant', () => {
   // Arbitrary for initial quantity
   const initialQuantityArb = fc.integer({ min: 1, max: 100000 })
-  
+
   // Arbitrary for mortality records
   const mortalityRecordArb = fc.integer({ min: 1, max: 1000 })
-  
+
   // Arbitrary for sale records
   const saleRecordArb = fc.integer({ min: 1, max: 1000 })
 
@@ -24,8 +24,8 @@ describe('Property 4: Inventory Invariant', () => {
    */
   function calculateCurrentQuantity(
     initialQuantity: number,
-    mortalityQuantities: number[],
-    saleQuantities: number[]
+    mortalityQuantities: Array<number>,
+    saleQuantities: Array<number>,
   ): number {
     const totalMortality = mortalityQuantities.reduce((sum, q) => sum + q, 0)
     const totalSales = saleQuantities.reduce((sum, q) => sum + q, 0)
@@ -37,12 +37,12 @@ describe('Property 4: Inventory Invariant', () => {
    */
   function constrainQuantities(
     initialQuantity: number,
-    mortalityQuantities: number[],
-    saleQuantities: number[]
-  ): { mortalities: number[]; sales: number[] } {
+    mortalityQuantities: Array<number>,
+    saleQuantities: Array<number>,
+  ): { mortalities: Array<number>; sales: Array<number> } {
     let remaining = initialQuantity
-    const constrainedMortalities: number[] = []
-    const constrainedSales: number[] = []
+    const constrainedMortalities: Array<number> = []
+    const constrainedSales: Array<number> = []
 
     // Constrain mortalities first
     for (const qty of mortalityQuantities) {
@@ -76,26 +76,28 @@ describe('Property 4: Inventory Invariant', () => {
           const { mortalities, sales } = constrainQuantities(
             initialQuantity,
             rawMortalities,
-            rawSales
+            rawSales,
           )
 
           const currentQuantity = calculateCurrentQuantity(
             initialQuantity,
             mortalities,
-            sales
+            sales,
           )
 
           const totalMortality = mortalities.reduce((sum, q) => sum + q, 0)
           const totalSales = sales.reduce((sum, q) => sum + q, 0)
 
           // The invariant: current = initial - mortalities - sales
-          expect(currentQuantity).toBe(initialQuantity - totalMortality - totalSales)
-          
+          expect(currentQuantity).toBe(
+            initialQuantity - totalMortality - totalSales,
+          )
+
           // Current quantity should never be negative
           expect(currentQuantity).toBeGreaterThanOrEqual(0)
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -109,30 +111,34 @@ describe('Property 4: Inventory Invariant', () => {
           const { mortalities, sales } = constrainQuantities(
             initialQuantity,
             rawMortalities,
-            rawSales
+            rawSales,
           )
 
           const currentQuantity = calculateCurrentQuantity(
             initialQuantity,
             mortalities,
-            sales
+            sales,
           )
 
           expect(currentQuantity).toBeGreaterThanOrEqual(0)
           expect(currentQuantity).toBeLessThanOrEqual(initialQuantity)
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
   it('no operations means current equals initial', () => {
     fc.assert(
       fc.property(initialQuantityArb, (initialQuantity) => {
-        const currentQuantity = calculateCurrentQuantity(initialQuantity, [], [])
+        const currentQuantity = calculateCurrentQuantity(
+          initialQuantity,
+          [],
+          [],
+        )
         expect(currentQuantity).toBe(initialQuantity)
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -147,7 +153,7 @@ describe('Property 4: Inventory Invariant', () => {
           const { mortalities: m1, sales: s1 } = constrainQuantities(
             initialQuantity,
             rawMortalities,
-            rawSales
+            rawSales,
           )
           const result1 = calculateCurrentQuantity(initialQuantity, m1, s1)
 
@@ -155,7 +161,7 @@ describe('Property 4: Inventory Invariant', () => {
           const { mortalities: m2, sales: s2 } = constrainQuantities(
             initialQuantity,
             rawSales, // swap order
-            rawMortalities
+            rawMortalities,
           )
           // Note: The constrained quantities may differ, but the invariant still holds
           const result2 = calculateCurrentQuantity(initialQuantity, s2, m2)
@@ -163,9 +169,9 @@ describe('Property 4: Inventory Invariant', () => {
           // Both results should be non-negative
           expect(result1).toBeGreaterThanOrEqual(0)
           expect(result2).toBeGreaterThanOrEqual(0)
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -176,7 +182,7 @@ describe('Property 4: Inventory Invariant', () => {
         const currentAfterMortality = calculateCurrentQuantity(
           initialQuantity,
           [initialQuantity],
-          []
+          [],
         )
         expect(currentAfterMortality).toBe(0)
 
@@ -184,7 +190,7 @@ describe('Property 4: Inventory Invariant', () => {
         const currentAfterSale = calculateCurrentQuantity(
           initialQuantity,
           [],
-          [initialQuantity]
+          [initialQuantity],
         )
         expect(currentAfterSale).toBe(0)
 
@@ -194,11 +200,11 @@ describe('Property 4: Inventory Invariant', () => {
         const currentMixed = calculateCurrentQuantity(
           initialQuantity,
           [half],
-          [remainder]
+          [remainder],
         )
         expect(currentMixed).toBe(0)
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 })

@@ -1,7 +1,15 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getSupplierWithExpenses, deleteSupplier } from '~/lib/suppliers/server'
-import { ArrowLeft, Phone, Mail, MapPin, Package, Trash2, Edit } from 'lucide-react'
+import {
+  ArrowLeft,
+  Edit,
+  Mail,
+  MapPin,
+  Package,
+  Phone,
+  Trash2,
+} from 'lucide-react'
+import { deleteSupplier, getSupplierWithExpenses } from '~/lib/suppliers/server'
 import { formatNaira } from '~/lib/currency'
 
 interface Expense {
@@ -18,10 +26,10 @@ interface Supplier {
   phone: string
   email: string | null
   location: string | null
-  products: string[] | null
+  products: Array<string> | null
   totalSpent: number
   expenseCount: number
-  expenses: Expense[] | null
+  expenses: Array<Expense> | null
 }
 
 const fetchSupplier = createServerFn({ method: 'GET' })
@@ -38,11 +46,12 @@ const removeSupplier = createServerFn({ method: 'POST' })
 
 export const Route = createFileRoute('/suppliers/$supplierId')({
   component: SupplierDetailPage,
-  loader: ({ params }) => fetchSupplier({ data: { supplierId: params.supplierId } }),
+  loader: ({ params }) =>
+    fetchSupplier({ data: { supplierId: params.supplierId } }),
 })
 
 function SupplierDetailPage() {
-  const supplier = Route.useLoaderData() as Supplier | null
+  const supplier = Route.useLoaderData()
   const navigate = useNavigate()
 
   if (!supplier) {
@@ -75,13 +84,13 @@ function SupplierDetailPage() {
 
         <div className="flex items-start justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{supplier.name}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {supplier.name}
+            </h1>
             <p className="text-muted-foreground mt-1">Supplier Details</p>
           </div>
           <div className="flex gap-2">
-            <button
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-10 px-4 min-h-[44px]"
-            >
+            <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-10 px-4 min-h-[44px]">
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </button>
@@ -133,7 +142,9 @@ function SupplierDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No products listed</p>
+              <p className="text-sm text-muted-foreground">
+                No products listed
+              </p>
             )}
           </div>
 
@@ -142,10 +153,14 @@ function SupplierDetailPage() {
               <h2 className="font-semibold">Purchase Summary</h2>
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Total Spent</p>
-                <p className="text-2xl font-bold text-primary">{formatNaira(supplier.totalSpent)}</p>
+                <p className="text-2xl font-bold text-primary">
+                  {formatNaira(supplier.totalSpent)}
+                </p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">{supplier.expenseCount} purchases recorded</p>
+            <p className="text-sm text-muted-foreground">
+              {supplier.expenseCount} purchases recorded
+            </p>
           </div>
 
           {supplier.expenses && supplier.expenses.length > 0 && (
@@ -157,17 +172,23 @@ function SupplierDetailPage() {
                     <tr className="border-b">
                       <th className="text-left py-2 font-medium">Date</th>
                       <th className="text-left py-2 font-medium">Category</th>
-                      <th className="text-left py-2 font-medium">Description</th>
+                      <th className="text-left py-2 font-medium">
+                        Description
+                      </th>
                       <th className="text-right py-2 font-medium">Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {supplier.expenses.slice(0, 10).map((expense) => (
                       <tr key={expense.id} className="border-b last:border-0">
-                        <td className="py-2">{new Date(expense.date).toLocaleDateString()}</td>
+                        <td className="py-2">
+                          {new Date(expense.date).toLocaleDateString()}
+                        </td>
                         <td className="py-2 capitalize">{expense.category}</td>
                         <td className="py-2">{expense.description}</td>
-                        <td className="py-2 text-right">{formatNaira(parseFloat(expense.amount))}</td>
+                        <td className="py-2 text-right">
+                          {formatNaira(parseFloat(expense.amount))}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

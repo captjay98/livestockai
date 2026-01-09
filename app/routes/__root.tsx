@@ -1,10 +1,10 @@
-import { AppShell } from '~/components/layout/shell'
 import {
-  createRootRoute,
-  Outlet,
   HeadContent,
+  Outlet,
   Scripts,
+  createRootRoute,
 } from '@tanstack/react-router'
+import { AppShell } from '~/components/layout/shell'
 import { ThemeProvider } from '~/components/theme-provider'
 import { FarmProvider } from '~/components/farm-context'
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools'

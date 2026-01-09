@@ -1,22 +1,22 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 import Decimal from 'decimal.js'
 import {
+  calculatePercentage,
+  compare,
+  divide,
+  equals,
+  formatNaira,
+  formatNairaCompact,
+  isValidAmount,
+  multiply,
+  parseNaira,
+  roundCurrency,
+  subtract,
+  sumAmounts,
+  toDbString,
   toDecimal,
   toNumber,
-  toDbString,
-  formatNaira,
-  parseNaira,
-  formatNairaCompact,
-  calculatePercentage,
-  sumAmounts,
-  multiply,
-  divide,
-  subtract,
-  isValidAmount,
-  roundCurrency,
-  compare,
-  equals,
 } from './currency'
 
 describe('Currency Utilities', () => {
@@ -24,7 +24,7 @@ describe('Currency Utilities', () => {
     describe('toDecimal', () => {
       it('converts numbers correctly', () => {
         expect(toDecimal(100).toString()).toBe('100')
-        expect(toDecimal(100.50).toString()).toBe('100.5')
+        expect(toDecimal(100.5).toString()).toBe('100.5')
         expect(toDecimal(0).toString()).toBe('0')
       })
 
@@ -56,7 +56,7 @@ describe('Currency Utilities', () => {
 
       it('formats small amounts correctly', () => {
         expect(formatNaira(100)).toBe('₦100.00')
-        expect(formatNaira(100.50)).toBe('₦100.50')
+        expect(formatNaira(100.5)).toBe('₦100.50')
       })
 
       it('formats large amounts with separators', () => {
@@ -189,17 +189,18 @@ describe('Currency Utilities', () => {
 
   describe('Property Tests', () => {
     // Arbitrary for valid currency amounts (positive numbers with up to 2 decimal places)
-    const currencyArb = fc.double({ min: 0, max: 1_000_000_000, noNaN: true })
-      .map(n => Math.round(n * 100) / 100) // Round to 2 decimal places
+    const currencyArb = fc
+      .double({ min: 0, max: 1_000_000_000, noNaN: true })
+      .map((n) => Math.round(n * 100) / 100) // Round to 2 decimal places
 
     it('formatNaira produces strings starting with ₦ and containing correct Naira value', () => {
       fc.assert(
         fc.property(currencyArb, (amount) => {
           const formatted = formatNaira(amount)
-          
+
           // Should start with ₦
           expect(formatted.startsWith('₦')).toBe(true)
-          
+
           // Should be parseable back (approximately)
           const parsed = parseNaira(formatted)
           expect(parsed).not.toBeNull()
@@ -207,7 +208,7 @@ describe('Currency Utilities', () => {
             expect(parsed.toNumber()).toBeCloseTo(amount, 2)
           }
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -216,31 +217,26 @@ describe('Currency Utilities', () => {
         fc.property(currencyArb, (amount) => {
           const dbString = toDbString(amount)
           const backToDecimal = toDecimal(dbString)
-          
+
           // Should round-trip correctly (within 2 decimal places)
           expect(backToDecimal.toFixed(2)).toBe(toDecimal(amount).toFixed(2))
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
     it('sumAmounts is associative and commutative', () => {
       fc.assert(
-        fc.property(
-          currencyArb,
-          currencyArb,
-          currencyArb,
-          (a, b, c) => {
-            // Commutative: a + b = b + a
-            expect(sumAmounts(a, b).equals(sumAmounts(b, a))).toBe(true)
-            
-            // Associative: (a + b) + c = a + (b + c)
-            const leftAssoc = sumAmounts(sumAmounts(a, b).toNumber(), c)
-            const rightAssoc = sumAmounts(a, sumAmounts(b, c).toNumber())
-            expect(leftAssoc.toFixed(2)).toBe(rightAssoc.toFixed(2))
-          }
-        ),
-        { numRuns: 100 }
+        fc.property(currencyArb, currencyArb, currencyArb, (a, b, c) => {
+          // Commutative: a + b = b + a
+          expect(sumAmounts(a, b).equals(sumAmounts(b, a))).toBe(true)
+
+          // Associative: (a + b) + c = a + (b + c)
+          const leftAssoc = sumAmounts(sumAmounts(a, b).toNumber(), c)
+          const rightAssoc = sumAmounts(a, sumAmounts(b, c).toNumber())
+          expect(leftAssoc.toFixed(2)).toBe(rightAssoc.toFixed(2))
+        }),
+        { numRuns: 100 },
       )
     })
 
@@ -253,12 +249,12 @@ describe('Currency Utilities', () => {
             // Ensure part <= total for meaningful percentage
             const actualPart = Math.min(part, total)
             const percentage = calculatePercentage(actualPart, total)
-            
+
             expect(percentage).toBeGreaterThanOrEqual(0)
             expect(percentage).toBeLessThanOrEqual(100)
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -267,14 +263,14 @@ describe('Currency Utilities', () => {
         fc.property(currencyArb, (amount) => {
           const formatted = formatNaira(amount)
           const parsed = parseNaira(formatted)
-          
+
           expect(parsed).not.toBeNull()
           if (parsed) {
             // Should be equal within 2 decimal places
             expect(parsed.toFixed(2)).toBe(toDecimal(amount).toFixed(2))
           }
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -286,15 +282,15 @@ describe('Currency Utilities', () => {
           (amount, factor) => {
             const multiplied = multiply(amount, factor)
             const divided = divide(multiplied, factor)
-            
+
             expect(divided).not.toBeNull()
             if (divided) {
               // Should round-trip correctly (within reasonable precision)
               expect(divided.toFixed(2)).toBe(toDecimal(amount).toFixed(2))
             }
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -303,10 +299,10 @@ describe('Currency Utilities', () => {
         fc.property(currencyArb, currencyArb, (a, b) => {
           const sum = sumAmounts(a, b)
           const difference = subtract(sum, b)
-          
+
           expect(difference.toFixed(2)).toBe(toDecimal(a).toFixed(2))
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
   })

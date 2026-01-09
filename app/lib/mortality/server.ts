@@ -13,7 +13,10 @@ export interface CreateMortalityData {
 /**
  * Record mortality and update batch quantity
  */
-export async function recordMortality(userId: string, data: CreateMortalityData): Promise<string> {
+export async function recordMortality(
+  userId: string,
+  data: CreateMortalityData,
+): Promise<string> {
   // Verify batch access
   const batch = await getBatchById(userId, data.batchId)
   if (!batch) {
@@ -126,14 +129,16 @@ export async function getMortalityStats(userId: string, batchId: string) {
   const recentMortality = Number(recentStats?.recent_mortality || 0)
 
   // Calculate mortality rate
-  const mortalityRate = batch.initialQuantity > 0
-    ? (totalMortality / batch.initialQuantity) * 100
-    : 0
+  const mortalityRate =
+    batch.initialQuantity > 0
+      ? (totalMortality / batch.initialQuantity) * 100
+      : 0
 
   // Calculate recent mortality rate
-  const recentMortalityRate = batch.initialQuantity > 0
-    ? (recentMortality / batch.initialQuantity) * 100
-    : 0
+  const recentMortalityRate =
+    batch.initialQuantity > 0
+      ? (recentMortality / batch.initialQuantity) * 100
+      : 0
 
   return {
     total: {
@@ -146,11 +151,12 @@ export async function getMortalityStats(userId: string, batchId: string) {
       quantity: recentMortality,
       rate: recentMortalityRate,
     },
-    byCause: causeStats.map(stat => ({
+    byCause: causeStats.map((stat) => ({
       cause: stat.cause,
       count: Number(stat.count),
       quantity: Number(stat.quantity),
-      percentage: totalMortality > 0 ? (Number(stat.quantity) / totalMortality) * 100 : 0,
+      percentage:
+        totalMortality > 0 ? (Number(stat.quantity) / totalMortality) * 100 : 0,
     })),
     batch: {
       initialQuantity: batch.initialQuantity,
@@ -168,7 +174,7 @@ export async function getMortalityTrends(
   userId: string,
   batchId: string,
   period: 'daily' | 'weekly' | 'monthly' = 'daily',
-  days: number = 30
+  days: number = 30,
 ) {
   // Verify batch access
   const batch = await getBatchById(userId, batchId)
@@ -193,17 +199,21 @@ export async function getMortalityTrends(
   const trends = await db
     .selectFrom('mortality_records')
     .select([
-      (eb) => eb.fn('to_char', [eb.ref('date'), eb.val(dateFormat)]).as('period'),
+      (eb) =>
+        eb.fn('to_char', [eb.ref('date'), eb.val(dateFormat)]).as('period'),
       db.fn.count('id').as('records'),
       db.fn.sum('quantity').as('quantity'),
     ])
     .where('batchId', '=', batchId)
     .where('date', '>=', startDate)
     .groupBy((eb) => eb.fn('to_char', [eb.ref('date'), eb.val(dateFormat)]))
-    .orderBy((eb) => eb.fn('to_char', [eb.ref('date'), eb.val(dateFormat)]), 'asc')
+    .orderBy(
+      (eb) => eb.fn('to_char', [eb.ref('date'), eb.val(dateFormat)]),
+      'asc',
+    )
     .execute()
 
-  return trends.map(trend => ({
+  return trends.map((trend) => ({
     period: trend.period,
     records: Number(trend.records),
     quantity: Number(trend.quantity),
@@ -215,7 +225,7 @@ export async function getMortalityTrends(
  */
 export async function getMortalityAlerts(userId: string, farmId?: string) {
   // Determine target farms
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (farmId) {
     targetFarmIds = [farmId]
   } else {
@@ -239,17 +249,16 @@ export async function getMortalityAlerts(userId: string, farmId?: string) {
     // Check recent mortality (last 7 days)
     const recentMortality = await db
       .selectFrom('mortality_records')
-      .select([
-        db.fn.sum('quantity').as('quantity'),
-      ])
+      .select([db.fn.sum('quantity').as('quantity')])
       .where('batchId', '=', batch.id)
       .where('date', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
       .executeTakeFirst()
 
     const recentQuantity = Number(recentMortality?.quantity || 0)
-    const recentRate = batch.initialQuantity > 0
-      ? (recentQuantity / batch.initialQuantity) * 100
-      : 0
+    const recentRate =
+      batch.initialQuantity > 0
+        ? (recentQuantity / batch.initialQuantity) * 100
+        : 0
 
     // Alert if mortality rate > 5% in last 7 days
     if (recentRate > 5) {
@@ -257,7 +266,8 @@ export async function getMortalityAlerts(userId: string, farmId?: string) {
         type: 'high_mortality' as const,
         batchId: batch.id,
         batchSpecies: batch.species,
-        severity: recentRate > 10 ? 'critical' as const : 'warning' as const,
+        severity:
+          recentRate > 10 ? ('critical' as const) : ('warning' as const),
         message: `High mortality rate (${recentRate.toFixed(1)}%) in last 7 days`,
         quantity: recentQuantity,
         rate: recentRate,
@@ -265,16 +275,20 @@ export async function getMortalityAlerts(userId: string, farmId?: string) {
     }
 
     // Alert if batch is nearly depleted (< 10% remaining)
-    const remainingPercentage = batch.initialQuantity > 0
-      ? (batch.currentQuantity / batch.initialQuantity) * 100
-      : 0
+    const remainingPercentage =
+      batch.initialQuantity > 0
+        ? (batch.currentQuantity / batch.initialQuantity) * 100
+        : 0
 
     if (remainingPercentage < 10 && remainingPercentage > 0) {
       alerts.push({
         type: 'low_stock' as const,
         batchId: batch.id,
         batchSpecies: batch.species,
-        severity: remainingPercentage < 5 ? 'critical' as const : 'warning' as const,
+        severity:
+          remainingPercentage < 5
+            ? ('critical' as const)
+            : ('warning' as const),
         message: `Low stock: ${remainingPercentage.toFixed(1)}% remaining`,
         quantity: batch.currentQuantity,
         rate: remainingPercentage,

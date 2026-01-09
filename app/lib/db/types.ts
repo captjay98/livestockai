@@ -97,12 +97,12 @@ export interface BatchTable {
   id: Generated<string>
   farmId: string
   livestockType: 'poultry' | 'fish'
-  species: string  // broiler, layer, catfish, tilapia, etc.
+  species: string // broiler, layer, catfish, tilapia, etc.
   initialQuantity: number
   currentQuantity: number
   acquisitionDate: Date
-  costPerUnit: string  // DECIMAL(19,2) - returned as string from pg
-  totalCost: string    // DECIMAL(19,2) - returned as string from pg
+  costPerUnit: string // DECIMAL(19,2) - returned as string from pg
+  totalCost: string // DECIMAL(19,2) - returned as string from pg
   status: 'active' | 'depleted' | 'sold'
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
@@ -122,8 +122,8 @@ export interface FeedTable {
   id: Generated<string>
   batchId: string
   feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
-  quantityKg: string  // DECIMAL(10,2) - returned as string from pg
-  cost: string        // DECIMAL(19,2) - returned as string from pg
+  quantityKg: string // DECIMAL(10,2) - returned as string from pg
+  cost: string // DECIMAL(19,2) - returned as string from pg
   date: Date
   supplierId: string | null
   createdAt: Generated<Date>
@@ -144,7 +144,7 @@ export interface WeightTable {
   batchId: string
   date: Date
   sampleSize: number
-  averageWeightKg: string  // DECIMAL(8,3) - returned as string from pg
+  averageWeightKg: string // DECIMAL(8,3) - returned as string from pg
   createdAt: Generated<Date>
 }
 
@@ -175,10 +175,10 @@ export interface WaterQualityTable {
   id: Generated<string>
   batchId: string
   date: Date
-  ph: string                   // DECIMAL(4,2) - returned as string from pg
-  temperatureCelsius: string   // DECIMAL(5,2) - returned as string from pg
-  dissolvedOxygenMgL: string   // DECIMAL(6,2) - returned as string from pg
-  ammoniaMgL: string           // DECIMAL(6,3) - returned as string from pg
+  ph: string // DECIMAL(4,2) - returned as string from pg
+  temperatureCelsius: string // DECIMAL(5,2) - returned as string from pg
+  dissolvedOxygenMgL: string // DECIMAL(6,2) - returned as string from pg
+  ammoniaMgL: string // DECIMAL(6,3) - returned as string from pg
   notes: string | null
   createdAt: Generated<Date>
 }
@@ -191,7 +191,7 @@ export interface SaleTable {
   customerId: string | null
   livestockType: 'poultry' | 'fish' | 'eggs'
   quantity: number
-  unitPrice: string   // DECIMAL(19,2) - returned as string from pg
+  unitPrice: string // DECIMAL(19,2) - returned as string from pg
   totalAmount: string // DECIMAL(19,2) - returned as string from pg
   date: Date
   notes: string | null
@@ -202,8 +202,15 @@ export interface ExpenseTable {
   id: Generated<string>
   farmId: string
   batchId: string | null
-  category: 'feed' | 'medicine' | 'equipment' | 'utilities' | 'labor' | 'transport' | 'other'
-  amount: string  // DECIMAL(19,2) - returned as string from pg
+  category:
+    | 'feed'
+    | 'medicine'
+    | 'equipment'
+    | 'utilities'
+    | 'labor'
+    | 'transport'
+    | 'other'
+  amount: string // DECIMAL(19,2) - returned as string from pg
   date: Date
   description: string
   supplierId: string | null
@@ -237,7 +244,7 @@ export interface SupplierTable {
   phone: string
   email: string | null
   location: string | null
-  products: string[]  // what they supply
+  products: Array<string> // what they supply
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -248,7 +255,7 @@ export interface InvoiceTable {
   invoiceNumber: string
   customerId: string
   farmId: string
-  totalAmount: string  // DECIMAL(19,2) - returned as string from pg
+  totalAmount: string // DECIMAL(19,2) - returned as string from pg
   status: 'unpaid' | 'partial' | 'paid'
   date: Date
   dueDate: Date | null
@@ -261,6 +268,6 @@ export interface InvoiceItemTable {
   invoiceId: string
   description: string
   quantity: number
-  unitPrice: string  // DECIMAL(19,2) - returned as string from pg
-  total: string      // DECIMAL(19,2) - returned as string from pg
+  unitPrice: string // DECIMAL(19,2) - returned as string from pg
+  total: string // DECIMAL(19,2) - returned as string from pg
 }

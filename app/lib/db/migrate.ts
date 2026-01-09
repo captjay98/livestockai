@@ -1,13 +1,13 @@
 /**
  * Kysely Migration Runner
- * 
+ *
  * Run migrations: bun run db:migrate
  * Rollback last: bun run db:rollback
  */
 
-import { promises as fs } from 'fs'
-import * as path from 'path'
-import { Migrator, FileMigrationProvider } from 'kysely'
+import { promises as fs } from 'node:fs'
+import * as path from 'node:path'
+import { FileMigrationProvider, Migrator } from 'kysely'
 import { db } from './index'
 
 async function migrateToLatest() {
@@ -24,7 +24,9 @@ async function migrateToLatest() {
 
   results?.forEach((it) => {
     if (it.status === 'Success') {
-      console.log(`✅ Migration "${it.migrationName}" was executed successfully`)
+      console.log(
+        `✅ Migration "${it.migrationName}" was executed successfully`,
+      )
     } else if (it.status === 'Error') {
       console.error(`❌ Failed to execute migration "${it.migrationName}"`)
     }

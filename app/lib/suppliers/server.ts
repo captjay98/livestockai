@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/lib/db'
 
 export interface CreateSupplierInput {
@@ -5,10 +6,12 @@ export interface CreateSupplierInput {
   phone: string
   email?: string | null
   location?: string | null
-  products: string[]
+  products: Array<string>
 }
 
-export async function createSupplier(input: CreateSupplierInput): Promise<string> {
+export async function createSupplier(
+  input: CreateSupplierInput,
+): Promise<string> {
   const result = await db
     .insertInto('suppliers')
     .values({
@@ -25,12 +28,15 @@ export async function createSupplier(input: CreateSupplierInput): Promise<string
 }
 
 export async function getSuppliers() {
-  return db
-    .selectFrom('suppliers')
-    .selectAll()
-    .orderBy('name', 'asc')
-    .execute()
+  return db.selectFrom('suppliers').selectAll().orderBy('name', 'asc').execute()
 }
+
+// Server function for client-side calls
+export const getSuppliersFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    return getSuppliers()
+  },
+)
 
 export async function getSupplierById(supplierId: string) {
   return db
@@ -42,7 +48,7 @@ export async function getSupplierById(supplierId: string) {
 
 export async function updateSupplier(
   supplierId: string,
-  input: Partial<CreateSupplierInput>
+  input: Partial<CreateSupplierInput>,
 ) {
   await db
     .updateTable('suppliers')
@@ -55,10 +61,7 @@ export async function updateSupplier(
 }
 
 export async function deleteSupplier(supplierId: string) {
-  await db
-    .deleteFrom('suppliers')
-    .where('id', '=', supplierId)
-    .execute()
+  await db.deleteFrom('suppliers').where('id', '=', supplierId).execute()
 }
 
 export async function getSupplierWithExpenses(supplierId: string) {
@@ -67,13 +70,7 @@ export async function getSupplierWithExpenses(supplierId: string) {
 
   const expenses = await db
     .selectFrom('expenses')
-    .select([
-      'id',
-      'category',
-      'amount',
-      'date',
-      'description',
-    ])
+    .select(['id', 'category', 'amount', 'date', 'description'])
     .where('supplierId', '=', supplierId)
     .orderBy('date', 'desc')
     .execute()

@@ -1,15 +1,27 @@
-import { createFileRoute, useRouter, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { createBatch } from '~/lib/batches/server'
 import { getSpeciesOptions } from '~/lib/batches/constants'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
-import { ArrowLeft } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 interface CreateBatchInput {
   farmId: string
@@ -86,15 +98,13 @@ function NewBatchPage() {
           initialQuantity: parseInt(formData.initialQuantity),
           acquisitionDate: formData.acquisitionDate,
           costPerUnit: parseFloat(formData.costPerUnit),
-        }
+        },
       })
 
-      if (result.success) {
-        router.navigate({
-          to: '/batches',
-          search: { farmId: formData.farmId }
-        })
-      }
+      router.navigate({
+        to: '/batches',
+        search: { farmId: formData.farmId },
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create batch')
     } finally {
@@ -104,7 +114,7 @@ function NewBatchPage() {
 
   const handleLivestockTypeChange = (type: string | null) => {
     if (type && (type === 'poultry' || type === 'fish')) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         livestockType: type,
         species: '',
@@ -115,11 +125,7 @@ function NewBatchPage() {
   return (
     <div className="container mx-auto py-6 px-4 max-w-2xl">
       <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.history.back()}
-        >
+        <Button variant="ghost" size="sm" onClick={() => router.history.back()}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
@@ -148,7 +154,8 @@ function NewBatchPage() {
               >
                 <SelectTrigger>
                   <SelectValue>
-                    {formData.livestockType.charAt(0).toUpperCase() + formData.livestockType.slice(1)}
+                    {formData.livestockType.charAt(0).toUpperCase() +
+                      formData.livestockType.slice(1)}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -162,7 +169,9 @@ function NewBatchPage() {
               <Label htmlFor="species">Species</Label>
               <Select
                 value={formData.species}
-                onValueChange={(value) => value && setFormData(prev => ({ ...prev, species: value }))}
+                onValueChange={(value) =>
+                  value && setFormData((prev) => ({ ...prev, species: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue>
@@ -186,7 +195,12 @@ function NewBatchPage() {
                 type="number"
                 min="1"
                 value={formData.initialQuantity}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(prev => ({ ...prev, initialQuantity: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    initialQuantity: e.target.value,
+                  }))
+                }
                 placeholder="Enter initial quantity"
                 required
               />
@@ -200,7 +214,12 @@ function NewBatchPage() {
                 min="0"
                 step="0.01"
                 value={formData.costPerUnit}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(prev => ({ ...prev, costPerUnit: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    costPerUnit: e.target.value,
+                  }))
+                }
                 placeholder="Enter cost per unit in Naira"
                 required
               />
@@ -212,7 +231,12 @@ function NewBatchPage() {
                 id="acquisitionDate"
                 type="date"
                 value={formData.acquisitionDate}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(prev => ({ ...prev, acquisitionDate: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    acquisitionDate: e.target.value,
+                  }))
+                }
                 required
               />
             </div>
@@ -224,15 +248,30 @@ function NewBatchPage() {
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span>Quantity:</span>
-                    <span>{parseInt(formData.initialQuantity || '0').toLocaleString()}</span>
+                    <span>
+                      {parseInt(
+                        formData.initialQuantity || '0',
+                      ).toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Cost per Unit:</span>
-                    <span>₦{parseFloat(formData.costPerUnit || '0').toFixed(2)}</span>
+                    <span>
+                      ₦{parseFloat(formData.costPerUnit || '0').toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between font-medium border-t pt-1">
                     <span>Total Cost:</span>
-                    <span>₦{(parseInt(formData.initialQuantity || '0') * parseFloat(formData.costPerUnit || '0')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span>
+                      ₦
+                      {(
+                        parseInt(formData.initialQuantity || '0') *
+                        parseFloat(formData.costPerUnit || '0')
+                      ).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -255,7 +294,12 @@ function NewBatchPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.species || !formData.initialQuantity || !formData.costPerUnit}
+                disabled={
+                  isSubmitting ||
+                  !formData.species ||
+                  !formData.initialQuantity ||
+                  !formData.costPerUnit
+                }
               >
                 {isSubmitting ? 'Creating...' : 'Create Batch'}
               </Button>

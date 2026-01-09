@@ -1,11 +1,14 @@
-import { auth } from './config'
-import { db } from '../db'
 import { getRequestHeaders } from '@tanstack/react-start/server'
+import { db } from '../db'
+import { auth } from './config'
 
 /**
  * Check if user has access to a specific farm
  */
-export async function checkFarmAccess(userId: string, farmId: string): Promise<boolean> {
+export async function checkFarmAccess(
+  userId: string,
+  farmId: string,
+): Promise<boolean> {
   try {
     // Get user role
     const user = await db
@@ -37,7 +40,7 @@ export async function checkFarmAccess(userId: string, farmId: string): Promise<b
 /**
  * Get all farms accessible to a user
  */
-export async function getUserFarms(userId: string): Promise<string[]> {
+export async function getUserFarms(userId: string): Promise<Array<string>> {
   try {
     // Get user role
     const user = await db
@@ -50,11 +53,8 @@ export async function getUserFarms(userId: string): Promise<string[]> {
 
     // Admin has access to all farms
     if (user.role === 'admin') {
-      const farms = await db
-        .selectFrom('farms')
-        .select(['id'])
-        .execute()
-      return farms.map(f => f.id)
+      const farms = await db.selectFrom('farms').select(['id']).execute()
+      return farms.map((f) => f.id)
     }
 
     // Staff only has access to assigned farms
@@ -64,7 +64,7 @@ export async function getUserFarms(userId: string): Promise<string[]> {
       .where('userId', '=', userId)
       .execute()
 
-    return assignments.map(a => a.farmId)
+    return assignments.map((a) => a.farmId)
   } catch (error) {
     console.error('Error getting user farms:', error)
     return []
@@ -74,7 +74,11 @@ export async function getUserFarms(userId: string): Promise<string[]> {
 /**
  * Assign a staff user to a farm (admin only)
  */
-export async function assignUserToFarm(adminUserId: string, staffUserId: string, farmId: string): Promise<boolean> {
+export async function assignUserToFarm(
+  adminUserId: string,
+  staffUserId: string,
+  farmId: string,
+): Promise<boolean> {
   try {
     // Check if admin user is actually an admin
     const adminUser = await db
@@ -118,7 +122,11 @@ export async function assignUserToFarm(adminUserId: string, staffUserId: string,
 /**
  * Remove a staff user from a farm (admin only)
  */
-export async function removeUserFromFarm(adminUserId: string, staffUserId: string, farmId: string): Promise<boolean> {
+export async function removeUserFromFarm(
+  adminUserId: string,
+  staffUserId: string,
+  farmId: string,
+): Promise<boolean> {
   try {
     // Check if admin user is actually an admin
     const adminUser = await db
@@ -152,7 +160,7 @@ export async function removeUserFromFarm(adminUserId: string, staffUserId: strin
 export async function requireAuth() {
   const headers = getRequestHeaders()
   const session = await auth.api.getSession({ headers })
-  
+
   if (!session) {
     // Throw a plain error that can be serialized
     throw new Error('UNAUTHORIZED')
@@ -166,7 +174,7 @@ export async function requireAuth() {
  */
 export async function requireAdmin() {
   const session = await requireAuth()
-  
+
   const user = await db
     .selectFrom('users')
     .select(['role'])
@@ -185,9 +193,9 @@ export async function requireAdmin() {
  */
 export async function requireFarmAccess(farmId: string) {
   const session = await requireAuth()
-  
+
   const hasAccess = await checkFarmAccess(session.user.id, farmId)
-  
+
   if (!hasAccess) {
     throw new Error('FORBIDDEN')
   }

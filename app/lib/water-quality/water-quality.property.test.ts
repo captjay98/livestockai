@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 
 /**
  * Property 12: Water Quality Threshold Alerts
  * Feature: poultry-fishery-tracker, Property 12: Water Quality Threshold Alerts
  * Validates: Requirements 17.2, 17.4
- * 
+ *
  * Water quality alerts SHALL be generated when any parameter
  * falls outside the defined thresholds:
  * - pH: 6.5 - 8.5
@@ -68,15 +68,18 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
     temperatureCelsius: number
     dissolvedOxygenMgL: number
     ammoniaMgL: number
-  }): string[] {
-    const issues: string[] = []
+  }): Array<string> {
+    const issues: Array<string> = []
     const t = THRESHOLDS
 
     if (params.ph < t.ph.min) issues.push('pH too low')
     if (params.ph > t.ph.max) issues.push('pH too high')
-    if (params.temperatureCelsius < t.temperature.min) issues.push('Temperature too low')
-    if (params.temperatureCelsius > t.temperature.max) issues.push('Temperature too high')
-    if (params.dissolvedOxygenMgL < t.dissolvedOxygen.min) issues.push('Dissolved oxygen too low')
+    if (params.temperatureCelsius < t.temperature.min)
+      issues.push('Temperature too low')
+    if (params.temperatureCelsius > t.temperature.max)
+      issues.push('Temperature too high')
+    if (params.dissolvedOxygenMgL < t.dissolvedOxygen.min)
+      issues.push('Dissolved oxygen too low')
     if (params.ammoniaMgL > t.ammonia.max) issues.push('Ammonia too high')
 
     return issues
@@ -98,9 +101,9 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
           }
           expect(isWaterQualityAlert(params)).toBe(true)
           expect(getWaterQualityIssues(params)).toContain('pH too low')
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -120,9 +123,9 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
           }
           expect(isWaterQualityAlert(params)).toBe(true)
           expect(getWaterQualityIssues(params)).toContain('pH too high')
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -132,7 +135,7 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
         fc.double({ min: 6.5, max: 8.5, noNaN: true }),
         fc.oneof(
           fc.double({ min: 0, max: 24.99, noNaN: true }),
-          fc.double({ min: 32.01, max: 50, noNaN: true })
+          fc.double({ min: 32.01, max: 50, noNaN: true }),
         ),
         fc.double({ min: 5, max: 20, noNaN: true }),
         fc.double({ min: 0, max: 0.02, noNaN: true }),
@@ -146,11 +149,12 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
           expect(isWaterQualityAlert(params)).toBe(true)
           const issues = getWaterQualityIssues(params)
           expect(
-            issues.includes('Temperature too low') || issues.includes('Temperature too high')
+            issues.includes('Temperature too low') ||
+              issues.includes('Temperature too high'),
           ).toBe(true)
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -169,10 +173,12 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
             ammoniaMgL: ammonia,
           }
           expect(isWaterQualityAlert(params)).toBe(true)
-          expect(getWaterQualityIssues(params)).toContain('Dissolved oxygen too low')
-        }
+          expect(getWaterQualityIssues(params)).toContain(
+            'Dissolved oxygen too low',
+          )
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -192,9 +198,9 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
           }
           expect(isWaterQualityAlert(params)).toBe(true)
           expect(getWaterQualityIssues(params)).toContain('Ammonia too high')
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -204,7 +210,7 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
         expect(isWaterQualityAlert(params)).toBe(false)
         expect(getWaterQualityIssues(params)).toHaveLength(0)
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -216,14 +222,17 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
 
         if (params.ph < THRESHOLDS.ph.min) expectedIssues++
         if (params.ph > THRESHOLDS.ph.max) expectedIssues++
-        if (params.temperatureCelsius < THRESHOLDS.temperature.min) expectedIssues++
-        if (params.temperatureCelsius > THRESHOLDS.temperature.max) expectedIssues++
-        if (params.dissolvedOxygenMgL < THRESHOLDS.dissolvedOxygen.min) expectedIssues++
+        if (params.temperatureCelsius < THRESHOLDS.temperature.min)
+          expectedIssues++
+        if (params.temperatureCelsius > THRESHOLDS.temperature.max)
+          expectedIssues++
+        if (params.dissolvedOxygenMgL < THRESHOLDS.dissolvedOxygen.min)
+          expectedIssues++
         if (params.ammoniaMgL > THRESHOLDS.ammonia.max) expectedIssues++
 
         expect(issues.length).toBe(expectedIssues)
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -239,57 +248,69 @@ describe('Property 12: Water Quality Threshold Alerts', () => {
           expect(issues.length).toBe(0)
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
   it('boundary values are handled correctly', () => {
     // Exactly at minimum pH - should be valid
-    expect(isWaterQualityAlert({
-      ph: 6.5,
-      temperatureCelsius: 28,
-      dissolvedOxygenMgL: 6,
-      ammoniaMgL: 0.01,
-    })).toBe(false)
+    expect(
+      isWaterQualityAlert({
+        ph: 6.5,
+        temperatureCelsius: 28,
+        dissolvedOxygenMgL: 6,
+        ammoniaMgL: 0.01,
+      }),
+    ).toBe(false)
 
     // Exactly at maximum pH - should be valid
-    expect(isWaterQualityAlert({
-      ph: 8.5,
-      temperatureCelsius: 28,
-      dissolvedOxygenMgL: 6,
-      ammoniaMgL: 0.01,
-    })).toBe(false)
+    expect(
+      isWaterQualityAlert({
+        ph: 8.5,
+        temperatureCelsius: 28,
+        dissolvedOxygenMgL: 6,
+        ammoniaMgL: 0.01,
+      }),
+    ).toBe(false)
 
     // Exactly at minimum temperature - should be valid
-    expect(isWaterQualityAlert({
-      ph: 7,
-      temperatureCelsius: 25,
-      dissolvedOxygenMgL: 6,
-      ammoniaMgL: 0.01,
-    })).toBe(false)
+    expect(
+      isWaterQualityAlert({
+        ph: 7,
+        temperatureCelsius: 25,
+        dissolvedOxygenMgL: 6,
+        ammoniaMgL: 0.01,
+      }),
+    ).toBe(false)
 
     // Exactly at maximum temperature - should be valid
-    expect(isWaterQualityAlert({
-      ph: 7,
-      temperatureCelsius: 32,
-      dissolvedOxygenMgL: 6,
-      ammoniaMgL: 0.01,
-    })).toBe(false)
+    expect(
+      isWaterQualityAlert({
+        ph: 7,
+        temperatureCelsius: 32,
+        dissolvedOxygenMgL: 6,
+        ammoniaMgL: 0.01,
+      }),
+    ).toBe(false)
 
     // Exactly at minimum dissolved oxygen - should be valid
-    expect(isWaterQualityAlert({
-      ph: 7,
-      temperatureCelsius: 28,
-      dissolvedOxygenMgL: 5,
-      ammoniaMgL: 0.01,
-    })).toBe(false)
+    expect(
+      isWaterQualityAlert({
+        ph: 7,
+        temperatureCelsius: 28,
+        dissolvedOxygenMgL: 5,
+        ammoniaMgL: 0.01,
+      }),
+    ).toBe(false)
 
     // Exactly at maximum ammonia - should be valid
-    expect(isWaterQualityAlert({
-      ph: 7,
-      temperatureCelsius: 28,
-      dissolvedOxygenMgL: 6,
-      ammoniaMgL: 0.02,
-    })).toBe(false)
+    expect(
+      isWaterQualityAlert({
+        ph: 7,
+        temperatureCelsius: 28,
+        dissolvedOxygenMgL: 6,
+        ammoniaMgL: 0.02,
+      }),
+    ).toBe(false)
   })
 })

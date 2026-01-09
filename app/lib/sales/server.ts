@@ -14,7 +14,7 @@ export interface CreateSaleInput {
 
 export async function createSale(
   userId: string,
-  input: CreateSaleInput
+  input: CreateSaleInput,
 ): Promise<string> {
   await verifyFarmAccess(userId, input.farmId)
 
@@ -76,7 +76,7 @@ export async function getSalesForFarm(
     startDate?: Date
     endDate?: Date
     livestockType?: 'poultry' | 'fish' | 'eggs'
-  }
+  },
 ) {
   await verifyFarmAccess(userId, farmId)
 
@@ -120,7 +120,7 @@ export async function getSalesSummary(
   options?: {
     startDate?: Date
     endDate?: Date
-  }
+  },
 ) {
   await verifyFarmAccess(userId, farmId)
 
@@ -157,11 +157,11 @@ export async function getSalesSummary(
       summary[type] = {
         count: Number(row.count),
         quantity: Number(row.totalQuantity),
-        revenue: parseFloat(row.totalRevenue as string),
+        revenue: parseFloat(row.totalRevenue),
       }
       summary.total.count += Number(row.count)
       summary.total.quantity += Number(row.totalQuantity)
-      summary.total.revenue += parseFloat(row.totalRevenue as string)
+      summary.total.revenue += parseFloat(row.totalRevenue)
     }
   }
 
@@ -174,7 +174,7 @@ export async function getTotalRevenue(
   options?: {
     startDate?: Date
     endDate?: Date
-  }
+  },
 ): Promise<number> {
   await verifyFarmAccess(userId, farmId)
 

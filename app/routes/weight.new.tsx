@@ -1,15 +1,27 @@
-import { createFileRoute, useRouter, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { createWeightSample } from '~/lib/weight/server'
 import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
-import { ArrowLeft } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 interface Batch {
   id: string
@@ -25,7 +37,7 @@ const getBatches = createServerFn({ method: 'GET' })
     try {
       const session = await requireAuth()
       const batches = await getBatchesForFarm(session.user.id, data.farmId)
-      return batches.filter(b => b.status === 'active')
+      return batches.filter((b) => b.status === 'active')
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -35,13 +47,15 @@ const getBatches = createServerFn({ method: 'GET' })
   })
 
 const createWeightSampleAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    batchId: string
-    date: string
-    sampleSize: number
-    averageWeightKg: number
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      date: string
+      sampleSize: number
+      averageWeightKg: number
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -81,7 +95,7 @@ export const Route = createFileRoute('/weight/new')({
 function NewWeightPage() {
   const router = useRouter()
   const search = Route.useSearch()
-  const batches = Route.useLoaderData() as Batch[]
+  const batches = Route.useLoaderData()
 
   const [formData, setFormData] = useState({
     batchId: '',
@@ -95,7 +109,7 @@ function NewWeightPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!search.farmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -107,7 +121,7 @@ function NewWeightPage() {
           date: formData.date,
           sampleSize: parseInt(formData.sampleSize),
           averageWeightKg: parseFloat(formData.averageWeightKg),
-        }
+        },
       })
       router.navigate({ to: '/weight', search: { farmId: search.farmId } })
     } catch (err) {
@@ -117,7 +131,7 @@ function NewWeightPage() {
     }
   }
 
-  const selectedBatch = batches.find(b => b.id === formData.batchId)
+  const selectedBatch = batches.find((b) => b.id === formData.batchId)
 
   return (
     <div className="container mx-auto py-6 px-4 max-w-2xl">
@@ -128,14 +142,18 @@ function NewWeightPage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Record Weight</h1>
-          <p className="text-muted-foreground mt-1">Log weight sample for a batch</p>
+          <p className="text-muted-foreground mt-1">
+            Log weight sample for a batch
+          </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Weight Sample Details</CardTitle>
-          <CardDescription>Enter the weight measurement information</CardDescription>
+          <CardDescription>
+            Enter the weight measurement information
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -143,15 +161,22 @@ function NewWeightPage() {
               <Label htmlFor="batchId">Batch</Label>
               <Select
                 value={formData.batchId}
-                onValueChange={(value) => value && setFormData(prev => ({ ...prev, batchId: value }))}
+                onValueChange={(value) =>
+                  value && setFormData((prev) => ({ ...prev, batchId: value }))
+                }
               >
                 <SelectTrigger>
-                  <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select batch'}</SelectValue>
+                  <SelectValue>
+                    {formData.batchId
+                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      : 'Select batch'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (
                     <SelectItem key={batch.id} value={batch.id}>
-                      {batch.species} ({batch.currentQuantity} {batch.livestockType})
+                      {batch.species} ({batch.currentQuantity}{' '}
+                      {batch.livestockType})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -164,7 +189,9 @@ function NewWeightPage() {
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 required
               />
             </div>
@@ -177,7 +204,12 @@ function NewWeightPage() {
                 min="1"
                 max={selectedBatch?.currentQuantity || 1000}
                 value={formData.sampleSize}
-                onChange={(e) => setFormData(prev => ({ ...prev, sampleSize: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    sampleSize: e.target.value,
+                  }))
+                }
                 placeholder="Number of animals weighed"
                 required
               />
@@ -196,27 +228,46 @@ function NewWeightPage() {
                 min="0.01"
                 step="0.01"
                 value={formData.averageWeightKg}
-                onChange={(e) => setFormData(prev => ({ ...prev, averageWeightKg: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    averageWeightKg: e.target.value,
+                  }))
+                }
                 placeholder="Average weight in kilograms"
                 required
               />
             </div>
 
-            {formData.sampleSize && formData.averageWeightKg && selectedBatch && (
-              <div className="bg-muted p-4 rounded-md">
-                <h4 className="font-medium mb-2">Estimated Totals</h4>
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span>Sample Weight:</span>
-                    <span>{(parseInt(formData.sampleSize) * parseFloat(formData.averageWeightKg)).toFixed(2)} kg</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Est. Batch Weight:</span>
-                    <span>{(selectedBatch.currentQuantity * parseFloat(formData.averageWeightKg)).toFixed(2)} kg</span>
+            {formData.sampleSize &&
+              formData.averageWeightKg &&
+              selectedBatch && (
+                <div className="bg-muted p-4 rounded-md">
+                  <h4 className="font-medium mb-2">Estimated Totals</h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Sample Weight:</span>
+                      <span>
+                        {(
+                          parseInt(formData.sampleSize) *
+                          parseFloat(formData.averageWeightKg)
+                        ).toFixed(2)}{' '}
+                        kg
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Est. Batch Weight:</span>
+                      <span>
+                        {(
+                          selectedBatch.currentQuantity *
+                          parseFloat(formData.averageWeightKg)
+                        ).toFixed(2)}{' '}
+                        kg
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {error && (
               <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
@@ -225,12 +276,22 @@ function NewWeightPage() {
             )}
 
             <div className="flex gap-3">
-              <Button type="button" variant="outline" onClick={() => router.history.back()} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.history.back()}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.batchId || !formData.sampleSize || !formData.averageWeightKg}
+                disabled={
+                  isSubmitting ||
+                  !formData.batchId ||
+                  !formData.sampleSize ||
+                  !formData.averageWeightKg
+                }
               >
                 {isSubmitting ? 'Recording...' : 'Record Weight'}
               </Button>

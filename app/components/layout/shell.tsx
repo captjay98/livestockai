@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { Menu } from 'lucide-react'
 import { Sidebar } from './sidebar'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
-import { Menu } from 'lucide-react'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)

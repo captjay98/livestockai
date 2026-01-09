@@ -1,17 +1,29 @@
-import { createFileRoute, useRouter, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { createSale } from '~/lib/sales/server'
 import { getBatchesForFarm } from '~/lib/batches/server'
 import { getCustomers } from '~/lib/customers/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
-import { ArrowLeft } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 interface Batch {
   id: string
@@ -36,9 +48,9 @@ const getFormData = createServerFn({ method: 'GET' })
         getBatchesForFarm(session.user.id, data.farmId),
         getCustomers(),
       ])
-      return { 
-        batches: batches.filter(b => b.status === 'active'),
-        customers 
+      return {
+        batches: batches.filter((b) => b.status === 'active'),
+        customers,
       }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
@@ -49,15 +61,17 @@ const getFormData = createServerFn({ method: 'GET' })
   })
 
 const createSaleAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    batchId?: string
-    customerId?: string
-    livestockType: string
-    quantity: number
-    unitPrice: number
-    date: string
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId?: string
+      customerId?: string
+      livestockType: string
+      quantity: number
+      unitPrice: number
+      date: string
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -100,7 +114,7 @@ export const Route = createFileRoute('/sales/new')({
 function NewSalePage() {
   const router = useRouter()
   const search = Route.useSearch()
-  const { batches, customers } = Route.useLoaderData() as { batches: Batch[]; customers: Customer[] }
+  const { batches, customers } = Route.useLoaderData()
 
   const [formData, setFormData] = useState({
     livestockType: 'poultry' as 'poultry' | 'fish' | 'eggs',
@@ -116,7 +130,7 @@ function NewSalePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!search.farmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -130,7 +144,7 @@ function NewSalePage() {
           quantity: parseInt(formData.quantity),
           unitPrice: parseFloat(formData.unitPrice),
           date: formData.date,
-        }
+        },
       })
       router.navigate({ to: '/sales', search: { farmId: search.farmId } })
     } catch (err) {
@@ -140,13 +154,16 @@ function NewSalePage() {
     }
   }
 
-  const selectedBatch = batches.find(b => b.id === formData.batchId)
-  const filteredBatches = batches.filter(b => 
-    formData.livestockType === 'eggs' || b.livestockType === formData.livestockType
+  const selectedBatch = batches.find((b) => b.id === formData.batchId)
+  const filteredBatches = batches.filter(
+    (b) =>
+      formData.livestockType === 'eggs' ||
+      b.livestockType === formData.livestockType,
   )
-  const totalAmount = formData.quantity && formData.unitPrice 
-    ? parseInt(formData.quantity) * parseFloat(formData.unitPrice)
-    : 0
+  const totalAmount =
+    formData.quantity && formData.unitPrice
+      ? parseInt(formData.quantity) * parseFloat(formData.unitPrice)
+      : 0
 
   return (
     <div className="container mx-auto py-6 px-4 max-w-2xl">
@@ -157,7 +174,9 @@ function NewSalePage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Record Sale</h1>
-          <p className="text-muted-foreground mt-1">Log a new sale transaction</p>
+          <p className="text-muted-foreground mt-1">
+            Log a new sale transaction
+          </p>
         </div>
       </div>
 
@@ -172,11 +191,14 @@ function NewSalePage() {
               <Label htmlFor="livestockType">Product Type</Label>
               <Select
                 value={formData.livestockType}
-                onValueChange={(value) => value && setFormData(prev => ({ 
-                  ...prev, 
-                  livestockType: value as any,
-                  batchId: '' 
-                }))}
+                onValueChange={(value) =>
+                  value &&
+                  setFormData((prev) => ({
+                    ...prev,
+                    livestockType: value as any,
+                    batchId: '',
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -189,35 +211,51 @@ function NewSalePage() {
               </Select>
             </div>
 
-            {formData.livestockType !== 'eggs' && filteredBatches.length > 0 && (
-              <div className="space-y-2">
-                <Label htmlFor="batchId">Batch (Optional)</Label>
-                <Select
-                  value={formData.batchId || undefined}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, batchId: value || '' }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue>{formData.batchId ? filteredBatches.find(b => b.id === formData.batchId)?.species : 'Select batch to deduct from'}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredBatches.map((batch) => (
-                      <SelectItem key={batch.id} value={batch.id}>
-                        {batch.species} ({batch.currentQuantity} available)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            {formData.livestockType !== 'eggs' &&
+              filteredBatches.length > 0 && (
+                <div className="space-y-2">
+                  <Label htmlFor="batchId">Batch (Optional)</Label>
+                  <Select
+                    value={formData.batchId || undefined}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, batchId: value || '' }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue>
+                        {formData.batchId
+                          ? filteredBatches.find(
+                              (b) => b.id === formData.batchId,
+                            )?.species
+                          : 'Select batch to deduct from'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredBatches.map((batch) => (
+                        <SelectItem key={batch.id} value={batch.id}>
+                          {batch.species} ({batch.currentQuantity} available)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
             <div className="space-y-2">
               <Label htmlFor="customerId">Customer (Optional)</Label>
               <Select
                 value={formData.customerId || undefined}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, customerId: value || '' }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, customerId: value || '' }))
+                }
               >
                 <SelectTrigger>
-                  <SelectValue>{formData.customerId ? customers.find(c => c.id === formData.customerId)?.name : 'Select customer'}</SelectValue>
+                  <SelectValue>
+                    {formData.customerId
+                      ? customers.find((c) => c.id === formData.customerId)
+                          ?.name
+                      : 'Select customer'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {customers.map((customer) => (
@@ -237,7 +275,9 @@ function NewSalePage() {
                 min="1"
                 max={selectedBatch?.currentQuantity}
                 value={formData.quantity}
-                onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, quantity: e.target.value }))
+                }
                 placeholder="Number of units sold"
                 required
               />
@@ -256,7 +296,12 @@ function NewSalePage() {
                 min="0"
                 step="0.01"
                 value={formData.unitPrice}
-                onChange={(e) => setFormData(prev => ({ ...prev, unitPrice: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    unitPrice: e.target.value,
+                  }))
+                }
                 placeholder="Price per unit in Naira"
                 required
               />
@@ -268,7 +313,9 @@ function NewSalePage() {
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 required
               />
             </div>
@@ -279,7 +326,9 @@ function NewSalePage() {
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span>Quantity:</span>
-                    <span>{parseInt(formData.quantity || '0').toLocaleString()}</span>
+                    <span>
+                      {parseInt(formData.quantity || '0').toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Unit Price:</span>
@@ -300,12 +349,19 @@ function NewSalePage() {
             )}
 
             <div className="flex gap-3">
-              <Button type="button" variant="outline" onClick={() => router.history.back()} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.history.back()}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.quantity || !formData.unitPrice}
+                disabled={
+                  isSubmitting || !formData.quantity || !formData.unitPrice
+                }
               >
                 {isSubmitting ? 'Recording...' : 'Record Sale'}
               </Button>

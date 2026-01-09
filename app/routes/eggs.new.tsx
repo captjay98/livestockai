@@ -1,15 +1,27 @@
-import { createFileRoute, useRouter, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { createEggRecord } from '~/lib/eggs/server'
 import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
-import { ArrowLeft } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 interface Batch {
   id: string
@@ -26,7 +38,9 @@ const getBatches = createServerFn({ method: 'GET' })
       const session = await requireAuth()
       const batches = await getBatchesForFarm(session.user.id, data.farmId)
       // Only return active poultry batches (layers)
-      return batches.filter(b => b.status === 'active' && b.livestockType === 'poultry')
+      return batches.filter(
+        (b) => b.status === 'active' && b.livestockType === 'poultry',
+      )
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -36,14 +50,16 @@ const getBatches = createServerFn({ method: 'GET' })
   })
 
 const createEggRecordAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    batchId: string
-    date: string
-    quantityCollected: number
-    quantityBroken: number
-    quantitySold: number
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      date: string
+      quantityCollected: number
+      quantityBroken: number
+      quantitySold: number
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -84,7 +100,7 @@ export const Route = createFileRoute('/eggs/new')({
 function NewEggPage() {
   const router = useRouter()
   const search = Route.useSearch()
-  const batches = Route.useLoaderData() as Batch[]
+  const batches = Route.useLoaderData()
 
   const [formData, setFormData] = useState({
     batchId: '',
@@ -99,7 +115,7 @@ function NewEggPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!search.farmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -112,7 +128,7 @@ function NewEggPage() {
           quantityCollected: parseInt(formData.quantityCollected),
           quantityBroken: parseInt(formData.quantityBroken) || 0,
           quantitySold: parseInt(formData.quantitySold) || 0,
-        }
+        },
       })
       router.navigate({ to: '/eggs', search: { farmId: search.farmId } })
     } catch (err) {
@@ -122,10 +138,15 @@ function NewEggPage() {
     }
   }
 
-  const selectedBatch = batches.find(b => b.id === formData.batchId)
-  const layingPercentage = selectedBatch && formData.quantityCollected
-    ? ((parseInt(formData.quantityCollected) / selectedBatch.currentQuantity) * 100).toFixed(1)
-    : null
+  const selectedBatch = batches.find((b) => b.id === formData.batchId)
+  const layingPercentage =
+    selectedBatch && formData.quantityCollected
+      ? (
+          (parseInt(formData.quantityCollected) /
+            selectedBatch.currentQuantity) *
+          100
+        ).toFixed(1)
+      : null
 
   return (
     <div className="container mx-auto py-6 px-4 max-w-2xl">
@@ -143,7 +164,9 @@ function NewEggPage() {
       <Card>
         <CardHeader>
           <CardTitle>Egg Production Details</CardTitle>
-          <CardDescription>Enter the egg collection information</CardDescription>
+          <CardDescription>
+            Enter the egg collection information
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -151,10 +174,16 @@ function NewEggPage() {
               <Label htmlFor="batchId">Layer Batch</Label>
               <Select
                 value={formData.batchId}
-                onValueChange={(value) => value && setFormData(prev => ({ ...prev, batchId: value }))}
+                onValueChange={(value) =>
+                  value && setFormData((prev) => ({ ...prev, batchId: value }))
+                }
               >
                 <SelectTrigger>
-                  <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select layer batch'}</SelectValue>
+                  <SelectValue>
+                    {formData.batchId
+                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      : 'Select layer batch'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (
@@ -172,7 +201,9 @@ function NewEggPage() {
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 required
               />
             </div>
@@ -184,7 +215,12 @@ function NewEggPage() {
                 type="number"
                 min="0"
                 value={formData.quantityCollected}
-                onChange={(e) => setFormData(prev => ({ ...prev, quantityCollected: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    quantityCollected: e.target.value,
+                  }))
+                }
                 placeholder="Enter number of eggs collected"
                 required
               />
@@ -203,7 +239,12 @@ function NewEggPage() {
                   type="number"
                   min="0"
                   value={formData.quantityBroken}
-                  onChange={(e) => setFormData(prev => ({ ...prev, quantityBroken: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      quantityBroken: e.target.value,
+                    }))
+                  }
                   placeholder="0"
                 />
               </div>
@@ -215,7 +256,12 @@ function NewEggPage() {
                   type="number"
                   min="0"
                   value={formData.quantitySold}
-                  onChange={(e) => setFormData(prev => ({ ...prev, quantitySold: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      quantitySold: e.target.value,
+                    }))
+                  }
                   placeholder="0"
                 />
               </div>
@@ -227,22 +273,28 @@ function NewEggPage() {
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span>Collected:</span>
-                    <span className="text-green-600">+{parseInt(formData.quantityCollected || '0')}</span>
+                    <span className="text-green-600">
+                      +{parseInt(formData.quantityCollected || '0')}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Broken:</span>
-                    <span className="text-red-600">-{parseInt(formData.quantityBroken || '0')}</span>
+                    <span className="text-red-600">
+                      -{parseInt(formData.quantityBroken || '0')}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Sold:</span>
-                    <span className="text-blue-600">-{parseInt(formData.quantitySold || '0')}</span>
+                    <span className="text-blue-600">
+                      -{parseInt(formData.quantitySold || '0')}
+                    </span>
                   </div>
                   <div className="flex justify-between font-medium border-t pt-1">
                     <span>Net to Inventory:</span>
                     <span>
-                      {parseInt(formData.quantityCollected || '0') - 
-                       parseInt(formData.quantityBroken || '0') - 
-                       parseInt(formData.quantitySold || '0')}
+                      {parseInt(formData.quantityCollected || '0') -
+                        parseInt(formData.quantityBroken || '0') -
+                        parseInt(formData.quantitySold || '0')}
                     </span>
                   </div>
                 </div>
@@ -256,12 +308,21 @@ function NewEggPage() {
             )}
 
             <div className="flex gap-3">
-              <Button type="button" variant="outline" onClick={() => router.history.back()} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.history.back()}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.batchId || !formData.quantityCollected}
+                disabled={
+                  isSubmitting ||
+                  !formData.batchId ||
+                  !formData.quantityCollected
+                }
               >
                 {isSubmitting ? 'Recording...' : 'Record Eggs'}
               </Button>

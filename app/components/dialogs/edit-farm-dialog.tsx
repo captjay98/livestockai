@@ -1,10 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { getFarmById, updateFarm } from '~/lib/farms/server'
+import { Building2 } from 'lucide-react'
+import { getFarmByIdFn, updateFarmFn } from '~/lib/farms/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -13,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
-import { Building2 } from 'lucide-react'
 
 interface Farm {
   id: string
@@ -29,7 +35,12 @@ interface EditFarmDialogProps {
   onSuccess?: () => void
 }
 
-export function EditFarmDialog({ farmId, open, onOpenChange, onSuccess }: EditFarmDialogProps) {
+export function EditFarmDialog({
+  farmId,
+  open,
+  onOpenChange,
+  onSuccess,
+}: EditFarmDialogProps) {
   const router = useRouter()
   const [farm, setFarm] = useState<Farm | null>(null)
   const [formData, setFormData] = useState({
@@ -46,7 +57,7 @@ export function EditFarmDialog({ farmId, open, onOpenChange, onSuccess }: EditFa
     const loadFarm = async () => {
       if (open && farmId) {
         try {
-          const farmData = await getFarmById(farmId)
+          const farmData = await getFarmByIdFn({ data: { farmId } })
           if (farmData) {
             setFarm(farmData)
             setFormData({
@@ -71,10 +82,13 @@ export function EditFarmDialog({ farmId, open, onOpenChange, onSuccess }: EditFa
     setError('')
 
     try {
-      await updateFarm(farmId, {
-        name: formData.name,
-        location: formData.location,
-        type: formData.type,
+      await updateFarmFn({
+        data: {
+          farmId,
+          name: formData.name,
+          location: formData.location,
+          type: formData.type,
+        },
       })
       onOpenChange(false)
       if (onSuccess) onSuccess()
@@ -94,11 +108,9 @@ export function EditFarmDialog({ farmId, open, onOpenChange, onSuccess }: EditFa
             <Building2 className="h-5 w-5" />
             Edit Farm
           </DialogTitle>
-          <DialogDescription>
-            Update your farm information
-          </DialogDescription>
+          <DialogDescription>Update your farm information</DialogDescription>
         </DialogHeader>
-        
+
         {isLoading ? (
           <div className="space-y-4 py-4">
             <div className="h-10 bg-muted animate-pulse rounded" />
@@ -112,7 +124,9 @@ export function EditFarmDialog({ farmId, open, onOpenChange, onSuccess }: EditFa
               <Input
                 id="edit-farm-name"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="Enter farm name"
                 required
               />
@@ -123,7 +137,9 @@ export function EditFarmDialog({ farmId, open, onOpenChange, onSuccess }: EditFa
               <Input
                 id="edit-farm-location"
                 value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, location: e.target.value }))
+                }
                 placeholder="Enter farm location"
                 required
               />
@@ -134,8 +150,12 @@ export function EditFarmDialog({ farmId, open, onOpenChange, onSuccess }: EditFa
               <Select
                 value={formData.type}
                 onValueChange={(value) => {
-                  if (value === 'poultry' || value === 'fishery' || value === 'mixed') {
-                    setFormData(prev => ({ ...prev, type: value }))
+                  if (
+                    value === 'poultry' ||
+                    value === 'fishery' ||
+                    value === 'mixed'
+                  ) {
+                    setFormData((prev) => ({ ...prev, type: value }))
                   }
                 }}
               >
@@ -157,10 +177,18 @@ export function EditFarmDialog({ farmId, open, onOpenChange, onSuccess }: EditFa
             )}
 
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting || !formData.name || !formData.location}>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !formData.name || !formData.location}
+              >
                 {isSubmitting ? 'Updating...' : 'Update Farm'}
               </Button>
             </DialogFooter>

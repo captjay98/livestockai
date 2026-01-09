@@ -1,37 +1,40 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
-import { getFarms } from '~/lib/farms/server'
 import {
-  getProfitLossReport,
-  getInventoryReport,
-  getSalesReport,
-  getFeedReport,
-  getEggReport,
-  type ProfitLossReport,
-  type InventoryReport,
-  type SalesReport,
-  type FeedReport,
-  type EggReport,
-} from '~/lib/reports/server'
-import { formatNaira } from '~/lib/currency'
-import {
-  TrendingUp,
-  Package,
-  ShoppingCart,
-  Wheat,
   Egg,
   FileSpreadsheet,
   FileText,
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  Wheat,
 } from 'lucide-react'
+import type {EggReport, FeedReport, InventoryReport, ProfitLossReport, SalesReport} from '~/lib/reports/server';
+import { getFarms } from '~/lib/farms/server'
+import {
+  
+  
+  
+  
+  
+  getEggReport,
+  getFeedReport,
+  getInventoryReport,
+  getProfitLossReport,
+  getSalesReport
+} from '~/lib/reports/server'
+import { formatNaira } from '~/lib/currency'
 
 const fetchReportData = createServerFn({ method: 'GET' })
-  .inputValidator((data: { 
-    reportType: string
-    farmId?: string
-    startDate: string
-    endDate: string 
-  }) => data)
+  .inputValidator(
+    (data: {
+      reportType: string
+      farmId?: string
+      startDate: string
+      endDate: string
+    }) => data,
+  )
   .handler(async ({ data }) => {
     const farms = await getFarms()
     const dateRange = {
@@ -39,7 +42,13 @@ const fetchReportData = createServerFn({ method: 'GET' })
       endDate: new Date(data.endDate),
     }
 
-    let report: ProfitLossReport | InventoryReport | SalesReport | FeedReport | EggReport | null = null
+    let report:
+      | ProfitLossReport
+      | InventoryReport
+      | SalesReport
+      | FeedReport
+      | EggReport
+      | null = null
 
     switch (data.reportType) {
       case 'profit-loss':
@@ -65,25 +74,31 @@ const fetchReportData = createServerFn({ method: 'GET' })
 export const Route = createFileRoute('/reports')({
   component: ReportsPage,
   validateSearch: (search: Record<string, unknown>) => ({
-    reportType: typeof search.reportType === 'string' ? search.reportType : 'profit-loss',
+    reportType:
+      typeof search.reportType === 'string' ? search.reportType : 'profit-loss',
     farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
-    startDate: typeof search.startDate === 'string' ? search.startDate : getDefaultStartDate(),
-    endDate: typeof search.endDate === 'string' ? search.endDate : getDefaultEndDate(),
+    startDate:
+      typeof search.startDate === 'string'
+        ? search.startDate
+        : getDefaultStartDate(),
+    endDate:
+      typeof search.endDate === 'string' ? search.endDate : getDefaultEndDate(),
   }),
-  loaderDeps: ({ search }) => ({ 
+  loaderDeps: ({ search }) => ({
     reportType: search.reportType,
     farmId: search.farmId,
     startDate: search.startDate,
     endDate: search.endDate,
   }),
-  loader: async ({ deps }) => fetchReportData({ 
-    data: { 
-      reportType: deps.reportType,
-      farmId: deps.farmId,
-      startDate: deps.startDate,
-      endDate: deps.endDate,
-    } 
-  }),
+  loader: async ({ deps }) =>
+    fetchReportData({
+      data: {
+        reportType: deps.reportType,
+        farmId: deps.farmId,
+        startDate: deps.startDate,
+        endDate: deps.endDate,
+      },
+    }),
 })
 
 function getDefaultStartDate() {
@@ -127,13 +142,15 @@ function ReportsPage() {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
-          <p className="text-muted-foreground mt-1">Generate and export business reports</p>
+          <p className="text-muted-foreground mt-1">
+            Generate and export business reports
+          </p>
         </div>
 
         {/* Report Selection */}
         <div className="bg-card rounded-lg border p-6 mb-6">
           <h2 className="font-semibold mb-4">Generate Report</h2>
-          
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-4">
             {reportTypes.map((type) => {
               const Icon = type.icon
@@ -147,9 +164,13 @@ function ReportsPage() {
                       : 'hover:border-muted-foreground/50'
                   }`}
                 >
-                  <Icon className={`h-5 w-5 mb-2 ${
-                    selectedReport === type.id ? 'text-primary' : 'text-muted-foreground'
-                  }`} />
+                  <Icon
+                    className={`h-5 w-5 mb-2 ${
+                      selectedReport === type.id
+                        ? 'text-primary'
+                        : 'text-muted-foreground'
+                    }`}
+                  />
                   <div className="font-medium text-sm">{type.name}</div>
                 </button>
               )
@@ -166,7 +187,9 @@ function ReportsPage() {
               >
                 <option value="">All Farms</option>
                 {farms.map((farm: { id: string; name: string }) => (
-                  <option key={farm.id} value={farm.id}>{farm.name}</option>
+                  <option key={farm.id} value={farm.id}>
+                    {farm.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -211,7 +234,7 @@ function ReportsPage() {
           <div className="bg-card rounded-lg border p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">
-                {reportTypes.find(r => r.id === reportType)?.name} Report
+                {reportTypes.find((r) => r.id === reportType)?.name} Report
               </h2>
               <div className="flex gap-2">
                 <Link
@@ -231,11 +254,21 @@ function ReportsPage() {
               </div>
             </div>
 
-            {reportType === 'profit-loss' && <ProfitLossReportView report={report as ProfitLossReport} />}
-            {reportType === 'inventory' && <InventoryReportView report={report as InventoryReport} />}
-            {reportType === 'sales' && <SalesReportView report={report as SalesReport} />}
-            {reportType === 'feed' && <FeedReportView report={report as FeedReport} />}
-            {reportType === 'eggs' && <EggReportView report={report as EggReport} />}
+            {reportType === 'profit-loss' && (
+              <ProfitLossReportView report={report as ProfitLossReport} />
+            )}
+            {reportType === 'inventory' && (
+              <InventoryReportView report={report as InventoryReport} />
+            )}
+            {reportType === 'sales' && (
+              <SalesReportView report={report as SalesReport} />
+            )}
+            {reportType === 'feed' && (
+              <FeedReportView report={report as FeedReport} />
+            )}
+            {reportType === 'eggs' && (
+              <EggReportView report={report as EggReport} />
+            )}
           </div>
         )}
       </main>
@@ -248,23 +281,35 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
     <div className="space-y-6">
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
         <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Revenue</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Revenue
+          </div>
           <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-400">
             {formatNaira(report.revenue.total)}
           </div>
         </div>
         <div className="p-3 sm:p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Expenses</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Expenses
+          </div>
           <div className="text-lg sm:text-2xl font-bold text-red-700 dark:text-red-400">
             {formatNaira(report.expenses.total)}
           </div>
         </div>
-        <div className={`p-3 sm:p-4 rounded-lg col-span-2 sm:col-span-1 ${report.profit >= 0 ? 'bg-blue-50 dark:bg-blue-950/20' : 'bg-orange-50 dark:bg-orange-950/20'}`}>
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Net Profit</div>
-          <div className={`text-lg sm:text-2xl font-bold ${report.profit >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-orange-700 dark:text-orange-400'}`}>
+        <div
+          className={`p-3 sm:p-4 rounded-lg col-span-2 sm:col-span-1 ${report.profit >= 0 ? 'bg-blue-50 dark:bg-blue-950/20' : 'bg-orange-50 dark:bg-orange-950/20'}`}
+        >
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Net Profit
+          </div>
+          <div
+            className={`text-lg sm:text-2xl font-bold ${report.profit >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-orange-700 dark:text-orange-400'}`}
+          >
             {formatNaira(report.profit)}
           </div>
-          <div className="text-[10px] sm:text-xs text-muted-foreground">{report.profitMargin}% margin</div>
+          <div className="text-[10px] sm:text-xs text-muted-foreground">
+            {report.profitMargin}% margin
+          </div>
         </div>
       </div>
 
@@ -273,7 +318,10 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
           <h3 className="font-medium mb-3">Revenue by Type</h3>
           <div className="space-y-2">
             {report.revenue.byType.map((item) => (
-              <div key={item.type} className="flex justify-between p-2 bg-muted/50 rounded">
+              <div
+                key={item.type}
+                className="flex justify-between p-2 bg-muted/50 rounded"
+              >
                 <span className="capitalize">{item.type}</span>
                 <span className="font-medium">{formatNaira(item.amount)}</span>
               </div>
@@ -284,7 +332,10 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
           <h3 className="font-medium mb-3">Expenses by Category</h3>
           <div className="space-y-2">
             {report.expenses.byCategory.map((item) => (
-              <div key={item.category} className="flex justify-between p-2 bg-muted/50 rounded">
+              <div
+                key={item.category}
+                className="flex justify-between p-2 bg-muted/50 rounded"
+              >
                 <span className="capitalize">{item.category}</span>
                 <span className="font-medium">{formatNaira(item.amount)}</span>
               </div>
@@ -301,20 +352,36 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
     <div className="space-y-6">
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4">
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Poultry</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalPoultry.toLocaleString()}</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Poultry
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.totalPoultry.toLocaleString()}
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Fish</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalFish.toLocaleString()}</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Fish
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.totalFish.toLocaleString()}
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Mortality</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalMortality.toLocaleString()}</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Mortality
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.totalMortality.toLocaleString()}
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Mortality Rate</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.overallMortalityRate}%</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Mortality Rate
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.overallMortalityRate}%
+          </div>
         </div>
       </div>
 
@@ -336,16 +403,26 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
               <tr key={batch.id} className="border-b last:border-0">
                 <td className="py-3 capitalize">{batch.species}</td>
                 <td className="py-3 capitalize">{batch.livestockType}</td>
-                <td className="py-3 text-right">{batch.initialQuantity.toLocaleString()}</td>
-                <td className="py-3 text-right">{batch.currentQuantity.toLocaleString()}</td>
-                <td className="py-3 text-right">{batch.mortalityCount.toLocaleString()}</td>
+                <td className="py-3 text-right">
+                  {batch.initialQuantity.toLocaleString()}
+                </td>
+                <td className="py-3 text-right">
+                  {batch.currentQuantity.toLocaleString()}
+                </td>
+                <td className="py-3 text-right">
+                  {batch.mortalityCount.toLocaleString()}
+                </td>
                 <td className="py-3 text-right">{batch.mortalityRate}%</td>
                 <td className="py-3">
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    batch.status === 'active' ? 'bg-green-100 text-green-700' :
-                    batch.status === 'depleted' ? 'bg-gray-100 text-gray-700' :
-                    'bg-blue-100 text-blue-700'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs ${
+                      batch.status === 'active'
+                        ? 'bg-green-100 text-green-700'
+                        : batch.status === 'depleted'
+                          ? 'bg-gray-100 text-gray-700'
+                          : 'bg-blue-100 text-blue-700'
+                    }`}
+                  >
                     {batch.status}
                   </span>
                 </td>
@@ -363,19 +440,27 @@ function SalesReportView({ report }: { report: SalesReport }) {
     <div className="space-y-6">
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Sales</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalSales}</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Sales
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.totalSales}
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Revenue</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Revenue
+          </div>
           <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-400">
             {formatNaira(report.summary.totalRevenue)}
           </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg col-span-2 sm:col-span-1">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">By Type</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            By Type
+          </div>
           <div className="text-xs sm:text-sm">
-            {report.summary.byType.map(t => (
+            {report.summary.byType.map((t) => (
               <div key={t.type} className="flex justify-between">
                 <span className="capitalize">{t.type}:</span>
                 <span>{t.quantity} units</span>
@@ -400,11 +485,17 @@ function SalesReportView({ report }: { report: SalesReport }) {
           <tbody>
             {report.sales.slice(0, 20).map((sale) => (
               <tr key={sale.id} className="border-b last:border-0">
-                <td className="py-3">{new Date(sale.date).toLocaleDateString()}</td>
+                <td className="py-3">
+                  {new Date(sale.date).toLocaleDateString()}
+                </td>
                 <td className="py-3 capitalize">{sale.livestockType}</td>
                 <td className="py-3 text-right">{sale.quantity}</td>
-                <td className="py-3 text-right">{formatNaira(sale.unitPrice)}</td>
-                <td className="py-3 text-right font-medium">{formatNaira(sale.totalAmount)}</td>
+                <td className="py-3 text-right">
+                  {formatNaira(sale.unitPrice)}
+                </td>
+                <td className="py-3 text-right font-medium">
+                  {formatNaira(sale.totalAmount)}
+                </td>
                 <td className="py-3">{sale.customerName || '-'}</td>
               </tr>
             ))}
@@ -420,17 +511,27 @@ function FeedReportView({ report }: { report: FeedReport }) {
     <div className="space-y-6">
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Feed</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalFeedKg.toLocaleString()} kg</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Feed
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.totalFeedKg.toLocaleString()} kg
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Cost</div>
-          <div className="text-lg sm:text-2xl font-bold">{formatNaira(report.summary.totalCost)}</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Cost
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {formatNaira(report.summary.totalCost)}
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg col-span-2 sm:col-span-1">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">By Feed Type</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            By Feed Type
+          </div>
           <div className="text-xs sm:text-sm">
-            {report.summary.byFeedType.map(t => (
+            {report.summary.byFeedType.map((t) => (
               <div key={t.type} className="flex justify-between">
                 <span className="capitalize">{t.type.replace('_', ' ')}:</span>
                 <span>{t.quantityKg.toLocaleString()} kg</span>
@@ -454,9 +555,15 @@ function FeedReportView({ report }: { report: FeedReport }) {
             {report.records.map((record, i) => (
               <tr key={i} className="border-b last:border-0">
                 <td className="py-3 capitalize">{record.species}</td>
-                <td className="py-3 capitalize">{record.feedType.replace('_', ' ')}</td>
-                <td className="py-3 text-right">{record.totalQuantityKg.toLocaleString()}</td>
-                <td className="py-3 text-right">{formatNaira(record.totalCost)}</td>
+                <td className="py-3 capitalize">
+                  {record.feedType.replace('_', ' ')}
+                </td>
+                <td className="py-3 text-right">
+                  {record.totalQuantityKg.toLocaleString()}
+                </td>
+                <td className="py-3 text-right">
+                  {formatNaira(record.totalCost)}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -471,24 +578,44 @@ function EggReportView({ report }: { report: EggReport }) {
     <div className="space-y-6">
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-5">
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Collected</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalCollected.toLocaleString()}</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Collected
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.totalCollected.toLocaleString()}
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Sold</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalSold.toLocaleString()}</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Sold
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.totalSold.toLocaleString()}
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Total Broken</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.totalBroken.toLocaleString()}</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Total Broken
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.totalBroken.toLocaleString()}
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Current Inventory</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.currentInventory.toLocaleString()}</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Current Inventory
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.currentInventory.toLocaleString()}
+          </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">Laying %</div>
-          <div className="text-lg sm:text-2xl font-bold">{report.summary.averageLayingPercentage}%</div>
+          <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
+            Laying %
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {report.summary.averageLayingPercentage}%
+          </div>
         </div>
       </div>
 
@@ -506,11 +633,21 @@ function EggReportView({ report }: { report: EggReport }) {
           <tbody>
             {report.records.slice(0, 30).map((record, i) => (
               <tr key={i} className="border-b last:border-0">
-                <td className="py-3">{new Date(record.date).toLocaleDateString()}</td>
-                <td className="py-3 text-right">{record.collected.toLocaleString()}</td>
-                <td className="py-3 text-right">{record.broken.toLocaleString()}</td>
-                <td className="py-3 text-right">{record.sold.toLocaleString()}</td>
-                <td className="py-3 text-right">{record.inventory.toLocaleString()}</td>
+                <td className="py-3">
+                  {new Date(record.date).toLocaleDateString()}
+                </td>
+                <td className="py-3 text-right">
+                  {record.collected.toLocaleString()}
+                </td>
+                <td className="py-3 text-right">
+                  {record.broken.toLocaleString()}
+                </td>
+                <td className="py-3 text-right">
+                  {record.sold.toLocaleString()}
+                </td>
+                <td className="py-3 text-right">
+                  {record.inventory.toLocaleString()}
+                </td>
               </tr>
             ))}
           </tbody>

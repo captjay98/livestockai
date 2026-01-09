@@ -2,7 +2,7 @@ import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
-import { createFarm } from '~/lib/farms/server'
+import { createCustomer } from '~/lib/customers/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
 import {
@@ -14,27 +14,26 @@ import {
 } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select'
 
-interface CreateFarmInput {
-  name: string
-  location: string
-  type: 'poultry' | 'fishery' | 'mixed'
-}
-
-const createFarmAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateFarmInput) => data)
+const createCustomerAction = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: {
+      name: string
+      phone: string
+      email?: string
+      location?: string
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       await requireAuth()
-      const farmId = await createFarm(data)
-      return { success: true, farmId }
+      const id = await createCustomer({
+        name: data.name,
+        phone: data.phone,
+        email: data.email || null,
+        location: data.location || null,
+      })
+      return { success: true, id }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -43,16 +42,18 @@ const createFarmAction = createServerFn({ method: 'POST' })
     }
   })
 
-export const Route = createFileRoute('/farms/new')({
-  component: NewFarmPage,
+export const Route = createFileRoute('/customers/new')({
+  component: NewCustomerPage,
 })
 
-function NewFarmPage() {
+function NewCustomerPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState<CreateFarmInput>({
+
+  const [formData, setFormData] = useState({
     name: '',
+    phone: '',
+    email: '',
     location: '',
-    type: 'poultry',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -63,10 +64,10 @@ function NewFarmPage() {
     setError('')
 
     try {
-      await createFarmAction({ data: formData })
-      router.navigate({ to: '/farms' })
+      await createCustomerAction({ data: formData })
+      router.navigate({ to: '/customers' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create farm')
+      setError(err instanceof Error ? err.message : 'Failed to create customer')
     } finally {
       setIsSubmitting(false)
     }
@@ -80,67 +81,70 @@ function NewFarmPage() {
           Back
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Create New Farm</h1>
+          <h1 className="text-3xl font-bold">Add Customer</h1>
           <p className="text-muted-foreground mt-1">
-            Add a new farm to your management system
+            Create a new customer record
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Farm Details</CardTitle>
-          <CardDescription>
-            Enter the basic information for your new farm
-          </CardDescription>
+          <CardTitle>Customer Details</CardTitle>
+          <CardDescription>Enter the customer information</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Farm Name</Label>
+              <Label htmlFor="name">Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="Enter farm name"
+                placeholder="Customer name"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="phone">Phone Number *</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                }
+                placeholder="e.g., 08012345678"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email (Optional)</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+                placeholder="customer@example.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location">Location (Optional)</Label>
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange={(e) =>
                   setFormData((prev) => ({ ...prev, location: e.target.value }))
                 }
-                placeholder="Enter farm location"
-                required
+                placeholder="e.g., Lagos, Nigeria"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="type">Farm Type</Label>
-              <Select
-                value={formData.type}
-                onValueChange={(value) => {
-                  if (value === 'poultry' || value === 'fishery' || value === 'mixed') {
-                    setFormData((prev) => ({ ...prev, type: value }))
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="poultry">Poultry</SelectItem>
-                  <SelectItem value="fishery">Fishery</SelectItem>
-                  <SelectItem value="mixed">Mixed</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             {error && (
@@ -160,9 +164,9 @@ function NewFarmPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.name || !formData.location}
+                disabled={isSubmitting || !formData.name || !formData.phone}
               >
-                {isSubmitting ? 'Creating...' : 'Create Farm'}
+                {isSubmitting ? 'Creating...' : 'Create Customer'}
               </Button>
             </div>
           </form>

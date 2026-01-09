@@ -1,21 +1,21 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 
 /**
  * Property 6: Feed Conversion Ratio Calculation
  * Feature: poultry-fishery-tracker, Property 6: Feed Conversion Ratio Calculation
  * Validates: Requirements 5.3
- * 
+ *
  * For any batch with weight gain > 0, the FCR SHALL equal:
  * total_feed_kg / total_weight_gain_kg
  */
 describe('Property 6: Feed Conversion Ratio Calculation', () => {
   // Arbitrary for feed quantities in kg
   const feedQuantityArb = fc.double({ min: 0.1, max: 100000, noNaN: true })
-  
+
   // Arbitrary for weight in kg
   const weightArb = fc.double({ min: 0.01, max: 100, noNaN: true })
-  
+
   // Arbitrary for batch quantity
   const batchQuantityArb = fc.integer({ min: 1, max: 10000 })
 
@@ -25,7 +25,7 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
    */
   function calculateFCR(
     totalFeedKg: number,
-    totalWeightGainKg: number
+    totalWeightGainKg: number,
   ): number | null {
     if (totalWeightGainKg <= 0) return null
     return totalFeedKg / totalWeightGainKg
@@ -37,7 +37,7 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
   function calculateTotalWeightGain(
     initialWeightKg: number,
     finalWeightKg: number,
-    batchQuantity: number
+    batchQuantity: number,
   ): number {
     const weightGainPerUnit = finalWeightKg - initialWeightKg
     return weightGainPerUnit * batchQuantity
@@ -50,15 +50,15 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
         fc.double({ min: 0.01, max: 100, noNaN: true }), // weight gain > 0
         (totalFeed, weightGain) => {
           const fcr = calculateFCR(totalFeed, weightGain)
-          
+
           expect(fcr).not.toBeNull()
           if (fcr !== null) {
             const expected = totalFeed / weightGain
             expect(fcr).toBeCloseTo(expected, 10)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -70,9 +70,9 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
         (totalFeed, weightGain) => {
           const fcr = calculateFCR(totalFeed, weightGain)
           expect(fcr).toBeNull()
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -83,14 +83,14 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
         fc.double({ min: 0.01, max: 10000, noNaN: true }),
         (totalFeed, weightGain) => {
           const fcr = calculateFCR(totalFeed, weightGain)
-          
+
           expect(fcr).not.toBeNull()
           if (fcr !== null) {
             expect(fcr).toBeGreaterThan(0)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -98,15 +98,15 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
     fc.assert(
       fc.property(
         fc.double({ min: 100, max: 1000, noNaN: true }), // same feed amount
-        fc.double({ min: 10, max: 100, noNaN: true }),   // weight gain 1
-        fc.double({ min: 10, max: 100, noNaN: true }),   // weight gain 2
+        fc.double({ min: 10, max: 100, noNaN: true }), // weight gain 1
+        fc.double({ min: 10, max: 100, noNaN: true }), // weight gain 2
         (totalFeed, weightGain1, weightGain2) => {
           const fcr1 = calculateFCR(totalFeed, weightGain1)
           const fcr2 = calculateFCR(totalFeed, weightGain2)
-          
+
           expect(fcr1).not.toBeNull()
           expect(fcr2).not.toBeNull()
-          
+
           if (fcr1 !== null && fcr2 !== null) {
             // Higher weight gain = lower FCR = better efficiency
             if (weightGain1 > weightGain2) {
@@ -115,9 +115,9 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
               expect(fcr1).toBeGreaterThan(fcr2)
             }
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -130,17 +130,17 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
         (baseFeed, weightGain, multiplier) => {
           const fcr1 = calculateFCR(baseFeed, weightGain)
           const fcr2 = calculateFCR(baseFeed * multiplier, weightGain)
-          
+
           expect(fcr1).not.toBeNull()
           expect(fcr2).not.toBeNull()
-          
+
           if (fcr1 !== null && fcr2 !== null) {
             // FCR should scale linearly with feed
             expect(fcr2 / fcr1).toBeCloseTo(multiplier, 5)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -154,25 +154,25 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
         (feedRecords, initialWeight, finalWeightDelta, batchQuantity) => {
           // Ensure final weight is greater than initial
           const finalWeight = initialWeight + Math.abs(finalWeightDelta) + 0.01
-          
+
           const totalFeed = feedRecords.reduce((sum, f) => sum + f, 0)
           const totalWeightGain = calculateTotalWeightGain(
             initialWeight,
             finalWeight,
-            batchQuantity
+            batchQuantity,
           )
-          
+
           const fcr = calculateFCR(totalFeed, totalWeightGain)
-          
+
           expect(fcr).not.toBeNull()
           if (fcr !== null) {
             expect(fcr).toBeGreaterThan(0)
             // FCR should equal total feed / total weight gain
             expect(fcr).toBeCloseTo(totalFeed / totalWeightGain, 10)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 
@@ -186,18 +186,18 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
         (feedPerBird, weightGainPerBird, batchQuantity) => {
           const totalFeed = feedPerBird * batchQuantity
           const totalWeightGain = weightGainPerBird * batchQuantity
-          
+
           const fcr = calculateFCR(totalFeed, totalWeightGain)
-          
+
           expect(fcr).not.toBeNull()
           if (fcr !== null) {
             // Typical broiler FCR is 1.5-2.5, layers can be higher
             expect(fcr).toBeGreaterThan(0.5)
             expect(fcr).toBeLessThan(10)
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     )
   })
 })

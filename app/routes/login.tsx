@@ -1,12 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { AlertCircle } from 'lucide-react'
 import { signIn } from '~/lib/auth/client'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Field, FieldContent } from '~/components/ui/field'
-import { AlertCircle } from 'lucide-react'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -46,7 +52,9 @@ function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-primary">JayFarms</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary">
+            JayFarms
+          </CardTitle>
           <CardDescription>
             Sign in to your poultry & fishery management account
           </CardDescription>
@@ -90,11 +98,7 @@ function LoginPage() {
               </FieldContent>
             </Field>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
 

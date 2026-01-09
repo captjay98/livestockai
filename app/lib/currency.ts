@@ -71,15 +71,15 @@ export function formatNaira(amount: MoneyInput): string {
 export function parseNaira(nairaString: string): Decimal | null {
   // Remove currency symbol, spaces, and commas
   const cleaned = nairaString.replace(/[₦\s,]/g, '')
-  
+
   try {
     const decimal = new Decimal(cleaned)
-    
+
     // Return null if negative
     if (decimal.isNegative()) {
       return null
     }
-    
+
     return decimal
   } catch {
     return null
@@ -108,7 +108,7 @@ export function formatCompactNumber(num: number): string {
  */
 export function formatNairaCompact(amount: MoneyInput): string {
   const value = toNumber(amount)
-  
+
   if (value >= 1_000_000) {
     return `₦${(value / 1_000_000).toFixed(1)}M`
   } else if (value >= 1_000) {
@@ -124,13 +124,20 @@ export function formatNairaCompact(amount: MoneyInput): string {
  * @param total Amount (denominator)
  * @returns Percentage (0-100), or 0 if total is 0
  */
-export function calculatePercentage(part: MoneyInput, total: MoneyInput): number {
+export function calculatePercentage(
+  part: MoneyInput,
+  total: MoneyInput,
+): number {
   const partDecimal = toDecimal(part)
   const totalDecimal = toDecimal(total)
-  
+
   if (totalDecimal.isZero()) return 0
-  
-  return partDecimal.dividedBy(totalDecimal).times(100).toDecimalPlaces(2).toNumber()
+
+  return partDecimal
+    .dividedBy(totalDecimal)
+    .times(100)
+    .toDecimalPlaces(2)
+    .toNumber()
 }
 
 /**
@@ -138,10 +145,10 @@ export function calculatePercentage(part: MoneyInput, total: MoneyInput): number
  * @param amounts Array of amounts
  * @returns Sum as Decimal
  */
-export function sumAmounts(...amounts: MoneyInput[]): Decimal {
+export function sumAmounts(...amounts: Array<MoneyInput>): Decimal {
   return amounts.reduce<Decimal>(
     (sum, amount) => sum.plus(toDecimal(amount)),
-    new Decimal(0)
+    new Decimal(0),
   )
 }
 

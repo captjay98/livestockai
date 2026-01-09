@@ -1,7 +1,7 @@
 import { Link, useLocation } from '@tanstack/react-router'
+import { Building2, LogOut, User, X } from 'lucide-react'
 import { navigation } from '~/components/navigation'
 import { cn } from '~/lib/utils'
-import { Building2, LogOut, User, X } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { FarmSelector } from '~/components/farm-selector'
 import { ThemeToggle } from '~/components/theme-toggle'
@@ -16,8 +16,8 @@ export function Sidebar({ className, onClose }: SidebarProps) {
   const location = useLocation()
   const { data: session } = useSession()
 
-  const userName = session?.user?.name || 'User'
-  const userEmail = session?.user?.email || ''
+  const userName = session?.user.name ?? 'User'
+  const userEmail = session?.user.email ?? ''
 
   return (
     <div
@@ -41,7 +41,12 @@ export function Sidebar({ className, onClose }: SidebarProps) {
             </span>
           </Link>
           {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} className="md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="md:hidden"
+            >
               <X className="h-5 w-5" />
             </Button>
           )}
@@ -71,8 +76,10 @@ export function Sidebar({ className, onClose }: SidebarProps) {
               >
                 <item.icon
                   className={cn(
-                    "h-5 w-5 transition-colors",
-                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                    'h-5 w-5 transition-colors',
+                    isActive
+                      ? 'text-primary'
+                      : 'text-muted-foreground group-hover:text-foreground',
                   )}
                 />
                 {item.name}
@@ -91,7 +98,9 @@ export function Sidebar({ className, onClose }: SidebarProps) {
             <div className="min-w-0">
               <p className="text-sm font-semibold truncate">{userName}</p>
               {userEmail && (
-                <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {userEmail}
+                </p>
               )}
             </div>
           </div>

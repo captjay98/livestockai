@@ -1,6 +1,6 @@
 import { db } from '../db'
 import { checkFarmAccess, getUserFarms } from '../auth/middleware'
-import { toDbString, multiply, toNumber } from '../currency'
+import { multiply, toDbString, toNumber } from '../currency'
 
 export interface CreateBatchData {
   farmId: string
@@ -19,7 +19,10 @@ export interface UpdateBatchData {
 /**
  * Create a new batch
  */
-export async function createBatch(userId: string, data: CreateBatchData): Promise<string> {
+export async function createBatch(
+  userId: string,
+  data: CreateBatchData,
+): Promise<string> {
   // Check farm access
   const hasAccess = await checkFarmAccess(userId, data.farmId)
   if (!hasAccess) {
@@ -57,7 +60,7 @@ export async function getBatchesForFarm(
     status?: 'active' | 'depleted' | 'sold'
     livestockType?: 'poultry' | 'fish'
     species?: string
-  }
+  },
 ) {
   // Check farm access
   const hasAccess = await checkFarmAccess(userId, farmId)
@@ -112,7 +115,11 @@ export async function getBatchById(userId: string, batchId: string) {
 /**
  * Update a batch
  */
-export async function updateBatch(userId: string, batchId: string, data: UpdateBatchData) {
+export async function updateBatch(
+  userId: string,
+  batchId: string,
+  data: UpdateBatchData,
+) {
   const batch = await getBatchById(userId, batchId)
   if (!batch) {
     throw new Error('Batch not found')
@@ -138,7 +145,10 @@ export async function updateBatch(userId: string, batchId: string, data: UpdateB
 /**
  * Update batch quantity (used by mortality, sales, etc.)
  */
-export async function updateBatchQuantity(batchId: string, newQuantity: number) {
+export async function updateBatchQuantity(
+  batchId: string,
+  newQuantity: number,
+) {
   const status = newQuantity <= 0 ? 'depleted' : 'active'
 
   await db
@@ -200,9 +210,10 @@ export async function getBatchStats(userId: string, batchId: string) {
   const totalFeedCost = toNumber(String(feedStats?.total_feed_cost || '0'))
 
   // Calculate mortality rate
-  const mortalityRate = batch.initialQuantity > 0
-    ? (totalMortality / batch.initialQuantity) * 100
-    : 0
+  const mortalityRate =
+    batch.initialQuantity > 0
+      ? (totalMortality / batch.initialQuantity) * 100
+      : 0
 
   // Calculate average weight if we have weight samples
   const weightSamples = await db
@@ -239,7 +250,9 @@ export async function getBatchStats(userId: string, batchId: string) {
       totalQuantity: totalSold,
       totalRevenue: toNumber(String(salesStats?.total_revenue || '0')),
     },
-    currentWeight: weightSamples ? toNumber(String(weightSamples.averageWeightKg)) : null,
+    currentWeight: weightSamples
+      ? toNumber(String(weightSamples.averageWeightKg))
+      : null,
   }
 }
 
@@ -247,7 +260,7 @@ export async function getBatchStats(userId: string, batchId: string) {
  * Get inventory summary for a farm or all farms
  */
 export async function getInventorySummary(userId: string, farmId?: string) {
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     // Check specific farm access
@@ -262,7 +275,12 @@ export async function getInventorySummary(userId: string, farmId?: string) {
     if (targetFarmIds.length === 0) {
       // Return empty stats if no farms
       return {
-        overall: { totalQuantity: 0, activeBatches: 0, totalInvestment: 0, depletedBatches: 0 },
+        overall: {
+          totalQuantity: 0,
+          activeBatches: 0,
+          totalInvestment: 0,
+          depletedBatches: 0,
+        },
         poultry: { batches: 0, quantity: 0, investment: 0 },
         fish: { batches: 0, quantity: 0, investment: 0 },
         feed: { totalFeedings: 0, totalKg: 0, totalCost: 0, fcr: 0 },
@@ -355,22 +373,30 @@ export async function getInventorySummary(userId: string, farmId?: string) {
     .limit(10) // Last 10 samples
     .execute()
 
-  const averageWeightKg = recentWeights.length > 0
-    ? recentWeights.reduce((sum, w) => sum + Number(w.averageWeightKg || 0), 0) / recentWeights.length
-    : 0
+  const averageWeightKg =
+    recentWeights.length > 0
+      ? recentWeights.reduce(
+          (sum, w) => sum + Number(w.averageWeightKg || 0),
+          0,
+        ) / recentWeights.length
+      : 0
 
   // Helper to safely convert to number
-  const toNumber = (val: string | number | null | undefined) => Number(val || 0)
+  const safeToNumber = (val: string | number | null | undefined) => Number(val || 0)
 
   // Calculate FCR
-  const totalFeedKg = toNumber(String(feedStats?.total_kg || '0'))
-  const totalSold = toNumber(String(salesStats?.total_quantity || '0'))
+  const totalFeedKg = safeToNumber(String(feedStats?.total_kg || '0'))
+  const totalSold = safeToNumber(String(salesStats?.total_quantity || '0'))
   const fcr = totalSold > 0 ? Number((totalFeedKg / totalSold).toFixed(2)) : 0
 
   const totalFeedCost = toNumber(String(feedStats?.total_cost || '0'))
 
-  const totalQuantityOverall = toNumber(String(overallStats?.total_quantity || '0'))
-  const totalInvestmentOverall = toNumber(String(overallStats?.total_investment || '0'))
+  const totalQuantityOverall = toNumber(
+    String(overallStats?.total_quantity || '0'),
+  )
+  const totalInvestmentOverall = safeToNumber(
+    String(overallStats?.total_investment || '0'),
+  )
 
   return {
     overall: {

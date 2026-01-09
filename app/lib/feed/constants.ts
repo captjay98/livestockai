@@ -6,4 +6,4 @@ export const FEED_TYPES = [
   { value: 'fish_feed', label: 'Fish Feed' },
 ] as const
 
-export type FeedType = typeof FEED_TYPES[number]['value']
+export type FeedType = (typeof FEED_TYPES)[number]['value']

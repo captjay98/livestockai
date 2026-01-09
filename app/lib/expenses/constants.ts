@@ -8,4 +8,4 @@ export const EXPENSE_CATEGORIES = [
   { value: 'other', label: 'Other' },
 ] as const
 
-export type ExpenseCategory = typeof EXPENSE_CATEGORIES[number]['value']
+export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number]['value']

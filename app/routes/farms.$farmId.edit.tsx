@@ -1,14 +1,31 @@
-import { createFileRoute, useRouter, Link, redirect } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useRouter,
+} from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { getFarmById, updateFarm } from '~/lib/farms/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
-import { ArrowLeft } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 interface Farm {
   id: string
@@ -64,13 +81,13 @@ export const Route = createFileRoute('/farms/$farmId/edit')({
 
 function EditFarmPage() {
   const router = useRouter()
-  const farm = Route.useLoaderData() as Farm | null
+  const farm = Route.useLoaderData()
   const { farmId } = Route.useParams()
 
   const [formData, setFormData] = useState({
     name: farm?.name || '',
     location: farm?.location || '',
-    type: (farm?.type || 'poultry') as 'poultry' | 'fishery' | 'mixed',
+    type: (farm?.type || 'poultry'),
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -81,7 +98,8 @@ function EditFarmPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Farm not found</h1>
           <p className="text-muted-foreground mb-4">
-            The farm you're trying to edit doesn't exist or you don't have access to it.
+            The farm you're trying to edit doesn't exist or you don't have
+            access to it.
           </p>
           <Link to="/farms">
             <Button>
@@ -100,10 +118,8 @@ function EditFarmPage() {
     setError('')
 
     try {
-      const result = await updateFarmAction({ data: { farmId, ...formData } })
-      if (result.success) {
-        router.navigate({ to: '/farms/$farmId', params: { farmId } })
-      }
+      await updateFarmAction({ data: { farmId, ...formData } })
+      router.navigate({ to: '/farms/$farmId', params: { farmId } })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update farm')
     } finally {
@@ -120,14 +136,18 @@ function EditFarmPage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Edit Farm</h1>
-          <p className="text-muted-foreground mt-1">Update your farm information</p>
+          <p className="text-muted-foreground mt-1">
+            Update your farm information
+          </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Farm Details</CardTitle>
-          <CardDescription>Update the information for your farm</CardDescription>
+          <CardDescription>
+            Update the information for your farm
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -136,7 +156,9 @@ function EditFarmPage() {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="Enter farm name"
                 required
               />
@@ -147,7 +169,9 @@ function EditFarmPage() {
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormData((prev) => ({ ...prev, location: e.target.value }))
+                }
                 placeholder="Enter farm location"
                 required
               />
@@ -158,8 +182,13 @@ function EditFarmPage() {
               <Select
                 value={formData.type}
                 onValueChange={(value) => {
-                  if (value && (value === 'poultry' || value === 'fishery' || value === 'mixed')) {
-                    setFormData(prev => ({ ...prev, type: value }))
+                  if (
+                    value &&
+                    (value === 'poultry' ||
+                      value === 'fishery' ||
+                      value === 'mixed')
+                  ) {
+                    setFormData((prev) => ({ ...prev, type: value }))
                   }
                 }}
               >
@@ -181,10 +210,18 @@ function EditFarmPage() {
             )}
 
             <div className="flex gap-3">
-              <Button type="button" variant="outline" onClick={() => router.history.back()} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.history.back()}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting || !formData.name || !formData.location}>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !formData.name || !formData.location}
+              >
                 {isSubmitting ? 'Updating...' : 'Update Farm'}
               </Button>
             </div>

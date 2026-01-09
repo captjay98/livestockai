@@ -1,6 +1,23 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getVaccinationsForFarm, getTreatmentsForFarm, getVaccinationAlerts, createVaccination, createTreatment } from '~/lib/vaccinations/server'
+import {
+  AlertTriangle,
+  Calendar,
+  Edit,
+  Eye,
+  Pill,
+  Plus,
+  Syringe,
+  Trash2,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  createTreatment,
+  createVaccination,
+  getTreatmentsForFarm,
+  getVaccinationAlerts,
+  getVaccinationsForFarm,
+} from '~/lib/vaccinations/server'
 import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
@@ -8,7 +25,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -18,8 +41,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, Syringe, Pill, AlertTriangle, Calendar, Eye, Edit, Trash2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
 import { useFarm } from '~/components/farm-context'
 
 interface Vaccination {
@@ -52,10 +73,10 @@ interface Batch {
 }
 
 interface VaccinationData {
-  vaccinations: Vaccination[]
-  treatments: Treatment[]
-  batches: Batch[]
-  alerts: { upcoming: any[]; overdue: any[]; totalAlerts: number } | null
+  vaccinations: Array<Vaccination>
+  treatments: Array<Treatment>
+  batches: Array<Batch>
+  alerts: { upcoming: Array<any>; overdue: Array<any>; totalAlerts: number } | null
 }
 
 const getVaccinationDataForFarm = createServerFn({ method: 'GET' })
@@ -69,9 +90,9 @@ const getVaccinationDataForFarm = createServerFn({ method: 'GET' })
         getVaccinationAlerts(session.user.id, data.farmId),
         getBatchesForFarm(session.user.id, data.farmId),
       ])
-      const batches = allBatches.filter(b => b.status === 'active')
+      const batches = allBatches.filter((b) => b.status === 'active')
       return { vaccinations, treatments, alerts, batches }
-    } catch (error) {
+    } catch (err) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
@@ -80,14 +101,16 @@ const getVaccinationDataForFarm = createServerFn({ method: 'GET' })
   })
 
 const createVaccinationAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    batchId: string
-    vaccineName: string
-    dateAdministered: string
-    dosage: string
-    nextDueDate?: string
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      vaccineName: string
+      dateAdministered: string
+      dosage: string
+      nextDueDate?: string
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -99,7 +122,7 @@ const createVaccinationAction = createServerFn({ method: 'POST' })
         nextDueDate: data.nextDueDate ? new Date(data.nextDueDate) : null,
       })
       return { success: true, id }
-    } catch (error) {
+    } catch (err) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
@@ -108,15 +131,17 @@ const createVaccinationAction = createServerFn({ method: 'POST' })
   })
 
 const createTreatmentAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    batchId: string
-    medicationName: string
-    reason: string
-    date: string
-    dosage: string
-    withdrawalDays: number
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      medicationName: string
+      reason: string
+      date: string
+      dosage: string
+      withdrawalDays: number
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -129,7 +154,7 @@ const createTreatmentAction = createServerFn({ method: 'POST' })
         withdrawalDays: data.withdrawalDays,
       })
       return { success: true, id }
-    } catch (error) {
+    } catch (err) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
@@ -143,10 +168,17 @@ export const Route = createFileRoute('/vaccinations')({
 
 function VaccinationsPage() {
   const { selectedFarmId } = useFarm()
-  const [data, setData] = useState<VaccinationData>({ vaccinations: [], treatments: [], batches: [], alerts: null })
+  const [data, setData] = useState<VaccinationData>({
+    vaccinations: [],
+    treatments: [],
+    batches: [],
+    alerts: null,
+  })
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [recordType, setRecordType] = useState<'vaccination' | 'treatment'>('vaccination')
+  const [recordType, setRecordType] = useState<'vaccination' | 'treatment'>(
+    'vaccination',
+  )
   const [formData, setFormData] = useState({
     batchId: '',
     name: '',
@@ -168,10 +200,12 @@ function VaccinationsPage() {
 
     setIsLoading(true)
     try {
-      const result = await getVaccinationDataForFarm({ data: { farmId: selectedFarmId } })
+      const result = await getVaccinationDataForFarm({
+        data: { farmId: selectedFarmId },
+      })
       setData(result)
-    } catch (error) {
-      console.error('Failed to load vaccination data:', error)
+    } catch (err) {
+      console.error('Failed:', err)
     } finally {
       setIsLoading(false)
     }
@@ -197,7 +231,7 @@ function VaccinationsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFarmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -211,7 +245,7 @@ function VaccinationsPage() {
             dateAdministered: formData.date,
             dosage: formData.dosage,
             nextDueDate: formData.nextDueDate || undefined,
-          }
+          },
         })
       } else {
         await createTreatmentAction({
@@ -223,7 +257,7 @@ function VaccinationsPage() {
             date: formData.date,
             dosage: formData.dosage,
             withdrawalDays: parseInt(formData.withdrawalDays),
-          }
+          },
         })
       }
       setDialogOpen(false)
@@ -244,14 +278,18 @@ function VaccinationsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold">Health Management</h1>
-            <p className="text-muted-foreground mt-1">Track vaccinations and treatments</p>
+            <p className="text-muted-foreground mt-1">
+              Track vaccinations and treatments
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
             <Syringe className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
-            <p className="text-muted-foreground">Select a farm from the sidebar to view health records</p>
+            <p className="text-muted-foreground">
+              Select a farm from the sidebar to view health records
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -276,7 +314,9 @@ function VaccinationsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Health Management</h1>
-          <p className="text-muted-foreground mt-1">Track vaccinations and treatments</p>
+          <p className="text-muted-foreground mt-1">
+            Track vaccinations and treatments
+          </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger
@@ -290,7 +330,9 @@ function VaccinationsPage() {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Add Health Record</DialogTitle>
-              <DialogDescription>Record vaccination or treatment</DialogDescription>
+              <DialogDescription>
+                Record vaccination or treatment
+              </DialogDescription>
             </DialogHeader>
             <div className="flex gap-4 mb-4">
               <Button
@@ -317,15 +359,24 @@ function VaccinationsPage() {
                 <Label htmlFor="batchId">Batch</Label>
                 <Select
                   value={formData.batchId}
-                  onValueChange={(value) => value && setFormData(prev => ({ ...prev, batchId: value }))}
+                  onValueChange={(value) =>
+                    value &&
+                    setFormData((prev) => ({ ...prev, batchId: value }))
+                  }
                 >
                   <SelectTrigger>
-                    <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select batch'}</SelectValue>
+                    <SelectValue>
+                      {formData.batchId
+                        ? batches.find((b) => b.id === formData.batchId)
+                            ?.species
+                        : 'Select batch'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {batches.map((batch) => (
                       <SelectItem key={batch.id} value={batch.id}>
-                        {batch.species} ({batch.currentQuantity} {batch.livestockType})
+                        {batch.species} ({batch.currentQuantity}{' '}
+                        {batch.livestockType})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -333,12 +384,22 @@ function VaccinationsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="name">{recordType === 'vaccination' ? 'Vaccine Name' : 'Medication Name'}</Label>
+                <Label htmlFor="name">
+                  {recordType === 'vaccination'
+                    ? 'Vaccine Name'
+                    : 'Medication Name'}
+                </Label>
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder={recordType === 'vaccination' ? 'e.g., Newcastle Disease Vaccine' : 'e.g., Oxytetracycline'}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  placeholder={
+                    recordType === 'vaccination'
+                      ? 'e.g., Newcastle Disease Vaccine'
+                      : 'e.g., Oxytetracycline'
+                  }
                   required
                 />
               </div>
@@ -349,7 +410,12 @@ function VaccinationsPage() {
                   <Input
                     id="reason"
                     value={formData.reason}
-                    onChange={(e) => setFormData(prev => ({ ...prev, reason: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        reason: e.target.value,
+                      }))
+                    }
                     placeholder="e.g., Respiratory infection"
                     required
                   />
@@ -361,19 +427,27 @@ function VaccinationsPage() {
                 <Input
                   id="dosage"
                   value={formData.dosage}
-                  onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, dosage: e.target.value }))
+                  }
                   placeholder="e.g., 0.5ml per bird"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="date">{recordType === 'vaccination' ? 'Date Administered' : 'Treatment Date'}</Label>
+                <Label htmlFor="date">
+                  {recordType === 'vaccination'
+                    ? 'Date Administered'
+                    : 'Treatment Date'}
+                </Label>
                 <Input
                   id="date"
                   type="date"
                   value={formData.date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, date: e.target.value }))
+                  }
                   required
                 />
               </div>
@@ -385,20 +459,32 @@ function VaccinationsPage() {
                     id="nextDueDate"
                     type="date"
                     value={formData.nextDueDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, nextDueDate: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        nextDueDate: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               )}
 
               {recordType === 'treatment' && (
                 <div className="space-y-2">
-                  <Label htmlFor="withdrawalDays">Withdrawal Period (Days)</Label>
+                  <Label htmlFor="withdrawalDays">
+                    Withdrawal Period (Days)
+                  </Label>
                   <Input
                     id="withdrawalDays"
                     type="number"
                     min="0"
                     value={formData.withdrawalDays}
-                    onChange={(e) => setFormData(prev => ({ ...prev, withdrawalDays: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        withdrawalDays: e.target.value,
+                      }))
+                    }
                     placeholder="Days before safe for consumption"
                     required
                   />
@@ -412,12 +498,22 @@ function VaccinationsPage() {
               )}
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={isSubmitting}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !formData.batchId || !formData.name || !formData.dosage}
+                  disabled={
+                    isSubmitting ||
+                    !formData.batchId ||
+                    !formData.name ||
+                    !formData.dosage
+                  }
                 >
                   {isSubmitting ? 'Saving...' : 'Save Record'}
                 </Button>
@@ -439,22 +535,34 @@ function VaccinationsPage() {
           <CardContent>
             <div className="space-y-3">
               {alerts.overdue.map((alert) => (
-                <div key={alert.id} className="flex items-center justify-between p-3 bg-destructive/10 rounded-md border border-destructive/20">
+                <div
+                  key={alert.id}
+                  className="flex items-center justify-between p-3 bg-destructive/10 rounded-md border border-destructive/20"
+                >
                   <div>
-                    <p className="font-medium text-destructive">{alert.vaccineName}</p>
+                    <p className="font-medium text-destructive">
+                      {alert.vaccineName}
+                    </p>
                     <p className="text-sm text-muted-foreground">
-                      {alert.species} - Due: {new Date(alert.nextDueDate).toLocaleDateString()}
+                      {alert.species} - Due:{' '}
+                      {new Date(alert.nextDueDate).toLocaleDateString()}
                     </p>
                   </div>
                   <Badge variant="destructive">Overdue</Badge>
                 </div>
               ))}
               {alerts.upcoming.map((alert) => (
-                <div key={alert.id} className="flex items-center justify-between p-3 bg-warning/10 rounded-md border border-warning/20">
+                <div
+                  key={alert.id}
+                  className="flex items-center justify-between p-3 bg-warning/10 rounded-md border border-warning/20"
+                >
                   <div>
-                    <p className="font-medium text-warning">{alert.vaccineName}</p>
+                    <p className="font-medium text-warning">
+                      {alert.vaccineName}
+                    </p>
                     <p className="text-sm text-muted-foreground">
-                      {alert.species} - Due: {new Date(alert.nextDueDate).toLocaleDateString()}
+                      {alert.species} - Due:{' '}
+                      {new Date(alert.nextDueDate).toLocaleDateString()}
                     </p>
                   </div>
                   <Badge variant="warning">Upcoming</Badge>
@@ -468,35 +576,52 @@ function VaccinationsPage() {
       <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-3 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Vaccinations</CardTitle>
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Vaccinations
+            </CardTitle>
             <Syringe className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-            <div className="text-lg sm:text-2xl font-bold">{vaccinations.length}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Total records</p>
+            <div className="text-lg sm:text-2xl font-bold">
+              {vaccinations.length}
+            </div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Total records
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Treatments</CardTitle>
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Treatments
+            </CardTitle>
             <Pill className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-            <div className="text-lg sm:text-2xl font-bold">{treatments.length}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Total records</p>
+            <div className="text-lg sm:text-2xl font-bold">
+              {treatments.length}
+            </div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Total records
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Alerts</CardTitle>
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Alerts
+            </CardTitle>
             <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-            <div className="text-lg sm:text-2xl font-bold">{alerts?.totalAlerts || 0}</div>
+            <div className="text-lg sm:text-2xl font-bold">
+              {alerts?.totalAlerts || 0}
+            </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground">
-              {alerts?.overdue.length || 0} overdue, {alerts?.upcoming.length || 0} upcoming
+              {alerts?.overdue.length || 0} overdue,{' '}
+              {alerts?.upcoming.length || 0} upcoming
             </p>
           </CardContent>
         </Card>
@@ -512,21 +637,30 @@ function VaccinationsPage() {
         </CardHeader>
         <CardContent>
           {vaccinations.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No vaccination records</p>
+            <p className="text-center text-muted-foreground py-8">
+              No vaccination records
+            </p>
           ) : (
             <div className="space-y-4">
               {vaccinations.map((vax) => (
-                <div key={vax.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+                <div
+                  key={vax.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3"
+                >
                   <div className="flex items-center gap-4">
                     <Syringe className="h-8 w-8 text-muted-foreground shrink-0" />
                     <div className="min-w-0">
                       <p className="font-medium truncate">{vax.vaccineName}</p>
-                      <p className="text-sm text-muted-foreground">{vax.species} • {vax.dosage}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {vax.species} • {vax.dosage}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between sm:justify-end gap-3">
                     <div className="text-right hidden sm:block">
-                      <p className="text-sm">{new Date(vax.dateAdministered).toLocaleDateString()}</p>
+                      <p className="text-sm">
+                        {new Date(vax.dateAdministered).toLocaleDateString()}
+                      </p>
                       {vax.nextDueDate && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
@@ -535,13 +669,25 @@ function VaccinationsPage() {
                       )}
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -563,31 +709,56 @@ function VaccinationsPage() {
         </CardHeader>
         <CardContent>
           {treatments.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No treatment records</p>
+            <p className="text-center text-muted-foreground py-8">
+              No treatment records
+            </p>
           ) : (
             <div className="space-y-4">
               {treatments.map((treatment) => (
-                <div key={treatment.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+                <div
+                  key={treatment.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3"
+                >
                   <div className="flex items-center gap-4">
                     <Pill className="h-8 w-8 text-muted-foreground shrink-0" />
                     <div className="min-w-0">
-                      <p className="font-medium truncate">{treatment.medicationName}</p>
-                      <p className="text-sm text-muted-foreground">{treatment.species} • {treatment.reason}</p>
+                      <p className="font-medium truncate">
+                        {treatment.medicationName}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {treatment.species} • {treatment.reason}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between sm:justify-end gap-3">
                     <div className="text-right hidden sm:block">
-                      <p className="text-sm">{new Date(treatment.date).toLocaleDateString()}</p>
-                      <Badge variant="outline" className="text-xs">{treatment.withdrawalDays} day withdrawal</Badge>
+                      <p className="text-sm">
+                        {new Date(treatment.date).toLocaleDateString()}
+                      </p>
+                      <Badge variant="outline" className="text-xs">
+                        {treatment.withdrawalDays} day withdrawal
+                      </Badge>
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

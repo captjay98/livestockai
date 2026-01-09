@@ -7,7 +7,9 @@ export interface CreateCustomerInput {
   location?: string | null
 }
 
-export async function createCustomer(input: CreateCustomerInput): Promise<string> {
+export async function createCustomer(
+  input: CreateCustomerInput,
+): Promise<string> {
   const result = await db
     .insertInto('customers')
     .values({
@@ -23,11 +25,7 @@ export async function createCustomer(input: CreateCustomerInput): Promise<string
 }
 
 export async function getCustomers() {
-  return db
-    .selectFrom('customers')
-    .selectAll()
-    .orderBy('name', 'asc')
-    .execute()
+  return db.selectFrom('customers').selectAll().orderBy('name', 'asc').execute()
 }
 
 export async function getCustomerById(customerId: string) {
@@ -40,7 +38,7 @@ export async function getCustomerById(customerId: string) {
 
 export async function updateCustomer(
   customerId: string,
-  input: Partial<CreateCustomerInput>
+  input: Partial<CreateCustomerInput>,
 ) {
   await db
     .updateTable('customers')
@@ -53,10 +51,7 @@ export async function updateCustomer(
 }
 
 export async function deleteCustomer(customerId: string) {
-  await db
-    .deleteFrom('customers')
-    .where('id', '=', customerId)
-    .execute()
+  await db.deleteFrom('customers').where('id', '=', customerId).execute()
 }
 
 export async function getCustomerWithSales(customerId: string) {
@@ -77,7 +72,10 @@ export async function getCustomerWithSales(customerId: string) {
     .orderBy('date', 'desc')
     .execute()
 
-  const totalSpent = sales.reduce((sum, s) => sum + parseFloat(s.totalAmount), 0)
+  const totalSpent = sales.reduce(
+    (sum, s) => sum + parseFloat(s.totalAmount),
+    0,
+  )
 
   return {
     ...customer,
@@ -99,12 +97,17 @@ export async function getTopCustomers(limit: number = 10) {
       db.fn.count('sales.id').as('salesCount'),
       db.fn.sum<string>('sales.totalAmount').as('totalSpent'),
     ])
-    .groupBy(['customers.id', 'customers.name', 'customers.phone', 'customers.location'])
+    .groupBy([
+      'customers.id',
+      'customers.name',
+      'customers.phone',
+      'customers.location',
+    ])
     .orderBy('totalSpent', 'desc')
     .limit(limit)
     .execute()
 
-  return customers.map(c => ({
+  return customers.map((c) => ({
     ...c,
     salesCount: Number(c.salesCount),
     totalSpent: parseFloat(c.totalSpent || '0'),

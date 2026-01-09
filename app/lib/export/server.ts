@@ -1,9 +1,9 @@
 import {
-  getProfitLossReport,
-  getInventoryReport,
-  getSalesReport,
-  getFeedReport,
   getEggReport,
+  getFeedReport,
+  getInventoryReport,
+  getProfitLossReport,
+  getSalesReport,
 } from '~/lib/reports/server'
 
 export interface ExportOptions {
@@ -32,24 +32,24 @@ export async function generateExportData(options: ExportOptions): Promise<{
     case 'profit-loss': {
       const report = await getProfitLossReport(options.farmId, dateRange)
       filename = `profit-loss-report-${options.startDate}-to-${options.endDate}`
-      
+
       csvContent = 'Profit & Loss Report\n'
       csvContent += `Period: ${options.startDate} to ${options.endDate}\n\n`
-      
+
       csvContent += 'REVENUE\n'
       csvContent += 'Type,Amount\n'
       for (const item of report.revenue.byType) {
         csvContent += `${item.type},${item.amount}\n`
       }
       csvContent += `Total Revenue,${report.revenue.total}\n\n`
-      
+
       csvContent += 'EXPENSES\n'
       csvContent += 'Category,Amount\n'
       for (const item of report.expenses.byCategory) {
         csvContent += `${item.category},${item.amount}\n`
       }
       csvContent += `Total Expenses,${report.expenses.total}\n\n`
-      
+
       csvContent += 'SUMMARY\n'
       csvContent += `Net Profit,${report.profit}\n`
       csvContent += `Profit Margin,${report.profitMargin}%\n`
@@ -59,16 +59,17 @@ export async function generateExportData(options: ExportOptions): Promise<{
     case 'inventory': {
       const report = await getInventoryReport(options.farmId)
       filename = `inventory-report-${new Date().toISOString().split('T')[0]}`
-      
+
       csvContent = 'Inventory Report\n\n'
       csvContent += 'SUMMARY\n'
       csvContent += `Total Poultry,${report.summary.totalPoultry}\n`
       csvContent += `Total Fish,${report.summary.totalFish}\n`
       csvContent += `Total Mortality,${report.summary.totalMortality}\n`
       csvContent += `Overall Mortality Rate,${report.summary.overallMortalityRate}%\n\n`
-      
+
       csvContent += 'BATCHES\n'
-      csvContent += 'Species,Type,Initial Qty,Current Qty,Mortality,Mortality Rate,Status\n'
+      csvContent +=
+        'Species,Type,Initial Qty,Current Qty,Mortality,Mortality Rate,Status\n'
       for (const batch of report.batches) {
         csvContent += `${batch.species},${batch.livestockType},${batch.initialQuantity},${batch.currentQuantity},${batch.mortalityCount},${batch.mortalityRate}%,${batch.status}\n`
       }
@@ -78,21 +79,21 @@ export async function generateExportData(options: ExportOptions): Promise<{
     case 'sales': {
       const report = await getSalesReport(options.farmId, dateRange)
       filename = `sales-report-${options.startDate}-to-${options.endDate}`
-      
+
       csvContent = 'Sales Report\n'
       csvContent += `Period: ${options.startDate} to ${options.endDate}\n\n`
-      
+
       csvContent += 'SUMMARY\n'
       csvContent += `Total Sales,${report.summary.totalSales}\n`
       csvContent += `Total Revenue,${report.summary.totalRevenue}\n\n`
-      
+
       csvContent += 'BY TYPE\n'
       csvContent += 'Type,Quantity,Revenue\n'
       for (const item of report.summary.byType) {
         csvContent += `${item.type},${item.quantity},${item.revenue}\n`
       }
       csvContent += '\n'
-      
+
       csvContent += 'TRANSACTIONS\n'
       csvContent += 'Date,Type,Quantity,Unit Price,Total,Customer\n'
       for (const sale of report.sales) {
@@ -104,21 +105,21 @@ export async function generateExportData(options: ExportOptions): Promise<{
     case 'feed': {
       const report = await getFeedReport(options.farmId, dateRange)
       filename = `feed-report-${options.startDate}-to-${options.endDate}`
-      
+
       csvContent = 'Feed Report\n'
       csvContent += `Period: ${options.startDate} to ${options.endDate}\n\n`
-      
+
       csvContent += 'SUMMARY\n'
       csvContent += `Total Feed (kg),${report.summary.totalFeedKg}\n`
       csvContent += `Total Cost,${report.summary.totalCost}\n\n`
-      
+
       csvContent += 'BY FEED TYPE\n'
       csvContent += 'Feed Type,Quantity (kg),Cost\n'
       for (const item of report.summary.byFeedType) {
         csvContent += `${item.type},${item.quantityKg},${item.cost}\n`
       }
       csvContent += '\n'
-      
+
       csvContent += 'RECORDS\n'
       csvContent += 'Species,Feed Type,Quantity (kg),Cost\n'
       for (const record of report.records) {
@@ -130,17 +131,17 @@ export async function generateExportData(options: ExportOptions): Promise<{
     case 'eggs': {
       const report = await getEggReport(options.farmId, dateRange)
       filename = `egg-production-report-${options.startDate}-to-${options.endDate}`
-      
+
       csvContent = 'Egg Production Report\n'
       csvContent += `Period: ${options.startDate} to ${options.endDate}\n\n`
-      
+
       csvContent += 'SUMMARY\n'
       csvContent += `Total Collected,${report.summary.totalCollected}\n`
       csvContent += `Total Sold,${report.summary.totalSold}\n`
       csvContent += `Total Broken,${report.summary.totalBroken}\n`
       csvContent += `Current Inventory,${report.summary.currentInventory}\n`
       csvContent += `Average Laying %,${report.summary.averageLayingPercentage}%\n\n`
-      
+
       csvContent += 'DAILY RECORDS\n'
       csvContent += 'Date,Collected,Broken,Sold,Inventory\n'
       for (const record of report.records) {

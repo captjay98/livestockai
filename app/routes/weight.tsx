@@ -1,14 +1,40 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getWeightSamplesForFarm, getGrowthAlerts, createWeightSample } from '~/lib/weight/server'
+import {
+  AlertTriangle,
+  Edit,
+  Eye,
+  Plus,
+  Scale,
+  Trash2,
+  TrendingUp,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  createWeightSample,
+  getGrowthAlerts,
+  getWeightSamplesForFarm,
+} from '~/lib/weight/server'
 import { getBatchesForFarm } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/middleware'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '~/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -18,8 +44,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog'
-import { Plus, Scale, TrendingUp, AlertTriangle, Eye, Edit, Trash2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
 import { useFarm } from '~/components/farm-context'
 
 interface WeightSample {
@@ -50,9 +74,9 @@ interface Batch {
 }
 
 interface WeightData {
-  samples: WeightSample[]
-  alerts: GrowthAlert[]
-  batches: Batch[]
+  samples: Array<WeightSample>
+  alerts: Array<GrowthAlert>
+  batches: Array<Batch>
 }
 
 const getWeightDataForFarm = createServerFn({ method: 'GET' })
@@ -65,9 +89,9 @@ const getWeightDataForFarm = createServerFn({ method: 'GET' })
         getGrowthAlerts(session.user.id, data.farmId),
         getBatchesForFarm(session.user.id, data.farmId),
       ])
-      const batches = allBatches.filter(b => b.status === 'active')
+      const batches = allBatches.filter((b) => b.status === 'active')
       return { samples, alerts, batches }
-    } catch (error) {
+    } catch (err) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
@@ -76,13 +100,15 @@ const getWeightDataForFarm = createServerFn({ method: 'GET' })
   })
 
 const createWeightSampleAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: {
-    farmId: string
-    batchId: string
-    date: string
-    sampleSize: number
-    averageWeightKg: number
-  }) => data)
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      date: string
+      sampleSize: number
+      averageWeightKg: number
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -93,7 +119,7 @@ const createWeightSampleAction = createServerFn({ method: 'POST' })
         averageWeightKg: data.averageWeightKg,
       })
       return { success: true, id }
-    } catch (error) {
+    } catch (err) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
@@ -107,7 +133,11 @@ export const Route = createFileRoute('/weight')({
 
 function WeightPage() {
   const { selectedFarmId } = useFarm()
-  const [data, setData] = useState<WeightData>({ samples: [], alerts: [], batches: [] })
+  const [data, setData] = useState<WeightData>({
+    samples: [],
+    alerts: [],
+    batches: [],
+  })
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
@@ -128,10 +158,12 @@ function WeightPage() {
 
     setIsLoading(true)
     try {
-      const result = await getWeightDataForFarm({ data: { farmId: selectedFarmId } })
+      const result = await getWeightDataForFarm({
+        data: { farmId: selectedFarmId },
+      })
       setData(result)
-    } catch (error) {
-      console.error('Failed to load weight data:', error)
+    } catch (err) {
+      console.error('Failed:', err)
     } finally {
       setIsLoading(false)
     }
@@ -154,7 +186,7 @@ function WeightPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFarmId) return
-    
+
     setIsSubmitting(true)
     setError('')
 
@@ -166,7 +198,7 @@ function WeightPage() {
           date: formData.date,
           sampleSize: parseInt(formData.sampleSize),
           averageWeightKg: parseFloat(formData.averageWeightKg),
-        }
+        },
       })
       setDialogOpen(false)
       resetForm()
@@ -179,7 +211,7 @@ function WeightPage() {
   }
 
   const { samples, alerts, batches } = data
-  const selectedBatch = batches.find(b => b.id === formData.batchId)
+  const selectedBatch = batches.find((b) => b.id === formData.batchId)
 
   if (!selectedFarmId) {
     return (
@@ -187,14 +219,18 @@ function WeightPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold">Weight Tracking</h1>
-            <p className="text-muted-foreground mt-1">Monitor livestock growth and weight</p>
+            <p className="text-muted-foreground mt-1">
+              Monitor livestock growth and weight
+            </p>
           </div>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
             <Scale className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
-            <p className="text-muted-foreground">Select a farm from the sidebar to view weight records</p>
+            <p className="text-muted-foreground">
+              Select a farm from the sidebar to view weight records
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -214,15 +250,17 @@ function WeightPage() {
     )
   }
 
-  const criticalAlerts = alerts.filter(a => a.severity === 'critical')
-  const warningAlerts = alerts.filter(a => a.severity === 'warning')
+  const criticalAlerts = alerts.filter((a) => a.severity === 'critical')
+  const warningAlerts = alerts.filter((a) => a.severity === 'warning')
 
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Weight Tracking</h1>
-          <p className="text-muted-foreground mt-1">Monitor livestock growth and weight</p>
+          <p className="text-muted-foreground mt-1">
+            Monitor livestock growth and weight
+          </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger
@@ -236,22 +274,33 @@ function WeightPage() {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Record Weight</DialogTitle>
-              <DialogDescription>Log weight sample for a batch</DialogDescription>
+              <DialogDescription>
+                Log weight sample for a batch
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="batchId">Batch</Label>
                 <Select
                   value={formData.batchId}
-                  onValueChange={(value) => value && setFormData(prev => ({ ...prev, batchId: value }))}
+                  onValueChange={(value) =>
+                    value &&
+                    setFormData((prev) => ({ ...prev, batchId: value }))
+                  }
                 >
                   <SelectTrigger>
-                    <SelectValue>{formData.batchId ? batches.find(b => b.id === formData.batchId)?.species : 'Select batch'}</SelectValue>
+                    <SelectValue>
+                      {formData.batchId
+                        ? batches.find((b) => b.id === formData.batchId)
+                            ?.species
+                        : 'Select batch'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {batches.map((batch) => (
                       <SelectItem key={batch.id} value={batch.id}>
-                        {batch.species} ({batch.currentQuantity} {batch.livestockType})
+                        {batch.species} ({batch.currentQuantity}{' '}
+                        {batch.livestockType})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -264,7 +313,9 @@ function WeightPage() {
                   id="date"
                   type="date"
                   value={formData.date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, date: e.target.value }))
+                  }
                   required
                 />
               </div>
@@ -277,12 +328,19 @@ function WeightPage() {
                   min="1"
                   max={selectedBatch?.currentQuantity || 1000}
                   value={formData.sampleSize}
-                  onChange={(e) => setFormData(prev => ({ ...prev, sampleSize: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      sampleSize: e.target.value,
+                    }))
+                  }
                   placeholder="Number of animals weighed"
                   required
                 />
                 {selectedBatch && (
-                  <p className="text-sm text-muted-foreground">Max: {selectedBatch.currentQuantity} (total in batch)</p>
+                  <p className="text-sm text-muted-foreground">
+                    Max: {selectedBatch.currentQuantity} (total in batch)
+                  </p>
                 )}
               </div>
 
@@ -294,27 +352,46 @@ function WeightPage() {
                   min="0.01"
                   step="0.01"
                   value={formData.averageWeightKg}
-                  onChange={(e) => setFormData(prev => ({ ...prev, averageWeightKg: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      averageWeightKg: e.target.value,
+                    }))
+                  }
                   placeholder="Average weight in kilograms"
                   required
                 />
               </div>
 
-              {formData.sampleSize && formData.averageWeightKg && selectedBatch && (
-                <div className="bg-muted p-4 rounded-md">
-                  <h4 className="font-medium mb-2">Estimated Totals</h4>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span>Sample Weight:</span>
-                      <span>{(parseInt(formData.sampleSize) * parseFloat(formData.averageWeightKg)).toFixed(2)} kg</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Est. Batch Weight:</span>
-                      <span>{(selectedBatch.currentQuantity * parseFloat(formData.averageWeightKg)).toFixed(2)} kg</span>
+              {formData.sampleSize &&
+                formData.averageWeightKg &&
+                selectedBatch && (
+                  <div className="bg-muted p-4 rounded-md">
+                    <h4 className="font-medium mb-2">Estimated Totals</h4>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span>Sample Weight:</span>
+                        <span>
+                          {(
+                            parseInt(formData.sampleSize) *
+                            parseFloat(formData.averageWeightKg)
+                          ).toFixed(2)}{' '}
+                          kg
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Est. Batch Weight:</span>
+                        <span>
+                          {(
+                            selectedBatch.currentQuantity *
+                            parseFloat(formData.averageWeightKg)
+                          ).toFixed(2)}{' '}
+                          kg
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {error && (
                 <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
@@ -323,12 +400,22 @@ function WeightPage() {
               )}
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={isSubmitting}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !formData.batchId || !formData.sampleSize || !formData.averageWeightKg}
+                  disabled={
+                    isSubmitting ||
+                    !formData.batchId ||
+                    !formData.sampleSize ||
+                    !formData.averageWeightKg
+                  }
                 >
                   {isSubmitting ? 'Recording...' : 'Record Weight'}
                 </Button>
@@ -346,24 +433,40 @@ function WeightPage() {
               <AlertTriangle className="h-5 w-5" />
               Growth Alerts
             </CardTitle>
-            <CardDescription>Batches with below-expected growth rates</CardDescription>
+            <CardDescription>
+              Batches with below-expected growth rates
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {criticalAlerts.map((alert) => (
-                <div key={alert.batchId} className="flex items-center justify-between p-3 bg-destructive/10 rounded-md border border-destructive/20">
+                <div
+                  key={alert.batchId}
+                  className="flex items-center justify-between p-3 bg-destructive/10 rounded-md border border-destructive/20"
+                >
                   <div>
-                    <p className="font-medium text-destructive capitalize">{alert.species}</p>
-                    <p className="text-sm text-muted-foreground">{alert.message}</p>
+                    <p className="font-medium text-destructive capitalize">
+                      {alert.species}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {alert.message}
+                    </p>
                   </div>
                   <Badge variant="destructive">Critical</Badge>
                 </div>
               ))}
               {warningAlerts.map((alert) => (
-                <div key={alert.batchId} className="flex items-center justify-between p-3 bg-warning/10 rounded-md border border-warning/20">
+                <div
+                  key={alert.batchId}
+                  className="flex items-center justify-between p-3 bg-warning/10 rounded-md border border-warning/20"
+                >
                   <div>
-                    <p className="font-medium text-warning capitalize">{alert.species}</p>
-                    <p className="text-sm text-muted-foreground">{alert.message}</p>
+                    <p className="font-medium text-warning capitalize">
+                      {alert.species}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {alert.message}
+                    </p>
                   </div>
                   <Badge variant="warning">Warning</Badge>
                 </div>
@@ -376,36 +479,52 @@ function WeightPage() {
       <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-3 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Samples</CardTitle>
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Total Samples
+            </CardTitle>
             <Scale className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-            <div className="text-lg sm:text-2xl font-bold">{samples.length}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Weight records</p>
+            <div className="text-lg sm:text-2xl font-bold">
+              {samples.length}
+            </div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Weight records
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Growth Alerts</CardTitle>
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Growth Alerts
+            </CardTitle>
             <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
             <div className="text-lg sm:text-2xl font-bold">{alerts.length}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">{criticalAlerts.length} critical, {warningAlerts.length} warning</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              {criticalAlerts.length} critical, {warningAlerts.length} warning
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">Latest Weight</CardTitle>
+            <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Latest Weight
+            </CardTitle>
             <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
             <div className="text-lg sm:text-2xl font-bold">
-              {samples.length > 0 ? `${parseFloat(samples[0].averageWeightKg).toFixed(2)} kg` : 'N/A'}
+              {samples.length > 0
+                ? `${parseFloat(samples[0].averageWeightKg).toFixed(2)} kg`
+                : 'N/A'}
             </div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">{samples.length > 0 ? samples[0].species : 'No samples'}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              {samples.length > 0 ? samples[0].species : 'No samples'}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -415,7 +534,9 @@ function WeightPage() {
           <CardContent className="py-12 text-center">
             <Scale className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No weight records</h3>
-            <p className="text-muted-foreground mb-4">Start tracking livestock weight</p>
+            <p className="text-muted-foreground mb-4">
+              Start tracking livestock weight
+            </p>
             <Button onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Record Weight
@@ -431,27 +552,50 @@ function WeightPage() {
           <CardContent>
             <div className="space-y-3 sm:space-y-4">
               {samples.map((sample) => (
-                <div key={sample.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+                <div
+                  key={sample.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3"
+                >
                   <div className="flex items-center gap-3">
                     <Scale className="h-8 w-8 text-muted-foreground shrink-0" />
                     <div className="min-w-0">
-                      <p className="font-medium capitalize truncate">{sample.species}</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">Sample size: {sample.sampleSize} {sample.livestockType}</p>
+                      <p className="font-medium capitalize truncate">
+                        {sample.species}
+                      </p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Sample size: {sample.sampleSize} {sample.livestockType}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between sm:justify-end gap-3">
                     <div className="text-right hidden sm:block">
-                      <p className="font-medium text-lg">{parseFloat(sample.averageWeightKg).toFixed(2)} kg</p>
-                      <p className="text-sm text-muted-foreground">Average weight</p>
+                      <p className="font-medium text-lg">
+                        {parseFloat(sample.averageWeightKg).toFixed(2)} kg
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Average weight
+                      </p>
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

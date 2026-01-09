@@ -1,5 +1,6 @@
+import { createServerFn } from '@tanstack/react-start'
 import { db } from '../db'
-import { getUserFarms, checkFarmAccess } from '../auth/middleware'
+import { checkFarmAccess, getUserFarms, requireAuth } from '../auth/middleware'
 import { toNumber } from '../currency'
 
 export interface CreateFarmData {
@@ -47,7 +48,7 @@ export async function getFarms() {
  */
 export async function getFarmsForUser(userId: string) {
   const farmIds = await getUserFarms(userId)
-  
+
   if (farmIds.length === 0) {
     return []
   }
@@ -60,12 +61,20 @@ export async function getFarmsForUser(userId: string) {
     .execute()
 }
 
+// Server function for client-side calls
+export const getFarmsForUserFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const session = await requireAuth()
+    return getFarmsForUser(session.user.id)
+  },
+)
+
 /**
  * Get a single farm by ID (with access check)
  */
 export async function getFarmById(farmId: string, userId: string) {
   const hasAccess = await checkFarmAccess(userId, farmId)
-  
+
   if (!hasAccess) {
     throw new Error('Access denied to this farm')
   }
@@ -77,12 +86,24 @@ export async function getFarmById(farmId: string, userId: string) {
     .executeTakeFirst()
 }
 
+// Server function for client-side calls
+export const getFarmByIdFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: { farmId: string }) => data)
+  .handler(async ({ data }) => {
+    const session = await requireAuth()
+    return getFarmById(data.farmId, session.user.id)
+  })
+
 /**
  * Update a farm
  */
-export async function updateFarm(farmId: string, userId: string, data: UpdateFarmData) {
+export async function updateFarm(
+  farmId: string,
+  userId: string,
+  data: UpdateFarmData,
+) {
   const hasAccess = await checkFarmAccess(userId, farmId)
-  
+
   if (!hasAccess) {
     throw new Error('Access denied to this farm')
   }
@@ -106,32 +127,59 @@ export async function updateFarm(farmId: string, userId: string, data: UpdateFar
   return await getFarmById(farmId, userId)
 }
 
+// Server function for client-side calls
+export const updateFarmFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: {
+      farmId: string
+      name: string
+      location: string
+      type: 'poultry' | 'fishery' | 'mixed'
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const session = await requireAuth()
+    return updateFarm(data.farmId, session.user.id, {
+      name: data.name,
+      location: data.location,
+      type: data.type,
+    })
+  })
+
 /**
  * Delete a farm (admin only - checked at route level)
  */
 export async function deleteFarm(farmId: string) {
   // First check if farm has any dependent records
   const [batches, sales, expenses] = await Promise.all([
-    db.selectFrom('batches').select('id').where('farmId', '=', farmId).executeTakeFirst(),
-    db.selectFrom('sales').select('id').where('farmId', '=', farmId).executeTakeFirst(),
-    db.selectFrom('expenses').select('id').where('farmId', '=', farmId).executeTakeFirst(),
+    db
+      .selectFrom('batches')
+      .select('id')
+      .where('farmId', '=', farmId)
+      .executeTakeFirst(),
+    db
+      .selectFrom('sales')
+      .select('id')
+      .where('farmId', '=', farmId)
+      .executeTakeFirst(),
+    db
+      .selectFrom('expenses')
+      .select('id')
+      .where('farmId', '=', farmId)
+      .executeTakeFirst(),
   ])
 
   if (batches || sales || expenses) {
-    throw new Error('Cannot delete farm with existing records. Please delete all batches, sales, and expenses first.')
+    throw new Error(
+      'Cannot delete farm with existing records. Please delete all batches, sales, and expenses first.',
+    )
   }
 
   // Remove user assignments
-  await db
-    .deleteFrom('user_farms')
-    .where('farmId', '=', farmId)
-    .execute()
+  await db.deleteFrom('user_farms').where('farmId', '=', farmId).execute()
 
   // Delete the farm
-  await db
-    .deleteFrom('farms')
-    .where('id', '=', farmId)
-    .execute()
+  await db.deleteFrom('farms').where('id', '=', farmId).execute()
 }
 
 /**
@@ -139,7 +187,7 @@ export async function deleteFarm(farmId: string) {
  */
 export async function getFarmStats(farmId: string, userId: string) {
   const hasAccess = await checkFarmAccess(userId, farmId)
-  
+
   if (!hasAccess) {
     throw new Error('Access denied to this farm')
   }
@@ -151,7 +199,10 @@ export async function getFarmStats(farmId: string, userId: string) {
       .select([
         db.fn.count('id').as('total_batches'),
         db.fn.sum('currentQuantity').as('total_livestock'),
-        db.fn.count('id').filterWhere('status', '=', 'active').as('active_batches'),
+        db.fn
+          .count('id')
+          .filterWhere('status', '=', 'active')
+          .as('active_batches'),
       ])
       .where('farmId', '=', farmId)
       .executeTakeFirst(),
