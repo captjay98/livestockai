@@ -124,8 +124,8 @@ export function ExpenseDialog({
                 <SelectValue>
                   {formData.category
                     ? EXPENSE_CATEGORIES.find(
-                        (c) => c.value === formData.category,
-                      )?.label
+                      (c) => c.value === formData.category,
+                    )?.label
                     : 'Select category'}
                 </SelectValue>
               </SelectTrigger>
@@ -198,7 +198,7 @@ export function ExpenseDialog({
                   <SelectValue>
                     {formData.supplierId
                       ? suppliers.find((s) => s.id === formData.supplierId)
-                          ?.name
+                        ?.name
                       : 'Select supplier'}
                   </SelectValue>
                 </SelectTrigger>
