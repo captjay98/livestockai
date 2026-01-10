@@ -12,6 +12,24 @@ export interface CreateFeedRecordInput {
   supplierId?: string | null
 }
 
+export interface PaginatedQuery {
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  search?: string
+  farmId?: string
+  batchId?: string
+}
+
+export interface PaginatedResult<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
 export async function createFeedRecord(
   userId: string,
   farmId: string,
@@ -412,4 +430,136 @@ export async function getFeedInventory(userId: string, farmId?: string) {
     .selectAll()
     .where('farmId', 'in', targetFarmIds)
     .execute()
+}
+
+export async function getFeedRecordsPaginated(
+  userId: string,
+  query: PaginatedQuery = {},
+) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+  const { sql } = await import('kysely')
+
+  let targetFarmIds: string[] = []
+  if (query.farmId) {
+    targetFarmIds = [query.farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
+
+  const page = query.page || 1
+  const pageSize = query.pageSize || 10
+  const offset = (page - 1) * pageSize
+
+  let baseQuery = db
+    .selectFrom('feed_records')
+    .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
+    .where('batches.farmId', 'in', targetFarmIds)
+
+  // Apply filters
+  if (query.search) {
+    const searchLower = `%${query.search.toLowerCase()}%`
+    baseQuery = baseQuery.where((eb) =>
+      eb.or([
+        eb('feed_records.feedType', 'ilike', searchLower),
+        eb('batches.species', 'ilike', searchLower),
+      ]),
+    )
+  }
+
+  if (query.batchId) {
+    baseQuery = baseQuery.where('feed_records.batchId', '=', query.batchId)
+  }
+
+  // Get total count
+  const countResult = await baseQuery
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+
+  const total = Number(countResult?.count || 0)
+  const totalPages = Math.ceil(total / pageSize)
+
+  // Get data
+  let dataQuery = baseQuery
+    .select([
+      'feed_records.id',
+      'feed_records.batchId',
+      'feed_records.feedType',
+      'feed_records.quantityKg',
+      'feed_records.cost',
+      'feed_records.date',
+      'feed_records.supplierId',
+      'feed_records.createdAt',
+      'batches.species',
+      'batches.livestockType',
+      'farms.name as farmName',
+      'batches.farmId',
+    ])
+    .limit(pageSize)
+    .offset(offset)
+
+  // Apply sorting
+  if (query.sortBy) {
+    const sortOrder = query.sortOrder || 'desc'
+    // Map helpful aliases
+    const sortMap: Record<string, string> = {
+      date: 'feed_records.date',
+      cost: 'feed_records.cost',
+      quantityKg: 'feed_records.quantityKg',
+      feedType: 'feed_records.feedType',
+    }
+    const sortColumn = sortMap[query.sortBy] || `feed_records.${query.sortBy}`
+    // @ts-ignore
+    dataQuery = dataQuery.orderBy(sortColumn, sortOrder)
+  } else {
+    dataQuery = dataQuery.orderBy('feed_records.date', 'desc')
+  }
+
+  const data = await dataQuery.execute()
+
+  return {
+    data,
+    total,
+    page,
+    pageSize,
+    totalPages,
+  }
+}
+
+// Server function for paginated feed records
+export const getFeedRecordsPaginatedFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: PaginatedQuery) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return getFeedRecordsPaginated(session.user.id, data)
+  })
+
+export async function getFeedStats(userId: string, farmId?: string) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+  if (farmId) {
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
+
+  const records = await db
+    .selectFrom('feed_records')
+    .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+    .select(['feed_records.quantityKg', 'feed_records.cost'])
+    .where('batches.farmId', 'in', targetFarmIds)
+    .execute()
+
+  const totalQuantityKg = records.reduce((sum, r) => sum + parseFloat(r.quantityKg), 0)
+  const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
+
+  return {
+    totalQuantityKg,
+    totalCost,
+    recordCount: records.length,
+  }
 }

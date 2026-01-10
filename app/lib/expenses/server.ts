@@ -13,6 +13,10 @@ export interface CreateExpenseInput {
   | 'utilities'
   | 'labor'
   | 'transport'
+  | 'livestock_chicken'
+  | 'livestock_fish'
+  | 'maintenance'
+  | 'marketing'
   | 'other'
   amount: number
   date: Date
@@ -396,3 +400,168 @@ export async function getTotalExpenses(
   const result = await query.executeTakeFirst()
   return parseFloat(result?.total || '0')
 }
+
+/**
+ * Paginated expenses query with sorting and search
+ */
+export interface PaginatedQuery {
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  search?: string
+  farmId?: string
+  category?: string
+}
+
+export interface PaginatedResult<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
+export async function getExpensesPaginated(
+  userId: string,
+  query: PaginatedQuery = {},
+): Promise<PaginatedResult<{
+  id: string
+  farmId: string
+  farmName: string | null
+  category: string
+  amount: string
+  date: Date
+  description: string
+  supplierName: string | null
+  batchSpecies: string | null
+  batchType: string | null
+  isRecurring: boolean
+}>> {
+  const { db } = await import('~/lib/db')
+  const { sql } = await import('kysely')
+  const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  const page = query.page || 1
+  const pageSize = query.pageSize || 10
+  const sortBy = query.sortBy || 'date'
+  const sortOrder = query.sortOrder || 'desc'
+  const search = query.search || ''
+  const category = query.category
+
+  // Determine target farms
+  let targetFarmIds: string[] = []
+  if (query.farmId) {
+    const hasAccess = await checkFarmAccess(userId, query.farmId)
+    if (!hasAccess) throw new Error('Access denied')
+    targetFarmIds = [query.farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) {
+      return { data: [], total: 0, page, pageSize, totalPages: 0 }
+    }
+  }
+
+  // Build base query
+  let baseQuery = db
+    .selectFrom('expenses')
+    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+    .leftJoin('batches', 'batches.id', 'expenses.batchId')
+    .leftJoin('farms', 'farms.id', 'expenses.farmId')
+    .where('expenses.farmId', 'in', targetFarmIds)
+
+  // Apply search filter
+  if (search) {
+    baseQuery = baseQuery.where((eb) =>
+      eb.or([
+        eb('expenses.description', 'ilike', `%${search}%`),
+        eb('suppliers.name', 'ilike', `%${search}%`),
+        eb('batches.species', 'ilike', `%${search}%`),
+      ])
+    )
+  }
+
+  // Apply category filter
+  if (category) {
+    baseQuery = baseQuery.where('expenses.category', '=', category as any)
+  }
+
+  // Get total count
+  const countResult = await baseQuery
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+  const total = Number(countResult?.count || 0)
+  const totalPages = Math.ceil(total / pageSize)
+
+  // Apply sorting
+  const sortColumn =
+    sortBy === 'amount' ? 'expenses.amount' :
+      sortBy === 'category' ? 'expenses.category' :
+        sortBy === 'description' ? 'expenses.description' :
+          sortBy === 'supplierName' ? 'suppliers.name' :
+            'expenses.date'
+
+  let dataQuery = db
+    .selectFrom('expenses')
+    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+    .leftJoin('batches', 'batches.id', 'expenses.batchId')
+    .leftJoin('farms', 'farms.id', 'expenses.farmId')
+    .select([
+      'expenses.id',
+      'expenses.farmId',
+      'expenses.category',
+      'expenses.amount',
+      'expenses.date',
+      'expenses.description',
+      'expenses.isRecurring',
+      'suppliers.name as supplierName',
+      'batches.species as batchSpecies',
+      'batches.livestockType as batchType',
+      'farms.name as farmName',
+    ])
+    .where('expenses.farmId', 'in', targetFarmIds)
+
+  // Re-apply filters
+  if (search) {
+    dataQuery = dataQuery.where((eb) =>
+      eb.or([
+        eb('expenses.description', 'ilike', `%${search}%`),
+        eb('suppliers.name', 'ilike', `%${search}%`),
+        eb('batches.species', 'ilike', `%${search}%`),
+      ])
+    )
+  }
+  if (category) {
+    dataQuery = dataQuery.where('expenses.category', '=', category as any)
+  }
+
+  // Apply sorting and pagination
+  const data = await dataQuery
+    .orderBy(sortColumn as any, sortOrder)
+    .limit(pageSize)
+    .offset((page - 1) * pageSize)
+    .execute()
+
+  return {
+    data: data.map(d => ({
+      ...d,
+      farmName: d.farmName || null,
+      supplierName: d.supplierName || null,
+      batchSpecies: d.batchSpecies || null,
+      batchType: d.batchType || null,
+    })),
+    total,
+    page,
+    pageSize,
+    totalPages,
+  }
+}
+
+// Server function for paginated expenses
+export const getExpensesPaginatedFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: PaginatedQuery) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return getExpensesPaginated(session.user.id, data)
+  })

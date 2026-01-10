@@ -8,6 +8,24 @@ export interface CreateEggRecordInput {
   quantitySold: number
 }
 
+export interface PaginatedQuery {
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  search?: string
+  farmId?: string
+  batchId?: string
+}
+
+export interface PaginatedResult<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
 export async function createEggRecord(
   userId: string,
   farmId: string,
@@ -87,6 +105,8 @@ export async function deleteEggRecord(userId: string, farmId: string, recordId: 
 export const deleteEggRecordFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { farmId: string; recordId: string }) => data)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
     return deleteEggRecord(session.user.id, data.farmId, data.recordId)
   })
 
@@ -376,3 +396,103 @@ export async function getEggInventory(
 
   return totalCollected - totalBroken - totalSold
 }
+
+export async function getEggRecordsPaginated(
+  userId: string,
+  query: PaginatedQuery = {},
+) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+  const { sql } = await import('kysely')
+
+  let targetFarmIds: string[] = []
+  if (query.farmId) {
+    targetFarmIds = [query.farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
+
+  const page = query.page || 1
+  const pageSize = query.pageSize || 10
+  const offset = (page - 1) * pageSize
+
+  let baseQuery = db
+    .selectFrom('egg_records')
+    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
+    .where('batches.farmId', 'in', targetFarmIds)
+
+  // Apply filters
+  if (query.search) {
+    const searchLower = `%${query.search.toLowerCase()}%`
+    baseQuery = baseQuery.where((eb) =>
+      eb.or([
+        eb('batches.species', 'ilike', searchLower),
+      ]),
+    )
+  }
+
+  if (query.batchId) {
+    baseQuery = baseQuery.where('egg_records.batchId', '=', query.batchId)
+  }
+
+  // Get total count
+  const countResult = await baseQuery
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+
+  const total = Number(countResult?.count || 0)
+  const totalPages = Math.ceil(total / pageSize)
+
+  // Get data
+  let dataQuery = baseQuery
+    .select([
+      'egg_records.id',
+      'egg_records.batchId',
+      'egg_records.date',
+      'egg_records.quantityCollected',
+      'egg_records.quantityBroken',
+      'egg_records.quantitySold',
+      'egg_records.createdAt',
+      'batches.species',
+      'batches.livestockType',
+      'farms.name as farmName',
+      'batches.farmId',
+    ])
+    .limit(pageSize)
+    .offset(offset)
+
+  // Apply sorting
+  if (query.sortBy) {
+    const sortOrder = query.sortOrder || 'desc'
+
+    let sortColumn = `egg_records.${query.sortBy}`
+    // Map specific sort keys
+    if (query.sortBy === 'species') sortColumn = 'batches.species'
+    if (query.sortBy === 'date') sortColumn = 'egg_records.date'
+
+    // @ts-ignore
+    dataQuery = dataQuery.orderBy(sortColumn, sortOrder)
+  } else {
+    dataQuery = dataQuery.orderBy('egg_records.date', 'desc')
+  }
+
+  const data = await dataQuery.execute()
+
+  return {
+    data,
+    total,
+    page,
+    pageSize,
+    totalPages,
+  }
+}
+
+// Server function for paginated egg records
+export const getEggRecordsPaginatedFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: PaginatedQuery) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return getEggRecordsPaginated(session.user.id, data)
+  })

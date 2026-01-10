@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/lib/db'
 
 export interface CreateInvoiceInput {
@@ -10,6 +11,24 @@ export interface CreateInvoiceInput {
   }>
   dueDate?: Date | null
   notes?: string | null
+}
+
+export interface PaginatedQuery {
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  search?: string
+  status?: 'unpaid' | 'partial' | 'paid'
+  farmId?: string
+}
+
+export interface PaginatedResult<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }
 
 export async function generateInvoiceNumber(): Promise<string> {
@@ -77,6 +96,12 @@ export async function createInvoice(
   return result.id
 }
 
+export const createInvoiceFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: CreateInvoiceInput) => data)
+  .handler(async ({ data }) => {
+    return createInvoice(data)
+  })
+
 export async function getInvoices(farmId?: string) {
   let query = db
     .selectFrom('invoices')
@@ -141,6 +166,12 @@ export async function getInvoiceById(invoiceId: string) {
   }
 }
 
+export const getInvoiceByIdFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: { invoiceId: string }) => data)
+  .handler(async ({ data }) => {
+    return getInvoiceById(data.invoiceId)
+  })
+
 export async function updateInvoiceStatus(
   invoiceId: string,
   status: 'unpaid' | 'partial' | 'paid',
@@ -151,6 +182,12 @@ export async function updateInvoiceStatus(
     .where('id', '=', invoiceId)
     .execute()
 }
+
+export const updateInvoiceStatusFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { invoiceId: string; status: 'unpaid' | 'partial' | 'paid' }) => data)
+  .handler(async ({ data }) => {
+    return updateInvoiceStatus(data.invoiceId, data.status)
+  })
 
 export async function deleteInvoice(invoiceId: string) {
   await db
@@ -192,3 +229,88 @@ export async function createInvoiceFromSale(
     ],
   })
 }
+
+export async function getInvoicesPaginated(
+  query: PaginatedQuery = {},
+) {
+  const { sql } = await import('kysely')
+
+  const page = query.page || 1
+  const pageSize = query.pageSize || 10
+  const offset = (page - 1) * pageSize
+
+  let baseQuery = db
+    .selectFrom('invoices')
+    .innerJoin('customers', 'customers.id', 'invoices.customerId')
+
+  if (query.farmId) {
+    baseQuery = baseQuery.where('invoices.farmId', '=', query.farmId)
+  }
+
+  if (query.status) {
+    baseQuery = baseQuery.where('invoices.status', '=', query.status)
+  }
+
+  if (query.search) {
+    const searchLower = `%${query.search.toLowerCase()}%`
+    baseQuery = baseQuery.where((eb) => eb.or([
+      eb('invoices.invoiceNumber', 'ilike', searchLower),
+      eb('customers.name', 'ilike', searchLower),
+    ]))
+  }
+
+  // Count
+  const countResult = await baseQuery
+    .select(sql<number>`count(invoices.id)`.as('count'))
+    .executeTakeFirst()
+
+  const total = Number(countResult?.count || 0)
+  const totalPages = Math.ceil(total / pageSize)
+
+  // Data
+  let dataQuery = baseQuery
+    .select([
+      'invoices.id',
+      'invoices.invoiceNumber',
+      'invoices.totalAmount',
+      'invoices.status',
+      'invoices.date',
+      'invoices.dueDate',
+      'customers.name as customerName',
+    ])
+    .limit(pageSize)
+    .offset(offset)
+
+  if (query.sortBy) {
+    const sortOrder = query.sortOrder || 'desc'
+    let sortCol = query.sortBy
+    if (['invoiceNumber', 'totalAmount', 'status', 'date', 'dueDate'].includes(sortCol)) {
+      dataQuery = dataQuery.orderBy(`invoices.${sortCol}`, sortOrder)
+    } else if (sortCol === 'customerName') {
+      dataQuery = dataQuery.orderBy('customers.name', sortOrder)
+    } else {
+      dataQuery = dataQuery.orderBy('invoices.date', 'desc')
+    }
+  } else {
+    dataQuery = dataQuery.orderBy('invoices.date', 'desc')
+  }
+
+  const rawData = await dataQuery.execute()
+
+  return {
+    data: rawData.map(d => ({
+      ...d,
+      totalAmount: parseFloat(d.totalAmount),
+    })),
+    total,
+    page,
+    pageSize,
+    totalPages
+  }
+}
+
+export const getInvoicesPaginatedFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: PaginatedQuery) => data)
+  .handler(async ({ data }) => {
+    return getInvoicesPaginated(data)
+  })

@@ -1,3 +1,5 @@
+import { createServerFn } from '@tanstack/react-start'
+
 export interface CreateVaccinationInput {
   batchId: string
   vaccineName: string
@@ -15,6 +17,25 @@ export interface CreateTreatmentInput {
   dosage: string
   withdrawalDays: number
   notes?: string | null
+}
+
+export interface PaginatedQuery {
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  search?: string
+  farmId?: string
+  batchId?: string
+  type?: 'all' | 'vaccination' | 'treatment'
+}
+
+export interface PaginatedResult<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }
 
 export async function createVaccination(
@@ -54,6 +75,14 @@ export async function createVaccination(
   return result.id
 }
 
+export const createVaccinationFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { farmId: string; data: CreateVaccinationInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return createVaccination(session.user.id, data.farmId, data.data)
+  })
+
 export async function createTreatment(
   userId: string,
   farmId: string,
@@ -92,76 +121,149 @@ export async function createTreatment(
   return result.id
 }
 
-export async function getVaccinationsForFarm(userId: string, farmId?: string) {
+export const createTreatmentFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { farmId: string; data: CreateTreatmentInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return createTreatment(session.user.id, data.farmId, data.data)
+  })
+
+export async function getHealthRecordsPaginated(
+  userId: string,
+  query: PaginatedQuery = {},
+) {
   const { db } = await import('~/lib/db')
-  const { verifyFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+  const { sql } = await import('kysely')
 
   let targetFarmIds: string[] = []
-  if (farmId) {
-    await verifyFarmAccess(userId, farmId)
-    targetFarmIds = [farmId]
+  if (query.farmId) {
+    targetFarmIds = [query.farmId]
   } else {
     targetFarmIds = await getUserFarms(userId)
-    if (targetFarmIds.length === 0) return []
   }
 
-  return db
+  // Construct Vaccines Query
+  let vaccinesQuery = db
     .selectFrom('vaccinations')
     .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
     .innerJoin('farms', 'farms.id', 'batches.farmId')
     .select([
       'vaccinations.id',
       'vaccinations.batchId',
-      'vaccinations.vaccineName',
-      'vaccinations.dateAdministered',
+      sql<string>`'vaccination'`.as('type'),
+      'vaccinations.vaccineName as name',
+      'vaccinations.dateAdministered as date',
       'vaccinations.dosage',
-      'vaccinations.nextDueDate',
       'vaccinations.notes',
-      'vaccinations.createdAt',
+      sql<string>`NULL`.as('reason'),
+      sql<number>`NULL`.as('withdrawalDays'),
+      'vaccinations.nextDueDate',
       'batches.species',
       'batches.livestockType',
       'farms.name as farmName',
+      'batches.farmId'
     ])
     .where('batches.farmId', 'in', targetFarmIds)
-    .orderBy('vaccinations.dateAdministered', 'desc')
-    .execute()
-}
 
-export async function getTreatmentsForFarm(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
-  const { verifyFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
-
-  let targetFarmIds: string[] = []
-  if (farmId) {
-    await verifyFarmAccess(userId, farmId)
-    targetFarmIds = [farmId]
-  } else {
-    targetFarmIds = await getUserFarms(userId)
-    if (targetFarmIds.length === 0) return []
-  }
-
-  return db
+  // Construct Treatments Query
+  let treatmentsQuery = db
     .selectFrom('treatments')
     .innerJoin('batches', 'batches.id', 'treatments.batchId')
     .innerJoin('farms', 'farms.id', 'batches.farmId')
     .select([
       'treatments.id',
       'treatments.batchId',
-      'treatments.medicationName',
-      'treatments.reason',
+      sql<string>`'treatment'`.as('type'),
+      'treatments.medicationName as name',
       'treatments.date',
       'treatments.dosage',
-      'treatments.withdrawalDays',
       'treatments.notes',
-      'treatments.createdAt',
+      'treatments.reason',
+      'treatments.withdrawalDays',
+      sql<Date>`NULL`.as('nextDueDate'),
       'batches.species',
       'batches.livestockType',
       'farms.name as farmName',
+      'batches.farmId'
     ])
     .where('batches.farmId', 'in', targetFarmIds)
-    .orderBy('treatments.date', 'desc')
-    .execute()
+
+  // Apply filters to subqueries if precise, but for Union we usually wrap or Apply to both
+  if (query.search) {
+    const searchLower = `%${query.search.toLowerCase()}%`
+    vaccinesQuery = vaccinesQuery.where((eb) => eb.or([
+      eb('vaccinations.vaccineName', 'ilike', searchLower),
+      eb('batches.species', 'ilike', searchLower)
+    ]))
+    treatmentsQuery = treatmentsQuery.where((eb) => eb.or([
+      eb('treatments.medicationName', 'ilike', searchLower),
+      eb('treatments.reason', 'ilike', searchLower),
+      eb('batches.species', 'ilike', searchLower)
+    ]))
+  }
+
+  if (query.batchId) {
+    vaccinesQuery = vaccinesQuery.where('vaccinations.batchId', '=', query.batchId)
+    treatmentsQuery = treatmentsQuery.where('treatments.batchId', '=', query.batchId)
+  }
+
+  let finalQuery
+  if (query.type === 'vaccination') {
+    finalQuery = vaccinesQuery
+  } else if (query.type === 'treatment') {
+    finalQuery = treatmentsQuery
+  } else {
+    finalQuery = vaccinesQuery.unionAll(treatmentsQuery)
+  }
+
+  // Get total count
+  // For Union, count is tricky in Kysely without a subquery wrapper
+  // We'll wrap it in a selection
+  const countResult = await db.selectFrom(finalQuery.as('union_table'))
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+
+  const total = Number(countResult?.count || 0)
+  const page = query.page || 1
+  const pageSize = query.pageSize || 10
+  const totalPages = Math.ceil(total / pageSize)
+  const offset = (page - 1) * pageSize
+
+  // Get Data
+  let dataQuery = db.selectFrom(finalQuery.as('union_table'))
+    .selectAll()
+    .limit(pageSize)
+    .offset(offset)
+
+  // Sorting
+  if (query.sortBy) {
+    const sortOrder = query.sortOrder || 'desc'
+    dataQuery = dataQuery.orderBy(query.sortBy, sortOrder)
+  } else {
+    dataQuery = dataQuery.orderBy('date', 'desc')
+  }
+
+  const data = await dataQuery.execute()
+
+  return {
+    data,
+    total,
+    page,
+    pageSize,
+    totalPages
+  }
 }
+
+
+export const getHealthRecordsPaginatedFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: PaginatedQuery) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return getHealthRecordsPaginated(session.user.id, data)
+  })
 
 export async function getUpcomingVaccinations(
   userId: string,

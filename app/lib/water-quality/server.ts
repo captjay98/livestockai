@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import { WATER_QUALITY_THRESHOLDS } from './constants'
 
 // Re-export constants for backward compatibility
@@ -11,6 +12,24 @@ export interface CreateWaterQualityInput {
   dissolvedOxygenMgL: number
   ammoniaMgL: number
   notes?: string | null
+}
+
+export interface PaginatedQuery {
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  search?: string
+  farmId?: string
+  batchId?: string
+}
+
+export interface PaginatedResult<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }
 
 export function isWaterQualityAlert(params: {
@@ -110,6 +129,14 @@ export async function createWaterQualityRecord(
   return result.id
 }
 
+export const createWaterQualityRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { farmId: string; data: CreateWaterQualityInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return createWaterQualityRecord(session.user.id, data.farmId, data.data)
+  })
+
 export async function getWaterQualityForFarm(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
@@ -194,7 +221,6 @@ export async function getWaterQualityAlerts(userId: string, farmId?: string) {
     species: string
     issues: Array<string>
     severity: 'warning' | 'critical'
-    severity: 'warning' | 'critical'
     date: Date
     farmName?: string
   }> = []
@@ -214,8 +240,6 @@ export async function getWaterQualityAlerts(userId: string, farmId?: string) {
         species: record.species,
         issues,
         severity: issues.length > 2 ? 'critical' : 'warning',
-        issues,
-        severity: issues.length > 2 ? 'critical' : 'warning',
         date: record.date,
         farmName: record.farmName || undefined,
       })
@@ -224,3 +248,93 @@ export async function getWaterQualityAlerts(userId: string, farmId?: string) {
 
   return alerts
 }
+
+export async function getWaterQualityRecordsPaginated(
+  userId: string,
+  query: PaginatedQuery = {},
+) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+  const { sql } = await import('kysely')
+
+  let targetFarmIds: string[] = []
+  if (query.farmId) {
+    targetFarmIds = [query.farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
+
+  const page = query.page || 1
+  const pageSize = query.pageSize || 10
+  const offset = (page - 1) * pageSize
+
+  let baseQuery = db
+    .selectFrom('water_quality')
+    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
+    .where('batches.farmId', 'in', targetFarmIds)
+    .where('batches.livestockType', '=', 'fish')
+
+  if (query.search) {
+    const searchLower = `%${query.search.toLowerCase()}%`
+    baseQuery = baseQuery.where((eb) => eb.or([
+      eb('batches.species', 'ilike', searchLower),
+    ]))
+  }
+
+  if (query.batchId) {
+    baseQuery = baseQuery.where('water_quality.batchId', '=', query.batchId)
+  }
+
+  const countResult = await baseQuery
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+
+  const total = Number(countResult?.count || 0)
+  const totalPages = Math.ceil(total / pageSize)
+
+  let dataQuery = baseQuery
+    .select([
+      'water_quality.id',
+      'water_quality.batchId',
+      'water_quality.date',
+      'water_quality.ph',
+      'water_quality.temperatureCelsius',
+      'water_quality.dissolvedOxygenMgL',
+      'water_quality.ammoniaMgL',
+      'water_quality.notes',
+      'water_quality.createdAt',
+      'batches.species',
+      'farms.name as farmName',
+    ])
+    .limit(pageSize)
+    .offset(offset)
+
+  if (query.sortBy) {
+    const sortOrder = query.sortOrder || 'desc'
+    let sortCol = `water_quality.${query.sortBy}`
+    if (query.sortBy === 'species') sortCol = 'batches.species'
+    // @ts-ignore
+    dataQuery = dataQuery.orderBy(sortCol, sortOrder)
+  } else {
+    dataQuery = dataQuery.orderBy('water_quality.date', 'desc')
+  }
+
+  const data = await dataQuery.execute()
+
+  return {
+    data,
+    total,
+    page,
+    pageSize,
+    totalPages
+  }
+}
+
+export const getWaterQualityRecordsPaginatedFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: PaginatedQuery) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return getWaterQualityRecordsPaginated(session.user.id, data)
+  })

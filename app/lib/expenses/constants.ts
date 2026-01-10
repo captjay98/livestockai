@@ -5,6 +5,10 @@ export const EXPENSE_CATEGORIES = [
   { value: 'utilities', label: 'Utilities' },
   { value: 'labor', label: 'Labor' },
   { value: 'transport', label: 'Transport' },
+  { value: 'livestock_chicken', label: 'Livestock (Chicken)' },
+  { value: 'livestock_fish', label: 'Livestock (Fish)' },
+  { value: 'maintenance', label: 'Maintenance' },
+  { value: 'marketing', label: 'Marketing' },
   { value: 'other', label: 'Other' },
 ] as const
 

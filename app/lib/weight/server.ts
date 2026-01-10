@@ -1,8 +1,28 @@
+import { createServerFn } from '@tanstack/react-start'
+
 export interface CreateWeightSampleInput {
   batchId: string
   date: Date
   sampleSize: number
   averageWeightKg: number
+}
+
+export interface PaginatedQuery {
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  search?: string
+  farmId?: string
+  batchId?: string
+}
+
+export interface PaginatedResult<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }
 
 export async function createWeightSample(
@@ -40,6 +60,14 @@ export async function createWeightSample(
 
   return result.id
 }
+
+export const createWeightSampleFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { farmId: string; data: CreateWeightSampleInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return createWeightSample(session.user.id, data.farmId, data.data)
+  })
 
 export async function getWeightSamplesForBatch(
   userId: string,
@@ -176,7 +204,6 @@ export async function getGrowthAlerts(userId: string, farmId?: string) {
     species: string
     message: string
     severity: 'warning' | 'critical'
-    severity: 'warning' | 'critical'
     adg: number
     expectedAdg: number
     farmName?: string
@@ -212,3 +239,94 @@ export async function getGrowthAlerts(userId: string, farmId?: string) {
 
   return alerts
 }
+
+
+export async function getWeightRecordsPaginated(
+  userId: string,
+  query: PaginatedQuery = {},
+) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+  const { sql } = await import('kysely')
+
+  let targetFarmIds: string[] = []
+  if (query.farmId) {
+    targetFarmIds = [query.farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
+
+  const page = query.page || 1
+  const pageSize = query.pageSize || 10
+  const offset = (page - 1) * pageSize
+
+  let baseQuery = db
+    .selectFrom('weight_samples')
+    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
+    .where('batches.farmId', 'in', targetFarmIds)
+
+  if (query.search) {
+    const searchLower = `%${query.search.toLowerCase()}%`
+    baseQuery = baseQuery.where((eb) => eb.or([
+      eb('batches.species', 'ilike', searchLower),
+    ]))
+  }
+
+  if (query.batchId) {
+    baseQuery = baseQuery.where('weight_samples.batchId', '=', query.batchId)
+  }
+
+  // Get total
+  const countResult = await baseQuery
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+
+  const total = Number(countResult?.count || 0)
+  const totalPages = Math.ceil(total / pageSize)
+
+  // Get Data
+  let dataQuery = baseQuery
+    .select([
+      'weight_samples.id',
+      'weight_samples.batchId',
+      'weight_samples.date',
+      'weight_samples.sampleSize',
+      'weight_samples.averageWeightKg',
+      'weight_samples.createdAt',
+      'batches.species',
+      'batches.livestockType',
+      'farms.name as farmName',
+      'batches.farmId'
+    ])
+    .limit(pageSize)
+    .offset(offset)
+
+  if (query.sortBy) {
+    const sortOrder = query.sortOrder || 'desc'
+    let sortCol = `weight_samples.${query.sortBy}`
+    if (query.sortBy === 'species') sortCol = 'batches.species'
+    // @ts-ignore
+    dataQuery = dataQuery.orderBy(sortCol, sortOrder)
+  } else {
+    dataQuery = dataQuery.orderBy('weight_samples.date', 'desc')
+  }
+
+  const data = await dataQuery.execute()
+
+  return {
+    data,
+    total,
+    page,
+    pageSize,
+    totalPages
+  }
+}
+
+export const getWeightRecordsPaginatedFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: PaginatedQuery) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return getWeightRecordsPaginated(session.user.id, data)
+  })
