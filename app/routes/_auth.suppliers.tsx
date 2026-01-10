@@ -23,6 +23,13 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Badge } from '~/components/ui/badge'
 import { DataTable } from '~/components/ui/data-table'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import { formatNaira } from '~/lib/currency'
 
 interface Supplier {
@@ -32,6 +39,7 @@ interface Supplier {
   email: string | null
   location: string | null
   products: Array<string> | null
+  supplierType: 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other' | null
   expenseCount: number
   totalSpent: number
 }
@@ -102,6 +110,7 @@ function SuppliersPage() {
     email: '',
     location: '',
     products: '',
+    supplierType: '' as '' | 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -155,7 +164,8 @@ function SuppliersPage() {
           ...formData,
           products: formData.products ? formData.products.split(',').map(p => p.trim()) : [],
           email: formData.email || null,
-          location: formData.location || null
+          location: formData.location || null,
+          supplierType: formData.supplierType || null
         }
       })
       setDialogOpen(false)
@@ -165,6 +175,7 @@ function SuppliersPage() {
         email: '',
         location: '',
         products: '',
+        supplierType: '',
       })
       loadData()
     } catch (err) {
@@ -212,6 +223,15 @@ function SuppliersPage() {
             <MapPin className="h-3 w-3" />
             {row.original.location}
           </div>
+        ) : '-',
+      },
+      {
+        accessorKey: 'supplierType',
+        header: 'Type',
+        cell: ({ row }) => row.original.supplierType ? (
+          <Badge variant="outline" className="capitalize text-xs">
+            {row.original.supplierType.replace('_', ' ')}
+          </Badge>
         ) : '-',
       },
       {
@@ -354,6 +374,31 @@ function SuppliersPage() {
                   }))
                 }
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="supplierType">Supplier Type</Label>
+              <Select
+                value={formData.supplierType}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    supplierType: value as typeof formData.supplierType,
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hatchery">Hatchery</SelectItem>
+                  <SelectItem value="feed_mill">Feed Mill</SelectItem>
+                  <SelectItem value="fingerlings">Fingerlings</SelectItem>
+                  <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                  <SelectItem value="equipment">Equipment</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

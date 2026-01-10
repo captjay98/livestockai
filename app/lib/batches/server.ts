@@ -140,8 +140,29 @@ export async function getBatchById(userId: string, batchId: string) {
 
   const batch = await db
     .selectFrom('batches')
-    .selectAll()
-    .where('id', '=', batchId)
+    .leftJoin('structures', 'structures.id', 'batches.structureId')
+    .leftJoin('suppliers', 'suppliers.id', 'batches.supplierId')
+    .select([
+      'batches.id',
+      'batches.farmId',
+      'batches.batchName',
+      'batches.livestockType',
+      'batches.species',
+      'batches.sourceSize',
+      'batches.initialQuantity',
+      'batches.currentQuantity',
+      'batches.acquisitionDate',
+      'batches.costPerUnit',
+      'batches.totalCost',
+      'batches.status',
+      'batches.targetHarvestDate',
+      'batches.notes',
+      'batches.createdAt',
+      'batches.updatedAt',
+      'structures.name as structureName',
+      'suppliers.name as supplierName',
+    ])
+    .where('batches.id', '=', batchId)
     .executeTakeFirst()
 
   if (!batch) {
@@ -265,7 +286,7 @@ export async function getBatchStats(userId: string, batchId: string) {
     throw new Error('Batch not found')
   }
 
-  const [mortalityStats, feedStats, salesStats] = await Promise.all([
+  const [mortalityStats, feedStats, salesStats, expenseStats] = await Promise.all([
     // Mortality statistics
     db
       .selectFrom('mortality_records')
@@ -295,6 +316,13 @@ export async function getBatchStats(userId: string, batchId: string) {
         db.fn.sum('quantity').as('total_sold'),
         db.fn.sum('totalAmount').as('total_revenue'),
       ])
+      .where('batchId', '=', batchId)
+      .executeTakeFirst(),
+
+    // Other Expenses statistics
+    db
+      .selectFrom('expenses')
+      .select(db.fn.sum('amount').as('total_expenses'))
       .where('batchId', '=', batchId)
       .executeTakeFirst(),
   ])
@@ -344,6 +372,9 @@ export async function getBatchStats(userId: string, batchId: string) {
       totalSales: Number(salesStats?.total_sales || 0),
       totalQuantity: totalSold,
       totalRevenue: toNumber(String(salesStats?.total_revenue || '0')),
+    },
+    expenses: {
+      total: toNumber(String(expenseStats?.total_expenses || '0')),
     },
     currentWeight: weightSamples
       ? toNumber(String(weightSamples.averageWeightKg))

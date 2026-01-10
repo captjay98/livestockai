@@ -55,10 +55,21 @@ A business tracking platform for managing poultry and fishery operations in Nige
 
 #### Acceptance Criteria
 
-1. WHEN an admin creates a farm, THE Platform SHALL record the farm name, location, and type (poultry, fishery, or mixed)
+1. WHEN an admin creates a farm, THE Platform SHALL record the farm name, location, type (poultry, fishery, or mixed), contact phone (optional), and notes (optional)
 2. WHEN a user views data, THE Platform SHALL filter by selected farm or show aggregated data across all farms
 3. THE Platform SHALL associate all batches, sales, and expenses with a specific farm
 4. WHEN a staff user logs in, THE Platform SHALL only show data for farms they are assigned to
+
+### Requirement 2A: Structure Management
+
+**User Story:** As a farm manager, I want to track physical structures (houses, ponds, pens, cages) within each farm, so that I can organize livestock by location and monitor capacity.
+
+#### Acceptance Criteria
+
+1. WHEN a user creates a structure, THE Platform SHALL record the farm, name, type (house, pond, pen, cage), capacity (optional), area in square meters (optional), status (active, empty, maintenance), and notes (optional)
+2. WHEN a user views structures, THE Platform SHALL display all structures for the selected farm with their current status
+3. WHEN a user assigns a batch to a structure, THE Platform SHALL track which structure houses the batch
+4. THE Platform SHALL allow filtering batches by structure
 
 ### Requirement 3: Livestock Inventory Management
 
@@ -66,7 +77,7 @@ A business tracking platform for managing poultry and fishery operations in Nige
 
 #### Acceptance Criteria
 
-1. WHEN a user adds a new batch of livestock, THE Platform SHALL record the batch with farm, type (poultry/fish), species/breed, quantity, acquisition date, and cost in Naira (₦)
+1. WHEN a user adds a new batch of livestock, THE Platform SHALL record the batch with farm, batch name (optional), type (poultry/fish), species/breed, quantity, acquisition date, cost in Naira (₦), supplier (optional), source size (optional), structure (optional), target harvest date (optional), and notes (optional)
 2. WHEN livestock quantity changes due to sales, deaths, or additions, THE Platform SHALL update the inventory count accordingly
 3. WHEN a user views inventory, THE Platform SHALL display current counts grouped by farm, livestock type, and species
 4. IF a batch quantity becomes zero, THEN THE Platform SHALL mark the batch as depleted but retain historical records
@@ -89,7 +100,7 @@ A business tracking platform for managing poultry and fishery operations in Nige
 
 #### Acceptance Criteria
 
-1. WHEN a user records feed given, THE Platform SHALL capture the batch, feed type, quantity (kg), cost in Naira, and date
+1. WHEN a user records feed given, THE Platform SHALL capture the batch, feed type, quantity (kg), cost in Naira, date, brand name (optional), bag size (optional), number of bags (optional), supplier (optional), and notes (optional)
 2. WHEN a user views feed records, THE Platform SHALL display total feed consumed and cost per batch
 3. THE Platform SHALL calculate feed conversion ratio (FCR) as total feed / total weight gain for meat birds
 4. THE Platform SHALL support common feed types (starter, grower, finisher, layer mash, fish feed)
@@ -111,7 +122,7 @@ A business tracking platform for managing poultry and fishery operations in Nige
 
 #### Acceptance Criteria
 
-1. WHEN a user records a weight sample, THE Platform SHALL capture the batch, date, sample size, and average weight (kg)
+1. WHEN a user records a weight sample, THE Platform SHALL capture the batch, date, sample size, average weight (kg), minimum weight (optional), maximum weight (optional), and notes (optional)
 2. WHEN a user views weight records, THE Platform SHALL display weight progression over time as a chart
 3. THE Platform SHALL calculate average daily gain (ADG) as (current weight - previous weight) / days between samples
 4. THE Platform SHALL alert when growth rate falls below expected targets for the species/breed
@@ -122,11 +133,12 @@ A business tracking platform for managing poultry and fishery operations in Nige
 
 #### Acceptance Criteria
 
-1. WHEN a user records a sale, THE Platform SHALL capture the farm, livestock type, quantity sold, unit price in Naira, total amount, customer name (optional), and sale date
+1. WHEN a user records a sale, THE Platform SHALL capture the farm, livestock type, quantity sold, unit price in Naira, total amount, customer (optional), sale date, unit type (bird, kg, crate, piece), age in weeks (optional), average weight (optional), payment status (paid, pending, partial), payment method (cash, transfer, credit), and notes (optional)
 2. WHEN a sale is recorded, THE Platform SHALL automatically reduce the corresponding inventory
 3. WHEN a user views sales history, THE Platform SHALL display all sales with filtering options by farm, date range, and livestock type
 4. THE Platform SHALL calculate and display total revenue in Naira for any selected period
 5. THE Platform SHALL format all monetary values with the Naira symbol (₦) and thousand separators
+6. THE Platform SHALL allow linking sales to invoices
 
 ### Requirement 9: Expense Tracking
 
@@ -134,7 +146,7 @@ A business tracking platform for managing poultry and fishery operations in Nige
 
 #### Acceptance Criteria
 
-1. WHEN a user records an expense, THE Platform SHALL capture the farm, category (feed, medicine, equipment, utilities, labor, transport, other), amount in Naira, date, and description
+1. WHEN a user records an expense, THE Platform SHALL capture the farm, category (feed, medicine, equipment, utilities, labor, transport, livestock, livestock_chicken, livestock_fish, maintenance, marketing, other), amount in Naira, date, and description
 2. WHEN a user views expenses, THE Platform SHALL display all expenses with filtering by farm, category, and date range
 3. THE Platform SHALL calculate and display total expenses in Naira for any selected period
 4. THE Platform SHALL support recurring expense entries for regular costs like feed purchases
@@ -203,7 +215,7 @@ A business tracking platform for managing poultry and fishery operations in Nige
 
 #### Acceptance Criteria
 
-1. WHEN a user adds a customer, THE Platform SHALL capture name, phone number, email (optional), and location
+1. WHEN a user adds a customer, THE Platform SHALL capture name, phone number, email (optional), location, and customer type (individual, restaurant, retailer, wholesaler)
 2. WHEN recording a sale, THE Platform SHALL allow selecting an existing customer or adding a new one
 3. WHEN a user views a customer, THE Platform SHALL display their purchase history and total amount spent
 4. THE Platform SHALL display top customers by revenue on the dashboard
@@ -214,10 +226,21 @@ A business tracking platform for managing poultry and fishery operations in Nige
 
 #### Acceptance Criteria
 
-1. WHEN a user adds a supplier, THE Platform SHALL capture name, phone number, email (optional), location, and products supplied
+1. WHEN a user adds a supplier, THE Platform SHALL capture name, phone number, email (optional), location, products supplied, and supplier type (hatchery, feed_mill, pharmacy, equipment, fingerlings, other)
 2. WHEN recording an expense for feed or livestock purchase, THE Platform SHALL allow selecting a supplier
 3. WHEN a user views a supplier, THE Platform SHALL display purchase history and total amount spent
 4. THE Platform SHALL track price history for products from each supplier
+
+### Requirement 16A: Medication Inventory Management
+
+**User Story:** As a farm manager, I want to track medication inventory, so that I can ensure I have adequate supplies and avoid using expired medications.
+
+#### Acceptance Criteria
+
+1. WHEN a user adds medication to inventory, THE Platform SHALL capture the farm, medication name, quantity, unit (vial, bottle, sachet, ml, g, tablet), expiry date (optional), and minimum threshold
+2. WHEN medication is used for treatments, THE Platform SHALL reduce the inventory count
+3. WHEN medication quantity falls below the minimum threshold, THE Platform SHALL display an alert
+4. WHEN medication is expired or near expiry, THE Platform SHALL display a warning
 
 ### Requirement 17: Water Quality Tracking (Fishery)
 

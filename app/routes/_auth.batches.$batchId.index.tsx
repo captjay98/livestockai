@@ -16,6 +16,7 @@ import {
     TrendingUp,
     Utensils,
 } from 'lucide-react'
+import { cn } from '~/lib/utils'
 import { useEffect, useMemo, useState } from 'react'
 import {
     getBatchDetailsFn,
@@ -88,10 +89,15 @@ function BatchDetailsPage() {
         return <div className="p-8 text-center">Loading batch details...</div>
     }
 
-    const { batch, mortality, feed, sales: batchSales } = details
+    const { batch, mortality, feed, sales: batchSales, expenses: batchExpenses } = details
     const ageInDays = Math.floor(
         (new Date().getTime() - new Date(batch.acquisitionDate).getTime()) / (1000 * 60 * 60 * 24)
     )
+
+    const totalInvestment = Number(batch.totalCost) + feed.totalCost + (batchExpenses?.total || 0)
+    const netProfit = batchSales.totalRevenue - totalInvestment
+    const costPerUnit = batch.currentQuantity > 0 ? totalInvestment / batch.currentQuantity : 0
+    const avgSalesPrice = batchSales.totalQuantity > 0 ? batchSales.totalRevenue / batchSales.totalQuantity : 0
 
     return (
         <div className="container mx-auto py-6 px-4 space-y-6">
@@ -111,14 +117,20 @@ function BatchDetailsPage() {
                                 ) : (
                                     <Fish className="h-6 w-6 text-blue-600" />
                                 )}
-                                {batch.species}
+                                {batch.batchName || batch.species}
                             </h1>
                             <Badge variant={batch.status === 'active' ? 'default' : 'secondary'}>
                                 {batch.status}
                             </Badge>
                         </div>
-                        <p className="text-muted-foreground text-sm flex items-center gap-2 mt-1">
-                            <span>Batch #{batch.id.slice(0, 8)}</span>
+                        <p className="text-muted-foreground text-sm flex items-center gap-2 mt-1 flex-wrap">
+                            <span>{batch.species}</span>
+                            {batch.sourceSize && (
+                                <>
+                                    <span>•</span>
+                                    <span className="capitalize">{batch.sourceSize}</span>
+                                </>
+                            )}
                             <span>•</span>
                             <Calendar className="h-3 w-3" />
                             <span>{new Date(batch.acquisitionDate).toLocaleDateString()} ({ageInDays} days)</span>
@@ -181,8 +193,8 @@ function BatchDetailsPage() {
                         <TrendingDown className="h-4 w-4 text-red-600" />
                     </CardHeader>
                     <CardContent className="p-3 pt-0">
-                        <div className="text-lg font-bold truncate">{formatNaira(Number(batch.totalCost) + feed.totalCost)}</div>
-                        <p className="text-xs text-muted-foreground">Investment</p>
+                        <div className="text-lg font-bold truncate">{formatNaira(totalInvestment)}</div>
+                        <p className="text-xs text-muted-foreground">{formatNaira(costPerUnit)} / unit</p>
                     </CardContent>
                 </Card>
 
@@ -193,7 +205,24 @@ function BatchDetailsPage() {
                     </CardHeader>
                     <CardContent className="p-3 pt-0">
                         <div className="text-lg font-bold truncate">{formatNaira(batchSales.totalRevenue)}</div>
-                        <p className="text-xs text-muted-foreground">{batchSales.totalQuantity} sold</p>
+                        <p className="text-xs text-muted-foreground">
+                            {batchSales.totalQuantity} sold @ {formatNaira(avgSalesPrice)}
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
+                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase">Profit / Loss</CardTitle>
+                        <DollarSign className="h-4 w-4 text-blue-600" />
+                    </CardHeader>
+                    <CardContent className="p-3 pt-0">
+                        <div className={cn("text-lg font-bold truncate", netProfit >= 0 ? "text-green-600" : "text-red-500")}>
+                            {formatNaira(netProfit)}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            {totalInvestment > 0 ? ((netProfit / totalInvestment) * 100).toFixed(1) : 0}% ROI
+                        </p>
                     </CardContent>
                 </Card>
             </div>
@@ -218,7 +247,8 @@ function BatchDetailsPage() {
                                 columns={[
                                     { accessorKey: 'date', header: 'Date', cell: ({ row }) => new Date(row.original.date).toLocaleDateString() },
                                     { accessorKey: 'feedType', header: 'Type', cell: ({ row }) => <span className="capitalize">{row.original.feedType.replace('_', ' ')}</span> },
-                                    { accessorKey: 'quantityKg', header: 'Quantity (Kg)' },
+                                    { accessorKey: 'brandName', header: 'Brand', cell: ({ row }) => row.original.brandName || '-' },
+                                    { accessorKey: 'quantityKg', header: 'Qty (Kg)' },
                                     { accessorKey: 'cost', header: 'Cost', cell: ({ row }) => formatNaira(row.original.cost) }
                                 ]}
                                 data={feedRecords}
@@ -241,7 +271,8 @@ function BatchDetailsPage() {
                                 columns={[
                                     { accessorKey: 'date', header: 'Date', cell: ({ row }) => new Date(row.original.date).toLocaleDateString() },
                                     { accessorKey: 'quantity', header: 'Quantity' },
-                                    { accessorKey: 'reason', header: 'Reason' },
+                                    { accessorKey: 'cause', header: 'Cause', cell: ({ row }) => <span className="capitalize">{row.original.cause}</span> },
+                                    { accessorKey: 'notes', header: 'Notes' },
                                 ]}
                                 data={mortalityRecords}
                                 total={mortalityRecords.length}
@@ -285,9 +316,15 @@ function BatchDetailsPage() {
                             <DataTable
                                 columns={[
                                     { accessorKey: 'date', header: 'Date', cell: ({ row }) => new Date(row.original.date).toLocaleDateString() },
-                                    { accessorKey: 'productType', header: 'Product', cell: ({ row }) => <span className="capitalize">{row.original.productType}</span> },
                                     { accessorKey: 'quantity', header: 'Qty' },
-                                    { accessorKey: 'amount', header: 'Amount', cell: ({ row }) => formatNaira(row.original.amount || row.original.totalAmount) },
+                                    { accessorKey: 'unitType', header: 'Unit', cell: ({ row }) => <span className="capitalize">{row.original.unitType || '-'}</span> },
+                                    { accessorKey: 'ageWeeks', header: 'Age', cell: ({ row }) => row.original.ageWeeks ? `${row.original.ageWeeks} wks` : '-' },
+                                    { accessorKey: 'totalAmount', header: 'Amount', cell: ({ row }) => formatNaira(row.original.totalAmount) },
+                                    { accessorKey: 'paymentStatus', header: 'Status', cell: ({ row }) => (
+                                        <Badge variant={row.original.paymentStatus === 'paid' ? 'default' : row.original.paymentStatus === 'pending' ? 'secondary' : 'outline'}>
+                                            {row.original.paymentStatus || 'paid'}
+                                        </Badge>
+                                    )},
                                     { accessorKey: 'customerName', header: 'Customer' },
                                 ]}
                                 data={sales}

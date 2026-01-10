@@ -1,14 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
-import { Pool, neonConfig } from '@neondatabase/serverless'
-
-// Enable WebSocket for serverless environments
-neonConfig.webSocketConstructor = globalThis.WebSocket
-
-// Create a separate pool for better-auth using Neon serverless
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+import { neon } from '@neondatabase/serverless'
+import { NeonDialect } from 'kysely-neon'
 
 // Web Crypto API compatible password hashing (works on Cloudflare Workers)
 async function hashPassword(password: string): Promise<string> {
@@ -66,7 +59,12 @@ async function verifyPassword(hash: string, password: string): Promise<boolean> 
 }
 
 export const auth = betterAuth({
-  database: pool,
+  database: {
+    dialect: new NeonDialect({
+      neon: neon(process.env.DATABASE_URL!),
+    }),
+    type: 'postgres',
+  },
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
   emailAndPassword: {
@@ -81,6 +79,14 @@ export const auth = betterAuth({
     modelName: 'sessions',
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5, // 5 minutes
+    },
+  },
+  advanced: {
+    cookiePrefix: 'jayfarms',
+    useSecureCookies: process.env.NODE_ENV === 'production',
   },
   user: {
     modelName: 'users',

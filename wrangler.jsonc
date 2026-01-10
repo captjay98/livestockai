@@ -3,6 +3,6 @@
   "name": "jayfarms",
   "account_id": "9016ab965fe4980700cc9775a88812a5",
   "compatibility_date": "2025-10-11",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "no_handle_cross_request_promise_resolution"],
   "main": "@tanstack/react-start/server-entry"
 }

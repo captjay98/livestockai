@@ -168,6 +168,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   utilities: <Zap className="h-4 w-4" />,
   labor: <Users className="h-4 w-4" />,
   transport: <Truck className="h-4 w-4" />,
+  livestock: <Bird className="h-4 w-4" />,
   livestock_chicken: <Bird className="h-4 w-4" />,
   livestock_fish: <Fish className="h-4 w-4" />,
   maintenance: <Hammer className="h-4 w-4" />,
@@ -182,7 +183,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   utilities: 'text-yellow-600 bg-yellow-100',
   labor: 'text-purple-600 bg-purple-100',
   transport: 'text-green-600 bg-green-100',
-
+  livestock: 'text-amber-600 bg-amber-100',
   livestock_chicken: 'text-orange-600 bg-orange-100',
   livestock_fish: 'text-blue-600 bg-blue-100',
   maintenance: 'text-slate-600 bg-slate-100',

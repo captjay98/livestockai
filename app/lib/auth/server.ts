@@ -28,6 +28,11 @@ export const loginFn = createServerFn({ method: 'POST' })
 
 export const checkAuthFn = createServerFn({ method: 'GET' })
     .handler(async () => {
-        const session = await requireAuth()
-        return { user: session.user }
+        try {
+            const session = await requireAuth()
+            return { user: session.user }
+        } catch (error: any) {
+            console.error('checkAuthFn error:', error?.message)
+            throw error
+        }
     })

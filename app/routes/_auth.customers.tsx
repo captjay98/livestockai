@@ -32,6 +32,13 @@ import {
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { DataTable } from '~/components/ui/data-table'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 interface Customer {
   id: string
@@ -39,6 +46,7 @@ interface Customer {
   phone: string
   email: string | null
   location: string | null
+  customerType: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
   salesCount: number
   totalSpent: number
 }
@@ -123,6 +131,7 @@ function CustomersPage() {
     phone: '',
     email: '',
     location: '',
+    customerType: '' as '' | 'individual' | 'restaurant' | 'retailer' | 'wholesaler',
   })
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -132,6 +141,7 @@ function CustomersPage() {
     phone: '',
     email: '',
     location: '',
+    customerType: '' as '' | 'individual' | 'restaurant' | 'retailer' | 'wholesaler',
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -182,13 +192,19 @@ function CustomersPage() {
     setIsSubmitting(true)
     setError('')
     try {
-      await createCustomerFn({ data: formData })
+      await createCustomerFn({ data: {
+        ...formData,
+        email: formData.email || null,
+        location: formData.location || null,
+        customerType: formData.customerType || null
+      } })
       setDialogOpen(false)
       setFormData({
         name: '',
         phone: '',
         email: '',
         location: '',
+        customerType: '',
       })
       loadData()
     } catch (err) {
@@ -205,6 +221,7 @@ function CustomersPage() {
       phone: customer.phone,
       email: customer.email || '',
       location: customer.location || '',
+      customerType: customer.customerType || '',
     })
     setEditDialogOpen(true)
   }
@@ -221,7 +238,8 @@ function CustomersPage() {
           name: editFormData.name,
           phone: editFormData.phone,
           email: editFormData.email || null,
-          location: editFormData.location || null
+          location: editFormData.location || null,
+          customerType: editFormData.customerType || null
         }
       })
       setEditDialogOpen(false)
@@ -271,6 +289,15 @@ function CustomersPage() {
             <MapPin className="h-3 w-3" />
             {row.original.location}
           </div>
+        ) : '-',
+      },
+      {
+        accessorKey: 'customerType',
+        header: 'Type',
+        cell: ({ row }) => row.original.customerType ? (
+          <Badge variant="outline" className="capitalize text-xs">
+            {row.original.customerType}
+          </Badge>
         ) : '-',
       },
       {
@@ -410,6 +437,23 @@ function CustomersPage() {
               <Input id="location" value={formData.location} onChange={e => setFormData(prev => ({ ...prev, location: e.target.value }))} />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="customerType">Customer Type</Label>
+              <Select
+                value={formData.customerType}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, customerType: value as typeof formData.customerType }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="individual">Individual</SelectItem>
+                  <SelectItem value="restaurant">Restaurant</SelectItem>
+                  <SelectItem value="retailer">Retailer</SelectItem>
+                  <SelectItem value="wholesaler">Wholesaler</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" value={formData.email} onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))} />
             </div>
@@ -439,6 +483,23 @@ function CustomersPage() {
             <div className="space-y-2">
               <Label htmlFor="edit-location">Location</Label>
               <Input id="edit-location" value={editFormData.location} onChange={e => setEditFormData(prev => ({ ...prev, location: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-customerType">Customer Type</Label>
+              <Select
+                value={editFormData.customerType}
+                onValueChange={(value) => setEditFormData(prev => ({ ...prev, customerType: value as typeof editFormData.customerType }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="individual">Individual</SelectItem>
+                  <SelectItem value="restaurant">Restaurant</SelectItem>
+                  <SelectItem value="retailer">Retailer</SelectItem>
+                  <SelectItem value="wholesaler">Wholesaler</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-email">Email</Label>

@@ -1,21 +1,13 @@
-import { Kysely, PostgresDialect } from 'kysely'
-import { Pool, neonConfig } from '@neondatabase/serverless'
+import { Kysely } from 'kysely'
+import { NeonDialect } from 'kysely-neon'
+import { neon } from '@neondatabase/serverless'
 import type { Database } from './types'
 
-// Enable WebSocket for serverless environments (Cloudflare Workers)
-neonConfig.webSocketConstructor = globalThis.WebSocket
-
-// Database configuration - uses Neon serverless driver
-const dialect = new PostgresDialect({
-  pool: new Pool({
-    connectionString: process.env.DATABASE_URL,
-    max: 10,
-  }),
-})
-
-// Create the Kysely instance
+// Create the Kysely instance using NeonDialect (HTTP-based, works in serverless)
 export const db = new Kysely<Database>({
-  dialect,
+  dialect: new NeonDialect({
+    neon: neon(process.env.DATABASE_URL!),
+  }),
 })
 
 // Export types for use in other files

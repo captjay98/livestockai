@@ -3,22 +3,26 @@ import { checkAuthFn } from '~/lib/auth/server'
 import { AppShell } from '~/components/layout/shell'
 
 export const Route = createFileRoute('/_auth')({
-    loader: async () => {
+    beforeLoad: async () => {
         try {
             const { user } = await checkAuthFn()
             if (!user) {
                 throw redirect({ to: '/login' })
             }
             return { user }
-        } catch (_) {
-            throw redirect({ to: '/login' })
+        } catch (error: any) {
+            // Only redirect on auth errors, not other errors
+            if (error?.message === 'UNAUTHORIZED' || !error?.user) {
+                throw redirect({ to: '/login' })
+            }
+            throw error
         }
     },
     component: AuthLayout,
 })
 
 function AuthLayout() {
-    const { user } = Route.useLoaderData()
+    const { user } = Route.useRouteContext()
 
     return (
         <AppShell user={user}>

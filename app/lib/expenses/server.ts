@@ -13,6 +13,7 @@ export interface CreateExpenseInput {
   | 'utilities'
   | 'labor'
   | 'transport'
+  | 'livestock'
   | 'livestock_chicken'
   | 'livestock_fish'
   | 'maintenance'

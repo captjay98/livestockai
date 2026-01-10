@@ -242,6 +242,7 @@ interface Database {
   sessions: SessionTable
   farms: FarmTable
   user_farms: UserFarmTable
+  structures: StructureTable
   batches: BatchTable
   mortality_records: MortalityTable
   feed_records: FeedTable
@@ -254,6 +255,7 @@ interface Database {
   expenses: ExpenseTable
   customers: CustomerTable
   suppliers: SupplierTable
+  medication_inventory: MedicationInventoryTable
   invoices: InvoiceTable
   invoice_items: InvoiceItemTable
 }
@@ -282,6 +284,8 @@ interface FarmTable {
   name: string
   location: string
   type: 'poultry' | 'fishery' | 'mixed'
+  contactPhone: string | null
+  notes: string | null
   created_at: Generated<Date>
   updated_at: Date
 }
@@ -291,10 +295,24 @@ interface UserFarmTable {
   farm_id: string
 }
 
+// Structures (houses, ponds, pens, cages)
+interface StructureTable {
+  id: Generated<string>
+  farm_id: string
+  name: string
+  type: 'house' | 'pond' | 'pen' | 'cage'
+  capacity: number | null
+  area_sqm: number | null
+  status: 'active' | 'empty' | 'maintenance'
+  notes: string | null
+  created_at: Generated<Date>
+}
+
 // Livestock
 interface BatchTable {
   id: Generated<string>
   farm_id: string
+  batch_name: string | null
   livestock_type: 'poultry' | 'fish'
   species: string // broiler, layer, catfish, tilapia, etc.
   initial_quantity: number
@@ -303,6 +321,11 @@ interface BatchTable {
   cost_per_unit: number // in kobo (smallest Naira unit)
   total_cost: number // in kobo
   status: 'active' | 'depleted' | 'sold'
+  supplier_id: string | null
+  source_size: string | null
+  structure_id: string | null
+  target_harvest_date: Date | null
+  notes: string | null
   created_at: Generated<Date>
   updated_at: Date
 }
@@ -325,6 +348,10 @@ interface FeedTable {
   cost: number // in kobo
   date: Date
   supplier_id: string | null
+  brand_name: string | null
+  bag_size_kg: number | null
+  number_of_bags: number | null
+  notes: string | null
   created_at: Generated<Date>
 }
 
@@ -344,6 +371,9 @@ interface WeightTable {
   date: Date
   sample_size: number
   average_weight_kg: number
+  min_weight_kg: number | null
+  max_weight_kg: number | null
+  notes: string | null
   created_at: Generated<Date>
 }
 
@@ -393,6 +423,12 @@ interface SaleTable {
   unit_price: number // in kobo
   total_amount: number // in kobo
   date: Date
+  age_weeks: number | null
+  average_weight_kg: number | null
+  unit_type: 'bird' | 'kg' | 'crate' | 'piece' | null
+  payment_status: 'paid' | 'pending' | 'partial'
+  payment_method: 'cash' | 'transfer' | 'credit' | null
+  invoice_id: string | null
   notes: string | null
   created_at: Generated<Date>
 }
@@ -407,6 +443,11 @@ interface ExpenseTable {
     | 'utilities'
     | 'labor'
     | 'transport'
+    | 'livestock'
+    | 'livestock_chicken'
+    | 'livestock_fish'
+    | 'maintenance'
+    | 'marketing'
     | 'other'
   amount: number // in kobo
   date: Date
@@ -423,6 +464,7 @@ interface CustomerTable {
   phone: string
   email: string | null
   location: string | null
+  customer_type: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
   created_at: Generated<Date>
   updated_at: Date
 }
@@ -434,7 +476,20 @@ interface SupplierTable {
   email: string | null
   location: string | null
   products: string[] // what they supply
+  supplier_type: 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other' | null
   created_at: Generated<Date>
+  updated_at: Date
+}
+
+// Medication Inventory
+interface MedicationInventoryTable {
+  id: Generated<string>
+  farm_id: string
+  medication_name: string
+  quantity: number
+  unit: 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet'
+  expiry_date: Date | null
+  min_threshold: number
   updated_at: Date
 }
 
@@ -491,11 +546,11 @@ function formatNaira(kobo: number): string {
 ```
 User ─────┬───── Session
           │
-          └───── UserFarm ───── Farm
+          └───── UserFarm ───── Farm ───── Structure
                                   │
-                    ┌─────────────┼─────────────┐
-                    │             │             │
-                  Batch        Sale         Expense
+                    ┌─────────────┼─────────────┬─────────────────┐
+                    │             │             │                 │
+                  Batch        Sale         Expense    MedicationInventory
                     │             │             │
      ┌──────┬───────┼───────┬─────┘             │
      │      │       │       │                   │

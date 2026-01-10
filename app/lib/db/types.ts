@@ -9,6 +9,7 @@ export interface Database {
   verification: VerificationTable
   farms: FarmTable
   user_farms: UserFarmTable
+  structures: StructureTable
   batches: BatchTable
   mortality_records: MortalityTable
   feed_records: FeedTable
@@ -24,6 +25,7 @@ export interface Database {
   invoices: InvoiceTable
   invoice_items: InvoiceItemTable
   feed_inventory: FeedInventoryTable
+  medication_inventory: MedicationInventoryTable
 }
 
 // User & Auth - Better Auth tables use camelCase
@@ -81,6 +83,8 @@ export interface FarmTable {
   name: string
   location: string
   type: 'poultry' | 'fishery' | 'mixed'
+  contactPhone: string | null
+  notes: string | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -90,20 +94,39 @@ export interface UserFarmTable {
   farmId: string
 }
 
+// Structures (Houses, Ponds, Pens)
+export interface StructureTable {
+  id: Generated<string>
+  farmId: string
+  name: string // "House A", "Pond 1", "Pen 3"
+  type: 'house' | 'pond' | 'pen' | 'cage'
+  capacity: number | null // Max animals
+  areaSqm: string | null // DECIMAL(10,2) - Size in square meters
+  status: 'active' | 'empty' | 'maintenance'
+  notes: string | null
+  createdAt: Generated<Date>
+}
+
 // Livestock
 // Note: PostgreSQL DECIMAL columns are returned as strings by the pg driver
 // to preserve precision. Use toDecimal() from currency.ts to work with them.
 export interface BatchTable {
   id: Generated<string>
   farmId: string
+  batchName: string | null // "Batch A", "NOV-2024-BR-01"
   livestockType: 'poultry' | 'fish'
   species: string // broiler, layer, catfish, tilapia, etc.
+  sourceSize: string | null // "day-old", "point-of-lay", "fingerling", "jumbo"
   initialQuantity: number
   currentQuantity: number
   acquisitionDate: Date
   costPerUnit: string // DECIMAL(19,2) - returned as string from pg
   totalCost: string // DECIMAL(19,2) - returned as string from pg
   status: 'active' | 'depleted' | 'sold'
+  supplierId: string | null // Where purchased from
+  structureId: string | null // Which house/pond
+  targetHarvestDate: Date | null // Planned sale date
+  notes: string | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -122,10 +145,14 @@ export interface FeedTable {
   id: Generated<string>
   batchId: string
   feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+  brandName: string | null // "Aller Aqua", "Ultima Plus", "Blue Crown"
+  bagSizeKg: number | null // 15, 25
+  numberOfBags: number | null // How many bags used
   quantityKg: string // DECIMAL(10,2) - returned as string from pg
   cost: string // DECIMAL(19,2) - returned as string from pg
   date: Date
   supplierId: string | null
+  notes: string | null
   createdAt: Generated<Date>
 }
 
@@ -145,6 +172,9 @@ export interface WeightTable {
   date: Date
   sampleSize: number
   averageWeightKg: string // DECIMAL(8,3) - returned as string from pg
+  minWeightKg: string | null // DECIMAL(8,3) - Smallest in sample
+  maxWeightKg: string | null // DECIMAL(8,3) - Largest in sample
+  notes: string | null
   createdAt: Generated<Date>
 }
 
@@ -189,10 +219,16 @@ export interface SaleTable {
   farmId: string
   batchId: string | null
   customerId: string | null
+  invoiceId: string | null // Link to invoice if generated
   livestockType: 'poultry' | 'fish' | 'eggs'
   quantity: number
   unitPrice: string // DECIMAL(19,2) - returned as string from pg
   totalAmount: string // DECIMAL(19,2) - returned as string from pg
+  unitType: 'bird' | 'kg' | 'crate' | 'piece' | null // How sold
+  ageWeeks: number | null // Age at sale (critical for broilers: 5 or 8 weeks)
+  averageWeightKg: string | null // DECIMAL(8,3) - Weight at sale
+  paymentStatus: 'paid' | 'pending' | 'partial' | null
+  paymentMethod: 'cash' | 'transfer' | 'credit' | null
   date: Date
   notes: string | null
   createdAt: Generated<Date>
@@ -209,6 +245,11 @@ export interface ExpenseTable {
     | 'utilities'
     | 'labor'
     | 'transport'
+    | 'livestock' // For chick/fingerling purchases
+    | 'livestock_chicken'
+    | 'livestock_fish'
+    | 'maintenance'
+    | 'marketing'
     | 'other'
   amount: string // DECIMAL(19,2) - returned as string from pg
   date: Date
@@ -227,6 +268,17 @@ export interface FeedInventoryTable {
   updatedAt: Generated<Date>
 }
 
+export interface MedicationInventoryTable {
+  id: Generated<string>
+  farmId: string
+  medicationName: string
+  quantity: number
+  unit: 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet'
+  expiryDate: Date | null
+  minThreshold: number
+  updatedAt: Generated<Date>
+}
+
 // Contacts
 export interface CustomerTable {
   id: Generated<string>
@@ -234,6 +286,7 @@ export interface CustomerTable {
   phone: string
   email: string | null
   location: string | null
+  customerType: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -245,6 +298,7 @@ export interface SupplierTable {
   email: string | null
   location: string | null
   products: Array<string> // what they supply
+  supplierType: 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other' | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }

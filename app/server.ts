@@ -9,7 +9,11 @@ const handler = createStartHandler(defaultStreamHandler)
 export default {
   async fetch(request: Request, ...args: Array<any>) {
     const url = new URL(request.url)
-    console.log('Incoming Request:', request.url, 'Path:', url.pathname)
+
+    // Handle Better Auth API routes
+    if (url.pathname.startsWith('/api/auth')) {
+      return auth.handler(request)
+    }
 
     // Handle all other routes with TanStack Start
     return handler(request, ...args)

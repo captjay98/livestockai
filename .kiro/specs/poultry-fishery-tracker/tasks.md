@@ -79,6 +79,17 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - **Property 16: Farm Data Isolation**
     - **Validates: Requirements 2.2, 2.3, 10.7**
 
+  - [x] 4.4 Create structure server functions
+    - Implement CRUD operations for structures (houses, ponds, pens, cages)
+    - Add structure filtering by farm
+    - _Requirements: 2A.1, 2A.2_
+
+  - [x] 4.5 Build structure management UI
+    - Create structure list page with create/edit/delete
+    - Display structure status and capacity
+    - Allow assigning batches to structures
+    - _Requirements: 2A.1, 2A.2, 2A.3, 2A.4_
+
 - [x] 5. Livestock Inventory Management
   - [x] 5.1 Create batch server functions
     - Implement CRUD operations for batches
@@ -214,6 +225,17 @@ This plan implements a comprehensive business tracking platform for Nigerian pou
     - Create supplier list and detail pages
     - Display purchase history and price trends
     - _Requirements: 16.1, 16.3_
+
+  - [x] 14.3 Create medication inventory server functions
+    - Implement CRUD operations for medication inventory
+    - Track quantity changes and expiry dates
+    - Generate alerts for low stock and expiring medications
+    - _Requirements: 16A.1, 16A.2, 16A.3, 16A.4_
+
+  - [x] 14.4 Build medication inventory UI
+    - Create medication inventory list page
+    - Display alerts for low stock and expiring items
+    - _Requirements: 16A.1, 16A.3, 16A.4_
 
 - [x] 15. Expense Tracking
   - [x] 15.1 Create expense server functions

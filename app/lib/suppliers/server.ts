@@ -6,6 +6,7 @@ export interface CreateSupplierInput {
   email?: string | null
   location?: string | null
   products: Array<string>
+  supplierType?: 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other' | null
 }
 
 export interface PaginatedQuery {
@@ -160,6 +161,7 @@ export async function getSuppliersPaginated(
       'suppliers.email',
       'suppliers.location',
       'suppliers.products',
+      'suppliers.supplierType',
       'suppliers.createdAt',
       sql<number>`count(expenses.id)`.as('expenseCount'),
       sql<string>`coalesce(sum(expenses.amount), 0)`.as('totalSpent')
@@ -171,6 +173,7 @@ export async function getSuppliersPaginated(
       'suppliers.email',
       'suppliers.location',
       'suppliers.products',
+      'suppliers.supplierType',
       'suppliers.createdAt',
     ])
     .limit(pageSize)

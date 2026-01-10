@@ -1,18 +1,17 @@
 import { useState } from 'react'
-import { Menu, Sprout } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { Sidebar } from './sidebar'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
+import { Link } from '@tanstack/react-router'
+import { User } from '~/lib/auth/types'
 
 export function AppShell({
   children,
   user
 }: {
   children: React.ReactNode
-  user: {
-    name: string
-    email: string
-  }
+  user: User
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -53,7 +52,9 @@ export function AppShell({
           >
             <Menu className="h-6 w-6" />
           </Button>
-          <img src="/logo-wordmark.png" alt="JayFarms" className="h-7" />
+          <Link to="/" className="flex items-center">
+            <img src="/logo-wordmark.png" alt="JayFarms" className="h-7" />
+          </Link>
         </div>
 
         <main className="flex-1 px-3 py-4 sm:p-8 overflow-y-auto overflow-x-hidden">

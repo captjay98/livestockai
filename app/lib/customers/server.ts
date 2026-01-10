@@ -5,6 +5,7 @@ export interface CreateCustomerInput {
   phone: string
   email?: string | null
   location?: string | null
+  customerType?: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
 }
 
 export interface PaginatedQuery {
@@ -200,6 +201,7 @@ export async function getCustomersPaginated(
       'customers.phone',
       'customers.email',
       'customers.location',
+      'customers.customerType',
       'customers.createdAt',
       sql<number>`count(sales.id)`.as('salesCount'),
       sql<string>`coalesce(sum(sales.total_amount), 0)`.as('totalSpent')
@@ -210,6 +212,7 @@ export async function getCustomersPaginated(
       'customers.phone',
       'customers.email',
       'customers.location',
+      'customers.customerType',
       'customers.createdAt',
     ])
     .limit(pageSize)

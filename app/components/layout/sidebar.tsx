@@ -1,18 +1,17 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { Building2, LogOut, User, X } from 'lucide-react'
+import { Building2, LogOut, User as UserIcon, X } from 'lucide-react'
 import { navigation } from '~/components/navigation'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import { FarmSelector } from '~/components/farm-selector'
 import { ThemeToggle } from '~/components/theme-toggle'
 
+import { User } from '~/lib/auth/types'
+
 interface SidebarProps {
   className?: string
   onClose?: () => void
-  user: {
-    name: string
-    email: string
-  }
+  user: User
 }
 
 export function Sidebar({ className, onClose, user }: SidebarProps) {
@@ -35,10 +34,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
             className="flex items-center gap-3 transition-transform hover:scale-[1.02]"
             onClick={onClose}
           >
-            <img src="/logo-icon.png" alt="JayFarms" className="h-9 w-9 rounded-lg shadow-sm" />
-            <span className="font-bold text-xl tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
-              JayFarms
-            </span>
+            <img src="/logo-wordmark.png" alt="JayFarms" className="h-8" />
           </Link>
           {onClose && (
             <Button
@@ -93,7 +89,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className="h-10 w-10 rounded-full bg-background border border-border shadow-sm flex items-center justify-center shrink-0">
-              <User className="h-5 w-5 text-muted-foreground" />
+              <UserIcon className="h-5 w-5 text-muted-foreground" />
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold truncate">{userName}</p>
