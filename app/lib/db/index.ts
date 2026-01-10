@@ -1,15 +1,14 @@
 import { Kysely, PostgresDialect } from 'kysely'
-import { Pool } from 'pg'
+import { Pool, neonConfig } from '@neondatabase/serverless'
 import type { Database } from './types'
 
-// Database configuration
+// Enable WebSocket for serverless environments (Cloudflare Workers)
+neonConfig.webSocketConstructor = globalThis.WebSocket
+
+// Database configuration - uses Neon serverless driver
 const dialect = new PostgresDialect({
   pool: new Pool({
-    database: process.env.DATABASE_NAME || 'jayfarms',
-    host: process.env.DATABASE_HOST || 'localhost',
-    user: process.env.DATABASE_USER || 'postgres',
-    password: process.env.DATABASE_PASSWORD || '',
-    port: parseInt(process.env.DATABASE_PORT || '5432'),
+    connectionString: process.env.DATABASE_URL,
     max: 10,
   }),
 })
