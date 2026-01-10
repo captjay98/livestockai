@@ -1,77 +1,51 @@
 /**
- * Database Seed Script
- *
- * Creates initial admin user and comprehensive sample data for development/testing.
- * Data includes multiple farms, realistic batches (poultry & fish), expenses,
- * feed records, mortality, and sales based on real-world scenarios.
- *
+ * Comprehensive Database Seed Script (Optimized with Batch Inserts)
  * Run with: bun run db:seed
  */
 
-import bcrypt from 'bcrypt'
 import { db } from './index'
 import crypto from 'crypto'
 
-// --- Constants & Configuration ---
-
-const POULTRY_CONFIG = {
-  batchSizeMin: 50,
-  batchSizeMax: 60,
-  costPerChickMin: 900,
-  costPerChickMax: 1500,
-  salePricePerKg: 600, // as per user request
-  targetWeightAtSale: 2.5, // kg, estimated for 5-6 weeks broiler
-  survivalRateMin: 0.90,
-  survivalRateMax: 0.95,
-  feeds: [
-    { name: 'Ultima Plus Starter', cost: 24000, weight: 25, type: 'starter' },
-    { name: 'Ultima Plus Finisher', cost: 24000, weight: 25, type: 'finisher' },
-  ]
-}
-
-const FISH_CONFIG = {
-  batchSizeMin: 500,
-  batchSizeMax: 600,
-  costPerFingerlingMin: 200,
-  costPerFingerlingMax: 250,
-  salePricePerKg: 3500,
-  targetWeightAtSale: 1.5, // kg
-  survivalRateMin: 0.90,
-  survivalRateMax: 0.95,
-  feeds: [
-    { name: 'Aller Aqua (2mm)', cost: 32000, weight: 15, type: 'fish_feed' }, // Estimating price/weight based on context
-    { name: 'Blue Crown', cost: 38000, weight: 15, type: 'fish_feed' },
-  ]
-}
-
-// --- Helper Utilities ---
-
+// Web Crypto API password hashing
 async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 10)
+  const encoder = new TextEncoder()
+  const salt = crypto.getRandomValues(new Uint8Array(16))
+  const keyMaterial = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits'])
+  const hash = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, keyMaterial, 256)
+  const hashArray = new Uint8Array(hash)
+  const combined = new Uint8Array(salt.length + hashArray.length)
+  combined.set(salt)
+  combined.set(hashArray, salt.length)
+  return btoa(String.fromCharCode(...combined))
 }
 
-function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-function randomFloat(min: number, max: number): number {
-  return Math.random() * (max - min) + min
-}
-
-function randomDate(start: Date, end: Date): Date {
+// Helpers
+const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
+const randomFloat = (min: number, max: number) => Math.random() * (max - min) + min
+const randomChoice = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
+const daysAgo = (days: number) => new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+const randomDateBetween = (daysAgoStart: number, daysAgoEnd: number) => {
+  const start = daysAgo(daysAgoStart)
+  const end = daysAgo(daysAgoEnd)
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
 }
 
-// --- Seeding Logic ---
-
 async function seed() {
-  console.log('🌱 Starting comprehensive database seed...')
+  console.log('🌱 Starting COMPREHENSIVE database seed...\n')
 
   try {
-    // 1. Cleanup - Clear existing data (reverse order of dependencies)
+    // ========== CLEANUP ==========
     console.log('🧹 Clearing existing data...')
+    await db.deleteFrom('invoice_items').execute()
+    await db.deleteFrom('invoices').execute()
+    await db.deleteFrom('water_quality').execute()
+    await db.deleteFrom('weight_samples').execute()
+    await db.deleteFrom('treatments').execute()
+    await db.deleteFrom('vaccinations').execute()
+    await db.deleteFrom('egg_records').execute()
     await db.deleteFrom('mortality_records').execute()
     await db.deleteFrom('feed_records').execute()
+    await db.deleteFrom('feed_inventory').execute()
     await db.deleteFrom('expenses').execute()
     await db.deleteFrom('sales').execute()
     await db.deleteFrom('batches').execute()
@@ -79,366 +53,325 @@ async function seed() {
     await db.deleteFrom('farms').execute()
     await db.deleteFrom('suppliers').execute()
     await db.deleteFrom('customers').execute()
-    // We keep users and accounts to avoid re-hashing generally, but let's just ensure admin exists
+    await db.deleteFrom('sessions').execute()
+    await db.deleteFrom('account').execute()
+    await db.deleteFrom('users').execute()
+    console.log('✅ Cleared\n')
 
-    // 2. Setup Admin User
-    let adminUserId: string
+    // ========== USERS ==========
+    console.log('👤 Creating users...')
+    const [adminUser, staffUser] = await db.insertInto('users').values([
+      { email: 'admin@jayfarms.com', name: 'Jamal Ibrahim', role: 'admin', emailVerified: true },
+      { email: 'staff@jayfarms.com', name: 'Chidi Okonkwo', role: 'staff', emailVerified: true },
+    ]).returning(['id', 'email']).execute()
 
-    const existingAdmin = await db
-      .selectFrom('users')
-      .select(['id'])
-      .where('email', '=', 'admin@jayfarms.com')
-      .executeTakeFirst()
+    await db.insertInto('account').values([
+      { id: crypto.randomUUID(), userId: adminUser.id, accountId: adminUser.id, providerId: 'credential', password: await hashPassword('admin123') },
+      { id: crypto.randomUUID(), userId: staffUser.id, accountId: staffUser.id, providerId: 'credential', password: await hashPassword('staff123') },
+    ]).execute()
+    console.log('✅ 2 users\n')
 
-    if (existingAdmin) {
-      adminUserId = existingAdmin.id
-      console.log('Found existing admin user.')
-    } else {
-      const adminUser = await db
-        .insertInto('users')
-        .values({
-          email: 'admin@jayfarms.com',
-          name: 'Admin User',
-          role: 'admin',
-          emailVerified: true,
-        })
-        .returning(['id', 'email'])
-        .executeTakeFirstOrThrow()
+    // ========== SUPPLIERS ==========
+    console.log('🏭 Creating suppliers...')
+    const suppliers = await db.insertInto('suppliers').values([
+      { name: 'AgroAllied Supplies Ltd', phone: '08012345678', location: 'Lagos', products: ['feed', 'medicine', 'equipment'] },
+      { name: 'Ultima Feeds Nigeria', phone: '08023456789', location: 'Ibadan', products: ['feed'] },
+      { name: 'VetCare Pharmaceuticals', phone: '08034567890', location: 'Abeokuta', products: ['medicine', 'vaccines'] },
+      { name: 'FarmTech Equipment', phone: '08045678901', location: 'Lagos', products: ['equipment'] },
+      { name: 'Aller Aqua Nigeria', phone: '08056789012', location: 'Port Harcourt', products: ['feed'] },
+    ]).returning(['id', 'name']).execute()
+    console.log(`✅ ${suppliers.length} suppliers\n`)
 
-      adminUserId = adminUser.id
+    // ========== CUSTOMERS ==========
+    console.log('👥 Creating customers...')
+    const customers = await db.insertInto('customers').values([
+      { name: 'Mama Nkechi Frozen Foods', phone: '08098765432', location: 'Mile 12 Market, Lagos', email: 'nkechi@gmail.com' },
+      { name: 'Alhaji Musa Poultry', phone: '08087654321', location: 'Kano', email: null },
+      { name: 'ChopBar Restaurant Chain', phone: '08076543210', location: 'Victoria Island, Lagos', email: 'orders@chopbar.ng' },
+      { name: 'FreshMart Supermarket', phone: '08065432109', location: 'Lekki, Lagos', email: 'procurement@freshmart.ng' },
+      { name: 'Iya Basira Fish Market', phone: '08054321098', location: 'Epe, Lagos', email: null },
+      { name: 'Golden Eggs Distributors', phone: '08043210987', location: 'Ibadan', email: 'goldeneggs@yahoo.com' },
+      { name: 'Hotel Prestige', phone: '08032109876', location: 'Abuja', email: 'kitchen@hotelprestige.com' },
+    ]).returning(['id', 'name']).execute()
+    console.log(`✅ ${customers.length} customers\n`)
 
-      const hashedPassword = await hashPassword('admin123')
-      await db
-        .insertInto('account')
-        .values({
-          id: crypto.randomUUID(),
-          userId: adminUserId,
-          accountId: adminUserId,
-          providerId: 'credential',
-          password: hashedPassword,
-        })
-        .execute()
-      console.log('✅ Created admin user.')
-    }
+    // ========== FARMS ==========
+    console.log('� Creating farms...')
+    const farms = await db.insertInto('farms').values([
+      { name: 'JayFarms Abeokuta', location: 'Abeokuta, Ogun State', type: 'mixed' },
+      { name: 'JayFarms Ibadan', location: 'Ibadan, Oyo State', type: 'poultry' },
+      { name: 'JayFarms Epe', location: 'Epe, Lagos State', type: 'fishery' },
+    ]).returning(['id', 'name', 'type']).execute()
 
-    // 3. Create Farms
-    const farms = []
-    const farmConfigs = [
-      { name: 'Green Valley Farms', location: 'Abeokuta, Ogun', type: 'mixed' as const },
-      { name: 'Sunrise Poultry', location: 'Ibadan, Oyo', type: 'poultry' as const },
-      { name: 'Blue Waters Fishery', location: 'Epe, Lagos', type: 'fishery' as const },
-    ]
+    const userFarmValues = farms.flatMap(f => [
+      { userId: adminUser.id, farmId: f.id },
+      { userId: staffUser.id, farmId: f.id },
+    ])
+    await db.insertInto('user_farms').values(userFarmValues).execute()
+    console.log(`✅ ${farms.length} farms\n`)
 
-    for (const config of farmConfigs) {
-      const farm = await db
-        .insertInto('farms')
-        .values({
-          name: config.name,
-          location: config.location,
-          type: config.type,
-        })
-        .returning(['id', 'name', 'type'])
-        .executeTakeFirstOrThrow()
-
-      farms.push(farm)
-
-      // Assign admin
-      await db
-        .insertInto('user_farms')
-        .values({ userId: adminUserId, farmId: farm.id })
-        .execute()
-    }
-    console.log(`✅ Created ${farms.length} farms.`)
-
-    // 4. Create Suppliers & Customers
-    const supplier = await db
-      .insertInto('suppliers')
-      .values({
-        name: 'AgroAllied Supplies Ltd',
-        phone: '08012345678',
-        location: 'Lagos',
-        products: ['feed', 'medicine'],
-      })
-      .returning(['id', 'name'])
-      .executeTakeFirstOrThrow()
-
-    const customer = await db
-      .insertInto('customers')
-      .values({
-        name: 'Mama Nkechi Frozen Foods',
-        phone: '08098765432',
-        location: 'Market Sq, Lagos',
-      })
-      .returning(['id', 'name'])
-      .executeTakeFirstOrThrow()
-
-    console.log('✅ Created suppliers and customers.')
-
-    // 5. Generate Batches & Transactional Data
-    const startDate = new Date('2024-01-01')
-    const endDate = new Date()
-
+    // ========== BATCHES ==========
+    console.log('�🐟 Creating batches...')
+    const batchValues: any[] = []
     for (const farm of farms) {
-      // Determine what kind of batches to create based on farm type
-      const createPoultry = farm.type === 'poultry' || farm.type === 'mixed'
-      const createFish = farm.type === 'fishery' || farm.type === 'mixed'
-
-      if (createPoultry) {
-        // Create 2-3 Poultry Batches (some active, some sold)
-        const numBatches = randomInt(2, 3)
-        for (let i = 0; i < numBatches; i++) {
-          const isSold = i === 0 // Make the first one sold/completed
-          const acquisitionDate = randomDate(startDate, new Date(endDate.getTime() - (isSold ? 60 : 30) * 24 * 60 * 60 * 1000))
-
-          const initialQty = randomInt(POULTRY_CONFIG.batchSizeMin, POULTRY_CONFIG.batchSizeMax)
-          const costPerUnit = randomFloat(POULTRY_CONFIG.costPerChickMin, POULTRY_CONFIG.costPerChickMax)
-          const totalCost = initialQty * costPerUnit
-
-          // Calculate mortality
-          const survivalRate = randomFloat(POULTRY_CONFIG.survivalRateMin, POULTRY_CONFIG.survivalRateMax)
-          const targetSurvival = Math.floor(initialQty * survivalRate)
-          const totalMortality = initialQty - targetSurvival
-          const currentQty = isSold ? 0 : targetSurvival // If active, simplified for now (mortality subtracted later)
-
-          const batch = await db
-            .insertInto('batches')
-            .values({
-              farmId: farm.id,
-              livestockType: 'poultry',
-              species: 'Broiler',
-              initialQuantity: initialQty,
-              currentQuantity: isSold ? 0 : initialQty, // Start full, reduce with mortality events
-              acquisitionDate: acquisitionDate,
-              costPerUnit: costPerUnit.toFixed(2),
-              totalCost: totalCost.toFixed(2),
-              status: isSold ? 'sold' : 'active',
-            })
-            .returning(['id', 'acquisitionDate', 'currentQuantity'])
-            .executeTakeFirstOrThrow()
-
-          // Record acquisition expense
-          await db.insertInto('expenses').values({
-            farmId: farm.id,
-            batchId: batch.id,
-            category: 'other', // stocking
-            description: `Purchase of ${initialQty} Broiler Chicks`,
-            amount: totalCost.toFixed(2),
-            date: acquisitionDate,
-            isRecurring: false,
-            supplierId: null
-          }).execute()
-
-          // Generate Mortality
-          let currentBatchQty = initialQty
-          for (let m = 0; m < totalMortality; m++) {
-            // Spread mortality over first 4 weeks
-            const mortalityDate = new Date(acquisitionDate.getTime() + randomInt(1, 28) * 24 * 60 * 60 * 1000)
-            if (mortalityDate > endDate) continue
-
-            await db.insertInto('mortality_records').values({
-              batchId: batch.id,
-              quantity: 1,
-              date: mortalityDate,
-              cause: Math.random() > 0.7 ? 'disease' : 'unknown',
-              notes: 'Routine loss',
-            }).execute()
-            currentBatchQty--
-          }
-
-          // Generate Feed Expenses
-          // Assume ~4kg feed per bird over 6 weeks. 
-          // Simplified: Buy feed every 2 weeks.
-          const weeksActive = isSold ? 6 : Math.floor((endDate.getTime() - acquisitionDate.getTime()) / (7 * 24 * 60 * 60 * 1000))
-
-          for (let w = 0; w < weeksActive; w += 2) {
-            const feed = w < 3 ? POULTRY_CONFIG.feeds[0] : POULTRY_CONFIG.feeds[1] // Starter vs Finisher
-            const feedDate = new Date(acquisitionDate.getTime() + w * 7 * 24 * 60 * 60 * 1000)
-            if (feedDate > endDate) continue
-
-            // Estimate consumption: ~10 bags for a batch of 50-60 over lifetime? 
-            // Let's say we buy 2 bags every 2 weeks.
-            const quantityBags = 2
-            const expenseAmount = quantityBags * feed.cost
-
-            const expense = await db.insertInto('expenses')
-              .values({
-                farmId: farm.id,
-                batchId: batch.id,
-                category: 'feed',
-                description: `${quantityBags} bags of ${feed.name}`,
-                amount: expenseAmount.toFixed(2),
-                date: feedDate,
-                supplierId: supplier.id,
-                isRecurring: false,
-              })
-              .returning(['id'])
-              .executeTakeFirstOrThrow()
-
-            // Corresponding feed record (consumption - simplified to match purchase for now)
-            await db.insertInto('feed_records').values({
-              batchId: batch.id,
-              feedType: feed.type as any,
-              quantityKg: (quantityBags * feed.weight).toFixed(2),
-              cost: expenseAmount.toFixed(2),
-              date: feedDate,
-              supplierId: supplier.id
-            }).execute()
-          }
-
-          // Sales (if sold)
-          if (isSold) {
-            const saleWeightTotal = currentBatchQty * POULTRY_CONFIG.targetWeightAtSale
-            const saleAmount = saleWeightTotal * POULTRY_CONFIG.salePricePerKg
-
-            await db.insertInto('sales').values({
-              farmId: farm.id,
-              batchId: batch.id,
-              customerId: customer.id,
-              livestockType: 'poultry',
-              quantity: currentBatchQty,
-              unitPrice: POULTRY_CONFIG.salePricePerKg.toFixed(2),
-              totalAmount: saleAmount.toFixed(2),
-              date: new Date(acquisitionDate.getTime() + 6 * 7 * 24 * 60 * 60 * 1000), // Sold at 6 weeks
-              notes: 'Bulk sale to market'
-            }).execute()
-
-            // Update batch status/qty if needed (already set to 0/sold in creation, but sync just in case logic changes)
-            await db.updateTable('batches').set({ currentQuantity: 0 }).where('id', '=', batch.id).execute()
-          } else {
-            // Update current qty
-            await db.updateTable('batches').set({ currentQuantity: currentBatchQty }).where('id', '=', batch.id).execute()
-          }
-        }
+      if (farm.type === 'poultry' || farm.type === 'mixed') {
+        batchValues.push(
+          { farmId: farm.id, livestockType: 'poultry', species: 'Broiler', initialQuantity: 500, currentQuantity: 0, acquisitionDate: daysAgo(90), costPerUnit: '1200.00', totalCost: '600000.00', status: 'sold' },
+          { farmId: farm.id, livestockType: 'poultry', species: 'Broiler', initialQuantity: 600, currentQuantity: 572, acquisitionDate: daysAgo(35), costPerUnit: '1350.00', totalCost: '810000.00', status: 'active' },
+          { farmId: farm.id, livestockType: 'poultry', species: 'Layer', initialQuantity: 300, currentQuantity: 285, acquisitionDate: daysAgo(180), costPerUnit: '800.00', totalCost: '240000.00', status: 'active' },
+        )
       }
+      if (farm.type === 'fishery' || farm.type === 'mixed') {
+        batchValues.push(
+          { farmId: farm.id, livestockType: 'fish', species: 'Catfish', initialQuantity: 2000, currentQuantity: 0, acquisitionDate: daysAgo(200), costPerUnit: '150.00', totalCost: '300000.00', status: 'sold' },
+          { farmId: farm.id, livestockType: 'fish', species: 'Catfish', initialQuantity: 3000, currentQuantity: 2820, acquisitionDate: daysAgo(90), costPerUnit: '180.00', totalCost: '540000.00', status: 'active' },
+          { farmId: farm.id, livestockType: 'fish', species: 'Tilapia', initialQuantity: 1500, currentQuantity: 1420, acquisitionDate: daysAgo(120), costPerUnit: '100.00', totalCost: '150000.00', status: 'active' },
+        )
+      }
+    }
+    const batches = await db.insertInto('batches').values(batchValues).returning(['id', 'farmId', 'livestockType', 'species']).execute()
+    console.log(`✅ ${batches.length} batches\n`)
 
-      if (createFish) {
-        // Create 2 Fish Batches
-        const numBatches = 2
-        for (let i = 0; i < numBatches; i++) {
-          const isSold = i === 0
-          // Fish take longer (4-6 months).
-          const acquisitionDate = randomDate(startDate, new Date(endDate.getTime() - (isSold ? 160 : 30) * 24 * 60 * 60 * 1000))
+    // ========== FEED INVENTORY ==========
+    console.log('📦 Creating feed inventory...')
+    const feedInvValues: any[] = []
+    for (const farm of farms) {
+      const types = farm.type === 'fishery' ? ['fish_feed'] : farm.type === 'poultry' ? ['starter', 'grower', 'finisher', 'layer_mash'] : ['starter', 'grower', 'finisher', 'layer_mash', 'fish_feed']
+      for (const t of types) {
+        feedInvValues.push({ farmId: farm.id, feedType: t, quantityKg: randomFloat(100, 500).toFixed(2), minThresholdKg: '50.00' })
+      }
+    }
+    await db.insertInto('feed_inventory').values(feedInvValues).execute()
+    console.log('✅ Feed inventory\n')
 
-          const initialQty = randomInt(FISH_CONFIG.batchSizeMin, FISH_CONFIG.batchSizeMax)
-          const costPerUnit = randomFloat(FISH_CONFIG.costPerFingerlingMin, FISH_CONFIG.costPerFingerlingMax)
-          const totalCost = initialQty * costPerUnit
+    // ========== MORTALITY (batch insert) ==========
+    console.log('� Creating mortality records...')
+    const mortalityValues: any[] = []
+    const causes = ['disease', 'predator', 'weather', 'unknown', 'other']
+    for (const batch of batches) {
+      for (let i = 0; i < randomInt(5, 12); i++) {
+        mortalityValues.push({
+          batchId: batch.id, quantity: randomInt(1, 5), date: randomDateBetween(180, 1),
+          cause: randomChoice(causes), notes: randomChoice(['Found dead', 'Heat stress', 'Unknown', null]),
+        })
+      }
+    }
+    await db.insertInto('mortality_records').values(mortalityValues).execute()
+    console.log(`✅ ${mortalityValues.length} mortality records\n`)
 
-          const batch = await db
-            .insertInto('batches')
-            .values({
-              farmId: farm.id,
-              livestockType: 'fish',
-              species: 'Catfish',
-              initialQuantity: initialQty,
-              currentQuantity: isSold ? 0 : initialQty,
-              acquisitionDate: acquisitionDate,
-              costPerUnit: costPerUnit.toFixed(2),
-              totalCost: totalCost.toFixed(2),
-              status: isSold ? 'sold' : 'active',
+    // ========== FEED RECORDS (batch insert) ==========
+    console.log('🌾 Creating feed records...')
+    const feedValues: any[] = []
+    for (const batch of batches) {
+      const types = batch.livestockType === 'poultry' ? ['starter', 'grower', 'finisher'] : ['fish_feed']
+      for (let i = 0; i < randomInt(8, 15); i++) {
+        feedValues.push({
+          batchId: batch.id, feedType: randomChoice(types), quantityKg: randomFloat(20, 100).toFixed(2),
+          cost: randomFloat(15000, 50000).toFixed(2), date: randomDateBetween(180, 1), supplierId: randomChoice(suppliers).id,
+        })
+      }
+    }
+    await db.insertInto('feed_records').values(feedValues).execute()
+    console.log(`✅ ${feedValues.length} feed records\n`)
+
+    // ========== EGG RECORDS (batch insert) ==========
+    console.log('🥚 Creating egg records...')
+    const eggValues: any[] = []
+    const layerBatches = batches.filter(b => b.species === 'Layer')
+    for (const batch of layerBatches) {
+      for (let d = 90; d >= 1; d--) {
+        const collected = randomInt(200, 280)
+        eggValues.push({
+          batchId: batch.id, date: daysAgo(d), quantityCollected: collected,
+          quantityBroken: randomInt(2, 10), quantitySold: randomInt(150, collected - 10),
+        })
+      }
+    }
+    if (eggValues.length > 0) await db.insertInto('egg_records').values(eggValues).execute()
+    console.log(`✅ ${eggValues.length} egg records\n`)
+
+    // ========== WEIGHT SAMPLES (batch insert) ==========
+    console.log('⚖️ Creating weight samples...')
+    const weightValues: any[] = []
+    for (const batch of batches) {
+      for (let i = 0; i < randomInt(5, 10); i++) {
+        weightValues.push({
+          batchId: batch.id, date: randomDateBetween(150, 1), sampleSize: randomInt(10, 30),
+          averageWeightKg: (batch.livestockType === 'poultry' ? randomFloat(0.5, 3.0) : randomFloat(0.3, 2.0)).toFixed(3),
+        })
+      }
+    }
+    await db.insertInto('weight_samples').values(weightValues).execute()
+    console.log(`✅ ${weightValues.length} weight samples\n`)
+
+    // ========== VACCINATIONS (batch insert) ==========
+    console.log('💉 Creating vaccinations...')
+    const vaccValues: any[] = []
+    const vaccines = [
+      { name: 'Newcastle Disease (Lasota)', dosage: '1 drop per bird' },
+      { name: 'Gumboro (IBD)', dosage: '1 drop per bird' },
+      { name: 'Fowl Pox', dosage: 'Wing web' },
+    ]
+    for (const batch of batches.filter(b => b.livestockType === 'poultry')) {
+      for (const v of vaccines) {
+        vaccValues.push({
+          batchId: batch.id, vaccineName: v.name, dateAdministered: randomDateBetween(150, 30),
+          dosage: v.dosage, nextDueDate: null, notes: 'Administered successfully',
+        })
+      }
+    }
+    if (vaccValues.length > 0) await db.insertInto('vaccinations').values(vaccValues).execute()
+    console.log(`✅ ${vaccValues.length} vaccinations\n`)
+
+    // ========== TREATMENTS (batch insert) ==========
+    console.log('💊 Creating treatments...')
+    const treatValues: any[] = []
+    const treatments = [
+      { med: 'Tylosin', reason: 'Respiratory infection', dosage: '1g per liter', withdrawal: 7 },
+      { med: 'Amprolium', reason: 'Coccidiosis prevention', dosage: '0.5g per liter', withdrawal: 5 },
+      { med: 'Vitamin supplement', reason: 'Stress recovery', dosage: '2ml per liter', withdrawal: 0 },
+    ]
+    for (const batch of batches) {
+      for (let i = 0; i < randomInt(1, 3); i++) {
+        const t = randomChoice(treatments)
+        treatValues.push({
+          batchId: batch.id, medicationName: t.med, reason: t.reason, date: randomDateBetween(120, 5),
+          dosage: t.dosage, withdrawalDays: t.withdrawal, notes: 'Treatment completed',
+        })
+      }
+    }
+    await db.insertInto('treatments').values(treatValues).execute()
+    console.log(`✅ ${treatValues.length} treatments\n`)
+
+    // ========== WATER QUALITY (batch insert) ==========
+    console.log('💧 Creating water quality...')
+    const waterValues: any[] = []
+    for (const batch of batches.filter(b => b.livestockType === 'fish')) {
+      for (let w = 16; w >= 1; w--) {
+        waterValues.push({
+          batchId: batch.id, date: daysAgo(w * 7), ph: randomFloat(6.5, 8.5).toFixed(2),
+          temperatureCelsius: randomFloat(25, 32).toFixed(2), dissolvedOxygenMgL: randomFloat(5, 9).toFixed(2),
+          ammoniaMgL: randomFloat(0, 0.5).toFixed(3), notes: randomChoice(['Normal', 'Adjusted pH', null]),
+        })
+      }
+    }
+    if (waterValues.length > 0) await db.insertInto('water_quality').values(waterValues).execute()
+    console.log(`✅ ${waterValues.length} water quality records\n`)
+
+    // ========== EXPENSES (batch insert) ==========
+    console.log('💸 Creating expenses...')
+    const expenseValues: any[] = []
+    const expCats = [
+      { cat: 'feed', desc: 'Feed purchase', min: 50000, max: 200000 },
+      { cat: 'medicine', desc: 'Medication', min: 5000, max: 30000 },
+      { cat: 'equipment', desc: 'Equipment', min: 10000, max: 100000 },
+      { cat: 'utilities', desc: 'Electricity/Water', min: 15000, max: 50000 },
+      { cat: 'labor', desc: 'Staff wages', min: 50000, max: 150000 },
+      { cat: 'transport', desc: 'Transport', min: 5000, max: 30000 },
+    ]
+    for (const farm of farms) {
+      const farmBatches = batches.filter(b => b.farmId === farm.id)
+      for (let m = 6; m >= 1; m--) {
+        for (const e of expCats) {
+          if (Math.random() > 0.25) {
+            expenseValues.push({
+              farmId: farm.id, batchId: randomChoice([null, ...farmBatches.map(b => b.id)]),
+              category: e.cat, amount: randomFloat(e.min, e.max).toFixed(2), date: randomDateBetween(m * 30, (m - 1) * 30),
+              description: e.desc, supplierId: e.cat === 'feed' ? randomChoice(suppliers).id : null, isRecurring: e.cat === 'utilities' || e.cat === 'labor',
             })
-            .returning(['id', 'acquisitionDate'])
-            .executeTakeFirstOrThrow()
-
-
-          // Stocking Expense
-          await db.insertInto('expenses').values({
-            farmId: farm.id,
-            batchId: batch.id,
-            category: 'other',
-            description: `Purchase of ${initialQty} Catfish Fingerlings`,
-            amount: totalCost.toFixed(2),
-            date: acquisitionDate,
-            isRecurring: false,
-            supplierId: null
-          }).execute()
-
-          // Mortality
-          let currentBatchQty = initialQty
-          const survivalRate = randomFloat(FISH_CONFIG.survivalRateMin, FISH_CONFIG.survivalRateMax)
-          const totalMortality = Math.floor(initialQty * (1 - survivalRate))
-
-          for (let m = 0; m < totalMortality; m++) {
-            const mortalityDate = new Date(acquisitionDate.getTime() + randomInt(1, 90) * 24 * 60 * 60 * 1000)
-            if (mortalityDate > endDate) continue
-
-            await db.insertInto('mortality_records').values({
-              batchId: batch.id,
-              quantity: 1,
-              date: mortalityDate,
-              cause: 'other',
-              notes: 'Water quality stress',
-            }).execute()
-            currentBatchQty--
-          }
-
-          // Feed Expenses
-          // Simply: Buy 5 bags every month.
-          const monthsActive = isSold ? 5 : Math.floor((endDate.getTime() - acquisitionDate.getTime()) / (30 * 24 * 60 * 60 * 1000))
-
-          for (let m = 1; m <= monthsActive; m++) {
-            const feed = m < 2 ? FISH_CONFIG.feeds[0] : FISH_CONFIG.feeds[1] // Aller first, then Blue Crown
-            const feedDate = new Date(acquisitionDate.getTime() + m * 30 * 24 * 60 * 60 * 1000)
-            if (feedDate > endDate) continue
-
-            const quantityBags = 5
-            const expenseAmount = quantityBags * feed.cost
-
-            await db.insertInto('expenses')
-              .values({
-                farmId: farm.id,
-                batchId: batch.id,
-                category: 'feed',
-                description: `${quantityBags} bags of ${feed.name}`,
-                amount: expenseAmount.toFixed(2),
-                date: feedDate,
-                supplierId: supplier.id,
-                isRecurring: false,
-              })
-              .execute()
-
-            await db.insertInto('feed_records').values({
-              batchId: batch.id,
-              feedType: 'fish_feed',
-              quantityKg: (quantityBags * feed.weight).toFixed(2),
-              cost: expenseAmount.toFixed(2),
-              date: feedDate,
-              supplierId: supplier.id
-            }).execute()
-          }
-
-          if (isSold) {
-            const saleWeightTotal = currentBatchQty * FISH_CONFIG.targetWeightAtSale
-            const saleAmount = saleWeightTotal * FISH_CONFIG.salePricePerKg
-
-            await db.insertInto('sales').values({
-              farmId: farm.id,
-              batchId: batch.id,
-              customerId: customer.id,
-              livestockType: 'fish',
-              quantity: currentBatchQty,
-              unitPrice: FISH_CONFIG.salePricePerKg.toFixed(2),
-              totalAmount: saleAmount.toFixed(2),
-              date: new Date(acquisitionDate.getTime() + 5 * 30 * 24 * 60 * 60 * 1000), // 5 months
-              notes: 'Harvest sale'
-            }).execute()
-
-            await db.updateTable('batches').set({ currentQuantity: 0 }).where('id', '=', batch.id).execute()
-          } else {
-            await db.updateTable('batches').set({ currentQuantity: currentBatchQty }).where('id', '=', batch.id).execute()
           }
         }
       }
     }
+    await db.insertInto('expenses').values(expenseValues).execute()
+    console.log(`✅ ${expenseValues.length} expenses\n`)
 
-    console.log('✅ Generated batches and transactions for all farms.')
+    // ========== SALES (batch insert) ==========
+    console.log('💰 Creating sales...')
+    const salesValues: any[] = []
+    for (const farm of farms) {
+      const farmBatches = batches.filter(b => b.farmId === farm.id)
+      // Poultry sales
+      for (const batch of farmBatches.filter(b => b.livestockType === 'poultry' && b.species === 'Broiler')) {
+        for (let i = 0; i < randomInt(3, 6); i++) {
+          const qty = randomInt(20, 100)
+          const price = randomFloat(5000, 7000)
+          salesValues.push({
+            farmId: farm.id, batchId: batch.id, customerId: randomChoice(customers).id, livestockType: 'poultry',
+            quantity: qty, unitPrice: price.toFixed(2), totalAmount: (qty * price).toFixed(2),
+            date: randomDateBetween(90, 1), notes: randomChoice(['Cash', 'Delivered', null]),
+          })
+        }
+      }
+      // Egg sales
+      for (const batch of farmBatches.filter(b => b.species === 'Layer')) {
+        for (let i = 0; i < randomInt(15, 25); i++) {
+          const qty = randomInt(5, 30)
+          const price = randomFloat(2500, 3500)
+          salesValues.push({
+            farmId: farm.id, batchId: batch.id, customerId: randomChoice(customers).id, livestockType: 'eggs',
+            quantity: qty, unitPrice: price.toFixed(2), totalAmount: (qty * price).toFixed(2),
+            date: randomDateBetween(60, 1), notes: 'Crates',
+          })
+        }
+      }
+      // Fish sales
+      for (const batch of farmBatches.filter(b => b.livestockType === 'fish')) {
+        for (let i = 0; i < randomInt(3, 5); i++) {
+          const qty = randomInt(50, 300)
+          const price = batch.species === 'Catfish' ? randomFloat(3000, 4000) : randomFloat(2000, 2800)
+          salesValues.push({
+            farmId: farm.id, batchId: batch.id, customerId: randomChoice(customers).id, livestockType: 'fish',
+            quantity: qty, unitPrice: price.toFixed(2), totalAmount: (qty * price).toFixed(2),
+            date: randomDateBetween(120, 1), notes: `${batch.species} per kg`,
+          })
+        }
+      }
+    }
+    await db.insertInto('sales').values(salesValues).execute()
+    console.log(`✅ ${salesValues.length} sales\n`)
 
-    console.log('\n🎉 Comprehensive database seed completed!')
-    console.log('   Email: admin@jayfarms.com')
-    console.log('   Password: admin123')
+    // ========== INVOICES (batch insert) ==========
+    console.log('📄 Creating invoices...')
+    let invoiceCount = 0
+    for (const farm of farms) {
+      for (let i = 0; i < 10; i++) {
+        const customer = randomChoice(customers)
+        const invoiceDate = randomDateBetween(90, 1)
+        const items = []
+        let total = 0
+        for (let j = 0; j < randomInt(1, 4); j++) {
+          const itemType = randomChoice(['Broiler Chicken', 'Eggs (crate)', 'Catfish (kg)', 'Tilapia (kg)'])
+          const qty = randomInt(5, 50)
+          const price = itemType.includes('Chicken') ? randomFloat(5000, 7000) : itemType.includes('Eggs') ? randomFloat(2500, 3500) : randomFloat(2500, 4000)
+          const itemTotal = qty * price
+          total += itemTotal
+          items.push({ description: itemType, quantity: qty, unitPrice: price.toFixed(2), total: itemTotal.toFixed(2) })
+        }
+        const invoice = await db.insertInto('invoices').values({
+          invoiceNumber: `INV-${Date.now()}-${farm.id.slice(0, 4)}-${i}`,
+          customerId: customer.id, farmId: farm.id, totalAmount: total.toFixed(2),
+          status: randomChoice(['unpaid', 'partial', 'paid', 'paid', 'paid']),
+          date: invoiceDate, dueDate: new Date(invoiceDate.getTime() + 14 * 24 * 60 * 60 * 1000), notes: null,
+        }).returning(['id']).executeTakeFirstOrThrow()
+        
+        await db.insertInto('invoice_items').values(items.map(it => ({ invoiceId: invoice.id, ...it }))).execute()
+        invoiceCount++
+      }
+    }
+    console.log(`✅ ${invoiceCount} invoices\n`)
+
+    // ========== SUMMARY ==========
+    console.log('═'.repeat(50))
+    console.log('🎉 COMPREHENSIVE SEED COMPLETED!')
+    console.log('═'.repeat(50))
+    console.log('\n🔐 Login:')
+    console.log('   Admin: admin@jayfarms.com / admin123')
+    console.log('   Staff: staff@jayfarms.com / staff123\n')
 
   } catch (error) {
     console.error('❌ Seed failed:', error)
-    throw error // Ensure the process exits with error code
+    throw error
   } finally {
     await db.destroy()
   }
