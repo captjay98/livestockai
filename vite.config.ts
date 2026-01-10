@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import viteReact from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
@@ -8,47 +9,8 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  optimizeDeps: {
-    exclude: [
-      '@tanstack/start-server-core',
-      '@tanstack/react-start-server',
-      '@tanstack/react-start/server',
-      'pg',
-      'kysely',
-      'better-auth',
-      'bcrypt',
-    ],
-  },
-  ssr: {
-    external: [
-      'node:stream',
-      'node:stream/web',
-      'node:async_hooks',
-      'pg',
-      'kysely',
-      'better-auth',
-      'bcrypt',
-    ],
-    noExternal: [
-      // Allow bundling of client-safe packages
-      'better-auth/react',
-      'better-auth/tanstack-start',
-    ],
-  },
-  build: {
-    rollupOptions: {
-      external: [
-        'node:stream',
-        'node:stream/web',
-        'node:async_hooks',
-        'pg',
-        'kysely',
-        'better-auth',
-        'bcrypt',
-      ],
-    },
-  },
   plugins: [
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
     tailwindcss(),
     tsconfigPaths({
       projects: ['./tsconfig.json'],
