@@ -1,6 +1,4 @@
 import { sql } from 'kysely'
-import { getUserFarms } from '../auth/middleware'
-import { db } from '~/lib/db'
 
 export interface DashboardStats {
   inventory: {
@@ -53,6 +51,9 @@ export async function getDashboardStats(
   userId: string,
   farmId?: string,
 ): Promise<DashboardStats> {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('../auth/utils')
+
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
@@ -67,7 +68,7 @@ export async function getDashboardStats(
       // Return empty stats if no farms
       return {
         inventory: { totalPoultry: 0, totalFish: 0, activeBatches: 0 },
-        financial: { monthlyRevenue: 0, monthlyExpenses: 0, monthlyProfit: 0 },
+        financial: { monthlyRevenue: 0, monthlyExpenses: 0, monthlyProfit: 0, revenueChange: 0, expensesChange: 0 },
         production: { eggsThisMonth: 0, layingPercentage: 0 },
         alerts: {
           highMortality: [],
@@ -320,7 +321,7 @@ export async function getDashboardStats(
     .where((eb) =>
       eb.or([
         eb('sales.farmId', 'in', targetFarmIds),
-        eb('sales.farmId', 'is', null), // Avoid excluding customers with no sales in join if we want them? No, we want top customers for these farms.
+        eb('sales.farmId', 'is', null),
       ]),
     )
     .groupBy(['customers.id', 'customers.name'])

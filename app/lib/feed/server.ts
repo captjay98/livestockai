@@ -1,5 +1,4 @@
-import { db } from '~/lib/db'
-import { verifyFarmAccess } from '~/lib/auth/middleware'
+import { createServerFn } from '@tanstack/react-start'
 
 // Re-export constants for backward compatibility
 export { FEED_TYPES, type FeedType } from './constants'
@@ -18,6 +17,9 @@ export async function createFeedRecord(
   farmId: string,
   input: CreateFeedRecordInput,
 ): Promise<string> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   // Verify batch belongs to farm
@@ -78,11 +80,166 @@ export async function createFeedRecord(
   return result.id
 }
 
+// Server function for client-side calls
+export const createFeedRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { farmId: string; record: CreateFeedRecordInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return createFeedRecord(session.user.id, data.farmId, data.record)
+  })
+
+/**
+ * Delete a feed record and restore inventory
+ */
+export async function deleteFeedRecord(userId: string, farmId: string, recordId: string) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
+  await verifyFarmAccess(userId, farmId)
+
+  // Get the record to restore inventory
+  const record = await db
+    .selectFrom('feed_records')
+    .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+    .select(['feed_records.id', 'feed_records.feedType', 'feed_records.quantityKg'])
+    .where('feed_records.id', '=', recordId)
+    .where('batches.farmId', '=', farmId)
+    .executeTakeFirst()
+
+  if (!record) {
+    throw new Error('Feed record not found')
+  }
+
+  await db.transaction().execute(async (tx) => {
+    // Restore inventory
+    await tx
+      .updateTable('feed_inventory')
+      .set(eb => ({
+        quantityKg: eb('quantityKg', '+', parseFloat(record.quantityKg)),
+        updatedAt: new Date(),
+      }))
+      .where('farmId', '=', farmId)
+      .where('feedType', '=', record.feedType)
+      .execute()
+
+    // Delete the record
+    await tx.deleteFrom('feed_records').where('id', '=', recordId).execute()
+  })
+}
+
+// Server function for client-side calls
+export const deleteFeedRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { farmId: string; recordId: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteFeedRecord(session.user.id, data.farmId, data.recordId)
+  })
+
+export async function updateFeedRecord(
+  userId: string,
+  farmId: string,
+  recordId: string,
+  data: Partial<CreateFeedRecordInput>,
+) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
+  await verifyFarmAccess(userId, farmId)
+
+  await db.transaction().execute(async (tx) => {
+    // 1. Get existing record
+    const existingRecord = await tx
+      .selectFrom('feed_records')
+      .selectAll()
+      .where('id', '=', recordId)
+      .executeTakeFirst()
+
+    if (!existingRecord) {
+      throw new Error('Feed record not found')
+    }
+
+    // If quantity or feedType is changing, we need to adjust inventory
+    if (
+      (data.quantityKg && data.quantityKg !== parseFloat(existingRecord.quantityKg)) ||
+      (data.feedType && data.feedType !== existingRecord.feedType)
+    ) {
+      // 2. Restore old inventory
+      await tx
+        .updateTable('feed_inventory')
+        .set((eb) => ({
+          quantityKg: eb('quantityKg', '+', parseFloat(existingRecord.quantityKg)),
+          updatedAt: new Date(),
+        }))
+        .where('farmId', '=', farmId)
+        .where('feedType', '=', existingRecord.feedType)
+        .execute()
+
+      // 3. Deduct new inventory
+      const newQuantity = data.quantityKg || parseFloat(existingRecord.quantityKg)
+      const newFeedType = data.feedType || existingRecord.feedType
+
+      const inventory = await tx
+        .selectFrom('feed_inventory')
+        .select(['id', 'quantityKg'])
+        .where('farmId', '=', farmId)
+        .where('feedType', '=', newFeedType)
+        .executeTakeFirst()
+
+      if (!inventory || parseFloat(inventory.quantityKg) < newQuantity) {
+        throw new Error(
+          `Insufficient inventory for ${newFeedType}. Available: ${inventory ? parseFloat(inventory.quantityKg) : 0}kg`,
+        )
+      }
+
+      await tx
+        .updateTable('feed_inventory')
+        .set((eb) => ({
+          quantityKg: eb('quantityKg', '-', newQuantity),
+          updatedAt: new Date(),
+        }))
+        .where('id', '=', inventory.id)
+        .execute()
+    }
+
+    // 4. Update the record
+    await tx
+      .updateTable('feed_records')
+      .set({
+        quantityKg: data.quantityKg?.toString(),
+        feedType: data.feedType as any,
+        cost: data.cost?.toString(),
+        date: data.date,
+        batchId: data.batchId,
+      })
+      .where('id', '=', recordId)
+      .execute()
+  })
+}
+
+export const updateFeedRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: {
+      farmId: string
+      recordId: string
+      data: Partial<CreateFeedRecordInput>
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return updateFeedRecord(session.user.id, data.farmId, data.recordId, data.data)
+  })
+
 export async function getFeedRecordsForBatch(
   userId: string,
   farmId: string,
   batchId: string,
 ) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   return db
@@ -104,12 +261,21 @@ export async function getFeedRecordsForBatch(
     .execute()
 }
 
-export async function getFeedRecordsForFarm(userId: string, farmId: string) {
-  await verifyFarmAccess(userId, farmId)
+export async function getFeedRecords(userId: string, farmId?: string) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+  if (farmId) {
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
 
   return db
     .selectFrom('feed_records')
     .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
     .select([
       'feed_records.id',
       'feed_records.batchId',
@@ -121,8 +287,10 @@ export async function getFeedRecordsForFarm(userId: string, farmId: string) {
       'feed_records.createdAt',
       'batches.species',
       'batches.livestockType',
+      'farms.name as farmName',
+      'batches.farmId',
     ])
-    .where('batches.farmId', '=', farmId)
+    .where('batches.farmId', 'in', targetFarmIds)
     .orderBy('feed_records.date', 'desc')
     .execute()
 }
@@ -132,6 +300,9 @@ export async function getFeedSummaryForBatch(
   farmId: string,
   batchId: string,
 ) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   const records = await db
@@ -176,6 +347,9 @@ export async function calculateFCR(
   farmId: string,
   batchId: string,
 ): Promise<number | null> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   // Get total feed consumed
@@ -222,12 +396,20 @@ export async function calculateFCR(
   return Math.round(fcr * 100) / 100 // Round to 2 decimal places
 }
 
-export async function getFeedInventory(userId: string, farmId: string) {
-  await verifyFarmAccess(userId, farmId)
+export async function getFeedInventory(userId: string, farmId?: string) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+  if (farmId) {
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
 
   return db
     .selectFrom('feed_inventory')
     .selectAll()
-    .where('farmId', '=', farmId)
+    .where('farmId', 'in', targetFarmIds)
     .execute()
 }

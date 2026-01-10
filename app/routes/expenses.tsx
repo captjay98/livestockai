@@ -1,17 +1,31 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { Plus, Receipt, Repeat, TrendingDown } from 'lucide-react'
+import {
+  Banknote,
+  Edit,
+  Eye,
+  Package,
+  Pill,
+  Plus,
+  Settings,
+  Trash2,
+  Truck,
+  Users,
+  Wrench,
+  Zap,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
-  createExpense,
-  getExpensesForFarm,
+  getExpenses,
   getExpensesSummary,
+  createExpenseFn,
+  updateExpenseFn,
+  deleteExpenseFn,
+  EXPENSE_CATEGORIES,
 } from '~/lib/expenses/server'
-import { EXPENSE_CATEGORIES } from '~/lib/expenses/constants'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getBatches } from '~/lib/batches/server'
 import { getSuppliers } from '~/lib/suppliers/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
-import { FEED_TYPES } from '~/lib/feed/constants'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import {
@@ -44,21 +58,28 @@ import { useFarm } from '~/components/farm-context'
 
 interface Expense {
   id: string
+  farmId: string
   category: string
   amount: string
   date: Date
   description: string
   supplierName: string | null
-  isRecurring: boolean
-  batchId: string | null
   batchSpecies: string | null
   batchType: string | null
+  isRecurring: boolean
+}
+
+interface Batch {
+  id: string
+  species: string
+  livestockType: string
+  currentQuantity: number
+  status: string
 }
 
 interface Supplier {
   id: string
   name: string
-  phone: string
 }
 
 interface ExpensesSummary {
@@ -69,71 +90,33 @@ interface ExpensesSummary {
 interface ExpensesData {
   expenses: Array<Expense>
   summary: ExpensesSummary | null
+  batches: Array<Batch>
   suppliers: Array<Supplier>
-  batches: Array<{
-    id: string
-    species: string
-    livestockType: string
-    status: string
-  }>
 }
 
 const getExpensesDataForFarm = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator((data: { farmId?: string | null }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const [expenses, summary, suppliers, batches] = await Promise.all([
-        getExpensesForFarm(session.user.id, data.farmId),
-        getExpensesSummary(session.user.id, data.farmId),
+      const farmId = data?.farmId || undefined
+      const [expenses, summary, batches, suppliers] = await Promise.all([
+        getExpenses(session.user.id, farmId),
+        getExpensesSummary(session.user.id, farmId),
+        farmId ? getBatches(session.user.id, farmId) : Promise.resolve([]),
         getSuppliers(),
-        getBatchesForFarm(session.user.id, data.farmId),
       ])
-      return { expenses, summary, suppliers, batches }
+      return {
+        expenses,
+        summary,
+        batches: batches.filter((b) => b.status === 'active'),
+        suppliers,
+      }
     } catch (err) {
-      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
-      throw error
-    }
-  })
-
-const createExpenseAction = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: {
-      farmId: string
-      category: string
-      amount: number
-      date: string
-      description: string
-      batchId?: string
-      supplierId?: string
-      isRecurring?: boolean
-      feedType?: string
-      feedQuantityKg?: number
-    }) => data,
-  )
-  .handler(async ({ data }) => {
-    try {
-      const session = await requireAuth()
-      const id = await createExpense(session.user.id, {
-        farmId: data.farmId,
-        category: data.category as any,
-        amount: data.amount,
-        date: new Date(data.date),
-        description: data.description,
-        batchId: data.batchId || null,
-        supplierId: data.supplierId || null,
-        isRecurring: data.isRecurring || false,
-        feedType: data.feedType as any,
-        feedQuantityKg: data.feedQuantityKg,
-      })
-      return { success: true, id }
-    } catch (err) {
-      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-        throw redirect({ to: '/login' })
-      }
-      throw error
+      throw err
     }
   })
 
@@ -141,37 +124,60 @@ export const Route = createFileRoute('/expenses')({
   component: ExpensesPage,
 })
 
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  feed: <Package className="h-4 w-4" />,
+  medicine: <Pill className="h-4 w-4" />,
+  equipment: <Wrench className="h-4 w-4" />,
+  utilities: <Zap className="h-4 w-4" />,
+  labor: <Users className="h-4 w-4" />,
+  transport: <Truck className="h-4 w-4" />,
+  other: <Settings className="h-4 w-4" />,
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+  feed: 'text-orange-600 bg-orange-100',
+  medicine: 'text-red-600 bg-red-100',
+  equipment: 'text-blue-600 bg-blue-100',
+  utilities: 'text-yellow-600 bg-yellow-100',
+  labor: 'text-purple-600 bg-purple-100',
+  transport: 'text-green-600 bg-green-100',
+  other: 'text-gray-600 bg-gray-100',
+}
+
 function ExpensesPage() {
   const { selectedFarmId } = useFarm()
   const [data, setData] = useState<ExpensesData>({
     expenses: [],
     summary: null,
-    suppliers: [],
     batches: [],
+    suppliers: [],
   })
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
-    category: '',
-    description: '',
-    amount: '',
-    date: new Date().toISOString().split('T')[0],
+    category: 'feed' as string,
     batchId: '',
     supplierId: '',
+    amount: '',
+    description: '',
+    date: new Date().toISOString().split('T')[0],
     isRecurring: false,
-    feedType: '',
-    feedQuantityKg: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  const loadData = async () => {
-    if (!selectedFarmId) {
-      setData({ expenses: [], summary: null, suppliers: [], batches: [] })
-      setIsLoading(false)
-      return
-    }
+  // View/Edit/Delete dialog states
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null)
+  const [editFormData, setEditFormData] = useState({
+    category: '',
+    amount: '',
+    description: '',
+  })
 
+  const loadData = async () => {
     setIsLoading(true)
     try {
       const result = await getExpensesDataForFarm({
@@ -191,15 +197,13 @@ function ExpensesPage() {
 
   const resetForm = () => {
     setFormData({
-      category: '',
-      description: '',
-      amount: '',
-      date: new Date().toISOString().split('T')[0],
+      category: 'feed',
       batchId: '',
       supplierId: '',
+      amount: '',
+      description: '',
+      date: new Date().toISOString().split('T')[0],
       isRecurring: false,
-      feedType: '',
-      feedQuantityKg: '',
     })
     setError('')
   }
@@ -212,22 +216,18 @@ function ExpensesPage() {
     setError('')
 
     try {
-      await createExpenseAction({
+      await createExpenseFn({
         data: {
-          farmId: selectedFarmId,
-          category: formData.category,
-          amount: parseFloat(formData.amount),
-          date: formData.date,
-          description: formData.description,
-          batchId: formData.batchId || undefined,
-          supplierId: formData.supplierId || undefined,
-          isRecurring: formData.isRecurring,
-          feedType:
-            formData.category === 'feed' ? formData.feedType : undefined,
-          feedQuantityKg:
-            formData.category === 'feed'
-              ? parseFloat(formData.feedQuantityKg)
-              : undefined,
+          expense: {
+            farmId: selectedFarmId,
+            batchId: formData.batchId || null,
+            supplierId: formData.supplierId || null,
+            category: formData.category as any,
+            amount: parseFloat(formData.amount),
+            description: formData.description,
+            date: new Date(formData.date),
+            isRecurring: formData.isRecurring,
+          },
         },
       })
       setDialogOpen(false)
@@ -240,30 +240,70 @@ function ExpensesPage() {
     }
   }
 
-  const { expenses, summary, suppliers, batches } = data
+  const handleViewExpense = (expense: Expense) => {
+    setSelectedExpense(expense)
+    setViewDialogOpen(true)
+  }
 
-  if (!selectedFarmId) {
-    return (
-      <div className="container mx-auto py-6 px-4">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Expenses</h1>
-            <p className="text-muted-foreground mt-1">
-              Track your business expenses
-            </p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Receipt className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
-            <p className="text-muted-foreground">
-              Select a farm from the sidebar to view expenses
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
+  const handleEditExpense = (expense: Expense) => {
+    setSelectedExpense(expense)
+    setEditFormData({
+      category: expense.category,
+      amount: expense.amount,
+      description: expense.description,
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleDeleteExpense = (expense: Expense) => {
+    setSelectedExpense(expense)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedExpense) return
+
+    setIsSubmitting(true)
+    try {
+      await updateExpenseFn({
+        data: {
+          expenseId: selectedExpense.id,
+          data: {
+            category: editFormData.category,
+            amount: parseFloat(editFormData.amount),
+            description: editFormData.description,
+          },
+        },
+      })
+      setEditDialogOpen(false)
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update expense')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedExpense) return
+
+    setIsSubmitting(true)
+    try {
+      await deleteExpenseFn({ data: { expenseId: selectedExpense.id } })
+      setDeleteDialogOpen(false)
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete expense')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const { expenses, summary, batches, suppliers } = data
+
+  const getCategoryIcon = (category: string) => {
+    return CATEGORY_ICONS[category] || <Banknote className="h-4 w-4" />
   }
 
   if (isLoading) {
@@ -279,19 +319,13 @@ function ExpensesPage() {
     )
   }
 
-  const getCategoryLabel = (category: string) => {
-    return (
-      EXPENSE_CATEGORIES.find((c) => c.value === category)?.label || category
-    )
-  }
-
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Expenses</h1>
           <p className="text-muted-foreground mt-1">
-            Track your business expenses
+            Track and manage your farm expenses
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -306,9 +340,7 @@ function ExpensesPage() {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Record Expense</DialogTitle>
-              <DialogDescription>
-                Log a new expense transaction
-              </DialogDescription>
+              <DialogDescription>Log a new expense</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -317,152 +349,58 @@ function ExpensesPage() {
                   value={formData.category}
                   onValueChange={(value) =>
                     value &&
-                    setFormData((prev) => ({ ...prev, category: value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      category: value,
+                    }))
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue>
-                      {formData.category
-                        ? EXPENSE_CATEGORIES.find(
-                            (c) => c.value === formData.category,
-                          )?.label
-                        : 'Select category'}
-                    </SelectValue>
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {EXPENSE_CATEGORIES.map((cat) => (
                       <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
+                        <span className="flex items-center gap-2">
+                          {getCategoryIcon(cat.value)}
+                          {cat.label}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  placeholder="e.g., 50 bags of starter feed"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="batchId">Batch (Optional)</Label>
-                <Select
-                  value={formData.batchId}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, batchId: value || '' }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue>
-                      {formData.batchId
-                        ? batches.find((b) => b.id === formData.batchId)
+              {batches.length > 0 && (
+                <div className="space-y-2">
+                  <Label htmlFor="batchId">Batch (Optional)</Label>
+                  <Select
+                    value={formData.batchId || undefined}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        batchId: value || '',
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue>
+                        {formData.batchId
+                          ? batches.find((b) => b.id === formData.batchId)
                             ?.species
-                        : 'Select batch'}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">
-                      None (General Farm Expense)
-                    </SelectItem>
-                    {batches.map((batch) => (
-                      <SelectItem key={batch.id} value={batch.id}>
-                        {batch.species} ({batch.status})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {formData.category === 'feed' && (
-                <div className="grid grid-cols-2 gap-4 border p-3 rounded-lg bg-muted/30">
-                  <div className="space-y-2">
-                    <Label htmlFor="feedType">Feed Type</Label>
-                    <Select
-                      value={formData.feedType}
-                      onValueChange={(value) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          feedType: value || '',
-                        }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue>
-                          {formData.feedType
-                            ? FEED_TYPES.find(
-                                (t) => t.value === formData.feedType,
-                              )?.label
-                            : 'Select feed'}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {FEED_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="feedQuantityKg">Quantity (kg)</Label>
-                    <Input
-                      id="feedQuantityKg"
-                      type="number"
-                      step="0.1"
-                      value={formData.feedQuantityKg}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          feedQuantityKg: e.target.value,
-                        }))
-                      }
-                      placeholder="kg"
-                      required
-                    />
-                  </div>
+                          : 'Select batch (optional)'}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {batches.map((batch) => (
+                        <SelectItem key={batch.id} value={batch.id}>
+                          {batch.species} ({batch.currentQuantity} available)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
-
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount (₦)</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.amount}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, amount: e.target.value }))
-                  }
-                  placeholder="Amount in Naira"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, date: e.target.value }))
-                  }
-                  required
-                />
-              </div>
 
               {suppliers.length > 0 && (
                 <div className="space-y-2">
@@ -480,7 +418,7 @@ function ExpensesPage() {
                       <SelectValue>
                         {formData.supplierId
                           ? suppliers.find((s) => s.id === formData.supplierId)
-                              ?.name
+                            ?.name
                           : 'Select supplier'}
                       </SelectValue>
                     </SelectTrigger>
@@ -494,6 +432,54 @@ function ExpensesPage() {
                   </Select>
                 </div>
               )}
+
+              <div className="space-y-2">
+                <Label htmlFor="amount">Amount (₦)</Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.amount}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      amount: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter amount"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  placeholder="What was this expense for?"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="date">Date</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, date: e.target.value }))
+                  }
+                  required
+                />
+              </div>
 
               <div className="flex items-center gap-2">
                 <input
@@ -531,10 +517,7 @@ function ExpensesPage() {
                 <Button
                   type="submit"
                   disabled={
-                    isSubmitting ||
-                    !formData.category ||
-                    !formData.amount ||
-                    !formData.description
+                    isSubmitting || !formData.amount || !formData.description
                   }
                 >
                   {isSubmitting ? 'Recording...' : 'Record Expense'}
@@ -545,6 +528,7 @@ function ExpensesPage() {
         </Dialog>
       </div>
 
+      {/* Summary Cards */}
       {summary && (
         <div className="grid gap-3 sm:gap-6 grid-cols-2 md:grid-cols-4 mb-8">
           <Card>
@@ -552,45 +536,76 @@ function ExpensesPage() {
               <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 Total Expenses
               </CardTitle>
-              <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+              <Banknote className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-              <div className="text-lg sm:text-2xl font-bold">
+              <div className="text-lg sm:text-2xl font-bold text-destructive">
                 {formatNaira(summary.total.amount)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                {summary.total.count} transactions
+                {summary.total.count} records
               </p>
             </CardContent>
           </Card>
 
-          {Object.entries(summary.byCategory)
-            .slice(0, 3)
-            .map(([category, catData]) => (
-              <Card key={category}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
-                  <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                    {getCategoryLabel(category)}
-                  </CardTitle>
-                  <Receipt className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
-                  <div className="text-lg sm:text-2xl font-bold">
-                    {formatNaira(catData.amount)}
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">
-                    {catData.count} transactions
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Feed
+              </CardTitle>
+              <Package className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">
+                {formatNaira(summary.byCategory.feed?.amount || 0)}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                {summary.byCategory.feed?.count || 0} purchases
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Medicine
+              </CardTitle>
+              <Pill className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">
+                {formatNaira(summary.byCategory.medicine?.amount || 0)}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                {summary.byCategory.medicine?.count || 0} purchases
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-4">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Labor
+              </CardTitle>
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">
+                {formatNaira(summary.byCategory.labor?.amount || 0)}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                {summary.byCategory.labor?.count || 0} payments
+              </p>
+            </CardContent>
+          </Card>
         </div>
       )}
 
+      {/* Expenses List */}
       {expenses.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <Receipt className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <Banknote className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No expenses yet</h3>
             <p className="text-muted-foreground mb-4">
               Record your first expense
@@ -605,60 +620,68 @@ function ExpensesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Expense History</CardTitle>
-            <CardDescription>Recent expense transactions</CardDescription>
+            <CardDescription>Recent expense records</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {expenses.map((expense) => (
                 <div
                   key={expense.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3"
                 >
-                  <div className="flex items-center gap-4">
-                    <Receipt className="h-8 w-8 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{expense.description}</p>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1 flex-wrap">
-                        {getCategoryLabel(expense.category)}
-                        {expense.batchSpecies && (
-                          <>
-                            <span className="text-muted-foreground/50 mx-1">
-                              •
-                            </span>
-                            <Badge
-                              variant="secondary"
-                              className="px-1 py-0 h-4 text-[10px] bg-primary/10 text-primary border-primary/20"
-                            >
-                              {expense.batchSpecies}
-                            </Badge>
-                          </>
-                        )}
-                        {expense.supplierName && (
-                          <>
-                            <span className="text-muted-foreground/50 mx-1">
-                              •
-                            </span>
-                            {expense.supplierName}
-                          </>
-                        )}
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center shrink-0 ${CATEGORY_COLORS[expense.category] || 'bg-gray-100'}`}
+                    >
+                      {getCategoryIcon(expense.category)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium capitalize truncate">
+                        {expense.category}
+                      </p>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                        {expense.description}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
                     <div className="text-right">
                       <p className="font-medium text-destructive">
-                        {formatNaira(expense.amount)}
+                        -{formatNaira(expense.amount)}
                       </p>
-                      {expense.isRecurring && (
-                        <Badge variant="outline" className="text-xs">
-                          <Repeat className="h-3 w-3 mr-1" />
-                          Recurring
-                        </Badge>
-                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {expense.supplierName || 'No supplier'}
+                      </p>
                     </div>
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="shrink-0 hidden sm:block">
                       {new Date(expense.date).toLocaleDateString()}
                     </Badge>
+                    <div className="flex gap-1 sm:gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                        onClick={() => handleViewExpense(expense)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                        onClick={() => handleEditExpense(expense)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]"
+                        onClick={() => handleDeleteExpense(expense)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -666,6 +689,216 @@ function ExpensesPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* View Expense Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Expense Details</DialogTitle>
+          </DialogHeader>
+          {selectedExpense && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`h-10 w-10 rounded-full flex items-center justify-center ${CATEGORY_COLORS[selectedExpense.category] || 'bg-gray-100'}`}
+                >
+                  {getCategoryIcon(selectedExpense.category)}
+                </div>
+                <div>
+                  <p className="font-semibold text-lg capitalize">
+                    {selectedExpense.category}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedExpense.description}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Amount:</span>
+                  <span className="font-bold text-lg text-destructive">
+                    -{formatNaira(selectedExpense.amount)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Supplier:</span>
+                  <span className="font-medium">
+                    {selectedExpense.supplierName || 'None'}
+                  </span>
+                </div>
+                {selectedExpense.batchSpecies && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Batch:</span>
+                    <span>{selectedExpense.batchSpecies}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Date:</span>
+                  <span>
+                    {new Date(selectedExpense.date).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Recurring:</span>
+                  <span>{selectedExpense.isRecurring ? 'Yes' : 'No'}</span>
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setViewDialogOpen(false)
+                    handleEditExpense(selectedExpense)
+                  }}
+                >
+                  Edit
+                </Button>
+                <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Expense Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Expense</DialogTitle>
+            <DialogDescription>Update expense information</DialogDescription>
+          </DialogHeader>
+          {selectedExpense && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select
+                  value={editFormData.category}
+                  onValueChange={(value) =>
+                    value &&
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      category: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EXPENSE_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-amount">Amount (₦)</Label>
+                <Input
+                  id="edit-amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editFormData.amount}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      amount: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Input
+                  id="edit-description"
+                  value={editFormData.description}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                  {error}
+                </div>
+              )}
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Expense</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this expense? This action cannot
+              be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedExpense && (
+            <div className="py-4">
+              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                <div
+                  className={`h-10 w-10 rounded-full flex items-center justify-center ${CATEGORY_COLORS[selectedExpense.category] || 'bg-gray-100'}`}
+                >
+                  {getCategoryIcon(selectedExpense.category)}
+                </div>
+                <div>
+                  <p className="font-medium capitalize">
+                    {selectedExpense.category}
+                  </p>
+                  <p className="text-sm text-destructive font-bold">
+                    -{formatNaira(selectedExpense.amount)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
+
+export default ExpensesPage

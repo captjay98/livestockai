@@ -12,7 +12,6 @@ import {
   Edit,
   Egg,
   Fish,
-  MoreHorizontal,
   Package,
   Plus,
   Receipt,
@@ -28,7 +27,8 @@ import { useEffect, useState } from 'react'
 import { getInventorySummary } from '~/lib/batches/server'
 import { getMortalityAlerts } from '~/lib/mortality/server'
 import { getDashboardStats } from '~/lib/dashboard/server'
-import { getUserFarms, requireAuth } from '~/lib/auth/middleware'
+import { requireAuth } from '~/lib/auth/server-middleware'
+import { getUserFarms } from '~/lib/auth/utils'
 import { formatNaira } from '~/lib/currency'
 import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -37,6 +37,10 @@ import { useFarm } from '~/components/farm-context'
 import { cn } from '~/lib/utils'
 import { ExpenseDialog } from '~/components/dialogs/expense-dialog'
 import { EditFarmDialog } from '~/components/dialogs/edit-farm-dialog'
+import { BatchDialog } from '~/components/dialogs/batch-dialog'
+import { SaleDialog } from '~/components/dialogs/sale-dialog'
+import { FeedDialog } from '~/components/dialogs/feed-dialog'
+import { EggDialog } from '~/components/dialogs/egg-dialog'
 
 interface MortalityAlert {
   batchId: string
@@ -149,16 +153,20 @@ function TrendingDownIcon({ className }: { className?: string }) {
   )
 }
 
- 
+
 function DashboardPage() {
   const { selectedFarmId } = useFarm()
-   
+
   const [stats, setStats] = useState<any>(null)
   const [hasFarms, setHasFarms] = useState<boolean | null>(null)
   const [farms, setFarms] = useState<Array<Farm>>([])
   const [isLoading, setIsLoading] = useState(true)
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false)
   const [editFarmDialogOpen, setEditFarmDialogOpen] = useState(false)
+  const [batchDialogOpen, setBatchDialogOpen] = useState(false)
+  const [saleDialogOpen, setSaleDialogOpen] = useState(false)
+  const [feedDialogOpen, setFeedDialogOpen] = useState(false)
+  const [eggDialogOpen, setEggDialogOpen] = useState(false)
   const [selectedFarmForEdit, setSelectedFarmForEdit] = useState<Farm | null>(
     null,
   )
@@ -243,13 +251,26 @@ function DashboardPage() {
             {farms.length > 0 && (
               <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
                 <Building2 className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{farms[0]?.name}</span>
-                <button
-                  onClick={() => farms[0] && openEditFarmDialog(farms[0])}
-                  className="p-1 hover:bg-background rounded transition-colors"
-                >
-                  <Edit className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
-                </button>
+                <span className="text-sm font-medium">
+                  {selectedFarmId
+                    ? farms.find((f) => f.id === selectedFarmId)?.name ||
+                    farms[0]?.name
+                    : 'All Farms'}
+                </span>
+                {selectedFarmId && (
+                  <button
+                    onClick={() =>
+                      selectedFarmId &&
+                      farms.find((f) => f.id === selectedFarmId) &&
+                      openEditFarmDialog(
+                        farms.find((f) => f.id === selectedFarmId)!,
+                      )
+                    }
+                    className="p-1 hover:bg-background rounded transition-colors"
+                  >
+                    <Edit className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -454,20 +475,22 @@ function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                <Link
-                  to="/batches"
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center"
+                <button
+                  onClick={() => selectedFarmId && setBatchDialogOpen(true)}
+                  disabled={!selectedFarmId}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Users className="h-5 w-5" />
                   <span className="text-xs font-medium">Batches</span>
-                </Link>
-                <Link
-                  to="/feed"
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center"
+                </button>
+                <button
+                  onClick={() => selectedFarmId && setFeedDialogOpen(true)}
+                  disabled={!selectedFarmId}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Wheat className="h-5 w-5" />
                   <span className="text-xs font-medium">Feed</span>
-                </Link>
+                </button>
                 <button
                   onClick={() => selectedFarmId && setExpenseDialogOpen(true)}
                   disabled={!selectedFarmId}
@@ -476,20 +499,22 @@ function DashboardPage() {
                   <Receipt className="h-5 w-5" />
                   <span className="text-xs font-medium">Expense</span>
                 </button>
-                <Link
-                  to="/sales/new"
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center"
+                <button
+                  onClick={() => selectedFarmId && setSaleDialogOpen(true)}
+                  disabled={!selectedFarmId}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className="h-5 w-5" />
                   <span className="text-xs font-medium">New Sale</span>
-                </Link>
-                <Link
-                  to="/eggs"
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center"
+                </button>
+                <button
+                  onClick={() => selectedFarmId && setEggDialogOpen(true)}
+                  disabled={!selectedFarmId}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Egg className="h-5 w-5" />
                   <span className="text-xs font-medium">Eggs</span>
-                </Link>
+                </button>
                 <Link
                   to="/reports"
                   className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center"
@@ -509,86 +534,86 @@ function DashboardPage() {
               {(stats.alerts.highMortality.length > 0 ||
                 stats.alerts.overdueVaccinations.length > 0 ||
                 stats.alerts.waterQualityAlerts.length > 0) && (
-                <Card className="border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
-                      <AlertTriangle className="h-4 w-4" />
-                      Alerts
-                      <Badge
-                        variant="outline"
-                        className="ml-auto bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700"
-                      >
-                        {(stats.alerts.highMortality.length || 0) +
-                          (stats.alerts.overdueVaccinations.length || 0) +
-                          (stats.alerts.waterQualityAlerts.length || 0)}
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {stats.alerts.highMortality.map((alert: MortalityAlert) => (
-                      <div
-                        key={alert.batchId}
-                        className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <TrendingDown className="h-4 w-4 text-red-500 shrink-0" />
-                          <span className="truncate">
-                            {alert.species} - {alert.rate}% mortality
-                          </span>
-                        </div>
+                  <Card className="border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+                        <AlertTriangle className="h-4 w-4" />
+                        Alerts
                         <Badge
-                          variant="destructive"
-                          className="text-xs shrink-0 ml-2"
+                          variant="outline"
+                          className="ml-auto bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700"
                         >
-                          {alert.rate}%
+                          {(stats.alerts.highMortality.length || 0) +
+                            (stats.alerts.overdueVaccinations.length || 0) +
+                            (stats.alerts.waterQualityAlerts.length || 0)}
                         </Badge>
-                      </div>
-                    ))}
-                    {stats.alerts.overdueVaccinations.map(
-                      (alert: VaccinationAlert, i: number) => (
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {stats.alerts.highMortality.map((alert: MortalityAlert) => (
                         <div
-                          key={i}
+                          key={alert.batchId}
                           className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <Syringe className="h-4 w-4 text-amber-600 shrink-0" />
+                            <TrendingDown className="h-4 w-4 text-red-500 shrink-0" />
                             <span className="truncate">
-                              {alert.vaccineName} - {alert.species}
+                              {alert.species} - {alert.rate.toFixed(1)}% mortality
                             </span>
                           </div>
                           <Badge
-                            variant="secondary"
-                            className="text-xs bg-amber-100 text-amber-700 shrink-0 ml-2"
-                          >
-                            Overdue
-                          </Badge>
-                        </div>
-                      ),
-                    )}
-                    {stats.alerts.waterQualityAlerts.map(
-                      (alert: WaterQualityAlert, i: number) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Droplets className="h-4 w-4 text-blue-500 shrink-0" />
-                            <span className="truncate">
-                              {alert.parameter}: {alert.value}
-                            </span>
-                          </div>
-                          <Badge
-                            variant="outline"
+                            variant="destructive"
                             className="text-xs shrink-0 ml-2"
                           >
-                            Check
+                            {alert.rate.toFixed(1)}%
                           </Badge>
                         </div>
-                      ),
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+                      ))}
+                      {stats.alerts.overdueVaccinations.map(
+                        (alert: VaccinationAlert, i: number) => (
+                          <div
+                            key={i}
+                            className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Syringe className="h-4 w-4 text-amber-600 shrink-0" />
+                              <span className="truncate">
+                                {alert.vaccineName} - {alert.species}
+                              </span>
+                            </div>
+                            <Badge
+                              variant="secondary"
+                              className="text-xs bg-amber-100 text-amber-700 shrink-0 ml-2"
+                            >
+                              Overdue
+                            </Badge>
+                          </div>
+                        ),
+                      )}
+                      {stats.alerts.waterQualityAlerts.map(
+                        (alert: WaterQualityAlert, i: number) => (
+                          <div
+                            key={i}
+                            className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Droplets className="h-4 w-4 text-blue-500 shrink-0" />
+                              <span className="truncate">
+                                {alert.parameter}: {alert.value}
+                              </span>
+                            </div>
+                            <Badge
+                              variant="outline"
+                              className="text-xs shrink-0 ml-2"
+                            >
+                              Check
+                            </Badge>
+                          </div>
+                        ),
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
 
               {/* Recent Transactions */}
               <Card>
@@ -776,11 +801,33 @@ function DashboardPage() {
 
       {/* Dialogs */}
       {selectedFarmId && (
-        <ExpenseDialog
-          farmId={selectedFarmId}
-          open={expenseDialogOpen}
-          onOpenChange={setExpenseDialogOpen}
-        />
+        <>
+          <ExpenseDialog
+            farmId={selectedFarmId}
+            open={expenseDialogOpen}
+            onOpenChange={setExpenseDialogOpen}
+          />
+          <BatchDialog
+            farmId={selectedFarmId}
+            open={batchDialogOpen}
+            onOpenChange={setBatchDialogOpen}
+          />
+          <SaleDialog
+            farmId={selectedFarmId}
+            open={saleDialogOpen}
+            onOpenChange={setSaleDialogOpen}
+          />
+          <FeedDialog
+            farmId={selectedFarmId}
+            open={feedDialogOpen}
+            onOpenChange={setFeedDialogOpen}
+          />
+          <EggDialog
+            farmId={selectedFarmId}
+            open={eggDialogOpen}
+            onOpenChange={setEggDialogOpen}
+          />
+        </>
       )}
       {selectedFarmForEdit && (
         <EditFarmDialog

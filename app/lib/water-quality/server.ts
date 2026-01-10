@@ -1,6 +1,4 @@
 import { WATER_QUALITY_THRESHOLDS } from './constants'
-import { db } from '~/lib/db'
-import { verifyFarmAccess } from '~/lib/auth/middleware'
 
 // Re-export constants for backward compatibility
 export { WATER_QUALITY_THRESHOLDS } from './constants'
@@ -72,6 +70,9 @@ export async function createWaterQualityRecord(
   farmId: string,
   input: CreateWaterQualityInput,
 ): Promise<string> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   // Verify batch belongs to farm and is a fish batch
@@ -109,12 +110,23 @@ export async function createWaterQualityRecord(
   return result.id
 }
 
-export async function getWaterQualityForFarm(userId: string, farmId: string) {
-  await verifyFarmAccess(userId, farmId)
+export async function getWaterQualityForFarm(userId: string, farmId?: string) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+  if (farmId) {
+    await verifyFarmAccess(userId, farmId)
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
+  }
 
   return db
     .selectFrom('water_quality')
     .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
     .select([
       'water_quality.id',
       'water_quality.batchId',
@@ -126,20 +138,32 @@ export async function getWaterQualityForFarm(userId: string, farmId: string) {
       'water_quality.notes',
       'water_quality.createdAt',
       'batches.species',
+      'farms.name as farmName',
     ])
-    .where('batches.farmId', '=', farmId)
+    .where('batches.farmId', 'in', targetFarmIds)
     .where('batches.livestockType', '=', 'fish')
     .orderBy('water_quality.date', 'desc')
     .execute()
 }
 
-export async function getWaterQualityAlerts(userId: string, farmId: string) {
-  await verifyFarmAccess(userId, farmId)
+export async function getWaterQualityAlerts(userId: string, farmId?: string) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+  if (farmId) {
+    await verifyFarmAccess(userId, farmId)
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
+  }
 
   // Get the most recent water quality record for each active fish batch
   const records = await db
     .selectFrom('water_quality')
     .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
     .select([
       'water_quality.id',
       'water_quality.batchId',
@@ -149,8 +173,9 @@ export async function getWaterQualityAlerts(userId: string, farmId: string) {
       'water_quality.dissolvedOxygenMgL',
       'water_quality.ammoniaMgL',
       'batches.species',
+      'farms.name as farmName',
     ])
-    .where('batches.farmId', '=', farmId)
+    .where('batches.farmId', 'in', targetFarmIds)
     .where('batches.livestockType', '=', 'fish')
     .where('batches.status', '=', 'active')
     .orderBy('water_quality.date', 'desc')
@@ -169,7 +194,9 @@ export async function getWaterQualityAlerts(userId: string, farmId: string) {
     species: string
     issues: Array<string>
     severity: 'warning' | 'critical'
+    severity: 'warning' | 'critical'
     date: Date
+    farmName?: string
   }> = []
 
   for (const record of latestByBatch.values()) {
@@ -187,7 +214,10 @@ export async function getWaterQualityAlerts(userId: string, farmId: string) {
         species: record.species,
         issues,
         severity: issues.length > 2 ? 'critical' : 'warning',
+        issues,
+        severity: issues.length > 2 ? 'critical' : 'warning',
         date: record.date,
+        farmName: record.farmName || undefined,
       })
     }
   }

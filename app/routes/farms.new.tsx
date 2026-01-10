@@ -3,7 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { createFarm } from '~/lib/farms/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,

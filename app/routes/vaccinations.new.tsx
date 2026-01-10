@@ -3,8 +3,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { ArrowLeft, Pill, Syringe } from 'lucide-react'
 import { createTreatment, createVaccination } from '~/lib/vaccinations/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getBatches as getBatchesServer } from '~/lib/batches/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -36,7 +36,7 @@ const getBatches = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const batches = await getBatchesForFarm(session.user.id, data.farmId)
+      const batches = await getBatchesServer(session.user.id, data.farmId)
       return batches.filter((b) => b.status === 'active')
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {

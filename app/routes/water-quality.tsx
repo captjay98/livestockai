@@ -8,8 +8,8 @@ import {
   getWaterQualityForFarm,
 } from '~/lib/water-quality/server'
 import { WATER_QUALITY_THRESHOLDS } from '~/lib/water-quality/constants'
-import { getBatchesForFarm } from '~/lib/batches/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getBatches } from '~/lib/batches/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -72,14 +72,14 @@ interface WaterQualityData {
 }
 
 const getWaterQualityDataForFarm = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator((data: { farmId?: string }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
       const [records, alerts, allBatches] = await Promise.all([
         getWaterQualityForFarm(session.user.id, data.farmId),
         getWaterQualityAlerts(session.user.id, data.farmId),
-        getBatchesForFarm(session.user.id, data.farmId),
+        getBatches(session.user.id, data.farmId),
       ])
       const batches = allBatches.filter(
         (b) => b.status === 'active' && b.livestockType === 'fish',
@@ -152,16 +152,10 @@ function WaterQualityPage() {
   const t = WATER_QUALITY_THRESHOLDS
 
   const loadData = async () => {
-    if (!selectedFarmId) {
-      setData({ records: [], alerts: [], batches: [] })
-      setIsLoading(false)
-      return
-    }
-
     setIsLoading(true)
     try {
       const result = await getWaterQualityDataForFarm({
-        data: { farmId: selectedFarmId },
+        data: { farmId: selectedFarmId || undefined },
       })
       setData(result)
     } catch (err) {
@@ -247,7 +241,12 @@ function WaterQualityPage() {
 
   const { records, alerts, batches } = data
 
-  if (!selectedFarmId) {
+  if (
+    records.length === 0 &&
+    alerts.length === 0 &&
+    batches.length === 0 &&
+    !isLoading
+  ) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
@@ -257,13 +256,17 @@ function WaterQualityPage() {
               Monitor pond water parameters
             </p>
           </div>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Record Reading
+          </Button>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
             <Droplets className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
+            <h3 className="text-lg font-semibold mb-2">No data available</h3>
             <p className="text-muted-foreground">
-              Select a farm from the sidebar to view water quality
+              No water quality records found for any farm.
             </p>
           </CardContent>
         </Card>
@@ -321,7 +324,7 @@ function WaterQualityPage() {
                     <SelectValue>
                       {formData.batchId
                         ? batches.find((b) => b.id === formData.batchId)
-                            ?.species
+                          ?.species
                         : 'Select fish batch'}
                     </SelectValue>
                   </SelectTrigger>
@@ -329,6 +332,8 @@ function WaterQualityPage() {
                     {batches.map((batch) => (
                       <SelectItem key={batch.id} value={batch.id}>
                         {batch.species} ({batch.currentQuantity} fish)
+                        {(batch as any).farmName &&
+                          ` - ${(batch as any).farmName}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -402,13 +407,13 @@ function WaterQualityPage() {
                   'temperatureCelsius',
                   formData.temperatureCelsius,
                 ) && (
-                  <p className="text-sm text-warning">
-                    {getWarning(
-                      'temperatureCelsius',
-                      formData.temperatureCelsius,
-                    )}
-                  </p>
-                )}
+                    <p className="text-sm text-warning">
+                      {getWarning(
+                        'temperatureCelsius',
+                        formData.temperatureCelsius,
+                      )}
+                    </p>
+                  )}
               </div>
 
               <div className="space-y-2">
@@ -434,13 +439,13 @@ function WaterQualityPage() {
                   'dissolvedOxygenMgL',
                   formData.dissolvedOxygenMgL,
                 ) && (
-                  <p className="text-sm text-warning">
-                    {getWarning(
-                      'dissolvedOxygenMgL',
-                      formData.dissolvedOxygenMgL,
-                    )}
-                  </p>
-                )}
+                    <p className="text-sm text-warning">
+                      {getWarning(
+                        'dissolvedOxygenMgL',
+                        formData.dissolvedOxygenMgL,
+                      )}
+                    </p>
+                  )}
               </div>
 
               <div className="space-y-2">
@@ -517,17 +522,18 @@ function WaterQualityPage() {
               {alerts.map((alert) => (
                 <div
                   key={alert.batchId}
-                  className={`p-3 rounded-md border ${
-                    alert.severity === 'critical'
-                      ? 'bg-destructive/10 border-destructive/20'
-                      : 'bg-warning/10 border-warning/20'
-                  }`}
+                  className={`p-3 rounded-md border ${alert.severity === 'critical'
+                    ? 'bg-destructive/10 border-destructive/20'
+                    : 'bg-warning/10 border-warning/20'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <p
                       className={`font-medium ${alert.severity === 'critical' ? 'text-destructive' : 'text-warning'}`}
                     >
                       {alert.species}
+                      {(alert as any).farmName &&
+                        ` (${(alert as any).farmName})`}
                     </p>
                     <Badge
                       variant={
@@ -638,6 +644,8 @@ function WaterQualityPage() {
                         <Droplets className="h-5 w-5 text-muted-foreground shrink-0" />
                         <span className="font-medium capitalize truncate">
                           {record.species}
+                          {(record as any).farmName &&
+                            ` - ${(record as any).farmName}`}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">

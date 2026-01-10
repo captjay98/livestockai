@@ -1,6 +1,3 @@
-import { db } from '~/lib/db'
-import { verifyFarmAccess } from '~/lib/auth/middleware'
-
 export interface CreateWeightSampleInput {
   batchId: string
   date: Date
@@ -13,6 +10,9 @@ export async function createWeightSample(
   farmId: string,
   input: CreateWeightSampleInput,
 ): Promise<string> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   // Verify batch belongs to farm
@@ -46,6 +46,9 @@ export async function getWeightSamplesForBatch(
   farmId: string,
   batchId: string,
 ) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   return db
@@ -65,12 +68,23 @@ export async function getWeightSamplesForBatch(
     .execute()
 }
 
-export async function getWeightSamplesForFarm(userId: string, farmId: string) {
-  await verifyFarmAccess(userId, farmId)
+export async function getWeightSamplesForFarm(userId: string, farmId?: string) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+  if (farmId) {
+    await verifyFarmAccess(userId, farmId)
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
+  }
 
   return db
     .selectFrom('weight_samples')
     .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
     .select([
       'weight_samples.id',
       'weight_samples.batchId',
@@ -80,8 +94,9 @@ export async function getWeightSamplesForFarm(userId: string, farmId: string) {
       'weight_samples.createdAt',
       'batches.species',
       'batches.livestockType',
+      'farms.name as farmName',
     ])
-    .where('batches.farmId', '=', farmId)
+    .where('batches.farmId', 'in', targetFarmIds)
     .orderBy('weight_samples.date', 'desc')
     .execute()
 }
@@ -91,6 +106,8 @@ export async function calculateADG(
   farmId: string,
   batchId: string,
 ): Promise<{ adg: number; daysBetween: number; weightGain: number } | null> {
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   const samples = await getWeightSamplesForBatch(userId, farmId, batchId)
@@ -125,14 +142,32 @@ export async function calculateADG(
   }
 }
 
-export async function getGrowthAlerts(userId: string, farmId: string) {
-  await verifyFarmAccess(userId, farmId)
+export async function getGrowthAlerts(userId: string, farmId?: string) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+  if (farmId) {
+    await verifyFarmAccess(userId, farmId)
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
+  }
 
   // Get all active batches with weight samples
   const batches = await db
     .selectFrom('batches')
-    .select(['id', 'species', 'livestockType', 'acquisitionDate'])
-    .where('farmId', '=', farmId)
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
+    .select([
+      'batches.id',
+      'batches.species',
+      'batches.livestockType',
+      'batches.acquisitionDate',
+      'batches.farmId',
+      'farms.name as farmName',
+    ])
+    .where('batches.farmId', 'in', targetFarmIds)
     .where('status', '=', 'active')
     .execute()
 
@@ -141,8 +176,10 @@ export async function getGrowthAlerts(userId: string, farmId: string) {
     species: string
     message: string
     severity: 'warning' | 'critical'
+    severity: 'warning' | 'critical'
     adg: number
     expectedAdg: number
+    farmName?: string
   }> = []
 
   // Expected ADG targets (kg/day)
@@ -154,7 +191,7 @@ export async function getGrowthAlerts(userId: string, farmId: string) {
   }
 
   for (const batch of batches) {
-    const adgResult = await calculateADG(userId, farmId, batch.id)
+    const adgResult = await calculateADG(userId, batch.farmId, batch.id)
     if (!adgResult) continue
 
     const expected = expectedADG[batch.species.toLowerCase()] || 0.03
@@ -168,6 +205,7 @@ export async function getGrowthAlerts(userId: string, farmId: string) {
         severity: percentOfExpected < 50 ? 'critical' : 'warning',
         adg: adgResult.adg,
         expectedAdg: expected,
+        farmName: batch.farmName || undefined,
       })
     }
   }

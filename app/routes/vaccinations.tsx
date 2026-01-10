@@ -18,8 +18,8 @@ import {
   getVaccinationAlerts,
   getVaccinationsForFarm,
 } from '~/lib/vaccinations/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getBatches } from '~/lib/batches/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -80,7 +80,7 @@ interface VaccinationData {
 }
 
 const getVaccinationDataForFarm = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator((data: { farmId?: string }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -88,7 +88,7 @@ const getVaccinationDataForFarm = createServerFn({ method: 'GET' })
         getVaccinationsForFarm(session.user.id, data.farmId),
         getTreatmentsForFarm(session.user.id, data.farmId),
         getVaccinationAlerts(session.user.id, data.farmId),
-        getBatchesForFarm(session.user.id, data.farmId),
+        getBatches(session.user.id, data.farmId),
       ])
       const batches = allBatches.filter((b) => b.status === 'active')
       return { vaccinations, treatments, alerts, batches }
@@ -192,16 +192,10 @@ function VaccinationsPage() {
   const [error, setError] = useState('')
 
   const loadData = async () => {
-    if (!selectedFarmId) {
-      setData({ vaccinations: [], treatments: [], batches: [], alerts: null })
-      setIsLoading(false)
-      return
-    }
-
     setIsLoading(true)
     try {
       const result = await getVaccinationDataForFarm({
-        data: { farmId: selectedFarmId },
+        data: { farmId: selectedFarmId || undefined },
       })
       setData(result)
     } catch (err) {
@@ -272,7 +266,11 @@ function VaccinationsPage() {
 
   const { vaccinations, treatments, batches, alerts } = data
 
-  if (!selectedFarmId) {
+  if (
+    vaccinations.length === 0 &&
+    treatments.length === 0 &&
+    !isLoading
+  ) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
@@ -282,13 +280,17 @@ function VaccinationsPage() {
               Track vaccinations and treatments
             </p>
           </div>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Record
+          </Button>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
             <Syringe className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
+            <h3 className="text-lg font-semibold mb-2">No data available</h3>
             <p className="text-muted-foreground">
-              Select a farm from the sidebar to view health records
+              No vaccination or treatment records found.
             </p>
           </CardContent>
         </Card>
@@ -368,7 +370,7 @@ function VaccinationsPage() {
                     <SelectValue>
                       {formData.batchId
                         ? batches.find((b) => b.id === formData.batchId)
-                            ?.species
+                          ?.species
                         : 'Select batch'}
                     </SelectValue>
                   </SelectTrigger>
@@ -377,6 +379,8 @@ function VaccinationsPage() {
                       <SelectItem key={batch.id} value={batch.id}>
                         {batch.species} ({batch.currentQuantity}{' '}
                         {batch.livestockType})
+                        {(batch as any).farmName &&
+                          ` - ${(batch as any).farmName}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -544,8 +548,10 @@ function VaccinationsPage() {
                       {alert.vaccineName}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {alert.species} - Due:{' '}
-                      {new Date(alert.nextDueDate).toLocaleDateString()}
+                      {alert.species}
+                      {(alert as any).farmName &&
+                        ` (${(alert as any).farmName})`}{' '}
+                      - Due: {new Date(alert.nextDueDate).toLocaleDateString()}
                     </p>
                   </div>
                   <Badge variant="destructive">Overdue</Badge>
@@ -561,8 +567,10 @@ function VaccinationsPage() {
                       {alert.vaccineName}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {alert.species} - Due:{' '}
-                      {new Date(alert.nextDueDate).toLocaleDateString()}
+                      {alert.species}
+                      {(alert as any).farmName &&
+                        ` (${(alert as any).farmName})`}{' '}
+                      - Due: {new Date(alert.nextDueDate).toLocaleDateString()}
                     </p>
                   </div>
                   <Badge variant="warning">Upcoming</Badge>
@@ -652,7 +660,10 @@ function VaccinationsPage() {
                     <div className="min-w-0">
                       <p className="font-medium truncate">{vax.vaccineName}</p>
                       <p className="text-sm text-muted-foreground">
-                        {vax.species} • {vax.dosage}
+                        {vax.species}
+                        {(vax as any).farmName &&
+                          ` (${(vax as any).farmName})`}{' '}
+                        • {vax.dosage}
                       </p>
                     </div>
                   </div>
@@ -726,7 +737,10 @@ function VaccinationsPage() {
                         {treatment.medicationName}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {treatment.species} • {treatment.reason}
+                        {treatment.species}
+                        {(treatment as any).farmName &&
+                          ` (${(treatment as any).farmName})`}{' '}
+                        • {treatment.reason}
                       </p>
                     </div>
                   </div>

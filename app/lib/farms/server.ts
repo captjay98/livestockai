@@ -1,6 +1,4 @@
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '../db'
-import { checkFarmAccess, getUserFarms, requireAuth } from '../auth/middleware'
 import { toNumber } from '../currency'
 
 export interface CreateFarmData {
@@ -19,6 +17,8 @@ export interface UpdateFarmData {
  * Create a new farm
  */
 export async function createFarm(data: CreateFarmData): Promise<string> {
+  const { db } = await import('../db')
+
   const result = await db
     .insertInto('farms')
     .values({
@@ -36,6 +36,8 @@ export async function createFarm(data: CreateFarmData): Promise<string> {
  * Get all farms (admin use)
  */
 export async function getFarms() {
+  const { db } = await import('../db')
+
   return await db
     .selectFrom('farms')
     .selectAll()
@@ -47,6 +49,9 @@ export async function getFarms() {
  * Get all farms accessible to a user
  */
 export async function getFarmsForUser(userId: string) {
+  const { db } = await import('../db')
+  const { getUserFarms } = await import('../auth/utils')
+
   const farmIds = await getUserFarms(userId)
 
   if (farmIds.length === 0) {
@@ -64,6 +69,7 @@ export async function getFarmsForUser(userId: string) {
 // Server function for client-side calls
 export const getFarmsForUserFn = createServerFn({ method: 'GET' }).handler(
   async () => {
+    const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
     return getFarmsForUser(session.user.id)
   },
@@ -73,6 +79,9 @@ export const getFarmsForUserFn = createServerFn({ method: 'GET' }).handler(
  * Get a single farm by ID (with access check)
  */
 export async function getFarmById(farmId: string, userId: string) {
+  const { db } = await import('../db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
   const hasAccess = await checkFarmAccess(userId, farmId)
 
   if (!hasAccess) {
@@ -90,6 +99,7 @@ export async function getFarmById(farmId: string, userId: string) {
 export const getFarmByIdFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
     return getFarmById(data.farmId, session.user.id)
   })
@@ -102,6 +112,9 @@ export async function updateFarm(
   userId: string,
   data: UpdateFarmData,
 ) {
+  const { db } = await import('../db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
   const hasAccess = await checkFarmAccess(userId, farmId)
 
   if (!hasAccess) {
@@ -138,6 +151,7 @@ export const updateFarmFn = createServerFn({ method: 'POST' })
     }) => data,
   )
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
     return updateFarm(data.farmId, session.user.id, {
       name: data.name,
@@ -150,6 +164,8 @@ export const updateFarmFn = createServerFn({ method: 'POST' })
  * Delete a farm (admin only - checked at route level)
  */
 export async function deleteFarm(farmId: string) {
+  const { db } = await import('../db')
+
   // First check if farm has any dependent records
   const [batches, sales, expenses] = await Promise.all([
     db
@@ -186,6 +202,9 @@ export async function deleteFarm(farmId: string) {
  * Get farm statistics
  */
 export async function getFarmStats(farmId: string, userId: string) {
+  const { db } = await import('../db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
   const hasAccess = await checkFarmAccess(userId, farmId)
 
   if (!hasAccess) {
@@ -246,3 +265,12 @@ export async function getFarmStats(farmId: string, userId: string) {
     },
   }
 }
+
+// Server function to create a farm with auth
+export const createFarmFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: CreateFarmData) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    await requireAuth()
+    return createFarm(data)
+  })

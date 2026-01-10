@@ -15,8 +15,8 @@ import {
   getGrowthAlerts,
   getWeightSamplesForFarm,
 } from '~/lib/weight/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getBatches } from '~/lib/batches/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -80,14 +80,14 @@ interface WeightData {
 }
 
 const getWeightDataForFarm = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator((data: { farmId?: string }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
       const [samples, alerts, allBatches] = await Promise.all([
         getWeightSamplesForFarm(session.user.id, data.farmId),
         getGrowthAlerts(session.user.id, data.farmId),
-        getBatchesForFarm(session.user.id, data.farmId),
+        getBatches(session.user.id, data.farmId),
       ])
       const batches = allBatches.filter((b) => b.status === 'active')
       return { samples, alerts, batches }
@@ -150,16 +150,10 @@ function WeightPage() {
   const [error, setError] = useState('')
 
   const loadData = async () => {
-    if (!selectedFarmId) {
-      setData({ samples: [], alerts: [], batches: [] })
-      setIsLoading(false)
-      return
-    }
-
     setIsLoading(true)
     try {
       const result = await getWeightDataForFarm({
-        data: { farmId: selectedFarmId },
+        data: { farmId: selectedFarmId || undefined },
       })
       setData(result)
     } catch (err) {
@@ -213,7 +207,12 @@ function WeightPage() {
   const { samples, alerts, batches } = data
   const selectedBatch = batches.find((b) => b.id === formData.batchId)
 
-  if (!selectedFarmId) {
+  if (
+    samples.length === 0 &&
+    alerts.length === 0 &&
+    batches.length === 0 &&
+    !isLoading
+  ) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
@@ -223,13 +222,17 @@ function WeightPage() {
               Monitor livestock growth and weight
             </p>
           </div>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Record Weight
+          </Button>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
             <Scale className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
+            <h3 className="text-lg font-semibold mb-2">No data available</h3>
             <p className="text-muted-foreground">
-              Select a farm from the sidebar to view weight records
+              No weight records found for any farm.
             </p>
           </CardContent>
         </Card>
@@ -292,7 +295,7 @@ function WeightPage() {
                     <SelectValue>
                       {formData.batchId
                         ? batches.find((b) => b.id === formData.batchId)
-                            ?.species
+                          ?.species
                         : 'Select batch'}
                     </SelectValue>
                   </SelectTrigger>
@@ -301,6 +304,8 @@ function WeightPage() {
                       <SelectItem key={batch.id} value={batch.id}>
                         {batch.species} ({batch.currentQuantity}{' '}
                         {batch.livestockType})
+                        {(batch as any).farmName &&
+                          ` - ${(batch as any).farmName}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -447,6 +452,8 @@ function WeightPage() {
                   <div>
                     <p className="font-medium text-destructive capitalize">
                       {alert.species}
+                      {(alert as any).farmName &&
+                        ` (${(alert as any).farmName})`}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {alert.message}
@@ -463,6 +470,8 @@ function WeightPage() {
                   <div>
                     <p className="font-medium text-warning capitalize">
                       {alert.species}
+                      {(alert as any).farmName &&
+                        ` (${(alert as any).farmName})`}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {alert.message}
@@ -561,6 +570,8 @@ function WeightPage() {
                     <div className="min-w-0">
                       <p className="font-medium capitalize truncate">
                         {sample.species}
+                        {(sample as any).farmName &&
+                          ` - ${(sample as any).farmName}`}
                       </p>
                       <p className="text-xs sm:text-sm text-muted-foreground">
                         Sample size: {sample.sampleSize} {sample.livestockType}

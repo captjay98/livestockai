@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { EXPENSE_CATEGORIES, createExpense } from '~/lib/expenses/server'
 import { getSuppliers } from '~/lib/suppliers/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,

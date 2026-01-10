@@ -14,12 +14,14 @@ import {
 import { useEffect, useState } from 'react'
 import {
   createSale,
-  getSalesForFarm,
+  getSales,
   getSalesSummary,
+  updateSaleFn,
+  deleteSaleFn,
 } from '~/lib/sales/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
+import { getBatches } from '~/lib/batches/server'
 import { getCustomers } from '~/lib/customers/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import {
@@ -90,14 +92,15 @@ interface SalesData {
 }
 
 const getSalesDataForFarm = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator((data: { farmId?: string | null }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
+      const farmId = data?.farmId || undefined
       const [sales, summary, batches, customers] = await Promise.all([
-        getSalesForFarm(session.user.id, data.farmId),
-        getSalesSummary(session.user.id, data.farmId),
-        getBatchesForFarm(session.user.id, data.farmId),
+        getSales(session.user.id, farmId),
+        getSalesSummary(session.user.id, farmId),
+        farmId ? getBatches(session.user.id, farmId) : Promise.resolve([]),
         getCustomers(),
       ])
       return {
@@ -107,10 +110,10 @@ const getSalesDataForFarm = createServerFn({ method: 'GET' })
         customers,
       }
     } catch (err) {
-      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
-      throw error
+      throw err
     }
   })
 
@@ -184,12 +187,6 @@ function SalesPage() {
   })
 
   const loadData = async () => {
-    if (!selectedFarmId) {
-      setData({ sales: [], summary: null, batches: [], customers: [] })
-      setIsLoading(false)
-      return
-    }
-
     setIsLoading(true)
     try {
       const result = await getSalesDataForFarm({
@@ -268,23 +265,44 @@ function SalesPage() {
     setDeleteDialogOpen(true)
   }
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedSale) return
 
-    // TODO: Implement update sale action
-    console.log('Update sale:', selectedSale.id, editFormData)
-    setEditDialogOpen(false)
-    loadData()
+    setIsSubmitting(true)
+    try {
+      await updateSaleFn({
+        data: {
+          saleId: selectedSale.id,
+          data: {
+            quantity: parseInt(editFormData.quantity),
+            unitPrice: parseFloat(editFormData.unitPrice),
+            // We don't verify customer/date in this simplified edit for now
+          },
+        },
+      })
+      setEditDialogOpen(false)
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update sale')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!selectedSale) return
 
-    // TODO: Implement delete sale action
-    console.log('Delete sale:', selectedSale.id)
-    setDeleteDialogOpen(false)
-    loadData()
+    setIsSubmitting(true)
+    try {
+      await deleteSaleFn({ data: { saleId: selectedSale.id } })
+      setDeleteDialogOpen(false)
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete sale')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const { sales, summary, batches, customers } = data
@@ -311,30 +329,6 @@ function SalesPage() {
       default:
         return <ShoppingCart className="h-4 w-4" />
     }
-  }
-
-  if (!selectedFarmId) {
-    return (
-      <div className="container mx-auto py-6 px-4">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Sales</h1>
-            <p className="text-muted-foreground mt-1">
-              Track your sales and revenue
-            </p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="py-12 text-center">
-            <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
-            <p className="text-muted-foreground">
-              Select a farm from the sidebar to view sales
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
   }
 
   if (isLoading) {
@@ -415,8 +409,8 @@ function SalesPage() {
                         <SelectValue>
                           {formData.batchId
                             ? filteredBatches.find(
-                                (b) => b.id === formData.batchId,
-                              )?.species
+                              (b) => b.id === formData.batchId,
+                            )?.species
                             : 'Select batch to deduct from'}
                         </SelectValue>
                       </SelectTrigger>
@@ -447,7 +441,7 @@ function SalesPage() {
                       <SelectValue>
                         {formData.customerId
                           ? customers.find((c) => c.id === formData.customerId)
-                              ?.name
+                            ?.name
                           : 'Select customer'}
                       </SelectValue>
                     </SelectTrigger>
@@ -851,8 +845,8 @@ function SalesPage() {
                       <SelectValue>
                         {editFormData.customerId
                           ? customers.find(
-                              (c) => c.id === editFormData.customerId,
-                            )?.name
+                            (c) => c.id === editFormData.customerId,
+                          )?.name
                           : 'Keep existing'}
                       </SelectValue>
                     </SelectTrigger>

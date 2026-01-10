@@ -3,8 +3,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { FEED_TYPES, createFeedRecord } from '~/lib/feed/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getBatches as getBatchesServer } from '~/lib/batches/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -36,7 +36,7 @@ const getBatches = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const batches = await getBatchesForFarm(session.user.id, data.farmId)
+      const batches = await getBatchesServer(session.user.id, data.farmId)
       return batches.filter((b) => b.status === 'active')
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
@@ -197,7 +197,7 @@ function NewFeedPage() {
                   <SelectValue>
                     {formData.feedType
                       ? FEED_TYPES.find((t) => t.value === formData.feedType)
-                          ?.label
+                        ?.label
                       : 'Select feed type'}
                   </SelectValue>
                 </SelectTrigger>

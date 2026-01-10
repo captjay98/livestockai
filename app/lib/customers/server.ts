@@ -1,5 +1,3 @@
-import { db } from '~/lib/db'
-
 export interface CreateCustomerInput {
   name: string
   phone: string
@@ -10,6 +8,8 @@ export interface CreateCustomerInput {
 export async function createCustomer(
   input: CreateCustomerInput,
 ): Promise<string> {
+  const { db } = await import('~/lib/db')
+
   const result = await db
     .insertInto('customers')
     .values({
@@ -25,10 +25,12 @@ export async function createCustomer(
 }
 
 export async function getCustomers() {
+  const { db } = await import('~/lib/db')
   return db.selectFrom('customers').selectAll().orderBy('name', 'asc').execute()
 }
 
 export async function getCustomerById(customerId: string) {
+  const { db } = await import('~/lib/db')
   return db
     .selectFrom('customers')
     .selectAll()
@@ -40,6 +42,7 @@ export async function updateCustomer(
   customerId: string,
   input: Partial<CreateCustomerInput>,
 ) {
+  const { db } = await import('~/lib/db')
   await db
     .updateTable('customers')
     .set({
@@ -51,10 +54,13 @@ export async function updateCustomer(
 }
 
 export async function deleteCustomer(customerId: string) {
+  const { db } = await import('~/lib/db')
   await db.deleteFrom('customers').where('id', '=', customerId).execute()
 }
 
 export async function getCustomerWithSales(customerId: string) {
+  const { db } = await import('~/lib/db')
+
   const customer = await getCustomerById(customerId)
   if (!customer) return null
 
@@ -86,6 +92,8 @@ export async function getCustomerWithSales(customerId: string) {
 }
 
 export async function getTopCustomers(limit: number = 10) {
+  const { db } = await import('~/lib/db')
+
   const customers = await db
     .selectFrom('customers')
     .leftJoin('sales', 'sales.customerId', 'customers.id')

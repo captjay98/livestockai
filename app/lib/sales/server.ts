@@ -1,5 +1,4 @@
-import { db } from '~/lib/db'
-import { verifyFarmAccess } from '~/lib/auth/middleware'
+import { createServerFn } from '@tanstack/react-start'
 
 export interface CreateSaleInput {
   farmId: string
@@ -16,6 +15,9 @@ export async function createSale(
   userId: string,
   input: CreateSaleInput,
 ): Promise<string> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, input.farmId)
 
   const totalAmount = input.quantity * input.unitPrice
@@ -69,6 +71,198 @@ export async function createSale(
   return result.id
 }
 
+// Server function for client-side calls
+export const createSaleFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { sale: CreateSaleInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return createSale(session.user.id, data.sale)
+  })
+
+/**
+ * Delete a sale record
+ */
+export async function deleteSale(userId: string, saleId: string) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+
+  const userFarms = await getUserFarms(userId)
+  const farmIds = userFarms.map(f => f.id)
+
+  // Get the sale to check ownership and possibly restore batch quantity
+  const sale = await db
+    .selectFrom('sales')
+    .select(['id', 'farmId', 'batchId', 'quantity', 'livestockType'])
+    .where('id', '=', saleId)
+    .executeTakeFirst()
+
+  if (!sale) {
+    throw new Error('Sale not found')
+  }
+
+  if (!farmIds.includes(sale.farmId)) {
+    throw new Error('Not authorized to delete this sale')
+  }
+
+  // If sale was from a batch (not eggs), restore the quantity
+  if (sale.batchId && sale.livestockType !== 'eggs') {
+    await db
+      .updateTable('batches')
+      .set(eb => ({
+        currentQuantity: eb('currentQuantity', '+', sale.quantity),
+        status: 'active',
+        updatedAt: new Date(),
+      }))
+      .where('id', '=', sale.batchId)
+      .execute()
+  }
+
+  await db.deleteFrom('sales').where('id', '=', saleId).execute()
+}
+
+// Server function for client-side calls
+export const deleteSaleFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { saleId: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteSale(session.user.id, data.saleId)
+  })
+
+export type UpdateSaleInput = {
+  quantity?: number
+  unitPrice?: number
+  date?: Date
+  notes?: string | null
+}
+
+export async function updateSale(
+  userId: string,
+  saleId: string,
+  data: UpdateSaleInput,
+) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+
+  // Verify access
+  const farmIds = await getUserFarms(userId) // string[]
+
+  const sale = await db
+    .selectFrom('sales')
+    .select(['id', 'farmId', 'batchId', 'quantity', 'livestockType', 'unitPrice'])
+    .where('id', '=', saleId)
+    .executeTakeFirst()
+
+  if (!sale) throw new Error('Sale not found')
+  if (!farmIds.includes(sale.farmId)) throw new Error('Unauthorized')
+
+  await db.transaction().execute(async (tx) => {
+    // 1. If quantity changed, handle inventory
+    if (data.quantity !== undefined && data.quantity !== sale.quantity && sale.batchId && sale.livestockType !== 'eggs') {
+      const quantityDiff = data.quantity - sale.quantity
+
+      // Update batch
+      await tx
+        .updateTable('batches')
+        .set((eb) => ({
+          currentQuantity: eb('currentQuantity', '-', quantityDiff), // If diff is positive (increased sale), we subtract more. 
+          updatedAt: new Date(),
+        }))
+        .where('id', '=', sale.batchId!)
+        .execute()
+    }
+
+    // 2. Prepare update data
+    const updateData: any = { ...data }
+
+    // Recalculate total amount if quantity or price changed
+    const newQuantity = data.quantity ?? sale.quantity
+    const newPrice = data.unitPrice ?? Number(sale.unitPrice)
+    updateData.totalAmount = (newQuantity * newPrice).toString()
+
+    // 3. Update sale
+    await tx
+      .updateTable('sales')
+      .set(updateData)
+      .where('id', '=', saleId)
+      .execute()
+  })
+
+  return true
+}
+
+export const updateSaleFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { saleId: string; data: UpdateSaleInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return updateSale(session.user.id, data.saleId, data.data)
+  })
+
+/**
+ * Get sales for a user - optionally filtered by farm (All Farms Support)
+ */
+export async function getSales(
+  userId: string,
+  farmId?: string,
+  options?: {
+    startDate?: Date
+    endDate?: Date
+    livestockType?: 'poultry' | 'fish' | 'eggs'
+  },
+) {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) throw new Error('Access denied')
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
+  }
+
+  let query = db
+    .selectFrom('sales')
+    .leftJoin('customers', 'customers.id', 'sales.customerId')
+    .leftJoin('batches', 'batches.id', 'sales.batchId')
+    .leftJoin('farms', 'farms.id', 'sales.farmId')
+    .select([
+      'sales.id',
+      'sales.farmId',
+      'sales.batchId',
+      'sales.customerId',
+      'sales.livestockType',
+      'sales.quantity',
+      'sales.unitPrice',
+      'sales.totalAmount',
+      'sales.date',
+      'sales.notes',
+      'sales.createdAt',
+      'customers.name as customerName',
+      'batches.species as batchSpecies',
+      'farms.name as farmName'
+    ])
+    .where('sales.farmId', 'in', targetFarmIds)
+
+  if (options?.startDate) {
+    query = query.where('sales.date', '>=', options.startDate)
+  }
+  if (options?.endDate) {
+    query = query.where('sales.date', '<=', options.endDate)
+  }
+  if (options?.livestockType) {
+    query = query.where('sales.livestockType', '=', options.livestockType)
+  }
+
+  return query.orderBy('sales.date', 'desc').execute()
+}
+
+
 export async function getSalesForFarm(
   userId: string,
   farmId: string,
@@ -78,6 +272,9 @@ export async function getSalesForFarm(
     livestockType?: 'poultry' | 'fish' | 'eggs'
   },
 ) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   let query = db
@@ -116,13 +313,32 @@ export async function getSalesForFarm(
 
 export async function getSalesSummary(
   userId: string,
-  farmId: string,
+  farmId?: string,
   options?: {
     startDate?: Date
     endDate?: Date
   },
 ) {
-  await verifyFarmAccess(userId, farmId)
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) throw new Error('Access denied')
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) {
+      return {
+        poultry: { count: 0, quantity: 0, revenue: 0 },
+        fish: { count: 0, quantity: 0, revenue: 0 },
+        eggs: { count: 0, quantity: 0, revenue: 0 },
+        total: { count: 0, quantity: 0, revenue: 0 },
+      }
+    }
+  }
 
   let query = db
     .selectFrom('sales')
@@ -132,7 +348,7 @@ export async function getSalesSummary(
       db.fn.sum<string>('quantity').as('totalQuantity'),
       db.fn.sum<string>('totalAmount').as('totalRevenue'),
     ])
-    .where('farmId', '=', farmId)
+    .where('farmId', 'in', targetFarmIds)
     .groupBy('livestockType')
 
   if (options?.startDate) {
@@ -176,6 +392,9 @@ export async function getTotalRevenue(
     endDate?: Date
   },
 ): Promise<number> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   let query = db

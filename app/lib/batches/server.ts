@@ -1,5 +1,4 @@
-import { db } from '../db'
-import { checkFarmAccess, getUserFarms } from '../auth/middleware'
+import { createServerFn } from '@tanstack/react-start'
 import { multiply, toDbString, toNumber } from '../currency'
 
 export interface CreateBatchData {
@@ -23,6 +22,9 @@ export async function createBatch(
   userId: string,
   data: CreateBatchData,
 ): Promise<string> {
+  const { db } = await import('../db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
   // Check farm access
   const hasAccess = await checkFarmAccess(userId, data.farmId)
   if (!hasAccess) {
@@ -50,40 +52,80 @@ export async function createBatch(
   return result.id
 }
 
+// Server function for client-side calls
+export const createBatchFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { batch: CreateBatchData }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    return createBatch(session.user.id, data.batch)
+  })
+
+
+
 /**
- * Get batches for a farm with filtering
+ * Get batches for a user - optionally filtered by farm
+ * If farmId is undefined, returns batches from all user's farms
  */
-export async function getBatchesForFarm(
+export async function getBatches(
   userId: string,
-  farmId: string,
+  farmId?: string,
   filters?: {
     status?: 'active' | 'depleted' | 'sold'
     livestockType?: 'poultry' | 'fish'
     species?: string
   },
 ) {
-  // Check farm access
-  const hasAccess = await checkFarmAccess(userId, farmId)
-  if (!hasAccess) {
-    throw new Error('Access denied to this farm')
+  const { db } = await import('../db')
+  const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
+
+  let targetFarmIds: string[] = []
+
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) {
+      throw new Error('Access denied to this farm')
+    }
+    targetFarmIds = [farmId]
+  } else {
+    // getUserFarms returns string[] of farm IDs
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) {
+      return []
+    }
   }
 
   let query = db
     .selectFrom('batches')
-    .selectAll()
-    .where('farmId', '=', farmId)
-    .orderBy('acquisitionDate', 'desc')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .select([
+      'batches.id',
+      'batches.farmId',
+      'batches.livestockType',
+      'batches.species',
+      'batches.initialQuantity',
+      'batches.currentQuantity',
+      'batches.acquisitionDate',
+      'batches.costPerUnit',
+      'batches.totalCost',
+      'batches.status',
+      'batches.createdAt',
+      'batches.updatedAt',
+      'farms.name as farmName',
+    ])
+    .where('batches.farmId', 'in', targetFarmIds)
+    .orderBy('batches.acquisitionDate', 'desc')
 
   if (filters?.status) {
-    query = query.where('status', '=', filters.status)
+    query = query.where('batches.status', '=', filters.status)
   }
 
   if (filters?.livestockType) {
-    query = query.where('livestockType', '=', filters.livestockType)
+    query = query.where('batches.livestockType', '=', filters.livestockType)
   }
 
   if (filters?.species) {
-    query = query.where('species', '=', filters.species)
+    query = query.where('batches.species', '=', filters.species)
   }
 
   return await query.execute()
@@ -93,6 +135,9 @@ export async function getBatchesForFarm(
  * Get a single batch by ID
  */
 export async function getBatchById(userId: string, batchId: string) {
+  const { db } = await import('../db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
   const batch = await db
     .selectFrom('batches')
     .selectAll()
@@ -120,6 +165,8 @@ export async function updateBatch(
   batchId: string,
   data: UpdateBatchData,
 ) {
+  const { db } = await import('../db')
+
   const batch = await getBatchById(userId, batchId)
   if (!batch) {
     throw new Error('Batch not found')
@@ -142,6 +189,50 @@ export async function updateBatch(
   return await getBatchById(userId, batchId)
 }
 
+// Server function for client-side calls
+export const updateBatchFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { batchId: string; batch: UpdateBatchData }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    return updateBatch(session.user.id, data.batchId, data.batch)
+  })
+
+/**
+ * Delete a batch
+ */
+export async function deleteBatch(userId: string, batchId: string) {
+  const { db } = await import('../db')
+
+  const batch = await getBatchById(userId, batchId)
+  if (!batch) {
+    throw new Error('Batch not found')
+  }
+
+  // Check for related records
+  const [feedRecords, eggRecords, sales, mortalities] = await Promise.all([
+    db.selectFrom('feed_records').select('id').where('batchId', '=', batchId).executeTakeFirst(),
+    db.selectFrom('egg_records').select('id').where('batchId', '=', batchId).executeTakeFirst(),
+    db.selectFrom('sales').select('id').where('batchId', '=', batchId).executeTakeFirst(),
+    db.selectFrom('mortalities').select('id').where('batchId', '=', batchId).executeTakeFirst(),
+  ])
+
+  if (feedRecords || eggRecords || sales || mortalities) {
+    throw new Error('Cannot delete batch with existing records. Delete related records first.')
+  }
+
+  await db.deleteFrom('batches').where('id', '=', batchId).execute()
+}
+
+// Server function for client-side calls
+export const deleteBatchFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { batchId: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    return deleteBatch(session.user.id, data.batchId)
+  })
+
 /**
  * Update batch quantity (used by mortality, sales, etc.)
  */
@@ -149,6 +240,8 @@ export async function updateBatchQuantity(
   batchId: string,
   newQuantity: number,
 ) {
+  const { db } = await import('../db')
+
   const status = newQuantity <= 0 ? 'depleted' : 'active'
 
   await db
@@ -165,6 +258,8 @@ export async function updateBatchQuantity(
  * Get batch statistics
  */
 export async function getBatchStats(userId: string, batchId: string) {
+  const { db } = await import('../db')
+
   const batch = await getBatchById(userId, batchId)
   if (!batch) {
     throw new Error('Batch not found')
@@ -260,6 +355,9 @@ export async function getBatchStats(userId: string, batchId: string) {
  * Get inventory summary for a farm or all farms
  */
 export async function getInventorySummary(userId: string, farmId?: string) {
+  const { db } = await import('../db')
+  const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
+
   let targetFarmIds: Array<string> = []
 
   if (farmId) {
@@ -376,9 +474,9 @@ export async function getInventorySummary(userId: string, farmId?: string) {
   const averageWeightKg =
     recentWeights.length > 0
       ? recentWeights.reduce(
-          (sum, w) => sum + Number(w.averageWeightKg || 0),
-          0,
-        ) / recentWeights.length
+        (sum, w) => sum + Number(w.averageWeightKg || 0),
+        0,
+      ) / recentWeights.length
       : 0
 
   // Helper to safely convert to number

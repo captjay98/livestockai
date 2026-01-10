@@ -14,11 +14,13 @@ import {
 import { useEffect, useState } from 'react'
 import {
   createBatch,
-  getBatchesForFarm,
+  getBatches,
   getInventorySummary,
+  updateBatchFn,
+  deleteBatchFn,
 } from '~/lib/batches/server'
 import { getSpeciesOptions } from '~/lib/batches/constants'
-import { requireAuth } from '~/lib/auth/middleware'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import {
@@ -82,20 +84,21 @@ interface BatchData {
 }
 
 const getBatchesForFarmFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator((data: { farmId?: string | null }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
+      const farmId = data?.farmId || undefined
       const [batches, summary] = await Promise.all([
-        getBatchesForFarm(session.user.id, data.farmId),
-        getInventorySummary(session.user.id, data.farmId),
+        getBatches(session.user.id, farmId),
+        getInventorySummary(session.user.id, farmId),
       ])
       return { batches, summary }
     } catch (err) {
-      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
-      throw error
+      throw err
     }
   })
 
@@ -123,10 +126,10 @@ const createBatchAction = createServerFn({ method: 'POST' })
       })
       return { success: true, batchId }
     } catch (err) {
-      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
-      throw error
+      throw err
     }
   })
 
@@ -140,12 +143,12 @@ export const Route = createFileRoute('/batches')({
   validateSearch: (search: Record<string, unknown>): BatchSearchParams => ({
     status:
       typeof search.status === 'string' &&
-      ['active', 'depleted', 'sold'].includes(search.status)
+        ['active', 'depleted', 'sold'].includes(search.status)
         ? (search.status as 'active' | 'depleted' | 'sold')
         : undefined,
     livestockType:
       typeof search.livestockType === 'string' &&
-      ['poultry', 'fish'].includes(search.livestockType)
+        ['poultry', 'fish'].includes(search.livestockType)
         ? (search.livestockType as 'poultry' | 'fish')
         : undefined,
   }),
@@ -180,18 +183,12 @@ function BatchesPage() {
   const speciesOptions = getSpeciesOptions(formData.livestockType)
 
   const loadData = async () => {
-    if (!selectedFarmId) {
-      setData({ batches: [], summary: null })
-      setIsLoading(false)
-      return
-    }
-
     setIsLoading(true)
     try {
       const result = await getBatchesForFarmFn({
         data: { farmId: selectedFarmId },
       })
-      setData(result)
+      setData(result as BatchData)
     } catch (err) {
       console.error('Failed:', err)
     } finally {
@@ -267,50 +264,51 @@ function BatchesPage() {
     setDeleteDialogOpen(true)
   }
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedBatch) return
 
-    // TODO: Implement update batch action
-    console.log('Update batch:', selectedBatch.id, editFormData)
-    setEditDialogOpen(false)
-    loadData()
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await updateBatchFn({
+        data: {
+          batchId: selectedBatch.id,
+          batch: {
+            status: editFormData.status,
+          },
+        },
+      })
+      setEditDialogOpen(false)
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update batch')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!selectedBatch) return
 
-    // TODO: Implement delete batch action
-    console.log('Delete batch:', selectedBatch.id)
-    setDeleteDialogOpen(false)
-    loadData()
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await deleteBatchFn({
+        data: { batchId: selectedBatch.id },
+      })
+      setDeleteDialogOpen(false)
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete batch')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const { batches, summary } = data
 
-  if (!selectedFarmId) {
-    return (
-      <div className="container mx-auto py-6 px-4">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Livestock Inventory</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage your livestock batches and inventory
-            </p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
-            <p className="text-muted-foreground">
-              Select a farm from the sidebar to view inventory
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  // When no farm selected, we show data from all farms
 
   if (isLoading) {
     return (
@@ -629,7 +627,7 @@ function BatchesPage() {
             <SelectValue>
               {search.livestockType
                 ? search.livestockType.charAt(0).toUpperCase() +
-                  search.livestockType.slice(1)
+                search.livestockType.slice(1)
                 : 'All Types'}
             </SelectValue>
           </SelectTrigger>

@@ -2,13 +2,12 @@ import {
   Link,
   createFileRoute,
   redirect,
-  useRouter,
 } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { Building2, MapPin, Plus } from 'lucide-react'
+import { Building2, Bird, Fish, Edit, MapPin, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
-import { createFarm, getFarmsForUser } from '~/lib/farms/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getFarmsForUser } from '~/lib/farms/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button, buttonVariants } from '~/components/ui/button'
 import {
   Card,
@@ -18,109 +17,78 @@ import {
   CardTitle,
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '~/components/ui/dialog'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select'
+import { FarmDialog } from '~/components/dialogs/farm-dialog'
 
-interface Farm {
+interface FarmWithStats {
   id: string
   name: string
   location: string
   type: 'poultry' | 'fishery' | 'mixed'
+  activeBatches: number
+  totalLivestock: number
 }
 
-interface CreateFarmInput {
-  name: string
-  location: string
-  type: 'poultry' | 'fishery' | 'mixed'
-}
+// Enhanced loader that fetches farm stats
+const getFarmsWithStats = createServerFn({ method: 'GET' }).handler(async () => {
+  const { db } = await import('~/lib/db')
+  const session = await requireAuth()
 
-const getFarms = createServerFn({ method: 'GET' }).handler(async () => {
-  try {
-    const session = await requireAuth()
-    const farms = await getFarmsForUser(session.user.id)
-    return { farms }
-  } catch (error) {
-    if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-      throw redirect({ to: '/login' })
-    }
-    throw error
-  }
-})
+  const farms = await getFarmsForUser(session.user.id)
 
-const createFarmAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateFarmInput) => data)
-  .handler(async ({ data }) => {
-    try {
-      await requireAuth()
-      const farmId = await createFarm(data)
-      return { success: true, farmId }
-    } catch (error) {
-      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-        throw redirect({ to: '/login' })
+  // Fetch stats for all farms in parallel
+  const farmsWithStats = await Promise.all(
+    farms.map(async (farm) => {
+      const stats = await db
+        .selectFrom('batches')
+        .select([
+          db.fn.count('id').as('activeBatches'),
+          db.fn.sum<number>('currentQuantity').as('totalLivestock'),
+        ])
+        .where('farmId', '=', farm.id)
+        .where('status', '=', 'active')
+        .executeTakeFirst()
+
+      return {
+        ...farm,
+        activeBatches: Number(stats?.activeBatches || 0),
+        totalLivestock: Number(stats?.totalLivestock || 0),
       }
-      throw error
-    }
-  })
+    })
+  )
+
+  return farmsWithStats
+})
 
 export const Route = createFileRoute('/farms/')({
   component: FarmsIndexPage,
-  loader: () => getFarms(),
+  loader: async () => {
+    try {
+      const farms = await getFarmsWithStats()
+      return { farms }
+    } catch (err) {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
+        throw redirect({ to: '/login' })
+      }
+      throw err
+    }
+  },
 })
 
 function FarmsIndexPage() {
-  const router = useRouter()
   const loaderData = Route.useLoaderData()
-  const farms = (loaderData?.farms ?? []) as Array<Farm>
+  const farms = (loaderData?.farms ?? []) as Array<FarmWithStats>
 
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [formData, setFormData] = useState<CreateFarmInput>({
-    name: '',
-    location: '',
-    type: 'poultry',
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
+  const [selectedFarm, setSelectedFarm] = useState<FarmWithStats | null>(null)
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      location: '',
-      type: 'poultry',
-    })
-    setError('')
+  const handleCreate = () => {
+    setSelectedFarm(null)
+    setDialogOpen(true)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError('')
-
-    try {
-      await createFarmAction({ data: formData })
-      setDialogOpen(false)
-      resetForm()
-      router.invalidate()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create farm')
-    } finally {
-      setIsSubmitting(false)
-    }
+  const handleEdit = (farm: FarmWithStats) => {
+    setSelectedFarm(farm)
+    setDialogOpen(true)
   }
 
   return (
@@ -132,99 +100,17 @@ function FarmsIndexPage() {
             Manage your farms and view their performance
           </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Farm
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create New Farm</DialogTitle>
-              <DialogDescription>
-                Enter the basic information for your new farm
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Farm Name</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  placeholder="Enter farm name"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      location: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter farm location"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="type">Farm Type</Label>
-                <Select
-                  value={formData.type}
-                  onValueChange={(value) => {
-                    if (value === 'poultry' || value === 'fishery' || value === 'mixed') {
-                      setFormData((prev) => ({ ...prev, type: value }))
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="poultry">Poultry</SelectItem>
-                    <SelectItem value="fishery">Fishery</SelectItem>
-                    <SelectItem value="mixed">Mixed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {error && (
-                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-                  {error}
-                </div>
-              )}
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    isSubmitting || !formData.name || !formData.location
-                  }
-                >
-                  {isSubmitting ? 'Creating...' : 'Create Farm'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={handleCreate}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Farm
+        </Button>
       </div>
+
+      <FarmDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        farm={selectedFarm}
+      />
 
       {farms.length === 0 ? (
         <Card>
@@ -234,7 +120,7 @@ function FarmsIndexPage() {
             <p className="text-muted-foreground mb-4">
               Get started by creating your first farm
             </p>
-            <Button onClick={() => setDialogOpen(true)}>
+            <Button onClick={handleCreate}>
               <Plus className="h-4 w-4 mr-2" />
               Create Farm
             </Button>
@@ -266,7 +152,28 @@ function FarmsIndexPage() {
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                {/* Stats Row */}
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Users className="h-4 w-4" />
+                    <span className="font-medium text-foreground">{farm.activeBatches}</span>
+                    <span>batches</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    {farm.type === 'fishery' ? (
+                      <Fish className="h-4 w-4" />
+                    ) : (
+                      <Bird className="h-4 w-4" />
+                    )}
+                    <span className="font-medium text-foreground">
+                      {farm.totalLivestock.toLocaleString()}
+                    </span>
+                    <span>livestock</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
                 <div className="flex gap-2">
                   <Link
                     to="/farms/$farmId"
@@ -279,17 +186,15 @@ function FarmsIndexPage() {
                   >
                     View Details
                   </Link>
-                  <Link
-                    to="/farms/$farmId/edit"
-                    params={{ farmId: farm.id }}
-                    className={buttonVariants({
-                      variant: 'outline',
-                      size: 'sm',
-                      className: 'flex-1',
-                    })}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleEdit(farm)}
                   >
+                    <Edit className="h-4 w-4 mr-2" />
                     Edit
-                  </Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>

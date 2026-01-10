@@ -8,7 +8,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { Building2, Mail, MapPin, Package, Phone, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { createSupplier, getSuppliers } from '~/lib/suppliers/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Dialog,

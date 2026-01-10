@@ -1,5 +1,4 @@
 import { sql } from 'kysely'
-import { db } from '~/lib/db'
 
 export interface DateRange {
   startDate: Date
@@ -95,6 +94,8 @@ export async function getProfitLossReport(
   farmId: string | undefined,
   dateRange: DateRange,
 ): Promise<ProfitLossReport> {
+  const { db } = await import('~/lib/db')
+
   // Revenue by type
   let salesQuery = db
     .selectFrom('sales')
@@ -164,6 +165,8 @@ export async function getProfitLossReport(
 export async function getInventoryReport(
   farmId: string | undefined,
 ): Promise<InventoryReport> {
+  const { db } = await import('~/lib/db')
+
   let batchQuery = db
     .selectFrom('batches')
     .leftJoin('mortality_records', 'mortality_records.batchId', 'batches.id')
@@ -243,6 +246,8 @@ export async function getSalesReport(
   farmId: string | undefined,
   dateRange: DateRange,
 ): Promise<SalesReport> {
+  const { db } = await import('~/lib/db')
+
   let query = db
     .selectFrom('sales')
     .leftJoin('customers', 'customers.id', 'sales.customerId')
@@ -307,6 +312,8 @@ export async function getFeedReport(
   farmId: string | undefined,
   dateRange: DateRange,
 ): Promise<FeedReport> {
+  const { db } = await import('~/lib/db')
+
   let query = db
     .selectFrom('feed_records')
     .innerJoin('batches', 'batches.id', 'feed_records.batchId')
@@ -371,6 +378,8 @@ export async function getEggReport(
   farmId: string | undefined,
   dateRange: DateRange,
 ): Promise<EggReport> {
+  const { db } = await import('~/lib/db')
+
   let query = db
     .selectFrom('egg_records')
     .innerJoin('batches', 'batches.id', 'egg_records.batchId')

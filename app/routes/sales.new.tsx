@@ -3,9 +3,9 @@ import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { createSale } from '~/lib/sales/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
+import { getBatches } from '~/lib/batches/server'
 import { getCustomers } from '~/lib/customers/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import {
@@ -45,7 +45,7 @@ const getFormData = createServerFn({ method: 'GET' })
     try {
       const session = await requireAuth()
       const [batches, customers] = await Promise.all([
-        getBatchesForFarm(session.user.id, data.farmId),
+        getBatches(session.user.id, data.farmId),
         getCustomers(),
       ])
       return {
@@ -225,8 +225,8 @@ function NewSalePage() {
                       <SelectValue>
                         {formData.batchId
                           ? filteredBatches.find(
-                              (b) => b.id === formData.batchId,
-                            )?.species
+                            (b) => b.id === formData.batchId,
+                          )?.species
                           : 'Select batch to deduct from'}
                       </SelectValue>
                     </SelectTrigger>
@@ -253,7 +253,7 @@ function NewSalePage() {
                   <SelectValue>
                     {formData.customerId
                       ? customers.find((c) => c.id === formData.customerId)
-                          ?.name
+                        ?.name
                       : 'Select customer'}
                   </SelectValue>
                 </SelectTrigger>

@@ -1,5 +1,4 @@
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '~/lib/db'
 
 export interface CreateSupplierInput {
   name: string
@@ -12,6 +11,8 @@ export interface CreateSupplierInput {
 export async function createSupplier(
   input: CreateSupplierInput,
 ): Promise<string> {
+  const { db } = await import('~/lib/db')
+
   const result = await db
     .insertInto('suppliers')
     .values({
@@ -28,6 +29,7 @@ export async function createSupplier(
 }
 
 export async function getSuppliers() {
+  const { db } = await import('~/lib/db')
   return db.selectFrom('suppliers').selectAll().orderBy('name', 'asc').execute()
 }
 
@@ -39,6 +41,7 @@ export const getSuppliersFn = createServerFn({ method: 'GET' }).handler(
 )
 
 export async function getSupplierById(supplierId: string) {
+  const { db } = await import('~/lib/db')
   return db
     .selectFrom('suppliers')
     .selectAll()
@@ -50,6 +53,7 @@ export async function updateSupplier(
   supplierId: string,
   input: Partial<CreateSupplierInput>,
 ) {
+  const { db } = await import('~/lib/db')
   await db
     .updateTable('suppliers')
     .set({
@@ -61,10 +65,13 @@ export async function updateSupplier(
 }
 
 export async function deleteSupplier(supplierId: string) {
+  const { db } = await import('~/lib/db')
   await db.deleteFrom('suppliers').where('id', '=', supplierId).execute()
 }
 
 export async function getSupplierWithExpenses(supplierId: string) {
+  const { db } = await import('~/lib/db')
+
   const supplier = await getSupplierById(supplierId)
   if (!supplier) return null
 

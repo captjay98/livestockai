@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { createBatch } from '~/lib/batches/server'
 import { getSpeciesOptions } from '~/lib/batches/constants'
-import { requireAuth } from '~/lib/auth/middleware'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,

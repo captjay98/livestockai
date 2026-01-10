@@ -3,8 +3,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { AlertTriangle, Plus, TrendingDown, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getMortalityAlerts, recordMortality } from '~/lib/mortality/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getBatches } from '~/lib/batches/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -66,13 +66,13 @@ const MORTALITY_CAUSES = [
 ]
 
 const getMortalityForFarm = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator((data: { farmId?: string }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
       const [alerts, allBatches] = await Promise.all([
         getMortalityAlerts(session.user.id, data.farmId),
-        getBatchesForFarm(session.user.id, data.farmId),
+        getBatches(session.user.id, data.farmId),
       ])
       const batches = allBatches.filter((b) => b.status === 'active')
       return { alerts, batches }
@@ -133,16 +133,10 @@ function MortalityPage() {
   const [error, setError] = useState('')
 
   const loadData = async () => {
-    if (!selectedFarmId) {
-      setData({ alerts: [], batches: [] })
-      setIsLoading(false)
-      return
-    }
-
     setIsLoading(true)
     try {
       const result = await getMortalityForFarm({
-        data: { farmId: selectedFarmId },
+        data: { farmId: selectedFarmId || undefined },
       })
       setData(result)
     } catch (err) {
@@ -199,7 +193,7 @@ function MortalityPage() {
   const { alerts, batches } = data
   const selectedBatch = batches.find((b) => b.id === formData.batchId)
 
-  if (!selectedFarmId) {
+  if (batches.length === 0 && alerts.length === 0 && !isLoading) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
@@ -209,13 +203,17 @@ function MortalityPage() {
               Monitor and record livestock mortality
             </p>
           </div>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Record Mortality
+          </Button>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
             <TrendingDown className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
+            <h3 className="text-lg font-semibold mb-2">No data available</h3>
             <p className="text-muted-foreground">
-              Select a farm from the sidebar to view mortality tracking
+              There are no active batches or mortality alerts to display.
             </p>
           </CardContent>
         </Card>
@@ -282,7 +280,7 @@ function MortalityPage() {
                     <SelectValue>
                       {formData.batchId
                         ? batches.find((b) => b.id === formData.batchId)
-                            ?.species
+                          ?.species
                         : 'Select batch'}
                     </SelectValue>
                   </SelectTrigger>
@@ -291,6 +289,8 @@ function MortalityPage() {
                       <SelectItem key={batch.id} value={batch.id}>
                         {batch.species} ({batch.currentQuantity}{' '}
                         {batch.livestockType})
+                        {(batch as any).farmName &&
+                          ` - ${(batch as any).farmName}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -334,8 +334,8 @@ function MortalityPage() {
                     <SelectValue>
                       {formData.cause
                         ? MORTALITY_CAUSES.find(
-                            (c) => c.value === formData.cause,
-                          )?.label
+                          (c) => c.value === formData.cause,
+                        )?.label
                         : 'Select cause'}
                     </SelectValue>
                   </SelectTrigger>

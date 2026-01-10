@@ -1,5 +1,4 @@
-import { db } from '~/lib/db'
-import { verifyFarmAccess } from '~/lib/auth/middleware'
+import { createServerFn } from '@tanstack/react-start'
 
 export interface CreateEggRecordInput {
   batchId: string
@@ -14,6 +13,9 @@ export async function createEggRecord(
   farmId: string,
   input: CreateEggRecordInput,
 ): Promise<string> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   // Verify batch belongs to farm and is a layer batch
@@ -47,11 +49,154 @@ export async function createEggRecord(
   return result.id
 }
 
+// Server function for client-side calls
+export const createEggRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { farmId: string; record: CreateEggRecordInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return createEggRecord(session.user.id, data.farmId, data.record)
+  })
+
+/**
+ * Delete an egg record
+ */
+export async function deleteEggRecord(userId: string, farmId: string, recordId: string) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
+  await verifyFarmAccess(userId, farmId)
+
+  // Verify record exists and belongs to a batch in this farm
+  const record = await db
+    .selectFrom('egg_records')
+    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+    .select(['egg_records.id'])
+    .where('egg_records.id', '=', recordId)
+    .where('batches.farmId', '=', farmId)
+    .executeTakeFirst()
+
+  if (!record) {
+    throw new Error('Egg record not found')
+  }
+
+  await db.deleteFrom('egg_records').where('id', '=', recordId).execute()
+}
+
+// Server function for client-side calls
+export const deleteEggRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { farmId: string; recordId: string }) => data)
+  .handler(async ({ data }) => {
+    return deleteEggRecord(session.user.id, data.farmId, data.recordId)
+  })
+
+export type UpdateEggRecordInput = {
+  date?: Date
+  quantityCollected?: number
+  quantityBroken?: number
+  quantitySold?: number
+}
+
+export async function updateEggRecord(
+  userId: string,
+  recordId: string,
+  data: UpdateEggRecordInput,
+) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+
+  const userFarms = await getUserFarms(userId)
+  const farmIds = userFarms // string[]
+
+  const record = await db
+    .selectFrom('egg_records')
+    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+    .select(['egg_records.id', 'batches.farmId'])
+    .where('egg_records.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!record) throw new Error('Record not found')
+  if (!farmIds.includes(record.farmId)) throw new Error('Unauthorized')
+
+  await db
+    .updateTable('egg_records')
+    .set(data)
+    .where('id', '=', recordId)
+    .execute()
+
+  return true
+}
+
+export const updateEggRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { recordId: string; data: UpdateEggRecordInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return updateEggRecord(session.user.id, data.recordId, data.data)
+  })
+
+/**
+ * Get egg records for a user - optionally filtered by farm (All Farms Support)
+ */
+export async function getEggRecords(
+  userId: string,
+  farmId?: string,
+  options?: {
+    startDate?: Date
+    endDate?: Date
+  },
+) {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) throw new Error('Access denied')
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
+  }
+
+  let query = db
+    .selectFrom('egg_records')
+    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+    .innerJoin('farms', 'farms.id', 'batches.farmId')
+    .select([
+      'egg_records.id',
+      'egg_records.batchId',
+      'egg_records.date',
+      'egg_records.quantityCollected',
+      'egg_records.quantityBroken',
+      'egg_records.quantitySold',
+      'egg_records.createdAt',
+      'batches.species as batchSpecies',
+      'batches.farmId',
+      'farms.name as farmName'
+    ])
+    .where('batches.farmId', 'in', targetFarmIds)
+
+  if (options?.startDate) {
+    query = query.where('egg_records.date', '>=', options.startDate)
+  }
+  if (options?.endDate) {
+    query = query.where('egg_records.date', '<=', options.endDate)
+  }
+
+  return query.orderBy('egg_records.date', 'desc').execute()
+}
+
+
 export async function getEggRecordsForBatch(
   userId: string,
   farmId: string,
   batchId: string,
 ) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   return db
@@ -73,6 +218,9 @@ export async function getEggRecordsForBatch(
 }
 
 export async function getEggRecordsForFarm(userId: string, farmId: string) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   return db
@@ -95,8 +243,28 @@ export async function getEggRecordsForFarm(userId: string, farmId: string) {
     .execute()
 }
 
-export async function getEggSummaryForFarm(userId: string, farmId: string) {
-  await verifyFarmAccess(userId, farmId)
+export async function getEggRecordsSummary(userId: string, farmId?: string) {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) throw new Error('Access denied')
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) {
+      return {
+        totalCollected: 0,
+        totalBroken: 0,
+        totalSold: 0,
+        currentInventory: 0,
+        recordCount: 0,
+      }
+    }
+  }
 
   const records = await db
     .selectFrom('egg_records')
@@ -107,7 +275,7 @@ export async function getEggSummaryForFarm(userId: string, farmId: string) {
       'egg_records.quantitySold',
       'batches.currentQuantity',
     ])
-    .where('batches.farmId', '=', farmId)
+    .where('batches.farmId', 'in', targetFarmIds)
     .execute()
 
   const totalCollected = records.reduce(
@@ -133,6 +301,9 @@ export async function calculateLayingPercentage(
   batchId: string,
   date?: Date,
 ): Promise<number | null> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   // Get batch current quantity
@@ -175,6 +346,9 @@ export async function getEggInventory(
   farmId: string,
   batchId?: string,
 ): Promise<number> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   let query = db

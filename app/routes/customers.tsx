@@ -7,7 +7,7 @@ import {
   getCustomers,
   getTopCustomers,
 } from '~/lib/customers/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import {

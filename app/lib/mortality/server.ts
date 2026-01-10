@@ -1,7 +1,3 @@
-import { db } from '../db'
-import { getBatchById } from '../batches/server'
-import { getUserFarms } from '../auth/middleware'
-
 export interface CreateMortalityData {
   batchId: string
   quantity: number
@@ -17,6 +13,9 @@ export async function recordMortality(
   userId: string,
   data: CreateMortalityData,
 ): Promise<string> {
+  const { db } = await import('../db')
+  const { getBatchById } = await import('../batches/server')
+
   // Verify batch access
   const batch = await getBatchById(userId, data.batchId)
   if (!batch) {
@@ -66,6 +65,9 @@ export async function recordMortality(
  * Get mortality records for a batch
  */
 export async function getMortalityRecords(userId: string, batchId: string) {
+  const { db } = await import('../db')
+  const { getBatchById } = await import('../batches/server')
+
   // Verify batch access
   const batch = await getBatchById(userId, batchId)
   if (!batch) {
@@ -84,6 +86,9 @@ export async function getMortalityRecords(userId: string, batchId: string) {
  * Get mortality statistics for a batch
  */
 export async function getMortalityStats(userId: string, batchId: string) {
+  const { db } = await import('../db')
+  const { getBatchById } = await import('../batches/server')
+
   // Verify batch access
   const batch = await getBatchById(userId, batchId)
   if (!batch) {
@@ -176,6 +181,9 @@ export async function getMortalityTrends(
   period: 'daily' | 'weekly' | 'monthly' = 'daily',
   days: number = 30,
 ) {
+  const { db } = await import('../db')
+  const { getBatchById } = await import('../batches/server')
+
   // Verify batch access
   const batch = await getBatchById(userId, batchId)
   if (!batch) {
@@ -224,6 +232,9 @@ export async function getMortalityTrends(
  * Get mortality alerts for a farm or all farms
  */
 export async function getMortalityAlerts(userId: string, farmId?: string) {
+  const { db } = await import('../db')
+  const { getUserFarms } = await import('../auth/utils')
+
   // Determine target farms
   let targetFarmIds: Array<string> = []
   if (farmId) {
@@ -246,31 +257,30 @@ export async function getMortalityAlerts(userId: string, farmId?: string) {
   const alerts = []
 
   for (const batch of batches) {
-    // Check recent mortality (last 7 days)
-    const recentMortality = await db
+    // Check total mortality (all-time) - matches Dashboard logic
+    const totalMortality = await db
       .selectFrom('mortality_records')
       .select([db.fn.sum('quantity').as('quantity')])
       .where('batchId', '=', batch.id)
-      .where('date', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
       .executeTakeFirst()
 
-    const recentQuantity = Number(recentMortality?.quantity || 0)
-    const recentRate =
+    const totalQuantity = Number(totalMortality?.quantity || 0)
+    const mortalityRate =
       batch.initialQuantity > 0
-        ? (recentQuantity / batch.initialQuantity) * 100
+        ? (totalQuantity / batch.initialQuantity) * 100
         : 0
 
-    // Alert if mortality rate > 5% in last 7 days
-    if (recentRate > 5) {
+    // Alert if total mortality rate > 5%
+    if (mortalityRate > 5) {
       alerts.push({
         type: 'high_mortality' as const,
         batchId: batch.id,
         batchSpecies: batch.species,
         severity:
-          recentRate > 10 ? ('critical' as const) : ('warning' as const),
-        message: `High mortality rate (${recentRate.toFixed(1)}%) in last 7 days`,
-        quantity: recentQuantity,
-        rate: recentRate,
+          mortalityRate > 10 ? ('critical' as const) : ('warning' as const),
+        message: `High mortality rate (${mortalityRate.toFixed(1)}%)`,
+        quantity: totalQuantity,
+        rate: mortalityRate,
       })
     }
 

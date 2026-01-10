@@ -13,11 +13,13 @@ import {
 import { useEffect, useState } from 'react'
 import {
   createEggRecord,
-  getEggRecordsForFarm,
-  getEggSummaryForFarm,
+  getEggRecords,
+  getEggRecordsSummary,
+  updateEggRecordFn,
+  deleteEggRecordFn,
 } from '~/lib/eggs/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getBatches } from '~/lib/batches/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -79,24 +81,36 @@ interface EggData {
 }
 
 const getEggDataForFarm = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator((data: { farmId?: string | null }) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const [records, summary, allBatches] = await Promise.all([
-        getEggRecordsForFarm(session.user.id, data.farmId),
-        getEggSummaryForFarm(session.user.id, data.farmId),
-        getBatchesForFarm(session.user.id, data.farmId),
+      const farmId = data?.farmId || undefined
+
+      const [records, summary, batches] = await Promise.all([
+        getEggRecords(session.user.id, farmId),
+        getEggRecordsSummary(session.user.id, farmId),
+        farmId ? getBatches(session.user.id, farmId) : Promise.resolve([]),
       ])
-      const batches = allBatches.filter(
-        (b) => b.status === 'active' && b.livestockType === 'poultry',
-      )
-      return { records, summary, batches }
+
+      return {
+        records: records.map((r) => ({
+          ...r,
+          currentQuantity: 0, // We'll need to join this if needed, or just display species
+          livestockType: 'poultry',
+          status: 'active',
+          species: r.batchSpecies || 'Unknown',
+        })),
+        summary,
+        batches: batches.filter(
+          (b) => b.livestockType === 'poultry' && b.status === 'active',
+        ),
+      }
     } catch (err) {
-      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
-      throw error
+      throw err
     }
   })
 
@@ -123,10 +137,10 @@ const createEggRecordAction = createServerFn({ method: 'POST' })
       })
       return { success: true, id }
     } catch (err) {
-      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
-      throw error
+      throw err
     }
   })
 
@@ -143,6 +157,18 @@ function EggsPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
+
+  // Edit/Delete State
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedRecord, setSelectedRecord] = useState<any>(null)
+  const [editFormData, setEditFormData] = useState({
+    date: '',
+    quantityCollected: '',
+    quantityBroken: '',
+    quantitySold: '',
+  })
+
   const [formData, setFormData] = useState({
     batchId: '',
     date: new Date().toISOString().split('T')[0],
@@ -154,12 +180,6 @@ function EggsPage() {
   const [error, setError] = useState('')
 
   const loadData = async () => {
-    if (!selectedFarmId) {
-      setData({ records: [], batches: [], summary: null })
-      setIsLoading(false)
-      return
-    }
-
     setIsLoading(true)
     try {
       const result = await getEggDataForFarm({
@@ -216,40 +236,80 @@ function EggsPage() {
     }
   }
 
+  const handleEditRecord = (record: EggRecord) => {
+    setSelectedRecord(record)
+    setEditFormData({
+      date: new Date(record.date).toISOString().split('T')[0],
+      quantityCollected: record.quantityCollected.toString(),
+      quantityBroken: record.quantityBroken.toString(),
+      quantitySold: record.quantitySold.toString(),
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleDeleteRecord = (record: EggRecord) => {
+    setSelectedRecord(record)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    try {
+      await updateEggRecordFn({
+        data: {
+          id: selectedRecord.id,
+          date: editFormData.date,
+          quantityCollected: parseInt(editFormData.quantityCollected),
+          quantityBroken: parseInt(editFormData.quantityBroken) || 0,
+          quantitySold: parseInt(editFormData.quantitySold) || 0,
+        },
+      })
+      setEditDialogOpen(false)
+      loadData()
+    } catch (err) {
+      console.error('Failed to update record:', err)
+      setError('Failed to update record')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteSubmit = async () => {
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    try {
+      await deleteEggRecordFn({
+        data: {
+          id: selectedRecord.id,
+        },
+      })
+      setDeleteDialogOpen(false)
+      loadData()
+    } catch (err) {
+      console.error('Failed to delete record:', err)
+      setError('Failed to delete record')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+
   const { records, batches, summary } = data
   const selectedBatch = batches.find((b) => b.id === formData.batchId)
   const layingPercentage =
     selectedBatch && formData.quantityCollected
       ? (
-          (parseInt(formData.quantityCollected) /
-            selectedBatch.currentQuantity) *
-          100
-        ).toFixed(1)
+        (parseInt(formData.quantityCollected) /
+          selectedBatch.currentQuantity) *
+        100
+      ).toFixed(1)
       : null
 
-  if (!selectedFarmId) {
-    return (
-      <div className="container mx-auto py-6 px-4">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Egg Production</h1>
-            <p className="text-muted-foreground mt-1">
-              Track daily egg collection and sales
-            </p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Egg className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No farm selected</h3>
-            <p className="text-muted-foreground">
-              Select a farm from the sidebar to view egg production
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+
 
   if (isLoading) {
     return (
@@ -301,7 +361,7 @@ function EggsPage() {
                     <SelectValue>
                       {formData.batchId
                         ? batches.find((b) => b.id === formData.batchId)
-                            ?.species
+                          ?.species
                         : 'Select layer batch'}
                     </SelectValue>
                   </SelectTrigger>
@@ -517,9 +577,9 @@ function EggsPage() {
                 const layingPct =
                   record.currentQuantity > 0
                     ? (
-                        (record.quantityCollected / record.currentQuantity) *
-                        100
-                      ).toFixed(1)
+                      (record.quantityCollected / record.currentQuantity) *
+                      100
+                    ).toFixed(1)
                     : '0'
                 return (
                   <div
@@ -569,13 +629,7 @@ function EggsPage() {
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 min-h-[44px] min-w-[44px]"
+                          onClick={() => handleEditRecord(record)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -595,6 +649,119 @@ function EggsPage() {
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Egg Record</DialogTitle>
+            <DialogDescription>Update egg production details</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-date">Date</Label>
+              <Input
+                id="edit-date"
+                type="date"
+                value={editFormData.date}
+                onChange={(e) =>
+                  setEditFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-quantityCollected">Eggs Collected</Label>
+              <Input
+                id="edit-quantityCollected"
+                type="number"
+                min="0"
+                value={editFormData.quantityCollected}
+                onChange={(e) =>
+                  setEditFormData((prev) => ({
+                    ...prev,
+                    quantityCollected: e.target.value,
+                  }))
+                }
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-quantityBroken">Eggs Broken</Label>
+                <Input
+                  id="edit-quantityBroken"
+                  type="number"
+                  min="0"
+                  value={editFormData.quantityBroken}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      quantityBroken: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-quantitySold">Eggs Sold</Label>
+                <Input
+                  id="edit-quantitySold"
+                  type="number"
+                  min="0"
+                  value={editFormData.quantitySold}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      quantitySold: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Record</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this egg record? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
+
+

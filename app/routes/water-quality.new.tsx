@@ -6,8 +6,8 @@ import {
   WATER_QUALITY_THRESHOLDS,
   createWaterQualityRecord,
 } from '~/lib/water-quality/server'
-import { getBatchesForFarm } from '~/lib/batches/server'
-import { requireAuth } from '~/lib/auth/middleware'
+import { getBatches as getBatchesServer } from '~/lib/batches/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -39,7 +39,7 @@ const getBatches = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const batches = await getBatchesForFarm(session.user.id, data.farmId)
+      const batches = await getBatchesServer(session.user.id, data.farmId)
       // Only return active fish batches
       return batches.filter(
         (b) => b.status === 'active' && b.livestockType === 'fish',
@@ -296,13 +296,13 @@ function NewWaterQualityPage() {
                 'temperatureCelsius',
                 formData.temperatureCelsius,
               ) && (
-                <p className="text-sm text-warning">
-                  {getWarning(
-                    'temperatureCelsius',
-                    formData.temperatureCelsius,
-                  )}
-                </p>
-              )}
+                  <p className="text-sm text-warning">
+                    {getWarning(
+                      'temperatureCelsius',
+                      formData.temperatureCelsius,
+                    )}
+                  </p>
+                )}
             </div>
 
             <div className="space-y-2">
@@ -328,13 +328,13 @@ function NewWaterQualityPage() {
                 'dissolvedOxygenMgL',
                 formData.dissolvedOxygenMgL,
               ) && (
-                <p className="text-sm text-warning">
-                  {getWarning(
-                    'dissolvedOxygenMgL',
-                    formData.dissolvedOxygenMgL,
-                  )}
-                </p>
-              )}
+                  <p className="text-sm text-warning">
+                    {getWarning(
+                      'dissolvedOxygenMgL',
+                      formData.dissolvedOxygenMgL,
+                    )}
+                  </p>
+                )}
             </div>
 
             <div className="space-y-2">

@@ -44,7 +44,6 @@ import { Route as EggsNewRouteImport } from './routes/eggs.new'
 import { Route as CustomersNewRouteImport } from './routes/customers.new'
 import { Route as BatchesNewRouteImport } from './routes/batches.new'
 import { Route as FarmsFarmIdIndexRouteImport } from './routes/farms.$farmId.index'
-import { Route as FarmsFarmIdEditRouteImport } from './routes/farms.$farmId.edit'
 
 const WeightRoute = WeightRouteImport.update({
   id: '/weight',
@@ -221,11 +220,6 @@ const FarmsFarmIdIndexRoute = FarmsFarmIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FarmsFarmIdRoute,
 } as any)
-const FarmsFarmIdEditRoute = FarmsFarmIdEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => FarmsFarmIdRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -262,7 +256,6 @@ export interface FileRoutesByFullPath {
   '/water-quality/new': typeof WaterQualityNewRoute
   '/weight/new': typeof WeightNewRoute
   '/farms/': typeof FarmsIndexRoute
-  '/farms/$farmId/edit': typeof FarmsFarmIdEditRoute
   '/farms/$farmId/': typeof FarmsFarmIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -298,7 +291,6 @@ export interface FileRoutesByTo {
   '/water-quality/new': typeof WaterQualityNewRoute
   '/weight/new': typeof WeightNewRoute
   '/farms': typeof FarmsIndexRoute
-  '/farms/$farmId/edit': typeof FarmsFarmIdEditRoute
   '/farms/$farmId': typeof FarmsFarmIdIndexRoute
 }
 export interface FileRoutesById {
@@ -337,7 +329,6 @@ export interface FileRoutesById {
   '/water-quality/new': typeof WaterQualityNewRoute
   '/weight/new': typeof WeightNewRoute
   '/farms/': typeof FarmsIndexRoute
-  '/farms/$farmId/edit': typeof FarmsFarmIdEditRoute
   '/farms/$farmId/': typeof FarmsFarmIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -377,7 +368,6 @@ export interface FileRouteTypes {
     | '/water-quality/new'
     | '/weight/new'
     | '/farms/'
-    | '/farms/$farmId/edit'
     | '/farms/$farmId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -413,7 +403,6 @@ export interface FileRouteTypes {
     | '/water-quality/new'
     | '/weight/new'
     | '/farms'
-    | '/farms/$farmId/edit'
     | '/farms/$farmId'
   id:
     | '__root__'
@@ -451,7 +440,6 @@ export interface FileRouteTypes {
     | '/water-quality/new'
     | '/weight/new'
     | '/farms/'
-    | '/farms/$farmId/edit'
     | '/farms/$farmId/'
   fileRoutesById: FileRoutesById
 }
@@ -722,13 +710,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FarmsFarmIdIndexRouteImport
       parentRoute: typeof FarmsFarmIdRoute
     }
-    '/farms/$farmId/edit': {
-      id: '/farms/$farmId/edit'
-      path: '/edit'
-      fullPath: '/farms/$farmId/edit'
-      preLoaderRoute: typeof FarmsFarmIdEditRouteImport
-      parentRoute: typeof FarmsFarmIdRoute
-    }
   }
 }
 
@@ -778,12 +759,10 @@ const ExpensesRouteWithChildren = ExpensesRoute._addFileChildren(
 )
 
 interface FarmsFarmIdRouteChildren {
-  FarmsFarmIdEditRoute: typeof FarmsFarmIdEditRoute
   FarmsFarmIdIndexRoute: typeof FarmsFarmIdIndexRoute
 }
 
 const FarmsFarmIdRouteChildren: FarmsFarmIdRouteChildren = {
-  FarmsFarmIdEditRoute: FarmsFarmIdEditRoute,
   FarmsFarmIdIndexRoute: FarmsFarmIdIndexRoute,
 }
 

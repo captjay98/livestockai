@@ -1,6 +1,4 @@
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '~/lib/db'
-import { requireAuth, verifyFarmAccess } from '~/lib/auth/middleware'
 
 // Re-export constants for backward compatibility
 export { EXPENSE_CATEGORIES, type ExpenseCategory } from './constants'
@@ -9,13 +7,13 @@ export interface CreateExpenseInput {
   farmId: string
   batchId?: string | null
   category:
-    | 'feed'
-    | 'medicine'
-    | 'equipment'
-    | 'utilities'
-    | 'labor'
-    | 'transport'
-    | 'other'
+  | 'feed'
+  | 'medicine'
+  | 'equipment'
+  | 'utilities'
+  | 'labor'
+  | 'transport'
+  | 'other'
   amount: number
   date: Date
   description: string
@@ -30,6 +28,9 @@ export async function createExpense(
   userId: string,
   input: CreateExpenseInput,
 ): Promise<string> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, input.farmId)
 
   const result = await db.transaction().execute(async (tx) => {
@@ -97,9 +98,159 @@ export async function createExpense(
 export const createExpenseFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { expense: CreateExpenseInput }) => data)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
     return createExpense(session.user.id, data.expense)
   })
+
+/**
+ * Delete an expense record
+ */
+export async function deleteExpense(userId: string, expenseId: string) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+
+  const userFarms = await getUserFarms(userId)
+  const farmIds = userFarms.map(f => f.id)
+
+  const expense = await db
+    .selectFrom('expenses')
+    .select(['id', 'farmId'])
+    .where('id', '=', expenseId)
+    .executeTakeFirst()
+
+  if (!expense) {
+    throw new Error('Expense not found')
+  }
+
+  if (!farmIds.includes(expense.farmId)) {
+    throw new Error('Not authorized to delete this expense')
+  }
+
+  await db.deleteFrom('expenses').where('id', '=', expenseId).execute()
+}
+
+// Server function for client-side calls
+export const deleteExpenseFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { expenseId: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteExpense(session.user.id, data.expenseId)
+    return deleteExpense(session.user.id, data.expenseId)
+  })
+
+export type UpdateExpenseInput = {
+  category?: string
+  amount?: number
+  date?: Date
+  description?: string
+  batchId?: string | null
+  supplierId?: string | null
+  isRecurring?: boolean
+}
+
+export async function updateExpense(
+  userId: string,
+  expenseId: string,
+  data: UpdateExpenseInput,
+) {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/lib/auth/utils')
+
+  const farmIds = await getUserFarms(userId)
+
+  const expense = await db
+    .selectFrom('expenses')
+    .select(['id', 'farmId'])
+    .where('id', '=', expenseId)
+    .executeTakeFirst()
+
+  if (!expense) throw new Error('Expense not found')
+  if (!farmIds.includes(expense.farmId)) throw new Error('Unauthorized')
+
+  // We are not handling complex feed inventory restoration on update for now
+  // Assumes simple field updates. 
+
+  await db
+    .updateTable('expenses')
+    .set({
+      ...data,
+      amount: data.amount?.toString(),
+    })
+    .where('id', '=', expenseId)
+    .execute()
+
+  return true
+}
+
+export const updateExpenseFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { expenseId: string; data: UpdateExpenseInput }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return updateExpense(session.user.id, data.expenseId, data.data)
+  })
+
+/**
+ * Get expenses for a user - optionally filtered by farm (All Farms Support)
+ */
+export async function getExpenses(
+  userId: string,
+  farmId?: string,
+  options?: {
+    startDate?: Date
+    endDate?: Date
+    category?: string
+  },
+) {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) throw new Error('Access denied')
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
+  }
+
+  let query = db
+    .selectFrom('expenses')
+    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+    .leftJoin('batches', 'batches.id', 'expenses.batchId')
+    .leftJoin('farms', 'farms.id', 'expenses.farmId')
+    .select([
+      'expenses.id',
+      'expenses.farmId',
+      'expenses.category',
+      'expenses.amount',
+      'expenses.date',
+      'expenses.description',
+      'expenses.supplierId',
+      'expenses.batchId',
+      'expenses.isRecurring',
+      'expenses.createdAt',
+      'suppliers.name as supplierName',
+      'batches.species as batchSpecies',
+      'batches.livestockType as batchType',
+      'farms.name as farmName'
+    ])
+    .where('expenses.farmId', 'in', targetFarmIds)
+
+  if (options?.startDate) {
+    query = query.where('expenses.date', '>=', options.startDate)
+  }
+  if (options?.category) {
+    query = query.where('expenses.category', '=', options.category)
+  }
+
+  return query.orderBy('expenses.date', 'desc').execute()
+}
+
 
 export async function getExpensesForFarm(
   userId: string,
@@ -110,6 +261,9 @@ export async function getExpensesForFarm(
     category?: string
   },
 ) {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   let query = db
@@ -143,18 +297,39 @@ export async function getExpensesForFarm(
     query = query.where('expenses.category', '=', options.category as any)
   }
 
+  if (options?.limit) {
+    query = query.limit(options.limit)
+  }
+
   return query.orderBy('expenses.date', 'desc').execute()
 }
 
 export async function getExpensesSummary(
   userId: string,
-  farmId: string,
+  farmId?: string,
   options?: {
     startDate?: Date
     endDate?: Date
   },
 ) {
-  await verifyFarmAccess(userId, farmId)
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
+
+  let targetFarmIds: string[] = []
+
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) throw new Error('Access denied')
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) {
+      return {
+        byCategory: {},
+        total: { count: 0, amount: 0 },
+      }
+    }
+  }
 
   let query = db
     .selectFrom('expenses')
@@ -163,7 +338,7 @@ export async function getExpensesSummary(
       db.fn.count('id').as('count'),
       db.fn.sum<string>('amount').as('totalAmount'),
     ])
-    .where('farmId', '=', farmId)
+    .where('farmId', 'in', targetFarmIds)
     .groupBy('category')
 
   if (options?.startDate) {
@@ -201,6 +376,9 @@ export async function getTotalExpenses(
     endDate?: Date
   },
 ): Promise<number> {
+  const { db } = await import('~/lib/db')
+  const { verifyFarmAccess } = await import('~/lib/auth/utils')
+
   await verifyFarmAccess(userId, farmId)
 
   let query = db
