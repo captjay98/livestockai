@@ -1,7 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { AlertCircle } from 'lucide-react'
-import { signIn } from '~/lib/auth/client'
+import { loginFn } from '~/lib/auth/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -19,6 +19,7 @@ export const Route = createFileRoute('/login')({
 })
 
 function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -30,15 +31,18 @@ function LoginPage() {
     setError('')
 
     try {
-      const result = await signIn.email({
-        email,
-        password,
+      const result = await loginFn({
+        data: {
+          email,
+          password,
+        }
       })
 
-      if (result.error) {
-        setError(result.error.message || 'Login failed')
+      if (!result.success) {
+        setError(result.error || 'Login failed')
       } else {
-        // Redirect will happen automatically via router
+        // Redirect to dashboard
+        await router.invalidate()
         window.location.href = '/dashboard'
       }
     } catch (err) {
@@ -52,9 +56,9 @@ function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-primary">
-            JayFarms
-          </CardTitle>
+          <div className="flex justify-center mb-4">
+            <img src="/logo-wordmark.png" alt="JayFarms" className="h-20" />
+          </div>
           <CardDescription>
             Sign in to your poultry & fishery management account
           </CardDescription>

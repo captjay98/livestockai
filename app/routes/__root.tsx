@@ -4,15 +4,19 @@ import {
   Scripts,
   createRootRoute,
 } from '@tanstack/react-router'
-import { AppShell } from '~/components/layout/shell'
+// import { AppShell } from '~/components/layout/shell'
 import { ThemeProvider } from '~/components/theme-provider'
 import { FarmProvider } from '~/components/farm-context'
+import { NotFoundPage } from '~/components/not-found'
+import { ErrorPage } from '~/components/error-page'
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 
 import appCss from '~/styles.css?url'
 
 export const Route = createRootRoute({
   component: RootComponent,
+  notFoundComponent: NotFoundPage,
+  errorComponent: ({ error }) => <ErrorPage error={error} />,
   head: () => ({
     links: [{ rel: 'stylesheet', href: appCss }],
     scripts: [
@@ -58,9 +62,7 @@ function RootComponent() {
         </head>
         <body>
           <FarmProvider>
-            <AppShell>
-              <Outlet />
-            </AppShell>
+            <Outlet />
           </FarmProvider>
           <Scripts />
           {/* <TanStackRouterDevtools position="bottom-right" /> */}
