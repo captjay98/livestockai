@@ -29,7 +29,7 @@ export const navigation = [
   { name: 'Inventory', href: '/batches', icon: Users },
   { name: 'Mortality', href: '/mortality', icon: TrendingDown },
   { name: 'Feed', href: '/feed', icon: Wheat },
-  { name: 'Eggs', href: '/eggs', icon: Egg },
+  // { name: 'Eggs', href: '/eggs', icon: Egg },
   { name: 'Weight', href: '/weight', icon: Scale },
   { name: 'Sales', href: '/sales', icon: ShoppingCart },
   { name: 'Expenses', href: '/expenses', icon: Receipt },

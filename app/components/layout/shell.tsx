@@ -1,17 +1,26 @@
 import { useState } from 'react'
-import { Menu } from 'lucide-react'
+import { Menu, Sprout } from 'lucide-react'
 import { Sidebar } from './sidebar'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  user
+}: {
+  children: React.ReactNode
+  user: {
+    name: string
+    email: string
+  }
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Floating Sidebar */}
       <div className="hidden md:block w-72 shrink-0 h-screen sticky top-0 p-4">
-        <Sidebar className="h-full rounded-2xl border border-sidebar-border shadow-md bg-sidebar" />
+        <Sidebar className="h-full rounded-2xl border border-sidebar-border shadow-md bg-sidebar" user={user} />
       </div>
 
       {/* Mobile Menu Overlay */}
@@ -29,22 +38,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <Sidebar onClose={() => setMobileMenuOpen(false)} />
+        <Sidebar onClose={() => setMobileMenuOpen(false)} user={user} />
       </div>
 
       <div className="flex-1 flex flex-col min-h-screen transition-all duration-300 overflow-hidden">
         {/* Mobile header with menu button */}
-        <div className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-md px-6 md:hidden">
+        <div className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/95 backdrop-blur-md px-4 md:hidden shadow-sm">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Open menu"
-            className="rounded-xl hover:bg-muted"
+            className="h-10 w-10 rounded-full hover:bg-muted/60 -ml-2"
           >
             <Menu className="h-6 w-6" />
           </Button>
-          <span className="font-bold text-lg">JayFarms</span>
+          <img src="/logo-wordmark.png" alt="JayFarms" className="h-7" />
         </div>
 
         <main className="flex-1 px-3 py-4 sm:p-8 overflow-y-auto overflow-x-hidden">

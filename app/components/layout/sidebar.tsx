@@ -5,19 +5,21 @@ import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import { FarmSelector } from '~/components/farm-selector'
 import { ThemeToggle } from '~/components/theme-toggle'
-import { useSession } from '~/lib/auth/client'
 
 interface SidebarProps {
   className?: string
   onClose?: () => void
+  user: {
+    name: string
+    email: string
+  }
 }
 
-export function Sidebar({ className, onClose }: SidebarProps) {
+export function Sidebar({ className, onClose, user }: SidebarProps) {
   const location = useLocation()
-  const { data: session } = useSession()
 
-  const userName = session?.user.name ?? 'User'
-  const userEmail = session?.user.email ?? ''
+  const userName = user.name || 'User'
+  const userEmail = user.email || ''
 
   return (
     <div
@@ -33,9 +35,7 @@ export function Sidebar({ className, onClose }: SidebarProps) {
             className="flex items-center gap-3 transition-transform hover:scale-[1.02]"
             onClick={onClose}
           >
-            <div className="bg-primary/15 p-2.5 rounded-lg shadow-sm ring-1 ring-primary/20">
-              <Building2 className="h-6 w-6 text-primary" />
-            </div>
+            <img src="/logo-icon.png" alt="JayFarms" className="h-9 w-9 rounded-lg shadow-sm" />
             <span className="font-bold text-xl tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
               JayFarms
             </span>
