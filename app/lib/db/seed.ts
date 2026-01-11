@@ -115,16 +115,11 @@ async function seed() {
     const adminUser = await db
       .insertInto('users')
       .values({
-        id: 'user_admin',
         name: 'Farm Administrator',
         email: 'admin@openlivestock.local',
-        password_hash:
-          '$2a$10$wKz0o./nFk.o.i.i.i.i.u.u.u.u.u.u.u.u.u.u.u.u.u.u', // 'password' (placeholder hash)
+        password: await hashPassword('password123'),
         role: 'admin',
-        created_at: new Date(),
-        updated_at: new Date(),
       })
-      .onConflict((oc) => oc.column('id').doNothing())
       .returningAll()
       .executeTakeFirstOrThrow()
 
@@ -135,36 +130,12 @@ async function seed() {
     const farm = await db
       .insertInto('farms')
       .values({
-        id: 'farm_001',
-        name: 'Demo Farm A (Poultry)',
-        location: 'Demo Location',
-        type: 'poultry',
-        size_sqm: 1000,
-        capacity: 5000,
-        status: 'active',
-        ownerId: adminUser.id,
-        created_at: new Date(),
-        updated_at: new Date(),
+        name: 'JayFarms Kaduna',
+        location: FARM_LOCATION,
+        type: 'mixed',
+        contactPhone: '08012345678',
+        notes: 'Main farm - poultry and fish production',
       })
-      .onConflict((oc) => oc.column('id').doNothing())
-      .returningAll()
-      .executeTakeFirstOrThrow()
-
-    const farm2 = await db
-      .insertInto('farms')
-      .values({
-        id: 'farm_002',
-        name: 'Demo Farm B (Aquaculture)',
-        location: 'Demo Location',
-        type: 'aquaculture',
-        size_sqm: 2000,
-        capacity: 10000,
-        status: 'active',
-        ownerId: adminUser.id,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
-      .onConflict((oc) => oc.column('id').doNothing())
       .returningAll()
       .executeTakeFirstOrThrow()
     await db
