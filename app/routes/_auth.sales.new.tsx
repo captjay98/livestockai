@@ -1,8 +1,16 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
-import { createSale } from '~/lib/sales/server'
+import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
+import {
+  createSale,
+  UNIT_TYPES,
+  PAYMENT_STATUSES,
+  PAYMENT_METHODS,
+  type UnitType,
+  type PaymentStatus,
+  type PaymentMethod,
+} from '~/lib/sales/server'
 import { getBatches } from '~/lib/batches/server'
 import { getCustomers } from '~/lib/customers/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
@@ -70,6 +78,13 @@ const createSaleAction = createServerFn({ method: 'POST' })
       quantity: number
       unitPrice: number
       date: string
+      notes?: string
+      // Enhanced fields
+      unitType?: string
+      ageWeeks?: number
+      averageWeightKg?: number
+      paymentStatus?: string
+      paymentMethod?: string
     }) => data,
   )
   .handler(async ({ data }) => {
@@ -83,6 +98,13 @@ const createSaleAction = createServerFn({ method: 'POST' })
         quantity: data.quantity,
         unitPrice: data.unitPrice,
         date: new Date(data.date),
+        notes: data.notes || null,
+        // Enhanced fields
+        unitType: (data.unitType as UnitType) || null,
+        ageWeeks: data.ageWeeks || null,
+        averageWeightKg: data.averageWeightKg || null,
+        paymentStatus: (data.paymentStatus as PaymentStatus) || 'paid',
+        paymentMethod: (data.paymentMethod as PaymentMethod) || null,
       })
       return { success: true, id }
     } catch (error) {
@@ -123,9 +145,17 @@ function NewSalePage() {
     quantity: '',
     unitPrice: '',
     date: new Date().toISOString().split('T')[0],
+    notes: '',
+    // Enhanced fields
+    unitType: '' as UnitType | '',
+    ageWeeks: '',
+    averageWeightKg: '',
+    paymentStatus: 'paid' as PaymentStatus,
+    paymentMethod: '' as PaymentMethod | '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -144,6 +174,13 @@ function NewSalePage() {
           quantity: parseInt(formData.quantity),
           unitPrice: parseFloat(formData.unitPrice),
           date: formData.date,
+          notes: formData.notes || undefined,
+          // Enhanced fields
+          unitType: formData.unitType || undefined,
+          ageWeeks: formData.ageWeeks ? parseInt(formData.ageWeeks) : undefined,
+          averageWeightKg: formData.averageWeightKg ? parseFloat(formData.averageWeightKg) : undefined,
+          paymentStatus: formData.paymentStatus,
+          paymentMethod: formData.paymentMethod || undefined,
         },
       })
       router.navigate({ to: '/sales', search: { farmId: search.farmId } })
@@ -319,6 +356,125 @@ function NewSalePage() {
                 required
               />
             </div>
+
+            {/* Payment Status - Always visible */}
+            <div className="space-y-2">
+              <Label>Payment Status</Label>
+              <Select
+                value={formData.paymentStatus}
+                onValueChange={(value) =>
+                  value && setFormData((prev) => ({ ...prev, paymentStatus: value as PaymentStatus }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_STATUSES.map((status) => (
+                    <SelectItem key={status.value} value={status.value}>
+                      <span className={`px-2 py-0.5 rounded text-xs ${status.color}`}>
+                        {status.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Advanced Options Toggle */}
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {showAdvanced ? 'Hide' : 'Show'} additional details
+            </button>
+
+            {/* Advanced Fields */}
+            {showAdvanced && (
+              <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Unit Type</Label>
+                    <Select
+                      value={formData.unitType || undefined}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, unitType: (value as UnitType) || '' }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select unit type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {UNIT_TYPES.map((unit) => (
+                          <SelectItem key={unit.value} value={unit.value}>
+                            {unit.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Payment Method</Label>
+                    <Select
+                      value={formData.paymentMethod || undefined}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, paymentMethod: (value as PaymentMethod) || '' }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select method" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PAYMENT_METHODS.map((method) => (
+                          <SelectItem key={method.value} value={method.value}>
+                            {method.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Age at Sale (weeks)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.ageWeeks}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, ageWeeks: e.target.value }))
+                      }
+                      placeholder="e.g., 8"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Avg Weight (kg)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.averageWeightKg}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, averageWeightKg: e.target.value }))
+                      }
+                      placeholder="e.g., 2.5"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Notes</Label>
+                  <Input
+                    value={formData.notes}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                    }
+                    placeholder="Additional notes about this sale"
+                  />
+                </div>
+              </div>
+            )}
 
             {totalAmount > 0 && (
               <div className="bg-muted p-4 rounded-md">

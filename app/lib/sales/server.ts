@@ -1,5 +1,28 @@
 import { createServerFn } from '@tanstack/react-start'
 
+export type UnitType = 'bird' | 'kg' | 'crate' | 'piece'
+export type PaymentStatus = 'paid' | 'pending' | 'partial'
+export type PaymentMethod = 'cash' | 'transfer' | 'credit'
+
+export const UNIT_TYPES: { value: UnitType; label: string }[] = [
+  { value: 'bird', label: 'Bird' },
+  { value: 'kg', label: 'Kilogram (kg)' },
+  { value: 'crate', label: 'Crate' },
+  { value: 'piece', label: 'Piece' },
+]
+
+export const PAYMENT_STATUSES: { value: PaymentStatus; label: string; color: string }[] = [
+  { value: 'paid', label: 'Paid', color: 'text-green-600 bg-green-100' },
+  { value: 'pending', label: 'Pending', color: 'text-yellow-600 bg-yellow-100' },
+  { value: 'partial', label: 'Partial', color: 'text-orange-600 bg-orange-100' },
+]
+
+export const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
+  { value: 'cash', label: 'Cash' },
+  { value: 'transfer', label: 'Bank Transfer' },
+  { value: 'credit', label: 'Credit' },
+]
+
 export interface CreateSaleInput {
   farmId: string
   batchId?: string | null
@@ -9,6 +32,12 @@ export interface CreateSaleInput {
   unitPrice: number
   date: Date
   notes?: string | null
+  // Enhanced fields
+  unitType?: UnitType | null
+  ageWeeks?: number | null
+  averageWeightKg?: number | null
+  paymentStatus?: PaymentStatus | null
+  paymentMethod?: PaymentMethod | null
 }
 
 export async function createSale(
@@ -64,6 +93,12 @@ export async function createSale(
       totalAmount: totalAmount.toString(),
       date: input.date,
       notes: input.notes || null,
+      // Enhanced fields
+      unitType: input.unitType || null,
+      ageWeeks: input.ageWeeks || null,
+      averageWeightKg: input.averageWeightKg?.toString() || null,
+      paymentStatus: input.paymentStatus || 'paid',
+      paymentMethod: input.paymentMethod || null,
     })
     .returning('id')
     .executeTakeFirstOrThrow()
@@ -135,6 +170,12 @@ export type UpdateSaleInput = {
   unitPrice?: number
   date?: Date
   notes?: string | null
+  // Enhanced fields
+  unitType?: UnitType | null
+  ageWeeks?: number | null
+  averageWeightKg?: number | null
+  paymentStatus?: PaymentStatus | null
+  paymentMethod?: PaymentMethod | null
 }
 
 export async function updateSale(
@@ -174,12 +215,25 @@ export async function updateSale(
     }
 
     // 2. Prepare update data
-    const updateData: any = { ...data }
+    const updateData: Record<string, unknown> = {}
 
     // Recalculate total amount if quantity or price changed
     const newQuantity = data.quantity ?? sale.quantity
     const newPrice = data.unitPrice ?? Number(sale.unitPrice)
     updateData.totalAmount = (newQuantity * newPrice).toString()
+
+    // Copy over basic fields
+    if (data.quantity !== undefined) updateData.quantity = data.quantity
+    if (data.unitPrice !== undefined) updateData.unitPrice = data.unitPrice.toString()
+    if (data.date !== undefined) updateData.date = data.date
+    if (data.notes !== undefined) updateData.notes = data.notes
+
+    // Copy over enhanced fields
+    if (data.unitType !== undefined) updateData.unitType = data.unitType
+    if (data.ageWeeks !== undefined) updateData.ageWeeks = data.ageWeeks
+    if (data.averageWeightKg !== undefined) updateData.averageWeightKg = data.averageWeightKg?.toString() || null
+    if (data.paymentStatus !== undefined) updateData.paymentStatus = data.paymentStatus
+    if (data.paymentMethod !== undefined) updateData.paymentMethod = data.paymentMethod
 
     // 3. Update sale
     await tx
@@ -425,6 +479,7 @@ export interface PaginatedQuery {
   farmId?: string
   batchId?: string
   livestockType?: string
+  paymentStatus?: string
 }
 
 export interface PaginatedResult<T> {
@@ -462,6 +517,7 @@ export async function getSalesPaginated(
   const sortOrder = query.sortOrder || 'desc'
   const search = query.search || ''
   const livestockType = query.livestockType
+  const paymentStatus = query.paymentStatus
 
   // Determine target farms
   let targetFarmIds: string[] = []
@@ -498,6 +554,11 @@ export async function getSalesPaginated(
   // Apply type filter
   if (livestockType) {
     countQuery = countQuery.where('sales.livestockType', '=', livestockType as any)
+  }
+
+  // Apply payment status filter
+  if (paymentStatus) {
+    countQuery = countQuery.where('sales.paymentStatus', '=', paymentStatus as any)
   }
 
   // Apply batchId filter
@@ -558,6 +619,9 @@ export async function getSalesPaginated(
   }
   if (livestockType) {
     dataQuery = dataQuery.where('sales.livestockType', '=', livestockType as any)
+  }
+  if (paymentStatus) {
+    dataQuery = dataQuery.where('sales.paymentStatus', '=', paymentStatus as any)
   }
   if (query.batchId) {
     dataQuery = dataQuery.where('sales.batchId', '=', query.batchId)

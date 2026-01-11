@@ -20,6 +20,10 @@ import {
   updateSaleFn,
   deleteSaleFn,
   type PaginatedResult,
+  type PaymentStatus,
+  PAYMENT_STATUSES,
+  UNIT_TYPES,
+  PAYMENT_METHODS,
 } from '~/lib/sales/server'
 import { getBatches } from '~/lib/batches/server'
 import { getCustomers } from '~/lib/customers/server'
@@ -68,6 +72,12 @@ interface Sale {
   date: Date
   notes: string | null
   batchSpecies: string | null
+  // Enhanced fields
+  unitType: string | null
+  ageWeeks: number | null
+  averageWeightKg: string | null
+  paymentStatus: string | null
+  paymentMethod: string | null
 }
 
 interface Batch {
@@ -99,6 +109,7 @@ interface SalesSearchParams {
   sortOrder?: 'asc' | 'desc'
   q?: string
   livestockType?: string
+  paymentStatus?: string
 }
 
 const getSalesDataForFarm = createServerFn({ method: 'GET' })
@@ -111,6 +122,7 @@ const getSalesDataForFarm = createServerFn({ method: 'GET' })
       sortOrder?: 'asc' | 'desc'
       search?: string
       livestockType?: string
+      paymentStatus?: string
     }) => data
   )
   .handler(async ({ data }) => {
@@ -126,6 +138,7 @@ const getSalesDataForFarm = createServerFn({ method: 'GET' })
           sortOrder: data.sortOrder || 'desc',
           search: data.search,
           livestockType: data.livestockType,
+          paymentStatus: data.paymentStatus,
         }),
         getSalesSummary(session.user.id, farmId),
         farmId ? getBatches(session.user.id, farmId) : Promise.resolve([]),
@@ -179,6 +192,7 @@ export const Route = createFileRoute('/_auth/sales')({
     sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
     q: String(search.q || ''),
     livestockType: search.livestockType ? String(search.livestockType) : undefined,
+    paymentStatus: search.paymentStatus ? String(search.paymentStatus) : undefined,
   }),
   component: SalesPage,
 })
@@ -233,6 +247,7 @@ function SalesPage() {
           sortOrder: searchParams.sortOrder,
           search: searchParams.q,
           livestockType: searchParams.livestockType,
+          paymentStatus: searchParams.paymentStatus,
         },
       })
       setPaginatedSales(result.paginatedSales)
@@ -248,7 +263,7 @@ function SalesPage() {
 
   useEffect(() => {
     loadData()
-  }, [selectedFarmId, searchParams.page, searchParams.pageSize, searchParams.sortBy, searchParams.sortOrder, searchParams.q, searchParams.livestockType])
+  }, [selectedFarmId, searchParams.page, searchParams.pageSize, searchParams.sortBy, searchParams.sortOrder, searchParams.q, searchParams.livestockType, searchParams.paymentStatus])
 
   const updateSearch = (updates: Partial<SalesSearchParams>) => {
     navigate({
@@ -377,6 +392,15 @@ function SalesPage() {
     eggs: 'text-yellow-600 bg-yellow-100',
   }
 
+  const getPaymentStatusBadge = (status: string | null) => {
+    const statusInfo = PAYMENT_STATUSES.find(s => s.value === status) || PAYMENT_STATUSES[0]
+    return (
+      <Badge className={`${statusInfo.color} border-0`}>
+        {statusInfo.label}
+      </Badge>
+    )
+  }
+
   // Table columns
   const columns: ColumnDef<Sale>[] = [
     {
@@ -421,6 +445,12 @@ function SalesPage() {
           {formatNaira(row.original.totalAmount)}
         </span>
       ),
+    },
+    {
+      accessorKey: 'paymentStatus',
+      header: 'Payment',
+      enableSorting: true,
+      cell: ({ row }) => getPaymentStatusBadge(row.original.paymentStatus),
     },
     {
       accessorKey: 'date',
@@ -771,37 +801,60 @@ function SalesPage() {
         searchPlaceholder="Search sales..."
         isLoading={isLoading}
         filters={
-          <Select
-            value={searchParams.livestockType || 'all'}
-            onValueChange={(value) => {
-              updateSearch({ livestockType: value === 'all' ? undefined : value, page: 1 })
-            }}
-          >
-            <SelectTrigger className="w-[180px] h-10">
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="poultry">
-                <div className="flex items-center gap-2">
-                  <Bird className="h-4 w-4" />
-                  Poultry
-                </div>
-              </SelectItem>
-              <SelectItem value="fish">
-                <div className="flex items-center gap-2">
-                  <Fish className="h-4 w-4" />
-                  Fish
-                </div>
-              </SelectItem>
-              <SelectItem value="eggs">
-                <div className="flex items-center gap-2">
-                  <Egg className="h-4 w-4" />
-                  Eggs
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select
+              value={searchParams.livestockType || 'all'}
+              onValueChange={(value) => {
+                updateSearch({ livestockType: value === 'all' ? undefined : value, page: 1 })
+              }}
+            >
+              <SelectTrigger className="w-[140px] h-10">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="poultry">
+                  <div className="flex items-center gap-2">
+                    <Bird className="h-4 w-4" />
+                    Poultry
+                  </div>
+                </SelectItem>
+                <SelectItem value="fish">
+                  <div className="flex items-center gap-2">
+                    <Fish className="h-4 w-4" />
+                    Fish
+                  </div>
+                </SelectItem>
+                <SelectItem value="eggs">
+                  <div className="flex items-center gap-2">
+                    <Egg className="h-4 w-4" />
+                    Eggs
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={searchParams.paymentStatus || 'all'}
+              onValueChange={(value) => {
+                updateSearch({ paymentStatus: value === 'all' ? undefined : value, page: 1 })
+              }}
+            >
+              <SelectTrigger className="w-[140px] h-10">
+                <SelectValue placeholder="All Payments" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Payments</SelectItem>
+                {PAYMENT_STATUSES.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${status.color.split(' ')[1]}`} />
+                      {status.label}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         }
         emptyIcon={<ShoppingCart className="h-12 w-12" />}
         emptyTitle="No sales yet"
@@ -848,6 +901,10 @@ function SalesPage() {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Payment Status:</span>
+                  {getPaymentStatusBadge(selectedSale.paymentStatus)}
+                </div>
+                <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Customer:</span>
                   <span className="font-medium">
                     {selectedSale.customerName || 'Walk-in'}
@@ -855,18 +912,42 @@ function SalesPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Quantity:</span>
-                  <span>{selectedSale.quantity}</span>
+                  <span>{selectedSale.quantity} {selectedSale.unitType ? UNIT_TYPES.find(u => u.value === selectedSale.unitType)?.label || selectedSale.unitType : 'units'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Unit Price:</span>
                   <span>{formatNaira(selectedSale.unitPrice)}</span>
                 </div>
+                {selectedSale.paymentMethod && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Payment Method:</span>
+                    <span>{PAYMENT_METHODS.find(m => m.value === selectedSale.paymentMethod)?.label || selectedSale.paymentMethod}</span>
+                  </div>
+                )}
+                {selectedSale.ageWeeks && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Age at Sale:</span>
+                    <span>{selectedSale.ageWeeks} weeks</span>
+                  </div>
+                )}
+                {selectedSale.averageWeightKg && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Avg Weight:</span>
+                    <span>{selectedSale.averageWeightKg} kg</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Date:</span>
                   <span>
                     {new Date(selectedSale.date).toLocaleDateString()}
                   </span>
                 </div>
+                {selectedSale.notes && (
+                  <div className="pt-2 border-t">
+                    <span className="text-sm text-muted-foreground">Notes:</span>
+                    <p className="text-sm mt-1">{selectedSale.notes}</p>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2 justify-end">
                 <Button
