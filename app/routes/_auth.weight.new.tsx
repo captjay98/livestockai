@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
 import { createWeightSample } from '~/lib/weight/server'
 import { getBatches as getBatchesServer } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
@@ -15,6 +15,7 @@ import {
 } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { Textarea } from '~/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -22,6 +23,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '~/components/ui/collapsible'
 
 interface Batch {
   id: string
@@ -54,6 +60,9 @@ const createWeightSampleAction = createServerFn({ method: 'POST' })
       date: string
       sampleSize: number
       averageWeightKg: number
+      minWeightKg?: number | null
+      maxWeightKg?: number | null
+      notes?: string | null
     }) => data,
   )
   .handler(async ({ data }) => {
@@ -64,6 +73,9 @@ const createWeightSampleAction = createServerFn({ method: 'POST' })
         date: new Date(data.date),
         sampleSize: data.sampleSize,
         averageWeightKg: data.averageWeightKg,
+        minWeightKg: data.minWeightKg,
+        maxWeightKg: data.maxWeightKg,
+        notes: data.notes,
       })
       return { success: true, id }
     } catch (error) {
@@ -102,9 +114,14 @@ function NewWeightPage() {
     date: new Date().toISOString().split('T')[0],
     sampleSize: '',
     averageWeightKg: '',
+    // Enhanced fields
+    minWeightKg: '',
+    maxWeightKg: '',
+    notes: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [showAdditional, setShowAdditional] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -121,6 +138,9 @@ function NewWeightPage() {
           date: formData.date,
           sampleSize: parseInt(formData.sampleSize),
           averageWeightKg: parseFloat(formData.averageWeightKg),
+          minWeightKg: formData.minWeightKg ? parseFloat(formData.minWeightKg) : null,
+          maxWeightKg: formData.maxWeightKg ? parseFloat(formData.maxWeightKg) : null,
+          notes: formData.notes || null,
         },
       })
       router.navigate({ to: '/weight', search: { farmId: search.farmId } })
@@ -238,6 +258,88 @@ function NewWeightPage() {
                 required
               />
             </div>
+
+            {/* Additional Details Section */}
+            <Collapsible open={showAdditional} onOpenChange={setShowAdditional}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" type="button" className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground">
+                  <span>Weight Range & Notes</span>
+                  {showAdditional ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="minWeightKg">Min Weight (kg)</Label>
+                    <Input
+                      id="minWeightKg"
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={formData.minWeightKg}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          minWeightKg: e.target.value,
+                        }))
+                      }
+                      placeholder="Smallest in sample"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="maxWeightKg">Max Weight (kg)</Label>
+                    <Input
+                      id="maxWeightKg"
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={formData.maxWeightKg}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          maxWeightKg: e.target.value,
+                        }))
+                      }
+                      placeholder="Largest in sample"
+                    />
+                  </div>
+                </div>
+
+                {formData.minWeightKg && formData.maxWeightKg && formData.averageWeightKg && (
+                  <div className="text-sm text-muted-foreground">
+                    Weight range: {formData.minWeightKg} - {formData.maxWeightKg} kg
+                    {(() => {
+                      const min = parseFloat(formData.minWeightKg)
+                      const max = parseFloat(formData.maxWeightKg)
+                      const avg = parseFloat(formData.averageWeightKg)
+                      if (min > avg || max < avg) {
+                        return <span className="text-destructive ml-2">(Average should be between min and max)</span>
+                      }
+                      // Calculate CV% (Coefficient of Variation)
+                      const range = max - min
+                      const cv = ((range / 2) / avg) * 100
+                      return <span className="ml-2">• CV ≈ {cv.toFixed(1)}%</span>
+                    })()}
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes (Optional)</Label>
+                  <Textarea
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
+                    placeholder="Any observations about this weight sample..."
+                    rows={3}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             {formData.sampleSize &&
               formData.averageWeightKg &&

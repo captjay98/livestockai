@@ -5,6 +5,10 @@ export interface CreateWeightSampleInput {
   date: Date
   sampleSize: number
   averageWeightKg: number
+  // Enhanced fields
+  minWeightKg?: number | null
+  maxWeightKg?: number | null
+  notes?: string | null
 }
 
 export interface PaginatedQuery {
@@ -54,6 +58,9 @@ export async function createWeightSample(
       date: input.date,
       sampleSize: input.sampleSize,
       averageWeightKg: input.averageWeightKg.toString(),
+      minWeightKg: input.minWeightKg?.toString() || null,
+      maxWeightKg: input.maxWeightKg?.toString() || null,
+      notes: input.notes || null,
     })
     .returning('id')
     .executeTakeFirstOrThrow()
@@ -88,6 +95,9 @@ export async function getWeightSamplesForBatch(
       'weight_samples.date',
       'weight_samples.sampleSize',
       'weight_samples.averageWeightKg',
+      'weight_samples.minWeightKg',
+      'weight_samples.maxWeightKg',
+      'weight_samples.notes',
       'weight_samples.createdAt',
     ])
     .where('weight_samples.batchId', '=', batchId)
@@ -119,6 +129,9 @@ export async function getWeightSamplesForFarm(userId: string, farmId?: string) {
       'weight_samples.date',
       'weight_samples.sampleSize',
       'weight_samples.averageWeightKg',
+      'weight_samples.minWeightKg',
+      'weight_samples.maxWeightKg',
+      'weight_samples.notes',
       'weight_samples.createdAt',
       'batches.species',
       'batches.livestockType',
@@ -293,6 +306,9 @@ export async function getWeightRecordsPaginated(
       'weight_samples.date',
       'weight_samples.sampleSize',
       'weight_samples.averageWeightKg',
+      'weight_samples.minWeightKg',
+      'weight_samples.maxWeightKg',
+      'weight_samples.notes',
       'weight_samples.createdAt',
       'batches.species',
       'batches.livestockType',
