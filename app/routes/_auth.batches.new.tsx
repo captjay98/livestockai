@@ -1,10 +1,15 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
-import { SOURCE_SIZE_OPTIONS, createBatch } from '~/lib/batches/server'
-import { getSpeciesOptions } from '~/lib/batches/constants'
+
+import type { LivestockType } from '~/lib/modules/types'
 import { requireAuth } from '~/lib/auth/server-middleware'
+import { getSpeciesOptions } from '~/lib/batches/constants'
+import { SOURCE_SIZE_OPTIONS, createBatch } from '~/lib/batches/server'
+import { useFarm } from '~/components/farm-context'
+import { useModules } from '~/components/module-context'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -92,10 +97,16 @@ export const Route = createFileRoute('/_auth/batches/new')({
 function NewBatchPage() {
   const router = useRouter()
   const search = Route.useSearch()
+  const { enabledModules } = useModules()
+
+  // Get available livestock types from enabled modules
+  const availableLivestockTypes = enabledModules.flatMap(
+    (moduleKey) => MODULE_METADATA[moduleKey].livestockTypes,
+  )
 
   const [formData, setFormData] = useState({
     farmId: search.farmId || '',
-    livestockType: 'poultry' as 'poultry' | 'fish',
+    livestockType: availableLivestockTypes[0] || 'poultry',
     species: '',
     initialQuantity: '',
     acquisitionDate: new Date().toISOString().split('T')[0],
@@ -147,10 +158,10 @@ function NewBatchPage() {
   }
 
   const handleLivestockTypeChange = (type: string | null) => {
-    if (type && (type === 'poultry' || type === 'fish')) {
+    if (type && availableLivestockTypes.includes(type as LivestockType)) {
       setFormData((prev) => ({
         ...prev,
-        livestockType: type,
+        livestockType: type as LivestockType,
         species: '',
         sourceSize: '',
       }))
@@ -194,8 +205,11 @@ function NewBatchPage() {
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="poultry">Poultry</SelectItem>
-                  <SelectItem value="fish">Fish</SelectItem>
+                  {availableLivestockTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

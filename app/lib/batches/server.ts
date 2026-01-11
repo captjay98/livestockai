@@ -1,25 +1,39 @@
 import { createServerFn } from '@tanstack/react-start'
 import { multiply, toDbString, toNumber } from '../currency'
+import { MODULE_METADATA } from '../modules/constants'
+import type { LivestockType } from '../modules/types'
 
-// Source size options based on livestock type
+/**
+ * Get source size options for a livestock type
+ */
+export function getSourceSizeOptions(
+  livestockType: LivestockType,
+): Array<{ value: string; label: string }> {
+  // Find the module that handles this livestock type
+  const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
+    metadata.livestockTypes.includes(livestockType)
+  )
+
+  if (!moduleEntry) {
+    return []
+  }
+
+  return moduleEntry[1].sourceSizeOptions
+}
+
+// Legacy SOURCE_SIZE_OPTIONS for backward compatibility
 export const SOURCE_SIZE_OPTIONS = {
-  poultry: [
-    { value: 'day-old', label: 'Day-old Chicks' },
-    { value: 'point-of-lay', label: 'Point of Lay' },
-    { value: '2-weeks', label: '2 Weeks Old' },
-    { value: '4-weeks', label: '4 Weeks Old' },
-  ],
-  fish: [
-    { value: 'fingerling', label: 'Fingerling (3-5cm)' },
-    { value: 'post-fingerling', label: 'Post-fingerling (5-8cm)' },
-    { value: 'jumbo', label: 'Jumbo (10-12cm)' },
-    { value: 'table-size', label: 'Table Size (15cm+)' },
-  ],
+  poultry: getSourceSizeOptions('poultry'),
+  fish: getSourceSizeOptions('fish'),
+  cattle: getSourceSizeOptions('cattle'),
+  goats: getSourceSizeOptions('goats'),
+  sheep: getSourceSizeOptions('sheep'),
+  bees: getSourceSizeOptions('bees'),
 }
 
 export interface CreateBatchData {
   farmId: string
-  livestockType: 'poultry' | 'fish'
+  livestockType: LivestockType
   species: string
   initialQuantity: number
   acquisitionDate: Date
