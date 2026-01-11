@@ -4,13 +4,26 @@ import {
   ArrowLeft,
   Building2,
   Edit,
+  Home,
   MapPin,
+  Plus,
   TrendingDown,
   TrendingUp,
+  Trash2,
   Users,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getFarmById, getFarmStats } from '~/lib/farms/server'
+import {
+  getStructuresWithCounts,
+  createStructureFn,
+  updateStructureFn,
+  deleteStructureFn,
+  STRUCTURE_TYPES,
+  STRUCTURE_STATUSES,
+  type StructureType,
+  type StructureStatus,
+} from '~/lib/structures/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
@@ -22,6 +35,24 @@ import {
   CardTitle,
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog'
 import { FarmDialog } from '~/components/dialogs/farm-dialog'
 
 interface Farm {
@@ -39,6 +70,20 @@ interface FarmStats {
   expenses: { count: number; amount: number }
 }
 
+interface Structure {
+  id: string
+  farmId: string
+  name: string
+  type: string
+  capacity: number | null
+  areaSqm: string | null
+  status: string
+  notes: string | null
+  createdAt: Date
+  batchCount: number
+  totalAnimals: number
+}
+
 const getFarmDetails = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
@@ -50,14 +95,15 @@ const getFarmDetails = createServerFn({ method: 'GET' })
       const { getSalesForFarm } = await import('~/lib/sales/server')
       const { getExpensesForFarm } = await import('~/lib/expenses/server')
 
-      const [farm, stats, activeBatches, recentSales, recentExpenses] = await Promise.all([
+      const [farm, stats, activeBatches, recentSales, recentExpenses, structures] = await Promise.all([
         getFarmById(data.farmId, session.user.id),
         getFarmStats(data.farmId, session.user.id),
         getBatches(session.user.id, data.farmId, { status: 'active' }),
         getSalesForFarm(session.user.id, data.farmId, { limit: 5 }),
         getExpensesForFarm(session.user.id, data.farmId, { limit: 5 }),
+        getStructuresWithCounts(session.user.id, data.farmId),
       ])
-      return { farm, stats, activeBatches, recentSales, recentExpenses }
+      return { farm, stats, activeBatches, recentSales, recentExpenses, structures }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -72,10 +118,129 @@ export const Route = createFileRoute('/_auth/farms/$farmId/')({
 })
 
 function FarmDetailsPage() {
-  const { farm, stats, activeBatches, recentSales, recentExpenses } = Route.useLoaderData()
+  const loaderData = Route.useLoaderData()
   const { farmId } = Route.useParams()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [activityTab, setActivityTab] = useState<'sales' | 'expenses'>('sales')
+  
+  // Structures state
+  const [structures, setStructures] = useState<Structure[]>(loaderData.structures || [])
+  const [structureDialogOpen, setStructureDialogOpen] = useState(false)
+  const [editStructureDialogOpen, setEditStructureDialogOpen] = useState(false)
+  const [deleteStructureDialogOpen, setDeleteStructureDialogOpen] = useState(false)
+  const [selectedStructure, setSelectedStructure] = useState<Structure | null>(null)
+  const [structureForm, setStructureForm] = useState({
+    name: '',
+    type: 'house' as StructureType,
+    capacity: '',
+    areaSqm: '',
+    status: 'active' as StructureStatus,
+    notes: '',
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  const { farm, stats, activeBatches, recentSales, recentExpenses } = loaderData
+
+  useEffect(() => {
+    setStructures(loaderData.structures || [])
+  }, [loaderData.structures])
+
+  const resetStructureForm = () => {
+    setStructureForm({ name: '', type: 'house', capacity: '', areaSqm: '', status: 'active', notes: '' })
+    setError('')
+  }
+
+  const handleCreateStructure = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await createStructureFn({
+        data: {
+          input: {
+            farmId,
+            name: structureForm.name,
+            type: structureForm.type,
+            capacity: structureForm.capacity ? parseInt(structureForm.capacity) : null,
+            areaSqm: structureForm.areaSqm ? parseFloat(structureForm.areaSqm) : null,
+            status: structureForm.status,
+            notes: structureForm.notes || null,
+          },
+        },
+      })
+      setStructureDialogOpen(false)
+      resetStructureForm()
+      // Reload structures
+      const newStructures = await getStructuresWithCounts(farmId)
+      setStructures(newStructures)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create structure')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleEditStructure = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedStructure) return
+    setIsSubmitting(true)
+    try {
+      await updateStructureFn({
+        data: {
+          id: selectedStructure.id,
+          input: {
+            name: structureForm.name,
+            type: structureForm.type,
+            capacity: structureForm.capacity ? parseInt(structureForm.capacity) : null,
+            areaSqm: structureForm.areaSqm ? parseFloat(structureForm.areaSqm) : null,
+            status: structureForm.status,
+            notes: structureForm.notes || null,
+          },
+        },
+      })
+      setEditStructureDialogOpen(false)
+      const newStructures = await getStructuresWithCounts(farmId)
+      setStructures(newStructures)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update structure')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteStructure = async () => {
+    if (!selectedStructure) return
+    setIsSubmitting(true)
+    try {
+      await deleteStructureFn({ data: { id: selectedStructure.id } })
+      setDeleteStructureDialogOpen(false)
+      const newStructures = await getStructuresWithCounts(farmId)
+      setStructures(newStructures)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete structure')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const openEditStructure = (structure: Structure) => {
+    setSelectedStructure(structure)
+    setStructureForm({
+      name: structure.name,
+      type: structure.type as StructureType,
+      capacity: structure.capacity?.toString() || '',
+      areaSqm: structure.areaSqm || '',
+      status: structure.status as StructureStatus,
+      notes: structure.notes || '',
+    })
+    setEditStructureDialogOpen(true)
+  }
+
+  const getStructuresWithCounts = async (fId: string) => {
+    const { getStructuresWithCountsFn } = await import('~/lib/structures/server')
+    return getStructuresWithCountsFn({ data: { farmId: fId } })
+  }
 
   if (!farm) {
     return (
@@ -178,6 +343,106 @@ function FarmDetailsPage() {
                         <Badge variant="outline" className="text-xs uppercase">
                           {batch.livestockType}
                         </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Structures */}
+          <Card className="glass">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div>
+                <CardTitle>Structures</CardTitle>
+                <CardDescription>Houses, ponds, pens, and cages</CardDescription>
+              </div>
+              <Dialog open={structureDialogOpen} onOpenChange={setStructureDialogOpen}>
+                <DialogTrigger render={
+                  <Button size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Structure
+                  </Button>
+                } />
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Structure</DialogTitle>
+                    <DialogDescription>Add a new structure to this farm</DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleCreateStructure} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Name</Label>
+                      <Input value={structureForm.name} onChange={e => setStructureForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g., House A, Pond 1" required />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Type</Label>
+                        <Select value={structureForm.type} onValueChange={(v) => v && setStructureForm(p => ({ ...p, type: v as StructureType }))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {STRUCTURE_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Status</Label>
+                        <Select value={structureForm.status} onValueChange={(v) => v && setStructureForm(p => ({ ...p, status: v as StructureStatus }))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {STRUCTURE_STATUSES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Capacity (optional)</Label>
+                        <Input type="number" min="0" value={structureForm.capacity} onChange={e => setStructureForm(p => ({ ...p, capacity: e.target.value }))} placeholder="Max animals" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Area (m²) (optional)</Label>
+                        <Input type="number" min="0" step="0.01" value={structureForm.areaSqm} onChange={e => setStructureForm(p => ({ ...p, areaSqm: e.target.value }))} placeholder="Size" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Notes (optional)</Label>
+                      <Input value={structureForm.notes} onChange={e => setStructureForm(p => ({ ...p, notes: e.target.value }))} placeholder="Additional notes" />
+                    </div>
+                    {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
+                    <DialogFooter>
+                      <Button type="button" variant="outline" onClick={() => setStructureDialogOpen(false)}>Cancel</Button>
+                      <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Adding...' : 'Add Structure'}</Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent>
+              {structures.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Home className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  No structures added yet.
+                </div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {structures.map((structure) => (
+                    <div key={structure.id} className="border rounded-lg p-3 flex items-start justify-between">
+                      <div>
+                        <div className="font-medium flex items-center gap-2">
+                          {structure.name}
+                          <Badge variant={structure.status === 'active' ? 'default' : structure.status === 'maintenance' ? 'secondary' : 'outline'} className="text-xs">
+                            {structure.status}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground capitalize">{structure.type}</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {structure.batchCount > 0 ? `${structure.batchCount} batch(es), ${structure.totalAnimals} animals` : 'No batches assigned'}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEditStructure(structure)}><Edit className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive" onClick={() => { setSelectedStructure(structure); setDeleteStructureDialogOpen(true) }}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </div>
                   ))}
@@ -404,6 +669,82 @@ function FarmDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Structure Dialog */}
+      <Dialog open={editStructureDialogOpen} onOpenChange={setEditStructureDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Structure</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditStructure} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Name</Label>
+              <Input value={structureForm.name} onChange={e => setStructureForm(p => ({ ...p, name: e.target.value }))} required />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Type</Label>
+                <Select value={structureForm.type} onValueChange={(v) => v && setStructureForm(p => ({ ...p, type: v as StructureType }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {STRUCTURE_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={structureForm.status} onValueChange={(v) => v && setStructureForm(p => ({ ...p, status: v as StructureStatus }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {STRUCTURE_STATUSES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Capacity</Label>
+                <Input type="number" min="0" value={structureForm.capacity} onChange={e => setStructureForm(p => ({ ...p, capacity: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Area (m²)</Label>
+                <Input type="number" min="0" step="0.01" value={structureForm.areaSqm} onChange={e => setStructureForm(p => ({ ...p, areaSqm: e.target.value }))} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Notes</Label>
+              <Input value={structureForm.notes} onChange={e => setStructureForm(p => ({ ...p, notes: e.target.value }))} />
+            </div>
+            {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEditStructureDialogOpen(false)}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save Changes'}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Structure Dialog */}
+      <Dialog open={deleteStructureDialogOpen} onOpenChange={setDeleteStructureDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Structure</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{selectedStructure?.name}"? This action cannot be undone.
+              {selectedStructure && selectedStructure.batchCount > 0 && (
+                <span className="block mt-2 text-destructive">
+                  Warning: This structure has {selectedStructure.batchCount} active batch(es) assigned.
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setDeleteStructureDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteStructure} disabled={isSubmitting}>{isSubmitting ? 'Deleting...' : 'Delete'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

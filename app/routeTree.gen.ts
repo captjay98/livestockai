@@ -20,6 +20,7 @@ import { Route as AuthSalesRouteImport } from './routes/_auth.sales'
 import { Route as AuthReportsRouteImport } from './routes/_auth.reports'
 import { Route as AuthMortalityRouteImport } from './routes/_auth.mortality'
 import { Route as AuthInvoicesRouteImport } from './routes/_auth.invoices'
+import { Route as AuthInventoryRouteImport } from './routes/_auth.inventory'
 import { Route as AuthFeedRouteImport } from './routes/_auth.feed'
 import { Route as AuthFarmsRouteImport } from './routes/_auth.farms'
 import { Route as AuthExpensesRouteImport } from './routes/_auth.expenses'
@@ -99,6 +100,11 @@ const AuthMortalityRoute = AuthMortalityRouteImport.update({
 const AuthInvoicesRoute = AuthInvoicesRouteImport.update({
   id: '/invoices',
   path: '/invoices',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthInventoryRoute = AuthInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthFeedRoute = AuthFeedRouteImport.update({
@@ -241,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/expenses': typeof AuthExpensesRouteWithChildren
   '/farms': typeof AuthFarmsRouteWithChildren
   '/feed': typeof AuthFeedRouteWithChildren
+  '/inventory': typeof AuthInventoryRoute
   '/invoices': typeof AuthInvoicesRouteWithChildren
   '/mortality': typeof AuthMortalityRoute
   '/reports': typeof AuthReportsRouteWithChildren
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/eggs': typeof AuthEggsRouteWithChildren
   '/expenses': typeof AuthExpensesRouteWithChildren
   '/feed': typeof AuthFeedRouteWithChildren
+  '/inventory': typeof AuthInventoryRoute
   '/invoices': typeof AuthInvoicesRouteWithChildren
   '/mortality': typeof AuthMortalityRoute
   '/reports': typeof AuthReportsRouteWithChildren
@@ -317,6 +325,7 @@ export interface FileRoutesById {
   '/_auth/expenses': typeof AuthExpensesRouteWithChildren
   '/_auth/farms': typeof AuthFarmsRouteWithChildren
   '/_auth/feed': typeof AuthFeedRouteWithChildren
+  '/_auth/inventory': typeof AuthInventoryRoute
   '/_auth/invoices': typeof AuthInvoicesRouteWithChildren
   '/_auth/mortality': typeof AuthMortalityRoute
   '/_auth/reports': typeof AuthReportsRouteWithChildren
@@ -357,6 +366,7 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/farms'
     | '/feed'
+    | '/inventory'
     | '/invoices'
     | '/mortality'
     | '/reports'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/eggs'
     | '/expenses'
     | '/feed'
+    | '/inventory'
     | '/invoices'
     | '/mortality'
     | '/reports'
@@ -432,6 +443,7 @@ export interface FileRouteTypes {
     | '/_auth/expenses'
     | '/_auth/farms'
     | '/_auth/feed'
+    | '/_auth/inventory'
     | '/_auth/invoices'
     | '/_auth/mortality'
     | '/_auth/reports'
@@ -545,6 +557,13 @@ declare module '@tanstack/react-router' {
       path: '/invoices'
       fullPath: '/invoices'
       preLoaderRoute: typeof AuthInvoicesRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/inventory': {
+      id: '/_auth/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AuthInventoryRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/feed': {
@@ -901,6 +920,7 @@ interface AuthRouteChildren {
   AuthExpensesRoute: typeof AuthExpensesRouteWithChildren
   AuthFarmsRoute: typeof AuthFarmsRouteWithChildren
   AuthFeedRoute: typeof AuthFeedRouteWithChildren
+  AuthInventoryRoute: typeof AuthInventoryRoute
   AuthInvoicesRoute: typeof AuthInvoicesRouteWithChildren
   AuthMortalityRoute: typeof AuthMortalityRoute
   AuthReportsRoute: typeof AuthReportsRouteWithChildren
@@ -921,6 +941,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthExpensesRoute: AuthExpensesRouteWithChildren,
   AuthFarmsRoute: AuthFarmsRouteWithChildren,
   AuthFeedRoute: AuthFeedRouteWithChildren,
+  AuthInventoryRoute: AuthInventoryRoute,
   AuthInvoicesRoute: AuthInvoicesRouteWithChildren,
   AuthMortalityRoute: AuthMortalityRoute,
   AuthReportsRoute: AuthReportsRouteWithChildren,

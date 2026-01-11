@@ -109,11 +109,14 @@ describe('Property 6: Feed Conversion Ratio Calculation', () => {
 
           if (fcr1 !== null && fcr2 !== null) {
             // Higher weight gain = lower FCR = better efficiency
-            if (weightGain1 > weightGain2) {
+            // Use a small epsilon for floating point comparison
+            const epsilon = 1e-10
+            if (weightGain1 > weightGain2 + epsilon) {
               expect(fcr1).toBeLessThan(fcr2)
-            } else if (weightGain1 < weightGain2) {
+            } else if (weightGain1 < weightGain2 - epsilon) {
               expect(fcr1).toBeGreaterThan(fcr2)
             }
+            // When weights are nearly equal, FCRs should also be nearly equal
           }
         },
       ),

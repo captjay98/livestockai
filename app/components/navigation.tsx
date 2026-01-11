@@ -7,6 +7,7 @@ import {
   FileText,
   Home,
   Menu,
+  Package,
   Receipt,
   Scale,
   ShoppingCart,
@@ -15,6 +16,7 @@ import {
   Truck,
   UserCircle,
   Users,
+  Warehouse,
   Wheat,
   X,
 } from 'lucide-react'
@@ -26,7 +28,8 @@ import { Button } from '~/components/ui/button'
 export const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Farms', href: '/farms', icon: Building2 },
-  { name: 'Inventory', href: '/batches', icon: Users },
+  { name: 'Batches', href: '/batches', icon: Package },
+  { name: 'Inventory', href: '/inventory', icon: Warehouse },
   { name: 'Mortality', href: '/mortality', icon: TrendingDown },
   { name: 'Feed', href: '/feed', icon: Wheat },
   // { name: 'Eggs', href: '/eggs', icon: Egg },
