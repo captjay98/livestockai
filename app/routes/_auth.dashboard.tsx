@@ -3,17 +3,21 @@ import { createServerFn } from '@tanstack/react-start'
 import {
   Activity,
   AlertTriangle,
+  Beef,
   Bird,
   Building2,
   Calendar,
   Clock,
+  Cloud,
   DollarSign,
   Droplets,
   Edit,
   Egg,
   Fish,
+  Hexagon,
   Package,
   Plus,
+  Rabbit,
   Receipt,
   ShoppingCart,
   Syringe,
@@ -34,6 +38,7 @@ import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { useFarm } from '~/components/farm-context'
+import { useModules } from '~/components/module-context'
 import { cn } from '~/lib/utils'
 import { ExpenseDialog } from '~/components/dialogs/expense-dialog'
 import { EditFarmDialog } from '~/components/dialogs/edit-farm-dialog'
@@ -153,6 +158,7 @@ function TrendingDownIcon({ className }: { className?: string }) {
 
 function DashboardPage() {
   const { selectedFarmId } = useFarm()
+  const { enabledModules } = useModules()
 
   const [stats, setStats] = useState<any>(null)
   const [hasFarms, setHasFarms] = useState<boolean | null>(null)
@@ -439,51 +445,108 @@ function DashboardPage() {
 
           {/* Inventory Summary */}
           <div className="grid gap-3 sm:grid-cols-3">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Bird className="h-5 w-5 text-primary" />
+            {enabledModules.includes('poultry') && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Bird className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Poultry</p>
+                      <p className="text-lg sm:text-xl font-bold">
+                        {stats.inventory.totalPoultry?.toLocaleString() || 0}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">Poultry</p>
-                    <p className="text-lg sm:text-xl font-bold">
-                      {stats.inventory.totalPoultry.toLocaleString()}
-                    </p>
+                </CardContent>
+              </Card>
+            )}
+            {enabledModules.includes('aquaculture') && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                      <Fish className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Fish</p>
+                      <p className="text-lg sm:text-xl font-bold">
+                        {stats.inventory.totalFish?.toLocaleString() || 0}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
-                    <Fish className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </CardContent>
+              </Card>
+            )}
+            {enabledModules.includes('cattle') && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
+                      <Beef className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Cattle</p>
+                      <p className="text-lg sm:text-xl font-bold">
+                        {stats.inventory.totalCattle?.toLocaleString() || 0}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">Fish</p>
-                    <p className="text-lg sm:text-xl font-bold">
-                      {stats.inventory.totalFish.toLocaleString()}
-                    </p>
+                </CardContent>
+              </Card>
+            )}
+            {enabledModules.includes('goats') && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+                      <Rabbit className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Goats</p>
+                      <p className="text-lg sm:text-xl font-bold">
+                        {stats.inventory.totalGoats?.toLocaleString() || 0}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-                    <Egg className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                </CardContent>
+              </Card>
+            )}
+            {enabledModules.includes('sheep') && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+                      <Cloud className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Sheep</p>
+                      <p className="text-lg sm:text-xl font-bold">
+                        {stats.inventory.totalSheep?.toLocaleString() || 0}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">Eggs</p>
-                    <p className="text-lg sm:text-xl font-bold">
-                      {stats.production.eggsThisMonth.toLocaleString()}
-                    </p>
+                </CardContent>
+              </Card>
+            )}
+            {enabledModules.includes('bees') && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                      <Hexagon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Bee Colonies</p>
+                      <p className="text-lg sm:text-xl font-bold">
+                        {stats.inventory.totalBees?.toLocaleString() || 0}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card> */}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Quick Actions */}
