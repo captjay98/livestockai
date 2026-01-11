@@ -4,10 +4,12 @@ import type { Generated } from 'kysely'
 // Note: Column names use camelCase to match Better Auth expectations
 export interface Database {
   users: UserTable
+  user_settings: UserSettingsTable
   sessions: SessionTable
   account: AccountTable
   verification: VerificationTable
   farms: FarmTable
+  farm_modules: FarmModuleTable
   user_farms: UserFarmTable
   structures: StructureTable
   batches: BatchTable
@@ -40,6 +42,33 @@ export interface UserTable {
   role: 'admin' | 'staff'
   emailVerified: Generated<boolean>
   image: string | null
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
+}
+
+// User Settings (Internationalization)
+export interface UserSettingsTable {
+  id: Generated<string>
+  userId: string
+
+  // Currency settings
+  currencyCode: string
+  currencySymbol: string
+  currencyDecimals: number
+  currencySymbolPosition: 'before' | 'after'
+  thousandSeparator: string
+  decimalSeparator: string
+
+  // Date/Time settings
+  dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
+  timeFormat: '12h' | '24h'
+  firstDayOfWeek: number
+
+  // Unit settings
+  weightUnit: 'kg' | 'lbs'
+  areaUnit: 'sqm' | 'sqft'
+  temperatureUnit: 'celsius' | 'fahrenheit'
+
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -85,11 +114,19 @@ export interface FarmTable {
   id: Generated<string>
   name: string
   location: string
-  type: 'poultry' | 'fishery' | 'mixed'
+  type: 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
   contactPhone: string | null
   notes: string | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
+}
+
+export interface FarmModuleTable {
+  id: Generated<string>
+  farmId: string
+  moduleKey: 'poultry' | 'aquaculture' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  enabled: Generated<boolean>
+  createdAt: Generated<Date>
 }
 
 export interface UserFarmTable {
@@ -102,7 +139,7 @@ export interface StructureTable {
   id: Generated<string>
   farmId: string
   name: string // "House A", "Pond 1", "Pen 3"
-  type: 'house' | 'pond' | 'pen' | 'cage'
+  type: 'house' | 'pond' | 'pen' | 'cage' | 'barn' | 'pasture' | 'hive' | 'milking_parlor' | 'shearing_shed'
   capacity: number | null // Max animals
   areaSqm: string | null // DECIMAL(10,2) - Size in square meters
   status: 'active' | 'empty' | 'maintenance'
@@ -117,9 +154,9 @@ export interface BatchTable {
   id: Generated<string>
   farmId: string
   batchName: string | null // "Batch A", "NOV-2024-BR-01"
-  livestockType: 'poultry' | 'fish'
-  species: string // broiler, layer, catfish, tilapia, etc.
-  sourceSize: string | null // "day-old", "point-of-lay", "fingerling", "jumbo"
+  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  species: string // broiler, layer, catfish, tilapia, angus, boer, merino, etc.
+  sourceSize: string | null // "day-old", "point-of-lay", "fingerling", "jumbo", "calf", "kid", "lamb", "nuc"
   initialQuantity: number
   currentQuantity: number
   acquisitionDate: Date
@@ -127,7 +164,7 @@ export interface BatchTable {
   totalCost: string // DECIMAL(19,2) - returned as string from pg
   status: 'active' | 'depleted' | 'sold'
   supplierId: string | null // Where purchased from
-  structureId: string | null // Which house/pond
+  structureId: string | null // Which house/pond/barn/pasture/hive
   targetHarvestDate: Date | null // Planned sale date
   target_weight_g: number | null // Forecasting
   notes: string | null
@@ -148,7 +185,7 @@ export interface MortalityTable {
 export interface FeedTable {
   id: Generated<string>
   batchId: string
-  feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+  feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed' | 'cattle_feed' | 'goat_feed' | 'sheep_feed' | 'hay' | 'silage' | 'bee_feed'
   brandName: string | null // "Aller Aqua", "Ultima Plus", "Blue Crown"
   bagSizeKg: number | null // 15, 25
   numberOfBags: number | null // How many bags used
@@ -224,7 +261,7 @@ export interface SaleTable {
   batchId: string | null
   customerId: string | null
   invoiceId: string | null // Link to invoice if generated
-  livestockType: 'poultry' | 'fish' | 'eggs'
+  livestockType: 'poultry' | 'fish' | 'eggs' | 'cattle' | 'goats' | 'sheep' | 'honey' | 'milk' | 'wool'
   quantity: number
   unitPrice: string // DECIMAL(19,2) - returned as string from pg
   totalAmount: string // DECIMAL(19,2) - returned as string from pg
@@ -252,6 +289,10 @@ export interface ExpenseTable {
   | 'livestock' // For chick/fingerling purchases
   | 'livestock_chicken'
   | 'livestock_fish'
+  | 'livestock_cattle'
+  | 'livestock_goats'
+  | 'livestock_sheep'
+  | 'livestock_bees'
   | 'maintenance'
   | 'marketing'
   | 'other'
@@ -266,7 +307,7 @@ export interface ExpenseTable {
 export interface FeedInventoryTable {
   id: Generated<string>
   farmId: string
-  feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+  feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed' | 'cattle_feed' | 'goat_feed' | 'sheep_feed' | 'hay' | 'silage' | 'bee_feed'
   quantityKg: string // DECIMAL(10,2)
   minThresholdKg: string // DECIMAL(10,2)
   updatedAt: Generated<Date>
@@ -308,6 +349,10 @@ export interface SupplierTable {
   | 'pharmacy'
   | 'equipment'
   | 'fingerlings'
+  | 'cattle_dealer'
+  | 'goat_dealer'
+  | 'sheep_dealer'
+  | 'bee_supplier'
   | 'other'
   | null
   createdAt: Generated<Date>
@@ -346,5 +391,27 @@ export interface AuditLogTable {
   entityId: string
   details: string | null // stored as jsonb but we stringify it
   ipAddress: string | null
+  createdAt: Generated<Date>
+}
+
+// Growth Standards
+export interface GrowthStandardTable {
+  id: Generated<string>
+  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  species: string
+  ageWeeks: number
+  standardWeightKg: string // DECIMAL(8,3) - returned as string from pg
+  notes: string | null
+  createdAt: Generated<Date>
+}
+
+// Market Prices
+export interface MarketPriceTable {
+  id: Generated<string>
+  livestockType: 'poultry' | 'fish' | 'eggs' | 'cattle' | 'goats' | 'sheep' | 'honey' | 'milk' | 'wool'
+  pricePerKg: string // DECIMAL(19,2) - returned as string from pg
+  date: Date
+  location: string | null
+  notes: string | null
   createdAt: Generated<Date>
 }

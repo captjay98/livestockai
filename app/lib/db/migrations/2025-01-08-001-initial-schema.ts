@@ -23,6 +23,38 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await sql`ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('admin', 'staff'))`.execute(db)
 
+  // User Settings (Internationalization)
+  await db.schema
+    .createTable('user_settings')
+    .addColumn('id', 'uuid', (col) => col.primaryKey().defaultTo(sql`uuid_generate_v4()`))
+    .addColumn('userId', 'uuid', (col) => col.notNull().unique().references('users.id').onDelete('cascade'))
+    // Currency settings
+    .addColumn('currencyCode', 'varchar(3)', (col) => col.notNull().defaultTo('USD'))
+    .addColumn('currencySymbol', 'varchar(5)', (col) => col.notNull().defaultTo('$'))
+    .addColumn('currencyDecimals', 'integer', (col) => col.notNull().defaultTo(2))
+    .addColumn('currencySymbolPosition', 'varchar(10)', (col) => col.notNull().defaultTo('before'))
+    .addColumn('thousandSeparator', 'varchar(1)', (col) => col.notNull().defaultTo(','))
+    .addColumn('decimalSeparator', 'varchar(1)', (col) => col.notNull().defaultTo('.'))
+    // Date/Time settings
+    .addColumn('dateFormat', 'varchar(20)', (col) => col.notNull().defaultTo('YYYY-MM-DD'))
+    .addColumn('timeFormat', 'varchar(5)', (col) => col.notNull().defaultTo('24h'))
+    .addColumn('firstDayOfWeek', 'integer', (col) => col.notNull().defaultTo(1))
+    // Unit settings
+    .addColumn('weightUnit', 'varchar(5)', (col) => col.notNull().defaultTo('kg'))
+    .addColumn('areaUnit', 'varchar(5)', (col) => col.notNull().defaultTo('sqm'))
+    .addColumn('temperatureUnit', 'varchar(15)', (col) => col.notNull().defaultTo('celsius'))
+    // Timestamps
+    .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
+    .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
+    .execute()
+
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_symbol_position_check CHECK ("currencySymbolPosition" IN ('before', 'after'))`.execute(db)
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_date_format_check CHECK ("dateFormat" IN ('MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'))`.execute(db)
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_time_format_check CHECK ("timeFormat" IN ('12h', '24h'))`.execute(db)
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_weight_unit_check CHECK ("weightUnit" IN ('kg', 'lbs'))`.execute(db)
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_area_unit_check CHECK ("areaUnit" IN ('sqm', 'sqft'))`.execute(db)
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_temp_unit_check CHECK ("temperatureUnit" IN ('celsius', 'fahrenheit'))`.execute(db)
+
   await db.schema
     .createTable('sessions')
     .addColumn('id', 'varchar(255)', (col) => col.primaryKey())
@@ -77,7 +109,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE farms ADD CONSTRAINT farms_type_check CHECK (type IN ('poultry', 'fishery', 'mixed'))`.execute(db)
+  await sql`ALTER TABLE farms ADD CONSTRAINT farms_type_check CHECK (type IN ('poultry', 'fishery', 'mixed', 'cattle', 'goats', 'sheep', 'bees', 'multi'))`.execute(db)
 
   await db.schema
     .createTable('user_farms')
@@ -85,6 +117,18 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('farmId', 'uuid', (col) => col.notNull().references('farms.id').onDelete('cascade'))
     .addPrimaryKeyConstraint('user_farms_pkey', ['userId', 'farmId'])
     .execute()
+
+  await db.schema
+    .createTable('farm_modules')
+    .addColumn('id', 'uuid', (col) => col.primaryKey().defaultTo(sql`uuid_generate_v4()`))
+    .addColumn('farmId', 'uuid', (col) => col.notNull().references('farms.id').onDelete('cascade'))
+    .addColumn('moduleKey', 'varchar(20)', (col) => col.notNull())
+    .addColumn('enabled', 'boolean', (col) => col.notNull().defaultTo(true))
+    .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
+    .addUniqueConstraint('farm_modules_farm_module_unique', ['farmId', 'moduleKey'])
+    .execute()
+
+  await sql`ALTER TABLE farm_modules ADD CONSTRAINT farm_modules_key_check CHECK ("moduleKey" IN ('poultry', 'aquaculture', 'cattle', 'goats', 'sheep', 'bees'))`.execute(db)
 
   await db.schema
     .createTable('customers')
@@ -113,7 +157,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE suppliers ADD CONSTRAINT suppliers_type_check CHECK ("supplierType" IS NULL OR "supplierType" IN ('hatchery', 'feed_mill', 'pharmacy', 'equipment', 'fingerlings', 'other'))`.execute(db)
+  await sql`ALTER TABLE suppliers ADD CONSTRAINT suppliers_type_check CHECK ("supplierType" IS NULL OR "supplierType" IN ('hatchery', 'feed_mill', 'pharmacy', 'equipment', 'fingerlings', 'cattle_dealer', 'goat_dealer', 'sheep_dealer', 'bee_supplier', 'other'))`.execute(db)
 
   // ============================================
   // 3. Infrastructure & Inventory
@@ -131,7 +175,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE structures ADD CONSTRAINT structures_type_check CHECK (type IN ('house', 'pond', 'pen', 'cage'))`.execute(db)
+  await sql`ALTER TABLE structures ADD CONSTRAINT structures_type_check CHECK (type IN ('house', 'pond', 'pen', 'cage', 'barn', 'pasture', 'hive', 'milking_parlor', 'shearing_shed'))`.execute(db)
   await sql`ALTER TABLE structures ADD CONSTRAINT structures_status_check CHECK (status IN ('active', 'empty', 'maintenance'))`.execute(db)
 
   await db.schema
@@ -158,7 +202,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE feed_inventory ADD CONSTRAINT feed_inventory_feed_type_check CHECK ("feedType" IN ('starter', 'grower', 'finisher', 'layer_mash', 'fish_feed'))`.execute(db)
+  await sql`ALTER TABLE feed_inventory ADD CONSTRAINT feed_inventory_feed_type_check CHECK ("feedType" IN ('starter', 'grower', 'finisher', 'layer_mash', 'fish_feed', 'cattle_feed', 'goat_feed', 'sheep_feed', 'hay', 'silage', 'bee_feed'))`.execute(db)
 
   // ============================================
   // 4. Batches & Production
@@ -186,7 +230,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE batches ADD CONSTRAINT batches_livestock_type_check CHECK ("livestockType" IN ('poultry', 'fish'))`.execute(db)
+  await sql`ALTER TABLE batches ADD CONSTRAINT batches_livestock_type_check CHECK ("livestockType" IN ('poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'))`.execute(db)
   await sql`ALTER TABLE batches ADD CONSTRAINT batches_status_check CHECK (status IN ('active', 'depleted', 'sold'))`.execute(db)
   await sql`ALTER TABLE batches ADD CONSTRAINT batches_initial_quantity_check CHECK ("initialQuantity" > 0)`.execute(db)
   await sql`ALTER TABLE batches ADD CONSTRAINT batches_current_quantity_check CHECK ("currentQuantity" >= 0)`.execute(db)
@@ -221,7 +265,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE feed_records ADD CONSTRAINT feed_records_feed_type_check CHECK ("feedType" IN ('starter', 'grower', 'finisher', 'layer_mash', 'fish_feed'))`.execute(db)
+  await sql`ALTER TABLE feed_records ADD CONSTRAINT feed_records_feed_type_check CHECK ("feedType" IN ('starter', 'grower', 'finisher', 'layer_mash', 'fish_feed', 'cattle_feed', 'goat_feed', 'sheep_feed', 'hay', 'silage', 'bee_feed'))`.execute(db)
 
   await db.schema
     .createTable('egg_records')
@@ -337,7 +381,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE sales ADD CONSTRAINT sales_livestock_type_check CHECK ("livestockType" IN ('poultry', 'fish', 'eggs'))`.execute(db)
+  await sql`ALTER TABLE sales ADD CONSTRAINT sales_livestock_type_check CHECK ("livestockType" IN ('poultry', 'fish', 'eggs', 'cattle', 'goats', 'sheep', 'honey', 'milk', 'wool'))`.execute(db)
   await sql`ALTER TABLE sales ADD CONSTRAINT sales_unit_type_check CHECK ("unitType" IS NULL OR "unitType" IN ('bird', 'kg', 'crate', 'piece'))`.execute(db)
 
   await db.schema
@@ -354,7 +398,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE expenses ADD CONSTRAINT expenses_category_check CHECK (category IN ('feed', 'medicine', 'equipment', 'utilities', 'labor', 'transport', 'livestock', 'livestock_chicken', 'livestock_fish', 'maintenance', 'marketing', 'other'))`.execute(db)
+  await sql`ALTER TABLE expenses ADD CONSTRAINT expenses_category_check CHECK (category IN ('feed', 'medicine', 'equipment', 'utilities', 'labor', 'transport', 'livestock', 'livestock_chicken', 'livestock_fish', 'livestock_cattle', 'livestock_goats', 'livestock_sheep', 'livestock_bees', 'maintenance', 'marketing', 'other'))`.execute(db)
 
   // ============================================
   // 6. Logs & Forecasting
@@ -398,6 +442,8 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema.createIndex('idx_users_email').on('users').column('email').execute()
   await db.schema.createIndex('idx_sessions_user_id').on('sessions').column('userId').execute()
 
+  await db.schema.createIndex('idx_farm_modules_farm_id').on('farm_modules').column('farmId').execute()
+
   await db.schema.createIndex('idx_batches_farm_id').on('batches').column('farmId').execute()
   await db.schema.createIndex('idx_batches_status').on('batches').column('status').execute()
   await db.schema.createIndex('idx_batches_structure_id').on('batches').column('structureId').execute()
@@ -421,6 +467,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   `.execute(db)
 
   await sql`CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(db)
+  await sql`CREATE TRIGGER update_user_settings_updated_at BEFORE UPDATE ON user_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(db)
   await sql`CREATE TRIGGER update_farms_updated_at BEFORE UPDATE ON farms FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(db)
   await sql`CREATE TRIGGER update_batches_updated_at BEFORE UPDATE ON batches FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(db)
   await sql`CREATE TRIGGER update_customers_updated_at BEFORE UPDATE ON customers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(db)
@@ -437,8 +484,8 @@ export async function down(db: Kysely<any>): Promise<void> {
     'water_quality', 'treatments', 'vaccinations', 'weight_samples',
     'egg_records', 'feed_records', 'mortality_records',
     'batches', 'medication_inventory', 'feed_inventory', 'structures',
-    'user_farms', 'suppliers', 'customers', 'farms',
-    'verification', 'account', 'sessions', 'users'
+    'farm_modules', 'user_farms', 'suppliers', 'customers', 'farms',
+    'user_settings', 'verification', 'account', 'sessions', 'users'
   ]
 
   for (const table of tables) {
