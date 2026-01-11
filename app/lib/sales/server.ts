@@ -423,6 +423,7 @@ export interface PaginatedQuery {
   sortOrder?: 'asc' | 'desc'
   search?: string
   farmId?: string
+  batchId?: string
   livestockType?: string
 }
 
@@ -499,6 +500,11 @@ export async function getSalesPaginated(
     countQuery = countQuery.where('sales.livestockType', '=', livestockType as any)
   }
 
+  // Apply batchId filter
+  if (query.batchId) {
+    countQuery = countQuery.where('sales.batchId', '=', query.batchId)
+  }
+
   // Get total count
   const countResult = await countQuery
     .select(sql<number>`count(*)`.as('count'))
@@ -552,6 +558,9 @@ export async function getSalesPaginated(
   }
   if (livestockType) {
     dataQuery = dataQuery.where('sales.livestockType', '=', livestockType as any)
+  }
+  if (query.batchId) {
+    dataQuery = dataQuery.where('sales.batchId', '=', query.batchId)
   }
 
   // Apply sorting and pagination

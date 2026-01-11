@@ -412,6 +412,7 @@ export interface PaginatedQuery {
   sortOrder?: 'asc' | 'desc'
   search?: string
   farmId?: string
+  batchId?: string
   category?: string
 }
 
@@ -487,6 +488,11 @@ export async function getExpensesPaginated(
     baseQuery = baseQuery.where('expenses.category', '=', category as any)
   }
 
+  // Apply batchId filter
+  if (query.batchId) {
+    baseQuery = baseQuery.where('expenses.batchId', '=', query.batchId)
+  }
+
   // Get total count
   const countResult = await baseQuery
     .select(sql<number>`count(*)`.as('count'))
@@ -534,6 +540,9 @@ export async function getExpensesPaginated(
   }
   if (category) {
     dataQuery = dataQuery.where('expenses.category', '=', category as any)
+  }
+  if (query.batchId) {
+    dataQuery = dataQuery.where('expenses.batchId', '=', query.batchId)
   }
 
   // Apply sorting and pagination
