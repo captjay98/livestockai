@@ -109,7 +109,7 @@ function NewBatchPage() {
   const [showAdditional, setShowAdditional] = useState(false)
 
   const speciesOptions = getSpeciesOptions(formData.livestockType)
-  const sourceSizeOptions = SOURCE_SIZE_OPTIONS[formData.livestockType] || []
+  const sourceSizeOptions = SOURCE_SIZE_OPTIONS[formData.livestockType]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

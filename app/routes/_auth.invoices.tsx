@@ -76,9 +76,9 @@ export const Route = createFileRoute('/_auth/invoices')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
-    q: (search.q as string) || '',
-    status: (search.status as 'paid' | 'partial' | 'unpaid' | 'all') || 'all',
+    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    q: typeof search.q === 'string' ? search.q : '',
+    status: typeof search.status === 'string' ? (search.status as 'paid' | 'partial' | 'unpaid' | 'all') : 'all',
   }),
 })
 

@@ -129,7 +129,8 @@ const getSalesDataForFarm = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const farmId = data?.farmId || undefined
+      const farmId = data.farmId || undefined
+
       const [paginatedSales, summary, batches, customers] = await Promise.all([
         getSalesPaginated(session.user.id, {
           farmId,
@@ -189,11 +190,11 @@ export const Route = createFileRoute('/_auth/sales')({
   validateSearch: (search: Record<string, unknown>): SalesSearchParams => ({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
-    sortBy: String(search.sortBy || 'date'),
-    sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
-    q: String(search.q || ''),
-    livestockType: search.livestockType ? String(search.livestockType) : undefined,
-    paymentStatus: search.paymentStatus ? String(search.paymentStatus) : undefined,
+    sortBy: typeof search.sortBy === 'string' ? search.sortBy : 'date',
+    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    q: typeof search.q === 'string' ? search.q : '',
+    livestockType: typeof search.livestockType === 'string' ? search.livestockType : undefined,
+    paymentStatus: typeof search.paymentStatus === 'string' ? search.paymentStatus : undefined,
   }),
   component: SalesPage,
 })

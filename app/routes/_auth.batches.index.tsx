@@ -108,7 +108,7 @@ const getBatchesForFarmFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const farmId = data?.farmId || undefined
+      const farmId = data.farmId || undefined
 
       const [paginatedBatches, summary] = await Promise.all([
         getBatchesPaginated(session.user.id, {
@@ -166,23 +166,26 @@ const createBatchAction = createServerFn({ method: 'POST' })
 
 export const Route = createFileRoute('/_auth/batches/')({
   component: BatchesPage,
-  validateSearch: (search: Record<string, unknown>): BatchSearchParams => ({
-    page: Number(search.page) || 1,
-    pageSize: Number(search.pageSize) || 10,
-    sortBy: (search.sortBy as string) || 'createdAt',
-    sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
-    q: (search.q as string) || '',
-    status:
-      typeof search.status === 'string' &&
-        ['active', 'depleted', 'sold'].includes(search.status)
-        ? (search.status as 'active' | 'depleted' | 'sold')
-        : undefined,
-    livestockType:
-      typeof search.livestockType === 'string' &&
-        ['poultry', 'fish'].includes(search.livestockType)
-        ? (search.livestockType as 'poultry' | 'fish')
-        : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): BatchSearchParams => {
+    const validStatuses = ['active', 'depleted', 'sold'] as const
+    const validLivestockTypes = ['poultry', 'fish'] as const
+    
+    return {
+      page: Number(search.page) || 1,
+      pageSize: Number(search.pageSize) || 10,
+      sortBy: (search.sortBy as string) || 'createdAt',
+      sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+      q: typeof search.q === 'string' ? search.q : '',
+      status:
+        typeof search.status === 'string' && (validStatuses as ReadonlyArray<string>).includes(search.status)
+          ? (search.status as 'active' | 'depleted' | 'sold')
+          : undefined,
+      livestockType:
+        typeof search.livestockType === 'string' && (validLivestockTypes as ReadonlyArray<string>).includes(search.livestockType)
+          ? (search.livestockType as 'poultry' | 'fish')
+          : undefined,
+    }
+  },
 })
 
 function BatchesPage() {

@@ -471,7 +471,7 @@ export async function getEggRecordsPaginated(
     if (query.sortBy === 'species') sortColumn = 'batches.species'
     if (query.sortBy === 'date') sortColumn = 'egg_records.date'
 
-    // @ts-ignore
+    // @ts-ignore - Kysely dynamic column type limitation
     dataQuery = dataQuery.orderBy(sortColumn, sortOrder)
   } else {
     dataQuery = dataQuery.orderBy('egg_records.date', 'desc')

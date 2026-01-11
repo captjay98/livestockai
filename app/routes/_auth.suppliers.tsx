@@ -98,9 +98,9 @@ export const Route = createFileRoute('/_auth/suppliers')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'totalSpent',
-    sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
-    q: (search.q as string) || '',
-    supplierType: search.supplierType ? String(search.supplierType) : undefined,
+    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    q: typeof search.q === 'string' ? search.q : '',
+    supplierType: typeof search.supplierType === 'string' ? search.supplierType : undefined,
   }),
 })
 

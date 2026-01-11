@@ -314,7 +314,7 @@ export async function getWaterQualityRecordsPaginated(
     const sortOrder = query.sortOrder || 'desc'
     let sortCol = `water_quality.${query.sortBy}`
     if (query.sortBy === 'species') sortCol = 'batches.species'
-    // @ts-ignore
+    // @ts-ignore - Kysely dynamic column type limitation
     dataQuery = dataQuery.orderBy(sortCol, sortOrder)
   } else {
     dataQuery = dataQuery.orderBy('water_quality.date', 'desc')

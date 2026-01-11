@@ -117,7 +117,7 @@ const getFeedDataForFarm = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const farmId = data?.farmId || undefined
+      const farmId = data.farmId || undefined
 
       const [paginatedRecords, allBatches, inventory, summary] = await Promise.all([
         getFeedRecordsPaginated(session.user.id, {
@@ -185,9 +185,9 @@ export const Route = createFileRoute('/_auth/feed')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
-    q: (search.q as string) || '',
-    feedType: (search.feedType as string) || undefined,
+    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    q: typeof search.q === 'string' ? search.q : '',
+    feedType: typeof search.feedType === 'string' ? search.feedType : undefined,
   }),
 })
 

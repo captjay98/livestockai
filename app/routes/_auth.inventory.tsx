@@ -87,7 +87,7 @@ const getInventoryData = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const farmId = data?.farmId || undefined
+      const farmId = data.farmId || undefined
       const [feedInventory, medicationInventory] = await Promise.all([
         getFeedInventory(session.user.id, farmId),
         getMedicationInventory(session.user.id, farmId),

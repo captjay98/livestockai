@@ -101,11 +101,11 @@ const createSaleAction = createServerFn({ method: 'POST' })
         date: new Date(data.date),
         notes: data.notes || null,
         // Enhanced fields
-        unitType: (data.unitType as UnitType) || null,
+        unitType: data.unitType ? (data.unitType as UnitType) : null,
         ageWeeks: data.ageWeeks || null,
         averageWeightKg: data.averageWeightKg || null,
-        paymentStatus: (data.paymentStatus as PaymentStatus) || 'paid',
-        paymentMethod: (data.paymentMethod as PaymentMethod) || null,
+        paymentStatus: data.paymentStatus ? (data.paymentStatus as PaymentStatus) : 'paid',
+        paymentMethod: data.paymentMethod ? (data.paymentMethod as PaymentMethod) : null,
       })
       return { success: true, id }
     } catch (error) {
@@ -401,7 +401,7 @@ function NewSalePage() {
                     <Select
                       value={formData.unitType || undefined}
                       onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, unitType: (value as UnitType) || '' }))
+                        setFormData((prev) => ({ ...prev, unitType: value as UnitType }))
                       }
                     >
                       <SelectTrigger>
@@ -421,7 +421,7 @@ function NewSalePage() {
                     <Select
                       value={formData.paymentMethod || undefined}
                       onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, paymentMethod: (value as PaymentMethod) || '' }))
+                        setFormData((prev) => ({ ...prev, paymentMethod: value as PaymentMethod }))
                       }
                     >
                       <SelectTrigger>

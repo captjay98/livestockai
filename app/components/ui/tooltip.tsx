@@ -16,7 +16,7 @@ const Tooltip = ({ children }: { children: React.ReactNode }) => {
         >
             {React.Children.map(children, (child) => {
                 if (React.isValidElement(child)) {
-                    // @ts-ignore
+                    // @ts-ignore - React.cloneElement type inference limitation with dynamic props
                     return React.cloneElement(child, { 'data-state': open ? 'delayed-open' : 'closed', open })
                 }
                 return child
@@ -29,7 +29,7 @@ const TooltipTrigger = React.forwardRef<
     HTMLButtonElement,
     React.ButtonHTMLAttributes<HTMLButtonElement>
 >(({ className, ...props }, ref) => (
-    // @ts-ignore
+    // @ts-ignore - Custom props spreading with ref forwarding type mismatch
     <button
         ref={ref}
         className={cn(className)}
@@ -42,7 +42,7 @@ const TooltipContent = React.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement>
 >(({ className, sideOffset = 4, ...props }, ref) => {
-    // @ts-ignore
+    // @ts-ignore - Accessing custom open prop not in HTMLAttributes type
     const { open } = props
     if (!open) return null
     return (

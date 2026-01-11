@@ -121,7 +121,8 @@ const getExpensesDataForFarm = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const farmId = data?.farmId || undefined
+      const farmId = data.farmId || undefined
+
       const [paginatedExpenses, summary, batches, suppliers] = await Promise.all([
         getExpensesPaginated(session.user.id, {
           farmId,
@@ -154,10 +155,10 @@ export const Route = createFileRoute('/_auth/expenses')({
   validateSearch: (search: Record<string, unknown>): ExpenseSearchParams => ({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
-    sortBy: String(search.sortBy || 'date'),
-    sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
-    q: String(search.q || ''),
-    category: search.category ? String(search.category) : undefined,
+    sortBy: typeof search.sortBy === 'string' ? search.sortBy : 'date',
+    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    q: typeof search.q === 'string' ? search.q : '',
+    category: typeof search.category === 'string' ? search.category : undefined,
   }),
   component: ExpensesPage,
 })
@@ -708,10 +709,10 @@ function ExpensesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(summary.byCategory.feed?.amount || 0)}
+                {formatNaira(('feed' in summary.byCategory) ? summary.byCategory.feed.amount : 0)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {summary.byCategory.feed?.count || 0} purchases
+                {('feed' in summary.byCategory) ? summary.byCategory.feed.count : 0} purchases
               </p>
             </CardContent>
           </Card>
@@ -729,13 +730,13 @@ function ExpensesPage() {
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
                 {formatNaira(
-                  (summary.byCategory.livestock_chicken?.amount || 0) +
-                  (summary.byCategory.livestock_fish?.amount || 0)
+                  (('livestock_chicken' in summary.byCategory) ? summary.byCategory.livestock_chicken.amount : 0) +
+                  (('livestock_fish' in summary.byCategory) ? summary.byCategory.livestock_fish.amount : 0)
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {(summary.byCategory.livestock_chicken?.count || 0) +
-                  (summary.byCategory.livestock_fish?.count || 0)}{' '}
+                {(('livestock_chicken' in summary.byCategory) ? summary.byCategory.livestock_chicken.count : 0) +
+                  (('livestock_fish' in summary.byCategory) ? summary.byCategory.livestock_fish.count : 0)}{' '}
                 purchases
               </p>
             </CardContent>
@@ -750,10 +751,10 @@ function ExpensesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(summary.byCategory.labor?.amount || 0)}
+                {formatNaira(('labor' in summary.byCategory) ? summary.byCategory.labor.amount : 0)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {summary.byCategory.labor?.count || 0} payments
+                {('labor' in summary.byCategory) ? summary.byCategory.labor.count : 0} payments
               </p>
             </CardContent>
           </Card>

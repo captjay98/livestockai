@@ -322,7 +322,7 @@ export async function getWeightRecordsPaginated(
     const sortOrder = query.sortOrder || 'desc'
     let sortCol = `weight_samples.${query.sortBy}`
     if (query.sortBy === 'species') sortCol = 'batches.species'
-    // @ts-ignore
+    // @ts-ignore - Kysely dynamic column type limitation
     dataQuery = dataQuery.orderBy(sortCol, sortOrder)
   } else {
     dataQuery = dataQuery.orderBy('weight_samples.date', 'desc')

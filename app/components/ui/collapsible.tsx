@@ -98,7 +98,7 @@ function CollapsibleContent({ children, className }: CollapsibleContentProps) {
   return (
     <div
       className={cn('', className)}
-      data-state={open ? 'open' : 'closed'}
+      data-state="open"
     >
       {children}
     </div>

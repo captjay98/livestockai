@@ -114,10 +114,10 @@ export const Route = createFileRoute('/_auth/customers')({
   validateSearch: (search: Record<string, unknown>): CustomerSearchParams => ({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
-    sortBy: (search.sortBy as string) || 'totalSpent',
-    sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
+    sortBy: (search.sortBy as string) || 'createdAt',
+    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
     q: (search.q as string) || '',
-    customerType: search.customerType ? String(search.customerType) : undefined,
+    customerType: typeof search.customerType === 'string' ? search.customerType : undefined,
   }),
 })
 

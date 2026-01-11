@@ -173,7 +173,7 @@ function FarmDetailsPage() {
       setStructureDialogOpen(false)
       resetStructureForm()
       // Reload structures
-      const newStructures = await getStructuresWithCounts(farmId)
+      const newStructures = await loadStructuresWithCounts(farmId)
       setStructures(newStructures)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create structure')
@@ -201,7 +201,7 @@ function FarmDetailsPage() {
         },
       })
       setEditStructureDialogOpen(false)
-      const newStructures = await getStructuresWithCounts(farmId)
+      const newStructures = await loadStructuresWithCounts(farmId)
       setStructures(newStructures)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update structure')
@@ -216,7 +216,7 @@ function FarmDetailsPage() {
     try {
       await deleteStructureFn({ data: { id: selectedStructure.id } })
       setDeleteStructureDialogOpen(false)
-      const newStructures = await getStructuresWithCounts(farmId)
+      const newStructures = await loadStructuresWithCounts(farmId)
       setStructures(newStructures)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete structure')
@@ -238,7 +238,7 @@ function FarmDetailsPage() {
     setEditStructureDialogOpen(true)
   }
 
-  const getStructuresWithCounts = async (fId: string) => {
+  const loadStructuresWithCounts = async (fId: string) => {
     const { getStructuresWithCountsFn } = await import('~/lib/structures/server')
     return getStructuresWithCountsFn({ data: { farmId: fId } })
   }

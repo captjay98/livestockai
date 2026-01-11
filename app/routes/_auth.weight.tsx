@@ -99,7 +99,7 @@ const getWeightDataForFarm = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const farmId = data?.farmId || undefined
+      const farmId = data.farmId || undefined
 
       const [paginatedRecords, alerts, allBatches] = await Promise.all([
         getWeightRecordsPaginatedFn({
@@ -135,8 +135,8 @@ export const Route = createFileRoute('/_auth/weight')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
-    q: (search.q as string) || '',
+    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    q: typeof search.q === 'string' ? search.q : '',
   }),
 })
 

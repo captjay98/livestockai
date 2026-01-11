@@ -121,7 +121,7 @@ const getMortalityDataForFarm = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const farmId = data?.farmId || undefined
+      const farmId = data.farmId || undefined
 
       const [paginatedRecords, alerts, summary, allBatches] = await Promise.all([
         getMortalityRecordsPaginated(session.user.id, {
@@ -189,9 +189,9 @@ export const Route = createFileRoute('/_auth/mortality')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
-    q: (search.q as string) || '',
-    cause: (search.cause as string) || undefined,
+    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    q: typeof search.q === 'string' ? search.q : '',
+    cause: typeof search.cause === 'string' ? search.cause : undefined,
   }),
 })
 

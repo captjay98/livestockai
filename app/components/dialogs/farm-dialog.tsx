@@ -74,7 +74,7 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
         setError('')
 
         try {
-            if (isEditing && farm) {
+            if (isEditing) {
                 await updateFarmFn({
                     data: {
                         farmId: farm.id,

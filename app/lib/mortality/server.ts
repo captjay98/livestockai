@@ -420,7 +420,7 @@ export async function getMortalityRecordsPaginated(
     if (query.sortBy === 'date') sortColumn = 'mortality_records.date'
     if (query.sortBy === 'cause') sortColumn = 'mortality_records.cause'
 
-    // @ts-ignore
+    // @ts-ignore - Kysely dynamic column type limitation
     dataQuery = dataQuery.orderBy(sortColumn, sortOrder)
   } else {
     dataQuery = dataQuery.orderBy('mortality_records.date', 'desc')
