@@ -1,14 +1,41 @@
-node_modules
-.DS_Store
-dist
-dist-ssr
-*.local
-count.txt
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+.output/
+.nitro/
+.vinxi/
+
+# Framework caches
+.tanstack/
+.wrangler/
+
+# Environment files (NEVER commit these)
 .env
-.nitro
-.tanstack
-.wrangler
-.output
-.vinxi
+.env.local
+.env.*.local
+*.local
+
+# IDE & OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+
+# Misc
+count.txt
 todos.json
 public/backup/
+
+# MCP settings with secrets (use mcp.json.example as template)
+# .kiro/settings/mcp.json  # Uncomment if you have secrets in mcp.json

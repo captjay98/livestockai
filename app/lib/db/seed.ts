@@ -1,23 +1,21 @@
 /**
- * Realistic Farm Seeder - JayFarms Kaduna
+ * Demo Farm Seeder - OpenLivestock Manager
  *
- * Story: First-time farmer starting in Kaduna with small batches
- * - Broilers: 50-60 birds per batch, sold at 5 weeks (₦5,500) or 8 weeks (₦10,500)
- * - Catfish: 500-600 jumbo (10-12cm), grown 4-5 months, sold at ₦3,500/kg
+ * Creates realistic demo data for a mixed poultry/aquaculture farm.
+ * All data is randomized within realistic ranges.
  *
- * Feed Pricing:
- * - Chicken: Ultima Plus ₦24,000/25kg
- * - Fish 2mm: Aller Aqua ₦67,000/15kg (first month)
- * - Fish 3mm+: Blue Crown ₦38,000/15kg (month 2 onwards)
+ * Livestock:
+ * - Broilers: 50-60 birds per batch, sold at 5 weeks or 8 weeks
+ * - Catfish: 500-600 jumbo fingerlings (10-12cm), grown 4-5 months
  *
- * Jumbo Catfish: 10-12cm size, ~15-25g starting weight
+ * Run: bun run db:seed
  */
 
 import crypto from 'node:crypto'
 import { db } from './index'
 
 // ============ CONFIG ============
-const FARM_LOCATION = 'Kaduna, Kaduna State'
+const FARM_LOCATION = 'Demo Location'
 
 // Broiler Config
 const BROILER = {
@@ -77,7 +75,7 @@ async function hashPassword(password: string): Promise<string> {
 
 // ============ MAIN SEED ============
 async function seed() {
-  console.log('🌱 Seeding JayFarms Kaduna - Realistic Farm Data\n')
+  console.log('🌱 Seeding OpenLivestock Demo Data\n')
 
   try {
     // CLEANUP
@@ -130,11 +128,11 @@ async function seed() {
     const farm = await db
       .insertInto('farms')
       .values({
-        name: 'JayFarms Kaduna',
+        name: 'Demo Farm',
         location: FARM_LOCATION,
         type: 'mixed',
-        contactPhone: '08012345678',
-        notes: 'Main farm - poultry and fish production',
+        contactPhone: '+1234567890',
+        notes: 'Demo farm - poultry and fish production',
       })
       .returningAll()
       .executeTakeFirstOrThrow()
@@ -1920,7 +1918,7 @@ async function seed() {
     const totalFishRevenue = f1TotalAmount
 
     console.log('═'.repeat(60))
-    console.log('🎉 JAYFARMS KADUNA - REALISTIC SEED COMPLETE!')
+    console.log('🎉 OPENLIVESTOCK DEMO SEED COMPLETE!')
     console.log('═'.repeat(60))
     console.log('\n📊 Farm Summary:')
     console.log('   🏠 Structures: 2 broiler houses, 2 fish ponds')
@@ -1952,8 +1950,8 @@ async function seed() {
     console.log(`   • ${f2Alive} catfish (harvest in ~3-4 weeks)`)
     console.log('\n🔮 Growth & Markets:')
     console.log('   • Imported Cobb500 & Catfish Growth Standards')
-    console.log('   • Updated Market Prices for Kaduna')
-    console.log('\n🔐 Login: jay@jayfarms.com / admin123\n')
+    console.log('   • Updated Market Prices')
+    console.log('\n🔐 Login: admin@openlivestock.local / password123\n')
   } catch (error) {
     console.error('❌ Seed failed:', error)
     throw error

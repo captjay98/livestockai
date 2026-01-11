@@ -1,0 +1,306 @@
+# AI Agent Guide for OpenLivestock Manager
+
+This document helps AI coding assistants (Claude, GPT, Kiro, Cursor, etc.) understand and work with this codebase effectively.
+
+---
+
+## Project Overview
+
+**OpenLivestock Manager** is a full-stack livestock management application for poultry and aquaculture farms. It's built with:
+
+- **Frontend**: React 19 + TanStack Router + TanStack Query
+- **Backend**: TanStack Start (SSR) + Server Functions
+- **Database**: PostgreSQL (Neon serverless) + Kysely ORM
+- **Deployment**: Cloudflare Workers
+
+---
+
+## Architecture
+
+### Request Flow
+
+```
+Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely → Neon PostgreSQL
+```
+
+### Key Patterns
+
+1. **Server Functions**: All database operations use TanStack Start's `createServerFn()`:
+   ```typescript
+   // app/lib/batches/server.ts
+   export const getBatches = createServerFn({ method: 'GET' })
+     .validator(z.object({ farmId: z.string().uuid() }))
+     .handler(async ({ data }) => {
+       const { db } = await import('../db')
+       return db.selectFrom('batches').where('farmId', '=', data.farmId).execute()
+     })
+   ```
+
+2. **Dynamic Imports**: Database imports MUST be dynamic inside server functions to work with Cloudflare Workers:
+   ```typescript
+   // ✅ Correct
+   const { db } = await import('../db')
+   
+   // ❌ Wrong - will break on Cloudflare
+   import { db } from '../db'
+   ```
+
+3. **Type-Safe Queries**: Use Kysely's type-safe query builder:
+   ```typescript
+   // Types are inferred from app/lib/db/schema.ts
+   const batches = await db
+     .selectFrom('batches')
+     .leftJoin('farms', 'farms.id', 'batches.farmId')
+     .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
+     .execute()
+   ```
+
+---
+
+## Database Schema
+
+The database schema is defined in `app/lib/db/schema.ts`. Key tables:
+
+| Table | Purpose |
+|-------|---------|
+| `users` | User accounts (Better Auth) |
+| `farms` | Farm entities |
+| `batches` | Livestock batches (poultry/fish) |
+| `mortality_records` | Death tracking |
+| `feed_records` | Feed consumption |
+| `weight_samples` | Growth tracking |
+| `sales` | Revenue records |
+| `expenses` | Cost tracking |
+| `invoices` | Customer invoices |
+
+### Migrations
+
+Migrations are in `app/lib/db/migrations/`. To create a new migration:
+
+```bash
+# Create migration file manually in app/lib/db/migrations/
+# Format: YYYY-MM-DD-NNN-description.ts
+
+# Run migrations
+bun run db:migrate
+
+# Rollback
+bun run db:rollback
+```
+
+---
+
+## MCP Server Configuration
+
+This project supports Model Context Protocol (MCP) for AI agents to interact with the database directly.
+
+### Setup for Kiro
+
+1. Copy the MCP config:
+   ```bash
+   mkdir -p .kiro/settings
+   cp .kiro/settings/mcp.json.example .kiro/settings/mcp.json
+   ```
+
+2. Add your Neon API key to the config (get it from [Neon Console](https://console.neon.tech)):
+   ```json
+   {
+     "mcpServers": {
+       "neon": {
+         "command": "npx",
+         "args": ["-y", "@neondatabase/mcp-server-neon"],
+         "env": {
+           "NEON_API_KEY": "your-neon-api-key-here"
+         }
+       }
+     }
+   }
+   ```
+
+### Available MCP Tools (Neon)
+
+Once configured, you can use these tools:
+
+| Tool | Description |
+|------|-------------|
+| `list_projects` | List all Neon projects |
+| `get_project` | Get project details |
+| `run_sql` | Execute SQL queries |
+| `get_database_tables` | List tables in database |
+| `describe_table_schema` | Get table structure |
+
+### Example MCP Usage
+
+```
+// List all batches
+run_sql: SELECT * FROM batches WHERE status = 'active' LIMIT 10
+
+// Check table structure
+describe_table_schema: batches
+```
+
+---
+
+## Common Tasks
+
+### Adding a New Feature
+
+1. **Database changes**: Create migration in `app/lib/db/migrations/`
+2. **Update schema types**: Edit `app/lib/db/schema.ts`
+3. **Server functions**: Create in `app/lib/{feature}/server.ts`
+4. **UI components**: Add to `app/components/`
+5. **Routes**: Add to `app/routes/`
+
+### Adding a New Server Function
+
+```typescript
+// app/lib/myfeature/server.ts
+import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
+
+export const myFunction = createServerFn({ method: 'POST' })
+  .validator(z.object({
+    // Define input schema
+  }))
+  .handler(async ({ data }) => {
+    const { db } = await import('../db')
+    // Database operations
+  })
+```
+
+### Adding a New Route
+
+```typescript
+// app/routes/_auth.mypage.tsx
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/_auth/mypage')({
+  component: MyPageComponent,
+  loader: async () => {
+    // Load data
+  },
+})
+
+function MyPageComponent() {
+  return <div>My Page</div>
+}
+```
+
+---
+
+## Testing
+
+```bash
+# Run all tests
+bun test
+
+# Run specific test file
+bun test app/lib/batches/batches.property.test.ts
+
+# Run with coverage
+bun test --coverage
+```
+
+### Test Patterns
+
+- **Property tests**: Use `fast-check` for property-based testing
+- **Unit tests**: Use `vitest` for unit tests
+- **Component tests**: Use `@testing-library/react`
+
+---
+
+## Code Style
+
+### Naming Conventions
+
+| Type | Convention | Example |
+|------|------------|---------|
+| Files | kebab-case | `batch-dialog.tsx` |
+| Components | PascalCase | `BatchDialog` |
+| Functions | camelCase | `getBatches` |
+| Constants | SCREAMING_SNAKE | `MAX_BATCH_SIZE` |
+| Database columns | camelCase | `batchName`, `farmId` |
+
+### Import Order
+
+```typescript
+// 1. React/framework imports
+import { useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+
+// 2. Third-party imports
+import { format } from 'date-fns'
+
+// 3. Local imports (absolute)
+import { Button } from '~/components/ui/button'
+import { getBatches } from '~/lib/batches/server'
+
+// 4. Types
+import type { Batch } from '~/lib/db/schema'
+```
+
+---
+
+## Troubleshooting
+
+### "Cannot find module" errors
+
+Ensure you're using dynamic imports for database in server functions:
+```typescript
+const { db } = await import('../db')
+```
+
+### Database connection issues
+
+1. Check `DATABASE_URL` in `.env`
+2. Ensure Neon project is active (not suspended)
+3. Check SSL mode: `?sslmode=require`
+
+### Build failures on Cloudflare
+
+1. Check for static imports of Node.js modules
+2. Ensure all server-only code is in server functions
+3. Check `wrangler.jsonc` compatibility flags
+
+---
+
+## Useful Commands
+
+```bash
+# Development
+bun dev                    # Start dev server
+bun run db:migrate         # Run migrations
+bun run db:seed            # Seed demo data
+
+# Quality
+bun test                   # Run tests
+bun run lint               # Lint code
+bun run check              # Format + lint
+
+# Production
+bun build                  # Build for production
+bun run deploy             # Deploy to Cloudflare
+```
+
+---
+
+## File Reference
+
+| Path | Purpose |
+|------|---------|
+| `app/lib/db/index.ts` | Database connection |
+| `app/lib/db/schema.ts` | TypeScript types for tables |
+| `app/lib/db/migrations/` | Database migrations |
+| `app/lib/auth/config.ts` | Better Auth configuration |
+| `app/lib/currency.ts` | Currency formatting (NGN) |
+| `app/lib/finance/` | Financial calculations |
+| `wrangler.jsonc` | Cloudflare Workers config |
+| `vite.config.ts` | Vite + PWA configuration |
+
+---
+
+## Questions?
+
+- Check existing code patterns in similar modules
+- Review the specs in `.kiro/specs/` for feature context
+- Look at test files for usage examples
