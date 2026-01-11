@@ -26,6 +26,9 @@ export interface Database {
   invoice_items: InvoiceItemTable
   feed_inventory: FeedInventoryTable
   medication_inventory: MedicationInventoryTable
+  audit_logs: AuditLogTable
+  growth_standards: GrowthStandardTable
+  market_prices: MarketPriceTable
 }
 
 // User & Auth - Better Auth tables use camelCase
@@ -126,6 +129,7 @@ export interface BatchTable {
   supplierId: string | null // Where purchased from
   structureId: string | null // Which house/pond
   targetHarvestDate: Date | null // Planned sale date
+  target_weight_g: number | null // Forecasting
   notes: string | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
@@ -239,18 +243,18 @@ export interface ExpenseTable {
   farmId: string
   batchId: string | null
   category:
-    | 'feed'
-    | 'medicine'
-    | 'equipment'
-    | 'utilities'
-    | 'labor'
-    | 'transport'
-    | 'livestock' // For chick/fingerling purchases
-    | 'livestock_chicken'
-    | 'livestock_fish'
-    | 'maintenance'
-    | 'marketing'
-    | 'other'
+  | 'feed'
+  | 'medicine'
+  | 'equipment'
+  | 'utilities'
+  | 'labor'
+  | 'transport'
+  | 'livestock' // For chick/fingerling purchases
+  | 'livestock_chicken'
+  | 'livestock_fish'
+  | 'maintenance'
+  | 'marketing'
+  | 'other'
   amount: string // DECIMAL(19,2) - returned as string from pg
   date: Date
   description: string
@@ -298,7 +302,14 @@ export interface SupplierTable {
   email: string | null
   location: string | null
   products: Array<string> // what they supply
-  supplierType: 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other' | null
+  supplierType:
+  | 'hatchery'
+  | 'feed_mill'
+  | 'pharmacy'
+  | 'equipment'
+  | 'fingerlings'
+  | 'other'
+  | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -324,4 +335,16 @@ export interface InvoiceItemTable {
   quantity: number
   unitPrice: string // DECIMAL(19,2) - returned as string from pg
   total: string // DECIMAL(19,2) - returned as string from pg
+}
+
+// Audit Logs
+export interface AuditLogTable {
+  id: Generated<string>
+  userId: string | null
+  action: string
+  entityType: string
+  entityId: string
+  details: string | null // stored as jsonb but we stringify it
+  ipAddress: string | null
+  createdAt: Generated<Date>
 }
