@@ -7,6 +7,7 @@ This design document outlines the technical approach to fix critical bugs, secur
 ## Architecture
 
 The changes follow the existing application architecture:
+
 - **Server Functions**: TanStack Start server functions with Kysely ORM
 - **Components**: React components with shadcn/ui
 - **Styling**: Tailwind CSS with responsive utilities
@@ -42,19 +43,21 @@ The changes follow the existing application architecture:
 
 ```typescript
 // BEFORE (lines 130-131)
-export const deleteExpenseFn = createServerFn({ method: 'POST' })
-  .handler(async ({ data }) => {
+export const deleteExpenseFn = createServerFn({ method: 'POST' }).handler(
+  async ({ data }) => {
     // ...
     return deleteExpense(session.user.id, data.expenseId)
-    return deleteExpense(session.user.id, data.expenseId)  // DUPLICATE
-  })
+    return deleteExpense(session.user.id, data.expenseId) // DUPLICATE
+  },
+)
 
 // AFTER
-export const deleteExpenseFn = createServerFn({ method: 'POST' })
-  .handler(async ({ data }) => {
+export const deleteExpenseFn = createServerFn({ method: 'POST' }).handler(
+  async ({ data }) => {
     // ...
     return deleteExpense(session.user.id, data.expenseId)
-  })
+  },
+)
 ```
 
 ### 2. Form Enhancement: Sale Dialog
@@ -72,18 +75,19 @@ interface SaleFormData {
   unitPrice: string
   date: string
   notes: string
-  
+
   // NEW fields
-  customerId: string        // Optional customer selector
-  unitType: string          // bird | kg | crate | piece
-  ageWeeks: string          // For poultry sales
-  averageWeightKg: string   // Weight at sale
-  paymentStatus: string     // paid | pending | partial (default: paid)
-  paymentMethod: string     // cash | transfer | credit
+  customerId: string // Optional customer selector
+  unitType: string // bird | kg | crate | piece
+  ageWeeks: string // For poultry sales
+  averageWeightKg: string // Weight at sale
+  paymentStatus: string // paid | pending | partial (default: paid)
+  paymentMethod: string // cash | transfer | credit
 }
 ```
 
 **UI Layout**:
+
 ```
 ┌─────────────────────────────────────────┐
 │ Record Sale                             │
@@ -131,9 +135,9 @@ interface ExpenseFormData {
   description: string
   supplierId: string
   isRecurring: boolean
-  
+
   // NEW field
-  batchId: string  // Optional batch selector
+  batchId: string // Optional batch selector
 }
 ```
 
@@ -151,13 +155,13 @@ interface FeedFormData {
   quantityKg: string
   cost: string
   date: string
-  
+
   // NEW fields
-  brandName: string      // e.g., "Aller Aqua", "Ultima Plus"
-  bagSizeKg: string      // 15, 25, etc.
-  numberOfBags: string   // How many bags
-  supplierId: string     // Supplier selector
-  notes: string          // Additional notes
+  brandName: string // e.g., "Aller Aqua", "Ultima Plus"
+  bagSizeKg: string // 15, 25, etc.
+  numberOfBags: string // How many bags
+  supplierId: string // Supplier selector
+  notes: string // Additional notes
 }
 ```
 
@@ -166,6 +170,7 @@ interface FeedFormData {
 **File**: `app/routes/_auth.customers.$customerId.tsx`
 
 **Changes**:
+
 - Replace `window.location.reload()` with `router.invalidate()`
 - Add proper error page for customer not found
 
@@ -210,6 +215,7 @@ router.invalidate()
 ```
 
 **Tailwind Classes to Apply**:
+
 - Add `overflow-x-hidden` to main container
 - Add `min-w-0` to flex/grid children to allow shrinking
 - Use `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` for responsive grids
@@ -221,42 +227,40 @@ No new database tables required. All form fields map to existing columns in the 
 
 ### Field Mappings
 
-| Dialog | New Form Field | DB Column | Type |
-|--------|---------------|-----------|------|
-| Sale | customerId | sales.customerId | string \| null |
-| Sale | unitType | sales.unitType | enum |
-| Sale | ageWeeks | sales.ageWeeks | number \| null |
-| Sale | averageWeightKg | sales.averageWeightKg | decimal |
-| Sale | paymentStatus | sales.paymentStatus | enum |
-| Sale | paymentMethod | sales.paymentMethod | enum |
-| Expense | batchId | expenses.batchId | string \| null |
-| Feed | brandName | feed_records.brandName | string \| null |
-| Feed | bagSizeKg | feed_records.bagSizeKg | number \| null |
-| Feed | numberOfBags | feed_records.numberOfBags | number \| null |
-| Feed | supplierId | feed_records.supplierId | string \| null |
-| Feed | notes | feed_records.notes | string \| null |
-
-
+| Dialog  | New Form Field  | DB Column                 | Type           |
+| ------- | --------------- | ------------------------- | -------------- |
+| Sale    | customerId      | sales.customerId          | string \| null |
+| Sale    | unitType        | sales.unitType            | enum           |
+| Sale    | ageWeeks        | sales.ageWeeks            | number \| null |
+| Sale    | averageWeightKg | sales.averageWeightKg     | decimal        |
+| Sale    | paymentStatus   | sales.paymentStatus       | enum           |
+| Sale    | paymentMethod   | sales.paymentMethod       | enum           |
+| Expense | batchId         | expenses.batchId          | string \| null |
+| Feed    | brandName       | feed_records.brandName    | string \| null |
+| Feed    | bagSizeKg       | feed_records.bagSizeKg    | number \| null |
+| Feed    | numberOfBags    | feed_records.numberOfBags | number \| null |
+| Feed    | supplierId      | feed_records.supplierId   | string \| null |
+| Feed    | notes           | feed_records.notes        | string \| null |
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 ### Property 1: Sale Form Data Completeness
 
-*For any* valid sale form submission with all optional fields populated, the createSaleFn server function SHALL receive all field values including customerId, unitType, ageWeeks, averageWeightKg, paymentStatus, and paymentMethod.
+_For any_ valid sale form submission with all optional fields populated, the createSaleFn server function SHALL receive all field values including customerId, unitType, ageWeeks, averageWeightKg, paymentStatus, and paymentMethod.
 
 **Validates: Requirements 3.7**
 
 ### Property 2: Expense Batch Association
 
-*For any* expense form submission where a batch is selected, the createExpenseFn server function SHALL receive the batchId value.
+_For any_ expense form submission where a batch is selected, the createExpenseFn server function SHALL receive the batchId value.
 
 **Validates: Requirements 4.2**
 
 ### Property 3: Feed Record Data Completeness
 
-*For any* valid feed record form submission with all optional fields populated, the createFeedRecordFn server function SHALL receive all field values including brandName, bagSizeKg, numberOfBags, supplierId, and notes.
+_For any_ valid feed record form submission with all optional fields populated, the createFeedRecordFn server function SHALL receive all field values including brandName, bagSizeKg, numberOfBags, supplierId, and notes.
 
 **Validates: Requirements 5.6**
 
@@ -308,4 +312,3 @@ Mobile responsiveness requires manual or visual regression testing:
 - Property tests: minimum 100 iterations
 - Test framework: Vitest with fast-check
 - Tag format: **Feature: production-readiness, Property {number}: {property_text}**
-

@@ -7,6 +7,7 @@ This document outlines the technical design for implementing the system enhancem
 ## Architecture
 
 ### Current Structure
+
 ```
 app/
 ├── components/
@@ -33,6 +34,7 @@ app/
 ```
 
 ### New/Modified Structure
+
 ```
 app/
 ├── lib/
@@ -54,6 +56,7 @@ app/
 **File**: `app/components/navigation.tsx`
 
 Changes:
+
 - Rename "Inventory" label to "Batches" (keep same route `/batches`)
 - Add new "Inventory" menu item pointing to `/inventory`
 - Icon: Use `Package` for Batches, `Warehouse` for Inventory
@@ -64,6 +67,7 @@ Changes:
 **File**: `app/routes/_auth.inventory.index.tsx`
 
 Components:
+
 - `InventoryTabs` - Tab navigation between Feed and Medication
 - `FeedInventoryTable` - DataTable for feed inventory
 - `MedicationInventoryTable` - DataTable for medication inventory
@@ -73,41 +77,70 @@ Components:
 - `EditMedicationDialog` - Modal for editing medication
 
 Server Functions (new files):
+
 ```typescript
 // app/lib/feed-inventory/server.ts
 export async function getFeedInventory(userId: string, farmId?: string)
-export async function createFeedInventory(userId: string, input: CreateFeedInventoryInput)
-export async function updateFeedInventory(userId: string, id: string, input: UpdateFeedInventoryInput)
+export async function createFeedInventory(
+  userId: string,
+  input: CreateFeedInventoryInput,
+)
+export async function updateFeedInventory(
+  userId: string,
+  id: string,
+  input: UpdateFeedInventoryInput,
+)
 export async function deleteFeedInventory(userId: string, id: string)
 
 // app/lib/medication-inventory/server.ts
 export async function getMedicationInventory(userId: string, farmId?: string)
-export async function createMedication(userId: string, input: CreateMedicationInput)
-export async function updateMedication(userId: string, id: string, input: UpdateMedicationInput)
+export async function createMedication(
+  userId: string,
+  input: CreateMedicationInput,
+)
+export async function updateMedication(
+  userId: string,
+  id: string,
+  input: UpdateMedicationInput,
+)
 export async function deleteMedication(userId: string, id: string)
-export async function useMedication(userId: string, id: string, quantity: number) // For treatment integration
+export async function useMedication(
+  userId: string,
+  id: string,
+  quantity: number,
+) // For treatment integration
 ```
 
 ### 3. Structures Management
 
 **Route**: `/farms/$farmId/structures`
 **Files**:
+
 - `app/routes/_auth.farms.$farmId.structures.index.tsx`
 - `app/routes/_auth.farms.$farmId.structures.$structureId.tsx`
 
 Components:
+
 - `StructuresTable` - DataTable for structures
 - `AddStructureDialog` - Modal for creating structure
 - `EditStructureDialog` - Modal for editing structure
 - `StructureCard` - Card showing structure details and assigned batches
 
 Server Functions:
+
 ```typescript
 // app/lib/structures/server.ts
 export async function getStructures(userId: string, farmId: string)
 export async function getStructure(userId: string, structureId: string)
-export async function createStructure(userId: string, input: CreateStructureInput)
-export async function updateStructure(userId: string, id: string, input: UpdateStructureInput)
+export async function createStructure(
+  userId: string,
+  input: CreateStructureInput,
+)
+export async function updateStructure(
+  userId: string,
+  id: string,
+  input: UpdateStructureInput,
+)
 export async function deleteStructure(userId: string, id: string)
 export async function getStructureBatches(userId: string, structureId: string)
 ```
@@ -117,6 +150,7 @@ export async function getStructureBatches(userId: string, structureId: string)
 **File**: `app/components/dialogs/add-sale-dialog.tsx` (modify existing)
 
 New form fields:
+
 ```typescript
 interface EnhancedSaleInput {
   // Existing fields...
@@ -129,6 +163,7 @@ interface EnhancedSaleInput {
 ```
 
 UI Changes:
+
 - Add collapsible "Additional Details" section
 - Add payment status select with color-coded options
 - Add payment method select
@@ -140,6 +175,7 @@ UI Changes:
 **File**: `app/components/dialogs/add-batch-dialog.tsx` (modify existing)
 
 New form fields:
+
 ```typescript
 interface EnhancedBatchInput {
   // Existing fields...
@@ -151,6 +187,7 @@ interface EnhancedBatchInput {
 ```
 
 UI Changes:
+
 - Add batch name text input
 - Add source size select (contextual based on livestock type)
 - Add structure select (populated from farm's structures)
@@ -161,6 +198,7 @@ UI Changes:
 **File**: `app/components/dialogs/add-weight-dialog.tsx` (modify existing)
 
 New form fields:
+
 ```typescript
 interface EnhancedWeightInput {
   // Existing fields...
@@ -171,11 +209,13 @@ interface EnhancedWeightInput {
 
 ### 7. Customer/Supplier Type Filtering
 
-**Files**: 
+**Files**:
+
 - `app/routes/_auth.customers.index.tsx` (modify)
 - `app/routes/_auth.suppliers.index.tsx` (modify)
 
 Changes:
+
 - Add type filter dropdown to table toolbar
 - Add type badge to table rows
 - Make type required in create/edit dialogs
@@ -183,29 +223,31 @@ Changes:
 ## Data Flow
 
 ### Inventory Page Data Flow
+
 ```
-User selects farm → 
+User selects farm →
   getFeedInventory(userId, farmId) → Feed inventory list
   getMedicationInventory(userId, farmId) → Medication inventory list
-  
+
 User creates feed inventory →
   createFeedInventory(userId, input) → New record
   Invalidate feed inventory query
-  
+
 User creates medication →
   createMedication(userId, input) → New record
   Invalidate medication inventory query
 ```
 
 ### Structures Data Flow
+
 ```
 User views farm →
   getStructures(userId, farmId) → Structures list
-  
+
 User creates structure →
   createStructure(userId, input) → New record
   Invalidate structures query
-  
+
 User assigns batch to structure →
   updateBatch(userId, batchId, { structureId }) → Updated batch
   Invalidate batch and structure queries
@@ -214,21 +256,25 @@ User assigns batch to structure →
 ## UI/UX Considerations
 
 ### Low Stock Alerts
+
 - Feed: Show warning badge when `quantityKg < minThresholdKg`
 - Medication: Show warning badge when `quantity < minThreshold`
 - Color: Yellow for low, Red for critical (< 50% of threshold)
 
 ### Expiry Warnings
+
 - Show warning for medications expiring within 30 days
 - Show critical alert for expired medications
 - Sort expired/expiring items to top of list
 
 ### Payment Status Indicators
+
 - Paid: Green badge/dot
 - Pending: Yellow badge/dot
 - Partial: Orange badge/dot
 
 ### Structure Status Indicators
+
 - Active: Green badge
 - Empty: Gray badge
 - Maintenance: Yellow badge
@@ -236,15 +282,18 @@ User assigns batch to structure →
 ## Testing Strategy
 
 ### Unit Tests
+
 - Server function tests for all new CRUD operations
 - Input validation tests
 - Authorization tests (farm access verification)
 
 ### Integration Tests
+
 - Inventory page renders with correct data
 - CRUD operations update UI correctly
 - Filters work as expected
 
 ### E2E Tests
+
 - Complete flow: Create structure → Assign batch → View in structure details
 - Complete flow: Create medication → Use in treatment → Verify inventory reduced

@@ -7,6 +7,7 @@ This design standardizes all "Add/Create" actions across the application to use 
 ## Architecture
 
 ### Current State
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    List Page (e.g., /invoices)              │
@@ -25,6 +26,7 @@ This design standardizes all "Add/Create" actions across the application to use 
 ```
 
 ### Target State
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    List Page (e.g., /invoices)              │
@@ -63,7 +65,9 @@ const [error, setError] = useState('')
 
 // Reset form helper
 const resetForm = () => {
-  setFormData({ /* initial values */ })
+  setFormData({
+    /* initial values */
+  })
   setError('')
 }
 
@@ -72,7 +76,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault()
   setIsSubmitting(true)
   setError('')
-  
+
   try {
     await createEntityAction({ data: formData })
     setDialogOpen(false)
@@ -97,13 +101,13 @@ const handleSubmit = async (e: React.FormEvent) => {
     </DialogHeader>
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Form fields */}
-      
+
       {error && (
         <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
           {error}
         </div>
       )}
-      
+
       <DialogFooter>
         <Button
           type="button"
@@ -137,57 +141,55 @@ No changes to existing data models. The dialogs will use the same server functio
 
 ### Enhanced Field Usage
 
-| Entity | New Fields to Expose |
-|--------|---------------------|
-| Expense | `batchId` (optional link to batch) |
-| Feed | `brandName`, `bagSizeKg`, `numberOfBags`, `supplierId`, `notes` |
-| Customer | `customerType` (individual, restaurant, retailer, wholesaler) |
-| Supplier | `supplierType` (hatchery, feed_mill, pharmacy, equipment, fingerlings, other) |
-| Farm | `contactPhone`, `notes` |
-| Vaccination | `notes` |
-| Water Quality | `notes` (already has dialog, just needs notes field added) |
+| Entity        | New Fields to Expose                                                          |
+| ------------- | ----------------------------------------------------------------------------- |
+| Expense       | `batchId` (optional link to batch)                                            |
+| Feed          | `brandName`, `bagSizeKg`, `numberOfBags`, `supplierId`, `notes`               |
+| Customer      | `customerType` (individual, restaurant, retailer, wholesaler)                 |
+| Supplier      | `supplierType` (hatchery, feed_mill, pharmacy, equipment, fingerlings, other) |
+| Farm          | `contactPhone`, `notes`                                                       |
+| Vaccination   | `notes`                                                                       |
+| Water Quality | `notes` (already has dialog, just needs notes field added)                    |
 
 ### Server Functions to Reuse
 
-| Entity | Server Function | Source File |
-|--------|-----------------|-------------|
-| Invoice | `createInvoice` | `lib/invoices/server.ts` |
-| Batch | `createBatch` | `lib/batches/server.ts` |
-| Customer | `createCustomer` | `lib/customers/server.ts` |
-| Supplier | `createSupplier` | `lib/suppliers/server.ts` |
-| Expense | `createExpense` | `lib/expenses/server.ts` |
-| Feed | `createFeedRecord` | `lib/feed/server.ts` |
-| Egg | `createEggCollection` | `lib/eggs/server.ts` |
-| Vaccination | `createVaccination` | `lib/vaccinations/server.ts` |
-| Farm | `createFarm` | `lib/farms/server.ts` |
-
-
+| Entity      | Server Function       | Source File                  |
+| ----------- | --------------------- | ---------------------------- |
+| Invoice     | `createInvoice`       | `lib/invoices/server.ts`     |
+| Batch       | `createBatch`         | `lib/batches/server.ts`      |
+| Customer    | `createCustomer`      | `lib/customers/server.ts`    |
+| Supplier    | `createSupplier`      | `lib/suppliers/server.ts`    |
+| Expense     | `createExpense`       | `lib/expenses/server.ts`     |
+| Feed        | `createFeedRecord`    | `lib/feed/server.ts`         |
+| Egg         | `createEggCollection` | `lib/eggs/server.ts`         |
+| Vaccination | `createVaccination`   | `lib/vaccinations/server.ts` |
+| Farm        | `createFarm`          | `lib/farms/server.ts`        |
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 ### Property 1: Invoice Line Items Total Calculation
 
-*For any* set of invoice line items where each item has a quantity and unit price, the displayed total SHALL equal the sum of (quantity × unitPrice) for all items.
+_For any_ set of invoice line items where each item has a quantity and unit price, the displayed total SHALL equal the sum of (quantity × unitPrice) for all items.
 
 **Validates: Requirements 1.3**
 
 ### Property 2: Livestock Type to Species Mapping
 
-*For any* livestock type selection (poultry or fish), the species dropdown options SHALL only contain species that are valid for that livestock type, and changing the livestock type SHALL update the species options accordingly.
+_For any_ livestock type selection (poultry or fish), the species dropdown options SHALL only contain species that are valid for that livestock type, and changing the livestock type SHALL update the species options accordingly.
 
 **Validates: Requirements 2.3**
 
 ### Property 3: Batch Total Cost Calculation
 
-*For any* batch creation form where quantity Q and cost per unit C are entered, the displayed total cost SHALL equal Q × C.
+_For any_ batch creation form where quantity Q and cost per unit C are entered, the displayed total cost SHALL equal Q × C.
 
 **Validates: Requirements 2.4**
 
 ### Property 4: Form Validation Prevents Invalid Submission
 
-*For any* dialog form in an invalid state (missing required fields or invalid field values), the submit button SHALL be disabled and form submission SHALL be prevented.
+_For any_ dialog form in an invalid state (missing required fields or invalid field values), the submit button SHALL be disabled and form submission SHALL be prevented.
 
 **Validates: Requirements 11.5**
 
@@ -247,17 +249,17 @@ Property tests will verify universal properties using a property-based testing l
 
 ### Files to Modify
 
-| List Page | Add Dialog | Remove Route |
-|-----------|------------|--------------|
-| `_auth.invoices.tsx` | Invoice creation dialog | `_auth.invoices.new.tsx` |
-| `_auth.batches.index.tsx` | Batch creation dialog | `_auth.batches.new.tsx` |
-| `_auth.customers.tsx` | Customer creation dialog | `_auth.customers.new.tsx` |
-| `_auth.suppliers.tsx` | Supplier creation dialog | `_auth.suppliers.new.tsx` |
-| `_auth.expenses.tsx` | Expense creation dialog | `_auth.expenses.new.tsx` |
-| `_auth.feed.tsx` | Feed record dialog | `_auth.feed.new.tsx` |
-| `_auth.eggs.tsx` | Egg collection dialog | `_auth.eggs.new.tsx` |
-| `_auth.vaccinations.tsx` | Vaccination dialog | `_auth.vaccinations.new.tsx` |
-| `_auth.farms.index.tsx` | Farm creation dialog | `_auth.farms.new.tsx` |
+| List Page                 | Add Dialog               | Remove Route                 |
+| ------------------------- | ------------------------ | ---------------------------- |
+| `_auth.invoices.tsx`      | Invoice creation dialog  | `_auth.invoices.new.tsx`     |
+| `_auth.batches.index.tsx` | Batch creation dialog    | `_auth.batches.new.tsx`      |
+| `_auth.customers.tsx`     | Customer creation dialog | `_auth.customers.new.tsx`    |
+| `_auth.suppliers.tsx`     | Supplier creation dialog | `_auth.suppliers.new.tsx`    |
+| `_auth.expenses.tsx`      | Expense creation dialog  | `_auth.expenses.new.tsx`     |
+| `_auth.feed.tsx`          | Feed record dialog       | `_auth.feed.new.tsx`         |
+| `_auth.eggs.tsx`          | Egg collection dialog    | `_auth.eggs.new.tsx`         |
+| `_auth.vaccinations.tsx`  | Vaccination dialog       | `_auth.vaccinations.new.tsx` |
+| `_auth.farms.index.tsx`   | Farm creation dialog     | `_auth.farms.new.tsx`        |
 
 ### Dialog Width Guidelines
 

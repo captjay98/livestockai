@@ -476,7 +476,14 @@ interface SupplierTable {
   email: string | null
   location: string | null
   products: string[] // what they supply
-  supplier_type: 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other' | null
+  supplier_type:
+    | 'hatchery'
+    | 'feed_mill'
+    | 'pharmacy'
+    | 'equipment'
+    | 'fingerlings'
+    | 'other'
+    | null
   created_at: Generated<Date>
   updated_at: Date
 }

@@ -27,7 +27,7 @@ This plan implements system integration improvements including automated feed in
 
 - [x] 2. Customer CRUD Operations
   - [x] 2.1 Create customer detail page route
-    - Create app/routes/_auth.customers.$customerId.tsx
+    - Create app/routes/\_auth.customers.$customerId.tsx
     - Show customer info, sales history, total purchases
     - _Requirements: 2.1_
   - [x] 2.2 Add edit customer dialog
@@ -60,7 +60,7 @@ This plan implements system integration improvements including automated feed in
 
 - [x] 4. Invoice Management
   - [x] 4.1 Create invoice dialog component
-    - Create app/routes/_auth.invoices.new.tsx (already exists)
+    - Create app/routes/\_auth.invoices.new.tsx (already exists)
     - Support creating invoice with line items
     - Support linking to existing sale
     - _Requirements: 4.1, 4.5_

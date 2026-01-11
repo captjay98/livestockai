@@ -16,14 +16,17 @@ This spec covers enhancements to the JayFarms platform based on a comprehensive 
 ## Audit Summary
 
 ### Tables Fully Used ✅
+
 users, sessions, account, verification, farms, user_farms, batches, mortality_records, feed_records, egg_records, weight_samples, vaccinations, treatments, water_quality, expenses, customers, suppliers, invoices, invoice_items
 
 ### Tables Partially Used ⚠️
+
 - **structures**: Only read in batch details, no CRUD UI
 - **sales**: Missing UI fields (unitType, ageWeeks, averageWeightKg, paymentStatus, paymentMethod)
 - **feed_inventory**: No dedicated management UI
 
 ### Tables Not Used 🔴
+
 - **medication_inventory**: Table exists but completely unused
 
 ## Requirements
@@ -124,6 +127,7 @@ users, sessions, account, verification, farms, user_farms, batches, mortality_re
 ### Database Changes
 
 No schema changes required - all fields already exist in the database. This enhancement focuses on:
+
 1. Building UI for existing but unused tables (medication_inventory)
 2. Exposing existing but hidden fields in forms (sales enhanced fields, batch enhanced fields, weight sample enhanced fields)
 3. Building CRUD UI for structures table

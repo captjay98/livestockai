@@ -106,4 +106,3 @@ This specification addresses critical bugs, form-schema mismatches, security gap
 2. WHEN viewing dialogs on mobile, THE System SHALL ensure dialogs fit within the screen with proper padding
 3. WHEN viewing forms on mobile, THE System SHALL stack form fields vertically when horizontal space is insufficient
 4. WHEN viewing navigation on mobile, THE System SHALL provide accessible navigation without horizontal overflow
-

@@ -144,4 +144,3 @@ This plan converts all "Add/Create" actions from separate page routes to inline 
 - Updated links in farm detail page and dashboard
 - Property tests added for livestock type mapping and batch cost calculation
 - All 142 tests pass, build succeeds
-

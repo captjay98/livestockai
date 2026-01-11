@@ -7,11 +7,13 @@ This design document outlines the implementation of system integration improveme
 ## Architecture
 
 The system follows a layered architecture:
+
 - **UI Layer**: React components with TanStack Router
 - **Server Functions**: TanStack Start server functions for data operations
 - **Data Layer**: Kysely ORM with PostgreSQL (Neon)
 
 Key integration points:
+
 1. Feed Records → Feed Inventory (automatic deduction)
 2. Sales → Invoices (linkage)
 3. Batches → Structures → Farms (hierarchical relationship)
@@ -36,7 +38,9 @@ interface CreateFeedRecordInput {
 }
 
 // Automatically deducts from feed_inventory when creating a feed record
-async function createFeedRecord(input: CreateFeedRecordInput): Promise<FeedRecord>
+async function createFeedRecord(
+  input: CreateFeedRecordInput,
+): Promise<FeedRecord>
 
 // Automatically restores to feed_inventory when deleting a feed record
 async function deleteFeedRecord(id: string): Promise<void>
@@ -89,7 +93,7 @@ const FEED_TYPE_LABELS: Record<FeedType, string> = {
   grower: 'Grower Feed',
   finisher: 'Finisher Feed',
   layer_mash: 'Layer Mash',
-  fish_feed: 'Fish Feed'
+  fish_feed: 'Fish Feed',
 }
 
 const POULTRY_FEED_TYPES = ['starter', 'grower', 'finisher', 'layer_mash']
@@ -137,53 +141,53 @@ Supplier
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 ### Property 1: Feed Inventory Deduction Consistency
 
-*For any* feed record creation with quantity Q and corresponding feed inventory with initial quantity I, the resulting inventory quantity SHALL equal I - Q.
+_For any_ feed record creation with quantity Q and corresponding feed inventory with initial quantity I, the resulting inventory quantity SHALL equal I - Q.
 
 **Validates: Requirements 1.1**
 
 ### Property 2: Feed Inventory Restoration on Delete
 
-*For any* feed record deletion with quantity Q and corresponding feed inventory with current quantity C, the resulting inventory quantity SHALL equal C + Q.
+_For any_ feed record deletion with quantity Q and corresponding feed inventory with current quantity C, the resulting inventory quantity SHALL equal C + Q.
 
 **Validates: Requirements 1.2**
 
 ### Property 3: Low Stock Detection
 
-*For any* feed inventory with quantity Q and threshold T, the inventory SHALL be flagged as low stock if and only if Q < T.
+_For any_ feed inventory with quantity Q and threshold T, the inventory SHALL be flagged as low stock if and only if Q < T.
 
 **Validates: Requirements 1.4**
 
 ### Property 4: Customer Relationship Detection
 
-*For any* customer, the system SHALL correctly identify whether they have associated sales by checking the sales table for matching customerId.
+_For any_ customer, the system SHALL correctly identify whether they have associated sales by checking the sales table for matching customerId.
 
 **Validates: Requirements 2.4**
 
 ### Property 5: Supplier Relationship Detection
 
-*For any* supplier, the system SHALL correctly identify whether they have associated expenses or batches by checking both tables for matching supplierId.
+_For any_ supplier, the system SHALL correctly identify whether they have associated expenses or batches by checking both tables for matching supplierId.
 
 **Validates: Requirements 3.4**
 
 ### Property 6: Invoice-Sale Linkage
 
-*For any* invoice created from a sale, the invoice's linked sale SHALL have its invoiceId updated to reference the new invoice.
+_For any_ invoice created from a sale, the invoice's linked sale SHALL have its invoiceId updated to reference the new invoice.
 
 **Validates: Requirements 4.5**
 
 ### Property 7: Feed Type Label Completeness
 
-*For any* valid feed type, the label function SHALL return a non-empty human-readable string.
+_For any_ valid feed type, the label function SHALL return a non-empty human-readable string.
 
 **Validates: Requirements 7.1**
 
 ### Property 8: Feed Type Filtering by Livestock
 
-*For any* batch with livestockType 'poultry', the available feed types SHALL include starter, grower, finisher, and layer_mash. *For any* batch with livestockType 'fish', the available feed types SHALL include fish_feed.
+_For any_ batch with livestockType 'poultry', the available feed types SHALL include starter, grower, finisher, and layer*mash. \_For any* batch with livestockType 'fish', the available feed types SHALL include fish_feed.
 
 **Validates: Requirements 7.3**
 
@@ -196,15 +200,18 @@ Supplier
 ## Testing Strategy
 
 ### Unit Tests
+
 - Feed type label function returns correct labels
 - Feed type filtering returns correct options for livestock type
 - Relationship detection functions correctly identify linked records
 
 ### Property-Based Tests
+
 - Feed inventory deduction/restoration maintains consistency
 - Low stock detection threshold logic
 - Invoice-sale linkage integrity
 
 ### Integration Tests
+
 - Full flow: Create feed record → inventory deducted → low stock alert
 - Full flow: Create invoice from sale → sale updated with invoiceId
