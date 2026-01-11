@@ -482,6 +482,7 @@ export async function getFeedRecordsPaginated(
 
   // Get data
   let dataQuery = baseQuery
+    .leftJoin('suppliers', 'suppliers.id', 'feed_records.supplierId')
     .select([
       'feed_records.id',
       'feed_records.batchId',
@@ -497,8 +498,10 @@ export async function getFeedRecordsPaginated(
       'feed_records.createdAt',
       'batches.species',
       'batches.livestockType',
+      'batches.batchName',
       'farms.name as farmName',
       'batches.farmId',
+      'suppliers.name as supplierName',
     ])
     .limit(pageSize)
     .offset(offset)

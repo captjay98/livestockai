@@ -59,13 +59,20 @@ interface FeedRecord {
   id: string
   batchId: string
   feedType: string
+  brandName: string | null
+  bagSizeKg: number | null
+  numberOfBags: number | null
   quantityKg: string
   cost: string
   date: Date
   species: string
+  batchName: string | null
   livestockType: string
   farmId: string
   farmName?: string
+  supplierId: string | null
+  supplierName: string | null
+  notes: string | null
 }
 
 interface Batch {
@@ -401,23 +408,56 @@ function FeedPage() {
               ) : (
                 <Fish className="h-3 w-3 text-blue-600" />
               )}
-              {row.original.species}
+              {row.original.batchName || row.original.species}
             </div>
+            {row.original.batchName && (
+              <span className="text-xs text-muted-foreground capitalize">{row.original.species}</span>
+            )}
           </div>
         ),
       },
       {
-        accessorKey: 'feedType',
-        header: 'Feed Type',
+        accessorKey: 'brandName',
+        header: 'Brand / Type',
         cell: ({ row }) => {
           const feedTypeLabel = row.original.feedType.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-          return <Badge variant="secondary">{feedTypeLabel}</Badge>
+          return (
+            <div className="flex flex-col">
+              {row.original.brandName ? (
+                <>
+                  <span className="font-medium">{row.original.brandName}</span>
+                  <span className="text-xs text-muted-foreground">{feedTypeLabel}</span>
+                </>
+              ) : (
+                <Badge variant="secondary">{feedTypeLabel}</Badge>
+              )}
+            </div>
+          )
         }
       },
       {
         accessorKey: 'quantityKg',
-        header: 'Qty (kg)',
-        cell: ({ row }) => parseFloat(row.original.quantityKg).toLocaleString() + ' kg',
+        header: 'Quantity',
+        cell: ({ row }) => {
+          const bags = row.original.numberOfBags
+          const bagSize = row.original.bagSizeKg
+          const qty = parseFloat(row.original.quantityKg)
+          return (
+            <div className="flex flex-col">
+              <span className="font-medium">{qty.toLocaleString()} kg</span>
+              {bags && bagSize && (
+                <span className="text-xs text-muted-foreground">
+                  {bags} × {bagSize}kg bags
+                </span>
+              )}
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'supplierName',
+        header: 'Supplier',
+        cell: ({ row }) => row.original.supplierName || <span className="text-muted-foreground">—</span>,
       },
       {
         accessorKey: 'cost',
