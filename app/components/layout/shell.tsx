@@ -8,7 +8,7 @@ import { Button } from '~/components/ui/button'
 
 export function AppShell({
   children,
-  user
+  user,
 }: {
   children: React.ReactNode
   user: User
@@ -19,7 +19,10 @@ export function AppShell({
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Floating Sidebar */}
       <div className="hidden md:block w-72 shrink-0 h-screen sticky top-0 p-4">
-        <Sidebar className="h-full rounded-2xl border border-sidebar-border shadow-md bg-sidebar" user={user} />
+        <Sidebar
+          className="h-full rounded-2xl border border-sidebar-border shadow-md bg-sidebar"
+          user={user}
+        />
       </div>
 
       {/* Mobile Menu Overlay */}

@@ -1,7 +1,7 @@
 import { Button as ButtonPrimitive } from '@base-ui/react/button'
-import {  cva } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import * as React from 'react'
-import type {VariantProps} from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
 
@@ -41,7 +41,8 @@ const buttonVariants = cva(
   },
 )
 
-interface ButtonProps extends ButtonPrimitive.Props, VariantProps<typeof buttonVariants> {
+interface ButtonProps
+  extends ButtonPrimitive.Props, VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 
@@ -56,11 +57,15 @@ function Button({
   // If asChild is true, render the child element with button styles
   if (asChild && React.isValidElement(children)) {
     return React.cloneElement(children as React.ReactElement<any>, {
-      className: cn(buttonVariants({ variant, size }), (children as React.ReactElement<any>).props.className, className),
+      className: cn(
+        buttonVariants({ variant, size }),
+        (children as React.ReactElement<any>).props.className,
+        className,
+      ),
       ...props,
     })
   }
-  
+
   return (
     <ButtonPrimitive
       data-slot="button"

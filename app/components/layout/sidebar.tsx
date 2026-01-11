@@ -7,7 +7,6 @@ import { Button } from '~/components/ui/button'
 import { FarmSelector } from '~/components/farm-selector'
 import { ThemeToggle } from '~/components/theme-toggle'
 
-
 interface SidebarProps {
   className?: string
   onClose?: () => void

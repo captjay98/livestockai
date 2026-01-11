@@ -6,7 +6,9 @@ interface CollapsibleContextValue {
   onOpenChange: (open: boolean) => void
 }
 
-const CollapsibleContext = React.createContext<CollapsibleContextValue | undefined>(undefined)
+const CollapsibleContext = React.createContext<
+  CollapsibleContextValue | undefined
+>(undefined)
 
 function useCollapsible() {
   const context = React.useContext(CollapsibleContext)
@@ -32,19 +34,24 @@ function Collapsible({
   className,
 }: CollapsibleProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
-  
+
   const isControlled = controlledOpen !== undefined
   const open = isControlled ? controlledOpen : uncontrolledOpen
-  
-  const handleOpenChange = React.useCallback((newOpen: boolean) => {
-    if (!isControlled) {
-      setUncontrolledOpen(newOpen)
-    }
-    onOpenChange?.(newOpen)
-  }, [isControlled, onOpenChange])
+
+  const handleOpenChange = React.useCallback(
+    (newOpen: boolean) => {
+      if (!isControlled) {
+        setUncontrolledOpen(newOpen)
+      }
+      onOpenChange?.(newOpen)
+    },
+    [isControlled, onOpenChange],
+  )
 
   return (
-    <CollapsibleContext.Provider value={{ open, onOpenChange: handleOpenChange }}>
+    <CollapsibleContext.Provider
+      value={{ open, onOpenChange: handleOpenChange }}
+    >
       <div className={cn('', className)} data-state={open ? 'open' : 'closed'}>
         {children}
       </div>
@@ -58,17 +65,24 @@ interface CollapsibleTriggerProps {
   className?: string
 }
 
-function CollapsibleTrigger({ asChild, children, className }: CollapsibleTriggerProps) {
+function CollapsibleTrigger({
+  asChild,
+  children,
+  className,
+}: CollapsibleTriggerProps) {
   const { open, onOpenChange } = useCollapsible()
-  
+
   const handleClick = () => {
     onOpenChange(!open)
   }
 
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<{ onClick?: () => void }>, {
-      onClick: handleClick,
-    })
+    return React.cloneElement(
+      children as React.ReactElement<{ onClick?: () => void }>,
+      {
+        onClick: handleClick,
+      },
+    )
   }
 
   return (
@@ -96,10 +110,7 @@ function CollapsibleContent({ children, className }: CollapsibleContentProps) {
   }
 
   return (
-    <div
-      className={cn('', className)}
-      data-state="open"
-    >
+    <div className={cn('', className)} data-state="open">
       {children}
     </div>
   )
