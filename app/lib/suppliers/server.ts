@@ -15,6 +15,7 @@ export interface PaginatedQuery {
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
   search?: string
+  supplierType?: string
 }
 
 export interface PaginatedResult<T> {
@@ -142,6 +143,11 @@ export async function getSuppliersPaginated(
       eb('suppliers.location', 'ilike', searchLower),
       eb('suppliers.email', 'ilike', searchLower),
     ]))
+  }
+
+  // Apply supplierType filter
+  if (query.supplierType) {
+    baseQuery = baseQuery.where('suppliers.supplierType', '=', query.supplierType as any)
   }
 
   // Count

@@ -14,6 +14,7 @@ export interface PaginatedQuery {
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
   search?: string
+  customerType?: string
 }
 
 export interface PaginatedResult<T> {
@@ -183,6 +184,11 @@ export async function getCustomersPaginated(
       eb('customers.location', 'ilike', searchLower),
       eb('customers.email', 'ilike', searchLower),
     ]))
+  }
+
+  // Apply customerType filter
+  if (query.customerType) {
+    baseQuery = baseQuery.where('customers.customerType', '=', query.customerType as any)
   }
 
   // Count

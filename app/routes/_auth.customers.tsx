@@ -66,7 +66,15 @@ interface CustomerSearchParams {
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
   q?: string
+  customerType?: string
 }
+
+const CUSTOMER_TYPES = [
+  { value: 'individual', label: 'Individual' },
+  { value: 'restaurant', label: 'Restaurant' },
+  { value: 'retailer', label: 'Retailer' },
+  { value: 'wholesaler', label: 'Wholesaler' },
+]
 
 const getCustomerData = createServerFn({ method: 'GET' })
   .inputValidator((data: {
@@ -75,6 +83,7 @@ const getCustomerData = createServerFn({ method: 'GET' })
     sortBy?: string
     sortOrder?: 'asc' | 'desc'
     search?: string
+    customerType?: string
   }) => data)
   .handler(async ({ data }) => {
     try {
@@ -86,6 +95,7 @@ const getCustomerData = createServerFn({ method: 'GET' })
           sortBy: data.sortBy,
           sortOrder: data.sortOrder,
           search: data.search,
+          customerType: data.customerType,
         }),
         getTopCustomers(5),
       ])
@@ -106,6 +116,7 @@ export const Route = createFileRoute('/_auth/customers')({
     sortBy: (search.sortBy as string) || 'totalSpent',
     sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
     q: (search.q as string) || '',
+    customerType: search.customerType ? String(search.customerType) : undefined,
   }),
 })
 
@@ -157,6 +168,7 @@ function CustomersPage() {
           sortBy: searchParams.sortBy,
           sortOrder: searchParams.sortOrder,
           search: searchParams.q,
+          customerType: searchParams.customerType,
         },
       })
       setPaginatedCustomers(result.paginatedCustomers as PaginatedResult<any>)
@@ -175,7 +187,8 @@ function CustomersPage() {
     searchParams.pageSize,
     searchParams.sortBy,
     searchParams.sortOrder,
-    searchParams.q
+    searchParams.q,
+    searchParams.customerType
   ])
 
   const updateSearch = (updates: Partial<CustomerSearchParams>) => {
@@ -402,6 +415,26 @@ function CustomersPage() {
         searchValue={searchParams.q}
         searchPlaceholder="Search customers..."
         isLoading={isLoading}
+        filters={
+          <Select
+            value={searchParams.customerType || 'all'}
+            onValueChange={(value) => {
+              updateSearch({ customerType: value === 'all' ? undefined : value, page: 1 })
+            }}
+          >
+            <SelectTrigger className="w-[150px] h-10">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              {CUSTOMER_TYPES.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
         onPaginationChange={(page, pageSize) => {
           updateSearch({ page, pageSize })
         }}

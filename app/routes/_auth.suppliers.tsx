@@ -50,7 +50,17 @@ interface SupplierSearchParams {
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
   q?: string
+  supplierType?: string
 }
+
+const SUPPLIER_TYPES = [
+  { value: 'hatchery', label: 'Hatchery' },
+  { value: 'feed_mill', label: 'Feed Mill' },
+  { value: 'fingerlings', label: 'Fingerlings' },
+  { value: 'pharmacy', label: 'Pharmacy' },
+  { value: 'equipment', label: 'Equipment' },
+  { value: 'other', label: 'Other' },
+]
 
 const getSupplierData = createServerFn({ method: 'GET' })
   .inputValidator((data: {
@@ -59,6 +69,7 @@ const getSupplierData = createServerFn({ method: 'GET' })
     sortBy?: string
     sortOrder?: 'asc' | 'desc'
     search?: string
+    supplierType?: string
   }) => data)
   .handler(async ({ data }) => {
     try {
@@ -69,6 +80,7 @@ const getSupplierData = createServerFn({ method: 'GET' })
         sortBy: data.sortBy,
         sortOrder: data.sortOrder,
         search: data.search,
+        supplierType: data.supplierType,
       })
       return { paginatedSuppliers }
     } catch (error) {
@@ -87,6 +99,7 @@ export const Route = createFileRoute('/_auth/suppliers')({
     sortBy: (search.sortBy as string) || 'totalSpent',
     sortOrder: (search.sortOrder as 'asc' | 'desc') || 'desc',
     q: (search.q as string) || '',
+    supplierType: search.supplierType ? String(search.supplierType) : undefined,
   }),
 })
 
@@ -125,6 +138,7 @@ function SuppliersPage() {
           sortBy: searchParams.sortBy,
           sortOrder: searchParams.sortOrder,
           search: searchParams.q,
+          supplierType: searchParams.supplierType,
         },
       })
       setPaginatedSuppliers(result.paginatedSuppliers as PaginatedResult<any>)
@@ -142,7 +156,8 @@ function SuppliersPage() {
     searchParams.pageSize,
     searchParams.sortBy,
     searchParams.sortOrder,
-    searchParams.q
+    searchParams.q,
+    searchParams.supplierType
   ])
 
   const updateSearch = (updates: Partial<SupplierSearchParams>) => {
@@ -305,6 +320,26 @@ function SuppliersPage() {
         searchValue={searchParams.q}
         searchPlaceholder="Search suppliers..."
         isLoading={isLoading}
+        filters={
+          <Select
+            value={searchParams.supplierType || 'all'}
+            onValueChange={(value) => {
+              updateSearch({ supplierType: value === 'all' ? undefined : value, page: 1 })
+            }}
+          >
+            <SelectTrigger className="w-[150px] h-10">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              {SUPPLIER_TYPES.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
         onPaginationChange={(page, pageSize) => {
           updateSearch({ page, pageSize })
         }}
