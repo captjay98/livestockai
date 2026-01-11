@@ -546,9 +546,9 @@ function FeedPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Feed Types</SelectItem>
-              {Object.entries(FEED_TYPES).map(([key, label]) => (
-                <SelectItem key={key} value={key}>
-                  {label}
+              {FEED_TYPES.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -611,9 +611,9 @@ function FeedPage() {
                   <SelectValue placeholder="Select feed type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(FEED_TYPES).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
+                  {FEED_TYPES.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -728,8 +728,8 @@ function FeedPage() {
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {Object.entries(FEED_TYPES).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>{label}</SelectItem>
+                    {FEED_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

@@ -1,5 +1,4 @@
 import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "~/lib/utils"
 
 const TabsContext = React.createContext<{
@@ -8,13 +7,26 @@ const TabsContext = React.createContext<{
 } | null>(null)
 
 interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
-    value: string
-    onValueChange: (value: string) => void
+    value?: string
+    defaultValue?: string
+    onValueChange?: (value: string) => void
 }
 
-function Tabs({ value, onValueChange, className, ...props }: TabsProps) {
+function Tabs({ value: controlledValue, defaultValue, onValueChange, className, ...props }: TabsProps) {
+    const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue || '')
+    
+    const isControlled = controlledValue !== undefined
+    const value = isControlled ? controlledValue : uncontrolledValue
+    
+    const handleValueChange = React.useCallback((newValue: string) => {
+        if (!isControlled) {
+            setUncontrolledValue(newValue)
+        }
+        onValueChange?.(newValue)
+    }, [isControlled, onValueChange])
+    
     return (
-        <TabsContext.Provider value={{ value, onValueChange }}>
+        <TabsContext.Provider value={{ value, onValueChange: handleValueChange }}>
             <div className={cn("", className)} {...props} />
         </TabsContext.Provider>
     )
