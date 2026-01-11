@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "jayfarms",
-  "account_id": "9016ab965fe4980700cc9775a88812a5",
+  "name": "open-livestock-manager",
+  // "account_id": "your-account-id",
   "compatibility_date": "2025-10-11",
   "compatibility_flags": [
     "nodejs_compat",

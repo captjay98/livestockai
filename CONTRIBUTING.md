@@ -1,24 +1,59 @@
 # Contributing to OpenLivestock Manager
 
-Thank you for your interest in contributing!
+Thank you for your interest in contributing! We love pull requests from everyone. By participating in this project, you agree to abide by our Code of Conduct and follow our collaboration guidelines.
 
-## Code of Conduct
-Please be respectful and inclusive in all interactions.
+## 1. Development Workflow
 
-## Development Workflow
+1.  **Fork** the repository on GitHub.
+2.  **Clone** your fork locally:
+    ```bash
+    git clone https://github.com/your-username/open-livestock-manager.git
+    ```
+3.  **Create a Branch** for your work. We use the `type/short-description` format:
+    -   `feat/add-batch-analysis`
+    -   `fix/login-error-toast`
+    -   `docs/update-readme`
 
-1.  **Fork** the repository.
-2.  **Create a branch** for your feature or fix (`git checkout -b feature/amazing-feature`).
-3.  **Commit** your changes (`git commit -m 'Add amazing feature'`).
-4.  **Push** to the branch (`git push origin feature/amazing-feature`).
-5.  **Open a Pull Request**.
+## 2. Commit Conventions
 
-## Technical Standards
+We follow the **[Conventional Commits](https://www.conventionalcommits.org/)** specification. This helps us generate changelogs and version numbers automatically.
 
--   **Formatting**: We use `prettier` and `eslint`. Run `bun check` before committing.
--   **Testing**: Add unit tests for new logic where possible (`bun test`).
--   **Database**: If modifying schema, always create a new migration file:
-    `bun run app/lib/db/migrate.ts create your_migration_name`
+**Format**: `<type>(<scope>): <description>`
 
-## Reporting Issues
-Please use the GitHub Issues tab to report bugs or suggest features.
+### Allowed Types:
+-   `feat`: A new feature for the user (e.g., "add forecast chart").
+-   `fix`: A bug fix (e.g., "fix negative inventory on delete").
+-   `docs`: Documentation only changes.
+-   `style`: Formatting, missing semi-colons, etc (no production code change).
+-   `refactor`: A code change that neither fixes a bug nor adds a feature.
+-   `perf`: A code change that improves performance.
+-   `test`: Adding missing tests or correcting existing tests.
+-   `chore`: Changes to the build process or auxiliary tools (e.g., "bump deps").
+
+### Examples:
+-   `feat(auth): implement google oauth login`
+-   `fix(db): add missing index on batch_id`
+-   `docs: update installation steps in readme`
+
+## 3. Pull Request Guidelines
+
+-   **One Feature per PR**: Keep your changes focused.
+-   **Self-Review**: Review your own code before submitting.
+-   **Tests**: Ensure all tests pass. If adding a feature, add a corresponding test.
+-   **Linting**: Run the linter locally to ensure no style regressions.
+
+## 4. Local Development Shortcuts
+
+We use `bun` for package management and scripting.
+
+-   **Install Dependencies**: `bun install`
+-   **Run Dev Server**: `bun dev`
+-   **Lint & Format**: `bun check` (Runs Prettier & ESLint)
+-   **Run Tests**: `bun test`
+-   **Database**:
+    -   Migrate: `bun run db:migrate`
+    -   Seed: `bun run db:seed`
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the MIT License.
