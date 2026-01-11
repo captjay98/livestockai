@@ -1,6 +1,22 @@
 import { createServerFn } from '@tanstack/react-start'
 import { multiply, toDbString, toNumber } from '../currency'
 
+// Source size options based on livestock type
+export const SOURCE_SIZE_OPTIONS = {
+  poultry: [
+    { value: 'day-old', label: 'Day-old Chicks' },
+    { value: 'point-of-lay', label: 'Point of Lay' },
+    { value: '2-weeks', label: '2 Weeks Old' },
+    { value: '4-weeks', label: '4 Weeks Old' },
+  ],
+  fish: [
+    { value: 'fingerling', label: 'Fingerling (3-5cm)' },
+    { value: 'post-fingerling', label: 'Post-fingerling (5-8cm)' },
+    { value: 'jumbo', label: 'Jumbo (10-12cm)' },
+    { value: 'table-size', label: 'Table Size (15cm+)' },
+  ],
+}
+
 export interface CreateBatchData {
   farmId: string
   livestockType: 'poultry' | 'fish'
@@ -8,11 +24,23 @@ export interface CreateBatchData {
   initialQuantity: number
   acquisitionDate: Date
   costPerUnit: number // in Naira
+  // Enhanced fields
+  batchName?: string | null
+  sourceSize?: string | null
+  structureId?: string | null
+  targetHarvestDate?: Date | null
+  supplierId?: string | null
+  notes?: string | null
 }
 
 export interface UpdateBatchData {
   species?: string
   status?: 'active' | 'depleted' | 'sold'
+  batchName?: string | null
+  sourceSize?: string | null
+  structureId?: string | null
+  targetHarvestDate?: Date | null
+  notes?: string | null
 }
 
 /**
@@ -45,6 +73,13 @@ export async function createBatch(
       costPerUnit: toDbString(data.costPerUnit),
       totalCost: toDbString(totalCost),
       status: 'active',
+      // Enhanced fields
+      batchName: data.batchName || null,
+      sourceSize: data.sourceSize || null,
+      structureId: data.structureId || null,
+      targetHarvestDate: data.targetHarvestDate || null,
+      supplierId: data.supplierId || null,
+      notes: data.notes || null,
     })
     .returning('id')
     .executeTakeFirstOrThrow()
@@ -196,10 +231,20 @@ export async function updateBatch(
   const updateData: {
     species?: string
     status?: 'active' | 'depleted' | 'sold'
+    batchName?: string | null
+    sourceSize?: string | null
+    structureId?: string | null
+    targetHarvestDate?: Date | null
+    notes?: string | null
   } = {}
 
   if (data.species !== undefined) updateData.species = data.species
   if (data.status !== undefined) updateData.status = data.status
+  if (data.batchName !== undefined) updateData.batchName = data.batchName
+  if (data.sourceSize !== undefined) updateData.sourceSize = data.sourceSize
+  if (data.structureId !== undefined) updateData.structureId = data.structureId
+  if (data.targetHarvestDate !== undefined) updateData.targetHarvestDate = data.targetHarvestDate
+  if (data.notes !== undefined) updateData.notes = data.notes
 
   await db
     .updateTable('batches')

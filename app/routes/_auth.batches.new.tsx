@@ -1,8 +1,8 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
-import { createBatch } from '~/lib/batches/server'
+import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
+import { createBatch, SOURCE_SIZE_OPTIONS } from '~/lib/batches/server'
 import { getSpeciesOptions } from '~/lib/batches/constants'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
@@ -15,6 +15,7 @@ import {
 } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { Textarea } from '~/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -22,6 +23,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '~/components/ui/collapsible'
 
 interface CreateBatchInput {
   farmId: string
@@ -30,6 +36,13 @@ interface CreateBatchInput {
   initialQuantity: number
   acquisitionDate: string
   costPerUnit: number
+  // Enhanced fields
+  batchName?: string | null
+  sourceSize?: string | null
+  structureId?: string | null
+  targetHarvestDate?: string | null
+  supplierId?: string | null
+  notes?: string | null
 }
 
 const createBatchAction = createServerFn({ method: 'POST' })
@@ -45,6 +58,13 @@ const createBatchAction = createServerFn({ method: 'POST' })
         initialQuantity: data.initialQuantity,
         acquisitionDate: new Date(data.acquisitionDate),
         costPerUnit: data.costPerUnit,
+        // Enhanced fields
+        batchName: data.batchName || null,
+        sourceSize: data.sourceSize || null,
+        structureId: data.structureId || null,
+        targetHarvestDate: data.targetHarvestDate ? new Date(data.targetHarvestDate) : null,
+        supplierId: data.supplierId || null,
+        notes: data.notes || null,
       })
 
       return { success: true, batchId }
@@ -78,11 +98,18 @@ function NewBatchPage() {
     initialQuantity: '',
     acquisitionDate: new Date().toISOString().split('T')[0],
     costPerUnit: '',
+    // Enhanced fields
+    batchName: '',
+    sourceSize: '',
+    targetHarvestDate: '',
+    notes: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [showAdditional, setShowAdditional] = useState(false)
 
   const speciesOptions = getSpeciesOptions(formData.livestockType)
+  const sourceSizeOptions = SOURCE_SIZE_OPTIONS[formData.livestockType] || []
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -98,6 +125,11 @@ function NewBatchPage() {
           initialQuantity: parseInt(formData.initialQuantity),
           acquisitionDate: formData.acquisitionDate,
           costPerUnit: parseFloat(formData.costPerUnit),
+          // Enhanced fields
+          batchName: formData.batchName || null,
+          sourceSize: formData.sourceSize || null,
+          targetHarvestDate: formData.targetHarvestDate || null,
+          notes: formData.notes || null,
         },
       })
 
@@ -118,6 +150,7 @@ function NewBatchPage() {
         ...prev,
         livestockType: type,
         species: '',
+        sourceSize: '',
       }))
     }
   }
@@ -240,6 +273,84 @@ function NewBatchPage() {
                 required
               />
             </div>
+
+            {/* Additional Details Section */}
+            <Collapsible open={showAdditional} onOpenChange={setShowAdditional}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" type="button" className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground">
+                  <span>Additional Details</span>
+                  {showAdditional ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="batchName">Batch Name (Optional)</Label>
+                  <Input
+                    id="batchName"
+                    value={formData.batchName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        batchName: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., JAN-2026-BR-01"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="sourceSize">Source Size (Optional)</Label>
+                  <Select
+                    value={formData.sourceSize || undefined}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, sourceSize: value || '' }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select source size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sourceSizeOptions.map((size) => (
+                        <SelectItem key={size.value} value={size.value}>
+                          {size.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="targetHarvestDate">Target Harvest Date (Optional)</Label>
+                  <Input
+                    id="targetHarvestDate"
+                    type="date"
+                    value={formData.targetHarvestDate}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        targetHarvestDate: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes (Optional)</Label>
+                  <Textarea
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
+                    placeholder="Any additional notes about this batch..."
+                    rows={3}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             {/* Cost Summary */}
             {formData.initialQuantity && formData.costPerUnit && (

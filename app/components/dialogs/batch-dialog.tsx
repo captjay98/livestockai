@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { Users } from 'lucide-react'
-import { createBatchFn } from '~/lib/batches/server'
+import { Users, ChevronDown, ChevronUp } from 'lucide-react'
+import { createBatchFn, SOURCE_SIZE_OPTIONS } from '~/lib/batches/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { Textarea } from '~/components/ui/textarea'
 import {
     Select,
     SelectContent,
@@ -20,11 +21,29 @@ import {
     DialogHeader,
     DialogTitle,
 } from '~/components/ui/dialog'
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '~/components/ui/collapsible'
+
+interface Structure {
+    id: string
+    name: string
+    type: string
+}
+
+interface Supplier {
+    id: string
+    name: string
+}
 
 interface BatchDialogProps {
     farmId: string
     open: boolean
     onOpenChange: (open: boolean) => void
+    structures?: Structure[]
+    suppliers?: Supplier[]
 }
 
 const LIVESTOCK_TYPES = [
@@ -45,7 +64,7 @@ const SPECIES_OPTIONS = {
     ],
 }
 
-export function BatchDialog({ farmId, open, onOpenChange }: BatchDialogProps) {
+export function BatchDialog({ farmId, open, onOpenChange, structures = [], suppliers = [] }: BatchDialogProps) {
     const router = useRouter()
     const [formData, setFormData] = useState({
         livestockType: '' as 'poultry' | 'fish' | '',
@@ -53,13 +72,21 @@ export function BatchDialog({ farmId, open, onOpenChange }: BatchDialogProps) {
         initialQuantity: '',
         costPerUnit: '',
         acquisitionDate: new Date().toISOString().split('T')[0],
+        // Enhanced fields
+        batchName: '',
+        sourceSize: '',
+        structureId: '',
+        targetHarvestDate: '',
+        supplierId: '',
+        notes: '',
     })
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState('')
+    const [showAdditional, setShowAdditional] = useState(false)
 
-    // Reset species when livestock type changes
+    // Reset species and sourceSize when livestock type changes
     useEffect(() => {
-        setFormData((prev) => ({ ...prev, species: '' }))
+        setFormData((prev) => ({ ...prev, species: '', sourceSize: '' }))
     }, [formData.livestockType])
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -78,6 +105,13 @@ export function BatchDialog({ farmId, open, onOpenChange }: BatchDialogProps) {
                         initialQuantity: parseInt(formData.initialQuantity),
                         costPerUnit: parseFloat(formData.costPerUnit),
                         acquisitionDate: new Date(formData.acquisitionDate),
+                        // Enhanced fields
+                        batchName: formData.batchName || null,
+                        sourceSize: formData.sourceSize || null,
+                        structureId: formData.structureId || null,
+                        targetHarvestDate: formData.targetHarvestDate ? new Date(formData.targetHarvestDate) : null,
+                        supplierId: formData.supplierId || null,
+                        notes: formData.notes || null,
                     },
                 },
             })
@@ -88,7 +122,14 @@ export function BatchDialog({ farmId, open, onOpenChange }: BatchDialogProps) {
                 initialQuantity: '',
                 costPerUnit: '',
                 acquisitionDate: new Date().toISOString().split('T')[0],
+                batchName: '',
+                sourceSize: '',
+                structureId: '',
+                targetHarvestDate: '',
+                supplierId: '',
+                notes: '',
             })
+            setShowAdditional(false)
             router.invalidate()
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create batch')
@@ -99,6 +140,10 @@ export function BatchDialog({ farmId, open, onOpenChange }: BatchDialogProps) {
 
     const speciesOptions = formData.livestockType
         ? SPECIES_OPTIONS[formData.livestockType]
+        : []
+
+    const sourceSizeOptions = formData.livestockType
+        ? SOURCE_SIZE_OPTIONS[formData.livestockType]
         : []
 
     return (
@@ -224,6 +269,132 @@ export function BatchDialog({ farmId, open, onOpenChange }: BatchDialogProps) {
                             required
                         />
                     </div>
+
+                    {/* Additional Details Section */}
+                    <Collapsible open={showAdditional} onOpenChange={setShowAdditional}>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" type="button" className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground">
+                                <span>Additional Details</span>
+                                {showAdditional ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                            </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="batchName">Batch Name (Optional)</Label>
+                                <Input
+                                    id="batchName"
+                                    value={formData.batchName}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            batchName: e.target.value,
+                                        }))
+                                    }
+                                    placeholder="e.g., JAN-2026-BR-01"
+                                />
+                            </div>
+
+                            {formData.livestockType && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="sourceSize">Source Size (Optional)</Label>
+                                    <Select
+                                        value={formData.sourceSize || undefined}
+                                        onValueChange={(value) =>
+                                            setFormData((prev) => ({ ...prev, sourceSize: value || '' }))
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select source size" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {sourceSizeOptions.map((size) => (
+                                                <SelectItem key={size.value} value={size.value}>
+                                                    {size.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+
+                            {structures.length > 0 && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="structureId">Structure (Optional)</Label>
+                                    <Select
+                                        value={formData.structureId || undefined}
+                                        onValueChange={(value) =>
+                                            setFormData((prev) => ({ ...prev, structureId: value || '' }))
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select structure" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {structures.map((structure) => (
+                                                <SelectItem key={structure.id} value={structure.id}>
+                                                    {structure.name} ({structure.type})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+
+                            {suppliers.length > 0 && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="supplierId">Supplier (Optional)</Label>
+                                    <Select
+                                        value={formData.supplierId || undefined}
+                                        onValueChange={(value) =>
+                                            setFormData((prev) => ({ ...prev, supplierId: value || '' }))
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select supplier" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {suppliers.map((supplier) => (
+                                                <SelectItem key={supplier.id} value={supplier.id}>
+                                                    {supplier.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <Label htmlFor="targetHarvestDate">Target Harvest Date (Optional)</Label>
+                                <Input
+                                    id="targetHarvestDate"
+                                    type="date"
+                                    value={formData.targetHarvestDate}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            targetHarvestDate: e.target.value,
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="notes">Notes (Optional)</Label>
+                                <Textarea
+                                    id="notes"
+                                    value={formData.notes}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            notes: e.target.value,
+                                        }))
+                                    }
+                                    placeholder="Any additional notes about this batch..."
+                                    rows={3}
+                                />
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
 
                     {error && (
                         <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
