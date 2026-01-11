@@ -31,7 +31,7 @@ export interface PaginatedQuery {
 }
 
 export interface PaginatedResult<T> {
-  data: T[]
+  data: Array<T>
   total: number
   page: number
   pageSize: number
@@ -137,7 +137,7 @@ export async function getHealthRecordsPaginated(
   const { getUserFarms } = await import('~/lib/auth/utils')
   const { sql } = await import('kysely')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (query.farmId) {
     targetFarmIds = [query.farmId]
   } else {
@@ -273,7 +273,7 @@ export async function getUpcomingVaccinations(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (farmId) {
     await verifyFarmAccess(userId, farmId)
     targetFarmIds = [farmId]
@@ -311,7 +311,7 @@ export async function getOverdueVaccinations(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (farmId) {
     await verifyFarmAccess(userId, farmId)
     targetFarmIds = [farmId]

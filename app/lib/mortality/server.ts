@@ -19,7 +19,7 @@ export interface PaginatedQuery {
 }
 
 export interface PaginatedResult<T> {
-  data: T[]
+  data: Array<T>
   total: number
   page: number
   pageSize: number
@@ -353,7 +353,7 @@ export async function getMortalityRecordsPaginated(
   const { getUserFarms } = await import('~/lib/auth/utils')
   const { sql } = await import('kysely')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (query.farmId) {
     targetFarmIds = [query.farmId]
   } else {
@@ -450,7 +450,7 @@ export async function getMortalitySummary(userId: string, farmId?: string) {
   const { db } = await import('../db')
   const { getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (farmId) {
     targetFarmIds = [farmId]
   } else {

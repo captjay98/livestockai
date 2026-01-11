@@ -19,7 +19,7 @@ export interface PaginatedQuery {
 }
 
 export interface PaginatedResult<T> {
-  data: T[]
+  data: Array<T>
   total: number
   page: number
   pageSize: number
@@ -169,7 +169,7 @@ export async function getEggRecords(
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)
@@ -267,7 +267,7 @@ export async function getEggRecordsSummary(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)
@@ -405,7 +405,7 @@ export async function getEggRecordsPaginated(
   const { getUserFarms } = await import('~/lib/auth/utils')
   const { sql } = await import('kysely')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (query.farmId) {
     targetFarmIds = [query.farmId]
   } else {

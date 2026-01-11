@@ -44,6 +44,7 @@ import { Route as AuthFarmsFarmIdRouteImport } from './routes/_auth.farms.$farmI
 import { Route as AuthExpensesNewRouteImport } from './routes/_auth.expenses.new'
 import { Route as AuthEggsNewRouteImport } from './routes/_auth.eggs.new'
 import { Route as AuthCustomersNewRouteImport } from './routes/_auth.customers.new'
+import { Route as AuthCustomersCustomerIdRouteImport } from './routes/_auth.customers.$customerId'
 import { Route as AuthBatchesNewRouteImport } from './routes/_auth.batches.new'
 import { Route as AuthFarmsFarmIdIndexRouteImport } from './routes/_auth.farms.$farmId.index'
 import { Route as AuthBatchesBatchIdIndexRouteImport } from './routes/_auth.batches.$batchId.index'
@@ -222,6 +223,11 @@ const AuthCustomersNewRoute = AuthCustomersNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AuthCustomersRoute,
 } as any)
+const AuthCustomersCustomerIdRoute = AuthCustomersCustomerIdRouteImport.update({
+  id: '/$customerId',
+  path: '/$customerId',
+  getParentRoute: () => AuthCustomersRoute,
+} as any)
 const AuthBatchesNewRoute = AuthBatchesNewRouteImport.update({
   id: '/batches/new',
   path: '/batches/new',
@@ -257,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/water-quality': typeof AuthWaterQualityRouteWithChildren
   '/weight': typeof AuthWeightRouteWithChildren
   '/batches/new': typeof AuthBatchesNewRoute
+  '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/customers/new': typeof AuthCustomersNewRoute
   '/eggs/new': typeof AuthEggsNewRoute
   '/expenses/new': typeof AuthExpensesNewRoute
@@ -295,6 +302,7 @@ export interface FileRoutesByTo {
   '/water-quality': typeof AuthWaterQualityRouteWithChildren
   '/weight': typeof AuthWeightRouteWithChildren
   '/batches/new': typeof AuthBatchesNewRoute
+  '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/customers/new': typeof AuthCustomersNewRoute
   '/eggs/new': typeof AuthEggsNewRoute
   '/expenses/new': typeof AuthExpensesNewRoute
@@ -335,6 +343,7 @@ export interface FileRoutesById {
   '/_auth/water-quality': typeof AuthWaterQualityRouteWithChildren
   '/_auth/weight': typeof AuthWeightRouteWithChildren
   '/_auth/batches/new': typeof AuthBatchesNewRoute
+  '/_auth/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/_auth/customers/new': typeof AuthCustomersNewRoute
   '/_auth/eggs/new': typeof AuthEggsNewRoute
   '/_auth/expenses/new': typeof AuthExpensesNewRoute
@@ -376,6 +385,7 @@ export interface FileRouteTypes {
     | '/water-quality'
     | '/weight'
     | '/batches/new'
+    | '/customers/$customerId'
     | '/customers/new'
     | '/eggs/new'
     | '/expenses/new'
@@ -414,6 +424,7 @@ export interface FileRouteTypes {
     | '/water-quality'
     | '/weight'
     | '/batches/new'
+    | '/customers/$customerId'
     | '/customers/new'
     | '/eggs/new'
     | '/expenses/new'
@@ -453,6 +464,7 @@ export interface FileRouteTypes {
     | '/_auth/water-quality'
     | '/_auth/weight'
     | '/_auth/batches/new'
+    | '/_auth/customers/$customerId'
     | '/_auth/customers/new'
     | '/_auth/eggs/new'
     | '/_auth/expenses/new'
@@ -727,6 +739,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCustomersNewRouteImport
       parentRoute: typeof AuthCustomersRoute
     }
+    '/_auth/customers/$customerId': {
+      id: '/_auth/customers/$customerId'
+      path: '/$customerId'
+      fullPath: '/customers/$customerId'
+      preLoaderRoute: typeof AuthCustomersCustomerIdRouteImport
+      parentRoute: typeof AuthCustomersRoute
+    }
     '/_auth/batches/new': {
       id: '/_auth/batches/new'
       path: '/batches/new'
@@ -752,10 +771,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthCustomersRouteChildren {
+  AuthCustomersCustomerIdRoute: typeof AuthCustomersCustomerIdRoute
   AuthCustomersNewRoute: typeof AuthCustomersNewRoute
 }
 
 const AuthCustomersRouteChildren: AuthCustomersRouteChildren = {
+  AuthCustomersCustomerIdRoute: AuthCustomersCustomerIdRoute,
   AuthCustomersNewRoute: AuthCustomersNewRoute,
 }
 

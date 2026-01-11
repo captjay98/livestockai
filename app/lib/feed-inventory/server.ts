@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 
 export type FeedType = 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
 
-export const FEED_TYPES: { value: FeedType; label: string }[] = [
+export const FEED_TYPES: Array<{ value: FeedType; label: string }> = [
   { value: 'starter', label: 'Starter' },
   { value: 'grower', label: 'Grower' },
   { value: 'finisher', label: 'Finisher' },
@@ -30,7 +30,7 @@ export async function getFeedInventory(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)

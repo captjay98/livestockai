@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Menu } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import { Sidebar } from './sidebar'
+import type { User } from '~/lib/auth/types'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
-import { Link } from '@tanstack/react-router'
-import { User } from '~/lib/auth/types'
 
 export function AppShell({
   children,

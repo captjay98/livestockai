@@ -1,13 +1,14 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
-import { AlertTriangle, Droplets, Edit, Eye, Plus, Trash2, Thermometer, Activity } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { Activity, AlertTriangle, Droplets, Edit, Eye, Plus, Thermometer, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/water-quality/server';
 import {
+  
   createWaterQualityRecordFn,
   getWaterQualityAlerts,
-  getWaterQualityRecordsPaginatedFn,
-  type PaginatedResult
+  getWaterQualityRecordsPaginatedFn
 } from '~/lib/water-quality/server'
 import { WATER_QUALITY_THRESHOLDS } from '~/lib/water-quality/constants'
 import { getBatches } from '~/lib/batches/server'
@@ -144,8 +145,8 @@ function WaterQualityPage() {
     pageSize: 10,
     totalPages: 0,
   })
-  const [batches, setBatches] = useState<Batch[]>([])
-  const [alerts, setAlerts] = useState<WaterQualityAlert[]>([])
+  const [batches, setBatches] = useState<Array<Batch>>([])
+  const [alerts, setAlerts] = useState<Array<WaterQualityAlert>>([])
 
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -177,7 +178,7 @@ function WaterQualityPage() {
       })
       setPaginatedRecords(result.paginatedRecords as PaginatedResult<any>)
       setBatches(result.batches)
-      setAlerts(result.alerts as WaterQualityAlert[])
+      setAlerts(result.alerts as Array<WaterQualityAlert>)
     } catch (err) {
       console.error('Failed:', err)
     } finally {
@@ -241,7 +242,7 @@ function WaterQualityPage() {
     }
   }
 
-  const columns = useMemo<ColumnDef<WaterQualityRecord>[]>(
+  const columns = useMemo<Array<ColumnDef<WaterQualityRecord>>>(
     () => [
       {
         accessorKey: 'date',

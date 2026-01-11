@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { Users, ChevronDown, ChevronUp } from 'lucide-react'
-import { createBatchFn, SOURCE_SIZE_OPTIONS } from '~/lib/batches/server'
+import { ChevronDown, ChevronUp, Users } from 'lucide-react'
+import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/lib/batches/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -42,8 +42,8 @@ interface BatchDialogProps {
     farmId: string
     open: boolean
     onOpenChange: (open: boolean) => void
-    structures?: Structure[]
-    suppliers?: Supplier[]
+    structures?: Array<Structure>
+    suppliers?: Array<Supplier>
 }
 
 const LIVESTOCK_TYPES = [
@@ -165,7 +165,7 @@ export function BatchDialog({ farmId, open, onOpenChange, structures = [], suppl
                                 value &&
                                 setFormData((prev) => ({
                                     ...prev,
-                                    livestockType: value as 'poultry' | 'fish',
+                                    livestockType: value,
                                 }))
                             }
                         >

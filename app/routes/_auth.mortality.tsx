@@ -1,22 +1,23 @@
 import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
 import {
   AlertTriangle,
   HeartPulse,
+  Info,
   Plus,
   Skull,
   TrendingDown,
-  Users,
-  Info
+  Users
 } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/mortality/server';
 import {
+  
   getMortalityAlerts,
   getMortalityRecordsPaginated,
   getMortalitySummary,
-  recordMortality,
-  type PaginatedResult
+  recordMortality
 } from '~/lib/mortality/server'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
@@ -206,8 +207,8 @@ function MortalityPage() {
     pageSize: 10,
     totalPages: 0,
   })
-  const [batches, setBatches] = useState<Batch[]>([])
-  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [batches, setBatches] = useState<Array<Batch>>([])
+  const [alerts, setAlerts] = useState<Array<Alert>>([])
   const [summary, setSummary] = useState<{
     totalDeaths: number
     recordCount: number
@@ -245,7 +246,7 @@ function MortalityPage() {
       })
       setPaginatedRecords(result.paginatedRecords as PaginatedResult<any>)
       setBatches(result.batches)
-      setAlerts(result.alerts as Alert[])
+      setAlerts(result.alerts as Array<Alert>)
       setSummary(result.summary)
     } catch (err) {
       console.error('Failed:', err)
@@ -309,7 +310,7 @@ function MortalityPage() {
     }
   }
 
-  const columns = useMemo<ColumnDef<MortalityRecord>[]>(
+  const columns = useMemo<Array<ColumnDef<MortalityRecord>>>(
     () => [
       {
         accessorKey: 'date',

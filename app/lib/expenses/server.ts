@@ -212,7 +212,7 @@ export async function getExpenses(
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)
@@ -320,7 +320,7 @@ export async function getExpensesSummary(
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)
@@ -417,7 +417,7 @@ export interface PaginatedQuery {
 }
 
 export interface PaginatedResult<T> {
-  data: T[]
+  data: Array<T>
   total: number
   page: number
   pageSize: number
@@ -452,7 +452,7 @@ export async function getExpensesPaginated(
   const category = query.category
 
   // Determine target farms
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (query.farmId) {
     const hasAccess = await checkFarmAccess(userId, query.farmId)
     if (!hasAccess) throw new Error('Access denied')

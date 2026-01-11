@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import { Link, createFileRoute, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { ColumnDef } from '@tanstack/react-table'
 import {
@@ -16,11 +16,12 @@ import {
     TrendingUp,
     Utensils,
 } from 'lucide-react'
-import { cn } from '~/lib/utils'
 import { useEffect, useMemo, useState } from 'react'
+import type {PaginatedResult} from '~/lib/batches/server';
+import { cn } from '~/lib/utils'
 import {
-    getBatchDetailsFn,
-    type PaginatedResult,
+    
+    getBatchDetailsFn
 } from '~/lib/batches/server'
 import { getFeedRecordsPaginatedFn } from '~/lib/feed/server'
 import { getMortalityRecordsPaginatedFn } from '~/lib/mortality/server'
@@ -51,10 +52,10 @@ function BatchDetailsPage() {
     const [isLoading, setIsLoading] = useState(true)
 
     // Data States for Tabs
-    const [feedRecords, setFeedRecords] = useState<any[]>([])
-    const [mortalityRecords, setMortalityRecords] = useState<any[]>([])
-    const [expenses, setExpenses] = useState<any[]>([])
-    const [sales, setSales] = useState<any[]>([])
+    const [feedRecords, setFeedRecords] = useState<Array<any>>([])
+    const [mortalityRecords, setMortalityRecords] = useState<Array<any>>([])
+    const [expenses, setExpenses] = useState<Array<any>>([])
+    const [sales, setSales] = useState<Array<any>>([])
 
     useEffect(() => {
         const loadData = async () => {

@@ -7,22 +7,23 @@ import {
   Home,
   MapPin,
   Plus,
+  Trash2,
   TrendingDown,
   TrendingUp,
-  Trash2,
   Users,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import type {StructureStatus, StructureType} from '~/lib/structures/server';
 import { getFarmById, getFarmStats } from '~/lib/farms/server'
 import {
-  getStructuresWithCounts,
-  createStructureFn,
-  updateStructureFn,
-  deleteStructureFn,
-  STRUCTURE_TYPES,
   STRUCTURE_STATUSES,
-  type StructureType,
-  type StructureStatus,
+  STRUCTURE_TYPES,
+  
+  
+  createStructureFn,
+  deleteStructureFn,
+  getStructuresWithCounts,
+  updateStructureFn
 } from '~/lib/structures/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
@@ -124,7 +125,7 @@ function FarmDetailsPage() {
   const [activityTab, setActivityTab] = useState<'sales' | 'expenses'>('sales')
   
   // Structures state
-  const [structures, setStructures] = useState<Structure[]>(loaderData.structures || [])
+  const [structures, setStructures] = useState<Array<Structure>>(loaderData.structures || [])
   const [structureDialogOpen, setStructureDialogOpen] = useState(false)
   const [editStructureDialogOpen, setEditStructureDialogOpen] = useState(false)
   const [deleteStructureDialogOpen, setDeleteStructureDialogOpen] = useState(false)

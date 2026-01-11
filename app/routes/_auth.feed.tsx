@@ -1,26 +1,27 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
 import {
+  Bird,
   Edit,
   Eye,
+  Fish,
   Package,
   Plus,
   Trash2,
   TrendingUp,
   Wheat,
-  Bird,
-  Fish,
 } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/feed/server';
 import {
+  
   createFeedRecord,
+  deleteFeedRecordFn,
   getFeedInventory,
   getFeedRecordsPaginated,
   getFeedStats,
-  updateFeedRecordFn,
-  deleteFeedRecordFn,
-  type PaginatedResult,
+  updateFeedRecordFn
 } from '~/lib/feed/server'
 import { FEED_TYPES } from '~/lib/feed/constants'
 import { getBatches } from '~/lib/batches/server'
@@ -202,8 +203,8 @@ function FeedPage() {
     pageSize: 10,
     totalPages: 0,
   })
-  const [batches, setBatches] = useState<Batch[]>([])
-  const [inventory, setInventory] = useState<FeedInventory[]>([])
+  const [batches, setBatches] = useState<Array<Batch>>([])
+  const [inventory, setInventory] = useState<Array<FeedInventory>>([])
   const [summary, setSummary] = useState<{
     totalQuantityKg: number
     totalCost: number
@@ -254,7 +255,7 @@ function FeedPage() {
       })
       setPaginatedRecords(result.paginatedRecords as PaginatedResult<any>)
       setBatches(result.batches)
-      setInventory(result.inventory as FeedInventory[])
+      setInventory(result.inventory as Array<FeedInventory>)
       setSummary(result.summary)
     } catch (err) {
       console.error('Failed:', err)
@@ -390,7 +391,7 @@ function FeedPage() {
     }
   }
 
-  const columns = useMemo<ColumnDef<FeedRecord>[]>(
+  const columns = useMemo<Array<ColumnDef<FeedRecord>>>(
     () => [
       {
         accessorKey: 'date',

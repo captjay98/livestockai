@@ -1,14 +1,15 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
-import { Mail, MapPin, Phone, Plus, TrendingUp, Users, Edit, Search } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { Edit, Mail, MapPin, Phone, Plus, Search, TrendingUp, Users } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/customers/server';
 import {
+  
   createCustomerFn,
   getCustomersPaginatedFn,
   getTopCustomers,
-  updateCustomerFn,
-  type PaginatedResult
+  updateCustomerFn
 } from '~/lib/customers/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
@@ -131,7 +132,7 @@ function CustomersPage() {
     pageSize: 10,
     totalPages: 0,
   })
-  const [topCustomers, setTopCustomers] = useState<TopCustomer[]>([])
+  const [topCustomers, setTopCustomers] = useState<Array<TopCustomer>>([])
 
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -172,7 +173,7 @@ function CustomersPage() {
         },
       })
       setPaginatedCustomers(result.paginatedCustomers as PaginatedResult<any>)
-      setTopCustomers(result.topCustomers as TopCustomer[])
+      setTopCustomers(result.topCustomers as Array<TopCustomer>)
     } catch (err) {
       console.error('Failed:', err)
     } finally {
@@ -264,7 +265,7 @@ function CustomersPage() {
     }
   }
 
-  const columns = useMemo<ColumnDef<Customer>[]>(
+  const columns = useMemo<Array<ColumnDef<Customer>>>(
     () => [
       {
         accessorKey: 'name',

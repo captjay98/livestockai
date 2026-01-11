@@ -19,7 +19,7 @@ export interface PaginatedQuery {
 }
 
 export interface PaginatedResult<T> {
-  data: T[]
+  data: Array<T>
   total: number
   page: number
   pageSize: number
@@ -187,7 +187,7 @@ export async function getSuppliersPaginated(
 
   if (query.sortBy) {
     const sortOrder = query.sortOrder || 'desc'
-    let sortCol = query.sortBy
+    const sortCol = query.sortBy
     if (query.sortBy === 'totalSpent' || query.sortBy === 'expenseCount') {
       // already selected as alias
       dataQuery = dataQuery.orderBy(sortCol, sortOrder)

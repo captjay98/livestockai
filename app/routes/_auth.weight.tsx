@@ -1,6 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
 import {
   AlertTriangle,
   Edit,
@@ -10,12 +9,14 @@ import {
   Trash2,
   TrendingUp,
 } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/weight/server';
 import {
+  
   createWeightSampleFn,
   getGrowthAlerts,
-  getWeightRecordsPaginatedFn,
-  type PaginatedResult
+  getWeightRecordsPaginatedFn
 } from '~/lib/weight/server'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
@@ -151,8 +152,8 @@ function WeightPage() {
     pageSize: 10,
     totalPages: 0,
   })
-  const [batches, setBatches] = useState<Batch[]>([])
-  const [alerts, setAlerts] = useState<GrowthAlert[]>([])
+  const [batches, setBatches] = useState<Array<Batch>>([])
+  const [alerts, setAlerts] = useState<Array<GrowthAlert>>([])
 
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -182,7 +183,7 @@ function WeightPage() {
       })
       setPaginatedRecords(result.paginatedRecords as PaginatedResult<any>)
       setBatches(result.batches)
-      setAlerts(result.alerts as GrowthAlert[])
+      setAlerts(result.alerts as Array<GrowthAlert>)
     } catch (err) {
       console.error('Failed:', err)
     } finally {
@@ -242,7 +243,7 @@ function WeightPage() {
     }
   }
 
-  const columns = useMemo<ColumnDef<WeightSample>[]>(
+  const columns = useMemo<Array<ColumnDef<WeightSample>>>(
     () => [
       {
         accessorKey: 'date',

@@ -24,7 +24,7 @@ export interface PaginatedQuery {
 }
 
 export interface PaginatedResult<T> {
-  data: T[]
+  data: Array<T>
   total: number
   page: number
   pageSize: number
@@ -283,7 +283,7 @@ export async function getInvoicesPaginated(
 
   if (query.sortBy) {
     const sortOrder = query.sortOrder || 'desc'
-    let sortCol = query.sortBy
+    const sortCol = query.sortBy
     if (['invoiceNumber', 'totalAmount', 'status', 'date', 'dueDate'].includes(sortCol)) {
       dataQuery = dataQuery.orderBy(`invoices.${sortCol}`, sortOrder)
     } else if (sortCol === 'customerName') {

@@ -4,20 +4,20 @@ export type UnitType = 'bird' | 'kg' | 'crate' | 'piece'
 export type PaymentStatus = 'paid' | 'pending' | 'partial'
 export type PaymentMethod = 'cash' | 'transfer' | 'credit'
 
-export const UNIT_TYPES: { value: UnitType; label: string }[] = [
+export const UNIT_TYPES: Array<{ value: UnitType; label: string }> = [
   { value: 'bird', label: 'Bird' },
   { value: 'kg', label: 'Kilogram (kg)' },
   { value: 'crate', label: 'Crate' },
   { value: 'piece', label: 'Piece' },
 ]
 
-export const PAYMENT_STATUSES: { value: PaymentStatus; label: string; color: string }[] = [
+export const PAYMENT_STATUSES: Array<{ value: PaymentStatus; label: string; color: string }> = [
   { value: 'paid', label: 'Paid', color: 'text-green-600 bg-green-100' },
   { value: 'pending', label: 'Pending', color: 'text-yellow-600 bg-yellow-100' },
   { value: 'partial', label: 'Partial', color: 'text-orange-600 bg-orange-100' },
 ]
 
-export const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
+export const PAYMENT_METHODS: Array<{ value: PaymentMethod; label: string }> = [
   { value: 'cash', label: 'Cash' },
   { value: 'transfer', label: 'Bank Transfer' },
   { value: 'credit', label: 'Credit' },
@@ -210,7 +210,7 @@ export async function updateSale(
           currentQuantity: eb('currentQuantity', '-', quantityDiff), // If diff is positive (increased sale), we subtract more. 
           updatedAt: new Date(),
         }))
-        .where('id', '=', sale.batchId!)
+        .where('id', '=', sale.batchId)
         .execute()
     }
 
@@ -269,7 +269,7 @@ export async function getSales(
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)
@@ -376,7 +376,7 @@ export async function getSalesSummary(
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)
@@ -483,7 +483,7 @@ export interface PaginatedQuery {
 }
 
 export interface PaginatedResult<T> {
-  data: T[]
+  data: Array<T>
   total: number
   page: number
   pageSize: number
@@ -520,7 +520,7 @@ export async function getSalesPaginated(
   const paymentStatus = query.paymentStatus
 
   // Determine target farms
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (query.farmId) {
     const hasAccess = await checkFarmAccess(userId, query.farmId)
     if (!hasAccess) throw new Error('Access denied')

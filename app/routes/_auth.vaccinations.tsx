@@ -1,25 +1,26 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
 import {
+  Activity,
   AlertTriangle,
   Calendar,
+  CheckCircle2,
   Edit,
   Eye,
   Pill,
   Plus,
   Syringe,
-  Trash2,
-  Activity,
-  CheckCircle2
+  Trash2
 } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/vaccinations/server';
 import {
+  
   createTreatmentFn,
   createVaccinationFn,
   getHealthRecordsPaginated,
-  getVaccinationAlerts,
-  type PaginatedResult
+  getVaccinationAlerts
 } from '~/lib/vaccinations/server'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
@@ -75,8 +76,8 @@ interface HealthRecord {
 }
 
 interface Alert {
-  upcoming: any[]
-  overdue: any[]
+  upcoming: Array<any>
+  overdue: Array<any>
   totalAlerts: number
 }
 
@@ -168,7 +169,7 @@ function HealthPage() {
     pageSize: 10,
     totalPages: 0,
   })
-  const [batches, setBatches] = useState<Batch[]>([])
+  const [batches, setBatches] = useState<Array<Batch>>([])
   const [alerts, setAlerts] = useState<Alert | null>(null)
 
   const [isLoading, setIsLoading] = useState(true)
@@ -313,7 +314,7 @@ function HealthPage() {
     }
   }
 
-  const columns = useMemo<ColumnDef<HealthRecord>[]>(
+  const columns = useMemo<Array<ColumnDef<HealthRecord>>>(
     () => [
       {
         accessorKey: 'date',

@@ -15,7 +15,7 @@ interface PaginationProps {
     totalPages: number
     onPageChange: (page: number) => void
     onPageSizeChange: (size: number) => void
-    pageSizeOptions?: number[]
+    pageSizeOptions?: Array<number>
 }
 
 export function Pagination({

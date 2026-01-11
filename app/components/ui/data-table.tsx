@@ -1,12 +1,10 @@
 import {
-    ColumnDef,
     flexRender,
     getCoreRowModel,
-    useReactTable,
-    SortingState,
+    useReactTable
 } from '@tanstack/react-table'
-import { ArrowUpDown, ArrowUp, ArrowDown, Search, Loader2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Loader2, Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import {
     Table,
     TableBody,
@@ -18,10 +16,13 @@ import {
 import { Pagination } from './pagination'
 import { Input } from './input'
 import { Button } from './button'
+import type {
+    ColumnDef,
+    SortingState} from '@tanstack/react-table';
 
 interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+    columns: Array<ColumnDef<TData, TValue>>
+    data: Array<TData>
     total: number
     page: number
     pageSize: number

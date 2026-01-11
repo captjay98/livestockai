@@ -114,7 +114,7 @@ export async function getBatches(
   const { db } = await import('../db')
   const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)
@@ -620,7 +620,7 @@ export interface PaginatedQuery {
 }
 
 export interface PaginatedResult<T> {
-  data: T[]
+  data: Array<T>
   total: number
   page: number
   pageSize: number
@@ -654,7 +654,7 @@ export async function getBatchesPaginated(
   const search = query.search || ''
 
   // Determine target farms
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
   if (query.farmId) {
     const hasAccess = await checkFarmAccess(userId, query.farmId)
     if (!hasAccess) throw new Error('Access denied')

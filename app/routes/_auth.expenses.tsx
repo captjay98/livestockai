@@ -1,10 +1,13 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
 import {
   Banknote,
+  Bird,
   Edit,
   Eye,
+  Fish,
+  Hammer,
+  Megaphone,
   Package,
   Pill,
   Plus,
@@ -14,20 +17,18 @@ import {
   Users,
   Wrench,
   Zap,
-  Bird,
-  Fish,
-  Hammer,
-  Megaphone,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/expenses/server';
 import {
+  EXPENSE_CATEGORIES,
+  
+  createExpenseFn,
+  deleteExpenseFn,
   getExpensesPaginated,
   getExpensesSummary,
-  createExpenseFn,
-  updateExpenseFn,
-  deleteExpenseFn,
-  EXPENSE_CATEGORIES,
-  type PaginatedResult,
+  updateExpenseFn
 } from '~/lib/expenses/server'
 import { getBatches } from '~/lib/batches/server'
 import { getSuppliers } from '~/lib/suppliers/server'
@@ -204,8 +205,8 @@ function ExpensesPage() {
     totalPages: 0,
   })
   const [summary, setSummary] = useState<ExpensesSummary | null>(null)
-  const [batches, setBatches] = useState<Batch[]>([])
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
+  const [batches, setBatches] = useState<Array<Batch>>([])
+  const [suppliers, setSuppliers] = useState<Array<Supplier>>([])
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
@@ -379,7 +380,7 @@ function ExpensesPage() {
   }
 
   // Table columns
-  const columns: ColumnDef<Expense>[] = [
+  const columns: Array<ColumnDef<Expense>> = [
     {
       accessorKey: 'category',
       header: 'Category',

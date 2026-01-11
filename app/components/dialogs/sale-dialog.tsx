@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { ShoppingCart } from 'lucide-react'
@@ -154,7 +154,7 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
                                 value &&
                                 setFormData((prev) => ({
                                     ...prev,
-                                    livestockType: value as 'poultry' | 'fish' | 'eggs',
+                                    livestockType: value,
                                 }))
                             }
                         >

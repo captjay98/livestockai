@@ -1,11 +1,12 @@
 import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
 import { Eye, FileText, Plus, Search } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/invoices/server';
 import {
-  getInvoicesPaginatedFn,
-  type PaginatedResult
+  
+  getInvoicesPaginatedFn
 } from '~/lib/invoices/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
@@ -136,7 +137,7 @@ function InvoicesPage() {
     })
   }
 
-  const columns = useMemo<ColumnDef<Invoice>[]>(
+  const columns = useMemo<Array<ColumnDef<Invoice>>>(
     () => [
       {
         accessorKey: 'invoiceNumber',
@@ -225,7 +226,7 @@ function InvoicesPage() {
       <div className="flex items-center gap-4 mb-4">
         <Select
           value={searchParams.status}
-          onValueChange={(value) => updateSearch({ status: value as any, page: 1 })}
+          onValueChange={(value) => updateSearch({ status: value, page: 1 })}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by status" />

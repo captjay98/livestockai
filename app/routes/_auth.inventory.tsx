@@ -3,30 +3,32 @@ import { createServerFn } from '@tanstack/react-start'
 import {
   AlertTriangle,
   Calendar,
+  Edit,
   Package,
   Pill,
   Plus,
-  Edit,
   Trash2,
   Warehouse,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import type {FeedType} from '~/lib/feed-inventory/server';
+import type {MedicationUnit} from '~/lib/medication-inventory/server';
 import { requireAuth } from '~/lib/auth/server-middleware'
 import {
-  getFeedInventory,
-  createFeedInventoryFn,
-  updateFeedInventoryFn,
-  deleteFeedInventoryFn,
   FEED_TYPES,
-  type FeedType,
+  
+  createFeedInventoryFn,
+  deleteFeedInventoryFn,
+  getFeedInventory,
+  updateFeedInventoryFn
 } from '~/lib/feed-inventory/server'
 import {
-  getMedicationInventory,
-  createMedicationFn,
-  updateMedicationFn,
-  deleteMedicationFn,
   MEDICATION_UNITS,
-  type MedicationUnit,
+  
+  createMedicationFn,
+  deleteMedicationFn,
+  getMedicationInventory,
+  updateMedicationFn
 } from '~/lib/medication-inventory/server'
 import { Button } from '~/components/ui/button'
 import {
@@ -108,8 +110,8 @@ type TabType = 'feed' | 'medication'
 function InventoryPage() {
   const { selectedFarmId } = useFarm()
   const [activeTab, setActiveTab] = useState<TabType>('feed')
-  const [feedInventory, setFeedInventory] = useState<FeedInventoryItem[]>([])
-  const [medicationInventory, setMedicationInventory] = useState<MedicationItem[]>([])
+  const [feedInventory, setFeedInventory] = useState<Array<FeedInventoryItem>>([])
+  const [medicationInventory, setMedicationInventory] = useState<Array<MedicationItem>>([])
   const [isLoading, setIsLoading] = useState(true)
   
   // Feed dialog states

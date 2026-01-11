@@ -18,7 +18,7 @@ export interface PaginatedQuery {
 }
 
 export interface PaginatedResult<T> {
-  data: T[]
+  data: Array<T>
   total: number
   page: number
   pageSize: number
@@ -226,7 +226,7 @@ export async function getCustomersPaginated(
 
   if (query.sortBy) {
     const sortOrder = query.sortOrder || 'desc'
-    let sortCol = query.sortBy
+    const sortCol = query.sortBy
     if (query.sortBy === 'totalSpent' || query.sortBy === 'salesCount') {
       // already selected asalias, but kysely needs exact reference sometimes
       // using alias directly in orderBy string usually works in postrgres

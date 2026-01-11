@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { Wheat } from 'lucide-react'
+import type {CreateFeedRecordInput} from '~/lib/feed/server';
 import {
-    createFeedRecordFn,
+    
     FEED_TYPES,
-    type CreateFeedRecordInput,
+    createFeedRecordFn
 } from '~/lib/feed/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -197,7 +198,7 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
                                 value &&
                                 setFormData((prev) => ({
                                     ...prev,
-                                    feedType: value as CreateFeedRecordInput['feedType'],
+                                    feedType: value,
                                 }))
                             }
                         >

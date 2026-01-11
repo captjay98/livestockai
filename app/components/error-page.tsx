@@ -1,5 +1,5 @@
 import { Link, useRouter } from '@tanstack/react-router'
-import { Home, RefreshCw, AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Home, RefreshCw } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 
 interface ErrorPageProps {

@@ -1,7 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useState, useMemo } from 'react'
-import { ColumnDef } from '@tanstack/react-table'
+import { useMemo, useState } from 'react'
 import {
   Egg,
   FileSpreadsheet,
@@ -11,6 +10,7 @@ import {
   TrendingUp,
   Wheat,
 } from 'lucide-react'
+import type { ColumnDef } from '@tanstack/react-table'
 import type { EggReport, FeedReport, InventoryReport, ProfitLossReport, SalesReport } from '~/lib/reports/server';
 import { getFarms } from '~/lib/farms/server'
 import {
@@ -347,7 +347,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  const columns = useMemo<ColumnDef<any>[]>(() => [
+  const columns = useMemo<Array<ColumnDef<any>>>(() => [
     {
       accessorKey: 'species',
       header: 'Species',
@@ -460,7 +460,7 @@ function SalesReportView({ report }: { report: SalesReport }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  const columns = useMemo<ColumnDef<any>[]>(() => [
+  const columns = useMemo<Array<ColumnDef<any>>>(() => [
     {
       accessorKey: 'date',
       header: 'Date',
@@ -559,7 +559,7 @@ function FeedReportView({ report }: { report: FeedReport }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  const columns = useMemo<ColumnDef<any>[]>(() => [
+  const columns = useMemo<Array<ColumnDef<any>>>(() => [
     {
       accessorKey: 'species',
       header: 'Species',
@@ -648,7 +648,7 @@ function EggReportView({ report }: { report: EggReport }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  const columns = useMemo<ColumnDef<any>[]>(() => [
+  const columns = useMemo<Array<ColumnDef<any>>>(() => [
     {
       accessorKey: 'date',
       header: 'Date',

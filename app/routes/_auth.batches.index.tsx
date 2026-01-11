@@ -1,6 +1,5 @@
 import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
 import {
   AlertTriangle,
   Bird,
@@ -12,14 +11,16 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/batches/server';
 import {
+  
   createBatch,
+  deleteBatchFn,
   getBatchesPaginated,
   getInventorySummary,
-  updateBatchFn,
-  deleteBatchFn,
-  type PaginatedResult,
+  updateBatchFn
 } from '~/lib/batches/server'
 import { getSpeciesOptions } from '~/lib/batches/constants'
 import { requireAuth } from '~/lib/auth/server-middleware'
@@ -373,7 +374,7 @@ function BatchesPage() {
     }
   }
 
-  const columns = useMemo<ColumnDef<Batch>[]>(
+  const columns = useMemo<Array<ColumnDef<Batch>>>(
     () => [
       {
         accessorKey: 'species',

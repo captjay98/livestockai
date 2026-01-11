@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 
 export type MedicationUnit = 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet'
 
-export const MEDICATION_UNITS: { value: MedicationUnit; label: string }[] = [
+export const MEDICATION_UNITS: Array<{ value: MedicationUnit; label: string }> = [
   { value: 'vial', label: 'Vial' },
   { value: 'bottle', label: 'Bottle' },
   { value: 'sachet', label: 'Sachet' },
@@ -35,7 +35,7 @@ export async function getMedicationInventory(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)
@@ -275,7 +275,7 @@ export async function getExpiringMedications(userId: string, farmId?: string, da
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)
@@ -317,7 +317,7 @@ export async function getLowStockMedications(userId: string, farmId?: string) {
   const { sql } = await import('kysely')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
-  let targetFarmIds: string[] = []
+  let targetFarmIds: Array<string> = []
 
   if (farmId) {
     const hasAccess = await checkFarmAccess(userId, farmId)

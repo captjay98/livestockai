@@ -2,14 +2,15 @@ import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
+import type {PaymentMethod, PaymentStatus, UnitType} from '~/lib/sales/server';
 import {
-  createSale,
-  UNIT_TYPES,
-  PAYMENT_STATUSES,
   PAYMENT_METHODS,
-  type UnitType,
-  type PaymentStatus,
-  type PaymentMethod,
+  PAYMENT_STATUSES,
+  
+  
+  UNIT_TYPES,
+  
+  createSale
 } from '~/lib/sales/server'
 import { getBatches } from '~/lib/batches/server'
 import { getCustomers } from '~/lib/customers/server'

@@ -13,8 +13,8 @@
  * Jumbo Catfish: 10-12cm size, ~15-25g starting weight
  */
 
+import crypto from 'node:crypto'
 import { db } from './index'
-import crypto from 'crypto'
 
 // ============ CONFIG ============
 const FARM_LOCATION = 'Kaduna, Kaduna State'
@@ -163,7 +163,7 @@ async function seed() {
 
     // Batch 1 mortality
     let b1Alive = batch1Size
-    const b1Mortality: any[] = []
+    const b1Mortality: Array<any> = []
     const b1Week1Deaths = Math.floor(batch1Size * BROILER.mortalityRate.week1)
     for (let i = 0; i < b1Week1Deaths; i++) {
       b1Mortality.push({
@@ -250,7 +250,7 @@ async function seed() {
 
     // Batch 2 mortality
     let b2Alive = batch2Size
-    const b2Mortality: any[] = []
+    const b2Mortality: Array<any> = []
     const b2Week1Deaths = Math.floor(batch2Size * 0.04)
     for (let i = 0; i < b2Week1Deaths; i++) {
       b2Mortality.push({ batchId: broilerBatch2.id, quantity: 1, date: addDays(batch2Start, randomInt(1, 7)), cause: 'unknown', notes: null })
@@ -334,7 +334,7 @@ async function seed() {
     }).returning(['id']).executeTakeFirstOrThrow()
 
     // Batch 3 mortality
-    const b3Mortality: any[] = []
+    const b3Mortality: Array<any> = []
     for (let i = 0; i < b3Deaths; i++) {
       b3Mortality.push({ batchId: broilerBatch3.id, quantity: 1, date: addDays(batch3Start, randomInt(1, 14)), cause: i < 2 ? 'disease' : 'unknown', notes: null })
     }
@@ -393,7 +393,7 @@ async function seed() {
 
     // Fish Batch 1 mortality
     let f1Alive = fishBatch1Size
-    const f1Mortality: any[] = []
+    const f1Mortality: Array<any> = []
     const f1Month1Deaths = Math.floor(fishBatch1Size * CATFISH.mortalityRate.month1)
     for (let i = 0; i < f1Month1Deaths; i++) {
       f1Mortality.push({ batchId: catfishBatch1.id, quantity: 1, date: addDays(fishBatch1Start, randomInt(1, 30)), cause: i < 5 ? 'disease' : 'other', notes: 'Adjustment period' })
@@ -426,7 +426,7 @@ async function seed() {
     ]).execute()
 
     // Fish Batch 1 water quality
-    const f1WaterQuality: any[] = []
+    const f1WaterQuality: Array<any> = []
     for (let week = 1; week <= 19; week++) {
       f1WaterQuality.push({
         batchId: catfishBatch1.id, date: addDays(fishBatch1Start, week * 7),
@@ -495,7 +495,7 @@ async function seed() {
     }).returning(['id']).executeTakeFirstOrThrow()
 
     // Fish Batch 2 mortality
-    const f2Mortality: any[] = []
+    const f2Mortality: Array<any> = []
     for (let i = 0; i < f2TotalDeaths; i++) {
       const day = i < Math.floor(f2TotalDeaths * 0.6) ? randomInt(1, 30) : randomInt(31, 120)
       f2Mortality.push({ batchId: catfishBatch2.id, quantity: 1, date: addDays(fishBatch2Start, day), cause: 'unknown', notes: null })
@@ -516,7 +516,7 @@ async function seed() {
     ]).execute()
 
     // Fish Batch 2 water quality
-    const f2WaterQuality: any[] = []
+    const f2WaterQuality: Array<any> = []
     for (let week = 1; week <= 17; week++) {
       f2WaterQuality.push({
         batchId: catfishBatch2.id, date: addDays(fishBatch2Start, week * 7),
@@ -541,7 +541,7 @@ async function seed() {
 
     // ============ EXPENSES ============
     console.log('💸 Creating expenses...')
-    const expenses: any[] = []
+    const expenses: Array<any> = []
     
     // Chick purchases (linked to batches) - using 'livestock' category
     expenses.push(

@@ -1,25 +1,26 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
 import {
   AlertTriangle,
+  Bird,
   Edit,
   Egg,
   Eye,
   Package,
   Plus,
   Trash2,
-  TrendingUp,
-  Bird
+  TrendingUp
 } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/eggs/server';
 import {
+  
   createEggRecord,
+  deleteEggRecordFn,
   getEggRecordsPaginated,
   getEggRecordsSummary,
-  updateEggRecordFn,
-  deleteEggRecordFn,
-  type PaginatedResult
+  updateEggRecordFn
 } from '~/lib/eggs/server'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
@@ -182,7 +183,7 @@ function EggsPage() {
     pageSize: 10,
     totalPages: 0,
   })
-  const [batches, setBatches] = useState<Batch[]>([])
+  const [batches, setBatches] = useState<Array<Batch>>([])
   const [summary, setSummary] = useState<{
     totalCollected: number
     totalBroken: number
@@ -354,7 +355,7 @@ function EggsPage() {
     }
   }
 
-  const columns = useMemo<ColumnDef<EggRecord>[]>(
+  const columns = useMemo<Array<ColumnDef<EggRecord>>>(
     () => [
       {
         accessorKey: 'date',

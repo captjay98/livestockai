@@ -1,6 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
 import {
   Bird,
   Edit,
@@ -13,17 +12,19 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult, PaymentStatus} from '~/lib/sales/server';
 import {
+  PAYMENT_METHODS,
+  PAYMENT_STATUSES,
+  
+  
+  UNIT_TYPES,
   createSale,
+  deleteSaleFn,
   getSalesPaginated,
   getSalesSummary,
-  updateSaleFn,
-  deleteSaleFn,
-  type PaginatedResult,
-  type PaymentStatus,
-  PAYMENT_STATUSES,
-  UNIT_TYPES,
-  PAYMENT_METHODS,
+  updateSaleFn
 } from '~/lib/sales/server'
 import { getBatches } from '~/lib/batches/server'
 import { getCustomers } from '~/lib/customers/server'
@@ -210,8 +211,8 @@ function SalesPage() {
     totalPages: 0,
   })
   const [summary, setSummary] = useState<SalesSummary | null>(null)
-  const [batches, setBatches] = useState<Batch[]>([])
-  const [customers, setCustomers] = useState<Customer[]>([])
+  const [batches, setBatches] = useState<Array<Batch>>([])
+  const [customers, setCustomers] = useState<Array<Customer>>([])
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
@@ -402,7 +403,7 @@ function SalesPage() {
   }
 
   // Table columns
-  const columns: ColumnDef<Sale>[] = [
+  const columns: Array<ColumnDef<Sale>> = [
     {
       accessorKey: 'livestockType',
       header: 'Type',
@@ -528,7 +529,7 @@ function SalesPage() {
                     value &&
                     setFormData((prev) => ({
                       ...prev,
-                      livestockType: value as 'poultry' | 'fish' | 'eggs',
+                      livestockType: value,
                       batchId: '',
                     }))
                   }

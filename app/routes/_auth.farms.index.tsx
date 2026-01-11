@@ -4,7 +4,7 @@ import {
   redirect,
 } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { Building2, Bird, Fish, Edit, MapPin, Plus, Users } from 'lucide-react'
+import { Bird, Building2, Edit, Fish, MapPin, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { getFarmsForUser } from '~/lib/farms/server'
 import { requireAuth } from '~/lib/auth/server-middleware'

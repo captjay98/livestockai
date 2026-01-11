@@ -1,12 +1,13 @@
 import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
-import { Building2, Mail, MapPin, Package, Phone, Plus, Search, Eye } from 'lucide-react'
-import { useEffect, useState, useMemo } from 'react'
+import { Building2, Eye, Mail, MapPin, Package, Phone, Plus, Search } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type {PaginatedResult} from '~/lib/suppliers/server';
 import {
+  
   createSupplierFn,
-  getSuppliersPaginatedFn,
-  type PaginatedResult
+  getSuppliersPaginatedFn
 } from '~/lib/suppliers/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
@@ -200,7 +201,7 @@ function SuppliersPage() {
     }
   }
 
-  const columns = useMemo<ColumnDef<Supplier>[]>(
+  const columns = useMemo<Array<ColumnDef<Supplier>>>(
     () => [
       {
         accessorKey: 'name',

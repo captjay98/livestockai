@@ -3,14 +3,14 @@ import { createServerFn } from '@tanstack/react-start'
 export type StructureType = 'house' | 'pond' | 'pen' | 'cage'
 export type StructureStatus = 'active' | 'empty' | 'maintenance'
 
-export const STRUCTURE_TYPES: { value: StructureType; label: string }[] = [
+export const STRUCTURE_TYPES: Array<{ value: StructureType; label: string }> = [
   { value: 'house', label: 'House' },
   { value: 'pond', label: 'Pond' },
   { value: 'pen', label: 'Pen' },
   { value: 'cage', label: 'Cage' },
 ]
 
-export const STRUCTURE_STATUSES: { value: StructureStatus; label: string }[] = [
+export const STRUCTURE_STATUSES: Array<{ value: StructureStatus; label: string }> = [
   { value: 'active', label: 'Active' },
   { value: 'empty', label: 'Empty' },
   { value: 'maintenance', label: 'Maintenance' },
