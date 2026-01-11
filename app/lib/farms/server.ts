@@ -18,6 +18,7 @@ export interface UpdateFarmData {
  */
 export async function createFarm(data: CreateFarmData): Promise<string> {
   const { db } = await import('../db')
+  const { createDefaultModules } = await import('../modules/server')
 
   const result = await db
     .insertInto('farms')
@@ -28,6 +29,9 @@ export async function createFarm(data: CreateFarmData): Promise<string> {
     })
     .returning('id')
     .executeTakeFirstOrThrow()
+
+  // Create default modules based on farm type
+  await createDefaultModules(result.id, data.type)
 
   return result.id
 }
