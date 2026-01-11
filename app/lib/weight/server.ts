@@ -69,7 +69,9 @@ export async function createWeightSample(
 }
 
 export const createWeightSampleFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; data: CreateWeightSampleInput }) => data)
+  .inputValidator(
+    (data: { farmId: string; data: CreateWeightSampleInput }) => data,
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
@@ -253,7 +255,6 @@ export async function getGrowthAlerts(userId: string, farmId?: string) {
   return alerts
 }
 
-
 export async function getWeightRecordsPaginated(
   userId: string,
   query: PaginatedQuery = {},
@@ -281,9 +282,9 @@ export async function getWeightRecordsPaginated(
 
   if (query.search) {
     const searchLower = `%${query.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) => eb.or([
-      eb('batches.species', 'ilike', searchLower),
-    ]))
+    baseQuery = baseQuery.where((eb) =>
+      eb.or([eb('batches.species', 'ilike', searchLower)]),
+    )
   }
 
   if (query.batchId) {
@@ -313,7 +314,7 @@ export async function getWeightRecordsPaginated(
       'batches.species',
       'batches.livestockType',
       'farms.name as farmName',
-      'batches.farmId'
+      'batches.farmId',
     ])
     .limit(pageSize)
     .offset(offset)
@@ -335,7 +336,7 @@ export async function getWeightRecordsPaginated(
     total,
     page,
     pageSize,
-    totalPages
+    totalPages,
   }
 }
 

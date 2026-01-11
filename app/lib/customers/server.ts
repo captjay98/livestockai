@@ -80,7 +80,9 @@ export async function updateCustomer(
 }
 
 export const updateCustomerFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string; data: Partial<CreateCustomerInput> }) => data)
+  .inputValidator(
+    (data: { id: string; data: Partial<CreateCustomerInput> }) => data,
+  )
   .handler(async ({ data }) => {
     return updateCustomer(data.id, data.data)
   })
@@ -162,9 +164,7 @@ export async function getTopCustomers(limit: number = 10) {
   }))
 }
 
-export async function getCustomersPaginated(
-  query: PaginatedQuery = {},
-) {
+export async function getCustomersPaginated(query: PaginatedQuery = {}) {
   const { db } = await import('~/lib/db')
   const { sql } = await import('kysely')
 
@@ -178,17 +178,23 @@ export async function getCustomersPaginated(
 
   if (query.search) {
     const searchLower = `%${query.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) => eb.or([
-      eb('customers.name', 'ilike', searchLower),
-      eb('customers.phone', 'ilike', searchLower),
-      eb('customers.location', 'ilike', searchLower),
-      eb('customers.email', 'ilike', searchLower),
-    ]))
+    baseQuery = baseQuery.where((eb) =>
+      eb.or([
+        eb('customers.name', 'ilike', searchLower),
+        eb('customers.phone', 'ilike', searchLower),
+        eb('customers.location', 'ilike', searchLower),
+        eb('customers.email', 'ilike', searchLower),
+      ]),
+    )
   }
 
   // Apply customerType filter
   if (query.customerType) {
-    baseQuery = baseQuery.where('customers.customerType', '=', query.customerType as any)
+    baseQuery = baseQuery.where(
+      'customers.customerType',
+      '=',
+      query.customerType as any,
+    )
   }
 
   // Count
@@ -210,7 +216,7 @@ export async function getCustomersPaginated(
       'customers.customerType',
       'customers.createdAt',
       sql<number>`count(sales.id)`.as('salesCount'),
-      sql<string>`coalesce(sum(sales.total_amount), 0)`.as('totalSpent')
+      sql<string>`coalesce(sum(sales.total_amount), 0)`.as('totalSpent'),
     ])
     .groupBy([
       'customers.id',
@@ -240,10 +246,10 @@ export async function getCustomersPaginated(
 
   const rawData = await dataQuery.execute()
 
-  const data = rawData.map(d => ({
+  const data = rawData.map((d) => ({
     ...d,
     salesCount: Number(d.salesCount),
-    totalSpent: parseFloat(d.totalSpent || '0')
+    totalSpent: parseFloat(d.totalSpent || '0'),
   }))
 
   return {
@@ -251,7 +257,7 @@ export async function getCustomersPaginated(
     total,
     page,
     pageSize,
-    totalPages
+    totalPages,
   }
 }
 

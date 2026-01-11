@@ -10,7 +10,10 @@ export const STRUCTURE_TYPES: Array<{ value: StructureType; label: string }> = [
   { value: 'cage', label: 'Cage' },
 ]
 
-export const STRUCTURE_STATUSES: Array<{ value: StructureStatus; label: string }> = [
+export const STRUCTURE_STATUSES: Array<{
+  value: StructureStatus
+  label: string
+}> = [
   { value: 'active', label: 'Active' },
   { value: 'empty', label: 'Empty' },
   { value: 'maintenance', label: 'Maintenance' },
@@ -47,7 +50,15 @@ export async function getStructures(userId: string, farmId: string) {
   return db
     .selectFrom('structures')
     .select([
-      'id', 'farmId', 'name', 'type', 'capacity', 'areaSqm', 'status', 'notes', 'createdAt'
+      'id',
+      'farmId',
+      'name',
+      'type',
+      'capacity',
+      'areaSqm',
+      'status',
+      'notes',
+      'createdAt',
     ])
     .where('farmId', '=', farmId)
     .orderBy('name', 'asc')
@@ -95,7 +106,14 @@ export async function getStructure(userId: string, structureId: string) {
   // Get batches assigned to this structure
   const batches = await db
     .selectFrom('batches')
-    .select(['id', 'batchName', 'species', 'livestockType', 'currentQuantity', 'status'])
+    .select([
+      'id',
+      'batchName',
+      'species',
+      'livestockType',
+      'currentQuantity',
+      'status',
+    ])
     .where('structureId', '=', structureId)
     .where('status', '=', 'active')
     .execute()
@@ -174,7 +192,8 @@ export async function updateStructure(
   if (input.name !== undefined) updateData.name = input.name
   if (input.type !== undefined) updateData.type = input.type
   if (input.capacity !== undefined) updateData.capacity = input.capacity
-  if (input.areaSqm !== undefined) updateData.areaSqm = input.areaSqm?.toString() || null
+  if (input.areaSqm !== undefined)
+    updateData.areaSqm = input.areaSqm?.toString() || null
   if (input.status !== undefined) updateData.status = input.status
   if (input.notes !== undefined) updateData.notes = input.notes
 
@@ -224,7 +243,9 @@ export async function deleteStructure(userId: string, id: string) {
     .execute()
 
   if (assignedBatches.length > 0) {
-    throw new Error(`Cannot delete structure with ${assignedBatches.length} active batch(es) assigned. Please reassign or complete the batches first.`)
+    throw new Error(
+      `Cannot delete structure with ${assignedBatches.length} active batch(es) assigned. Please reassign or complete the batches first.`,
+    )
   }
 
   await db.deleteFrom('structures').where('id', '=', id).execute()
@@ -254,7 +275,7 @@ export async function getStructuresWithCounts(userId: string, farmId: string) {
     .leftJoin('batches', (join) =>
       join
         .onRef('batches.structureId', '=', 'structures.id')
-        .on('batches.status', '=', 'active')
+        .on('batches.status', '=', 'active'),
     )
     .select([
       'structures.id',
@@ -267,7 +288,9 @@ export async function getStructuresWithCounts(userId: string, farmId: string) {
       'structures.notes',
       'structures.createdAt',
       sql<number>`count(batches.id)`.as('batchCount'),
-      sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as('totalAnimals'),
+      sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
+        'totalAnimals',
+      ),
     ])
     .where('structures.farmId', '=', farmId)
     .groupBy('structures.id')

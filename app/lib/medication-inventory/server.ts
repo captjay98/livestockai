@@ -1,15 +1,22 @@
 import { createServerFn } from '@tanstack/react-start'
 
-export type MedicationUnit = 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet'
+export type MedicationUnit =
+  | 'vial'
+  | 'bottle'
+  | 'sachet'
+  | 'ml'
+  | 'g'
+  | 'tablet'
 
-export const MEDICATION_UNITS: Array<{ value: MedicationUnit; label: string }> = [
-  { value: 'vial', label: 'Vial' },
-  { value: 'bottle', label: 'Bottle' },
-  { value: 'sachet', label: 'Sachet' },
-  { value: 'ml', label: 'Milliliters (ml)' },
-  { value: 'g', label: 'Grams (g)' },
-  { value: 'tablet', label: 'Tablet' },
-]
+export const MEDICATION_UNITS: Array<{ value: MedicationUnit; label: string }> =
+  [
+    { value: 'vial', label: 'Vial' },
+    { value: 'bottle', label: 'Bottle' },
+    { value: 'sachet', label: 'Sachet' },
+    { value: 'ml', label: 'Milliliters (ml)' },
+    { value: 'g', label: 'Grams (g)' },
+    { value: 'tablet', label: 'Tablet' },
+  ]
 
 export interface CreateMedicationInput {
   farmId: string
@@ -133,11 +140,13 @@ export async function updateMedication(
   if (!farmIds.includes(record.farmId)) throw new Error('Unauthorized')
 
   const updateData: Record<string, unknown> = { updatedAt: new Date() }
-  if (input.medicationName !== undefined) updateData.medicationName = input.medicationName
+  if (input.medicationName !== undefined)
+    updateData.medicationName = input.medicationName
   if (input.quantity !== undefined) updateData.quantity = input.quantity
   if (input.unit !== undefined) updateData.unit = input.unit
   if (input.expiryDate !== undefined) updateData.expiryDate = input.expiryDate
-  if (input.minThreshold !== undefined) updateData.minThreshold = input.minThreshold
+  if (input.minThreshold !== undefined)
+    updateData.minThreshold = input.minThreshold
 
   await db
     .updateTable('medication_inventory')
@@ -209,7 +218,9 @@ export async function useMedication(
   if (!farmIds.includes(record.farmId)) throw new Error('Unauthorized')
 
   if (record.quantity < quantityUsed) {
-    throw new Error(`Insufficient ${record.medicationName} stock. Available: ${record.quantity}, Requested: ${quantityUsed}`)
+    throw new Error(
+      `Insufficient ${record.medicationName} stock. Available: ${record.quantity}, Requested: ${quantityUsed}`,
+    )
   }
 
   const newQuantity = record.quantity - quantityUsed
@@ -271,7 +282,11 @@ export async function addMedicationStock(
 /**
  * Get medications expiring soon (within days)
  */
-export async function getExpiringMedications(userId: string, farmId?: string, days: number = 30) {
+export async function getExpiringMedications(
+  userId: string,
+  farmId?: string,
+  days: number = 30,
+) {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
 
@@ -341,7 +356,9 @@ export async function getLowStockMedications(userId: string, farmId?: string) {
       'farms.name as farmName',
     ])
     .where('medication_inventory.farmId', 'in', targetFarmIds)
-    .where(sql`medication_inventory.quantity <= medication_inventory."minThreshold"`)
+    .where(
+      sql`medication_inventory.quantity <= medication_inventory."minThreshold"`,
+    )
     .orderBy('medication_inventory.medicationName', 'asc')
     .execute()
 }

@@ -1,6 +1,11 @@
 import { createServerFn } from '@tanstack/react-start'
 
-export type FeedType = 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+export type FeedType =
+  | 'starter'
+  | 'grower'
+  | 'finisher'
+  | 'layer_mash'
+  | 'fish_feed'
 
 export const FEED_TYPES: Array<{ value: FeedType; label: string }> = [
   { value: 'starter', label: 'Starter' },
@@ -87,7 +92,9 @@ export async function createFeedInventory(
     .executeTakeFirst()
 
   if (existing) {
-    throw new Error(`Feed inventory for ${input.feedType} already exists. Please update the existing record.`)
+    throw new Error(
+      `Feed inventory for ${input.feedType} already exists. Please update the existing record.`,
+    )
   }
 
   const result = await db
@@ -137,8 +144,10 @@ export async function updateFeedInventory(
 
   const updateData: Record<string, unknown> = { updatedAt: new Date() }
   if (input.feedType !== undefined) updateData.feedType = input.feedType
-  if (input.quantityKg !== undefined) updateData.quantityKg = input.quantityKg.toString()
-  if (input.minThresholdKg !== undefined) updateData.minThresholdKg = input.minThresholdKg.toString()
+  if (input.quantityKg !== undefined)
+    updateData.quantityKg = input.quantityKg.toString()
+  if (input.minThresholdKg !== undefined)
+    updateData.minThresholdKg = input.minThresholdKg.toString()
 
   await db
     .updateTable('feed_inventory')
@@ -150,7 +159,9 @@ export async function updateFeedInventory(
 }
 
 export const updateFeedInventoryFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string; input: UpdateFeedInventoryInput }) => data)
+  .inputValidator(
+    (data: { id: string; input: UpdateFeedInventoryInput }) => data,
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
@@ -261,7 +272,9 @@ export async function reduceFeedStock(
 
   const currentQty = parseFloat(existing.quantityKg)
   if (currentQty < quantityKg) {
-    throw new Error(`Insufficient ${feedType} stock. Available: ${currentQty}kg, Requested: ${quantityKg}kg`)
+    throw new Error(
+      `Insufficient ${feedType} stock. Available: ${currentQty}kg, Requested: ${quantityKg}kg`,
+    )
   }
 
   const newQuantity = currentQty - quantityKg

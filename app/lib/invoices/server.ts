@@ -184,7 +184,10 @@ export async function updateInvoiceStatus(
 }
 
 export const updateInvoiceStatusFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { invoiceId: string; status: 'unpaid' | 'partial' | 'paid' }) => data)
+  .inputValidator(
+    (data: { invoiceId: string; status: 'unpaid' | 'partial' | 'paid' }) =>
+      data,
+  )
   .handler(async ({ data }) => {
     return updateInvoiceStatus(data.invoiceId, data.status)
   })
@@ -230,9 +233,7 @@ export async function createInvoiceFromSale(
   })
 }
 
-export async function getInvoicesPaginated(
-  query: PaginatedQuery = {},
-) {
+export async function getInvoicesPaginated(query: PaginatedQuery = {}) {
   const { sql } = await import('kysely')
 
   const page = query.page || 1
@@ -253,10 +254,12 @@ export async function getInvoicesPaginated(
 
   if (query.search) {
     const searchLower = `%${query.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) => eb.or([
-      eb('invoices.invoiceNumber', 'ilike', searchLower),
-      eb('customers.name', 'ilike', searchLower),
-    ]))
+    baseQuery = baseQuery.where((eb) =>
+      eb.or([
+        eb('invoices.invoiceNumber', 'ilike', searchLower),
+        eb('customers.name', 'ilike', searchLower),
+      ]),
+    )
   }
 
   // Count
@@ -284,7 +287,11 @@ export async function getInvoicesPaginated(
   if (query.sortBy) {
     const sortOrder = query.sortOrder || 'desc'
     const sortCol = query.sortBy
-    if (['invoiceNumber', 'totalAmount', 'status', 'date', 'dueDate'].includes(sortCol)) {
+    if (
+      ['invoiceNumber', 'totalAmount', 'status', 'date', 'dueDate'].includes(
+        sortCol,
+      )
+    ) {
       dataQuery = dataQuery.orderBy(`invoices.${sortCol}`, sortOrder)
     } else if (sortCol === 'customerName') {
       dataQuery = dataQuery.orderBy('customers.name', sortOrder)
@@ -298,14 +305,14 @@ export async function getInvoicesPaginated(
   const rawData = await dataQuery.execute()
 
   return {
-    data: rawData.map(d => ({
+    data: rawData.map((d) => ({
       ...d,
       totalAmount: parseFloat(d.totalAmount),
     })),
     total,
     page,
     pageSize,
-    totalPages
+    totalPages,
   }
 }
 

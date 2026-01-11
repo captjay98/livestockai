@@ -79,6 +79,18 @@ export async function recordMortality(
 
     return result.id
   })
+
+  // Log audit (outside transaction)
+  const { logAudit } = await import('~/lib/logging/audit')
+  await logAudit({
+    userId,
+    action: 'create',
+    entityType: 'mortality',
+    entityId: result, // result is the ID returned by transaction
+    details: data,
+  })
+
+  return result
 }
 
 // Server function for client-side calls
@@ -89,7 +101,6 @@ export const recordMortalityFn = createServerFn({ method: 'POST' })
     const session = await requireAuth()
     return recordMortality(session.user.id, data.data)
   })
-
 
 /**
  * Get mortality records for a batch
@@ -258,93 +269,6 @@ export async function getMortalityTrends(
   }))
 }
 
-/**
- * Get mortality alerts for a farm or all farms
- */
-export async function getMortalityAlerts(userId: string, farmId?: string) {
-  const { db } = await import('../db')
-  const { getUserFarms } = await import('../auth/utils')
-
-  // Determine target farms
-  let targetFarmIds: Array<string> = []
-  if (farmId) {
-    targetFarmIds = [farmId]
-  } else {
-    targetFarmIds = await getUserFarms(userId)
-    if (targetFarmIds.length === 0) {
-      return []
-    }
-  }
-
-  // Get all active batches for the target farms
-  const batches = await db
-    .selectFrom('batches')
-    .selectAll()
-    .where('farmId', 'in', targetFarmIds)
-    .where('status', '=', 'active')
-    .execute()
-
-  const alerts = []
-
-  for (const batch of batches) {
-    // Check total mortality (all-time) - matches Dashboard logic
-    const totalMortality = await db
-      .selectFrom('mortality_records')
-      .select([db.fn.sum('quantity').as('quantity')])
-      .where('batchId', '=', batch.id)
-      .executeTakeFirst()
-
-    const totalQuantity = Number(totalMortality?.quantity || 0)
-    const mortalityRate =
-      batch.initialQuantity > 0
-        ? (totalQuantity / batch.initialQuantity) * 100
-        : 0
-
-    // Alert if total mortality rate > 5%
-    if (mortalityRate > 5) {
-      alerts.push({
-        type: 'high_mortality' as const,
-        batchId: batch.id,
-        batchSpecies: batch.species,
-        severity:
-          mortalityRate > 10 ? ('critical' as const) : ('warning' as const),
-        message: `High mortality rate (${mortalityRate.toFixed(1)}%)`,
-        quantity: totalQuantity,
-        rate: mortalityRate,
-      })
-    }
-
-    // Alert if batch is nearly depleted (< 10% remaining)
-    const remainingPercentage =
-      batch.initialQuantity > 0
-        ? (batch.currentQuantity / batch.initialQuantity) * 100
-        : 0
-
-    if (remainingPercentage < 10 && remainingPercentage > 0) {
-      alerts.push({
-        type: 'low_stock' as const,
-        batchId: batch.id,
-        batchSpecies: batch.species,
-        severity:
-          remainingPercentage < 5
-            ? ('critical' as const)
-            : ('warning' as const),
-        message: `Low stock: ${remainingPercentage.toFixed(1)}% remaining`,
-        quantity: batch.currentQuantity,
-        rate: remainingPercentage,
-      })
-    }
-  }
-
-  return alerts.sort((a, b) => {
-    // Sort by severity (critical first) then by rate (highest first)
-    if (a.severity !== b.severity) {
-      return a.severity === 'critical' ? -1 : 1
-    }
-    return b.rate - a.rate
-  })
-}
-
 export async function getMortalityRecordsPaginated(
   userId: string,
   query: PaginatedQuery = {},
@@ -467,15 +391,17 @@ export async function getMortalitySummary(userId: string, farmId?: string) {
   const totalDeaths = records.reduce((sum, r) => sum + r.quantity, 0)
 
   // Count alerts (this might be expensive if called frequently, but manageable)
-  // We already have getMortalityAlerts which is efficient enough
-  const alerts = await getMortalityAlerts(userId, farmId)
-  const criticalAlerts = alerts.filter(a => a.severity === 'critical').length
+  const { getAllBatchAlerts } = await import('~/lib/monitoring/alerts')
+  const alerts = await getAllBatchAlerts(userId, farmId)
+  // Filter for ONLY mortality logic alerts to keep summary consistent?
+  // Actually the UI just says "Critical Alerts", so using all is probably fine/better.
+  const criticalAlerts = alerts.filter((a) => a.type === 'critical').length
   const totalAlerts = alerts.length
 
   return {
     totalDeaths,
     recordCount: records.length,
     criticalAlerts,
-    totalAlerts
+    totalAlerts,
   }
 }

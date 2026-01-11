@@ -11,10 +11,22 @@ export const UNIT_TYPES: Array<{ value: UnitType; label: string }> = [
   { value: 'piece', label: 'Piece' },
 ]
 
-export const PAYMENT_STATUSES: Array<{ value: PaymentStatus; label: string; color: string }> = [
+export const PAYMENT_STATUSES: Array<{
+  value: PaymentStatus
+  label: string
+  color: string
+}> = [
   { value: 'paid', label: 'Paid', color: 'text-green-600 bg-green-100' },
-  { value: 'pending', label: 'Pending', color: 'text-yellow-600 bg-yellow-100' },
-  { value: 'partial', label: 'Partial', color: 'text-orange-600 bg-orange-100' },
+  {
+    value: 'pending',
+    label: 'Pending',
+    color: 'text-yellow-600 bg-yellow-100',
+  },
+  {
+    value: 'partial',
+    label: 'Partial',
+    color: 'text-orange-600 bg-orange-100',
+  },
 ]
 
 export const PAYMENT_METHODS: Array<{ value: PaymentMethod; label: string }> = [
@@ -123,7 +135,7 @@ export async function deleteSale(userId: string, saleId: string) {
   const { getUserFarms } = await import('~/lib/auth/utils')
 
   const userFarms = await getUserFarms(userId)
-  const farmIds = userFarms.map(f => f.id)
+  const farmIds = userFarms.map((f) => f.id)
 
   // Get the sale to check ownership and possibly restore batch quantity
   const sale = await db
@@ -144,7 +156,7 @@ export async function deleteSale(userId: string, saleId: string) {
   if (sale.batchId && sale.livestockType !== 'eggs') {
     await db
       .updateTable('batches')
-      .set(eb => ({
+      .set((eb) => ({
         currentQuantity: eb('currentQuantity', '+', sale.quantity),
         status: 'active',
         updatedAt: new Date(),
@@ -191,7 +203,14 @@ export async function updateSale(
 
   const sale = await db
     .selectFrom('sales')
-    .select(['id', 'farmId', 'batchId', 'quantity', 'livestockType', 'unitPrice'])
+    .select([
+      'id',
+      'farmId',
+      'batchId',
+      'quantity',
+      'livestockType',
+      'unitPrice',
+    ])
     .where('id', '=', saleId)
     .executeTakeFirst()
 
@@ -200,14 +219,19 @@ export async function updateSale(
 
   await db.transaction().execute(async (tx) => {
     // 1. If quantity changed, handle inventory
-    if (data.quantity !== undefined && data.quantity !== sale.quantity && sale.batchId && sale.livestockType !== 'eggs') {
+    if (
+      data.quantity !== undefined &&
+      data.quantity !== sale.quantity &&
+      sale.batchId &&
+      sale.livestockType !== 'eggs'
+    ) {
       const quantityDiff = data.quantity - sale.quantity
 
       // Update batch
       await tx
         .updateTable('batches')
         .set((eb) => ({
-          currentQuantity: eb('currentQuantity', '-', quantityDiff), // If diff is positive (increased sale), we subtract more. 
+          currentQuantity: eb('currentQuantity', '-', quantityDiff), // If diff is positive (increased sale), we subtract more.
           updatedAt: new Date(),
         }))
         .where('id', '=', sale.batchId)
@@ -224,16 +248,20 @@ export async function updateSale(
 
     // Copy over basic fields
     if (data.quantity !== undefined) updateData.quantity = data.quantity
-    if (data.unitPrice !== undefined) updateData.unitPrice = data.unitPrice.toString()
+    if (data.unitPrice !== undefined)
+      updateData.unitPrice = data.unitPrice.toString()
     if (data.date !== undefined) updateData.date = data.date
     if (data.notes !== undefined) updateData.notes = data.notes
 
     // Copy over enhanced fields
     if (data.unitType !== undefined) updateData.unitType = data.unitType
     if (data.ageWeeks !== undefined) updateData.ageWeeks = data.ageWeeks
-    if (data.averageWeightKg !== undefined) updateData.averageWeightKg = data.averageWeightKg?.toString() || null
-    if (data.paymentStatus !== undefined) updateData.paymentStatus = data.paymentStatus
-    if (data.paymentMethod !== undefined) updateData.paymentMethod = data.paymentMethod
+    if (data.averageWeightKg !== undefined)
+      updateData.averageWeightKg = data.averageWeightKg?.toString() || null
+    if (data.paymentStatus !== undefined)
+      updateData.paymentStatus = data.paymentStatus
+    if (data.paymentMethod !== undefined)
+      updateData.paymentMethod = data.paymentMethod
 
     // 3. Update sale
     await tx
@@ -299,7 +327,7 @@ export async function getSales(
       'sales.createdAt',
       'customers.name as customerName',
       'batches.species as batchSpecies',
-      'farms.name as farmName'
+      'farms.name as farmName',
     ])
     .where('sales.farmId', 'in', targetFarmIds)
 
@@ -315,7 +343,6 @@ export async function getSales(
 
   return query.orderBy('sales.date', 'desc').execute()
 }
-
 
 export async function getSalesForFarm(
   userId: string,
@@ -493,20 +520,22 @@ export interface PaginatedResult<T> {
 export async function getSalesPaginated(
   userId: string,
   query: PaginatedQuery = {},
-): Promise<PaginatedResult<{
-  id: string
-  farmId: string
-  farmName: string | null
-  customerId: string | null
-  customerName: string | null
-  livestockType: string
-  quantity: number
-  unitPrice: string
-  totalAmount: string
-  date: Date
-  notes: string | null
-  batchSpecies: string | null
-}>> {
+): Promise<
+  PaginatedResult<{
+    id: string
+    farmId: string
+    farmName: string | null
+    customerId: string | null
+    customerName: string | null
+    livestockType: string
+    quantity: number
+    unitPrice: string
+    totalAmount: string
+    date: Date
+    notes: string | null
+    batchSpecies: string | null
+  }>
+> {
   const { db } = await import('~/lib/db')
   const { sql } = await import('kysely')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
@@ -547,18 +576,26 @@ export async function getSalesPaginated(
         eb('customers.name', 'ilike', `%${search}%`),
         eb('batches.species', 'ilike', `%${search}%`),
         eb('sales.notes', 'ilike', `%${search}%`),
-      ])
+      ]),
     )
   }
 
   // Apply type filter
   if (livestockType) {
-    countQuery = countQuery.where('sales.livestockType', '=', livestockType as any)
+    countQuery = countQuery.where(
+      'sales.livestockType',
+      '=',
+      livestockType as any,
+    )
   }
 
   // Apply payment status filter
   if (paymentStatus) {
-    countQuery = countQuery.where('sales.paymentStatus', '=', paymentStatus as any)
+    countQuery = countQuery.where(
+      'sales.paymentStatus',
+      '=',
+      paymentStatus as any,
+    )
   }
 
   // Apply batchId filter
@@ -575,11 +612,15 @@ export async function getSalesPaginated(
 
   // Apply sorting
   const sortColumn =
-    sortBy === 'totalAmount' ? 'sales.totalAmount' :
-      sortBy === 'quantity' ? 'sales.quantity' :
-        sortBy === 'customerName' ? 'customers.name' :
-          sortBy === 'livestockType' ? 'sales.livestockType' :
-            'sales.date'
+    sortBy === 'totalAmount'
+      ? 'sales.totalAmount'
+      : sortBy === 'quantity'
+        ? 'sales.quantity'
+        : sortBy === 'customerName'
+          ? 'customers.name'
+          : sortBy === 'livestockType'
+            ? 'sales.livestockType'
+            : 'sales.date'
 
   let dataQuery = db
     .selectFrom('sales')
@@ -614,14 +655,22 @@ export async function getSalesPaginated(
         eb('customers.name', 'ilike', `%${search}%`),
         eb('batches.species', 'ilike', `%${search}%`),
         eb('sales.notes', 'ilike', `%${search}%`),
-      ])
+      ]),
     )
   }
   if (livestockType) {
-    dataQuery = dataQuery.where('sales.livestockType', '=', livestockType as any)
+    dataQuery = dataQuery.where(
+      'sales.livestockType',
+      '=',
+      livestockType as any,
+    )
   }
   if (paymentStatus) {
-    dataQuery = dataQuery.where('sales.paymentStatus', '=', paymentStatus as any)
+    dataQuery = dataQuery.where(
+      'sales.paymentStatus',
+      '=',
+      paymentStatus as any,
+    )
   }
   if (query.batchId) {
     dataQuery = dataQuery.where('sales.batchId', '=', query.batchId)
@@ -635,7 +684,7 @@ export async function getSalesPaginated(
     .execute()
 
   return {
-    data: data.map(d => ({
+    data: data.map((d) => ({
       ...d,
       farmName: d.farmName || null,
       customerName: d.customerName || null,

@@ -29,6 +29,7 @@ export interface CreateBatchData {
   sourceSize?: string | null
   structureId?: string | null
   targetHarvestDate?: Date | null
+  target_weight_g?: number | null // Enhanced
   supplierId?: string | null
   notes?: string | null
 }
@@ -40,6 +41,7 @@ export interface UpdateBatchData {
   sourceSize?: string | null
   structureId?: string | null
   targetHarvestDate?: Date | null
+  target_weight_g?: number | null // Enhanced
   notes?: string | null
 }
 
@@ -78,11 +80,25 @@ export async function createBatch(
       sourceSize: data.sourceSize || null,
       structureId: data.structureId || null,
       targetHarvestDate: data.targetHarvestDate || null,
+      target_weight_g: data.target_weight_g || null,
       supplierId: data.supplierId || null,
       notes: data.notes || null,
     })
     .returning('id')
     .executeTakeFirstOrThrow()
+
+    .returning('id')
+    .executeTakeFirstOrThrow()
+
+  // Log audit
+  const { logAudit } = await import('../logging/audit')
+  await logAudit({
+    userId,
+    action: 'create',
+    entityType: 'batch',
+    entityId: result.id,
+    details: data,
+  })
 
   return result.id
 }
@@ -95,8 +111,6 @@ export const createBatchFn = createServerFn({ method: 'POST' })
     const session = await requireAuth()
     return createBatch(session.user.id, data.batch)
   })
-
-
 
 /**
  * Get batches for a user - optionally filtered by farm
@@ -243,7 +257,10 @@ export async function updateBatch(
   if (data.batchName !== undefined) updateData.batchName = data.batchName
   if (data.sourceSize !== undefined) updateData.sourceSize = data.sourceSize
   if (data.structureId !== undefined) updateData.structureId = data.structureId
-  if (data.targetHarvestDate !== undefined) updateData.targetHarvestDate = data.targetHarvestDate
+  if (data.targetHarvestDate !== undefined)
+    updateData.targetHarvestDate = data.targetHarvestDate
+  if (data.target_weight_g !== undefined)
+    updateData.target_weight_g = data.target_weight_g
   if (data.notes !== undefined) updateData.notes = data.notes
 
   await db
@@ -251,6 +268,22 @@ export async function updateBatch(
     .set(updateData)
     .where('id', '=', batchId)
     .execute()
+
+    .where('id', '=', batchId)
+    .execute()
+
+  // Log audit
+  const { logAudit } = await import('../logging/audit')
+  await logAudit({
+    userId,
+    action: 'update',
+    entityType: 'batch',
+    entityId: batchId,
+    details: {
+      before: batch,
+      updates: updateData,
+    },
+  })
 
   return await getBatchById(userId, batchId)
 }
@@ -277,17 +310,45 @@ export async function deleteBatch(userId: string, batchId: string) {
 
   // Check for related records
   const [feedRecords, eggRecords, sales, mortalities] = await Promise.all([
-    db.selectFrom('feed_records').select('id').where('batchId', '=', batchId).executeTakeFirst(),
-    db.selectFrom('egg_records').select('id').where('batchId', '=', batchId).executeTakeFirst(),
-    db.selectFrom('sales').select('id').where('batchId', '=', batchId).executeTakeFirst(),
-    db.selectFrom('mortalities').select('id').where('batchId', '=', batchId).executeTakeFirst(),
+    db
+      .selectFrom('feed_records')
+      .select('id')
+      .where('batchId', '=', batchId)
+      .executeTakeFirst(),
+    db
+      .selectFrom('egg_records')
+      .select('id')
+      .where('batchId', '=', batchId)
+      .executeTakeFirst(),
+    db
+      .selectFrom('sales')
+      .select('id')
+      .where('batchId', '=', batchId)
+      .executeTakeFirst(),
+    db
+      .selectFrom('mortalities')
+      .select('id')
+      .where('batchId', '=', batchId)
+      .executeTakeFirst(),
   ])
 
   if (feedRecords || eggRecords || sales || mortalities) {
-    throw new Error('Cannot delete batch with existing records. Delete related records first.')
+    throw new Error(
+      'Cannot delete batch with existing records. Delete related records first.',
+    )
   }
 
   await db.deleteFrom('batches').where('id', '=', batchId).execute()
+
+  // Log audit
+  const { logAudit } = await import('../logging/audit')
+  await logAudit({
+    userId,
+    action: 'delete',
+    entityType: 'batch',
+    entityId: batchId,
+    details: { message: 'Batch deleted', snapshot: batch },
+  })
 }
 
 // Server function for client-side calls
@@ -331,46 +392,47 @@ export async function getBatchStats(userId: string, batchId: string) {
     throw new Error('Batch not found')
   }
 
-  const [mortalityStats, feedStats, salesStats, expenseStats] = await Promise.all([
-    // Mortality statistics
-    db
-      .selectFrom('mortality_records')
-      .select([
-        db.fn.count('id').as('total_deaths'),
-        db.fn.sum('quantity').as('total_mortality'),
-      ])
-      .where('batchId', '=', batchId)
-      .executeTakeFirst(),
+  const [mortalityStats, feedStats, salesStats, expenseStats] =
+    await Promise.all([
+      // Mortality statistics
+      db
+        .selectFrom('mortality_records')
+        .select([
+          db.fn.count('id').as('total_deaths'),
+          db.fn.sum('quantity').as('total_mortality'),
+        ])
+        .where('batchId', '=', batchId)
+        .executeTakeFirst(),
 
-    // Feed statistics
-    db
-      .selectFrom('feed_records')
-      .select([
-        db.fn.count('id').as('total_feedings'),
-        db.fn.sum('quantityKg').as('total_feed_kg'),
-        db.fn.sum('cost').as('total_feed_cost'),
-      ])
-      .where('batchId', '=', batchId)
-      .executeTakeFirst(),
+      // Feed statistics
+      db
+        .selectFrom('feed_records')
+        .select([
+          db.fn.count('id').as('total_feedings'),
+          db.fn.sum('quantityKg').as('total_feed_kg'),
+          db.fn.sum('cost').as('total_feed_cost'),
+        ])
+        .where('batchId', '=', batchId)
+        .executeTakeFirst(),
 
-    // Sales statistics
-    db
-      .selectFrom('sales')
-      .select([
-        db.fn.count('id').as('total_sales'),
-        db.fn.sum('quantity').as('total_sold'),
-        db.fn.sum('totalAmount').as('total_revenue'),
-      ])
-      .where('batchId', '=', batchId)
-      .executeTakeFirst(),
+      // Sales statistics
+      db
+        .selectFrom('sales')
+        .select([
+          db.fn.count('id').as('total_sales'),
+          db.fn.sum('quantity').as('total_sold'),
+          db.fn.sum('totalAmount').as('total_revenue'),
+        ])
+        .where('batchId', '=', batchId)
+        .executeTakeFirst(),
 
-    // Other Expenses statistics
-    db
-      .selectFrom('expenses')
-      .select(db.fn.sum('amount').as('total_expenses'))
-      .where('batchId', '=', batchId)
-      .executeTakeFirst(),
-  ])
+      // Other Expenses statistics
+      db
+        .selectFrom('expenses')
+        .select(db.fn.sum('amount').as('total_expenses'))
+        .where('batchId', '=', batchId)
+        .executeTakeFirst(),
+    ])
 
   const totalMortality = Number(mortalityStats?.total_mortality || 0)
   const totalSold = Number(salesStats?.total_sold || 0)
@@ -556,7 +618,8 @@ export async function getInventorySummary(userId: string, farmId?: string) {
       : 0
 
   // Helper to safely convert to number
-  const safeToNumber = (val: string | number | null | undefined) => Number(val || 0)
+  const safeToNumber = (val: string | number | null | undefined) =>
+    Number(val || 0)
 
   // Calculate FCR
   const totalFeedKg = safeToNumber(String(feedStats?.total_kg || '0'))
@@ -630,19 +693,21 @@ export interface PaginatedResult<T> {
 export async function getBatchesPaginated(
   userId: string,
   query: PaginatedQuery = {},
-): Promise<PaginatedResult<{
-  id: string
-  farmId: string
-  farmName: string | null
-  livestockType: string
-  species: string
-  initialQuantity: number
-  currentQuantity: number
-  acquisitionDate: Date
-  costPerUnit: string
-  totalCost: string
-  status: string
-}>> {
+): Promise<
+  PaginatedResult<{
+    id: string
+    farmId: string
+    farmName: string | null
+    livestockType: string
+    species: string
+    initialQuantity: number
+    currentQuantity: number
+    acquisitionDate: Date
+    costPerUnit: string
+    totalCost: string
+    status: string
+  }>
+> {
   const { db } = await import('../db')
   const { sql } = await import('kysely')
   const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
@@ -678,7 +743,7 @@ export async function getBatchesPaginated(
       eb.or([
         eb('batches.species', 'ilike', `%${search}%`),
         eb('farms.name', 'ilike', `%${search}%`),
-      ])
+      ]),
     )
   }
 
@@ -689,7 +754,11 @@ export async function getBatchesPaginated(
 
   // Apply type filter
   if (query.livestockType) {
-    countQuery = countQuery.where('batches.livestockType', '=', query.livestockType as any)
+    countQuery = countQuery.where(
+      'batches.livestockType',
+      '=',
+      query.livestockType as any,
+    )
   }
 
   // Get total count
@@ -701,11 +770,15 @@ export async function getBatchesPaginated(
 
   // Apply sorting
   const sortColumn =
-    sortBy === 'species' ? 'batches.species' :
-      sortBy === 'currentQuantity' ? 'batches.currentQuantity' :
-        sortBy === 'status' ? 'batches.status' :
-          sortBy === 'livestockType' ? 'batches.livestockType' :
-            'batches.acquisitionDate'
+    sortBy === 'species'
+      ? 'batches.species'
+      : sortBy === 'currentQuantity'
+        ? 'batches.currentQuantity'
+        : sortBy === 'status'
+          ? 'batches.status'
+          : sortBy === 'livestockType'
+            ? 'batches.livestockType'
+            : 'batches.acquisitionDate'
 
   let dataQuery = db
     .selectFrom('batches')
@@ -731,14 +804,18 @@ export async function getBatchesPaginated(
       eb.or([
         eb('batches.species', 'ilike', `%${search}%`),
         eb('farms.name', 'ilike', `%${search}%`),
-      ])
+      ]),
     )
   }
   if (query.status) {
     dataQuery = dataQuery.where('batches.status', '=', query.status as any)
   }
   if (query.livestockType) {
-    dataQuery = dataQuery.where('batches.livestockType', '=', query.livestockType as any)
+    dataQuery = dataQuery.where(
+      'batches.livestockType',
+      '=',
+      query.livestockType as any,
+    )
   }
 
   // Apply sorting and pagination
@@ -749,7 +826,7 @@ export async function getBatchesPaginated(
     .execute()
 
   return {
-    data: data.map(d => ({
+    data: data.map((d) => ({
       ...d,
       farmName: d.farmName || null,
     })),

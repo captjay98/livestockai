@@ -130,7 +130,9 @@ export async function createWaterQualityRecord(
 }
 
 export const createWaterQualityRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; data: CreateWaterQualityInput }) => data)
+  .inputValidator(
+    (data: { farmId: string; data: CreateWaterQualityInput }) => data,
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
@@ -277,9 +279,9 @@ export async function getWaterQualityRecordsPaginated(
 
   if (query.search) {
     const searchLower = `%${query.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) => eb.or([
-      eb('batches.species', 'ilike', searchLower),
-    ]))
+    baseQuery = baseQuery.where((eb) =>
+      eb.or([eb('batches.species', 'ilike', searchLower)]),
+    )
   }
 
   if (query.batchId) {
@@ -327,11 +329,13 @@ export async function getWaterQualityRecordsPaginated(
     total,
     page,
     pageSize,
-    totalPages
+    totalPages,
   }
 }
 
-export const getWaterQualityRecordsPaginatedFn = createServerFn({ method: 'GET' })
+export const getWaterQualityRecordsPaginatedFn = createServerFn({
+  method: 'GET',
+})
   .inputValidator((data: PaginatedQuery) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')

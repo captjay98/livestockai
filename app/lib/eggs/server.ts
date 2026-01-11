@@ -69,7 +69,9 @@ export async function createEggRecord(
 
 // Server function for client-side calls
 export const createEggRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; record: CreateEggRecordInput }) => data)
+  .inputValidator(
+    (data: { farmId: string; record: CreateEggRecordInput }) => data,
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
@@ -79,7 +81,11 @@ export const createEggRecordFn = createServerFn({ method: 'POST' })
 /**
  * Delete an egg record
  */
-export async function deleteEggRecord(userId: string, farmId: string, recordId: string) {
+export async function deleteEggRecord(
+  userId: string,
+  farmId: string,
+  recordId: string,
+) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/lib/auth/utils')
 
@@ -148,7 +154,9 @@ export async function updateEggRecord(
 }
 
 export const updateEggRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string; data: UpdateEggRecordInput }) => data)
+  .inputValidator(
+    (data: { recordId: string; data: UpdateEggRecordInput }) => data,
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
@@ -194,7 +202,7 @@ export async function getEggRecords(
       'egg_records.createdAt',
       'batches.species as batchSpecies',
       'batches.farmId',
-      'farms.name as farmName'
+      'farms.name as farmName',
     ])
     .where('batches.farmId', 'in', targetFarmIds)
 
@@ -207,7 +215,6 @@ export async function getEggRecords(
 
   return query.orderBy('egg_records.date', 'desc').execute()
 }
-
 
 export async function getEggRecordsForBatch(
   userId: string,
@@ -426,9 +433,7 @@ export async function getEggRecordsPaginated(
   if (query.search) {
     const searchLower = `%${query.search.toLowerCase()}%`
     baseQuery = baseQuery.where((eb) =>
-      eb.or([
-        eb('batches.species', 'ilike', searchLower),
-      ]),
+      eb.or([eb('batches.species', 'ilike', searchLower)]),
     )
   }
 

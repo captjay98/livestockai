@@ -100,7 +100,9 @@ export async function createFeedRecord(
 
 // Server function for client-side calls
 export const createFeedRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; record: CreateFeedRecordInput }) => data)
+  .inputValidator(
+    (data: { farmId: string; record: CreateFeedRecordInput }) => data,
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
@@ -110,7 +112,11 @@ export const createFeedRecordFn = createServerFn({ method: 'POST' })
 /**
  * Delete a feed record and restore inventory
  */
-export async function deleteFeedRecord(userId: string, farmId: string, recordId: string) {
+export async function deleteFeedRecord(
+  userId: string,
+  farmId: string,
+  recordId: string,
+) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/lib/auth/utils')
 
@@ -120,7 +126,11 @@ export async function deleteFeedRecord(userId: string, farmId: string, recordId:
   const record = await db
     .selectFrom('feed_records')
     .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-    .select(['feed_records.id', 'feed_records.feedType', 'feed_records.quantityKg'])
+    .select([
+      'feed_records.id',
+      'feed_records.feedType',
+      'feed_records.quantityKg',
+    ])
     .where('feed_records.id', '=', recordId)
     .where('batches.farmId', '=', farmId)
     .executeTakeFirst()
@@ -133,7 +143,7 @@ export async function deleteFeedRecord(userId: string, farmId: string, recordId:
     // Restore inventory
     await tx
       .updateTable('feed_inventory')
-      .set(eb => ({
+      .set((eb) => ({
         quantityKg: eb('quantityKg', '+', parseFloat(record.quantityKg)),
         updatedAt: new Date(),
       }))
@@ -180,14 +190,19 @@ export async function updateFeedRecord(
 
     // If quantity or feedType is changing, we need to adjust inventory
     if (
-      (data.quantityKg && data.quantityKg !== parseFloat(existingRecord.quantityKg)) ||
+      (data.quantityKg &&
+        data.quantityKg !== parseFloat(existingRecord.quantityKg)) ||
       (data.feedType && data.feedType !== existingRecord.feedType)
     ) {
       // 2. Restore old inventory
       await tx
         .updateTable('feed_inventory')
         .set((eb) => ({
-          quantityKg: eb('quantityKg', '+', parseFloat(existingRecord.quantityKg)),
+          quantityKg: eb(
+            'quantityKg',
+            '+',
+            parseFloat(existingRecord.quantityKg),
+          ),
           updatedAt: new Date(),
         }))
         .where('farmId', '=', farmId)
@@ -195,7 +210,8 @@ export async function updateFeedRecord(
         .execute()
 
       // 3. Deduct new inventory
-      const newQuantity = data.quantityKg || parseFloat(existingRecord.quantityKg)
+      const newQuantity =
+        data.quantityKg || parseFloat(existingRecord.quantityKg)
       const newFeedType = data.feedType || existingRecord.feedType
 
       const inventory = await tx
@@ -247,7 +263,12 @@ export const updateFeedRecordFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
-    return updateFeedRecord(session.user.id, data.farmId, data.recordId, data.data)
+    return updateFeedRecord(
+      session.user.id,
+      data.farmId,
+      data.recordId,
+      data.data,
+    )
   })
 
 export async function getFeedRecordsForBatch(
@@ -341,14 +362,19 @@ export async function getFeedSummaryForBatch(
   )
   const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
 
-  const byType: { [key: string]: { quantityKg: number; cost: number } | undefined } = {}
+  const byType: {
+    [key: string]: { quantityKg: number; cost: number } | undefined
+  } = {}
   for (const r of records) {
     const existing = byType[r.feedType]
     if (existing) {
       existing.quantityKg += parseFloat(r.quantityKg)
       existing.cost += parseFloat(r.cost)
     } else {
-      byType[r.feedType] = { quantityKg: parseFloat(r.quantityKg), cost: parseFloat(r.cost) }
+      byType[r.feedType] = {
+        quantityKg: parseFloat(r.quantityKg),
+        cost: parseFloat(r.cost),
+      }
     }
   }
 
@@ -561,7 +587,10 @@ export async function getFeedStats(userId: string, farmId?: string) {
     .where('batches.farmId', 'in', targetFarmIds)
     .execute()
 
-  const totalQuantityKg = records.reduce((sum, r) => sum + parseFloat(r.quantityKg), 0)
+  const totalQuantityKg = records.reduce(
+    (sum, r) => sum + parseFloat(r.quantityKg),
+    0,
+  )
   const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
 
   return {

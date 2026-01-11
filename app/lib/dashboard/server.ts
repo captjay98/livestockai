@@ -1,4 +1,5 @@
 import { sql } from 'kysely'
+import type { BatchAlert } from '~/lib/monitoring/alerts'
 
 export interface DashboardStats {
   inventory: {
@@ -17,26 +18,7 @@ export interface DashboardStats {
     eggsThisMonth: number
     layingPercentage: number
   }
-  alerts: {
-    highMortality: Array<{ batchId: string; species: string; rate: number }>
-    upcomingVaccinations: Array<{
-      batchId: string
-      species: string
-      vaccineName: string
-      dueDate: Date
-    }>
-    overdueVaccinations: Array<{
-      batchId: string
-      species: string
-      vaccineName: string
-      dueDate: Date
-    }>
-    waterQualityAlerts: Array<{
-      batchId: string
-      parameter: string
-      value: number
-    }>
-  }
+  alerts: Array<BatchAlert>
   topCustomers: Array<{ id: string; name: string; totalSpent: number }>
   recentTransactions: Array<{
     id: string
@@ -68,14 +50,15 @@ export async function getDashboardStats(
       // Return empty stats if no farms
       return {
         inventory: { totalPoultry: 0, totalFish: 0, activeBatches: 0 },
-        financial: { monthlyRevenue: 0, monthlyExpenses: 0, monthlyProfit: 0, revenueChange: 0, expensesChange: 0 },
-        production: { eggsThisMonth: 0, layingPercentage: 0 },
-        alerts: {
-          highMortality: [],
-          upcomingVaccinations: [],
-          overdueVaccinations: [],
-          waterQualityAlerts: [],
+        financial: {
+          monthlyRevenue: 0,
+          monthlyExpenses: 0,
+          monthlyProfit: 0,
+          revenueChange: 0,
+          expensesChange: 0,
         },
+        production: { eggsThisMonth: 0, layingPercentage: 0 },
+        alerts: [],
         topCustomers: [],
         recentTransactions: [],
       }
@@ -189,123 +172,9 @@ export async function getDashboardStats(
   const layingPercentage =
     layerBirds > 0 ? (eggsThisMonth / (layerBirds * daysInMonth)) * 100 : 0
 
-  // High mortality batches (>5% mortality rate)
-  const mortalityQuery = await db
-    .selectFrom('batches')
-    .leftJoin('mortality_records', 'mortality_records.batchId', 'batches.id')
-    .select([
-      'batches.id as batchId',
-      'batches.species',
-      'batches.initialQuantity',
-      sql<number>`COALESCE(SUM(mortality_records.quantity), 0)`.as(
-        'totalDeaths',
-      ),
-    ])
-    .where('batches.status', '=', 'active')
-    .where('batches.farmId', 'in', targetFarmIds)
-    .groupBy(['batches.id', 'batches.species', 'batches.initialQuantity'])
-    .execute()
-
-  const highMortality = mortalityQuery
-    .map((b) => ({
-      batchId: b.batchId,
-      species: b.species,
-      rate: (Number(b.totalDeaths) / b.initialQuantity) * 100,
-    }))
-    .filter((b) => b.rate > 5)
-    .sort((a, b) => b.rate - a.rate)
-    .slice(0, 5)
-
-  // Upcoming vaccinations (next 7 days)
-  const sevenDaysFromNow = new Date()
-  sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
-
-  const upcomingVaccinations = await db
-    .selectFrom('vaccinations')
-    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
-    .select([
-      'vaccinations.batchId',
-      'batches.species',
-      'vaccinations.vaccineName',
-      'vaccinations.nextDueDate as dueDate',
-    ])
-    .where('vaccinations.nextDueDate', '>=', now)
-    .where('vaccinations.nextDueDate', '<=', sevenDaysFromNow)
-    .where('batches.farmId', 'in', targetFarmIds)
-    .orderBy('vaccinations.nextDueDate', 'asc')
-    .limit(5)
-    .execute()
-
-  // Overdue vaccinations
-  const overdueVaccinations = await db
-    .selectFrom('vaccinations')
-    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
-    .select([
-      'vaccinations.batchId',
-      'batches.species',
-      'vaccinations.vaccineName',
-      'vaccinations.nextDueDate as dueDate',
-    ])
-    .where('vaccinations.nextDueDate', '<', now)
-    .where('batches.status', '=', 'active')
-    .where('batches.farmId', 'in', targetFarmIds)
-    .orderBy('vaccinations.nextDueDate', 'asc')
-    .limit(5)
-    .execute()
-
-  // Water quality alerts
-  const waterAlerts: Array<{
-    batchId: string
-    parameter: string
-    value: number
-  }> = []
-  const recentWaterRecords = await db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .select([
-      'water_quality.batchId',
-      'water_quality.ph',
-      'water_quality.temperatureCelsius',
-      'water_quality.dissolvedOxygenMgL',
-      'water_quality.ammoniaMgL',
-    ])
-    .where('batches.status', '=', 'active')
-    .where('batches.farmId', 'in', targetFarmIds)
-    .orderBy('water_quality.date', 'desc')
-    .limit(10)
-    .execute()
-
-  for (const record of recentWaterRecords) {
-    const ph = parseFloat(String(record.ph))
-    const temp = parseFloat(String(record.temperatureCelsius))
-    const oxygen = parseFloat(String(record.dissolvedOxygenMgL))
-    const ammonia = parseFloat(String(record.ammoniaMgL))
-
-    if (ph < 6.5 || ph > 9.0) {
-      waterAlerts.push({ batchId: record.batchId, parameter: 'pH', value: ph })
-    }
-    if (temp < 25 || temp > 30) {
-      waterAlerts.push({
-        batchId: record.batchId,
-        parameter: 'Temperature',
-        value: temp,
-      })
-    }
-    if (oxygen < 5) {
-      waterAlerts.push({
-        batchId: record.batchId,
-        parameter: 'Dissolved Oxygen',
-        value: oxygen,
-      })
-    }
-    if (ammonia > 0.02) {
-      waterAlerts.push({
-        batchId: record.batchId,
-        parameter: 'Ammonia',
-        value: ammonia,
-      })
-    }
-  }
+  // Get centralized alerts
+  const { getAllBatchAlerts } = await import('~/lib/monitoring/alerts')
+  const alerts = await getAllBatchAlerts(userId, farmId)
 
   // Top customers - join with sales to filter by farmId
   const topCustomers = await db
@@ -391,22 +260,7 @@ export async function getDashboardStats(
       eggsThisMonth,
       layingPercentage: Math.round(layingPercentage * 10) / 10,
     },
-    alerts: {
-      highMortality,
-      upcomingVaccinations: upcomingVaccinations
-        .filter((v) => v.dueDate)
-        .map((v) => ({
-          ...v,
-          dueDate: v.dueDate!,
-        })),
-      overdueVaccinations: overdueVaccinations
-        .filter((v) => v.dueDate)
-        .map((v) => ({
-          ...v,
-          dueDate: v.dueDate!,
-        })),
-      waterQualityAlerts: waterAlerts.slice(0, 5),
-    },
+    alerts,
     topCustomers: topCustomers.map((c) => ({
       id: c.id,
       name: c.name,

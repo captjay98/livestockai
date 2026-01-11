@@ -1,7 +1,9 @@
 /**
  * Get species options for a livestock type
  */
-export function getSpeciesOptions(livestockType: 'poultry' | 'fish'): Array<string> {
+export function getSpeciesOptions(
+  livestockType: 'poultry' | 'fish',
+): Array<string> {
   if (livestockType === 'poultry') {
     return [
       'Broiler',

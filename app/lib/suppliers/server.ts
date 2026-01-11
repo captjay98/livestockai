@@ -6,7 +6,14 @@ export interface CreateSupplierInput {
   email?: string | null
   location?: string | null
   products: Array<string>
-  supplierType?: 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other' | null
+  supplierType?:
+    | 'hatchery'
+    | 'feed_mill'
+    | 'pharmacy'
+    | 'equipment'
+    | 'fingerlings'
+    | 'other'
+    | null
 }
 
 export interface PaginatedQuery {
@@ -86,7 +93,9 @@ export async function updateSupplier(
 }
 
 export const updateSupplierFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string; data: Partial<CreateSupplierInput> }) => data)
+  .inputValidator(
+    (data: { id: string; data: Partial<CreateSupplierInput> }) => data,
+  )
   .handler(async ({ data }) => {
     return updateSupplier(data.id, data.data)
   })
@@ -121,9 +130,7 @@ export async function getSupplierWithExpenses(supplierId: string) {
   }
 }
 
-export async function getSuppliersPaginated(
-  query: PaginatedQuery = {},
-) {
+export async function getSuppliersPaginated(query: PaginatedQuery = {}) {
   const { db } = await import('~/lib/db')
   const { sql } = await import('kysely')
 
@@ -137,17 +144,23 @@ export async function getSuppliersPaginated(
 
   if (query.search) {
     const searchLower = `%${query.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) => eb.or([
-      eb('suppliers.name', 'ilike', searchLower),
-      eb('suppliers.phone', 'ilike', searchLower),
-      eb('suppliers.location', 'ilike', searchLower),
-      eb('suppliers.email', 'ilike', searchLower),
-    ]))
+    baseQuery = baseQuery.where((eb) =>
+      eb.or([
+        eb('suppliers.name', 'ilike', searchLower),
+        eb('suppliers.phone', 'ilike', searchLower),
+        eb('suppliers.location', 'ilike', searchLower),
+        eb('suppliers.email', 'ilike', searchLower),
+      ]),
+    )
   }
 
   // Apply supplierType filter
   if (query.supplierType) {
-    baseQuery = baseQuery.where('suppliers.supplierType', '=', query.supplierType as any)
+    baseQuery = baseQuery.where(
+      'suppliers.supplierType',
+      '=',
+      query.supplierType as any,
+    )
   }
 
   // Count
@@ -170,7 +183,7 @@ export async function getSuppliersPaginated(
       'suppliers.supplierType',
       'suppliers.createdAt',
       sql<number>`count(expenses.id)`.as('expenseCount'),
-      sql<string>`coalesce(sum(expenses.amount), 0)`.as('totalSpent')
+      sql<string>`coalesce(sum(expenses.amount), 0)`.as('totalSpent'),
     ])
     .groupBy([
       'suppliers.id',
@@ -200,10 +213,10 @@ export async function getSuppliersPaginated(
 
   const rawData = await dataQuery.execute()
 
-  const data = rawData.map(d => ({
+  const data = rawData.map((d) => ({
     ...d,
     expenseCount: Number(d.expenseCount),
-    totalSpent: parseFloat(d.totalSpent || '0')
+    totalSpent: parseFloat(d.totalSpent || '0'),
   }))
 
   return {
@@ -211,7 +224,7 @@ export async function getSuppliersPaginated(
     total,
     page,
     pageSize,
-    totalPages
+    totalPages,
   }
 }
 

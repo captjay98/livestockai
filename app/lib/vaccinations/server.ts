@@ -76,7 +76,9 @@ export async function createVaccination(
 }
 
 export const createVaccinationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; data: CreateVaccinationInput }) => data)
+  .inputValidator(
+    (data: { farmId: string; data: CreateVaccinationInput }) => data,
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
@@ -122,7 +124,9 @@ export async function createTreatment(
 }
 
 export const createTreatmentFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; data: CreateTreatmentInput }) => data)
+  .inputValidator(
+    (data: { farmId: string; data: CreateTreatmentInput }) => data,
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
@@ -163,7 +167,7 @@ export async function getHealthRecordsPaginated(
       'batches.species',
       'batches.livestockType',
       'farms.name as farmName',
-      'batches.farmId'
+      'batches.farmId',
     ])
     .where('batches.farmId', 'in', targetFarmIds)
 
@@ -186,27 +190,39 @@ export async function getHealthRecordsPaginated(
       'batches.species',
       'batches.livestockType',
       'farms.name as farmName',
-      'batches.farmId'
+      'batches.farmId',
     ])
     .where('batches.farmId', 'in', targetFarmIds)
 
   // Apply filters to subqueries if precise, but for Union we usually wrap or Apply to both
   if (query.search) {
     const searchLower = `%${query.search.toLowerCase()}%`
-    vaccinesQuery = vaccinesQuery.where((eb) => eb.or([
-      eb('vaccinations.vaccineName', 'ilike', searchLower),
-      eb('batches.species', 'ilike', searchLower)
-    ]))
-    treatmentsQuery = treatmentsQuery.where((eb) => eb.or([
-      eb('treatments.medicationName', 'ilike', searchLower),
-      eb('treatments.reason', 'ilike', searchLower),
-      eb('batches.species', 'ilike', searchLower)
-    ]))
+    vaccinesQuery = vaccinesQuery.where((eb) =>
+      eb.or([
+        eb('vaccinations.vaccineName', 'ilike', searchLower),
+        eb('batches.species', 'ilike', searchLower),
+      ]),
+    )
+    treatmentsQuery = treatmentsQuery.where((eb) =>
+      eb.or([
+        eb('treatments.medicationName', 'ilike', searchLower),
+        eb('treatments.reason', 'ilike', searchLower),
+        eb('batches.species', 'ilike', searchLower),
+      ]),
+    )
   }
 
   if (query.batchId) {
-    vaccinesQuery = vaccinesQuery.where('vaccinations.batchId', '=', query.batchId)
-    treatmentsQuery = treatmentsQuery.where('treatments.batchId', '=', query.batchId)
+    vaccinesQuery = vaccinesQuery.where(
+      'vaccinations.batchId',
+      '=',
+      query.batchId,
+    )
+    treatmentsQuery = treatmentsQuery.where(
+      'treatments.batchId',
+      '=',
+      query.batchId,
+    )
   }
 
   let finalQuery
@@ -221,7 +237,8 @@ export async function getHealthRecordsPaginated(
   // Get total count
   // For Union, count is tricky in Kysely without a subquery wrapper
   // We'll wrap it in a selection
-  const countResult = await db.selectFrom(finalQuery.as('union_table'))
+  const countResult = await db
+    .selectFrom(finalQuery.as('union_table'))
     .select(sql<number>`count(*)`.as('count'))
     .executeTakeFirst()
 
@@ -232,7 +249,8 @@ export async function getHealthRecordsPaginated(
   const offset = (page - 1) * pageSize
 
   // Get Data
-  let dataQuery = db.selectFrom(finalQuery.as('union_table'))
+  let dataQuery = db
+    .selectFrom(finalQuery.as('union_table'))
     .selectAll()
     .limit(pageSize)
     .offset(offset)
@@ -252,10 +270,9 @@ export async function getHealthRecordsPaginated(
     total,
     page,
     pageSize,
-    totalPages
+    totalPages,
   }
 }
-
 
 export const getHealthRecordsPaginatedFn = createServerFn({ method: 'GET' })
   .inputValidator((data: PaginatedQuery) => data)

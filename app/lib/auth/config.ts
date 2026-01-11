@@ -12,7 +12,7 @@ async function hashPassword(password: string): Promise<string> {
     encoder.encode(password),
     'PBKDF2',
     false,
-    ['deriveBits']
+    ['deriveBits'],
   )
   const hash = await crypto.subtle.deriveBits(
     {
@@ -22,7 +22,7 @@ async function hashPassword(password: string): Promise<string> {
       hash: 'SHA-256',
     },
     keyMaterial,
-    256
+    256,
   )
   const hashArray = new Uint8Array(hash)
   const combined = new Uint8Array(salt.length + hashArray.length)
@@ -31,7 +31,10 @@ async function hashPassword(password: string): Promise<string> {
   return btoa(String.fromCharCode(...combined))
 }
 
-async function verifyPassword(hash: string, password: string): Promise<boolean> {
+async function verifyPassword(
+  hash: string,
+  password: string,
+): Promise<boolean> {
   const encoder = new TextEncoder()
   const combined = Uint8Array.from(atob(hash), (c) => c.charCodeAt(0))
   const salt = combined.slice(0, 16)
@@ -41,7 +44,7 @@ async function verifyPassword(hash: string, password: string): Promise<boolean> 
     encoder.encode(password),
     'PBKDF2',
     false,
-    ['deriveBits']
+    ['deriveBits'],
   )
   const newHash = await crypto.subtle.deriveBits(
     {
@@ -51,7 +54,7 @@ async function verifyPassword(hash: string, password: string): Promise<boolean> 
       hash: 'SHA-256',
     },
     keyMaterial,
-    256
+    256,
   )
   const newHashArray = new Uint8Array(newHash)
   if (storedHash.length !== newHashArray.length) return false

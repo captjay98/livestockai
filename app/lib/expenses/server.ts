@@ -7,18 +7,18 @@ export interface CreateExpenseInput {
   farmId: string
   batchId?: string | null
   category:
-  | 'feed'
-  | 'medicine'
-  | 'equipment'
-  | 'utilities'
-  | 'labor'
-  | 'transport'
-  | 'livestock'
-  | 'livestock_chicken'
-  | 'livestock_fish'
-  | 'maintenance'
-  | 'marketing'
-  | 'other'
+    | 'feed'
+    | 'medicine'
+    | 'equipment'
+    | 'utilities'
+    | 'labor'
+    | 'transport'
+    | 'livestock'
+    | 'livestock_chicken'
+    | 'livestock_fish'
+    | 'maintenance'
+    | 'marketing'
+    | 'other'
   amount: number
   date: Date
   description: string
@@ -93,7 +93,24 @@ export async function createExpense(
       }
     }
 
+    // Log audit inside transaction or outside? Outside is safer for performance, but inside ensures consistency.
+    // However, logAudit creates its own connection usually? No, it uses `db`.
+    // Kysely `tx` is different from `db`. If I use `logAudit` which imports `db`, it might not be in the transaction.
+    // That's fine for audit logs (consistency is good but if the main tx succeeds and audit fails, well...)
+    // Actually, `logAudit` inside `db.transaction()` callback using the global `db` handles it separately.
+    // To match transaction, I would need to pass `tx` to `logAudit`.
+    // For now, I'll log *after* the transaction commits.
     return expense
+  })
+
+  // Log audit
+  const { logAudit } = await import('~/lib/logging/audit')
+  await logAudit({
+    userId,
+    action: 'create',
+    entityType: 'expense',
+    entityId: result.id,
+    details: input,
   })
 
   return result.id
@@ -116,7 +133,7 @@ export async function deleteExpense(userId: string, expenseId: string) {
   const { getUserFarms } = await import('~/lib/auth/utils')
 
   const userFarms = await getUserFarms(userId)
-  const farmIds = userFarms.map(f => f.id)
+  const farmIds = userFarms.map((f) => f.id)
 
   const expense = await db
     .selectFrom('expenses')
@@ -133,6 +150,15 @@ export async function deleteExpense(userId: string, expenseId: string) {
   }
 
   await db.deleteFrom('expenses').where('id', '=', expenseId).execute()
+
+  const { logAudit } = await import('~/lib/logging/audit')
+  await logAudit({
+    userId,
+    action: 'delete',
+    entityType: 'expense',
+    entityId: expenseId,
+    details: { message: 'Expense deleted', snapshot: expense },
+  })
 }
 
 // Server function for client-side calls
@@ -175,7 +201,7 @@ export async function updateExpense(
   if (!farmIds.includes(expense.farmId)) throw new Error('Unauthorized')
 
   // We are not handling complex feed inventory restoration on update for now
-  // Assumes simple field updates. 
+  // Assumes simple field updates.
 
   await db
     .updateTable('expenses')
@@ -186,11 +212,31 @@ export async function updateExpense(
     .where('id', '=', expenseId)
     .execute()
 
+  await db
+    .updateTable('expenses')
+    .set({
+      ...data,
+      amount: data.amount?.toString(),
+    })
+    .where('id', '=', expenseId)
+    .execute()
+
+  const { logAudit } = await import('~/lib/logging/audit')
+  await logAudit({
+    userId,
+    action: 'update',
+    entityType: 'expense',
+    entityId: expenseId,
+    details: data,
+  })
+
   return true
 }
 
 export const updateExpenseFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { expenseId: string; data: UpdateExpenseInput }) => data)
+  .inputValidator(
+    (data: { expenseId: string; data: UpdateExpenseInput }) => data,
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
@@ -242,7 +288,7 @@ export async function getExpenses(
       'suppliers.name as supplierName',
       'batches.species as batchSpecies',
       'batches.livestockType as batchType',
-      'farms.name as farmName'
+      'farms.name as farmName',
     ])
     .where('expenses.farmId', 'in', targetFarmIds)
 
@@ -255,7 +301,6 @@ export async function getExpenses(
 
   return query.orderBy('expenses.date', 'desc').execute()
 }
-
 
 export async function getExpensesForFarm(
   userId: string,
@@ -427,19 +472,21 @@ export interface PaginatedResult<T> {
 export async function getExpensesPaginated(
   userId: string,
   query: PaginatedQuery = {},
-): Promise<PaginatedResult<{
-  id: string
-  farmId: string
-  farmName: string | null
-  category: string
-  amount: string
-  date: Date
-  description: string
-  supplierName: string | null
-  batchSpecies: string | null
-  batchType: string | null
-  isRecurring: boolean
-}>> {
+): Promise<
+  PaginatedResult<{
+    id: string
+    farmId: string
+    farmName: string | null
+    category: string
+    amount: string
+    date: Date
+    description: string
+    supplierName: string | null
+    batchSpecies: string | null
+    batchType: string | null
+    isRecurring: boolean
+  }>
+> {
   const { db } = await import('~/lib/db')
   const { sql } = await import('kysely')
   const { checkFarmAccess, getUserFarms } = await import('~/lib/auth/utils')
@@ -479,7 +526,7 @@ export async function getExpensesPaginated(
         eb('expenses.description', 'ilike', `%${search}%`),
         eb('suppliers.name', 'ilike', `%${search}%`),
         eb('batches.species', 'ilike', `%${search}%`),
-      ])
+      ]),
     )
   }
 
@@ -502,11 +549,15 @@ export async function getExpensesPaginated(
 
   // Apply sorting
   const sortColumn =
-    sortBy === 'amount' ? 'expenses.amount' :
-      sortBy === 'category' ? 'expenses.category' :
-        sortBy === 'description' ? 'expenses.description' :
-          sortBy === 'supplierName' ? 'suppliers.name' :
-            'expenses.date'
+    sortBy === 'amount'
+      ? 'expenses.amount'
+      : sortBy === 'category'
+        ? 'expenses.category'
+        : sortBy === 'description'
+          ? 'expenses.description'
+          : sortBy === 'supplierName'
+            ? 'suppliers.name'
+            : 'expenses.date'
 
   let dataQuery = db
     .selectFrom('expenses')
@@ -535,7 +586,7 @@ export async function getExpensesPaginated(
         eb('expenses.description', 'ilike', `%${search}%`),
         eb('suppliers.name', 'ilike', `%${search}%`),
         eb('batches.species', 'ilike', `%${search}%`),
-      ])
+      ]),
     )
   }
   if (category) {
@@ -553,7 +604,7 @@ export async function getExpensesPaginated(
     .execute()
 
   return {
-    data: data.map(d => ({
+    data: data.map((d) => ({
       ...d,
       farmName: d.farmName || null,
       supplierName: d.supplierName || null,
