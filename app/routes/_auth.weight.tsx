@@ -11,12 +11,11 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/weight/server';
+import type { PaginatedResult } from '~/lib/weight/server'
 import {
-  
   createWeightSampleFn,
   getGrowthAlerts,
-  getWeightRecordsPaginatedFn
+  getWeightRecordsPaginatedFn,
 } from '~/lib/weight/server'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
@@ -94,7 +93,7 @@ const getWeightDataForFarm = createServerFn({ method: 'GET' })
       sortBy?: string
       sortOrder?: 'asc' | 'desc'
       search?: string
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     try {
@@ -135,7 +134,11 @@ export const Route = createFileRoute('/_auth/weight')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
   }),
 })
@@ -145,7 +148,9 @@ function WeightPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedRecords, setPaginatedRecords] = useState<PaginatedResult<any>>({
+  const [paginatedRecords, setPaginatedRecords] = useState<
+    PaginatedResult<any>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -199,7 +204,7 @@ function WeightPage() {
     searchParams.pageSize,
     searchParams.sortBy,
     searchParams.sortOrder,
-    searchParams.q
+    searchParams.q,
   ])
 
   const updateSearch = (updates: Partial<WeightSearchParams>) => {
@@ -253,7 +258,9 @@ function WeightPage() {
       {
         accessorKey: 'species',
         header: 'Batch',
-        cell: ({ row }) => <span className="font-medium">{row.original.species}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.species}</span>
+        ),
       },
       {
         accessorKey: 'averageWeightKg',
@@ -269,11 +276,13 @@ function WeightPage() {
         accessorKey: 'sampleSize',
         header: 'Sample Size',
         cell: ({ row }) => (
-          <span className="text-muted-foreground">{row.original.sampleSize} animals</span>
+          <span className="text-muted-foreground">
+            {row.original.sampleSize} animals
+          </span>
         ),
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -302,7 +311,10 @@ function WeightPage() {
             </CardHeader>
             <CardContent className="py-2 text-sm space-y-2">
               {alerts.map((alert, i) => (
-                <div key={i} className="flex justify-between items-center bg-white p-2 rounded border border-orange-100">
+                <div
+                  key={i}
+                  className="flex justify-between items-center bg-white p-2 rounded border border-orange-100"
+                >
                   <span className="font-medium">{alert.species}</span>
                   <span className="text-muted-foreground">{alert.message}</span>
                 </div>
@@ -430,9 +442,7 @@ function WeightPage() {
               <Button
                 type="submit"
                 disabled={
-                  isSubmitting ||
-                  !formData.batchId ||
-                  !formData.averageWeightKg
+                  isSubmitting || !formData.batchId || !formData.averageWeightKg
                 }
               >
                 {isSubmitting ? 'Saving...' : 'Save Sample'}

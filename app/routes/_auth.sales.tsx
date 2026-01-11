@@ -13,18 +13,16 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult, PaymentStatus} from '~/lib/sales/server';
+import type { PaginatedResult, PaymentStatus } from '~/lib/sales/server'
 import {
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
-  
-  
   UNIT_TYPES,
   createSale,
   deleteSaleFn,
   getSalesPaginated,
   getSalesSummary,
-  updateSaleFn
+  updateSaleFn,
 } from '~/lib/sales/server'
 import { getBatches } from '~/lib/batches/server'
 import { getCustomers } from '~/lib/customers/server'
@@ -124,7 +122,7 @@ const getSalesDataForFarm = createServerFn({ method: 'GET' })
       search?: string
       livestockType?: string
       paymentStatus?: string
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     try {
@@ -170,7 +168,7 @@ const createSaleAction = createServerFn({ method: 'POST' })
       quantity: number
       unitPrice: number
       date: string
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     const session = await requireAuth()
@@ -191,10 +189,20 @@ export const Route = createFileRoute('/_auth/sales')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: typeof search.sortBy === 'string' ? search.sortBy : 'date',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
-    livestockType: typeof search.livestockType === 'string' ? search.livestockType : undefined,
-    paymentStatus: typeof search.paymentStatus === 'string' ? search.paymentStatus : undefined,
+    livestockType:
+      typeof search.livestockType === 'string'
+        ? search.livestockType
+        : undefined,
+    paymentStatus:
+      typeof search.paymentStatus === 'string'
+        ? search.paymentStatus
+        : undefined,
   }),
   component: SalesPage,
 })
@@ -265,7 +273,16 @@ function SalesPage() {
 
   useEffect(() => {
     loadData()
-  }, [selectedFarmId, searchParams.page, searchParams.pageSize, searchParams.sortBy, searchParams.sortOrder, searchParams.q, searchParams.livestockType, searchParams.paymentStatus])
+  }, [
+    selectedFarmId,
+    searchParams.page,
+    searchParams.pageSize,
+    searchParams.sortBy,
+    searchParams.sortOrder,
+    searchParams.q,
+    searchParams.livestockType,
+    searchParams.paymentStatus,
+  ])
 
   const updateSearch = (updates: Partial<SalesSearchParams>) => {
     navigate({
@@ -395,7 +412,8 @@ function SalesPage() {
   }
 
   const getPaymentStatusBadge = (status: string | null) => {
-    const statusInfo = PAYMENT_STATUSES.find(s => s.value === status) || PAYMENT_STATUSES[0]
+    const statusInfo =
+      PAYMENT_STATUSES.find((s) => s.value === status) || PAYMENT_STATUSES[0]
     return (
       <Badge className={`${statusInfo.color} border-0`}>
         {statusInfo.label}
@@ -416,7 +434,9 @@ function SalesPage() {
           >
             {getTypeIcon(row.original.livestockType)}
           </div>
-          <span className="capitalize font-medium">{row.original.livestockType}</span>
+          <span className="capitalize font-medium">
+            {row.original.livestockType}
+          </span>
         </div>
       ),
     },
@@ -576,13 +596,16 @@ function SalesPage() {
                     <SelectTrigger>
                       <SelectValue>
                         {formData.batchId
-                          ? batches.find((b) => b.id === formData.batchId)?.species
+                          ? batches.find((b) => b.id === formData.batchId)
+                              ?.species
                           : 'Select batch'}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {batches
-                        .filter((b) => b.livestockType === formData.livestockType)
+                        .filter(
+                          (b) => b.livestockType === formData.livestockType,
+                        )
                         .map((batch) => (
                           <SelectItem key={batch.id} value={batch.id}>
                             {batch.species} ({batch.currentQuantity} available)
@@ -608,7 +631,8 @@ function SalesPage() {
                     <SelectTrigger>
                       <SelectValue>
                         {formData.customerId
-                          ? customers.find((c) => c.id === formData.customerId)?.name
+                          ? customers.find((c) => c.id === formData.customerId)
+                              ?.name
                           : 'Walk-in customer'}
                       </SelectValue>
                     </SelectTrigger>
@@ -677,11 +701,13 @@ function SalesPage() {
               {formData.quantity && formData.unitPrice && (
                 <div className="p-3 bg-muted rounded-lg">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total:</span>
+                    <span className="text-sm text-muted-foreground">
+                      Total:
+                    </span>
                     <span className="text-lg font-bold text-green-600">
                       {formatNaira(
                         parseInt(formData.quantity || '0') *
-                        parseFloat(formData.unitPrice || '0')
+                          parseFloat(formData.unitPrice || '0'),
                       )}
                     </span>
                   </div>
@@ -807,7 +833,10 @@ function SalesPage() {
             <Select
               value={searchParams.livestockType || 'all'}
               onValueChange={(value) => {
-                updateSearch({ livestockType: value === 'all' ? undefined : value, page: 1 })
+                updateSearch({
+                  livestockType: value === 'all' ? undefined : value,
+                  page: 1,
+                })
               }}
             >
               <SelectTrigger className="w-[140px] h-10">
@@ -838,7 +867,10 @@ function SalesPage() {
             <Select
               value={searchParams.paymentStatus || 'all'}
               onValueChange={(value) => {
-                updateSearch({ paymentStatus: value === 'all' ? undefined : value, page: 1 })
+                updateSearch({
+                  paymentStatus: value === 'all' ? undefined : value,
+                  page: 1,
+                })
               }}
             >
               <SelectTrigger className="w-[140px] h-10">
@@ -849,7 +881,9 @@ function SalesPage() {
                 {PAYMENT_STATUSES.map((status) => (
                   <SelectItem key={status.value} value={status.value}>
                     <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${status.color.split(' ')[1]}`} />
+                      <span
+                        className={`w-2 h-2 rounded-full ${status.color.split(' ')[1]}`}
+                      />
                       {status.label}
                     </div>
                   </SelectItem>
@@ -914,7 +948,14 @@ function SalesPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Quantity:</span>
-                  <span>{selectedSale.quantity} {selectedSale.unitType ? UNIT_TYPES.find(u => u.value === selectedSale.unitType)?.label || selectedSale.unitType : 'units'}</span>
+                  <span>
+                    {selectedSale.quantity}{' '}
+                    {selectedSale.unitType
+                      ? UNIT_TYPES.find(
+                          (u) => u.value === selectedSale.unitType,
+                        )?.label || selectedSale.unitType
+                      : 'units'}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Unit Price:</span>
@@ -922,8 +963,14 @@ function SalesPage() {
                 </div>
                 {selectedSale.paymentMethod && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Payment Method:</span>
-                    <span>{PAYMENT_METHODS.find(m => m.value === selectedSale.paymentMethod)?.label || selectedSale.paymentMethod}</span>
+                    <span className="text-muted-foreground">
+                      Payment Method:
+                    </span>
+                    <span>
+                      {PAYMENT_METHODS.find(
+                        (m) => m.value === selectedSale.paymentMethod,
+                      )?.label || selectedSale.paymentMethod}
+                    </span>
                   </div>
                 )}
                 {selectedSale.ageWeeks && (
@@ -946,7 +993,9 @@ function SalesPage() {
                 </div>
                 {selectedSale.notes && (
                   <div className="pt-2 border-t">
-                    <span className="text-sm text-muted-foreground">Notes:</span>
+                    <span className="text-sm text-muted-foreground">
+                      Notes:
+                    </span>
                     <p className="text-sm mt-1">{selectedSale.notes}</p>
                   </div>
                 )}
@@ -1023,11 +1072,13 @@ function SalesPage() {
             {editFormData.quantity && editFormData.unitPrice && (
               <div className="p-3 bg-muted rounded-lg">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">New Total:</span>
+                  <span className="text-sm text-muted-foreground">
+                    New Total:
+                  </span>
                   <span className="text-lg font-bold text-green-600">
                     {formatNaira(
                       parseInt(editFormData.quantity || '0') *
-                      parseFloat(editFormData.unitPrice || '0')
+                        parseFloat(editFormData.unitPrice || '0'),
                     )}
                   </span>
                 </div>
@@ -1080,8 +1131,8 @@ function SalesPage() {
                     {selectedSale.livestockType} Sale
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {formatNaira(selectedSale.totalAmount)} - {selectedSale.quantity}{' '}
-                    units
+                    {formatNaira(selectedSale.totalAmount)} -{' '}
+                    {selectedSale.quantity} units
                   </p>
                 </div>
               </div>
@@ -1105,6 +1156,6 @@ function SalesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div >
+    </div>
   )
 }

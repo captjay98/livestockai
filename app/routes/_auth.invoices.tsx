@@ -1,13 +1,15 @@
-import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { Eye, FileText, Plus, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/invoices/server';
-import {
-  
-  getInvoicesPaginatedFn
-} from '~/lib/invoices/server'
+import type { PaginatedResult } from '~/lib/invoices/server'
+import { getInvoicesPaginatedFn } from '~/lib/invoices/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
@@ -42,14 +44,16 @@ interface InvoiceSearchParams {
 }
 
 const getInvoiceData = createServerFn({ method: 'GET' })
-  .inputValidator((data: {
-    page?: number
-    pageSize?: number
-    sortBy?: string
-    sortOrder?: 'asc' | 'desc'
-    search?: string
-    status?: 'paid' | 'partial' | 'unpaid'
-  }) => data)
+  .inputValidator(
+    (data: {
+      page?: number
+      pageSize?: number
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+      search?: string
+      status?: 'paid' | 'partial' | 'unpaid'
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       await requireAuth()
@@ -76,9 +80,16 @@ export const Route = createFileRoute('/_auth/invoices')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
-    status: typeof search.status === 'string' ? (search.status as 'paid' | 'partial' | 'unpaid' | 'all') : 'all',
+    status:
+      typeof search.status === 'string'
+        ? (search.status as 'paid' | 'partial' | 'unpaid' | 'all')
+        : 'all',
   }),
 })
 
@@ -86,7 +97,9 @@ function InvoicesPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedInvoices, setPaginatedInvoices] = useState<PaginatedResult<any>>({
+  const [paginatedInvoices, setPaginatedInvoices] = useState<
+    PaginatedResult<any>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -106,7 +119,8 @@ function InvoicesPage() {
           sortBy: searchParams.sortBy,
           sortOrder: searchParams.sortOrder,
           search: searchParams.q,
-          status: searchParams.status === 'all' ? undefined : searchParams.status,
+          status:
+            searchParams.status === 'all' ? undefined : searchParams.status,
         },
       })
       setPaginatedInvoices(result.paginatedInvoices as PaginatedResult<any>)
@@ -125,7 +139,7 @@ function InvoicesPage() {
     searchParams.sortBy,
     searchParams.sortOrder,
     searchParams.q,
-    searchParams.status
+    searchParams.status,
   ])
 
   const updateSearch = (updates: Partial<InvoiceSearchParams>) => {
@@ -142,12 +156,18 @@ function InvoicesPage() {
       {
         accessorKey: 'invoiceNumber',
         header: 'Invoice #',
-        cell: ({ row }) => <span className="font-mono text-xs">{row.original.invoiceNumber}</span>,
+        cell: ({ row }) => (
+          <span className="font-mono text-xs">
+            {row.original.invoiceNumber}
+          </span>
+        ),
       },
       {
         accessorKey: 'customerName',
         header: 'Customer',
-        cell: ({ row }) => <span className="font-medium">{row.original.customerName}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.customerName}</span>
+        ),
       },
       {
         accessorKey: 'date',
@@ -157,13 +177,18 @@ function InvoicesPage() {
       {
         accessorKey: 'dueDate',
         header: 'Due Date',
-        cell: ({ row }) => row.original.dueDate ? new Date(row.original.dueDate).toLocaleDateString() : '-',
+        cell: ({ row }) =>
+          row.original.dueDate
+            ? new Date(row.original.dueDate).toLocaleDateString()
+            : '-',
       },
       {
         accessorKey: 'totalAmount',
         header: 'Amount',
         cell: ({ row }) => (
-          <span className="font-medium">{formatNaira(row.original.totalAmount)}</span>
+          <span className="font-medium">
+            {formatNaira(row.original.totalAmount)}
+          </span>
         ),
       },
       {
@@ -172,16 +197,22 @@ function InvoicesPage() {
         cell: ({ row }) => (
           <Badge
             variant={
-              row.original.status === 'paid' ? 'default' :
-                row.original.status === 'partial' ? 'secondary' : 'destructive'
+              row.original.status === 'paid'
+                ? 'default'
+                : row.original.status === 'partial'
+                  ? 'secondary'
+                  : 'destructive'
             }
             className={
-              row.original.status === 'paid' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
-                row.original.status === 'partial' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100' :
-                  'bg-red-100 text-red-800 hover:bg-red-100'
+              row.original.status === 'paid'
+                ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                : row.original.status === 'partial'
+                  ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
+                  : 'bg-red-100 text-red-800 hover:bg-red-100'
             }
           >
-            {row.original.status.charAt(0).toUpperCase() + row.original.status.slice(1)}
+            {row.original.status.charAt(0).toUpperCase() +
+              row.original.status.slice(1)}
           </Badge>
         ),
       },
@@ -189,11 +220,7 @@ function InvoicesPage() {
         id: 'actions',
         cell: ({ row }) => (
           <div className="flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-            >
+            <Button variant="ghost" size="sm" asChild>
               <Link to={`/invoices/${row.original.id}`}>
                 <Eye className="h-4 w-4 mr-2" />
                 View
@@ -203,7 +230,7 @@ function InvoicesPage() {
         ),
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -211,9 +238,7 @@ function InvoicesPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage customer invoices
-          </p>
+          <p className="text-muted-foreground mt-1">Manage customer invoices</p>
         </div>
         <Button asChild>
           <Link to="/invoices/new">

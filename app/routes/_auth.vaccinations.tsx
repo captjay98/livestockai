@@ -10,27 +10,21 @@ import {
   Pill,
   Plus,
   Syringe,
-  Trash2
+  Trash2,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/vaccinations/server';
+import type { PaginatedResult } from '~/lib/vaccinations/server'
 import {
-  
   createTreatmentFn,
   createVaccinationFn,
   getHealthRecordsPaginated,
-  getVaccinationAlerts
+  getVaccinationAlerts,
 } from '~/lib/vaccinations/server'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -50,12 +44,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '~/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/components/farm-context'
 
@@ -109,7 +98,7 @@ const getHealthDataForFarm = createServerFn({ method: 'GET' })
       sortOrder?: 'asc' | 'desc'
       search?: string
       type?: 'all' | 'vaccination' | 'treatment'
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     try {
@@ -124,7 +113,7 @@ const getHealthDataForFarm = createServerFn({ method: 'GET' })
           sortBy: data.sortBy,
           sortOrder: data.sortOrder,
           search: data.search,
-          type: data.type
+          type: data.type,
         }),
         getVaccinationAlerts(session.user.id, farmId),
         getBatches(session.user.id, farmId),
@@ -151,7 +140,11 @@ export const Route = createFileRoute('/_auth/vaccinations')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
     type: search.type ? (search.type as any) : 'all',
   }),
@@ -162,7 +155,9 @@ function HealthPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedRecords, setPaginatedRecords] = useState<PaginatedResult<any>>({
+  const [paginatedRecords, setPaginatedRecords] = useState<
+    PaginatedResult<any>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -183,7 +178,7 @@ function HealthPage() {
     dateAdministered: new Date().toISOString().split('T')[0],
     dosage: '',
     nextDueDate: '',
-    notes: ''
+    notes: '',
   })
 
   const [treatmentForm, setTreatmentForm] = useState({
@@ -193,7 +188,7 @@ function HealthPage() {
     date: new Date().toISOString().split('T')[0],
     dosage: '',
     withdrawalDays: '0',
-    notes: ''
+    notes: '',
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -232,7 +227,7 @@ function HealthPage() {
     searchParams.sortBy,
     searchParams.sortOrder,
     searchParams.q,
-    searchParams.type
+    searchParams.type,
   ])
 
   const updateSearch = (updates: Partial<HealthSearchParams>) => {
@@ -257,9 +252,11 @@ function HealthPage() {
           vaccineName: vaccineForm.vaccineName,
           dateAdministered: new Date(vaccineForm.dateAdministered),
           dosage: vaccineForm.dosage,
-          nextDueDate: vaccineForm.nextDueDate ? new Date(vaccineForm.nextDueDate) : undefined,
-          notes: vaccineForm.notes
-        }
+          nextDueDate: vaccineForm.nextDueDate
+            ? new Date(vaccineForm.nextDueDate)
+            : undefined,
+          notes: vaccineForm.notes,
+        },
       })
       setVaccinationDialogOpen(false)
       setVaccineForm({
@@ -268,7 +265,7 @@ function HealthPage() {
         dateAdministered: new Date().toISOString().split('T')[0],
         dosage: '',
         nextDueDate: '',
-        notes: ''
+        notes: '',
       })
       loadData()
     } catch (err) {
@@ -293,8 +290,8 @@ function HealthPage() {
           date: new Date(treatmentForm.date),
           dosage: treatmentForm.dosage,
           withdrawalDays: parseInt(treatmentForm.withdrawalDays),
-          notes: treatmentForm.notes
-        }
+          notes: treatmentForm.notes,
+        },
       })
       setTreatmentDialogOpen(false)
       setTreatmentForm({
@@ -304,7 +301,7 @@ function HealthPage() {
         date: new Date().toISOString().split('T')[0],
         dosage: '',
         withdrawalDays: '0',
-        notes: ''
+        notes: '',
       })
       loadData()
     } catch (err) {
@@ -325,11 +322,24 @@ function HealthPage() {
         accessorKey: 'type',
         header: 'Type',
         cell: ({ row }) => (
-          <Badge variant={row.original.type === 'vaccination' ? 'default' : 'secondary'} className={row.original.type === 'treatment' ? 'bg-orange-100 text-orange-800 hover:bg-orange-200' : ''}>
+          <Badge
+            variant={
+              row.original.type === 'vaccination' ? 'default' : 'secondary'
+            }
+            className={
+              row.original.type === 'treatment'
+                ? 'bg-orange-100 text-orange-800 hover:bg-orange-200'
+                : ''
+            }
+          >
             {row.original.type === 'vaccination' ? (
-              <><Syringe className="h-3 w-3 mr-1" /> Prevention</>
+              <>
+                <Syringe className="h-3 w-3 mr-1" /> Prevention
+              </>
             ) : (
-              <><Pill className="h-3 w-3 mr-1" /> Treatment</>
+              <>
+                <Pill className="h-3 w-3 mr-1" /> Treatment
+              </>
             )}
           </Badge>
         ),
@@ -342,7 +352,11 @@ function HealthPage() {
       {
         accessorKey: 'species',
         header: 'Batch',
-        cell: ({ row }) => <span className="font-medium text-muted-foreground">{row.original.species}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium text-muted-foreground">
+            {row.original.species}
+          </span>
+        ),
       },
       {
         id: 'details',
@@ -360,15 +374,17 @@ function HealthPage() {
             return (
               <div className="text-xs text-muted-foreground">
                 {row.original.reason && <span>for {row.original.reason}</span>}
-                {row.original.withdrawalDays ? ` • ${row.original.withdrawalDays}d withdrawal` : ''}
+                {row.original.withdrawalDays
+                  ? ` • ${row.original.withdrawalDays}d withdrawal`
+                  : ''}
               </div>
             )
           }
           return null
-        }
+        },
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -385,7 +401,10 @@ function HealthPage() {
             <Syringe className="h-4 w-4 mr-2" />
             Vaccinate
           </Button>
-          <Button variant="outline" onClick={() => setTreatmentDialogOpen(true)}>
+          <Button
+            variant="outline"
+            onClick={() => setTreatmentDialogOpen(true)}
+          >
             <Pill className="h-4 w-4 mr-2" />
             Treat
           </Button>
@@ -405,8 +424,12 @@ function HealthPage() {
               <CardContent className="py-2 text-sm space-y-2">
                 {alerts.overdue.map((a: any) => (
                   <div key={a.id} className="flex justify-between items-center">
-                    <span>{a.vaccineName} ({a.species})</span>
-                    <span className="font-medium">{new Date(a.nextDueDate).toLocaleDateString()}</span>
+                    <span>
+                      {a.vaccineName} ({a.species})
+                    </span>
+                    <span className="font-medium">
+                      {new Date(a.nextDueDate).toLocaleDateString()}
+                    </span>
                   </div>
                 ))}
               </CardContent>
@@ -423,8 +446,12 @@ function HealthPage() {
               <CardContent className="py-2 text-sm space-y-2">
                 {alerts.upcoming.map((a: any) => (
                   <div key={a.id} className="flex justify-between items-center">
-                    <span>{a.vaccineName} ({a.species})</span>
-                    <span className="font-medium">{new Date(a.nextDueDate).toLocaleDateString()}</span>
+                    <span>
+                      {a.vaccineName} ({a.species})
+                    </span>
+                    <span className="font-medium">
+                      {new Date(a.nextDueDate).toLocaleDateString()}
+                    </span>
                   </div>
                 ))}
               </CardContent>
@@ -447,7 +474,13 @@ function HealthPage() {
         isLoading={isLoading}
         filters={
           <div className="flex items-center space-x-2">
-            <Tabs value={searchParams.type} onValueChange={(val) => updateSearch({ type: val as any, page: 1 })} className="w-auto">
+            <Tabs
+              value={searchParams.type}
+              onValueChange={(val) =>
+                updateSearch({ type: val as any, page: 1 })
+              }
+              className="w-auto"
+            >
               <TabsList>
                 <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="vaccination">Vaccinations</TabsTrigger>
@@ -471,7 +504,10 @@ function HealthPage() {
       />
 
       {/* Vaccination Dialog */}
-      <Dialog open={vaccinationDialogOpen} onOpenChange={setVaccinationDialogOpen}>
+      <Dialog
+        open={vaccinationDialogOpen}
+        onOpenChange={setVaccinationDialogOpen}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Record Vaccination</DialogTitle>
@@ -481,41 +517,101 @@ function HealthPage() {
               <Label>Batch</Label>
               <Select
                 value={vaccineForm.batchId}
-                onValueChange={(val) => setVaccineForm(prev => ({ ...prev, batchId: val }))}
+                onValueChange={(val) =>
+                  setVaccineForm((prev) => ({ ...prev, batchId: val }))
+                }
               >
-                <SelectTrigger><SelectValue placeholder="Select Batch" /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Batch" />
+                </SelectTrigger>
                 <SelectContent>
-                  {batches.map(b => (
-                    <SelectItem key={b.id} value={b.id}>{b.species} ({b.currentQuantity})</SelectItem>
+                  {batches.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.species} ({b.currentQuantity})
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Vaccine Name</Label>
-              <Input value={vaccineForm.vaccineName} onChange={e => setVaccineForm(prev => ({ ...prev, vaccineName: e.target.value }))} required />
+              <Input
+                value={vaccineForm.vaccineName}
+                onChange={(e) =>
+                  setVaccineForm((prev) => ({
+                    ...prev,
+                    vaccineName: e.target.value,
+                  }))
+                }
+                required
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Date</Label>
-                <Input type="date" value={vaccineForm.dateAdministered} onChange={e => setVaccineForm(prev => ({ ...prev, dateAdministered: e.target.value }))} required />
+                <Input
+                  type="date"
+                  value={vaccineForm.dateAdministered}
+                  onChange={(e) =>
+                    setVaccineForm((prev) => ({
+                      ...prev,
+                      dateAdministered: e.target.value,
+                    }))
+                  }
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label>Dosage</Label>
-                <Input value={vaccineForm.dosage} onChange={e => setVaccineForm(prev => ({ ...prev, dosage: e.target.value }))} required placeholder="e.g. 10ml" />
+                <Input
+                  value={vaccineForm.dosage}
+                  onChange={(e) =>
+                    setVaccineForm((prev) => ({
+                      ...prev,
+                      dosage: e.target.value,
+                    }))
+                  }
+                  required
+                  placeholder="e.g. 10ml"
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Next Due Date (Optional)</Label>
-              <Input type="date" value={vaccineForm.nextDueDate} onChange={e => setVaccineForm(prev => ({ ...prev, nextDueDate: e.target.value }))} />
+              <Input
+                type="date"
+                value={vaccineForm.nextDueDate}
+                onChange={(e) =>
+                  setVaccineForm((prev) => ({
+                    ...prev,
+                    nextDueDate: e.target.value,
+                  }))
+                }
+              />
             </div>
             <div className="space-y-2">
               <Label>Notes</Label>
-              <Textarea value={vaccineForm.notes} onChange={e => setVaccineForm(prev => ({ ...prev, notes: e.target.value }))} />
+              <Textarea
+                value={vaccineForm.notes}
+                onChange={(e) =>
+                  setVaccineForm((prev) => ({ ...prev, notes: e.target.value }))
+                }
+              />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setVaccinationDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting || !vaccineForm.batchId}>Save</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setVaccinationDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !vaccineForm.batchId}
+              >
+                Save
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -532,45 +628,119 @@ function HealthPage() {
               <Label>Batch</Label>
               <Select
                 value={treatmentForm.batchId}
-                onValueChange={(val) => setTreatmentForm(prev => ({ ...prev, batchId: val }))}
+                onValueChange={(val) =>
+                  setTreatmentForm((prev) => ({ ...prev, batchId: val }))
+                }
               >
-                <SelectTrigger><SelectValue placeholder="Select Batch" /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Batch" />
+                </SelectTrigger>
                 <SelectContent>
-                  {batches.map(b => (
-                    <SelectItem key={b.id} value={b.id}>{b.species} ({b.currentQuantity})</SelectItem>
+                  {batches.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.species} ({b.currentQuantity})
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Medication Name</Label>
-              <Input value={treatmentForm.medicationName} onChange={e => setTreatmentForm(prev => ({ ...prev, medicationName: e.target.value }))} required />
+              <Input
+                value={treatmentForm.medicationName}
+                onChange={(e) =>
+                  setTreatmentForm((prev) => ({
+                    ...prev,
+                    medicationName: e.target.value,
+                  }))
+                }
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label>Reason</Label>
-              <Input value={treatmentForm.reason} onChange={e => setTreatmentForm(prev => ({ ...prev, reason: e.target.value }))} required placeholder="e.g. Infection" />
+              <Input
+                value={treatmentForm.reason}
+                onChange={(e) =>
+                  setTreatmentForm((prev) => ({
+                    ...prev,
+                    reason: e.target.value,
+                  }))
+                }
+                required
+                placeholder="e.g. Infection"
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Date</Label>
-                <Input type="date" value={treatmentForm.date} onChange={e => setTreatmentForm(prev => ({ ...prev, date: e.target.value }))} required />
+                <Input
+                  type="date"
+                  value={treatmentForm.date}
+                  onChange={(e) =>
+                    setTreatmentForm((prev) => ({
+                      ...prev,
+                      date: e.target.value,
+                    }))
+                  }
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label>Dosage</Label>
-                <Input value={treatmentForm.dosage} onChange={e => setTreatmentForm(prev => ({ ...prev, dosage: e.target.value }))} required placeholder="e.g. 2 tabs" />
+                <Input
+                  value={treatmentForm.dosage}
+                  onChange={(e) =>
+                    setTreatmentForm((prev) => ({
+                      ...prev,
+                      dosage: e.target.value,
+                    }))
+                  }
+                  required
+                  placeholder="e.g. 2 tabs"
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Withdrawal Period (Days)</Label>
-              <Input type="number" min="0" value={treatmentForm.withdrawalDays} onChange={e => setTreatmentForm(prev => ({ ...prev, withdrawalDays: e.target.value }))} />
+              <Input
+                type="number"
+                min="0"
+                value={treatmentForm.withdrawalDays}
+                onChange={(e) =>
+                  setTreatmentForm((prev) => ({
+                    ...prev,
+                    withdrawalDays: e.target.value,
+                  }))
+                }
+              />
             </div>
             <div className="space-y-2">
               <Label>Notes</Label>
-              <Textarea value={treatmentForm.notes} onChange={e => setTreatmentForm(prev => ({ ...prev, notes: e.target.value }))} />
+              <Textarea
+                value={treatmentForm.notes}
+                onChange={(e) =>
+                  setTreatmentForm((prev) => ({
+                    ...prev,
+                    notes: e.target.value,
+                  }))
+                }
+              />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setTreatmentDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting || !treatmentForm.batchId}>Save</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setTreatmentDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !treatmentForm.batchId}
+              >
+                Save
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

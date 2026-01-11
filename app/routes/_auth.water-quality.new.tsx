@@ -296,13 +296,13 @@ function NewWaterQualityPage() {
                 'temperatureCelsius',
                 formData.temperatureCelsius,
               ) && (
-                  <p className="text-sm text-warning">
-                    {getWarning(
-                      'temperatureCelsius',
-                      formData.temperatureCelsius,
-                    )}
-                  </p>
-                )}
+                <p className="text-sm text-warning">
+                  {getWarning(
+                    'temperatureCelsius',
+                    formData.temperatureCelsius,
+                  )}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -328,13 +328,13 @@ function NewWaterQualityPage() {
                 'dissolvedOxygenMgL',
                 formData.dissolvedOxygenMgL,
               ) && (
-                  <p className="text-sm text-warning">
-                    {getWarning(
-                      'dissolvedOxygenMgL',
-                      formData.dissolvedOxygenMgL,
-                    )}
-                  </p>
-                )}
+                <p className="text-sm text-warning">
+                  {getWarning(
+                    'dissolvedOxygenMgL',
+                    formData.dissolvedOxygenMgL,
+                  )}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">

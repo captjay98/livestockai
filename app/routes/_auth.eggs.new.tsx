@@ -142,10 +142,10 @@ function NewEggPage() {
   const layingPercentage =
     selectedBatch && formData.quantityCollected
       ? (
-        (parseInt(formData.quantityCollected) /
-          selectedBatch.currentQuantity) *
-        100
-      ).toFixed(1)
+          (parseInt(formData.quantityCollected) /
+            selectedBatch.currentQuantity) *
+          100
+        ).toFixed(1)
       : null
 
   return (

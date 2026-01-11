@@ -2,15 +2,12 @@ import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
-import type {PaymentMethod, PaymentStatus, UnitType} from '~/lib/sales/server';
+import type { PaymentMethod, PaymentStatus, UnitType } from '~/lib/sales/server'
 import {
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
-  
-  
   UNIT_TYPES,
-  
-  createSale
+  createSale,
 } from '~/lib/sales/server'
 import { getBatches } from '~/lib/batches/server'
 import { getCustomers } from '~/lib/customers/server'
@@ -104,8 +101,12 @@ const createSaleAction = createServerFn({ method: 'POST' })
         unitType: data.unitType ? (data.unitType as UnitType) : null,
         ageWeeks: data.ageWeeks || null,
         averageWeightKg: data.averageWeightKg || null,
-        paymentStatus: data.paymentStatus ? (data.paymentStatus as PaymentStatus) : 'paid',
-        paymentMethod: data.paymentMethod ? (data.paymentMethod as PaymentMethod) : null,
+        paymentStatus: data.paymentStatus
+          ? (data.paymentStatus as PaymentStatus)
+          : 'paid',
+        paymentMethod: data.paymentMethod
+          ? (data.paymentMethod as PaymentMethod)
+          : null,
       })
       return { success: true, id }
     } catch (error) {
@@ -179,7 +180,9 @@ function NewSalePage() {
           // Enhanced fields
           unitType: formData.unitType || undefined,
           ageWeeks: formData.ageWeeks ? parseInt(formData.ageWeeks) : undefined,
-          averageWeightKg: formData.averageWeightKg ? parseFloat(formData.averageWeightKg) : undefined,
+          averageWeightKg: formData.averageWeightKg
+            ? parseFloat(formData.averageWeightKg)
+            : undefined,
           paymentStatus: formData.paymentStatus,
           paymentMethod: formData.paymentMethod || undefined,
         },
@@ -263,8 +266,8 @@ function NewSalePage() {
                       <SelectValue>
                         {formData.batchId
                           ? filteredBatches.find(
-                            (b) => b.id === formData.batchId,
-                          )?.species
+                              (b) => b.id === formData.batchId,
+                            )?.species
                           : 'Select batch to deduct from'}
                       </SelectValue>
                     </SelectTrigger>
@@ -291,7 +294,7 @@ function NewSalePage() {
                   <SelectValue>
                     {formData.customerId
                       ? customers.find((c) => c.id === formData.customerId)
-                        ?.name
+                          ?.name
                       : 'Select customer'}
                   </SelectValue>
                 </SelectTrigger>
@@ -364,7 +367,11 @@ function NewSalePage() {
               <Select
                 value={formData.paymentStatus}
                 onValueChange={(value) =>
-                  value && setFormData((prev) => ({ ...prev, paymentStatus: value as PaymentStatus }))
+                  value &&
+                  setFormData((prev) => ({
+                    ...prev,
+                    paymentStatus: value as PaymentStatus,
+                  }))
                 }
               >
                 <SelectTrigger>
@@ -373,7 +380,9 @@ function NewSalePage() {
                 <SelectContent>
                   {PAYMENT_STATUSES.map((status) => (
                     <SelectItem key={status.value} value={status.value}>
-                      <span className={`px-2 py-0.5 rounded text-xs ${status.color}`}>
+                      <span
+                        className={`px-2 py-0.5 rounded text-xs ${status.color}`}
+                      >
                         {status.label}
                       </span>
                     </SelectItem>
@@ -388,7 +397,11 @@ function NewSalePage() {
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {showAdvanced ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
               {showAdvanced ? 'Hide' : 'Show'} additional details
             </button>
 
@@ -401,7 +414,10 @@ function NewSalePage() {
                     <Select
                       value={formData.unitType || undefined}
                       onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, unitType: value as UnitType }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          unitType: value as UnitType,
+                        }))
                       }
                     >
                       <SelectTrigger>
@@ -421,7 +437,10 @@ function NewSalePage() {
                     <Select
                       value={formData.paymentMethod || undefined}
                       onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, paymentMethod: value as PaymentMethod }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          paymentMethod: value as PaymentMethod,
+                        }))
                       }
                     >
                       <SelectTrigger>
@@ -445,7 +464,10 @@ function NewSalePage() {
                       min="0"
                       value={formData.ageWeeks}
                       onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, ageWeeks: e.target.value }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          ageWeeks: e.target.value,
+                        }))
                       }
                       placeholder="e.g., 8"
                     />
@@ -458,7 +480,10 @@ function NewSalePage() {
                       step="0.01"
                       value={formData.averageWeightKg}
                       onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, averageWeightKg: e.target.value }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          averageWeightKg: e.target.value,
+                        }))
                       }
                       placeholder="e.g., 2.5"
                     />
@@ -469,7 +494,10 @@ function NewSalePage() {
                   <Input
                     value={formData.notes}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
                     }
                     placeholder="Additional notes about this sale"
                   />

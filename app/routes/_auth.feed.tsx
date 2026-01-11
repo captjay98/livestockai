@@ -13,27 +13,21 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/feed/server';
+import type { PaginatedResult } from '~/lib/feed/server'
 import {
-  
   createFeedRecord,
   deleteFeedRecordFn,
   getFeedInventory,
   getFeedRecordsPaginated,
   getFeedStats,
-  updateFeedRecordFn
+  updateFeedRecordFn,
 } from '~/lib/feed/server'
 import { FEED_TYPES } from '~/lib/feed/constants'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -119,19 +113,20 @@ const getFeedDataForFarm = createServerFn({ method: 'GET' })
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 
-      const [paginatedRecords, allBatches, inventory, summary] = await Promise.all([
-        getFeedRecordsPaginated(session.user.id, {
-          farmId,
-          page: data.page,
-          pageSize: data.pageSize,
-          sortBy: data.sortBy,
-          sortOrder: data.sortOrder,
-          search: data.feedType ? data.feedType : data.search, // Basic search sharing
-        }),
-        getBatches(session.user.id, farmId),
-        getFeedInventory(session.user.id, farmId),
-        getFeedStats(session.user.id, farmId),
-      ])
+      const [paginatedRecords, allBatches, inventory, summary] =
+        await Promise.all([
+          getFeedRecordsPaginated(session.user.id, {
+            farmId,
+            page: data.page,
+            pageSize: data.pageSize,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            search: data.feedType ? data.feedType : data.search, // Basic search sharing
+          }),
+          getBatches(session.user.id, farmId),
+          getFeedInventory(session.user.id, farmId),
+          getFeedStats(session.user.id, farmId),
+        ])
 
       const batches = allBatches.filter((b) => b.status === 'active')
 
@@ -185,7 +180,11 @@ export const Route = createFileRoute('/_auth/feed')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
     feedType: typeof search.feedType === 'string' ? search.feedType : undefined,
   }),
@@ -196,7 +195,9 @@ function FeedPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedRecords, setPaginatedRecords] = useState<PaginatedResult<any>>({
+  const [paginatedRecords, setPaginatedRecords] = useState<
+    PaginatedResult<any>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -412,7 +413,9 @@ function FeedPage() {
               {row.original.batchName || row.original.species}
             </div>
             {row.original.batchName && (
-              <span className="text-xs text-muted-foreground capitalize">{row.original.species}</span>
+              <span className="text-xs text-muted-foreground capitalize">
+                {row.original.species}
+              </span>
             )}
           </div>
         ),
@@ -421,20 +424,25 @@ function FeedPage() {
         accessorKey: 'brandName',
         header: 'Brand / Type',
         cell: ({ row }) => {
-          const feedTypeLabel = row.original.feedType.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          const feedTypeLabel = row.original.feedType
+            .split('_')
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ')
           return (
             <div className="flex flex-col">
               {row.original.brandName ? (
                 <>
                   <span className="font-medium">{row.original.brandName}</span>
-                  <span className="text-xs text-muted-foreground">{feedTypeLabel}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {feedTypeLabel}
+                  </span>
                 </>
               ) : (
                 <Badge variant="secondary">{feedTypeLabel}</Badge>
               )}
             </div>
           )
-        }
+        },
       },
       {
         accessorKey: 'quantityKg',
@@ -458,7 +466,10 @@ function FeedPage() {
       {
         accessorKey: 'supplierName',
         header: 'Supplier',
-        cell: ({ row }) => row.original.supplierName || <span className="text-muted-foreground">—</span>,
+        cell: ({ row }) =>
+          row.original.supplierName || (
+            <span className="text-muted-foreground">—</span>
+          ),
       },
       {
         accessorKey: 'cost',
@@ -490,7 +501,7 @@ function FeedPage() {
         ),
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -579,7 +590,10 @@ function FeedPage() {
           <Select
             value={searchParams.feedType || 'all'}
             onValueChange={(value) => {
-              updateSearch({ feedType: value === 'all' ? undefined : value, page: 1 })
+              updateSearch({
+                feedType: value === 'all' ? undefined : value,
+                page: 1,
+              })
             }}
           >
             <SelectTrigger className="w-[180px] h-10">
@@ -661,7 +675,12 @@ function FeedPage() {
               </Select>
               {formData.feedType && (
                 <p className="text-xs text-muted-foreground">
-                  Available: {parseFloat(inventory.find(i => i.feedType === formData.feedType)?.quantityKg || '0').toLocaleString()} kg
+                  Available:{' '}
+                  {parseFloat(
+                    inventory.find((i) => i.feedType === formData.feedType)
+                      ?.quantityKg || '0',
+                  ).toLocaleString()}{' '}
+                  kg
                 </p>
               )}
             </div>
@@ -755,9 +774,13 @@ function FeedPage() {
               <div className="space-y-2">
                 <Label>Batch</Label>
                 <Select value={editFormData.batchId} disabled>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={selectedRecord.batchId}>{selectedRecord.species}</SelectItem>
+                    <SelectItem value={selectedRecord.batchId}>
+                      {selectedRecord.species}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -765,12 +788,18 @@ function FeedPage() {
                 <Label>Feed Type</Label>
                 <Select
                   value={editFormData.feedType}
-                  onValueChange={(val) => setEditFormData(prev => ({ ...prev, feedType: val }))}
+                  onValueChange={(val) =>
+                    setEditFormData((prev) => ({ ...prev, feedType: val }))
+                  }
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {FEED_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -780,7 +809,12 @@ function FeedPage() {
                 <Input
                   type="number"
                   value={editFormData.quantityKg}
-                  onChange={e => setEditFormData(prev => ({ ...prev, quantityKg: e.target.value }))}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      quantityKg: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -788,7 +822,12 @@ function FeedPage() {
                 <Input
                   type="number"
                   value={editFormData.cost}
-                  onChange={e => setEditFormData(prev => ({ ...prev, cost: e.target.value }))}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      cost: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -796,12 +835,25 @@ function FeedPage() {
                 <Input
                   type="date"
                   value={editFormData.date}
-                  onChange={e => setEditFormData(prev => ({ ...prev, date: e.target.value }))}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      date: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={isSubmitting}>Save Changes</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  Save Changes
+                </Button>
               </DialogFooter>
             </form>
           )}
@@ -816,8 +868,15 @@ function FeedPage() {
             <DialogDescription>Are you sure?</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>Delete</Button>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

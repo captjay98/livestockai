@@ -9,28 +9,22 @@ import {
   Package,
   Plus,
   Trash2,
-  TrendingUp
+  TrendingUp,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/eggs/server';
+import type { PaginatedResult } from '~/lib/eggs/server'
 import {
-  
   createEggRecord,
   deleteEggRecordFn,
   getEggRecordsPaginated,
   getEggRecordsSummary,
-  updateEggRecordFn
+  updateEggRecordFn,
 } from '~/lib/eggs/server'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -93,7 +87,7 @@ const getEggDataForFarm = createServerFn({ method: 'GET' })
       sortBy?: string
       sortOrder?: 'asc' | 'desc'
       search?: string
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     try {
@@ -166,7 +160,11 @@ export const Route = createFileRoute('/_auth/eggs')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
   }),
 })
@@ -176,7 +174,9 @@ function EggsPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedRecords, setPaginatedRecords] = useState<PaginatedResult<any>>({
+  const [paginatedRecords, setPaginatedRecords] = useState<
+    PaginatedResult<any>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -248,7 +248,7 @@ function EggsPage() {
     searchParams.pageSize,
     searchParams.sortBy,
     searchParams.sortOrder,
-    searchParams.q
+    searchParams.q,
   ])
 
   const updateSearch = (updates: Partial<EggSearchParams>) => {
@@ -324,8 +324,8 @@ function EggsPage() {
             quantityCollected: parseInt(editFormData.quantityCollected),
             quantityBroken: parseInt(editFormData.quantityBroken),
             quantitySold: parseInt(editFormData.quantitySold),
-          }
-        }
+          },
+        },
       })
       setEditDialogOpen(false)
       loadData()
@@ -343,8 +343,8 @@ function EggsPage() {
       await deleteEggRecordFn({
         data: {
           farmId: selectedFarmId,
-          recordId: selectedRecord.id
-        }
+          recordId: selectedRecord.id,
+        },
       })
       setDeleteDialogOpen(false)
       loadData()
@@ -385,7 +385,11 @@ function EggsPage() {
         accessorKey: 'quantityBroken',
         header: 'Broken',
         cell: ({ row }) => (
-          <Badge variant={row.original.quantityBroken > 0 ? "destructive" : "secondary"}>
+          <Badge
+            variant={
+              row.original.quantityBroken > 0 ? 'destructive' : 'secondary'
+            }
+          >
             {row.original.quantityBroken}
           </Badge>
         ),
@@ -410,7 +414,10 @@ function EggsPage() {
               variant="ghost"
               size="icon"
               className="text-destructive hover:text-destructive"
-              onClick={() => { setSelectedRecord(row.original); setDeleteDialogOpen(true); }}
+              onClick={() => {
+                setSelectedRecord(row.original)
+                setDeleteDialogOpen(true)
+              }}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -418,7 +425,7 @@ function EggsPage() {
         ),
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -657,25 +664,69 @@ function EggsPage() {
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>Date</Label>
-                <Input type="date" value={editFormData.date} onChange={e => setEditFormData(prev => ({ ...prev, date: e.target.value }))} />
+                <Input
+                  type="date"
+                  value={editFormData.date}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      date: e.target.value,
+                    }))
+                  }
+                />
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Collected</Label>
-                  <Input type="number" value={editFormData.quantityCollected} onChange={e => setEditFormData(prev => ({ ...prev, quantityCollected: e.target.value }))} />
+                  <Input
+                    type="number"
+                    value={editFormData.quantityCollected}
+                    onChange={(e) =>
+                      setEditFormData((prev) => ({
+                        ...prev,
+                        quantityCollected: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Broken</Label>
-                  <Input type="number" value={editFormData.quantityBroken} onChange={e => setEditFormData(prev => ({ ...prev, quantityBroken: e.target.value }))} />
+                  <Input
+                    type="number"
+                    value={editFormData.quantityBroken}
+                    onChange={(e) =>
+                      setEditFormData((prev) => ({
+                        ...prev,
+                        quantityBroken: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Sold</Label>
-                  <Input type="number" value={editFormData.quantitySold} onChange={e => setEditFormData(prev => ({ ...prev, quantitySold: e.target.value }))} />
+                  <Input
+                    type="number"
+                    value={editFormData.quantitySold}
+                    onChange={(e) =>
+                      setEditFormData((prev) => ({
+                        ...prev,
+                        quantitySold: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={isSubmitting}>Save Changes</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  Save Changes
+                </Button>
               </DialogFooter>
             </form>
           )}
@@ -690,8 +741,15 @@ function EggsPage() {
             <DialogDescription>Are you sure?</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>Delete</Button>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -197,7 +197,7 @@ function NewFeedPage() {
                   <SelectValue>
                     {formData.feedType
                       ? FEED_TYPES.find((t) => t.value === formData.feedType)
-                        ?.label
+                          ?.label
                       : 'Select feed type'}
                   </SelectValue>
                 </SelectTrigger>

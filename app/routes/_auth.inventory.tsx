@@ -11,24 +11,22 @@ import {
   Warehouse,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import type {FeedType} from '~/lib/feed-inventory/server';
-import type {MedicationUnit} from '~/lib/medication-inventory/server';
+import type { FeedType } from '~/lib/feed-inventory/server'
+import type { MedicationUnit } from '~/lib/medication-inventory/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import {
   FEED_TYPES,
-  
   createFeedInventoryFn,
   deleteFeedInventoryFn,
   getFeedInventory,
-  updateFeedInventoryFn
+  updateFeedInventoryFn,
 } from '~/lib/feed-inventory/server'
 import {
   MEDICATION_UNITS,
-  
   createMedicationFn,
   deleteMedicationFn,
   getMedicationInventory,
-  updateMedicationFn
+  updateMedicationFn,
 } from '~/lib/medication-inventory/server'
 import { Button } from '~/components/ui/button'
 import {
@@ -58,7 +56,6 @@ import {
   DialogTrigger,
 } from '~/components/ui/dialog'
 import { useFarm } from '~/components/farm-context'
-
 
 interface FeedInventoryItem {
   id: string
@@ -110,22 +107,28 @@ type TabType = 'feed' | 'medication'
 function InventoryPage() {
   const { selectedFarmId } = useFarm()
   const [activeTab, setActiveTab] = useState<TabType>('feed')
-  const [feedInventory, setFeedInventory] = useState<Array<FeedInventoryItem>>([])
-  const [medicationInventory, setMedicationInventory] = useState<Array<MedicationItem>>([])
+  const [feedInventory, setFeedInventory] = useState<Array<FeedInventoryItem>>(
+    [],
+  )
+  const [medicationInventory, setMedicationInventory] = useState<
+    Array<MedicationItem>
+  >([])
   const [isLoading, setIsLoading] = useState(true)
-  
+
   // Feed dialog states
   const [feedDialogOpen, setFeedDialogOpen] = useState(false)
   const [editFeedDialogOpen, setEditFeedDialogOpen] = useState(false)
   const [deleteFeedDialogOpen, setDeleteFeedDialogOpen] = useState(false)
-  const [selectedFeed, setSelectedFeed] = useState<FeedInventoryItem | null>(null)
-  
+  const [selectedFeed, setSelectedFeed] = useState<FeedInventoryItem | null>(
+    null,
+  )
+
   // Medication dialog states
   const [medDialogOpen, setMedDialogOpen] = useState(false)
   const [editMedDialogOpen, setEditMedDialogOpen] = useState(false)
   const [deleteMedDialogOpen, setDeleteMedDialogOpen] = useState(false)
   const [selectedMed, setSelectedMed] = useState<MedicationItem | null>(null)
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -135,7 +138,7 @@ function InventoryPage() {
     quantityKg: '',
     minThresholdKg: '10',
   })
-  
+
   // Medication form state
   const [medForm, setMedForm] = useState({
     medicationName: '',
@@ -148,7 +151,9 @@ function InventoryPage() {
   const loadData = async () => {
     setIsLoading(true)
     try {
-      const result = await getInventoryData({ data: { farmId: selectedFarmId } })
+      const result = await getInventoryData({
+        data: { farmId: selectedFarmId },
+      })
       setFeedInventory(result.feedInventory)
       setMedicationInventory(result.medicationInventory)
     } catch (err) {
@@ -168,7 +173,13 @@ function InventoryPage() {
   }
 
   const resetMedForm = () => {
-    setMedForm({ medicationName: '', quantity: '', unit: 'bottle', expiryDate: '', minThreshold: '5' })
+    setMedForm({
+      medicationName: '',
+      quantity: '',
+      unit: 'bottle',
+      expiryDate: '',
+      minThreshold: '5',
+    })
     setError('')
   }
 
@@ -196,7 +207,9 @@ function InventoryPage() {
       resetFeedForm()
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create feed inventory')
+      setError(
+        err instanceof Error ? err.message : 'Failed to create feed inventory',
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -256,7 +269,9 @@ function InventoryPage() {
             medicationName: medForm.medicationName,
             quantity: parseInt(medForm.quantity),
             unit: medForm.unit,
-            expiryDate: medForm.expiryDate ? new Date(medForm.expiryDate) : null,
+            expiryDate: medForm.expiryDate
+              ? new Date(medForm.expiryDate)
+              : null,
             minThreshold: parseInt(medForm.minThreshold),
           },
         },
@@ -265,7 +280,9 @@ function InventoryPage() {
       resetMedForm()
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create medication')
+      setError(
+        err instanceof Error ? err.message : 'Failed to create medication',
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -283,7 +300,9 @@ function InventoryPage() {
             medicationName: medForm.medicationName,
             quantity: parseInt(medForm.quantity),
             unit: medForm.unit,
-            expiryDate: medForm.expiryDate ? new Date(medForm.expiryDate) : null,
+            expiryDate: medForm.expiryDate
+              ? new Date(medForm.expiryDate)
+              : null,
             minThreshold: parseInt(medForm.minThreshold),
           },
         },
@@ -327,7 +346,9 @@ function InventoryPage() {
       medicationName: item.medicationName,
       quantity: item.quantity.toString(),
       unit: item.unit as MedicationUnit,
-      expiryDate: item.expiryDate ? new Date(item.expiryDate).toISOString().split('T')[0] : '',
+      expiryDate: item.expiryDate
+        ? new Date(item.expiryDate).toISOString().split('T')[0]
+        : '',
       minThreshold: item.minThreshold.toString(),
     })
     setEditMedDialogOpen(true)
@@ -346,14 +367,18 @@ function InventoryPage() {
   }
 
   // Count alerts
-  const lowStockFeedCount = feedInventory.filter(f => 
-    parseFloat(f.quantityKg) <= parseFloat(f.minThresholdKg)
+  const lowStockFeedCount = feedInventory.filter(
+    (f) => parseFloat(f.quantityKg) <= parseFloat(f.minThresholdKg),
   ).length
-  const lowStockMedCount = medicationInventory.filter(m => m.quantity <= m.minThreshold).length
-  const expiringMedCount = medicationInventory.filter(m => 
-    isExpiringSoon(m.expiryDate) && !isExpired(m.expiryDate)
+  const lowStockMedCount = medicationInventory.filter(
+    (m) => m.quantity <= m.minThreshold,
   ).length
-  const expiredMedCount = medicationInventory.filter(m => isExpired(m.expiryDate)).length
+  const expiringMedCount = medicationInventory.filter(
+    (m) => isExpiringSoon(m.expiryDate) && !isExpired(m.expiryDate),
+  ).length
+  const expiredMedCount = medicationInventory.filter((m) =>
+    isExpired(m.expiryDate),
+  ).length
 
   return (
     <div className="container mx-auto py-6 px-4">
@@ -370,7 +395,10 @@ function InventoryPage() {
       </div>
 
       {/* Alert Summary */}
-      {(lowStockFeedCount > 0 || lowStockMedCount > 0 || expiringMedCount > 0 || expiredMedCount > 0) && (
+      {(lowStockFeedCount > 0 ||
+        lowStockMedCount > 0 ||
+        expiringMedCount > 0 ||
+        expiredMedCount > 0) && (
         <Card className="mb-6 border-yellow-500/50 bg-yellow-50/50 dark:bg-yellow-950/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2 text-yellow-700 dark:text-yellow-400">
@@ -381,22 +409,34 @@ function InventoryPage() {
           <CardContent>
             <div className="flex flex-wrap gap-4">
               {lowStockFeedCount > 0 && (
-                <Badge variant="outline" className="text-yellow-700 border-yellow-500">
+                <Badge
+                  variant="outline"
+                  className="text-yellow-700 border-yellow-500"
+                >
                   {lowStockFeedCount} feed type(s) low stock
                 </Badge>
               )}
               {lowStockMedCount > 0 && (
-                <Badge variant="outline" className="text-yellow-700 border-yellow-500">
+                <Badge
+                  variant="outline"
+                  className="text-yellow-700 border-yellow-500"
+                >
                   {lowStockMedCount} medication(s) low stock
                 </Badge>
               )}
               {expiringMedCount > 0 && (
-                <Badge variant="outline" className="text-orange-700 border-orange-500">
+                <Badge
+                  variant="outline"
+                  className="text-orange-700 border-orange-500"
+                >
                   {expiringMedCount} medication(s) expiring soon
                 </Badge>
               )}
               {expiredMedCount > 0 && (
-                <Badge variant="outline" className="text-red-700 border-red-500">
+                <Badge
+                  variant="outline"
+                  className="text-red-700 border-red-500"
+                >
                   {expiredMedCount} medication(s) expired
                 </Badge>
               )}
@@ -415,7 +455,10 @@ function InventoryPage() {
           <Package className="h-4 w-4" />
           Feed Inventory
           {lowStockFeedCount > 0 && (
-            <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+            <Badge
+              variant="destructive"
+              className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+            >
               {lowStockFeedCount}
             </Badge>
           )}
@@ -427,8 +470,11 @@ function InventoryPage() {
         >
           <Pill className="h-4 w-4" />
           Medication Inventory
-          {(lowStockMedCount + expiredMedCount) > 0 && (
-            <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+          {lowStockMedCount + expiredMedCount > 0 && (
+            <Badge
+              variant="destructive"
+              className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+            >
               {lowStockMedCount + expiredMedCount}
             </Badge>
           )}
@@ -444,41 +490,93 @@ function InventoryPage() {
               <CardDescription>Track feed stock levels by type</CardDescription>
             </div>
             <Dialog open={feedDialogOpen} onOpenChange={setFeedDialogOpen}>
-              <DialogTrigger render={
-                <Button disabled={!selectedFarmId}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Feed
-                </Button>
-              } />
+              <DialogTrigger
+                render={
+                  <Button disabled={!selectedFarmId}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Feed
+                  </Button>
+                }
+              />
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Add Feed Inventory</DialogTitle>
-                  <DialogDescription>Add a new feed type to track</DialogDescription>
+                  <DialogDescription>
+                    Add a new feed type to track
+                  </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleCreateFeed} className="space-y-4">
                   <div className="space-y-2">
                     <Label>Feed Type</Label>
-                    <Select value={feedForm.feedType} onValueChange={(v) => v && setFeedForm(p => ({ ...p, feedType: v as FeedType }))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                    <Select
+                      value={feedForm.feedType}
+                      onValueChange={(v) =>
+                        v &&
+                        setFeedForm((p) => ({ ...p, feedType: v as FeedType }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
-                        {FEED_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                        {FEED_TYPES.map((t) => (
+                          <SelectItem key={t.value} value={t.value}>
+                            {t.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Quantity (kg)</Label>
-                      <Input type="number" min="0" step="0.01" value={feedForm.quantityKg} onChange={e => setFeedForm(p => ({ ...p, quantityKg: e.target.value }))} required />
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={feedForm.quantityKg}
+                        onChange={(e) =>
+                          setFeedForm((p) => ({
+                            ...p,
+                            quantityKg: e.target.value,
+                          }))
+                        }
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Min Threshold (kg)</Label>
-                      <Input type="number" min="0" step="0.01" value={feedForm.minThresholdKg} onChange={e => setFeedForm(p => ({ ...p, minThresholdKg: e.target.value }))} required />
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={feedForm.minThresholdKg}
+                        onChange={(e) =>
+                          setFeedForm((p) => ({
+                            ...p,
+                            minThresholdKg: e.target.value,
+                          }))
+                        }
+                        required
+                      />
                     </div>
                   </div>
-                  {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
+                  {error && (
+                    <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                      {error}
+                    </div>
+                  )}
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setFeedDialogOpen(false)}>Cancel</Button>
-                    <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Adding...' : 'Add Feed'}</Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setFeedDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? 'Adding...' : 'Add Feed'}
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
@@ -487,42 +585,86 @@ function InventoryPage() {
 
           <CardContent>
             {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
+              <div className="text-center py-8 text-muted-foreground">
+                Loading...
+              </div>
             ) : feedInventory.length === 0 ? (
               <div className="text-center py-8">
                 <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No feed inventory records</p>
-                <p className="text-sm text-muted-foreground">Add feed types to start tracking stock levels</p>
+                <p className="text-muted-foreground">
+                  No feed inventory records
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Add feed types to start tracking stock levels
+                </p>
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {feedInventory.map(item => {
+                {feedInventory.map((item) => {
                   const qty = parseFloat(item.quantityKg)
                   const threshold = parseFloat(item.minThresholdKg)
                   const lowStock = isLowStock(qty, threshold)
                   return (
-                    <Card key={item.id} className={lowStock ? 'border-yellow-500' : ''}>
+                    <Card
+                      key={item.id}
+                      className={lowStock ? 'border-yellow-500' : ''}
+                    >
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg capitalize">{item.feedType.replace('_', ' ')}</CardTitle>
+                          <CardTitle className="text-lg capitalize">
+                            {item.feedType.replace('_', ' ')}
+                          </CardTitle>
                           <div className="flex gap-1">
-                            <Button variant="ghost" size="sm" onClick={() => openEditFeed(item)}><Edit className="h-4 w-4" /></Button>
-                            <Button variant="ghost" size="sm" className="text-destructive" onClick={() => { setSelectedFeed(item); setDeleteFeedDialogOpen(true) }}><Trash2 className="h-4 w-4" /></Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEditFeed(item)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive"
+                              onClick={() => {
+                                setSelectedFeed(item)
+                                setDeleteFeedDialogOpen(true)
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
-                        {item.farmName && <CardDescription>{item.farmName}</CardDescription>}
+                        {item.farmName && (
+                          <CardDescription>{item.farmName}</CardDescription>
+                        )}
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-2">
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Stock:</span>
-                            <span className={`font-bold ${lowStock ? 'text-yellow-600' : ''}`}>{qty.toFixed(1)} kg</span>
+                            <span className="text-muted-foreground">
+                              Stock:
+                            </span>
+                            <span
+                              className={`font-bold ${lowStock ? 'text-yellow-600' : ''}`}
+                            >
+                              {qty.toFixed(1)} kg
+                            </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Min Threshold:</span>
+                            <span className="text-muted-foreground">
+                              Min Threshold:
+                            </span>
                             <span>{threshold.toFixed(1)} kg</span>
                           </div>
-                          {lowStock && <Badge variant="outline" className="text-yellow-600 border-yellow-500 w-full justify-center">Low Stock</Badge>}
+                          {lowStock && (
+                            <Badge
+                              variant="outline"
+                              className="text-yellow-600 border-yellow-500 w-full justify-center"
+                            >
+                              Low Stock
+                            </Badge>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -540,36 +682,78 @@ function InventoryPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Medication Inventory</CardTitle>
-              <CardDescription>Track medication stock and expiry dates</CardDescription>
+              <CardDescription>
+                Track medication stock and expiry dates
+              </CardDescription>
             </div>
             <Dialog open={medDialogOpen} onOpenChange={setMedDialogOpen}>
-              <DialogTrigger render={
-                <Button disabled={!selectedFarmId}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Medication
-                </Button>
-              } />
+              <DialogTrigger
+                render={
+                  <Button disabled={!selectedFarmId}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Medication
+                  </Button>
+                }
+              />
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Add Medication</DialogTitle>
-                  <DialogDescription>Add a new medication to inventory</DialogDescription>
+                  <DialogDescription>
+                    Add a new medication to inventory
+                  </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleCreateMed} className="space-y-4">
                   <div className="space-y-2">
                     <Label>Medication Name</Label>
-                    <Input value={medForm.medicationName} onChange={e => setMedForm(p => ({ ...p, medicationName: e.target.value }))} placeholder="e.g., Ivermectin" required />
+                    <Input
+                      value={medForm.medicationName}
+                      onChange={(e) =>
+                        setMedForm((p) => ({
+                          ...p,
+                          medicationName: e.target.value,
+                        }))
+                      }
+                      placeholder="e.g., Ivermectin"
+                      required
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Quantity</Label>
-                      <Input type="number" min="0" value={medForm.quantity} onChange={e => setMedForm(p => ({ ...p, quantity: e.target.value }))} required />
+                      <Input
+                        type="number"
+                        min="0"
+                        value={medForm.quantity}
+                        onChange={(e) =>
+                          setMedForm((p) => ({
+                            ...p,
+                            quantity: e.target.value,
+                          }))
+                        }
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Unit</Label>
-                      <Select value={medForm.unit} onValueChange={(v) => v && setMedForm(p => ({ ...p, unit: v as MedicationUnit }))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                      <Select
+                        value={medForm.unit}
+                        onValueChange={(v) =>
+                          v &&
+                          setMedForm((p) => ({
+                            ...p,
+                            unit: v as MedicationUnit,
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
-                          {MEDICATION_UNITS.map(u => <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>)}
+                          {MEDICATION_UNITS.map((u) => (
+                            <SelectItem key={u.value} value={u.value}>
+                              {u.label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -577,17 +761,49 @@ function InventoryPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Expiry Date (Optional)</Label>
-                      <Input type="date" value={medForm.expiryDate} onChange={e => setMedForm(p => ({ ...p, expiryDate: e.target.value }))} />
+                      <Input
+                        type="date"
+                        value={medForm.expiryDate}
+                        onChange={(e) =>
+                          setMedForm((p) => ({
+                            ...p,
+                            expiryDate: e.target.value,
+                          }))
+                        }
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Min Threshold</Label>
-                      <Input type="number" min="0" value={medForm.minThreshold} onChange={e => setMedForm(p => ({ ...p, minThreshold: e.target.value }))} required />
+                      <Input
+                        type="number"
+                        min="0"
+                        value={medForm.minThreshold}
+                        onChange={(e) =>
+                          setMedForm((p) => ({
+                            ...p,
+                            minThreshold: e.target.value,
+                          }))
+                        }
+                        required
+                      />
                     </div>
                   </div>
-                  {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
+                  {error && (
+                    <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                      {error}
+                    </div>
+                  )}
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setMedDialogOpen(false)}>Cancel</Button>
-                    <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Adding...' : 'Add Medication'}</Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setMedDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? 'Adding...' : 'Add Medication'}
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
@@ -596,53 +812,133 @@ function InventoryPage() {
 
           <CardContent>
             {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
+              <div className="text-center py-8 text-muted-foreground">
+                Loading...
+              </div>
             ) : medicationInventory.length === 0 ? (
               <div className="text-center py-8">
                 <Pill className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No medication inventory records</p>
-                <p className="text-sm text-muted-foreground">Add medications to start tracking stock and expiry</p>
+                <p className="text-muted-foreground">
+                  No medication inventory records
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Add medications to start tracking stock and expiry
+                </p>
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {medicationInventory.map(item => {
+                {medicationInventory.map((item) => {
                   const lowStock = isLowStock(item.quantity, item.minThreshold)
-                  const expiring = isExpiringSoon(item.expiryDate) && !isExpired(item.expiryDate)
+                  const expiring =
+                    isExpiringSoon(item.expiryDate) &&
+                    !isExpired(item.expiryDate)
                   const expired = isExpired(item.expiryDate)
                   return (
-                    <Card key={item.id} className={expired ? 'border-red-500' : expiring ? 'border-orange-500' : lowStock ? 'border-yellow-500' : ''}>
+                    <Card
+                      key={item.id}
+                      className={
+                        expired
+                          ? 'border-red-500'
+                          : expiring
+                            ? 'border-orange-500'
+                            : lowStock
+                              ? 'border-yellow-500'
+                              : ''
+                      }
+                    >
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg">{item.medicationName}</CardTitle>
+                          <CardTitle className="text-lg">
+                            {item.medicationName}
+                          </CardTitle>
                           <div className="flex gap-1">
-                            <Button variant="ghost" size="sm" onClick={() => openEditMed(item)}><Edit className="h-4 w-4" /></Button>
-                            <Button variant="ghost" size="sm" className="text-destructive" onClick={() => { setSelectedMed(item); setDeleteMedDialogOpen(true) }}><Trash2 className="h-4 w-4" /></Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEditMed(item)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive"
+                              onClick={() => {
+                                setSelectedMed(item)
+                                setDeleteMedDialogOpen(true)
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
-                        {item.farmName && <CardDescription>{item.farmName}</CardDescription>}
+                        {item.farmName && (
+                          <CardDescription>{item.farmName}</CardDescription>
+                        )}
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-2">
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Stock:</span>
-                            <span className={`font-bold ${lowStock ? 'text-yellow-600' : ''}`}>{item.quantity} {item.unit}</span>
+                            <span className="text-muted-foreground">
+                              Stock:
+                            </span>
+                            <span
+                              className={`font-bold ${lowStock ? 'text-yellow-600' : ''}`}
+                            >
+                              {item.quantity} {item.unit}
+                            </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Min Threshold:</span>
-                            <span>{item.minThreshold} {item.unit}</span>
+                            <span className="text-muted-foreground">
+                              Min Threshold:
+                            </span>
+                            <span>
+                              {item.minThreshold} {item.unit}
+                            </span>
                           </div>
                           {item.expiryDate && (
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Expires:</span>
-                              <span className={expired ? 'text-red-600 font-bold' : expiring ? 'text-orange-600' : ''}>
+                              <span className="text-muted-foreground">
+                                Expires:
+                              </span>
+                              <span
+                                className={
+                                  expired
+                                    ? 'text-red-600 font-bold'
+                                    : expiring
+                                      ? 'text-orange-600'
+                                      : ''
+                                }
+                              >
                                 {new Date(item.expiryDate).toLocaleDateString()}
                               </span>
                             </div>
                           )}
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {lowStock && <Badge variant="outline" className="text-yellow-600 border-yellow-500">Low Stock</Badge>}
-                            {expiring && <Badge variant="outline" className="text-orange-600 border-orange-500">Expiring Soon</Badge>}
-                            {expired && <Badge variant="outline" className="text-red-600 border-red-500">Expired</Badge>}
+                            {lowStock && (
+                              <Badge
+                                variant="outline"
+                                className="text-yellow-600 border-yellow-500"
+                              >
+                                Low Stock
+                              </Badge>
+                            )}
+                            {expiring && (
+                              <Badge
+                                variant="outline"
+                                className="text-orange-600 border-orange-500"
+                              >
+                                Expiring Soon
+                              </Badge>
+                            )}
+                            {expired && (
+                              <Badge
+                                variant="outline"
+                                className="text-red-600 border-red-500"
+                              >
+                                Expired
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -665,32 +961,83 @@ function InventoryPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Quantity (kg)</Label>
-                <Input type="number" min="0" step="0.01" value={feedForm.quantityKg} onChange={e => setFeedForm(p => ({ ...p, quantityKg: e.target.value }))} required />
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={feedForm.quantityKg}
+                  onChange={(e) =>
+                    setFeedForm((p) => ({ ...p, quantityKg: e.target.value }))
+                  }
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label>Min Threshold (kg)</Label>
-                <Input type="number" min="0" step="0.01" value={feedForm.minThresholdKg} onChange={e => setFeedForm(p => ({ ...p, minThresholdKg: e.target.value }))} required />
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={feedForm.minThresholdKg}
+                  onChange={(e) =>
+                    setFeedForm((p) => ({
+                      ...p,
+                      minThresholdKg: e.target.value,
+                    }))
+                  }
+                  required
+                />
               </div>
             </div>
-            {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setEditFeedDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save Changes'}</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditFeedDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
       {/* Delete Feed Dialog */}
-      <Dialog open={deleteFeedDialogOpen} onOpenChange={setDeleteFeedDialogOpen}>
+      <Dialog
+        open={deleteFeedDialogOpen}
+        onOpenChange={setDeleteFeedDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Feed Inventory</DialogTitle>
-            <DialogDescription>Are you sure you want to delete this feed inventory record? This action cannot be undone.</DialogDescription>
+            <DialogDescription>
+              Are you sure you want to delete this feed inventory record? This
+              action cannot be undone.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setDeleteFeedDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDeleteFeed} disabled={isSubmitting}>{isSubmitting ? 'Deleting...' : 'Delete'}</Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteFeedDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteFeed}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -704,19 +1051,45 @@ function InventoryPage() {
           <form onSubmit={handleEditMed} className="space-y-4">
             <div className="space-y-2">
               <Label>Medication Name</Label>
-              <Input value={medForm.medicationName} onChange={e => setMedForm(p => ({ ...p, medicationName: e.target.value }))} required />
+              <Input
+                value={medForm.medicationName}
+                onChange={(e) =>
+                  setMedForm((p) => ({ ...p, medicationName: e.target.value }))
+                }
+                required
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Quantity</Label>
-                <Input type="number" min="0" value={medForm.quantity} onChange={e => setMedForm(p => ({ ...p, quantity: e.target.value }))} required />
+                <Input
+                  type="number"
+                  min="0"
+                  value={medForm.quantity}
+                  onChange={(e) =>
+                    setMedForm((p) => ({ ...p, quantity: e.target.value }))
+                  }
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label>Unit</Label>
-                <Select value={medForm.unit} onValueChange={(v) => v && setMedForm(p => ({ ...p, unit: v as MedicationUnit }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={medForm.unit}
+                  onValueChange={(v) =>
+                    v &&
+                    setMedForm((p) => ({ ...p, unit: v as MedicationUnit }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {MEDICATION_UNITS.map(u => <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>)}
+                    {MEDICATION_UNITS.map((u) => (
+                      <SelectItem key={u.value} value={u.value}>
+                        {u.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -724,17 +1097,43 @@ function InventoryPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Expiry Date</Label>
-                <Input type="date" value={medForm.expiryDate} onChange={e => setMedForm(p => ({ ...p, expiryDate: e.target.value }))} />
+                <Input
+                  type="date"
+                  value={medForm.expiryDate}
+                  onChange={(e) =>
+                    setMedForm((p) => ({ ...p, expiryDate: e.target.value }))
+                  }
+                />
               </div>
               <div className="space-y-2">
                 <Label>Min Threshold</Label>
-                <Input type="number" min="0" value={medForm.minThreshold} onChange={e => setMedForm(p => ({ ...p, minThreshold: e.target.value }))} required />
+                <Input
+                  type="number"
+                  min="0"
+                  value={medForm.minThreshold}
+                  onChange={(e) =>
+                    setMedForm((p) => ({ ...p, minThreshold: e.target.value }))
+                  }
+                  required
+                />
               </div>
             </div>
-            {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setEditMedDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save Changes'}</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditMedDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -745,11 +1144,26 @@ function InventoryPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Medication</DialogTitle>
-            <DialogDescription>Are you sure you want to delete this medication? This action cannot be undone.</DialogDescription>
+            <DialogDescription>
+              Are you sure you want to delete this medication? This action
+              cannot be undone.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setDeleteMedDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDeleteMed} disabled={isSubmitting}>{isSubmitting ? 'Deleting...' : 'Delete'}</Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteMedDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteMed}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

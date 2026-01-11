@@ -1,15 +1,17 @@
-import { Link, createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  useNavigate,
+  useRouter,
+} from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { ArrowLeft, Edit, Mail, MapPin, Phone, Trash2 } from 'lucide-react'
 import {
-  ArrowLeft,
-  Edit,
-  Mail,
-  MapPin,
-  Phone,
-  Trash2,
-} from 'lucide-react'
-import { deleteCustomer, getCustomerWithSales, updateCustomer } from '~/lib/customers/server'
+  deleteCustomer,
+  getCustomerWithSales,
+  updateCustomer,
+} from '~/lib/customers/server'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
@@ -98,9 +100,12 @@ function CustomerDetailPage() {
         <main className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto">
             <Card className="p-8 text-center">
-              <h2 className="text-2xl font-semibold mb-2">Customer Not Found</h2>
+              <h2 className="text-2xl font-semibold mb-2">
+                Customer Not Found
+              </h2>
               <p className="text-muted-foreground mb-6">
-                The customer you're looking for doesn't exist or may have been deleted.
+                The customer you're looking for doesn't exist or may have been
+                deleted.
               </p>
               <Button onClick={() => navigate({ to: '/customers' })}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -138,9 +143,9 @@ function CustomerDetailPage() {
             phone: editFormData.phone,
             email: editFormData.email || null,
             location: editFormData.location || null,
-            customerType: editFormData.customerType || null
-          }
-        }
+            customerType: editFormData.customerType || null,
+          },
+        },
       })
       setEditDialogOpen(false)
       router.invalidate()
@@ -240,7 +245,9 @@ function CustomerDetailPage() {
                       <th className="text-left py-2 font-medium">Date</th>
                       <th className="text-left py-2 font-medium">Type</th>
                       <th className="text-right py-2 font-medium">Quantity</th>
-                      <th className="text-right py-2 font-medium">Unit Price</th>
+                      <th className="text-right py-2 font-medium">
+                        Unit Price
+                      </th>
                       <th className="text-right py-2 font-medium">Total</th>
                     </tr>
                   </thead>
@@ -250,7 +257,9 @@ function CustomerDetailPage() {
                         <td className="py-2">
                           {new Date(sale.date).toLocaleDateString()}
                         </td>
-                        <td className="py-2 capitalize">{sale.livestockType}</td>
+                        <td className="py-2 capitalize">
+                          {sale.livestockType}
+                        </td>
                         <td className="py-2 text-right">{sale.quantity}</td>
                         <td className="py-2 text-right">
                           {formatNaira(parseFloat(sale.unitPrice))}
@@ -280,7 +289,10 @@ function CustomerDetailPage() {
                   id="edit-name"
                   value={editFormData.name}
                   onChange={(e) =>
-                    setEditFormData((prev) => ({ ...prev, name: e.target.value }))
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
                   }
                   required
                 />
@@ -291,7 +303,10 @@ function CustomerDetailPage() {
                   id="edit-phone"
                   value={editFormData.phone}
                   onChange={(e) =>
-                    setEditFormData((prev) => ({ ...prev, phone: e.target.value }))
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      phone: e.target.value,
+                    }))
                   }
                   required
                 />
@@ -303,7 +318,10 @@ function CustomerDetailPage() {
                   type="email"
                   value={editFormData.email}
                   onChange={(e) =>
-                    setEditFormData((prev) => ({ ...prev, email: e.target.value }))
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      email: e.target.value,
+                    }))
                   }
                 />
               </div>
@@ -313,7 +331,10 @@ function CustomerDetailPage() {
                   id="edit-location"
                   value={editFormData.location}
                   onChange={(e) =>
-                    setEditFormData((prev) => ({ ...prev, location: e.target.value }))
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      location: e.target.value,
+                    }))
                   }
                 />
               </div>
@@ -322,7 +343,10 @@ function CustomerDetailPage() {
                 <Select
                   value={editFormData.customerType}
                   onValueChange={(value) =>
-                    setEditFormData((prev) => ({ ...prev, customerType: value }))
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      customerType: value,
+                    }))
                   }
                 >
                   <SelectTrigger>
@@ -337,10 +361,19 @@ function CustomerDetailPage() {
                 </Select>
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditDialogOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting || !editFormData.name || !editFormData.phone}>
+                <Button
+                  type="submit"
+                  disabled={
+                    isSubmitting || !editFormData.name || !editFormData.phone
+                  }
+                >
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>
               </DialogFooter>
@@ -354,17 +387,30 @@ function CustomerDetailPage() {
             <DialogHeader>
               <DialogTitle>Delete Customer</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete {customer.name}? This action cannot be undone.
+                Are you sure you want to delete {customer.name}? This action
+                cannot be undone.
                 {customer.salesCount > 0 && (
                   <span className="block mt-2 text-destructive">
-                    Warning: This customer has {customer.salesCount} sales records.
+                    Warning: This customer has {customer.salesCount} sales
+                    records.
                   </span>
                 )}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-              <Button type="button" variant="destructive" onClick={handleDelete} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? 'Deleting...' : 'Delete'}
               </Button>
             </DialogFooter>

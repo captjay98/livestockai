@@ -1,13 +1,26 @@
-import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { Building2, Eye, Mail, MapPin, Package, Phone, Plus, Search } from 'lucide-react'
+import {
+  Building2,
+  Eye,
+  Mail,
+  MapPin,
+  Package,
+  Phone,
+  Plus,
+  Search,
+} from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/suppliers/server';
+import type { PaginatedResult } from '~/lib/suppliers/server'
 import {
-  
   createSupplierFn,
-  getSuppliersPaginatedFn
+  getSuppliersPaginatedFn,
 } from '~/lib/suppliers/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
@@ -40,7 +53,14 @@ interface Supplier {
   email: string | null
   location: string | null
   products: Array<string> | null
-  supplierType: 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other' | null
+  supplierType:
+    | 'hatchery'
+    | 'feed_mill'
+    | 'pharmacy'
+    | 'equipment'
+    | 'fingerlings'
+    | 'other'
+    | null
   expenseCount: number
   totalSpent: number
 }
@@ -64,14 +84,16 @@ const SUPPLIER_TYPES = [
 ]
 
 const getSupplierData = createServerFn({ method: 'GET' })
-  .inputValidator((data: {
-    page?: number
-    pageSize?: number
-    sortBy?: string
-    sortOrder?: 'asc' | 'desc'
-    search?: string
-    supplierType?: string
-  }) => data)
+  .inputValidator(
+    (data: {
+      page?: number
+      pageSize?: number
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+      search?: string
+      supplierType?: string
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       await requireAuth()
@@ -98,9 +120,14 @@ export const Route = createFileRoute('/_auth/suppliers')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'totalSpent',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
-    supplierType: typeof search.supplierType === 'string' ? search.supplierType : undefined,
+    supplierType:
+      typeof search.supplierType === 'string' ? search.supplierType : undefined,
   }),
 })
 
@@ -108,7 +135,9 @@ function SuppliersPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedSuppliers, setPaginatedSuppliers] = useState<PaginatedResult<any>>({
+  const [paginatedSuppliers, setPaginatedSuppliers] = useState<
+    PaginatedResult<any>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -124,7 +153,14 @@ function SuppliersPage() {
     email: '',
     location: '',
     products: '',
-    supplierType: '' as '' | 'hatchery' | 'feed_mill' | 'pharmacy' | 'equipment' | 'fingerlings' | 'other',
+    supplierType: '' as
+      | ''
+      | 'hatchery'
+      | 'feed_mill'
+      | 'pharmacy'
+      | 'equipment'
+      | 'fingerlings'
+      | 'other',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -158,7 +194,7 @@ function SuppliersPage() {
     searchParams.sortBy,
     searchParams.sortOrder,
     searchParams.q,
-    searchParams.supplierType
+    searchParams.supplierType,
   ])
 
   const updateSearch = (updates: Partial<SupplierSearchParams>) => {
@@ -178,11 +214,13 @@ function SuppliersPage() {
       await createSupplierFn({
         data: {
           ...formData,
-          products: formData.products ? formData.products.split(',').map(p => p.trim()) : [],
+          products: formData.products
+            ? formData.products.split(',').map((p) => p.trim())
+            : [],
           email: formData.email || null,
           location: formData.location || null,
-          supplierType: formData.supplierType || null
-        }
+          supplierType: formData.supplierType || null,
+        },
       })
       setDialogOpen(false)
       setFormData({
@@ -209,7 +247,9 @@ function SuppliersPage() {
         cell: ({ row }) => (
           <div className="flex flex-col">
             <span className="font-medium">{row.original.name}</span>
-            <span className="text-xs text-muted-foreground md:hidden">{row.original.phone}</span>
+            <span className="text-xs text-muted-foreground md:hidden">
+              {row.original.phone}
+            </span>
           </div>
         ),
       },
@@ -234,21 +274,27 @@ function SuppliersPage() {
       {
         accessorKey: 'location',
         header: 'Location',
-        cell: ({ row }) => row.original.location ? (
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <MapPin className="h-3 w-3" />
-            {row.original.location}
-          </div>
-        ) : '-',
+        cell: ({ row }) =>
+          row.original.location ? (
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <MapPin className="h-3 w-3" />
+              {row.original.location}
+            </div>
+          ) : (
+            '-'
+          ),
       },
       {
         accessorKey: 'supplierType',
         header: 'Type',
-        cell: ({ row }) => row.original.supplierType ? (
-          <Badge variant="outline" className="capitalize text-xs">
-            {row.original.supplierType.replace('_', ' ')}
-          </Badge>
-        ) : '-',
+        cell: ({ row }) =>
+          row.original.supplierType ? (
+            <Badge variant="outline" className="capitalize text-xs">
+              {row.original.supplierType.replace('_', ' ')}
+            </Badge>
+          ) : (
+            '-'
+          ),
       },
       {
         accessorKey: 'products',
@@ -256,12 +302,18 @@ function SuppliersPage() {
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-1">
             {row.original.products?.slice(0, 3).map((product, i) => (
-              <Badge key={i} variant="secondary" className="text-[10px] px-1 py-0 h-5">
+              <Badge
+                key={i}
+                variant="secondary"
+                className="text-[10px] px-1 py-0 h-5"
+              >
                 {product}
               </Badge>
             ))}
             {row.original.products && row.original.products.length > 3 && (
-              <span className="text-xs text-muted-foreground">+{row.original.products.length - 3}</span>
+              <span className="text-xs text-muted-foreground">
+                +{row.original.products.length - 3}
+              </span>
             )}
           </div>
         ),
@@ -270,18 +322,16 @@ function SuppliersPage() {
         accessorKey: 'totalSpent',
         header: 'Total Spent',
         cell: ({ row }) => (
-          <span className="font-medium">{formatNaira(row.original.totalSpent)}</span>
+          <span className="font-medium">
+            {formatNaira(row.original.totalSpent)}
+          </span>
         ),
       },
       {
         id: 'actions',
         cell: ({ row }) => (
           <div className="flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-            >
+            <Button variant="ghost" size="sm" asChild>
               <Link to={`/suppliers/${row.original.id}`}>
                 <Eye className="h-4 w-4 mr-2" />
                 View
@@ -291,7 +341,7 @@ function SuppliersPage() {
         ),
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -325,7 +375,10 @@ function SuppliersPage() {
           <Select
             value={searchParams.supplierType || 'all'}
             onValueChange={(value) => {
-              updateSearch({ supplierType: value === 'all' ? undefined : value, page: 1 })
+              updateSearch({
+                supplierType: value === 'all' ? undefined : value,
+                page: 1,
+              })
             }}
           >
             <SelectTrigger className="w-[150px] h-10">

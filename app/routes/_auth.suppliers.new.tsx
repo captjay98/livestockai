@@ -2,11 +2,8 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { ArrowLeft, X } from 'lucide-react'
-import type {CreateSupplierInput} from '~/lib/suppliers/server';
-import {
-  
-  createSupplier
-} from '~/lib/suppliers/server'
+import type { CreateSupplierInput } from '~/lib/suppliers/server'
+import { createSupplier } from '~/lib/suppliers/server'
 
 const addSupplier = createServerFn({ method: 'POST' })
   .inputValidator((data: CreateSupplierInput) => data)

@@ -1,4 +1,9 @@
-import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import {
   AlertTriangle,
@@ -13,25 +18,19 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/batches/server';
+import type { PaginatedResult } from '~/lib/batches/server'
 import {
-  
   createBatch,
   deleteBatchFn,
   getBatchesPaginated,
   getInventorySummary,
-  updateBatchFn
+  updateBatchFn,
 } from '~/lib/batches/server'
 import { getSpeciesOptions } from '~/lib/batches/constants'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -169,19 +168,27 @@ export const Route = createFileRoute('/_auth/batches/')({
   validateSearch: (search: Record<string, unknown>): BatchSearchParams => {
     const validStatuses = ['active', 'depleted', 'sold'] as const
     const validLivestockTypes = ['poultry', 'fish'] as const
-    
+
     return {
       page: Number(search.page) || 1,
       pageSize: Number(search.pageSize) || 10,
       sortBy: (search.sortBy as string) || 'createdAt',
-      sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+      sortOrder:
+        typeof search.sortOrder === 'string' &&
+        (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+          ? search.sortOrder
+          : 'desc',
       q: typeof search.q === 'string' ? search.q : '',
       status:
-        typeof search.status === 'string' && (validStatuses as ReadonlyArray<string>).includes(search.status)
+        typeof search.status === 'string' &&
+        (validStatuses as ReadonlyArray<string>).includes(search.status)
           ? (search.status as 'active' | 'depleted' | 'sold')
           : undefined,
       livestockType:
-        typeof search.livestockType === 'string' && (validLivestockTypes as ReadonlyArray<string>).includes(search.livestockType)
+        typeof search.livestockType === 'string' &&
+        (validLivestockTypes as ReadonlyArray<string>).includes(
+          search.livestockType,
+        )
           ? (search.livestockType as 'poultry' | 'fish')
           : undefined,
     }
@@ -193,7 +200,9 @@ function BatchesPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedBatches, setPaginatedBatches] = useState<PaginatedResult<Batch>>({
+  const [paginatedBatches, setPaginatedBatches] = useState<
+    PaginatedResult<Batch>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -319,8 +328,6 @@ function BatchesPage() {
     }
   }
 
-
-
   const handleEditBatch = (batch: Batch) => {
     setSelectedBatch(batch)
     setEditFormData({
@@ -389,7 +396,9 @@ function BatchesPage() {
             ) : (
               <Fish className="h-4 w-4 text-blue-600" />
             )}
-            <span className="capitalize font-medium">{row.getValue('species')}</span>
+            <span className="capitalize font-medium">
+              {row.getValue('species')}
+            </span>
           </div>
         ),
       },
@@ -398,7 +407,9 @@ function BatchesPage() {
         header: 'Status',
         cell: ({ row }) => {
           const status = row.original.status
-          const isLowStock = row.original.currentQuantity <= row.original.initialQuantity * 0.1 && status === 'active'
+          const isLowStock =
+            row.original.currentQuantity <=
+              row.original.initialQuantity * 0.1 && status === 'active'
 
           return (
             <div className="flex flex-col gap-1">
@@ -435,18 +446,14 @@ function BatchesPage() {
       {
         accessorKey: 'acquisitionDate',
         header: 'Acquisition Date',
-        cell: ({ row }) => new Date(row.original.acquisitionDate).toLocaleDateString(),
+        cell: ({ row }) =>
+          new Date(row.original.acquisitionDate).toLocaleDateString(),
       },
       {
         id: 'actions',
         cell: ({ row }) => (
           <div className="flex justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              title="View Details"
-            >
+            <Button variant="ghost" size="icon" asChild title="View Details">
               <Link to={`/batches/${row.original.id}`}>
                 <Eye className="h-4 w-4" />
               </Link>
@@ -472,7 +479,7 @@ function BatchesPage() {
         ),
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -579,7 +586,10 @@ function BatchesPage() {
             <Select
               value={searchParams.status || 'all'}
               onValueChange={(value) => {
-                updateSearch({ status: value === 'all' ? undefined : value, page: 1 })
+                updateSearch({
+                  status: value === 'all' ? undefined : value,
+                  page: 1,
+                })
               }}
             >
               <SelectTrigger className="w-[150px] h-10">
@@ -596,7 +606,10 @@ function BatchesPage() {
             <Select
               value={searchParams.livestockType || 'all'}
               onValueChange={(value) => {
-                updateSearch({ livestockType: value === 'all' ? undefined : value, page: 1 })
+                updateSearch({
+                  livestockType: value === 'all' ? undefined : value,
+                  page: 1,
+                })
               }}
             >
               <SelectTrigger className="w-[150px] h-10">
@@ -668,8 +681,7 @@ function BatchesPage() {
               <Select
                 value={formData.species}
                 onValueChange={(value) =>
-                  value &&
-                  setFormData((prev) => ({ ...prev, species: value }))
+                  value && setFormData((prev) => ({ ...prev, species: value }))
                 }
               >
                 <SelectTrigger>
@@ -805,8 +817,6 @@ function BatchesPage() {
           </form>
         </DialogContent>
       </Dialog>
-
-
 
       {/* Edit Batch Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>

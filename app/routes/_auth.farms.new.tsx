@@ -127,7 +127,11 @@ function NewFarmPage() {
               <Select
                 value={formData.type}
                 onValueChange={(value) => {
-                  if (value === 'poultry' || value === 'fishery' || value === 'mixed') {
+                  if (
+                    value === 'poultry' ||
+                    value === 'fishery' ||
+                    value === 'mixed'
+                  ) {
                     setFormData((prev) => ({ ...prev, type: value }))
                   }
                 }}

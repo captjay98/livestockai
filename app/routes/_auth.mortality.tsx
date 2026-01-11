@@ -1,4 +1,9 @@
-import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import {
   AlertTriangle,
@@ -7,18 +12,18 @@ import {
   Plus,
   Skull,
   TrendingDown,
-  Users
+  Users,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/mortality/server';
+import type { PaginatedResult } from '~/lib/mortality/server'
+import type { BatchAlert } from '~/lib/monitoring/alerts'
 import {
-  
-  getMortalityAlerts,
   getMortalityRecordsPaginated,
   getMortalitySummary,
-  recordMortality
+  recordMortality,
 } from '~/lib/mortality/server'
+import { getAllBatchAlerts } from '~/lib/monitoring/alerts'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
@@ -116,26 +121,28 @@ const getMortalityDataForFarm = createServerFn({ method: 'GET' })
       sortOrder?: 'asc' | 'desc'
       search?: string
       cause?: string
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 
-      const [paginatedRecords, alerts, summary, allBatches] = await Promise.all([
-        getMortalityRecordsPaginated(session.user.id, {
-          farmId,
-          page: data.page,
-          pageSize: data.pageSize,
-          sortBy: data.sortBy,
-          sortOrder: data.sortOrder,
-          search: data.search,
-        }),
-        getMortalityAlerts(session.user.id, farmId),
-        getMortalitySummary(session.user.id, farmId),
-        getBatches(session.user.id, farmId),
-      ])
+      const [paginatedRecords, alerts, summary, allBatches] = await Promise.all(
+        [
+          getMortalityRecordsPaginated(session.user.id, {
+            farmId,
+            page: data.page,
+            pageSize: data.pageSize,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            search: data.search,
+          }),
+          getAllBatchAlerts(session.user.id, farmId),
+          getMortalitySummary(session.user.id, farmId),
+          getBatches(session.user.id, farmId),
+        ],
+      )
 
       const batches = allBatches.filter((b) => b.status === 'active')
 
@@ -189,7 +196,11 @@ export const Route = createFileRoute('/_auth/mortality')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
     cause: typeof search.cause === 'string' ? search.cause : undefined,
   }),
@@ -200,7 +211,9 @@ function MortalityPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedRecords, setPaginatedRecords] = useState<PaginatedResult<any>>({
+  const [paginatedRecords, setPaginatedRecords] = useState<
+    PaginatedResult<any>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -208,7 +221,7 @@ function MortalityPage() {
     totalPages: 0,
   })
   const [batches, setBatches] = useState<Array<Batch>>([])
-  const [alerts, setAlerts] = useState<Array<Alert>>([])
+  const [alerts, setAlerts] = useState<Array<BatchAlert>>([])
   const [summary, setSummary] = useState<{
     totalDeaths: number
     recordCount: number
@@ -246,7 +259,7 @@ function MortalityPage() {
       })
       setPaginatedRecords(result.paginatedRecords as PaginatedResult<any>)
       setBatches(result.batches)
-      setAlerts(result.alerts as Array<Alert>)
+      setAlerts(result.alerts)
       setSummary(result.summary)
     } catch (err) {
       console.error('Failed:', err)
@@ -264,7 +277,7 @@ function MortalityPage() {
     searchParams.sortBy,
     searchParams.sortOrder,
     searchParams.q,
-    searchParams.cause
+    searchParams.cause,
   ])
 
   const updateSearch = (updates: Partial<MortalitySearchParams>) => {
@@ -304,7 +317,9 @@ function MortalityPage() {
       })
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to record mortality')
+      setError(
+        err instanceof Error ? err.message : 'Failed to record mortality',
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -320,22 +335,28 @@ function MortalityPage() {
       {
         accessorKey: 'species',
         header: 'Batch',
-        cell: ({ row }) => <span className="font-medium">{row.original.species}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.species}</span>
+        ),
       },
       {
         accessorKey: 'quantity',
         header: 'Quantity',
         cell: ({ row }) => (
-          <span className="font-bold text-destructive">-{row.original.quantity}</span>
+          <span className="font-bold text-destructive">
+            -{row.original.quantity}
+          </span>
         ),
       },
       {
         accessorKey: 'cause',
         header: 'Cause',
         cell: ({ row }) => {
-          const cause = MORTALITY_CAUSES.find(c => c.value === row.original.cause)?.label || row.original.cause
+          const cause =
+            MORTALITY_CAUSES.find((c) => c.value === row.original.cause)
+              ?.label || row.original.cause
           return <Badge variant="outline">{cause}</Badge>
-        }
+        },
       },
       {
         accessorKey: 'notes',
@@ -354,10 +375,10 @@ function MortalityPage() {
               </Tooltip>
             </TooltipProvider>
           )
-        }
+        },
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -400,7 +421,10 @@ function MortalityPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0 sm:p-3 sm:pt-0">
               <div className="text-lg sm:text-2xl font-bold text-orange-600">
-                {summary.criticalAlerts} <span className="text-sm font-normal text-muted-foreground">Critical</span>
+                {summary.criticalAlerts}{' '}
+                <span className="text-sm font-normal text-muted-foreground">
+                  Critical
+                </span>
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
                 {summary.totalAlerts} total alerts
@@ -430,11 +454,16 @@ function MortalityPage() {
       {alerts.length > 0 && (
         <div className="mb-6 space-y-2">
           {alerts.map((alert, i) => (
-            <div key={i} className={`p-3 rounded-md border flex items-center justify-between ${alert.severity === 'critical' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
+            <div
+              key={i}
+              className={`p-3 rounded-md border flex items-center justify-between ${alert.type === 'critical' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}
+            >
               <div className="flex items-center gap-2">
-                <AlertTriangle className={`h-4 w-4 ${alert.severity === 'critical' ? 'text-red-500' : 'text-yellow-500'}`} />
+                <AlertTriangle
+                  className={`h-4 w-4 ${alert.type === 'critical' ? 'text-red-500' : 'text-yellow-500'}`}
+                />
                 <span className="font-medium text-sm">
-                  {alert.batchSpecies}: {alert.message}
+                  {alert.species}: {alert.message}
                 </span>
               </div>
               <Link to={`/batches`} className="text-xs underline">
@@ -461,7 +490,10 @@ function MortalityPage() {
           <Select
             value={searchParams.cause || 'all'}
             onValueChange={(value) => {
-              updateSearch({ cause: value === 'all' ? undefined : value, page: 1 })
+              updateSearch({
+                cause: value === 'all' ? undefined : value,
+                page: 1,
+              })
             }}
           >
             <SelectTrigger className="w-[180px] h-10">
@@ -531,8 +563,10 @@ function MortalityPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {MORTALITY_CAUSES.map(c => (
-                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  {MORTALITY_CAUSES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -558,7 +592,9 @@ function MortalityPage() {
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 required
               />
             </div>
@@ -568,7 +604,9 @@ function MortalityPage() {
               <Textarea
                 id="notes"
                 value={formData.notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                }
                 placeholder="Describe symptoms or incident..."
               />
             </div>
@@ -592,9 +630,7 @@ function MortalityPage() {
                 type="submit"
                 variant="destructive"
                 disabled={
-                  isSubmitting ||
-                  !formData.batchId ||
-                  !formData.quantity
+                  isSubmitting || !formData.batchId || !formData.quantity
                 }
               >
                 {isSubmitting ? 'Saving...' : 'Record Loss'}

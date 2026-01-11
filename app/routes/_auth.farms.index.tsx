@@ -1,8 +1,4 @@
-import {
-  Link,
-  createFileRoute,
-  redirect,
-} from '@tanstack/react-router'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { Bird, Building2, Edit, Fish, MapPin, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
@@ -29,35 +25,37 @@ interface FarmWithStats {
 }
 
 // Enhanced loader that fetches farm stats
-const getFarmsWithStats = createServerFn({ method: 'GET' }).handler(async () => {
-  const { db } = await import('~/lib/db')
-  const session = await requireAuth()
+const getFarmsWithStats = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const { db } = await import('~/lib/db')
+    const session = await requireAuth()
 
-  const farms = await getFarmsForUser(session.user.id)
+    const farms = await getFarmsForUser(session.user.id)
 
-  // Fetch stats for all farms in parallel
-  const farmsWithStats = await Promise.all(
-    farms.map(async (farm) => {
-      const stats = await db
-        .selectFrom('batches')
-        .select([
-          db.fn.count('id').as('activeBatches'),
-          db.fn.sum<number>('currentQuantity').as('totalLivestock'),
-        ])
-        .where('farmId', '=', farm.id)
-        .where('status', '=', 'active')
-        .executeTakeFirst()
+    // Fetch stats for all farms in parallel
+    const farmsWithStats = await Promise.all(
+      farms.map(async (farm) => {
+        const stats = await db
+          .selectFrom('batches')
+          .select([
+            db.fn.count('id').as('activeBatches'),
+            db.fn.sum<number>('currentQuantity').as('totalLivestock'),
+          ])
+          .where('farmId', '=', farm.id)
+          .where('status', '=', 'active')
+          .executeTakeFirst()
 
-      return {
-        ...farm,
-        activeBatches: Number(stats?.activeBatches || 0),
-        totalLivestock: Number(stats?.totalLivestock || 0),
-      }
-    })
-  )
+        return {
+          ...farm,
+          activeBatches: Number(stats?.activeBatches || 0),
+          totalLivestock: Number(stats?.totalLivestock || 0),
+        }
+      }),
+    )
 
-  return farmsWithStats
-})
+    return farmsWithStats
+  },
+)
 
 export const Route = createFileRoute('/_auth/farms/')({
   component: FarmsIndexPage,
@@ -157,7 +155,9 @@ function FarmsIndexPage() {
                 <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Users className="h-4 w-4" />
-                    <span className="font-medium text-foreground">{farm.activeBatches}</span>
+                    <span className="font-medium text-foreground">
+                      {farm.activeBatches}
+                    </span>
                     <span>batches</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-muted-foreground">

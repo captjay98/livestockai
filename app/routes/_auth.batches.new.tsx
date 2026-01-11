@@ -62,7 +62,9 @@ const createBatchAction = createServerFn({ method: 'POST' })
         batchName: data.batchName || null,
         sourceSize: data.sourceSize || null,
         structureId: data.structureId || null,
-        targetHarvestDate: data.targetHarvestDate ? new Date(data.targetHarvestDate) : null,
+        targetHarvestDate: data.targetHarvestDate
+          ? new Date(data.targetHarvestDate)
+          : null,
         supplierId: data.supplierId || null,
         notes: data.notes || null,
       })
@@ -277,9 +279,17 @@ function NewBatchPage() {
             {/* Additional Details Section */}
             <Collapsible open={showAdditional} onOpenChange={setShowAdditional}>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" type="button" className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground">
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground"
+                >
                   <span>Additional Details</span>
-                  {showAdditional ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {showAdditional ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-4 pt-4">
@@ -303,7 +313,10 @@ function NewBatchPage() {
                   <Select
                     value={formData.sourceSize || undefined}
                     onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, sourceSize: value || '' }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        sourceSize: value || '',
+                      }))
                     }
                   >
                     <SelectTrigger>
@@ -320,7 +333,9 @@ function NewBatchPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="targetHarvestDate">Target Harvest Date (Optional)</Label>
+                  <Label htmlFor="targetHarvestDate">
+                    Target Harvest Date (Optional)
+                  </Label>
                   <Input
                     id="targetHarvestDate"
                     type="date"

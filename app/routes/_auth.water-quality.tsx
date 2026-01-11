@@ -1,25 +1,28 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { Activity, AlertTriangle, Droplets, Edit, Eye, Plus, Thermometer, Trash2 } from 'lucide-react'
+import {
+  Activity,
+  AlertTriangle,
+  Droplets,
+  Edit,
+  Eye,
+  Plus,
+  Thermometer,
+  Trash2,
+} from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/water-quality/server';
+import type { PaginatedResult } from '~/lib/water-quality/server'
 import {
-  
   createWaterQualityRecordFn,
   getWaterQualityAlerts,
-  getWaterQualityRecordsPaginatedFn
+  getWaterQualityRecordsPaginatedFn,
 } from '~/lib/water-quality/server'
 import { WATER_QUALITY_THRESHOLDS } from '~/lib/water-quality/constants'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -85,7 +88,7 @@ const getWaterQualityDataForFarm = createServerFn({ method: 'GET' })
       sortBy?: string
       sortOrder?: 'asc' | 'desc'
       search?: string
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     try {
@@ -124,11 +127,17 @@ const getWaterQualityDataForFarm = createServerFn({ method: 'GET' })
 
 export const Route = createFileRoute('/_auth/water-quality')({
   component: WaterQualityPage,
-  validateSearch: (search: Record<string, unknown>): WaterQualitySearchParams => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): WaterQualitySearchParams => ({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'date',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
   }),
 })
@@ -138,7 +147,9 @@ function WaterQualityPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedRecords, setPaginatedRecords] = useState<PaginatedResult<any>>({
+  const [paginatedRecords, setPaginatedRecords] = useState<
+    PaginatedResult<any>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -194,7 +205,7 @@ function WaterQualityPage() {
     searchParams.pageSize,
     searchParams.sortBy,
     searchParams.sortOrder,
-    searchParams.q
+    searchParams.q,
   ])
 
   const updateSearch = (updates: Partial<WaterQualitySearchParams>) => {
@@ -252,25 +263,39 @@ function WaterQualityPage() {
       {
         accessorKey: 'species',
         header: 'Batch',
-        cell: ({ row }) => <span className="font-medium">{row.original.species}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.species}</span>
+        ),
       },
       {
         accessorKey: 'ph',
         header: 'pH',
         cell: ({ row }) => {
           const ph = parseFloat(row.original.ph)
-          const isBad = ph < WATER_QUALITY_THRESHOLDS.ph.min || ph > WATER_QUALITY_THRESHOLDS.ph.max
-          return <span className={isBad ? 'text-destructive font-bold' : ''}>{ph.toFixed(1)}</span>
-        }
+          const isBad =
+            ph < WATER_QUALITY_THRESHOLDS.ph.min ||
+            ph > WATER_QUALITY_THRESHOLDS.ph.max
+          return (
+            <span className={isBad ? 'text-destructive font-bold' : ''}>
+              {ph.toFixed(1)}
+            </span>
+          )
+        },
       },
       {
         accessorKey: 'temperatureCelsius',
         header: 'Temp (°C)',
         cell: ({ row }) => {
           const temp = parseFloat(row.original.temperatureCelsius)
-          const isBad = temp < WATER_QUALITY_THRESHOLDS.temperature.min || temp > WATER_QUALITY_THRESHOLDS.temperature.max
-          return <span className={isBad ? 'text-destructive font-bold' : ''}>{temp.toFixed(1)}°C</span>
-        }
+          const isBad =
+            temp < WATER_QUALITY_THRESHOLDS.temperature.min ||
+            temp > WATER_QUALITY_THRESHOLDS.temperature.max
+          return (
+            <span className={isBad ? 'text-destructive font-bold' : ''}>
+              {temp.toFixed(1)}°C
+            </span>
+          )
+        },
       },
       {
         accessorKey: 'dissolvedOxygenMgL',
@@ -278,8 +303,12 @@ function WaterQualityPage() {
         cell: ({ row }) => {
           const val = parseFloat(row.original.dissolvedOxygenMgL)
           const isBad = val < WATER_QUALITY_THRESHOLDS.dissolvedOxygen.min
-          return <span className={isBad ? 'text-destructive font-bold' : ''}>{val.toFixed(1)}</span>
-        }
+          return (
+            <span className={isBad ? 'text-destructive font-bold' : ''}>
+              {val.toFixed(1)}
+            </span>
+          )
+        },
       },
       {
         accessorKey: 'ammoniaMgL',
@@ -287,11 +316,15 @@ function WaterQualityPage() {
         cell: ({ row }) => {
           const val = parseFloat(row.original.ammoniaMgL)
           const isBad = val > WATER_QUALITY_THRESHOLDS.ammonia.max
-          return <span className={isBad ? 'text-destructive font-bold' : ''}>{val.toFixed(2)}</span>
-        }
+          return (
+            <span className={isBad ? 'text-destructive font-bold' : ''}>
+              {val.toFixed(2)}
+            </span>
+          )
+        },
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -320,11 +353,16 @@ function WaterQualityPage() {
             </CardHeader>
             <CardContent className="py-2 text-sm space-y-2">
               {alerts.map((alert, i) => (
-                <div key={i} className="flex flex-col gap-1 bg-white p-2 rounded border border-red-100">
+                <div
+                  key={i}
+                  className="flex flex-col gap-1 bg-white p-2 rounded border border-red-100"
+                >
                   <span className="font-medium">{alert.species}</span>
                   <ul className="list-disc list-inside text-xs text-muted-foreground">
                     {alert.issues.map((issue, idx) => (
-                      <li key={idx} className="text-destructive">{issue}</li>
+                      <li key={idx} className="text-destructive">
+                        {issue}
+                      </li>
                     ))}
                   </ul>
                 </div>

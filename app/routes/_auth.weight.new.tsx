@@ -138,8 +138,12 @@ function NewWeightPage() {
           date: formData.date,
           sampleSize: parseInt(formData.sampleSize),
           averageWeightKg: parseFloat(formData.averageWeightKg),
-          minWeightKg: formData.minWeightKg ? parseFloat(formData.minWeightKg) : null,
-          maxWeightKg: formData.maxWeightKg ? parseFloat(formData.maxWeightKg) : null,
+          minWeightKg: formData.minWeightKg
+            ? parseFloat(formData.minWeightKg)
+            : null,
+          maxWeightKg: formData.maxWeightKg
+            ? parseFloat(formData.maxWeightKg)
+            : null,
           notes: formData.notes || null,
         },
       })
@@ -262,9 +266,17 @@ function NewWeightPage() {
             {/* Additional Details Section */}
             <Collapsible open={showAdditional} onOpenChange={setShowAdditional}>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" type="button" className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground">
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground"
+                >
                   <span>Weight Range & Notes</span>
-                  {showAdditional ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {showAdditional ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-4 pt-4">
@@ -305,23 +317,32 @@ function NewWeightPage() {
                   </div>
                 </div>
 
-                {formData.minWeightKg && formData.maxWeightKg && formData.averageWeightKg && (
-                  <div className="text-sm text-muted-foreground">
-                    Weight range: {formData.minWeightKg} - {formData.maxWeightKg} kg
-                    {(() => {
-                      const min = parseFloat(formData.minWeightKg)
-                      const max = parseFloat(formData.maxWeightKg)
-                      const avg = parseFloat(formData.averageWeightKg)
-                      if (min > avg || max < avg) {
-                        return <span className="text-destructive ml-2">(Average should be between min and max)</span>
-                      }
-                      // Calculate CV% (Coefficient of Variation)
-                      const range = max - min
-                      const cv = ((range / 2) / avg) * 100
-                      return <span className="ml-2">• CV ≈ {cv.toFixed(1)}%</span>
-                    })()}
-                  </div>
-                )}
+                {formData.minWeightKg &&
+                  formData.maxWeightKg &&
+                  formData.averageWeightKg && (
+                    <div className="text-sm text-muted-foreground">
+                      Weight range: {formData.minWeightKg} -{' '}
+                      {formData.maxWeightKg} kg
+                      {(() => {
+                        const min = parseFloat(formData.minWeightKg)
+                        const max = parseFloat(formData.maxWeightKg)
+                        const avg = parseFloat(formData.averageWeightKg)
+                        if (min > avg || max < avg) {
+                          return (
+                            <span className="text-destructive ml-2">
+                              (Average should be between min and max)
+                            </span>
+                          )
+                        }
+                        // Calculate CV% (Coefficient of Variation)
+                        const range = max - min
+                        const cv = (range / 2 / avg) * 100
+                        return (
+                          <span className="ml-2">• CV ≈ {cv.toFixed(1)}%</span>
+                        )
+                      })()}
+                    </div>
+                  )}
 
                 <div className="space-y-2">
                   <Label htmlFor="notes">Notes (Optional)</Label>

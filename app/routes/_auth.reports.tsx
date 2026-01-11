@@ -11,14 +11,20 @@ import {
   Wheat,
 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { EggReport, FeedReport, InventoryReport, ProfitLossReport, SalesReport } from '~/lib/reports/server';
+import type {
+  EggReport,
+  FeedReport,
+  InventoryReport,
+  ProfitLossReport,
+  SalesReport,
+} from '~/lib/reports/server'
 import { getFarms } from '~/lib/farms/server'
 import {
   getEggReport,
   getFeedReport,
   getInventoryReport,
   getProfitLossReport,
-  getSalesReport
+  getSalesReport,
 } from '~/lib/reports/server'
 import { formatNaira } from '~/lib/currency'
 import { DataTable } from '~/components/ui/data-table'
@@ -156,16 +162,18 @@ function ReportsPage() {
                 <button
                   key={type.id}
                   onClick={() => setSelectedReport(type.id)}
-                  className={`p-4 rounded-lg border text-left transition-colors ${selectedReport === type.id
+                  className={`p-4 rounded-lg border text-left transition-colors ${
+                    selectedReport === type.id
                       ? 'border-primary bg-primary/5'
                       : 'hover:border-muted-foreground/50'
-                    }`}
+                  }`}
                 >
                   <Icon
-                    className={`h-5 w-5 mb-2 ${selectedReport === type.id
+                    className={`h-5 w-5 mb-2 ${
+                      selectedReport === type.id
                         ? 'text-primary'
                         : 'text-muted-foreground'
-                      }`}
+                    }`}
                   />
                   <div className="font-medium text-sm">{type.name}</div>
                 </button>
@@ -347,49 +355,61 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  const columns = useMemo<Array<ColumnDef<any>>>(() => [
-    {
-      accessorKey: 'species',
-      header: 'Species',
-      cell: ({ row }) => <span className="capitalize">{row.original.species}</span>
-    },
-    {
-      accessorKey: 'livestockType',
-      header: 'Type',
-      cell: ({ row }) => <span className="capitalize">{row.original.livestockType}</span>
-    },
-    {
-      accessorKey: 'initialQuantity',
-      header: 'Initial',
-      cell: ({ row }) => row.original.initialQuantity.toLocaleString()
-    },
-    {
-      accessorKey: 'currentQuantity',
-      header: 'Current',
-      cell: ({ row }) => row.original.currentQuantity.toLocaleString()
-    },
-    {
-      accessorKey: 'mortalityCount',
-      header: 'Mortality',
-      cell: ({ row }) => row.original.mortalityCount.toLocaleString()
-    },
-    {
-      accessorKey: 'mortalityRate',
-      header: 'Rate',
-      cell: ({ row }) => `${row.original.mortalityRate}%`
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => (
-        <Badge variant={row.original.status === 'active' ? 'default' : 'secondary'}
-          className={row.original.status === 'active' ? 'bg-green-100 text-green-800' : ''}
-        >
-          {row.original.status}
-        </Badge>
-      )
-    }
-  ], [])
+  const columns = useMemo<Array<ColumnDef<any>>>(
+    () => [
+      {
+        accessorKey: 'species',
+        header: 'Species',
+        cell: ({ row }) => (
+          <span className="capitalize">{row.original.species}</span>
+        ),
+      },
+      {
+        accessorKey: 'livestockType',
+        header: 'Type',
+        cell: ({ row }) => (
+          <span className="capitalize">{row.original.livestockType}</span>
+        ),
+      },
+      {
+        accessorKey: 'initialQuantity',
+        header: 'Initial',
+        cell: ({ row }) => row.original.initialQuantity.toLocaleString(),
+      },
+      {
+        accessorKey: 'currentQuantity',
+        header: 'Current',
+        cell: ({ row }) => row.original.currentQuantity.toLocaleString(),
+      },
+      {
+        accessorKey: 'mortalityCount',
+        header: 'Mortality',
+        cell: ({ row }) => row.original.mortalityCount.toLocaleString(),
+      },
+      {
+        accessorKey: 'mortalityRate',
+        header: 'Rate',
+        cell: ({ row }) => `${row.original.mortalityRate}%`,
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => (
+          <Badge
+            variant={row.original.status === 'active' ? 'default' : 'secondary'}
+            className={
+              row.original.status === 'active'
+                ? 'bg-green-100 text-green-800'
+                : ''
+            }
+          >
+            {row.original.status}
+          </Badge>
+        ),
+      },
+    ],
+    [],
+  )
 
   const data = useMemo(() => {
     const start = (page - 1) * pageSize
@@ -447,7 +467,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
           setPage(p)
           setPageSize(s)
         }}
-        onSortChange={() => { }}
+        onSortChange={() => {}}
         isLoading={false}
         emptyTitle="No inventory data"
         emptyDescription="Inventory data will appear here."
@@ -460,38 +480,43 @@ function SalesReportView({ report }: { report: SalesReport }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  const columns = useMemo<Array<ColumnDef<any>>>(() => [
-    {
-      accessorKey: 'date',
-      header: 'Date',
-      cell: ({ row }) => new Date(row.original.date).toLocaleDateString()
-    },
-    {
-      accessorKey: 'livestockType',
-      header: 'Type',
-      cell: ({ row }) => <span className="capitalize">{row.original.livestockType}</span>
-    },
-    {
-      accessorKey: 'quantity',
-      header: 'Quantity',
-      cell: ({ row }) => row.original.quantity
-    },
-    {
-      accessorKey: 'unitPrice',
-      header: 'Price',
-      cell: ({ row }) => formatNaira(row.original.unitPrice)
-    },
-    {
-      accessorKey: 'totalAmount',
-      header: 'Total',
-      cell: ({ row }) => formatNaira(row.original.totalAmount)
-    },
-    {
-      accessorKey: 'customerName',
-      header: 'Customer',
-      cell: ({ row }) => row.original.customerName || '-'
-    }
-  ], [])
+  const columns = useMemo<Array<ColumnDef<any>>>(
+    () => [
+      {
+        accessorKey: 'date',
+        header: 'Date',
+        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+      },
+      {
+        accessorKey: 'livestockType',
+        header: 'Type',
+        cell: ({ row }) => (
+          <span className="capitalize">{row.original.livestockType}</span>
+        ),
+      },
+      {
+        accessorKey: 'quantity',
+        header: 'Quantity',
+        cell: ({ row }) => row.original.quantity,
+      },
+      {
+        accessorKey: 'unitPrice',
+        header: 'Price',
+        cell: ({ row }) => formatNaira(row.original.unitPrice),
+      },
+      {
+        accessorKey: 'totalAmount',
+        header: 'Total',
+        cell: ({ row }) => formatNaira(row.original.totalAmount),
+      },
+      {
+        accessorKey: 'customerName',
+        header: 'Customer',
+        cell: ({ row }) => row.original.customerName || '-',
+      },
+    ],
+    [],
+  )
 
   const data = useMemo(() => {
     const start = (page - 1) * pageSize
@@ -546,7 +571,7 @@ function SalesReportView({ report }: { report: SalesReport }) {
           setPage(p)
           setPageSize(s)
         }}
-        onSortChange={() => { }}
+        onSortChange={() => {}}
         isLoading={false}
         emptyTitle="No sales data"
         emptyDescription="Sales records will appear here."
@@ -559,28 +584,37 @@ function FeedReportView({ report }: { report: FeedReport }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  const columns = useMemo<Array<ColumnDef<any>>>(() => [
-    {
-      accessorKey: 'species',
-      header: 'Species',
-      cell: ({ row }) => <span className="capitalize">{row.original.species}</span>
-    },
-    {
-      accessorKey: 'feedType',
-      header: 'Feed Type',
-      cell: ({ row }) => <span className="capitalize">{row.original.feedType?.replace('_', ' ')}</span>
-    },
-    {
-      accessorKey: 'totalQuantityKg',
-      header: 'Quantity (KG)',
-      cell: ({ row }) => row.original.totalQuantityKg.toLocaleString()
-    },
-    {
-      accessorKey: 'totalCost',
-      header: 'Cost',
-      cell: ({ row }) => formatNaira(row.original.totalCost)
-    }
-  ], [])
+  const columns = useMemo<Array<ColumnDef<any>>>(
+    () => [
+      {
+        accessorKey: 'species',
+        header: 'Species',
+        cell: ({ row }) => (
+          <span className="capitalize">{row.original.species}</span>
+        ),
+      },
+      {
+        accessorKey: 'feedType',
+        header: 'Feed Type',
+        cell: ({ row }) => (
+          <span className="capitalize">
+            {row.original.feedType?.replace('_', ' ')}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'totalQuantityKg',
+        header: 'Quantity (KG)',
+        cell: ({ row }) => row.original.totalQuantityKg.toLocaleString(),
+      },
+      {
+        accessorKey: 'totalCost',
+        header: 'Cost',
+        cell: ({ row }) => formatNaira(row.original.totalCost),
+      },
+    ],
+    [],
+  )
 
   const data = useMemo(() => {
     const start = (page - 1) * pageSize
@@ -635,7 +669,7 @@ function FeedReportView({ report }: { report: FeedReport }) {
           setPage(p)
           setPageSize(s)
         }}
-        onSortChange={() => { }}
+        onSortChange={() => {}}
         isLoading={false}
         emptyTitle="No feed data"
         emptyDescription="Feed records will appear here."
@@ -648,33 +682,36 @@ function EggReportView({ report }: { report: EggReport }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  const columns = useMemo<Array<ColumnDef<any>>>(() => [
-    {
-      accessorKey: 'date',
-      header: 'Date',
-      cell: ({ row }) => new Date(row.original.date).toLocaleDateString()
-    },
-    {
-      accessorKey: 'collected',
-      header: 'Collected',
-      cell: ({ row }) => row.original.collected.toLocaleString()
-    },
-    {
-      accessorKey: 'broken',
-      header: 'Broken',
-      cell: ({ row }) => row.original.broken.toLocaleString()
-    },
-    {
-      accessorKey: 'sold',
-      header: 'Sold',
-      cell: ({ row }) => row.original.sold.toLocaleString()
-    },
-    {
-      accessorKey: 'inventory',
-      header: 'Inventory',
-      cell: ({ row }) => row.original.inventory.toLocaleString()
-    }
-  ], [])
+  const columns = useMemo<Array<ColumnDef<any>>>(
+    () => [
+      {
+        accessorKey: 'date',
+        header: 'Date',
+        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+      },
+      {
+        accessorKey: 'collected',
+        header: 'Collected',
+        cell: ({ row }) => row.original.collected.toLocaleString(),
+      },
+      {
+        accessorKey: 'broken',
+        header: 'Broken',
+        cell: ({ row }) => row.original.broken.toLocaleString(),
+      },
+      {
+        accessorKey: 'sold',
+        header: 'Sold',
+        cell: ({ row }) => row.original.sold.toLocaleString(),
+      },
+      {
+        accessorKey: 'inventory',
+        header: 'Inventory',
+        cell: ({ row }) => row.original.inventory.toLocaleString(),
+      },
+    ],
+    [],
+  )
 
   const data = useMemo(() => {
     const start = (page - 1) * pageSize
@@ -740,7 +777,7 @@ function EggReportView({ report }: { report: EggReport }) {
           setPage(p)
           setPageSize(s)
         }}
-        onSortChange={() => { }}
+        onSortChange={() => {}}
         isLoading={false}
         emptyTitle="No egg production data"
         emptyDescription="Egg records will appear here."

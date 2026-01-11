@@ -1,15 +1,23 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { Edit, Mail, MapPin, Phone, Plus, Search, TrendingUp, Users } from 'lucide-react'
+import {
+  Edit,
+  Mail,
+  MapPin,
+  Phone,
+  Plus,
+  Search,
+  TrendingUp,
+  Users,
+} from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/customers/server';
+import type { PaginatedResult } from '~/lib/customers/server'
 import {
-  
   createCustomerFn,
   getCustomersPaginatedFn,
   getTopCustomers,
-  updateCustomerFn
+  updateCustomerFn,
 } from '~/lib/customers/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
@@ -78,14 +86,16 @@ const CUSTOMER_TYPES = [
 ]
 
 const getCustomerData = createServerFn({ method: 'GET' })
-  .inputValidator((data: {
-    page?: number
-    pageSize?: number
-    sortBy?: string
-    sortOrder?: 'asc' | 'desc'
-    search?: string
-    customerType?: string
-  }) => data)
+  .inputValidator(
+    (data: {
+      page?: number
+      pageSize?: number
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+      search?: string
+      customerType?: string
+    }) => data,
+  )
   .handler(async ({ data }) => {
     try {
       await requireAuth()
@@ -115,9 +125,14 @@ export const Route = createFileRoute('/_auth/customers')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: (search.sortBy as string) || 'createdAt',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: (search.q as string) || '',
-    customerType: typeof search.customerType === 'string' ? search.customerType : undefined,
+    customerType:
+      typeof search.customerType === 'string' ? search.customerType : undefined,
   }),
 })
 
@@ -125,7 +140,9 @@ function CustomersPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedCustomers, setPaginatedCustomers] = useState<PaginatedResult<any>>({
+  const [paginatedCustomers, setPaginatedCustomers] = useState<
+    PaginatedResult<any>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -143,17 +160,29 @@ function CustomersPage() {
     phone: '',
     email: '',
     location: '',
-    customerType: '' as '' | 'individual' | 'restaurant' | 'retailer' | 'wholesaler',
+    customerType: '' as
+      | ''
+      | 'individual'
+      | 'restaurant'
+      | 'retailer'
+      | 'wholesaler',
   })
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  )
   const [editFormData, setEditFormData] = useState({
     name: '',
     phone: '',
     email: '',
     location: '',
-    customerType: '' as '' | 'individual' | 'restaurant' | 'retailer' | 'wholesaler',
+    customerType: '' as
+      | ''
+      | 'individual'
+      | 'restaurant'
+      | 'retailer'
+      | 'wholesaler',
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -189,7 +218,7 @@ function CustomersPage() {
     searchParams.sortBy,
     searchParams.sortOrder,
     searchParams.q,
-    searchParams.customerType
+    searchParams.customerType,
   ])
 
   const updateSearch = (updates: Partial<CustomerSearchParams>) => {
@@ -206,12 +235,14 @@ function CustomersPage() {
     setIsSubmitting(true)
     setError('')
     try {
-      await createCustomerFn({ data: {
-        ...formData,
-        email: formData.email || null,
-        location: formData.location || null,
-        customerType: formData.customerType || null
-      } })
+      await createCustomerFn({
+        data: {
+          ...formData,
+          email: formData.email || null,
+          location: formData.location || null,
+          customerType: formData.customerType || null,
+        },
+      })
       setDialogOpen(false)
       setFormData({
         name: '',
@@ -253,8 +284,8 @@ function CustomersPage() {
           phone: editFormData.phone,
           email: editFormData.email || null,
           location: editFormData.location || null,
-          customerType: editFormData.customerType || null
-        }
+          customerType: editFormData.customerType || null,
+        },
       })
       setEditDialogOpen(false)
       loadData()
@@ -273,7 +304,9 @@ function CustomersPage() {
         cell: ({ row }) => (
           <div className="flex flex-col">
             <span className="font-medium">{row.original.name}</span>
-            <span className="text-xs text-muted-foreground md:hidden">{row.original.phone}</span>
+            <span className="text-xs text-muted-foreground md:hidden">
+              {row.original.phone}
+            </span>
           </div>
         ),
       },
@@ -298,21 +331,27 @@ function CustomersPage() {
       {
         accessorKey: 'location',
         header: 'Location',
-        cell: ({ row }) => row.original.location ? (
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <MapPin className="h-3 w-3" />
-            {row.original.location}
-          </div>
-        ) : '-',
+        cell: ({ row }) =>
+          row.original.location ? (
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <MapPin className="h-3 w-3" />
+              {row.original.location}
+            </div>
+          ) : (
+            '-'
+          ),
       },
       {
         accessorKey: 'customerType',
         header: 'Type',
-        cell: ({ row }) => row.original.customerType ? (
-          <Badge variant="outline" className="capitalize text-xs">
-            {row.original.customerType}
-          </Badge>
-        ) : '-',
+        cell: ({ row }) =>
+          row.original.customerType ? (
+            <Badge variant="outline" className="capitalize text-xs">
+              {row.original.customerType}
+            </Badge>
+          ) : (
+            '-'
+          ),
       },
       {
         accessorKey: 'salesCount',
@@ -323,7 +362,9 @@ function CustomersPage() {
         accessorKey: 'totalSpent',
         header: 'Total Spent',
         cell: ({ row }) => (
-          <span className="font-medium">{formatNaira(row.original.totalSpent)}</span>
+          <span className="font-medium">
+            {formatNaira(row.original.totalSpent)}
+          </span>
         ),
       },
       {
@@ -341,7 +382,7 @@ function CustomersPage() {
         ),
       },
     ],
-    []
+    [],
   )
 
   return (
@@ -360,49 +401,53 @@ function CustomersPage() {
       </div>
 
       {/* Top Customers */}
-      {topCustomers.length > 0 && searchParams.page === 1 && !searchParams.q && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Top Customers
-            </CardTitle>
-            <CardDescription>Customers by total revenue</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {topCustomers.map((customer, index) => (
-                <div
-                  key={customer.id}
-                  className="flex items-center justify-between p-3 border rounded-lg bg-white/50"
-                  style={{ borderColor: index === 0 ? '#fbbf24' : undefined }}
-                >
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      variant={index === 0 ? "default" : "outline"}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${index === 0 ? 'bg-yellow-500 text-white hover:bg-yellow-600' : ''}`}
-                    >
-                      {index + 1}
-                    </Badge>
-                    <div>
-                      <p className="font-medium">{customer.name}</p>
+      {topCustomers.length > 0 &&
+        searchParams.page === 1 &&
+        !searchParams.q && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Top Customers
+              </CardTitle>
+              <CardDescription>Customers by total revenue</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {topCustomers.map((customer, index) => (
+                  <div
+                    key={customer.id}
+                    className="flex items-center justify-between p-3 border rounded-lg bg-white/50"
+                    style={{ borderColor: index === 0 ? '#fbbf24' : undefined }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Badge
+                        variant={index === 0 ? 'default' : 'outline'}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center ${index === 0 ? 'bg-yellow-500 text-white hover:bg-yellow-600' : ''}`}
+                      >
+                        {index + 1}
+                      </Badge>
+                      <div>
+                        <p className="font-medium">{customer.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {customer.salesCount} purchases
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">
+                        {formatNaira(customer.totalSpent)}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        {customer.salesCount} purchases
+                        Total spent
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium">
-                      {formatNaira(customer.totalSpent)}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Total spent</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       <DataTable
         columns={columns}
@@ -420,7 +465,10 @@ function CustomersPage() {
           <Select
             value={searchParams.customerType || 'all'}
             onValueChange={(value) => {
-              updateSearch({ customerType: value === 'all' ? undefined : value, page: 1 })
+              updateSearch({
+                customerType: value === 'all' ? undefined : value,
+                page: 1,
+              })
             }}
           >
             <SelectTrigger className="w-[150px] h-10">
@@ -460,21 +508,46 @@ function CustomersPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name *</Label>
-              <Input id="name" value={formData.name} onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))} required />
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Phone *</Label>
-              <Input id="phone" value={formData.phone} onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))} required />
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                }
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
-              <Input id="location" value={formData.location} onChange={e => setFormData(prev => ({ ...prev, location: e.target.value }))} />
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, location: e.target.value }))
+                }
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="customerType">Customer Type</Label>
               <Select
                 value={formData.customerType}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, customerType: value as typeof formData.customerType }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    customerType: value as typeof formData.customerType,
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
@@ -489,11 +562,26 @@ function CustomersPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={formData.email} onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))} />
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+              />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting || !formData.name}>Create</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting || !formData.name}>
+                Create
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -508,21 +596,52 @@ function CustomersPage() {
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="edit-name">Name *</Label>
-              <Input id="edit-name" value={editFormData.name} onChange={e => setEditFormData(prev => ({ ...prev, name: e.target.value }))} required />
+              <Input
+                id="edit-name"
+                value={editFormData.name}
+                onChange={(e) =>
+                  setEditFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-phone">Phone *</Label>
-              <Input id="edit-phone" value={editFormData.phone} onChange={e => setEditFormData(prev => ({ ...prev, phone: e.target.value }))} required />
+              <Input
+                id="edit-phone"
+                value={editFormData.phone}
+                onChange={(e) =>
+                  setEditFormData((prev) => ({
+                    ...prev,
+                    phone: e.target.value,
+                  }))
+                }
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-location">Location</Label>
-              <Input id="edit-location" value={editFormData.location} onChange={e => setEditFormData(prev => ({ ...prev, location: e.target.value }))} />
+              <Input
+                id="edit-location"
+                value={editFormData.location}
+                onChange={(e) =>
+                  setEditFormData((prev) => ({
+                    ...prev,
+                    location: e.target.value,
+                  }))
+                }
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-customerType">Customer Type</Label>
               <Select
                 value={editFormData.customerType}
-                onValueChange={(value) => setEditFormData(prev => ({ ...prev, customerType: value as typeof editFormData.customerType }))}
+                onValueChange={(value) =>
+                  setEditFormData((prev) => ({
+                    ...prev,
+                    customerType: value as typeof editFormData.customerType,
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
@@ -537,16 +656,33 @@ function CustomersPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-email">Email</Label>
-              <Input id="edit-email" type="email" value={editFormData.email} onChange={e => setEditFormData(prev => ({ ...prev, email: e.target.value }))} />
+              <Input
+                id="edit-email"
+                type="email"
+                value={editFormData.email}
+                onChange={(e) =>
+                  setEditFormData((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
+              />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting}>Save Changes</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                Save Changes
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
-
     </div>
   )
 }

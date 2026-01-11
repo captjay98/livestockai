@@ -35,7 +35,7 @@ function LoginPage() {
         data: {
           email,
           password,
-        }
+        },
       })
 
       if (!result.success) {

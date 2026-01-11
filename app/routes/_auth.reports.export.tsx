@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import type {ExportOptions} from '~/lib/export/server';
-import {  generateExportData } from '~/lib/export/server'
+import type { ExportOptions } from '~/lib/export/server'
+import { generateExportData } from '~/lib/export/server'
 
 const exportReport = createServerFn({ method: 'GET' })
   .inputValidator((data: ExportOptions) => data)

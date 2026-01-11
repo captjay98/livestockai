@@ -34,6 +34,7 @@ import { Route as AuthWaterQualityNewRouteImport } from './routes/_auth.water-qu
 import { Route as AuthVaccinationsNewRouteImport } from './routes/_auth.vaccinations.new'
 import { Route as AuthSuppliersNewRouteImport } from './routes/_auth.suppliers.new'
 import { Route as AuthSuppliersSupplierIdRouteImport } from './routes/_auth.suppliers.$supplierId'
+import { Route as AuthSettingsAuditRouteImport } from './routes/_auth.settings.audit'
 import { Route as AuthSalesNewRouteImport } from './routes/_auth.sales.new'
 import { Route as AuthReportsExportRouteImport } from './routes/_auth.reports.export'
 import { Route as AuthInvoicesNewRouteImport } from './routes/_auth.invoices.new'
@@ -173,6 +174,11 @@ const AuthSuppliersSupplierIdRoute = AuthSuppliersSupplierIdRouteImport.update({
   path: '/$supplierId',
   getParentRoute: () => AuthSuppliersRoute,
 } as any)
+const AuthSettingsAuditRoute = AuthSettingsAuditRouteImport.update({
+  id: '/settings/audit',
+  path: '/settings/audit',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthSalesNewRoute = AuthSalesNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -274,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/invoices/new': typeof AuthInvoicesNewRoute
   '/reports/export': typeof AuthReportsExportRoute
   '/sales/new': typeof AuthSalesNewRoute
+  '/settings/audit': typeof AuthSettingsAuditRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/suppliers/new': typeof AuthSuppliersNewRoute
   '/vaccinations/new': typeof AuthVaccinationsNewRoute
@@ -312,6 +319,7 @@ export interface FileRoutesByTo {
   '/invoices/new': typeof AuthInvoicesNewRoute
   '/reports/export': typeof AuthReportsExportRoute
   '/sales/new': typeof AuthSalesNewRoute
+  '/settings/audit': typeof AuthSettingsAuditRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/suppliers/new': typeof AuthSuppliersNewRoute
   '/vaccinations/new': typeof AuthVaccinationsNewRoute
@@ -354,6 +362,7 @@ export interface FileRoutesById {
   '/_auth/invoices/new': typeof AuthInvoicesNewRoute
   '/_auth/reports/export': typeof AuthReportsExportRoute
   '/_auth/sales/new': typeof AuthSalesNewRoute
+  '/_auth/settings/audit': typeof AuthSettingsAuditRoute
   '/_auth/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/_auth/suppliers/new': typeof AuthSuppliersNewRoute
   '/_auth/vaccinations/new': typeof AuthVaccinationsNewRoute
@@ -396,6 +405,7 @@ export interface FileRouteTypes {
     | '/invoices/new'
     | '/reports/export'
     | '/sales/new'
+    | '/settings/audit'
     | '/suppliers/$supplierId'
     | '/suppliers/new'
     | '/vaccinations/new'
@@ -434,6 +444,7 @@ export interface FileRouteTypes {
     | '/invoices/new'
     | '/reports/export'
     | '/sales/new'
+    | '/settings/audit'
     | '/suppliers/$supplierId'
     | '/suppliers/new'
     | '/vaccinations/new'
@@ -475,6 +486,7 @@ export interface FileRouteTypes {
     | '/_auth/invoices/new'
     | '/_auth/reports/export'
     | '/_auth/sales/new'
+    | '/_auth/settings/audit'
     | '/_auth/suppliers/$supplierId'
     | '/_auth/suppliers/new'
     | '/_auth/vaccinations/new'
@@ -668,6 +680,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/suppliers/$supplierId'
       preLoaderRoute: typeof AuthSuppliersSupplierIdRouteImport
       parentRoute: typeof AuthSuppliersRoute
+    }
+    '/_auth/settings/audit': {
+      id: '/_auth/settings/audit'
+      path: '/settings/audit'
+      fullPath: '/settings/audit'
+      preLoaderRoute: typeof AuthSettingsAuditRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/sales/new': {
       id: '/_auth/sales/new'
@@ -951,6 +970,7 @@ interface AuthRouteChildren {
   AuthWaterQualityRoute: typeof AuthWaterQualityRouteWithChildren
   AuthWeightRoute: typeof AuthWeightRouteWithChildren
   AuthBatchesNewRoute: typeof AuthBatchesNewRoute
+  AuthSettingsAuditRoute: typeof AuthSettingsAuditRoute
   AuthBatchesIndexRoute: typeof AuthBatchesIndexRoute
   AuthBatchesBatchIdIndexRoute: typeof AuthBatchesBatchIdIndexRoute
 }
@@ -972,6 +992,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthWaterQualityRoute: AuthWaterQualityRouteWithChildren,
   AuthWeightRoute: AuthWeightRouteWithChildren,
   AuthBatchesNewRoute: AuthBatchesNewRoute,
+  AuthSettingsAuditRoute: AuthSettingsAuditRoute,
   AuthBatchesIndexRoute: AuthBatchesIndexRoute,
   AuthBatchesBatchIdIndexRoute: AuthBatchesBatchIdIndexRoute,
 }

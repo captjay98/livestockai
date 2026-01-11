@@ -24,8 +24,8 @@ import {
   Wheat,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import type { BatchAlert } from '~/lib/monitoring/alerts'
 import { getInventorySummary } from '~/lib/batches/server'
-import { getMortalityAlerts } from '~/lib/mortality/server'
 import { getDashboardStats } from '~/lib/dashboard/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { getUserFarms } from '~/lib/auth/utils'
@@ -88,16 +88,14 @@ const getDashboardData = createServerFn({ method: 'GET' })
       const session = await requireAuth()
       const farmId = data?.farmId || undefined
 
-      const [summary, alerts, stats, userFarms] = await Promise.all([
+      const [summary, stats, userFarms] = await Promise.all([
         getInventorySummary(session.user.id, farmId),
-        getMortalityAlerts(session.user.id, farmId),
         getDashboardStats(session.user.id, farmId),
         getUserFarms(session.user.id),
       ])
 
       return {
         summary,
-        alerts: Array.isArray(alerts) ? alerts : [],
         stats,
         hasFarms: userFarms.length > 0,
         farms: userFarms.length > 0 ? userFarms : [],
@@ -152,7 +150,6 @@ function TrendingDownIcon({ className }: { className?: string }) {
     </svg>
   )
 }
-
 
 function DashboardPage() {
   const { selectedFarmId } = useFarm()
@@ -254,7 +251,7 @@ function DashboardPage() {
                 <span className="text-sm font-medium">
                   {selectedFarmId
                     ? farms.find((f) => f.id === selectedFarmId)?.name ||
-                    farms[0]?.name
+                      farms[0]?.name
                     : 'All Farms'}
                 </span>
                 {selectedFarmId && (
@@ -308,7 +305,9 @@ function DashboardPage() {
                     Revenue
                   </p>
                   <div className="h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-                    <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400">₦</span>
+                    <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400">
+                      ₦
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -346,7 +345,9 @@ function DashboardPage() {
                     Expenses
                   </p>
                   <div className="h-6 w-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
-                    <span className="font-bold text-xs text-red-600 dark:text-red-400">₦</span>
+                    <span className="font-bold text-xs text-red-600 dark:text-red-400">
+                      ₦
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -383,21 +384,33 @@ function DashboardPage() {
                   <p className="text-xs font-medium text-muted-foreground">
                     Profit
                   </p>
-                  <div className={cn(
-                    "h-6 w-6 rounded-full flex items-center justify-center shrink-0",
-                    stats.financial.monthlyProfit >= 0 ? "bg-emerald-100 dark:bg-emerald-900/30" : "bg-red-100 dark:bg-red-900/30"
-                  )}>
-                    <span className={cn(
-                      "font-bold text-xs",
-                      stats.financial.monthlyProfit >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
-                    )}>₦</span>
+                  <div
+                    className={cn(
+                      'h-6 w-6 rounded-full flex items-center justify-center shrink-0',
+                      stats.financial.monthlyProfit >= 0
+                        ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                        : 'bg-red-100 dark:bg-red-900/30',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'font-bold text-xs',
+                        stats.financial.monthlyProfit >= 0
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-red-600 dark:text-red-400',
+                      )}
+                    >
+                      ₦
+                    </span>
                   </div>
                 </div>
                 <div>
                   <div className="text-lg sm:text-xl font-bold">
                     {formatNaira(stats.financial.monthlyProfit)}
                   </div>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">Net margin</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">
+                    Net margin
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -416,7 +429,9 @@ function DashboardPage() {
                   <div className="text-lg sm:text-xl font-bold">
                     {stats.inventory.activeBatches}
                   </div>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">Active</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">
+                    Active
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -537,89 +552,76 @@ function DashboardPage() {
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Alerts */}
-              {(stats.alerts.highMortality.length > 0 ||
-                stats.alerts.overdueVaccinations.length > 0 ||
-                stats.alerts.waterQualityAlerts.length > 0) && (
-                  <Card className="border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
-                        <AlertTriangle className="h-4 w-4" />
-                        Alerts
-                        <Badge
-                          variant="outline"
-                          className="ml-auto bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700"
-                        >
-                          {(stats.alerts.highMortality.length || 0) +
-                            (stats.alerts.overdueVaccinations.length || 0) +
-                            (stats.alerts.waterQualityAlerts.length || 0)}
-                        </Badge>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {stats.alerts.highMortality.map((alert: MortalityAlert) => (
-                        <div
-                          key={alert.batchId}
-                          className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
-                        >
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
+              {/* Alerts */}
+              {stats.alerts && stats.alerts.length > 0 && (
+                <Card className="border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+                      <AlertTriangle className="h-4 w-4" />
+                      Alerts
+                      <Badge
+                        variant="outline"
+                        className="ml-auto bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700"
+                      >
+                        {stats.alerts.length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {stats.alerts.map((alert: BatchAlert) => (
+                      <div
+                        key={alert.id}
+                        className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          {alert.source === 'mortality' && (
                             <TrendingDown className="h-4 w-4 text-red-500 shrink-0" />
-                            <span className="truncate">
-                              {alert.species} - {alert.rate.toFixed(1)}% mortality
+                          )}
+                          {alert.source === 'water_quality' && (
+                            <Droplets className="h-4 w-4 text-blue-500 shrink-0" />
+                          )}
+                          {alert.source === 'vaccination' && (
+                            <Syringe className="h-4 w-4 text-amber-600 shrink-0" />
+                          )}
+                          {alert.source === 'inventory' && (
+                            <Package className="h-4 w-4 text-orange-600 shrink-0" />
+                          )}
+                          {/* Fallback icon */}
+                          {alert.source === 'feed' && (
+                            <Wheat className="h-4 w-4 text-yellow-600 shrink-0" />
+                          )}
+
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-medium truncate">
+                              {alert.species}
+                            </span>
+                            <span className="text-xs text-muted-foreground truncate">
+                              {alert.message}
                             </span>
                           </div>
+                        </div>
+
+                        {alert.type === 'critical' && (
                           <Badge
                             variant="destructive"
-                            className="text-xs shrink-0 ml-2"
+                            className="text-[10px] shrink-0 ml-2"
                           >
-                            {alert.rate.toFixed(1)}%
+                            Critical
                           </Badge>
-                        </div>
-                      ))}
-                      {stats.alerts.overdueVaccinations.map(
-                        (alert: VaccinationAlert, i: number) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
+                        )}
+                        {alert.type === 'warning' && (
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px] bg-amber-100 text-amber-700 shrink-0 ml-2"
                           >
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                              <Syringe className="h-4 w-4 text-amber-600 shrink-0" />
-                              <span className="truncate">
-                                {alert.vaccineName} - {alert.species}
-                              </span>
-                            </div>
-                            <Badge
-                              variant="secondary"
-                              className="text-xs bg-amber-100 text-amber-700 shrink-0 ml-2"
-                            >
-                              Overdue
-                            </Badge>
-                          </div>
-                        ),
-                      )}
-                      {stats.alerts.waterQualityAlerts.map(
-                        (alert: WaterQualityAlert, i: number) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
-                          >
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                              <Droplets className="h-4 w-4 text-blue-500 shrink-0" />
-                              <span className="truncate">
-                                {alert.parameter}: {alert.value}
-                              </span>
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className="text-xs shrink-0 ml-2"
-                            >
-                              Check
-                            </Badge>
-                          </div>
-                        ),
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
+                            Warning
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Recent Transactions */}
               <Card>
@@ -694,8 +696,9 @@ function DashboardPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {stats.topCustomers.slice(0, 5).map(
-                    (customer: TopCustomer, i: number) => (
+                  {stats.topCustomers
+                    .slice(0, 5)
+                    .map((customer: TopCustomer, i: number) => (
                       <div
                         key={customer.id}
                         className="flex items-center gap-3"
@@ -723,8 +726,7 @@ function DashboardPage() {
                           {formatNaira(customer.totalSpent)}
                         </span>
                       </div>
-                    ),
-                  )}
+                    ))}
                   {stats.topCustomers.length === 0 && (
                     <p className="text-center py-4 text-sm text-muted-foreground">
                       No customer data yet

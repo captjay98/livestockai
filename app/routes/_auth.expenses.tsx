@@ -20,15 +20,14 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type {PaginatedResult} from '~/lib/expenses/server';
+import type { PaginatedResult } from '~/lib/expenses/server'
 import {
   EXPENSE_CATEGORIES,
-  
   createExpenseFn,
   deleteExpenseFn,
   getExpensesPaginated,
   getExpensesSummary,
-  updateExpenseFn
+  updateExpenseFn,
 } from '~/lib/expenses/server'
 import { getBatches } from '~/lib/batches/server'
 import { getSuppliers } from '~/lib/suppliers/server'
@@ -116,27 +115,28 @@ const getExpensesDataForFarm = createServerFn({ method: 'GET' })
       sortOrder?: 'asc' | 'desc'
       search?: string
       category?: string
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 
-      const [paginatedExpenses, summary, batches, suppliers] = await Promise.all([
-        getExpensesPaginated(session.user.id, {
-          farmId,
-          page: data.page || 1,
-          pageSize: data.pageSize || 25,
-          sortBy: data.sortBy || 'date',
-          sortOrder: data.sortOrder || 'desc',
-          search: data.search,
-          category: data.category,
-        }),
-        getExpensesSummary(session.user.id, farmId),
-        farmId ? getBatches(session.user.id, farmId) : Promise.resolve([]),
-        getSuppliers(),
-      ])
+      const [paginatedExpenses, summary, batches, suppliers] =
+        await Promise.all([
+          getExpensesPaginated(session.user.id, {
+            farmId,
+            page: data.page || 1,
+            pageSize: data.pageSize || 25,
+            sortBy: data.sortBy || 'date',
+            sortOrder: data.sortOrder || 'desc',
+            search: data.search,
+            category: data.category,
+          }),
+          getExpensesSummary(session.user.id, farmId),
+          farmId ? getBatches(session.user.id, farmId) : Promise.resolve([]),
+          getSuppliers(),
+        ])
       return {
         paginatedExpenses,
         summary,
@@ -156,7 +156,11 @@ export const Route = createFileRoute('/_auth/expenses')({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy: typeof search.sortBy === 'string' ? search.sortBy : 'date',
-    sortOrder: typeof search.sortOrder === 'string' && (search.sortOrder === 'asc' || search.sortOrder === 'desc') ? search.sortOrder : 'desc',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
     category: typeof search.category === 'string' ? search.category : undefined,
   }),
@@ -198,7 +202,9 @@ function ExpensesPage() {
   const navigate = useNavigate({ from: '/expenses' })
   const searchParams = Route.useSearch()
 
-  const [paginatedExpenses, setPaginatedExpenses] = useState<PaginatedResult<Expense>>({
+  const [paginatedExpenses, setPaginatedExpenses] = useState<
+    PaginatedResult<Expense>
+  >({
     data: [],
     total: 0,
     page: 1,
@@ -260,7 +266,15 @@ function ExpensesPage() {
 
   useEffect(() => {
     loadData()
-  }, [selectedFarmId, searchParams.page, searchParams.pageSize, searchParams.sortBy, searchParams.sortOrder, searchParams.q, searchParams.category])
+  }, [
+    selectedFarmId,
+    searchParams.page,
+    searchParams.pageSize,
+    searchParams.sortBy,
+    searchParams.sortOrder,
+    searchParams.q,
+    searchParams.category,
+  ])
 
   const updateSearch = (updates: Partial<ExpenseSearchParams>) => {
     navigate({
@@ -393,7 +407,9 @@ function ExpensesPage() {
           >
             {getCategoryIcon(row.original.category)}
           </div>
-          <span className="capitalize font-medium">{row.original.category}</span>
+          <span className="capitalize font-medium">
+            {row.original.category}
+          </span>
         </div>
       ),
     },
@@ -402,7 +418,9 @@ function ExpensesPage() {
       header: 'Description',
       enableSorting: true,
       cell: ({ row }) => (
-        <span className="text-muted-foreground">{row.original.description}</span>
+        <span className="text-muted-foreground">
+          {row.original.description}
+        </span>
       ),
     },
     {
@@ -536,7 +554,8 @@ function ExpensesPage() {
                     <SelectTrigger>
                       <SelectValue>
                         {formData.batchId
-                          ? batches.find((b) => b.id === formData.batchId)?.species
+                          ? batches.find((b) => b.id === formData.batchId)
+                              ?.species
                           : 'Select batch (optional)'}
                       </SelectValue>
                     </SelectTrigger>
@@ -566,7 +585,8 @@ function ExpensesPage() {
                     <SelectTrigger>
                       <SelectValue>
                         {formData.supplierId
-                          ? suppliers.find((s) => s.id === formData.supplierId)?.name
+                          ? suppliers.find((s) => s.id === formData.supplierId)
+                              ?.name
                           : 'Select supplier (optional)'}
                       </SelectValue>
                     </SelectTrigger>
@@ -709,10 +729,17 @@ function ExpensesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(('feed' in summary.byCategory) ? summary.byCategory.feed.amount : 0)}
+                {formatNaira(
+                  'feed' in summary.byCategory
+                    ? summary.byCategory.feed.amount
+                    : 0,
+                )}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {('feed' in summary.byCategory) ? summary.byCategory.feed.count : 0} purchases
+                {'feed' in summary.byCategory
+                  ? summary.byCategory.feed.count
+                  : 0}{' '}
+                purchases
               </p>
             </CardContent>
           </Card>
@@ -730,13 +757,21 @@ function ExpensesPage() {
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
                 {formatNaira(
-                  (('livestock_chicken' in summary.byCategory) ? summary.byCategory.livestock_chicken.amount : 0) +
-                  (('livestock_fish' in summary.byCategory) ? summary.byCategory.livestock_fish.amount : 0)
+                  ('livestock_chicken' in summary.byCategory
+                    ? summary.byCategory.livestock_chicken.amount
+                    : 0) +
+                    ('livestock_fish' in summary.byCategory
+                      ? summary.byCategory.livestock_fish.amount
+                      : 0),
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {(('livestock_chicken' in summary.byCategory) ? summary.byCategory.livestock_chicken.count : 0) +
-                  (('livestock_fish' in summary.byCategory) ? summary.byCategory.livestock_fish.count : 0)}{' '}
+                {('livestock_chicken' in summary.byCategory
+                  ? summary.byCategory.livestock_chicken.count
+                  : 0) +
+                  ('livestock_fish' in summary.byCategory
+                    ? summary.byCategory.livestock_fish.count
+                    : 0)}{' '}
                 purchases
               </p>
             </CardContent>
@@ -751,16 +786,22 @@ function ExpensesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(('labor' in summary.byCategory) ? summary.byCategory.labor.amount : 0)}
+                {formatNaira(
+                  'labor' in summary.byCategory
+                    ? summary.byCategory.labor.amount
+                    : 0,
+                )}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {('labor' in summary.byCategory) ? summary.byCategory.labor.count : 0} payments
+                {'labor' in summary.byCategory
+                  ? summary.byCategory.labor.count
+                  : 0}{' '}
+                payments
               </p>
             </CardContent>
           </Card>
         </div>
-      )
-      }
+      )}
 
       {/* Data Table */}
       <DataTable
@@ -779,7 +820,10 @@ function ExpensesPage() {
           <Select
             value={searchParams.category || 'all'}
             onValueChange={(value) => {
-              updateSearch({ category: value === 'all' ? undefined : value, page: 1 })
+              updateSearch({
+                category: value === 'all' ? undefined : value,
+                page: 1,
+              })
             }}
           >
             <SelectTrigger className="w-[180px] h-10">
@@ -986,8 +1030,8 @@ function ExpensesPage() {
           <DialogHeader>
             <DialogTitle>Delete Expense</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this expense? This action cannot be
-              undone.
+              Are you sure you want to delete this expense? This action cannot
+              be undone.
             </DialogDescription>
           </DialogHeader>
           {selectedExpense && (
@@ -1028,6 +1072,6 @@ function ExpensesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div >
+    </div>
   )
 }
