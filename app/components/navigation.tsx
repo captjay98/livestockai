@@ -10,6 +10,7 @@ import {
   Package,
   Receipt,
   Scale,
+  Settings,
   ShoppingCart,
   Syringe,
   TrendingDown,
@@ -24,6 +25,7 @@ import { useState } from 'react'
 import { cn } from '~/lib/utils'
 import { ThemeToggle } from '~/components/theme-toggle'
 import { Button } from '~/components/ui/button'
+import { useModuleNavigation } from '~/hooks/useModuleNavigation'
 
 export const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -42,16 +44,18 @@ export const navigation = [
   { name: 'Suppliers', href: '/suppliers', icon: Truck },
   { name: 'Invoices', href: '/invoices', icon: FileText },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
 export function Navigation() {
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const filteredNavigation = useModuleNavigation(navigation)
 
   return (
     <>
       <nav className="hidden md:flex items-center gap-1">
-        {navigation.map((item) => {
+        {filteredNavigation.map((item) => {
           const isActive = location.pathname.startsWith(item.href)
           const Icon = item.icon
 
@@ -91,7 +95,7 @@ export function Navigation() {
           <div className="absolute top-16 left-0 right-0 bg-background/95 backdrop-blur-md border-b shadow-lg z-50 animate-in slide-in-from-top-2 duration-200">
             <div className="container mx-auto px-4 py-4 max-h-[80vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-2">
-                {navigation.map((item) => {
+                {filteredNavigation.map((item) => {
                   const isActive = location.pathname.startsWith(item.href)
                   const Icon = item.icon
 
