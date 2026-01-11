@@ -88,7 +88,7 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    cookiePrefix: 'jayfarms',
+    cookiePrefix: 'openlivestock',
     useSecureCookies: process.env.NODE_ENV === 'production',
   },
   user: {
@@ -110,7 +110,8 @@ export const auth = betterAuth({
   trustedOrigins: [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://jayfarms.captjay98.workers.dev',
+    // Add your production domain here
+    // 'https://your-app.workers.dev',
   ],
   plugins: [tanstackStartCookies()],
 })

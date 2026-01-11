@@ -83,7 +83,7 @@ function RootComponent() {
               name="viewport"
               content="width=device-width, initial-scale=1.0"
             />
-            <title>JayFarms</title>
+            <title>OpenLivestock</title>
             <HeadContent />
           </head>
           <body>
