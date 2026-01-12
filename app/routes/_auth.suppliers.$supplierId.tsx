@@ -129,7 +129,7 @@ function SupplierDetailPage() {
 
           <div className="bg-card rounded-lg border p-6">
             <h2 className="font-semibold mb-4">Products Supplied</h2>
-            {supplier.products && supplier.products.length > 0 ? (
+            {supplier.products.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {supplier.products.map((product) => (
                   <span
@@ -163,7 +163,7 @@ function SupplierDetailPage() {
             </p>
           </div>
 
-          {supplier.expenses && supplier.expenses.length > 0 && (
+          {supplier.expenses.length > 0 && (
             <div className="bg-card rounded-lg border p-6 md:col-span-2">
               <h2 className="font-semibold mb-4">Recent Purchases</h2>
               <div className="overflow-x-auto">

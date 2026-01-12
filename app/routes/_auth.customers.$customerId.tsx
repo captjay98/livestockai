@@ -235,7 +235,7 @@ function CustomerDetailPage() {
             </p>
           </div>
 
-          {customer.sales && customer.sales.length > 0 && (
+          {customer.sales.length > 0 && (
             <div className="bg-card rounded-lg border p-6 md:col-span-2">
               <h2 className="font-semibold mb-4">Recent Purchases</h2>
               <div className="overflow-x-auto">

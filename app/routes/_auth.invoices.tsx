@@ -82,7 +82,7 @@ export const Route = createFileRoute('/_auth/invoices')({
     sortBy: (search.sortBy as string) || 'date',
     sortOrder:
       typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        (search.sortOrder === 'asc' || search.sortOrder === 'desc')
         ? search.sortOrder
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
@@ -205,10 +205,10 @@ function InvoicesPage() {
             }
             className={
               row.original.status === 'paid'
-                ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                ? 'bg-success/15 text-success hover:bg-success/25'
                 : row.original.status === 'partial'
-                  ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
-                  : 'bg-red-100 text-red-800 hover:bg-red-100'
+                  ? 'bg-warning/15 text-warning hover:bg-warning/25'
+                  : 'bg-destructive/15 text-destructive hover:bg-destructive/25'
             }
           >
             {row.original.status.charAt(0).toUpperCase() +

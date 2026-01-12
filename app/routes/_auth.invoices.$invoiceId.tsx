@@ -150,13 +150,12 @@ function InvoiceDetailPage() {
               )}
               <div>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    invoice.status === 'paid'
-                      ? 'bg-green-100 text-green-700'
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${invoice.status === 'paid'
+                      ? 'bg-success/10 text-success'
                       : invoice.status === 'partial'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-red-100 text-red-700'
-                  }`}
+                        ? 'bg-warning/10 text-warning'
+                        : 'bg-destructive/10 text-destructive'
+                    }`}
                 >
                   {invoice.status.toUpperCase()}
                 </span>
@@ -227,33 +226,30 @@ function InvoiceDetailPage() {
               <button
                 onClick={() => handleStatusChange('unpaid')}
                 disabled={invoice.status === 'unpaid'}
-                className={`px-4 py-2 rounded-md text-sm font-medium ${
-                  invoice.status === 'unpaid'
-                    ? 'bg-red-100 text-red-700'
+                className={`px-4 py-2 rounded-md text-sm font-medium ${invoice.status === 'unpaid'
+                    ? 'bg-destructive/10 text-destructive'
                     : 'border border-input hover:bg-muted'
-                }`}
+                  }`}
               >
                 Unpaid
               </button>
               <button
                 onClick={() => handleStatusChange('partial')}
                 disabled={invoice.status === 'partial'}
-                className={`px-4 py-2 rounded-md text-sm font-medium ${
-                  invoice.status === 'partial'
-                    ? 'bg-yellow-100 text-yellow-700'
+                className={`px-4 py-2 rounded-md text-sm font-medium ${invoice.status === 'partial'
+                    ? 'bg-warning/10 text-warning'
                     : 'border border-input hover:bg-muted'
-                }`}
+                  }`}
               >
                 Partial
               </button>
               <button
                 onClick={() => handleStatusChange('paid')}
                 disabled={invoice.status === 'paid'}
-                className={`px-4 py-2 rounded-md text-sm font-medium ${
-                  invoice.status === 'paid'
-                    ? 'bg-green-100 text-green-700'
+                className={`px-4 py-2 rounded-md text-sm font-medium ${invoice.status === 'paid'
+                    ? 'bg-success/10 text-success'
                     : 'border border-input hover:bg-muted'
-                }`}
+                  }`}
               >
                 Paid
               </button>
