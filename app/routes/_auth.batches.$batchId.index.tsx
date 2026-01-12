@@ -100,7 +100,7 @@ function BatchDetailsPage() {
   } = details
   const ageInDays = Math.floor(
     (new Date().getTime() - new Date(batch.acquisitionDate).getTime()) /
-    (1000 * 60 * 60 * 24),
+      (1000 * 60 * 60 * 24),
   )
 
   const totalInvestment =

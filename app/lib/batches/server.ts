@@ -11,7 +11,7 @@ export function getSourceSizeOptions(
 ): Array<{ value: string; label: string }> {
   // Find the module that handles this livestock type
   const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
-    metadata.livestockTypes.includes(livestockType)
+    metadata.livestockTypes.includes(livestockType),
   )
 
   if (!moduleEntry) {
@@ -98,9 +98,6 @@ export async function createBatch(
       supplierId: data.supplierId || null,
       notes: data.notes || null,
     })
-    .returning('id')
-    .executeTakeFirstOrThrow()
-
     .returning('id')
     .executeTakeFirstOrThrow()
 
@@ -280,9 +277,6 @@ export async function updateBatch(
   await db
     .updateTable('batches')
     .set(updateData)
-    .where('id', '=', batchId)
-    .execute()
-
     .where('id', '=', batchId)
     .execute()
 
@@ -626,9 +620,9 @@ export async function getInventorySummary(userId: string, farmId?: string) {
   const averageWeightKg =
     recentWeights.length > 0
       ? recentWeights.reduce(
-        (sum, w) => sum + Number(w.averageWeightKg || 0),
-        0,
-      ) / recentWeights.length
+          (sum, w) => sum + Number(w.averageWeightKg || 0),
+          0,
+        ) / recentWeights.length
       : 0
 
   // Helper to safely convert to number

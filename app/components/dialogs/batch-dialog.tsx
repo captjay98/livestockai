@@ -186,8 +186,8 @@ export function BatchDialog({
                 <SelectValue>
                   {formData.livestockType
                     ? LIVESTOCK_TYPES.find(
-                      (t) => t.value === formData.livestockType,
-                    )?.label
+                        (t) => t.value === formData.livestockType,
+                      )?.label
                     : 'Select type'}
                 </SelectValue>
               </SelectTrigger>
@@ -214,7 +214,7 @@ export function BatchDialog({
                   <SelectValue>
                     {formData.species
                       ? speciesOptions.find((s) => s.value === formData.species)
-                        ?.label
+                          ?.label
                       : 'Select species'}
                   </SelectValue>
                 </SelectTrigger>

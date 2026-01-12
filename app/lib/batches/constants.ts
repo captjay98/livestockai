@@ -9,7 +9,7 @@ export function getSpeciesOptions(
 ): Array<{ value: string; label: string }> {
   // Find the module that handles this livestock type
   const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
-    metadata.livestockTypes.includes(livestockType)
+    metadata.livestockTypes.includes(livestockType),
   )
 
   if (!moduleEntry) {

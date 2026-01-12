@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
 
@@ -146,12 +147,16 @@ function NewBatchPage() {
         },
       })
 
+      toast.success('Batch created successfully!')
       router.navigate({
         to: '/batches',
         search: { farmId: formData.farmId },
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create batch')
+      const message =
+        err instanceof Error ? err.message : 'Failed to create batch'
+      setError(message)
+      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }
