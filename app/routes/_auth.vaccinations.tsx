@@ -142,7 +142,7 @@ export const Route = createFileRoute('/_auth/vaccinations')({
     sortBy: (search.sortBy as string) || 'date',
     sortOrder:
       typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        (search.sortOrder === 'asc' || search.sortOrder === 'desc')
         ? search.sortOrder
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
@@ -328,7 +328,7 @@ function HealthPage() {
             }
             className={
               row.original.type === 'treatment'
-                ? 'bg-orange-100 text-orange-800 hover:bg-orange-200'
+                ? 'bg-warning/15 text-warning-foreground hover:bg-warning/25'
                 : ''
             }
           >
@@ -436,9 +436,9 @@ function HealthPage() {
             </Card>
           )}
           {alerts.upcoming.length > 0 && (
-            <Card className="border-blue-200 bg-blue-50">
+            <Card className="border-info/50 bg-info/5">
               <CardHeader className="py-3">
-                <CardTitle className="text-sm font-medium text-blue-700 flex items-center">
+                <CardTitle className="text-sm font-medium text-info flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
                   Upcoming Vaccinations
                 </CardTitle>
