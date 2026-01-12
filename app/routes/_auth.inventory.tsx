@@ -399,51 +399,51 @@ function InventoryPage() {
         lowStockMedCount > 0 ||
         expiringMedCount > 0 ||
         expiredMedCount > 0) && (
-        <Card className="mb-6 border-yellow-500/50 bg-yellow-50/50 dark:bg-yellow-950/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2 text-yellow-700 dark:text-yellow-400">
-              <AlertTriangle className="h-5 w-5" />
-              Inventory Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4">
-              {lowStockFeedCount > 0 && (
-                <Badge
-                  variant="outline"
-                  className="text-yellow-700 border-yellow-500"
-                >
-                  {lowStockFeedCount} feed type(s) low stock
-                </Badge>
-              )}
-              {lowStockMedCount > 0 && (
-                <Badge
-                  variant="outline"
-                  className="text-yellow-700 border-yellow-500"
-                >
-                  {lowStockMedCount} medication(s) low stock
-                </Badge>
-              )}
-              {expiringMedCount > 0 && (
-                <Badge
-                  variant="outline"
-                  className="text-orange-700 border-orange-500"
-                >
-                  {expiringMedCount} medication(s) expiring soon
-                </Badge>
-              )}
-              {expiredMedCount > 0 && (
-                <Badge
-                  variant="outline"
-                  className="text-red-700 border-red-500"
-                >
-                  {expiredMedCount} medication(s) expired
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          <Card className="mb-6 border-warning/50 bg-warning/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-warning">
+                <AlertTriangle className="h-5 w-5" />
+                Inventory Alerts
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-4">
+                {lowStockFeedCount > 0 && (
+                  <Badge
+                    variant="outline"
+                    className="text-warning border-warning"
+                  >
+                    {lowStockFeedCount} feed type(s) low stock
+                  </Badge>
+                )}
+                {lowStockMedCount > 0 && (
+                  <Badge
+                    variant="outline"
+                    className="text-warning border-warning"
+                  >
+                    {lowStockMedCount} medication(s) low stock
+                  </Badge>
+                )}
+                {expiringMedCount > 0 && (
+                  <Badge
+                    variant="outline"
+                    className="text-orange-600 border-orange-500"
+                  >
+                    {expiringMedCount} medication(s) expiring soon
+                  </Badge>
+                )}
+                {expiredMedCount > 0 && (
+                  <Badge
+                    variant="outline"
+                    className="text-destructive border-destructive"
+                  >
+                    {expiredMedCount} medication(s) expired
+                  </Badge>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
@@ -607,7 +607,7 @@ function InventoryPage() {
                   return (
                     <Card
                       key={item.id}
-                      className={lowStock ? 'border-yellow-500' : ''}
+                      className={lowStock ? 'border-warning/50' : ''}
                     >
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
@@ -646,7 +646,7 @@ function InventoryPage() {
                               Stock:
                             </span>
                             <span
-                              className={`font-bold ${lowStock ? 'text-yellow-600' : ''}`}
+                              className={`font-bold ${lowStock ? 'text-warning' : ''}`}
                             >
                               {qty.toFixed(1)} kg
                             </span>
@@ -660,7 +660,7 @@ function InventoryPage() {
                           {lowStock && (
                             <Badge
                               variant="outline"
-                              className="text-yellow-600 border-yellow-500 w-full justify-center"
+                              className="text-warning border-warning w-full justify-center"
                             >
                               Low Stock
                             </Badge>
