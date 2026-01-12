@@ -6,6 +6,7 @@ import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import { FarmSelector } from '~/components/farm-selector'
 import { ThemeToggle } from '~/components/theme-toggle'
+import { Logo } from '~/components/logo'
 
 interface SidebarProps {
   className?: string
@@ -33,7 +34,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
             className="flex items-center gap-3 transition-transform hover:scale-[1.02]"
             onClick={onClose}
           >
-            <img src="/logo-wordmark.png" alt="JayFarms" className="h-8" />
+            <Logo className="h-8" />
           </Link>
           {onClose && (
             <Button

@@ -5,6 +5,7 @@ import { Sidebar } from './sidebar'
 import type { User } from '~/lib/auth/types'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
+import { Logo } from '~/components/logo'
 
 export function AppShell({
   children,
@@ -56,7 +57,7 @@ export function AppShell({
             <Menu className="h-6 w-6" />
           </Button>
           <Link to="/" className="flex items-center">
-            <img src="/logo-wordmark.png" alt="JayFarms" className="h-7" />
+            <Logo className="h-7" />
           </Link>
         </div>
 

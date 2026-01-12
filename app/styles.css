@@ -41,6 +41,26 @@
   /* Standard red */
   --destructive-foreground: #ffffff;
 
+  --success: #059669;
+  /* Emerald 600 */
+  --success-foreground: #ffffff;
+
+  --warning: #f59e0b;
+  /* Amber 500 */
+  --warning-foreground: #ffffff;
+
+  --info: #2563eb;
+  /* Blue 600 */
+  --info-foreground: #ffffff;
+
+  --purple: #9333ea;
+  /* Purple 600 */
+  --purple-foreground: #ffffff;
+
+  --slate: #475569;
+  /* Slate 600 */
+  --slate-foreground: #ffffff;
+
   --border: #e6e4e4;
   /* Soft border */
   --input: #e6e4e4;
@@ -128,6 +148,26 @@
   /* Ayu Error Red-ish */
   --destructive-foreground: #ffffff;
 
+  --success: #34d399;
+  /* Emerald 400 */
+  --success-foreground: #0b0e14;
+
+  --warning: #fbbf24;
+  /* Amber 400 */
+  --warning-foreground: #0b0e14;
+
+  --info: #60a5fa;
+  /* Blue 400 */
+  --info-foreground: #0b0e14;
+
+  --purple: #c084fc;
+  /* Purple 400 */
+  --purple-foreground: #0b0e14;
+
+  --slate: #94a3b8;
+  /* Slate 400 */
+  --slate-foreground: #0b0e14;
+
   --border: #242936;
   --input: #242936;
   --ring: #ffb454;
@@ -160,6 +200,16 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-purple: var(--purple);
+  --color-purple-foreground: var(--purple-foreground);
+  --color-slate: var(--slate);
+  --color-slate-foreground: var(--slate-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -222,6 +272,7 @@
   so we've added these base styles to ensure your UI looks the same as before.
 */
 @layer base {
+
   *,
   ::after,
   ::before,

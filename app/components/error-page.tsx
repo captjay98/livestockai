@@ -1,6 +1,7 @@
 import { Link, useRouter } from '@tanstack/react-router'
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react'
 import { Button } from '~/components/ui/button'
+import { Logo } from '~/components/logo'
 
 interface ErrorPageProps {
   error?: Error
@@ -22,7 +23,7 @@ export function ErrorPage({ error, reset }: ErrorPageProps) {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-destructive/5 p-6">
       {/* Brand Header */}
       <div className="mb-8">
-        <img src="/logo-wordmark.png" alt="JayFarms" className="h-20" />
+        <Logo className="h-20" />
       </div>
 
       {/* Error Visual */}

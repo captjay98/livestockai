@@ -1,12 +1,13 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft, Home, Search } from 'lucide-react'
 import { Button } from '~/components/ui/button'
+import { Logo } from '~/components/logo'
 
 export function NotFoundPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 p-6">
       <div className="mb-8">
-        <img src="/logo-wordmark.png" alt="JayFarms" className="h-20" />
+        <Logo className="h-20" />
       </div>
 
       {/* 404 Visual */}

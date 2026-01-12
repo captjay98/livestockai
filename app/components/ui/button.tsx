@@ -42,8 +42,12 @@ const buttonVariants = cva(
 )
 
 interface ButtonProps
-  extends ButtonPrimitive.Props, VariantProps<typeof buttonVariants> {
+  extends
+    Omit<ButtonPrimitive.Props, 'className'>,
+    VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  className?: string
+  children?: React.ReactNode
 }
 
 function Button({
