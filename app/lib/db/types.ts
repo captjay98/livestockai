@@ -34,14 +34,19 @@ export interface Database {
 }
 
 // User & Auth - Better Auth tables use camelCase
+// Note: Passwords are stored in the 'account' table, not here (Better Auth pattern)
 export interface UserTable {
   id: Generated<string>
   email: string
-  password: string | null
+  // password field removed - Better Auth stores passwords in account table
   name: string
-  role: 'admin' | 'staff'
+  role: 'admin' | 'user'
   emailVerified: Generated<boolean>
   image: string | null
+  // Admin plugin fields
+  banned: Generated<boolean>
+  banReason: string | null
+  banExpires: Date | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -68,6 +73,10 @@ export interface UserSettingsTable {
   weightUnit: 'kg' | 'lbs'
   areaUnit: 'sqm' | 'sqft'
   temperatureUnit: 'celsius' | 'fahrenheit'
+
+  // Onboarding state
+  onboardingCompleted: Generated<boolean>
+  onboardingStep: Generated<number>
 
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
@@ -114,7 +123,15 @@ export interface FarmTable {
   id: Generated<string>
   name: string
   location: string
-  type: 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
+  type:
+    | 'poultry'
+    | 'fishery'
+    | 'mixed'
+    | 'cattle'
+    | 'goats'
+    | 'sheep'
+    | 'bees'
+    | 'multi'
   contactPhone: string | null
   notes: string | null
   createdAt: Generated<Date>
@@ -132,14 +149,26 @@ export interface FarmModuleTable {
 export interface UserFarmTable {
   userId: string
   farmId: string
+  role: FarmRole
 }
+
+export type FarmRole = 'owner' | 'manager' | 'viewer'
 
 // Structures (Houses, Ponds, Pens)
 export interface StructureTable {
   id: Generated<string>
   farmId: string
   name: string // "House A", "Pond 1", "Pen 3"
-  type: 'house' | 'pond' | 'pen' | 'cage' | 'barn' | 'pasture' | 'hive' | 'milking_parlor' | 'shearing_shed'
+  type:
+    | 'house'
+    | 'pond'
+    | 'pen'
+    | 'cage'
+    | 'barn'
+    | 'pasture'
+    | 'hive'
+    | 'milking_parlor'
+    | 'shearing_shed'
   capacity: number | null // Max animals
   areaSqm: string | null // DECIMAL(10,2) - Size in square meters
   status: 'active' | 'empty' | 'maintenance'
@@ -185,7 +214,18 @@ export interface MortalityTable {
 export interface FeedTable {
   id: Generated<string>
   batchId: string
-  feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed' | 'cattle_feed' | 'goat_feed' | 'sheep_feed' | 'hay' | 'silage' | 'bee_feed'
+  feedType:
+    | 'starter'
+    | 'grower'
+    | 'finisher'
+    | 'layer_mash'
+    | 'fish_feed'
+    | 'cattle_feed'
+    | 'goat_feed'
+    | 'sheep_feed'
+    | 'hay'
+    | 'silage'
+    | 'bee_feed'
   brandName: string | null // "Aller Aqua", "Ultima Plus", "Blue Crown"
   bagSizeKg: number | null // 15, 25
   numberOfBags: number | null // How many bags used
@@ -261,7 +301,16 @@ export interface SaleTable {
   batchId: string | null
   customerId: string | null
   invoiceId: string | null // Link to invoice if generated
-  livestockType: 'poultry' | 'fish' | 'eggs' | 'cattle' | 'goats' | 'sheep' | 'honey' | 'milk' | 'wool'
+  livestockType:
+    | 'poultry'
+    | 'fish'
+    | 'eggs'
+    | 'cattle'
+    | 'goats'
+    | 'sheep'
+    | 'honey'
+    | 'milk'
+    | 'wool'
   quantity: number
   unitPrice: string // DECIMAL(19,2) - returned as string from pg
   totalAmount: string // DECIMAL(19,2) - returned as string from pg
@@ -280,22 +329,22 @@ export interface ExpenseTable {
   farmId: string
   batchId: string | null
   category:
-  | 'feed'
-  | 'medicine'
-  | 'equipment'
-  | 'utilities'
-  | 'labor'
-  | 'transport'
-  | 'livestock' // For chick/fingerling purchases
-  | 'livestock_chicken'
-  | 'livestock_fish'
-  | 'livestock_cattle'
-  | 'livestock_goats'
-  | 'livestock_sheep'
-  | 'livestock_bees'
-  | 'maintenance'
-  | 'marketing'
-  | 'other'
+    | 'feed'
+    | 'medicine'
+    | 'equipment'
+    | 'utilities'
+    | 'labor'
+    | 'transport'
+    | 'livestock' // For chick/fingerling purchases
+    | 'livestock_chicken'
+    | 'livestock_fish'
+    | 'livestock_cattle'
+    | 'livestock_goats'
+    | 'livestock_sheep'
+    | 'livestock_bees'
+    | 'maintenance'
+    | 'marketing'
+    | 'other'
   amount: string // DECIMAL(19,2) - returned as string from pg
   date: Date
   description: string
@@ -307,7 +356,18 @@ export interface ExpenseTable {
 export interface FeedInventoryTable {
   id: Generated<string>
   farmId: string
-  feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed' | 'cattle_feed' | 'goat_feed' | 'sheep_feed' | 'hay' | 'silage' | 'bee_feed'
+  feedType:
+    | 'starter'
+    | 'grower'
+    | 'finisher'
+    | 'layer_mash'
+    | 'fish_feed'
+    | 'cattle_feed'
+    | 'goat_feed'
+    | 'sheep_feed'
+    | 'hay'
+    | 'silage'
+    | 'bee_feed'
   quantityKg: string // DECIMAL(10,2)
   minThresholdKg: string // DECIMAL(10,2)
   updatedAt: Generated<Date>
@@ -344,17 +404,17 @@ export interface SupplierTable {
   location: string | null
   products: Array<string> // what they supply
   supplierType:
-  | 'hatchery'
-  | 'feed_mill'
-  | 'pharmacy'
-  | 'equipment'
-  | 'fingerlings'
-  | 'cattle_dealer'
-  | 'goat_dealer'
-  | 'sheep_dealer'
-  | 'bee_supplier'
-  | 'other'
-  | null
+    | 'hatchery'
+    | 'feed_mill'
+    | 'pharmacy'
+    | 'equipment'
+    | 'fingerlings'
+    | 'cattle_dealer'
+    | 'goat_dealer'
+    | 'sheep_dealer'
+    | 'bee_supplier'
+    | 'other'
+    | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -395,23 +455,20 @@ export interface AuditLogTable {
 }
 
 // Growth Standards
+// Note: Columns match actual DB schema from migration
 export interface GrowthStandardTable {
   id: Generated<string>
-  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
-  species: string
-  ageWeeks: number
-  standardWeightKg: string // DECIMAL(8,3) - returned as string from pg
-  notes: string | null
-  createdAt: Generated<Date>
+  species: string // e.g., 'Broiler', 'Catfish', 'Angus', etc.
+  day: number // Day of growth (0, 1, 2, ... 56 for broilers, 0-180 for catfish)
+  expected_weight_g: number // Expected weight in grams at this day
 }
 
 // Market Prices
+// Note: Columns match actual DB schema from migration
 export interface MarketPriceTable {
   id: Generated<string>
-  livestockType: 'poultry' | 'fish' | 'eggs' | 'cattle' | 'goats' | 'sheep' | 'honey' | 'milk' | 'wool'
-  pricePerKg: string // DECIMAL(19,2) - returned as string from pg
-  date: Date
-  location: string | null
-  notes: string | null
-  createdAt: Generated<Date>
+  species: string // e.g., 'Broiler', 'Catfish'
+  size_category: string // e.g., '1.5kg-1.8kg', 'Table Size (600g-1kg)'
+  price_per_unit: string // DECIMAL - price per unit (bird or kg depending on species)
+  updated_at: Generated<Date>
 }

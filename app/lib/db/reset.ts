@@ -1,48 +1,72 @@
 /**
- * Database Reset Script
- * 
- * WARNING: This will DROP ALL TABLES and re-run migrations
- * Only use in development!
- * 
- * Run: bun run app/lib/db/reset.ts
+ * Database Reset Script - OpenLivestock Manager
+ *
+ * Drops ALL tables and re-runs migrations from scratch.
+ * Use with caution - this destroys all data!
+ *
+ * Run: bun run db:reset
  */
 
 import { sql } from 'kysely'
 import { db } from './index'
 
-async function resetDatabase() {
-  console.log('⚠️  WARNING: This will DROP ALL TABLES!')
-  console.log('🗑️  Dropping all tables...')
+async function reset() {
+  console.log('🗑️  Resetting database (dropping all tables)...\n')
 
   try {
-    // Get all table names from the database
-    const result = await sql<{ tablename: string }>`
-      SELECT tablename FROM pg_tables 
-      WHERE schemaname = 'public'
-    `.execute(db)
+    // Drop all tables with CASCADE to handle FK constraints
+    const tables = [
+      'growth_standards',
+      'market_prices',
+      'audit_logs',
+      'invoice_items',
+      'sales',
+      'invoices',
+      'expenses',
+      'water_quality',
+      'treatments',
+      'vaccinations',
+      'weight_samples',
+      'egg_records',
+      'feed_records',
+      'mortality_records',
+      'batches',
+      'medication_inventory',
+      'feed_inventory',
+      'structures',
+      'farm_modules',
+      'user_farms',
+      'suppliers',
+      'customers',
+      'farms',
+      'user_settings',
+      'verification',
+      'account',
+      'sessions',
+      'users',
+      'kysely_migration',
+      'kysely_migration_lock',
+    ]
 
-    const tables = result.rows.map(r => r.tablename)
-    console.log(`  Found ${tables.length} tables to drop`)
-
-    // Drop all tables with CASCADE
     for (const table of tables) {
-      try {
-        await sql`DROP TABLE IF EXISTS ${sql.ref(table)} CASCADE`.execute(db)
-        console.log(`  ✓ Dropped ${table}`)
-      } catch (e) {
-        console.log(`  ⚠ Could not drop ${table}`)
-      }
+      await sql`DROP TABLE IF EXISTS ${sql.ref(table)} CASCADE`.execute(db)
     }
 
-    console.log('✅ All tables dropped')
-    console.log('')
-    console.log('Now run: npm run db:migrate && npm run db:seed')
+    // Drop the trigger function
+    await sql`DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE`.execute(
+      db,
+    )
+
+    console.log('✅ All tables dropped\n')
+    console.log('🔄 Now run: bun run db:migrate')
+
+    await db.destroy()
+    process.exit(0)
   } catch (error) {
     console.error('❌ Reset failed:', error)
-    process.exit(1)
-  } finally {
     await db.destroy()
+    process.exit(1)
   }
 }
 
-resetDatabase()
+reset()
