@@ -1835,7 +1835,6 @@ export async function seedDev() {
     const cobbPoints = [42, 180, 450, 900, 1500, 2000, 2800, 3600, 4500]
     for (let i = 0; i < cobbPoints.length - 1; i++) {
       const startDay = i * 7
-      const endDay = (i + 1) * 7
       const startWeight = cobbPoints[i]
       const endWeight = cobbPoints[i + 1]
       for (let d = 0; d < 7; d++) {
@@ -1866,7 +1865,6 @@ export async function seedDev() {
     const fishPoints = [10, 50, 200, 500, 900, 1200, 1500] // Monthly points (0, 30, 60, 90...)
     for (let i = 0; i < fishPoints.length - 1; i++) {
       const startDay = i * 30
-      const endDay = (i + 1) * 30
       const startWeight = fishPoints[i]
       const endWeight = fishPoints[i + 1]
       for (let d = 0; d < 30; d++) {

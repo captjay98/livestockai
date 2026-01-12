@@ -1,10 +1,9 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { config } from 'dotenv'
 
 config()
 
 describe('Audit Logging', () => {
-  const testUserId = 'test-user-uuid' // Should ideally exist or we mock
   // We need a valid user ID for FK constraint usually, but let's see if we can insert straight or if we need to seed a user.
   // The migration has `userId uuid references users.id`. So we need a valid user.
   // We can pick one from the DB or insert a dummy one.
@@ -63,7 +62,7 @@ describe('Audit Logging', () => {
 
     expect(result.total).toBeGreaterThan(0)
     const log = result.data.find(
-      (l) => l.entityId === entityId && l.action === 'create',
+      (l: any) => l.entityId === entityId && l.action === 'create',
     )
     expect(log).toBeDefined()
     expect(log?.userId).toBe(validUserId)

@@ -6,7 +6,7 @@ import { db } from './index'
 export async function testConnection(): Promise<boolean> {
   try {
     // Simple query to test connection
-    await db.selectFrom('pg_database').select('datname').limit(1).execute()
+    await db.selectFrom('users').select('id').limit(1).execute()
     console.log('✅ Database connection successful')
     return true
   } catch (error) {

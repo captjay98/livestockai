@@ -2,19 +2,9 @@ import * as fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
 
 import { DEFAULT_MODULES_BY_FARM_TYPE } from './constants'
-
 import type { ModuleKey } from './types'
 
 // Arbitraries
-const moduleKeyArb = fc.constantFrom<ModuleKey>(
-  'poultry',
-  'aquaculture',
-  'cattle',
-  'goats',
-  'sheep',
-  'bees',
-)
-
 const farmTypeArb = fc.constantFrom(
   'poultry',
   'fishery',
@@ -25,8 +15,6 @@ const farmTypeArb = fc.constantFrom(
   'mixed',
   'multi',
 )
-
-const uuidArb = fc.uuid()
 
 describe('Module Server Functions Property Tests', () => {
   describe('Property 2: Default Modules Match Farm Type', () => {

@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 import { ABBREVIATED_STEPS, DEFAULT_PROGRESS, ONBOARDING_STEPS } from './types'
-import type { OnboardingProgress, OnboardingStep } from './types'
+import type { OnboardingProgress } from './types'
 
 describe('Onboarding Types', () => {
   /**

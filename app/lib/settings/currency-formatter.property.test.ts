@@ -13,7 +13,6 @@ import {
   formatCurrency,
   parseCurrency,
 } from './currency-formatter'
-import type { UserSettings } from './currency-presets'
 
 // Arbitrary for valid currency settings
 const currencySettingsArb = fc.record({

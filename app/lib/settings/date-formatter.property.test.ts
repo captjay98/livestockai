@@ -16,7 +16,6 @@ import {
   formatShortDate,
   formatTime,
 } from './date-formatter'
-import type { UserSettings } from './currency-presets'
 
 // Arbitrary for valid date settings
 const dateSettingsArb = fc.record({

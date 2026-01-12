@@ -5,7 +5,7 @@
  * Better Auth-compatible users with correct password hashing and account entries.
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { createUserWithAuth, hashPassword } from './seed-helpers'
 import { db } from './index'
 

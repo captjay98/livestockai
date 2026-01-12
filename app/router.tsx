@@ -19,7 +19,7 @@ export const getRouter = () => {
     // Dehydrate/Hydrate QueryClient
     dehydrate: () => {
       return {
-        queryClientState: dehydrate(queryClient),
+        queryClientState: dehydrate(queryClient) as any,
       }
     },
     hydrate: (data) => {

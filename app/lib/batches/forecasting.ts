@@ -64,7 +64,6 @@ export async function calculateBatchProjection(
     growthStandard.find((g) => g.day === ageDays)?.expected_weight_g || 0
 
   let status: 'on_track' | 'behind' | 'ahead' = 'on_track'
-  const effectiveAge = ageDays
 
   if (currentWeightG > 0 && expectedAtCurrentAge > 0) {
     const ratio = currentWeightG / expectedAtCurrentAge
@@ -126,7 +125,6 @@ export async function calculateBatchProjection(
   const projectedFeedCost = feedNeededKg * estFeedCostPerKg
 
   // Estimated Profit
-  const currentCost = Number(batch.totalCost) // Includes birds + feed so far
   // Note: batch.totalCost in DB schema usually was "initial cost" in my simplified view,
   // but looking at `updateBatch` logic it might be static.
   // Actually we have `expenses` table for recurring costs.

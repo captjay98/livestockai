@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import * as fc from 'fast-check'
 import { seed } from './seed'
 import { db } from './index'
 

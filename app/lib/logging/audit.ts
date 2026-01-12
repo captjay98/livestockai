@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 
-export type AuditAction = 'create' | 'update' | 'delete'
+export type AuditAction = 'create' | 'update' | 'delete' | 'enable_module' | 'disable_module'
 export type AuditEntityType =
   | 'batch'
   | 'expense'
@@ -10,6 +10,7 @@ export type AuditEntityType =
   | 'sale'
   | 'customer'
   | 'supplier'
+  | 'farm_module'
 
 export interface AuditLogParams {
   userId: string
@@ -74,7 +75,7 @@ export interface AuditLogResult {
 }
 
 export async function getAuditLogs(
-  userId: string, // Admin checking
+  _userId: string, // Admin checking
   query: AuditLogQuery = {},
 ): Promise<AuditLogResult> {
   const { db } = await import('~/lib/db')
@@ -102,7 +103,7 @@ export async function getAuditLogs(
         eb('audit_logs.entityId', 'ilike', term),
         eb('users.name', 'ilike', term),
         // Casting details (jsonb/text) to text for search if possible
-        sql`cast(audit_logs.details as text) ilike ${term}`,
+        eb(sql`cast(audit_logs.details as text)`, 'ilike', term),
       ]),
     )
   }

@@ -16,7 +16,6 @@ import {
   sumAmounts,
   toDbString,
   toDecimal,
-  toNumber,
 } from './currency'
 
 describe('Currency Utilities', () => {

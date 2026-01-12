@@ -1,5 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
-import * as fc from 'fast-check'
+import { describe, expect, it } from 'vitest'
 
 // Simple unit tests for the middleware functions
 describe('Authentication System', () => {

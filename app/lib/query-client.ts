@@ -2,9 +2,9 @@ import { QueryClient } from '@tanstack/react-query'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { del, get, set } from 'idb-keyval'
 
-import type { AsyncStoragePersister } from '@tanstack/query-async-storage-persister'
+import type { Persister } from '@tanstack/react-query-persist-client'
 
-export const createPersister = (): AsyncStoragePersister | undefined => {
+export const createPersister = (): Persister | undefined => {
   // Only create persister on client side
   if (typeof window === 'undefined') return undefined
 

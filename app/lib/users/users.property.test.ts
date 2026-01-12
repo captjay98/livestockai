@@ -102,13 +102,6 @@ const userIdArb = fc.uuid()
 
 const farmIdArb = fc.uuid()
 
-// Generate farm assignments for testing
-const farmAssignmentArb = fc.record({
-  farmId: farmIdArb,
-  userId: userIdArb,
-  role: farmRoleArb,
-})
-
 // ============================================
 // Property Tests
 // ============================================
@@ -235,7 +228,7 @@ describe('User Management Properties', () => {
 
     it('role assignment is deterministic', () => {
       fc.assert(
-        fc.property(farmRoleArb, farmRoleArb, (role1, role2) => {
+        fc.property(farmRoleArb, farmRoleArb, (_role1, role2) => {
           // Assigning role1 then role2 should result in role2
           const finalRole = role2
           expect(finalRole).toBe(role2)
@@ -327,7 +320,7 @@ describe('User Management Properties', () => {
   describe('Property 5: New User Has No Farms', () => {
     it('new user starts with empty farm assignments', () => {
       fc.assert(
-        fc.property(userIdArb, emailArb, nameArb, (userId, email, name) => {
+        fc.property(userIdArb, emailArb, nameArb, (_userId, _email, _name) => {
           // Simulate new user creation - they have no farm assignments
           const newUserFarmAssignments: Array<{
             farmId: string

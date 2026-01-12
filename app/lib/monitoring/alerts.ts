@@ -284,7 +284,7 @@ async function analyzeBatch(batch: {
   // 7. Check Growth Performance vs Standards
   const growthStandard = await db
     .selectFrom('growth_standards')
-    .select(['ageWeeks', 'standardWeightKg'])
+    .select(['id', 'species', 'day', 'expected_weight_g'])
     .where('species', '=', batch.species)
     .execute()
 
@@ -293,7 +293,7 @@ async function analyzeBatch(batch: {
     const ageInWeeks = Math.floor(ageInDays / 7)
 
     const expectedStandard = growthStandard.find(
-      (g) => g.ageWeeks === ageInWeeks,
+      (g) => g.day === ageInDays,
     )
     const latestWeight = await db
       .selectFrom('weight_samples')
@@ -304,7 +304,7 @@ async function analyzeBatch(batch: {
       .executeTakeFirst()
 
     if (expectedStandard && latestWeight) {
-      const expectedKg = parseFloat(expectedStandard.standardWeightKg)
+      const expectedKg = expectedStandard.expected_weight_g / 1000 // Convert grams to kg
       const actualKg = parseFloat(latestWeight.averageWeightKg)
       const performanceRatio = actualKg / expectedKg
 

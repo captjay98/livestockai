@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import * as fc from 'fast-check'
 import { createUserWithAuth } from './seed-helpers'
 import { db } from './index'
 
@@ -26,7 +25,7 @@ describe('Development Seeder Property Tests', () => {
     'Property 7: Authentication Success (Dev Seeder) - multiple users can be created with authentication',
     async () => {
       // Create admin user (like dev seeder does)
-      const adminResult = await createUserWithAuth(db, {
+      await createUserWithAuth(db, {
         email: 'admin@openlivestock.local',
         password: 'password123',
         name: 'Farm Administrator',
@@ -34,7 +33,7 @@ describe('Development Seeder Property Tests', () => {
       })
 
       // Create demo user (like dev seeder does)
-      const demoResult = await createUserWithAuth(db, {
+      await createUserWithAuth(db, {
         email: 'demo@openlivestock.local',
         password: 'demo123',
         name: 'Demo User',
