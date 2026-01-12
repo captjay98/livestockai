@@ -16,13 +16,19 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
 import { Label } from '~/components/ui/label'
 import { Switch } from '~/components/ui/switch'
 
-
 export function ModuleSelector() {
-  const { enabledModules, toggleModule, canDisableModule, isLoading } = useModules()
+  const { enabledModules, toggleModule, canDisableModule, isLoading } =
+    useModules()
   const [pendingToggle, setPendingToggle] = useState<{
     moduleKey: ModuleKey
     enabled: boolean
@@ -30,7 +36,10 @@ export function ModuleSelector() {
   const [error, setError] = useState<string | null>(null)
   const [isChecking, setIsChecking] = useState(false)
 
-  const handleToggleAttempt = async (moduleKey: ModuleKey, currentlyEnabled: boolean) => {
+  const handleToggleAttempt = async (
+    moduleKey: ModuleKey,
+    currentlyEnabled: boolean,
+  ) => {
     setError(null)
 
     // If trying to disable, check if it's allowed
@@ -51,7 +60,9 @@ export function ModuleSelector() {
         setPendingToggle({ moduleKey, enabled: false })
       } catch (err) {
         setIsChecking(false)
-        setError(err instanceof Error ? err.message : 'Failed to check module status')
+        setError(
+          err instanceof Error ? err.message : 'Failed to check module status',
+        )
       }
     } else {
       // Enabling - no confirmation needed
@@ -134,7 +145,9 @@ export function ModuleSelector() {
                     <Switch
                       id={`module-${moduleKey}`}
                       checked={isEnabled}
-                      onCheckedChange={() => handleToggleAttempt(moduleKey, isEnabled)}
+                      onCheckedChange={() =>
+                        handleToggleAttempt(moduleKey, isEnabled)
+                      }
                       disabled={isLoading || isChecking}
                     />
                   </div>
@@ -160,7 +173,10 @@ export function ModuleSelector() {
       </div>
 
       {/* Confirmation Dialog */}
-      <AlertDialog open={!!pendingToggle} onOpenChange={() => setPendingToggle(null)}>
+      <AlertDialog
+        open={!!pendingToggle}
+        onOpenChange={() => setPendingToggle(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Disable Module?</AlertDialogTitle>
@@ -171,8 +187,8 @@ export function ModuleSelector() {
                   <span className="font-semibold">
                     {MODULE_METADATA[pendingToggle.moduleKey].name}
                   </span>{' '}
-                  module? This will hide related navigation items and features from your
-                  farm dashboard.
+                  module? This will hide related navigation items and features
+                  from your farm dashboard.
                   <br />
                   <br />
                   You can re-enable it at any time.

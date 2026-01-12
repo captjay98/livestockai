@@ -4,10 +4,27 @@
  * User settings for currency, date/time, and units of measurement.
  */
 
-import { createFileRoute } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  useLocation,
+  useNavigate,
+} from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { Calendar, DollarSign, Loader2, RotateCcw, Ruler, Save, Settings } from 'lucide-react'
-import type {UserSettings} from '~/lib/settings';
+import {
+  Boxes,
+  Calendar,
+  ClipboardList,
+  DollarSign,
+  Loader2,
+  PlayCircle,
+  RotateCcw,
+  Ruler,
+  Save,
+  Settings,
+  Users,
+} from 'lucide-react'
+import type { UserSettings } from '~/lib/settings'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
@@ -23,24 +40,50 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import {
   CURRENCY_PRESETS,
   DEFAULT_SETTINGS,
-  
   getCurrencyPreset,
-  useSettings
+  useSettings,
 } from '~/lib/settings'
 import { formatCurrency } from '~/lib/settings/currency-formatter'
 import { formatDate, formatTime } from '~/lib/settings/date-formatter'
-import { formatArea, formatTemperature, formatWeight } from '~/lib/settings/unit-converter'
+import {
+  formatArea,
+  formatTemperature,
+  formatWeight,
+} from '~/lib/settings/unit-converter'
+import { useSession } from '~/lib/auth/client'
+import { cn } from '~/lib/utils'
 
 export const Route = createFileRoute('/_auth/settings')({
   component: SettingsPage,
 })
 
+// Settings sub-navigation items
+const settingsNav = [
+  { name: 'Regional', href: '/settings', icon: Settings, adminOnly: false },
+  { name: 'Modules', href: '/settings/modules', icon: Boxes, adminOnly: false },
+  { name: 'Users', href: '/settings/users', icon: Users, adminOnly: true },
+  {
+    name: 'Audit Log',
+    href: '/settings/audit',
+    icon: ClipboardList,
+    adminOnly: true,
+  },
+]
+
 function SettingsPage() {
   const { settings, updateSettings, isLoading, error } = useSettings()
+  const { data: session } = useSession()
+  const location = useLocation()
+  const navigate = useNavigate()
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
+
+  const isAdmin = session?.user.role === 'admin'
+
+  // Filter nav items based on admin status
+  const visibleNav = settingsNav.filter((item) => !item.adminOnly || isAdmin)
 
   // Sync local settings when context settings change
   useEffect(() => {
@@ -134,6 +177,29 @@ function SettingsPage() {
             Configure your regional preferences
           </p>
         </div>
+      </div>
+
+      {/* Settings Sub-Navigation */}
+      <div className="flex gap-1 border-b pb-2 overflow-x-auto">
+        {visibleNav.map((item) => {
+          const Icon = item.icon
+          const isActive = location.pathname === item.href
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                'inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap',
+                isActive
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted',
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              {item.name}
+            </Link>
+          )
+        })}
       </div>
 
       {(error || saveError) && (
@@ -339,7 +405,9 @@ function SettingsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="MM/DD/YYYY">MM/DD/YYYY (US)</SelectItem>
-                    <SelectItem value="DD/MM/YYYY">DD/MM/YYYY (UK/EU)</SelectItem>
+                    <SelectItem value="DD/MM/YYYY">
+                      DD/MM/YYYY (UK/EU)
+                    </SelectItem>
                     <SelectItem value="YYYY-MM-DD">YYYY-MM-DD (ISO)</SelectItem>
                   </SelectContent>
                 </Select>
@@ -457,7 +525,10 @@ function SettingsPage() {
                 <Select
                   value={localSettings.temperatureUnit}
                   onValueChange={(v: 'celsius' | 'fahrenheit') =>
-                    setLocalSettings((prev) => ({ ...prev, temperatureUnit: v }))
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      temperatureUnit: v,
+                    }))
                   }
                 >
                   <SelectTrigger className="w-full">
@@ -509,6 +580,25 @@ function SettingsPage() {
           Save Settings
         </Button>
       </div>
+
+      {/* Help Section */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold">Need a refresher?</h3>
+            <p className="text-sm text-muted-foreground">
+              Restart the feature tour to learn about all the features
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => navigate({ to: '/onboarding' })}
+          >
+            <PlayCircle className="h-4 w-4 mr-2" />
+            Restart Tour
+          </Button>
+        </div>
+      </Card>
     </div>
   )
 }

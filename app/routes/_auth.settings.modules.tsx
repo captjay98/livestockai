@@ -37,7 +37,8 @@ function ModuleSettingsPage() {
         <div>
           <h3 className="text-lg font-medium">Feature Modules</h3>
           <p className="text-sm text-muted-foreground">
-            Enable or disable livestock management features for {selectedFarm.name}.
+            Enable or disable livestock management features for{' '}
+            {selectedFarm.name}.
           </p>
         </div>
       </div>

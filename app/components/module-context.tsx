@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 
 import type { ModuleContextState, ModuleKey } from '~/lib/modules/types'
-import { canDisableModuleFn, getFarmModulesFn, toggleModuleFn } from '~/lib/modules/server'
+import {
+  canDisableModuleFn,
+  getFarmModulesFn,
+  toggleModuleFn,
+} from '~/lib/modules/server'
 
 const ModuleContext = createContext<ModuleContextState | null>(null)
 
@@ -30,9 +34,7 @@ export function ModuleProvider({ children, farmId }: ModuleProviderProps) {
   // Update enabled modules when data changes
   useEffect(() => {
     if (modules) {
-      const enabled = modules
-        .filter((m) => m.enabled)
-        .map((m) => m.moduleKey)
+      const enabled = modules.filter((m) => m.enabled).map((m) => m.moduleKey)
       setEnabledModules(enabled)
     } else {
       setEnabledModules([])
@@ -41,7 +43,13 @@ export function ModuleProvider({ children, farmId }: ModuleProviderProps) {
 
   // Mutation to toggle a module
   const toggleMutation = useMutation({
-    mutationFn: async ({ moduleKey, enabled }: { moduleKey: ModuleKey; enabled: boolean }) => {
+    mutationFn: async ({
+      moduleKey,
+      enabled,
+    }: {
+      moduleKey: ModuleKey
+      enabled: boolean
+    }) => {
       if (!farmId) throw new Error('No farm selected')
       return toggleModuleFn({ data: { farmId, moduleKey, enabled } })
     },
@@ -57,10 +65,12 @@ export function ModuleProvider({ children, farmId }: ModuleProviderProps) {
 
     // If disabling, check if it's allowed
     if (!newEnabled && farmId) {
-      const canDisable = await canDisableModuleFn({ data: { farmId, moduleKey } })
+      const canDisable = await canDisableModuleFn({
+        data: { farmId, moduleKey },
+      })
       if (!canDisable) {
         throw new Error(
-          'Cannot disable module with active batches. Please complete or sell all batches first.'
+          'Cannot disable module with active batches. Please complete or sell all batches first.',
         )
       }
     }
@@ -75,7 +85,9 @@ export function ModuleProvider({ children, farmId }: ModuleProviderProps) {
 
   const refreshModules = async () => {
     if (farmId) {
-      await queryClient.invalidateQueries({ queryKey: ['farm-modules', farmId] })
+      await queryClient.invalidateQueries({
+        queryKey: ['farm-modules', farmId],
+      })
     }
   }
 
@@ -87,7 +99,9 @@ export function ModuleProvider({ children, farmId }: ModuleProviderProps) {
     refreshModules,
   }
 
-  return <ModuleContext.Provider value={value}>{children}</ModuleContext.Provider>
+  return (
+    <ModuleContext.Provider value={value}>{children}</ModuleContext.Provider>
+  )
 }
 
 export function useModules(): ModuleContextState {

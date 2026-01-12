@@ -16,7 +16,10 @@ describe('useModuleNavigation - Property Tests', () => {
   ]
 
   const moduleKeyArb = fc.constantFrom(...allModuleKeys)
-  const moduleSetArb = fc.uniqueArray(moduleKeyArb, { minLength: 0, maxLength: 6 })
+  const moduleSetArb = fc.uniqueArray(moduleKeyArb, {
+    minLength: 0,
+    maxLength: 6,
+  })
 
   /**
    * Property 1: Core Navigation Always Visible
@@ -125,7 +128,7 @@ describe('useModuleNavigation - Property Tests', () => {
 
         // Should only have core items
         expect(filtered.length).toBe(CORE_NAVIGATION.length)
-        
+
         filtered.forEach((item) => {
           expect(CORE_NAVIGATION.includes(item.name)).toBe(true)
         })
