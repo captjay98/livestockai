@@ -1,6 +1,7 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { AlertCircle } from 'lucide-react'
+import { Logo } from '~/components/logo'
 import { loginFn } from '~/lib/auth/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -57,11 +58,9 @@ function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src="/logo-wordmark.png" alt="JayFarms" className="h-20" />
+            <Logo className="h-12" />
           </div>
-          <CardDescription>
-            Sign in to your poultry & fishery management account
-          </CardDescription>
+          <CardDescription>Sign in to manage your farm</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">

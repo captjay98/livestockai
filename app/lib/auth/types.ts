@@ -2,7 +2,10 @@ export interface User {
   id: string
   email: string
   name: string
-  role: 'admin' | 'staff'
+  role: 'admin' | 'user'
+  banned?: boolean
+  banReason?: string | null
+  banExpires?: Date | null
   createdAt: Date
   updatedAt: Date
 }

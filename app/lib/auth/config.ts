@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
+import { admin } from 'better-auth/plugins'
 import { neon } from '@neondatabase/serverless'
 import { NeonDialect } from 'kysely-neon'
 
@@ -97,7 +98,20 @@ export const auth = betterAuth({
       role: {
         type: 'string',
         required: true,
-        defaultValue: 'staff',
+        defaultValue: 'user',
+      },
+      banned: {
+        type: 'boolean',
+        required: false,
+        defaultValue: false,
+      },
+      banReason: {
+        type: 'string',
+        required: false,
+      },
+      banExpires: {
+        type: 'date',
+        required: false,
       },
     },
   },
@@ -113,5 +127,11 @@ export const auth = betterAuth({
     // Add your production domain here
     // 'https://your-app.workers.dev',
   ],
-  plugins: [tanstackStartCookies()],
+  plugins: [
+    tanstackStartCookies(),
+    admin({
+      defaultRole: 'user',
+      adminRoles: ['admin'],
+    }),
+  ],
 })

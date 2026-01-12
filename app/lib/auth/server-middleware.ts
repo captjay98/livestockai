@@ -16,6 +16,28 @@ export async function requireAuth() {
     throw new Error('UNAUTHORIZED')
   }
 
+  // Check if user is banned
+  const { db } = await import('../db')
+  const user = await db
+    .selectFrom('users')
+    .select(['banned', 'banExpires'])
+    .where('id', '=', session.user.id)
+    .executeTakeFirst()
+
+  if (user?.banned) {
+    // Check if ban has expired
+    if (user.banExpires && new Date(user.banExpires) < new Date()) {
+      // Ban expired, unban the user
+      await db
+        .updateTable('users')
+        .set({ banned: false, banReason: null, banExpires: null })
+        .where('id', '=', session.user.id)
+        .execute()
+    } else {
+      throw new Error('BANNED')
+    }
+  }
+
   return session
 }
 
