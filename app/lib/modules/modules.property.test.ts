@@ -21,10 +21,13 @@ const moduleKeyArb = fc.constantFrom<ModuleKey>(
   'cattle',
   'goats',
   'sheep',
-  'bees'
+  'bees',
 )
 
-const moduleKeysArb = fc.uniqueArray(moduleKeyArb, { minLength: 1, maxLength: 6 })
+const moduleKeysArb = fc.uniqueArray(moduleKeyArb, {
+  minLength: 1,
+  maxLength: 6,
+})
 
 const livestockTypeArb = fc.constantFrom<LivestockType>(
   'poultry',
@@ -32,7 +35,7 @@ const livestockTypeArb = fc.constantFrom<LivestockType>(
   'cattle',
   'goats',
   'sheep',
-  'bees'
+  'bees',
 )
 
 describe('Module Constants Property Tests', () => {
@@ -71,7 +74,7 @@ describe('Module Constants Property Tests', () => {
             expect(option.label).toBeTruthy()
           })
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -84,7 +87,7 @@ describe('Module Constants Property Tests', () => {
 
           expect(uniqueValues.size).toBe(values.length)
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -97,7 +100,7 @@ describe('Module Constants Property Tests', () => {
 
           expect(uniqueValues.size).toBe(values.length)
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
   })
@@ -118,8 +121,8 @@ describe('Module Constants Property Tests', () => {
           })
 
           // Verify the species come from the correct module
-          const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
-            metadata.livestockTypes.includes(livestockType)
+          const moduleEntry = Object.entries(MODULE_METADATA).find(
+            ([_, metadata]) => metadata.livestockTypes.includes(livestockType),
           )
           expect(moduleEntry).toBeDefined()
 
@@ -128,7 +131,7 @@ describe('Module Constants Property Tests', () => {
             expect(species).toEqual(metadata.speciesOptions)
           }
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
   })
@@ -149,8 +152,8 @@ describe('Module Constants Property Tests', () => {
           })
 
           // Verify the source sizes come from the correct module
-          const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
-            metadata.livestockTypes.includes(livestockType)
+          const moduleEntry = Object.entries(MODULE_METADATA).find(
+            ([_, metadata]) => metadata.livestockTypes.includes(livestockType),
           )
           expect(moduleEntry).toBeDefined()
 
@@ -159,7 +162,7 @@ describe('Module Constants Property Tests', () => {
             expect(sourceSizes).toEqual(metadata.sourceSizeOptions)
           }
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
   })
@@ -175,7 +178,7 @@ describe('Module Constants Property Tests', () => {
 
           // All feed types should come from enabled modules
           const expectedFeedTypes = new Set(
-            enabledModules.flatMap((key) => MODULE_METADATA[key].feedTypes)
+            enabledModules.flatMap((key) => MODULE_METADATA[key].feedTypes),
           )
 
           feedTypes.forEach((feedType) => {
@@ -186,21 +189,30 @@ describe('Module Constants Property Tests', () => {
           const uniqueFeedTypes = new Set(feedTypes)
           expect(uniqueFeedTypes.size).toBe(feedTypes.length)
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
     it('should not include feed types from disabled modules', () => {
       fc.assert(
         fc.property(moduleKeysArb, (enabledModules) => {
-          const allModules: Array<ModuleKey> = ['poultry', 'aquaculture', 'cattle', 'goats', 'sheep', 'bees']
-          const disabledModules = allModules.filter((m) => !enabledModules.includes(m))
+          const allModules: Array<ModuleKey> = [
+            'poultry',
+            'aquaculture',
+            'cattle',
+            'goats',
+            'sheep',
+            'bees',
+          ]
+          const disabledModules = allModules.filter(
+            (m) => !enabledModules.includes(m),
+          )
 
           if (disabledModules.length === 0) return true // Skip if all modules enabled
 
           const feedTypes = getFeedTypesForModules(enabledModules)
           const disabledFeedTypes = new Set(
-            disabledModules.flatMap((key) => MODULE_METADATA[key].feedTypes)
+            disabledModules.flatMap((key) => MODULE_METADATA[key].feedTypes),
           )
 
           // Check that no feed type is exclusive to disabled modules
@@ -208,7 +220,7 @@ describe('Module Constants Property Tests', () => {
             // If this feed type is in disabled modules, it must also be in enabled modules
             if (disabledFeedTypes.has(feedType)) {
               const enabledFeedTypes = new Set(
-                enabledModules.flatMap((key) => MODULE_METADATA[key].feedTypes)
+                enabledModules.flatMap((key) => MODULE_METADATA[key].feedTypes),
               )
               expect(enabledFeedTypes.has(feedType)).toBe(true)
             }
@@ -216,7 +228,7 @@ describe('Module Constants Property Tests', () => {
 
           return true
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
   })
@@ -240,7 +252,7 @@ describe('Module Constants Property Tests', () => {
             expect(m.key).toBe(enabledModules[index])
           })
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -255,8 +267,8 @@ describe('Module Constants Property Tests', () => {
           // All species should come from enabled modules
           const expectedSpecies = new Set(
             enabledModules.flatMap((key) =>
-              MODULE_METADATA[key].speciesOptions.map((s) => s.value)
-            )
+              MODULE_METADATA[key].speciesOptions.map((s) => s.value),
+            ),
           )
 
           species.forEach((s) => {
@@ -267,7 +279,7 @@ describe('Module Constants Property Tests', () => {
           const uniqueValues = new Set(species.map((s) => s.value))
           expect(uniqueValues.size).toBe(species.length)
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -281,7 +293,9 @@ describe('Module Constants Property Tests', () => {
 
           // All livestock types should come from enabled modules
           const expectedTypes = new Set(
-            enabledModules.flatMap((key) => MODULE_METADATA[key].livestockTypes)
+            enabledModules.flatMap(
+              (key) => MODULE_METADATA[key].livestockTypes,
+            ),
           )
 
           livestockTypes.forEach((type) => {
@@ -292,7 +306,7 @@ describe('Module Constants Property Tests', () => {
           const uniqueTypes = new Set(livestockTypes)
           expect(uniqueTypes.size).toBe(livestockTypes.length)
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -306,7 +320,9 @@ describe('Module Constants Property Tests', () => {
 
           // All structure types should come from enabled modules
           const expectedTypes = new Set(
-            enabledModules.flatMap((key) => MODULE_METADATA[key].structureTypes)
+            enabledModules.flatMap(
+              (key) => MODULE_METADATA[key].structureTypes,
+            ),
           )
 
           structureTypes.forEach((type) => {
@@ -317,14 +333,23 @@ describe('Module Constants Property Tests', () => {
           const uniqueTypes = new Set(structureTypes)
           expect(uniqueTypes.size).toBe(structureTypes.length)
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
   })
 
   describe('Default Modules By Farm Type', () => {
     it('should have default modules defined for all farm types', () => {
-      const farmTypes = ['poultry', 'fishery', 'cattle', 'goats', 'sheep', 'bees', 'mixed', 'multi']
+      const farmTypes = [
+        'poultry',
+        'fishery',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+        'mixed',
+        'multi',
+      ]
 
       farmTypes.forEach((farmType) => {
         expect(DEFAULT_MODULES_BY_FARM_TYPE[farmType]).toBeDefined()
@@ -333,7 +358,14 @@ describe('Module Constants Property Tests', () => {
     })
 
     it('should only include valid module keys in defaults', () => {
-      const validModuleKeys: Array<ModuleKey> = ['poultry', 'aquaculture', 'cattle', 'goats', 'sheep', 'bees']
+      const validModuleKeys: Array<ModuleKey> = [
+        'poultry',
+        'aquaculture',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+      ]
 
       Object.values(DEFAULT_MODULES_BY_FARM_TYPE).forEach((modules) => {
         modules.forEach((moduleKey) => {

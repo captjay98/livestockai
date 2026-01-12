@@ -7,7 +7,9 @@ import type { FarmModule, ModuleKey } from './types'
 /**
  * Get all modules for a farm
  */
-export async function getFarmModules(farmId: string): Promise<Array<FarmModule>> {
+export async function getFarmModules(
+  farmId: string,
+): Promise<Array<FarmModule>> {
   const { db } = await import('../db')
 
   const modules = await db
@@ -25,7 +27,9 @@ export async function getFarmModules(farmId: string): Promise<Array<FarmModule>>
 /**
  * Get enabled module keys for a farm
  */
-export async function getEnabledModules(farmId: string): Promise<Array<ModuleKey>> {
+export async function getEnabledModules(
+  farmId: string,
+): Promise<Array<ModuleKey>> {
   const modules = await getFarmModules(farmId)
   return modules.filter((m) => m.enabled).map((m) => m.moduleKey)
 }

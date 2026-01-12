@@ -12,7 +12,7 @@ const moduleKeyArb = fc.constantFrom<ModuleKey>(
   'cattle',
   'goats',
   'sheep',
-  'bees'
+  'bees',
 )
 
 const farmTypeArb = fc.constantFrom(
@@ -23,7 +23,7 @@ const farmTypeArb = fc.constantFrom(
   'sheep',
   'bees',
   'mixed',
-  'multi'
+  'multi',
 )
 
 const uuidArb = fc.uuid()
@@ -75,7 +75,7 @@ describe('Module Server Functions Property Tests', () => {
             expect(defaultModules.length).toBe(0)
           }
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
 
@@ -87,7 +87,7 @@ describe('Module Server Functions Property Tests', () => {
 
           expect(uniqueModules.size).toBe(defaultModules.length)
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
   })
@@ -121,7 +121,7 @@ describe('Module Server Functions Property Tests', () => {
             expect(validModules.includes(moduleKey)).toBe(true)
           })
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       )
     })
   })

@@ -11,7 +11,9 @@ import type {
 /**
  * Get metadata for enabled modules
  */
-export function getEnabledModuleMetadata(enabledModules: Array<ModuleKey>): Array<ModuleMetadata> {
+export function getEnabledModuleMetadata(
+  enabledModules: Array<ModuleKey>,
+): Array<ModuleMetadata> {
   return enabledModules.map((key) => MODULE_METADATA[key])
 }
 
@@ -25,7 +27,9 @@ export function getSpeciesForModules(
   const allSpecies = metadata.flatMap((m) => m.speciesOptions)
 
   // Remove duplicates based on value
-  const uniqueSpecies = Array.from(new Map(allSpecies.map((s) => [s.value, s])).values())
+  const uniqueSpecies = Array.from(
+    new Map(allSpecies.map((s) => [s.value, s])).values(),
+  )
 
   return uniqueSpecies
 }
@@ -33,7 +37,9 @@ export function getSpeciesForModules(
 /**
  * Get all livestock types for enabled modules
  */
-export function getLivestockTypesForModules(enabledModules: Array<ModuleKey>): Array<LivestockType> {
+export function getLivestockTypesForModules(
+  enabledModules: Array<ModuleKey>,
+): Array<LivestockType> {
   const metadata = getEnabledModuleMetadata(enabledModules)
   const allTypes = metadata.flatMap((m) => m.livestockTypes)
 
@@ -44,7 +50,9 @@ export function getLivestockTypesForModules(enabledModules: Array<ModuleKey>): A
 /**
  * Get all feed types for enabled modules
  */
-export function getFeedTypesForModules(enabledModules: Array<ModuleKey>): Array<FeedType> {
+export function getFeedTypesForModules(
+  enabledModules: Array<ModuleKey>,
+): Array<FeedType> {
   const metadata = getEnabledModuleMetadata(enabledModules)
   const allFeedTypes = metadata.flatMap((m) => m.feedTypes)
 
@@ -68,23 +76,27 @@ export function getStructureTypesForModules(
 /**
  * Get species options for a specific livestock type
  */
-export function getSpeciesForLivestockType(livestockType: LivestockType): Array<{ value: string; label: string }> {
+export function getSpeciesForLivestockType(
+  livestockType: LivestockType,
+): Array<{ value: string; label: string }> {
   // Find the module that handles this livestock type
   const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
-    metadata.livestockTypes.includes(livestockType)
+    metadata.livestockTypes.includes(livestockType),
   )
-  
+
   return moduleEntry ? moduleEntry[1].speciesOptions : []
 }
 
 /**
  * Get source size options for a specific livestock type
  */
-export function getSourceSizeForLivestockType(livestockType: LivestockType): Array<{ value: string; label: string }> {
+export function getSourceSizeForLivestockType(
+  livestockType: LivestockType,
+): Array<{ value: string; label: string }> {
   // Find the module that handles this livestock type
   const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
-    metadata.livestockTypes.includes(livestockType)
+    metadata.livestockTypes.includes(livestockType),
   )
-  
+
   return moduleEntry ? moduleEntry[1].sourceSizeOptions : []
 }
