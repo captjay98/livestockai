@@ -3,21 +3,17 @@ import { createServerFn } from '@tanstack/react-start'
 import {
   Activity,
   AlertTriangle,
-  Beef,
   Bird,
   Building2,
   Calendar,
   Clock,
-  Cloud,
   DollarSign,
   Droplets,
   Edit,
   Egg,
   Fish,
-  Hexagon,
   Package,
   Plus,
-  Rabbit,
   Receipt,
   ShoppingCart,
   Syringe,
@@ -38,7 +34,6 @@ import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { useFarm } from '~/components/farm-context'
-import { useModules } from '~/components/module-context'
 import { cn } from '~/lib/utils'
 import { ExpenseDialog } from '~/components/dialogs/expense-dialog'
 import { EditFarmDialog } from '~/components/dialogs/edit-farm-dialog'
@@ -158,7 +153,6 @@ function TrendingDownIcon({ className }: { className?: string }) {
 
 function DashboardPage() {
   const { selectedFarmId } = useFarm()
-  const { enabledModules } = useModules()
 
   const [stats, setStats] = useState<any>(null)
   const [hasFarms, setHasFarms] = useState<boolean | null>(null)
@@ -206,7 +200,7 @@ function DashboardPage() {
           <Building2 className="h-10 w-10 sm:h-12 sm:w-12 text-foreground mx-auto" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
-          Welcome to OpenLivestock
+          Welcome to JayFarms
         </h1>
         <p className="text-muted-foreground text-base max-w-md mb-6">
           Your complete poultry and fishery management solution. Start by
@@ -257,7 +251,7 @@ function DashboardPage() {
                 <span className="text-sm font-medium">
                   {selectedFarmId
                     ? farms.find((f) => f.id === selectedFarmId)?.name ||
-                    farms[0]?.name
+                      farms[0]?.name
                     : 'All Farms'}
                 </span>
                 {selectedFarmId && (
@@ -380,265 +374,161 @@ function DashboardPage() {
                       </span>
                     </div>
                   )}
-                  <Card className="border-warning/20 bg-warning/10 md:col-span-2">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-warning flex items-center">
-                        <AlertTriangle className="h-4 w-4 mr-2" />
-                        Recent Alerts
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {stats.alerts.map((alert: any, i: number) => (
-                          <div key={i} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="border-warning/50 text-warning bg-warning/5">
-                                {alert.type}
-                              </Badge>
-                              <span className="text-sm font-medium">{alert.message}</span>
-                            </div>
-                            <span className="text-xs text-muted-foreground">
-                              {alert.time}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Card>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">{formatNaira(stats.revenue)}</div>
-                        <p className="text-xs text-muted-foreground">
-                          <span className="text-success flex items-center inline-block">
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            +20.1%
-                          </span>{' '}
-                          from last month
-                        </p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Expenses</CardTitle>
-                        <CreditCard className="h-4 w-4 text-muted-foreground" />
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">{formatNaira(stats.expenses)}</div>
-                        <p className="text-xs text-muted-foreground">
-                          <span className="text-destructive flex items-center inline-block">
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            +4.5%
-                          </span>{' '}
-                          from last month
-                        </p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
-                        <Wallet className="h-4 w-4 text-muted-foreground" />
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">{formatNaira(stats.profit)}</div>
-                        <p className="text-xs text-muted-foreground">
-                          <span className="text-success flex items-center inline-block">
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            +12.2%
-                          </span>{' '}
-                          from last month
-                        </p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Active Batches</CardTitle>
-                        <Activity className="h-4 w-4 text-muted-foreground" />
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold">{stats.activeBatches}</div>
-                        <p className="text-xs text-muted-foreground">
-                          <span className="text-info flex items-center inline-block">
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            +2
-                          </span>{' '}
-                          new this month
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div> className="text-lg sm:text-xl font-bold">
-                  {stats.inventory.activeBatches}
                 </div>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">
-                  Active
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
 
-      {/* Inventory Summary */}
-      <div className="grid gap-3 sm:grid-cols-3">
-        {enabledModules.includes('poultry') && {/* Poultry */ }
-          < div className="flex items-center justify-between p-4 border rounded-lg">
-        <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Bird className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <p className="font-medium">Poultry</p>
-            <p className="text-sm text-muted-foreground">
-              {stats.inventory.poultry.batches} Batches
-            </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="font-bold">{stats.inventory.poultry.count}</p>
-          <p className="text-xs text-success">Healthy</p>
-        </div>
-      </div>
+            <Card>
+              <CardContent className="p-3 shadow-none">
+                <div className="flex flex-row items-center justify-between space-y-0 pb-1">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Profit
+                  </p>
+                  <div
+                    className={cn(
+                      'h-6 w-6 rounded-full flex items-center justify-center shrink-0',
+                      stats.financial.monthlyProfit >= 0
+                        ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                        : 'bg-red-100 dark:bg-red-900/30',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'font-bold text-xs',
+                        stats.financial.monthlyProfit >= 0
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-red-600 dark:text-red-400',
+                      )}
+                    >
+                      ₦
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-lg sm:text-xl font-bold">
+                    {formatNaira(stats.financial.monthlyProfit)}
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">
+                    Net margin
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
-      {/* Fish */}
-      <div className="flex items-center justify-between p-4 border rounded-lg">
-        <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-full bg-info/10 flex items-center justify-center">
-            <Fish className="h-5 w-5 text-info" />
+            <Card>
+              <CardContent className="p-3 shadow-none">
+                <div className="flex flex-row items-center justify-between space-y-0 pb-1">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Batches
+                  </p>
+                  <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                    <Users className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-lg sm:text-xl font-bold">
+                    {stats.inventory.activeBatches}
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">
+                    Active
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <div>
-            <p className="font-medium">Fish</p>
-            <p className="text-sm text-muted-foreground">
-              {stats.inventory.fish.ponds} Ponds
-            </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="font-bold">{stats.inventory.fish.count}</p>
-          <p className="text-xs text-success">Optimal</p>
-        </div>
-      </div>
 
-      {/* Cattle (using Primary or Warning, stick to Primary/Orange theme for now or Warning?) User asked for semantic. Keeping Orange as Primary fits. */}
-      <div className="flex items-center justify-between p-4 border rounded-lg">
-        <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center">
-            <PawPrint className="h-5 w-5 text-warning" />
+          {/* Inventory Summary */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Bird className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">Poultry</p>
+                    <p className="text-lg sm:text-xl font-bold">
+                      {stats.inventory.totalPoultry.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                    <Fish className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">Fish</p>
+                    <p className="text-lg sm:text-xl font-bold">
+                      {stats.inventory.totalFish.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            {/* <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                    <Egg className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">Eggs</p>
+                    <p className="text-lg sm:text-xl font-bold">
+                      {stats.production.eggsThisMonth.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card> */}
           </div>
-          <div>
-            <p className="font-medium">Cattle</p>
-            <p className="text-sm text-muted-foreground">
-              {stats.inventory.cattle.count} Head
-            </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="font-bold">{stats.inventory.cattle.count}</p>
-          <p className="text-xs text-success">Healthy</p>
-        </div>
-      </div>
 
-      {/* Sheep (using Purple) */}
-      <div className="flex items-center justify-between p-4 border rounded-lg">
-        <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-full bg-purple/10 flex items-center justify-center">
-            <PawPrint className="h-5 w-5 text-purple" />
-          </div>
-          <div>
-            <p className="font-medium">Sheep</p>
-            <p className="text-sm text-muted-foreground">
-              {stats.inventory.sheep.count} Head
-            </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="font-bold">{stats.inventory.sheep.count}</p>
-          <p className="text-xs text-success">Healthy</p>
-        </div>
-      </div>CardContent className="p-4">
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-          <Cloud className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-xs text-muted-foreground">Sheep</p>
-          <p className="text-lg sm:text-xl font-bold">
-            {stats.inventory.totalSheep?.toLocaleString() || 0}
-          </p>
-        </div>
-      </div>
-    </CardContent>
-          </Card >
-        )
-}
-{
-  enabledModules.includes('bees') && (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-            <Hexagon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">
-              Bee Colonies
-            </p>
-            <p className="text-lg sm:text-xl font-bold">
-              {stats.inventory.totalBees?.toLocaleString() || 0}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-      </div >
-
-  {/* Quick Actions */ }
-  < Card >
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Quick Actions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-            <button
-              onClick={() => selectedFarmId && setBatchDialogOpen(true)}
-              disabled={!selectedFarmId}
-              className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Users className="h-5 w-5" />
-              <span className="text-xs font-medium">Batches</span>
-            </button>
-            <button
-              onClick={() => selectedFarmId && setFeedDialogOpen(true)}
-              disabled={!selectedFarmId}
-              className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Wheat className="h-5 w-5" />
-              <span className="text-xs font-medium">Feed</span>
-            </button>
-            <button
-              onClick={() => selectedFarmId && setExpenseDialogOpen(true)}
-              disabled={!selectedFarmId}
-              className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Receipt className="h-5 w-5" />
-              <span className="text-xs font-medium">Expense</span>
-            </button>
-            <button
-              onClick={() => selectedFarmId && setSaleDialogOpen(true)}
-              disabled={!selectedFarmId}
-              className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              <span className="text-xs font-medium">New Sale</span>
-            </button>
-            {/* <button
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                <button
+                  onClick={() => selectedFarmId && setBatchDialogOpen(true)}
+                  disabled={!selectedFarmId}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Users className="h-5 w-5" />
+                  <span className="text-xs font-medium">Batches</span>
+                </button>
+                <button
+                  onClick={() => selectedFarmId && setFeedDialogOpen(true)}
+                  disabled={!selectedFarmId}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Wheat className="h-5 w-5" />
+                  <span className="text-xs font-medium">Feed</span>
+                </button>
+                <button
+                  onClick={() => selectedFarmId && setExpenseDialogOpen(true)}
+                  disabled={!selectedFarmId}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Receipt className="h-5 w-5" />
+                  <span className="text-xs font-medium">Expense</span>
+                </button>
+                <button
+                  onClick={() => selectedFarmId && setSaleDialogOpen(true)}
+                  disabled={!selectedFarmId}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="text-xs font-medium">New Sale</span>
+                </button>
+                {/* <button
                   onClick={() => selectedFarmId && setEggDialogOpen(true)}
                   disabled={!selectedFarmId}
                   className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
@@ -646,324 +536,315 @@ function DashboardPage() {
                   <Egg className="h-5 w-5" />
                   <span className="text-xs font-medium">Eggs</span>
                 </button> */}
-            <Link
-              to="/reports"
-              className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center"
-            >
-              <TrendingUp className="h-5 w-5" />
-              <span className="text-xs font-medium">Reports</span>
-            </Link>
-          </div>
-        </CardContent>
-      </Card >
-
-  {/* Main Content Grid */ }
-  < div className = "grid gap-4 sm:gap-6 lg:grid-cols-3" >
-    {/* Left Column */ }
-    < div className = "lg:col-span-2 space-y-4 sm:space-y-6" >
-      {/* Alerts */ }
-{/* Alerts */ }
-{
-  stats.alerts && stats.alerts.length > 0 && (
-    <Card className="border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
-          <AlertTriangle className="h-4 w-4" />
-          Alerts
-          <Badge
-            variant="outline"
-            className="ml-auto bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700"
-          >
-            {stats.alerts.length}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {stats.alerts.map((alert: BatchAlert) => (
-          <div
-            key={alert.id}
-            className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
-          >
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              {alert.source === 'mortality' && (
-                <TrendingDown className="h-4 w-4 text-red-500 shrink-0" />
-              )}
-              {alert.source === 'water_quality' && (
-                <Droplets className="h-4 w-4 text-blue-500 shrink-0" />
-              )}
-              {alert.source === 'vaccination' && (
-                <Syringe className="h-4 w-4 text-amber-600 shrink-0" />
-              )}
-              {alert.source === 'inventory' && (
-                <Package className="h-4 w-4 text-orange-600 shrink-0" />
-              )}
-              {alert.source === 'feed' && (
-                <Wheat className="h-4 w-4 text-yellow-600 shrink-0" />
-              )}
-              {alert.source === 'growth' && (
-                <TrendingUp className="h-4 w-4 text-purple-500 shrink-0" />
-              )}
-
-              <div className="flex flex-col min-w-0">
-                <span className="font-medium truncate">
-                  {alert.species}
-                </span>
-                <span className="text-xs text-muted-foreground truncate">
-                  {alert.message}
-                </span>
-              </div>
-            </div>
-
-            {alert.type === 'critical' && (
-              <Badge
-                variant="destructive"
-                className="text-[10px] shrink-0 ml-2"
-              >
-                Critical
-              </Badge>
-            )}
-            {alert.type === 'warning' && (
-              <Badge
-                variant="secondary"
-                className="text-[10px] bg-amber-100 text-amber-700 shrink-0 ml-2"
-              >
-                Warning
-              </Badge>
-            )}
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  )
-}
-
-{/* Recent Transactions */ }
-<Card>
-  <CardHeader className="pb-2">
-    <CardTitle className="text-sm flex items-center gap-2">
-      <Activity className="h-4 w-4" />
-      Recent Transactions
-    </CardTitle>
-  </CardHeader>
-  <CardContent className="space-y-2">
-    {stats.recentTransactions
-      .slice(0, 5)
-      .map((tx: Transaction) => (
-        <div
-          key={tx.id}
-          className="flex items-center justify-between p-2.5 rounded-lg hover:bg-muted/50 transition-colors"
-        >
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div
-              className={cn(
-                'h-8 w-8 rounded-full flex items-center justify-center shrink-0',
-                tx.type === 'sale'
-                  ? 'bg-emerald-100 text-emerald-600'
-                  : 'bg-red-100 text-red-600',
-              )}
-            >
-              {tx.type === 'sale' ? (
-                <span className="font-bold text-xs">₦</span>
-              ) : (
-                <Receipt className="h-4 w-4" />
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium text-sm truncate">
-                {tx.description}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {new Date(tx.date).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-          <span
-            className={cn(
-              'font-bold text-sm shrink-0 ml-2',
-              tx.type === 'sale'
-                ? 'text-emerald-600'
-                : 'text-red-600',
-            )}
-          >
-            {tx.type === 'sale' ? '+' : '-'}
-            {formatNaira(tx.amount)}
-          </span>
-        </div>
-      ))}
-    {stats.recentTransactions.length === 0 && (
-      <p className="text-center py-4 text-sm text-muted-foreground">
-        No transactions yet
-      </p>
-    )}
-  </CardContent>
-</Card>
-        </div >
-
-  {/* Right Column */ }
-  < div className = "space-y-4 sm:space-y-6" >
-    {/* Top Customers */ }
-    < Card >
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <UserCircle className="h-4 w-4" />
-                Top Customers
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {stats.topCustomers
-                .slice(0, 5)
-                .map((customer: TopCustomer, i: number) => (
-                  <div
-                    key={customer.id}
-                    className="flex items-center gap-3"
-                  >
-                    <div
-                      className={cn(
-                        'h-7 w-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0',
-                        i === 0
-                          ? 'bg-amber-100 text-amber-700'
-                          : i === 1
-                            ? 'bg-slate-200 text-slate-600'
-                            : i === 2
-                              ? 'bg-orange-100 text-orange-700'
-                              : 'bg-muted',
-                      )}
-                    >
-                      {i + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">
-                        {customer.name}
-                      </p>
-                    </div>
-                    <span className="text-sm text-muted-foreground shrink-0">
-                      {formatNaira(customer.totalSpent)}
-                    </span>
-                  </div>
-                ))}
-              {stats.topCustomers.length === 0 && (
-                <p className="text-center py-4 text-sm text-muted-foreground">
-                  No customer data yet
-                </p>
-              )}
-            </CardContent>
-          </Card >
-
-  {/* Activity Timeline */ }
-  < Card >
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="relative pl-4 space-y-3 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
-                {[
-                  {
-                    icon: Plus,
-                    title: 'Batch added',
-                    desc: 'New livestock',
-                    time: '2h ago',
-                    color: 'text-emerald-600 bg-emerald-100',
-                  },
-                  {
-                    icon: ShoppingCart,
-                    title: 'Sale recorded',
-                    desc: 'Customer purchase',
-                    time: '4h ago',
-                    color: 'text-blue-600 bg-blue-100',
-                  },
-                  {
-                    icon: Receipt,
-                    title: 'Expense logged',
-                    desc: 'Farm supplies',
-                    time: 'Yesterday',
-                    color: 'text-red-600 bg-red-100',
-                  },
-                  {
-                    icon: TrendingDown,
-                    title: 'Mortality',
-                    desc: 'Health check',
-                    time: 'Yesterday',
-                    color: 'text-amber-600 bg-amber-100',
-                  },
-                ].map((item, i) => (
-                  <div key={i} className="relative">
-                    <div
-                      className={cn(
-                        'absolute -left-[21px] top-0 h-7 w-7 rounded-full flex items-center justify-center',
-                        item.color
-                          .replace('text-', 'bg-')
-                          .replace('600', '200'),
-                      )}
-                    >
-                      <item.icon
-                        className={cn('h-3.5 w-3.5', item.color)}
-                      />
-                    </div>
-                    <div className="pl-2">
-                      <p className="text-sm font-medium">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {item.desc}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {item.time}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                <Link
+                  to="/reports"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center"
+                >
+                  <TrendingUp className="h-5 w-5" />
+                  <span className="text-xs font-medium">Reports</span>
+                </Link>
               </div>
             </CardContent>
-          </Card >
-        </div >
-      </div >
-    </>
-  )
-}
+          </Card>
 
-{/* Dialogs */ }
-{
-  selectedFarmId && (
-    <>
-      <ExpenseDialog
-        farmId={selectedFarmId}
-        open={expenseDialogOpen}
-        onOpenChange={setExpenseDialogOpen}
-      />
-      <BatchDialog
-        farmId={selectedFarmId}
-        open={batchDialogOpen}
-        onOpenChange={setBatchDialogOpen}
-      />
-      <SaleDialog
-        farmId={selectedFarmId}
-        open={saleDialogOpen}
-        onOpenChange={setSaleDialogOpen}
-      />
-      <FeedDialog
-        farmId={selectedFarmId}
-        open={feedDialogOpen}
-        onOpenChange={setFeedDialogOpen}
-      />
-      <EggDialog
-        farmId={selectedFarmId}
-        open={eggDialogOpen}
-        onOpenChange={setEggDialogOpen}
-      />
-    </>
-  )
-}
-{
-  selectedFarmForEdit && (
-    <EditFarmDialog
-      farmId={selectedFarmForEdit.id}
-      open={editFarmDialogOpen}
-      onOpenChange={setEditFarmDialogOpen}
-    />
-  )
-}
-    </div >
+          {/* Main Content Grid */}
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+            {/* Left Column */}
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+              {/* Alerts */}
+              {/* Alerts */}
+              {stats.alerts && stats.alerts.length > 0 && (
+                <Card className="border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+                      <AlertTriangle className="h-4 w-4" />
+                      Alerts
+                      <Badge
+                        variant="outline"
+                        className="ml-auto bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700"
+                      >
+                        {stats.alerts.length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {stats.alerts.map((alert: BatchAlert) => (
+                      <div
+                        key={alert.id}
+                        className="flex items-center justify-between p-2.5 rounded-lg bg-background/80 text-sm"
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          {alert.source === 'mortality' && (
+                            <TrendingDown className="h-4 w-4 text-red-500 shrink-0" />
+                          )}
+                          {alert.source === 'water_quality' && (
+                            <Droplets className="h-4 w-4 text-blue-500 shrink-0" />
+                          )}
+                          {alert.source === 'vaccination' && (
+                            <Syringe className="h-4 w-4 text-amber-600 shrink-0" />
+                          )}
+                          {alert.source === 'inventory' && (
+                            <Package className="h-4 w-4 text-orange-600 shrink-0" />
+                          )}
+                          {/* Fallback icon */}
+                          {alert.source === 'feed' && (
+                            <Wheat className="h-4 w-4 text-yellow-600 shrink-0" />
+                          )}
+
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-medium truncate">
+                              {alert.species}
+                            </span>
+                            <span className="text-xs text-muted-foreground truncate">
+                              {alert.message}
+                            </span>
+                          </div>
+                        </div>
+
+                        {alert.type === 'critical' && (
+                          <Badge
+                            variant="destructive"
+                            className="text-[10px] shrink-0 ml-2"
+                          >
+                            Critical
+                          </Badge>
+                        )}
+                        {alert.type === 'warning' && (
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px] bg-amber-100 text-amber-700 shrink-0 ml-2"
+                          >
+                            Warning
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Recent Transactions */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Activity className="h-4 w-4" />
+                    Recent Transactions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {stats.recentTransactions
+                    .slice(0, 5)
+                    .map((tx: Transaction) => (
+                      <div
+                        key={tx.id}
+                        className="flex items-center justify-between p-2.5 rounded-lg hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div
+                            className={cn(
+                              'h-8 w-8 rounded-full flex items-center justify-center shrink-0',
+                              tx.type === 'sale'
+                                ? 'bg-emerald-100 text-emerald-600'
+                                : 'bg-red-100 text-red-600',
+                            )}
+                          >
+                            {tx.type === 'sale' ? (
+                              <span className="font-bold text-xs">₦</span>
+                            ) : (
+                              <Receipt className="h-4 w-4" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm truncate">
+                              {tx.description}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(tx.date).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className={cn(
+                            'font-bold text-sm shrink-0 ml-2',
+                            tx.type === 'sale'
+                              ? 'text-emerald-600'
+                              : 'text-red-600',
+                          )}
+                        >
+                          {tx.type === 'sale' ? '+' : '-'}
+                          {formatNaira(tx.amount)}
+                        </span>
+                      </div>
+                    ))}
+                  {stats.recentTransactions.length === 0 && (
+                    <p className="text-center py-4 text-sm text-muted-foreground">
+                      No transactions yet
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-4 sm:space-y-6">
+              {/* Top Customers */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <UserCircle className="h-4 w-4" />
+                    Top Customers
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {stats.topCustomers
+                    .slice(0, 5)
+                    .map((customer: TopCustomer, i: number) => (
+                      <div
+                        key={customer.id}
+                        className="flex items-center gap-3"
+                      >
+                        <div
+                          className={cn(
+                            'h-7 w-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0',
+                            i === 0
+                              ? 'bg-amber-100 text-amber-700'
+                              : i === 1
+                                ? 'bg-slate-200 text-slate-600'
+                                : i === 2
+                                  ? 'bg-orange-100 text-orange-700'
+                                  : 'bg-muted',
+                          )}
+                        >
+                          {i + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">
+                            {customer.name}
+                          </p>
+                        </div>
+                        <span className="text-sm text-muted-foreground shrink-0">
+                          {formatNaira(customer.totalSpent)}
+                        </span>
+                      </div>
+                    ))}
+                  {stats.topCustomers.length === 0 && (
+                    <p className="text-center py-4 text-sm text-muted-foreground">
+                      No customer data yet
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Activity Timeline */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Recent Activity
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative pl-4 space-y-3 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
+                    {[
+                      {
+                        icon: Plus,
+                        title: 'Batch added',
+                        desc: 'New livestock',
+                        time: '2h ago',
+                        color: 'text-emerald-600 bg-emerald-100',
+                      },
+                      {
+                        icon: ShoppingCart,
+                        title: 'Sale recorded',
+                        desc: 'Customer purchase',
+                        time: '4h ago',
+                        color: 'text-blue-600 bg-blue-100',
+                      },
+                      {
+                        icon: Receipt,
+                        title: 'Expense logged',
+                        desc: 'Farm supplies',
+                        time: 'Yesterday',
+                        color: 'text-red-600 bg-red-100',
+                      },
+                      {
+                        icon: TrendingDown,
+                        title: 'Mortality',
+                        desc: 'Health check',
+                        time: 'Yesterday',
+                        color: 'text-amber-600 bg-amber-100',
+                      },
+                    ].map((item, i) => (
+                      <div key={i} className="relative">
+                        <div
+                          className={cn(
+                            'absolute -left-[21px] top-0 h-7 w-7 rounded-full flex items-center justify-center',
+                            item.color
+                              .replace('text-', 'bg-')
+                              .replace('600', '200'),
+                          )}
+                        >
+                          <item.icon
+                            className={cn('h-3.5 w-3.5', item.color)}
+                          />
+                        </div>
+                        <div className="pl-2">
+                          <p className="text-sm font-medium">{item.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {item.desc}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {item.time}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Dialogs */}
+      {selectedFarmId && (
+        <>
+          <ExpenseDialog
+            farmId={selectedFarmId}
+            open={expenseDialogOpen}
+            onOpenChange={setExpenseDialogOpen}
+          />
+          <BatchDialog
+            farmId={selectedFarmId}
+            open={batchDialogOpen}
+            onOpenChange={setBatchDialogOpen}
+          />
+          <SaleDialog
+            farmId={selectedFarmId}
+            open={saleDialogOpen}
+            onOpenChange={setSaleDialogOpen}
+          />
+          <FeedDialog
+            farmId={selectedFarmId}
+            open={feedDialogOpen}
+            onOpenChange={setFeedDialogOpen}
+          />
+          <EggDialog
+            farmId={selectedFarmId}
+            open={eggDialogOpen}
+            onOpenChange={setEggDialogOpen}
+          />
+        </>
+      )}
+      {selectedFarmForEdit && (
+        <EditFarmDialog
+          farmId={selectedFarmForEdit.id}
+          open={editFarmDialogOpen}
+          onOpenChange={setEditFarmDialogOpen}
+        />
+      )}
+    </div>
   )
 }
 
