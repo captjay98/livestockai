@@ -1,25 +1,12 @@
 /**
  * @vitest-environment jsdom
  */
-import { render, screen } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { render } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
 import { OfflineIndicator } from './offline-indicator'
 
 // Mock the useOnlineStatus hook indirectly or the browser API
 describe.skip('OfflineIndicator', () => {
-  let originalOnLine: boolean
-
-  beforeEach(() => {
-    originalOnLine = navigator.onLine
-  })
-
-  afterEach(() => {
-    Object.defineProperty(navigator, 'onLine', {
-      configurable: true,
-      value: originalOnLine,
-    })
-  })
-
   it('does not render when online', () => {
     Object.defineProperty(navigator, 'onLine', {
       configurable: true,

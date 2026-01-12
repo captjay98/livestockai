@@ -98,7 +98,7 @@ export function AuditLogTable({
                   <TableCell>
                     {log.details ? (
                       <Dialog>
-                        <DialogTrigger asChild>
+                        <DialogTrigger>
                           <Button
                             variant="ghost"
                             size="sm"

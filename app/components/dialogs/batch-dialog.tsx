@@ -328,7 +328,11 @@ export function BatchDialog({
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select source size" />
+                      <SelectValue>
+                        {formData.sourceSize
+                          ? sourceSizeOptions.find((s) => s.value === formData.sourceSize)?.label
+                          : 'Select source size'}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {sourceSizeOptions.map((size) => (
@@ -354,7 +358,11 @@ export function BatchDialog({
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select structure" />
+                      <SelectValue>
+                        {formData.structureId
+                          ? structures.find((s) => s.id === formData.structureId)?.name
+                          : 'Select structure'}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {structures.map((structure) => (
@@ -380,7 +388,11 @@ export function BatchDialog({
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select supplier" />
+                      <SelectValue>
+                        {formData.supplierId
+                          ? suppliers.find((s) => s.id === formData.supplierId)?.name
+                          : 'Select supplier'}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {suppliers.map((supplier) => (

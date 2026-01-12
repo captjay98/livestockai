@@ -66,7 +66,7 @@ export function ModuleSelector() {
       }
     } else {
       // Enabling - no confirmation needed
-      await performToggle(moduleKey, true)
+      await performToggle(moduleKey)
     }
   }
 

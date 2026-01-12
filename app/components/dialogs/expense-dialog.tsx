@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Receipt } from 'lucide-react'
-import { EXPENSE_CATEGORIES, createExpenseFn } from '~/lib/expenses/server'
+import type {ExpenseCategory} from '~/lib/expenses/server';
+import { EXPENSE_CATEGORIES,  createExpenseFn } from '~/lib/expenses/server'
 import { getSuppliersFn } from '~/lib/suppliers/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -75,7 +76,7 @@ export function ExpenseDialog({
         data: {
           expense: {
             farmId,
-            category: formData.category as any,
+            category: formData.category as ExpenseCategory,
             amount: parseFloat(formData.amount),
             date: new Date(formData.date),
             description: formData.description,

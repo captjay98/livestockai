@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { Building2, LogOut, User as UserIcon, X } from 'lucide-react'
+import { LogOut, User as UserIcon, X } from 'lucide-react'
 import type { User } from '~/lib/auth/types'
 import { navigation } from '~/components/navigation'
 import { cn } from '~/lib/utils'

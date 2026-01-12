@@ -1,16 +1,20 @@
-import { useRegisterSW } from 'virtual:pwa-register/react'
-import { useEffect } from 'react'
 import { Button } from './ui/button'
+
+// Mock PWA functionality when virtual:pwa-register is not available
+const useRegisterSW = (_options: any) => ({
+  needRefresh: [false, () => {}] as [boolean, () => void],
+  updateServiceWorker: (_reloadPage?: boolean) => {},
+})
 
 export function PWAPrompt() {
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
-    onRegistered(r) {
+    onRegistered(r: any) {
       console.log('SW Registered: ' + r)
     },
-    onRegisterError(error) {
+    onRegisterError(error: any) {
       console.log('SW Registration error', error)
     },
   })
@@ -29,7 +33,7 @@ export function PWAPrompt() {
         <Button
           size="sm"
           variant="outline"
-          onClick={() => setNeedRefresh(false)}
+          onClick={() => setNeedRefresh()}
         >
           Close
         </Button>

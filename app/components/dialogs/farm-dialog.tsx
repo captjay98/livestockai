@@ -155,8 +155,8 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
             <Select
               value={formData.type}
               onValueChange={(value) => {
-                if (['poultry', 'fishery', 'mixed'].includes(value)) {
-                  setFormData((prev) => ({ ...prev, type: value as any }))
+                if (value && ['poultry', 'fishery', 'mixed'].includes(value)) {
+                  setFormData((prev) => ({ ...prev, type: value }))
                 }
               }}
             >

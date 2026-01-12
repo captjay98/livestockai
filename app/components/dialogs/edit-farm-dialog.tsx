@@ -21,13 +21,6 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 
-interface Farm {
-  id: string
-  name: string
-  location: string
-  type: 'poultry' | 'fishery' | 'mixed'
-}
-
 interface EditFarmDialogProps {
   farmId: string
   open: boolean
@@ -42,7 +35,6 @@ export function EditFarmDialog({
   onSuccess,
 }: EditFarmDialogProps) {
   const router = useRouter()
-  const [farm, setFarm] = useState<Farm | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     location: '',
@@ -59,11 +51,10 @@ export function EditFarmDialog({
         try {
           const farmData = await getFarmByIdFn({ data: { farmId } })
           if (farmData) {
-            setFarm(farmData)
             setFormData({
               name: farmData.name,
               location: farmData.location,
-              type: farmData.type,
+              type: farmData.type as 'poultry' | 'fishery' | 'mixed',
             })
           }
         } catch (err) {

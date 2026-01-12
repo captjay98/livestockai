@@ -32,7 +32,7 @@ import {
   SunIcon,
   UserIcon,
 } from 'lucide-react'
-import { Example, ExampleWrapper } from '@/components/example'
+import { Example, ExampleWrapper } from '~/components/example'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,9 +44,9 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+} from '~/components/ui/alert-dialog'
+import { Badge } from '~/components/ui/badge'
+import { Button } from '~/components/ui/button'
 import {
   Card,
   CardAction,
@@ -55,7 +55,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '~/components/ui/card'
 import {
   Combobox,
   ComboboxContent,
@@ -63,7 +63,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from '@/components/ui/combobox'
+} from '~/components/ui/combobox'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -80,9 +80,9 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+} from '~/components/ui/dropdown-menu'
+import { Field, FieldGroup, FieldLabel } from '~/components/ui/field'
+import { Input } from '~/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -90,8 +90,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+} from '~/components/ui/select'
+import { Textarea } from '~/components/ui/textarea'
 
 export function ComponentExample() {
   return (
