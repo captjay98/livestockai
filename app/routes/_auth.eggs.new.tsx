@@ -142,10 +142,10 @@ function NewEggPage() {
   const layingPercentage =
     selectedBatch && formData.quantityCollected
       ? (
-          (parseInt(formData.quantityCollected) /
-            selectedBatch.currentQuantity) *
-          100
-        ).toFixed(1)
+        (parseInt(formData.quantityCollected) /
+          selectedBatch.currentQuantity) *
+        100
+      ).toFixed(1)
       : null
 
   return (
@@ -273,19 +273,19 @@ function NewEggPage() {
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span>Collected:</span>
-                    <span className="text-green-600">
+                    <span className="text-success">
                       +{parseInt(formData.quantityCollected || '0')}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Broken:</span>
-                    <span className="text-red-600">
+                    <span className="text-destructive">
                       -{parseInt(formData.quantityBroken || '0')}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Sold:</span>
-                    <span className="text-blue-600">
+                    <span className="text-info">
                       -{parseInt(formData.quantitySold || '0')}
                     </span>
                   </div>

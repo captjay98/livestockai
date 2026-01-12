@@ -198,7 +198,7 @@ export const Route = createFileRoute('/_auth/mortality')({
     sortBy: (search.sortBy as string) || 'date',
     sortOrder:
       typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        (search.sortOrder === 'asc' || search.sortOrder === 'desc')
         ? search.sortOrder
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
@@ -456,11 +456,14 @@ function MortalityPage() {
           {alerts.map((alert, i) => (
             <div
               key={i}
-              className={`p-3 rounded-md border flex items-center justify-between ${alert.type === 'critical' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}
+              className={`p-3 rounded-md border flex items-center justify-between ${alert.type === 'critical'
+                  ? 'bg-destructive/10 border-destructive/20'
+                  : 'bg-warning/10 border-warning/20'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <AlertTriangle
-                  className={`h-4 w-4 ${alert.type === 'critical' ? 'text-red-500' : 'text-yellow-500'}`}
+                  className={`h-4 w-4 ${alert.type === 'critical' ? 'text-destructive' : 'text-warning'}`}
                 />
                 <span className="font-medium text-sm">
                   {alert.species}: {alert.message}

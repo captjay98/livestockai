@@ -135,7 +135,7 @@ export const Route = createFileRoute('/_auth/water-quality')({
     sortBy: (search.sortBy as string) || 'date',
     sortOrder:
       typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        (search.sortOrder === 'asc' || search.sortOrder === 'desc')
         ? search.sortOrder
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
@@ -344,9 +344,9 @@ function WaterQualityPage() {
 
       {alerts.length > 0 && (
         <div className="mb-6 grid gap-4 md:grid-cols-2">
-          <Card className="border-red-200 bg-red-50 md:col-span-2">
+          <Card className="border-destructive/20 bg-destructive/10 md:col-span-2">
             <CardHeader className="py-3">
-              <CardTitle className="text-sm font-medium text-red-800 flex items-center">
+              <CardTitle className="text-sm font-medium text-destructive flex items-center">
                 <AlertTriangle className="h-4 w-4 mr-2" />
                 Quality Alerts
               </CardTitle>
@@ -355,9 +355,11 @@ function WaterQualityPage() {
               {alerts.map((alert, i) => (
                 <div
                   key={i}
-                  className="flex flex-col gap-1 bg-white p-2 rounded border border-red-100"
+                  className="flex flex-col gap-1 bg-card p-2 rounded border border-destructive/20"
                 >
-                  <span className="font-medium">{alert.species}</span>
+                  <span className="font-medium">
+                    {alert.species}
+                  </span>
                   <ul className="list-disc list-inside text-xs text-muted-foreground">
                     {alert.issues.map((issue, idx) => (
                       <li key={idx} className="text-destructive">

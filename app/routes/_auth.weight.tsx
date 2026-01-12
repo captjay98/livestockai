@@ -136,7 +136,7 @@ export const Route = createFileRoute('/_auth/weight')({
     sortBy: (search.sortBy as string) || 'date',
     sortOrder:
       typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        (search.sortOrder === 'asc' || search.sortOrder === 'desc')
         ? search.sortOrder
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
@@ -302,9 +302,9 @@ function WeightPage() {
 
       {alerts.length > 0 && (
         <div className="mb-6 grid gap-4 md:grid-cols-2">
-          <Card className="border-orange-200 bg-orange-50 md:col-span-2">
+          <Card className="border-primary/20 bg-primary/10 md:col-span-2">
             <CardHeader className="py-3">
-              <CardTitle className="text-sm font-medium text-orange-800 flex items-center">
+              <CardTitle className="text-sm font-medium text-primary flex items-center">
                 <TrendingUp className="h-4 w-4 mr-2" />
                 Growth Alerts
               </CardTitle>
@@ -313,10 +313,14 @@ function WeightPage() {
               {alerts.map((alert, i) => (
                 <div
                   key={i}
-                  className="flex justify-between items-center bg-white p-2 rounded border border-orange-100"
+                  className="flex justify-between items-center bg-card p-2 rounded border border-primary/20"
                 >
-                  <span className="font-medium">{alert.species}</span>
-                  <span className="text-muted-foreground">{alert.message}</span>
+                  <span className="font-medium">
+                    {alert.species}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {alert.message}
+                  </span>
                 </div>
               ))}
             </CardContent>
