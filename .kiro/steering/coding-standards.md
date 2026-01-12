@@ -15,10 +15,9 @@ export const getData = createServerFn({ method: 'GET' })
 
 // ❌ Never do this - breaks Cloudflare Workers
 import { db } from '../db'
-export const getData = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    return db.selectFrom('table').execute()
-  })
+export const getData = createServerFn({ method: 'GET' }).handler(async () => {
+  return db.selectFrom('table').execute()
+})
 ```
 
 ## Database Queries
@@ -100,7 +99,7 @@ describe('calculateProfit', () => {
     fc.assert(
       fc.property(fc.nat(), fc.nat(), (revenue, costs) => {
         expect(calculateProfit(revenue, costs)).toBe(revenue - costs)
-      })
+      }),
     )
   })
 })
