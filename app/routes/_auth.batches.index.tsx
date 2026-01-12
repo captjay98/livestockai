@@ -6,7 +6,6 @@ import {
 } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import {
-  AlertTriangle,
   Bird,
   Edit,
   Eye,
@@ -48,7 +47,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/components/farm-context'
@@ -56,23 +54,24 @@ import { useFarm } from '~/components/farm-context'
 interface Batch {
   id: string
   farmId: string
-  livestockType: 'poultry' | 'fish'
+  farmName?: string | null
+  livestockType: string
   species: string
   initialQuantity: number
   currentQuantity: number
   acquisitionDate: Date
   costPerUnit: string
   totalCost: string
-  status: 'active' | 'depleted' | 'sold'
-  createdAt: Date
-  updatedAt: Date
+  status: string
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 interface InventorySummary {
   poultry: { batches: number; quantity: number; investment: number }
   fish: { batches: number; quantity: number; investment: number }
   overall: {
-    totalBatches: number
+    totalBatches?: number
     activeBatches: number
     depletedBatches: number
     totalQuantity: number
@@ -80,7 +79,6 @@ interface InventorySummary {
   }
 }
 
-// Search params type
 interface BatchSearchParams {
   page?: number
   pageSize?: number
@@ -89,6 +87,15 @@ interface BatchSearchParams {
   q?: string
   status?: 'active' | 'depleted' | 'sold'
   livestockType?: 'poultry' | 'fish'
+}
+
+interface CreateBatchData {
+  farmId: string
+  livestockType: 'poultry' | 'fish'
+  species: string
+  initialQuantity: number
+  acquisitionDate: string
+  costPerUnit: number
 }
 
 const getBatchesForFarmFn = createServerFn({ method: 'GET' })
@@ -133,16 +140,7 @@ const getBatchesForFarmFn = createServerFn({ method: 'GET' })
   })
 
 const createBatchAction = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: {
-      farmId: string
-      livestockType: 'poultry' | 'fish'
-      species: string
-      initialQuantity: number
-      acquisitionDate: string
-      costPerUnit: number
-    }) => data,
-  )
+  .inputValidator((data: CreateBatchData) => data)
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
@@ -252,7 +250,7 @@ function BatchesPage() {
           livestockType: searchParams.livestockType,
         },
       })
-      setPaginatedBatches(result.paginatedBatches as PaginatedResult<Batch>)
+      setPaginatedBatches(result.paginatedBatches)
       setSummary(result.summary)
     } catch (err) {
       console.error('Failed:', err)
@@ -323,7 +321,7 @@ function BatchesPage() {
   }
 
   const handleLivestockTypeChange = (type: string | null) => {
-    if (type && (type === 'poultry' || type === 'fish')) {
+    if (type === 'poultry' || type === 'fish') {
       setFormData((prev) => ({ ...prev, livestockType: type, species: '' }))
     }
   }
@@ -332,7 +330,7 @@ function BatchesPage() {
     setSelectedBatch(batch)
     setEditFormData({
       currentQuantity: batch.currentQuantity.toString(),
-      status: batch.status,
+      status: batch.status as 'active' | 'depleted' | 'sold',
     })
     setEditDialogOpen(true)
   }
@@ -454,7 +452,7 @@ function BatchesPage() {
         cell: ({ row }) => (
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="icon" asChild title="View Details">
-              <Link to={`/batches/${row.original.id}`}>
+              <Link to={`/batches/${row.original.id}` as any}>
                 <Eye className="h-4 w-4" />
               </Link>
             </Button>
@@ -587,13 +585,17 @@ function BatchesPage() {
               value={searchParams.status || 'all'}
               onValueChange={(value) => {
                 updateSearch({
-                  status: value === 'all' ? undefined : value,
+                  status: value === 'all' ? undefined : (value as 'active' | 'depleted' | 'sold'),
                   page: 1,
                 })
               }}
             >
               <SelectTrigger className="w-[150px] h-10">
-                <SelectValue placeholder="All Status" />
+                <SelectValue>
+                  {searchParams.status === 'active' ? 'Active' : 
+                   searchParams.status === 'depleted' ? 'Depleted' :
+                   searchParams.status === 'sold' ? 'Sold' : 'All Status'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
@@ -607,13 +609,16 @@ function BatchesPage() {
               value={searchParams.livestockType || 'all'}
               onValueChange={(value) => {
                 updateSearch({
-                  livestockType: value === 'all' ? undefined : value,
+                  livestockType: value === 'all' ? undefined : (value as 'poultry' | 'fish'),
                   page: 1,
                 })
               }}
             >
               <SelectTrigger className="w-[150px] h-10">
-                <SelectValue placeholder="All Types" />
+                <SelectValue>
+                  {searchParams.livestockType === 'poultry' ? 'Poultry' :
+                   searchParams.livestockType === 'fish' ? 'Fish' : 'All Types'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
@@ -686,13 +691,15 @@ function BatchesPage() {
               >
                 <SelectTrigger>
                   <SelectValue>
-                    {formData.species || 'Select species'}
+                    {formData.species
+                      ? speciesOptions.find((s) => s.value === formData.species)?.label
+                      : 'Select species'}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {speciesOptions.map((species) => (
-                    <SelectItem key={species} value={species}>
-                      {species}
+                    <SelectItem key={species.value} value={species.value}>
+                      {species.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

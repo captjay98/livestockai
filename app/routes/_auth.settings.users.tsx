@@ -1,9 +1,3 @@
-/**
- * User Management Settings Page
- *
- * Admin-only page for managing users, roles, and farm assignments.
- */
-
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 import { format } from 'date-fns'
@@ -60,14 +54,14 @@ import {
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog'
 import {
-  banUser,
-  createUser,
-  getUser,
-  listUsers,
-  removeUser,
-  setUserPassword,
-  unbanUser,
-  updateUserRole,
+  banUserFn,
+  createUserFn,
+  getUserFn,
+  listUsersFn,
+  removeUserFn,
+  setUserPasswordFn,
+  unbanUserFn,
+  updateUserRoleFn,
 } from '~/lib/users/server'
 import {
   assignUserToFarmFn,
@@ -75,7 +69,6 @@ import {
   removeUserFromFarmFn,
   updateUserFarmRoleFn,
 } from '~/lib/farms/server'
-import { useSession } from '~/lib/auth/client'
 
 // Type definitions
 interface UserData {
@@ -104,26 +97,25 @@ interface FarmAssignment {
 }
 
 export const Route = createFileRoute('/_auth/settings/users')({
-  loader: async ({ context }) => {
+  loader: async () => {
     // Check if user is admin
-    const session = (context as { session?: { user?: { role?: string } } })
-      .session
-    if (!session?.user || session.user.role !== 'admin') {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    if (session.user.role !== 'admin') {
       throw redirect({ to: '/settings' })
     }
 
     const [users, farms] = await Promise.all([
-      listUsers(),
+      listUsersFn(),
       getUserFarmsWithRolesFn(),
     ])
-    return { users, farms }
+    return { users, farms, session }
   },
   component: UsersSettingsPage,
 })
 
 function UsersSettingsPage() {
-  const { users: initialUsers, farms } = Route.useLoaderData()
-  const { data: session } = useSession()
+  const { users: initialUsers, farms, session } = Route.useLoaderData()
   const [users, setUsers] = useState<Array<UserData>>(
     initialUsers as Array<UserData>,
   )
@@ -151,7 +143,7 @@ function UsersSettingsPage() {
 
   const refreshUsers = async () => {
     try {
-      const updated = await listUsers()
+      const updated = await listUsersFn()
       setUsers(updated as Array<UserData>)
     } catch {
       setError('Failed to refresh users')
@@ -160,7 +152,7 @@ function UsersSettingsPage() {
 
   const loadUserFarmAssignments = async (userId: string) => {
     try {
-      const userData = await getUser({ userId })
+      const userData = await getUserFn({ data: { userId } })
       setUserFarmAssignments(userData.farmAssignments)
     } catch {
       setError('Failed to load farm assignments')
@@ -172,7 +164,7 @@ function UsersSettingsPage() {
     setIsLoading(true)
     setError(null)
     try {
-      await banUser({ userId: selectedUser.id, reason })
+      await banUserFn({ data: { userId: selectedUser.id, reason } })
       await refreshUsers()
       setBanDialogOpen(false)
       setSelectedUser(null)
@@ -187,7 +179,7 @@ function UsersSettingsPage() {
     setIsLoading(true)
     setError(null)
     try {
-      await unbanUser({ userId })
+      await unbanUserFn({ data: { userId } })
       await refreshUsers()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to unban user')
@@ -201,7 +193,7 @@ function UsersSettingsPage() {
     setIsLoading(true)
     setError(null)
     try {
-      await removeUser({ userId: selectedUser.id })
+      await removeUserFn({ data: { userId: selectedUser.id } })
       await refreshUsers()
       setDeleteDialogOpen(false)
       setSelectedUser(null)
@@ -217,7 +209,7 @@ function UsersSettingsPage() {
     setError(null)
     try {
       const newRole = currentRole === 'admin' ? 'user' : 'admin'
-      await updateUserRole({ userId, role: newRole })
+      await updateUserRoleFn({ data: { userId, role: newRole } })
       await refreshUsers()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update role')
@@ -344,7 +336,7 @@ function UsersSettingsPage() {
                     </DropdownMenuItem>
 
                     {/* Toggle Admin (not for self) */}
-                    {user.id !== session?.user.id && (
+                    {user.id !== session.user.id && (
                       <DropdownMenuItem
                         onClick={() => handleToggleAdmin(user.id, user.role)}
                       >
@@ -365,7 +357,7 @@ function UsersSettingsPage() {
                     <DropdownMenuSeparator />
 
                     {/* Ban/Unban (not for self or admins) */}
-                    {user.id !== session?.user.id &&
+                    {user.id !== session.user.id &&
                       user.role !== 'admin' &&
                       (user.banned ? (
                         <DropdownMenuItem
@@ -387,7 +379,7 @@ function UsersSettingsPage() {
                       ))}
 
                     {/* Delete (not for self or admins) */}
-                    {user.id !== session?.user.id && user.role !== 'admin' && (
+                    {user.id !== session.user.id && user.role !== 'admin' && (
                       <DropdownMenuItem
                         variant="destructive"
                         onClick={() => {
@@ -517,7 +509,7 @@ function AddUserDialog({
     setError(null)
 
     try {
-      await createUser(formData)
+      await createUserFn({ data: formData })
       setFormData({ email: '', password: '', name: '', role: 'user' })
       onSuccess()
     } catch (err) {
@@ -723,7 +715,7 @@ function ResetPasswordDialog({
     setError(null)
 
     try {
-      await setUserPassword({ userId: user.id, newPassword })
+      await setUserPasswordFn({ data: { userId: user.id, newPassword } })
       setNewPassword('')
       onSuccess()
     } catch (err) {

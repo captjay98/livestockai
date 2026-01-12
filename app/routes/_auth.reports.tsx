@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useMemo, useState } from 'react'
 import {
@@ -239,20 +239,24 @@ function ReportsPage() {
                 {reportTypes.find((r) => r.id === reportType)?.name} Report
               </h2>
               <div className="flex gap-2">
-                <Link
-                  to={`/reports/export?type=${reportType}&format=xlsx&farmId=${selectedFarm}&startDate=${startDate}&endDate=${endDate}`}
+                <button
+                  onClick={() => {
+                    window.location.href = `/reports/export?type=${reportType}&format=xlsx&farmId=${selectedFarm}&startDate=${startDate}&endDate=${endDate}`
+                  }}
                   className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3"
                 >
                   <FileSpreadsheet className="h-4 w-4 mr-2" />
                   Excel
-                </Link>
-                <Link
-                  to={`/reports/export?type=${reportType}&format=pdf&farmId=${selectedFarm}&startDate=${startDate}&endDate=${endDate}`}
+                </button>
+                <button
+                  onClick={() => {
+                    window.location.href = `/reports/export?type=${reportType}&format=pdf&farmId=${selectedFarm}&startDate=${startDate}&endDate=${endDate}`
+                  }}
                   className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3"
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   PDF
-                </Link>
+                </button>
               </div>
             </div>
 

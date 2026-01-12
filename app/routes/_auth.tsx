@@ -13,7 +13,20 @@ import { ModuleProvider } from '~/components/module-context'
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async ({ location }) => {
     try {
-      const { user } = await checkAuthFn()
+      const { user: authUser } = await checkAuthFn()
+
+      // Map to our User type
+      const user = {
+        id: authUser.id,
+        email: authUser.email,
+        name: authUser.name,
+        role: authUser.role as 'admin' | 'user',
+        banned: authUser.banned || false,
+        banReason: authUser.banReason || null,
+        banExpires: authUser.banExpires || null,
+        createdAt: authUser.createdAt,
+        updatedAt: authUser.updatedAt,
+      }
 
       // Skip onboarding check if already on onboarding page
       if (location.pathname === '/onboarding') {

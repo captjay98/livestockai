@@ -6,7 +6,6 @@ import {
   MapPin,
   Phone,
   Plus,
-  Search,
   TrendingUp,
   Users,
 } from 'lucide-react'
@@ -19,7 +18,6 @@ import {
   getTopCustomers,
   updateCustomerFn,
 } from '~/lib/customers/server'
-import { requireAuth } from '~/lib/auth/server-middleware'
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import {
@@ -48,17 +46,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-
-interface Customer {
-  id: string
-  name: string
-  phone: string
-  email: string | null
-  location: string | null
-  customerType: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
-  salesCount: number
-  totalSpent: number
-}
 
 interface TopCustomer {
   id: string
@@ -98,15 +85,18 @@ const getCustomerData = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/lib/auth/server-middleware')
       await requireAuth()
       const [paginatedCustomers, topCustomers] = await Promise.all([
         getCustomersPaginatedFn({
-          page: data.page,
-          pageSize: data.pageSize,
-          sortBy: data.sortBy,
-          sortOrder: data.sortOrder,
-          search: data.search,
-          customerType: data.customerType,
+          data: {
+            page: data.page,
+            pageSize: data.pageSize,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            search: data.search,
+            customerType: data.customerType,
+          },
         }),
         getTopCustomers(5),
       ])
@@ -169,7 +159,7 @@ function CustomersPage() {
   })
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+  const [selectedCustomer, setSelectedCustomer] = useState<any | null>(
     null,
   )
   const [editFormData, setEditFormData] = useState({
@@ -186,7 +176,7 @@ function CustomersPage() {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
+  const [, setError] = useState('')
 
   const loadData = async () => {
     setIsLoading(true)
@@ -259,7 +249,7 @@ function CustomersPage() {
     }
   }
 
-  const handleEditCustomer = (customer: Customer) => {
+  const handleEditCustomer = (customer: any) => {
     setSelectedCustomer(customer)
     setEditFormData({
       name: customer.name,
@@ -278,13 +268,15 @@ function CustomersPage() {
 
     try {
       await updateCustomerFn({
-        id: selectedCustomer.id,
         data: {
-          name: editFormData.name,
-          phone: editFormData.phone,
-          email: editFormData.email || null,
-          location: editFormData.location || null,
-          customerType: editFormData.customerType || null,
+          id: selectedCustomer.id,
+          data: {
+            name: editFormData.name,
+            phone: editFormData.phone,
+            email: editFormData.email || null,
+            location: editFormData.location || null,
+            customerType: editFormData.customerType || null,
+          },
         },
       })
       setEditDialogOpen(false)
@@ -296,7 +288,7 @@ function CustomersPage() {
     }
   }
 
-  const columns = useMemo<Array<ColumnDef<Customer>>>(
+  const columns = useMemo<Array<ColumnDef<any>>>(
     () => [
       {
         accessorKey: 'name',
@@ -458,7 +450,7 @@ function CustomersPage() {
         totalPages={paginatedCustomers.totalPages}
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
-        searchValue={searchParams.q}
+        searchValue={searchParams.q || ''}
         searchPlaceholder="Search customers..."
         isLoading={isLoading}
         filters={
@@ -466,13 +458,15 @@ function CustomersPage() {
             value={searchParams.customerType || 'all'}
             onValueChange={(value) => {
               updateSearch({
-                customerType: value === 'all' ? undefined : value,
+                customerType: value === 'all' || !value ? undefined : value,
                 page: 1,
               })
             }}
           >
             <SelectTrigger className="w-[150px] h-10">
-              <SelectValue placeholder="All Types" />
+              <SelectValue>
+                {searchParams.customerType === undefined ? 'All Types' : searchParams.customerType}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
@@ -550,7 +544,12 @@ function CustomersPage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue>
+                    {formData.customerType
+                      ? CUSTOMER_TYPES.find((t) => t.value === formData.customerType)
+                          ?.label
+                      : 'Select type'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="individual">Individual</SelectItem>
@@ -644,7 +643,12 @@ function CustomersPage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue>
+                    {editFormData.customerType
+                      ? CUSTOMER_TYPES.find((t) => t.value === editFormData.customerType)
+                          ?.label
+                      : 'Select type'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="individual">Individual</SelectItem>

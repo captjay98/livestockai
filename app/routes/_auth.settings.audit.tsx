@@ -1,14 +1,11 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { RotateCcw, Search } from 'lucide-react'
-import { useEffect, useState } from 'react' // Import React hooks
+import { useEffect, useState } from 'react'
 import { getAuditLogsFn } from '~/lib/logging/audit'
 import { AuditLogTable } from '~/components/settings/audit-log-table'
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import {
@@ -19,19 +16,36 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { Button } from '~/components/ui/button'
-import { useDebounce } from '~/lib/utils' // Assuming this exists or I'll generic use timeout
+
+interface AuditSearchParams {
+  page?: number
+  q?: string
+  action?: string
+  entityType?: string
+}
 
 export const Route = createFileRoute('/_auth/settings/audit')({
   component: AuditLogPage,
-  loader: async ({ context, location }) => {
-    const search = location.search as any
+  validateSearch: (search: Record<string, unknown>): AuditSearchParams => ({
+    page: typeof search.page === 'number' ? search.page : 1,
+    q: typeof search.q === 'string' ? search.q : undefined,
+    action: typeof search.action === 'string' ? search.action : undefined,
+    entityType: typeof search.entityType === 'string' ? search.entityType : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ 
+    page: search.page || 1,
+    q: search.q,
+    action: search.action,
+    entityType: search.entityType
+  }),
+  loader: async ({ deps }) => {
     return getAuditLogsFn({
       data: {
-        page: Number(search.page || 1),
+        page: deps.page,
         pageSize: 20,
-        search: search.q,
-        action: search.action,
-        entityType: search.entityType,
+        search: deps.q,
+        action: deps.action,
+        entityType: deps.entityType,
       },
     })
   },
@@ -52,11 +66,11 @@ function AuditLogPage() {
       }
     }, 500)
     return () => clearTimeout(timeout)
-  }, [search])
+  }, [search, searchParams.q])
 
-  const updateParams = (updates: any) => {
+  const updateParams = (updates: Partial<AuditSearchParams>) => {
     navigate({
-      search: (prev: any) => ({ ...prev, ...updates }),
+      search: (prev) => ({ ...prev, ...updates }),
       replace: true,
     })
   }
@@ -84,11 +98,11 @@ function AuditLogPage() {
           <Select
             value={searchParams.action || 'all'}
             onValueChange={(val) =>
-              updateParams({ action: val === 'all' ? undefined : val, page: 1 })
+              updateParams({ action: val === 'all' || val === null ? undefined : val, page: 1 })
             }
           >
             <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="Action" />
+              <SelectValue>Action</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Actions</SelectItem>
@@ -101,13 +115,13 @@ function AuditLogPage() {
             value={searchParams.entityType || 'all'}
             onValueChange={(val) =>
               updateParams({
-                entityType: val === 'all' ? undefined : val,
+                entityType: val === 'all' || val === null ? undefined : val,
                 page: 1,
               })
             }
           >
             <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="Entity" />
+              <SelectValue>Entity</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Entities</SelectItem>

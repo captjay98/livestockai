@@ -23,14 +23,6 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 
-interface Batch {
-  id: string
-  species: string
-  livestockType: string
-  currentQuantity: number
-  status: string
-}
-
 const getBatches = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
@@ -127,7 +119,7 @@ function NewFeedPage() {
           date: formData.date,
         },
       })
-      router.navigate({ to: '/feed', search: { farmId: search.farmId } })
+      router.navigate({ to: '/feed' })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to record feed')
     } finally {

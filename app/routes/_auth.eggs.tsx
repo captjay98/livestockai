@@ -5,7 +5,6 @@ import {
   Bird,
   Edit,
   Egg,
-  Eye,
   Package,
   Plus,
   Trash2,
@@ -13,13 +12,14 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { PaginatedResult } from '~/lib/eggs/server'
+import type {PaginatedResult} from '~/lib/eggs/server';
 import {
-  createEggRecord,
+  
+  createEggRecordFn,
   deleteEggRecordFn,
   getEggRecordsPaginated,
   getEggRecordsSummary,
-  updateEggRecordFn,
+  updateEggRecordFn
 } from '~/lib/eggs/server'
 import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
@@ -42,7 +42,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/components/farm-context'
@@ -75,7 +74,7 @@ interface EggSearchParams {
   pageSize?: number
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
-  q?: string
+  search?: string
 }
 
 const getEggDataForFarm = createServerFn({ method: 'GET' })
@@ -137,15 +136,20 @@ const createEggRecordAction = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     try {
-      const session = await requireAuth()
-      const id = await createEggRecord(session.user.id, data.farmId, {
-        batchId: data.batchId,
-        date: new Date(data.date),
-        quantityCollected: data.quantityCollected,
-        quantityBroken: data.quantityBroken,
-        quantitySold: data.quantitySold,
+      await requireAuth()
+      const result = await createEggRecordFn({
+        data: {
+          farmId: data.farmId,
+          record: {
+            batchId: data.batchId,
+            date: new Date(data.date),
+            quantityCollected: data.quantityCollected,
+            quantityBroken: data.quantityBroken,
+            quantitySold: data.quantitySold,
+          },
+        },
       })
-      return { success: true, id }
+      return { success: true, id: result }
     } catch (err) {
       if (err instanceof Error && err.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -165,7 +169,7 @@ export const Route = createFileRoute('/_auth/eggs')({
       (search.sortOrder === 'asc' || search.sortOrder === 'desc')
         ? search.sortOrder
         : 'desc',
-    q: typeof search.q === 'string' ? search.q : '',
+    search: typeof search.search === 'string' ? search.search : '',
   }),
 })
 
@@ -175,7 +179,7 @@ function EggsPage() {
   const navigate = useNavigate({ from: Route.fullPath })
 
   const [paginatedRecords, setPaginatedRecords] = useState<
-    PaginatedResult<any>
+    PaginatedResult<EggRecord>
   >({
     data: [],
     total: 0,
@@ -227,10 +231,10 @@ function EggsPage() {
           pageSize: searchParams.pageSize,
           sortBy: searchParams.sortBy,
           sortOrder: searchParams.sortOrder,
-          search: searchParams.q,
+          search: searchParams.search,
         },
       })
-      setPaginatedRecords(result.paginatedRecords as PaginatedResult<any>)
+      setPaginatedRecords(result.paginatedRecords)
       setBatches(result.batches)
       setSummary(result.summary)
     } catch (err) {
@@ -248,7 +252,7 @@ function EggsPage() {
     searchParams.pageSize,
     searchParams.sortBy,
     searchParams.sortOrder,
-    searchParams.q,
+    searchParams.search,
   ])
 
   const updateSearch = (updates: Partial<EggSearchParams>) => {
@@ -512,7 +516,7 @@ function EggsPage() {
         totalPages={paginatedRecords.totalPages}
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
-        searchValue={searchParams.q}
+        searchValue={searchParams.search}
         searchPlaceholder="Search by batch species..."
         isLoading={isLoading}
         onPaginationChange={(page, pageSize) => {
@@ -521,8 +525,8 @@ function EggsPage() {
         onSortChange={(sortBy, sortOrder) => {
           updateSearch({ sortBy, sortOrder, page: 1 })
         }}
-        onSearchChange={(q) => {
-          updateSearch({ q, page: 1 })
+        onSearchChange={(search) => {
+          updateSearch({ search, page: 1 })
         }}
         emptyIcon={<Egg className="h-12 w-12 text-muted-foreground" />}
         emptyTitle="No production records"
@@ -544,11 +548,15 @@ function EggsPage() {
               <Select
                 value={formData.batchId}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, batchId: value }))
+                  setFormData((prev) => ({ ...prev, batchId: value || '' }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select batch" />
+                  <SelectValue>
+                    {formData.batchId
+                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      : 'Select batch'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (

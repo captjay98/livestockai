@@ -12,7 +12,6 @@ import {
   Plus,
   Skull,
   TrendingDown,
-  Users,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -24,13 +23,12 @@ import {
   recordMortality,
 } from '~/lib/mortality/server'
 import { getAllBatchAlerts } from '~/lib/monitoring/alerts'
-import { getBatches } from '~/lib/batches/server'
+import { getBatchesFn } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '~/components/ui/card'
@@ -48,7 +46,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -73,16 +70,6 @@ interface MortalityRecord {
   livestockType: string
   farmId: string
   farmName?: string
-}
-
-interface Alert {
-  type: 'high_mortality' | 'low_stock'
-  batchId: string
-  batchSpecies: string
-  severity: 'critical' | 'warning'
-  message: string
-  quantity: number
-  rate: number
 }
 
 interface Batch {
@@ -140,7 +127,7 @@ const getMortalityDataForFarm = createServerFn({ method: 'GET' })
           }),
           getAllBatchAlerts(session.user.id, farmId),
           getMortalitySummary(session.user.id, farmId),
-          getBatches(session.user.id, farmId),
+          getBatchesFn({ data: { farmId } }),
         ],
       )
 
@@ -366,7 +353,7 @@ function MortalityPage() {
           return (
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger>
                   <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
                 </TooltipTrigger>
                 <TooltipContent>
@@ -494,13 +481,15 @@ function MortalityPage() {
             value={searchParams.cause || 'all'}
             onValueChange={(value) => {
               updateSearch({
-                cause: value === 'all' ? undefined : value,
+                cause: value === 'all' || !value ? undefined : value,
                 page: 1,
               })
             }}
           >
             <SelectTrigger className="w-[180px] h-10">
-              <SelectValue placeholder="All Causes" />
+              <SelectValue>
+                {searchParams.cause || 'All Causes'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Causes</SelectItem>
@@ -538,11 +527,15 @@ function MortalityPage() {
               <Select
                 value={formData.batchId}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, batchId: value }))
+                  setFormData((prev) => ({ ...prev, batchId: value || '' }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select batch" />
+                  <SelectValue>
+                    {formData.batchId
+                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      : 'Select batch'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (
@@ -559,11 +552,16 @@ function MortalityPage() {
               <Select
                 value={formData.cause}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, cause: value }))
+                  setFormData((prev) => ({ ...prev, cause: value || '' }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue>
+                    {formData.cause
+                      ? MORTALITY_CAUSES.find((c) => c.value === formData.cause)
+                          ?.label
+                      : 'Select cause'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {MORTALITY_CAUSES.map((c) => (

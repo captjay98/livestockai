@@ -1,12 +1,8 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import {
-  AlertTriangle,
-  Edit,
-  Eye,
   Plus,
   Scale,
-  Trash2,
   TrendingUp,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -23,11 +19,9 @@ import { Button } from '~/components/ui/button'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '~/components/ui/card'
-import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import {
@@ -40,7 +34,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -102,12 +95,14 @@ const getWeightDataForFarm = createServerFn({ method: 'GET' })
 
       const [paginatedRecords, alerts, allBatches] = await Promise.all([
         getWeightRecordsPaginatedFn({
-          farmId,
-          page: data.page,
-          pageSize: data.pageSize,
-          sortBy: data.sortBy,
-          sortOrder: data.sortOrder,
-          search: data.search,
+          data: {
+            farmId,
+            page: data.page,
+            pageSize: data.pageSize,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            search: data.search,
+          },
         }),
         getGrowthAlerts(session.user.id, farmId),
         getBatches(session.user.id, farmId),
@@ -225,12 +220,14 @@ function WeightPage() {
 
     try {
       await createWeightSampleFn({
-        farmId: selectedFarmId,
         data: {
-          batchId: formData.batchId,
-          date: new Date(formData.date),
-          sampleSize: parseInt(formData.sampleSize),
-          averageWeightKg: parseFloat(formData.averageWeightKg),
+          farmId: selectedFarmId,
+          data: {
+            batchId: formData.batchId,
+            date: new Date(formData.date),
+            sampleSize: parseInt(formData.sampleSize),
+            averageWeightKg: parseFloat(formData.averageWeightKg),
+          },
         },
       })
       setDialogOpen(false)
@@ -366,11 +363,15 @@ function WeightPage() {
               <Select
                 value={formData.batchId}
                 onValueChange={(val) =>
-                  setFormData((prev) => ({ ...prev, batchId: val }))
+                  setFormData((prev) => ({ ...prev, batchId: val || '' }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select batch" />
+                  <SelectValue>
+                    {formData.batchId
+                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      : 'Select batch'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (

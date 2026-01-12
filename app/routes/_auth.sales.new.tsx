@@ -10,10 +10,10 @@ import {
   UNIT_TYPES,
   createSale,
 } from '~/lib/sales/server'
-import { getBatches } from '~/lib/batches/server'
-import { getCustomers } from '~/lib/customers/server'
+import { getBatchesFn } from '~/lib/batches/server'
+import { getCustomersFn } from '~/lib/customers/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
-import { formatNaira } from '~/lib/currency'
+import { formatCurrency } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -32,28 +32,27 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 
-interface Batch {
-  id: string
-  species: string
-  livestockType: string
-  currentQuantity: number
-  status: string
-}
-
 interface Customer {
   id: string
   name: string
   phone: string
 }
 
+interface Batch {
+  id: string
+  species: string
+  livestockType: string
+  currentQuantity: number
+}
+
 const getFormData = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     try {
-      const session = await requireAuth()
+      await requireAuth()
       const [batches, customers] = await Promise.all([
-        getBatches(session.user.id, data.farmId),
-        getCustomers(),
+        getBatchesFn({ data: { farmId: data.farmId } }),
+        getCustomersFn(),
       ])
       return {
         batches: batches.filter((b) => b.status === 'active'),
@@ -89,27 +88,27 @@ const createSaleAction = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     try {
       const session = await requireAuth()
-      const id = await createSale(session.user.id, {
+      const result = await createSale(session.user.id, {
         farmId: data.farmId,
-        batchId: data.batchId || null,
-        customerId: data.customerId || null,
-        livestockType: data.livestockType as any,
-        quantity: data.quantity,
-        unitPrice: data.unitPrice,
-        date: new Date(data.date),
-        notes: data.notes || null,
-        // Enhanced fields
-        unitType: data.unitType ? (data.unitType as UnitType) : null,
-        ageWeeks: data.ageWeeks || null,
-        averageWeightKg: data.averageWeightKg || null,
-        paymentStatus: data.paymentStatus
-          ? (data.paymentStatus as PaymentStatus)
-          : 'paid',
-        paymentMethod: data.paymentMethod
-          ? (data.paymentMethod as PaymentMethod)
-          : null,
-      })
-      return { success: true, id }
+            batchId: data.batchId || null,
+            customerId: data.customerId || null,
+            livestockType: data.livestockType as 'poultry' | 'fish' | 'eggs',
+            quantity: data.quantity,
+            unitPrice: data.unitPrice,
+            date: new Date(data.date),
+            notes: data.notes || null,
+            // Enhanced fields
+            unitType: data.unitType ? (data.unitType as UnitType) : null,
+            ageWeeks: data.ageWeeks || null,
+            averageWeightKg: data.averageWeightKg || null,
+            paymentStatus: data.paymentStatus
+              ? (data.paymentStatus as PaymentStatus)
+              : 'paid',
+            paymentMethod: data.paymentMethod
+              ? (data.paymentMethod as PaymentMethod)
+              : null,
+        })
+      return { success: true, id: result }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -130,7 +129,7 @@ export const Route = createFileRoute('/_auth/sales/new')({
   loaderDeps: ({ search }) => ({ farmId: search.farmId }),
   loader: async ({ deps }) => {
     if (deps.farmId) {
-      return getFormData({ data: { farmId: deps.farmId } })
+      return await getFormData({ data: { farmId: deps.farmId } })
     }
     return { batches: [], customers: [] }
   },
@@ -186,10 +185,10 @@ function NewSalePage() {
             : undefined,
           paymentStatus: formData.paymentStatus,
           paymentMethod: formData.paymentMethod || undefined,
-        },
+        }
       })
       toast.success('Sale recorded successfully!')
-      router.navigate({ to: '/sales', search: { farmId: search.farmId } })
+      router.navigate({ to: '/sales', search: {} })
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to record sale'
@@ -200,9 +199,9 @@ function NewSalePage() {
     }
   }
 
-  const selectedBatch = batches.find((b) => b.id === formData.batchId)
+  const selectedBatch = batches.find((b: Batch) => b.id === formData.batchId)
   const filteredBatches = batches.filter(
-    (b) =>
+    (b: Batch) =>
       formData.livestockType === 'eggs' ||
       b.livestockType === formData.livestockType,
   )
@@ -247,7 +246,10 @@ function NewSalePage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue>
+                    {formData.livestockType.charAt(0).toUpperCase() +
+                      formData.livestockType.slice(1)}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="poultry">Poultry</SelectItem>
@@ -271,7 +273,7 @@ function NewSalePage() {
                       <SelectValue>
                         {formData.batchId
                           ? filteredBatches.find(
-                              (b) => b.id === formData.batchId,
+                              (b: Batch) => b.id === formData.batchId,
                             )?.species
                           : 'Select batch to deduct from'}
                       </SelectValue>
@@ -298,7 +300,7 @@ function NewSalePage() {
                 <SelectTrigger>
                   <SelectValue>
                     {formData.customerId
-                      ? customers.find((c) => c.id === formData.customerId)
+                      ? customers.find((c: Customer) => c.id === formData.customerId)
                           ?.name
                       : 'Select customer'}
                   </SelectValue>
@@ -380,7 +382,9 @@ function NewSalePage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue>
+                    {PAYMENT_STATUSES.find(s => s.value === formData.paymentStatus)?.label}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {PAYMENT_STATUSES.map((status) => (
@@ -426,7 +430,11 @@ function NewSalePage() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select unit type" />
+                        <SelectValue>
+                          {formData.unitType
+                            ? UNIT_TYPES.find(u => u.value === formData.unitType)?.label
+                            : 'Select unit type'}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {UNIT_TYPES.map((unit) => (
@@ -449,7 +457,11 @@ function NewSalePage() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select method" />
+                        <SelectValue>
+                          {formData.paymentMethod
+                            ? PAYMENT_METHODS.find(m => m.value === formData.paymentMethod)?.label
+                            : 'Select method'}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {PAYMENT_METHODS.map((method) => (
@@ -522,11 +534,11 @@ function NewSalePage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Unit Price:</span>
-                    <span>{formatNaira(formData.unitPrice)}</span>
+                    <span>{formatCurrency(parseFloat(formData.unitPrice))}</span>
                   </div>
                   <div className="flex justify-between font-medium border-t pt-1">
                     <span>Total Amount:</span>
-                    <span>{formatNaira(totalAmount)}</span>
+                    <span>{formatCurrency(totalAmount)}</span>
                   </div>
                 </div>
               </div>

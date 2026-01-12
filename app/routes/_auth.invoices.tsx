@@ -5,7 +5,7 @@ import {
   useNavigate,
 } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { Eye, FileText, Plus, Search } from 'lucide-react'
+import { Eye, FileText, Plus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/lib/invoices/server'
@@ -22,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { Input } from '~/components/ui/input'
 
 interface Invoice {
   id: string
@@ -58,12 +57,14 @@ const getInvoiceData = createServerFn({ method: 'GET' })
     try {
       await requireAuth()
       const paginatedInvoices = await getInvoicesPaginatedFn({
-        page: data.page,
-        pageSize: data.pageSize,
-        sortBy: data.sortBy,
-        sortOrder: data.sortOrder,
-        search: data.search,
-        status: data.status,
+        data: {
+          page: data.page,
+          pageSize: data.pageSize,
+          sortBy: data.sortBy,
+          sortOrder: data.sortOrder,
+          search: data.search,
+          status: data.status,
+        }
       })
       return { paginatedInvoices }
     } catch (error) {
@@ -220,11 +221,16 @@ function InvoicesPage() {
         id: 'actions',
         cell: ({ row }) => (
           <div className="flex justify-end">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to={`/invoices/${row.original.id}`}>
-                <Eye className="h-4 w-4 mr-2" />
-                View
-              </Link>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                // TODO: Implement invoice view dialog
+                console.log('View invoice:', row.original.id)
+              }}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              View
             </Button>
           </div>
         ),
@@ -251,10 +257,12 @@ function InvoicesPage() {
       <div className="flex items-center gap-4 mb-4">
         <Select
           value={searchParams.status}
-          onValueChange={(value) => updateSearch({ status: value, page: 1 })}
+          onValueChange={(value) => updateSearch({ status: value || undefined, page: 1 })}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue>
+              {searchParams.status || 'Filter by status'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>

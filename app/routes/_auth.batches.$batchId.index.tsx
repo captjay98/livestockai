@@ -1,8 +1,5 @@
-import { Link, createFileRoute, useParams } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { ColumnDef } from '@tanstack/react-table'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  AlertTriangle,
   ArrowLeft,
   Bird,
   Calendar,
@@ -16,8 +13,7 @@ import {
   TrendingUp,
   Utensils,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import type { PaginatedResult } from '~/lib/batches/server'
+import { useEffect, useState } from 'react'
 import { cn } from '~/lib/utils'
 import { getBatchDetailsFn } from '~/lib/batches/server'
 import { getFeedRecordsPaginatedFn } from '~/lib/feed/server'
@@ -36,7 +32,6 @@ import {
 } from '~/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { DataTable } from '~/components/ui/data-table'
-import { useFarm } from '~/components/farm-context'
 import { ProjectionsCard } from '~/components/batches/projections-card'
 
 export const Route = createFileRoute('/_auth/batches/$batchId/')({
@@ -45,7 +40,6 @@ export const Route = createFileRoute('/_auth/batches/$batchId/')({
 
 function BatchDetailsPage() {
   const { batchId } = Route.useParams()
-  const { selectedFarmId } = useFarm()
   const [details, setDetails] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -339,6 +333,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
+                onPaginationChange={() => {}}
+                onSortChange={() => {}}
               />
             </CardContent>
           </Card>
@@ -379,6 +375,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
+                onPaginationChange={() => {}}
+                onSortChange={() => {}}
               />
             </CardContent>
           </Card>
@@ -421,6 +419,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
+                onPaginationChange={() => {}}
+                onSortChange={() => {}}
               />
             </CardContent>
           </Card>
@@ -489,6 +489,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
+                onPaginationChange={() => {}}
+                onSortChange={() => {}}
               />
             </CardContent>
           </Card>

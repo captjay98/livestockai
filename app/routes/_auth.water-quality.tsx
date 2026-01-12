@@ -1,14 +1,9 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import {
-  Activity,
   AlertTriangle,
   Droplets,
-  Edit,
-  Eye,
   Plus,
-  Thermometer,
-  Trash2,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -23,7 +18,6 @@ import { getBatches } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { Badge } from '~/components/ui/badge'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import {
@@ -36,7 +30,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -97,12 +90,14 @@ const getWaterQualityDataForFarm = createServerFn({ method: 'GET' })
 
       const [paginatedRecords, alerts, allBatches] = await Promise.all([
         getWaterQualityRecordsPaginatedFn({
-          farmId,
-          page: data.page,
-          pageSize: data.pageSize,
-          sortBy: data.sortBy,
-          sortOrder: data.sortOrder,
-          search: data.search,
+          data: {
+            farmId,
+            page: data.page,
+            pageSize: data.pageSize,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            search: data.search,
+          },
         }),
         getWaterQualityAlerts(session.user.id, farmId),
         getBatches(session.user.id, farmId),
@@ -226,14 +221,16 @@ function WaterQualityPage() {
 
     try {
       await createWaterQualityRecordFn({
-        farmId: selectedFarmId,
         data: {
-          batchId: formData.batchId,
-          date: new Date(formData.date),
-          ph: parseFloat(formData.ph),
-          temperatureCelsius: parseFloat(formData.temperatureCelsius),
-          dissolvedOxygenMgL: parseFloat(formData.dissolvedOxygenMgL),
-          ammoniaMgL: parseFloat(formData.ammoniaMgL),
+          farmId: selectedFarmId,
+          data: {
+            batchId: formData.batchId,
+            date: new Date(formData.date),
+            ph: parseFloat(formData.ph),
+            temperatureCelsius: parseFloat(formData.temperatureCelsius),
+            dissolvedOxygenMgL: parseFloat(formData.dissolvedOxygenMgL),
+            ammoniaMgL: parseFloat(formData.ammoniaMgL),
+          },
         },
       })
       setDialogOpen(false)
@@ -412,11 +409,15 @@ function WaterQualityPage() {
               <Select
                 value={formData.batchId}
                 onValueChange={(val) =>
-                  setFormData((prev) => ({ ...prev, batchId: val }))
+                  setFormData((prev) => ({ ...prev, batchId: val || '' }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select fish batch" />
+                  <SelectValue>
+                    {formData.batchId
+                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      : 'Select fish batch'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (

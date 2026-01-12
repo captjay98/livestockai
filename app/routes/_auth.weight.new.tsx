@@ -29,14 +29,6 @@ import {
   CollapsibleTrigger,
 } from '~/components/ui/collapsible'
 
-interface Batch {
-  id: string
-  species: string
-  livestockType: string
-  currentQuantity: number
-  status: string
-}
-
 const getBatches = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
@@ -147,7 +139,7 @@ function NewWeightPage() {
           notes: formData.notes || null,
         },
       })
-      router.navigate({ to: '/weight', search: { farmId: search.farmId } })
+      router.navigate({ to: '/weight', search: {} })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to record weight')
     } finally {

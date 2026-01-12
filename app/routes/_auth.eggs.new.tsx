@@ -2,9 +2,8 @@ import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
-import { createEggRecord } from '~/lib/eggs/server'
-import { getBatches as getBatchesServer } from '~/lib/batches/server'
-import { requireAuth } from '~/lib/auth/server-middleware'
+import { createEggRecordFn } from '~/lib/eggs/server'
+import { getBatchesPaginatedFn } from '~/lib/batches/server'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -23,24 +22,28 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 
-interface Batch {
-  id: string
-  species: string
-  livestockType: string
-  currentQuantity: number
-  status: string
+interface EggRecordData {
+  farmId: string
+  batchId: string
+  date: string
+  quantityCollected: number
+  quantityBroken: number
+  quantitySold: number
 }
 
 const getBatches = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     try {
-      const session = await requireAuth()
-      const batches = await getBatchesServer(session.user.id, data.farmId)
-      // Only return active poultry batches (layers)
-      return batches.filter(
-        (b) => b.status === 'active' && b.livestockType === 'poultry',
-      )
+      const result = await getBatchesPaginatedFn({ 
+        data: { 
+          farmId: data.farmId,
+          livestockType: 'poultry',
+          status: 'active',
+          pageSize: 100 // Get all active poultry batches
+        } 
+      })
+      return result.data
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -50,27 +53,22 @@ const getBatches = createServerFn({ method: 'GET' })
   })
 
 const createEggRecordAction = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: {
-      farmId: string
-      batchId: string
-      date: string
-      quantityCollected: number
-      quantityBroken: number
-      quantitySold: number
-    }) => data,
-  )
+  .inputValidator((data: EggRecordData) => data)
   .handler(async ({ data }) => {
     try {
-      const session = await requireAuth()
-      const id = await createEggRecord(session.user.id, data.farmId, {
-        batchId: data.batchId,
-        date: new Date(data.date),
-        quantityCollected: data.quantityCollected,
-        quantityBroken: data.quantityBroken,
-        quantitySold: data.quantitySold,
+      await createEggRecordFn({
+        data: {
+          farmId: data.farmId,
+          record: {
+            batchId: data.batchId,
+            date: new Date(data.date),
+            quantityCollected: data.quantityCollected,
+            quantityBroken: data.quantityBroken,
+            quantitySold: data.quantitySold,
+          },
+        },
       })
-      return { success: true, id }
+      return { success: true }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -130,7 +128,7 @@ function NewEggPage() {
           quantitySold: parseInt(formData.quantitySold) || 0,
         },
       })
-      router.navigate({ to: '/eggs', search: { farmId: search.farmId } })
+      router.navigate({ to: '/eggs' })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to record eggs')
     } finally {

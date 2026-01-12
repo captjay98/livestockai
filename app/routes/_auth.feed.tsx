@@ -3,7 +3,6 @@ import { createServerFn } from '@tanstack/react-start'
 import {
   Bird,
   Edit,
-  Eye,
   Fish,
   Package,
   Plus,
@@ -23,9 +22,9 @@ import {
   updateFeedRecordFn,
 } from '~/lib/feed/server'
 import { FEED_TYPES } from '~/lib/feed/constants'
-import { getBatches } from '~/lib/batches/server'
+import { getBatchesFn } from '~/lib/batches/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
-import { formatNaira } from '~/lib/currency'
+import { formatCurrency } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -45,7 +44,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/components/farm-context'
@@ -77,7 +75,9 @@ interface Batch {
   currentQuantity: number
   status: string
   farmId: string
-  farmName?: string
+  farmName?: string | null
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 interface FeedInventory {
@@ -123,7 +123,7 @@ const getFeedDataForFarm = createServerFn({ method: 'GET' })
             sortOrder: data.sortOrder,
             search: data.feedType ? data.feedType : data.search, // Basic search sharing
           }),
-          getBatches(session.user.id, farmId),
+          getBatchesFn({ data: { farmId } }),
           getFeedInventory(session.user.id, farmId),
           getFeedStats(session.user.id, farmId),
         ])
@@ -474,7 +474,7 @@ function FeedPage() {
       {
         accessorKey: 'cost',
         header: 'Cost',
-        cell: ({ row }) => formatNaira(row.original.cost),
+        cell: ({ row }) => formatCurrency(row.original.cost),
       },
       {
         id: 'actions',
@@ -547,7 +547,7 @@ function FeedPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0 sm:p-3 sm:pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(summary.totalCost)}
+                {formatCurrency(summary.totalCost)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
                 Across all batches
@@ -591,13 +591,18 @@ function FeedPage() {
             value={searchParams.feedType || 'all'}
             onValueChange={(value) => {
               updateSearch({
-                feedType: value === 'all' ? undefined : value,
+                feedType: value === 'all' ? undefined : (value || undefined),
                 page: 1,
               })
             }}
           >
             <SelectTrigger className="w-[180px] h-10">
-              <SelectValue placeholder="All Feed Types" />
+              <SelectValue>
+                {searchParams.feedType
+                  ? FEED_TYPES.find((t) => t.value === searchParams.feedType)
+                      ?.label
+                  : 'All Feed Types'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Feed Types</SelectItem>
@@ -638,11 +643,15 @@ function FeedPage() {
               <Select
                 value={formData.batchId}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, batchId: value }))
+                  setFormData((prev) => ({ ...prev, batchId: value || '' }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select batch" />
+                  <SelectValue>
+                    {formData.batchId
+                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      : 'Select batch'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (
@@ -659,11 +668,16 @@ function FeedPage() {
               <Select
                 value={formData.feedType}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, feedType: value }))
+                  setFormData((prev) => ({ ...prev, feedType: value || '' }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select feed type" />
+                  <SelectValue>
+                    {formData.feedType
+                      ? FEED_TYPES.find((t) => t.value === formData.feedType)
+                          ?.label
+                      : 'Select feed type'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {FEED_TYPES.map((type) => (
@@ -775,7 +789,9 @@ function FeedPage() {
                 <Label>Batch</Label>
                 <Select value={editFormData.batchId} disabled>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue>
+                      {selectedRecord.species}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={selectedRecord.batchId}>
@@ -789,11 +805,16 @@ function FeedPage() {
                 <Select
                   value={editFormData.feedType}
                   onValueChange={(val) =>
-                    setEditFormData((prev) => ({ ...prev, feedType: val }))
+                    setEditFormData((prev) => ({ ...prev, feedType: val || '' }))
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue>
+                      {editFormData.feedType
+                        ? FEED_TYPES.find((t) => t.value === editFormData.feedType)
+                            ?.label
+                        : 'Select feed type'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {FEED_TYPES.map((type) => (

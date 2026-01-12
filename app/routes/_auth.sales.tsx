@@ -13,26 +13,25 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { PaginatedResult, PaymentStatus } from '~/lib/sales/server'
+import type { PaginatedResult } from '~/lib/sales/server'
 import {
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
   UNIT_TYPES,
   createSale,
   deleteSaleFn,
-  getSalesPaginated,
-  getSalesSummary,
+  getSalesPaginatedFn,
+  getSalesSummaryFn,
   updateSaleFn,
 } from '~/lib/sales/server'
-import { getBatches } from '~/lib/batches/server'
-import { getCustomers } from '~/lib/customers/server'
+import { getBatchesFn } from '~/lib/batches/server'
+import { getCustomersFn } from '~/lib/customers/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
-import { formatNaira } from '~/lib/currency'
+import { formatCurrency } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '~/components/ui/card'
@@ -71,7 +70,6 @@ interface Sale {
   date: Date
   notes: string | null
   batchSpecies: string | null
-  // Enhanced fields
   unitType: string | null
   ageWeeks: number | null
   averageWeightKg: string | null
@@ -126,23 +124,25 @@ const getSalesDataForFarm = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
-      const session = await requireAuth()
+      await requireAuth()
       const farmId = data.farmId || undefined
 
       const [paginatedSales, summary, batches, customers] = await Promise.all([
-        getSalesPaginated(session.user.id, {
-          farmId,
-          page: data.page || 1,
-          pageSize: data.pageSize || 10,
-          sortBy: data.sortBy || 'date',
-          sortOrder: data.sortOrder || 'desc',
-          search: data.search,
-          livestockType: data.livestockType,
-          paymentStatus: data.paymentStatus,
+        getSalesPaginatedFn({
+          data: {
+            farmId,
+            page: data.page || 1,
+            pageSize: data.pageSize || 10,
+            sortBy: data.sortBy || 'date',
+            sortOrder: data.sortOrder || 'desc',
+            search: data.search,
+            livestockType: data.livestockType,
+            paymentStatus: data.paymentStatus,
+          }
         }),
-        getSalesSummary(session.user.id, farmId),
-        farmId ? getBatches(session.user.id, farmId) : Promise.resolve([]),
-        getCustomers(),
+        getSalesSummaryFn({ data: { farmId } }),
+        farmId ? getBatchesFn({ data: { farmId } }) : Promise.resolve([]),
+        getCustomersFn(),
       ])
       return {
         paginatedSales,
@@ -464,7 +464,7 @@ function SalesPage() {
       enableSorting: true,
       cell: ({ row }) => (
         <span className="font-medium text-success">
-          {formatNaira(row.original.totalAmount)}
+          {formatCurrency(row.original.totalAmount)}
         </span>
       ),
     },
@@ -705,7 +705,7 @@ function SalesPage() {
                       Total:
                     </span>
                     <span className="text-lg font-bold text-success">
-                      {formatNaira(
+                      {formatCurrency(
                         parseInt(formData.quantity || '0') *
                         parseFloat(formData.unitPrice || '0'),
                       )}
@@ -755,7 +755,7 @@ function SalesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold text-success">
-                {formatNaira(summary.total.revenue)}
+                {formatCurrency(summary.total.revenue)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {summary.total.count} sales
@@ -772,7 +772,7 @@ function SalesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(summary.poultry.revenue)}
+                {formatCurrency(summary.poultry.revenue)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {summary.poultry.quantity.toLocaleString()} sold
@@ -789,7 +789,7 @@ function SalesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(summary.fish.revenue)}
+                {formatCurrency(summary.fish.revenue)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {summary.fish.quantity.toLocaleString()} sold
@@ -806,7 +806,7 @@ function SalesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(summary.eggs.revenue)}
+                {formatCurrency(summary.eggs.revenue)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {summary.eggs.quantity.toLocaleString()} crates
@@ -834,13 +834,21 @@ function SalesPage() {
               value={searchParams.livestockType || 'all'}
               onValueChange={(value) => {
                 updateSearch({
-                  livestockType: value === 'all' ? undefined : value,
+                  livestockType: value === 'all' || value === null ? undefined : value,
                   page: 1,
                 })
               }}
             >
               <SelectTrigger className="w-[140px] h-10">
-                <SelectValue placeholder="All Types" />
+                <SelectValue>
+                  {searchParams.livestockType === 'all' || !searchParams.livestockType
+                    ? 'All Types'
+                    : searchParams.livestockType === 'poultry'
+                      ? 'Poultry'
+                      : searchParams.livestockType === 'fish'
+                        ? 'Fish'
+                        : 'Eggs'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
@@ -868,13 +876,17 @@ function SalesPage() {
               value={searchParams.paymentStatus || 'all'}
               onValueChange={(value) => {
                 updateSearch({
-                  paymentStatus: value === 'all' ? undefined : value,
+                  paymentStatus: value === 'all' || value === null ? undefined : value,
                   page: 1,
                 })
               }}
             >
               <SelectTrigger className="w-[140px] h-10">
-                <SelectValue placeholder="All Payments" />
+                <SelectValue>
+                  {searchParams.paymentStatus === 'all' || !searchParams.paymentStatus
+                    ? 'All Payments'
+                    : PAYMENT_STATUSES.find((s) => s.value === searchParams.paymentStatus)?.label || 'All Payments'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Payments</SelectItem>
@@ -933,7 +945,7 @@ function SalesPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Amount:</span>
                   <span className="font-bold text-lg text-green-600">
-                    {formatNaira(selectedSale.totalAmount)}
+                    {formatCurrency(selectedSale.totalAmount)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -959,7 +971,7 @@ function SalesPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Unit Price:</span>
-                  <span>{formatNaira(selectedSale.unitPrice)}</span>
+                  <span>{formatCurrency(selectedSale.unitPrice)}</span>
                 </div>
                 {selectedSale.paymentMethod && (
                   <div className="flex justify-between text-sm">
@@ -1076,7 +1088,7 @@ function SalesPage() {
                     New Total:
                   </span>
                   <span className="text-lg font-bold text-green-600">
-                    {formatNaira(
+                    {formatCurrency(
                       parseInt(editFormData.quantity || '0') *
                       parseFloat(editFormData.unitPrice || '0'),
                     )}
@@ -1131,7 +1143,7 @@ function SalesPage() {
                     {selectedSale.livestockType} Sale
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {formatNaira(selectedSale.totalAmount)} -{' '}
+                    {formatCurrency(selectedSale.totalAmount)} -{' '}
                     {selectedSale.quantity} units
                   </p>
                 </div>

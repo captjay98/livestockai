@@ -10,10 +10,8 @@ import {
   Eye,
   Mail,
   MapPin,
-  Package,
   Phone,
   Plus,
-  Search,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -31,7 +29,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -44,7 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { formatNaira } from '~/lib/currency'
+import { formatCurrency } from '~/lib/currency'
 
 interface Supplier {
   id: string
@@ -98,12 +95,14 @@ const getSupplierData = createServerFn({ method: 'GET' })
     try {
       await requireAuth()
       const paginatedSuppliers = await getSuppliersPaginatedFn({
-        page: data.page,
-        pageSize: data.pageSize,
-        sortBy: data.sortBy,
-        sortOrder: data.sortOrder,
-        search: data.search,
-        supplierType: data.supplierType,
+        data: {
+          page: data.page,
+          pageSize: data.pageSize,
+          sortBy: data.sortBy,
+          sortOrder: data.sortOrder,
+          search: data.search,
+          supplierType: data.supplierType,
+        },
       })
       return { paginatedSuppliers }
     } catch (error) {
@@ -163,7 +162,7 @@ function SuppliersPage() {
       | 'other',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
+  const [, setError] = useState('')
 
   const loadData = async () => {
     setIsLoading(true)
@@ -323,7 +322,7 @@ function SuppliersPage() {
         header: 'Total Spent',
         cell: ({ row }) => (
           <span className="font-medium">
-            {formatNaira(row.original.totalSpent)}
+            {formatCurrency(row.original.totalSpent)}
           </span>
         ),
       },
@@ -332,7 +331,7 @@ function SuppliersPage() {
         cell: ({ row }) => (
           <div className="flex justify-end">
             <Button variant="ghost" size="sm" asChild>
-              <Link to={`/suppliers/${row.original.id}`}>
+              <Link to="/suppliers/$supplierId" params={{ supplierId: row.original.id }}>
                 <Eye className="h-4 w-4 mr-2" />
                 View
               </Link>
@@ -376,13 +375,13 @@ function SuppliersPage() {
             value={searchParams.supplierType || 'all'}
             onValueChange={(value) => {
               updateSearch({
-                supplierType: value === 'all' ? undefined : value,
+                supplierType: value === 'all' || value === null ? undefined : value,
                 page: 1,
               })
             }}
           >
             <SelectTrigger className="w-[150px] h-10">
-              <SelectValue placeholder="All Types" />
+              <SelectValue>All Types</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
@@ -477,7 +476,7 @@ function SuppliersPage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue>Select type</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="hatchery">Hatchery</SelectItem>

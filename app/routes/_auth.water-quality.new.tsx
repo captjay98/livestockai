@@ -26,14 +26,6 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 
-interface Batch {
-  id: string
-  species: string
-  livestockType: string
-  currentQuantity: number
-  status: string
-}
-
 const getBatches = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
@@ -141,7 +133,7 @@ function NewWaterQualityPage() {
       })
       router.navigate({
         to: '/water-quality',
-        search: { farmId: search.farmId },
+        search: {},
       })
     } catch (err) {
       setError(

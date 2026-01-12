@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { PaginatedResult } from '~/lib/expenses/server'
+import type { ExpenseCategory, PaginatedResult } from '~/lib/expenses/server'
 import {
   EXPENSE_CATEGORIES,
   createExpenseFn,
@@ -29,15 +29,14 @@ import {
   getExpensesSummary,
   updateExpenseFn,
 } from '~/lib/expenses/server'
-import { getBatches } from '~/lib/batches/server'
-import { getSuppliers } from '~/lib/suppliers/server'
+import { getBatchesFn } from '~/lib/batches/server'
+import { getSuppliersFn } from '~/lib/suppliers/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
-import { formatNaira } from '~/lib/currency'
+import { formatCurrency } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '~/components/ui/card'
@@ -103,6 +102,7 @@ interface ExpenseSearchParams {
   sortOrder?: 'asc' | 'desc'
   q?: string
   category?: string
+  farmId?: string
 }
 
 const getExpensesDataForFarm = createServerFn({ method: 'GET' })
@@ -134,8 +134,8 @@ const getExpensesDataForFarm = createServerFn({ method: 'GET' })
             category: data.category,
           }),
           getExpensesSummary(session.user.id, farmId),
-          farmId ? getBatches(session.user.id, farmId) : Promise.resolve([]),
-          getSuppliers(),
+          farmId ? getBatchesFn({ data: { farmId } }) : Promise.resolve([]),
+          getSuppliersFn(),
         ])
       return {
         paginatedExpenses,
@@ -163,6 +163,7 @@ export const Route = createFileRoute('/_auth/expenses')({
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
     category: typeof search.category === 'string' ? search.category : undefined,
+    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
   }),
   component: ExpensesPage,
 })
@@ -210,8 +211,236 @@ function ExpensesPage() {
     page: 1,
     pageSize: 10,
     totalPages: 0,
-    batches: [], // Add missing property or ignore if not strict
   })
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null)
+  const [formData, setFormData] = useState<{
+    category: string
+    amount: string
+    date: string
+    description: string
+    batchId: string
+    supplierId: string
+    isRecurring: boolean
+  }>({
+    category: '',
+    amount: '',
+    date: new Date().toISOString().split('T')[0],
+    description: '',
+    batchId: '',
+    supplierId: '',
+    isRecurring: false,
+  })
+  const [batches, setBatches] = useState<Array<Batch>>([])
+  const [suppliers, setSuppliers] = useState<Array<Supplier>>([])
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [summary, setSummary] = useState<ExpensesSummary | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [editFormData, setEditFormData] = useState<{
+    category: string
+    amount: string
+    description: string
+  }>({
+    category: '',
+    amount: '',
+    description: '',
+  })
+
+  // Load data on mount and when search params change
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true)
+      try {
+        const result = await getExpensesDataForFarm({
+          data: {
+            farmId: selectedFarmId,
+            page: searchParams.page,
+            pageSize: searchParams.pageSize,
+            sortBy: searchParams.sortBy,
+            sortOrder: searchParams.sortOrder,
+            search: searchParams.q,
+            category: searchParams.category,
+          },
+        })
+        setPaginatedExpenses(result.paginatedExpenses)
+        setSummary(result.summary)
+        setBatches(result.batches)
+        setSuppliers(result.suppliers)
+      } catch (err) {
+        console.error('Failed to load expenses data:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadData()
+  }, [selectedFarmId, searchParams])
+
+  const updateSearch = (updates: Partial<ExpenseSearchParams>) => {
+    navigate({
+      search: (prev) => ({ ...prev, ...updates }),
+    })
+  }
+
+  const handleViewExpense = (expense: Expense) => {
+    setSelectedExpense(expense)
+    setViewDialogOpen(true)
+  }
+
+  const handleEditExpense = (expense: Expense) => {
+    setSelectedExpense(expense)
+    setEditFormData({
+      category: expense.category,
+      amount: expense.amount,
+      description: expense.description,
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleDeleteExpense = (expense: Expense) => {
+    setSelectedExpense(expense)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedExpense) return
+    
+    setIsSubmitting(true)
+    setError('')
+    
+    try {
+      await updateExpenseFn({
+        data: {
+          expenseId: selectedExpense.id,
+          data: {
+            category: editFormData.category as ExpenseCategory,
+            amount: parseFloat(editFormData.amount),
+            description: editFormData.description,
+          },
+        },
+      })
+      setEditDialogOpen(false)
+      // Reload data
+      const result = await getExpensesDataForFarm({
+        data: {
+          farmId: selectedFarmId,
+          page: searchParams.page,
+          pageSize: searchParams.pageSize,
+          sortBy: searchParams.sortBy,
+          sortOrder: searchParams.sortOrder,
+          search: searchParams.q,
+          category: searchParams.category,
+        },
+      })
+      setPaginatedExpenses(result.paginatedExpenses)
+      setSummary(result.summary)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update expense')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedExpense) return
+    
+    setIsSubmitting(true)
+    
+    try {
+      await deleteExpenseFn({ data: { expenseId: selectedExpense.id } })
+      setDeleteDialogOpen(false)
+      // Reload data
+      const result = await getExpensesDataForFarm({
+        data: {
+          farmId: selectedFarmId,
+          page: searchParams.page,
+          pageSize: searchParams.pageSize,
+          sortBy: searchParams.sortBy,
+          sortOrder: searchParams.sortOrder,
+          search: searchParams.q,
+          category: searchParams.category,
+        },
+      })
+      setPaginatedExpenses(result.paginatedExpenses)
+      setSummary(result.summary)
+    } catch (err) {
+      console.error('Failed to delete expense:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedFarmId) return
+    
+    setIsSubmitting(true)
+    setError('')
+    
+    try {
+      await createExpenseFn({
+        data: {
+          expense: {
+            farmId: selectedFarmId,
+            category: formData.category as ExpenseCategory,
+            amount: parseFloat(formData.amount),
+            date: new Date(formData.date),
+            description: formData.description,
+            batchId: formData.batchId || null,
+            supplierId: formData.supplierId || undefined,
+            isRecurring: formData.isRecurring,
+          },
+        },
+      })
+      setDialogOpen(false)
+      setFormData({
+        category: '',
+        amount: '',
+        date: new Date().toISOString().split('T')[0],
+        description: '',
+        batchId: '',
+        supplierId: '',
+        isRecurring: false,
+      })
+      // Reload data
+      const result = await getExpensesDataForFarm({
+        data: {
+          farmId: selectedFarmId,
+          page: searchParams.page,
+          pageSize: searchParams.pageSize,
+          sortBy: searchParams.sortBy,
+          sortOrder: searchParams.sortOrder,
+          search: searchParams.q,
+          category: searchParams.category,
+        },
+      })
+      setPaginatedExpenses(result.paginatedExpenses)
+      setSummary(result.summary)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create expense')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const getCategoryIcon = (category: string) => {
+    const iconMap: Record<string, React.ReactNode> = {
+      feed: <Package className="h-4 w-4" />,
+      medicine: <Pill className="h-4 w-4" />,
+      equipment: <Wrench className="h-4 w-4" />,
+      labor: <Users className="h-4 w-4" />,
+      utilities: <Zap className="h-4 w-4" />,
+      transport: <Truck className="h-4 w-4" />,
+      maintenance: <Hammer className="h-4 w-4" />,
+      marketing: <Megaphone className="h-4 w-4" />,
+      other: <Settings className="h-4 w-4" />,
+    }
+    return iconMap[category] || <Settings className="h-4 w-4" />
+  }
   /* ... context omitted ... */
   // Table columns
   const columns: Array<ColumnDef<Expense>> = [
@@ -248,7 +477,7 @@ function ExpensesPage() {
       enableSorting: true,
       cell: ({ row }) => (
         <span className="font-medium text-destructive">
-          -{formatNaira(row.original.amount)}
+          -{formatCurrency(parseFloat(row.original.amount))}
         </span>
       ),
     },
@@ -335,15 +564,20 @@ function ExpensesPage() {
                 <Select
                   value={formData.category}
                   onValueChange={(value) =>
-                    value &&
                     setFormData((prev) => ({
                       ...prev,
-                      category: value,
+                      category: value || '',
                     }))
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue>
+                      {formData.category
+                        ? EXPENSE_CATEGORIES.find(
+                            (c) => c.value === formData.category,
+                          )?.label
+                        : 'Select category'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {EXPENSE_CATEGORIES.map((cat) => (
@@ -374,7 +608,7 @@ function ExpensesPage() {
                       <SelectValue>
                         {formData.batchId
                           ? batches.find((b) => b.id === formData.batchId)
-                            ?.species
+                              ?.species
                           : 'Select batch (optional)'}
                       </SelectValue>
                     </SelectTrigger>
@@ -404,8 +638,9 @@ function ExpensesPage() {
                     <SelectTrigger>
                       <SelectValue>
                         {formData.supplierId
-                          ? suppliers.find((s) => s.id === formData.supplierId)
-                            ?.name
+                          ? suppliers.find(
+                              (s) => s.id === formData.supplierId,
+                            )?.name
                           : 'Select supplier (optional)'}
                       </SelectValue>
                     </SelectTrigger>
@@ -531,7 +766,7 @@ function ExpensesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold text-destructive">
-                {formatNaira(summary.total.amount)}
+                {formatCurrency(summary.total.amount)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {summary.total.count} records
@@ -548,7 +783,7 @@ function ExpensesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(
+                {formatCurrency(
                   'feed' in summary.byCategory
                     ? summary.byCategory.feed.amount
                     : 0,
@@ -575,7 +810,7 @@ function ExpensesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(
+                {formatCurrency(
                   ('livestock_chicken' in summary.byCategory
                     ? summary.byCategory.livestock_chicken.amount
                     : 0) +
@@ -605,7 +840,7 @@ function ExpensesPage() {
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {formatNaira(
+                {formatCurrency(
                   'labor' in summary.byCategory
                     ? summary.byCategory.labor.amount
                     : 0,
@@ -640,13 +875,15 @@ function ExpensesPage() {
             value={searchParams.category || 'all'}
             onValueChange={(value) => {
               updateSearch({
-                category: value === 'all' ? undefined : value,
+                category: value === 'all' || !value ? undefined : value,
                 page: 1,
               })
             }}
           >
             <SelectTrigger className="w-[180px] h-10">
-              <SelectValue placeholder="All Categories" />
+              <SelectValue>
+                {searchParams.category || 'All Categories'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
@@ -702,7 +939,7 @@ function ExpensesPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Amount:</span>
                   <span className="font-bold text-lg text-destructive">
-                    -{formatNaira(selectedExpense.amount)}
+                    -{formatCurrency(parseFloat(selectedExpense.amount))}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -768,15 +1005,20 @@ function ExpensesPage() {
               <Select
                 value={editFormData.category}
                 onValueChange={(value) =>
-                  value &&
                   setEditFormData((prev) => ({
                     ...prev,
-                    category: value,
+                    category: value || '',
                   }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue>
+                    {editFormData.category
+                      ? EXPENSE_CATEGORIES.find(
+                          (c) => c.value === editFormData.category,
+                        )?.label
+                      : 'Select category'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {EXPENSE_CATEGORIES.map((cat) => (
@@ -866,7 +1108,7 @@ function ExpensesPage() {
                     {selectedExpense.category}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {formatNaira(selectedExpense.amount)} -{' '}
+                    {formatCurrency(parseFloat(selectedExpense.amount))} -{' '}
                     {selectedExpense.description}
                   </p>
                 </div>

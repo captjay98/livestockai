@@ -4,13 +4,8 @@ import {
   Activity,
   AlertTriangle,
   Calendar,
-  CheckCircle2,
-  Edit,
-  Eye,
   Pill,
-  Plus,
   Syringe,
-  Trash2,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -39,12 +34,11 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/components/farm-context'
 
@@ -192,7 +186,6 @@ function HealthPage() {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
 
   const loadData = async () => {
     setIsLoading(true)
@@ -243,20 +236,21 @@ function HealthPage() {
     e.preventDefault()
     if (!selectedFarmId) return
     setIsSubmitting(true)
-    setError('')
     try {
       await createVaccinationFn({
-        farmId: selectedFarmId,
         data: {
-          batchId: vaccineForm.batchId,
-          vaccineName: vaccineForm.vaccineName,
-          dateAdministered: new Date(vaccineForm.dateAdministered),
-          dosage: vaccineForm.dosage,
-          nextDueDate: vaccineForm.nextDueDate
-            ? new Date(vaccineForm.nextDueDate)
-            : undefined,
-          notes: vaccineForm.notes,
-        },
+          farmId: selectedFarmId,
+          data: {
+            batchId: vaccineForm.batchId,
+            vaccineName: vaccineForm.vaccineName,
+            dateAdministered: new Date(vaccineForm.dateAdministered),
+            dosage: vaccineForm.dosage,
+            nextDueDate: vaccineForm.nextDueDate
+              ? new Date(vaccineForm.nextDueDate)
+              : undefined,
+            notes: vaccineForm.notes,
+          },
+        }
       })
       setVaccinationDialogOpen(false)
       setVaccineForm({
@@ -269,7 +263,7 @@ function HealthPage() {
       })
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed')
+      console.error('Failed:', err)
     } finally {
       setIsSubmitting(false)
     }
@@ -279,19 +273,20 @@ function HealthPage() {
     e.preventDefault()
     if (!selectedFarmId) return
     setIsSubmitting(true)
-    setError('')
     try {
       await createTreatmentFn({
-        farmId: selectedFarmId,
         data: {
-          batchId: treatmentForm.batchId,
-          medicationName: treatmentForm.medicationName,
-          reason: treatmentForm.reason,
-          date: new Date(treatmentForm.date),
-          dosage: treatmentForm.dosage,
-          withdrawalDays: parseInt(treatmentForm.withdrawalDays),
-          notes: treatmentForm.notes,
-        },
+          farmId: selectedFarmId,
+          data: {
+            batchId: treatmentForm.batchId,
+            medicationName: treatmentForm.medicationName,
+            reason: treatmentForm.reason,
+            date: new Date(treatmentForm.date),
+            dosage: treatmentForm.dosage,
+            withdrawalDays: parseInt(treatmentForm.withdrawalDays),
+            notes: treatmentForm.notes,
+          },
+        }
       })
       setTreatmentDialogOpen(false)
       setTreatmentForm({
@@ -305,7 +300,7 @@ function HealthPage() {
       })
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed')
+      console.error('Failed:', err)
     } finally {
       setIsSubmitting(false)
     }
@@ -518,11 +513,11 @@ function HealthPage() {
               <Select
                 value={vaccineForm.batchId}
                 onValueChange={(val) =>
-                  setVaccineForm((prev) => ({ ...prev, batchId: val }))
+                  val && setVaccineForm((prev) => ({ ...prev, batchId: val }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select Batch" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((b) => (
@@ -629,11 +624,11 @@ function HealthPage() {
               <Select
                 value={treatmentForm.batchId}
                 onValueChange={(val) =>
-                  setTreatmentForm((prev) => ({ ...prev, batchId: val }))
+                  val && setTreatmentForm((prev) => ({ ...prev, batchId: val }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select Batch" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((b) => (

@@ -250,10 +250,14 @@ function SettingsPage() {
                 <Label>Currency Preset</Label>
                 <Select
                   value={localSettings.currencyCode}
-                  onValueChange={handleCurrencyPresetChange}
+                  onValueChange={(code) => {
+                    if (code) {
+                      handleCurrencyPresetChange(code)
+                    }
+                  }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select currency" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {CURRENCY_PRESETS.map((preset) => (
@@ -286,7 +290,7 @@ function SettingsPage() {
                   onValueChange={(v) =>
                     setLocalSettings((prev) => ({
                       ...prev,
-                      currencyDecimals: parseInt(v),
+                      currencyDecimals: parseInt(v || '2'),
                     }))
                   }
                 >
@@ -305,12 +309,14 @@ function SettingsPage() {
                 <Label>Symbol Position</Label>
                 <Select
                   value={localSettings.currencySymbolPosition}
-                  onValueChange={(v: 'before' | 'after') =>
-                    setLocalSettings((prev) => ({
-                      ...prev,
-                      currencySymbolPosition: v,
-                    }))
-                  }
+                  onValueChange={(v) => {
+                    if (v) {
+                      setLocalSettings((prev) => ({
+                        ...prev,
+                        currencySymbolPosition: v,
+                      }))
+                    }
+                  }}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -329,7 +335,7 @@ function SettingsPage() {
                   onValueChange={(v) =>
                     setLocalSettings((prev) => ({
                       ...prev,
-                      thousandSeparator: v,
+                      thousandSeparator: v || ',',
                     }))
                   }
                 >
@@ -352,7 +358,7 @@ function SettingsPage() {
                   onValueChange={(v) =>
                     setLocalSettings((prev) => ({
                       ...prev,
-                      decimalSeparator: v,
+                      decimalSeparator: v || '.',
                     }))
                   }
                 >
@@ -396,9 +402,11 @@ function SettingsPage() {
                 <Label>Date Format</Label>
                 <Select
                   value={localSettings.dateFormat}
-                  onValueChange={(v: UserSettings['dateFormat']) =>
-                    setLocalSettings((prev) => ({ ...prev, dateFormat: v }))
-                  }
+                  onValueChange={(v) => {
+                    if (v) {
+                      setLocalSettings((prev) => ({ ...prev, dateFormat: v }))
+                    }
+                  }}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -417,9 +425,11 @@ function SettingsPage() {
                 <Label>Time Format</Label>
                 <Select
                   value={localSettings.timeFormat}
-                  onValueChange={(v: '12h' | '24h') =>
-                    setLocalSettings((prev) => ({ ...prev, timeFormat: v }))
-                  }
+                  onValueChange={(v) => {
+                    if (v) {
+                      setLocalSettings((prev) => ({ ...prev, timeFormat: v }))
+                    }
+                  }}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -438,7 +448,7 @@ function SettingsPage() {
                   onValueChange={(v) =>
                     setLocalSettings((prev) => ({
                       ...prev,
-                      firstDayOfWeek: parseInt(v),
+                      firstDayOfWeek: parseInt(v || '0'),
                     }))
                   }
                 >
@@ -488,9 +498,11 @@ function SettingsPage() {
                 <Label>Weight</Label>
                 <Select
                   value={localSettings.weightUnit}
-                  onValueChange={(v: 'kg' | 'lbs') =>
-                    setLocalSettings((prev) => ({ ...prev, weightUnit: v }))
-                  }
+                  onValueChange={(v) => {
+                    if (v) {
+                      setLocalSettings((prev) => ({ ...prev, weightUnit: v }))
+                    }
+                  }}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -506,9 +518,11 @@ function SettingsPage() {
                 <Label>Area</Label>
                 <Select
                   value={localSettings.areaUnit}
-                  onValueChange={(v: 'sqm' | 'sqft') =>
-                    setLocalSettings((prev) => ({ ...prev, areaUnit: v }))
-                  }
+                  onValueChange={(v) => {
+                    if (v) {
+                      setLocalSettings((prev) => ({ ...prev, areaUnit: v }))
+                    }
+                  }}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -524,12 +538,14 @@ function SettingsPage() {
                 <Label>Temperature</Label>
                 <Select
                   value={localSettings.temperatureUnit}
-                  onValueChange={(v: 'celsius' | 'fahrenheit') =>
-                    setLocalSettings((prev) => ({
-                      ...prev,
-                      temperatureUnit: v,
-                    }))
-                  }
+                  onValueChange={(v) => {
+                    if (v) {
+                      setLocalSettings((prev) => ({
+                        ...prev,
+                        temperatureUnit: v,
+                      }))
+                    }
+                  }}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />

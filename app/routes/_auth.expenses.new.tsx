@@ -3,8 +3,9 @@ import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ArrowLeft } from 'lucide-react'
-import { EXPENSE_CATEGORIES, createExpense } from '~/lib/expenses/server'
-import { getSuppliers } from '~/lib/suppliers/server'
+import type {CreateExpenseInput} from '~/lib/expenses/server';
+import {  EXPENSE_CATEGORIES, createExpenseFn } from '~/lib/expenses/server'
+import { getSuppliersFn } from '~/lib/suppliers/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import {
@@ -24,16 +25,22 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 
-interface Supplier {
-  id: string
-  name: string
-  phone: string
+interface ExpenseActionData {
+  farmId: string
+  category: CreateExpenseInput['category']
+  amount: number
+  date: string
+  description: string
+  supplierId?: string
+  isRecurring?: boolean
 }
+
+
 
 const getFormData = createServerFn({ method: 'GET' }).handler(async () => {
   try {
     await requireAuth()
-    const suppliers = await getSuppliers()
+    const suppliers = await getSuppliersFn()
     return { suppliers }
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
@@ -44,30 +51,23 @@ const getFormData = createServerFn({ method: 'GET' }).handler(async () => {
 })
 
 const createExpenseAction = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: {
-      farmId: string
-      category: string
-      amount: number
-      date: string
-      description: string
-      supplierId?: string
-      isRecurring?: boolean
-    }) => data,
-  )
+  .inputValidator((data: ExpenseActionData) => data)
   .handler(async ({ data }) => {
     try {
-      const session = await requireAuth()
-      const id = await createExpense(session.user.id, {
-        farmId: data.farmId,
-        category: data.category as any,
-        amount: data.amount,
-        date: new Date(data.date),
-        description: data.description,
-        supplierId: data.supplierId || null,
-        isRecurring: data.isRecurring || false,
+      await createExpenseFn({
+        data: {
+          expense: {
+            farmId: data.farmId,
+            category: data.category,
+            amount: data.amount,
+            date: new Date(data.date),
+            description: data.description,
+            supplierId: data.supplierId || null,
+            isRecurring: data.isRecurring || false,
+          },
+        },
       })
-      return { success: true, id }
+      return { success: true }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -117,7 +117,7 @@ function NewExpensePage() {
       await createExpenseAction({
         data: {
           farmId: search.farmId,
-          category: formData.category,
+          category: formData.category as CreateExpenseInput['category'],
           amount: parseFloat(formData.amount),
           date: formData.date,
           description: formData.description,

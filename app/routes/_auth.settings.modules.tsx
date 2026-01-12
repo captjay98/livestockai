@@ -15,9 +15,9 @@ export const Route = createFileRoute('/_auth/settings/modules')({
 })
 
 function ModuleSettingsPage() {
-  const { selectedFarm } = useFarm()
+  const { selectedFarmId } = useFarm()
 
-  if (!selectedFarm) {
+  if (!selectedFarmId) {
     return (
       <div className="space-y-6">
         <div>
@@ -37,8 +37,7 @@ function ModuleSettingsPage() {
         <div>
           <h3 className="text-lg font-medium">Feature Modules</h3>
           <p className="text-sm text-muted-foreground">
-            Enable or disable livestock management features for{' '}
-            {selectedFarm.name}.
+            Enable or disable livestock management features for your selected farm.
           </p>
         </div>
       </div>

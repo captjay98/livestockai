@@ -54,21 +54,6 @@ import {
 } from '~/components/ui/dialog'
 import { FarmDialog } from '~/components/dialogs/farm-dialog'
 
-interface Farm {
-  id: string
-  name: string
-  location: string
-  type: 'poultry' | 'fishery' | 'mixed'
-  createdAt: Date
-  updatedAt: Date
-}
-
-interface FarmStats {
-  batches: { total: number; active: number; totalLivestock: number }
-  sales: { count: number; revenue: number }
-  expenses: { count: number; amount: number }
-}
-
 interface Structure {
   id: string
   farmId: string
@@ -105,8 +90,8 @@ const getFarmDetails = createServerFn({ method: 'GET' })
         getFarmById(data.farmId, session.user.id),
         getFarmStats(data.farmId, session.user.id),
         getBatches(session.user.id, data.farmId, { status: 'active' }),
-        getSalesForFarm(session.user.id, data.farmId, { limit: 5 }),
-        getExpensesForFarm(session.user.id, data.farmId, { limit: 5 }),
+        getSalesForFarm(session.user.id, data.farmId),
+        getExpensesForFarm(session.user.id, data.farmId),
         getStructuresWithCounts(session.user.id, data.farmId),
       ])
       return {
@@ -341,7 +326,12 @@ function FarmDetailsPage() {
       <FarmDialog
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
-        farm={farm}
+        farm={{
+          id: farm.id,
+          name: farm.name,
+          location: farm.location,
+          type: farm.type as 'poultry' | 'fishery' | 'mixed'
+        }}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -351,7 +341,7 @@ function FarmDetailsPage() {
           <Card className="glass">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle>Active Batches</CardTitle>
-              <Link to="/batches" search={{ farmId }}>
+              <Link to="/batches">
                 <Button variant="link" size="sm" className="h-8">
                   View All
                 </Button>
@@ -362,7 +352,7 @@ function FarmDetailsPage() {
                 <div className="text-center py-6 text-muted-foreground">
                   No active batches found.
                   <div className="mt-2">
-                    <Link to="/batches" search={{ farmId }}>
+                    <Link to="/batches">
                       <Button variant="outline" size="sm">
                         Create Batch
                       </Button>
@@ -687,7 +677,7 @@ function FarmDetailsPage() {
                       </div>
                     ))}
                     <div className="pt-2 text-center">
-                      <Link to="/sales" search={{ farmId }}>
+                      <Link to="/sales">
                         <Button variant="ghost" size="sm" className="w-full">
                           View All Sales
                         </Button>
@@ -725,7 +715,7 @@ function FarmDetailsPage() {
                     </div>
                   ))}
                   <div className="pt-2 text-center">
-                    <Link to="/expenses" search={{ farmId }}>
+                    <Link to="/expenses">
                       <Button variant="ghost" size="sm" className="w-full">
                         View All Expenses
                       </Button>
@@ -746,7 +736,7 @@ function FarmDetailsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <Link to="/batches" search={{ farmId }} className="w-full">
+                <Link to="/batches" className="w-full">
                   <Button
                     variant="outline"
                     className="h-auto p-4 w-full glass flex flex-col items-center justify-center gap-2 hover:bg-accent"
@@ -756,7 +746,7 @@ function FarmDetailsPage() {
                   </Button>
                 </Link>
 
-                <Link to="/sales/new" search={{ farmId }} className="w-full">
+                <Link to="/sales/new" className="w-full">
                   <Button
                     variant="outline"
                     className="h-auto p-4 w-full glass text-emerald-600 flex flex-col items-center justify-center gap-2 hover:bg-emerald-50"
@@ -766,7 +756,7 @@ function FarmDetailsPage() {
                   </Button>
                 </Link>
 
-                <Link to="/expenses/new" search={{ farmId }} className="w-full">
+                <Link to="/expenses/new" className="w-full">
                   <Button
                     variant="outline"
                     className="h-auto p-4 w-full glass text-destructive flex flex-col items-center justify-center gap-2 hover:bg-red-50"
@@ -776,7 +766,12 @@ function FarmDetailsPage() {
                   </Button>
                 </Link>
 
-                <Link to="/reports" search={{ farmId }} className="w-full">
+                <Link to="/reports" search={{
+                  reportType: 'profit-loss',
+                  farmId: farmId,
+                  startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                  endDate: new Date().toISOString().split('T')[0]
+                }} className="w-full">
                   <Button
                     variant="outline"
                     className="h-auto p-4 w-full glass text-blue-600 flex flex-col items-center justify-center gap-2 hover:bg-blue-50"

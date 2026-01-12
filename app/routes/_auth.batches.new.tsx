@@ -6,10 +6,11 @@ import { toast } from 'sonner'
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
 
 import type { LivestockType } from '~/lib/modules/types'
-import { requireAuth } from '~/lib/auth/server-middleware'
+import type {CreateBatchData} from '~/lib/batches/server';
+import { MODULE_METADATA } from '~/lib/modules/constants'
 import { getSpeciesOptions } from '~/lib/batches/constants'
-import { SOURCE_SIZE_OPTIONS, createBatch } from '~/lib/batches/server'
-import { useFarm } from '~/components/farm-context'
+import {  SOURCE_SIZE_OPTIONS, createBatchFn } from '~/lib/batches/server'
+import { requireAuth } from '~/lib/auth/server-middleware'
 import { useModules } from '~/components/module-context'
 import { Button } from '~/components/ui/button'
 import {
@@ -35,47 +36,39 @@ import {
   CollapsibleTrigger,
 } from '~/components/ui/collapsible'
 
-interface CreateBatchInput {
-  farmId: string
-  livestockType: 'poultry' | 'fish'
-  species: string
-  initialQuantity: number
-  acquisitionDate: string
-  costPerUnit: number
-  // Enhanced fields
-  batchName?: string | null
-  sourceSize?: string | null
-  structureId?: string | null
-  targetHarvestDate?: string | null
-  supplierId?: string | null
-  notes?: string | null
-}
 
 const createBatchAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateBatchInput) => data)
+  .inputValidator((data: Omit<CreateBatchData, 'acquisitionDate' | 'targetHarvestDate'> & {
+    acquisitionDate: string
+    targetHarvestDate?: string | null
+  }) => data)
   .handler(async ({ data }) => {
     try {
-      const session = await requireAuth()
-
-      const batchId = await createBatch(session.user.id, {
-        farmId: data.farmId,
-        livestockType: data.livestockType,
-        species: data.species,
-        initialQuantity: data.initialQuantity,
-        acquisitionDate: new Date(data.acquisitionDate),
-        costPerUnit: data.costPerUnit,
-        // Enhanced fields
-        batchName: data.batchName || null,
-        sourceSize: data.sourceSize || null,
-        structureId: data.structureId || null,
-        targetHarvestDate: data.targetHarvestDate
-          ? new Date(data.targetHarvestDate)
-          : null,
-        supplierId: data.supplierId || null,
-        notes: data.notes || null,
+      await requireAuth()
+      await createBatchFn({
+        data: {
+          batch: {
+            farmId: data.farmId,
+            livestockType: data.livestockType,
+            species: data.species,
+            initialQuantity: data.initialQuantity,
+            acquisitionDate: new Date(data.acquisitionDate),
+            costPerUnit: data.costPerUnit,
+            // Enhanced fields
+            batchName: data.batchName || null,
+            sourceSize: data.sourceSize || null,
+            structureId: data.structureId || null,
+            targetHarvestDate: data.targetHarvestDate
+              ? new Date(data.targetHarvestDate)
+              : null,
+            target_weight_g: data.target_weight_g || null,
+            supplierId: data.supplierId || null,
+            notes: data.notes || null,
+          },
+        },
       })
 
-      return { success: true, batchId }
+      return { success: true }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
@@ -107,7 +100,7 @@ function NewBatchPage() {
 
   const [formData, setFormData] = useState({
     farmId: search.farmId || '',
-    livestockType: availableLivestockTypes[0] || 'poultry',
+    livestockType: (availableLivestockTypes[0] || 'poultry'),
     species: '',
     initialQuantity: '',
     acquisitionDate: new Date().toISOString().split('T')[0],
@@ -131,7 +124,7 @@ function NewBatchPage() {
     setError('')
 
     try {
-      const result = await createBatchAction({
+      await createBatchAction({
         data: {
           farmId: formData.farmId,
           livestockType: formData.livestockType,
@@ -150,7 +143,6 @@ function NewBatchPage() {
       toast.success('Batch created successfully!')
       router.navigate({
         to: '/batches',
-        search: { farmId: formData.farmId },
       })
     } catch (err) {
       const message =
@@ -162,7 +154,7 @@ function NewBatchPage() {
     }
   }
 
-  const handleLivestockTypeChange = (type: string | null) => {
+  const handleLivestockTypeChange = (type: string) => {
     if (type && availableLivestockTypes.includes(type as LivestockType)) {
       setFormData((prev) => ({
         ...prev,
@@ -201,7 +193,7 @@ function NewBatchPage() {
               <Label htmlFor="livestockType">Livestock Type</Label>
               <Select
                 value={formData.livestockType}
-                onValueChange={handleLivestockTypeChange}
+                onValueChange={(value) => value && handleLivestockTypeChange(value)}
               >
                 <SelectTrigger>
                   <SelectValue>
@@ -229,13 +221,16 @@ function NewBatchPage() {
               >
                 <SelectTrigger>
                   <SelectValue>
-                    {formData.species || 'Select species'}
+                    {formData.species
+                      ? speciesOptions.find((s) => s.value === formData.species)
+                          ?.label
+                      : 'Select species'}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {speciesOptions.map((species) => (
-                    <SelectItem key={species} value={species}>
-                      {species}
+                    <SelectItem key={species.value} value={species.value}>
+                      {species.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -339,7 +334,13 @@ function NewBatchPage() {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select source size" />
+                      <SelectValue>
+                        {formData.sourceSize
+                          ? sourceSizeOptions.find(
+                              (s) => s.value === formData.sourceSize,
+                            )?.label
+                          : 'Select source size'}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {sourceSizeOptions.map((size) => (

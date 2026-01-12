@@ -23,14 +23,6 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 
-interface Batch {
-  id: string
-  species: string
-  livestockType: string
-  currentQuantity: number
-  status: string
-}
-
 const getBatches = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
@@ -182,7 +174,7 @@ function NewVaccinationPage() {
       }
       router.navigate({
         to: '/vaccinations',
-        search: { farmId: search.farmId },
+        search: {},
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create record')

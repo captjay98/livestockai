@@ -15,7 +15,6 @@ import {
 import { formatNaira } from '~/lib/currency'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
-import { Card } from '~/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -34,25 +33,12 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 
-interface Sale {
-  id: string
-  date: string
-  livestockType: string
-  quantity: number
-  unitPrice: string
-  totalAmount: string
-}
-
-interface Customer {
-  id: string
+interface UpdateCustomerData {
   name: string
   phone: string
   email: string | null
   location: string | null
   customerType: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
-  totalSpent: number
-  salesCount: number
-  sales: Array<Sale>
 }
 
 const fetchCustomer = createServerFn({ method: 'GET' })
@@ -68,7 +54,7 @@ const removeCustomer = createServerFn({ method: 'POST' })
   })
 
 const updateCustomerFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { customerId: string; data: any }) => data)
+  .inputValidator((data: { customerId: string; data: UpdateCustomerData }) => data)
   .handler(async ({ data }) => {
     await updateCustomer(data.customerId, data.data)
   })
@@ -83,40 +69,38 @@ function CustomerDetailPage() {
   const customer = Route.useLoaderData()
   const navigate = useNavigate()
   const router = useRouter()
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [editFormData, setEditFormData] = useState({
-    name: customer?.name || '',
-    phone: customer?.phone || '',
-    email: customer?.email || '',
-    location: customer?.location || '',
-    customerType: customer?.customerType || '',
-  })
-
+  
   if (!customer) {
     return (
-      <div className="min-h-screen bg-background">
-        <main className="container mx-auto px-4 py-8">
-          <div className="max-w-md mx-auto">
-            <Card className="p-8 text-center">
-              <h2 className="text-2xl font-semibold mb-2">
-                Customer Not Found
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                The customer you're looking for doesn't exist or may have been
-                deleted.
-              </p>
-              <Button onClick={() => navigate({ to: '/customers' })}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Customers
-              </Button>
-            </Card>
-          </div>
-        </main>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Customer Not Found</h1>
+          <Button asChild>
+            <Link to="/customers">Back to Customers</Link>
+          </Button>
+        </div>
       </div>
     )
   }
+  
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [editFormData, setEditFormData] = useState<{
+    name: string
+    phone: string
+    email: string
+    location: string
+    customerType: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | ''
+  }>({
+    name: customer.name || '',
+    phone: customer.phone || '',
+    email: customer.email || '',
+    location: customer.location || '',
+    customerType: customer.customerType as 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | '',
+  })
+
+
 
   const handleDelete = async () => {
     setIsSubmitting(true)
@@ -143,7 +127,7 @@ function CustomerDetailPage() {
             phone: editFormData.phone,
             email: editFormData.email || null,
             location: editFormData.location || null,
-            customerType: editFormData.customerType || null,
+            customerType: (editFormData.customerType || null),
           },
         },
       })
@@ -345,12 +329,14 @@ function CustomerDetailPage() {
                   onValueChange={(value) =>
                     setEditFormData((prev) => ({
                       ...prev,
-                      customerType: value,
+                      customerType: value || '',
                     }))
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue>
+                      {editFormData.customerType || 'Select type'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="individual">Individual</SelectItem>

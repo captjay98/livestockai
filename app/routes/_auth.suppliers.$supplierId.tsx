@@ -12,26 +12,6 @@ import {
 import { deleteSupplier, getSupplierWithExpenses } from '~/lib/suppliers/server'
 import { formatNaira } from '~/lib/currency'
 
-interface Expense {
-  id: string
-  date: string
-  category: string
-  description: string
-  amount: string
-}
-
-interface Supplier {
-  id: string
-  name: string
-  phone: string
-  email: string | null
-  location: string | null
-  products: Array<string> | null
-  totalSpent: number
-  expenseCount: number
-  expenses: Array<Expense> | null
-}
-
 const fetchSupplier = createServerFn({ method: 'GET' })
   .inputValidator((data: { supplierId: string }) => data)
   .handler(async ({ data }) => {

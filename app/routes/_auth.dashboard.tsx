@@ -7,10 +7,8 @@ import {
   Building2,
   Calendar,
   Clock,
-  DollarSign,
   Droplets,
   Edit,
-  Egg,
   Fish,
   Package,
   Plus,
@@ -24,8 +22,6 @@ import {
   Wheat,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import type { BatchAlert } from '~/lib/monitoring/alerts'
-import { getInventorySummary } from '~/lib/batches/server'
 import { getDashboardStats } from '~/lib/dashboard/server'
 import { requireAuth } from '~/lib/auth/server-middleware'
 import { getUserFarms } from '~/lib/auth/utils'
@@ -41,24 +37,6 @@ import { BatchDialog } from '~/components/dialogs/batch-dialog'
 import { SaleDialog } from '~/components/dialogs/sale-dialog'
 import { FeedDialog } from '~/components/dialogs/feed-dialog'
 import { EggDialog } from '~/components/dialogs/egg-dialog'
-
-interface MortalityAlert {
-  batchId: string
-  species: string
-  rate: number
-  severity: 'warning' | 'critical'
-}
-
-interface VaccinationAlert {
-  species: string
-  vaccineName: string
-  dueDate: string
-}
-
-interface WaterQualityAlert {
-  parameter: string
-  value: string
-}
 
 interface TopCustomer {
   id: string
@@ -78,7 +56,15 @@ interface Farm {
   id: string
   name: string
   location: string
-  type: 'poultry' | 'fishery' | 'mixed'
+  type: 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
+}
+
+interface BatchAlert {
+  id: string
+  source: 'mortality' | 'water_quality' | 'vaccination' | 'inventory' | 'feed' | 'growth'
+  type: 'critical' | 'warning' | 'info'
+  species: string
+  message: string
 }
 
 const getDashboardData = createServerFn({ method: 'GET' })
@@ -88,17 +74,25 @@ const getDashboardData = createServerFn({ method: 'GET' })
       const session = await requireAuth()
       const farmId = data?.farmId || undefined
 
-      const [summary, stats, userFarms] = await Promise.all([
-        getInventorySummary(session.user.id, farmId),
+      const [stats, farmIds] = await Promise.all([
         getDashboardStats(session.user.id, farmId),
         getUserFarms(session.user.id),
       ])
 
+      // Get actual farm objects
+      const { db } = await import('~/lib/db')
+      const farms = farmIds.length > 0 
+        ? await db
+            .selectFrom('farms')
+            .select(['id', 'name', 'location', 'type'])
+            .where('id', 'in', farmIds)
+            .execute()
+        : []
+
       return {
-        summary,
         stats,
-        hasFarms: userFarms.length > 0,
-        farms: userFarms.length > 0 ? userFarms : [],
+        hasFarms: farms.length > 0,
+        farms,
       }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
@@ -154,7 +148,23 @@ function TrendingDownIcon({ className }: { className?: string }) {
 function DashboardPage() {
   const { selectedFarmId } = useFarm()
 
-  const [stats, setStats] = useState<any>(null)
+  const [stats, setStats] = useState<{
+    financial: {
+      monthlyRevenue: number
+      monthlyExpenses: number
+      monthlyProfit: number
+      revenueChange?: number
+      expensesChange?: number
+    }
+    inventory: {
+      activeBatches: number
+      totalPoultry: number
+      totalFish: number
+    }
+    alerts?: Array<BatchAlert>
+    recentTransactions: Array<Transaction>
+    topCustomers: Array<TopCustomer>
+  } | null>(null)
   const [hasFarms, setHasFarms] = useState<boolean | null>(null)
   const [farms, setFarms] = useState<Array<Farm>>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -200,7 +210,7 @@ function DashboardPage() {
           <Building2 className="h-10 w-10 sm:h-12 sm:w-12 text-foreground mx-auto" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
-          Welcome to JayFarms
+          Welcome to OpenLivestock
         </h1>
         <p className="text-muted-foreground text-base max-w-md mb-6">
           Your complete poultry and fishery management solution. Start by
@@ -538,6 +548,12 @@ function DashboardPage() {
                 </button> */}
                 <Link
                   to="/reports"
+                  search={{
+                    reportType: 'profit-loss',
+                    farmId: selectedFarmId || undefined,
+                    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    endDate: new Date().toISOString().split('T')[0],
+                  }}
                   className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center"
                 >
                   <TrendingUp className="h-5 w-5" />
