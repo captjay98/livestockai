@@ -20,24 +20,106 @@
 
 ## Features
 
-- 🐔 **Multi-Species Support** — Track Broilers (Poultry) and Catfish (Aquaculture) with species-specific metrics
-- 📴 **Offline-First** — Works without internet; syncs automatically when connection is restored
-- 📈 **Growth Forecasting** — Predict harvest dates and profit based on weight samples and growth standards
-- 💰 **Financial Management** — Track feed costs, sales, expenses with profit/loss analysis
-- 📦 **Inventory** — Manage feed stock, medications, and batch-level consumption
-- 📋 **Audit Logs** — Comprehensive activity tracking for accountability
-- 📱 **PWA** — Installable on mobile and desktop devices
+### 🐔 Multi-Species Livestock Management
+
+- **Modular species support** — Poultry (broilers, layers, turkey, duck), Aquaculture (catfish, tilapia), with extensible architecture for Cattle, Goats, Sheep, and Bees
+- **Batch lifecycle tracking** — From acquisition to sale with status management (active, depleted, sold)
+- **Species-specific metrics** — Feed types, growth standards, and structure types per species
+- **Multi-farm support** — Manage multiple farms from a single account with farm-level filtering
+
+### 📊 Predictive Analytics & Health Monitoring
+
+- **Growth forecasting** — Predict harvest dates and target weights using species-specific growth curves
+- **Revenue projections** — Estimate profit based on current weight samples and market prices
+- **Weight sampling** — Track average, min, max weights with sample sizes
+- **Mortality alerts** — Automatic warnings when batches exceed normal mortality thresholds
+- **Mortality tracking** — Record deaths by cause (disease, predator, weather, unknown) with rate analysis
+- **Vaccination schedules** — Track vaccinations with due date reminders
+- **Water quality** (Aquaculture) — Monitor pH, temperature, dissolved oxygen, ammonia levels
+
+### 💰 Financial Management
+
+- **Sales tracking** — Record sales by quantity, weight, or unit with customer linking
+- **Expense management** — Categorized expenses (feed, medicine, equipment, labor, utilities, etc.)
+- **Invoicing** — Generate customer invoices with line items and payment status tracking
+- **Profit/Loss reports** — Period-based P&L analysis with revenue and expense breakdowns
+- **20+ currency presets** — International support (USD, EUR, GBP, NGN, KES, ZAR, INR, etc.)
+
+### 📦 Inventory & Feed
+
+- **Feed inventory** — Track stock levels with low-threshold alerts
+- **Medication inventory** — Monitor quantities with expiry date tracking
+- **Feed consumption** — Log daily feeding by batch with cost tracking
+- **Feed conversion analysis** — Calculate efficiency ratios
+
+### 👥 CRM & Contacts
+
+- **Customer management** — Track buyers with contact info and purchase history
+- **Supplier management** — Manage hatcheries, feed mills, pharmacies, equipment suppliers
+- **Customer types** — Individual, restaurant, retailer, wholesaler classification
+
+### 📱 Progressive Web App (PWA)
+
+- **Offline-first** — Full functionality without internet; syncs when reconnected
+- **Installable** — Add to home screen on mobile and desktop
+- **Auto-updates** — Service worker handles app updates seamlessly
+
+### 🌍 Internationalization
+
+- **Configurable currency** — Symbol, decimals, position, separators
+- **Date formats** — MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
+- **Units** — Weight (kg/lbs), area (sqm/sqft), temperature (°C/°F)
+- **Time formats** — 12-hour or 24-hour clock
+
+### 📋 Reporting & Audit
+
+- **5 report types** — Profit/Loss, Inventory, Sales, Feed, Eggs
+- **Date range filtering** — Custom period analysis
+- **Export capability** — Download reports for external use
+- **Audit logs** — Complete activity history with user, action, entity tracking
+
+### 🔐 Security & Auth
+
+- **Better Auth** — Secure session-based authentication
+- **Role-based access** — Admin and staff roles
+- **Protected routes** — All farm data behind authentication
+
+---
+
+## Screenshots
+
+<!-- TODO: Add screenshots -->
+
+| Dashboard                                            | Batch Management                                       |
+| ---------------------------------------------------- | ------------------------------------------------------ |
+| ![Dashboard](screenshots/dashboard.png)              | ![Batches](screenshots/batches.png)                    |
+| _Farm overview with KPIs, alerts, and quick actions_ | _Batch list with status, species, and mortality rates_ |
+
+| Batch Detail                                    | Financial Reports                             |
+| ----------------------------------------------- | --------------------------------------------- |
+| ![Batch Detail](screenshots/batch-detail.png)   | ![Reports](screenshots/reports.png)           |
+| _Growth chart, projections, and batch timeline_ | _Profit/Loss analysis with expense breakdown_ |
+
+| Mobile View                       | Offline Mode                        |
+| --------------------------------- | ----------------------------------- |
+| ![Mobile](screenshots/mobile.png) | ![Offline](screenshots/offline.png) |
+| _Responsive design for field use_ | _Works without internet connection_ |
+
+| Settings                               | Invoices                                   |
+| -------------------------------------- | ------------------------------------------ |
+| ![Settings](screenshots/settings.png)  | ![Invoices](screenshots/invoices.png)      |
+| _Currency, date, and unit preferences_ | _Customer invoicing with payment tracking_ |
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | [TanStack Start](https://tanstack.com/start) (React 19, SSR) |
-| Database | PostgreSQL via [Neon](https://neon.tech) (serverless) |
-| ORM | [Kysely](https://kysely.dev) (type-safe SQL) |
-| Styling | [Tailwind CSS v4](https://tailwindcss.com) |
-| State | [TanStack Query](https://tanstack.com/query) + IndexedDB persistence |
-| Deployment | [Cloudflare Workers](https://workers.cloudflare.com) |
+| Layer      | Technology                                                           |
+| ---------- | -------------------------------------------------------------------- |
+| Framework  | [TanStack Start](https://tanstack.com/start) (React 19, SSR)         |
+| Database   | PostgreSQL via [Neon](https://neon.tech) (serverless)                |
+| ORM        | [Kysely](https://kysely.dev) (type-safe SQL)                         |
+| Styling    | [Tailwind CSS v4](https://tailwindcss.com)                           |
+| State      | [TanStack Query](https://tanstack.com/query) + IndexedDB persistence |
+| Deployment | [Cloudflare Workers](https://workers.cloudflare.com)                 |
 
 ---
 
@@ -46,17 +128,72 @@
 ### Prerequisites
 
 - **Node.js 22+** (or Bun 1.0+)
-- **PostgreSQL database** — We recommend [Neon](https://neon.tech) (free tier available)
+- **Neon account** — Free at [neon.tech](https://neon.tech) (database setup is automated)
 
 ### 1. Clone & Install
 
 ```bash
 git clone https://github.com/yourusername/open-livestock-manager.git
 cd open-livestock-manager
-bun install  # or npm install
+bun install
 ```
 
-### 2. Configure Environment
+### 2. Automated Setup
+
+```bash
+kiro-cli
+@quickstart  # Interactive setup wizard
+```
+
+The quickstart wizard will:
+
+- ✅ Check your environment (Node, Bun)
+- ✅ Create your database automatically via Neon MCP
+- ✅ Configure environment variables
+- ✅ Run migrations and seed demo data
+- ✅ Start the development server
+
+### 3. Start Developing
+
+```bash
+bun dev  # If not started automatically
+```
+
+Open [http://localhost:3000](http://localhost:3000)
+
+### Default Login Credentials
+
+After running the seeder, you can log in with these default accounts:
+
+#### Production Seeder (`bun run db:seed`)
+
+| Role  | Email                       | Password      |
+| ----- | --------------------------- | ------------- |
+| Admin | `admin@openlivestock.local` | `password123` |
+
+#### Development Seeder (`bun run db:seed:dev`)
+
+| Role  | Email                       | Password      |
+| ----- | --------------------------- | ------------- |
+| Admin | `admin@openlivestock.local` | `password123` |
+| Demo  | `demo@openlivestock.local`  | `demo123`     |
+
+**⚠️ Security Note**: Change these default passwords immediately in production environments. You can set custom credentials via environment variables:
+
+```env
+ADMIN_EMAIL=your-admin@example.com
+ADMIN_PASSWORD=your-secure-password
+ADMIN_NAME=Your Name
+```
+
+### Manual Setup (Alternative)
+
+If you prefer manual setup or don't have Kiro CLI:
+
+<details>
+<summary>Click to expand manual setup instructions</summary>
+
+#### Configure Environment
 
 ```bash
 cp .env.example .env
@@ -73,26 +210,20 @@ BETTER_AUTH_SECRET=your-secret-key-at-least-32-chars
 BETTER_AUTH_URL=http://localhost:3000
 ```
 
-### 3. Initialize Database
+#### Initialize Database
 
 ```bash
 bun run db:migrate   # Run migrations
-bun run db:seed      # Seed demo data (optional)
+bun run db:seed      # Seed production data (admin user + reference data)
 ```
 
-### 4. Start Development Server
+For development with demo data:
 
 ```bash
-bun dev
+bun run db:seed:dev  # Seed full demo data
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
-
-### Default Login (after seeding)
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | `admin@openlivestock.local` | `password123` |
+</details>
 
 ---
 
@@ -101,12 +232,14 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Cloudflare Workers (Recommended)
 
 1. Install Wrangler CLI:
+
    ```bash
-   npm install -g wrangler
+   bun add -g wrangler
    wrangler login
    ```
 
 2. Set your secrets:
+
    ```bash
    wrangler secret put DATABASE_URL
    wrangler secret put BETTER_AUTH_SECRET
@@ -121,6 +254,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Other Platforms
 
 The app can be deployed to any platform supporting Node.js:
+
 - Vercel
 - Railway
 - Render
@@ -132,18 +266,69 @@ The app can be deployed to any platform supporting Node.js:
 
 This project is designed to be AI-agent friendly. See these resources:
 
-| File | Purpose |
-|------|---------|
-| [AGENTS.md](AGENTS.md) | Comprehensive guide for AI coding assistants |
-| [.kiro/settings/mcp.json](.kiro/settings/mcp.json) | MCP server configuration for Neon database |
-| [.kiro/steering/](.kiro/steering/) | Project-specific coding guidelines |
+| File                               | Purpose                                      |
+| ---------------------------------- | -------------------------------------------- |
+| [AGENTS.md](AGENTS.md)             | Comprehensive guide for AI coding assistants |
+| [DEVLOG.md](DEVLOG.md)             | Development timeline and decisions           |
+| [.kiro/README.md](.kiro/README.md) | Kiro CLI configuration guide                 |
 
-### Quick MCP Setup (for Kiro/Claude)
+### Kiro CLI Setup
 
-The project includes pre-configured MCP settings for:
-- **Neon Database** — Query and manage your PostgreSQL database directly
+The project includes comprehensive Kiro CLI configuration:
 
-See [AGENTS.md](AGENTS.md) for detailed setup instructions.
+**Quick Start:**
+
+```bash
+kiro-cli
+@quickstart  # Interactive setup wizard
+```
+
+**Available Agents (7):**
+
+```bash
+kiro-cli --agent livestock-specialist  # Domain expertise
+kiro-cli --agent backend-engineer      # DB, API, Kysely
+kiro-cli --agent frontend-engineer     # React, UI, PWA
+kiro-cli --agent devops-engineer       # Cloudflare, deployment
+kiro-cli --agent data-analyst          # Analytics, forecasting
+kiro-cli --agent qa-engineer           # Testing
+kiro-cli --agent security-engineer     # Auth, security
+```
+
+**Key Prompts (25):**
+
+```bash
+@prime              # Load project context
+@plan-feature       # Plan new features
+@execute            # Implement from plans
+@code-review        # Review code quality
+@neon-setup         # Database setup
+@cloudflare-deploy  # Deploy to Workers
+@batch-analysis     # Livestock analytics
+@financial-report   # P&L analysis
+```
+
+See [.kiro/README.md](.kiro/README.md) for full documentation.
+
+### MCP Integration
+
+This project includes pre-configured MCP servers for database and Cloudflare Workers management:
+
+| Server                     | Purpose                     | Agent Access |
+| -------------------------- | --------------------------- | ------------ |
+| `neon`                     | PostgreSQL database queries | backend-engineer, devops-engineer, data-analyst, livestock-specialist |
+| `cloudflare-bindings`      | Workers management          | devops-engineer |
+| `cloudflare-builds`        | Deployment status           | devops-engineer |
+| `cloudflare-observability` | Logs and debugging          | devops-engineer |
+| `cloudflare-docs`          | Documentation search        | devops-engineer |
+
+All MCP servers authenticate via OAuth (no API keys needed). Enhanced agents can now:
+- Query database directly for analysis and development
+- Manage Cloudflare infrastructure programmatically  
+- Access indexed knowledge bases across sessions
+- Create and manage todo lists for complex workflows
+
+See [AGENTS.md](AGENTS.md) for details.
 
 ---
 
@@ -171,23 +356,25 @@ See [AGENTS.md](AGENTS.md) for detailed setup instructions.
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `bun dev` | Start development server |
-| `bun build` | Build for production |
-| `bun test` | Run tests |
-| `bun run lint` | Run ESLint |
-| `bun run check` | Format + lint |
-| `bun run db:migrate` | Run database migrations |
-| `bun run db:seed` | Seed demo data |
-| `bun run db:rollback` | Rollback last migration |
-| `bun run deploy` | Build & deploy to Cloudflare |
+| Command               | Description                          |
+| --------------------- | ------------------------------------ |
+| `bun dev`             | Start development server             |
+| `bun build`           | Build for production                 |
+| `bun test`            | Run tests                            |
+| `bun run lint`        | Run ESLint                           |
+| `bun run check`       | Format + lint                        |
+| `bun run db:migrate`  | Run database migrations              |
+| `bun run db:seed`     | Seed production data (admin + refs)  |
+| `bun run db:seed:dev` | Seed full demo data (farms, batches) |
+| `bun run db:rollback` | Rollback last migration              |
+| `bun run deploy`      | Build & deploy to Cloudflare         |
 
 ---
 
 ## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
+
 - Development workflow
 - Commit conventions
 - Pull request guidelines
