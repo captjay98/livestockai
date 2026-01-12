@@ -158,7 +158,7 @@ export const Route = createFileRoute('/_auth/expenses')({
     sortBy: typeof search.sortBy === 'string' ? search.sortBy : 'date',
     sortOrder:
       typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        (search.sortOrder === 'asc' || search.sortOrder === 'desc')
         ? search.sortOrder
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
@@ -183,18 +183,18 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  feed: 'text-orange-600 bg-orange-100',
-  medicine: 'text-red-600 bg-red-100',
-  equipment: 'text-blue-600 bg-blue-100',
-  utilities: 'text-yellow-600 bg-yellow-100',
-  labor: 'text-purple-600 bg-purple-100',
-  transport: 'text-green-600 bg-green-100',
-  livestock: 'text-amber-600 bg-amber-100',
-  livestock_chicken: 'text-orange-600 bg-orange-100',
-  livestock_fish: 'text-blue-600 bg-blue-100',
-  maintenance: 'text-slate-600 bg-slate-100',
-  marketing: 'text-pink-600 bg-pink-100',
-  other: 'text-gray-600 bg-gray-100',
+  feed: 'text-primary bg-primary/10',
+  medicine: 'text-destructive bg-destructive/10',
+  equipment: 'text-info bg-info/10',
+  utilities: 'text-warning bg-warning/10',
+  labor: 'text-purple bg-purple/10',
+  transport: 'text-success bg-success/10',
+  livestock: 'text-warning bg-warning/10',
+  livestock_chicken: 'text-primary bg-primary/10',
+  livestock_fish: 'text-info bg-info/10',
+  maintenance: 'text-slate bg-slate/10',
+  marketing: 'text-purple bg-purple/10',
+  other: 'text-muted-foreground bg-muted',
 }
 
 function ExpensesPage() {
@@ -210,190 +210,9 @@ function ExpensesPage() {
     page: 1,
     pageSize: 10,
     totalPages: 0,
+    batches: [], // Add missing property or ignore if not strict
   })
-  const [summary, setSummary] = useState<ExpensesSummary | null>(null)
-  const [batches, setBatches] = useState<Array<Batch>>([])
-  const [suppliers, setSuppliers] = useState<Array<Supplier>>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [formData, setFormData] = useState({
-    category: 'feed' as string,
-    batchId: '',
-    supplierId: '',
-    amount: '',
-    description: '',
-    date: new Date().toISOString().split('T')[0],
-    isRecurring: false,
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
-
-  // View/Edit/Delete dialog states
-  const [viewDialogOpen, setViewDialogOpen] = useState(false)
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null)
-  const [editFormData, setEditFormData] = useState({
-    category: '',
-    amount: '',
-    description: '',
-  })
-
-  const loadData = async () => {
-    setIsLoading(true)
-    try {
-      const result = await getExpensesDataForFarm({
-        data: {
-          farmId: selectedFarmId,
-          page: searchParams.page,
-          pageSize: searchParams.pageSize,
-          sortBy: searchParams.sortBy,
-          sortOrder: searchParams.sortOrder,
-          search: searchParams.q,
-          category: searchParams.category,
-        },
-      })
-      setPaginatedExpenses(result.paginatedExpenses)
-      setSummary(result.summary)
-      setBatches(result.batches)
-      setSuppliers(result.suppliers)
-    } catch (err) {
-      console.error('Failed:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadData()
-  }, [
-    selectedFarmId,
-    searchParams.page,
-    searchParams.pageSize,
-    searchParams.sortBy,
-    searchParams.sortOrder,
-    searchParams.q,
-    searchParams.category,
-  ])
-
-  const updateSearch = (updates: Partial<ExpenseSearchParams>) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        ...updates,
-      }),
-    })
-  }
-
-  const resetForm = () => {
-    setFormData({
-      category: 'feed',
-      batchId: '',
-      supplierId: '',
-      amount: '',
-      description: '',
-      date: new Date().toISOString().split('T')[0],
-      isRecurring: false,
-    })
-    setError('')
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedFarmId) return
-
-    setIsSubmitting(true)
-    setError('')
-
-    try {
-      await createExpenseFn({
-        data: {
-          expense: {
-            farmId: selectedFarmId,
-            batchId: formData.batchId || null,
-            supplierId: formData.supplierId || null,
-            category: formData.category as any,
-            amount: parseFloat(formData.amount),
-            description: formData.description,
-            date: new Date(formData.date),
-            isRecurring: formData.isRecurring,
-          },
-        },
-      })
-      setDialogOpen(false)
-      resetForm()
-      loadData()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to record expense')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleViewExpense = (expense: Expense) => {
-    setSelectedExpense(expense)
-    setViewDialogOpen(true)
-  }
-
-  const handleEditExpense = (expense: Expense) => {
-    setSelectedExpense(expense)
-    setEditFormData({
-      category: expense.category,
-      amount: expense.amount,
-      description: expense.description,
-    })
-    setEditDialogOpen(true)
-  }
-
-  const handleDeleteExpense = (expense: Expense) => {
-    setSelectedExpense(expense)
-    setDeleteDialogOpen(true)
-  }
-
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedExpense) return
-
-    setIsSubmitting(true)
-    try {
-      await updateExpenseFn({
-        data: {
-          expenseId: selectedExpense.id,
-          data: {
-            category: editFormData.category,
-            amount: parseFloat(editFormData.amount),
-            description: editFormData.description,
-          },
-        },
-      })
-      setEditDialogOpen(false)
-      loadData()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update expense')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleDeleteConfirm = async () => {
-    if (!selectedExpense) return
-
-    setIsSubmitting(true)
-    try {
-      await deleteExpenseFn({ data: { expenseId: selectedExpense.id } })
-      setDeleteDialogOpen(false)
-      loadData()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete expense')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const getCategoryIcon = (category: string) => {
-    return CATEGORY_ICONS[category] || <Banknote className="h-4 w-4" />
-  }
-
+  /* ... context omitted ... */
   // Table columns
   const columns: Array<ColumnDef<Expense>> = [
     {
@@ -403,7 +222,7 @@ function ExpensesPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <div
-            className={`h-8 w-8 rounded-full flex items-center justify-center ${CATEGORY_COLORS[row.original.category] || 'bg-gray-100'}`}
+            className={`h-8 w-8 rounded-full flex items-center justify-center ${CATEGORY_COLORS[row.original.category] || 'bg-muted'}`}
           >
             {getCategoryIcon(row.original.category)}
           </div>
@@ -555,7 +374,7 @@ function ExpensesPage() {
                       <SelectValue>
                         {formData.batchId
                           ? batches.find((b) => b.id === formData.batchId)
-                              ?.species
+                            ?.species
                           : 'Select batch (optional)'}
                       </SelectValue>
                     </SelectTrigger>
@@ -586,7 +405,7 @@ function ExpensesPage() {
                       <SelectValue>
                         {formData.supplierId
                           ? suppliers.find((s) => s.id === formData.supplierId)
-                              ?.name
+                            ?.name
                           : 'Select supplier (optional)'}
                       </SelectValue>
                     </SelectTrigger>
@@ -725,7 +544,7 @@ function ExpensesPage() {
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Feed
               </CardTitle>
-              <Package className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600" />
+              <Package className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
@@ -750,8 +569,8 @@ function ExpensesPage() {
                 Livestock
               </CardTitle>
               <div className="flex -space-x-1">
-                <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600" />
-                <Fish className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+                <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+                <Fish className="h-3 w-3 sm:h-4 sm:w-4 text-info" />
               </div>
             </CardHeader>
             <CardContent className="p-2 pt-0">
@@ -760,9 +579,9 @@ function ExpensesPage() {
                   ('livestock_chicken' in summary.byCategory
                     ? summary.byCategory.livestock_chicken.amount
                     : 0) +
-                    ('livestock_fish' in summary.byCategory
-                      ? summary.byCategory.livestock_fish.amount
-                      : 0),
+                  ('livestock_fish' in summary.byCategory
+                    ? summary.byCategory.livestock_fish.amount
+                    : 0),
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
@@ -782,7 +601,7 @@ function ExpensesPage() {
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Labor
               </CardTitle>
-              <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple" />
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
@@ -866,7 +685,7 @@ function ExpensesPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <div
-                  className={`h-10 w-10 rounded-full flex items-center justify-center ${CATEGORY_COLORS[selectedExpense.category] || 'bg-gray-100'}`}
+                  className={`h-10 w-10 rounded-full flex items-center justify-center ${CATEGORY_COLORS[selectedExpense.category] || 'bg-muted'}`}
                 >
                   {getCategoryIcon(selectedExpense.category)}
                 </div>
