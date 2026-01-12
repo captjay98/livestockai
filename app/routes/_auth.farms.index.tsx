@@ -74,7 +74,7 @@ export const Route = createFileRoute('/_auth/farms/')({
 
 function FarmsIndexPage() {
   const loaderData = Route.useLoaderData()
-  const farms = (loaderData?.farms ?? []) as Array<FarmWithStats>
+  const farms = loaderData.farms as Array<FarmWithStats>
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedFarm, setSelectedFarm] = useState<FarmWithStats | null>(null)

@@ -138,7 +138,7 @@ function FarmDetailsPage() {
 
   // Structures state
   const [structures, setStructures] = useState<Array<Structure>>(
-    loaderData.structures || [],
+    loaderData.structures,
   )
   const [structureDialogOpen, setStructureDialogOpen] = useState(false)
   const [editStructureDialogOpen, setEditStructureDialogOpen] = useState(false)
@@ -161,7 +161,7 @@ function FarmDetailsPage() {
   const { farm, stats, activeBatches, recentSales, recentExpenses } = loaderData
 
   useEffect(() => {
-    setStructures(loaderData.structures || [])
+    setStructures(loaderData.structures)
   }, [loaderData.structures])
 
   const resetStructureForm = () => {
