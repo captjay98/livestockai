@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
 import type { PaymentMethod, PaymentStatus, UnitType } from '~/lib/sales/server'
 import {
@@ -187,9 +188,13 @@ function NewSalePage() {
           paymentMethod: formData.paymentMethod || undefined,
         },
       })
+      toast.success('Sale recorded successfully!')
       router.navigate({ to: '/sales', search: { farmId: search.farmId } })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to record sale')
+      const message =
+        err instanceof Error ? err.message : 'Failed to record sale'
+      setError(message)
+      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }

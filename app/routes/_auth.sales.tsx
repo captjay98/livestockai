@@ -191,7 +191,7 @@ export const Route = createFileRoute('/_auth/sales')({
     sortBy: typeof search.sortBy === 'string' ? search.sortBy : 'date',
     sortOrder:
       typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        (search.sortOrder === 'asc' || search.sortOrder === 'desc')
         ? search.sortOrder
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
@@ -406,9 +406,9 @@ function SalesPage() {
   }
 
   const TYPE_COLORS: Record<string, string> = {
-    poultry: 'text-orange-600 bg-orange-100',
-    fish: 'text-blue-600 bg-blue-100',
-    eggs: 'text-yellow-600 bg-yellow-100',
+    poultry: 'text-primary bg-primary/10',
+    fish: 'text-info bg-info/10',
+    eggs: 'text-warning bg-warning/10',
   }
 
   const getPaymentStatusBadge = (status: string | null) => {
@@ -430,7 +430,7 @@ function SalesPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <div
-            className={`h-8 w-8 rounded-full flex items-center justify-center ${TYPE_COLORS[row.original.livestockType] || 'bg-gray-100'}`}
+            className={`h-8 w-8 rounded-full flex items-center justify-center ${TYPE_COLORS[row.original.livestockType] || 'bg-muted'}`}
           >
             {getTypeIcon(row.original.livestockType)}
           </div>
@@ -463,7 +463,7 @@ function SalesPage() {
       header: 'Amount',
       enableSorting: true,
       cell: ({ row }) => (
-        <span className="font-medium text-green-600">
+        <span className="font-medium text-success">
           {formatNaira(row.original.totalAmount)}
         </span>
       ),
@@ -597,7 +597,7 @@ function SalesPage() {
                       <SelectValue>
                         {formData.batchId
                           ? batches.find((b) => b.id === formData.batchId)
-                              ?.species
+                            ?.species
                           : 'Select batch'}
                       </SelectValue>
                     </SelectTrigger>
@@ -632,7 +632,7 @@ function SalesPage() {
                       <SelectValue>
                         {formData.customerId
                           ? customers.find((c) => c.id === formData.customerId)
-                              ?.name
+                            ?.name
                           : 'Walk-in customer'}
                       </SelectValue>
                     </SelectTrigger>
@@ -704,10 +704,10 @@ function SalesPage() {
                     <span className="text-sm text-muted-foreground">
                       Total:
                     </span>
-                    <span className="text-lg font-bold text-green-600">
+                    <span className="text-lg font-bold text-success">
                       {formatNaira(
                         parseInt(formData.quantity || '0') *
-                          parseFloat(formData.unitPrice || '0'),
+                        parseFloat(formData.unitPrice || '0'),
                       )}
                     </span>
                   </div>
@@ -751,10 +751,10 @@ function SalesPage() {
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Total Revenue
               </CardTitle>
-              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
             </CardHeader>
             <CardContent className="p-2 pt-0">
-              <div className="text-lg sm:text-2xl font-bold text-green-600">
+              <div className="text-lg sm:text-2xl font-bold text-success">
                 {formatNaira(summary.total.revenue)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
@@ -768,7 +768,7 @@ function SalesPage() {
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Poultry
               </CardTitle>
-              <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600" />
+              <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
@@ -785,7 +785,7 @@ function SalesPage() {
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Fish
               </CardTitle>
-              <Fish className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+              <Fish className="h-3 w-3 sm:h-4 sm:w-4 text-info" />
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
@@ -952,8 +952,8 @@ function SalesPage() {
                     {selectedSale.quantity}{' '}
                     {selectedSale.unitType
                       ? UNIT_TYPES.find(
-                          (u) => u.value === selectedSale.unitType,
-                        )?.label || selectedSale.unitType
+                        (u) => u.value === selectedSale.unitType,
+                      )?.label || selectedSale.unitType
                       : 'units'}
                   </span>
                 </div>
@@ -1078,7 +1078,7 @@ function SalesPage() {
                   <span className="text-lg font-bold text-green-600">
                     {formatNaira(
                       parseInt(editFormData.quantity || '0') *
-                        parseFloat(editFormData.unitPrice || '0'),
+                      parseFloat(editFormData.unitPrice || '0'),
                     )}
                   </span>
                 </div>
