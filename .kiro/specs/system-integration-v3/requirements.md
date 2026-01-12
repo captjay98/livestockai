@@ -2,11 +2,11 @@
 
 ## Introduction
 
-This document specifies requirements for improving system integration, automation, and fixing UI/UX issues in the JayFarms application. The goal is to create a highly connected system where data flows automatically between related entities.
+This document specifies requirements for improving system integration, automation, and fixing UI/UX issues in the OpenLivestock application. The goal is to create a highly connected system where data flows automatically between related entities.
 
 ## Glossary
 
-- **System**: The JayFarms farm management application
+- **System**: The OpenLivestock farm management application
 - **Feed_Inventory**: Stock levels of feed available on a farm
 - **Feed_Record**: A record of feed given to a specific batch
 - **Batch**: A group of livestock (poultry or fish) being raised together

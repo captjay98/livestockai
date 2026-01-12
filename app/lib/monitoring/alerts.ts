@@ -1,4 +1,4 @@
-import { subHours } from 'date-fns'
+import { differenceInDays, subHours } from 'date-fns'
 import { db } from '../db'
 import { getUserFarms } from '../auth/utils'
 
@@ -9,6 +9,7 @@ export type AlertSource =
   | 'feed'
   | 'vaccination'
   | 'inventory'
+  | 'growth'
 
 export interface BatchAlert {
   id: string
@@ -228,6 +229,99 @@ async function analyzeBatch(batch: {
       timestamp: new Date(),
       value: remainingPercentage,
     })
+  }
+
+  // 6. Check Feed Conversion Ratio (FCR)
+  const batchDetails = await db
+    .selectFrom('batches')
+    .select(['acquisitionDate'])
+    .where('id', '=', batch.id)
+    .executeTakeFirst()
+
+  if (batchDetails) {
+    const totalFeedRes = await db
+      .selectFrom('feed_records')
+      .select(({ fn }) => [fn.sum<string>('quantityKg').as('totalKg')])
+      .where('batchId', '=', batch.id)
+      .executeTakeFirst()
+
+    const latestWeight = await db
+      .selectFrom('weight_samples')
+      .select(['averageWeightKg'])
+      .where('batchId', '=', batch.id)
+      .orderBy('date', 'desc')
+      .limit(1)
+      .executeTakeFirst()
+
+    const totalFeedKg = parseFloat(totalFeedRes?.totalKg || '0')
+    const avgWeightKg = parseFloat(latestWeight?.averageWeightKg || '0')
+
+    if (totalFeedKg > 0 && avgWeightKg > 0 && batch.currentQuantity > 0) {
+      const totalWeightGainKg = avgWeightKg * batch.currentQuantity
+      const fcr = totalFeedKg / totalWeightGainKg
+
+      // Industry standards: Broiler FCR ~1.6-1.8, Catfish FCR ~1.2-1.5
+      const targetFcr = batch.species.toLowerCase().includes('catfish')
+        ? 1.5
+        : 1.8
+
+      if (fcr > targetFcr * 1.2) {
+        alerts.push({
+          id: `fcr-high-${batch.id}`,
+          batchId: batch.id,
+          species: batch.species,
+          type: fcr > targetFcr * 1.4 ? 'critical' : 'warning',
+          source: 'feed',
+          message: `High FCR: ${fcr.toFixed(2)} (target: ${targetFcr})`,
+          timestamp: new Date(),
+          value: fcr,
+          metadata: { targetFcr, actualFcr: fcr },
+        })
+      }
+    }
+  }
+
+  // 7. Check Growth Performance vs Standards
+  const growthStandard = await db
+    .selectFrom('growth_standards')
+    .select(['ageWeeks', 'standardWeightKg'])
+    .where('species', '=', batch.species)
+    .execute()
+
+  if (growthStandard.length > 0 && batchDetails) {
+    const ageInDays = differenceInDays(new Date(), batchDetails.acquisitionDate)
+    const ageInWeeks = Math.floor(ageInDays / 7)
+
+    const expectedStandard = growthStandard.find(
+      (g) => g.ageWeeks === ageInWeeks,
+    )
+    const latestWeight = await db
+      .selectFrom('weight_samples')
+      .select(['averageWeightKg'])
+      .where('batchId', '=', batch.id)
+      .orderBy('date', 'desc')
+      .limit(1)
+      .executeTakeFirst()
+
+    if (expectedStandard && latestWeight) {
+      const expectedKg = parseFloat(expectedStandard.standardWeightKg)
+      const actualKg = parseFloat(latestWeight.averageWeightKg)
+      const performanceRatio = actualKg / expectedKg
+
+      if (performanceRatio < 0.85) {
+        alerts.push({
+          id: `growth-behind-${batch.id}`,
+          batchId: batch.id,
+          species: batch.species,
+          type: performanceRatio < 0.7 ? 'critical' : 'warning',
+          source: 'growth',
+          message: `Underweight: ${(performanceRatio * 100).toFixed(0)}% of target (${actualKg.toFixed(2)}kg vs ${expectedKg.toFixed(2)}kg)`,
+          timestamp: new Date(),
+          value: performanceRatio * 100,
+          metadata: { expectedKg, actualKg, ageWeeks: ageInWeeks },
+        })
+      }
+    }
   }
 
   return alerts

@@ -7,11 +7,13 @@ import {
 } from '@tanstack/react-router'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { useMemo } from 'react'
+import { Toaster } from 'sonner'
 import type { QueryClient } from '@tanstack/react-query'
 import { createPersister } from '~/lib/query-client'
 // import { AppShell } from '~/components/layout/shell'
 import { ThemeProvider } from '~/components/theme-provider'
 import { FarmProvider } from '~/components/farm-context'
+import { SettingsProvider } from '~/lib/settings'
 import { NotFoundPage } from '~/components/not-found'
 import { ErrorPage } from '~/components/error-page'
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools'
@@ -66,7 +68,7 @@ export const Route = createRootRoute({
 function RootComponent() {
   const router = useRouter()
   // @ts-ignore - Context types are a bit loose here
-  const queryClient = router.options.context?.queryClient as QueryClient
+  const queryClient = router.options.context.queryClient as QueryClient
   const persister = useMemo(() => createPersister(), [])
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- persister is undefined on server, truthy on client
@@ -88,8 +90,10 @@ function RootComponent() {
           </head>
           <body>
             <FarmProvider>
-              <Outlet />
-              <PWAPrompt />
+              <SettingsProvider>
+                <Outlet />
+                <PWAPrompt />
+              </SettingsProvider>
             </FarmProvider>
             <Scripts />
           </body>
@@ -112,20 +116,23 @@ function RootComponent() {
         </head>
         <body>
           <FarmProvider>
-            <PersistQueryClientProvider
-              client={queryClient}
-              persistOptions={{ persister }}
-              onSuccess={() => {
-                // Optional: Resume paused mutations
-                queryClient.resumePausedMutations().then(() => {
-                  queryClient.invalidateQueries()
-                })
-              }}
-            >
-              <Outlet />
-              <PWAPrompt />
-              <OfflineIndicator />
-            </PersistQueryClientProvider>
+            <SettingsProvider>
+              <PersistQueryClientProvider
+                client={queryClient}
+                persistOptions={{ persister }}
+                onSuccess={() => {
+                  // Optional: Resume paused mutations
+                  queryClient.resumePausedMutations().then(() => {
+                    queryClient.invalidateQueries()
+                  })
+                }}
+              >
+                <Outlet />
+                <PWAPrompt />
+                <OfflineIndicator />
+                <Toaster richColors position="top-right" />
+              </PersistQueryClientProvider>
+            </SettingsProvider>
           </FarmProvider>
           <Scripts />
           {/* <TanStackRouterDevtools position="bottom-right" /> */}

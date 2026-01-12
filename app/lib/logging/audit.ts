@@ -1,6 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
 
-
 export type AuditAction = 'create' | 'update' | 'delete'
 export type AuditEntityType =
   | 'batch'

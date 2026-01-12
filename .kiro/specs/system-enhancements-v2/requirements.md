@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This spec covers enhancements to the JayFarms platform based on a comprehensive database audit. The audit identified partially used tables, unused features, and opportunities to improve the user experience through better navigation, enhanced data capture, and consolidated inventory management.
+This spec covers enhancements to the OpenLivestock platform based on a comprehensive database audit. The audit identified partially used tables, unused features, and opportunities to improve the user experience through better navigation, enhanced data capture, and consolidated inventory management.
 
 ## Technical Context
 

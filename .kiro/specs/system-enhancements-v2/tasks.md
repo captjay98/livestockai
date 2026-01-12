@@ -32,7 +32,7 @@
 
 ### Task 1.4: Create Inventory Page Route
 
-- [ ] Create `app/routes/_auth.inventory.index.tsx`
+- [x] Create `app/routes/_auth.inventory.index.tsx`
   - Tab component for Feed/Medication toggle
   - Farm selector integration
   - Low stock alerts section
