@@ -162,18 +162,16 @@ function ReportsPage() {
                 <button
                   key={type.id}
                   onClick={() => setSelectedReport(type.id)}
-                  className={`p-4 rounded-lg border text-left transition-colors ${
-                    selectedReport === type.id
+                  className={`p-4 rounded-lg border text-left transition-colors ${selectedReport === type.id
                       ? 'border-primary bg-primary/5'
                       : 'hover:border-muted-foreground/50'
-                  }`}
+                    }`}
                 >
                   <Icon
-                    className={`h-5 w-5 mb-2 ${
-                      selectedReport === type.id
+                    className={`h-5 w-5 mb-2 ${selectedReport === type.id
                         ? 'text-primary'
                         : 'text-muted-foreground'
-                    }`}
+                      }`}
                   />
                   <div className="font-medium text-sm">{type.name}</div>
                 </button>
@@ -284,30 +282,30 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
   return (
     <div className="space-y-6">
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
-        <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+        <div className="p-3 sm:p-4 bg-success/10 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
             Total Revenue
           </div>
-          <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-400">
+          <div className="text-lg sm:text-2xl font-bold text-success">
             {formatNaira(report.revenue.total)}
           </div>
         </div>
-        <div className="p-3 sm:p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
+        <div className="p-3 sm:p-4 bg-destructive/10 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
             Total Expenses
           </div>
-          <div className="text-lg sm:text-2xl font-bold text-red-700 dark:text-red-400">
+          <div className="text-lg sm:text-2xl font-bold text-destructive">
             {formatNaira(report.expenses.total)}
           </div>
         </div>
         <div
-          className={`p-3 sm:p-4 rounded-lg col-span-2 sm:col-span-1 ${report.profit >= 0 ? 'bg-blue-50 dark:bg-blue-950/20' : 'bg-orange-50 dark:bg-orange-950/20'}`}
+          className={`p-3 sm:p-4 rounded-lg col-span-2 sm:col-span-1 ${report.profit >= 0 ? 'bg-info/10' : 'bg-warning/10'}`}
         >
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
             Net Profit
           </div>
           <div
-            className={`text-lg sm:text-2xl font-bold ${report.profit >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-orange-700 dark:text-orange-400'}`}
+            className={`text-lg sm:text-2xl font-bold ${report.profit >= 0 ? 'text-info' : 'text-warning'}`}
           >
             {formatNaira(report.profit)}
           </div>
@@ -399,7 +397,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
             variant={row.original.status === 'active' ? 'default' : 'secondary'}
             className={
               row.original.status === 'active'
-                ? 'bg-green-100 text-green-800'
+                ? 'bg-success/15 text-success hover:bg-success/25'
                 : ''
             }
           >
@@ -467,7 +465,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
           setPage(p)
           setPageSize(s)
         }}
-        onSortChange={() => {}}
+        onSortChange={() => { }}
         isLoading={false}
         emptyTitle="No inventory data"
         emptyDescription="Inventory data will appear here."
@@ -537,11 +535,11 @@ function SalesReportView({ report }: { report: SalesReport }) {
             {report.summary.totalSales}
           </div>
         </div>
-        <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+        <div className="p-3 sm:p-4 bg-success/10 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
             Total Revenue
           </div>
-          <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-400">
+          <div className="text-lg sm:text-2xl font-bold text-success">
             {formatNaira(report.summary.totalRevenue)}
           </div>
         </div>
@@ -571,7 +569,7 @@ function SalesReportView({ report }: { report: SalesReport }) {
           setPage(p)
           setPageSize(s)
         }}
-        onSortChange={() => {}}
+        onSortChange={() => { }}
         isLoading={false}
         emptyTitle="No sales data"
         emptyDescription="Sales records will appear here."
@@ -669,7 +667,7 @@ function FeedReportView({ report }: { report: FeedReport }) {
           setPage(p)
           setPageSize(s)
         }}
-        onSortChange={() => {}}
+        onSortChange={() => { }}
         isLoading={false}
         emptyTitle="No feed data"
         emptyDescription="Feed records will appear here."
@@ -777,7 +775,7 @@ function EggReportView({ report }: { report: EggReport }) {
           setPage(p)
           setPageSize(s)
         }}
-        onSortChange={() => {}}
+        onSortChange={() => { }}
         isLoading={false}
         emptyTitle="No egg production data"
         emptyDescription="Egg records will appear here."

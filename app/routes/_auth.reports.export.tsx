@@ -45,7 +45,7 @@ function ExportPage() {
   const data = Route.useLoaderData()
 
   // Trigger download
-  if (typeof window !== 'undefined' && data) {
+  if (typeof window !== 'undefined') {
     const blob = new Blob([data.content], { type: data.mimeType })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
