@@ -63,6 +63,9 @@ export function formatNaira(amount: MoneyInput): string {
   }).format(value)
 }
 
+// Alias for consistency
+export const formatCurrency = formatNaira
+
 /**
  * Parse a Naira string to Decimal
  * @param nairaString String like "1,500.50" or "₦1,500.50"
