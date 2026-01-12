@@ -9,11 +9,12 @@ const LoginSchema = z.object({
   password: z.string().min(1),
 })
 
-export const loginFn = createServerFn({ method: 'POST' }).handler(
-  async ({ data }: { data: unknown }) => {
+export const loginFn = createServerFn({ method: 'POST' })
+  .inputValidator(LoginSchema)
+  .handler(async ({ data }) => {
     const headers = getRequestHeaders()
     try {
-      const { email, password } = LoginSchema.parse(data)
+      const { email, password } = data
       const res = await auth.api.signInEmail({
         body: { email, password },
         headers,

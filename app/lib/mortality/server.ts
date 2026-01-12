@@ -52,7 +52,7 @@ export async function recordMortality(
   }
 
   // Start transaction
-  return await db.transaction().execute(async (trx) => {
+  const recordId = await db.transaction().execute(async (trx) => {
     // Insert mortality record
     const result = await trx
       .insertInto('mortality_records')
@@ -86,11 +86,11 @@ export async function recordMortality(
     userId,
     action: 'create',
     entityType: 'mortality',
-    entityId: result, // result is the ID returned by transaction
+    entityId: recordId,
     details: data,
   })
 
-  return result
+  return recordId
 }
 
 // Server function for client-side calls
@@ -299,7 +299,7 @@ export async function getMortalityRecordsPaginated(
     const searchLower = `%${query.search.toLowerCase()}%`
     baseQuery = baseQuery.where((eb) =>
       eb.or([
-        eb('mortality_records.cause', 'ilike', searchLower),
+        eb(sql.raw('mortality_records.cause'), 'ilike', searchLower),
         eb('mortality_records.notes', 'ilike', searchLower),
         eb('batches.species', 'ilike', searchLower),
       ]),

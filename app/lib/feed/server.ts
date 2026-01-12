@@ -144,7 +144,7 @@ export async function deleteFeedRecord(
     await tx
       .updateTable('feed_inventory')
       .set((eb) => ({
-        quantityKg: eb('quantityKg', '+', parseFloat(record.quantityKg)),
+        quantityKg: eb('quantityKg', '+', parseFloat(record.quantityKg).toString()),
         updatedAt: new Date(),
       }))
       .where('farmId', '=', farmId)
@@ -201,7 +201,7 @@ export async function updateFeedRecord(
           quantityKg: eb(
             'quantityKg',
             '+',
-            parseFloat(existingRecord.quantityKg),
+            parseFloat(existingRecord.quantityKg).toString(),
           ),
           updatedAt: new Date(),
         }))
@@ -230,7 +230,7 @@ export async function updateFeedRecord(
       await tx
         .updateTable('feed_inventory')
         .set((eb) => ({
-          quantityKg: eb('quantityKg', '-', newQuantity),
+          quantityKg: eb('quantityKg', '-', newQuantity.toString()),
           updatedAt: new Date(),
         }))
         .where('id', '=', inventory.id)
@@ -488,7 +488,7 @@ export async function getFeedRecordsPaginated(
     const searchLower = `%${query.search.toLowerCase()}%`
     baseQuery = baseQuery.where((eb) =>
       eb.or([
-        eb('feed_records.feedType', 'ilike', searchLower),
+        eb('feed_records.feedType', 'ilike', searchLower as any),
         eb('batches.species', 'ilike', searchLower),
       ]),
     )

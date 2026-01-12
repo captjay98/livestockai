@@ -292,7 +292,7 @@ export async function getInvoicesPaginated(query: PaginatedQuery = {}) {
         sortCol,
       )
     ) {
-      dataQuery = dataQuery.orderBy(`invoices.${sortCol}`, sortOrder)
+      dataQuery = dataQuery.orderBy(sql.raw(`invoices.${sortCol}`), sortOrder)
     } else if (sortCol === 'customerName') {
       dataQuery = dataQuery.orderBy('customers.name', sortOrder)
     } else {

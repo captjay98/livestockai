@@ -92,19 +92,17 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const { db } = await import('../db')
-    const { getSession } = await import('../auth/utils')
+    const { requireAuth } = await import('../auth/server-middleware')
 
-    const session = await getSession()
-    if (!session?.user?.id) {
-      throw new Error('Authentication required')
-    }
+    const session = await requireAuth()
+    const userId = session.user.id
 
     try {
       // Upsert: insert if not exists, update if exists
       await db
         .insertInto('user_settings')
         .values({
-          userId: session.user.id,
+          userId: userId,
           ...data,
         })
         .onConflict((oc) =>
@@ -138,18 +136,16 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
 export const resetUserSettings = createServerFn({ method: 'POST' }).handler(
   async () => {
     const { db } = await import('../db')
-    const { getSession } = await import('../auth/utils')
+    const { requireAuth } = await import('../auth/server-middleware')
 
-    const session = await getSession()
-    if (!session?.user?.id) {
-      throw new Error('Authentication required')
-    }
+    const session = await requireAuth()
+    const userId = session.user.id
 
     try {
       // Delete existing settings - they'll be recreated with defaults on next fetch
       await db
         .deleteFrom('user_settings')
-        .where('userId', '=', session.user.id)
+        .where('userId', '=', userId)
         .execute()
 
       return { success: true }

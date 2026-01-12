@@ -235,10 +235,9 @@ export async function getHealthRecordsPaginated(
   }
 
   // Get total count
-  // For Union, count is tricky in Kysely without a subquery wrapper
-  // We'll wrap it in a selection
   const countResult = await db
-    .selectFrom(finalQuery.as('union_table'))
+    .with('union_table', () => finalQuery)
+    .selectFrom('union_table')
     .select(sql<number>`count(*)`.as('count'))
     .executeTakeFirst()
 
@@ -250,7 +249,8 @@ export async function getHealthRecordsPaginated(
 
   // Get Data
   let dataQuery = db
-    .selectFrom(finalQuery.as('union_table'))
+    .with('union_table', () => finalQuery)
+    .selectFrom('union_table')
     .selectAll()
     .limit(pageSize)
     .offset(offset)
@@ -258,9 +258,9 @@ export async function getHealthRecordsPaginated(
   // Sorting
   if (query.sortBy) {
     const sortOrder = query.sortOrder || 'desc'
-    dataQuery = dataQuery.orderBy(query.sortBy, sortOrder)
+    dataQuery = dataQuery.orderBy(sql.raw(query.sortBy), sortOrder)
   } else {
-    dataQuery = dataQuery.orderBy('date', 'desc')
+    dataQuery = dataQuery.orderBy(sql.raw('date'), 'desc')
   }
 
   const data = await dataQuery.execute()

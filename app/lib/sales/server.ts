@@ -135,7 +135,7 @@ export async function deleteSale(userId: string, saleId: string) {
   const { getUserFarms } = await import('~/lib/auth/utils')
 
   const userFarms = await getUserFarms(userId)
-  const farmIds = userFarms.map((f) => f.id)
+  const farmIds = userFarms // userFarms is already an array of farm IDs
 
   // Get the sale to check ownership and possibly restore batch quantity
   const sale = await db
@@ -534,6 +534,11 @@ export async function getSalesPaginated(
     date: Date
     notes: string | null
     batchSpecies: string | null
+    unitType: string | null
+    ageWeeks: number | null
+    averageWeightKg: string | null
+    paymentStatus: string | null
+    paymentMethod: string | null
   }>
 > {
   const { db } = await import('~/lib/db')
@@ -704,4 +709,16 @@ export const getSalesPaginatedFn = createServerFn({ method: 'GET' })
     const { requireAuth } = await import('~/lib/auth/server-middleware')
     const session = await requireAuth()
     return getSalesPaginated(session.user.id, data)
+  })
+
+// Server function for sales summary
+export const getSalesSummaryFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: { farmId?: string; startDate?: Date; endDate?: Date }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const session = await requireAuth()
+    return getSalesSummary(session.user.id, data.farmId, {
+      startDate: data.startDate,
+      endDate: data.endDate,
+    })
   })

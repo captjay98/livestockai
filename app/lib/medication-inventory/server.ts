@@ -356,8 +356,8 @@ export async function getLowStockMedications(userId: string, farmId?: string) {
       'farms.name as farmName',
     ])
     .where('medication_inventory.farmId', 'in', targetFarmIds)
-    .where(
-      sql`medication_inventory.quantity <= medication_inventory."minThreshold"`,
+    .where((eb) =>
+      eb(sql`medication_inventory.quantity`, '<=', sql`medication_inventory."minThreshold"`),
     )
     .orderBy('medication_inventory.medicationName', 'asc')
     .execute()

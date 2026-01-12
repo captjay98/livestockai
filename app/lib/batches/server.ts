@@ -260,6 +260,7 @@ export async function updateBatch(
     sourceSize?: string | null
     structureId?: string | null
     targetHarvestDate?: Date | null
+    target_weight_g?: number | null
     notes?: string | null
   } = {}
 
@@ -334,7 +335,7 @@ export async function deleteBatch(userId: string, batchId: string) {
       .where('batchId', '=', batchId)
       .executeTakeFirst(),
     db
-      .selectFrom('mortalities')
+      .selectFrom('mortality_records')
       .select('id')
       .where('batchId', '=', batchId)
       .executeTakeFirst(),
@@ -861,4 +862,13 @@ export const getBatchDetailsFn = createServerFn({ method: 'GET' })
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
     return getBatchStats(session.user.id, data.batchId)
+  })
+
+// Server function for getting batches
+export const getBatchesFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: { farmId?: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    return getBatches(session.user.id, data.farmId)
   })

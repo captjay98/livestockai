@@ -133,7 +133,7 @@ export async function deleteExpense(userId: string, expenseId: string) {
   const { getUserFarms } = await import('~/lib/auth/utils')
 
   const userFarms = await getUserFarms(userId)
-  const farmIds = userFarms.map((f) => f.id)
+  const farmIds = userFarms // getUserFarms already returns string[]
 
   const expense = await db
     .selectFrom('expenses')
@@ -203,21 +203,18 @@ export async function updateExpense(
   // We are not handling complex feed inventory restoration on update for now
   // Assumes simple field updates.
 
-  await db
-    .updateTable('expenses')
-    .set({
-      ...data,
-      amount: data.amount?.toString(),
-    })
-    .where('id', '=', expenseId)
-    .execute()
+  const updateData: any = {}
+  if (data.category !== undefined) updateData.category = data.category
+  if (data.amount !== undefined) updateData.amount = data.amount.toString()
+  if (data.date !== undefined) updateData.date = data.date
+  if (data.description !== undefined) updateData.description = data.description
+  if (data.batchId !== undefined) updateData.batchId = data.batchId
+  if (data.supplierId !== undefined) updateData.supplierId = data.supplierId
+  if (data.isRecurring !== undefined) updateData.isRecurring = data.isRecurring
 
   await db
     .updateTable('expenses')
-    .set({
-      ...data,
-      amount: data.amount?.toString(),
-    })
+    .set(updateData)
     .where('id', '=', expenseId)
     .execute()
 
@@ -296,7 +293,7 @@ export async function getExpenses(
     query = query.where('expenses.date', '>=', options.startDate)
   }
   if (options?.category) {
-    query = query.where('expenses.category', '=', options.category)
+    query = query.where('expenses.category', '=', options.category as any)
   }
 
   return query.orderBy('expenses.date', 'desc').execute()
@@ -309,6 +306,7 @@ export async function getExpensesForFarm(
     startDate?: Date
     endDate?: Date
     category?: string
+    limit?: number
   },
 ) {
   const { db } = await import('~/lib/db')

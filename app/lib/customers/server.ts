@@ -216,7 +216,7 @@ export async function getCustomersPaginated(query: PaginatedQuery = {}) {
       'customers.customerType',
       'customers.createdAt',
       sql<number>`count(sales.id)`.as('salesCount'),
-      sql<string>`coalesce(sum(sales.total_amount), 0)`.as('totalSpent'),
+      sql<string>`coalesce(sum(sales."totalAmount"), 0)`.as('totalSpent'),
     ])
     .groupBy([
       'customers.id',
@@ -234,11 +234,10 @@ export async function getCustomersPaginated(query: PaginatedQuery = {}) {
     const sortOrder = query.sortOrder || 'desc'
     const sortCol = query.sortBy
     if (query.sortBy === 'totalSpent' || query.sortBy === 'salesCount') {
-      // already selected asalias, but kysely needs exact reference sometimes
-      // using alias directly in orderBy string usually works in postrgres
-      dataQuery = dataQuery.orderBy(sortCol, sortOrder)
+      // Use sql.raw for computed columns
+      dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
     } else {
-      dataQuery = dataQuery.orderBy(`customers.${sortCol}`, sortOrder)
+      dataQuery = dataQuery.orderBy(sql.raw(`customers.${sortCol}`), sortOrder)
     }
   } else {
     dataQuery = dataQuery.orderBy('customers.createdAt', 'desc')
@@ -266,3 +265,9 @@ export const getCustomersPaginatedFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     return getCustomersPaginated(data)
   })
+
+export const getCustomersFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    return getCustomers()
+  },
+)

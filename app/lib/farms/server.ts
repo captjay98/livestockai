@@ -5,13 +5,13 @@ import { toNumber } from '../currency'
 export interface CreateFarmData {
   name: string
   location: string
-  type: 'poultry' | 'fishery' | 'mixed'
+  type: 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
 }
 
 export interface UpdateFarmData {
   name?: string
   location?: string
-  type?: 'poultry' | 'fishery' | 'mixed'
+  type?: 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
 }
 
 /**
@@ -144,7 +144,7 @@ export async function updateFarm(
   const updateData: {
     name?: string
     location?: string
-    type?: 'poultry' | 'fishery' | 'mixed'
+    type?: 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
   } = {}
 
   if (data.name !== undefined) updateData.name = data.name

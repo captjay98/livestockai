@@ -317,3 +317,13 @@ export const updateUserRole = createServerFn({ method: 'POST' })
 
     return { success: true }
   })
+
+// Export server function wrappers with 'Fn' suffix for consistency
+export const listUsersFn = listUsers
+export const getUserFn = getUser
+export const createUserFn = createUser
+export const setUserPasswordFn = setUserPassword
+export const banUserFn = banUser
+export const unbanUserFn = unbanUser
+export const removeUserFn = removeUser
+export const updateUserRoleFn = updateUserRole
