@@ -204,7 +204,7 @@ function WeightPage() {
 
   const updateSearch = (updates: Partial<WeightSearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: any) => ({
         ...prev,
         ...updates,
       }),

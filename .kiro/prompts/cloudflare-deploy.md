@@ -23,12 +23,14 @@ Execute a production deployment to Cloudflare Workers with comprehensive validat
 ## MCP Integration
 
 **Check current deployment status:**
+
 ```
 cloudflare-bindings__workers_list
 cloudflare-builds__workers_builds_list_builds
 ```
 
 **View recent logs:**
+
 ```
 cloudflare-observability__query_worker_observability
 ```
@@ -45,6 +47,7 @@ wrangler whoami
 ```
 
 **If not authenticated:**
+
 ```bash
 wrangler login
 ```
@@ -64,6 +67,7 @@ wrangler secret list
 | `BETTER_AUTH_URL` | Production URL | `wrangler secret put BETTER_AUTH_URL` |
 
 **Set missing secrets:**
+
 ```bash
 # Database connection
 wrangler secret put DATABASE_URL
@@ -98,6 +102,7 @@ bun run check
 ```
 
 **Common issues:**
+
 - Missing types in Kysely schema
 - Incorrect import paths
 - Type mismatches in server functions
@@ -112,11 +117,13 @@ bun run build
 ```
 
 **Check bundle size:**
+
 ```bash
 ls -la dist/
 ```
 
 **If build fails:**
+
 - Check for static imports of `db` (must be dynamic)
 - Check for Node.js-only modules
 - Verify all dependencies are Workers-compatible
@@ -124,6 +131,7 @@ ls -la dist/
 ### Step 6: Verify Dynamic Imports
 
 **Critical check - static imports break Workers:**
+
 ```bash
 # Search for violations
 grep -rn "^import.*{ db }.*from" app/lib/*/server.ts
@@ -133,6 +141,7 @@ grep -rn "^import.*db.*from.*\/db" app/lib/
 ```
 
 **If violations found:** Fix before deploying:
+
 ```typescript
 // ❌ WRONG - breaks Workers
 import { db } from '../db'
@@ -155,6 +164,7 @@ wrangler deploy
 ```
 
 **Expected output:**
+
 ```
 Uploaded openlivestock (X.XX sec)
 Published openlivestock (X.XX sec)
@@ -169,6 +179,7 @@ wrangler deploy --env preview
 ```
 
 Use preview for:
+
 - Testing new features before production
 - Verifying fixes before rollout
 - Stakeholder demos
@@ -218,6 +229,7 @@ curl -I https://openlivestock.your-subdomain.workers.dev
 ### Step 5: Functional Testing
 
 **Test critical paths:**
+
 1. **Homepage loads**: Visit production URL
 2. **Login works**: Test with admin credentials
 3. **Database connected**: View batches list
@@ -288,6 +300,7 @@ wrangler dev --remote
 ## Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] `wrangler whoami` shows correct account
 - [ ] All secrets configured (`wrangler secret list`)
 - [ ] `bun test` passes
@@ -296,10 +309,12 @@ wrangler dev --remote
 - [ ] No static db imports found
 
 ### Deployment
+
 - [ ] `bun run deploy` succeeds
 - [ ] Deployment URL accessible
 
 ### Post-Deployment
+
 - [ ] Homepage loads
 - [ ] Login works
 - [ ] Database operations work
@@ -327,6 +342,7 @@ wrangler dev --remote
 ## Instructions for Assistant
 
 ### Workflow
+
 1. **Run pre-deployment checks** - All must pass
 2. **Verify secrets** - All required secrets set
 3. **Execute deployment** - Use `bun run deploy`
@@ -335,6 +351,7 @@ wrangler dev --remote
 6. **Document results** - Report success or issues
 
 ### Key Principles
+
 - **Never deploy with failing tests** - Fix first
 - **Always verify secrets** - Missing secrets = broken app
 - **Check dynamic imports** - Static imports break Workers
@@ -342,6 +359,7 @@ wrangler dev --remote
 - **Monitor after deploy** - Watch logs for 5+ minutes
 
 ### When to Stop and Ask
+
 - Tests failing and fix unclear
 - Secrets missing and values unknown
 - Build errors not related to code

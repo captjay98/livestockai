@@ -16,6 +16,7 @@ Perform comprehensive technical code review with OpenLivestock-specific pattern 
 ## Review Scope
 
 **Target**: `$ARGUMENTS`
+
 - `staged` - Review git staged files
 - `recent` - Review last commit
 - `[file-path]` - Review specific file(s)
@@ -24,12 +25,14 @@ Perform comprehensive technical code review with OpenLivestock-specific pattern 
 ## MCP Integration
 
 **Check database schema for type validation:**
+
 ```
 neon_get_database_tables
 neon_describe_table_schema "batches"
 ```
 
 **Verify deployment compatibility:**
+
 ```
 cloudflare-builds__workers_builds_list_builds
 ```
@@ -66,19 +69,21 @@ For each changed file, read the ENTIRE file (not just diff) to understand contex
 export const getBatches = createServerFn({ method: 'GET' })
   .validator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { db } = await import('../db')  // Dynamic import!
+    const { db } = await import('../db') // Dynamic import!
     return db.selectFrom('batches').where('farmId', '=', data.farmId).execute()
   })
 
 // ❌ WRONG - Breaks on Cloudflare Workers
-import { db } from '../db'  // Static import at top level
-export const getBatches = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    return db.selectFrom('batches').execute()  // Will fail!
-  })
+import { db } from '../db' // Static import at top level
+export const getBatches = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    return db.selectFrom('batches').execute() // Will fail!
+  },
+)
 ```
 
 **Detection command:**
+
 ```bash
 # Find violations - static db imports in server files
 grep -rn "^import.*{ db }.*from" app/lib/*/server.ts
@@ -92,19 +97,24 @@ grep -rn "^import.*db.*from.*\/db" app/lib/
 ```typescript
 // ✅ CORRECT - Validated input
 export const createBatch = createServerFn({ method: 'POST' })
-  .validator(z.object({
-    farmId: z.string().uuid(),
-    batchName: z.string().min(1).max(100),
-    species: z.enum(['broiler', 'catfish', 'layer', 'tilapia']),
-    initialQuantity: z.number().int().positive(),
-  }))
-  .handler(async ({ data }) => { /* ... */ })
+  .validator(
+    z.object({
+      farmId: z.string().uuid(),
+      batchName: z.string().min(1).max(100),
+      species: z.enum(['broiler', 'catfish', 'layer', 'tilapia']),
+      initialQuantity: z.number().int().positive(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // ❌ WRONG - No validation
-export const createBatch = createServerFn({ method: 'POST' })
-  .handler(async ({ data }) => {
+export const createBatch = createServerFn({ method: 'POST' }).handler(
+  async ({ data }) => {
     // data is unvalidated - security risk!
-  })
+  },
+)
 ```
 
 ### 3. Better Auth Security
@@ -117,11 +127,11 @@ export const Route = createFileRoute('/_auth/batches')({
   // _auth prefix ensures authentication
 })
 
-// ✅ CORRECT - Server-side auth check
-.handler(async ({ data, context }) => {
-  const session = await getSession(context.request)
-  if (!session) throw new Error('Unauthorized')
-})
+  // ✅ CORRECT - Server-side auth check
+  .handler(async ({ data, context }) => {
+    const session = await getSession(context.request)
+    if (!session) throw new Error('Unauthorized')
+  })
 
 // ❌ WRONG - Unprotected sensitive route
 export const Route = createFileRoute('/admin/users')({
@@ -144,7 +154,7 @@ const batches = await db
 // ❌ AVOID - Select all (performance, security)
 const batches = await db
   .selectFrom('batches')
-  .selectAll()  // Avoid in production
+  .selectAll() // Avoid in production
   .execute()
 
 // ✅ CORRECT - Type-safe joins
@@ -156,7 +166,10 @@ const batchesWithFarm = await db
 
 // ❌ WRONG - N+1 query pattern
 for (const batch of batches) {
-  const farm = await db.selectFrom('farms').where('id', '=', batch.farmId).execute()
+  const farm = await db
+    .selectFrom('farms')
+    .where('id', '=', batch.farmId)
+    .execute()
   // This creates N+1 queries!
 }
 ```
@@ -166,11 +179,11 @@ for (const batch of batches) {
 ```typescript
 // ✅ CORRECT - Use formatCurrency utility
 import { formatCurrency } from '~/lib/currency'
-const display = formatCurrency(amount)  // ₦1,234,567.89
+const display = formatCurrency(amount) // ₦1,234,567.89
 
 // ❌ WRONG - Manual formatting
-const display = `₦${amount.toFixed(2)}`  // Missing thousands separator
-const display = `$${amount}`  // Wrong currency!
+const display = `₦${amount.toFixed(2)}` // Missing thousands separator
+const display = `$${amount}` // Wrong currency!
 ```
 
 ### 6. Error Handling
@@ -260,7 +273,7 @@ Issues Found: X (🚨 Critical: X, ⚠️ High: X, 📋 Medium: X, 💡 Low: X)
 
 For each issue:
 
-```
+````
 🚨 CRITICAL | ⚠️ HIGH | 📋 MEDIUM | 💡 LOW
 
 **File**: `app/lib/batches/server.ts`
@@ -269,11 +282,14 @@ For each issue:
 **Code**:
 ```typescript
 import { db } from '../db'  // ❌ Static import
-```
+````
+
 **Fix**:
+
 ```typescript
-const { db } = await import('../db')  // ✅ Dynamic import
+const { db } = await import('../db') // ✅ Dynamic import
 ```
+
 ```
 
 ### OpenLivestock-Specific Issues
@@ -322,3 +338,4 @@ Highlight any violations of:
 - Data loss risks identified
 - Architectural concerns
 - Breaking changes to public APIs
+```

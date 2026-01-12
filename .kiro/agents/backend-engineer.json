@@ -31,11 +31,7 @@
   ],
   "toolsSettings": {
     "fs_write": {
-      "allowedPaths": [
-        "app/lib/**",
-        "app/routes/api/**",
-        "*.md"
-      ]
+      "allowedPaths": ["app/lib/**", "app/routes/api/**", "*.md"]
     },
     "execute_bash": {
       "allowedCommands": [
@@ -51,10 +47,7 @@
         "git log *"
       ],
       "autoAllowReadonly": true,
-      "deniedCommands": [
-        "rm -rf *",
-        "sudo *"
-      ]
+      "deniedCommands": ["rm -rf *", "sudo *"]
     }
   },
   "resources": [

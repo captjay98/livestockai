@@ -35,7 +35,7 @@ neon_run_sql "SELECT * FROM batches WHERE id = 'batch-id'"
 
 ```
 neon_run_sql "
-  SELECT 
+  SELECT
     b.id, b.batchName, b.species, b.status,
     b.initialQuantity, b.currentQuantity,
     b.startDate, b.targetHarvestDate,
@@ -111,20 +111,20 @@ neon_run_sql "
 
 ### For Broilers (Ross 308 Standards)
 
-| Metric         | Formula                        | Target     | Warning    |
-| -------------- | ------------------------------ | ---------- | ---------- |
-| Mortality Rate | (Deaths / Initial) × 100       | <5%        | >8%        |
-| FCR            | Total Feed / Total Weight Gain | 1.6-1.8    | >2.0       |
-| ADG            | Weight Gain / Days             | 50-60g/day | <40g/day   |
-| Days to 2kg    | Days from start to 2kg avg     | 35-42 days | >50 days   |
+| Metric         | Formula                        | Target     | Warning  |
+| -------------- | ------------------------------ | ---------- | -------- |
+| Mortality Rate | (Deaths / Initial) × 100       | <5%        | >8%      |
+| FCR            | Total Feed / Total Weight Gain | 1.6-1.8    | >2.0     |
+| ADG            | Weight Gain / Days             | 50-60g/day | <40g/day |
+| Days to 2kg    | Days from start to 2kg avg     | 35-42 days | >50 days |
 
 ### For Catfish
 
-| Metric        | Formula                        | Target         | Warning    |
-| ------------- | ------------------------------ | -------------- | ---------- |
-| Survival Rate | (Current / Initial) × 100      | >90%           | <85%       |
-| FCR           | Total Feed / Total Weight Gain | 1.2-1.5        | >1.8       |
-| Growth Rate   | Weight Gain / Days             | Varies by size | -          |
+| Metric        | Formula                        | Target         | Warning |
+| ------------- | ------------------------------ | -------------- | ------- |
+| Survival Rate | (Current / Initial) × 100      | >90%           | <85%    |
+| FCR           | Total Feed / Total Weight Gain | 1.2-1.5        | >1.8    |
+| Growth Rate   | Weight Gain / Days             | Varies by size | -       |
 
 ## Analysis Output Format
 
@@ -135,22 +135,25 @@ neon_run_sql "
 
 ### Status: 🟢 Good / 🟡 Warning / 🔴 Critical
 
-| Metric         | Actual | Target | Status |
-| -------------- | ------ | ------ | ------ |
-| Mortality Rate | X%     | <5%    | ✅/⚠️/❌ |
-| FCR            | X.XX   | 1.6-1.8| ✅/⚠️/❌ |
-| ADG            | Xg/day | 50-60g | ✅/⚠️/❌ |
+| Metric         | Actual | Target  | Status   |
+| -------------- | ------ | ------- | -------- |
+| Mortality Rate | X%     | <5%     | ✅/⚠️/❌ |
+| FCR            | X.XX   | 1.6-1.8 | ✅/⚠️/❌ |
+| ADG            | Xg/day | 50-60g  | ✅/⚠️/❌ |
 
 ### Financial Summary
+
 - **Feed Cost**: ₦X,XXX,XXX
 - **Revenue (if sold)**: ₦X,XXX,XXX
 - **Projected Profit**: ₦X,XXX,XXX
 
 ### Issues Identified
+
 1. [Issue with severity and recommendation]
 2. [Issue with severity and recommendation]
 
 ### Recommendations
+
 1. [Actionable recommendation]
 2. [Actionable recommendation]
 ```
@@ -158,6 +161,7 @@ neon_run_sql "
 ## Agent Delegation
 
 For comprehensive analysis, delegate to specialized agents:
+
 - `@livestock-specialist` - Domain expertise on species-specific issues
 - `@data-analyst` - Advanced statistical analysis and forecasting
 

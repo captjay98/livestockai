@@ -7,7 +7,7 @@ This template defines the standard structure for all prompts in the OpenLivestoc
 ```markdown
 ---
 description: 'Brief description of what this prompt does'
-argument-hint: "[optional-argument-description]"  # Only if prompt accepts arguments
+argument-hint: '[optional-argument-description]' # Only if prompt accepts arguments
 ---
 
 # Prompt Title
@@ -32,6 +32,7 @@ Clear statement of what this prompt accomplishes.
 ## MCP Integration (if applicable)
 
 **Available MCP Servers:**
+
 - `neon`: Database queries, schema inspection
 - `cloudflare-bindings`: Workers, KV, R2 management
 - `cloudflare-builds`: Deployment status
@@ -39,10 +40,12 @@ Clear statement of what this prompt accomplishes.
 
 **Example MCP Usage:**
 ```
+
 neon_get_database_tables
-neon_run_sql "SELECT * FROM batches LIMIT 5"
-cloudflare-builds__workers_builds_list_builds
-```
+neon_run_sql "SELECT \* FROM batches LIMIT 5"
+cloudflare-builds\_\_workers_builds_list_builds
+
+````
 
 ## Process
 
@@ -56,9 +59,10 @@ cloudflare-builds__workers_builds_list_builds
 ```bash
 # Example command
 bun run [command]
-```
+````
 
 **Expected Output:**
+
 - What success looks like
 - What to check for
 
@@ -69,6 +73,7 @@ bun run [command]
 ## OpenLivestock-Specific Patterns
 
 ### Database Patterns (Kysely)
+
 ```typescript
 // Always use dynamic imports for Cloudflare Workers
 const { db } = await import('../db')
@@ -82,6 +87,7 @@ const batches = await db
 ```
 
 ### Server Function Pattern (TanStack Start)
+
 ```typescript
 export const getData = createServerFn({ method: 'GET' })
   .validator(z.object({ farmId: z.string().uuid() }))
@@ -92,6 +98,7 @@ export const getData = createServerFn({ method: 'GET' })
 ```
 
 ### Key Tables Reference
+
 - `batches`: Livestock batches (poultry/fish)
 - `mortality_records`: Death tracking
 - `feed_records`: Feed consumption
@@ -144,16 +151,19 @@ bun run build
 ## Instructions for Assistant
 
 ### Workflow
+
 1. Step-by-step execution guidance
 2. Decision points and branching logic
 3. When to ask user for input
 
 ### Key Principles
+
 - Be specific to OpenLivestock Manager
 - Use actual project patterns and examples
 - Leverage MCP servers for data access
 - Provide actionable, executable steps
 - Include validation at each step
+
 ```
 
 ## Quality Checklist
@@ -185,3 +195,4 @@ Every prompt should have:
 | **Validation** | Includes verification commands and success criteria |
 | **Error Handling** | Addresses common issues with solutions |
 | **Format Consistency** | Follows this template structure |
+```

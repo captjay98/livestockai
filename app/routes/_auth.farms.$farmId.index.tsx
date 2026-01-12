@@ -361,7 +361,7 @@ function FarmDetailsPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {activeBatches.map((batch) => (
+                  {activeBatches.map((batch: any) => (
                     <div
                       key={batch.id}
                       className="flex items-center justify-between border-b last:border-0 pb-4 last:pb-0"
@@ -652,7 +652,7 @@ function FarmDetailsPage() {
                   </p>
                 ) : (
                   <div className="space-y-4">
-                    {recentSales.map((sale) => (
+                    {recentSales.map((sale: any) => (
                       <div
                         key={sale.id}
                         className="flex items-center justify-between border-b last:border-0 pb-4 last:pb-0"
@@ -691,7 +691,7 @@ function FarmDetailsPage() {
                 </p>
               ) : (
                 <div className="space-y-4">
-                  {recentExpenses.map((expense) => (
+                  {recentExpenses.map((expense: any) => (
                     <div
                       key={expense.id}
                       className="flex items-center justify-between border-b last:border-0 pb-4 last:pb-0"

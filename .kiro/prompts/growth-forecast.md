@@ -159,11 +159,11 @@ Where:
 
 ## Growth Performance
 
-| Metric          | Actual   | Target   | Status |
-| --------------- | -------- | -------- | ------ |
-| ADG (7-day)     | Xg/day   | 50-60g   | ✅/⚠️/❌ |
-| ADG (Overall)   | Xg/day   | 50-60g   | ✅/⚠️/❌ |
-| vs Standard     | X%       | 100%     | ✅/⚠️/❌ |
+| Metric        | Actual | Target | Status   |
+| ------------- | ------ | ------ | -------- |
+| ADG (7-day)   | Xg/day | 50-60g | ✅/⚠️/❌ |
+| ADG (Overall) | Xg/day | 50-60g | ✅/⚠️/❌ |
+| vs Standard   | X%     | 100%   | ✅/⚠️/❌ |
 
 ## Harvest Forecast
 
@@ -189,6 +189,7 @@ Where:
 ## Alerts
 
 Generate alerts for:
+
 - Growth rate <80% of standard → 🔴 Critical
 - High weight variance (CV >15%) → 🟡 Warning
 - Declining ADG trend → 🟡 Warning

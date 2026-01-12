@@ -246,13 +246,13 @@ function NewExpensePage() {
                   <SelectTrigger>
                     <SelectValue>
                       {formData.supplierId
-                        ? suppliers.find((s) => s.id === formData.supplierId)
+                        ? suppliers.find((s: any) => s.id === formData.supplierId)
                             ?.name
                         : 'Select supplier'}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {suppliers.map((supplier) => (
+                    {suppliers.map((supplier: any) => (
                       <SelectItem key={supplier.id} value={supplier.id}>
                         {supplier.name}
                       </SelectItem>

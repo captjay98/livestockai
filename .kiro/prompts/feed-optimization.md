@@ -82,12 +82,12 @@ neon_run_sql "
     FROM feed_records WHERE batchId = 'batch-id'
   ),
   weight_gain AS (
-    SELECT 
-      (MAX(avgWeightKg) - MIN(avgWeightKg)) * 
+    SELECT
+      (MAX(avgWeightKg) - MIN(avgWeightKg)) *
       (SELECT currentQuantity FROM batches WHERE id = 'batch-id') as total_gain
     FROM weight_samples WHERE batchId = 'batch-id'
   )
-  SELECT 
+  SELECT
     ROUND((f.total_feed / NULLIF(w.total_gain, 0))::numeric, 2) as fcr
   FROM feed_total f, weight_gain w
 "
@@ -219,6 +219,7 @@ ORDER BY recordDate;
 ## Alerts
 
 Generate alerts for:
+
 - FCR >10% above target → 🔴 Critical
 - Feed cost/kg >20% above budget → 🟡 Warning
 - Sudden increase in daily consumption → 🟡 Warning

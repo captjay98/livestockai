@@ -269,7 +269,7 @@ function MortalityPage() {
 
   const updateSearch = (updates: Partial<MortalitySearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: any) => ({
         ...prev,
         ...updates,
       }),

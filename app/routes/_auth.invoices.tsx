@@ -145,7 +145,7 @@ function InvoicesPage() {
 
   const updateSearch = (updates: Partial<InvoiceSearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: any) => ({
         ...prev,
         ...updates,
       }),

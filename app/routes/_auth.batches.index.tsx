@@ -274,7 +274,7 @@ function BatchesPage() {
 
   const updateSearch = (updates: Partial<BatchSearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: BatchSearchParams) => ({
         ...prev,
         ...updates,
       }),
@@ -583,7 +583,7 @@ function BatchesPage() {
           <>
             <Select
               value={searchParams.status || 'all'}
-              onValueChange={(value) => {
+              onValueChange={(value: string) => {
                 updateSearch({
                   status: value === 'all' ? undefined : (value as 'active' | 'depleted' | 'sold'),
                   page: 1,
@@ -607,7 +607,7 @@ function BatchesPage() {
 
             <Select
               value={searchParams.livestockType || 'all'}
-              onValueChange={(value) => {
+              onValueChange={(value: string) => {
                 updateSearch({
                   livestockType: value === 'all' ? undefined : (value as 'poultry' | 'fish'),
                   page: 1,
@@ -685,7 +685,7 @@ function BatchesPage() {
               <Label htmlFor="species">Species</Label>
               <Select
                 value={formData.species}
-                onValueChange={(value) =>
+                onValueChange={(value: string | null) =>
                   value && setFormData((prev) => ({ ...prev, species: value }))
                 }
               >
@@ -858,7 +858,7 @@ function BatchesPage() {
                 <Label htmlFor="edit-status">Status</Label>
                 <Select
                   value={editFormData.status}
-                  onValueChange={(value) => {
+                  onValueChange={(value: string | null) => {
                     if (
                       value === 'active' ||
                       value === 'depleted' ||

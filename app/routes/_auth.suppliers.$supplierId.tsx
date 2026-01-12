@@ -111,7 +111,7 @@ function SupplierDetailPage() {
             <h2 className="font-semibold mb-4">Products Supplied</h2>
             {supplier.products.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {supplier.products.map((product) => (
+                {supplier.products.map((product: any) => (
                   <span
                     key={product}
                     className="inline-flex items-center gap-1 px-3 py-1 bg-muted rounded-full text-sm"
@@ -159,7 +159,7 @@ function SupplierDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {supplier.expenses.slice(0, 10).map((expense) => (
+                    {supplier.expenses.slice(0, 10).map((expense: any) => (
                       <tr key={expense.id} className="border-b last:border-0">
                         <td className="py-2">
                           {new Date(expense.date).toLocaleDateString()}

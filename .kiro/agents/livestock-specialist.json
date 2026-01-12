@@ -30,12 +30,7 @@
   ],
   "toolsSettings": {
     "fs_read": {
-      "allowedPaths": [
-        "app/lib/**",
-        "app/routes/**",
-        ".kiro/**",
-        "*.md"
-      ]
+      "allowedPaths": ["app/lib/**", "app/routes/**", ".kiro/**", "*.md"]
     },
     "fs_write": {
       "allowedPaths": [

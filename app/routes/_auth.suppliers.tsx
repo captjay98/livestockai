@@ -198,7 +198,7 @@ function SuppliersPage() {
 
   const updateSearch = (updates: Partial<SupplierSearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: any) => ({
         ...prev,
         ...updates,
       }),

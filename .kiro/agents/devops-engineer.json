@@ -53,10 +53,7 @@
         "echo *"
       ],
       "autoAllowReadonly": true,
-      "deniedCommands": [
-        "rm -rf *",
-        "sudo *"
-      ]
+      "deniedCommands": ["rm -rf *", "sudo *"]
     }
   },
   "resources": [

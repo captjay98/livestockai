@@ -257,7 +257,7 @@ function EggsPage() {
 
   const updateSearch = (updates: Partial<EggSearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: EggSearchParams) => ({
         ...prev,
         ...updates,
       }),
@@ -547,7 +547,7 @@ function EggsPage() {
               <Label htmlFor="batch">Batch</Label>
               <Select
                 value={formData.batchId}
-                onValueChange={(value) =>
+                onValueChange={(value: string | null) =>
                   setFormData((prev) => ({ ...prev, batchId: value || '' }))
                 }
               >

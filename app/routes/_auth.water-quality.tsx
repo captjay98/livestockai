@@ -205,7 +205,7 @@ function WaterQualityPage() {
 
   const updateSearch = (updates: Partial<WaterQualitySearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: any) => ({
         ...prev,
         ...updates,
       }),

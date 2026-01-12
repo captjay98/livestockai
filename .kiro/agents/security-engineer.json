@@ -31,11 +31,7 @@
   ],
   "toolsSettings": {
     "fs_write": {
-      "allowedPaths": [
-        "app/lib/auth/**",
-        "app/routes/_auth.tsx",
-        "*.md"
-      ]
+      "allowedPaths": ["app/lib/auth/**", "app/routes/_auth.tsx", "*.md"]
     },
     "execute_bash": {
       "allowedCommands": [
@@ -50,13 +46,7 @@
         "bun run lint *"
       ],
       "autoAllowReadonly": true,
-      "deniedCommands": [
-        "*secret*",
-        "*password*",
-        "*key*",
-        "env",
-        "printenv"
-      ]
+      "deniedCommands": ["*secret*", "*password*", "*key*", "env", "printenv"]
     }
   },
   "resources": [

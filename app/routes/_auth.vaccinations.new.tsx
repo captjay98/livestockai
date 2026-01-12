@@ -237,12 +237,12 @@ function NewVaccinationPage() {
                 <SelectTrigger>
                   <SelectValue>
                     {formData.batchId
-                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      ? batches.find((b: any) => b.id === formData.batchId)?.species
                       : 'Select batch'}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {batches.map((batch) => (
+                  {batches.map((batch: any) => (
                     <SelectItem key={batch.id} value={batch.id}>
                       {batch.species} ({batch.currentQuantity}{' '}
                       {batch.livestockType})

@@ -70,7 +70,7 @@ function AuditLogPage() {
 
   const updateParams = (updates: Partial<AuditSearchParams>) => {
     navigate({
-      search: (prev) => ({ ...prev, ...updates }),
+      search: (prev: any) => ({ ...prev, ...updates }),
       replace: true,
     })
   }

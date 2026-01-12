@@ -193,7 +193,7 @@ function NewBatchPage() {
               <Label htmlFor="livestockType">Livestock Type</Label>
               <Select
                 value={formData.livestockType}
-                onValueChange={(value) => value && handleLivestockTypeChange(value)}
+                onValueChange={(value: string | null) => value && handleLivestockTypeChange(value)}
               >
                 <SelectTrigger>
                   <SelectValue>
@@ -215,7 +215,7 @@ function NewBatchPage() {
               <Label htmlFor="species">Species</Label>
               <Select
                 value={formData.species}
-                onValueChange={(value) =>
+                onValueChange={(value: string | null) =>
                   value && setFormData((prev) => ({ ...prev, species: value }))
                 }
               >
@@ -326,7 +326,7 @@ function NewBatchPage() {
                   <Label htmlFor="sourceSize">Source Size (Optional)</Label>
                   <Select
                     value={formData.sourceSize || undefined}
-                    onValueChange={(value) =>
+                    onValueChange={(value: string | null) =>
                       setFormData((prev) => ({
                         ...prev,
                         sourceSize: value || '',

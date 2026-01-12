@@ -67,7 +67,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const router = useRouter()
-  const queryClient = (router.options.context as any).queryClient as QueryClient
+  const queryClient = (router.options.context).queryClient as QueryClient
   const persister = useMemo(() => createPersister(), [])
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- persister is undefined on server, truthy on client

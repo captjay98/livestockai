@@ -236,7 +236,7 @@ function CustomerDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {customer.sales.slice(0, 10).map((sale) => (
+                    {customer.sales.slice(0, 10).map((sale: any) => (
                       <tr key={sale.id} className="border-b last:border-0">
                         <td className="py-2">
                           {new Date(sale.date).toLocaleDateString()}

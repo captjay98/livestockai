@@ -286,7 +286,7 @@ function SalesPage() {
 
   const updateSearch = (updates: Partial<SalesSearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: SalesSearchParams) => ({
         ...prev,
         ...updates,
       }),
@@ -546,11 +546,11 @@ function SalesPage() {
                 <Label>Type</Label>
                 <Select
                   value={formData.livestockType}
-                  onValueChange={(value) =>
+                  onValueChange={(value: string | null) =>
                     value &&
                     setFormData((prev) => ({
                       ...prev,
-                      livestockType: value,
+                      livestockType: value as 'poultry' | 'fish' | 'eggs',
                       batchId: '',
                     }))
                   }
@@ -586,7 +586,7 @@ function SalesPage() {
                   <Label>Batch (Optional)</Label>
                   <Select
                     value={formData.batchId || undefined}
-                    onValueChange={(value) =>
+                    onValueChange={(value: string | null) =>
                       setFormData((prev) => ({
                         ...prev,
                         batchId: value || '',
@@ -621,7 +621,7 @@ function SalesPage() {
                   <Label>Customer (Optional)</Label>
                   <Select
                     value={formData.customerId || undefined}
-                    onValueChange={(value) =>
+                    onValueChange={(value: string | null) =>
                       setFormData((prev) => ({
                         ...prev,
                         customerId: value || '',
@@ -832,9 +832,9 @@ function SalesPage() {
           <div className="flex gap-2">
             <Select
               value={searchParams.livestockType || 'all'}
-              onValueChange={(value) => {
+              onValueChange={(value: string) => {
                 updateSearch({
-                  livestockType: value === 'all' || value === null ? undefined : value,
+                  livestockType: value === 'all' ? undefined : value,
                   page: 1,
                 })
               }}
@@ -874,9 +874,9 @@ function SalesPage() {
             </Select>
             <Select
               value={searchParams.paymentStatus || 'all'}
-              onValueChange={(value) => {
+              onValueChange={(value: string) => {
                 updateSearch({
-                  paymentStatus: value === 'all' || value === null ? undefined : value,
+                  paymentStatus: value === 'all' ? undefined : value,
                   page: 1,
                 })
               }}

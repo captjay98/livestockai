@@ -281,7 +281,7 @@ function ExpensesPage() {
 
   const updateSearch = (updates: Partial<ExpenseSearchParams>) => {
     navigate({
-      search: (prev) => ({ ...prev, ...updates }),
+      search: (prev: ExpenseSearchParams) => ({ ...prev, ...updates }),
     })
   }
 
@@ -563,7 +563,7 @@ function ExpensesPage() {
                 <Label htmlFor="category">Category</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={(value) =>
+                  onValueChange={(value: string | null) =>
                     setFormData((prev) => ({
                       ...prev,
                       category: value || '',
@@ -597,7 +597,7 @@ function ExpensesPage() {
                   <Label htmlFor="batchId">Batch (Optional)</Label>
                   <Select
                     value={formData.batchId || undefined}
-                    onValueChange={(value) =>
+                    onValueChange={(value: string | null) =>
                       setFormData((prev) => ({
                         ...prev,
                         batchId: value || '',
@@ -628,7 +628,7 @@ function ExpensesPage() {
                   <Label htmlFor="supplierId">Supplier (Optional)</Label>
                   <Select
                     value={formData.supplierId || undefined}
-                    onValueChange={(value) =>
+                    onValueChange={(value: string | null) =>
                       setFormData((prev) => ({
                         ...prev,
                         supplierId: value || '',
@@ -873,7 +873,7 @@ function ExpensesPage() {
         filters={
           <Select
             value={searchParams.category || 'all'}
-            onValueChange={(value) => {
+            onValueChange={(value: string) => {
               updateSearch({
                 category: value === 'all' || !value ? undefined : value,
                 page: 1,
@@ -1004,7 +1004,7 @@ function ExpensesPage() {
               <Label htmlFor="editCategory">Category</Label>
               <Select
                 value={editFormData.category}
-                onValueChange={(value) =>
+                onValueChange={(value: string | null) =>
                   setEditFormData((prev) => ({
                     ...prev,
                     category: value || '',

@@ -225,7 +225,7 @@ function HealthPage() {
 
   const updateSearch = (updates: Partial<HealthSearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: any) => ({
         ...prev,
         ...updates,
       }),

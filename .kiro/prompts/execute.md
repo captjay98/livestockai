@@ -1,6 +1,6 @@
 ---
 description: 'Execute implementation plan with OpenLivestock-specific patterns and validation'
-argument-hint: "[path-to-plan or feature-name]"
+argument-hint: '[path-to-plan or feature-name]'
 ---
 
 # Execute: Implement from Plan
@@ -29,12 +29,14 @@ If no plan file provided, ask: "Which feature plan should I execute? (provide pa
 ## MCP Integration
 
 **Verify database before starting:**
+
 ```
 neon_get_database_tables
 neon_run_sql "SELECT COUNT(*) FROM batches"
 ```
 
 **Check deployment status if needed:**
+
 ```
 cloudflare-builds__workers_builds_list_builds
 ```
@@ -44,11 +46,13 @@ cloudflare-builds__workers_builds_list_builds
 ### Step 1: Plan Analysis
 
 **Read and understand the plan:**
+
 ```bash
 cat $ARGUMENTS
 ```
 
 **Extract key information:**
+
 - [ ] List all files to create
 - [ ] List all files to modify
 - [ ] Identify dependencies between tasks
@@ -60,6 +64,7 @@ cat $ARGUMENTS
 ### Step 2: Environment Verification
 
 **Run pre-flight checks:**
+
 ```bash
 # Verify project state
 bun run lint --quiet || echo "Lint issues exist"
@@ -78,19 +83,22 @@ For EACH task in the plan:
 #### 3a. Server Functions (Backend)
 
 **Pattern - ALWAYS use dynamic imports:**
+
 ```typescript
 // ✅ CORRECT - Works on Cloudflare Workers
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 export const getFeatureData = createServerFn({ method: 'GET' })
-  .validator(z.object({
-    farmId: z.string().uuid(),
-    // Add other params
-  }))
+  .validator(
+    z.object({
+      farmId: z.string().uuid(),
+      // Add other params
+    }),
+  )
   .handler(async ({ data }) => {
-    const { db } = await import('../db')  // CRITICAL: Dynamic import!
-    
+    const { db } = await import('../db') // CRITICAL: Dynamic import!
+
     return db
       .selectFrom('batches')
       .where('farmId', '=', data.farmId)
@@ -99,7 +107,7 @@ export const getFeatureData = createServerFn({ method: 'GET' })
   })
 
 // ❌ WRONG - Breaks on Cloudflare Workers
-import { db } from '../db'  // Static import will fail!
+import { db } from '../db' // Static import will fail!
 ```
 
 **File location:** `app/lib/{feature}/server.ts`
@@ -107,6 +115,7 @@ import { db } from '../db'  // Static import will fail!
 #### 3b. Database Queries (Kysely)
 
 **Pattern - Type-safe queries:**
+
 ```typescript
 // Simple select
 const batches = await db
@@ -119,11 +128,7 @@ const batches = await db
 const batchesWithFarm = await db
   .selectFrom('batches')
   .leftJoin('farms', 'farms.id', 'batches.farmId')
-  .select([
-    'batches.id',
-    'batches.batchName',
-    'farms.name as farmName'
-  ])
+  .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
   .execute()
 
 // Aggregation
@@ -132,7 +137,7 @@ const stats = await db
   .where('batchId', '=', batchId)
   .select([
     db.fn.sum('quantity').as('totalDeaths'),
-    db.fn.count('id').as('incidents')
+    db.fn.count('id').as('incidents'),
   ])
   .executeTakeFirst()
 ```
@@ -140,6 +145,7 @@ const stats = await db
 #### 3c. React Components
 
 **Pattern - TanStack Router integration:**
+
 ```typescript
 // app/routes/_auth.feature.tsx
 import { createFileRoute } from '@tanstack/react-router'
@@ -162,7 +168,7 @@ function FeatureComponent() {
     queryKey: ['feature'],
     queryFn: () => getFeatureData({ farmId: 'xxx' }),
   })
-  
+
   return (
     <div className="p-4">
       {/* Component content */}
@@ -174,6 +180,7 @@ function FeatureComponent() {
 #### 3d. Database Migrations
 
 **Pattern - Kysely migrations:**
+
 ```typescript
 // app/lib/db/migrations/YYYY-MM-DD-NNN-description.ts
 import type { Kysely } from 'kysely'
@@ -181,12 +188,12 @@ import type { Kysely } from 'kysely'
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
     .createTable('new_table')
-    .addColumn('id', 'uuid', (col) => 
-      col.primaryKey().defaultTo(sql`gen_random_uuid()`)
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
     )
     .addColumn('name', 'varchar(255)', (col) => col.notNull())
-    .addColumn('createdAt', 'timestamptz', (col) => 
-      col.defaultTo(sql`now()`).notNull()
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
     )
     .execute()
 }
@@ -197,6 +204,7 @@ export async function down(db: Kysely<unknown>): Promise<void> {
 ```
 
 **Run migration:**
+
 ```bash
 bun run db:migrate
 ```
@@ -204,6 +212,7 @@ bun run db:migrate
 ### Step 4: Validation (After Each Major Change)
 
 **Run after each file change:**
+
 ```bash
 # Quick validation
 bun run lint --fix
@@ -214,6 +223,7 @@ bun test app/lib/{feature}/
 ```
 
 **Run before completing:**
+
 ```bash
 # Full validation suite
 bun run lint
@@ -225,6 +235,7 @@ bun run build
 ### Step 5: Testing (If Required by Plan)
 
 **Pattern - Property-based tests:**
+
 ```typescript
 // app/lib/feature/feature.property.test.ts
 import { describe, it, expect } from 'vitest'
@@ -236,13 +247,14 @@ describe('calculateFeatureMetric', () => {
       fc.property(fc.nat(), fc.nat(), (a, b) => {
         const result = calculateFeatureMetric(a, b)
         expect(result).toBeGreaterThanOrEqual(0)
-      })
+      }),
     )
   })
 })
 ```
 
 **Run tests:**
+
 ```bash
 bun test
 bun test --coverage
@@ -250,16 +262,16 @@ bun test --coverage
 
 ## OpenLivestock Key Tables Reference
 
-| Table | Purpose | Key Columns |
-|-------|---------|-------------|
-| `batches` | Livestock batches | id, farmId, batchName, species, status, currentQuantity |
-| `mortality_records` | Death tracking | batchId, quantity, cause, recordedAt |
-| `feed_records` | Feed consumption | batchId, feedType, quantityKg, costNgn |
-| `weight_samples` | Growth tracking | batchId, avgWeightKg, sampleSize, sampleDate |
-| `sales` | Revenue records | batchId, quantity, totalAmount, customerId |
-| `expenses` | Cost tracking | farmId, category, amount, description |
-| `farms` | Farm entities | id, name, ownerId |
-| `users` | User accounts | id, email, name, role |
+| Table               | Purpose           | Key Columns                                             |
+| ------------------- | ----------------- | ------------------------------------------------------- |
+| `batches`           | Livestock batches | id, farmId, batchName, species, status, currentQuantity |
+| `mortality_records` | Death tracking    | batchId, quantity, cause, recordedAt                    |
+| `feed_records`      | Feed consumption  | batchId, feedType, quantityKg, costNgn                  |
+| `weight_samples`    | Growth tracking   | batchId, avgWeightKg, sampleSize, sampleDate            |
+| `sales`             | Revenue records   | batchId, quantity, totalAmount, customerId              |
+| `expenses`          | Cost tracking     | farmId, category, amount, description                   |
+| `farms`             | Farm entities     | id, name, ownerId                                       |
+| `users`             | User accounts     | id, email, name, role                                   |
 
 ## Error Handling
 
@@ -290,21 +302,25 @@ bun test --coverage
 ## Output Report
 
 ### Completed Tasks
+
 - [ ] Task 1: [description] - ✅ Done
 - [ ] Task 2: [description] - ✅ Done
 
 ### Files Created
+
 ```
 app/lib/feature/server.ts
 app/routes/_auth.feature.tsx
 ```
 
 ### Files Modified
+
 ```
 app/lib/db/schema.ts (added types)
 ```
 
 ### Validation Results
+
 ```bash
 ✅ bun run lint - passed
 ✅ bun run check - passed
@@ -313,6 +329,7 @@ app/lib/db/schema.ts (added types)
 ```
 
 ### Ready for Commit
+
 All changes complete and validated. Ready for `/commit` command.
 
 ---
@@ -320,6 +337,7 @@ All changes complete and validated. Ready for `/commit` command.
 ## Instructions for Assistant
 
 ### Workflow
+
 1. **Read plan completely** before starting any implementation
 2. **Verify environment** is ready (database, dependencies)
 3. **Execute tasks in order** - don't skip ahead
@@ -328,6 +346,7 @@ All changes complete and validated. Ready for `/commit` command.
 6. **Report results** with specific files and outcomes
 
 ### Key Principles
+
 - **ALWAYS use dynamic imports** for database in server functions
 - **Follow existing patterns** - check similar files first
 - **Type safety first** - ensure Kysely queries are type-safe
@@ -335,6 +354,7 @@ All changes complete and validated. Ready for `/commit` command.
 - **Ask when unclear** - better to clarify than assume
 
 ### When to Stop and Ask
+
 - Plan is ambiguous or contradictory
 - Validation fails and fix is unclear
 - Feature requires changes not in plan

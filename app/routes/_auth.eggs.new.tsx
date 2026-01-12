@@ -136,7 +136,7 @@ function NewEggPage() {
     }
   }
 
-  const selectedBatch = batches.find((b) => b.id === formData.batchId)
+  const selectedBatch = batches.find((b: any) => b.id === formData.batchId)
   const layingPercentage =
     selectedBatch && formData.quantityCollected
       ? (
@@ -179,12 +179,12 @@ function NewEggPage() {
                 <SelectTrigger>
                   <SelectValue>
                     {formData.batchId
-                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      ? batches.find((b: any) => b.id === formData.batchId)?.species
                       : 'Select layer batch'}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {batches.map((batch) => (
+                  {batches.map((batch: any) => (
                     <SelectItem key={batch.id} value={batch.id}>
                       {batch.species} ({batch.currentQuantity} birds)
                     </SelectItem>

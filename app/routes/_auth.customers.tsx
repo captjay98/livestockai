@@ -213,7 +213,7 @@ function CustomersPage() {
 
   const updateSearch = (updates: Partial<CustomerSearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: CustomerSearchParams) => ({
         ...prev,
         ...updates,
       }),
@@ -456,7 +456,7 @@ function CustomersPage() {
         filters={
           <Select
             value={searchParams.customerType || 'all'}
-            onValueChange={(value) => {
+            onValueChange={(value: string) => {
               updateSearch({
                 customerType: value === 'all' || !value ? undefined : value,
                 page: 1,
@@ -536,7 +536,7 @@ function CustomersPage() {
               <Label htmlFor="customerType">Customer Type</Label>
               <Select
                 value={formData.customerType}
-                onValueChange={(value) =>
+                onValueChange={(value: string | null) =>
                   setFormData((prev) => ({
                     ...prev,
                     customerType: value as typeof formData.customerType,
@@ -635,7 +635,7 @@ function CustomersPage() {
               <Label htmlFor="edit-customerType">Customer Type</Label>
               <Select
                 value={editFormData.customerType}
-                onValueChange={(value) =>
+                onValueChange={(value: string | null) =>
                   setEditFormData((prev) => ({
                     ...prev,
                     customerType: value as typeof editFormData.customerType,

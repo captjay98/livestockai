@@ -6,7 +6,7 @@ description: 'Advanced Cloudflare Workers configuration beyond quickstart deploy
 
 🚀 **For users who completed @quickstart and want advanced Cloudflare features.**
 
-*If you haven't deployed yet, use @quickstart for basic deployment.*
+_If you haven't deployed yet, use @quickstart for basic deployment._
 
 ## Context
 
@@ -37,6 +37,7 @@ Set up custom domain for production:
    - Update nameservers at your registrar
 
 2. **Configure Workers route:**
+
    ```bash
    wrangler route add "yourdomain.com/*" openlivestock
    ```
@@ -55,16 +56,17 @@ Set up staging and production environments in `wrangler.jsonc`:
   "name": "openlivestock",
   "env": {
     "staging": {
-      "name": "openlivestock-staging"
+      "name": "openlivestock-staging",
     },
     "production": {
-      "name": "openlivestock-production"
-    }
-  }
+      "name": "openlivestock-production",
+    },
+  },
 }
 ```
 
 **Deploy to environments:**
+
 ```bash
 wrangler deploy --env staging
 wrangler deploy --env production
@@ -73,17 +75,20 @@ wrangler deploy --env production
 ### Advanced Bindings
 
 **KV Storage** (for caching):
+
 ```bash
 wrangler kv:namespace create "CACHE"
 wrangler kv:namespace create "CACHE" --preview
 ```
 
 **R2 Storage** (for file uploads):
+
 ```bash
 wrangler r2 bucket create openlivestock-uploads
 ```
 
 **Verify with MCP:**
+
 ```
 kv_namespaces_list
 r2_buckets_list
@@ -92,11 +97,13 @@ r2_buckets_list
 ### Performance Optimization
 
 **Caching Strategy:**
+
 - Configure cache headers for static assets
 - Use KV for session storage
 - Implement edge caching for API responses
 
 **Bundle Optimization:**
+
 ```bash
 # Check bundle size
 ls -la dist/server/
@@ -106,6 +113,7 @@ bun run build --analyze
 ```
 
 **Cold Start Optimization:**
+
 - Use dynamic imports for large modules
 - Minimize initialization code
 - Preload critical data
@@ -113,6 +121,7 @@ bun run build --analyze
 ## Secrets Management
 
 **Set secrets via CLI:**
+
 ```bash
 wrangler secret put DATABASE_URL
 wrangler secret put BETTER_AUTH_SECRET
@@ -120,32 +129,36 @@ wrangler secret put BETTER_AUTH_URL
 ```
 
 **List secrets:**
+
 ```bash
 wrangler secret list
 ```
 
 ## Verification Checklist
 
-| Feature          | Command/MCP                     | Expected Result |
-| ---------------- | ------------------------------- | --------------- |
-| Worker deployed  | `workers_list`                  | Worker listed   |
-| Routes configured| `workers_get_worker`            | Routes shown    |
-| KV created       | `kv_namespaces_list`            | Namespace listed|
-| R2 created       | `r2_buckets_list`               | Bucket listed   |
-| Secrets set      | `wrangler secret list`          | 3 secrets       |
+| Feature           | Command/MCP            | Expected Result  |
+| ----------------- | ---------------------- | ---------------- |
+| Worker deployed   | `workers_list`         | Worker listed    |
+| Routes configured | `workers_get_worker`   | Routes shown     |
+| KV created        | `kv_namespaces_list`   | Namespace listed |
+| R2 created        | `r2_buckets_list`      | Bucket listed    |
+| Secrets set       | `wrangler secret list` | 3 secrets        |
 
 ## Troubleshooting
 
 ### Build fails
+
 - Ensure all dependencies installed: `bun install`
 - Check for TypeScript errors: `bun run check`
 
 ### Deployment fails
+
 - Verify wrangler.jsonc syntax
 - Check compatibility flags: `nodejs_compat`
 - Ensure bundle size under 1MB
 
 ### Database connection fails
+
 - Verify DATABASE_URL secret is set correctly
 - Check Neon project is active
 - Ensure `?sslmode=require` in connection string

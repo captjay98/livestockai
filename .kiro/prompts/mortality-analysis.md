@@ -153,14 +153,15 @@ neon_run_sql "
 
 ## Weekly Trend
 
-| Week       | Deaths | Cumulative Rate |
-| ---------- | ------ | --------------- |
-| Week 1     | X      | X%              |
-| Week 2     | X      | X%              |
+| Week   | Deaths | Cumulative Rate |
+| ------ | ------ | --------------- |
+| Week 1 | X      | X%              |
+| Week 2 | X      | X%              |
 
 ## Root Cause Analysis
 
 ### Primary Issue: [Cause]
+
 - **Evidence**: [Data supporting this conclusion]
 - **Impact**: ₦X,XXX lost value
 - **Recommendation**: [Specific action]
@@ -175,6 +176,7 @@ neon_run_sql "
 ## Agent Delegation
 
 For specialized analysis:
+
 - `@livestock-specialist` - Species-specific disease identification
 - `@data-analyst` - Statistical trend analysis
 
@@ -183,8 +185,8 @@ For specialized analysis:
 - `@batch-analysis` - Full batch performance review
 - `@growth-forecast` - Impact on harvest projections
 - `@financial-report` - Economic impact of mortality
-| Environmental | X      | X%         | ↑/↓/→ |
-| Unknown       | X      | X%         | ↑/↓/→ |
+  | Environmental | X | X% | ↑/↓/→ |
+  | Unknown | X | X% | ↑/↓/→ |
 
 ## Timeline Analysis
 
@@ -218,6 +220,7 @@ For specialized analysis:
 - **Lost Revenue**: ₦X (X birds × ₦X/bird)
 - **Additional Costs**: ₦X (treatment, disposal)
 - **Total Loss**: ₦X
+
 ```
 
 ## Alerts
@@ -228,3 +231,4 @@ Generate alerts for:
 - Weekly mortality >2%
 - Sudden spike (3x normal)
 - Unknown cause >30% of deaths
+```

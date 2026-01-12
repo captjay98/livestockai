@@ -147,7 +147,7 @@ function NewWeightPage() {
     }
   }
 
-  const selectedBatch = batches.find((b) => b.id === formData.batchId)
+  const selectedBatch = batches.find((b: any) => b.id === formData.batchId)
 
   return (
     <div className="container mx-auto py-6 px-4 max-w-2xl">
@@ -184,12 +184,12 @@ function NewWeightPage() {
                 <SelectTrigger>
                   <SelectValue>
                     {formData.batchId
-                      ? batches.find((b) => b.id === formData.batchId)?.species
+                      ? batches.find((b: any) => b.id === formData.batchId)?.species
                       : 'Select batch'}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {batches.map((batch) => (
+                  {batches.map((batch: any) => (
                     <SelectItem key={batch.id} value={batch.id}>
                       {batch.species} ({batch.currentQuantity}{' '}
                       {batch.livestockType})

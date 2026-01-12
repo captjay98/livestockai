@@ -197,13 +197,13 @@ Profit per kg = Revenue per kg - Cost per kg
 
 ## Profitability Analysis
 
-| Metric             | Value  | Status |
-| ------------------ | ------ | ------ |
-| Gross Profit       | ₦X     | ✅/⚠️/❌ |
-| Gross Margin       | X%     | ✅/⚠️/❌ |
-| Operating Expenses | ₦X     | ✅/⚠️/❌ |
-| Net Profit         | ₦X     | ✅/⚠️/❌ |
-| Net Margin         | X%     | ✅/⚠️/❌ |
+| Metric             | Value | Status   |
+| ------------------ | ----- | -------- |
+| Gross Profit       | ₦X    | ✅/⚠️/❌ |
+| Gross Margin       | X%    | ✅/⚠️/❌ |
+| Operating Expenses | ₦X    | ✅/⚠️/❌ |
+| Net Profit         | ₦X    | ✅/⚠️/❌ |
+| Net Margin         | X%    | ✅/⚠️/❌ |
 
 ## Per Unit Analysis
 
@@ -215,8 +215,8 @@ Profit per kg = Revenue per kg - Cost per kg
 
 ## Comparison to Budget
 
-| Item       | Budget | Actual | Variance | Status |
-| ---------- | ------ | ------ | -------- | ------ |
+| Item       | Budget | Actual | Variance | Status   |
+| ---------- | ------ | ------ | -------- | -------- |
 | Revenue    | ₦X     | ₦X     | X%       | ✅/⚠️/❌ |
 | Feed Cost  | ₦X     | ₦X     | X%       | ✅/⚠️/❌ |
 | Net Profit | ₦X     | ₦X     | X%       | ✅/⚠️/❌ |
@@ -230,12 +230,12 @@ Profit per kg = Revenue per kg - Cost per kg
 
 ## Profitability Benchmarks
 
-| Metric       | Target    | Warning   | Critical  |
-| ------------ | --------- | --------- | --------- |
-| Gross Margin | >25%      | 15-25%    | <15%      |
-| Net Margin   | >15%      | 5-15%     | <5%       |
-| ROI          | >30%      | 15-30%    | <15%      |
-| Feed % Cost  | <65%      | 65-75%    | >75%      |
+| Metric       | Target | Warning | Critical |
+| ------------ | ------ | ------- | -------- |
+| Gross Margin | >25%   | 15-25%  | <15%     |
+| Net Margin   | >15%   | 5-15%   | <5%      |
+| ROI          | >30%   | 15-30%  | <15%     |
+| Feed % Cost  | <65%   | 65-75%  | >75%     |
 
 ## Agent Delegation
 

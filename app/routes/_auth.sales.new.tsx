@@ -236,11 +236,11 @@ function NewSalePage() {
               <Label htmlFor="livestockType">Product Type</Label>
               <Select
                 value={formData.livestockType}
-                onValueChange={(value) =>
+                onValueChange={(value: string | null) =>
                   value &&
                   setFormData((prev) => ({
                     ...prev,
-                    livestockType: value as any,
+                    livestockType: value as 'poultry' | 'fish' | 'eggs',
                     batchId: '',
                   }))
                 }
@@ -265,7 +265,7 @@ function NewSalePage() {
                   <Label htmlFor="batchId">Batch (Optional)</Label>
                   <Select
                     value={formData.batchId || undefined}
-                    onValueChange={(value) =>
+                    onValueChange={(value: string | null) =>
                       setFormData((prev) => ({ ...prev, batchId: value || '' }))
                     }
                   >
@@ -279,7 +279,7 @@ function NewSalePage() {
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {filteredBatches.map((batch) => (
+                      {filteredBatches.map((batch: any) => (
                         <SelectItem key={batch.id} value={batch.id}>
                           {batch.species} ({batch.currentQuantity} available)
                         </SelectItem>
@@ -293,7 +293,7 @@ function NewSalePage() {
               <Label htmlFor="customerId">Customer (Optional)</Label>
               <Select
                 value={formData.customerId || undefined}
-                onValueChange={(value) =>
+                onValueChange={(value: string | null) =>
                   setFormData((prev) => ({ ...prev, customerId: value || '' }))
                 }
               >
@@ -306,7 +306,7 @@ function NewSalePage() {
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {customers.map((customer) => (
+                  {customers.map((customer: any) => (
                     <SelectItem key={customer.id} value={customer.id}>
                       {customer.name} ({customer.phone})
                     </SelectItem>
@@ -373,7 +373,7 @@ function NewSalePage() {
               <Label>Payment Status</Label>
               <Select
                 value={formData.paymentStatus}
-                onValueChange={(value) =>
+                onValueChange={(value: string | null) =>
                   value &&
                   setFormData((prev) => ({
                     ...prev,
@@ -422,7 +422,7 @@ function NewSalePage() {
                     <Label>Unit Type</Label>
                     <Select
                       value={formData.unitType || undefined}
-                      onValueChange={(value) =>
+                      onValueChange={(value: string | null) =>
                         setFormData((prev) => ({
                           ...prev,
                           unitType: value as UnitType,
@@ -449,7 +449,7 @@ function NewSalePage() {
                     <Label>Payment Method</Label>
                     <Select
                       value={formData.paymentMethod || undefined}
-                      onValueChange={(value) =>
+                      onValueChange={(value: string | null) =>
                         setFormData((prev) => ({
                           ...prev,
                           paymentMethod: value as PaymentMethod,

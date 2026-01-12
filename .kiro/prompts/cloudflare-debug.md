@@ -184,13 +184,13 @@ wrangler deploy --env preview
 
 ## Debug Checklist
 
-| Issue Type        | First Check                    | MCP Tool                    |
-| ----------------- | ------------------------------ | --------------------------- |
-| Build failure     | `bun run check`                | `workers_builds_get_build_logs` |
-| Deploy failure    | `wrangler whoami`              | `workers_list`              |
-| Runtime error     | `wrangler tail`                | `query_worker_observability` |
-| DB connection     | Check secrets                  | `neon_run_sql`              |
-| Module not found  | Check dynamic imports          | -                           |
+| Issue Type       | First Check           | MCP Tool                        |
+| ---------------- | --------------------- | ------------------------------- |
+| Build failure    | `bun run check`       | `workers_builds_get_build_logs` |
+| Deploy failure   | `wrangler whoami`     | `workers_list`                  |
+| Runtime error    | `wrangler tail`       | `query_worker_observability`    |
+| DB connection    | Check secrets         | `neon_run_sql`                  |
+| Module not found | Check dynamic imports | -                               |
 
 ## Agent Delegation
 

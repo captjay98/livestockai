@@ -279,7 +279,7 @@ function FeedPage() {
 
   const updateSearch = (updates: Partial<FeedSearchParams>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: any) => ({
         ...prev,
         ...updates,
       }),
