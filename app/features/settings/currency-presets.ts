@@ -263,25 +263,3 @@ export const DEFAULT_SETTINGS: UserSettings = {
   temperatureUnit: 'celsius',
 }
 
-/**
- * Default settings for existing users (NGN for backward compatibility)
- */
-export const LEGACY_NGN_SETTINGS: UserSettings = {
-  // Currency - NGN for backward compatibility
-  currencyCode: 'NGN',
-  currencySymbol: '₦',
-  currencyDecimals: 2,
-  currencySymbolPosition: 'before',
-  thousandSeparator: ',',
-  decimalSeparator: '.',
-
-  // Date/Time
-  dateFormat: 'DD/MM/YYYY',
-  timeFormat: '24h',
-  firstDayOfWeek: 1,
-
-  // Units - Metric
-  weightUnit: 'kg',
-  areaUnit: 'sqm',
-  temperatureUnit: 'celsius',
-}

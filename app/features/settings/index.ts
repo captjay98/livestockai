@@ -10,7 +10,6 @@ export {
   type UserSettings,
   CURRENCY_PRESETS,
   DEFAULT_SETTINGS,
-  LEGACY_NGN_SETTINGS,
   getCurrencyPreset,
 } from './currency-presets'
 

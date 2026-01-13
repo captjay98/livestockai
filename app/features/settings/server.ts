@@ -7,7 +7,7 @@
 
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { DEFAULT_SETTINGS, LEGACY_NGN_SETTINGS } from './currency-presets'
+import { DEFAULT_SETTINGS } from './currency-presets'
 import type { UserSettings } from './currency-presets'
 
 /**
@@ -74,8 +74,8 @@ export const getUserSettings = createServerFn({ method: 'GET' }).handler(
       .executeTakeFirst()
 
     if (!settings) {
-      // No settings found - return legacy NGN defaults for existing users
-      return LEGACY_NGN_SETTINGS
+      // No settings found - return defaults for new users
+      return DEFAULT_SETTINGS
     }
 
     // Cast to UserSettings type (database types match)

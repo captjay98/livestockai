@@ -1,5 +1,5 @@
 /**
- * Currency utilities for Nigerian Naira
+ * Currency utilities with decimal precision
  * Uses decimal.js for precise decimal arithmetic
  * All monetary values are stored as DECIMAL(19,2) in the database
  */
@@ -49,29 +49,25 @@ export function toDbString(value: MoneyInput): string {
 }
 
 /**
- * Format amount as currency string
- * Uses user's locale settings for formatting
+ * Format amount as currency string using default settings.
+ * For React components, prefer useFormatCurrency() hook instead.
  * @param amount Amount (string, number, or Decimal)
- * @returns Formatted currency string (e.g., "₦1,500.00")
+ * @returns Formatted currency string
  */
 export function formatCurrency(amount: MoneyInput): string {
-  const value = toNumber(amount)
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value)
+  const { formatCurrency: formatWithSettings } = require('./currency-formatter')
+  const { DEFAULT_SETTINGS } = require('./currency-presets')
+  return formatWithSettings(amount, DEFAULT_SETTINGS)
 }
 
 /**
  * Parse a currency string to Decimal
- * @param currencyString String like "1,500.50" or "₦1,500.50"
+ * @param currencyString String like "1,500.50" or "$1,500.50"
  * @returns Decimal amount, or null if invalid
  */
 export function parseCurrency(currencyString: string): Decimal | null {
-  // Remove currency symbol, spaces, and commas
-  const cleaned = currencyString.replace(/[₦\s,]/g, '')
+  // Remove common currency symbols, spaces, and commas
+  const cleaned = currencyString.replace(/[$€£¥₦₹\s,]/g, '')
 
   try {
     const decimal = new Decimal(cleaned)
@@ -103,20 +99,15 @@ export function formatCompactNumber(num: number): string {
 }
 
 /**
- * Format amount as compact currency (e.g., "₦1.5K", "₦2.3M")
+ * Format amount as compact currency using default settings.
+ * For React components, prefer useFormatCurrency().formatCompact() instead.
  * @param amount Amount in currency
  * @returns Compact formatted currency string
  */
 export function formatCurrencyCompact(amount: MoneyInput): string {
-  const value = toNumber(amount)
-
-  if (value >= 1_000_000) {
-    return `₦${(value / 1_000_000).toFixed(1)}M`
-  } else if (value >= 1_000) {
-    return `₦${(value / 1_000).toFixed(1)}K`
-  } else {
-    return formatCurrency(amount)
-  }
+  const { formatCompactCurrency } = require('./currency-formatter')
+  const { DEFAULT_SETTINGS } = require('./currency-presets')
+  return formatCompactCurrency(amount, DEFAULT_SETTINGS)
 }
 
 /**
@@ -229,24 +220,8 @@ export function equals(a: MoneyInput, b: MoneyInput): boolean {
   return toDecimal(a).equals(toDecimal(b))
 }
 
-// Legacy compatibility - these map old kobo functions to new Naira-based ones
-// Can be removed once all code is migrated
-
-/**
- * @deprecated Use toDecimal() instead. This is for backward compatibility.
- * Convert Naira to kobo (now just returns the value as-is since we use Naira)
- */
-export function nairaToKobo(naira: number): number {
-  return naira
-}
-
-/**
- * @deprecated Use toNumber() instead. This is for backward compatibility.
- * Convert kobo to Naira (now just returns the value as-is since we use Naira)
- */
-export function koboToNaira(kobo: number): number {
-  return kobo
-}
-
 // Re-export Decimal for use in other modules
 export { Decimal }
+
+// Re-export settings-aware formatter for components that need explicit settings
+export { formatCurrency as formatCurrencyWithSettings } from './currency-formatter'
