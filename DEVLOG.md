@@ -1378,3 +1378,87 @@ Deleted all `/new` routes:
 - Users stay in context while creating records
 - Reduced code duplication
 - Easier maintenance (single creation pattern)
+
+
+---
+
+## Day 11 (January 13) - Settings System Fix & Multi-Currency
+
+### Settings System Audit
+
+Discovered two critical issues during code review:
+
+1. **Currency formatting hardcoded** - `formatCurrency` in currency.ts ignored user preferences, always used NGN
+2. **Onboarding incomplete** - System only checked if user had farms, not the `onboardingCompleted` database flag
+
+### Multi-Currency Implementation
+
+Replaced all hardcoded ₦ symbols with dynamic currency from user settings.
+
+**Pattern established:**
+```typescript
+// In React components
+const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
+
+// In form labels
+<Label>Cost ({currencySymbol})</Label>
+
+// In displays
+{formatCurrency(amount)}
+```
+
+**Files updated (25 total):**
+
+| Category | Count | Examples |
+|----------|-------|----------|
+| Route files | 15 | dashboard, batches, sales, expenses, feed, invoices |
+| Dialog components | 5 | batch, sale, expense, feed, invoice |
+| Other components | 1 | projections-card |
+| Server/utils | 4 | pdf.ts, seed.ts, onboarding/server.ts |
+
+### Onboarding System Fix
+
+- `CompleteStep` now calls `markOnboardingCompleteFn` to persist completion to database
+- Settings restart button calls `resetOnboardingFn` before redirecting to onboarding
+- New users get `DEFAULT_SETTINGS` (USD) instead of hardcoded NGN
+
+### Code Cleanup
+
+Removed all legacy/deprecated code:
+
+| Item | Action |
+|------|--------|
+| `nairaToKobo()` / `koboToNaira()` | Deleted - deprecated and unused |
+| `LEGACY_NGN_SETTINGS` | Deleted - replaced with `DEFAULT_SETTINGS` |
+| TODO in forecasting.ts | Implemented weight estimation from age |
+| TODO in invoices/index.tsx | Linked View button to detail page |
+| "Legacy" comments | Cleaned up across codebase |
+
+### Commits (7)
+
+1. `feat(settings): add multi-currency support with useFormatCurrency hook`
+2. `refactor(routes): replace hardcoded ₦ with dynamic currency symbol`
+3. `refactor(dialogs): replace hardcoded ₦ with dynamic currency symbol`
+4. `refactor(components): update projections-card to use currency hook`
+5. `fix(onboarding): wire up completion and restart functionality`
+6. `refactor(seeds): use DEFAULT_SETTINGS instead of hardcoded NGN`
+7. `chore: remove deprecated functions and legacy references`
+
+### Technical Metrics
+
+- **Files modified**: 34
+- **Hardcoded ₦ removed**: 25+
+- **Deprecated functions removed**: 3
+- **Legacy references removed**: 5
+- **TypeScript errors**: 0
+- **ESLint errors**: 0
+
+### Default Currency Change
+
+Changed default from NGN to USD as international default. Users select their preferred currency during onboarding or in settings. The system now properly respects user preferences throughout the entire application.
+
+### Kiro Features Used
+
+- **Todo Lists** - Tracked multi-step implementation
+- **Grep Tool** - Found all hardcoded currency references
+- **Batch File Operations** - Efficient multi-file updates
