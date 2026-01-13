@@ -1,7 +1,7 @@
 import * as fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
 
-import type { ModuleKey } from '~/lib/modules/types'
+import type { ModuleKey } from '~/features/modules/types'
 
 /**
  * Helper function to determine which inventory cards should be visible

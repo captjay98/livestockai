@@ -1,8 +1,8 @@
 import * as fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
 
-import type { LivestockType, ModuleKey } from '~/lib/modules/types'
-import { MODULE_METADATA } from '~/lib/modules/constants'
+import type { LivestockType, ModuleKey } from '~/features/modules/types'
+import { MODULE_METADATA } from '~/features/modules/constants'
 
 /**
  * Helper function to get available livestock types from enabled modules
