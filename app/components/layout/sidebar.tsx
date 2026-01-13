@@ -1,10 +1,10 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { LogOut, User as UserIcon, X } from 'lucide-react'
-import type { User } from '~/lib/auth/types'
+import type { User } from '~/features/auth/types'
 import { navigation } from '~/components/navigation'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
-import { FarmSelector } from '~/components/farm-selector'
+import { FarmSelector } from '~/components/farms/selector'
 import { ThemeToggle } from '~/components/theme-toggle'
 import { Logo } from '~/components/logo'
 

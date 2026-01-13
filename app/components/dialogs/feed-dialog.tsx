@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { Wheat } from 'lucide-react'
-import type { CreateFeedRecordInput } from '~/lib/feed/server'
-import { FEED_TYPES, createFeedRecordFn } from '~/lib/feed/server'
+import type { CreateFeedRecordInput } from '~/features/feed/server'
+import { FEED_TYPES, createFeedRecordFn } from '~/features/feed/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -28,7 +28,7 @@ const getBatchesForFeedFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     const { db } = await import('~/lib/db')
-    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
 
     return db
@@ -44,7 +44,7 @@ const getFeedInventoryFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     const { db } = await import('~/lib/db')
-    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
 
     return db

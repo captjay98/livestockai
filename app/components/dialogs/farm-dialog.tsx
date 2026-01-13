@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Building2 } from 'lucide-react'
-import { createFarmFn, updateFarmFn } from '~/lib/farms/server'
+import { createFarmFn, updateFarmFn } from '~/features/farms/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'

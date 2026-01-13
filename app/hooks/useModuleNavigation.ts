@@ -1,13 +1,17 @@
 import { useMemo } from 'react'
+import type { LucideIcon } from 'lucide-react'
 
-import type { ModuleKey } from '~/lib/modules/types'
-import { useModules } from '~/components/module-context'
-import { CORE_NAVIGATION, MODULE_NAVIGATION } from '~/lib/modules/constants'
+import type { ModuleKey } from '~/features/modules/types'
+import { useModules } from '~/features/modules/context'
+import {
+  CORE_NAVIGATION,
+  MODULE_NAVIGATION,
+} from '~/features/modules/constants'
 
 export interface NavigationItem {
   name: string
   href: string
-  icon: any
+  icon: LucideIcon
 }
 
 /**

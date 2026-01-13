@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Receipt } from 'lucide-react'
-import type {ExpenseCategory} from '~/lib/expenses/server';
-import { EXPENSE_CATEGORIES,  createExpenseFn } from '~/lib/expenses/server'
-import { getSuppliersFn } from '~/lib/suppliers/server'
+import type { ExpenseCategory } from '~/features/expenses/server'
+import { EXPENSE_CATEGORIES, createExpenseFn } from '~/features/expenses/server'
+import { getSuppliersFn } from '~/features/suppliers/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'

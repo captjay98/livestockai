@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Building2 } from 'lucide-react'
+import { useFarm } from '~/features/farms/context'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select'
-import { useFarm } from './farm-context'
-import { getFarmsForUserFn } from '~/lib/farms/server'
+} from '~/components/ui/select'
+import { getFarmsForUserFn } from '~/features/farms/server'
 import { cn } from '~/lib/utils'
 
 interface FarmSelectorProps {

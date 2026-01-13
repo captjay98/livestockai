@@ -2,9 +2,9 @@ import { useState } from 'react'
 
 import { AlertCircle, Check, Loader2 } from 'lucide-react'
 
-import type { ModuleKey } from '~/lib/modules/types'
-import { useModules } from '~/components/module-context'
-import { MODULE_METADATA } from '~/lib/modules/constants'
+import type { ModuleKey } from '~/features/modules/types'
+import { useModules } from '~/features/modules/context'
+import { MODULE_METADATA } from '~/features/modules/constants'
 import { Alert, AlertDescription } from '~/components/ui/alert'
 import {
   AlertDialog,

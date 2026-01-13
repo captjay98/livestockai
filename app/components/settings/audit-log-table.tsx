@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 import { ChevronLeft, ChevronRight, Eye } from 'lucide-react'
-import type { AuditLogResult } from '~/lib/logging/audit'
+import type { AuditLogResult } from '~/features/logging/audit'
 import {
   Table,
   TableBody,

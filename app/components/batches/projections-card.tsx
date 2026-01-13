@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { Calendar, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Progress } from '~/components/ui/progress'
-import { getBatchProjectionFn } from '~/lib/batches/forecasting'
+import { getBatchProjectionFn } from '~/features/batches/forecasting'
 import { Skeleton } from '~/components/ui/skeleton'
 
 interface ProjectionsCardProps {
@@ -82,21 +82,23 @@ export function ProjectionsCard({
               0,
               Math.min(100, 100 - (projection.daysRemaining / 60) * 100),
             )} // Rough progress visualization
-            className={`h-2 ${projection.currentStatus === 'ahead'
+            className={`h-2 ${
+              projection.currentStatus === 'ahead'
                 ? 'bg-success'
                 : projection.currentStatus === 'behind'
                   ? 'bg-destructive'
                   : 'bg-secondary'
-              }`}
+            }`}
           />
           <div className="flex justify-end">
             <span
-              className={`text-xs px-2 py-0.5 rounded-full ${projection.currentStatus === 'ahead'
+              className={`text-xs px-2 py-0.5 rounded-full ${
+                projection.currentStatus === 'ahead'
                   ? 'bg-success/10 text-success'
                   : projection.currentStatus === 'behind'
                     ? 'bg-destructive/10 text-destructive'
                     : 'bg-info/10 text-info'
-                }`}
+              }`}
             >
               {projection.currentStatus === 'ahead'
                 ? 'Ahead of Schedule'

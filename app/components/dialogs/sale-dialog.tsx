@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { ShoppingCart } from 'lucide-react'
-import { createSaleFn } from '~/lib/sales/server'
+import { createSaleFn } from '~/features/sales/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -28,7 +28,7 @@ const getBatchesForSaleFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     const { db } = await import('~/lib/db')
-    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
 
     return db

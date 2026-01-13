@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { ChevronDown, ChevronUp, Users } from 'lucide-react'
-import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/lib/batches/server'
+import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/features/batches/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -330,7 +330,9 @@ export function BatchDialog({
                     <SelectTrigger>
                       <SelectValue>
                         {formData.sourceSize
-                          ? sourceSizeOptions.find((s) => s.value === formData.sourceSize)?.label
+                          ? sourceSizeOptions.find(
+                              (s) => s.value === formData.sourceSize,
+                            )?.label
                           : 'Select source size'}
                       </SelectValue>
                     </SelectTrigger>
@@ -360,7 +362,9 @@ export function BatchDialog({
                     <SelectTrigger>
                       <SelectValue>
                         {formData.structureId
-                          ? structures.find((s) => s.id === formData.structureId)?.name
+                          ? structures.find(
+                              (s) => s.id === formData.structureId,
+                            )?.name
                           : 'Select structure'}
                       </SelectValue>
                     </SelectTrigger>
@@ -390,7 +394,8 @@ export function BatchDialog({
                     <SelectTrigger>
                       <SelectValue>
                         {formData.supplierId
-                          ? suppliers.find((s) => s.id === formData.supplierId)?.name
+                          ? suppliers.find((s) => s.id === formData.supplierId)
+                              ?.name
                           : 'Select supplier'}
                       </SelectValue>
                     </SelectTrigger>

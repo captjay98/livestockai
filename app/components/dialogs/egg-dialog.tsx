@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { Egg } from 'lucide-react'
-import { createEggRecordFn } from '~/lib/eggs/server'
+import { createEggRecordFn } from '~/features/eggs/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -27,7 +27,7 @@ const getPoultryBatchesFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     const { db } = await import('~/lib/db')
-    const { requireAuth } = await import('~/lib/auth/server-middleware')
+    const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
 
     return db
