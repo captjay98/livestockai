@@ -73,5 +73,27 @@
       }
     ]
   },
-  "includeMcpJson": true
+  "includeMcpJson": false,
+  "mcpServers": {
+    "neon": {
+      "command": "bunx",
+      "args": ["mcp-remote", "https://mcp.neon.tech/mcp", "3334"]
+    },
+    "cloudflare-bindings": {
+      "command": "bunx",
+      "args": ["mcp-remote", "https://bindings.mcp.cloudflare.com/mcp", "3335"]
+    },
+    "cloudflare-builds": {
+      "command": "bunx",
+      "args": ["mcp-remote", "https://builds.mcp.cloudflare.com/mcp", "3336"]
+    },
+    "cloudflare-observability": {
+      "command": "bunx",
+      "args": ["mcp-remote", "https://observability.mcp.cloudflare.com/mcp", "3337"]
+    },
+    "cloudflare-docs": {
+      "command": "bunx",
+      "args": ["mcp-remote", "https://docs.mcp.cloudflare.com/mcp", "3338"]
+    }
+  }
 }

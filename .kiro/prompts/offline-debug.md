@@ -203,15 +203,15 @@ VitePWA({
 
 ## Checklist
 
-| Check                    | How to Verify                    | Status |
-| ------------------------ | -------------------------------- | ------ |
-| IndexedDB storing data   | DevTools → Application → IndexedDB | ✅/❌ |
-| Service worker active    | DevTools → Application → SW      | ✅/❌ |
-| Offline detection        | `navigator.onLine` in console    | ✅/❌ |
-| Mutations queued         | Check mutation queue in state    | ✅/❌ |
-| Sync on reconnect        | Go online, check network tab     | ✅/❌ |
-| Conflict resolution      | Edit same record offline/online  | ✅/❌ |
-| Cache invalidation       | Check stale data after sync      | ✅/❌ |
+| Check                  | How to Verify                      | Status |
+| ---------------------- | ---------------------------------- | ------ |
+| IndexedDB storing data | DevTools → Application → IndexedDB | ✅/❌  |
+| Service worker active  | DevTools → Application → SW        | ✅/❌  |
+| Offline detection      | `navigator.onLine` in console      | ✅/❌  |
+| Mutations queued       | Check mutation queue in state      | ✅/❌  |
+| Sync on reconnect      | Go online, check network tab       | ✅/❌  |
+| Conflict resolution    | Edit same record offline/online    | ✅/❌  |
+| Cache invalidation     | Check stale data after sync        | ✅/❌  |
 
 ## Agent Delegation
 

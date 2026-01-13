@@ -269,6 +269,7 @@ As you develop, update `DEVLOG.md` with:
 ## Agent Delegation
 
 For complex issues during setup:
+
 - `@devops-engineer` - Deployment and infrastructure issues
 - `@backend-engineer` - Database connection problems
 

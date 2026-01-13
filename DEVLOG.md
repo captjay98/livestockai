@@ -363,7 +363,7 @@ After completing features or making significant progress:
 Enhanced MCP server configuration in `.kiro/settings/mcp.json` for direct infrastructure access:
 
 - **4 agents** with Neon database access: backend-engineer, devops-engineer, data-analyst, livestock-specialist
-- **1 agent** with Cloudflare infrastructure access: devops-engineer  
+- **1 agent** with Cloudflare infrastructure access: devops-engineer
 - **All agents** enhanced with web search, knowledge bases, and todo lists
 - **OAuth authentication** for seamless integration (no API keys needed)
 
@@ -461,15 +461,15 @@ kiro-cli --agent data-analyst
 
 ## Kiro Usage Statistics
 
-| Metric                     | Value    |
-| -------------------------- | -------- |
-| **Specs Created**          | 6        |
-| **Spec Tasks Completed**   | 50+      |
-| **Custom Agents Created**  | 8        |
-| **Custom Prompts Created** | 25       |
-| **Steering Documents**     | 5        |
+| Metric                     | Value                                         |
+| -------------------------- | --------------------------------------------- |
+| **Specs Created**          | 6                                             |
+| **Spec Tasks Completed**   | 50+                                           |
+| **Custom Agents Created**  | 8                                             |
+| **Custom Prompts Created** | 25                                            |
+| **Steering Documents**     | 5                                             |
 | **MCP Servers Configured** | 6 (Neon + 4 Cloudflare + Sequential Thinking) |
-| **Hooks Configured**       | 2        |
+| **Hooks Configured**       | 2                                             |
 
 ### Most Used Kiro Features
 
@@ -788,20 +788,23 @@ The feature modules system is now complete and production-ready! 🎉
 ### 🎨 Semantic Theme System
 
 #### The Challenge: Hardcoded Maintenance Nightmare
+
 The application relied heavily on hardcoded Tailwind classes (e.g., `text-emerald-600`, `bg-red-50`). This created two major issues:
+
 1. **Dark Mode Complexity**: Every color needed manual `dark:` overrides.
 2. **Inconsistent UI**: Simple states like "Success" or "Warning" used slightly different shades across components.
 
 #### The Solution: Logical Tokens
+
 We implemented a comprehensive semantic layer in `app/styles.css` using CSS variables that adapt automatically to color schemes.
 
-| Token | Purpose | Light Mode | Dark Mode |
-| :--- | :--- | :--- | :--- |
-| `--success` | Positive outcomes, revenue | Emerald 600 | Emerald 400 |
-| `--warning` | Alerts, low stock | Amber 500 | Amber 400 |
-| `--destructive` | Errors, expense | Red 600 | Red 400 |
-| `--info` | Information, water metrics | Blue 600 | Blue 400 |
-| `--primary` | Main brand actions | Orange | Orange |
+| Token           | Purpose                    | Light Mode  | Dark Mode   |
+| :-------------- | :------------------------- | :---------- | :---------- |
+| `--success`     | Positive outcomes, revenue | Emerald 600 | Emerald 400 |
+| `--warning`     | Alerts, low stock          | Amber 500   | Amber 400   |
+| `--destructive` | Errors, expense            | Red 600     | Red 400     |
+| `--info`        | Information, water metrics | Blue 600    | Blue 400    |
+| `--primary`     | Main brand actions         | Orange      | Orange      |
 
 Now, components simply use `text-success` or `bg-warning/10`, and they look perfect in both modes without a single `dark:` class variant.
 
@@ -810,16 +813,19 @@ Now, components simply use `text-success` or `bg-warning/10`, and they look perf
 We systematically refactored every major view to use these new tokens:
 
 **1. Dashboard & Operations**
+
 - **Dashboard**: Complete overhaul of summary cards (Revenue, Expenses, Inventory).
 - **Daily Monitoring**: `Weight`, `Water Quality`, and `Mortality` logs now use consistent alert colors.
 - **Health**: Vaccination and treatment records updated with semantic badges.
 
 **2. Financial Suite**
+
 - **Sales**: Revenue numbers and invoice status badges now use standardized `--success` tokens.
 - **Expenses**: Expense categories mapped to semantic colors (Primary, Destructive, Info) for better visual scanning.
 - **Invoices**: Status pills (Paid/Partial/Unpaid) standardized.
 
 **3. Inventory Management**
+
 - Feed and Medication cards now use `--warning` for low stock and `--destructive` for expired items.
 
 ### 📦 Identity Transition: "OpenLivestock"
@@ -865,6 +871,7 @@ Upgraded all 19 remaining prompts to 5/5 quality using a standardized template. 
 #### Standardized Prompt Template
 
 Every prompt now includes:
+
 - **Context Section**: Project, species, currency/tools info
 - **MCP Integration**: Direct database queries where applicable
 - **Tables with Thresholds**: Target/Warning/Critical indicators
@@ -873,15 +880,15 @@ Every prompt now includes:
 
 #### Prompts Upgraded by Category
 
-| Category | Prompts | Key Enhancements |
-|----------|---------|------------------|
+| Category             | Prompts                                                                | Key Enhancements                                             |
+| -------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------ |
 | **Livestock Domain** | batch-analysis, mortality-analysis, growth-forecast, feed-optimization | Added `neon_run_sql` queries, metrics tables with thresholds |
-| **Financial** | financial-report, cost-analysis, sales-forecast | MCP integration, profitability benchmarks |
-| **Database** | neon-migrate, neon-optimize | Fixed MCP function names, performance benchmarks |
-| **Cloudflare** | cloudflare-debug, cloudflare-setup | Rewrote with correct MCP tools, debug checklists |
-| **Quality/PWA** | test-coverage, offline-debug, pwa-optimize | Coverage targets, verification tables |
-| **New Prompts** | accessibility-audit, performance-audit, competitive-analysis | Added agent delegation, related prompts |
-| **Top Prompts** | plan-feature, quickstart | Added agent delegation, related prompts |
+| **Financial**        | financial-report, cost-analysis, sales-forecast                        | MCP integration, profitability benchmarks                    |
+| **Database**         | neon-migrate, neon-optimize                                            | Fixed MCP function names, performance benchmarks             |
+| **Cloudflare**       | cloudflare-debug, cloudflare-setup                                     | Rewrote with correct MCP tools, debug checklists             |
+| **Quality/PWA**      | test-coverage, offline-debug, pwa-optimize                             | Coverage targets, verification tables                        |
+| **New Prompts**      | accessibility-audit, performance-audit, competitive-analysis           | Added agent delegation, related prompts                      |
+| **Top Prompts**      | plan-feature, quickstart                                               | Added agent delegation, related prompts                      |
 
 #### New Prompts Created
 
@@ -901,6 +908,7 @@ Every prompt now includes:
 ### MCP Documentation Consistency
 
 Verified all documentation uses OAuth authentication (no API keys):
+
 - `.kiro/README.md` ✅
 - `AGENTS.md` ✅
 - `README.md` ✅
@@ -908,12 +916,12 @@ Verified all documentation uses OAuth authentication (no API keys):
 
 ### Updated Statistics
 
-| Metric | Previous | Current |
-|--------|----------|---------|
-| **Agents** | 7 | 8 |
-| **Prompts** | 18 | 25 |
-| **Prompts at 5/5 Quality** | 6 | 25 |
-| **MCP Servers** | 6 | 6 |
+| Metric                     | Previous | Current |
+| -------------------------- | -------- | ------- |
+| **Agents**                 | 7        | 8       |
+| **Prompts**                | 18       | 25      |
+| **Prompts at 5/5 Quality** | 6        | 25      |
+| **MCP Servers**            | 6        | 6       |
 
 ### Production Readiness Checklist
 
@@ -948,76 +956,89 @@ Verified all documentation uses OAuth authentication (no API keys):
 **Objective**: Achieve 0 TypeScript errors across the entire codebase for perfect type safety.
 
 #### Starting Point
+
 - **549 TypeScript errors** across 67 files
 - Build succeeded but with type safety issues
 - Multiple categories of errors: unused imports, type mismatches, component props
 
 #### Strategy: Parallel Frontend Engineers
+
 Used 4 frontend engineers simultaneously to tackle errors in parallel groups:
+
 - **Agent 1**: High-priority files (expenses.tsx, customers.tsx) - 29 errors
-- **Agent 2**: Medium-high files (dashboard.tsx, eggs.tsx, batches.new.tsx) - 27 errors  
+- **Agent 2**: Medium-high files (dashboard.tsx, eggs.tsx, batches.new.tsx) - 27 errors
 - **Agent 3**: Medium files (customers.$customerId.tsx, eggs.new.tsx, etc.) - 22 errors
 - **Agent 4**: Remaining files and final sweep - ~29 errors
 
 #### Major Fix Categories
 
 **1. SelectValue Component Issues (50+ fixes)**
+
 - Problem: `placeholder` prop not supported in Base UI SelectValue
 - Solution: Replaced `<SelectValue placeholder="text" />` with conditional content
 - Files: All route components using Select dropdowns
 
 **2. Unused Imports Cleanup (30+ files)**
+
 - Problem: Strict TypeScript `noUnusedLocals` violations
 - Solution: Systematic removal of unused imports and variables
 - Pattern: `Card`, `Customer`, `Batch`, `Supplier` interfaces frequently unused
 
 **3. Form State Null Handling (20+ components)**
+
 - Problem: Select components return `string | null` but forms expect `string`
 - Solution: Added null checks in `onValueChange` handlers
 - Pattern: `if (value) { setState(value) }`
 
 **4. Server Function Type Compatibility (15+ functions)**
+
 - Problem: Mismatched parameter structures for TanStack Start server functions
 - Solution: Wrapped parameters in `{ data: {...} }` objects
 - Files: All server function calls updated
 
 **5. Currency Function Standardization (10+ files)**
+
 - Problem: Mixed usage of `formatNaira` vs `formatCurrency`
 - Solution: Added `formatCurrency` export as alias, updated all imports
 - Impact: Consistent currency formatting across app
 
 **6. Component Prop Type Issues (10+ components)**
+
 - Problem: Invalid props on UI components (Button `type`, DialogTrigger `asChild`)
 - Solution: Removed unsupported props, used proper component APIs
 - Files: Dialog components, form buttons
 
 #### Progressive Results
 
-| Round | Agent Focus | Errors Fixed | Remaining |
-|-------|-------------|--------------|-----------|
-| **Initial** | Manual fixes | 237 | 312 |
-| **Round 1** | 4 parallel agents | 104 | 208 |
-| **Round 2** | 4 parallel agents | 35 | 173 |
-| **Round 3** | 4 parallel agents | 35 | 138 |
-| **Round 4** | 4 parallel agents | 28 | 110 |
-| **Round 5** | 4 parallel agents | 38 | 72 |
-| **Final** | Targeted fixes | 72 | **0** |
+| Round       | Agent Focus       | Errors Fixed | Remaining |
+| ----------- | ----------------- | ------------ | --------- |
+| **Initial** | Manual fixes      | 237          | 312       |
+| **Round 1** | 4 parallel agents | 104          | 208       |
+| **Round 2** | 4 parallel agents | 35           | 173       |
+| **Round 3** | 4 parallel agents | 35           | 138       |
+| **Round 4** | 4 parallel agents | 28           | 110       |
+| **Round 5** | 4 parallel agents | 38           | 72        |
+| **Final**   | Targeted fixes    | 72           | **0**     |
 
 #### Technical Challenges Solved
 
 **1. Sales Server Function Exports**
+
 - Missing `getSalesSummaryFn` export causing build failures
 - Added proper server function wrapper with auth middleware
 
 **2. Currency Export Compatibility**
+
 - Build failing on missing `formatCurrency` export
 - Added alias export for backward compatibility
 
 **3. UserSettings Interface Null Handling**
+
 - Select components returning null but interface expecting non-null
 - Added null guards in all settings form handlers
 
 **4. RequiredFetcherDataOptions Type Issues**
+
 - Invalid properties in server function calls
 - Fixed parameter structure for TanStack Start pattern
 
@@ -1027,7 +1048,7 @@ Used 4 frontend engineers simultaneously to tackle errors in parallel groups:
 # TypeScript Errors: 0 ✅
 npx tsc --noEmit
 
-# ESLint Errors: 0 ✅  
+# ESLint Errors: 0 ✅
 bun run lint
 
 # Code Quality: Perfect ✅
@@ -1036,17 +1057,19 @@ bun run lint
 #### Key Patterns Established
 
 **1. SelectValue Pattern**
+
 ```tsx
 // ❌ Before
 <SelectValue placeholder="Select option" />
 
-// ✅ After  
+// ✅ After
 <SelectValue>
   {value ? getDisplayText(value) : "Select option"}
 </SelectValue>
 ```
 
 **2. Server Function Pattern**
+
 ```tsx
 // ❌ Before
 await serverFn(farmId, data)
@@ -1056,6 +1079,7 @@ await serverFn({ data: { farmId, ...data } })
 ```
 
 **3. Null Handling Pattern**
+
 ```tsx
 // ❌ Before
 onValueChange={(v) => setState(v)}
@@ -1089,10 +1113,56 @@ onValueChange={(v) => v && setState(v)}
 ### Production Readiness Status
 
 - [x] **Perfect TypeScript Compliance** (0 errors)
-- [x] **Perfect ESLint Compliance** (0 errors)  
+- [x] **Perfect ESLint Compliance** (0 errors)
 - [x] **Consistent Code Patterns** (SelectValue, server functions, null handling)
 - [x] **Complete Type Safety** (End-to-end type checking)
 - [ ] Build system compatibility (TanStack Router + Cloudflare Workers)
 - [ ] Final integration testing
 - [ ] Release preparation
 
+---
+
+## Day 6 (January 12) - Agent Infrastructure Improvements
+
+**Time Spent:** ~1.5 hours
+
+### New Fullstack Agent
+
+Created `fullstack-engineer` agent for end-to-end feature implementation:
+- Combines backend + frontend capabilities in one agent
+- Full write access to `app/**`, `tests/**`
+- Neon MCP access for database operations
+- Primary agent for new feature development
+
+### MCP OAuth Fix
+
+Resolved persistent OAuth re-authentication issue when switching between agents.
+
+**Root Cause:** `mcp-remote` used random callback ports, causing cached OAuth tokens to mismatch on agent switch.
+
+**Solution:**
+1. Fixed callback ports for all MCP servers:
+   - Neon: 3334
+   - Cloudflare-bindings: 3335
+   - Cloudflare-builds: 3336
+   - Cloudflare-observability: 3337
+   - Cloudflare-docs: 3338
+
+2. Per-agent MCP configuration:
+   | Agent | MCP Access |
+   |-------|------------|
+   | fullstack-engineer | Neon |
+   | backend-engineer | Neon |
+   | data-analyst | Neon |
+   | livestock-specialist | Neon |
+   | devops-engineer | Neon + all Cloudflare |
+   | frontend/qa/security/i18n | None |
+
+**Result:** OAuth tokens persist across agent switches.
+
+### Agent Count: 9
+
+- `fullstack-engineer` (NEW)
+- `backend-engineer`, `frontend-engineer`, `devops-engineer`
+- `data-analyst`, `livestock-specialist`
+- `qa-engineer`, `security-engineer`, `i18n-engineer`

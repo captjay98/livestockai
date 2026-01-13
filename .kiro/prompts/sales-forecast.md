@@ -72,7 +72,7 @@ neon_run_sql "
     LIMIT 2
   )
   SELECT
-    ROUND(((MAX(avgWeightKg) - MIN(avgWeightKg)) / 
+    ROUND(((MAX(avgWeightKg) - MIN(avgWeightKg)) /
       NULLIF(EXTRACT(DAY FROM MAX(sampleDate) - MIN(sampleDate)), 0) * 1000)::numeric, 1) as adg_grams
   FROM recent_samples
 "
@@ -99,12 +99,12 @@ neon_run_sql "
 ```
 neon_run_sql "
   WITH costs AS (
-    SELECT 
+    SELECT
       COALESCE((SELECT SUM(costNgn) FROM feed_records WHERE batchId = 'batch-id'), 0) as feed_cost,
       COALESCE((SELECT SUM(amount) FROM expenses WHERE batchId = 'batch-id'), 0) as other_cost,
       COALESCE((SELECT acquisitionCost FROM batches WHERE id = 'batch-id'), 0) as acquisition_cost
   )
-  SELECT 
+  SELECT
     ROUND((feed_cost + other_cost + acquisition_cost)::numeric, 2) as total_cost
   FROM costs
 "

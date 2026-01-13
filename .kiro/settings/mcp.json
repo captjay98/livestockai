@@ -8,7 +8,7 @@
     },
     "neon": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://mcp.neon.tech/mcp"],
+      "args": ["mcp-remote", "https://mcp.neon.tech/mcp", "3334"],
       "disabled": false,
       "autoApprove": [
         "list_projects",
@@ -21,7 +21,7 @@
     },
     "cloudflare-bindings": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://bindings.mcp.cloudflare.com/mcp"],
+      "args": ["mcp-remote", "https://bindings.mcp.cloudflare.com/mcp", "3335"],
       "disabled": false,
       "autoApprove": [
         "accounts_list",
@@ -40,8 +40,8 @@
     },
     "cloudflare-builds": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://builds.mcp.cloudflare.com/mcp"],
-      "disabled": false,
+      "args": ["mcp-remote", "https://builds.mcp.cloudflare.com/mcp", "3336"],
+      "disabled": true,
       "autoApprove": [
         "workers_builds_list_builds",
         "workers_builds_get_build",
@@ -50,8 +50,8 @@
     },
     "cloudflare-observability": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://observability.mcp.cloudflare.com/mcp"],
-      "disabled": false,
+      "args": ["mcp-remote", "https://observability.mcp.cloudflare.com/mcp", "3337"],
+      "disabled": true,
       "autoApprove": [
         "observability_keys",
         "observability_values",
@@ -60,8 +60,8 @@
     },
     "cloudflare-docs": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://docs.mcp.cloudflare.com/mcp"],
-      "disabled": false,
+      "args": ["mcp-remote", "https://docs.mcp.cloudflare.com/mcp", "3338"],
+      "disabled": true,
       "autoApprove": ["search_cloudflare_documentation"]
     }
   }

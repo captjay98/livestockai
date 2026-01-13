@@ -43,10 +43,11 @@ kiro-cli --agent backend-engineer
 └── README.md                  # This file
 ```
 
-## Agents (7)
+## Agents (9)
 
 | Agent                  | Purpose                                   | Usage                                   |
 | ---------------------- | ----------------------------------------- | --------------------------------------- |
+| `fullstack-engineer`   | **Primary** - Full feature implementation | `kiro-cli --agent fullstack-engineer`   |
 | `livestock-specialist` | Domain expert for multi-species livestock | `kiro-cli --agent livestock-specialist` |
 | `backend-engineer`     | TanStack Start, Kysely, Neon (with MCP)   | `kiro-cli --agent backend-engineer`     |
 | `frontend-engineer`    | React, TanStack Router, PWA               | `kiro-cli --agent frontend-engineer`    |
@@ -54,27 +55,36 @@ kiro-cli --agent backend-engineer
 | `data-analyst`         | Growth forecasting, financials            | `kiro-cli --agent data-analyst`         |
 | `qa-engineer`          | Testing, Vitest, Playwright               | `kiro-cli --agent qa-engineer`          |
 | `security-engineer`    | Auth, Better Auth, security               | `kiro-cli --agent security-engineer`    |
+| `i18n-engineer`        | Internationalization, localization        | `kiro-cli --agent i18n-engineer`        |
 
 ### Agent Capabilities
 
 Each agent has specific tools, write permissions, and MCP access:
 
-| Agent                  | Write Paths                                   | MCP Access | Key Tools |
-| ---------------------- | --------------------------------------------- | ---------- | --------- |
-| `livestock-specialist` | `app/lib/monitoring/**`, `app/lib/batches/**`, `app/lib/growth/**`, `app/lib/health/**`, `app/lib/feed/**` | Neon | web_search, knowledge, todo_list |
-| `backend-engineer`     | `app/lib/**`, `app/routes/api/**`, `*.md`     | Neon       | code, web_search, knowledge, todo_list |
-| `frontend-engineer`    | `app/components/**`, `app/routes/**`, `*.md`  | -          | code, web_search, knowledge, todo_list |
-| `devops-engineer`      | `wrangler.jsonc`, `.github/**`, `.kiro/**`, `.env*`, `package.json` | Neon, Cloudflare | wrangler, web_search, knowledge, todo_list |
-| `data-analyst`         | `app/lib/reports/**`, `app/lib/monitoring/**`, `app/lib/analytics/**` | Neon | web_search, execute_bash, knowledge, todo_list |
-| `qa-engineer`          | `app/**/*.test.ts`, `tests/**`, `*.md`        | -          | code, web_search, knowledge, todo_list |
-| `security-engineer`    | `app/lib/auth/**`, `app/routes/_auth.tsx`     | -          | code, web_search, knowledge, todo_list |
-| `i18n-engineer`        | `app/lib/i18n/**`, `public/locales/**`, `app/routes/**` | -          | web_search, knowledge, todo_list |
+| Agent                  | Write Paths                                                                                                | MCP Access       | Key Tools                                      |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------- |
+| `fullstack-engineer`   | `app/**`, `tests/**`, `*.md`, `.kiro/**`                                                                   | Neon             | code, web_search, knowledge, todo_list         |
+| `livestock-specialist` | `app/lib/monitoring/**`, `app/lib/batches/**`, `app/lib/growth/**`, `app/lib/health/**`, `app/lib/feed/**` | Neon             | web_search, knowledge, todo_list               |
+| `backend-engineer`     | `app/lib/**`, `app/routes/api/**`, `*.md`                                                                  | Neon             | code, web_search, knowledge, todo_list         |
+| `frontend-engineer`    | `app/components/**`, `app/routes/**`, `*.md`                                                               | -                | code, web_search, knowledge, todo_list         |
+| `devops-engineer`      | `wrangler.jsonc`, `.github/**`, `.kiro/**`, `.env*`, `package.json`                                        | Neon, Cloudflare | wrangler, web_search, knowledge, todo_list     |
+| `data-analyst`         | `app/lib/reports/**`, `app/lib/monitoring/**`, `app/lib/analytics/**`                                      | Neon             | web_search, execute_bash, knowledge, todo_list |
+| `qa-engineer`          | `app/**/*.test.ts`, `tests/**`, `*.md`                                                                     | -                | code, web_search, knowledge, todo_list         |
+| `security-engineer`    | `app/lib/auth/**`, `app/routes/_auth.tsx`                                                                  | -                | code, web_search, knowledge, todo_list         |
+| `i18n-engineer`        | `app/lib/i18n/**`, `public/locales/**`, `app/routes/**`                                                    | -                | web_search, knowledge, todo_list               |
+
+**Recommended Agent Selection:**
+- **New features**: Use `fullstack-engineer` (handles DB → UI in one pass)
+- **Domain questions**: Use `livestock-specialist`
+- **Deployment/infra**: Use `devops-engineer`
+- **Specialized work**: Use the specific agent (backend, frontend, qa, etc.)
 
 ### Universal Agent Tools
 
 All 8 agents now have access to:
+
 - **knowledge**: Access indexed knowledge bases across chat sessions
-- **todo_list**: Create and manage task lists for complex workflows  
+- **todo_list**: Create and manage task lists for complex workflows
 - **web_search**: Research documentation and best practices
 - **fs_read, grep, glob**: File system operations and search
 
@@ -116,30 +126,30 @@ kiro-cli --agent frontend-engineer "Create a new batch card component"
 
 ### Core Development (6)
 
-| Prompt                   | Description           |
-| ------------------------ | --------------------- |
-| `@prime`                 | Load project context  |
-| `@plan-feature`          | Plan new features     |
-| `@execute`               | Implement from plans  |
-| `@code-review`           | Technical code review |
-| `@code-review-hackathon` | Hackathon evaluation  |
+| Prompt                   | Description                                                   |
+| ------------------------ | ------------------------------------------------------------- |
+| `@prime`                 | Load project context                                          |
+| `@plan-feature`          | Plan new features                                             |
+| `@execute`               | Implement from plans                                          |
+| `@code-review`           | Technical code review                                         |
+| `@code-review-hackathon` | Hackathon evaluation                                          |
 | `@quickstart`            | Interactive setup wizard with automated database & deployment |
 
 ### Advanced Setup (3)
 
-| Prompt              | Description                   |
-| ------------------- | ----------------------------- |
-| `@neon-setup`       | Advanced Neon configuration   |
-| `@cloudflare-setup` | Advanced Cloudflare features  |
-| `@cloudflare-debug` | Debug deployment issues       |
+| Prompt              | Description                  |
+| ------------------- | ---------------------------- |
+| `@neon-setup`       | Advanced Neon configuration  |
+| `@cloudflare-setup` | Advanced Cloudflare features |
+| `@cloudflare-debug` | Debug deployment issues      |
 
 ### Infrastructure (4)
 
-| Prompt               | Description             |
-| -------------------- | ----------------------- |
-| `@cloudflare-deploy` | Deploy to Workers       |
-| `@neon-migrate`      | Database migrations     |
-| `@neon-optimize`     | Query optimization      |
+| Prompt               | Description                                  |
+| -------------------- | -------------------------------------------- |
+| `@cloudflare-deploy` | Deploy to Workers                            |
+| `@neon-migrate`      | Database migrations                          |
+| `@neon-optimize`     | Query optimization                           |
 | `@performance-audit` | Performance optimization for PWA, mobile, 3G |
 
 ### Livestock Domain (4)
@@ -161,18 +171,18 @@ kiro-cli --agent frontend-engineer "Create a new batch card component"
 
 ### Quality & Testing (3)
 
-| Prompt                  | Description            |
-| ----------------------- | ---------------------- |
-| `@test-coverage`        | Test coverage analysis |
+| Prompt                  | Description                    |
+| ----------------------- | ------------------------------ |
+| `@test-coverage`        | Test coverage analysis         |
 | `@accessibility-audit`  | A11y testing for rural farmers |
-| `@competitive-analysis` | Market research        |
+| `@competitive-analysis` | Market research                |
 
 ### PWA & Optimization (2)
 
-| Prompt           | Description            |
-| ---------------- | ---------------------- |
-| `@offline-debug` | Fix sync issues        |
-| `@pwa-optimize`  | PWA performance        |
+| Prompt           | Description     |
+| ---------------- | --------------- |
+| `@offline-debug` | Fix sync issues |
+| `@pwa-optimize`  | PWA performance |
 
 ## Hooks
 

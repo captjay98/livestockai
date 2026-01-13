@@ -15,6 +15,7 @@ Build deep understanding of the OpenLivestock Manager codebase through documenta
 ## Objective
 
 Load comprehensive project context to enable effective development, including:
+
 - Architecture and patterns understanding
 - Live database state via MCP
 - Current development status
@@ -25,6 +26,7 @@ Load comprehensive project context to enable effective development, including:
 ### Step 1: Core Documentation
 
 **Read essential docs:**
+
 ```bash
 cat README.md
 cat AGENTS.md
@@ -32,6 +34,7 @@ cat DEVLOG.md
 ```
 
 **Key takeaways to extract:**
+
 - Project purpose and target users
 - Tech stack and architecture
 - Development history and decisions
@@ -50,16 +53,16 @@ cat DEVLOG.md
 | State | TanStack Query + IndexedDB | Offline-first caching |
 
 **🚨 Critical Pattern - Dynamic Imports:**
+
 ```typescript
 // ✅ REQUIRED for Cloudflare Workers
-export const getData = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    const { db } = await import('../db')  // Dynamic import!
-    return db.selectFrom('table').execute()
-  })
+export const getData = createServerFn({ method: 'GET' }).handler(async () => {
+  const { db } = await import('../db') // Dynamic import!
+  return db.selectFrom('table').execute()
+})
 
 // ❌ BREAKS on Cloudflare Workers
-import { db } from '../db'  // Static import fails!
+import { db } from '../db' // Static import fails!
 ```
 
 ### Step 3: Project Structure
@@ -69,6 +72,7 @@ tree -L 2 -I 'node_modules|.git|dist|.vinxi' app/
 ```
 
 **Key Directories:**
+
 ```
 app/
 ├── routes/           # TanStack Router pages
@@ -132,6 +136,7 @@ git diff --stat
 ```
 
 **Identify:**
+
 - Current branch and recent commits
 - Any uncommitted changes
 - Active feature development
@@ -151,6 +156,7 @@ git diff --stat
 | `i18n-engineer` | Localization | - |
 
 **Available Prompts (25):**
+
 - **Core**: @prime, @plan-feature, @execute, @code-review, @quickstart
 - **Infrastructure**: @neon-setup, @neon-migrate, @cloudflare-deploy, @cloudflare-debug
 - **Livestock**: @batch-analysis, @growth-forecast, @mortality-analysis, @feed-optimization
@@ -160,6 +166,7 @@ git diff --stat
 ### Step 7: Livestock Domain Context
 
 **Species Supported:**
+
 - **Poultry**: Broilers (5-8 weeks), Layers (18+ weeks), Turkey, Duck
 - **Aquaculture**: Catfish (4-6 months), Tilapia
 
@@ -172,6 +179,7 @@ git diff --stat
 | Cycle Length | 6-8 weeks | 4-6 months |
 
 **Nigerian Context:**
+
 - Currency: Nigerian Naira (₦)
 - Challenges: Power outages, feed quality, market volatility
 - Regions: Kaduna, Ogun, Delta states
@@ -209,6 +217,7 @@ Status: [clean/uncommitted changes]
 ### 🎯 Recommended Next Steps
 
 Based on current state, suggest:
+
 1. **If new to project**: Start with `@quickstart`
 2. **If planning feature**: Use `@plan-feature [feature-name]`
 3. **If reviewing code**: Use `@code-review`
@@ -235,6 +244,7 @@ bun run deploy
 ## Instructions for Assistant
 
 ### Workflow
+
 1. **Read documentation** - README, AGENTS, DEVLOG
 2. **Explore database** - Use MCP to understand current data
 3. **Check git status** - Understand development state
@@ -242,6 +252,7 @@ bun run deploy
 5. **Suggest next steps** - Based on what user might want to do
 
 ### Key Principles
+
 - **Use MCP** to get live database information
 - **Be comprehensive** but concise
 - **Highlight critical patterns** (dynamic imports!)
@@ -251,6 +262,7 @@ bun run deploy
 ### After Priming
 
 User is ready to:
+
 - `@plan-feature` - Plan new features with full context
 - `@code-review` - Review code with pattern knowledge
 - `@batch-analysis` - Analyze livestock data via MCP

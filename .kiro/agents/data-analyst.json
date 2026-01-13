@@ -69,5 +69,11 @@
       }
     ]
   },
-  "includeMcpJson": true
+  "includeMcpJson": false,
+  "mcpServers": {
+    "neon": {
+      "command": "bunx",
+      "args": ["mcp-remote", "https://mcp.neon.tech/mcp", "3334"]
+    }
+  }
 }

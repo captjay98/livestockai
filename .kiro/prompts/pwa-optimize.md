@@ -222,32 +222,32 @@ navigator.serviceWorker.ready.then((registration) => {
 
 ### PWA Requirements
 
-| Requirement           | How to Verify                    | Status |
-| --------------------- | -------------------------------- | ------ |
-| Valid manifest.json   | Lighthouse PWA audit             | ✅/❌ |
-| Service worker active | DevTools → Application → SW      | ✅/❌ |
-| HTTPS enabled         | Check URL bar                    | ✅/❌ |
-| Icons (192, 512)      | Check manifest.json              | ✅/❌ |
-| Installable           | Test install prompt              | ✅/❌ |
+| Requirement           | How to Verify               | Status |
+| --------------------- | --------------------------- | ------ |
+| Valid manifest.json   | Lighthouse PWA audit        | ✅/❌  |
+| Service worker active | DevTools → Application → SW | ✅/❌  |
+| HTTPS enabled         | Check URL bar               | ✅/❌  |
+| Icons (192, 512)      | Check manifest.json         | ✅/❌  |
+| Installable           | Test install prompt         | ✅/❌  |
 
 ### Performance
 
-| Metric          | Target   | How to Measure      | Status |
-| --------------- | -------- | ------------------- | ------ |
-| LCP             | <2.5s    | Lighthouse          | ✅/⚠️/❌ |
-| FID             | <100ms   | Lighthouse          | ✅/⚠️/❌ |
-| CLS             | <0.1     | Lighthouse          | ✅/⚠️/❌ |
-| Initial Bundle  | <500KB   | `bun run build`     | ✅/⚠️/❌ |
-| Images          | Optimized| WebP/AVIF format    | ✅/❌ |
+| Metric         | Target    | How to Measure   | Status   |
+| -------------- | --------- | ---------------- | -------- |
+| LCP            | <2.5s     | Lighthouse       | ✅/⚠️/❌ |
+| FID            | <100ms    | Lighthouse       | ✅/⚠️/❌ |
+| CLS            | <0.1      | Lighthouse       | ✅/⚠️/❌ |
+| Initial Bundle | <500KB    | `bun run build`  | ✅/⚠️/❌ |
+| Images         | Optimized | WebP/AVIF format | ✅/❌    |
 
 ### Mobile (Rural Connectivity)
 
-| Requirement      | Target           | Status |
-| ---------------- | ---------------- | ------ |
-| Responsive       | All screen sizes | ✅/❌ |
-| Touch-friendly   | 44px min targets | ✅/❌ |
-| 3G performance   | <5s load         | ✅/⚠️/❌ |
-| Offline mode     | Full functionality| ✅/❌ |
+| Requirement    | Target             | Status   |
+| -------------- | ------------------ | -------- |
+| Responsive     | All screen sizes   | ✅/❌    |
+| Touch-friendly | 44px min targets   | ✅/❌    |
+| 3G performance | <5s load           | ✅/⚠️/❌ |
+| Offline mode   | Full functionality | ✅/❌    |
 
 ## Agent Delegation
 

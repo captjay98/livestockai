@@ -208,8 +208,8 @@ tests/
 
 ## Coverage by Category
 
-| Category               | Coverage | Target | Status |
-| ---------------------- | -------- | ------ | ------ |
+| Category               | Coverage | Target | Status   |
+| ---------------------- | -------- | ------ | -------- |
 | Financial Calculations | X%       | 100%   | ✅/⚠️/❌ |
 | Business Logic         | X%       | 90%    | ✅/⚠️/❌ |
 | Server Functions       | X%       | 80%    | ✅/⚠️/❌ |
