@@ -27,7 +27,7 @@ import {
 import { getBatchesFn } from '~/features/batches/server'
 import { getCustomersFn } from '~/features/customers/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -204,6 +204,7 @@ export const Route = createFileRoute('/_auth/sales/')({
 
 function SalesPage() {
   const { selectedFarmId } = useFarm()
+  const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const navigate = useNavigate({ from: '/sales' })
   const searchParams = Route.useSearch()
 
@@ -660,7 +661,7 @@ function SalesPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Unit Price (₦)</Label>
+                  <Label>Unit Price ({currencySymbol})</Label>
                   <Input
                     type="number"
                     min="0"
@@ -1063,7 +1064,7 @@ function SalesPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Unit Price (₦)</Label>
+                <Label>Unit Price ({currencySymbol})</Label>
                 <Input
                   type="number"
                   min="0"

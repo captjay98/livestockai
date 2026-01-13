@@ -25,7 +25,7 @@ import { useEffect, useState } from 'react'
 import { getDashboardStats } from '~/features/dashboard/server'
 import { requireAuth } from '~/features/auth/server-middleware'
 import { getUserFarms } from '~/features/auth/utils'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button, buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -162,6 +162,7 @@ function TrendingDownIcon({ className }: { className?: string }) {
 
 function DashboardPage() {
   const { selectedFarmId } = useFarm()
+  const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
 
   const [stats, setStats] = useState<{
     financial: {
@@ -331,7 +332,7 @@ function DashboardPage() {
                   </p>
                   <div className="h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
                     <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400">
-                      ₦
+                      {currencySymbol}
                     </span>
                   </div>
                 </div>
@@ -371,7 +372,7 @@ function DashboardPage() {
                   </p>
                   <div className="h-6 w-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
                     <span className="font-bold text-xs text-red-600 dark:text-red-400">
-                      ₦
+                      {currencySymbol}
                     </span>
                   </div>
                 </div>
@@ -425,7 +426,7 @@ function DashboardPage() {
                           : 'text-red-600 dark:text-red-400',
                       )}
                     >
-                      ₦
+                      {currencySymbol}
                     </span>
                   </div>
                 </div>
@@ -682,7 +683,7 @@ function DashboardPage() {
                             )}
                           >
                             {tx.type === 'sale' ? (
-                              <span className="font-bold text-xs">₦</span>
+                              <span className="font-bold text-xs">{currencySymbol}</span>
                             ) : (
                               <Receipt className="h-4 w-4" />
                             )}

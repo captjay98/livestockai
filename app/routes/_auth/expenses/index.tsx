@@ -35,7 +35,7 @@ import {
 import { getBatchesFn } from '~/features/batches/server'
 import { getSuppliersFn } from '~/features/suppliers/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -198,6 +198,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 function ExpensesPage() {
   const { selectedFarmId } = useFarm()
+  const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const navigate = useNavigate({ from: '/expenses' })
   const searchParams = Route.useSearch()
 
@@ -654,7 +655,7 @@ function ExpensesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Amount (₦)</Label>
+                  <Label htmlFor="amount">Amount ({currencySymbol})</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -1030,7 +1031,7 @@ function ExpensesPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="editAmount">Amount (₦)</Label>
+              <Label htmlFor="editAmount">Amount ({currencySymbol})</Label>
               <Input
                 id="editAmount"
                 type="number"

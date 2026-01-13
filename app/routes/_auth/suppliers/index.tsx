@@ -34,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 
 interface Supplier {
   id: string
@@ -118,6 +118,7 @@ export const Route = createFileRoute('/_auth/suppliers/')({
 function SuppliersPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
+  const { format: formatCurrency } = useFormatCurrency()
 
   const [paginatedSuppliers, setPaginatedSuppliers] = useState<
     PaginatedResult<SupplierRecord>

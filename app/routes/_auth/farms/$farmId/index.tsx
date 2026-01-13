@@ -27,7 +27,7 @@ import {
   updateStructureFn,
 } from '~/features/structures/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -182,6 +182,7 @@ function FarmDetailsPage() {
   const loaderData = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   Route.useLoaderData() as LoaderData
   const { farmId } = Route.useParams()
+  const { format: formatCurrency } = useFormatCurrency()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [activityTab, setActivityTab] = useState<'sales' | 'expenses'>('sales')
   const [saleDialogOpen, setSaleDialogOpen] = useState(false)

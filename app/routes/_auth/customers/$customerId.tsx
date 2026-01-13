@@ -12,7 +12,7 @@ import {
   getCustomerWithSales,
   updateCustomer,
 } from '~/features/customers/server'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import {
@@ -93,6 +93,7 @@ function CustomerDetailPage() {
   Route.useLoaderData() as CustomerWithSales | null
   const navigate = useNavigate()
   const router = useRouter()
+  const { format: formatCurrency } = useFormatCurrency()
 
   if (!customer) {
     return (

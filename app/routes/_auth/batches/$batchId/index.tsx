@@ -20,7 +20,7 @@ import {  getFeedRecordsPaginatedFn } from '~/features/feed/server'
 import {  getMortalityRecordsPaginatedFn } from '~/features/mortality/server'
 import { getExpensesPaginatedFn } from '~/features/expenses/server'
 import { getSalesPaginatedFn } from '~/features/sales/server'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
@@ -72,6 +72,7 @@ export const Route = createFileRoute('/_auth/batches/$batchId/')({
 
 function BatchDetailsPage() {
   const { batchId } = Route.useParams()
+  const { format: formatCurrency } = useFormatCurrency()
   const [details, setDetails] = useState<Awaited<ReturnType<typeof getBatchDetailsFn>> | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 

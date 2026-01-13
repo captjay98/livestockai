@@ -27,7 +27,7 @@ import {
 } from '~/features/batches/server'
 import { getSpeciesOptions } from '~/features/batches/constants'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -195,6 +195,7 @@ export const Route = createFileRoute('/_auth/batches/')({
 
 function BatchesPage() {
   const { selectedFarmId } = useFarm()
+  const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -737,7 +738,7 @@ function BatchesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="costPerUnit">Cost per Unit (₦)</Label>
+              <Label htmlFor="costPerUnit">Cost per Unit ({currencySymbol})</Label>
               <Input
                 id="costPerUnit"
                 type="number"
@@ -750,7 +751,7 @@ function BatchesPage() {
                     costPerUnit: e.target.value,
                   }))
                 }
-                placeholder="Enter cost per unit in Naira"
+                placeholder="Enter cost per unit"
                 required
               />
             </div>
@@ -786,20 +787,16 @@ function BatchesPage() {
                   <div className="flex justify-between">
                     <span>Cost per Unit:</span>
                     <span>
-                      ₦{parseFloat(formData.costPerUnit || '0').toFixed(2)}
+                      {formatCurrency(parseFloat(formData.costPerUnit || '0'))}
                     </span>
                   </div>
                   <div className="flex justify-between font-medium border-t pt-1">
                     <span>Total Cost:</span>
                     <span>
-                      ₦
-                      {(
+                      {formatCurrency(
                         parseInt(formData.initialQuantity || '0') *
                         parseFloat(formData.costPerUnit || '0')
-                      ).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      )}
                     </span>
                   </div>
                 </div>

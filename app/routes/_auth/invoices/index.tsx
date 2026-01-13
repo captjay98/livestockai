@@ -1,4 +1,5 @@
 import {
+  Link,
   createFileRoute,
   redirect,
   useNavigate,
@@ -10,7 +11,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import type { InvoiceRecord, PaginatedResult } from '~/features/invoices/server'
 import { getInvoicesPaginatedFn } from '~/features/invoices/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import { DataTable } from '~/components/ui/data-table'
@@ -99,6 +100,7 @@ function InvoicesPage() {
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
+  const { format: formatCurrency } = useFormatCurrency()
 
   const [paginatedInvoices, setPaginatedInvoices] = useState<
     PaginatedResult<InvoiceRecord>
@@ -222,17 +224,13 @@ function InvoicesPage() {
       },
       {
         id: 'actions',
-        cell: () => (
+        cell: ({ row }) => (
           <div className="flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                // TODO: Implement invoice view dialog
-              }}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View
+            <Button variant="ghost" size="sm" asChild>
+              <Link to={`/invoices/${row.original.id}`}>
+                <Eye className="h-4 w-4 mr-2" />
+                View
+              </Link>
             </Button>
           </div>
         ),

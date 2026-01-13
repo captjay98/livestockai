@@ -6,7 +6,7 @@ import {
   getInvoiceById,
   updateInvoiceStatus,
 } from '~/features/invoices/server'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 
 const fetchInvoice = createServerFn({ method: 'GET' })
   .inputValidator((data: { invoiceId: string }) => data)
@@ -40,6 +40,7 @@ function InvoiceDetailPage() {
   const invoice = Route.useLoaderData()
   const navigate = useNavigate()
   const params = Route.useParams()
+  const { format: formatCurrency } = useFormatCurrency()
 
   if (!invoice) {
     return (

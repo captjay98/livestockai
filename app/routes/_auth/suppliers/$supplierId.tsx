@@ -13,7 +13,7 @@ import {
   deleteSupplier,
   getSupplierWithExpenses,
 } from '~/features/suppliers/server'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 
 interface SupplierExpense {
   id: string
@@ -58,6 +58,7 @@ function SupplierDetailPage() {
   const supplier = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   Route.useLoaderData() as SupplierWithExpenses | null
   const navigate = useNavigate()
+  const { format: formatCurrency } = useFormatCurrency()
 
   if (!supplier) {
     return (

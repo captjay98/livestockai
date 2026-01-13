@@ -18,7 +18,7 @@ import {
   getTopCustomers,
   updateCustomerFn,
 } from '~/features/customers/server'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -129,6 +129,7 @@ export const Route = createFileRoute('/_auth/customers/')({
 function CustomersPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
+  const { format: formatCurrency } = useFormatCurrency()
 
   const [paginatedCustomers, setPaginatedCustomers] = useState<
     PaginatedResult<CustomerRecord>

@@ -39,6 +39,7 @@ import { createBatch } from '~/features/batches/server'
 import {
   CURRENCY_PRESETS,
   getCurrencyPreset,
+  useFormatCurrency,
   useSettings,
 } from '~/features/settings'
 import { MODULE_METADATA } from '~/features/modules/constants'
@@ -544,6 +545,7 @@ function CreateStructureStep() {
 function CreateBatchStep() {
   const { completeStep, skipStep, progress, setBatchId } = useOnboarding()
   const { enabledModules } = useModules()
+  const { symbol: currencySymbol } = useFormatCurrency()
 
   const availableTypes = enabledModules
     .flatMap((k) => MODULE_METADATA[k].livestockTypes)
@@ -683,7 +685,7 @@ function CreateBatchStep() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Cost per Unit (₦)</Label>
+                <Label>Cost per Unit ({currencySymbol})</Label>
                 <Input
                   type="number"
                   min="0"
@@ -882,7 +884,7 @@ function TourStep() {
     {
       icon: DollarSign,
       title: 'Sales & Expenses',
-      desc: 'Track every naira - sales and costs.',
+      desc: 'Track every transaction - sales and costs.',
       tip: 'Accurate records reveal true profit margins.',
     },
     {
@@ -960,6 +962,7 @@ function TourStep() {
 function CompleteStep() {
   const navigate = useNavigate()
   const { progress } = useOnboarding()
+  const [isCompleting, setIsCompleting] = useState(false)
 
   const items = [
     progress.farmId && 'Created your farm',
@@ -967,6 +970,18 @@ function CompleteStep() {
     'Configured preferences',
     'Completed the tour',
   ].filter(Boolean)
+
+  const handleComplete = async () => {
+    setIsCompleting(true)
+    try {
+      const { markOnboardingCompleteFn } = await import('~/features/onboarding/server')
+      await markOnboardingCompleteFn()
+      navigate({ to: '/dashboard' })
+    } catch (err) {
+      console.error('Failed to mark onboarding complete:', err)
+      navigate({ to: '/dashboard' })
+    }
+  }
 
   return (
     <div className="space-y-8 text-center">
@@ -994,8 +1009,8 @@ function CompleteStep() {
         </Card>
       )}
       <div className="space-y-3">
-        <Button size="lg" onClick={() => navigate({ to: '/dashboard' })}>
-          Go to Dashboard <ChevronRight className="ml-2 h-4 w-4" />
+        <Button size="lg" onClick={handleComplete} disabled={isCompleting}>
+          {isCompleting ? 'Finishing...' : 'Go to Dashboard'} <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
         <p className="text-sm text-muted-foreground">
           Need help? Restart the tour anytime from Settings.

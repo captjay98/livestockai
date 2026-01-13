@@ -26,7 +26,7 @@ import {
   getProfitLossReport,
   getSalesReport,
 } from '~/features/reports/server'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { DataTable } from '~/components/ui/data-table'
 import { Badge } from '~/components/ui/badge'
 
@@ -285,6 +285,7 @@ function ReportsPage() {
 }
 
 function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
+  const { format: formatCurrency } = useFormatCurrency()
   return (
     <div className="space-y-6">
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
@@ -481,6 +482,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
 }
 
 function SalesReportView({ report }: { report: SalesReport }) {
+  const { format: formatCurrency } = useFormatCurrency()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -585,6 +587,7 @@ function SalesReportView({ report }: { report: SalesReport }) {
 }
 
 function FeedReportView({ report }: { report: FeedReport }) {
+  const { format: formatCurrency } = useFormatCurrency()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 

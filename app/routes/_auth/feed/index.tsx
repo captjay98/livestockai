@@ -24,7 +24,7 @@ import {
 import { FEED_TYPES } from '~/features/feed/constants'
 import { getBatchesFn } from '~/features/batches/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -192,6 +192,7 @@ export const Route = createFileRoute('/_auth/feed/')({
 
 function FeedPage() {
   const { selectedFarmId } = useFarm()
+  const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -718,7 +719,7 @@ function FeedPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cost">Cost (₦)</Label>
+              <Label htmlFor="cost">Cost ({currencySymbol})</Label>
               <Input
                 id="cost"
                 type="number"
@@ -841,7 +842,7 @@ function FeedPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Cost (₦)</Label>
+                <Label>Cost ({currencySymbol})</Label>
                 <Input
                   type="number"
                   value={editFormData.cost}
