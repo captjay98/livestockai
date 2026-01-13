@@ -1309,3 +1309,72 @@ TanStack Router's type inference works for simple loaders but complex loaders ne
 - **Implementation Plans** - Created detailed plan at `.agents/plans/fix-loader-data-any-types.md`
 - **Todo Lists** - Tracked 14-task implementation
 - **Fullstack Agent** - Used for end-to-end changes across server and routes
+
+
+## Day 10 (January 13) - Dialog Consolidation & UX Standardization
+
+### Creation Flow Consolidation
+
+Standardized all record creation to use dialog modals instead of dedicated `/new` routes.
+
+#### Problem
+
+The app had two patterns for creating records:
+1. Dialog modals on some pages
+2. Dedicated /new routes that navigate away
+
+This caused:
+- Inconsistent UX across features
+- Duplicate form logic maintenance
+- Context loss when navigating to /new pages
+
+#### Solution
+
+Consolidated everything to dialogs - users stay in context while creating records.
+
+#### New Dialog Components (6)
+
+| Dialog | Purpose | Key Features |
+|--------|---------|--------------|
+| `customer-dialog` | Add customers | Name, phone, email, location, type |
+| `supplier-dialog` | Add suppliers | Name, phone, products[], type |
+| `vaccination-dialog` | Health records | Toggle between vaccination/treatment |
+| `water-quality-dialog` | Fish monitoring | Threshold warnings for pH, temp, DO, ammonia |
+| `weight-dialog` | Growth tracking | Collapsible advanced section |
+| `invoice-dialog` | Billing | Dynamic line items, auto-calculated totals |
+
+#### Enhanced Dialogs (2)
+
+- **sale-dialog**: Added customer select, payment status, payment method
+- **expense-dialog**: Added isRecurring checkbox
+
+#### Routes Removed (12)
+
+Deleted all `/new` routes:
+- batches, customers, eggs, expenses, farms, feed
+- invoices, sales, suppliers, vaccinations, water-quality, weight
+
+#### Pages Updated (3)
+
+- `invoices/index.tsx` → InvoiceDialog
+- `farms/$farmId/index.tsx` → SaleDialog, ExpenseDialog  
+- `dashboard/index.tsx` → BatchDialog for empty state
+
+### Metrics
+
+- **Dialogs**: 7 → 13 (+6 new)
+- **Routes removed**: 12 files deleted
+- **TypeScript errors**: 0
+- **ESLint errors**: 0
+- **Tests**: 254 pass, 0 fail
+
+### Time Investment
+
+~2 hours
+
+### Benefits
+
+- Consistent UX across all features
+- Users stay in context while creating records
+- Reduced code duplication
+- Easier maintenance (single creation pattern)
