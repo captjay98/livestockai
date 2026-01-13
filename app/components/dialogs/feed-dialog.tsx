@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { Wheat } from 'lucide-react'
 import type { CreateFeedRecordInput } from '~/features/feed/server'
 import { FEED_TYPES, createFeedRecordFn } from '~/features/feed/server'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -74,6 +75,7 @@ interface FeedDialogProps {
 
 export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
   const router = useRouter()
+  const { symbol: currencySymbol } = useFormatCurrency()
   const [batches, setBatches] = useState<Array<Batch>>([])
   const [inventory, setInventory] = useState<Array<FeedInventory>>([])
   const [formData, setFormData] = useState({
@@ -250,7 +252,7 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cost">Cost (₦)</Label>
+              <Label htmlFor="cost">Cost ({currencySymbol})</Label>
               <Input
                 id="cost"
                 type="number"

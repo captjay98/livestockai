@@ -4,6 +4,7 @@ import { Receipt } from 'lucide-react'
 import type { ExpenseCategory } from '~/features/expenses/server'
 import { EXPENSE_CATEGORIES, createExpenseFn } from '~/features/expenses/server'
 import { getSuppliersFn } from '~/features/suppliers/server'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -41,6 +42,7 @@ export function ExpenseDialog({
   onOpenChange,
 }: ExpenseDialogProps) {
   const router = useRouter()
+  const { symbol: currencySymbol } = useFormatCurrency()
   const [suppliers, setSuppliers] = useState<Array<Supplier>>([])
   const [formData, setFormData] = useState({
     category: '',
@@ -158,7 +160,7 @@ export function ExpenseDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount (₦)</Label>
+              <Label htmlFor="amount">Amount ({currencySymbol})</Label>
               <Input
                 id="amount"
                 type="number"

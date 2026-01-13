@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { ChevronDown, ChevronUp, Users } from 'lucide-react'
 import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/features/batches/server'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -72,6 +73,7 @@ export function BatchDialog({
   suppliers = [],
 }: BatchDialogProps) {
   const router = useRouter()
+  const { symbol: currencySymbol } = useFormatCurrency()
   const [formData, setFormData] = useState({
     livestockType: '' as 'poultry' | 'fish' | '',
     species: '',
@@ -248,7 +250,7 @@ export function BatchDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="costPerUnit">Cost/Unit (₦)</Label>
+              <Label htmlFor="costPerUnit">Cost/Unit ({currencySymbol})</Label>
               <Input
                 id="costPerUnit"
                 type="number"

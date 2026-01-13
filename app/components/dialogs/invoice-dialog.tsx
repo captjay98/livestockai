@@ -3,7 +3,7 @@ import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { FileText, Plus, Trash2 } from 'lucide-react'
 import { createInvoiceFn } from '~/features/invoices/server'
-import { formatCurrency } from '~/features/settings/currency'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -50,6 +50,7 @@ interface InvoiceDialogProps {
 
 export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps) {
   const router = useRouter()
+  const { format: formatCurrency } = useFormatCurrency()
   const [customers, setCustomers] = useState<Array<Customer>>([])
   const [customerId, setCustomerId] = useState('')
   const [dueDate, setDueDate] = useState('')

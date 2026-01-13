@@ -10,6 +10,7 @@ import {
   
   createSaleFn
 } from '~/features/sales/server'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -78,6 +79,7 @@ const LIVESTOCK_TYPES = [
 
 export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
   const router = useRouter()
+  const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const [batches, setBatches] = useState<Array<Batch>>([])
   const [customers, setCustomers] = useState<Array<Customer>>([])
   const [formData, setFormData] = useState({
@@ -259,7 +261,7 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="unitPrice">Price/Unit (₦)</Label>
+              <Label htmlFor="unitPrice">Price/Unit ({currencySymbol})</Label>
               <Input
                 id="unitPrice"
                 type="number"
@@ -413,10 +415,9 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
               <p className="text-sm font-medium">
                 Total:{' '}
                 <span className="text-lg">
-                  ₦
-                  {(
+                  {formatCurrency(
                     parseInt(formData.quantity) * parseFloat(formData.unitPrice)
-                  ).toLocaleString()}
+                  )}
                 </span>
               </p>
             </div>
