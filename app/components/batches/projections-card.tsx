@@ -5,16 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Progress } from '~/components/ui/progress'
 import { getBatchProjectionFn } from '~/features/batches/forecasting'
 import { Skeleton } from '~/components/ui/skeleton'
+import { useFormatCurrency } from '~/features/settings'
 
 interface ProjectionsCardProps {
   batchId: string
-  currency?: string
 }
 
 export function ProjectionsCard({
   batchId,
-  currency = '₦',
 }: ProjectionsCardProps) {
+  const { symbol: currency } = useFormatCurrency()
   const { data: projection, isLoading } = useQuery({
     queryKey: ['batch', batchId, 'projection'],
     queryFn: () => getBatchProjectionFn({ data: { batchId } }),
