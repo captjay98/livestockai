@@ -7,6 +7,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { DEFAULT_PROGRESS } from './types'
 import type { OnboardingProgress } from './types'
+import { DEFAULT_SETTINGS } from '~/features/settings/currency-presets'
 
 /**
  * Get onboarding progress for the current user
@@ -106,7 +107,19 @@ export const checkNeedsOnboardingFn = createServerFn({ method: 'GET' }).handler(
     const session = await requireAuth()
     const { db } = await import('~/lib/db')
 
-    // Check if user has any farms
+    // Check user_settings for onboardingCompleted flag
+    const userSettings = await db
+      .selectFrom('user_settings')
+      .select(['onboardingCompleted'])
+      .where('userId', '=', session.user.id)
+      .executeTakeFirst()
+
+    // If settings exist and onboarding completed, don't need onboarding
+    if (userSettings?.onboardingCompleted) {
+      return { needsOnboarding: false, hasFarms: true }
+    }
+
+    // Check if user has any farms (fallback for users without settings)
     const userFarm = await db
       .selectFrom('user_farms')
       .select(['farmId'])
@@ -117,5 +130,75 @@ export const checkNeedsOnboardingFn = createServerFn({ method: 'GET' }).handler(
       needsOnboarding: !userFarm,
       hasFarms: !!userFarm,
     }
+  },
+)
+
+/**
+ * Mark onboarding as complete in database
+ */
+export const markOnboardingCompleteFn = createServerFn({ method: 'POST' }).handler(
+  async () => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    const { db } = await import('~/lib/db')
+
+    // Check if user_settings exists
+    const existing = await db
+      .selectFrom('user_settings')
+      .select(['id'])
+      .where('userId', '=', session.user.id)
+      .executeTakeFirst()
+
+    if (existing) {
+      await db
+        .updateTable('user_settings')
+        .set({ onboardingCompleted: true })
+        .where('userId', '=', session.user.id)
+        .execute()
+    } else {
+      // Create settings with onboardingCompleted = true
+      await db
+        .insertInto('user_settings')
+        .values({
+          userId: session.user.id,
+          onboardingCompleted: true,
+          onboardingStep: 8,
+          // Use default settings from presets
+          currencyCode: DEFAULT_SETTINGS.currencyCode,
+          currencySymbol: DEFAULT_SETTINGS.currencySymbol,
+          currencyDecimals: DEFAULT_SETTINGS.currencyDecimals,
+          currencySymbolPosition: DEFAULT_SETTINGS.currencySymbolPosition,
+          thousandSeparator: DEFAULT_SETTINGS.thousandSeparator,
+          decimalSeparator: DEFAULT_SETTINGS.decimalSeparator,
+          dateFormat: DEFAULT_SETTINGS.dateFormat,
+          timeFormat: DEFAULT_SETTINGS.timeFormat,
+          firstDayOfWeek: DEFAULT_SETTINGS.firstDayOfWeek,
+          weightUnit: DEFAULT_SETTINGS.weightUnit,
+          areaUnit: DEFAULT_SETTINGS.areaUnit,
+          temperatureUnit: DEFAULT_SETTINGS.temperatureUnit,
+        })
+        .execute()
+    }
+
+    return { success: true }
+  },
+)
+
+/**
+ * Reset onboarding to allow user to restart
+ */
+export const resetOnboardingFn = createServerFn({ method: 'POST' }).handler(
+  async () => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    const { db } = await import('~/lib/db')
+
+    await db
+      .updateTable('user_settings')
+      .set({ onboardingCompleted: false, onboardingStep: 0 })
+      .where('userId', '=', session.user.id)
+      .execute()
+
+    return { success: true }
   },
 )

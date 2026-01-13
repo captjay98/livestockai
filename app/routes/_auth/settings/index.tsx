@@ -608,7 +608,15 @@ function SettingsPage() {
           </div>
           <Button
             variant="outline"
-            onClick={() => navigate({ to: '/onboarding' })}
+            onClick={async () => {
+              try {
+                const { resetOnboardingFn } = await import('~/features/onboarding/server')
+                await resetOnboardingFn()
+                navigate({ to: '/onboarding' })
+              } catch (err) {
+                console.error('Failed to reset onboarding:', err)
+              }
+            }}
           >
             <PlayCircle className="h-4 w-4 mr-2" />
             Restart Tour
