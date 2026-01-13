@@ -1,0 +1,137 @@
+import { betterAuth } from 'better-auth'
+import { tanstackStartCookies } from 'better-auth/tanstack-start'
+import { admin } from 'better-auth/plugins'
+import { neon } from '@neondatabase/serverless'
+import { NeonDialect } from 'kysely-neon'
+
+// Web Crypto API compatible password hashing (works on Cloudflare Workers)
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const salt = crypto.getRandomValues(new Uint8Array(16))
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits'],
+  )
+  const hash = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    256,
+  )
+  const hashArray = new Uint8Array(hash)
+  const combined = new Uint8Array(salt.length + hashArray.length)
+  combined.set(salt)
+  combined.set(hashArray, salt.length)
+  return btoa(String.fromCharCode(...combined))
+}
+
+async function verifyPassword(
+  hash: string,
+  password: string,
+): Promise<boolean> {
+  const encoder = new TextEncoder()
+  const combined = Uint8Array.from(atob(hash), (c) => c.charCodeAt(0))
+  const salt = combined.slice(0, 16)
+  const storedHash = combined.slice(16)
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits'],
+  )
+  const newHash = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    256,
+  )
+  const newHashArray = new Uint8Array(newHash)
+  if (storedHash.length !== newHashArray.length) return false
+  return storedHash.every((byte, i) => byte === newHashArray[i])
+}
+
+export const auth = betterAuth({
+  database: {
+    dialect: new NeonDialect({
+      neon: neon(process.env.DATABASE_URL!),
+    }),
+    type: 'postgres',
+  },
+  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL,
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,
+    password: {
+      hash: hashPassword,
+      verify: async ({ hash, password }) => verifyPassword(hash, password),
+    },
+  },
+  session: {
+    modelName: 'sessions',
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5, // 5 minutes
+    },
+  },
+  advanced: {
+    cookiePrefix: 'openlivestock',
+    useSecureCookies: process.env.NODE_ENV === 'production',
+  },
+  user: {
+    modelName: 'users',
+    additionalFields: {
+      role: {
+        type: 'string',
+        required: true,
+        defaultValue: 'user',
+      },
+      banned: {
+        type: 'boolean',
+        required: false,
+        defaultValue: false,
+      },
+      banReason: {
+        type: 'string',
+        required: false,
+      },
+      banExpires: {
+        type: 'date',
+        required: false,
+      },
+    },
+  },
+  account: {
+    modelName: 'account',
+  },
+  verification: {
+    modelName: 'verification',
+  },
+  trustedOrigins: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    // Add your production domain here
+    // 'https://your-app.workers.dev',
+  ],
+  plugins: [
+    tanstackStartCookies(),
+    admin({
+      defaultRole: 'user',
+      adminRoles: ['admin'],
+    }),
+  ],
+})
