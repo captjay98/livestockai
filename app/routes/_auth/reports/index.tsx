@@ -589,7 +589,7 @@ function SalesReportView({ report }: { report: SalesReport }) {
 
 function FeedReportView({ report }: { report: FeedReport }) {
   const { format: formatCurrency } = useFormatCurrency()
-  const { label: weightLabel } = useFormatWeight()
+  const { format: formatWeight, label: weightLabel } = useFormatWeight()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -614,7 +614,7 @@ function FeedReportView({ report }: { report: FeedReport }) {
       {
         accessorKey: 'totalQuantityKg',
         header: `Quantity (${weightLabel})`,
-        cell: ({ row }) => row.original.totalQuantityKg.toLocaleString(),
+        cell: ({ row }) => formatWeight(row.original.totalQuantityKg),
       },
       {
         accessorKey: 'totalCost',
@@ -660,7 +660,7 @@ function FeedReportView({ report }: { report: FeedReport }) {
             {report.summary.byFeedType.map((t) => (
               <div key={t.type} className="flex justify-between">
                 <span className="capitalize">{t.type.replace('_', ' ')}:</span>
-                <span>{t.quantityKg.toLocaleString()} kg</span>
+                <span>{formatWeight(t.quantityKg)}</span>
               </div>
             ))}
           </div>

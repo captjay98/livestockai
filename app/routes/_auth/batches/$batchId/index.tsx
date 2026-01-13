@@ -74,7 +74,7 @@ function BatchDetailsPage() {
   const { batchId } = Route.useParams()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
-  const { label: weightLabel } = useFormatWeight()
+  const { format: formatWeight, label: weightLabel } = useFormatWeight()
   const [details, setDetails] = useState<Awaited<ReturnType<typeof getBatchDetailsFn>> | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -352,7 +352,11 @@ function BatchDetailsPage() {
                     header: 'Brand',
                     cell: ({ row }) => row.original.brandName || '-',
                   },
-                  { accessorKey: 'quantityKg', header: `Qty (${weightLabel})` },
+                  { 
+                    accessorKey: 'quantityKg', 
+                    header: `Qty (${weightLabel})`,
+                    cell: ({ row }) => formatWeight(parseFloat(row.original.quantityKg))
+                  },
                   {
                     accessorKey: 'cost',
                     header: 'Cost',

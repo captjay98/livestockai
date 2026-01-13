@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { ChevronDown, ChevronUp, Scale } from 'lucide-react'
 import { createWeightSampleFn } from '~/features/weight/server'
+import { useFormatWeight } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -38,6 +39,7 @@ interface WeightDialogProps {
 
 export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDialogProps) {
   const router = useRouter()
+  const { format: formatWeight } = useFormatWeight()
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [formData, setFormData] = useState({
     batchId: '',
@@ -54,7 +56,7 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
   const selectedBatch = batches.find((b) => b.id === formData.batchId)
   const estimatedTotal =
     formData.averageWeightKg && selectedBatch
-      ? (parseFloat(formData.averageWeightKg) * selectedBatch.currentQuantity).toFixed(1)
+      ? formatWeight(parseFloat(formData.averageWeightKg) * selectedBatch.currentQuantity)
       : null
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -158,7 +160,7 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
 
           {estimatedTotal && (
             <div className="p-3 bg-muted rounded-lg text-sm">
-              Estimated batch total: <span className="font-medium">{estimatedTotal} kg</span>
+              Estimated batch total: <span className="font-medium">{estimatedTotal}</span>
             </div>
           )}
 

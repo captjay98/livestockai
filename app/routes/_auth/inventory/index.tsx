@@ -13,7 +13,7 @@ import {
 import { useEffect, useState } from 'react'
 import type { FeedType } from '~/features/inventory/feed-server'
 import type { MedicationUnit } from '~/features/inventory/medication-server'
-import { useFormatDate } from '~/features/settings'
+import { useFormatDate, useFormatWeight } from '~/features/settings'
 import { requireAuth } from '~/features/auth/server-middleware'
 import {
   FEED_TYPES,
@@ -107,6 +107,7 @@ type TabType = 'feed' | 'medication'
 
 function InventoryPage() {
   const { format: formatDate } = useFormatDate()
+  const { format: formatWeight } = useFormatWeight()
   const { selectedFarmId } = useFarm()
   const [activeTab, setActiveTab] = useState<TabType>('feed')
   const [feedInventory, setFeedInventory] = useState<Array<FeedInventoryItem>>(
@@ -654,14 +655,14 @@ function InventoryPage() {
                             <span
                               className={`font-bold ${lowStock ? 'text-warning' : ''}`}
                             >
-                              {qty.toFixed(1)} kg
+                              {formatWeight(qty)}
                             </span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
                               Min Threshold:
                             </span>
-                            <span>{threshold.toFixed(1)} kg</span>
+                            <span>{formatWeight(threshold)}</span>
                           </div>
                           {lowStock && (
                             <Badge

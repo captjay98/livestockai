@@ -28,7 +28,7 @@ import {
   updateStructureFn,
 } from '~/features/structures/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency, useFormatDate } from '~/features/settings'
+import { useFormatArea, useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -185,6 +185,7 @@ function FarmDetailsPage() {
   const { farmId } = Route.useParams()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
+  const { label: areaLabel } = useFormatArea()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [activityTab, setActivityTab] = useState<'sales' | 'expenses'>('sales')
   const [saleDialogOpen, setSaleDialogOpen] = useState(false)
@@ -570,7 +571,7 @@ function FarmDetailsPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Area (m²) (optional)</Label>
+                        <Label>Area ({areaLabel}) (optional)</Label>
                         <Input
                           type="number"
                           min="0"
@@ -1046,7 +1047,7 @@ function FarmDetailsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Area (m²)</Label>
+                <Label>Area ({areaLabel})</Label>
                 <Input
                   type="number"
                   min="0"

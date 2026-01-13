@@ -5,7 +5,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { Wheat } from 'lucide-react'
 import type { CreateFeedRecordInput } from '~/features/feed/server'
 import { FEED_TYPES, createFeedRecordFn } from '~/features/feed/server'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatWeight } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -77,6 +77,7 @@ interface FeedDialogProps {
 export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
   const router = useRouter()
   const { symbol: currencySymbol } = useFormatCurrency()
+  const { format: formatWeight } = useFormatWeight()
   const [batches, setBatches] = useState<Array<Batch>>([])
   const [inventory, setInventory] = useState<Array<FeedInventory>>([])
   const [formData, setFormData] = useState({
@@ -220,7 +221,7 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
                       value={type.value}
                       disabled={qty <= 0}
                     >
-                      {type.label} ({qty.toFixed(1)}kg available)
+                      {type.label} ({formatWeight(qty)} available)
                     </SelectItem>
                   )
                 })}
@@ -249,7 +250,7 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
               />
               {formData.feedType && (
                 <p className="text-xs text-muted-foreground">
-                  Available: {availableKg.toFixed(1)}kg
+                  Available: {formatWeight(availableKg)}
                 </p>
               )}
             </div>

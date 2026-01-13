@@ -5,7 +5,7 @@ import { AlertTriangle, Droplets, Plus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/water-quality/server'
-import { useFormatDate } from '~/features/settings'
+import { useFormatDate, useFormatTemperature } from '~/features/settings'
 import {
   createWaterQualityRecordFn,
   getWaterQualityAlerts,
@@ -137,6 +137,7 @@ export const Route = createFileRoute('/_auth/water-quality/')({
 
 function WaterQualityPage() {
   const { format: formatDate } = useFormatDate()
+  const { format: formatTemperature, label: tempLabel } = useFormatTemperature()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -281,7 +282,7 @@ function WaterQualityPage() {
       },
       {
         accessorKey: 'temperatureCelsius',
-        header: 'Temp (°C)',
+        header: `Temp (${tempLabel})`,
         cell: ({ row }) => {
           const temp = parseFloat(row.original.temperatureCelsius)
           const isBad =
@@ -289,7 +290,7 @@ function WaterQualityPage() {
             temp > WATER_QUALITY_THRESHOLDS.temperature.max
           return (
             <span className={isBad ? 'text-destructive font-bold' : ''}>
-              {temp.toFixed(1)}°C
+              {formatTemperature(temp)}
             </span>
           )
         },
@@ -455,7 +456,7 @@ function WaterQualityPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Temperature (°C)</Label>
+                <Label>Temperature ({tempLabel})</Label>
                 <Input
                   type="number"
                   step="0.1"

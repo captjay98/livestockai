@@ -25,7 +25,7 @@ import {
 import { FEED_TYPES } from '~/features/feed/constants'
 import { getBatchesFn } from '~/features/batches/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency, useFormatDate } from '~/features/settings'
+import { useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -195,6 +195,7 @@ function FeedPage() {
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
+  const { format: formatWeight } = useFormatWeight()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -459,7 +460,7 @@ function FeedPage() {
           const qty = parseFloat(row.original.quantityKg)
           return (
             <div className="flex flex-col">
-              <span className="font-medium">{qty.toLocaleString()} kg</span>
+              <span className="font-medium">{formatWeight(qty)}</span>
               {bags && bagSize && (
                 <span className="text-xs text-muted-foreground">
                   {bags} × {bagSize}kg bags

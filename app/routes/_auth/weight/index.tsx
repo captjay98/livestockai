@@ -5,7 +5,7 @@ import { Plus, Scale, TrendingUp } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/weight/server'
-import { useFormatDate } from '~/features/settings'
+import { useFormatDate, useFormatWeight } from '~/features/settings'
 import {
   createWeightSampleFn,
   getGrowthAlerts,
@@ -133,6 +133,7 @@ export const Route = createFileRoute('/_auth/weight/')({
 
 function WeightPage() {
   const { format: formatDate } = useFormatDate()
+  const { format: formatWeight } = useFormatWeight()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -260,7 +261,7 @@ function WeightPage() {
         cell: ({ row }) => (
           <div className="font-bold flex items-center">
             <Scale className="h-3 w-3 mr-1 text-muted-foreground" />
-            {parseFloat(row.original.averageWeightKg).toFixed(2)} kg
+            {formatWeight(parseFloat(row.original.averageWeightKg))}
           </div>
         ),
       },

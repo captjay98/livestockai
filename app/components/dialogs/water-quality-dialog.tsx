@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Droplets } from 'lucide-react'
 import { WATER_QUALITY_THRESHOLDS, createWaterQualityRecordFn } from '~/features/water-quality/server'
+import { useFormatTemperature } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -38,6 +39,7 @@ interface WaterQualityDialogProps {
 
 export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: WaterQualityDialogProps) {
   const router = useRouter()
+  const { label: tempLabel } = useFormatTemperature()
   const [formData, setFormData] = useState({
     batchId: '',
     date: new Date().toISOString().split('T')[0],
@@ -149,7 +151,7 @@ export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: Wate
               />
             </div>
             <div className="space-y-2">
-              <Label className={warnings.temp ? 'text-warning' : ''}>Temp °C ({t.temperature.min}-{t.temperature.max}) *</Label>
+              <Label className={warnings.temp ? 'text-warning' : ''}>Temp {tempLabel} ({t.temperature.min}-{t.temperature.max}) *</Label>
               <Input
                 type="number"
                 step="0.1"
