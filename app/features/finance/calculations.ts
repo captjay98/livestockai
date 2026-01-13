@@ -1,6 +1,6 @@
 /**
- * TODO reliable arithmetic using decimal.js or integer math would be better,
- * but for now we standardize the math used in the app.
+ * Financial calculations for batch profitability analysis.
+ * Note: For currency operations, use decimal.js utilities from ~/features/settings/currency
  */
 
 export interface BatchFinancials {

@@ -24,7 +24,7 @@ export function getSourceSizeOptions(
   return moduleEntry[1].sourceSizeOptions
 }
 
-// Legacy SOURCE_SIZE_OPTIONS for backward compatibility
+// Pre-computed source size options by livestock type
 export const SOURCE_SIZE_OPTIONS = {
   poultry: getSourceSizeOptions('poultry'),
   fish: getSourceSizeOptions('fish'),

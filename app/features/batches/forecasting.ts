@@ -35,11 +35,6 @@ export async function calculateBatchProjection(
     .orderBy('date', 'desc')
     .executeTakeFirst()
 
-  // Convert kg to g
-  const currentWeightG = latestWeight
-    ? Number(latestWeight.averageWeightKg) * 1000
-    : 0 // Or estimate based on age if no sample (TODO)
-
   // 2. Get Growth Standard
   const growthStandard = await db
     .selectFrom('growth_standards')
@@ -49,6 +44,19 @@ export async function calculateBatchProjection(
     .execute()
 
   if (growthStandard.length === 0) return null
+
+  // Calculate current weight - use sample if available, otherwise estimate from age
+  let currentWeightG = 0
+  if (latestWeight) {
+    currentWeightG = Number(latestWeight.averageWeightKg) * 1000
+  } else {
+    // Estimate based on age using growth standards
+    const ageInDays = Math.floor(
+      (Date.now() - new Date(batch.acquisitionDate).getTime()) / (1000 * 60 * 60 * 24)
+    )
+    const ageRecord = growthStandard.find((s) => s.day >= ageInDays) || growthStandard[growthStandard.length - 1]
+    currentWeightG = ageRecord.expected_weight_g
+  }
 
   // 3. Find target day
   // Find day where weight >= target_weight_g

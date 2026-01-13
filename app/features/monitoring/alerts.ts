@@ -110,7 +110,7 @@ async function analyzeBatch(batch: {
     })
   }
 
-  // 2. Check Total Mortality (Legacy Rule: > 5% total)
+  // 2. Check Total Mortality (> 5% total is concerning)
   const totalMortalityRes = await db
     .selectFrom('mortality_records')
     .select(({ fn }) => [fn.sum<number>('quantity').as('total')])
