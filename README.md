@@ -314,17 +314,18 @@ See [.kiro/README.md](.kiro/README.md) for full documentation.
 
 This project includes pre-configured MCP servers for database and Cloudflare Workers management:
 
-| Server                     | Purpose                     | Agent Access |
-| -------------------------- | --------------------------- | ------------ |
+| Server                     | Purpose                     | Agent Access                                                          |
+| -------------------------- | --------------------------- | --------------------------------------------------------------------- |
 | `neon`                     | PostgreSQL database queries | backend-engineer, devops-engineer, data-analyst, livestock-specialist |
-| `cloudflare-bindings`      | Workers management          | devops-engineer |
-| `cloudflare-builds`        | Deployment status           | devops-engineer |
-| `cloudflare-observability` | Logs and debugging          | devops-engineer |
-| `cloudflare-docs`          | Documentation search        | devops-engineer |
+| `cloudflare-bindings`      | Workers management          | devops-engineer                                                       |
+| `cloudflare-builds`        | Deployment status           | devops-engineer                                                       |
+| `cloudflare-observability` | Logs and debugging          | devops-engineer                                                       |
+| `cloudflare-docs`          | Documentation search        | devops-engineer                                                       |
 
 All MCP servers authenticate via OAuth (no API keys needed). Enhanced agents can now:
+
 - Query database directly for analysis and development
-- Manage Cloudflare infrastructure programmatically  
+- Manage Cloudflare infrastructure programmatically
 - Access indexed knowledge bases across sessions
 - Create and manage todo lists for complex workflows
 

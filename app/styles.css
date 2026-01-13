@@ -272,7 +272,6 @@
   so we've added these base styles to ensure your UI looks the same as before.
 */
 @layer base {
-
   *,
   ::after,
   ::before,

@@ -101,15 +101,16 @@ This project supports Model Context Protocol (MCP) for AI agents to interact wit
 
 ### Available MCP Servers
 
-| Server                     | Purpose                                           | Agent Access |
-| -------------------------- | ------------------------------------------------- | ------------ |
+| Server                     | Purpose                                           | Agent Access                                                          |
+| -------------------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
 | `neon`                     | PostgreSQL database queries and schema inspection | backend-engineer, devops-engineer, data-analyst, livestock-specialist |
-| `cloudflare-bindings`      | Manage Workers, KV, R2, D1, Hyperdrive            | devops-engineer |
-| `cloudflare-builds`        | Deployment status and build logs                  | devops-engineer |
-| `cloudflare-observability` | Worker logs and debugging                         | devops-engineer |
-| `cloudflare-docs`          | Cloudflare documentation search                   | devops-engineer |
+| `cloudflare-bindings`      | Manage Workers, KV, R2, D1, Hyperdrive            | devops-engineer                                                       |
+| `cloudflare-builds`        | Deployment status and build logs                  | devops-engineer                                                       |
+| `cloudflare-observability` | Worker logs and debugging                         | devops-engineer                                                       |
+| `cloudflare-docs`          | Cloudflare documentation search                   | devops-engineer                                                       |
 
 **Enhanced Agent Capabilities:**
+
 - **4 agents** now have Neon database access via MCP
 - **1 agent** has full Cloudflare infrastructure access
 - **All agents** have web search, knowledge bases, and todo lists
