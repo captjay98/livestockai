@@ -1,0 +1,223 @@
+import { useState } from 'react'
+import { useRouter } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { FileText, Plus, Trash2 } from 'lucide-react'
+import { createInvoiceFn } from '~/features/invoices/server'
+import { formatCurrency } from '~/features/settings/currency'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog'
+
+const getCustomersForInvoiceFn = createServerFn({ method: 'GET' }).handler(async () => {
+  const { db } = await import('~/lib/db')
+  const { requireAuth } = await import('~/features/auth/server-middleware')
+  await requireAuth()
+  return db.selectFrom('customers').select(['id', 'name', 'phone']).execute()
+})
+
+interface Customer {
+  id: string
+  name: string
+  phone: string
+}
+
+interface LineItem {
+  description: string
+  quantity: string
+  unitPrice: string
+}
+
+interface InvoiceDialogProps {
+  farmId: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps) {
+  const router = useRouter()
+  const [customers, setCustomers] = useState<Array<Customer>>([])
+  const [customerId, setCustomerId] = useState('')
+  const [dueDate, setDueDate] = useState('')
+  const [items, setItems] = useState<Array<LineItem>>([{ description: '', quantity: '', unitPrice: '' }])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleOpenChange = async (isOpen: boolean) => {
+    onOpenChange(isOpen)
+    if (isOpen) {
+      try {
+        const data = await getCustomersForInvoiceFn()
+        setCustomers(data)
+      } catch (err) {
+        console.error('Failed to load customers:', err)
+      }
+    }
+  }
+
+  const addItem = () => setItems([...items, { description: '', quantity: '', unitPrice: '' }])
+
+  const removeItem = (index: number) => {
+    if (items.length > 1) setItems(items.filter((_, i) => i !== index))
+  }
+
+  const updateItem = (index: number, field: keyof LineItem, value: string) => {
+    const updated = [...items]
+    updated[index][field] = value
+    setItems(updated)
+  }
+
+  const total = items.reduce((sum, item) => {
+    const qty = parseFloat(item.quantity) || 0
+    const price = parseFloat(item.unitPrice) || 0
+    return sum + qty * price
+  }, 0)
+
+  const isValid = customerId && items.every((i) => i.description && i.quantity && i.unitPrice)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      await createInvoiceFn({
+        data: {
+          customerId,
+          farmId,
+          items: items.map((i) => ({
+            description: i.description,
+            quantity: parseInt(i.quantity),
+            unitPrice: parseFloat(i.unitPrice),
+          })),
+          dueDate: dueDate ? new Date(dueDate) : null,
+        },
+      })
+      onOpenChange(false)
+      setCustomerId('')
+      setDueDate('')
+      setItems([{ description: '', quantity: '', unitPrice: '' }])
+      router.invalidate()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create invoice')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Create Invoice
+          </DialogTitle>
+          <DialogDescription>Create a new invoice for a customer</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label>Customer *</Label>
+            <Select value={customerId} onValueChange={(v) => v && setCustomerId(v)}>
+              <SelectTrigger>
+                <SelectValue>
+                  {customerId ? customers.find((c) => c.id === customerId)?.name : 'Select customer'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {customers.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name} ({c.phone})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Due Date</Label>
+            <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label>Line Items *</Label>
+              <Button type="button" variant="outline" size="sm" onClick={addItem}>
+                <Plus className="h-3 w-3 mr-1" /> Add
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {items.map((item, i) => (
+                <div key={i} className="flex gap-2 items-start">
+                  <Input
+                    placeholder="Description"
+                    value={item.description}
+                    onChange={(e) => updateItem(i, 'description', e.target.value)}
+                    className="flex-1"
+                    required
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Qty"
+                    value={item.quantity}
+                    onChange={(e) => updateItem(i, 'quantity', e.target.value)}
+                    className="w-16"
+                    min="1"
+                    required
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Price"
+                    value={item.unitPrice}
+                    onChange={(e) => updateItem(i, 'unitPrice', e.target.value)}
+                    className="w-24"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                  {items.length > 1 && (
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(i)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-3 bg-muted rounded-lg flex justify-between">
+            <span className="font-medium">Total:</span>
+            <span className="font-bold">{formatCurrency(total)}</span>
+          </div>
+
+          {error && (
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>
+          )}
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting || !isValid}>
+              {isSubmitting ? 'Creating...' : 'Create Invoice'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
