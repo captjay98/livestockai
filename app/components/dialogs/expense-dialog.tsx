@@ -214,6 +214,24 @@ export function ExpenseDialog({
             </div>
           )}
 
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isRecurring"
+              checked={formData.isRecurring}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  isRecurring: e.target.checked,
+                }))
+              }
+              className="h-4 w-4 rounded border-input"
+            />
+            <Label htmlFor="isRecurring" className="text-sm font-normal">
+              This is a recurring expense
+            </Label>
+          </div>
+
           {error && (
             <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
               {error}

@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { ShoppingCart } from 'lucide-react'
-import { createSaleFn } from '~/features/sales/server'
+import { ChevronDown, ChevronUp, ShoppingCart } from 'lucide-react'
+import type {PaymentMethod, PaymentStatus} from '~/features/sales/server';
+import {
+  PAYMENT_METHODS,
+  PAYMENT_STATUSES,
+  
+  
+  createSaleFn
+} from '~/features/sales/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -23,21 +30,25 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 
-// Server function to get batches for the farm
-const getBatchesForSaleFn = createServerFn({ method: 'GET' })
+// Server function to get batches and customers for the farm
+const getSaleFormDataFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     const { db } = await import('~/lib/db')
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
 
-    return db
-      .selectFrom('batches')
-      .select(['id', 'species', 'livestockType', 'currentQuantity'])
-      .where('farmId', '=', data.farmId)
-      .where('status', '=', 'active')
-      .where('currentQuantity', '>', 0)
-      .execute()
+    const [batches, customers] = await Promise.all([
+      db
+        .selectFrom('batches')
+        .select(['id', 'species', 'livestockType', 'currentQuantity'])
+        .where('farmId', '=', data.farmId)
+        .where('status', '=', 'active')
+        .where('currentQuantity', '>', 0)
+        .execute(),
+      db.selectFrom('customers').select(['id', 'name', 'phone']).execute(),
+    ])
+    return { batches, customers }
   })
 
 interface Batch {
@@ -45,6 +56,12 @@ interface Batch {
   species: string
   livestockType: string
   currentQuantity: number
+}
+
+interface Customer {
+  id: string
+  name: string
+  phone: string
 }
 
 interface SaleDialogProps {
@@ -62,26 +79,32 @@ const LIVESTOCK_TYPES = [
 export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
   const router = useRouter()
   const [batches, setBatches] = useState<Array<Batch>>([])
+  const [customers, setCustomers] = useState<Array<Customer>>([])
   const [formData, setFormData] = useState({
     livestockType: '' as 'poultry' | 'fish' | 'eggs' | '',
     batchId: '',
+    customerId: '',
     quantity: '',
     unitPrice: '',
     date: new Date().toISOString().split('T')[0],
     notes: '',
+    paymentStatus: 'paid' as PaymentStatus,
+    paymentMethod: '' as PaymentMethod | '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
-  // Load batches when dialog opens
+  // Load batches and customers when dialog opens
   const handleOpenChange = async (isOpen: boolean) => {
     onOpenChange(isOpen)
     if (isOpen) {
       try {
-        const batchesData = await getBatchesForSaleFn({ data: { farmId } })
-        setBatches(batchesData)
+        const data = await getSaleFormDataFn({ data: { farmId } })
+        setBatches(data.batches)
+        setCustomers(data.customers)
       } catch (err) {
-        console.error('Failed to load batches:', err)
+        console.error('Failed to load data:', err)
       }
     }
   }
@@ -104,10 +127,13 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
             farmId,
             livestockType: formData.livestockType,
             batchId: formData.batchId || null,
+            customerId: formData.customerId || null,
             quantity: parseInt(formData.quantity),
             unitPrice: parseFloat(formData.unitPrice),
             date: new Date(formData.date),
             notes: formData.notes || null,
+            paymentStatus: formData.paymentStatus,
+            paymentMethod: formData.paymentMethod || null,
           },
         },
       })
@@ -115,10 +141,13 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
       setFormData({
         livestockType: '',
         batchId: '',
+        customerId: '',
         quantity: '',
         unitPrice: '',
         date: new Date().toISOString().split('T')[0],
         notes: '',
+        paymentStatus: 'paid',
+        paymentMethod: '',
       })
       router.invalidate()
     } catch (err) {
@@ -262,18 +291,122 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
             />
           </div>
 
+          {customers.length > 0 && (
+            <div className="space-y-2">
+              <Label>Customer (Optional)</Label>
+              <Select
+                value={formData.customerId || undefined}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, customerId: value || '' }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue>
+                    {formData.customerId
+                      ? customers.find((c) => c.id === formData.customerId)
+                          ?.name
+                      : 'Select customer'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {customers.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name} ({c.phone})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, notes: e.target.value }))
+            <Label>Payment Status</Label>
+            <Select
+              value={formData.paymentStatus}
+              onValueChange={(value) =>
+                value &&
+                setFormData((prev) => ({
+                  ...prev,
+                  paymentStatus: value as PaymentStatus,
+                }))
               }
-              placeholder="Customer name, delivery details, etc."
-              rows={2}
-            />
+            >
+              <SelectTrigger>
+                <SelectValue>
+                  {
+                    PAYMENT_STATUSES.find(
+                      (s) => s.value === formData.paymentStatus,
+                    )?.label
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {PAYMENT_STATUSES.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          >
+            {showAdvanced ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+            {showAdvanced ? 'Hide' : 'Show'} additional details
+          </button>
+
+          {showAdvanced && (
+            <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
+              <div className="space-y-2">
+                <Label>Payment Method</Label>
+                <Select
+                  value={formData.paymentMethod || undefined}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      paymentMethod: value as PaymentMethod,
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue>
+                      {formData.paymentMethod
+                        ? PAYMENT_METHODS.find(
+                            (m) => m.value === formData.paymentMethod,
+                          )?.label
+                        : 'Select method'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_METHODS.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Notes</Label>
+                <Textarea
+                  value={formData.notes}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                  }
+                  placeholder="Delivery details, etc."
+                  rows={2}
+                />
+              </div>
+            </div>
+          )}
 
           {formData.quantity && formData.unitPrice && (
             <div className="p-3 bg-muted rounded-lg">
