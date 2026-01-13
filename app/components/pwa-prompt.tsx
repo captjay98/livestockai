@@ -1,7 +1,12 @@
 import { Button } from './ui/button'
 
 // Mock PWA functionality when virtual:pwa-register is not available
-const useRegisterSW = (_options: any) => ({
+interface RegisterSWOptions {
+  onRegistered?: (registration: ServiceWorkerRegistration | undefined) => void
+  onRegisterError?: (error: Error) => void
+}
+
+const useRegisterSW = (_options: RegisterSWOptions) => ({
   needRefresh: [false, () => {}] as [boolean, () => void],
   updateServiceWorker: (_reloadPage?: boolean) => {},
 })
@@ -11,10 +16,10 @@ export function PWAPrompt() {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
-    onRegistered(r: any) {
+    onRegistered(r) {
       console.log('SW Registered: ' + r)
     },
-    onRegisterError(error: any) {
+    onRegisterError(error) {
       console.log('SW Registration error', error)
     },
   })
@@ -30,11 +35,7 @@ export function PWAPrompt() {
         New content available, click on reload button to update.
       </div>
       <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setNeedRefresh()}
-        >
+        <Button size="sm" variant="outline" onClick={() => setNeedRefresh()}>
           Close
         </Button>
         <Button size="sm" onClick={() => updateServiceWorker(true)}>
