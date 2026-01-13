@@ -5,6 +5,7 @@ import {
   useNavigate,
 } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import {
   Bird,
   Edit,
@@ -313,6 +314,7 @@ function BatchesPage() {
       })
       setDialogOpen(false)
       resetForm()
+      toast.success('Batch created')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create batch')
@@ -357,6 +359,7 @@ function BatchesPage() {
         },
       })
       setEditDialogOpen(false)
+      toast.success('Batch updated')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update batch')
@@ -375,6 +378,7 @@ function BatchesPage() {
         data: { batchId: selectedBatch.id },
       })
       setDeleteDialogOpen(false)
+      toast.success('Batch deleted')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete batch')

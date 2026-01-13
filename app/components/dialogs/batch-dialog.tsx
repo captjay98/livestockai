@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { ChevronDown, ChevronUp, Users } from 'lucide-react'
@@ -129,6 +130,7 @@ export function BatchDialog({
           },
         },
       })
+      toast.success('Batch created')
       onOpenChange(false)
       setFormData({
         livestockType: '',

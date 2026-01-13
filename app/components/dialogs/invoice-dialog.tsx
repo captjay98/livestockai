@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
@@ -108,6 +109,7 @@ export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps
           dueDate: dueDate ? new Date(dueDate) : null,
         },
       })
+      toast.success('Invoice created')
       onOpenChange(false)
       setCustomerId('')
       setDueDate('')

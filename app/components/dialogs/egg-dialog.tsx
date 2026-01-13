@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
@@ -96,6 +97,7 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
           },
         },
       })
+      toast.success('Egg record created')
       handleOpenChange(false)
       setFormData({
         batchId: '',

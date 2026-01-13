@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import {
   AlertTriangle,
   Bird,
@@ -294,6 +295,7 @@ function EggsPage() {
       })
       setDialogOpen(false)
       resetForm()
+      toast.success('Egg record added')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create record')
@@ -331,6 +333,7 @@ function EggsPage() {
         },
       })
       setEditDialogOpen(false)
+      toast.success('Egg record updated')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed update')
@@ -350,6 +353,7 @@ function EggsPage() {
         },
       })
       setDeleteDialogOpen(false)
+      toast.success('Egg record deleted')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed delete')

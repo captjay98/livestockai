@@ -5,6 +5,7 @@ import {
   useNavigate,
 } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import { Building2, Eye, Mail, MapPin, Phone, Plus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -208,6 +209,7 @@ function SuppliersPage() {
         },
       })
       setDialogOpen(false)
+      toast.success('Supplier added')
       setFormData({
         name: '',
         phone: '',

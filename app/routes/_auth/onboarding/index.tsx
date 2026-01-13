@@ -7,6 +7,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import {
   ArrowLeft,
   ArrowRight,
@@ -292,6 +293,7 @@ function CreateFarmStep() {
     try {
       const result = await createFarmAction({ data: formData })
       if (result.farmId) setFarmId(result.farmId)
+      toast.success('Farm created')
       completeStep('create-farm')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create farm')
@@ -583,6 +585,7 @@ function CreateBatchStep() {
         },
       })
       if (result.batchId) setBatchId(result.batchId)
+      toast.success('Batch created')
       completeStep('create-batch')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create batch')

@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { ChevronDown, ChevronUp, Scale } from 'lucide-react'
@@ -76,6 +77,7 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
           },
         },
       })
+      toast.success('Weight recorded')
       onOpenChange(false)
       setFormData({ batchId: '', date: new Date().toISOString().split('T')[0], sampleSize: '', averageWeightKg: '', minWeightKg: '', maxWeightKg: '', notes: '' })
       router.invalidate()

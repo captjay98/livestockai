@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
@@ -139,6 +140,7 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
           },
         },
       })
+      toast.success('Sale recorded')
       handleOpenChange(false)
       setFormData({
         livestockType: '',

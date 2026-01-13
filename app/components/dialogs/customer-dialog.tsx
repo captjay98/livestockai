@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { User } from 'lucide-react'
@@ -66,6 +67,7 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
             : null,
         },
       })
+      toast.success('Customer created')
       onOpenChange(false)
       setFormData({ name: '', phone: '', email: '', location: '', customerType: '' })
       router.invalidate()

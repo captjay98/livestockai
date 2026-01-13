@@ -5,6 +5,7 @@ import {
   useNavigate,
 } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import {
   AlertTriangle,
   HeartPulse,
@@ -290,6 +291,7 @@ function MortalityPage() {
         },
       })
       setDialogOpen(false)
+      toast.success('Mortality recorded')
       setFormData({
         batchId: '',
         quantity: '',

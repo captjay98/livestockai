@@ -11,6 +11,7 @@ import {
   useNavigate,
 } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import {
   Boxes,
   Calendar,
@@ -98,9 +99,11 @@ function SettingsPage() {
     try {
       await updateSettings(localSettings)
       setSaveSuccess(true)
+      toast.success('Settings saved')
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch {
       setSaveError('Failed to save settings. Please try again.')
+      toast.error('Failed to save settings')
     } finally {
       setIsSaving(false)
     }

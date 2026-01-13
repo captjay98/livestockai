@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import { Activity, AlertTriangle, Calendar, Pill, Syringe } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -257,6 +258,7 @@ function HealthPage() {
         },
       })
       setVaccinationDialogOpen(false)
+      toast.success('Vaccination recorded')
       setVaccineForm({
         batchId: '',
         vaccineName: '',
@@ -293,6 +295,7 @@ function HealthPage() {
         },
       })
       setTreatmentDialogOpen(false)
+      toast.success('Treatment recorded')
       setTreatmentForm({
         batchId: '',
         medicationName: '',

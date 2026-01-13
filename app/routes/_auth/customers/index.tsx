@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import {
   Edit,
   Mail,
@@ -233,6 +234,7 @@ function CustomersPage() {
         },
       })
       setDialogOpen(false)
+      toast.success('Customer added')
       setFormData({
         name: '',
         phone: '',

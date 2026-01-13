@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { ArrowLeft, Edit, Mail, MapPin, Phone, Trash2 } from 'lucide-react'
 import {
   deleteCustomer,
@@ -134,9 +135,10 @@ function CustomerDetailPage() {
     setIsSubmitting(true)
     try {
       await removeCustomer({ data: { customerId: customer.id } })
+      toast.success('Customer deleted')
       navigate({ to: '/customers' })
     } catch (err) {
-      console.error(err)
+      toast.error(err instanceof Error ? err.message : 'Failed to delete customer')
     } finally {
       setIsSubmitting(false)
       setDeleteDialogOpen(false)

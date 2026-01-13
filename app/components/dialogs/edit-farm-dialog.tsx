@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Building2 } from 'lucide-react'
@@ -81,6 +82,7 @@ export function EditFarmDialog({
           type: formData.type,
         },
       })
+      toast.success('Farm updated')
       onOpenChange(false)
       if (onSuccess) onSuccess()
       router.invalidate()

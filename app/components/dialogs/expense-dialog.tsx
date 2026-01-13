@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Receipt } from 'lucide-react'
@@ -87,6 +88,7 @@ export function ExpenseDialog({
           },
         },
       })
+      toast.success('Expense recorded')
       handleOpenChange(false)
       setFormData({
         category: '',

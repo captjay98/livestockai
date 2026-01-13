@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import {
   Bird,
   Edit,
@@ -318,6 +319,7 @@ function FeedPage() {
       })
       setDialogOpen(false)
       resetForm()
+      toast.success('Feed record added')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create record')
@@ -364,6 +366,7 @@ function FeedPage() {
         },
       })
       setEditDialogOpen(false)
+      toast.success('Feed record updated')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update record')
@@ -385,6 +388,7 @@ function FeedPage() {
         },
       })
       setDeleteDialogOpen(false)
+      toast.success('Feed record deleted')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete record')

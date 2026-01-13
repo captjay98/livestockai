@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Syringe } from 'lucide-react'
@@ -87,6 +88,7 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
           },
         })
       }
+      toast.success(recordType === 'vaccination' ? 'Vaccination recorded' : 'Treatment recorded')
       onOpenChange(false)
       setFormData({ batchId: '', name: '', date: new Date().toISOString().split('T')[0], dosage: '', nextDueDate: '', reason: '', withdrawalDays: '', notes: '' })
       router.invalidate()

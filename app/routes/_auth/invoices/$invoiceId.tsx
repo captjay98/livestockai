@@ -1,5 +1,7 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useState } from 'react'
+import { toast } from 'sonner'
 import { ArrowLeft, Edit, Printer, Trash2 } from 'lucide-react'
 import {
   deleteInvoice,
@@ -7,6 +9,15 @@ import {
   updateInvoiceStatus,
 } from '~/features/invoices/server'
 import { useFormatCurrency } from '~/features/settings'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog'
+import { Button } from '~/components/ui/button'
 
 const fetchInvoice = createServerFn({ method: 'GET' })
   .inputValidator((data: { invoiceId: string }) => data)
@@ -41,6 +52,7 @@ function InvoiceDetailPage() {
   const navigate = useNavigate()
   const params = Route.useParams()
   const { format: formatCurrency } = useFormatCurrency()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   if (!invoice) {
     return (
@@ -53,14 +65,22 @@ function InvoiceDetailPage() {
   }
 
   const handleStatusChange = async (status: 'unpaid' | 'partial' | 'paid') => {
-    await changeStatus({ data: { invoiceId: params.invoiceId, status } })
-    window.location.reload()
+    try {
+      await changeStatus({ data: { invoiceId: params.invoiceId, status } })
+      toast.success('Invoice status updated')
+      window.location.reload()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update status')
+    }
   }
 
-  const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this invoice?')) {
+  const handleDeleteConfirm = async () => {
+    try {
       await removeInvoice({ data: { invoiceId: params.invoiceId } })
+      toast.success('Invoice deleted')
       navigate({ to: '/invoices' })
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete invoice')
     }
   }
 
@@ -92,7 +112,7 @@ function InvoiceDetailPage() {
               Print
             </button>
             <button
-              onClick={handleDelete}
+              onClick={() => setDeleteDialogOpen(true)}
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground h-9 px-3 min-h-[44px]"
             >
               <Trash2 className="h-4 w-4 mr-2" />
@@ -261,6 +281,26 @@ function InvoiceDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Delete Invoice</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete invoice #{invoice.invoiceNumber}? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteConfirm}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   )

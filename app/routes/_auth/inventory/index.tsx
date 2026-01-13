@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import {
   AlertTriangle,
   Edit,
@@ -203,6 +204,7 @@ function InventoryPage() {
         },
       })
       setFeedDialogOpen(false)
+      toast.success('Feed inventory added')
       resetFeedForm()
       loadData()
     } catch (err) {
@@ -243,6 +245,7 @@ function InventoryPage() {
     try {
       await deleteFeedInventoryFn({ data: { id: selectedFeed.id } })
       setDeleteFeedDialogOpen(false)
+      toast.success('Feed inventory deleted')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete')
@@ -276,6 +279,7 @@ function InventoryPage() {
         },
       })
       setMedDialogOpen(false)
+      toast.success('Medication added')
       resetMedForm()
       loadData()
     } catch (err) {
@@ -321,6 +325,7 @@ function InventoryPage() {
     try {
       await deleteMedicationFn({ data: { id: selectedMed.id } })
       setDeleteMedDialogOpen(false)
+      toast.success('Medication deleted')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete')

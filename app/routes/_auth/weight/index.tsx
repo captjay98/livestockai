@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import { Plus, Scale, TrendingUp } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -222,6 +223,7 @@ function WeightPage() {
         },
       })
       setDialogOpen(false)
+      toast.success('Weight sample recorded')
       setFormData({
         batchId: '',
         date: new Date().toISOString().split('T')[0],

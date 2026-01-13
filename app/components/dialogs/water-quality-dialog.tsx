@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Droplets } from 'lucide-react'
@@ -82,6 +83,7 @@ export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: Wate
           },
         },
       })
+      toast.success('Water quality recorded')
       onOpenChange(false)
       setFormData({ batchId: '', date: new Date().toISOString().split('T')[0], ph: '', temperatureCelsius: '', dissolvedOxygenMgL: '', ammoniaMgL: '', notes: '' })
       router.invalidate()

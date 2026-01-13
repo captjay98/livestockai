@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import {
   Bird,
   Edit,
@@ -322,6 +323,7 @@ function SalesPage() {
       })
       setDialogOpen(false)
       resetForm()
+      toast.success('Sale recorded')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to record sale')
@@ -365,6 +367,7 @@ function SalesPage() {
         },
       })
       setEditDialogOpen(false)
+      toast.success('Sale updated')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update sale')
@@ -380,6 +383,7 @@ function SalesPage() {
     try {
       await deleteSaleFn({ data: { saleId: selectedSale.id } })
       setDeleteDialogOpen(false)
+      toast.success('Sale deleted')
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete sale')

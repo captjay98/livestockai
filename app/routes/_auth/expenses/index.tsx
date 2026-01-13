@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import {
   Banknote,
   Bird,
@@ -323,6 +324,7 @@ function ExpensesPage() {
         },
       })
       setEditDialogOpen(false)
+      toast.success('Expense updated')
       // Reload data
       const result = await getExpensesDataForFarm({
         data: {
@@ -352,6 +354,7 @@ function ExpensesPage() {
     try {
       await deleteExpenseFn({ data: { expenseId: selectedExpense.id } })
       setDeleteDialogOpen(false)
+      toast.success('Expense deleted')
       // Reload data
       const result = await getExpensesDataForFarm({
         data: {
@@ -396,6 +399,7 @@ function ExpensesPage() {
         },
       })
       setDialogOpen(false)
+      toast.success('Expense recorded')
       setFormData({
         category: '',
         amount: '',

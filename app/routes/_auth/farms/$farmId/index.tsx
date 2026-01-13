@@ -1,5 +1,6 @@
 import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import {
   ArrowLeft,
   Building2,
@@ -251,6 +252,7 @@ function FarmDetailsPage() {
         },
       })
       setStructureDialogOpen(false)
+      toast.success('Structure created')
       resetStructureForm()
       // Reload structures
       const newStructures = await loadStructuresWithCounts(farmId)
@@ -304,6 +306,7 @@ function FarmDetailsPage() {
     try {
       await deleteStructureFn({ data: { id: selectedStructure.id } })
       setDeleteStructureDialogOpen(false)
+      toast.success('Structure deleted')
       const newStructures = await loadStructuresWithCounts(farmId)
       setStructures(newStructures)
     } catch (err) {
