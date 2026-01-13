@@ -30,26 +30,14 @@ import { Route as AuthEggsIndexRouteImport } from './routes/_auth/eggs/index'
 import { Route as AuthDashboardIndexRouteImport } from './routes/_auth/dashboard/index'
 import { Route as AuthCustomersIndexRouteImport } from './routes/_auth/customers/index'
 import { Route as AuthBatchesIndexRouteImport } from './routes/_auth/batches/index'
-import { Route as AuthWeightNewRouteImport } from './routes/_auth/weight/new'
-import { Route as AuthWaterQualityNewRouteImport } from './routes/_auth/water-quality/new'
-import { Route as AuthVaccinationsNewRouteImport } from './routes/_auth/vaccinations/new'
-import { Route as AuthSuppliersNewRouteImport } from './routes/_auth/suppliers/new'
 import { Route as AuthSuppliersSupplierIdRouteImport } from './routes/_auth/suppliers/$supplierId'
 import { Route as AuthSettingsUsersRouteImport } from './routes/_auth/settings/users'
 import { Route as AuthSettingsModulesRouteImport } from './routes/_auth/settings/modules'
 import { Route as AuthSettingsAuditRouteImport } from './routes/_auth/settings/audit'
-import { Route as AuthSalesNewRouteImport } from './routes/_auth/sales/new'
 import { Route as AuthReportsExportRouteImport } from './routes/_auth/reports/export'
-import { Route as AuthInvoicesNewRouteImport } from './routes/_auth/invoices/new'
 import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth/invoices/$invoiceId'
-import { Route as AuthFeedNewRouteImport } from './routes/_auth/feed/new'
-import { Route as AuthFarmsNewRouteImport } from './routes/_auth/farms/new'
 import { Route as AuthFarmsFarmIdRouteImport } from './routes/_auth/farms/$farmId'
-import { Route as AuthExpensesNewRouteImport } from './routes/_auth/expenses/new'
-import { Route as AuthEggsNewRouteImport } from './routes/_auth/eggs/new'
-import { Route as AuthCustomersNewRouteImport } from './routes/_auth/customers/new'
 import { Route as AuthCustomersCustomerIdRouteImport } from './routes/_auth/customers/$customerId'
-import { Route as AuthBatchesNewRouteImport } from './routes/_auth/batches/new'
 import { Route as AuthFarmsFarmIdIndexRouteImport } from './routes/_auth/farms/$farmId/index'
 import { Route as AuthBatchesBatchIdIndexRouteImport } from './routes/_auth/batches/$batchId/index'
 
@@ -157,26 +145,6 @@ const AuthBatchesIndexRoute = AuthBatchesIndexRouteImport.update({
   path: '/batches/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthWeightNewRoute = AuthWeightNewRouteImport.update({
-  id: '/weight/new',
-  path: '/weight/new',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthWaterQualityNewRoute = AuthWaterQualityNewRouteImport.update({
-  id: '/water-quality/new',
-  path: '/water-quality/new',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthVaccinationsNewRoute = AuthVaccinationsNewRouteImport.update({
-  id: '/vaccinations/new',
-  path: '/vaccinations/new',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthSuppliersNewRoute = AuthSuppliersNewRouteImport.update({
-  id: '/suppliers/new',
-  path: '/suppliers/new',
-  getParentRoute: () => AuthRoute,
-} as any)
 const AuthSuppliersSupplierIdRoute = AuthSuppliersSupplierIdRouteImport.update({
   id: '/suppliers/$supplierId',
   path: '/suppliers/$supplierId',
@@ -197,19 +165,9 @@ const AuthSettingsAuditRoute = AuthSettingsAuditRouteImport.update({
   path: '/settings/audit',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthSalesNewRoute = AuthSalesNewRouteImport.update({
-  id: '/sales/new',
-  path: '/sales/new',
-  getParentRoute: () => AuthRoute,
-} as any)
 const AuthReportsExportRoute = AuthReportsExportRouteImport.update({
   id: '/reports/export',
   path: '/reports/export',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthInvoicesNewRoute = AuthInvoicesNewRouteImport.update({
-  id: '/invoices/new',
-  path: '/invoices/new',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthInvoicesInvoiceIdRoute = AuthInvoicesInvoiceIdRouteImport.update({
@@ -217,44 +175,14 @@ const AuthInvoicesInvoiceIdRoute = AuthInvoicesInvoiceIdRouteImport.update({
   path: '/invoices/$invoiceId',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthFeedNewRoute = AuthFeedNewRouteImport.update({
-  id: '/feed/new',
-  path: '/feed/new',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthFarmsNewRoute = AuthFarmsNewRouteImport.update({
-  id: '/farms/new',
-  path: '/farms/new',
-  getParentRoute: () => AuthRoute,
-} as any)
 const AuthFarmsFarmIdRoute = AuthFarmsFarmIdRouteImport.update({
   id: '/farms/$farmId',
   path: '/farms/$farmId',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthExpensesNewRoute = AuthExpensesNewRouteImport.update({
-  id: '/expenses/new',
-  path: '/expenses/new',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthEggsNewRoute = AuthEggsNewRouteImport.update({
-  id: '/eggs/new',
-  path: '/eggs/new',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthCustomersNewRoute = AuthCustomersNewRouteImport.update({
-  id: '/customers/new',
-  path: '/customers/new',
-  getParentRoute: () => AuthRoute,
-} as any)
 const AuthCustomersCustomerIdRoute = AuthCustomersCustomerIdRouteImport.update({
   id: '/customers/$customerId',
   path: '/customers/$customerId',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthBatchesNewRoute = AuthBatchesNewRouteImport.update({
-  id: '/batches/new',
-  path: '/batches/new',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthFarmsFarmIdIndexRoute = AuthFarmsFarmIdIndexRouteImport.update({
@@ -271,26 +199,14 @@ const AuthBatchesBatchIdIndexRoute = AuthBatchesBatchIdIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/batches/new': typeof AuthBatchesNewRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
-  '/customers/new': typeof AuthCustomersNewRoute
-  '/eggs/new': typeof AuthEggsNewRoute
-  '/expenses/new': typeof AuthExpensesNewRoute
   '/farms/$farmId': typeof AuthFarmsFarmIdRouteWithChildren
-  '/farms/new': typeof AuthFarmsNewRoute
-  '/feed/new': typeof AuthFeedNewRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
-  '/invoices/new': typeof AuthInvoicesNewRoute
   '/reports/export': typeof AuthReportsExportRoute
-  '/sales/new': typeof AuthSalesNewRoute
   '/settings/audit': typeof AuthSettingsAuditRoute
   '/settings/modules': typeof AuthSettingsModulesRoute
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
-  '/suppliers/new': typeof AuthSuppliersNewRoute
-  '/vaccinations/new': typeof AuthVaccinationsNewRoute
-  '/water-quality/new': typeof AuthWaterQualityNewRoute
-  '/weight/new': typeof AuthWeightNewRoute
   '/batches': typeof AuthBatchesIndexRoute
   '/customers': typeof AuthCustomersIndexRoute
   '/dashboard': typeof AuthDashboardIndexRoute
@@ -315,25 +231,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/batches/new': typeof AuthBatchesNewRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
-  '/customers/new': typeof AuthCustomersNewRoute
-  '/eggs/new': typeof AuthEggsNewRoute
-  '/expenses/new': typeof AuthExpensesNewRoute
-  '/farms/new': typeof AuthFarmsNewRoute
-  '/feed/new': typeof AuthFeedNewRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
-  '/invoices/new': typeof AuthInvoicesNewRoute
   '/reports/export': typeof AuthReportsExportRoute
-  '/sales/new': typeof AuthSalesNewRoute
   '/settings/audit': typeof AuthSettingsAuditRoute
   '/settings/modules': typeof AuthSettingsModulesRoute
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
-  '/suppliers/new': typeof AuthSuppliersNewRoute
-  '/vaccinations/new': typeof AuthVaccinationsNewRoute
-  '/water-quality/new': typeof AuthWaterQualityNewRoute
-  '/weight/new': typeof AuthWeightNewRoute
   '/batches': typeof AuthBatchesIndexRoute
   '/customers': typeof AuthCustomersIndexRoute
   '/dashboard': typeof AuthDashboardIndexRoute
@@ -360,26 +264,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
-  '/_auth/batches/new': typeof AuthBatchesNewRoute
   '/_auth/customers/$customerId': typeof AuthCustomersCustomerIdRoute
-  '/_auth/customers/new': typeof AuthCustomersNewRoute
-  '/_auth/eggs/new': typeof AuthEggsNewRoute
-  '/_auth/expenses/new': typeof AuthExpensesNewRoute
   '/_auth/farms/$farmId': typeof AuthFarmsFarmIdRouteWithChildren
-  '/_auth/farms/new': typeof AuthFarmsNewRoute
-  '/_auth/feed/new': typeof AuthFeedNewRoute
   '/_auth/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
-  '/_auth/invoices/new': typeof AuthInvoicesNewRoute
   '/_auth/reports/export': typeof AuthReportsExportRoute
-  '/_auth/sales/new': typeof AuthSalesNewRoute
   '/_auth/settings/audit': typeof AuthSettingsAuditRoute
   '/_auth/settings/modules': typeof AuthSettingsModulesRoute
   '/_auth/settings/users': typeof AuthSettingsUsersRoute
   '/_auth/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
-  '/_auth/suppliers/new': typeof AuthSuppliersNewRoute
-  '/_auth/vaccinations/new': typeof AuthVaccinationsNewRoute
-  '/_auth/water-quality/new': typeof AuthWaterQualityNewRoute
-  '/_auth/weight/new': typeof AuthWeightNewRoute
   '/_auth/batches/': typeof AuthBatchesIndexRoute
   '/_auth/customers/': typeof AuthCustomersIndexRoute
   '/_auth/dashboard/': typeof AuthDashboardIndexRoute
@@ -406,26 +298,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/batches/new'
     | '/customers/$customerId'
-    | '/customers/new'
-    | '/eggs/new'
-    | '/expenses/new'
     | '/farms/$farmId'
-    | '/farms/new'
-    | '/feed/new'
     | '/invoices/$invoiceId'
-    | '/invoices/new'
     | '/reports/export'
-    | '/sales/new'
     | '/settings/audit'
     | '/settings/modules'
     | '/settings/users'
     | '/suppliers/$supplierId'
-    | '/suppliers/new'
-    | '/vaccinations/new'
-    | '/water-quality/new'
-    | '/weight/new'
     | '/batches'
     | '/customers'
     | '/dashboard'
@@ -450,25 +330,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
-    | '/batches/new'
     | '/customers/$customerId'
-    | '/customers/new'
-    | '/eggs/new'
-    | '/expenses/new'
-    | '/farms/new'
-    | '/feed/new'
     | '/invoices/$invoiceId'
-    | '/invoices/new'
     | '/reports/export'
-    | '/sales/new'
     | '/settings/audit'
     | '/settings/modules'
     | '/settings/users'
     | '/suppliers/$supplierId'
-    | '/suppliers/new'
-    | '/vaccinations/new'
-    | '/water-quality/new'
-    | '/weight/new'
     | '/batches'
     | '/customers'
     | '/dashboard'
@@ -494,26 +362,14 @@ export interface FileRouteTypes {
     | '/'
     | '/_auth'
     | '/login'
-    | '/_auth/batches/new'
     | '/_auth/customers/$customerId'
-    | '/_auth/customers/new'
-    | '/_auth/eggs/new'
-    | '/_auth/expenses/new'
     | '/_auth/farms/$farmId'
-    | '/_auth/farms/new'
-    | '/_auth/feed/new'
     | '/_auth/invoices/$invoiceId'
-    | '/_auth/invoices/new'
     | '/_auth/reports/export'
-    | '/_auth/sales/new'
     | '/_auth/settings/audit'
     | '/_auth/settings/modules'
     | '/_auth/settings/users'
     | '/_auth/suppliers/$supplierId'
-    | '/_auth/suppliers/new'
-    | '/_auth/vaccinations/new'
-    | '/_auth/water-quality/new'
-    | '/_auth/weight/new'
     | '/_auth/batches/'
     | '/_auth/customers/'
     | '/_auth/dashboard/'
@@ -691,34 +547,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthBatchesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/weight/new': {
-      id: '/_auth/weight/new'
-      path: '/weight/new'
-      fullPath: '/weight/new'
-      preLoaderRoute: typeof AuthWeightNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/water-quality/new': {
-      id: '/_auth/water-quality/new'
-      path: '/water-quality/new'
-      fullPath: '/water-quality/new'
-      preLoaderRoute: typeof AuthWaterQualityNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/vaccinations/new': {
-      id: '/_auth/vaccinations/new'
-      path: '/vaccinations/new'
-      fullPath: '/vaccinations/new'
-      preLoaderRoute: typeof AuthVaccinationsNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/suppliers/new': {
-      id: '/_auth/suppliers/new'
-      path: '/suppliers/new'
-      fullPath: '/suppliers/new'
-      preLoaderRoute: typeof AuthSuppliersNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
     '/_auth/suppliers/$supplierId': {
       id: '/_auth/suppliers/$supplierId'
       path: '/suppliers/$supplierId'
@@ -747,25 +575,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSettingsAuditRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/sales/new': {
-      id: '/_auth/sales/new'
-      path: '/sales/new'
-      fullPath: '/sales/new'
-      preLoaderRoute: typeof AuthSalesNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
     '/_auth/reports/export': {
       id: '/_auth/reports/export'
       path: '/reports/export'
       fullPath: '/reports/export'
       preLoaderRoute: typeof AuthReportsExportRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/invoices/new': {
-      id: '/_auth/invoices/new'
-      path: '/invoices/new'
-      fullPath: '/invoices/new'
-      preLoaderRoute: typeof AuthInvoicesNewRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/invoices/$invoiceId': {
@@ -775,20 +589,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthInvoicesInvoiceIdRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/feed/new': {
-      id: '/_auth/feed/new'
-      path: '/feed/new'
-      fullPath: '/feed/new'
-      preLoaderRoute: typeof AuthFeedNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/farms/new': {
-      id: '/_auth/farms/new'
-      path: '/farms/new'
-      fullPath: '/farms/new'
-      preLoaderRoute: typeof AuthFarmsNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
     '/_auth/farms/$farmId': {
       id: '/_auth/farms/$farmId'
       path: '/farms/$farmId'
@@ -796,39 +596,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthFarmsFarmIdRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/expenses/new': {
-      id: '/_auth/expenses/new'
-      path: '/expenses/new'
-      fullPath: '/expenses/new'
-      preLoaderRoute: typeof AuthExpensesNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/eggs/new': {
-      id: '/_auth/eggs/new'
-      path: '/eggs/new'
-      fullPath: '/eggs/new'
-      preLoaderRoute: typeof AuthEggsNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/customers/new': {
-      id: '/_auth/customers/new'
-      path: '/customers/new'
-      fullPath: '/customers/new'
-      preLoaderRoute: typeof AuthCustomersNewRouteImport
-      parentRoute: typeof AuthRoute
-    }
     '/_auth/customers/$customerId': {
       id: '/_auth/customers/$customerId'
       path: '/customers/$customerId'
       fullPath: '/customers/$customerId'
       preLoaderRoute: typeof AuthCustomersCustomerIdRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/batches/new': {
-      id: '/_auth/batches/new'
-      path: '/batches/new'
-      fullPath: '/batches/new'
-      preLoaderRoute: typeof AuthBatchesNewRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/farms/$farmId/': {
@@ -861,26 +633,14 @@ const AuthFarmsFarmIdRouteWithChildren = AuthFarmsFarmIdRoute._addFileChildren(
 )
 
 interface AuthRouteChildren {
-  AuthBatchesNewRoute: typeof AuthBatchesNewRoute
   AuthCustomersCustomerIdRoute: typeof AuthCustomersCustomerIdRoute
-  AuthCustomersNewRoute: typeof AuthCustomersNewRoute
-  AuthEggsNewRoute: typeof AuthEggsNewRoute
-  AuthExpensesNewRoute: typeof AuthExpensesNewRoute
   AuthFarmsFarmIdRoute: typeof AuthFarmsFarmIdRouteWithChildren
-  AuthFarmsNewRoute: typeof AuthFarmsNewRoute
-  AuthFeedNewRoute: typeof AuthFeedNewRoute
   AuthInvoicesInvoiceIdRoute: typeof AuthInvoicesInvoiceIdRoute
-  AuthInvoicesNewRoute: typeof AuthInvoicesNewRoute
   AuthReportsExportRoute: typeof AuthReportsExportRoute
-  AuthSalesNewRoute: typeof AuthSalesNewRoute
   AuthSettingsAuditRoute: typeof AuthSettingsAuditRoute
   AuthSettingsModulesRoute: typeof AuthSettingsModulesRoute
   AuthSettingsUsersRoute: typeof AuthSettingsUsersRoute
   AuthSuppliersSupplierIdRoute: typeof AuthSuppliersSupplierIdRoute
-  AuthSuppliersNewRoute: typeof AuthSuppliersNewRoute
-  AuthVaccinationsNewRoute: typeof AuthVaccinationsNewRoute
-  AuthWaterQualityNewRoute: typeof AuthWaterQualityNewRoute
-  AuthWeightNewRoute: typeof AuthWeightNewRoute
   AuthBatchesIndexRoute: typeof AuthBatchesIndexRoute
   AuthCustomersIndexRoute: typeof AuthCustomersIndexRoute
   AuthDashboardIndexRoute: typeof AuthDashboardIndexRoute
@@ -903,26 +663,14 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
-  AuthBatchesNewRoute: AuthBatchesNewRoute,
   AuthCustomersCustomerIdRoute: AuthCustomersCustomerIdRoute,
-  AuthCustomersNewRoute: AuthCustomersNewRoute,
-  AuthEggsNewRoute: AuthEggsNewRoute,
-  AuthExpensesNewRoute: AuthExpensesNewRoute,
   AuthFarmsFarmIdRoute: AuthFarmsFarmIdRouteWithChildren,
-  AuthFarmsNewRoute: AuthFarmsNewRoute,
-  AuthFeedNewRoute: AuthFeedNewRoute,
   AuthInvoicesInvoiceIdRoute: AuthInvoicesInvoiceIdRoute,
-  AuthInvoicesNewRoute: AuthInvoicesNewRoute,
   AuthReportsExportRoute: AuthReportsExportRoute,
-  AuthSalesNewRoute: AuthSalesNewRoute,
   AuthSettingsAuditRoute: AuthSettingsAuditRoute,
   AuthSettingsModulesRoute: AuthSettingsModulesRoute,
   AuthSettingsUsersRoute: AuthSettingsUsersRoute,
   AuthSuppliersSupplierIdRoute: AuthSuppliersSupplierIdRoute,
-  AuthSuppliersNewRoute: AuthSuppliersNewRoute,
-  AuthVaccinationsNewRoute: AuthVaccinationsNewRoute,
-  AuthWaterQualityNewRoute: AuthWaterQualityNewRoute,
-  AuthWeightNewRoute: AuthWeightNewRoute,
   AuthBatchesIndexRoute: AuthBatchesIndexRoute,
   AuthCustomersIndexRoute: AuthCustomersIndexRoute,
   AuthDashboardIndexRoute: AuthDashboardIndexRoute,

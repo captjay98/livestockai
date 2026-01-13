@@ -46,6 +46,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import { SaleDialog } from '~/components/dialogs/sale-dialog'
+import { ExpenseDialog } from '~/components/dialogs/expense-dialog'
 import {
   Dialog,
   DialogContent,
@@ -182,6 +184,8 @@ function FarmDetailsPage() {
   const { farmId } = Route.useParams()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [activityTab, setActivityTab] = useState<'sales' | 'expenses'>('sales')
+  const [saleDialogOpen, setSaleDialogOpen] = useState(false)
+  const [expenseDialogOpen, setExpenseDialogOpen] = useState(false)
 
   // Structures state
   const [structures, setStructures] = useState<Array<Structure>>(
@@ -808,25 +812,23 @@ function FarmDetailsPage() {
                   </Button>
                 </Link>
 
-                <Link to="/sales/new" className="w-full">
-                  <Button
-                    variant="outline"
-                    className="h-auto p-4 w-full glass text-emerald-600 flex flex-col items-center justify-center gap-2 hover:bg-emerald-50"
-                  >
-                    <TrendingUp className="h-6 w-6" />
-                    <div className="font-medium">Record Sale</div>
-                  </Button>
-                </Link>
+                <Button
+                  variant="outline"
+                  className="h-auto p-4 w-full glass text-emerald-600 flex flex-col items-center justify-center gap-2 hover:bg-emerald-50"
+                  onClick={() => setSaleDialogOpen(true)}
+                >
+                  <TrendingUp className="h-6 w-6" />
+                  <div className="font-medium">Record Sale</div>
+                </Button>
 
-                <Link to="/expenses/new" className="w-full">
-                  <Button
-                    variant="outline"
-                    className="h-auto p-4 w-full glass text-destructive flex flex-col items-center justify-center gap-2 hover:bg-red-50"
-                  >
-                    <TrendingDown className="h-6 w-6" />
-                    <div className="font-medium">Record Expense</div>
-                  </Button>
-                </Link>
+                <Button
+                  variant="outline"
+                  className="h-auto p-4 w-full glass text-destructive flex flex-col items-center justify-center gap-2 hover:bg-red-50"
+                  onClick={() => setExpenseDialogOpen(true)}
+                >
+                  <TrendingDown className="h-6 w-6" />
+                  <div className="font-medium">Record Expense</div>
+                </Button>
 
                 <Link
                   to="/reports"
@@ -1123,6 +1125,18 @@ function FarmDetailsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <SaleDialog
+        farmId={farmId}
+        open={saleDialogOpen}
+        onOpenChange={setSaleDialogOpen}
+      />
+
+      <ExpenseDialog
+        farmId={farmId}
+        open={expenseDialogOpen}
+        onOpenChange={setExpenseDialogOpen}
+      />
     </div>
   )
 }

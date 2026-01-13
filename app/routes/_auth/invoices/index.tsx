@@ -1,5 +1,4 @@
 import {
-  Link,
   createFileRoute,
   redirect,
   useNavigate,
@@ -22,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import { InvoiceDialog } from '~/components/dialogs/invoice-dialog'
+import { useFarm } from '~/features/farms/context'
 
 interface Invoice {
   id: string
@@ -95,6 +96,7 @@ export const Route = createFileRoute('/_auth/invoices/')({
 })
 
 function InvoicesPage() {
+  const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -109,6 +111,7 @@ function InvoicesPage() {
   })
 
   const [isLoading, setIsLoading] = useState(true)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
   const loadData = async () => {
     setIsLoading(true)
@@ -245,11 +248,9 @@ function InvoicesPage() {
           <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
           <p className="text-muted-foreground mt-1">Manage customer invoices</p>
         </div>
-        <Button asChild>
-          <Link to="/invoices/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Invoice
-          </Link>
+        <Button onClick={() => setCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Create Invoice
         </Button>
       </div>
 
@@ -299,6 +300,14 @@ function InvoicesPage() {
         emptyTitle="No invoices"
         emptyDescription="Create invoices to track payments."
       />
+
+      {selectedFarmId && (
+        <InvoiceDialog
+          farmId={selectedFarmId}
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+        />
+      )}
     </div>
   )
 }

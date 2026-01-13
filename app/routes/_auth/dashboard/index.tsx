@@ -26,7 +26,7 @@ import { getDashboardStats } from '~/features/dashboard/server'
 import { requireAuth } from '~/features/auth/server-middleware'
 import { getUserFarms } from '~/features/auth/utils'
 import { formatCurrency } from '~/features/settings/currency'
-import { buttonVariants } from '~/components/ui/button'
+import { Button, buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { useFarm } from '~/features/farms/context'
@@ -313,10 +313,10 @@ function DashboardPage() {
             <p className="text-muted-foreground mb-4">
               Start adding batches to see your metrics.
             </p>
-            <Link to="/batches/new" className={buttonVariants()}>
+            <Button onClick={() => selectedFarmId && setBatchDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Batch
-            </Link>
+            </Button>
           </CardContent>
         </Card>
       ) : (
