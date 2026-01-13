@@ -16,6 +16,7 @@
 
 import { createUserWithAuth } from './seed-helpers'
 import { db } from './index'
+import { DEFAULT_SETTINGS } from '~/features/settings/currency-presets'
 
 // ============ CONFIG ============
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@openlivestock.local'
@@ -251,18 +252,18 @@ export async function seed() {
         .insertInto('user_settings')
         .values({
           userId: result.userId,
-          currencyCode: 'NGN',
-          currencySymbol: '₦',
-          currencyDecimals: 2,
-          currencySymbolPosition: 'before',
-          thousandSeparator: ',',
-          decimalSeparator: '.',
-          dateFormat: 'DD/MM/YYYY',
-          timeFormat: '24h',
-          firstDayOfWeek: 1,
-          weightUnit: 'kg',
-          areaUnit: 'sqm',
-          temperatureUnit: 'celsius',
+          currencyCode: DEFAULT_SETTINGS.currencyCode,
+          currencySymbol: DEFAULT_SETTINGS.currencySymbol,
+          currencyDecimals: DEFAULT_SETTINGS.currencyDecimals,
+          currencySymbolPosition: DEFAULT_SETTINGS.currencySymbolPosition,
+          thousandSeparator: DEFAULT_SETTINGS.thousandSeparator,
+          decimalSeparator: DEFAULT_SETTINGS.decimalSeparator,
+          dateFormat: DEFAULT_SETTINGS.dateFormat,
+          timeFormat: DEFAULT_SETTINGS.timeFormat,
+          firstDayOfWeek: DEFAULT_SETTINGS.firstDayOfWeek,
+          weightUnit: DEFAULT_SETTINGS.weightUnit,
+          areaUnit: DEFAULT_SETTINGS.areaUnit,
+          temperatureUnit: DEFAULT_SETTINGS.temperatureUnit,
         })
         .execute()
       console.log('   ✅ User settings created\n')

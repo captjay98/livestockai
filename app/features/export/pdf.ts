@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf'
-import { formatCurrency } from '~/features/settings/currency'
+import type { UserSettings } from '~/features/settings/currency-presets'
+import { formatCurrency as formatWithSettings } from '~/features/settings/currency-formatter'
 
 interface InvoiceData {
   invoiceNumber: string
@@ -25,7 +26,8 @@ interface InvoiceData {
 /**
  * Generate PDF invoice
  */
-export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
+export function generateInvoicePDF(invoice: InvoiceData, settings: UserSettings): jsPDF {
+  const formatPdfCurrency = (amount: number): string => formatWithSettings(amount, settings)
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
   let y = 20
@@ -111,8 +113,8 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   for (const item of invoice.items) {
     doc.text(item.description, 25, y)
     doc.text(item.quantity.toString(), 100, y)
-    doc.text(formatCurrency(item.unitPrice), 125, y)
-    doc.text(formatCurrency(item.total), pageWidth - 25, y, { align: 'right' })
+    doc.text(formatPdfCurrency(item.unitPrice), 125, y)
+    doc.text(formatPdfCurrency(item.total), pageWidth - 25, y, { align: 'right' })
     y += 7
   }
 
@@ -123,7 +125,7 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(12)
   doc.text('Total:', 125, y)
-  doc.text(formatCurrency(invoice.totalAmount), pageWidth - 25, y, {
+  doc.text(formatPdfCurrency(invoice.totalAmount), pageWidth - 25, y, {
     align: 'right',
   })
 

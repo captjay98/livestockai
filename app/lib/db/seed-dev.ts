@@ -115,13 +115,13 @@ export async function seedDev() {
 
     console.log('  ✅ Admin user created/verified')
 
-    // USER SETTINGS (default to NGN for backward compatibility)
+    // USER SETTINGS (NGN for Nigerian demo data)
     console.log('⚙️  Creating user settings...')
     await db
       .insertInto('user_settings')
       .values({
         userId: result.userId,
-        // Currency - NGN for backward compatibility
+        // Currency - NGN for Nigerian demo data
         currencyCode: 'NGN',
         currencySymbol: '₦',
         currencyDecimals: 2,
@@ -138,7 +138,7 @@ export async function seedDev() {
         temperatureUnit: 'celsius',
       })
       .execute()
-    console.log('  ✅ User settings created (NGN currency)\n')
+    console.log('  ✅ User settings created (NGN for demo)\n')
 
     // FARM
     console.log('🏡 Creating farm...')
