@@ -2,7 +2,7 @@ import {
   createStartHandler,
   defaultStreamHandler,
 } from '@tanstack/react-start/server'
-import { auth } from './lib/auth/config'
+import { auth } from '~/features/auth/config'
 
 const handler = createStartHandler(defaultStreamHandler)
 

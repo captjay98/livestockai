@@ -4,11 +4,11 @@ import {
   redirect,
   useLocation,
 } from '@tanstack/react-router'
-import { checkAuthFn } from '~/lib/auth/server'
-import { checkNeedsOnboardingFn } from '~/lib/onboarding/server'
+import { checkAuthFn } from '~/features/auth/server'
+import { checkNeedsOnboardingFn } from '~/features/onboarding/server'
 import { AppShell } from '~/components/layout/shell'
-import { FarmProvider, useFarm } from '~/components/farm-context'
-import { ModuleProvider } from '~/components/module-context'
+import { FarmProvider, useFarm } from '~/features/farms/context'
+import { ModuleProvider } from '~/features/modules/context'
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async ({ location }) => {
@@ -42,13 +42,14 @@ export const Route = createFileRoute('/_auth')({
       }
 
       return { user, needsOnboarding }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle redirect errors (pass them through)
-      if (error?.to) {
+      if (error && typeof error === 'object' && 'to' in error) {
         throw error
       }
       // Only redirect on auth errors, not other errors
-      if (error?.message === 'UNAUTHORIZED' || !error?.user) {
+      const message = error instanceof Error ? error.message : ''
+      if (message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })
       }
       throw error

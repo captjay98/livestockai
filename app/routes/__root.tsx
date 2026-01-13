@@ -12,8 +12,8 @@ import type { QueryClient } from '@tanstack/react-query'
 import { createPersister } from '~/lib/query-client'
 // import { AppShell } from '~/components/layout/shell'
 import { ThemeProvider } from '~/components/theme-provider'
-import { FarmProvider } from '~/components/farm-context'
-import { SettingsProvider } from '~/lib/settings'
+import { FarmProvider } from '~/features/farms/context'
+import { SettingsProvider } from '~/features/settings'
 import { NotFoundPage } from '~/components/not-found'
 import { ErrorPage } from '~/components/error-page'
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools'
@@ -67,7 +67,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const router = useRouter()
-  const queryClient = (router.options.context).queryClient as QueryClient
+  const queryClient = router.options.context.queryClient as QueryClient
   const persister = useMemo(() => createPersister(), [])
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- persister is undefined on server, truthy on client

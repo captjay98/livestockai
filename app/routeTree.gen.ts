@@ -12,47 +12,46 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthWeightRouteImport } from './routes/_auth.weight'
-import { Route as AuthWaterQualityRouteImport } from './routes/_auth.water-quality'
-import { Route as AuthVaccinationsRouteImport } from './routes/_auth.vaccinations'
-import { Route as AuthSuppliersRouteImport } from './routes/_auth.suppliers'
-import { Route as AuthSettingsRouteImport } from './routes/_auth.settings'
-import { Route as AuthSalesRouteImport } from './routes/_auth.sales'
-import { Route as AuthReportsRouteImport } from './routes/_auth.reports'
-import { Route as AuthOnboardingRouteImport } from './routes/_auth.onboarding'
-import { Route as AuthMortalityRouteImport } from './routes/_auth.mortality'
-import { Route as AuthInvoicesRouteImport } from './routes/_auth.invoices'
-import { Route as AuthInventoryRouteImport } from './routes/_auth.inventory'
-import { Route as AuthFeedRouteImport } from './routes/_auth.feed'
-import { Route as AuthFarmsRouteImport } from './routes/_auth.farms'
-import { Route as AuthExpensesRouteImport } from './routes/_auth.expenses'
-import { Route as AuthEggsRouteImport } from './routes/_auth.eggs'
-import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
-import { Route as AuthCustomersRouteImport } from './routes/_auth.customers'
-import { Route as AuthFarmsIndexRouteImport } from './routes/_auth.farms.index'
-import { Route as AuthBatchesIndexRouteImport } from './routes/_auth.batches.index'
-import { Route as AuthWeightNewRouteImport } from './routes/_auth.weight.new'
-import { Route as AuthWaterQualityNewRouteImport } from './routes/_auth.water-quality.new'
-import { Route as AuthVaccinationsNewRouteImport } from './routes/_auth.vaccinations.new'
-import { Route as AuthSuppliersNewRouteImport } from './routes/_auth.suppliers.new'
-import { Route as AuthSuppliersSupplierIdRouteImport } from './routes/_auth.suppliers.$supplierId'
-import { Route as AuthSettingsUsersRouteImport } from './routes/_auth.settings.users'
-import { Route as AuthSettingsModulesRouteImport } from './routes/_auth.settings.modules'
-import { Route as AuthSettingsAuditRouteImport } from './routes/_auth.settings.audit'
-import { Route as AuthSalesNewRouteImport } from './routes/_auth.sales.new'
-import { Route as AuthReportsExportRouteImport } from './routes/_auth.reports.export'
-import { Route as AuthInvoicesNewRouteImport } from './routes/_auth.invoices.new'
-import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth.invoices.$invoiceId'
-import { Route as AuthFeedNewRouteImport } from './routes/_auth.feed.new'
-import { Route as AuthFarmsNewRouteImport } from './routes/_auth.farms.new'
-import { Route as AuthFarmsFarmIdRouteImport } from './routes/_auth.farms.$farmId'
-import { Route as AuthExpensesNewRouteImport } from './routes/_auth.expenses.new'
-import { Route as AuthEggsNewRouteImport } from './routes/_auth.eggs.new'
-import { Route as AuthCustomersNewRouteImport } from './routes/_auth.customers.new'
-import { Route as AuthCustomersCustomerIdRouteImport } from './routes/_auth.customers.$customerId'
-import { Route as AuthBatchesNewRouteImport } from './routes/_auth.batches.new'
-import { Route as AuthFarmsFarmIdIndexRouteImport } from './routes/_auth.farms.$farmId.index'
-import { Route as AuthBatchesBatchIdIndexRouteImport } from './routes/_auth.batches.$batchId.index'
+import { Route as AuthWeightIndexRouteImport } from './routes/_auth/weight/index'
+import { Route as AuthWaterQualityIndexRouteImport } from './routes/_auth/water-quality/index'
+import { Route as AuthVaccinationsIndexRouteImport } from './routes/_auth/vaccinations/index'
+import { Route as AuthSuppliersIndexRouteImport } from './routes/_auth/suppliers/index'
+import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/index'
+import { Route as AuthSalesIndexRouteImport } from './routes/_auth/sales/index'
+import { Route as AuthReportsIndexRouteImport } from './routes/_auth/reports/index'
+import { Route as AuthOnboardingIndexRouteImport } from './routes/_auth/onboarding/index'
+import { Route as AuthMortalityIndexRouteImport } from './routes/_auth/mortality/index'
+import { Route as AuthInvoicesIndexRouteImport } from './routes/_auth/invoices/index'
+import { Route as AuthInventoryIndexRouteImport } from './routes/_auth/inventory/index'
+import { Route as AuthFeedIndexRouteImport } from './routes/_auth/feed/index'
+import { Route as AuthFarmsIndexRouteImport } from './routes/_auth/farms/index'
+import { Route as AuthExpensesIndexRouteImport } from './routes/_auth/expenses/index'
+import { Route as AuthEggsIndexRouteImport } from './routes/_auth/eggs/index'
+import { Route as AuthDashboardIndexRouteImport } from './routes/_auth/dashboard/index'
+import { Route as AuthCustomersIndexRouteImport } from './routes/_auth/customers/index'
+import { Route as AuthBatchesIndexRouteImport } from './routes/_auth/batches/index'
+import { Route as AuthWeightNewRouteImport } from './routes/_auth/weight/new'
+import { Route as AuthWaterQualityNewRouteImport } from './routes/_auth/water-quality/new'
+import { Route as AuthVaccinationsNewRouteImport } from './routes/_auth/vaccinations/new'
+import { Route as AuthSuppliersNewRouteImport } from './routes/_auth/suppliers/new'
+import { Route as AuthSuppliersSupplierIdRouteImport } from './routes/_auth/suppliers/$supplierId'
+import { Route as AuthSettingsUsersRouteImport } from './routes/_auth/settings/users'
+import { Route as AuthSettingsModulesRouteImport } from './routes/_auth/settings/modules'
+import { Route as AuthSettingsAuditRouteImport } from './routes/_auth/settings/audit'
+import { Route as AuthSalesNewRouteImport } from './routes/_auth/sales/new'
+import { Route as AuthReportsExportRouteImport } from './routes/_auth/reports/export'
+import { Route as AuthInvoicesNewRouteImport } from './routes/_auth/invoices/new'
+import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth/invoices/$invoiceId'
+import { Route as AuthFeedNewRouteImport } from './routes/_auth/feed/new'
+import { Route as AuthFarmsNewRouteImport } from './routes/_auth/farms/new'
+import { Route as AuthFarmsFarmIdRouteImport } from './routes/_auth/farms/$farmId'
+import { Route as AuthExpensesNewRouteImport } from './routes/_auth/expenses/new'
+import { Route as AuthEggsNewRouteImport } from './routes/_auth/eggs/new'
+import { Route as AuthCustomersNewRouteImport } from './routes/_auth/customers/new'
+import { Route as AuthCustomersCustomerIdRouteImport } from './routes/_auth/customers/$customerId'
+import { Route as AuthBatchesNewRouteImport } from './routes/_auth/batches/new'
+import { Route as AuthFarmsFarmIdIndexRouteImport } from './routes/_auth/farms/$farmId/index'
+import { Route as AuthBatchesBatchIdIndexRouteImport } from './routes/_auth/batches/$batchId/index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -68,95 +67,90 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthWeightRoute = AuthWeightRouteImport.update({
-  id: '/weight',
-  path: '/weight',
+const AuthWeightIndexRoute = AuthWeightIndexRouteImport.update({
+  id: '/weight/',
+  path: '/weight/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthWaterQualityRoute = AuthWaterQualityRouteImport.update({
-  id: '/water-quality',
-  path: '/water-quality',
+const AuthWaterQualityIndexRoute = AuthWaterQualityIndexRouteImport.update({
+  id: '/water-quality/',
+  path: '/water-quality/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthVaccinationsRoute = AuthVaccinationsRouteImport.update({
-  id: '/vaccinations',
-  path: '/vaccinations',
+const AuthVaccinationsIndexRoute = AuthVaccinationsIndexRouteImport.update({
+  id: '/vaccinations/',
+  path: '/vaccinations/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthSuppliersRoute = AuthSuppliersRouteImport.update({
-  id: '/suppliers',
-  path: '/suppliers',
+const AuthSuppliersIndexRoute = AuthSuppliersIndexRouteImport.update({
+  id: '/suppliers/',
+  path: '/suppliers/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthSettingsRoute = AuthSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const AuthSettingsIndexRoute = AuthSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthSalesRoute = AuthSalesRouteImport.update({
-  id: '/sales',
-  path: '/sales',
+const AuthSalesIndexRoute = AuthSalesIndexRouteImport.update({
+  id: '/sales/',
+  path: '/sales/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthReportsRoute = AuthReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
+const AuthReportsIndexRoute = AuthReportsIndexRouteImport.update({
+  id: '/reports/',
+  path: '/reports/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthOnboardingRoute = AuthOnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
+const AuthOnboardingIndexRoute = AuthOnboardingIndexRouteImport.update({
+  id: '/onboarding/',
+  path: '/onboarding/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthMortalityRoute = AuthMortalityRouteImport.update({
-  id: '/mortality',
-  path: '/mortality',
+const AuthMortalityIndexRoute = AuthMortalityIndexRouteImport.update({
+  id: '/mortality/',
+  path: '/mortality/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthInvoicesRoute = AuthInvoicesRouteImport.update({
-  id: '/invoices',
-  path: '/invoices',
+const AuthInvoicesIndexRoute = AuthInvoicesIndexRouteImport.update({
+  id: '/invoices/',
+  path: '/invoices/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthInventoryRoute = AuthInventoryRouteImport.update({
-  id: '/inventory',
-  path: '/inventory',
+const AuthInventoryIndexRoute = AuthInventoryIndexRouteImport.update({
+  id: '/inventory/',
+  path: '/inventory/',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthFeedRoute = AuthFeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthFarmsRoute = AuthFarmsRouteImport.update({
-  id: '/farms',
-  path: '/farms',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthExpensesRoute = AuthExpensesRouteImport.update({
-  id: '/expenses',
-  path: '/expenses',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthEggsRoute = AuthEggsRouteImport.update({
-  id: '/eggs',
-  path: '/eggs',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthDashboardRoute = AuthDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthCustomersRoute = AuthCustomersRouteImport.update({
-  id: '/customers',
-  path: '/customers',
+const AuthFeedIndexRoute = AuthFeedIndexRouteImport.update({
+  id: '/feed/',
+  path: '/feed/',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthFarmsIndexRoute = AuthFarmsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthFarmsRoute,
+  id: '/farms/',
+  path: '/farms/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthExpensesIndexRoute = AuthExpensesIndexRouteImport.update({
+  id: '/expenses/',
+  path: '/expenses/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthEggsIndexRoute = AuthEggsIndexRouteImport.update({
+  id: '/eggs/',
+  path: '/eggs/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthDashboardIndexRoute = AuthDashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCustomersIndexRoute = AuthCustomersIndexRouteImport.update({
+  id: '/customers/',
+  path: '/customers/',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthBatchesIndexRoute = AuthBatchesIndexRouteImport.update({
   id: '/batches/',
@@ -164,99 +158,99 @@ const AuthBatchesIndexRoute = AuthBatchesIndexRouteImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthWeightNewRoute = AuthWeightNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthWeightRoute,
+  id: '/weight/new',
+  path: '/weight/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthWaterQualityNewRoute = AuthWaterQualityNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthWaterQualityRoute,
+  id: '/water-quality/new',
+  path: '/water-quality/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthVaccinationsNewRoute = AuthVaccinationsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthVaccinationsRoute,
+  id: '/vaccinations/new',
+  path: '/vaccinations/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthSuppliersNewRoute = AuthSuppliersNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthSuppliersRoute,
+  id: '/suppliers/new',
+  path: '/suppliers/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthSuppliersSupplierIdRoute = AuthSuppliersSupplierIdRouteImport.update({
-  id: '/$supplierId',
-  path: '/$supplierId',
-  getParentRoute: () => AuthSuppliersRoute,
+  id: '/suppliers/$supplierId',
+  path: '/suppliers/$supplierId',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthSettingsUsersRoute = AuthSettingsUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AuthSettingsRoute,
+  id: '/settings/users',
+  path: '/settings/users',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthSettingsModulesRoute = AuthSettingsModulesRouteImport.update({
-  id: '/modules',
-  path: '/modules',
-  getParentRoute: () => AuthSettingsRoute,
+  id: '/settings/modules',
+  path: '/settings/modules',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthSettingsAuditRoute = AuthSettingsAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => AuthSettingsRoute,
+  id: '/settings/audit',
+  path: '/settings/audit',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthSalesNewRoute = AuthSalesNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthSalesRoute,
+  id: '/sales/new',
+  path: '/sales/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthReportsExportRoute = AuthReportsExportRouteImport.update({
-  id: '/export',
-  path: '/export',
-  getParentRoute: () => AuthReportsRoute,
+  id: '/reports/export',
+  path: '/reports/export',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthInvoicesNewRoute = AuthInvoicesNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthInvoicesRoute,
+  id: '/invoices/new',
+  path: '/invoices/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthInvoicesInvoiceIdRoute = AuthInvoicesInvoiceIdRouteImport.update({
-  id: '/$invoiceId',
-  path: '/$invoiceId',
-  getParentRoute: () => AuthInvoicesRoute,
+  id: '/invoices/$invoiceId',
+  path: '/invoices/$invoiceId',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthFeedNewRoute = AuthFeedNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthFeedRoute,
+  id: '/feed/new',
+  path: '/feed/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthFarmsNewRoute = AuthFarmsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthFarmsRoute,
+  id: '/farms/new',
+  path: '/farms/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthFarmsFarmIdRoute = AuthFarmsFarmIdRouteImport.update({
-  id: '/$farmId',
-  path: '/$farmId',
-  getParentRoute: () => AuthFarmsRoute,
+  id: '/farms/$farmId',
+  path: '/farms/$farmId',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthExpensesNewRoute = AuthExpensesNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthExpensesRoute,
+  id: '/expenses/new',
+  path: '/expenses/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthEggsNewRoute = AuthEggsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthEggsRoute,
+  id: '/eggs/new',
+  path: '/eggs/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthCustomersNewRoute = AuthCustomersNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthCustomersRoute,
+  id: '/customers/new',
+  path: '/customers/new',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthCustomersCustomerIdRoute = AuthCustomersCustomerIdRouteImport.update({
-  id: '/$customerId',
-  path: '/$customerId',
-  getParentRoute: () => AuthCustomersRoute,
+  id: '/customers/$customerId',
+  path: '/customers/$customerId',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthBatchesNewRoute = AuthBatchesNewRouteImport.update({
   id: '/batches/new',
@@ -277,23 +271,6 @@ const AuthBatchesBatchIdIndexRoute = AuthBatchesBatchIdIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/customers': typeof AuthCustomersRouteWithChildren
-  '/dashboard': typeof AuthDashboardRoute
-  '/eggs': typeof AuthEggsRouteWithChildren
-  '/expenses': typeof AuthExpensesRouteWithChildren
-  '/farms': typeof AuthFarmsRouteWithChildren
-  '/feed': typeof AuthFeedRouteWithChildren
-  '/inventory': typeof AuthInventoryRoute
-  '/invoices': typeof AuthInvoicesRouteWithChildren
-  '/mortality': typeof AuthMortalityRoute
-  '/onboarding': typeof AuthOnboardingRoute
-  '/reports': typeof AuthReportsRouteWithChildren
-  '/sales': typeof AuthSalesRouteWithChildren
-  '/settings': typeof AuthSettingsRouteWithChildren
-  '/suppliers': typeof AuthSuppliersRouteWithChildren
-  '/vaccinations': typeof AuthVaccinationsRouteWithChildren
-  '/water-quality': typeof AuthWaterQualityRouteWithChildren
-  '/weight': typeof AuthWeightRouteWithChildren
   '/batches/new': typeof AuthBatchesNewRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/customers/new': typeof AuthCustomersNewRoute
@@ -315,29 +292,29 @@ export interface FileRoutesByFullPath {
   '/water-quality/new': typeof AuthWaterQualityNewRoute
   '/weight/new': typeof AuthWeightNewRoute
   '/batches': typeof AuthBatchesIndexRoute
-  '/farms/': typeof AuthFarmsIndexRoute
+  '/customers': typeof AuthCustomersIndexRoute
+  '/dashboard': typeof AuthDashboardIndexRoute
+  '/eggs': typeof AuthEggsIndexRoute
+  '/expenses': typeof AuthExpensesIndexRoute
+  '/farms': typeof AuthFarmsIndexRoute
+  '/feed': typeof AuthFeedIndexRoute
+  '/inventory': typeof AuthInventoryIndexRoute
+  '/invoices': typeof AuthInvoicesIndexRoute
+  '/mortality': typeof AuthMortalityIndexRoute
+  '/onboarding': typeof AuthOnboardingIndexRoute
+  '/reports': typeof AuthReportsIndexRoute
+  '/sales': typeof AuthSalesIndexRoute
+  '/settings': typeof AuthSettingsIndexRoute
+  '/suppliers': typeof AuthSuppliersIndexRoute
+  '/vaccinations': typeof AuthVaccinationsIndexRoute
+  '/water-quality': typeof AuthWaterQualityIndexRoute
+  '/weight': typeof AuthWeightIndexRoute
   '/batches/$batchId': typeof AuthBatchesBatchIdIndexRoute
   '/farms/$farmId/': typeof AuthFarmsFarmIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/customers': typeof AuthCustomersRouteWithChildren
-  '/dashboard': typeof AuthDashboardRoute
-  '/eggs': typeof AuthEggsRouteWithChildren
-  '/expenses': typeof AuthExpensesRouteWithChildren
-  '/feed': typeof AuthFeedRouteWithChildren
-  '/inventory': typeof AuthInventoryRoute
-  '/invoices': typeof AuthInvoicesRouteWithChildren
-  '/mortality': typeof AuthMortalityRoute
-  '/onboarding': typeof AuthOnboardingRoute
-  '/reports': typeof AuthReportsRouteWithChildren
-  '/sales': typeof AuthSalesRouteWithChildren
-  '/settings': typeof AuthSettingsRouteWithChildren
-  '/suppliers': typeof AuthSuppliersRouteWithChildren
-  '/vaccinations': typeof AuthVaccinationsRouteWithChildren
-  '/water-quality': typeof AuthWaterQualityRouteWithChildren
-  '/weight': typeof AuthWeightRouteWithChildren
   '/batches/new': typeof AuthBatchesNewRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/customers/new': typeof AuthCustomersNewRoute
@@ -358,7 +335,23 @@ export interface FileRoutesByTo {
   '/water-quality/new': typeof AuthWaterQualityNewRoute
   '/weight/new': typeof AuthWeightNewRoute
   '/batches': typeof AuthBatchesIndexRoute
+  '/customers': typeof AuthCustomersIndexRoute
+  '/dashboard': typeof AuthDashboardIndexRoute
+  '/eggs': typeof AuthEggsIndexRoute
+  '/expenses': typeof AuthExpensesIndexRoute
   '/farms': typeof AuthFarmsIndexRoute
+  '/feed': typeof AuthFeedIndexRoute
+  '/inventory': typeof AuthInventoryIndexRoute
+  '/invoices': typeof AuthInvoicesIndexRoute
+  '/mortality': typeof AuthMortalityIndexRoute
+  '/onboarding': typeof AuthOnboardingIndexRoute
+  '/reports': typeof AuthReportsIndexRoute
+  '/sales': typeof AuthSalesIndexRoute
+  '/settings': typeof AuthSettingsIndexRoute
+  '/suppliers': typeof AuthSuppliersIndexRoute
+  '/vaccinations': typeof AuthVaccinationsIndexRoute
+  '/water-quality': typeof AuthWaterQualityIndexRoute
+  '/weight': typeof AuthWeightIndexRoute
   '/batches/$batchId': typeof AuthBatchesBatchIdIndexRoute
   '/farms/$farmId': typeof AuthFarmsFarmIdIndexRoute
 }
@@ -367,23 +360,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
-  '/_auth/customers': typeof AuthCustomersRouteWithChildren
-  '/_auth/dashboard': typeof AuthDashboardRoute
-  '/_auth/eggs': typeof AuthEggsRouteWithChildren
-  '/_auth/expenses': typeof AuthExpensesRouteWithChildren
-  '/_auth/farms': typeof AuthFarmsRouteWithChildren
-  '/_auth/feed': typeof AuthFeedRouteWithChildren
-  '/_auth/inventory': typeof AuthInventoryRoute
-  '/_auth/invoices': typeof AuthInvoicesRouteWithChildren
-  '/_auth/mortality': typeof AuthMortalityRoute
-  '/_auth/onboarding': typeof AuthOnboardingRoute
-  '/_auth/reports': typeof AuthReportsRouteWithChildren
-  '/_auth/sales': typeof AuthSalesRouteWithChildren
-  '/_auth/settings': typeof AuthSettingsRouteWithChildren
-  '/_auth/suppliers': typeof AuthSuppliersRouteWithChildren
-  '/_auth/vaccinations': typeof AuthVaccinationsRouteWithChildren
-  '/_auth/water-quality': typeof AuthWaterQualityRouteWithChildren
-  '/_auth/weight': typeof AuthWeightRouteWithChildren
   '/_auth/batches/new': typeof AuthBatchesNewRoute
   '/_auth/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/_auth/customers/new': typeof AuthCustomersNewRoute
@@ -405,7 +381,23 @@ export interface FileRoutesById {
   '/_auth/water-quality/new': typeof AuthWaterQualityNewRoute
   '/_auth/weight/new': typeof AuthWeightNewRoute
   '/_auth/batches/': typeof AuthBatchesIndexRoute
+  '/_auth/customers/': typeof AuthCustomersIndexRoute
+  '/_auth/dashboard/': typeof AuthDashboardIndexRoute
+  '/_auth/eggs/': typeof AuthEggsIndexRoute
+  '/_auth/expenses/': typeof AuthExpensesIndexRoute
   '/_auth/farms/': typeof AuthFarmsIndexRoute
+  '/_auth/feed/': typeof AuthFeedIndexRoute
+  '/_auth/inventory/': typeof AuthInventoryIndexRoute
+  '/_auth/invoices/': typeof AuthInvoicesIndexRoute
+  '/_auth/mortality/': typeof AuthMortalityIndexRoute
+  '/_auth/onboarding/': typeof AuthOnboardingIndexRoute
+  '/_auth/reports/': typeof AuthReportsIndexRoute
+  '/_auth/sales/': typeof AuthSalesIndexRoute
+  '/_auth/settings/': typeof AuthSettingsIndexRoute
+  '/_auth/suppliers/': typeof AuthSuppliersIndexRoute
+  '/_auth/vaccinations/': typeof AuthVaccinationsIndexRoute
+  '/_auth/water-quality/': typeof AuthWaterQualityIndexRoute
+  '/_auth/weight/': typeof AuthWeightIndexRoute
   '/_auth/batches/$batchId/': typeof AuthBatchesBatchIdIndexRoute
   '/_auth/farms/$farmId/': typeof AuthFarmsFarmIdIndexRoute
 }
@@ -414,23 +406,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/customers'
-    | '/dashboard'
-    | '/eggs'
-    | '/expenses'
-    | '/farms'
-    | '/feed'
-    | '/inventory'
-    | '/invoices'
-    | '/mortality'
-    | '/onboarding'
-    | '/reports'
-    | '/sales'
-    | '/settings'
-    | '/suppliers'
-    | '/vaccinations'
-    | '/water-quality'
-    | '/weight'
     | '/batches/new'
     | '/customers/$customerId'
     | '/customers/new'
@@ -452,17 +427,11 @@ export interface FileRouteTypes {
     | '/water-quality/new'
     | '/weight/new'
     | '/batches'
-    | '/farms/'
-    | '/batches/$batchId'
-    | '/farms/$farmId/'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/login'
     | '/customers'
     | '/dashboard'
     | '/eggs'
     | '/expenses'
+    | '/farms'
     | '/feed'
     | '/inventory'
     | '/invoices'
@@ -475,6 +444,12 @@ export interface FileRouteTypes {
     | '/vaccinations'
     | '/water-quality'
     | '/weight'
+    | '/batches/$batchId'
+    | '/farms/$farmId/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/login'
     | '/batches/new'
     | '/customers/$customerId'
     | '/customers/new'
@@ -495,7 +470,23 @@ export interface FileRouteTypes {
     | '/water-quality/new'
     | '/weight/new'
     | '/batches'
+    | '/customers'
+    | '/dashboard'
+    | '/eggs'
+    | '/expenses'
     | '/farms'
+    | '/feed'
+    | '/inventory'
+    | '/invoices'
+    | '/mortality'
+    | '/onboarding'
+    | '/reports'
+    | '/sales'
+    | '/settings'
+    | '/suppliers'
+    | '/vaccinations'
+    | '/water-quality'
+    | '/weight'
     | '/batches/$batchId'
     | '/farms/$farmId'
   id:
@@ -503,23 +494,6 @@ export interface FileRouteTypes {
     | '/'
     | '/_auth'
     | '/login'
-    | '/_auth/customers'
-    | '/_auth/dashboard'
-    | '/_auth/eggs'
-    | '/_auth/expenses'
-    | '/_auth/farms'
-    | '/_auth/feed'
-    | '/_auth/inventory'
-    | '/_auth/invoices'
-    | '/_auth/mortality'
-    | '/_auth/onboarding'
-    | '/_auth/reports'
-    | '/_auth/sales'
-    | '/_auth/settings'
-    | '/_auth/suppliers'
-    | '/_auth/vaccinations'
-    | '/_auth/water-quality'
-    | '/_auth/weight'
     | '/_auth/batches/new'
     | '/_auth/customers/$customerId'
     | '/_auth/customers/new'
@@ -541,7 +515,23 @@ export interface FileRouteTypes {
     | '/_auth/water-quality/new'
     | '/_auth/weight/new'
     | '/_auth/batches/'
+    | '/_auth/customers/'
+    | '/_auth/dashboard/'
+    | '/_auth/eggs/'
+    | '/_auth/expenses/'
     | '/_auth/farms/'
+    | '/_auth/feed/'
+    | '/_auth/inventory/'
+    | '/_auth/invoices/'
+    | '/_auth/mortality/'
+    | '/_auth/onboarding/'
+    | '/_auth/reports/'
+    | '/_auth/sales/'
+    | '/_auth/settings/'
+    | '/_auth/suppliers/'
+    | '/_auth/vaccinations/'
+    | '/_auth/water-quality/'
+    | '/_auth/weight/'
     | '/_auth/batches/$batchId/'
     | '/_auth/farms/$farmId/'
   fileRoutesById: FileRoutesById
@@ -575,131 +565,124 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/weight': {
-      id: '/_auth/weight'
+    '/_auth/weight/': {
+      id: '/_auth/weight/'
       path: '/weight'
       fullPath: '/weight'
-      preLoaderRoute: typeof AuthWeightRouteImport
+      preLoaderRoute: typeof AuthWeightIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/water-quality': {
-      id: '/_auth/water-quality'
+    '/_auth/water-quality/': {
+      id: '/_auth/water-quality/'
       path: '/water-quality'
       fullPath: '/water-quality'
-      preLoaderRoute: typeof AuthWaterQualityRouteImport
+      preLoaderRoute: typeof AuthWaterQualityIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/vaccinations': {
-      id: '/_auth/vaccinations'
+    '/_auth/vaccinations/': {
+      id: '/_auth/vaccinations/'
       path: '/vaccinations'
       fullPath: '/vaccinations'
-      preLoaderRoute: typeof AuthVaccinationsRouteImport
+      preLoaderRoute: typeof AuthVaccinationsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/suppliers': {
-      id: '/_auth/suppliers'
+    '/_auth/suppliers/': {
+      id: '/_auth/suppliers/'
       path: '/suppliers'
       fullPath: '/suppliers'
-      preLoaderRoute: typeof AuthSuppliersRouteImport
+      preLoaderRoute: typeof AuthSuppliersIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/settings': {
-      id: '/_auth/settings'
+    '/_auth/settings/': {
+      id: '/_auth/settings/'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof AuthSettingsRouteImport
+      preLoaderRoute: typeof AuthSettingsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/sales': {
-      id: '/_auth/sales'
+    '/_auth/sales/': {
+      id: '/_auth/sales/'
       path: '/sales'
       fullPath: '/sales'
-      preLoaderRoute: typeof AuthSalesRouteImport
+      preLoaderRoute: typeof AuthSalesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/reports': {
-      id: '/_auth/reports'
+    '/_auth/reports/': {
+      id: '/_auth/reports/'
       path: '/reports'
       fullPath: '/reports'
-      preLoaderRoute: typeof AuthReportsRouteImport
+      preLoaderRoute: typeof AuthReportsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/onboarding': {
-      id: '/_auth/onboarding'
+    '/_auth/onboarding/': {
+      id: '/_auth/onboarding/'
       path: '/onboarding'
       fullPath: '/onboarding'
-      preLoaderRoute: typeof AuthOnboardingRouteImport
+      preLoaderRoute: typeof AuthOnboardingIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/mortality': {
-      id: '/_auth/mortality'
+    '/_auth/mortality/': {
+      id: '/_auth/mortality/'
       path: '/mortality'
       fullPath: '/mortality'
-      preLoaderRoute: typeof AuthMortalityRouteImport
+      preLoaderRoute: typeof AuthMortalityIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/invoices': {
-      id: '/_auth/invoices'
+    '/_auth/invoices/': {
+      id: '/_auth/invoices/'
       path: '/invoices'
       fullPath: '/invoices'
-      preLoaderRoute: typeof AuthInvoicesRouteImport
+      preLoaderRoute: typeof AuthInvoicesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/inventory': {
-      id: '/_auth/inventory'
+    '/_auth/inventory/': {
+      id: '/_auth/inventory/'
       path: '/inventory'
       fullPath: '/inventory'
-      preLoaderRoute: typeof AuthInventoryRouteImport
+      preLoaderRoute: typeof AuthInventoryIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/feed': {
-      id: '/_auth/feed'
+    '/_auth/feed/': {
+      id: '/_auth/feed/'
       path: '/feed'
       fullPath: '/feed'
-      preLoaderRoute: typeof AuthFeedRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/farms': {
-      id: '/_auth/farms'
-      path: '/farms'
-      fullPath: '/farms'
-      preLoaderRoute: typeof AuthFarmsRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/expenses': {
-      id: '/_auth/expenses'
-      path: '/expenses'
-      fullPath: '/expenses'
-      preLoaderRoute: typeof AuthExpensesRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/eggs': {
-      id: '/_auth/eggs'
-      path: '/eggs'
-      fullPath: '/eggs'
-      preLoaderRoute: typeof AuthEggsRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/dashboard': {
-      id: '/_auth/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthDashboardRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/customers': {
-      id: '/_auth/customers'
-      path: '/customers'
-      fullPath: '/customers'
-      preLoaderRoute: typeof AuthCustomersRouteImport
+      preLoaderRoute: typeof AuthFeedIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/farms/': {
       id: '/_auth/farms/'
-      path: '/'
-      fullPath: '/farms/'
+      path: '/farms'
+      fullPath: '/farms'
       preLoaderRoute: typeof AuthFarmsIndexRouteImport
-      parentRoute: typeof AuthFarmsRoute
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/expenses/': {
+      id: '/_auth/expenses/'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof AuthExpensesIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/eggs/': {
+      id: '/_auth/eggs/'
+      path: '/eggs'
+      fullPath: '/eggs'
+      preLoaderRoute: typeof AuthEggsIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/dashboard/': {
+      id: '/_auth/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthDashboardIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/customers/': {
+      id: '/_auth/customers/'
+      path: '/customers'
+      fullPath: '/customers'
+      preLoaderRoute: typeof AuthCustomersIndexRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/batches/': {
       id: '/_auth/batches/'
@@ -710,136 +693,136 @@ declare module '@tanstack/react-router' {
     }
     '/_auth/weight/new': {
       id: '/_auth/weight/new'
-      path: '/new'
+      path: '/weight/new'
       fullPath: '/weight/new'
       preLoaderRoute: typeof AuthWeightNewRouteImport
-      parentRoute: typeof AuthWeightRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/water-quality/new': {
       id: '/_auth/water-quality/new'
-      path: '/new'
+      path: '/water-quality/new'
       fullPath: '/water-quality/new'
       preLoaderRoute: typeof AuthWaterQualityNewRouteImport
-      parentRoute: typeof AuthWaterQualityRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/vaccinations/new': {
       id: '/_auth/vaccinations/new'
-      path: '/new'
+      path: '/vaccinations/new'
       fullPath: '/vaccinations/new'
       preLoaderRoute: typeof AuthVaccinationsNewRouteImport
-      parentRoute: typeof AuthVaccinationsRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/suppliers/new': {
       id: '/_auth/suppliers/new'
-      path: '/new'
+      path: '/suppliers/new'
       fullPath: '/suppliers/new'
       preLoaderRoute: typeof AuthSuppliersNewRouteImport
-      parentRoute: typeof AuthSuppliersRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/suppliers/$supplierId': {
       id: '/_auth/suppliers/$supplierId'
-      path: '/$supplierId'
+      path: '/suppliers/$supplierId'
       fullPath: '/suppliers/$supplierId'
       preLoaderRoute: typeof AuthSuppliersSupplierIdRouteImport
-      parentRoute: typeof AuthSuppliersRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/settings/users': {
       id: '/_auth/settings/users'
-      path: '/users'
+      path: '/settings/users'
       fullPath: '/settings/users'
       preLoaderRoute: typeof AuthSettingsUsersRouteImport
-      parentRoute: typeof AuthSettingsRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/settings/modules': {
       id: '/_auth/settings/modules'
-      path: '/modules'
+      path: '/settings/modules'
       fullPath: '/settings/modules'
       preLoaderRoute: typeof AuthSettingsModulesRouteImport
-      parentRoute: typeof AuthSettingsRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/settings/audit': {
       id: '/_auth/settings/audit'
-      path: '/audit'
+      path: '/settings/audit'
       fullPath: '/settings/audit'
       preLoaderRoute: typeof AuthSettingsAuditRouteImport
-      parentRoute: typeof AuthSettingsRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/sales/new': {
       id: '/_auth/sales/new'
-      path: '/new'
+      path: '/sales/new'
       fullPath: '/sales/new'
       preLoaderRoute: typeof AuthSalesNewRouteImport
-      parentRoute: typeof AuthSalesRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/reports/export': {
       id: '/_auth/reports/export'
-      path: '/export'
+      path: '/reports/export'
       fullPath: '/reports/export'
       preLoaderRoute: typeof AuthReportsExportRouteImport
-      parentRoute: typeof AuthReportsRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/invoices/new': {
       id: '/_auth/invoices/new'
-      path: '/new'
+      path: '/invoices/new'
       fullPath: '/invoices/new'
       preLoaderRoute: typeof AuthInvoicesNewRouteImport
-      parentRoute: typeof AuthInvoicesRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/invoices/$invoiceId': {
       id: '/_auth/invoices/$invoiceId'
-      path: '/$invoiceId'
+      path: '/invoices/$invoiceId'
       fullPath: '/invoices/$invoiceId'
       preLoaderRoute: typeof AuthInvoicesInvoiceIdRouteImport
-      parentRoute: typeof AuthInvoicesRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/feed/new': {
       id: '/_auth/feed/new'
-      path: '/new'
+      path: '/feed/new'
       fullPath: '/feed/new'
       preLoaderRoute: typeof AuthFeedNewRouteImport
-      parentRoute: typeof AuthFeedRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/farms/new': {
       id: '/_auth/farms/new'
-      path: '/new'
+      path: '/farms/new'
       fullPath: '/farms/new'
       preLoaderRoute: typeof AuthFarmsNewRouteImport
-      parentRoute: typeof AuthFarmsRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/farms/$farmId': {
       id: '/_auth/farms/$farmId'
-      path: '/$farmId'
+      path: '/farms/$farmId'
       fullPath: '/farms/$farmId'
       preLoaderRoute: typeof AuthFarmsFarmIdRouteImport
-      parentRoute: typeof AuthFarmsRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/expenses/new': {
       id: '/_auth/expenses/new'
-      path: '/new'
+      path: '/expenses/new'
       fullPath: '/expenses/new'
       preLoaderRoute: typeof AuthExpensesNewRouteImport
-      parentRoute: typeof AuthExpensesRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/eggs/new': {
       id: '/_auth/eggs/new'
-      path: '/new'
+      path: '/eggs/new'
       fullPath: '/eggs/new'
       preLoaderRoute: typeof AuthEggsNewRouteImport
-      parentRoute: typeof AuthEggsRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/customers/new': {
       id: '/_auth/customers/new'
-      path: '/new'
+      path: '/customers/new'
       fullPath: '/customers/new'
       preLoaderRoute: typeof AuthCustomersNewRouteImport
-      parentRoute: typeof AuthCustomersRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/customers/$customerId': {
       id: '/_auth/customers/$customerId'
-      path: '/$customerId'
+      path: '/customers/$customerId'
       fullPath: '/customers/$customerId'
       preLoaderRoute: typeof AuthCustomersCustomerIdRouteImport
-      parentRoute: typeof AuthCustomersRoute
+      parentRoute: typeof AuthRoute
     }
     '/_auth/batches/new': {
       id: '/_auth/batches/new'
@@ -865,44 +848,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthCustomersRouteChildren {
-  AuthCustomersCustomerIdRoute: typeof AuthCustomersCustomerIdRoute
-  AuthCustomersNewRoute: typeof AuthCustomersNewRoute
-}
-
-const AuthCustomersRouteChildren: AuthCustomersRouteChildren = {
-  AuthCustomersCustomerIdRoute: AuthCustomersCustomerIdRoute,
-  AuthCustomersNewRoute: AuthCustomersNewRoute,
-}
-
-const AuthCustomersRouteWithChildren = AuthCustomersRoute._addFileChildren(
-  AuthCustomersRouteChildren,
-)
-
-interface AuthEggsRouteChildren {
-  AuthEggsNewRoute: typeof AuthEggsNewRoute
-}
-
-const AuthEggsRouteChildren: AuthEggsRouteChildren = {
-  AuthEggsNewRoute: AuthEggsNewRoute,
-}
-
-const AuthEggsRouteWithChildren = AuthEggsRoute._addFileChildren(
-  AuthEggsRouteChildren,
-)
-
-interface AuthExpensesRouteChildren {
-  AuthExpensesNewRoute: typeof AuthExpensesNewRoute
-}
-
-const AuthExpensesRouteChildren: AuthExpensesRouteChildren = {
-  AuthExpensesNewRoute: AuthExpensesNewRoute,
-}
-
-const AuthExpensesRouteWithChildren = AuthExpensesRoute._addFileChildren(
-  AuthExpensesRouteChildren,
-)
-
 interface AuthFarmsFarmIdRouteChildren {
   AuthFarmsFarmIdIndexRoute: typeof AuthFarmsFarmIdIndexRoute
 }
@@ -915,179 +860,87 @@ const AuthFarmsFarmIdRouteWithChildren = AuthFarmsFarmIdRoute._addFileChildren(
   AuthFarmsFarmIdRouteChildren,
 )
 
-interface AuthFarmsRouteChildren {
+interface AuthRouteChildren {
+  AuthBatchesNewRoute: typeof AuthBatchesNewRoute
+  AuthCustomersCustomerIdRoute: typeof AuthCustomersCustomerIdRoute
+  AuthCustomersNewRoute: typeof AuthCustomersNewRoute
+  AuthEggsNewRoute: typeof AuthEggsNewRoute
+  AuthExpensesNewRoute: typeof AuthExpensesNewRoute
   AuthFarmsFarmIdRoute: typeof AuthFarmsFarmIdRouteWithChildren
   AuthFarmsNewRoute: typeof AuthFarmsNewRoute
-  AuthFarmsIndexRoute: typeof AuthFarmsIndexRoute
-}
-
-const AuthFarmsRouteChildren: AuthFarmsRouteChildren = {
-  AuthFarmsFarmIdRoute: AuthFarmsFarmIdRouteWithChildren,
-  AuthFarmsNewRoute: AuthFarmsNewRoute,
-  AuthFarmsIndexRoute: AuthFarmsIndexRoute,
-}
-
-const AuthFarmsRouteWithChildren = AuthFarmsRoute._addFileChildren(
-  AuthFarmsRouteChildren,
-)
-
-interface AuthFeedRouteChildren {
   AuthFeedNewRoute: typeof AuthFeedNewRoute
-}
-
-const AuthFeedRouteChildren: AuthFeedRouteChildren = {
-  AuthFeedNewRoute: AuthFeedNewRoute,
-}
-
-const AuthFeedRouteWithChildren = AuthFeedRoute._addFileChildren(
-  AuthFeedRouteChildren,
-)
-
-interface AuthInvoicesRouteChildren {
   AuthInvoicesInvoiceIdRoute: typeof AuthInvoicesInvoiceIdRoute
   AuthInvoicesNewRoute: typeof AuthInvoicesNewRoute
-}
-
-const AuthInvoicesRouteChildren: AuthInvoicesRouteChildren = {
-  AuthInvoicesInvoiceIdRoute: AuthInvoicesInvoiceIdRoute,
-  AuthInvoicesNewRoute: AuthInvoicesNewRoute,
-}
-
-const AuthInvoicesRouteWithChildren = AuthInvoicesRoute._addFileChildren(
-  AuthInvoicesRouteChildren,
-)
-
-interface AuthReportsRouteChildren {
   AuthReportsExportRoute: typeof AuthReportsExportRoute
-}
-
-const AuthReportsRouteChildren: AuthReportsRouteChildren = {
-  AuthReportsExportRoute: AuthReportsExportRoute,
-}
-
-const AuthReportsRouteWithChildren = AuthReportsRoute._addFileChildren(
-  AuthReportsRouteChildren,
-)
-
-interface AuthSalesRouteChildren {
   AuthSalesNewRoute: typeof AuthSalesNewRoute
-}
-
-const AuthSalesRouteChildren: AuthSalesRouteChildren = {
-  AuthSalesNewRoute: AuthSalesNewRoute,
-}
-
-const AuthSalesRouteWithChildren = AuthSalesRoute._addFileChildren(
-  AuthSalesRouteChildren,
-)
-
-interface AuthSettingsRouteChildren {
   AuthSettingsAuditRoute: typeof AuthSettingsAuditRoute
   AuthSettingsModulesRoute: typeof AuthSettingsModulesRoute
   AuthSettingsUsersRoute: typeof AuthSettingsUsersRoute
-}
-
-const AuthSettingsRouteChildren: AuthSettingsRouteChildren = {
-  AuthSettingsAuditRoute: AuthSettingsAuditRoute,
-  AuthSettingsModulesRoute: AuthSettingsModulesRoute,
-  AuthSettingsUsersRoute: AuthSettingsUsersRoute,
-}
-
-const AuthSettingsRouteWithChildren = AuthSettingsRoute._addFileChildren(
-  AuthSettingsRouteChildren,
-)
-
-interface AuthSuppliersRouteChildren {
   AuthSuppliersSupplierIdRoute: typeof AuthSuppliersSupplierIdRoute
   AuthSuppliersNewRoute: typeof AuthSuppliersNewRoute
-}
-
-const AuthSuppliersRouteChildren: AuthSuppliersRouteChildren = {
-  AuthSuppliersSupplierIdRoute: AuthSuppliersSupplierIdRoute,
-  AuthSuppliersNewRoute: AuthSuppliersNewRoute,
-}
-
-const AuthSuppliersRouteWithChildren = AuthSuppliersRoute._addFileChildren(
-  AuthSuppliersRouteChildren,
-)
-
-interface AuthVaccinationsRouteChildren {
   AuthVaccinationsNewRoute: typeof AuthVaccinationsNewRoute
-}
-
-const AuthVaccinationsRouteChildren: AuthVaccinationsRouteChildren = {
-  AuthVaccinationsNewRoute: AuthVaccinationsNewRoute,
-}
-
-const AuthVaccinationsRouteWithChildren =
-  AuthVaccinationsRoute._addFileChildren(AuthVaccinationsRouteChildren)
-
-interface AuthWaterQualityRouteChildren {
   AuthWaterQualityNewRoute: typeof AuthWaterQualityNewRoute
-}
-
-const AuthWaterQualityRouteChildren: AuthWaterQualityRouteChildren = {
-  AuthWaterQualityNewRoute: AuthWaterQualityNewRoute,
-}
-
-const AuthWaterQualityRouteWithChildren =
-  AuthWaterQualityRoute._addFileChildren(AuthWaterQualityRouteChildren)
-
-interface AuthWeightRouteChildren {
   AuthWeightNewRoute: typeof AuthWeightNewRoute
-}
-
-const AuthWeightRouteChildren: AuthWeightRouteChildren = {
-  AuthWeightNewRoute: AuthWeightNewRoute,
-}
-
-const AuthWeightRouteWithChildren = AuthWeightRoute._addFileChildren(
-  AuthWeightRouteChildren,
-)
-
-interface AuthRouteChildren {
-  AuthCustomersRoute: typeof AuthCustomersRouteWithChildren
-  AuthDashboardRoute: typeof AuthDashboardRoute
-  AuthEggsRoute: typeof AuthEggsRouteWithChildren
-  AuthExpensesRoute: typeof AuthExpensesRouteWithChildren
-  AuthFarmsRoute: typeof AuthFarmsRouteWithChildren
-  AuthFeedRoute: typeof AuthFeedRouteWithChildren
-  AuthInventoryRoute: typeof AuthInventoryRoute
-  AuthInvoicesRoute: typeof AuthInvoicesRouteWithChildren
-  AuthMortalityRoute: typeof AuthMortalityRoute
-  AuthOnboardingRoute: typeof AuthOnboardingRoute
-  AuthReportsRoute: typeof AuthReportsRouteWithChildren
-  AuthSalesRoute: typeof AuthSalesRouteWithChildren
-  AuthSettingsRoute: typeof AuthSettingsRouteWithChildren
-  AuthSuppliersRoute: typeof AuthSuppliersRouteWithChildren
-  AuthVaccinationsRoute: typeof AuthVaccinationsRouteWithChildren
-  AuthWaterQualityRoute: typeof AuthWaterQualityRouteWithChildren
-  AuthWeightRoute: typeof AuthWeightRouteWithChildren
-  AuthBatchesNewRoute: typeof AuthBatchesNewRoute
   AuthBatchesIndexRoute: typeof AuthBatchesIndexRoute
+  AuthCustomersIndexRoute: typeof AuthCustomersIndexRoute
+  AuthDashboardIndexRoute: typeof AuthDashboardIndexRoute
+  AuthEggsIndexRoute: typeof AuthEggsIndexRoute
+  AuthExpensesIndexRoute: typeof AuthExpensesIndexRoute
+  AuthFarmsIndexRoute: typeof AuthFarmsIndexRoute
+  AuthFeedIndexRoute: typeof AuthFeedIndexRoute
+  AuthInventoryIndexRoute: typeof AuthInventoryIndexRoute
+  AuthInvoicesIndexRoute: typeof AuthInvoicesIndexRoute
+  AuthMortalityIndexRoute: typeof AuthMortalityIndexRoute
+  AuthOnboardingIndexRoute: typeof AuthOnboardingIndexRoute
+  AuthReportsIndexRoute: typeof AuthReportsIndexRoute
+  AuthSalesIndexRoute: typeof AuthSalesIndexRoute
+  AuthSettingsIndexRoute: typeof AuthSettingsIndexRoute
+  AuthSuppliersIndexRoute: typeof AuthSuppliersIndexRoute
+  AuthVaccinationsIndexRoute: typeof AuthVaccinationsIndexRoute
+  AuthWaterQualityIndexRoute: typeof AuthWaterQualityIndexRoute
+  AuthWeightIndexRoute: typeof AuthWeightIndexRoute
   AuthBatchesBatchIdIndexRoute: typeof AuthBatchesBatchIdIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
-  AuthCustomersRoute: AuthCustomersRouteWithChildren,
-  AuthDashboardRoute: AuthDashboardRoute,
-  AuthEggsRoute: AuthEggsRouteWithChildren,
-  AuthExpensesRoute: AuthExpensesRouteWithChildren,
-  AuthFarmsRoute: AuthFarmsRouteWithChildren,
-  AuthFeedRoute: AuthFeedRouteWithChildren,
-  AuthInventoryRoute: AuthInventoryRoute,
-  AuthInvoicesRoute: AuthInvoicesRouteWithChildren,
-  AuthMortalityRoute: AuthMortalityRoute,
-  AuthOnboardingRoute: AuthOnboardingRoute,
-  AuthReportsRoute: AuthReportsRouteWithChildren,
-  AuthSalesRoute: AuthSalesRouteWithChildren,
-  AuthSettingsRoute: AuthSettingsRouteWithChildren,
-  AuthSuppliersRoute: AuthSuppliersRouteWithChildren,
-  AuthVaccinationsRoute: AuthVaccinationsRouteWithChildren,
-  AuthWaterQualityRoute: AuthWaterQualityRouteWithChildren,
-  AuthWeightRoute: AuthWeightRouteWithChildren,
   AuthBatchesNewRoute: AuthBatchesNewRoute,
+  AuthCustomersCustomerIdRoute: AuthCustomersCustomerIdRoute,
+  AuthCustomersNewRoute: AuthCustomersNewRoute,
+  AuthEggsNewRoute: AuthEggsNewRoute,
+  AuthExpensesNewRoute: AuthExpensesNewRoute,
+  AuthFarmsFarmIdRoute: AuthFarmsFarmIdRouteWithChildren,
+  AuthFarmsNewRoute: AuthFarmsNewRoute,
+  AuthFeedNewRoute: AuthFeedNewRoute,
+  AuthInvoicesInvoiceIdRoute: AuthInvoicesInvoiceIdRoute,
+  AuthInvoicesNewRoute: AuthInvoicesNewRoute,
+  AuthReportsExportRoute: AuthReportsExportRoute,
+  AuthSalesNewRoute: AuthSalesNewRoute,
+  AuthSettingsAuditRoute: AuthSettingsAuditRoute,
+  AuthSettingsModulesRoute: AuthSettingsModulesRoute,
+  AuthSettingsUsersRoute: AuthSettingsUsersRoute,
+  AuthSuppliersSupplierIdRoute: AuthSuppliersSupplierIdRoute,
+  AuthSuppliersNewRoute: AuthSuppliersNewRoute,
+  AuthVaccinationsNewRoute: AuthVaccinationsNewRoute,
+  AuthWaterQualityNewRoute: AuthWaterQualityNewRoute,
+  AuthWeightNewRoute: AuthWeightNewRoute,
   AuthBatchesIndexRoute: AuthBatchesIndexRoute,
+  AuthCustomersIndexRoute: AuthCustomersIndexRoute,
+  AuthDashboardIndexRoute: AuthDashboardIndexRoute,
+  AuthEggsIndexRoute: AuthEggsIndexRoute,
+  AuthExpensesIndexRoute: AuthExpensesIndexRoute,
+  AuthFarmsIndexRoute: AuthFarmsIndexRoute,
+  AuthFeedIndexRoute: AuthFeedIndexRoute,
+  AuthInventoryIndexRoute: AuthInventoryIndexRoute,
+  AuthInvoicesIndexRoute: AuthInvoicesIndexRoute,
+  AuthMortalityIndexRoute: AuthMortalityIndexRoute,
+  AuthOnboardingIndexRoute: AuthOnboardingIndexRoute,
+  AuthReportsIndexRoute: AuthReportsIndexRoute,
+  AuthSalesIndexRoute: AuthSalesIndexRoute,
+  AuthSettingsIndexRoute: AuthSettingsIndexRoute,
+  AuthSuppliersIndexRoute: AuthSuppliersIndexRoute,
+  AuthVaccinationsIndexRoute: AuthVaccinationsIndexRoute,
+  AuthWaterQualityIndexRoute: AuthWaterQualityIndexRoute,
+  AuthWeightIndexRoute: AuthWeightIndexRoute,
   AuthBatchesBatchIdIndexRoute: AuthBatchesBatchIdIndexRoute,
 }
 
