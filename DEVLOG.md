@@ -1462,3 +1462,61 @@ Changed default from NGN to USD as international default. Users select their pre
 - **Todo Lists** - Tracked multi-step implementation
 - **Grep Tool** - Found all hardcoded currency references
 - **Batch File Operations** - Efficient multi-file updates
+
+
+---
+
+## Day 11 (January 13) - Toast Notifications & UX Standardization
+
+### Problem Identified
+
+During UX audit, discovered two issues:
+1. **Silent success** - Sonner Toaster was mounted in `__root.tsx` but `toast()` was never called anywhere
+2. **Inconsistent confirmations** - 2 files used `window.confirm()` instead of proper dialogs
+
+### Solution: Toast Notifications Everywhere
+
+Added `toast.success()` calls to all CRUD operations across the entire application.
+
+**Pattern established:**
+```typescript
+import { toast } from 'sonner'
+
+// After successful operation
+toast.success('Batch created')
+toast.success('Changes saved')
+toast.success('Record deleted')
+```
+
+### Files Updated
+
+| Category | Count | Files |
+|----------|-------|-------|
+| Route files | 18 | batches, sales, expenses, feed, eggs, customers, suppliers, weight, water-quality, mortality, vaccinations, inventory, farms, settings, onboarding, invoices detail, suppliers detail |
+| Dialog components | 13 | batch, customer, edit-farm, egg, expense, farm, feed, invoice, sale, supplier, vaccination, water-quality, weight |
+
+### Confirmation Dialog Fix
+
+Replaced `window.confirm()` with proper `AlertDialog` components:
+- `suppliers/$supplierId.tsx` - Delete supplier confirmation
+- `invoices/$invoiceId.tsx` - Delete invoice confirmation
+
+### Commit
+
+```
+192f4ad feat(ux): add toast notifications and standardize confirmation dialogs
+```
+
+### Technical Metrics
+
+- **Files modified**: 32
+- **Lines changed**: +537
+- **TypeScript errors**: 0
+- **ESLint errors**: 0
+
+### UX Impact
+
+Users now receive consistent visual feedback for all operations:
+- Success toasts appear in bottom-right corner
+- Delete confirmations use proper modal dialogs
+- Error messages shown both inline and as toasts
