@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/mortality/server'
 import type { BatchAlert } from '~/features/monitoring/alerts'
+import { useFormatDate } from '~/features/settings'
 import {
   getMortalityRecordsPaginated,
   getMortalitySummary,
@@ -190,6 +191,7 @@ export const Route = createFileRoute('/_auth/mortality/')({
 })
 
 function MortalityPage() {
+  const { format: formatDate } = useFormatDate()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -314,7 +316,7 @@ function MortalityPage() {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'species',

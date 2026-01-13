@@ -15,7 +15,7 @@ import {
   deleteSupplier,
   getSupplierWithExpenses,
 } from '~/features/suppliers/server'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import {
   Dialog,
   DialogContent,
@@ -70,6 +70,7 @@ function SupplierDetailPage() {
   Route.useLoaderData() as SupplierWithExpenses | null
   const navigate = useNavigate()
   const { format: formatCurrency } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   if (!supplier) {
@@ -203,7 +204,7 @@ function SupplierDetailPage() {
                     {supplier.expenses.slice(0, 10).map((expense) => (
                       <tr key={expense.id} className="border-b last:border-0">
                         <td className="py-2">
-                          {new Date(expense.date).toLocaleDateString()}
+                          {formatDate(expense.date)}
                         </td>
                         <td className="py-2 capitalize">{expense.category}</td>
                         <td className="py-2">{expense.description}</td>

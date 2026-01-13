@@ -11,7 +11,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import type { InvoiceRecord, PaginatedResult } from '~/features/invoices/server'
 import { getInvoicesPaginatedFn } from '~/features/invoices/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import { DataTable } from '~/components/ui/data-table'
@@ -101,6 +101,7 @@ function InvoicesPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const { format: formatCurrency } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
 
   const [paginatedInvoices, setPaginatedInvoices] = useState<
     PaginatedResult<InvoiceRecord>
@@ -178,14 +179,14 @@ function InvoicesPage() {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'dueDate',
         header: 'Due Date',
         cell: ({ row }) =>
           row.original.dueDate
-            ? new Date(row.original.dueDate).toLocaleDateString()
+            ? formatDate(row.original.dueDate)
             : '-',
       },
       {

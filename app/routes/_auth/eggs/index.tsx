@@ -14,6 +14,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/eggs/server'
+import { useFormatDate } from '~/features/settings'
 import {
   createEggRecordFn,
   deleteEggRecordFn,
@@ -174,6 +175,7 @@ export const Route = createFileRoute('/_auth/eggs/')({
 })
 
 function EggsPage() {
+  const { format: formatDate } = useFormatDate()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -367,7 +369,7 @@ function EggsPage() {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'batchSpecies',

@@ -13,7 +13,7 @@ import {
   getCustomerWithSales,
   updateCustomer,
 } from '~/features/customers/server'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import {
@@ -95,6 +95,7 @@ function CustomerDetailPage() {
   const navigate = useNavigate()
   const router = useRouter()
   const { format: formatCurrency } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
 
   if (!customer) {
     return (
@@ -269,7 +270,7 @@ function CustomerDetailPage() {
                     {customer.sales.slice(0, 10).map((sale) => (
                       <tr key={sale.id} className="border-b last:border-0">
                         <td className="py-2">
-                          {new Date(sale.date).toLocaleDateString()}
+                          {formatDate(sale.date)}
                         </td>
                         <td className="py-2 capitalize">
                           {sale.livestockType}

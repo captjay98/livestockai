@@ -28,7 +28,7 @@ import {
 } from '~/features/batches/server'
 import { getSpeciesOptions } from '~/features/batches/constants'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -197,6 +197,7 @@ export const Route = createFileRoute('/_auth/batches/')({
 function BatchesPage() {
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -449,8 +450,7 @@ function BatchesPage() {
       {
         accessorKey: 'acquisitionDate',
         header: 'Acquisition Date',
-        cell: ({ row }) =>
-          new Date(row.original.acquisitionDate).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.acquisitionDate),
       },
       {
         id: 'actions',

@@ -25,7 +25,7 @@ import {
 import { FEED_TYPES } from '~/features/feed/constants'
 import { getBatchesFn } from '~/features/batches/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -194,6 +194,7 @@ export const Route = createFileRoute('/_auth/feed/')({
 function FeedPage() {
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -402,7 +403,7 @@ function FeedPage() {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'species',

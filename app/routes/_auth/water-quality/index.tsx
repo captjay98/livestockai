@@ -5,6 +5,7 @@ import { AlertTriangle, Droplets, Plus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/water-quality/server'
+import { useFormatDate } from '~/features/settings'
 import {
   createWaterQualityRecordFn,
   getWaterQualityAlerts,
@@ -135,6 +136,7 @@ export const Route = createFileRoute('/_auth/water-quality/')({
 })
 
 function WaterQualityPage() {
+  const { format: formatDate } = useFormatDate()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -253,7 +255,7 @@ function WaterQualityPage() {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'species',

@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from 'react'
 import type { FeedType } from '~/features/inventory/feed-server'
 import type { MedicationUnit } from '~/features/inventory/medication-server'
+import { useFormatDate } from '~/features/settings'
 import { requireAuth } from '~/features/auth/server-middleware'
 import {
   FEED_TYPES,
@@ -105,6 +106,7 @@ export const Route = createFileRoute('/_auth/inventory/')({
 type TabType = 'feed' | 'medication'
 
 function InventoryPage() {
+  const { format: formatDate } = useFormatDate()
   const { selectedFarmId } = useFarm()
   const [activeTab, setActiveTab] = useState<TabType>('feed')
   const [feedInventory, setFeedInventory] = useState<Array<FeedInventoryItem>>(
@@ -914,7 +916,7 @@ function InventoryPage() {
                                       : ''
                                 }
                               >
-                                {new Date(item.expiryDate).toLocaleDateString()}
+                                {formatDate(item.expiryDate)}
                               </span>
                             </div>
                           )}

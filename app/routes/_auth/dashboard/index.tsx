@@ -25,7 +25,7 @@ import { useEffect, useState } from 'react'
 import { getDashboardStats } from '~/features/dashboard/server'
 import { requireAuth } from '~/features/auth/server-middleware'
 import { getUserFarms } from '~/features/auth/utils'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button, buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -163,6 +163,7 @@ function TrendingDownIcon({ className }: { className?: string }) {
 function DashboardPage() {
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
 
   const [stats, setStats] = useState<{
     financial: {
@@ -693,7 +694,7 @@ function DashboardPage() {
                               {tx.description}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(tx.date).toLocaleDateString()}
+                              {formatDate(tx.date)}
                             </p>
                           </div>
                         </div>

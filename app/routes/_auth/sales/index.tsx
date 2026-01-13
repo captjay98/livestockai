@@ -28,7 +28,7 @@ import {
 import { getBatchesFn } from '~/features/batches/server'
 import { getCustomersFn } from '~/features/customers/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -206,6 +206,8 @@ export const Route = createFileRoute('/_auth/sales/')({
 function SalesPage() {
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
+  const { format: formatWeight } = useFormatWeight()
   const navigate = useNavigate({ from: '/sales' })
   const searchParams = Route.useSearch()
 
@@ -480,7 +482,7 @@ function SalesPage() {
       enableSorting: true,
       cell: ({ row }) => (
         <Badge variant="outline">
-          {new Date(row.original.date).toLocaleDateString()}
+          {formatDate(row.original.date)}
         </Badge>
       ),
     },
@@ -998,14 +1000,12 @@ function SalesPage() {
                 {selectedSale.averageWeightKg && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Avg Weight:</span>
-                    <span>{selectedSale.averageWeightKg} kg</span>
+                    <span>{formatWeight(parseFloat(selectedSale.averageWeightKg))}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Date:</span>
-                  <span>
-                    {new Date(selectedSale.date).toLocaleDateString()}
-                  </span>
+                  <span>{formatDate(selectedSale.date)}</span>
                 </div>
                 {selectedSale.notes && (
                   <div className="pt-2 border-t">

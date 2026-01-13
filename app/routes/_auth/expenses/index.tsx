@@ -36,7 +36,7 @@ import {
 import { getBatchesFn } from '~/features/batches/server'
 import { getSuppliersFn } from '~/features/suppliers/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -200,6 +200,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 function ExpensesPage() {
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
   const navigate = useNavigate({ from: '/expenses' })
   const searchParams = Route.useSearch()
 
@@ -490,7 +491,7 @@ function ExpensesPage() {
       enableSorting: true,
       cell: ({ row }) => (
         <Badge variant="outline">
-          {new Date(row.original.date).toLocaleDateString()}
+          {formatDate(row.original.date)}
         </Badge>
       ),
     },
@@ -959,7 +960,7 @@ function ExpensesPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Date:</span>
                   <span>
-                    {new Date(selectedExpense.date).toLocaleDateString()}
+                    {formatDate(selectedExpense.date)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">

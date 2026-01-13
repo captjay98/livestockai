@@ -26,7 +26,7 @@ import {
   getProfitLossReport,
   getSalesReport,
 } from '~/features/reports/server'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
 import { DataTable } from '~/components/ui/data-table'
 import { Badge } from '~/components/ui/badge'
 
@@ -483,6 +483,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
 
 function SalesReportView({ report }: { report: SalesReport }) {
   const { format: formatCurrency } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -491,7 +492,7 @@ function SalesReportView({ report }: { report: SalesReport }) {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'livestockType',
@@ -588,6 +589,7 @@ function SalesReportView({ report }: { report: SalesReport }) {
 
 function FeedReportView({ report }: { report: FeedReport }) {
   const { format: formatCurrency } = useFormatCurrency()
+  const { label: weightLabel } = useFormatWeight()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -611,7 +613,7 @@ function FeedReportView({ report }: { report: FeedReport }) {
       },
       {
         accessorKey: 'totalQuantityKg',
-        header: 'Quantity (KG)',
+        header: `Quantity (${weightLabel})`,
         cell: ({ row }) => row.original.totalQuantityKg.toLocaleString(),
       },
       {
@@ -686,6 +688,7 @@ function FeedReportView({ report }: { report: FeedReport }) {
 }
 
 function EggReportView({ report }: { report: EggReport }) {
+  const { format: formatDate } = useFormatDate()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -694,7 +697,7 @@ function EggReportView({ report }: { report: EggReport }) {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'collected',

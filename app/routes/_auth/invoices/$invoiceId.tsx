@@ -8,7 +8,7 @@ import {
   getInvoiceById,
   updateInvoiceStatus,
 } from '~/features/invoices/server'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import {
   Dialog,
   DialogContent,
@@ -52,6 +52,7 @@ function InvoiceDetailPage() {
   const navigate = useNavigate()
   const params = Route.useParams()
   const { format: formatCurrency } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   if (!invoice) {
@@ -159,14 +160,14 @@ function InvoiceDetailPage() {
             <div className="text-right">
               <div className="mb-2">
                 <span className="text-sm text-muted-foreground">Date: </span>
-                <span>{new Date(invoice.date).toLocaleDateString()}</span>
+                <span>{formatDate(invoice.date)}</span>
               </div>
               {invoice.dueDate && (
                 <div className="mb-2">
                   <span className="text-sm text-muted-foreground">
                     Due Date:{' '}
                   </span>
-                  <span>{new Date(invoice.dueDate).toLocaleDateString()}</span>
+                  <span>{formatDate(invoice.dueDate)}</span>
                 </div>
               )}
               <div>

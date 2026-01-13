@@ -5,6 +5,7 @@ import { Activity, AlertTriangle, Calendar, Pill, Syringe } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/vaccinations/server'
+import { useFormatDate } from '~/features/settings'
 import {
   createTreatmentFn,
   createVaccinationFn,
@@ -150,6 +151,7 @@ export const Route = createFileRoute('/_auth/vaccinations/')({
 })
 
 function HealthPage() {
+  const { format: formatDate } = useFormatDate()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -318,7 +320,7 @@ function HealthPage() {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'type',
@@ -368,7 +370,7 @@ function HealthPage() {
             return (
               <div className="flex items-center text-xs text-muted-foreground">
                 <Calendar className="h-3 w-3 mr-1" />
-                Next: {new Date(row.original.nextDueDate).toLocaleDateString()}
+                Next: {formatDate(row.original.nextDueDate)}
               </div>
             )
           }
@@ -430,7 +432,7 @@ function HealthPage() {
                       {a.vaccineName} ({a.species})
                     </span>
                     <span className="font-medium">
-                      {a.nextDueDate ? new Date(a.nextDueDate).toLocaleDateString() : 'N/A'}
+                      {a.nextDueDate ? formatDate(a.nextDueDate) : 'N/A'}
                     </span>
                   </div>
                 ))}
@@ -452,7 +454,7 @@ function HealthPage() {
                       {a.vaccineName} ({a.species})
                     </span>
                     <span className="font-medium">
-                      {a.nextDueDate ? new Date(a.nextDueDate).toLocaleDateString() : 'N/A'}
+                      {a.nextDueDate ? formatDate(a.nextDueDate) : 'N/A'}
                     </span>
                   </div>
                 ))}

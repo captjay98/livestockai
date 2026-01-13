@@ -28,7 +28,7 @@ import {
   updateStructureFn,
 } from '~/features/structures/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -184,6 +184,7 @@ function FarmDetailsPage() {
   Route.useLoaderData() as LoaderData
   const { farmId } = Route.useParams()
   const { format: formatCurrency } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [activityTab, setActivityTab] = useState<'sales' | 'expenses'>('sales')
   const [saleDialogOpen, setSaleDialogOpen] = useState(false)
@@ -441,7 +442,7 @@ function FarmDetailsPage() {
                           {batch.species}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {new Date(batch.acquisitionDate).toLocaleDateString()}
+                          {formatDate(batch.acquisitionDate)}
                         </div>
                       </div>
                       <div className="text-right">
@@ -741,7 +742,7 @@ function FarmDetailsPage() {
                             +{formatCurrency(Number(sale.totalAmount))}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {new Date(sale.date).toLocaleDateString()}
+                            {formatDate(sale.date)}
                           </div>
                         </div>
                       </div>
@@ -779,7 +780,7 @@ function FarmDetailsPage() {
                           -{formatCurrency(Number(expense.amount))}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {new Date(expense.date).toLocaleDateString()}
+                          {formatDate(expense.date)}
                         </div>
                       </div>
                     </div>
@@ -890,7 +891,7 @@ function FarmDetailsPage() {
                     Created
                   </p>
                   <p className="text-sm border-b pb-1">
-                    {new Date(farm.createdAt).toLocaleDateString()}
+                    {formatDate(farm.createdAt)}
                   </p>
                 </div>
               </div>

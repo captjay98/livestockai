@@ -20,7 +20,7 @@ import {  getFeedRecordsPaginatedFn } from '~/features/feed/server'
 import {  getMortalityRecordsPaginatedFn } from '~/features/mortality/server'
 import { getExpensesPaginatedFn } from '~/features/expenses/server'
 import { getSalesPaginatedFn } from '~/features/sales/server'
-import { useFormatCurrency } from '~/features/settings'
+import { useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
@@ -73,6 +73,8 @@ export const Route = createFileRoute('/_auth/batches/$batchId/')({
 function BatchDetailsPage() {
   const { batchId } = Route.useParams()
   const { format: formatCurrency } = useFormatCurrency()
+  const { format: formatDate } = useFormatDate()
+  const { label: weightLabel } = useFormatWeight()
   const [details, setDetails] = useState<Awaited<ReturnType<typeof getBatchDetailsFn>> | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -177,8 +179,7 @@ function BatchDetailsPage() {
               <span>•</span>
               <Calendar className="h-3 w-3" />
               <span>
-                {new Date(batch.acquisitionDate).toLocaleDateString()} (
-                {ageInDays} days)
+                {formatDate(batch.acquisitionDate)} ({ageInDays} days)
               </span>
             </p>
           </div>
@@ -239,7 +240,7 @@ function BatchDetailsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-              Feed (Kg)
+              Feed ({weightLabel})
             </CardTitle>
             <Utensils className="h-4 w-4 text-orange-600" />
           </CardHeader>
@@ -335,8 +336,7 @@ function BatchDetailsPage() {
                   {
                     accessorKey: 'date',
                     header: 'Date',
-                    cell: ({ row }) =>
-                      new Date(row.original.date).toLocaleDateString(),
+                    cell: ({ row }) => formatDate(row.original.date),
                   },
                   {
                     accessorKey: 'feedType',
@@ -352,7 +352,7 @@ function BatchDetailsPage() {
                     header: 'Brand',
                     cell: ({ row }) => row.original.brandName || '-',
                   },
-                  { accessorKey: 'quantityKg', header: 'Qty (Kg)' },
+                  { accessorKey: 'quantityKg', header: `Qty (${weightLabel})` },
                   {
                     accessorKey: 'cost',
                     header: 'Cost',
@@ -388,8 +388,7 @@ function BatchDetailsPage() {
                   {
                     accessorKey: 'date',
                     header: 'Date',
-                    cell: ({ row }) =>
-                      new Date(row.original.date).toLocaleDateString(),
+                    cell: ({ row }) => formatDate(row.original.date),
                   },
                   { accessorKey: 'quantity', header: 'Quantity' },
                   {
@@ -426,8 +425,7 @@ function BatchDetailsPage() {
                   {
                     accessorKey: 'date',
                     header: 'Date',
-                    cell: ({ row }) =>
-                      new Date(row.original.date).toLocaleDateString(),
+                    cell: ({ row }) => formatDate(row.original.date),
                   },
                   {
                     accessorKey: 'category',
@@ -470,8 +468,7 @@ function BatchDetailsPage() {
                   {
                     accessorKey: 'date',
                     header: 'Date',
-                    cell: ({ row }) =>
-                      new Date(row.original.date).toLocaleDateString(),
+                    cell: ({ row }) => formatDate(row.original.date),
                   },
                   { accessorKey: 'quantity', header: 'Qty' },
                   {
