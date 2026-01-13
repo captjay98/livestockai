@@ -43,8 +43,8 @@ export const createQueryClient = () => {
         gcTime: 1000 * 60 * 60 * 24, // 24 hours
         staleTime: 1000 * 60, // 1 minute
         // Prevent retries on 404s/403s maybe?
-        retry: (failureCount, error: any) => {
-          if (error?.status === 404) return false
+        retry: (failureCount, error: Error & { status?: number }) => {
+          if (error.status === 404) return false
           return failureCount < 3
         },
       },
