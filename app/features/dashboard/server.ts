@@ -5,6 +5,10 @@ export interface DashboardStats {
   inventory: {
     totalPoultry: number
     totalFish: number
+    totalCattle: number
+    totalGoats: number
+    totalSheep: number
+    totalBees: number
     activeBatches: number
   }
   financial: {
@@ -49,7 +53,15 @@ export async function getDashboardStats(
     if (targetFarmIds.length === 0) {
       // Return empty stats if no farms
       return {
-        inventory: { totalPoultry: 0, totalFish: 0, activeBatches: 0 },
+        inventory: {
+          totalPoultry: 0,
+          totalFish: 0,
+          totalCattle: 0,
+          totalGoats: 0,
+          totalSheep: 0,
+          totalBees: 0,
+          activeBatches: 0,
+        },
         financial: {
           monthlyRevenue: 0,
           monthlyExpenses: 0,
@@ -81,6 +93,14 @@ export async function getDashboardStats(
     inventoryByType.find((i) => i.livestockType === 'poultry')?.total || 0
   const totalFish =
     inventoryByType.find((i) => i.livestockType === 'fish')?.total || 0
+  const totalCattle =
+    inventoryByType.find((i) => i.livestockType === 'cattle')?.total || 0
+  const totalGoats =
+    inventoryByType.find((i) => i.livestockType === 'goats')?.total || 0
+  const totalSheep =
+    inventoryByType.find((i) => i.livestockType === 'sheep')?.total || 0
+  const totalBees =
+    inventoryByType.find((i) => i.livestockType === 'bees')?.total || 0
 
   const activeBatchesResult = await db
     .selectFrom('batches')
@@ -247,6 +267,10 @@ export async function getDashboardStats(
     inventory: {
       totalPoultry,
       totalFish,
+      totalCattle,
+      totalGoats,
+      totalSheep,
+      totalBees,
       activeBatches,
     },
     financial: {

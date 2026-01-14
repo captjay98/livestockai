@@ -3,15 +3,19 @@ import { createServerFn } from '@tanstack/react-start'
 import {
   Activity,
   AlertTriangle,
+  Beef,
   Bird,
   Building2,
   Calendar,
   Clock,
+  Cloud,
   Droplets,
   Edit,
   Fish,
+  Hexagon,
   Package,
   Plus,
+  Rabbit,
   Receipt,
   ShoppingCart,
   Syringe,
@@ -25,7 +29,8 @@ import { useEffect, useState } from 'react'
 import { getDashboardStats } from '~/features/dashboard/server'
 import { requireAuth } from '~/features/auth/server-middleware'
 import { getUserFarms } from '~/features/auth/utils'
-import { useFormatCurrency, useFormatDate } from '~/features/settings'
+import { useDashboardPreferences, useFormatCurrency, useFormatDate } from '~/features/settings'
+import { useModules } from '~/features/modules/context'
 import { Button, buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -164,6 +169,54 @@ function DashboardPage() {
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
+  const { enabledModules } = useModules()
+  const { cards } = useDashboardPreferences()
+
+  // Livestock card configuration
+  const LIVESTOCK_CARDS = {
+    poultry: {
+      icon: Bird,
+      label: 'Poultry',
+      bgClass: 'bg-primary/10',
+      textClass: 'text-primary',
+      getValue: (s: typeof stats) => s?.inventory.totalPoultry || 0,
+    },
+    aquaculture: {
+      icon: Fish,
+      label: 'Fish',
+      bgClass: 'bg-blue-100 dark:bg-blue-900/30',
+      textClass: 'text-blue-600 dark:text-blue-400',
+      getValue: (s: typeof stats) => s?.inventory.totalFish || 0,
+    },
+    cattle: {
+      icon: Beef,
+      label: 'Cattle',
+      bgClass: 'bg-orange-100 dark:bg-orange-900/30',
+      textClass: 'text-orange-600 dark:text-orange-400',
+      getValue: (s: typeof stats) => s?.inventory.totalCattle || 0,
+    },
+    goats: {
+      icon: Rabbit,
+      label: 'Goats',
+      bgClass: 'bg-green-100 dark:bg-green-900/30',
+      textClass: 'text-green-600 dark:text-green-400',
+      getValue: (s: typeof stats) => s?.inventory.totalGoats || 0,
+    },
+    sheep: {
+      icon: Cloud,
+      label: 'Sheep',
+      bgClass: 'bg-purple-100 dark:bg-purple-900/30',
+      textClass: 'text-purple-600 dark:text-purple-400',
+      getValue: (s: typeof stats) => s?.inventory.totalSheep || 0,
+    },
+    bees: {
+      icon: Hexagon,
+      label: 'Bees',
+      bgClass: 'bg-amber-100 dark:bg-amber-900/30',
+      textClass: 'text-amber-600 dark:text-amber-400',
+      getValue: (s: typeof stats) => s?.inventory.totalBees || 0,
+    },
+  } as const
 
   const [stats, setStats] = useState<{
     financial: {
@@ -177,6 +230,10 @@ function DashboardPage() {
       activeBatches: number
       totalPoultry: number
       totalFish: number
+      totalCattle: number
+      totalGoats: number
+      totalSheep: number
+      totalBees: number
     }
     alerts?: Array<BatchAlert>
     recentTransactions: Array<Transaction>
@@ -325,6 +382,7 @@ function DashboardPage() {
         <>
           {/* Stats Row */}
           <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+            {cards.revenue && (
             <Card>
               <CardContent className="p-3 shadow-none">
                 <div className="flex flex-row items-center justify-between space-y-0 pb-1">
@@ -364,7 +422,9 @@ function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
+            )}
 
+            {cards.expenses && (
             <Card>
               <CardContent className="p-3 shadow-none">
                 <div className="flex flex-row items-center justify-between space-y-0 pb-1">
@@ -404,7 +464,9 @@ function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
+            )}
 
+            {cards.profit && (
             <Card>
               <CardContent className="p-3 shadow-none">
                 <div className="flex flex-row items-center justify-between space-y-0 pb-1">
@@ -441,6 +503,7 @@ function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
+            )}
 
             <Card>
               <CardContent className="p-3 shadow-none">
@@ -464,54 +527,55 @@ function DashboardPage() {
             </Card>
           </div>
 
-          {/* Inventory Summary */}
-          <div className="grid gap-3 sm:grid-cols-3">
+          {/* Inventory Summary - Dynamic based on enabled modules */}
+          {cards.inventory && enabledModules.length > 0 && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {enabledModules.map((moduleKey) => {
+                const config = LIVESTOCK_CARDS[moduleKey]
+                const Icon = config.icon
+                const count = config.getValue(stats)
+
+                return (
+                  <Card key={moduleKey}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            'h-10 w-10 rounded-lg flex items-center justify-center shrink-0',
+                            config.bgClass,
+                          )}
+                        >
+                          <Icon className={cn('h-5 w-5', config.textClass)} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">
+                            {config.label}
+                          </p>
+                          <p className="text-lg sm:text-xl font-bold">
+                            {count.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Empty state when all cards hidden */}
+          {!cards.revenue && !cards.expenses && !cards.profit && !cards.inventory && (
             <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Bird className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">Poultry</p>
-                    <p className="text-lg sm:text-xl font-bold">
-                      {stats.inventory.totalPoultry.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
+              <CardContent className="p-8 text-center">
+                <p className="text-muted-foreground">
+                  All dashboard cards are hidden.{' '}
+                  <Link to="/settings" className="text-primary hover:underline">
+                    Customize dashboard
+                  </Link>
+                </p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
-                    <Fish className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">Fish</p>
-                    <p className="text-lg sm:text-xl font-bold">
-                      {stats.inventory.totalFish.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-                    <Egg className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">Eggs</p>
-                    <p className="text-lg sm:text-xl font-bold">
-                      {stats.production.eggsThisMonth.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card> */}
-          </div>
+          )}
 
           {/* Quick Actions */}
           <Card>
