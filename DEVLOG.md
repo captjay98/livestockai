@@ -2303,4 +2303,77 @@ Tested the new autonomous workflow:
 
 ---
 
+### Day 8 Part 3 - International Forecasting (targetPricePerUnit)
+
+**Context**: Made the app truly international by removing Nigeria-specific market prices and letting users enter their own target sale prices.
+
+#### Problem
+
+Forecasting used `market_prices` table with Nigerian prices (NGN). This made the app:
+- ❌ Nigeria-specific
+- ❌ Prices become stale quickly
+- ❌ Different regions have different prices
+
+#### Solution
+
+Added `targetPricePerUnit` field to batches. Users enter their expected sale price when creating a batch.
+
+#### Implementation
+
+**1. Database Migration**
+- Added `targetPricePerUnit` column (decimal 19,2) to batches table
+
+**2. Type System**
+- Added field to `BatchTable` interface in types.ts
+
+**3. Batch Creation Form**
+- Added "Target Sale Price" input field
+- Shows currency symbol from user settings
+
+**4. Forecasting**
+- Removed market_prices database lookup (14 lines)
+- Now uses `batch.targetPricePerUnit` directly (2 lines)
+
+**5. Production Seed**
+- Removed `getMarketPrices()` function (60 lines)
+- Removed market prices seeding
+- Production seed now only includes admin + growth standards
+
+#### Commits Created (4)
+
+1. `3ba485a` - feat(batches): add targetPricePerUnit for international forecasting
+2. `77cd81e` - refactor(forecasting): use batch target price instead of market prices
+3. `2e8948c` - refactor(seeds): remove market prices from production seed
+4. `fa4dac5` - docs: add regional market packages future plan
+
+#### Technical Metrics
+
+| Metric | Value |
+|--------|-------|
+| **Files Changed** | 6 |
+| **Lines Added** | +153 |
+| **Lines Removed** | -90 |
+| **Net Change** | +63 |
+| **Commits** | 4 |
+
+#### Future Enhancement
+
+Documented regional market data packages in `.agents/plans/regional-market-packages.md`:
+- Community-contributed packages (Nigeria, Kenya, Ghana, etc.)
+- Opt-in during onboarding
+- Can be implemented when there's demand
+
+#### Key Insights
+
+- User-entered prices are more accurate than reference data
+- Simpler code (removed 74 lines, added 24)
+- App now works for any country/currency
+- Growth standards kept (biological constants, not market-specific)
+
+#### Time Investment
+
+~30 minutes
+
+---
+
 _Built with ❤️ for Nigerian farmers_
