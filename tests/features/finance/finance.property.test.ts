@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import fc from 'fast-check'
-import { calculateBatchProfit, calculateROI } from '~/features/finance/calculations'
+import {
+  calculateBatchProfit,
+  calculateROI,
+} from '~/features/finance/calculations'
 
 describe('Financial Invariants', () => {
   it('Profit should satisfy P = Revenue - Costs', () => {

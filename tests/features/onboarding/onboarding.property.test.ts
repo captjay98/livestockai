@@ -7,7 +7,11 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 import type { OnboardingProgress } from '~/features/onboarding/types'
-import { ABBREVIATED_STEPS, DEFAULT_PROGRESS, ONBOARDING_STEPS } from '~/features/onboarding/types'
+import {
+  ABBREVIATED_STEPS,
+  DEFAULT_PROGRESS,
+  ONBOARDING_STEPS,
+} from '~/features/onboarding/types'
 
 describe('Onboarding Types', () => {
   /**

@@ -2,7 +2,10 @@ import * as fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
 
 import type { LivestockType, ModuleKey } from '~/features/modules/types'
-import { DEFAULT_MODULES_BY_FARM_TYPE, MODULE_METADATA } from '~/features/modules/constants'
+import {
+  DEFAULT_MODULES_BY_FARM_TYPE,
+  MODULE_METADATA,
+} from '~/features/modules/constants'
 import {
   getEnabledModuleMetadata,
   getFeedTypesForModules,
@@ -12,7 +15,6 @@ import {
   getSpeciesForModules,
   getStructureTypesForModules,
 } from '~/features/modules/utils'
-
 
 // Arbitraries
 const moduleKeyArb = fc.constantFrom<ModuleKey>(

@@ -113,12 +113,9 @@ describe('Notification Property Tests', () => {
       ]
 
       fc.assert(
-        fc.property(
-          fc.constantFrom(...validTypes),
-          (notificationType) => {
-            expect(validTypes).toContain(notificationType)
-          },
-        ),
+        fc.property(fc.constantFrom(...validTypes), (notificationType) => {
+          expect(validTypes).toContain(notificationType)
+        }),
         { numRuns: 100 },
       )
     })
@@ -126,12 +123,18 @@ describe('Notification Property Tests', () => {
 
   describe('Property 6: Notification ordering', () => {
     it('should maintain descending order by timestamp', () => {
+      // Use integer timestamps to avoid NaN date issues
+      const validTimestamp = fc.integer({
+        min: 1577836800000,
+        max: 1893456000000,
+      }) // 2020-2030
+
       fc.assert(
         fc.property(
           fc.array(
             fc.record({
               id: fc.uuid(),
-              createdAt: fc.date(),
+              createdAt: validTimestamp.map((ts) => new Date(ts)),
             }),
             { minLength: 2, maxLength: 20 },
           ),

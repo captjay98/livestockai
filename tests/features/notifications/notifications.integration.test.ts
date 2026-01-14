@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { db } from '~/lib/db'
-import { createNotification, getNotifications } from '~/features/notifications/server'
+import {
+  createNotification,
+  getNotifications,
+} from '~/features/notifications/server'
 import { getAllBatchAlerts } from '~/features/monitoring/alerts'
 
 describe('Notification Integration Tests', () => {
