@@ -26,7 +26,8 @@ import {
   getProfitLossReport,
   getSalesReport,
 } from '~/features/reports/server'
-import { useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
+import { useBusinessSettings, useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
+import { getFiscalYearEnd, getFiscalYearLabel, getFiscalYearStart } from '~/features/reports/fiscal-year'
 import { DataTable } from '~/components/ui/data-table'
 import { Badge } from '~/components/ui/badge'
 
@@ -126,10 +127,23 @@ const reportTypes = [
 function ReportsPage() {
   const { farms, report, reportType } = Route.useLoaderData()
   const search = Route.useSearch()
+  const { fiscalYearStartMonth } = useBusinessSettings()
   const [selectedReport, setSelectedReport] = useState(reportType)
   const [selectedFarm, setSelectedFarm] = useState(search.farmId || '')
   const [startDate, setStartDate] = useState(search.startDate)
   const [endDate, setEndDate] = useState(search.endDate)
+  const [useFiscalYear, setUseFiscalYear] = useState(false)
+
+  // Update dates when fiscal year toggle changes
+  const handleFiscalYearToggle = (checked: boolean) => {
+    setUseFiscalYear(checked)
+    if (checked) {
+      const start = getFiscalYearStart(fiscalYearStartMonth)
+      const end = getFiscalYearEnd(fiscalYearStartMonth)
+      setStartDate(start.toISOString().split('T')[0])
+      setEndDate(end.toISOString().split('T')[0])
+    }
+  }
 
   const handleGenerateReport = () => {
     const params = new URLSearchParams({
@@ -201,12 +215,25 @@ function ReportsPage() {
             {selectedReport !== 'inventory' && (
               <>
                 <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={useFiscalYear}
+                      onChange={(e) => handleFiscalYearToggle(e.target.checked)}
+                      className="h-4 w-4 rounded border-input"
+                    />
+                    Use Fiscal Year {useFiscalYear && `(${getFiscalYearLabel(fiscalYearStartMonth)})`}
+                  </label>
+                </div>
+
+                <div className="space-y-2">
                   <label className="text-sm font-medium">Start Date</label>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    disabled={useFiscalYear}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
                   />
                 </div>
 
@@ -216,7 +243,8 @@ function ReportsPage() {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    disabled={useFiscalYear}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
                   />
                 </div>
               </>
