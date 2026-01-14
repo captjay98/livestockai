@@ -22,6 +22,7 @@ import {
 import { useState } from 'react'
 import { cn } from '~/lib/utils'
 import { ThemeToggle } from '~/components/theme-toggle'
+import { NotificationBell } from '~/components/notifications/bell-icon'
 import { Button } from '~/components/ui/button'
 import { useModuleNavigation } from '~/hooks/useModuleNavigation'
 
@@ -151,6 +152,7 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <NotificationBell />
             <ThemeToggle />
             <Link
               to="/login"

@@ -14,6 +14,8 @@ import { createPersister } from '~/lib/query-client'
 import { FarmProvider } from '~/features/farms/context'
 import { SettingsProvider } from '~/features/settings'
 import { ThemeProvider } from '~/features/theme'
+import { NotificationsProvider } from '~/features/notifications'
+import { I18nProvider } from '~/features/i18n'
 import { NotFoundPage } from '~/components/not-found'
 import { ErrorPage } from '~/components/error-page'
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools'
@@ -88,8 +90,12 @@ function RootComponent() {
           <FarmProvider>
             <SettingsProvider>
               <ThemeProvider>
-                <Outlet />
-                <PWAPrompt />
+                <I18nProvider>
+                  <NotificationsProvider>
+                    <Outlet />
+                    <PWAPrompt />
+                  </NotificationsProvider>
+                </I18nProvider>
               </ThemeProvider>
             </SettingsProvider>
           </FarmProvider>

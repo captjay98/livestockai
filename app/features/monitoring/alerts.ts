@@ -71,7 +71,40 @@ export async function getAllBatchAlerts(
   const results = await Promise.all(
     batches.map((batch) => analyzeBatch(batch, userId)),
   )
-  return results.flat()
+  const alerts = results.flat()
+
+  // Create notifications for critical alerts based on user preferences
+  const settings = await db
+    .selectFrom('user_settings')
+    .select(['notifications'])
+    .where('userId', '=', userId)
+    .executeTakeFirst()
+
+  if (settings && alerts.length > 0) {
+    const { createNotification } = await import('../notifications/server')
+    const notifPrefs = settings.notifications
+
+    for (const alert of alerts) {
+      // Only create notifications for critical alerts
+      if (alert.type !== 'critical') continue
+
+      // Check if user wants this type of notification
+      if (alert.source === 'mortality' && notifPrefs.highMortality) {
+        const batch = batches.find((b) => b.id === alert.batchId)
+        await createNotification({
+          userId,
+          farmId: farmId || null,
+          type: 'highMortality',
+          title: 'High Mortality Alert',
+          message: alert.message,
+          actionUrl: `/batches/${alert.batchId}`,
+          metadata: { batchId: alert.batchId, species: batch?.species },
+        })
+      }
+    }
+  }
+
+  return alerts
 }
 
 /**
