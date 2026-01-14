@@ -59,13 +59,20 @@ export const Route = createFileRoute('/_auth')({
 })
 
 function AuthLayout() {
-  const { user } = Route.useRouteContext()
+  const context = Route.useRouteContext()
   const location = useLocation()
 
   // Don't show AppShell on onboarding page
   if (location.pathname === '/onboarding') {
     return <Outlet />
   }
+
+  // Guard against missing user (shouldn't happen but prevents crash)
+  if (!context?.user) {
+    return null
+  }
+
+  const { user } = context
 
   return (
     <FarmProvider>
