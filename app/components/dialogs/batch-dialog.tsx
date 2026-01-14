@@ -1,6 +1,7 @@
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronUp, Users } from 'lucide-react'
 import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/features/batches/server'
 import { useFormatCurrency } from '~/features/settings'
@@ -74,6 +75,7 @@ export function BatchDialog({
   suppliers = [],
 }: BatchDialogProps) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { symbol: currencySymbol } = useFormatCurrency()
   const [formData, setFormData] = useState({
     livestockType: '' as 'poultry' | 'fish' | '',
@@ -132,6 +134,7 @@ export function BatchDialog({
       })
       toast.success('Batch created')
       onOpenChange(false)
+      queryClient.invalidateQueries({ queryKey: ['farm-modules', farmId] })
       setFormData({
         livestockType: '',
         species: '',

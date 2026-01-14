@@ -1,10 +1,9 @@
-import {
-  Link,
+import { Link,
   createFileRoute,
   redirect,
-  useNavigate,
-} from '@tanstack/react-router'
+  useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   Bird,
@@ -200,6 +199,7 @@ function BatchesPage() {
   const { format: formatDate } = useFormatDate()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
+  const queryClient = useQueryClient()
 
   const [paginatedBatches, setPaginatedBatches] = useState<
     PaginatedResult<Batch>
@@ -316,6 +316,7 @@ function BatchesPage() {
       setDialogOpen(false)
       resetForm()
       toast.success('Batch created')
+      queryClient.invalidateQueries({ queryKey: ['farm-modules', selectedFarmId] })
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create batch')
@@ -380,6 +381,7 @@ function BatchesPage() {
       })
       setDeleteDialogOpen(false)
       toast.success('Batch deleted')
+      queryClient.invalidateQueries({ queryKey: ['farm-modules', selectedFarmId] })
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete batch')
