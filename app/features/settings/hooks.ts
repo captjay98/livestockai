@@ -273,6 +273,13 @@ export function useDashboardPreferences() {
   const settings = useSettingsValue()
 
   return {
-    cards: settings.dashboardCards,
+    cards: settings.dashboardCards ?? {
+      inventory: true,
+      revenue: true,
+      expenses: true,
+      profit: true,
+      mortality: true,
+      feed: true,
+    },
   }
 }

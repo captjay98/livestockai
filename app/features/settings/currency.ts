@@ -27,6 +27,9 @@ export function toDecimal(value: MoneyInput): Decimal {
   if (value instanceof Decimal) {
     return value
   }
+  if (value === undefined || value === null || value === '') {
+    return new Decimal(0)
+  }
   return new Decimal(value)
 }
 
@@ -35,7 +38,10 @@ export function toDecimal(value: MoneyInput): Decimal {
  * @param value Decimal value
  * @returns Number representation
  */
-export function toNumber(value: MoneyInput): number {
+export function toNumber(value: MoneyInput | undefined | null): number {
+  if (value === undefined || value === null || value === '') {
+    return 0
+  }
   return toDecimal(value).toNumber()
 }
 

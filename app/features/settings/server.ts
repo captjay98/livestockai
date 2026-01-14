@@ -46,40 +46,27 @@ export const getUserSettings = createServerFn({ method: 'GET' }).handler(
     try {
       session = await requireAuth()
       if (!session.user.id) {
-        // Return default settings for unauthenticated users
         return DEFAULT_SETTINGS
       }
     } catch (error) {
-      // Return default settings for unauthenticated users
       return DEFAULT_SETTINGS
     }
 
     const settings = await db
       .selectFrom('user_settings')
-      .select([
-        'currencyCode',
-        'currencySymbol',
-        'currencyDecimals',
-        'currencySymbolPosition',
-        'thousandSeparator',
-        'decimalSeparator',
-        'dateFormat',
-        'timeFormat',
-        'firstDayOfWeek',
-        'weightUnit',
-        'areaUnit',
-        'temperatureUnit',
-      ])
+      .selectAll()
       .where('userId', '=', session.user.id)
       .executeTakeFirst()
 
     if (!settings) {
-      // No settings found - return defaults for new users
       return DEFAULT_SETTINGS
     }
 
-    // Cast to UserSettings type (database types match)
-    return settings as UserSettings
+    // Merge with defaults to ensure all fields exist
+    return {
+      ...DEFAULT_SETTINGS,
+      ...settings,
+    } as UserSettings
   },
 )
 
