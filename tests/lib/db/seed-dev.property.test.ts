@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { createUserWithAuth } from '~/lib/db/seed-helpers'
+import { createUserWithAuth } from '~/lib/db/seeds/helpers'
 import { db } from '~/lib/db'
 
 describe('Development Seeder Property Tests', () => {

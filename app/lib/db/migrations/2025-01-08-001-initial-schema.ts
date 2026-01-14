@@ -819,6 +819,55 @@ export async function up(db: Kysely<any>): Promise<void> {
     .column('read')
     .execute()
 
+  // Performance indexes for common query patterns
+  await db.schema
+    .createIndex('idx_batches_farm_status')
+    .on('batches')
+    .columns(['farmId', 'status'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_sales_farm_date')
+    .on('sales')
+    .columns(['farmId', 'date'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_expenses_farm_date')
+    .on('expenses')
+    .columns(['farmId', 'date'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_feed_records_batch_date')
+    .on('feed_records')
+    .columns(['batchId', 'date'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_mortality_records_batch_date')
+    .on('mortality_records')
+    .columns(['batchId', 'date'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_notifications_user_read')
+    .on('notifications')
+    .columns(['userId', 'read'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_weight_samples_batch_date')
+    .on('weight_samples')
+    .columns(['batchId', 'date'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_egg_records_batch_date')
+    .on('egg_records')
+    .columns(['batchId', 'date'])
+    .execute()
+
   await sql`
     CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS $$

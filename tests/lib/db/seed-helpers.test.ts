@@ -6,7 +6,7 @@
  */
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { createUserWithAuth, hashPassword } from '~/lib/db/seed-helpers'
+import { createUserWithAuth, hashPassword } from '~/lib/db/seeds/helpers'
 import { db } from '~/lib/db'
 
 describe('Seed Helpers', () => {

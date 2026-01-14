@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { seed } from '~/lib/db/seed'
+import { seed } from '~/lib/db/seeds/production'
 import { db } from '~/lib/db'
 
 describe('Production Seeder Property Tests', () => {

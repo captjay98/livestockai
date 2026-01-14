@@ -9,7 +9,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
-import { createUserWithAuth, hashPassword } from '~/lib/db/seed-helpers'
+import { createUserWithAuth, hashPassword } from '~/lib/db/seeds/helpers'
 import { db } from '~/lib/db'
 
 describe('Seed Helpers - Property Tests', () => {
