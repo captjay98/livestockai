@@ -704,6 +704,29 @@ export async function up(db: Kysely<any>): Promise<void> {
     ])
     .execute()
 
+  // Notifications table
+  await db.schema
+    .createTable('notifications')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`uuid_generate_v4()`),
+    )
+    .addColumn('userId', 'uuid', (col) =>
+      col.notNull().references('users.id').onDelete('cascade'),
+    )
+    .addColumn('farmId', 'uuid', (col) =>
+      col.references('farms.id').onDelete('cascade'),
+    )
+    .addColumn('type', 'varchar(50)', (col) => col.notNull())
+    .addColumn('title', 'text', (col) => col.notNull())
+    .addColumn('message', 'text', (col) => col.notNull())
+    .addColumn('read', 'boolean', (col) => col.notNull().defaultTo(false))
+    .addColumn('actionUrl', 'text')
+    .addColumn('metadata', 'jsonb')
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .execute()
+
   // ============================================
   // 7. Indexes & Triggers
   // ============================================
@@ -785,6 +808,17 @@ export async function up(db: Kysely<any>): Promise<void> {
     .column('userId')
     .execute()
 
+  await db.schema
+    .createIndex('notifications_user_id_idx')
+    .on('notifications')
+    .column('userId')
+    .execute()
+  await db.schema
+    .createIndex('notifications_read_idx')
+    .on('notifications')
+    .column('read')
+    .execute()
+
   await sql`
     CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS $$
@@ -844,6 +878,7 @@ export async function down(db: Kysely<any>): Promise<void> {
     'user_farms',
     'suppliers',
     'customers',
+    'notifications',
     'farms',
     'user_settings',
     'verification',

@@ -31,6 +31,7 @@ export interface Database {
   audit_logs: AuditLogTable
   growth_standards: GrowthStandardTable
   market_prices: MarketPriceTable
+  notifications: NotificationTable
 }
 
 // User & Auth - Better Auth tables use camelCase
@@ -501,4 +502,18 @@ export interface MarketPriceTable {
   size_category: string // e.g., '1.5kg-1.8kg', 'Table Size (600g-1kg)'
   price_per_unit: string // DECIMAL - price per unit (bird or kg depending on species)
   updated_at: Generated<Date>
+}
+
+// Notifications
+export interface NotificationTable {
+  id: Generated<string>
+  userId: string
+  farmId: string | null
+  type: string // 'lowStock' | 'highMortality' | 'invoiceDue' | 'batchHarvest'
+  title: string
+  message: string
+  read: Generated<boolean>
+  actionUrl: string | null
+  metadata: Record<string, any> | null
+  createdAt: Generated<Date>
 }
