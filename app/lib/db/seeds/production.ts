@@ -147,72 +147,10 @@ function generateTilapiaGrowthStandards(): Array<{
   return data
 }
 
-// ============ MARKET PRICES DATA ============
-function getMarketPrices(): Array<{
-  species: string
-  size_category: string
-  price_per_unit: string
-}> {
-  return [
-    // Broiler prices (per bird)
-    {
-      species: 'Broiler',
-      size_category: '1.5kg-1.8kg',
-      price_per_unit: '4500',
-    },
-    {
-      species: 'Broiler',
-      size_category: '1.8kg-2.2kg',
-      price_per_unit: '5500',
-    },
-    { species: 'Broiler', size_category: '2.5kg+', price_per_unit: '10500' },
-    // Layer prices (per bird - point-of-lay)
-    {
-      species: 'Layer',
-      size_category: 'Point-of-lay (16-18wks)',
-      price_per_unit: '3500',
-    },
-    { species: 'Layer', size_category: 'Spent hen', price_per_unit: '2500' },
-    // Catfish prices (per kg)
-    {
-      species: 'Catfish',
-      size_category: 'Melange (400-600g)',
-      price_per_unit: '2500',
-    },
-    {
-      species: 'Catfish',
-      size_category: 'Table Size (600g-1kg)',
-      price_per_unit: '3000',
-    },
-    {
-      species: 'Catfish',
-      size_category: 'Jumbo (1kg+)',
-      price_per_unit: '3500',
-    },
-    // Tilapia prices (per kg)
-    {
-      species: 'Tilapia',
-      size_category: 'Small (200-350g)',
-      price_per_unit: '1800',
-    },
-    {
-      species: 'Tilapia',
-      size_category: 'Medium (350-500g)',
-      price_per_unit: '2200',
-    },
-    {
-      species: 'Tilapia',
-      size_category: 'Large (500g+)',
-      price_per_unit: '2800',
-    },
-    // Eggs (per crate of 30)
-    {
-      species: 'Eggs',
-      size_category: 'Crate (30 eggs)',
-      price_per_unit: '3200',
-    },
-  ]
-}
+// NOTE: Market prices removed - users enter their own target prices per batch
+// This makes the app international (not Nigeria-specific)
+// Regional market data packages can be added as a future enhancement
+// See: .agents/plans/regional-market-packages.md
 
 // ============ MAIN SEED ============
 export async function seed() {
@@ -283,15 +221,9 @@ export async function seed() {
     console.log(`      • Catfish: ${catfishStandards.length} days`)
     console.log(`      • Tilapia: ${tilapiaStandards.length} days\n`)
 
-    // MARKET PRICES
-    console.log('💰 Seeding market prices...')
-
-    // Clear existing market prices
-    await db.deleteFrom('market_prices').execute()
-
-    const marketPrices = getMarketPrices()
-    await db.insertInto('market_prices').values(marketPrices).execute()
-    console.log(`   ✅ ${marketPrices.length} market price entries\n`)
+    // NOTE: Market prices removed - users enter their own target prices per batch
+    // This makes the app international (not Nigeria-specific)
+    // Regional market data packages can be added as a future enhancement
 
     // SUMMARY
     console.log('═'.repeat(50))
@@ -300,7 +232,6 @@ export async function seed() {
     console.log('\n📋 What was seeded:')
     console.log(`   • Admin user: ${ADMIN_EMAIL}`)
     console.log('   • Growth standards: Broiler, Layer, Catfish, Tilapia')
-    console.log('   • Market prices: Reference pricing data')
     console.log('\n🔐 Login credentials:')
     console.log(`   Email: ${ADMIN_EMAIL}`)
     console.log(
