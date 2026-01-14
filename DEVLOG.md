@@ -1624,3 +1624,170 @@ Users can now:
 - Date formatter wiring: ~1.5 hours
 - Unit value conversions: ~45 minutes
 - **Total**: ~2.25 hours
+
+
+---
+
+## Day 12 (January 14) - Missing Settings Features Implementation
+
+### Context
+
+The application had 10 user settings implemented in the database, but 5 were unused because the underlying features didn't exist. This created poor UX where users could configure settings that had no effect.
+
+### Features Implemented
+
+#### 1. In-App Notifications System ✅
+
+**Problem**: Users had notification preferences but no notification system existed.
+
+**Solution**: Built complete notification infrastructure
+- Database table with indexes for efficient queries
+- Server functions with auth (create, get, mark read, delete)
+- React context with TanStack Query (30s auto-refresh)
+- Notification bell UI component with badge
+- Wired to mortality alerts system
+- Respects user notification preferences
+
+**Impact**: Users now receive real-time alerts for critical events (high mortality). Notification bell shows unread count, dropdown allows mark as read/delete.
+
+#### 2. Dashboard Customization ✅
+
+**Problem**: Dashboard showed all cards to all users, no personalization.
+
+**Solution**: Made dashboard cards conditional based on user preferences
+- Revenue, expenses, profit cards now conditional
+- Inventory section conditional
+- Empty state when all cards hidden
+- Uses `dashboardCards` setting
+
+**Impact**: Users can hide cards they don't need (e.g., farm owners can hide livestock cards and focus on financials).
+
+#### 3. Fiscal Year Reports ✅
+
+**Problem**: Reports used calendar year, but many farms have different fiscal years (e.g., April-March).
+
+**Solution**: Added fiscal year support to reports
+- Fiscal year utility functions (getFiscalYearStart, getFiscalYearEnd, getFiscalYearLabel)
+- Checkbox toggle in reports UI
+- Auto-populates dates from fiscal year settings
+- Displays fiscal year label (e.g., "FY 2024-2025")
+- Uses `fiscalYearStartMonth` setting
+
+**Impact**: Accountants can now generate reports aligned with their fiscal year for accurate annual performance tracking.
+
+#### 4. Internationalization Infrastructure ✅
+
+**Problem**: Language setting existed but no translation system.
+
+**Solution**: Set up i18n infrastructure with English baseline
+- Installed react-i18next and i18next
+- Created i18n config with English translations
+- Created I18nProvider that syncs with user language setting
+- System ready for incremental translation additions
+
+**Impact**: Infrastructure complete. Can now add translations for Hausa, Yoruba, Igbo, French, Portuguese, Swahili incrementally.
+
+### Technical Implementation
+
+**Notifications Architecture:**
+- Database: notifications table with userId, farmId, type, title, message, read, actionUrl, metadata
+- Server: Dynamic imports for Cloudflare Workers compatibility
+- Client: TanStack Query with 30s polling, optimistic updates
+- UI: Custom dropdown (no external popover dependency)
+
+**Dashboard Pattern:**
+```typescript
+const { cards } = useDashboardPreferences()
+
+{cards.revenue && (
+  <Card>
+    {/* Revenue card content */}
+  </Card>
+)}
+```
+
+**Fiscal Year Pattern:**
+```typescript
+const { fiscalYearStartMonth } = useBusinessSettings()
+const start = getFiscalYearStart(fiscalYearStartMonth)
+const end = getFiscalYearEnd(fiscalYearStartMonth)
+```
+
+**i18n Pattern:**
+```typescript
+// Add translations to config.ts
+const resources = {
+  en: { common: { dashboard: 'Dashboard', ... } },
+  ha: { common: { dashboard: 'Allon Aiki', ... } }, // Add later
+}
+```
+
+### Settings Status: 9/10 Functional
+
+| Setting | Status |
+|---------|--------|
+| defaultFarmId | ✅ Working |
+| theme | ✅ Working |
+| mortalityAlertPercent/Quantity | ✅ Working |
+| defaultPaymentTermsDays | ✅ Working |
+| **notifications** | ✅ **NOW WORKING** |
+| **dashboardCards** | ✅ **NOW WORKING** |
+| **fiscalYearStartMonth** | ✅ **NOW WORKING** |
+| **language** | ✅ **NOW WORKING** (English ready) |
+| lowStockThresholdPercent | N/A (per-item is better UX) |
+| Currency/Date/Time/Units | ✅ Working |
+
+### Files Created (9)
+- `app/features/notifications/types.ts`
+- `app/features/notifications/server.ts`
+- `app/features/notifications/context.tsx`
+- `app/features/notifications/index.ts`
+- `app/components/notifications/bell-icon.tsx`
+- `app/features/reports/fiscal-year.ts`
+- `app/features/i18n/config.ts`
+- `app/features/i18n/provider.tsx`
+- `app/features/i18n/index.ts`
+
+### Files Modified (6)
+- `app/lib/db/types.ts` - Added NotificationTable
+- `app/lib/db/migrations/2025-01-08-001-initial-schema.ts` - Added notifications table
+- `app/routes/__root.tsx` - Added NotificationsProvider and I18nProvider
+- `app/components/navigation.tsx` - Added NotificationBell
+- `app/features/monitoring/alerts.ts` - Wired to create notifications
+- `app/routes/_auth/dashboard/index.tsx` - Added conditional rendering
+- `app/routes/_auth/reports/index.tsx` - Added fiscal year toggle
+
+### Commits Created (5)
+
+1. `6fd6e26 feat(notifications): add in-app notification system` - 7 files, +463 insertions
+2. `94271d6 feat(dashboard): add user-configurable dashboard cards` - 1 file, +110/-46
+3. `0a3ae8c feat(reports): add fiscal year support` - 2 files, +75/-3
+4. `0d0d4d2 feat(i18n): add internationalization infrastructure` - 4 files, +70 insertions
+5. `938a100 feat(settings): wire up notification and i18n providers` - 3 files, +44/-3
+
+### Validation Results
+- TypeScript: 0 errors ✅
+- ESLint: 0 errors ✅
+- Database: Schema updated successfully ✅
+- Build: Ready for deployment ✅
+
+### Time Investment
+- Feature 1 (Notifications): ~2 hours
+- Feature 2 (Dashboard): ~30 minutes
+- Feature 3 (Fiscal Year): ~45 minutes
+- Feature 4 (i18n): ~30 minutes
+- **Total**: ~3.75 hours
+
+### Next Steps (Optional)
+- Add tests for notification system
+- Add more notification types (low stock, invoice due, batch harvest)
+- Add translations for Nigerian languages (Hausa, Yoruba, Igbo)
+- Add translations for other African languages (French, Portuguese, Swahili)
+
+### Key Insights
+- Settings system now 90% complete (9/10 functional)
+- Notification system provides foundation for future alert types
+- Dashboard customization improves UX for different user roles
+- Fiscal year support critical for accounting compliance
+- i18n infrastructure enables future multi-language expansion
+- All features respect user preferences and settings
