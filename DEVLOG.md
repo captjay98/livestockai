@@ -2376,4 +2376,107 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 
 ---
 
+### Day 8 Part 4 - Bug Fixes & UI Polish
+
+**Context**: Final production readiness sweep - fixing critical bugs discovered during testing and polishing UI for better mobile experience.
+
+#### Critical Bug Fixes (5)
+
+**1. Onboarding Redirect Loop**
+- Problem: Skipping onboarding caused infinite redirect loop
+- Root cause: `skipOnboarding()` didn't persist to database, `navigate()` called during render
+- Solution: 
+  - Call `markOnboardingCompleteFn()` to persist skip to DB
+  - Move `navigate()` to `useEffect` to avoid render-time navigation
+  - Expanded farm type options from 3 to 7 (poultry, fishery, cattle, goats, sheep, bees, mixed)
+- Files: `onboarding/context.tsx`, `onboarding/index.tsx`
+
+**2. Settings Merge Bug**
+- Problem: User settings missing fields when new settings added to schema
+- Root cause: Server only selected existing columns, didn't merge with defaults
+- Solution: Select all columns, merge with `DEFAULT_SETTINGS` on client
+- Impact: New users get complete settings, existing users get new fields with defaults
+- Files: `settings/server.ts`, `settings/hooks.ts`, `settings/currency.ts`
+
+**3. PostgreSQL Column Quoting**
+- Problem: `orderBy('createdAt')` failed - PostgreSQL requires quotes for camelCase
+- Solution: Changed to `orderBy('created_at')` (snake_case) or quote identifiers
+- Files: `customers/server.ts`, `suppliers/server.ts`
+
+**4. Auth Layout Guard**
+- Problem: Race condition - AuthLayout rendered before user loaded
+- Solution: Added null check with loading state
+- Files: `_auth.tsx`
+
+**5. Currency Test Updates**
+- Problem: Tests expected NGN default, but changed to USD
+- Solution: Updated 15 test assertions to expect USD
+- Files: `tests/features/settings/currency.test.ts`
+
+#### UI/UX Polish (2)
+
+**1. Padding Reduction**
+- Objective: Maximize screen real estate on mobile devices
+- Changes:
+  - Shell layout: `p-6` → `p-4`
+  - Card components: `p-6` → `p-4`
+  - Select/Switch/Tabs: Reduced internal padding
+- Impact: ~15% more content visible on mobile screens
+- Files: 5 UI components
+
+**2. Container Padding Cleanup**
+- Objective: Remove redundant padding (Shell already has padding)
+- Changes: Removed `className="container p-6"` from 22 route files
+- Result: Consistent spacing across all pages
+- Files: 22 route files
+
+#### Commits Created (8)
+
+1. `a00a474` - fix(onboarding): persist skip to database and fix redirect loop
+2. `128e2cc` - fix(settings): select all columns and merge with defaults
+3. `067255e` - fix(database): quote camelCase columns in PostgreSQL orderBy
+4. `79a758e` - fix(auth): add guard for missing user in AuthLayout
+5. `54d73b1` - refactor(ui): reduce padding for more screen real estate
+6. `d1c1096` - refactor(routes): remove redundant container padding
+7. `2dc1cb3` - test(currency): update tests for USD default
+8. `97a97b1` - docs: add commit plan for Day 8 Part 4
+
+#### Technical Metrics
+
+| Metric | Value |
+|--------|-------|
+| **Files Changed** | 38 |
+| **Lines Added** | +354 |
+| **Lines Removed** | -133 |
+| **Net Change** | +221 |
+| **Commits** | 8 |
+| **TypeScript Errors** | 0 |
+| **ESLint Errors** | 0 |
+| **Tests Passing** | 72/72 (100%) |
+
+#### Key Insights
+
+- **Onboarding persistence critical** - Skip button must write to database, not just context
+- **Settings schema evolution** - Always merge with defaults to handle new fields
+- **PostgreSQL case sensitivity** - camelCase columns need quotes or use snake_case
+- **Mobile-first padding** - Reduced padding increases usable space by ~15%
+- **Consistent spacing** - Shell layout handles padding, routes shouldn't duplicate
+
+#### Time Investment
+
+- Bug fixes: ~1 hour
+- UI polish: ~30 minutes
+- Testing: ~15 minutes
+- **Total**: ~1.75 hours
+
+#### Production Status
+
+- [x] All critical bugs fixed
+- [x] UI optimized for mobile
+- [x] Tests updated and passing
+- [x] TypeScript/ESLint clean
+- [x] Ready for deployment
+
+---
+
 _Built with ❤️ for Nigerian farmers_
