@@ -106,20 +106,8 @@ export async function calculateBatchProjection(
   const daysRemaining = differenceInDays(projectedHarvestDate, new Date())
 
   // 4. Financials
-  // Revenue: Current Qty * Market Price
-  // Find generic market price for species
-  const marketPrice = await db
-    .selectFrom('market_prices')
-    .selectAll()
-    .where('species', '=', batch.species)
-    // .where('size_category', 'like', '%...') // Need logic to match size
-    .execute()
-
-  // Simple average or max price for now, or match weight
-  // If target weight is 2000g -> "2.0kg" category
-  // This matching is tricky without standardized strings.
-  // Let's assume a default safe price for now or take the first match.
-  const estPricePerUnit = Number(marketPrice[0]?.price_per_unit || 0)
+  // Revenue: Current Qty * Target Price (user-entered)
+  const estPricePerUnit = Number(batch.targetPricePerUnit || 0)
 
   const projectedRevenue = batch.currentQuantity * estPricePerUnit
 
