@@ -24,12 +24,14 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 
-const getCustomersForInvoiceFn = createServerFn({ method: 'GET' }).handler(async () => {
-  const { db } = await import('~/lib/db')
-  const { requireAuth } = await import('~/features/auth/server-middleware')
-  await requireAuth()
-  return db.selectFrom('customers').select(['id', 'name', 'phone']).execute()
-})
+const getCustomersForInvoiceFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
+    return db.selectFrom('customers').select(['id', 'name', 'phone']).execute()
+  },
+)
 
 interface Customer {
   id: string
@@ -49,14 +51,20 @@ interface InvoiceDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps) {
+export function InvoiceDialog({
+  farmId,
+  open,
+  onOpenChange,
+}: InvoiceDialogProps) {
   const router = useRouter()
   const { format: formatCurrency } = useFormatCurrency()
   const { defaultPaymentTermsDays } = useBusinessSettings()
   const [customers, setCustomers] = useState<Array<Customer>>([])
   const [customerId, setCustomerId] = useState('')
   const [dueDate, setDueDate] = useState('')
-  const [items, setItems] = useState<Array<LineItem>>([{ description: '', quantity: '', unitPrice: '' }])
+  const [items, setItems] = useState<Array<LineItem>>([
+    { description: '', quantity: '', unitPrice: '' },
+  ])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -81,7 +89,8 @@ export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps
     }
   }
 
-  const addItem = () => setItems([...items, { description: '', quantity: '', unitPrice: '' }])
+  const addItem = () =>
+    setItems([...items, { description: '', quantity: '', unitPrice: '' }])
 
   const removeItem = (index: number) => {
     if (items.length > 1) setItems(items.filter((_, i) => i !== index))
@@ -99,7 +108,8 @@ export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps
     return sum + qty * price
   }, 0)
 
-  const isValid = customerId && items.every((i) => i.description && i.quantity && i.unitPrice)
+  const isValid =
+    customerId && items.every((i) => i.description && i.quantity && i.unitPrice)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -140,15 +150,22 @@ export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps
             <FileText className="h-5 w-5" />
             Create Invoice
           </DialogTitle>
-          <DialogDescription>Create a new invoice for a customer</DialogDescription>
+          <DialogDescription>
+            Create a new invoice for a customer
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Customer *</Label>
-            <Select value={customerId} onValueChange={(v) => v && setCustomerId(v)}>
+            <Select
+              value={customerId}
+              onValueChange={(v) => v && setCustomerId(v)}
+            >
               <SelectTrigger>
                 <SelectValue>
-                  {customerId ? customers.find((c) => c.id === customerId)?.name : 'Select customer'}
+                  {customerId
+                    ? customers.find((c) => c.id === customerId)?.name
+                    : 'Select customer'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -163,13 +180,22 @@ export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps
 
           <div className="space-y-2">
             <Label>Due Date</Label>
-            <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            <Input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Line Items *</Label>
-              <Button type="button" variant="outline" size="sm" onClick={addItem}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addItem}
+              >
                 <Plus className="h-3 w-3 mr-1" /> Add
               </Button>
             </div>
@@ -179,7 +205,9 @@ export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps
                   <Input
                     placeholder="Description"
                     value={item.description}
-                    onChange={(e) => updateItem(i, 'description', e.target.value)}
+                    onChange={(e) =>
+                      updateItem(i, 'description', e.target.value)
+                    }
                     className="flex-1"
                     required
                   />
@@ -203,7 +231,12 @@ export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps
                     required
                   />
                   {items.length > 1 && (
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(i)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeItem(i)}
+                    >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}
@@ -218,11 +251,18 @@ export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps
           </div>
 
           {error && (
-            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+              {error}
+            </div>
           )}
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting || !isValid}>

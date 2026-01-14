@@ -37,7 +37,12 @@ interface WeightDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDialogProps) {
+export function WeightDialog({
+  farmId,
+  batches,
+  open,
+  onOpenChange,
+}: WeightDialogProps) {
   const router = useRouter()
   const { format: formatWeight } = useFormatWeight()
   const [showAdvanced, setShowAdvanced] = useState(false)
@@ -56,7 +61,9 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
   const selectedBatch = batches.find((b) => b.id === formData.batchId)
   const estimatedTotal =
     formData.averageWeightKg && selectedBatch
-      ? formatWeight(parseFloat(formData.averageWeightKg) * selectedBatch.currentQuantity)
+      ? formatWeight(
+          parseFloat(formData.averageWeightKg) * selectedBatch.currentQuantity,
+        )
       : null
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,15 +80,27 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
             date: new Date(formData.date),
             sampleSize: parseInt(formData.sampleSize),
             averageWeightKg: parseFloat(formData.averageWeightKg),
-            minWeightKg: formData.minWeightKg ? parseFloat(formData.minWeightKg) : null,
-            maxWeightKg: formData.maxWeightKg ? parseFloat(formData.maxWeightKg) : null,
+            minWeightKg: formData.minWeightKg
+              ? parseFloat(formData.minWeightKg)
+              : null,
+            maxWeightKg: formData.maxWeightKg
+              ? parseFloat(formData.maxWeightKg)
+              : null,
             notes: formData.notes || null,
           },
         },
       })
       toast.success('Weight recorded')
       onOpenChange(false)
-      setFormData({ batchId: '', date: new Date().toISOString().split('T')[0], sampleSize: '', averageWeightKg: '', minWeightKg: '', maxWeightKg: '', notes: '' })
+      setFormData({
+        batchId: '',
+        date: new Date().toISOString().split('T')[0],
+        sampleSize: '',
+        averageWeightKg: '',
+        minWeightKg: '',
+        maxWeightKg: '',
+        notes: '',
+      })
       router.invalidate()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to record')
@@ -98,18 +117,24 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
             <Scale className="h-5 w-5" />
             Weight Sample
           </DialogTitle>
-          <DialogDescription>Record a weight sample for growth tracking</DialogDescription>
+          <DialogDescription>
+            Record a weight sample for growth tracking
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Batch *</Label>
             <Select
               value={formData.batchId}
-              onValueChange={(value) => value && setFormData((prev) => ({ ...prev, batchId: value }))}
+              onValueChange={(value) =>
+                value && setFormData((prev) => ({ ...prev, batchId: value }))
+              }
             >
               <SelectTrigger>
                 <SelectValue>
-                  {formData.batchId ? batches.find((b) => b.id === formData.batchId)?.species : 'Select batch'}
+                  {formData.batchId
+                    ? batches.find((b) => b.id === formData.batchId)?.species
+                    : 'Select batch'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -128,7 +153,9 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
               <Input
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 required
               />
             </div>
@@ -138,7 +165,12 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
                 type="number"
                 min="1"
                 value={formData.sampleSize}
-                onChange={(e) => setFormData((prev) => ({ ...prev, sampleSize: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    sampleSize: e.target.value,
+                  }))
+                }
                 placeholder="e.g., 10"
                 required
               />
@@ -152,7 +184,12 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
               step="0.001"
               min="0"
               value={formData.averageWeightKg}
-              onChange={(e) => setFormData((prev) => ({ ...prev, averageWeightKg: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  averageWeightKg: e.target.value,
+                }))
+              }
               placeholder="e.g., 1.5"
               required
             />
@@ -160,7 +197,8 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
 
           {estimatedTotal && (
             <div className="p-3 bg-muted rounded-lg text-sm">
-              Estimated batch total: <span className="font-medium">{estimatedTotal}</span>
+              Estimated batch total:{' '}
+              <span className="font-medium">{estimatedTotal}</span>
             </div>
           )}
 
@@ -169,7 +207,11 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
-            {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {showAdvanced ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
             {showAdvanced ? 'Hide' : 'Show'} additional details
           </button>
 
@@ -183,7 +225,12 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
                     step="0.001"
                     min="0"
                     value={formData.minWeightKg}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, minWeightKg: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        minWeightKg: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -193,7 +240,12 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
                     step="0.001"
                     min="0"
                     value={formData.maxWeightKg}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, maxWeightKg: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        maxWeightKg: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -201,7 +253,9 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
                 <Label>Notes</Label>
                 <Textarea
                   value={formData.notes}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                  }
                   placeholder="Additional observations"
                   rows={2}
                 />
@@ -210,16 +264,28 @@ export function WeightDialog({ farmId, batches, open, onOpenChange }: WeightDial
           )}
 
           {error && (
-            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+              {error}
+            </div>
           )}
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.batchId || !formData.sampleSize || !formData.averageWeightKg}
+              disabled={
+                isSubmitting ||
+                !formData.batchId ||
+                !formData.sampleSize ||
+                !formData.averageWeightKg
+              }
             >
               {isSubmitting ? 'Recording...' : 'Record Sample'}
             </Button>

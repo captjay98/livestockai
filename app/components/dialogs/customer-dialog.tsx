@@ -69,7 +69,13 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
       })
       toast.success('Customer created')
       onOpenChange(false)
-      setFormData({ name: '', phone: '', email: '', location: '', customerType: '' })
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        location: '',
+        customerType: '',
+      })
       router.invalidate()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create customer')
@@ -86,7 +92,9 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
             <User className="h-5 w-5" />
             Add Customer
           </DialogTitle>
-          <DialogDescription>Add a new customer to your contacts</DialogDescription>
+          <DialogDescription>
+            Add a new customer to your contacts
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -94,7 +102,9 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
               placeholder="Customer name"
               required
             />
@@ -105,7 +115,9 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
             <Input
               id="phone"
               value={formData.phone}
-              onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, phone: e.target.value }))
+              }
               placeholder="08012345678"
               required
             />
@@ -117,7 +129,9 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
+              }
               placeholder="customer@example.com"
             />
           </div>
@@ -127,7 +141,9 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
             <Input
               id="location"
               value={formData.location}
-              onChange={(e) => setFormData((prev) => ({ ...prev, location: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, location: e.target.value }))
+              }
               placeholder="City or address"
             />
           </div>
@@ -143,7 +159,9 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
               <SelectTrigger>
                 <SelectValue>
                   {formData.customerType
-                    ? CUSTOMER_TYPES.find((t) => t.value === formData.customerType)?.label
+                    ? CUSTOMER_TYPES.find(
+                        (t) => t.value === formData.customerType,
+                      )?.label
                     : 'Select type'}
                 </SelectValue>
               </SelectTrigger>
@@ -164,10 +182,18 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
           )}
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !formData.name || !formData.phone}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !formData.name || !formData.phone}
+            >
               {isSubmitting ? 'Creating...' : 'Add Customer'}
             </Button>
           </DialogFooter>

@@ -39,7 +39,7 @@ export function EditFarmDialog({
   const [formData, setFormData] = useState({
     name: '',
     location: '',
-    type: 'poultry' as 'poultry' | 'fishery' | 'mixed',
+    type: 'poultry' as 'poultry' | 'aquaculture' | 'mixed',
   })
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -55,7 +55,7 @@ export function EditFarmDialog({
             setFormData({
               name: farmData.name,
               location: farmData.location,
-              type: farmData.type as 'poultry' | 'fishery' | 'mixed',
+              type: farmData.type as 'poultry' | 'aquaculture' | 'mixed',
             })
           }
         } catch (err) {
@@ -145,7 +145,7 @@ export function EditFarmDialog({
                 onValueChange={(value) => {
                   if (
                     value === 'poultry' ||
-                    value === 'fishery' ||
+                    value === 'aquaculture' ||
                     value === 'mixed'
                   ) {
                     setFormData((prev) => ({ ...prev, type: value }))
@@ -157,7 +157,7 @@ export function EditFarmDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="poultry">Poultry</SelectItem>
-                  <SelectItem value="fishery">Fishery</SelectItem>
+                  <SelectItem value="aquaculture">Aquaculture</SelectItem>
                   <SelectItem value="mixed">Mixed</SelectItem>
                 </SelectContent>
               </Select>

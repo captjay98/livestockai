@@ -3,13 +3,11 @@ import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { ChevronDown, ChevronUp, ShoppingCart } from 'lucide-react'
-import type {PaymentMethod, PaymentStatus} from '~/features/sales/server';
+import type { PaymentMethod, PaymentStatus } from '~/features/sales/server'
 import {
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
-  
-  
-  createSaleFn
+  createSaleFn,
 } from '~/features/sales/server'
 import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -418,7 +416,8 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
                 Total:{' '}
                 <span className="text-lg">
                   {formatCurrency(
-                    parseInt(formData.quantity) * parseFloat(formData.unitPrice)
+                    parseInt(formData.quantity) *
+                      parseFloat(formData.unitPrice),
                   )}
                 </span>
               </p>

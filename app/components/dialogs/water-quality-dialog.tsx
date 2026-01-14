@@ -2,7 +2,10 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Droplets } from 'lucide-react'
-import { WATER_QUALITY_THRESHOLDS, createWaterQualityRecordFn } from '~/features/water-quality/server'
+import {
+  WATER_QUALITY_THRESHOLDS,
+  createWaterQualityRecordFn,
+} from '~/features/water-quality/server'
 import { useFormatTemperature } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -37,7 +40,12 @@ interface WaterQualityDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: WaterQualityDialogProps) {
+export function WaterQualityDialog({
+  farmId,
+  batches,
+  open,
+  onOpenChange,
+}: WaterQualityDialogProps) {
   const router = useRouter()
   const { label: tempLabel } = useFormatTemperature()
   const [formData, setFormData] = useState({
@@ -60,7 +68,9 @@ export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: Wate
 
   const warnings = {
     ph: formData.ph && (ph < t.ph.min || ph > t.ph.max),
-    temp: formData.temperatureCelsius && (temp < t.temperature.min || temp > t.temperature.max),
+    temp:
+      formData.temperatureCelsius &&
+      (temp < t.temperature.min || temp > t.temperature.max),
     oxygen: formData.dissolvedOxygenMgL && oxygen < t.dissolvedOxygen.min,
     ammonia: formData.ammoniaMgL && ammonia > t.ammonia.max,
   }
@@ -87,7 +97,15 @@ export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: Wate
       })
       toast.success('Water quality recorded')
       onOpenChange(false)
-      setFormData({ batchId: '', date: new Date().toISOString().split('T')[0], ph: '', temperatureCelsius: '', dissolvedOxygenMgL: '', ammoniaMgL: '', notes: '' })
+      setFormData({
+        batchId: '',
+        date: new Date().toISOString().split('T')[0],
+        ph: '',
+        temperatureCelsius: '',
+        dissolvedOxygenMgL: '',
+        ammoniaMgL: '',
+        notes: '',
+      })
       router.invalidate()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to record')
@@ -111,11 +129,15 @@ export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: Wate
             <Label>Batch *</Label>
             <Select
               value={formData.batchId}
-              onValueChange={(value) => value && setFormData((prev) => ({ ...prev, batchId: value }))}
+              onValueChange={(value) =>
+                value && setFormData((prev) => ({ ...prev, batchId: value }))
+              }
             >
               <SelectTrigger>
                 <SelectValue>
-                  {formData.batchId ? batches.find((b) => b.id === formData.batchId)?.species : 'Select batch'}
+                  {formData.batchId
+                    ? batches.find((b) => b.id === formData.batchId)?.species
+                    : 'Select batch'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -133,30 +155,43 @@ export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: Wate
             <Input
               type="date"
               value={formData.date}
-              onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, date: e.target.value }))
+              }
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className={warnings.ph ? 'text-warning' : ''}>pH ({t.ph.min}-{t.ph.max}) *</Label>
+              <Label className={warnings.ph ? 'text-warning' : ''}>
+                pH ({t.ph.min}-{t.ph.max}) *
+              </Label>
               <Input
                 type="number"
                 step="0.1"
                 value={formData.ph}
-                onChange={(e) => setFormData((prev) => ({ ...prev, ph: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, ph: e.target.value }))
+                }
                 className={warnings.ph ? 'border-warning' : ''}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label className={warnings.temp ? 'text-warning' : ''}>Temp {tempLabel} ({t.temperature.min}-{t.temperature.max}) *</Label>
+              <Label className={warnings.temp ? 'text-warning' : ''}>
+                Temp {tempLabel} ({t.temperature.min}-{t.temperature.max}) *
+              </Label>
               <Input
                 type="number"
                 step="0.1"
                 value={formData.temperatureCelsius}
-                onChange={(e) => setFormData((prev) => ({ ...prev, temperatureCelsius: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    temperatureCelsius: e.target.value,
+                  }))
+                }
                 className={warnings.temp ? 'border-warning' : ''}
                 required
               />
@@ -165,23 +200,37 @@ export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: Wate
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className={warnings.oxygen ? 'text-warning' : ''}>DO mg/L (≥{t.dissolvedOxygen.min}) *</Label>
+              <Label className={warnings.oxygen ? 'text-warning' : ''}>
+                DO mg/L (≥{t.dissolvedOxygen.min}) *
+              </Label>
               <Input
                 type="number"
                 step="0.1"
                 value={formData.dissolvedOxygenMgL}
-                onChange={(e) => setFormData((prev) => ({ ...prev, dissolvedOxygenMgL: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    dissolvedOxygenMgL: e.target.value,
+                  }))
+                }
                 className={warnings.oxygen ? 'border-warning' : ''}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label className={warnings.ammonia ? 'text-warning' : ''}>Ammonia mg/L (≤{t.ammonia.max}) *</Label>
+              <Label className={warnings.ammonia ? 'text-warning' : ''}>
+                Ammonia mg/L (≤{t.ammonia.max}) *
+              </Label>
               <Input
                 type="number"
                 step="0.001"
                 value={formData.ammoniaMgL}
-                onChange={(e) => setFormData((prev) => ({ ...prev, ammoniaMgL: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    ammoniaMgL: e.target.value,
+                  }))
+                }
                 className={warnings.ammonia ? 'border-warning' : ''}
                 required
               />
@@ -192,23 +241,39 @@ export function WaterQualityDialog({ farmId, batches, open, onOpenChange }: Wate
             <Label>Notes</Label>
             <Textarea
               value={formData.notes}
-              onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, notes: e.target.value }))
+              }
               placeholder="Additional observations"
               rows={2}
             />
           </div>
 
           {error && (
-            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+              {error}
+            </div>
           )}
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.batchId || !formData.ph || !formData.temperatureCelsius || !formData.dissolvedOxygenMgL || !formData.ammoniaMgL}
+              disabled={
+                isSubmitting ||
+                !formData.batchId ||
+                !formData.ph ||
+                !formData.temperatureCelsius ||
+                !formData.dissolvedOxygenMgL ||
+                !formData.ammoniaMgL
+              }
             >
               {isSubmitting ? 'Recording...' : 'Record Reading'}
             </Button>

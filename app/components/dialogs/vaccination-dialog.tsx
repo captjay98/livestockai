@@ -2,7 +2,10 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Syringe } from 'lucide-react'
-import { createTreatmentFn, createVaccinationFn } from '~/features/vaccinations/server'
+import {
+  createTreatmentFn,
+  createVaccinationFn,
+} from '~/features/vaccinations/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -36,9 +39,16 @@ interface VaccinationDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function VaccinationDialog({ farmId, batches, open, onOpenChange }: VaccinationDialogProps) {
+export function VaccinationDialog({
+  farmId,
+  batches,
+  open,
+  onOpenChange,
+}: VaccinationDialogProps) {
   const router = useRouter()
-  const [recordType, setRecordType] = useState<'vaccination' | 'treatment'>('vaccination')
+  const [recordType, setRecordType] = useState<'vaccination' | 'treatment'>(
+    'vaccination',
+  )
   const [formData, setFormData] = useState({
     batchId: '',
     name: '',
@@ -67,7 +77,9 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
               vaccineName: formData.name,
               dateAdministered: new Date(formData.date),
               dosage: formData.dosage,
-              nextDueDate: formData.nextDueDate ? new Date(formData.nextDueDate) : null,
+              nextDueDate: formData.nextDueDate
+                ? new Date(formData.nextDueDate)
+                : null,
               notes: formData.notes || null,
             },
           },
@@ -88,9 +100,22 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
           },
         })
       }
-      toast.success(recordType === 'vaccination' ? 'Vaccination recorded' : 'Treatment recorded')
+      toast.success(
+        recordType === 'vaccination'
+          ? 'Vaccination recorded'
+          : 'Treatment recorded',
+      )
       onOpenChange(false)
-      setFormData({ batchId: '', name: '', date: new Date().toISOString().split('T')[0], dosage: '', nextDueDate: '', reason: '', withdrawalDays: '', notes: '' })
+      setFormData({
+        batchId: '',
+        name: '',
+        date: new Date().toISOString().split('T')[0],
+        dosage: '',
+        nextDueDate: '',
+        reason: '',
+        withdrawalDays: '',
+        notes: '',
+      })
       router.invalidate()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create record')
@@ -107,7 +132,9 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
             <Syringe className="h-5 w-5" />
             Add Health Record
           </DialogTitle>
-          <DialogDescription>Record a vaccination or treatment</DialogDescription>
+          <DialogDescription>
+            Record a vaccination or treatment
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-2">
@@ -133,7 +160,9 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
             <Label>Batch *</Label>
             <Select
               value={formData.batchId}
-              onValueChange={(value) => value && setFormData((prev) => ({ ...prev, batchId: value }))}
+              onValueChange={(value) =>
+                value && setFormData((prev) => ({ ...prev, batchId: value }))
+              }
             >
               <SelectTrigger>
                 <SelectValue>
@@ -153,11 +182,22 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
           </div>
 
           <div className="space-y-2">
-            <Label>{recordType === 'vaccination' ? 'Vaccine Name' : 'Medication Name'} *</Label>
+            <Label>
+              {recordType === 'vaccination'
+                ? 'Vaccine Name'
+                : 'Medication Name'}{' '}
+              *
+            </Label>
             <Input
               value={formData.name}
-              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder={recordType === 'vaccination' ? 'e.g., Newcastle Disease' : 'e.g., Oxytetracycline'}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder={
+                recordType === 'vaccination'
+                  ? 'e.g., Newcastle Disease'
+                  : 'e.g., Oxytetracycline'
+              }
               required
             />
           </div>
@@ -167,7 +207,9 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
               <Label>Reason *</Label>
               <Input
                 value={formData.reason}
-                onChange={(e) => setFormData((prev) => ({ ...prev, reason: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, reason: e.target.value }))
+                }
                 placeholder="e.g., Respiratory infection"
                 required
               />
@@ -180,7 +222,9 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
               <Input
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 required
               />
             </div>
@@ -188,7 +232,9 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
               <Label>Dosage *</Label>
               <Input
                 value={formData.dosage}
-                onChange={(e) => setFormData((prev) => ({ ...prev, dosage: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, dosage: e.target.value }))
+                }
                 placeholder="e.g., 0.5ml"
                 required
               />
@@ -201,7 +247,12 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
               <Input
                 type="date"
                 value={formData.nextDueDate}
-                onChange={(e) => setFormData((prev) => ({ ...prev, nextDueDate: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    nextDueDate: e.target.value,
+                  }))
+                }
               />
             </div>
           ) : (
@@ -211,7 +262,12 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
                 type="number"
                 min="0"
                 value={formData.withdrawalDays}
-                onChange={(e) => setFormData((prev) => ({ ...prev, withdrawalDays: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    withdrawalDays: e.target.value,
+                  }))
+                }
                 placeholder="Days before safe for consumption"
               />
             </div>
@@ -221,21 +277,38 @@ export function VaccinationDialog({ farmId, batches, open, onOpenChange }: Vacci
             <Label>Notes</Label>
             <Textarea
               value={formData.notes}
-              onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, notes: e.target.value }))
+              }
               placeholder="Additional notes"
               rows={2}
             />
           </div>
 
           {error && (
-            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+              {error}
+            </div>
           )}
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !formData.batchId || !formData.name || !formData.dosage}>
+            <Button
+              type="submit"
+              disabled={
+                isSubmitting ||
+                !formData.batchId ||
+                !formData.name ||
+                !formData.dosage
+              }
+            >
               {isSubmitting ? 'Creating...' : 'Add Record'}
             </Button>
           </DialogFooter>

@@ -78,7 +78,14 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
       })
       toast.success('Supplier created')
       onOpenChange(false)
-      setFormData({ name: '', phone: '', email: '', location: '', products: '', supplierType: '' })
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        location: '',
+        products: '',
+        supplierType: '',
+      })
       router.invalidate()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create supplier')
@@ -95,7 +102,9 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
             <Truck className="h-5 w-5" />
             Add Supplier
           </DialogTitle>
-          <DialogDescription>Add a new supplier to your contacts</DialogDescription>
+          <DialogDescription>
+            Add a new supplier to your contacts
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -103,7 +112,9 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
               placeholder="Supplier name"
               required
             />
@@ -114,7 +125,9 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
             <Input
               id="phone"
               value={formData.phone}
-              onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, phone: e.target.value }))
+              }
               placeholder="08012345678"
               required
             />
@@ -126,7 +139,9 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
+              }
               placeholder="supplier@example.com"
             />
           </div>
@@ -136,7 +151,9 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
             <Input
               id="location"
               value={formData.location}
-              onChange={(e) => setFormData((prev) => ({ ...prev, location: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, location: e.target.value }))
+              }
               placeholder="City or address"
             />
           </div>
@@ -146,7 +163,9 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
             <Input
               id="products"
               value={formData.products}
-              onChange={(e) => setFormData((prev) => ({ ...prev, products: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, products: e.target.value }))
+              }
               placeholder="Feed, Vaccines, Equipment"
             />
           </div>
@@ -162,7 +181,9 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
               <SelectTrigger>
                 <SelectValue>
                   {formData.supplierType
-                    ? SUPPLIER_TYPES.find((t) => t.value === formData.supplierType)?.label
+                    ? SUPPLIER_TYPES.find(
+                        (t) => t.value === formData.supplierType,
+                      )?.label
                     : 'Select type'}
                 </SelectValue>
               </SelectTrigger>
@@ -183,10 +204,18 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
           )}
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !formData.name || !formData.phone}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !formData.name || !formData.phone}
+            >
               {isSubmitting ? 'Creating...' : 'Add Supplier'}
             </Button>
           </DialogFooter>

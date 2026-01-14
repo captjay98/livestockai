@@ -26,7 +26,7 @@ interface Farm {
   id: string
   name: string
   location: string
-  type: 'poultry' | 'fishery' | 'mixed'
+  type: 'poultry' | 'aquaculture' | 'mixed'
 }
 
 interface FarmDialogProps {
@@ -42,7 +42,7 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     location: '',
-    type: 'poultry' as 'poultry' | 'fishery' | 'mixed',
+    type: 'poultry' as 'poultry' | 'aquaculture' | 'mixed',
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -157,7 +157,10 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
             <Select
               value={formData.type}
               onValueChange={(value) => {
-                if (value && ['poultry', 'fishery', 'mixed'].includes(value)) {
+                if (
+                  value &&
+                  ['poultry', 'aquaculture', 'mixed'].includes(value)
+                ) {
                   setFormData((prev) => ({ ...prev, type: value }))
                 }
               }}
@@ -167,7 +170,7 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="poultry">Poultry</SelectItem>
-                <SelectItem value="fishery">Fishery</SelectItem>
+                <SelectItem value="aquaculture">Aquaculture</SelectItem>
                 <SelectItem value="mixed">Mixed</SelectItem>
               </SelectContent>
             </Select>
