@@ -6,7 +6,7 @@
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import {
   ArrowLeft,
@@ -44,7 +44,6 @@ import {
   useSettings,
 } from '~/features/settings'
 import { MODULE_METADATA } from '~/features/modules/constants'
-import { useModules } from '~/features/modules/context'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
@@ -59,10 +58,12 @@ import {
 } from '~/components/ui/select'
 
 // Server actions
+type FarmType = 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
+
 interface CreateFarmInput {
   name: string
   location: string
-  type: 'poultry' | 'fishery' | 'mixed'
+  type: FarmType
 }
 
 const createFarmAction = createServerFn({ method: 'POST' })
@@ -137,13 +138,14 @@ function OnboardingContent() {
     skipOnboarding,
   } = useOnboarding()
 
-  // If onboarding is complete, redirect to dashboard
-  if (!isLoading && !needsOnboarding) {
-    navigate({ to: '/dashboard' })
-    return null
-  }
+  // Redirect to dashboard when onboarding is complete
+  useEffect(() => {
+    if (!isLoading && !needsOnboarding) {
+      navigate({ to: '/dashboard' })
+    }
+  }, [isLoading, needsOnboarding, navigate])
 
-  if (isLoading) {
+  if (isLoading || !needsOnboarding) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
@@ -344,21 +346,21 @@ function CreateFarmStep() {
               <Label>Farm Type</Label>
               <Select
                 value={formData.type}
-                onValueChange={(v) =>
-                  v &&
-                  setFormData((p) => ({
-                    ...p,
-                    type: v,
-                  }))
-                }
+                onValueChange={(v) => {
+                  if (v) setFormData((p) => ({ ...p, type: v as FarmType }))
+                }}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="poultry">🐔 Poultry</SelectItem>
-                  <SelectItem value="fishery">🐟 Fishery</SelectItem>
-                  <SelectItem value="mixed">🏠 Mixed</SelectItem>
+                  <SelectItem value="fishery">🐟 Fishery (Aquaculture)</SelectItem>
+                  <SelectItem value="cattle">🐄 Cattle</SelectItem>
+                  <SelectItem value="goats">🐐 Goats</SelectItem>
+                  <SelectItem value="sheep">🐑 Sheep</SelectItem>
+                  <SelectItem value="bees">🐝 Bees (Apiary)</SelectItem>
+                  <SelectItem value="mixed">🏠 Mixed (Multiple Types)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -392,22 +394,41 @@ function CreateFarmStep() {
 
 // Step 3: Enable Modules
 function EnableModulesStep() {
-  const { completeStep, skipStep } = useOnboarding()
-  const {
-    enabledModules,
-    toggleModule,
-    isLoading: modulesLoading,
-  } = useModules()
-  const [selectedModules, setSelectedModules] =
-    useState<Array<ModuleKey>>(enabledModules)
+  const { completeStep, skipStep, progress } = useOnboarding()
+  const [selectedModules, setSelectedModules] = useState<Array<ModuleKey>>([
+    'poultry',
+    'aquaculture',
+  ])
+
+  // If no farm was created, skip this step
+  if (!progress.farmId) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted text-muted-foreground">
+            <Layers className="h-6 w-6" />
+          </div>
+          <h2 className="text-2xl font-bold">Module Selection</h2>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            Create a farm first to enable livestock modules.
+          </p>
+        </div>
+        <div className="flex justify-center gap-3 pt-4">
+          <Button variant="outline" onClick={skipStep}>
+            Skip <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   const allModules: Array<{ key: ModuleKey; available: boolean }> = [
     { key: 'poultry', available: true },
     { key: 'aquaculture', available: true },
-    { key: 'cattle', available: false },
-    { key: 'goats', available: false },
-    { key: 'sheep', available: false },
-    { key: 'bees', available: false },
+    { key: 'cattle', available: true },
+    { key: 'goats', available: true },
+    { key: 'sheep', available: true },
+    { key: 'bees', available: true },
   ]
 
   const handleToggle = (key: ModuleKey) => {
@@ -416,12 +437,9 @@ function EnableModulesStep() {
     )
   }
 
-  const handleContinue = async () => {
-    for (const { key } of allModules) {
-      if (selectedModules.includes(key) !== enabledModules.includes(key)) {
-        await toggleModule(key)
-      }
-    }
+  const handleContinue = () => {
+    // Module selection is stored locally for now
+    // Actual module enabling happens when batches are created
     completeStep('enable-modules')
   }
 
@@ -445,7 +463,7 @@ function EnableModulesStep() {
               key={key}
               type="button"
               onClick={() => available && handleToggle(key)}
-              disabled={!available || modulesLoading}
+              disabled={!available}
               className={`flex items-center gap-4 p-4 rounded-lg border-2 text-left transition-all ${selected ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'} ${!available ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <div className="text-3xl">{m.icon}</div>
@@ -475,7 +493,7 @@ function EnableModulesStep() {
         </Button>
         <Button
           onClick={handleContinue}
-          disabled={selectedModules.length === 0 || modulesLoading}
+          disabled={selectedModules.length === 0}
         >
           Continue <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -546,15 +564,13 @@ function CreateStructureStep() {
 // Step 5: Create Batch
 function CreateBatchStep() {
   const { completeStep, skipStep, progress, setBatchId } = useOnboarding()
-  const { enabledModules } = useModules()
   const { symbol: currencySymbol } = useFormatCurrency()
 
-  const availableTypes = enabledModules
-    .flatMap((k) => MODULE_METADATA[k].livestockTypes)
-    .filter((t): t is 'poultry' | 'fish' => t === 'poultry' || t === 'fish')
+  // Default to poultry and fish as available types
+  const availableTypes: Array<'poultry' | 'fish'> = ['poultry', 'fish']
 
   const [formData, setFormData] = useState({
-    livestockType: availableTypes[0] || 'poultry',
+    livestockType: 'poultry' as 'poultry' | 'fish',
     species: '',
     initialQuantity: '',
     acquisitionDate: new Date().toISOString().split('T')[0],
@@ -565,18 +581,36 @@ function CreateBatchStep() {
 
   const speciesOptions = getSpeciesOptions(formData.livestockType)
 
+  // If no farm, show skip message
+  if (!progress.farmId) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted text-muted-foreground">
+            <Package className="h-6 w-6" />
+          </div>
+          <h2 className="text-2xl font-bold">Create Your First Batch</h2>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            Create a farm first to add livestock batches.
+          </p>
+        </div>
+        <div className="flex justify-center gap-3 pt-4">
+          <Button variant="outline" onClick={skipStep}>
+            Skip <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!progress.farmId) {
-      setError('Please create a farm first')
-      return
-    }
     setIsSubmitting(true)
     setError('')
     try {
       const result = await createBatchAction({
         data: {
-          farmId: progress.farmId,
+          farmId: progress.farmId!, // Already checked above
           livestockType: formData.livestockType,
           species: formData.species,
           initialQuantity: parseInt(formData.initialQuantity),

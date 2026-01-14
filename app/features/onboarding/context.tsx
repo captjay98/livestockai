@@ -150,13 +150,21 @@ export function OnboardingProvider({
     })
   }, [steps])
 
-  const skipOnboarding = useCallback(() => {
+  const skipOnboarding = useCallback(async () => {
     setProgress((prev) => ({
       ...prev,
       skipped: true,
       completedAt: new Date().toISOString(),
     }))
     setNeedsOnboarding(false)
+    
+    // Persist to database
+    try {
+      const { markOnboardingCompleteFn } = await import('./server')
+      await markOnboardingCompleteFn()
+    } catch (err) {
+      console.error('Failed to mark onboarding complete:', err)
+    }
   }, [])
 
   const restartTour = useCallback(() => {
