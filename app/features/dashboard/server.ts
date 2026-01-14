@@ -22,6 +22,15 @@ export interface DashboardStats {
     eggsThisMonth: number
     layingPercentage: number
   }
+  mortality: {
+    totalDeaths: number
+    mortalityRate: number
+  }
+  feed: {
+    totalCost: number
+    totalKg: number
+    fcr: number
+  }
   alerts: Array<BatchAlert>
   topCustomers: Array<{ id: string; name: string; totalSpent: number }>
   recentTransactions: Array<{
@@ -70,6 +79,8 @@ export async function getDashboardStats(
           expensesChange: 0,
         },
         production: { eggsThisMonth: 0, layingPercentage: 0 },
+        mortality: { totalDeaths: 0, mortalityRate: 0 },
+        feed: { totalCost: 0, totalKg: 0, fcr: 0 },
         alerts: [],
         topCustomers: [],
         recentTransactions: [],
@@ -192,6 +203,62 @@ export async function getDashboardStats(
   const layingPercentage =
     layerBirds > 0 ? (eggsThisMonth / (layerBirds * daysInMonth)) * 100 : 0
 
+  // Mortality this month
+  const mortalityQuery = await db
+    .selectFrom('mortality_records')
+    .innerJoin('batches', 'batches.id', 'mortality_records.batchId')
+    .select([sql<number>`COALESCE(SUM(quantity), 0)`.as('totalDeaths')])
+    .where('mortality_records.date', '>=', startOfMonth)
+    .where('mortality_records.date', '<=', endOfMonth)
+    .where('batches.farmId', 'in', targetFarmIds)
+    .executeTakeFirst()
+
+  const totalDeaths = Number(mortalityQuery?.totalDeaths || 0)
+
+  // Calculate mortality rate (deaths / initial quantity)
+  const initialQuantityQuery = await db
+    .selectFrom('batches')
+    .select([sql<number>`COALESCE(SUM("initialQuantity"), 0)`.as('total')])
+    .where('status', '=', 'active')
+    .where('farmId', 'in', targetFarmIds)
+    .executeTakeFirst()
+
+  const initialQuantity = Number(initialQuantityQuery?.total || 0)
+  const mortalityRate =
+    initialQuantity > 0 ? (totalDeaths / initialQuantity) * 100 : 0
+
+  // Feed this month
+  const feedQuery = await db
+    .selectFrom('feed_records')
+    .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+    .select([
+      sql<string>`COALESCE(SUM(CAST(cost AS DECIMAL)), 0)`.as('totalCost'),
+      sql<string>`COALESCE(SUM(CAST("quantityKg" AS DECIMAL)), 0)`.as(
+        'totalKg',
+      ),
+    ])
+    .where('feed_records.date', '>=', startOfMonth)
+    .where('feed_records.date', '<=', endOfMonth)
+    .where('batches.farmId', 'in', targetFarmIds)
+    .executeTakeFirst()
+
+  const feedTotalCost = parseFloat(feedQuery?.totalCost || '0')
+  const feedTotalKg = parseFloat(feedQuery?.totalKg || '0')
+
+  // Calculate FCR (Feed Conversion Ratio) - feed consumed / weight gained
+  // Simplified: total feed / total current weight
+  const totalWeightQuery = await db
+    .selectFrom('batches')
+    .select([
+      sql<number>`COALESCE(SUM("currentQuantity"), 0)`.as('totalQuantity'),
+    ])
+    .where('status', '=', 'active')
+    .where('farmId', 'in', targetFarmIds)
+    .executeTakeFirst()
+
+  const totalQuantity = Number(totalWeightQuery?.totalQuantity || 0)
+  const fcr = totalQuantity > 0 ? feedTotalKg / totalQuantity : 0
+
   // Get centralized alerts
   const { getAllBatchAlerts } = await import('~/features/monitoring/alerts')
   const alerts = await getAllBatchAlerts(userId, farmId)
@@ -283,6 +350,15 @@ export async function getDashboardStats(
     production: {
       eggsThisMonth,
       layingPercentage: Math.round(layingPercentage * 10) / 10,
+    },
+    mortality: {
+      totalDeaths,
+      mortalityRate: Math.round(mortalityRate * 10) / 10,
+    },
+    feed: {
+      totalCost: feedTotalCost,
+      totalKg: feedTotalKg,
+      fcr: Math.round(fcr * 100) / 100,
     },
     alerts,
     topCustomers: topCustomers.map((c) => ({

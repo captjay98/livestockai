@@ -235,6 +235,15 @@ function DashboardPage() {
       totalSheep: number
       totalBees: number
     }
+    mortality: {
+      totalDeaths: number
+      mortalityRate: number
+    }
+    feed: {
+      totalCost: number
+      totalKg: number
+      fcr: number
+    }
     alerts?: Array<BatchAlert>
     recentTransactions: Array<Transaction>
     topCustomers: Array<TopCustomer>
@@ -525,6 +534,52 @@ function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {cards.mortality && (
+              <Card>
+                <CardContent className="p-3 shadow-none">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-1">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Mortality
+                    </p>
+                    <div className="h-6 w-6 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                      <AlertTriangle className="h-3 w-3 text-destructive" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-lg sm:text-xl font-bold">
+                      {stats.mortality.totalDeaths}
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">
+                      {stats.mortality.mortalityRate.toFixed(1)}% rate
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {cards.feed && (
+              <Card>
+                <CardContent className="p-3 shadow-none">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-1">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Feed
+                    </p>
+                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <Wheat className="h-3 w-3 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-lg sm:text-xl font-bold">
+                      {formatCurrency(stats.feed.totalCost)}
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">
+                      FCR: {stats.feed.fcr.toFixed(2)}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Inventory Summary - Dynamic based on enabled modules */}
@@ -564,7 +619,12 @@ function DashboardPage() {
           )}
 
           {/* Empty state when all cards hidden */}
-          {!cards.revenue && !cards.expenses && !cards.profit && !cards.inventory && (
+          {!cards.revenue &&
+            !cards.expenses &&
+            !cards.profit &&
+            !cards.inventory &&
+            !cards.mortality &&
+            !cards.feed && (
             <Card>
               <CardContent className="p-8 text-center">
                 <p className="text-muted-foreground">
