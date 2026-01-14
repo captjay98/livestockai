@@ -13,6 +13,7 @@ So that I can confidently deploy changes without breaking critical alerts
 ## Problem Statement
 
 The notification system was just implemented but has zero test coverage. This is risky because:
+
 - Notifications are critical - users rely on them for time-sensitive alerts
 - Complex logic: preference filtering, alert thresholds, database operations
 - Multiple integration points: alerts system, database, user preferences
@@ -20,6 +21,7 @@ The notification system was just implemented but has zero test coverage. This is
 ## Solution Statement
 
 Add three layers of testing:
+
 1. **Unit tests** - Server functions (create, get, mark read, delete)
 2. **Property tests** - Notification filtering and preference logic
 3. **Integration tests** - End-to-end: mortality alert → notification created
@@ -57,6 +59,7 @@ Add three layers of testing:
 ### Patterns to Follow
 
 **Test File Structure:**
+
 ```typescript
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { db } from '~/lib/db'
@@ -77,13 +80,14 @@ describe('Feature Name', () => {
 ```
 
 **Property Test Pattern:**
+
 ```typescript
 import * as fc from 'fast-check'
 
 fc.assert(
   fc.property(fc.string(), fc.nat(), (str, num) => {
     // Property assertion
-  })
+  }),
 )
 ```
 
@@ -144,6 +148,7 @@ fc.assert(
 ### Unit Tests
 
 Test each server function in isolation:
+
 - Happy path (valid inputs)
 - Error cases (invalid inputs, missing data)
 - Edge cases (empty results, null values)
@@ -152,6 +157,7 @@ Test each server function in isolation:
 ### Property Tests
 
 Use fast-check to generate random test data:
+
 - Generate random notification types
 - Generate random user IDs
 - Generate random read/unread states
@@ -160,6 +166,7 @@ Use fast-check to generate random test data:
 ### Integration Tests
 
 Test complete workflows:
+
 - Mortality alert → notification created
 - Notification preferences respected
 - Multiple users don't see each other's notifications
@@ -169,27 +176,32 @@ Test complete workflows:
 ## VALIDATION COMMANDS
 
 ### Level 1: Unit Tests
+
 ```bash
 bun test tests/features/notifications/notifications.test.ts
 ```
 
 ### Level 2: Property Tests
+
 ```bash
 bun test tests/features/notifications/notifications.property.test.ts
 ```
 
 ### Level 3: Integration Tests
+
 ```bash
 bun test tests/features/notifications/notifications.integration.test.ts
 ```
 
 ### Level 4: Full Suite
+
 ```bash
 bun test
 bun test --coverage
 ```
 
 ### Level 5: Type Check
+
 ```bash
 npx tsc --noEmit
 ```
@@ -231,17 +243,20 @@ npx tsc --noEmit
 ## NOTES
 
 **Test Data Strategy:**
+
 - Use in-memory test database or transactions that rollback
 - Create minimal test data (don't seed entire database)
 - Clean up after each test to prevent interference
 
 **Fast-Check Arbitraries:**
+
 - `fc.constantFrom('lowStock', 'highMortality', 'invoiceDue', 'batchHarvest')` for NotificationType
 - `fc.uuid()` for IDs
 - `fc.boolean()` for read status
 - `fc.string()` for titles/messages
 
 **Integration Test Considerations:**
+
 - Test runs against real database (use test environment)
 - May be slower than unit tests
 - Clean up test data after completion

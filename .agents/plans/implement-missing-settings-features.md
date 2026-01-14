@@ -3,12 +3,14 @@
 ## Feature Description
 
 Implement 4 major features that enable the remaining unwired user settings:
+
 1. **Internationalization (i18n)** - Multi-language support for 7 languages
 2. **In-App Notifications** - Real-time alerts for low stock, mortality, invoices, harvest
 3. **Fiscal Year Reports** - Annual financial reports respecting fiscal year boundaries
 4. **Dashboard Customization** - User-configurable dashboard cards
 
 These features unlock 5 existing settings that are currently unused:
+
 - `language` (en, ha, yo, ig, fr, pt, sw)
 - `notifications` (lowStock, highMortality, invoiceDue, batchHarvest)
 - `fiscalYearStartMonth` (1-12)
@@ -18,21 +20,25 @@ These features unlock 5 existing settings that are currently unused:
 ## User Stories
 
 ### Story 1: Multilingual Support
+
 As a Nigerian farmer who speaks Hausa
 I want to use the app in my native language
 So that I can understand all features without language barriers
 
 ### Story 2: Proactive Notifications
+
 As a farm manager
 I want to receive alerts for critical events (low stock, high mortality)
 So that I can take immediate action before problems escalate
 
 ### Story 3: Fiscal Year Reporting
+
 As a farm accountant
 I want financial reports aligned with our fiscal year (April-March)
 So that I can accurately track annual performance for tax purposes
 
 ### Story 4: Personalized Dashboard
+
 As a farm owner focused on financials
 I want to hide livestock cards and show only revenue/expenses/profit
 So that I can focus on the metrics that matter to me
@@ -40,6 +46,7 @@ So that I can focus on the metrics that matter to me
 ## Problem Statement
 
 The application has 10 user settings implemented in the database, but 5 are unused because the underlying features don't exist:
+
 - Language setting exists but no translations
 - Notification preferences exist but no notification system
 - Fiscal year setting exists but reports use calendar year
@@ -51,6 +58,7 @@ This creates a poor UX where users can configure settings that have no effect.
 ## Solution Statement
 
 Implement the 4 missing features in order of ROI:
+
 1. **Notifications** (High ROI) - Leverage existing alert system, add UI layer
 2. **Dashboard Customization** (Medium ROI) - Simple show/hide logic
 3. **Fiscal Year Reports** (Medium ROI) - Modify date range calculations
@@ -60,13 +68,15 @@ Implement the 4 missing features in order of ROI:
 
 **Feature Type**: New Capability (4 features)
 **Estimated Complexity**: High (each feature is Medium complexity)
-**Primary Systems Affected**: 
+**Primary Systems Affected**:
+
 - Monitoring/Alerts (notifications)
 - Dashboard (customization)
 - Reports (fiscal year)
 - Entire UI (i18n)
 
 **Dependencies**:
+
 - `sonner` (already installed) - Toast notifications
 - `react-i18next` or `next-intl` - i18n library (TBD)
 - Existing alert system in `app/features/monitoring/alerts.ts`
@@ -78,28 +88,33 @@ Implement the 4 missing features in order of ROI:
 ### Relevant Codebase Files - MUST READ BEFORE IMPLEMENTING!
 
 **Existing Alert System:**
+
 - `app/features/monitoring/alerts.ts` (lines 1-200) - Alert generation logic, types, thresholds
   - Why: Foundation for notification system, already checks mortality/water quality
   - Pattern: Returns `BatchAlert[]` with type, source, message
 
 **Settings Infrastructure:**
+
 - `app/features/settings/hooks.ts` (lines 233-280) - Settings hooks pattern
   - Why: Shows how to create domain-specific hooks (useAlertThresholds, useDashboardPreferences)
 - `app/features/settings/context.tsx` (lines 1-100) - Settings context and provider
   - Why: Pattern for accessing user settings throughout app
 
 **Dashboard Structure:**
+
 - `app/routes/_auth/dashboard/index.tsx` (lines 350-520) - Dashboard cards layout
   - Why: Shows 4 top cards (revenue, expenses, profit, batches) that need conditional rendering
   - Pattern: Card components with stats display
 
 **Reports:**
+
 - `app/routes/_auth/reports/index.tsx` (lines 1-300) - Current reporting UI
   - Why: Date range selection that needs fiscal year awareness
 - `app/features/reports/server.ts` (lines 1-200) - Report data aggregation
   - Why: Server functions that calculate financial metrics
 
 **Toast Notifications:**
+
 - `app/routes/__root.tsx` (line 89) - Sonner Toaster already mounted
   - Why: Toast infrastructure exists, just need to trigger notifications
 - Multiple files using `toast.success()` - Pattern for showing toasts
@@ -107,6 +122,7 @@ Implement the 4 missing features in order of ROI:
 ### New Files to Create
 
 **Notifications:**
+
 - `app/features/notifications/types.ts` - Notification interfaces
 - `app/features/notifications/server.ts` - Notification persistence and retrieval
 - `app/features/notifications/context.tsx` - Notification state management
@@ -116,6 +132,7 @@ Implement the 4 missing features in order of ROI:
 - `tests/features/notifications/notifications.test.ts` - Unit tests
 
 **i18n:**
+
 - `app/features/i18n/config.ts` - i18n configuration
 - `app/features/i18n/provider.tsx` - i18n provider component
 - `app/features/i18n/hooks.ts` - useTranslation hook
@@ -123,19 +140,23 @@ Implement the 4 missing features in order of ROI:
 - `public/locales/ha/common.json` - Hausa translations (start with key pages)
 
 **Dashboard Customization:**
+
 - No new files needed - modify existing dashboard
 
 **Fiscal Year:**
+
 - `app/features/reports/fiscal-year.ts` - Fiscal year date utilities
 
 ### Relevant Documentation - READ BEFORE IMPLEMENTING!
 
 **Sonner (Toast Notifications):**
+
 - [Sonner Docs](https://sonner.emilkowal.ski/)
-  - Already installed and mounted in __root.tsx
+  - Already installed and mounted in \_\_root.tsx
   - Why: Shows toast.success/error/info patterns
 
 **react-i18next:**
+
 - [react-i18next Quick Start](https://react.i18next.com/latest/using-with-hooks)
   - Specific section: useTranslation hook
   - Why: Standard i18n solution for React apps
@@ -144,6 +165,7 @@ Implement the 4 missing features in order of ROI:
   - Why: Auto-detect user language from settings
 
 **TanStack Query (for notifications):**
+
 - [Queries](https://tanstack.com/query/latest/docs/framework/react/guides/queries)
   - Already used throughout app
   - Why: Pattern for fetching notifications with auto-refresh
@@ -151,6 +173,7 @@ Implement the 4 missing features in order of ROI:
 ### Patterns to Follow
 
 **Settings Hook Pattern:**
+
 ```typescript
 // From app/features/settings/hooks.ts
 export function useDashboardPreferences() {
@@ -162,6 +185,7 @@ export function useDashboardPreferences() {
 ```
 
 **Toast Notification Pattern:**
+
 ```typescript
 // From multiple files
 import { toast } from 'sonner'
@@ -172,6 +196,7 @@ toast.info('Low stock alert')
 ```
 
 **Server Function Pattern:**
+
 ```typescript
 // From app/features/batches/server.ts
 export const getBatchesFn = createServerFn({ method: 'GET' })
@@ -185,6 +210,7 @@ export const getBatchesFn = createServerFn({ method: 'GET' })
 ```
 
 **Conditional Rendering Pattern:**
+
 ```typescript
 // From app/routes/_auth/dashboard/index.tsx
 {enabledModules.length > 0 && (
@@ -205,6 +231,7 @@ export const getBatchesFn = createServerFn({ method: 'GET' })
 Build on existing alert system to create user-facing notifications.
 
 **Tasks:**
+
 - Create notification data model and database table
 - Build notification context and hooks
 - Create notification bell UI component
@@ -216,6 +243,7 @@ Build on existing alert system to create user-facing notifications.
 Simple conditional rendering based on user preferences.
 
 **Tasks:**
+
 - Add useDashboardPreferences hook usage
 - Wrap each card section in conditional render
 - Add "Customize Dashboard" button in settings
@@ -226,6 +254,7 @@ Simple conditional rendering based on user preferences.
 Modify date calculations to respect fiscal year boundaries.
 
 **Tasks:**
+
 - Create fiscal year utility functions
 - Update report server functions to use fiscal dates
 - Add fiscal year selector to reports UI
@@ -236,6 +265,7 @@ Modify date calculations to respect fiscal year boundaries.
 Start with infrastructure, add translations incrementally.
 
 **Tasks:**
+
 - Set up i18n library and configuration
 - Create translation files for English (baseline)
 - Wrap app in i18n provider
@@ -272,9 +302,14 @@ Start with infrastructure, add translations incrementally.
 
 - **FILE**: `app/features/notifications/types.ts`
 - **IMPLEMENT**:
+
   ```typescript
-  export type NotificationType = 'lowStock' | 'highMortality' | 'invoiceDue' | 'batchHarvest'
-  
+  export type NotificationType =
+    | 'lowStock'
+    | 'highMortality'
+    | 'invoiceDue'
+    | 'batchHarvest'
+
   export interface Notification {
     id: string
     userId: string
@@ -288,6 +323,7 @@ Start with infrastructure, add translations incrementally.
     createdAt: Date
   }
   ```
+
 - **VALIDATE**: `npx tsc --noEmit`
 
 #### Task 1.3: CREATE notification server functions
@@ -337,10 +373,11 @@ Start with infrastructure, add translations incrementally.
 - **FILE**: `app/features/monitoring/alerts.ts`
 - **UPDATE**: `getAllBatchAlerts` function to create notifications
 - **IMPLEMENT**:
+
   ```typescript
   // After generating alerts
   const { notifications: notifPrefs } = await getUserSettings(userId)
-  
+
   for (const alert of alerts) {
     if (alert.source === 'mortality' && notifPrefs.highMortality) {
       await createNotification(userId, {
@@ -353,6 +390,7 @@ Start with infrastructure, add translations incrementally.
     }
   }
   ```
+
 - **VALIDATE**: Create mortality record, check notifications table
 
 #### Task 1.8: WIRE inventory to create low stock notifications
@@ -433,7 +471,7 @@ Start with infrastructure, add translations incrementally.
     <Card>
       <CardContent className="p-8 text-center">
         <p className="text-muted-foreground">
-          All dashboard cards are hidden. 
+          All dashboard cards are hidden.
           <Link to="/settings" className="text-primary">Customize dashboard</Link>
         </p>
       </CardContent>
@@ -450,28 +488,39 @@ Start with infrastructure, add translations incrementally.
 
 - **FILE**: `app/features/reports/fiscal-year.ts`
 - **IMPLEMENT**:
+
   ```typescript
-  export function getFiscalYearStart(fiscalStartMonth: number, date: Date = new Date()): Date {
+  export function getFiscalYearStart(
+    fiscalStartMonth: number,
+    date: Date = new Date(),
+  ): Date {
     const year = date.getFullYear()
     const month = date.getMonth() + 1
-    
+
     if (month < fiscalStartMonth) {
       return new Date(year - 1, fiscalStartMonth - 1, 1)
     }
     return new Date(year, fiscalStartMonth - 1, 1)
   }
-  
-  export function getFiscalYearEnd(fiscalStartMonth: number, date: Date = new Date()): Date {
+
+  export function getFiscalYearEnd(
+    fiscalStartMonth: number,
+    date: Date = new Date(),
+  ): Date {
     const start = getFiscalYearStart(fiscalStartMonth, date)
     return new Date(start.getFullYear() + 1, start.getMonth(), 0)
   }
-  
-  export function getFiscalYearLabel(fiscalStartMonth: number, date: Date = new Date()): string {
+
+  export function getFiscalYearLabel(
+    fiscalStartMonth: number,
+    date: Date = new Date(),
+  ): string {
     const start = getFiscalYearStart(fiscalStartMonth, date)
     const end = getFiscalYearEnd(fiscalStartMonth, date)
     return `FY ${start.getFullYear()}-${end.getFullYear()}`
   }
   ```
+
 - **VALIDATE**: `bun test fiscal-year`
 
 #### Task 3.2: UPDATE reports server to use fiscal year
@@ -482,7 +531,7 @@ Start with infrastructure, add translations incrementally.
 - **PATTERN**:
   ```typescript
   const { fiscalYearStartMonth } = await getUserSettings(userId)
-  const startDate = useFiscalYear 
+  const startDate = useFiscalYear
     ? getFiscalYearStart(fiscalYearStartMonth)
     : new Date(year, 0, 1)
   ```
@@ -514,26 +563,26 @@ Start with infrastructure, add translations incrementally.
 
 - **FILE**: `app/features/i18n/config.ts`
 - **IMPLEMENT**:
+
   ```typescript
   import i18n from 'i18next'
   import { initReactI18next } from 'react-i18next'
-  
-  i18n
-    .use(initReactI18next)
-    .init({
-      resources: {
-        en: { common: require('../../../public/locales/en/common.json') },
-        ha: { common: require('../../../public/locales/ha/common.json') },
-      },
-      lng: 'en',
-      fallbackLng: 'en',
-      ns: ['common'],
-      defaultNS: 'common',
-      interpolation: { escapeValue: false },
-    })
-  
+
+  i18n.use(initReactI18next).init({
+    resources: {
+      en: { common: require('../../../public/locales/en/common.json') },
+      ha: { common: require('../../../public/locales/ha/common.json') },
+    },
+    lng: 'en',
+    fallbackLng: 'en',
+    ns: ['common'],
+    defaultNS: 'common',
+    interpolation: { escapeValue: false },
+  })
+
   export default i18n
   ```
+
 - **VALIDATE**: `npx tsc --noEmit`
 
 #### Task 4.3: CREATE English translation file
@@ -570,21 +619,23 @@ Start with infrastructure, add translations incrementally.
 
 - **FILE**: `app/features/i18n/provider.tsx`
 - **IMPLEMENT**:
+
   ```typescript
   import { I18nextProvider } from 'react-i18next'
   import i18n from './config'
   import { usePreferences } from '~/features/settings'
-  
+
   export function I18nProvider({ children }: { children: ReactNode }) {
     const { language } = usePreferences()
-    
+
     useEffect(() => {
       i18n.changeLanguage(language)
     }, [language])
-    
+
     return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
   }
   ```
+
 - **VALIDATE**: `npx tsc --noEmit`
 
 #### Task 4.6: WRAP app in i18n provider
@@ -615,21 +666,25 @@ Start with infrastructure, add translations incrementally.
 ### Unit Tests
 
 **Notifications:**
+
 - Test notification CRUD operations
 - Test notification filtering by type
 - Test preference-based filtering
 - Test mark as read functionality
 
 **Fiscal Year:**
+
 - Test fiscal year calculations for all 12 start months
 - Test edge cases (leap years, month boundaries)
 - Test fiscal year label generation
 
 **Dashboard:**
+
 - Test card visibility based on preferences
 - Test empty state when all cards hidden
 
 **i18n:**
+
 - Test language switching
 - Test fallback to English
 - Test translation key resolution
@@ -637,19 +692,23 @@ Start with infrastructure, add translations incrementally.
 ### Integration Tests
 
 **Notifications:**
+
 - Create mortality record → notification created
 - Set feed below threshold → notification created
 - Mark notification as read → unread count decreases
 
 **Dashboard:**
+
 - Toggle card preferences → cards show/hide
 - Hide all cards → empty state shows
 
 **Fiscal Year:**
+
 - Generate report with fiscal year → correct date range
 - Switch fiscal year start month → date range updates
 
 **i18n:**
+
 - Change language setting → UI updates
 - Missing translation → falls back to English
 
@@ -692,6 +751,7 @@ bun test --grep "dashboard integration"
 ### Level 4: Manual Validation
 
 **Notifications:**
+
 1. Create mortality record with high rate
 2. Check notification bell shows badge
 3. Click bell, verify notification appears
@@ -699,6 +759,7 @@ bun test --grep "dashboard integration"
 5. Mark as read, verify badge count decreases
 
 **Dashboard:**
+
 1. Go to Settings → Dashboard
 2. Toggle revenue card off
 3. Go to dashboard, verify revenue card hidden
@@ -706,6 +767,7 @@ bun test --grep "dashboard integration"
 5. Verify empty state shows with link to settings
 
 **Fiscal Year:**
+
 1. Go to Settings → Business
 2. Set fiscal year start to April (month 4)
 3. Go to Reports
@@ -713,6 +775,7 @@ bun test --grep "dashboard integration"
 5. Verify date range shows April-March
 
 **i18n:**
+
 1. Go to Settings → Preferences
 2. Change language to Hausa
 3. Verify navigation updates to Hausa
@@ -767,21 +830,25 @@ bun test --grep "dashboard integration"
 ### Design Decisions
 
 **Notifications:**
+
 - Store in database (not just in-memory) for persistence across sessions
 - Auto-refetch every 30 seconds for near-real-time updates
 - Limit to 10 most recent in dropdown, link to full list page (future)
 
 **Dashboard:**
+
 - Default to all cards visible (current behavior)
 - Empty state prevents confusion when all hidden
 - Settings UI already exists, just wire up the logic
 
 **Fiscal Year:**
+
 - Support all 12 possible start months
 - Toggle between calendar and fiscal year (don't force fiscal year)
 - Label format: "FY 2024-2025" for clarity
 
 **i18n:**
+
 - Start with English baseline (extract all strings)
 - Add Hausa next (largest non-English user base in Nigeria)
 - Incremental translation (start with navigation/dashboard, expand later)
@@ -790,18 +857,22 @@ bun test --grep "dashboard integration"
 ### Trade-offs
 
 **Notifications:**
+
 - Polling every 30s vs WebSockets: Polling is simpler, works with Cloudflare Workers
 - Database storage vs in-memory: Database for persistence, but adds DB load
 
 **Dashboard:**
+
 - Per-card preferences vs layout templates: Per-card is more flexible
 - Show/hide vs drag-and-drop: Show/hide is simpler, sufficient for MVP
 
 **Fiscal Year:**
+
 - Global setting vs per-report: Global is simpler, matches accounting practices
 - Calendar year default: Most users expect calendar year, fiscal is opt-in
 
 **i18n:**
+
 - react-i18next vs next-intl: react-i18next is more mature, better docs
 - JSON files vs database: JSON is simpler, easier for translators
 - Full translation vs incremental: Incremental allows faster launch
@@ -824,17 +895,18 @@ bun test --grep "dashboard integration"
 
 ## ESTIMATED EFFORT
 
-| Feature | Complexity | Estimated Time |
-|---------|-----------|----------------|
-| Notifications | Medium | 4-6 hours |
-| Dashboard Customization | Low | 1-2 hours |
-| Fiscal Year Reports | Medium | 2-3 hours |
-| i18n Infrastructure | Medium | 3-4 hours |
-| i18n Translations | High | 8-12 hours (per language) |
-| Testing | Medium | 3-4 hours |
-| **Total** | **High** | **21-31 hours** |
+| Feature                 | Complexity | Estimated Time            |
+| ----------------------- | ---------- | ------------------------- |
+| Notifications           | Medium     | 4-6 hours                 |
+| Dashboard Customization | Low        | 1-2 hours                 |
+| Fiscal Year Reports     | Medium     | 2-3 hours                 |
+| i18n Infrastructure     | Medium     | 3-4 hours                 |
+| i18n Translations       | High       | 8-12 hours (per language) |
+| Testing                 | Medium     | 3-4 hours                 |
+| **Total**               | **High**   | **21-31 hours**           |
 
 **Recommendation:** Implement in 4 sprints:
+
 - Sprint 1: Notifications (1 day)
 - Sprint 2: Dashboard + Fiscal Year (1 day)
 - Sprint 3: i18n Infrastructure (1 day)
@@ -847,17 +919,20 @@ bun test --grep "dashboard integration"
 **8/10** for one-pass implementation success
 
 **Reasons for confidence:**
+
 - Clear patterns exist in codebase to follow
 - Infrastructure already in place (Sonner, TanStack Query, settings system)
 - Well-defined acceptance criteria
 - Comprehensive validation commands
 
 **Risks:**
+
 - i18n translations require native speakers (not a coding risk)
 - Notification polling might need tuning for performance
 - Dashboard empty state UX might need iteration
 
 **Mitigation:**
+
 - Start with English-only i18n, add translations incrementally
 - Monitor notification query performance, adjust polling interval if needed
 - Get user feedback on dashboard customization UX

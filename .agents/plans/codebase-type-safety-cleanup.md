@@ -47,10 +47,12 @@ The codebase has accumulated 39 uses of `any` type, 10 duplicate `PaginatedQuery
 ### Files to Modify
 
 **Catch Block Fixes (3 files):**
+
 - `app/features/auth/server.ts`
 - `app/routes/_auth.tsx`
 
 **Search Param Fixes (8 files):**
+
 - `app/routes/_auth/weight/index.tsx`
 - `app/routes/_auth/settings/audit.tsx`
 - `app/routes/_auth/suppliers/index.tsx`
@@ -61,6 +63,7 @@ The codebase has accumulated 39 uses of `any` type, 10 duplicate `PaginatedQuery
 - `app/routes/_auth/vaccinations/index.tsx`
 
 **Map Callback Fixes (10 files):**
+
 - `app/routes/_auth/sales/new.tsx`
 - `app/routes/_auth/farms/$farmId/index.tsx`
 - `app/routes/_auth/weight/new.tsx`
@@ -73,13 +76,16 @@ The codebase has accumulated 39 uses of `any` type, 10 duplicate `PaginatedQuery
 - `app/routes/_auth/vaccinations/new.tsx`
 
 **Icon Type Fix (1 file):**
+
 - `app/hooks/useModuleNavigation.ts`
 
 **Console.log Removal (2 files):**
+
 - `app/routes/_auth/invoices/index.tsx` (line 229)
 - `app/components/pwa-prompt.tsx` (lines 15, 18) - KEEP these, they're for PWA debugging
 
 **PaginatedQuery Consolidation (10 files):**
+
 - `app/features/weight/server.ts`
 - `app/features/customers/server.ts`
 - `app/features/suppliers/server.ts`
@@ -94,6 +100,7 @@ The codebase has accumulated 39 uses of `any` type, 10 duplicate `PaginatedQuery
 ### Patterns to Follow
 
 **Catch Block Pattern (use `unknown`):**
+
 ```typescript
 // BEFORE
 } catch (e: any) {
@@ -108,6 +115,7 @@ The codebase has accumulated 39 uses of `any` type, 10 duplicate `PaginatedQuery
 ```
 
 **Search Param Pattern (use route's type):**
+
 ```typescript
 // BEFORE
 const updateSearch = (updates: Partial<FeedSearchParams>) => {
@@ -126,16 +134,18 @@ const updateSearch = (updates: Partial<FeedSearchParams>) => {
 ```
 
 **Map Callback Pattern (use Batch interface):**
+
 ```typescript
 // BEFORE
 {batches.map((batch: any) => (
 
-// AFTER  
+// AFTER
 {batches.map((batch) => (
 // Note: TypeScript infers from useState<Array<Batch>>
 ```
 
 **Icon Type Pattern:**
+
 ```typescript
 import type { LucideIcon } from 'lucide-react'
 
@@ -147,6 +157,7 @@ export interface NavigationItem {
 ```
 
 **PaginatedQuery Extension Pattern:**
+
 ```typescript
 // BEFORE (in each feature)
 export interface PaginatedQuery {
@@ -156,7 +167,7 @@ export interface PaginatedQuery {
   sortOrder?: 'asc' | 'desc'
   search?: string
   farmId?: string
-  category?: string  // feature-specific
+  category?: string // feature-specific
 }
 
 // AFTER
@@ -258,6 +269,7 @@ For each feature server file:
 3. Extend `BasePaginatedQuery` with feature-specific fields only
 
 Files and their specific fields:
+
 - `app/features/weight/server.ts` - `batchId?: string`
 - `app/features/customers/server.ts` - `customerType?: string`
 - `app/features/suppliers/server.ts` - `supplierType?: string`
@@ -293,6 +305,7 @@ No new tests needed - this is a refactor that should not change behavior.
 ### Validation Tests
 
 Run full test suite to ensure no regressions:
+
 ```bash
 bun test
 ```

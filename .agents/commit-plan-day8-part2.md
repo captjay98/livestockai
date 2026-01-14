@@ -1,6 +1,7 @@
 # Commit Plan - Day 8 Part 2 (January 14, 2026)
 
 ## Summary
+
 - 4 commits planned
 - 8 files changed (3 modified, 5 new)
 - ~1,300 lines added
@@ -8,10 +9,13 @@
 ## Commits
 
 ### Commit 1: fix(database): update migration constraints for new enum values
-**Files**: 
+
+**Files**:
+
 - `app/lib/db/migrations/2025-01-08-001-initial-schema.ts`
 
 **Changes**:
+
 - Add 3 new customer types to constraint (processor, exporter, government)
 - Add 5 new structure types to constraint (tank, tarpaulin, raceway, feedlot, kraal)
 - Add 2 new medication units to constraint (kg, liter)
@@ -20,6 +24,7 @@
 - Add 4 new sale unit types to constraint (liter, head, colony, fleece)
 
 **Message**:
+
 ```
 fix(database): update migration constraints for new enum values
 
@@ -37,15 +42,19 @@ Ensures database constraints match TypeScript types for all 6 livestock types.
 ---
 
 ### Commit 2: fix(providers): correct provider order in root layout
+
 **Files**:
+
 - `app/routes/__root.tsx`
 
 **Changes**:
+
 - Move SettingsProvider before FarmProvider in both SSR and client branches
 - Add missing I18nProvider and NotificationsProvider to client branch
 - FarmProvider depends on usePreferences() from SettingsProvider
 
 **Message**:
+
 ```
 fix(providers): correct provider order in root layout
 
@@ -59,17 +68,21 @@ Fixes: "useSettings must be used within SettingsProvider" error
 ---
 
 ### Commit 3: chore(seeds): fix development seed execution
+
 **Files**:
+
 - `app/lib/db/seeds/development.ts`
 - `app/lib/db/reset.ts`
 - `package.json`
 
 **Changes**:
+
 - Call seedDev() at end of development.ts (was exported but never executed)
 - Update reset.ts to use dynamic table query instead of hardcoded list
 - Update package.json db:reset to not auto-run migrate
 
 **Message**:
+
 ```
 chore(seeds): fix development seed execution
 
@@ -83,7 +96,9 @@ Ensures dev seeder actually runs and reset script handles schema changes.
 ---
 
 ### Commit 4: docs: add hackathon review and autonomous prompt plans
+
 **Files**:
+
 - `.agents/hackathon-review.md`
 - `.agents/plans/create-devlog-commit-prompts.md`
 - `.kiro/prompts/commit-plan.md`
@@ -91,6 +106,7 @@ Ensures dev seeder actually runs and reset script handles schema changes.
 - `check-data.ts` (delete this file - it's a temp script)
 
 **Message**:
+
 ```
 docs: add hackathon review and autonomous prompt plans
 
@@ -173,12 +189,14 @@ Implementation plan for creating the two prompts (208 lines)."
 ## Validation
 
 Before executing:
+
 ```bash
 npx tsc --noEmit  # Should show 0 errors
 bun run lint      # Should show 0 errors
 ```
 
 After executing:
+
 ```bash
 git log --oneline -4  # Verify 4 new commits
 git status            # Should be clean

@@ -13,14 +13,16 @@ So that I can take timely action on critical farm operations
 ## Problem Statement
 
 Notification preferences exist for 4 types but only mortality is implemented:
+
 - lowStock ✅ Setting exists ❌ Not implemented
 - highMortality ✅ Implemented
-- invoiceDue ✅ Setting exists ❌ Not implemented  
+- invoiceDue ✅ Setting exists ❌ Not implemented
 - batchHarvest ✅ Setting exists ❌ Not implemented
 
 ## Solution Statement
 
 Wire up the 3 missing notification types:
+
 1. Low stock - Check inventory thresholds daily
 2. Invoice due - Check invoices 7 days before due date
 3. Batch harvest - Check batches approaching target harvest date

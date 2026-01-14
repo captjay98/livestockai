@@ -3,17 +3,22 @@
 ## Changes Made
 
 ### 1. Migration Consolidation
+
 **Before**: 2 migrations
+
 - `2025-01-08-001-initial-schema.ts` (main schema)
 - `2026-01-14-001-add-performance-indexes.ts` (8 indexes)
 
 **After**: 1 migration
+
 - `2025-01-08-001-initial-schema.ts` (schema + indexes)
 
 **Action**: Moved all 8 performance indexes into the initial schema migration and deleted the second migration.
 
 ### 2. Seeding Files Organization
+
 **Before**: Files scattered in `app/lib/db/`
+
 ```
 app/lib/db/
 ├── seed.ts
@@ -23,6 +28,7 @@ app/lib/db/
 ```
 
 **After**: Organized in `app/lib/db/seeds/`
+
 ```
 app/lib/db/seeds/
 ├── production.ts       (was seed.ts)
@@ -32,13 +38,17 @@ app/lib/db/seeds/
 ```
 
 ### 3. Import Updates
+
 Updated all imports in seed files:
+
 - `./seed-helpers` → `./helpers`
 - `./index` → `../index`
 - `./types` → `../types`
 
 ### 4. Package.json Scripts
+
 Updated npm scripts to use new paths:
+
 ```json
 {
   "db:seed": "bun run app/lib/db/seeds/production.ts",

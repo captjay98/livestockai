@@ -13,6 +13,7 @@ So that I can be confident the math is correct under all inputs
 ## Problem Statement
 
 Current test coverage:
+
 - ✅ Customer revenue aggregation (132 tests)
 - ✅ Module navigation filtering (8 tests)
 - ✅ Dashboard rendering (8 tests)
@@ -26,8 +27,9 @@ Current test coverage:
 ## Solution Statement
 
 Add property tests for:
+
 1. **FCR Calculations** - Feed consumed / weight gained
-2. **Mortality Rates** - Deaths / initial quantity * 100
+2. **Mortality Rates** - Deaths / initial quantity \* 100
 3. **Growth Forecasting** - Weight projections based on standards
 4. **Profit/Loss** - Revenue - (feed costs + other expenses)
 5. **Invoice Totals** - Sum of line items
@@ -75,7 +77,7 @@ Add property tests for:
 - **FILE**: `tests/features/monitoring/mortality.property.test.ts`
 - **PROPERTIES**:
   - Rate is always 0-100%
-  - Rate = (deaths / initialQuantity) * 100
+  - Rate = (deaths / initialQuantity) \* 100
   - Rate is 0 when no deaths
   - Rate is 100 when all dead
 - **VALIDATE**: `bun test mortality.property.test.ts`

@@ -17,6 +17,7 @@ i18n infrastructure exists but only English is available. Hausa is the second mo
 ## Solution Statement
 
 Add Hausa translations for key UI elements:
+
 1. Navigation menu
 2. Dashboard labels
 3. Common actions (add, edit, delete, save, cancel)
@@ -56,6 +57,7 @@ Start with high-traffic pages, expand incrementally.
 
 - **FILE**: `app/features/i18n/config.ts`
 - **IMPLEMENT**: Add `ha` to resources object
+
 ```typescript
 const resources = {
   en: { common: { ... } },
@@ -69,6 +71,7 @@ const resources = {
   }
 }
 ```
+
 - **VALIDATE**: `npx tsc --noEmit`
 
 ### Task 3: TEST language switching
@@ -98,11 +101,13 @@ const resources = {
 ## NOTES
 
 **Translation Resources:**
+
 - Get translations from native Hausa speaker
 - Use formal/respectful language (farming context)
 - Test with actual Hausa users for feedback
 
 **Incremental Approach:**
+
 - Start with navigation and dashboard (most used)
 - Add batch/inventory pages next
 - Expand to settings and reports later

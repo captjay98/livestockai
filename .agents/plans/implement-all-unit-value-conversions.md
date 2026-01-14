@@ -15,6 +15,7 @@ So that I can read and understand measurements naturally without manual conversi
 ## Problem Statement
 
 The unit formatting system is half-implemented across all measurement types:
+
 - ✅ Labels change (kg → lbs, m² → ft², °C → °F)
 - ❌ Values don't convert (still show metric values with wrong labels)
 
@@ -45,6 +46,7 @@ Use the existing `formatWeight()`, `formatArea()`, and `formatTemperature()` fun
 ### Files Needing Updates (10 files)
 
 **Weight conversions (7 files):**
+
 - `app/routes/_auth/feed/index.tsx` - Feed quantity displays
 - `app/routes/_auth/weight/index.tsx` - Weight sample displays
 - `app/routes/_auth/reports/index.tsx` - Feed report quantities
@@ -54,15 +56,18 @@ Use the existing `formatWeight()`, `formatArea()`, and `formatTemperature()` fun
 - `app/routes/_auth/inventory/index.tsx` - Feed inventory quantities
 
 **Area conversions (1 file):**
+
 - `app/routes/_auth/farms/$farmId/index.tsx` - Structure area displays
 
 **Temperature conversions (2 files):**
+
 - `app/routes/_auth/water-quality/index.tsx` - Temperature readings
 - `app/components/dialogs/water-quality-dialog.tsx` - Temperature input labels
 
 ### Patterns to Follow
 
 **Weight Pattern (from sales/index.tsx):**
+
 ```typescript
 // Import hook
 import { useFormatWeight } from '~/features/settings'
@@ -71,12 +76,15 @@ import { useFormatWeight } from '~/features/settings'
 const { format: formatWeight } = useFormatWeight()
 
 // Display converted value
-{formatWeight(parseFloat(selectedSale.averageWeightKg))}
+{
+  formatWeight(parseFloat(selectedSale.averageWeightKg))
+}
 // Shows: "5.51 lbs" when user has lbs selected
 // Shows: "2.50 kg" when user has kg selected
 ```
 
 **Area Pattern:**
+
 ```typescript
 // Import hook
 import { useFormatArea } from '~/features/settings'
@@ -85,12 +93,15 @@ import { useFormatArea } from '~/features/settings'
 const { format: formatArea } = useFormatArea()
 
 // Display converted value
-{formatArea(parseFloat(structure.areaSqm))}
+{
+  formatArea(parseFloat(structure.areaSqm))
+}
 // Shows: "1076.39 ft²" when user has sqft selected
 // Shows: "100.00 m²" when user has sqm selected
 ```
 
 **Temperature Pattern:**
+
 ```typescript
 // Import hook
 import { useFormatTemperature } from '~/features/settings'
@@ -99,12 +110,15 @@ import { useFormatTemperature } from '~/features/settings'
 const { format: formatTemperature } = useFormatTemperature()
 
 // Display converted value
-{formatTemperature(parseFloat(record.temperatureCelsius))}
+{
+  formatTemperature(parseFloat(record.temperatureCelsius))
+}
 // Shows: "77.0°F" when user has fahrenheit selected
 // Shows: "25.0°C" when user has celsius selected
 ```
 
 **Incorrect Pattern (current):**
+
 ```typescript
 // Just shows raw metric value with wrong label
 {row.original.quantityKg.toLocaleString()} kg
@@ -151,7 +165,7 @@ Ensure TypeScript compiles and manual testing confirms all conversions work.
 - **ADD IMPORT**: `useFormatWeight` to existing import
 - **ADD HOOK**: `const { format: formatWeight } = useFormatWeight()`
 - **FIND**: Column definition for `averageWeightKg` (line ~258)
-- **UPDATE CELL**: 
+- **UPDATE CELL**:
   ```typescript
   cell: ({ row }) => formatWeight(parseFloat(row.original.averageWeightKg))
   ```
@@ -172,8 +186,8 @@ Ensure TypeScript compiles and manual testing confirms all conversions work.
 - **FIND**: Feed records table column for `quantityKg` (line ~355)
 - **UPDATE**: Add cell formatter:
   ```typescript
-  { 
-    accessorKey: 'quantityKg', 
+  {
+    accessorKey: 'quantityKg',
     header: `Qty (${weightLabel})`,
     cell: ({ row }) => formatWeight(parseFloat(row.original.quantityKg))
   }
@@ -274,16 +288,19 @@ Ensure TypeScript compiles and manual testing confirms all conversions work.
 ## VALIDATION COMMANDS
 
 ### Level 1: Type Check
+
 ```bash
 npx tsc --noEmit
 ```
 
 ### Level 2: Lint
+
 ```bash
 bun run lint
 ```
 
 ### Level 3: Manual Validation
+
 1. Start dev: `bun dev`
 2. Login and go to Settings
 3. Change weight unit to lbs
@@ -328,6 +345,7 @@ bun run lint
 All conversion functions already exist and work correctly (verified in Settings preview). We just need to use them instead of displaying raw metric values.
 
 **Pattern consistency:**
+
 - Weight: Follow `sales/index.tsx` line 1003
 - Area: Follow `settings/index.tsx` preview pattern
 - Temperature: Follow `settings/index.tsx` preview pattern
@@ -336,6 +354,7 @@ All conversion functions already exist and work correctly (verified in Settings 
 All measurements remain stored in metric (kg, m², °C) in the database. Only display formatting changes.
 
 **Conversion factors:**
+
 - Weight: 1 kg = 2.20462 lbs
 - Area: 1 m² = 10.7639 ft²
 - Temperature: °F = (°C × 9/5) + 32

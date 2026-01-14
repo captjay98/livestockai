@@ -25,11 +25,13 @@ git diff --name-only
 ### 2. Categorize Changes
 
 Group files by:
+
 - **Feature area**: app/features/X, app/routes/X
 - **Change type**: new files (feat), bug fixes (fix), refactoring (refactor)
 - **File type**: .md (docs), tests/ (test), package.json (chore)
 
 **Categorization Rules**:
+
 - `app/features/` or `app/routes/` → feat/fix/refactor (check git diff)
 - `app/lib/db/migrations/` → feat(database) or refactor(database)
 - `app/lib/db/seeds/` → feat(seeds) or refactor(seeds)
@@ -55,6 +57,7 @@ For each group, create message:
 ```
 
 **Examples**:
+
 ```
 feat(database): add 28 new enum values for Nigerian market
 
@@ -77,6 +80,7 @@ Fixes: useSettings must be used within SettingsProvider error
 ### 4. Create Execution Plan
 
 Generate markdown file with:
+
 - List of commits with messages
 - Files included in each commit
 - Execution commands
@@ -85,6 +89,7 @@ Generate markdown file with:
 ### 5. Execute Commits
 
 For each commit:
+
 ```bash
 git add <files>
 git commit -m "<message>"
@@ -98,6 +103,7 @@ Show progress and final summary.
 # Commit Plan - Day X (Date)
 
 ## Summary
+
 - X commits planned
 - Y files changed
 - Z insertions, W deletions
@@ -105,9 +111,11 @@ Show progress and final summary.
 ## Commits
 
 ### Commit 1: <type>(<scope>): <description>
+
 **Files**: (list)
 **Message**:
 ```
+
 <full commit message>
 ```
 
@@ -125,11 +133,13 @@ git commit -m "<message>"
 ```
 
 ## Validation
+
 - [ ] TypeScript: 0 errors
 - [ ] ESLint: 0 errors
 - [ ] Tests passing
 - [ ] Git status clean
-```
+
+````
 
 ## Execution Steps
 
@@ -137,7 +147,7 @@ git commit -m "<message>"
    ```bash
    git status --short
    git diff --stat
-   ```
+````
 
 2. **Categorize changes** by feature/type
 
@@ -151,7 +161,7 @@ git commit -m "<message>"
 
 7. **If yes**: Execute commits one by one
 
-8. **Show summary**: 
+8. **Show summary**:
    ```
    ✅ X commits created
    📊 Y files changed
@@ -161,12 +171,14 @@ git commit -m "<message>"
 ## Validation
 
 Before executing:
+
 ```bash
 npx tsc --noEmit  # Check TypeScript
 bun run lint      # Check ESLint
 ```
 
 After executing:
+
 ```bash
 git log --oneline -5  # Verify commits
 git status            # Should be clean
@@ -182,7 +194,7 @@ git status            # Should be clean
 # Output:
 # 📊 Analyzing changes...
 # Found 12 modified files
-# 
+#
 # 📝 Commit Plan:
 # 1. feat(database): add new enum values (3 files)
 # 2. fix(ui): correct provider order (1 file)

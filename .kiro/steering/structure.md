@@ -7,35 +7,38 @@ OpenLivestock Manager/
 ├── app/                          # TanStack Start application
 │   ├── components/               # Reusable UI components
 │   │   ├── ui/                   # Base UI components (shadcn/ui)
-│   │   ├── forms/                # Form components
-│   │   └── charts/               # Data visualization components
-│   ├── lib/                      # Business logic & utilities
+│   │   ├── dialogs/              # Create/edit modal dialogs
+│   │   └── layout/               # Layout components (shell, sidebar)
+│   ├── features/                 # Business logic & server functions
 │   │   ├── auth/                 # Authentication (Better Auth)
-│   │   ├── batches/              # Batch management logic
-│   │   ├── db/                   # Database (Kysely + migrations)
-│   │   ├── finance/              # Financial calculations
-│   │   ├── growth/               # Growth forecasting algorithms
-│   │   └── utils/                # Shared utilities
+│   │   ├── batches/              # Batch management
+│   │   ├── sales/                # Sales & revenue
+│   │   ├── settings/             # User preferences & currency
+│   │   ├── modules/              # Feature module system
+│   │   └── ...                   # Other features
+│   ├── hooks/                    # Custom React hooks
+│   ├── lib/                      # Core utilities
+│   │   └── db/                   # Database (Kysely + migrations)
 │   ├── routes/                   # TanStack Router pages
-│   │   ├── _auth/                # Protected routes
-│   │   ├── api/                  # API endpoints
-│   │   └── public/               # Public routes
-│   ├── styles/                   # Global styles and Tailwind config
-│   └── types/                    # TypeScript type definitions
+│   │   ├── _auth/                # Protected routes (directory-based)
+│   │   │   ├── batches/
+│   │   │   ├── dashboard/
+│   │   │   └── ...
+│   │   └── index.tsx             # Public landing
+│   └── styles/                   # Global styles (Tailwind)
 ├── public/                       # Static assets
 │   ├── icons/                    # PWA icons
-│   ├── images/                   # Application images
 │   └── manifest.json             # PWA manifest
 ├── tests/                        # Test files
-│   ├── unit/                     # Unit tests
-│   ├── integration/              # Integration tests
-│   └── e2e/                      # End-to-end tests
+│   └── features/                 # Property-based tests by feature
+├── docs/                         # Documentation
+│   └── ARCHITECTURE.md           # System architecture
 ├── .kiro/                        # Kiro CLI configuration
 │   ├── steering/                 # Project knowledge
 │   ├── prompts/                  # Custom commands
-│   └── settings/                 # Configuration files
-├── docs/                         # Documentation
-└── scripts/                      # Build and deployment scripts
+│   ├── agents/                   # Agent configurations
+│   └── settings/                 # MCP and hooks
+└── .agents/                      # Implementation plans
 ```
 
 ## File Naming Conventions
@@ -59,10 +62,10 @@ OpenLivestock Manager/
 
 ### Feature-Based Structure
 
-Each major feature has its own directory in `app/lib/`:
+Each major feature has its own directory in `app/features/`:
 
 ```
-app/lib/batches/
+app/features/batches/
 ├── server.ts              # Server functions
 ├── types.ts               # TypeScript types
 ├── utils.ts               # Utility functions
@@ -75,9 +78,8 @@ app/lib/batches/
 ```
 app/components/
 ├── ui/                    # Base components (Button, Input, etc.)
-├── forms/                 # Form-specific components
-├── charts/                # Data visualization
-├── layout/                # Layout components
+├── dialogs/               # Create/edit modal dialogs
+├── layout/                # Layout components (shell, sidebar)
 └── feature-specific/      # Feature-specific components
 ```
 
@@ -173,11 +175,13 @@ public/
 ```
 app/lib/db/
 ├── index.ts               # Database connection
-├── schema.ts              # TypeScript types
+├── types.ts               # TypeScript types
 ├── migrations/            # Database migrations
 │   └── YYYY-MM-DD-NNN-description.ts
 └── seeds/                 # Test data
-    └── demo-data.ts
+    ├── production.ts      # Admin + reference data
+    ├── development.ts     # Full demo data
+    └── helpers.ts         # Seeding utilities
 ```
 
 ### Migration Naming
@@ -218,8 +222,8 @@ Use `~/` prefix for all internal imports:
 
 ```typescript
 import { Button } from '~/components/ui/button'
-import { getBatches } from '~/lib/batches/server'
-import type { Batch } from '~/lib/db/schema'
+import { getBatches } from '~/features/batches/server'
+import type { Batch } from '~/lib/db/types'
 ```
 
 ### Import Order

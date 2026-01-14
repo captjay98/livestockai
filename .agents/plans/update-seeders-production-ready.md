@@ -7,6 +7,7 @@ Update production and dev seeders to support all 6 livestock types, integrate wi
 ## Problem Statement
 
 Current seeders have critical gaps:
+
 1. Missing 4 livestock types (cattle, goats, sheep, bees)
 2. No farm_modules integration (farms can't create batches)
 3. Only 1 demo farm (not realistic)
@@ -17,17 +18,20 @@ Current seeders have critical gaps:
 ## Solution Statement
 
 **Production Seeder**:
+
 - Remove market prices
 - Change default currency to NGN
 - Add growth standards for all 6 livestock types
 - Add farm_modules when creating farms
 
 **Dev Seeder**:
+
 - Create 4-5 realistic Nigerian farms with different module combinations
 - Add demo batches for all 6 livestock types
 - Realistic Nigerian locations, prices, transactions
 
 **Database Schema**:
+
 - Expand 8 enum types with 28 new values for better coverage
 - Update migration to add new enum values
 
@@ -43,30 +47,35 @@ Current seeders have critical gaps:
 ## REALISTIC FARM SCENARIOS
 
 ### Farm 1: "Sunrise Poultry Farm" - Kaduna
+
 **Modules**: Poultry only
 **Focus**: Large-scale broiler and layer production
 **Batches**: 3-4 broiler batches, 2 layer batches
 **Location**: Kaduna, Nigeria
 
 ### Farm 2: "Blue Waters Fish Farm" - Ibadan
+
 **Modules**: Aquaculture only
 **Focus**: Catfish and tilapia production
 **Batches**: 2-3 catfish batches, 1-2 tilapia batches
 **Location**: Ibadan, Oyo State
 
 ### Farm 3: "Green Valley Mixed Farm" - Jos
+
 **Modules**: Poultry + Aquaculture
 **Focus**: Integrated poultry-fish farming
 **Batches**: 2 broiler, 1 layer, 2 catfish
 **Location**: Jos, Plateau State
 
 ### Farm 4: "Savanna Livestock Ranch" - Kano
+
 **Modules**: Cattle + Goats + Sheep
 **Focus**: Ruminant livestock production
 **Batches**: 1-2 cattle, 2 goat, 1 sheep
 **Location**: Kano, Nigeria
 
 ### Farm 5: "Golden Hive Apiary" - Enugu
+
 **Modules**: Bees only
 **Focus**: Honey production
 **Batches**: 3-5 bee colonies
@@ -77,6 +86,7 @@ Current seeders have critical gaps:
 ## GROWTH STANDARDS DATA
 
 ### Cattle (Angus/Holstein)
+
 - Birth: 40kg
 - 6 months: 180kg
 - 12 months: 350kg
@@ -84,6 +94,7 @@ Current seeders have critical gaps:
 - 24 months: 650kg (market weight)
 
 ### Goats (Boer/Kalahari)
+
 - Birth: 3kg
 - 3 months: 15kg
 - 6 months: 25kg
@@ -91,6 +102,7 @@ Current seeders have critical gaps:
 - 12 months: 45kg (market weight)
 
 ### Sheep (Merino/Dorper)
+
 - Birth: 4kg
 - 3 months: 18kg
 - 6 months: 30kg
@@ -98,6 +110,7 @@ Current seeders have critical gaps:
 - 12 months: 55kg (market weight)
 
 ### Bees (Colony strength)
+
 - Month 0: 10,000 bees
 - Month 3: 30,000 bees
 - Month 6: 50,000 bees
@@ -111,48 +124,56 @@ Current seeders have critical gaps:
 Based on comprehensive audit (see `.agents/constants-audit.md`), expand 8 enum types:
 
 ### 1. Structure Types (Add 5)
+
 ```typescript
 // Current: 9 types
 // Add: 'tank', 'tarpaulin', 'raceway', 'feedlot', 'kraal'
 ```
 
 ### 2. Mortality Causes (Add 5)
+
 ```typescript
 // Current: 5 types
 // Add: 'starvation', 'injury', 'poisoning', 'suffocation', 'culling'
 ```
 
 ### 3. Sale Unit Types (Add 4)
+
 ```typescript
 // Current: 4 types
 // Add: 'liter', 'head', 'colony', 'fleece'
 ```
 
 ### 4. Payment Methods (Add 3)
+
 ```typescript
 // Current: 3 types
 // Add: 'mobile_money', 'check', 'card'
 ```
 
 ### 5. Sale Livestock Types (Add 4)
+
 ```typescript
 // Current: 9 types
 // Add: 'beeswax', 'propolis', 'royal_jelly', 'manure'
 ```
 
 ### 6. Customer Types (Add 3)
+
 ```typescript
 // Current: 4 types
 // Add: 'processor', 'exporter', 'government'
 ```
 
 ### 7. Expense Categories (Add 2)
+
 ```typescript
 // Current: 15 types
 // Add: 'insurance', 'veterinary'
 ```
 
 ### 8. Medication Units (Add 2)
+
 ```typescript
 // Current: 6 types
 // Add: 'kg', 'liter'
@@ -174,6 +195,7 @@ Based on comprehensive audit (see `.agents/constants-audit.md`), expand 8 enum t
 
 - **FILE**: `app/features/settings/currency-presets.ts`
 - **CHANGE**: Default currency from USD to NGN
+
 ```typescript
 export const DEFAULT_SETTINGS = {
   currencyCode: 'NGN',
@@ -181,6 +203,7 @@ export const DEFAULT_SETTINGS = {
   // ... rest
 }
 ```
+
 - **VALIDATE**: `npx tsc --noEmit`
 
 ### Task 2: Update production seeder
@@ -195,20 +218,37 @@ export const DEFAULT_SETTINGS = {
 
 - **FILE**: `app/lib/db/seed-dev.ts`
 - **ADD**: Helper function to create farm with modules
+
 ```typescript
 async function createFarmWithModules(
   userId: string,
   farmData: { name: string; location: string; type: string },
-  modules: Array<'poultry' | 'aquaculture' | 'cattle' | 'goats' | 'sheep' | 'bees'>
+  modules: Array<
+    'poultry' | 'aquaculture' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  >,
 ) {
-  const farm = await db.insertInto('farms').values(farmData).returningAll().executeTakeFirstOrThrow()
-  
-  await db.insertInto('user_farms').values({ userId, farmId: farm.id, role: 'owner' }).execute()
-  
-  await db.insertInto('farm_modules').values(
-    modules.map(moduleKey => ({ farmId: farm.id, moduleKey, enabled: true }))
-  ).execute()
-  
+  const farm = await db
+    .insertInto('farms')
+    .values(farmData)
+    .returningAll()
+    .executeTakeFirstOrThrow()
+
+  await db
+    .insertInto('user_farms')
+    .values({ userId, farmId: farm.id, role: 'owner' })
+    .execute()
+
+  await db
+    .insertInto('farm_modules')
+    .values(
+      modules.map((moduleKey) => ({
+        farmId: farm.id,
+        moduleKey,
+        enabled: true,
+      })),
+    )
+    .execute()
+
   return farm
 }
 ```
@@ -269,71 +309,84 @@ async function createFarmWithModules(
 ### How New Enums Affect Seeding
 
 **Structure Types**:
+
 - ✅ Use `tarpaulin` for Nigerian fish farms (very common)
 - ✅ Use `kraal` for traditional cattle/goat farms
 - ✅ Use `tank` for modern fish operations
 - ✅ Use `feedlot` for intensive cattle operations
 
 **Mortality Causes**:
+
 - ✅ Add realistic mortality records with varied causes
 - ✅ Use `starvation` for feed shortage scenarios
 - ✅ Use `suffocation` for overcrowding incidents
 - ✅ Use `culling` for management decisions
 
 **Sale Unit Types**:
+
 - ✅ Use `head` for cattle/goat/sheep sales (industry standard)
 - ✅ Use `liter` for milk and honey sales
 - ✅ Use `colony` for bee colony sales
 - ✅ Use `fleece` for wool sales
 
 **Payment Methods**:
+
 - ✅ Use `mobile_money` for most Nigerian transactions (MTN, Airtel)
 - ✅ Use `cash` for small transactions
 - ✅ Use `transfer` for large transactions
 - ✅ Use `card` occasionally
 
 **Sale Livestock Types**:
+
 - ✅ Add honey, beeswax, propolis sales for bee farms
 - ✅ Add milk sales for dairy cattle
 - ✅ Add wool sales for sheep
 - ✅ Add manure sales as byproduct
 
 **Customer Types**:
+
 - ✅ Add `processor` customers (slaughterhouses)
 - ✅ Add `government` for institutional sales
 - ✅ Keep `restaurant`, `retailer`, `wholesaler` mix
 
 **Expense Categories**:
+
 - ✅ Add `veterinary` expenses (consultation fees)
 - ✅ Add `insurance` expenses for larger farms
 
 **Medication Units**:
+
 - ✅ Use `kg` and `liter` for bulk medication purchases
 
 ### Demo Data Distribution
 
-**Farm 1 (Poultry)**: 
+**Farm 1 (Poultry)**:
+
 - Structures: `house`, `cage`
 - Sales: `bird`, `kg`, `crate` (eggs)
 - Payments: `mobile_money`, `cash`
 
 **Farm 2 (Fish)**:
+
 - Structures: `pond`, `tarpaulin`, `tank`
 - Sales: `kg`
 - Payments: `mobile_money`, `transfer`
 
 **Farm 3 (Mixed)**:
+
 - Structures: `house`, `pond`
 - Sales: `bird`, `kg`, `crate`
 - Payments: `mobile_money`, `cash`, `card`
 
 **Farm 4 (Livestock)**:
+
 - Structures: `kraal`, `barn`, `feedlot`, `pasture`
 - Sales: `head`, `kg`
 - Payments: `transfer`, `check`
 - Customers: `processor`, `government`
 
 **Farm 5 (Bees)**:
+
 - Structures: `hive`
 - Sales: `liter` (honey), `kg` (beeswax), `colony`
 - Payments: `mobile_money`, `cash`
@@ -364,6 +417,7 @@ bun run db:query "SELECT species, COUNT(*) FROM growth_standards GROUP BY specie
 **Estimated Time**: 3-4 hours (increased due to enum updates)
 
 **Nigerian Locations**:
+
 - Kaduna (North-Central) - Poultry hub
 - Ibadan (South-West) - Fish farming
 - Jos (North-Central) - Mixed farming
@@ -371,6 +425,7 @@ bun run db:query "SELECT species, COUNT(*) FROM growth_standards GROUP BY specie
 - Enugu (South-East) - Beekeeping
 
 **Realistic Batch Sizes**:
+
 - Broilers: 50-100 birds
 - Layers: 100-200 birds
 - Catfish: 500-1000 fingerlings

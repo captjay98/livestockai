@@ -7,6 +7,7 @@ This document outlines a future enhancement to allow community-contributed regio
 ## Current Implementation
 
 **As of Day 8**: Users enter their own `targetPricePerUnit` when creating batches. This makes the app:
+
 - ✅ International (not region-specific)
 - ✅ Accurate (user's actual market prices)
 - ✅ Simple (no package management)
@@ -52,13 +53,13 @@ export interface MarketDataPackage {
 
 ### What Could Be Included
 
-| Data Type | Priority | Reason |
-|-----------|----------|--------|
-| Market Prices | Medium | Reference pricing by region |
-| Vaccination Schedules | High | Country-specific regulations |
-| Common Diseases | Medium | Regional disease patterns |
-| Local Breeds | Low | Species vary by country |
-| Feed Brands | Low | Regional suppliers |
+| Data Type             | Priority | Reason                       |
+| --------------------- | -------- | ---------------------------- |
+| Market Prices         | Medium   | Reference pricing by region  |
+| Vaccination Schedules | High     | Country-specific regulations |
+| Common Diseases       | Medium   | Regional disease patterns    |
+| Local Breeds          | Low      | Species vary by country      |
+| Feed Brands           | Low      | Regional suppliers           |
 
 ### Onboarding Integration
 
@@ -100,6 +101,7 @@ interface UserSettings {
 ### When to Implement
 
 Consider implementing when:
+
 - Multiple users request regional data
 - Community contributors offer to maintain packages
 - App expands to multiple countries

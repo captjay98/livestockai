@@ -1129,6 +1129,7 @@ onValueChange={(v) => v && setState(v)}
 ### New Fullstack Agent
 
 Created `fullstack-engineer` agent for end-to-end feature implementation:
+
 - Combines backend + frontend capabilities in one agent
 - Full write access to `app/**`, `tests/**`
 - Neon MCP access for database operations
@@ -1141,6 +1142,7 @@ Resolved persistent OAuth re-authentication issue when switching between agents.
 **Root Cause:** `mcp-remote` used random callback ports, causing cached OAuth tokens to mismatch on agent switch.
 
 **Solution:**
+
 1. Fixed callback ports for all MCP servers:
    - Neon: 3334
    - Cloudflare-bindings: 3335
@@ -1167,7 +1169,6 @@ Resolved persistent OAuth re-authentication issue when switching between agents.
 - `data-analyst`, `livestock-specialist`
 - `qa-engineer`, `security-engineer`, `i18n-engineer`
 
-
 ---
 
 ## Day 9 (January 13) - Codebase Reorganization & Type Safety
@@ -1186,7 +1187,7 @@ app/lib/batches/server.ts
 app/lib/customers/server.ts
 app/lib/sales/server.ts
 
-# After  
+# After
 app/features/batches/server.ts
 app/features/customers/server.ts
 app/features/sales/server.ts
@@ -1229,6 +1230,7 @@ tests/features/batches/batches.property.test.ts
 Eliminated ALL remaining `any` types in the codebase.
 
 #### Starting Point
+
 - 27 `any` types across route files and utilities
 
 #### Approach
@@ -1239,12 +1241,12 @@ Eliminated ALL remaining `any` types in the codebase.
 
 #### Files Modified
 
-| Category | Count | Examples |
-|----------|-------|----------|
-| Form routes | 7 | feed/new, sales/new, expenses/new |
-| Index routes | 2 | customers/index, vaccinations/index |
-| Detail routes | 3 | customers/$id, suppliers/$id, farms/$id |
-| Utilities | 2 | pwa-prompt.tsx, query-client.ts |
+| Category      | Count | Examples                                |
+| ------------- | ----- | --------------------------------------- |
+| Form routes   | 7     | feed/new, sales/new, expenses/new       |
+| Index routes  | 2     | customers/index, vaccinations/index     |
+| Detail routes | 3     | customers/$id, suppliers/$id, farms/$id |
+| Utilities     | 2     | pwa-prompt.tsx, query-client.ts         |
 
 #### Pattern Established
 
@@ -1263,7 +1265,7 @@ interface Batch {
 const batches = Route.useLoaderData() as Array<Batch>
 
 // Callbacks now properly typed
-batches.map((batch) => batch.species)  // ✅ No any
+batches.map((batch) => batch.species) // ✅ No any
 ```
 
 #### Key Insight
@@ -1272,35 +1274,35 @@ TanStack Router's type inference works for simple loaders but complex loaders ne
 
 ### Commits (12 total)
 
-| # | Type | Description |
-|---|------|-------------|
-| 1 | refactor(server) | Move server functions to app/features/ |
-| 2 | refactor(routes) | Convert flat routes to directory structure |
-| 3 | refactor(lib) | Remove old lib files |
-| 4 | refactor(routes) | Remove old flat route files |
-| 5 | test | Reorganize tests to match new structure |
-| 6 | feat(types) | Add shared BasePaginatedQuery type |
-| 7 | fix(types) | Eliminate all any types (27 → 0) |
-| 8 | refactor(components) | Update imports for new structure |
-| 9 | chore(routes) | Update route imports and regenerate tree |
-| 10 | docs(plans) | Add type safety implementation plan |
-| 11 | docs | Update documentation for new structure |
-| 12 | chore | Remove unused logo.svg |
+| #   | Type                 | Description                                |
+| --- | -------------------- | ------------------------------------------ |
+| 1   | refactor(server)     | Move server functions to app/features/     |
+| 2   | refactor(routes)     | Convert flat routes to directory structure |
+| 3   | refactor(lib)        | Remove old lib files                       |
+| 4   | refactor(routes)     | Remove old flat route files                |
+| 5   | test                 | Reorganize tests to match new structure    |
+| 6   | feat(types)          | Add shared BasePaginatedQuery type         |
+| 7   | fix(types)           | Eliminate all any types (27 → 0)           |
+| 8   | refactor(components) | Update imports for new structure           |
+| 9   | chore(routes)        | Update route imports and regenerate tree   |
+| 10  | docs(plans)          | Add type safety implementation plan        |
+| 11  | docs                 | Update documentation for new structure     |
+| 12  | chore                | Remove unused logo.svg                     |
 
 ### Metrics
 
-| Metric | Before | After |
-|--------|--------|-------|
-| `any` types | 27 | 0 |
-| TypeScript errors | 0 | 0 |
-| ESLint errors | 0 | 0 |
-| Tests passing | 254 | 254 |
-| Files reorganized | - | 157 |
+| Metric            | Before | After |
+| ----------------- | ------ | ----- |
+| `any` types       | 27     | 0     |
+| TypeScript errors | 0      | 0     |
+| ESLint errors     | 0      | 0     |
+| Tests passing     | 254    | 254   |
+| Files reorganized | -      | 157   |
 
 ### Time Investment
 
 - Codebase restructure: ~1.5 hours
-- Type safety fixes: ~1.5 hours  
+- Type safety fixes: ~1.5 hours
 - Commit organization: ~30 minutes
 - **Total: ~3.5 hours**
 
@@ -1309,7 +1311,6 @@ TanStack Router's type inference works for simple loaders but complex loaders ne
 - **Implementation Plans** - Created detailed plan at `.agents/plans/fix-loader-data-any-types.md`
 - **Todo Lists** - Tracked 14-task implementation
 - **Fullstack Agent** - Used for end-to-end changes across server and routes
-
 
 ## Day 10 (January 13) - Dialog Consolidation & UX Standardization
 
@@ -1320,10 +1321,12 @@ Standardized all record creation to use dialog modals instead of dedicated `/new
 #### Problem
 
 The app had two patterns for creating records:
+
 1. Dialog modals on some pages
 2. Dedicated /new routes that navigate away
 
 This caused:
+
 - Inconsistent UX across features
 - Duplicate form logic maintenance
 - Context loss when navigating to /new pages
@@ -1334,14 +1337,14 @@ Consolidated everything to dialogs - users stay in context while creating record
 
 #### New Dialog Components (6)
 
-| Dialog | Purpose | Key Features |
-|--------|---------|--------------|
-| `customer-dialog` | Add customers | Name, phone, email, location, type |
-| `supplier-dialog` | Add suppliers | Name, phone, products[], type |
-| `vaccination-dialog` | Health records | Toggle between vaccination/treatment |
+| Dialog                 | Purpose         | Key Features                                 |
+| ---------------------- | --------------- | -------------------------------------------- |
+| `customer-dialog`      | Add customers   | Name, phone, email, location, type           |
+| `supplier-dialog`      | Add suppliers   | Name, phone, products[], type                |
+| `vaccination-dialog`   | Health records  | Toggle between vaccination/treatment         |
 | `water-quality-dialog` | Fish monitoring | Threshold warnings for pH, temp, DO, ammonia |
-| `weight-dialog` | Growth tracking | Collapsible advanced section |
-| `invoice-dialog` | Billing | Dynamic line items, auto-calculated totals |
+| `weight-dialog`        | Growth tracking | Collapsible advanced section                 |
+| `invoice-dialog`       | Billing         | Dynamic line items, auto-calculated totals   |
 
 #### Enhanced Dialogs (2)
 
@@ -1351,13 +1354,14 @@ Consolidated everything to dialogs - users stay in context while creating record
 #### Routes Removed (12)
 
 Deleted all `/new` routes:
+
 - batches, customers, eggs, expenses, farms, feed
 - invoices, sales, suppliers, vaccinations, water-quality, weight
 
 #### Pages Updated (3)
 
 - `invoices/index.tsx` → InvoiceDialog
-- `farms/$farmId/index.tsx` → SaleDialog, ExpenseDialog  
+- `farms/$farmId/index.tsx` → SaleDialog, ExpenseDialog
 - `dashboard/index.tsx` → BatchDialog for empty state
 
 ### Metrics
@@ -1379,7 +1383,6 @@ Deleted all `/new` routes:
 - Reduced code duplication
 - Easier maintenance (single creation pattern)
 
-
 ---
 
 ## Day 11 (January 13) - Settings System Fix & Multi-Currency
@@ -1396,6 +1399,7 @@ Discovered two critical issues during code review:
 Replaced all hardcoded ₦ symbols with dynamic currency from user settings.
 
 **Pattern established:**
+
 ```typescript
 // In React components
 const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
@@ -1409,12 +1413,12 @@ const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
 
 **Files updated (25 total):**
 
-| Category | Count | Examples |
-|----------|-------|----------|
-| Route files | 15 | dashboard, batches, sales, expenses, feed, invoices |
-| Dialog components | 5 | batch, sale, expense, feed, invoice |
-| Other components | 1 | projections-card |
-| Server/utils | 4 | pdf.ts, seed.ts, onboarding/server.ts |
+| Category          | Count | Examples                                            |
+| ----------------- | ----- | --------------------------------------------------- |
+| Route files       | 15    | dashboard, batches, sales, expenses, feed, invoices |
+| Dialog components | 5     | batch, sale, expense, feed, invoice                 |
+| Other components  | 1     | projections-card                                    |
+| Server/utils      | 4     | pdf.ts, seed.ts, onboarding/server.ts               |
 
 ### Onboarding System Fix
 
@@ -1426,13 +1430,13 @@ const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
 
 Removed all legacy/deprecated code:
 
-| Item | Action |
-|------|--------|
-| `nairaToKobo()` / `koboToNaira()` | Deleted - deprecated and unused |
-| `LEGACY_NGN_SETTINGS` | Deleted - replaced with `DEFAULT_SETTINGS` |
-| TODO in forecasting.ts | Implemented weight estimation from age |
-| TODO in invoices/index.tsx | Linked View button to detail page |
-| "Legacy" comments | Cleaned up across codebase |
+| Item                              | Action                                     |
+| --------------------------------- | ------------------------------------------ |
+| `nairaToKobo()` / `koboToNaira()` | Deleted - deprecated and unused            |
+| `LEGACY_NGN_SETTINGS`             | Deleted - replaced with `DEFAULT_SETTINGS` |
+| TODO in forecasting.ts            | Implemented weight estimation from age     |
+| TODO in invoices/index.tsx        | Linked View button to detail page          |
+| "Legacy" comments                 | Cleaned up across codebase                 |
 
 ### Commits (7)
 
@@ -1463,7 +1467,6 @@ Changed default from NGN to USD as international default. Users select their pre
 - **Grep Tool** - Found all hardcoded currency references
 - **Batch File Operations** - Efficient multi-file updates
 
-
 ---
 
 ## Day 11 (January 13) - Toast Notifications & UX Standardization
@@ -1471,6 +1474,7 @@ Changed default from NGN to USD as international default. Users select their pre
 ### Problem Identified
 
 During UX audit, discovered two issues:
+
 1. **Silent success** - Sonner Toaster was mounted in `__root.tsx` but `toast()` was never called anywhere
 2. **Inconsistent confirmations** - 2 files used `window.confirm()` instead of proper dialogs
 
@@ -1479,6 +1483,7 @@ During UX audit, discovered two issues:
 Added `toast.success()` calls to all CRUD operations across the entire application.
 
 **Pattern established:**
+
 ```typescript
 import { toast } from 'sonner'
 
@@ -1490,14 +1495,15 @@ toast.success('Record deleted')
 
 ### Files Updated
 
-| Category | Count | Files |
-|----------|-------|-------|
-| Route files | 18 | batches, sales, expenses, feed, eggs, customers, suppliers, weight, water-quality, mortality, vaccinations, inventory, farms, settings, onboarding, invoices detail, suppliers detail |
-| Dialog components | 13 | batch, customer, edit-farm, egg, expense, farm, feed, invoice, sale, supplier, vaccination, water-quality, weight |
+| Category          | Count | Files                                                                                                                                                                                 |
+| ----------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Route files       | 18    | batches, sales, expenses, feed, eggs, customers, suppliers, weight, water-quality, mortality, vaccinations, inventory, farms, settings, onboarding, invoices detail, suppliers detail |
+| Dialog components | 13    | batch, customer, edit-farm, egg, expense, farm, feed, invoice, sale, supplier, vaccination, water-quality, weight                                                                     |
 
 ### Confirmation Dialog Fix
 
 Replaced `window.confirm()` with proper `AlertDialog` components:
+
 - `suppliers/$supplierId.tsx` - Delete supplier confirmation
 - `invoices/$invoiceId.tsx` - Delete invoice confirmation
 
@@ -1517,10 +1523,10 @@ Replaced `window.confirm()` with proper `AlertDialog` components:
 ### UX Impact
 
 Users now receive consistent visual feedback for all operations:
+
 - Success toasts appear in bottom-right corner
 - Delete confirmations use proper modal dialogs
 - Error messages shown both inline and as toasts
-
 
 ---
 
@@ -1531,15 +1537,18 @@ Users now receive consistent visual feedback for all operations:
 Completed the date formatting system by replacing all `toLocaleDateString()` calls with the `useFormatDate()` hook.
 
 **Implementation:**
+
 - Added `useFormatDate()` hook to 18 route files
 - Replaced ~30 date displays with `formatDate()`
 - Users can now change date format (MM/DD/YYYY ↔ DD/MM/YYYY ↔ YYYY-MM-DD) in settings
 - Changes reflect immediately across entire app
 
 **Files updated:**
+
 - Routes: batches, sales, expenses, feed, eggs, weight, water-quality, mortality, vaccinations, invoices, customers, suppliers, farms, dashboard, inventory, reports
 
 **Commit:**
+
 ```
 cca3d2b feat(settings): wire up date/time/unit formatters across application
 ```
@@ -1553,6 +1562,7 @@ Completed the unit conversion system by implementing actual value conversion (no
 **Solution:** Used existing `formatWeight()`, `formatArea()`, and `formatTemperature()` functions to convert all measurement values before display.
 
 **Weight Conversions (7 files):**
+
 - feed/index.tsx - Feed quantity displays
 - weight/index.tsx - Weight sample displays
 - reports/index.tsx - Feed report quantities
@@ -1562,18 +1572,22 @@ Completed the unit conversion system by implementing actual value conversion (no
 - inventory/index.tsx - Feed inventory quantities
 
 **Area Conversions (1 file):**
+
 - farms/$farmId/index.tsx - Structure area labels (m² ↔ ft²)
 
 **Temperature Conversions (2 files):**
+
 - water-quality/index.tsx - Temperature readings
 - dialogs/water-quality-dialog.tsx - Temperature input labels (°C ↔ °F)
 
 **Conversion Factors:**
+
 - Weight: 1 kg = 2.20462 lbs
 - Area: 1 m² = 10.7639 ft²
 - Temperature: °F = (°C × 9/5) + 32
 
 **Commit:**
+
 ```
 9198704 feat(settings): implement all unit value conversions
 ```
@@ -1587,25 +1601,27 @@ Completed the unit conversion system by implementing actual value conversion (no
 
 ### Settings System Now Complete
 
-| Setting | Status | Impact |
-|---------|--------|--------|
-| **Currency** | ✅ Complete | All financial displays convert (USD, EUR, NGN, etc.) |
-| **Date Format** | ✅ Complete | All dates display in user's preferred format |
-| **Time Format** | ⚠️ Implemented but unused | No time-only displays in app yet |
-| **Weight Unit** | ✅ Complete | All weights convert (kg ↔ lbs) |
-| **Area Unit** | ✅ Complete | Area labels dynamic (m² ↔ ft²) |
-| **Temperature** | ✅ Complete | Water quality temps convert (°C ↔ °F) |
-| **First Day of Week** | ⚠️ Implemented but unused | No calendar widgets yet |
+| Setting               | Status                    | Impact                                               |
+| --------------------- | ------------------------- | ---------------------------------------------------- |
+| **Currency**          | ✅ Complete               | All financial displays convert (USD, EUR, NGN, etc.) |
+| **Date Format**       | ✅ Complete               | All dates display in user's preferred format         |
+| **Time Format**       | ⚠️ Implemented but unused | No time-only displays in app yet                     |
+| **Weight Unit**       | ✅ Complete               | All weights convert (kg ↔ lbs)                       |
+| **Area Unit**         | ✅ Complete               | Area labels dynamic (m² ↔ ft²)                       |
+| **Temperature**       | ✅ Complete               | Water quality temps convert (°C ↔ °F)                |
+| **First Day of Week** | ⚠️ Implemented but unused | No calendar widgets yet                              |
 
 ### User Experience
 
 Users can now:
+
 1. Go to Settings → Regional
 2. Change any unit preference
 3. See changes reflected immediately across the entire app
 4. All values convert accurately with proper precision
 
 **Examples:**
+
 - Date: 2025-01-14 → 14/01/2025 → 01/14/2025
 - Weight: 2.5 kg → 5.51 lbs
 - Area: 100 m² → 1076.39 ft²
@@ -1625,7 +1641,6 @@ Users can now:
 - Unit value conversions: ~45 minutes
 - **Total**: ~2.25 hours
 
-
 ---
 
 ## Day 12 (January 14) - Missing Settings Features Implementation
@@ -1641,6 +1656,7 @@ The application had 10 user settings implemented in the database, but 5 were unu
 **Problem**: Users had notification preferences but no notification system existed.
 
 **Solution**: Built complete notification infrastructure
+
 - Database table with indexes for efficient queries
 - Server functions with auth (create, get, mark read, delete)
 - React context with TanStack Query (30s auto-refresh)
@@ -1655,6 +1671,7 @@ The application had 10 user settings implemented in the database, but 5 were unu
 **Problem**: Dashboard showed all cards to all users, no personalization.
 
 **Solution**: Made dashboard cards conditional based on user preferences
+
 - Revenue, expenses, profit cards now conditional
 - Inventory section conditional
 - Empty state when all cards hidden
@@ -1667,6 +1684,7 @@ The application had 10 user settings implemented in the database, but 5 were unu
 **Problem**: Reports used calendar year, but many farms have different fiscal years (e.g., April-March).
 
 **Solution**: Added fiscal year support to reports
+
 - Fiscal year utility functions (getFiscalYearStart, getFiscalYearEnd, getFiscalYearLabel)
 - Checkbox toggle in reports UI
 - Auto-populates dates from fiscal year settings
@@ -1680,6 +1698,7 @@ The application had 10 user settings implemented in the database, but 5 were unu
 **Problem**: Language setting existed but no translation system.
 
 **Solution**: Set up i18n infrastructure with English baseline
+
 - Installed react-i18next and i18next
 - Created i18n config with English translations
 - Created I18nProvider that syncs with user language setting
@@ -1690,12 +1709,14 @@ The application had 10 user settings implemented in the database, but 5 were unu
 ### Technical Implementation
 
 **Notifications Architecture:**
+
 - Database: notifications table with userId, farmId, type, title, message, read, actionUrl, metadata
 - Server: Dynamic imports for Cloudflare Workers compatibility
 - Client: TanStack Query with 30s polling, optimistic updates
 - UI: Custom dropdown (no external popover dependency)
 
 **Dashboard Pattern:**
+
 ```typescript
 const { cards } = useDashboardPreferences()
 
@@ -1707,6 +1728,7 @@ const { cards } = useDashboardPreferences()
 ```
 
 **Fiscal Year Pattern:**
+
 ```typescript
 const { fiscalYearStartMonth } = useBusinessSettings()
 const start = getFiscalYearStart(fiscalYearStartMonth)
@@ -1714,6 +1736,7 @@ const end = getFiscalYearEnd(fiscalYearStartMonth)
 ```
 
 **i18n Pattern:**
+
 ```typescript
 // Add translations to config.ts
 const resources = {
@@ -1724,20 +1747,21 @@ const resources = {
 
 ### Settings Status: 9/10 Functional
 
-| Setting | Status |
-|---------|--------|
-| defaultFarmId | ✅ Working |
-| theme | ✅ Working |
-| mortalityAlertPercent/Quantity | ✅ Working |
-| defaultPaymentTermsDays | ✅ Working |
-| **notifications** | ✅ **NOW WORKING** |
-| **dashboardCards** | ✅ **NOW WORKING** |
-| **fiscalYearStartMonth** | ✅ **NOW WORKING** |
-| **language** | ✅ **NOW WORKING** (English ready) |
-| lowStockThresholdPercent | N/A (per-item is better UX) |
-| Currency/Date/Time/Units | ✅ Working |
+| Setting                        | Status                             |
+| ------------------------------ | ---------------------------------- |
+| defaultFarmId                  | ✅ Working                         |
+| theme                          | ✅ Working                         |
+| mortalityAlertPercent/Quantity | ✅ Working                         |
+| defaultPaymentTermsDays        | ✅ Working                         |
+| **notifications**              | ✅ **NOW WORKING**                 |
+| **dashboardCards**             | ✅ **NOW WORKING**                 |
+| **fiscalYearStartMonth**       | ✅ **NOW WORKING**                 |
+| **language**                   | ✅ **NOW WORKING** (English ready) |
+| lowStockThresholdPercent       | N/A (per-item is better UX)        |
+| Currency/Date/Time/Units       | ✅ Working                         |
 
 ### Files Created (9)
+
 - `app/features/notifications/types.ts`
 - `app/features/notifications/server.ts`
 - `app/features/notifications/context.tsx`
@@ -1749,6 +1773,7 @@ const resources = {
 - `app/features/i18n/index.ts`
 
 ### Files Modified (6)
+
 - `app/lib/db/types.ts` - Added NotificationTable
 - `app/lib/db/migrations/2025-01-08-001-initial-schema.ts` - Added notifications table
 - `app/routes/__root.tsx` - Added NotificationsProvider and I18nProvider
@@ -1766,12 +1791,14 @@ const resources = {
 5. `938a100 feat(settings): wire up notification and i18n providers` - 3 files, +44/-3
 
 ### Validation Results
+
 - TypeScript: 0 errors ✅
 - ESLint: 0 errors ✅
 - Database: Schema updated successfully ✅
 - Build: Ready for deployment ✅
 
 ### Time Investment
+
 - Feature 1 (Notifications): ~2 hours
 - Feature 2 (Dashboard): ~30 minutes
 - Feature 3 (Fiscal Year): ~45 minutes
@@ -1779,12 +1806,14 @@ const resources = {
 - **Total**: ~3.75 hours
 
 ### Next Steps (Optional)
+
 - Add tests for notification system
 - Add more notification types (low stock, invoice due, batch harvest)
 - Add translations for Nigerian languages (Hausa, Yoruba, Igbo)
 - Add translations for other African languages (French, Portuguese, Swahili)
 
 ### Key Insights
+
 - Settings system now 90% complete (9/10 functional)
 - Notification system provides foundation for future alert types
 - Dashboard customization improves UX for different user roles
@@ -1803,6 +1832,7 @@ Continued from Day 12 with focus on completing unfinished features, adding compr
 ### Implementation Plans Created
 
 Created 6 detailed implementation plans:
+
 1. **add-notification-tests.md** - Test coverage for notification system
 2. **add-more-notification-types.md** - Expand notification types
 3. **add-hausa-translations.md** - Nigerian language support (deferred)
@@ -1817,12 +1847,14 @@ Created 6 detailed implementation plans:
 **Problem**: Dashboard customization incomplete - mortality and feed card preferences existed but cards didn't.
 
 **Solution**: Added 2 new dashboard cards with data queries
+
 - **Mortality Card**: Shows total deaths this month and mortality rate
 - **Feed Card**: Shows total feed cost and FCR (Feed Conversion Ratio)
 - Both cards conditional on user `dashboardCards` preferences
 - Updated empty state to include new cards
 
 **Files Modified**: 2
+
 - `app/features/dashboard/server.ts` - Added mortality and feed to DashboardStats
 - `app/routes/_auth/dashboard/index.tsx` - Added card components
 
@@ -1833,16 +1865,19 @@ Created 6 detailed implementation plans:
 **Problem**: Notification system had zero test coverage despite being critical infrastructure.
 
 **Solution**: Comprehensive 3-layer test suite
+
 - **Unit Tests (11)**: CRUD operations, auth checks, filtering
 - **Property Tests (9)**: User isolation, unread filtering, limit handling
 - **Integration Tests (4)**: End-to-end mortality → notification flow
 
 **Test Results**:
+
 - 24 tests, 1,575 assertions
 - 100% pass rate
 - Run time: ~60 seconds
 
 **Files Created**: 3
+
 - `tests/features/notifications/notifications.test.ts`
 - `tests/features/notifications/notifications.property.test.ts`
 - `tests/features/notifications/notifications.integration.test.ts`
@@ -1854,16 +1889,19 @@ Created 6 detailed implementation plans:
 **Problem**: Critical financial and growth calculations lacked property-based testing.
 
 **Solution**: Added fast-check property tests for core algorithms
+
 - **FCR Tests (8)**: Feed conversion ratio calculations
 - **Mortality Tests (8)**: Death rate calculations
 - **Profit Tests (8)**: Revenue minus expenses logic
 
 **Test Results**:
+
 - 24 tests, 3,098 assertions
 - 100% pass rate
 - Run time: <300ms
 
 **Files Created**: 3
+
 - `tests/features/batches/fcr.property.test.ts`
 - `tests/features/monitoring/mortality.property.test.ts`
 - `tests/features/finance/profit.property.test.ts`
@@ -1875,6 +1913,7 @@ Created 6 detailed implementation plans:
 **Problem**: No database indexes, potential N+1 queries, no bundle analysis.
 
 **Solution**: Database and build optimizations
+
 - **8 Composite Indexes**: Added for common query patterns
   - batches(farmId, status)
   - sales(farmId, date)
@@ -1888,6 +1927,7 @@ Created 6 detailed implementation plans:
 - **Bundle Analyzer**: Installed rollup-plugin-visualizer
 
 **Files Created**: 1
+
 - `app/lib/db/migrations/2026-01-14-001-add-performance-indexes.ts`
 
 **Impact**: Significant query performance improvement for filtered lists and dashboard
@@ -1899,20 +1939,24 @@ Created 6 detailed implementation plans:
 **Problem**: Only mortality notifications implemented, 3 other types unused.
 
 **Solution**: Implemented 3 missing notification schedulers
+
 - **Low Stock**: Checks feed and medication inventory vs thresholds
 - **Invoice Due**: Alerts 7 days before invoice due date
 - **Batch Harvest**: Alerts 7 days before target harvest date
 
 **Features**:
+
 - All respect user notification preferences
 - Duplicate prevention (checks existing unread notifications)
 - Metadata includes relevant IDs for action URLs
 - Returns count for monitoring
 
 **Files Created**: 1
+
 - `app/features/notifications/schedulers.ts`
 
 **Files Modified**: 1
+
 - `app/features/notifications/index.ts` - Export schedulers
 
 **Note**: Schedulers are callable functions. Cron job infrastructure can be added later.
@@ -1921,16 +1965,16 @@ Created 6 detailed implementation plans:
 
 ### Technical Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Plans Executed** | 5/6 (83%) |
-| **Total Time** | ~90 minutes |
-| **Files Created** | 9 (6 test + 1 migration + 2 feature) |
-| **Files Modified** | 6 |
-| **Tests Added** | 48 tests |
-| **Assertions** | 4,673 |
-| **Pass Rate** | 100% (48/48) |
-| **Database Indexes** | 8 new indexes |
+| Metric               | Value                                |
+| -------------------- | ------------------------------------ |
+| **Plans Executed**   | 5/6 (83%)                            |
+| **Total Time**       | ~90 minutes                          |
+| **Files Created**    | 9 (6 test + 1 migration + 2 feature) |
+| **Files Modified**   | 6                                    |
+| **Tests Added**      | 48 tests                             |
+| **Assertions**       | 4,673                                |
+| **Pass Rate**        | 100% (48/48)                         |
+| **Database Indexes** | 8 new indexes                        |
 
 ### Validation Results
 
@@ -1954,15 +1998,15 @@ Created 6 detailed implementation plans:
 
 ### Production Readiness Status
 
-| Category | Status |
-|----------|--------|
-| **Dashboard** | ✅ Complete (all 6 card preferences functional) |
-| **Notifications** | ✅ Complete (4 types implemented) |
-| **Test Coverage** | ✅ Comprehensive (72 tests, 6,248 assertions) |
-| **Performance** | ✅ Optimized (8 indexes, no N+1 queries) |
-| **Type Safety** | ✅ Perfect (0 TypeScript errors) |
-| **Code Quality** | ✅ Perfect (0 ESLint errors) |
-| **Build** | ✅ Successful |
+| Category          | Status                                          |
+| ----------------- | ----------------------------------------------- |
+| **Dashboard**     | ✅ Complete (all 6 card preferences functional) |
+| **Notifications** | ✅ Complete (4 types implemented)               |
+| **Test Coverage** | ✅ Comprehensive (72 tests, 6,248 assertions)   |
+| **Performance**   | ✅ Optimized (8 indexes, no N+1 queries)        |
+| **Type Safety**   | ✅ Perfect (0 TypeScript errors)                |
+| **Code Quality**  | ✅ Perfect (0 ESLint errors)                    |
+| **Build**         | ✅ Successful                                   |
 
 ### Deferred Work
 
@@ -1979,14 +2023,14 @@ Created 6 detailed implementation plans:
 
 ### Time Breakdown
 
-| Activity | Time | Percentage |
-|----------|------|------------|
-| Dashboard Polish | 30 min | 33% |
-| Notification Tests | 20 min | 22% |
-| Property Tests | 15 min | 17% |
-| Performance | 10 min | 11% |
-| Notification Types | 15 min | 17% |
-| **Total** | **90 min** | **100%** |
+| Activity           | Time       | Percentage |
+| ------------------ | ---------- | ---------- |
+| Dashboard Polish   | 30 min     | 33%        |
+| Notification Tests | 20 min     | 22%        |
+| Property Tests     | 15 min     | 17%        |
+| Performance        | 10 min     | 11%        |
+| Notification Types | 15 min     | 17%        |
+| **Total**          | **90 min** | **100%**   |
 
 ---
 
@@ -2001,6 +2045,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 **Objective**: Support all 6 livestock types (poultry, fish, cattle, goats, sheep, bees) with Nigerian market patterns.
 
 **Added 28 New Enum Values**:
+
 - **Structure types** (+5): tank, tarpaulin, raceway, feedlot, kraal
 - **Mortality causes** (+5): starvation, injury, poisoning, suffocation, culling
 - **Sale livestock types** (+4): beeswax, propolis, royal_jelly, manure
@@ -2011,6 +2056,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 - **Medication units** (+2): kg, liter
 
 **Key Additions for Nigerian Market**:
+
 - **Tarpaulin ponds**: Most affordable fish farming method in Nigeria
 - **Kraal structures**: Traditional African livestock enclosure
 - **Mobile money**: 60% of transactions (MTN/Airtel Money)
@@ -2024,6 +2070,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 **Created 5 Farms Across Nigeria**:
 
 #### Farm 1: Sunrise Poultry Farm (Kaduna)
+
 - **Type**: Poultry only
 - **Structures**: 2 deep litter houses, 1 battery cage
 - **Batches**: 1 broiler (8 weeks, 92/100 birds)
@@ -2031,36 +2078,42 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 - **Extras**: Expenses, inventory, notifications
 
 #### Farm 2: Blue Waters Fish Farm (Ibadan)
+
 - **Type**: Aquaculture only
 - **Structures**: 2 tarpaulin ponds ⭐, 1 concrete pond
 - **Batches**: 1 catfish (4 months, 720/800 fish)
 - **Records**: Mortality (disease, predator), feed (Aller Aqua), water quality monitoring, weight samples, sales to restaurant
 
 #### Farm 3: Green Valley Mixed Farm (Jos)
+
 - **Type**: Poultry + Aquaculture
 - **Structures**: 1 broiler house, 1 tarpaulin pond
 - **Batches**: 1 broiler (6 weeks), 1 catfish (3 months)
 - **Records**: Complete records for both types
 
 #### Farm 4: Savanna Livestock Ranch (Kano)
+
 - **Type**: Cattle + Goats + Sheep
 - **Structures**: Traditional kraal ⭐, shelter barn, grazing pasture
 - **Batches**: 1 cattle (White Fulani, 10 head), 1 goat (Red Sokoto, 24 head)
 - **Records**: Feed, weight samples, treatments (deworming), sales by head ⭐ to processor
 
 #### Farm 5: Golden Hive Apiary (Enugu)
+
 - **Type**: Bees only
 - **Structures**: 2 hive rows
 - **Batches**: 1 bee colony (Apis mellifera)
 - **Records**: Bee feed, honey sales (liter) ⭐, beeswax sales (kg) ⭐
 
 **Supporting Data**:
+
 - **8 Customers**: All 7 types (individual, restaurant, retailer, wholesaler, processor, exporter, government)
 - **5 Suppliers**: All types (hatchery, fingerlings, pharmacy, cattle dealer, bee supplier)
 - **Inventory**: Feed and medication for all farms with low stock thresholds
 - **Notifications**: Low stock and batch harvest alerts
 
 **Nigerian Market Patterns**:
+
 - Payment distribution: 60% mobile_money, 30% cash, 10% transfer
 - Tarpaulin ponds: 2 farms using this affordable method
 - Kraal structure: Traditional livestock enclosure
@@ -2068,6 +2121,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 - Sales by liter: Honey and potential milk sales
 
 **Statistics**:
+
 - File size: 1,137 lines
 - Tables populated: 23/23 (100%)
 - Batches: 8 across all 6 livestock types
@@ -2078,12 +2132,14 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 **Objective**: Clean up database structure for better maintainability.
 
 **Migrations**:
+
 - Consolidated 2 migrations into 1
 - Moved 8 performance indexes into initial schema
 - Deleted `2026-01-14-001-add-performance-indexes.ts`
 - Result: Single migration for easier deployment
 
 **Seeds Organization**:
+
 - Created `app/lib/db/seeds/` directory
 - Renamed files for clarity:
   - `seed.ts` → `production.ts`
@@ -2093,6 +2149,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 - Moved backup file to seeds directory
 
 **Benefits**:
+
 - Single migration simplifies deployment
 - Clear organization with dedicated seeds directory
 - Self-explanatory file names
@@ -2103,6 +2160,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 **Objective**: Comprehensive audit for production readiness.
 
 **Audit Scope**:
+
 - TODOs and FIXMEs
 - Deprecated/legacy code
 - Code duplication
@@ -2113,6 +2171,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 - Performance issues
 
 **Results**:
+
 - **Overall Health**: 95/100 (Excellent) 🟢
 - **TypeScript Errors**: 0
 - **ESLint Errors**: 0
@@ -2121,6 +2180,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 - **Unhooked Features**: 0
 
 **Findings**:
+
 - Console statements: Appropriate usage (error logging, seed progress)
 - Type suppressions: All justified (Kysely limitations, framework constraints)
 - Code duplication: Intentional and maintainable (dialog patterns)
@@ -2175,26 +2235,28 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 
 ### Production Readiness Status
 
-| Category | Status |
-|----------|--------|
-| **Database** | ✅ Complete (1 migration, 28 enum values, 16 indexes) |
-| **Seeders** | ✅ Complete (production + dev with 5 farms) |
-| **Test Coverage** | ✅ Comprehensive (72 tests, 6,248 assertions) |
-| **Type Safety** | ✅ Perfect (0 TypeScript errors) |
-| **Code Quality** | ✅ Perfect (0 ESLint errors) |
-| **Security** | ✅ Excellent (0 vulnerabilities) |
-| **Documentation** | ✅ Excellent (comprehensive guides) |
-| **Organization** | ✅ Excellent (clean structure) |
-| **Overall** | ✅ **Production Ready (95/100)** |
+| Category          | Status                                                |
+| ----------------- | ----------------------------------------------------- |
+| **Database**      | ✅ Complete (1 migration, 28 enum values, 16 indexes) |
+| **Seeders**       | ✅ Complete (production + dev with 5 farms)           |
+| **Test Coverage** | ✅ Comprehensive (72 tests, 6,248 assertions)         |
+| **Type Safety**   | ✅ Perfect (0 TypeScript errors)                      |
+| **Code Quality**  | ✅ Perfect (0 ESLint errors)                          |
+| **Security**      | ✅ Excellent (0 vulnerabilities)                      |
+| **Documentation** | ✅ Excellent (comprehensive guides)                   |
+| **Organization**  | ✅ Excellent (clean structure)                        |
+| **Overall**       | ✅ **Production Ready (95/100)**                      |
 
 ### Next Steps
 
 **Optional Enhancements**:
+
 - [ ] Add screenshots to README
 - [ ] Add more property tests for edge cases
 - [ ] Consider error tracking service (Sentry/LogRocket)
 
 **Deployment**:
+
 - [ ] Run final tests: `bun test`
 - [ ] Build: `bun run build`
 - [ ] Deploy to Cloudflare: `bun run deploy`
@@ -2208,22 +2270,26 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 #### Critical Bug Fixes
 
 **1. Migration Constraints Out of Sync**
+
 - Problem: Migration CHECK constraints didn't include new enum values added to types.ts
 - Impact: Database would reject valid data (e.g., "processor" customer type, "tarpaulin" structure)
 - Solution: Updated 6 constraints to match all 28 new enum values
 
 **2. Provider Order Error**
+
 - Problem: FarmProvider wrapped SettingsProvider, but FarmProvider uses usePreferences()
 - Impact: Runtime error "useSettings must be used within SettingsProvider"
 - Solution: Reversed order - SettingsProvider now wraps FarmProvider
 - Bonus: Added missing I18nProvider and NotificationsProvider to client branch
 
 **3. Dev Seeder Not Executing**
+
 - Problem: seedDev() was exported but never called
 - Impact: `bun run db:seed:dev` did nothing
 - Solution: Added seedDev() call at end of development.ts
 
 **4. Reset Script Fragility**
+
 - Problem: Hardcoded table list in reset.ts
 - Impact: Missing tables when schema changes
 - Solution: Dynamic query of pg_tables instead
@@ -2231,6 +2297,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 #### Autonomous Workflow Tools Created
 
 **@commit-plan Prompt** (205 lines):
+
 - Analyzes git status automatically
 - Categorizes changes by feature/type
 - Groups related changes into logical commits
@@ -2238,6 +2305,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 - Creates executable plan with validation
 
 **@update-devlog Prompt** (262 lines):
+
 - Finds last DEVLOG date automatically
 - Calculates day number from git history
 - Analyzes commits since last entry
@@ -2245,6 +2313,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 - Shows diff for review before committing
 
 **Hackathon Review** (612 lines):
+
 - Comprehensive submission analysis
 - Overall score: 88/100 (Grade A - Excellent)
 - Kiro CLI usage: 19/20 (95%) - Exemplary
@@ -2252,6 +2321,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 - Projected improvement: 93-95/100 with video/screenshots
 
 **Implementation Plan** (208 lines):
+
 - Detailed plan for creating both autonomous prompts
 - Option 1 (Review first) chosen for safety
 - Both prompts work without manual context gathering
@@ -2266,14 +2336,14 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 
 #### Technical Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Files Changed** | 9 (4 modified, 5 new) |
-| **Lines Added** | +1,521 |
-| **Lines Removed** | -54 |
-| **Commits** | 5 |
-| **TypeScript Errors** | 0 |
-| **ESLint Errors** | 0 |
+| Metric                | Value                 |
+| --------------------- | --------------------- |
+| **Files Changed**     | 9 (4 modified, 5 new) |
+| **Lines Added**       | +1,521                |
+| **Lines Removed**     | -54                   |
+| **Commits**           | 5                     |
+| **TypeScript Errors** | 0                     |
+| **ESLint Errors**     | 0                     |
 
 #### Key Insights
 
@@ -2295,6 +2365,7 @@ Continued from Day 13 with focus on expanding database capabilities for all 6 li
 #### Workflow Validation
 
 Tested the new autonomous workflow:
+
 1. Made changes (bug fixes + new files)
 2. Ran `@commit-plan` → Generated 4 logical commits
 3. Executed commits manually after review
@@ -2310,6 +2381,7 @@ Tested the new autonomous workflow:
 #### Problem
 
 Forecasting used `market_prices` table with Nigerian prices (NGN). This made the app:
+
 - ❌ Nigeria-specific
 - ❌ Prices become stale quickly
 - ❌ Different regions have different prices
@@ -2321,20 +2393,25 @@ Added `targetPricePerUnit` field to batches. Users enter their expected sale pri
 #### Implementation
 
 **1. Database Migration**
+
 - Added `targetPricePerUnit` column (decimal 19,2) to batches table
 
 **2. Type System**
+
 - Added field to `BatchTable` interface in types.ts
 
 **3. Batch Creation Form**
+
 - Added "Target Sale Price" input field
 - Shows currency symbol from user settings
 
 **4. Forecasting**
+
 - Removed market_prices database lookup (14 lines)
 - Now uses `batch.targetPricePerUnit` directly (2 lines)
 
 **5. Production Seed**
+
 - Removed `getMarketPrices()` function (60 lines)
 - Removed market prices seeding
 - Production seed now only includes admin + growth standards
@@ -2348,17 +2425,18 @@ Added `targetPricePerUnit` field to batches. Users enter their expected sale pri
 
 #### Technical Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Files Changed** | 6 |
-| **Lines Added** | +153 |
-| **Lines Removed** | -90 |
-| **Net Change** | +63 |
-| **Commits** | 4 |
+| Metric            | Value |
+| ----------------- | ----- |
+| **Files Changed** | 6     |
+| **Lines Added**   | +153  |
+| **Lines Removed** | -90   |
+| **Net Change**    | +63   |
+| **Commits**       | 4     |
 
 #### Future Enhancement
 
 Documented regional market data packages in `.agents/plans/regional-market-packages.md`:
+
 - Community-contributed packages (Nigeria, Kenya, Ghana, etc.)
 - Opt-in during onboarding
 - Can be implemented when there's demand
@@ -2383,15 +2461,17 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 #### Critical Bug Fixes (5)
 
 **1. Onboarding Redirect Loop**
+
 - Problem: Skipping onboarding caused infinite redirect loop
 - Root cause: `skipOnboarding()` didn't persist to database, `navigate()` called during render
-- Solution: 
+- Solution:
   - Call `markOnboardingCompleteFn()` to persist skip to DB
   - Move `navigate()` to `useEffect` to avoid render-time navigation
   - Expanded farm type options from 3 to 7 (poultry, fishery, cattle, goats, sheep, bees, mixed)
 - Files: `onboarding/context.tsx`, `onboarding/index.tsx`
 
 **2. Settings Merge Bug**
+
 - Problem: User settings missing fields when new settings added to schema
 - Root cause: Server only selected existing columns, didn't merge with defaults
 - Solution: Select all columns, merge with `DEFAULT_SETTINGS` on client
@@ -2399,16 +2479,19 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 - Files: `settings/server.ts`, `settings/hooks.ts`, `settings/currency.ts`
 
 **3. PostgreSQL Column Quoting**
+
 - Problem: `orderBy('createdAt')` failed - PostgreSQL requires quotes for camelCase
 - Solution: Changed to `orderBy('created_at')` (snake_case) or quote identifiers
 - Files: `customers/server.ts`, `suppliers/server.ts`
 
 **4. Auth Layout Guard**
+
 - Problem: Race condition - AuthLayout rendered before user loaded
 - Solution: Added null check with loading state
 - Files: `_auth.tsx`
 
 **5. Currency Test Updates**
+
 - Problem: Tests expected NGN default, but changed to USD
 - Solution: Updated 15 test assertions to expect USD
 - Files: `tests/features/settings/currency.test.ts`
@@ -2416,6 +2499,7 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 #### UI/UX Polish (2)
 
 **1. Padding Reduction**
+
 - Objective: Maximize screen real estate on mobile devices
 - Changes:
   - Shell layout: `p-6` → `p-4`
@@ -2425,6 +2509,7 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 - Files: 5 UI components
 
 **2. Container Padding Cleanup**
+
 - Objective: Remove redundant padding (Shell already has padding)
 - Changes: Removed `className="container p-6"` from 22 route files
 - Result: Consistent spacing across all pages
@@ -2443,16 +2528,16 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 
 #### Technical Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Files Changed** | 38 |
-| **Lines Added** | +354 |
-| **Lines Removed** | -133 |
-| **Net Change** | +221 |
-| **Commits** | 8 |
-| **TypeScript Errors** | 0 |
-| **ESLint Errors** | 0 |
-| **Tests Passing** | 72/72 (100%) |
+| Metric                | Value        |
+| --------------------- | ------------ |
+| **Files Changed**     | 38           |
+| **Lines Added**       | +354         |
+| **Lines Removed**     | -133         |
+| **Net Change**        | +221         |
+| **Commits**           | 8            |
+| **TypeScript Errors** | 0            |
+| **ESLint Errors**     | 0            |
+| **Tests Passing**     | 72/72 (100%) |
 
 #### Key Insights
 

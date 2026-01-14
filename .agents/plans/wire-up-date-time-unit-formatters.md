@@ -5,6 +5,7 @@ The following plan should be complete, but validate documentation and codebase p
 ## Feature Description
 
 The settings system has date/time/unit formatters implemented but not used. Currently:
+
 - `useFormatDate()`, `useFormatTime()`, `useFormatWeight()` hooks exist but are never called
 - All dates display using raw `toLocaleDateString()` ignoring user preferences
 - All weights display hardcoded "kg" ignoring `weightUnit` setting
@@ -48,6 +49,7 @@ Replace all `toLocaleDateString()` calls with `useFormatDate()` hook and all har
 ### Files to Update (28 files with date formatting)
 
 **Route files with `toLocaleDateString()`:**
+
 - `app/routes/_auth/batches/index.tsx` - 1 date display
 - `app/routes/_auth/batches/$batchId/index.tsx` - 5 date displays
 - `app/routes/_auth/sales/index.tsx` - 2 date displays
@@ -68,6 +70,7 @@ Replace all `toLocaleDateString()` calls with `useFormatDate()` hook and all har
 - `app/routes/_auth/reports/index.tsx` - 2 date displays
 
 **Files with hardcoded "kg" weight displays:**
+
 - `app/routes/_auth/sales/index.tsx` - averageWeightKg display
 - `app/routes/_auth/batches/$batchId/index.tsx` - Feed (Kg) headers
 - `app/routes/_auth/reports/index.tsx` - Quantity (KG) header
@@ -75,16 +78,18 @@ Replace all `toLocaleDateString()` calls with `useFormatDate()` hook and all har
 ### Patterns to Follow
 
 **Import Pattern:**
+
 ```typescript
 import { useFormatDate, useFormatWeight } from '~/features/settings'
 ```
 
 **Hook Usage Pattern:**
+
 ```typescript
 function MyComponent() {
   const { format: formatDate } = useFormatDate()
   const { format: formatWeight, label: weightLabel } = useFormatWeight()
-  
+
   // In JSX:
   {formatDate(row.original.date)}
   {formatWeight(parseFloat(row.original.averageWeightKg))}
@@ -93,6 +98,7 @@ function MyComponent() {
 ```
 
 **Column Definition Pattern:**
+
 ```typescript
 // Before
 cell: ({ row }) => new Date(row.original.date).toLocaleDateString()
@@ -110,6 +116,7 @@ cell: ({ row }) => formatDate(row.original.date)
 Replace all `toLocaleDateString()` calls with `useFormatDate()` hook.
 
 **Pattern:**
+
 1. Add import: `import { useFormatDate } from '~/features/settings'`
 2. Add hook: `const { format: formatDate } = useFormatDate()`
 3. Replace: `new Date(x).toLocaleDateString()` → `formatDate(x)`
@@ -119,6 +126,7 @@ Replace all `toLocaleDateString()` calls with `useFormatDate()` hook.
 Replace hardcoded "kg" with dynamic weight unit from settings.
 
 **Pattern:**
+
 1. Add import: `import { useFormatWeight } from '~/features/settings'`
 2. Add hook: `const { format: formatWeight, label: weightLabel } = useFormatWeight()`
 3. Replace: `{value} kg` → `{formatWeight(value)}`
@@ -142,7 +150,7 @@ Run tsc and lint to ensure no errors.
 ### Task 2: UPDATE `app/routes/_auth/batches/$batchId/index.tsx`
 
 - **ADD IMPORT**: `useFormatDate, useFormatWeight` from `~/features/settings`
-- **ADD HOOKS**: 
+- **ADD HOOKS**:
   ```typescript
   const { format: formatDate } = useFormatDate()
   const { label: weightLabel } = useFormatWeight()
@@ -299,16 +307,19 @@ Run tsc and lint to ensure no errors.
 ## VALIDATION COMMANDS
 
 ### Level 1: Type Check
+
 ```bash
 npx tsc --noEmit
 ```
 
 ### Level 2: Lint
+
 ```bash
 bun run lint
 ```
 
 ### Level 3: Manual Validation
+
 1. Start dev server: `bun dev`
 2. Login and go to Settings
 3. Change date format, verify changes across app

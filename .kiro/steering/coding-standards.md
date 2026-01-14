@@ -52,13 +52,16 @@ import { Dialog, DialogContent, DialogHeader } from '~/components/ui/dialog'
 
 ## Currency Formatting
 
-Always use the currency utility for Nigerian Naira:
+Always use the currency utility for user's preferred currency:
 
 ```typescript
-import { formatCurrency } from '~/lib/currency'
+import { useFormatCurrency } from '~/features/settings'
 
-// Displays: ₦1,234,567.89
-formatCurrency(1234567.89)
+// In components
+const { format: formatCurrency, symbol } = useFormatCurrency()
+
+// Displays based on user settings: $1,234.56 or ₦1,234.56
+formatCurrency(1234.56)
 ```
 
 ## Date Handling

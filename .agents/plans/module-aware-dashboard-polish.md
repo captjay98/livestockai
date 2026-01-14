@@ -13,6 +13,7 @@ So that I can monitor critical farm health indicators at a glance
 ## Problem Statement
 
 Dashboard customization is incomplete:
+
 - dashboardCards setting has `mortality` and `feed` options
 - But no mortality or feed cards exist on dashboard
 - Users can toggle these settings but nothing happens
@@ -20,6 +21,7 @@ Dashboard customization is incomplete:
 ## Solution Statement
 
 Add 2 new dashboard cards:
+
 1. **Mortality Card** - Shows total deaths this month, mortality rate
 2. **Feed Card** - Shows total feed consumed, total cost, FCR
 
@@ -58,6 +60,7 @@ Both cards conditional based on `cards.mortality` and `cards.feed` preferences.
 
 - **FILE**: `app/routes/_auth/dashboard/index.tsx`
 - **IMPLEMENT**: Add card after batches card
+
 ```typescript
 {cards.mortality && (
   <Card>
@@ -80,6 +83,7 @@ Both cards conditional based on `cards.mortality` and `cards.feed` preferences.
   </Card>
 )}
 ```
+
 - **VALIDATE**: Visual inspection
 
 ### Task 3: CREATE feed card
@@ -92,11 +96,13 @@ Both cards conditional based on `cards.mortality` and `cards.feed` preferences.
 
 - **FILE**: `app/routes/_auth/dashboard/index.tsx`
 - **UPDATE**: Include mortality and feed in empty state check
+
 ```typescript
 {!cards.revenue && !cards.expenses && !cards.profit && !cards.inventory && !cards.mortality && !cards.feed && (
   // Empty state
 )}
 ```
+
 - **VALIDATE**: Hide all cards, verify empty state shows
 
 ---
@@ -125,7 +131,7 @@ Both cards conditional based on `cards.mortality` and `cards.feed` preferences.
    - Added feed query (total cost, total kg, FCR)
    - Updated empty stats return
 
-2. **app/routes/_auth/dashboard/index.tsx**
+2. **app/routes/\_auth/dashboard/index.tsx**
    - Added mortality card with AlertTriangle icon
    - Added feed card with Wheat icon
    - Updated stats type definition

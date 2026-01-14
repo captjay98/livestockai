@@ -7,6 +7,7 @@ Pay special attention to naming of existing utils, types, and models. Import fro
 ## Feature Description
 
 Comprehensive cleanup of codebase inconsistencies identified in the audit:
+
 1. Replace 174+ `any` types with proper TypeScript interfaces
 2. Consolidate 12+ duplicate `PaginatedResult` and `PaginatedQuery` interfaces into shared types
 3. Remove/replace console statements with proper patterns
@@ -21,6 +22,7 @@ So that the code is maintainable, IDE-friendly, and catches bugs at compile time
 ## Problem Statement
 
 The codebase has accumulated technical debt:
+
 - 174+ uses of `any` type reducing type safety
 - `PaginatedResult<T>` and `PaginatedQuery` duplicated in 12+ files
 - Console statements scattered in production code
@@ -46,11 +48,13 @@ The codebase has accumulated technical debt:
 ### Relevant Codebase Files - MUST READ BEFORE IMPLEMENTING
 
 **Shared Types Pattern (to create):**
+
 - `app/lib/db/types.ts` - Database types pattern to follow
 - `app/features/batches/server.ts` (lines 33-60) - Interface definition pattern
 - `app/features/settings/index.ts` - Barrel export pattern
 
 **Files with `any` to fix (priority order):**
+
 - `app/routes/_auth/batches/$batchId/index.tsx` (lines 43-50) - 5 `any` types
 - `app/routes/_auth/customers/index.tsx` - 5 `any` types
 - `app/routes/_auth/vaccinations/index.tsx` - 9 `any` types
@@ -58,6 +62,7 @@ The codebase has accumulated technical debt:
 - `app/routes/_auth/reports/index.tsx` - 4 `any` types
 
 **Duplicate interfaces to consolidate:**
+
 - `app/features/batches/server.ts` (lines 720-730) - PaginatedQuery/Result
 - `app/features/sales/server.ts` (lines 502-520) - PaginatedQuery/Result
 - `app/features/expenses/server.ts` (lines 453-470) - PaginatedQuery/Result
@@ -75,6 +80,7 @@ The codebase has accumulated technical debt:
 ### Patterns to Follow
 
 **Interface Naming:**
+
 ```typescript
 // Use descriptive names with feature prefix for specific types
 export interface BatchDetails { ... }
@@ -86,6 +92,7 @@ export interface PaginatedResult<T> { ... }
 ```
 
 **Import Pattern:**
+
 ```typescript
 // Shared types from lib
 import type { PaginatedQuery, PaginatedResult } from '~/lib/types'
@@ -95,6 +102,7 @@ import type { BatchDetails } from '~/features/batches/server'
 ```
 
 **State Typing Pattern:**
+
 ```typescript
 // ❌ Bad
 const [details, setDetails] = useState<any>(null)
@@ -175,7 +183,8 @@ export interface BaseRecord {
 
 ### Task 2: UPDATE `app/features/batches/server.ts` - Remove Duplicate Types
 
-**IMPLEMENT**: 
+**IMPLEMENT**:
+
 1. Add import: `import type { PaginatedQuery, PaginatedResult } from '~/lib/types'`
 2. Remove local `PaginatedQuery` interface (around line 720)
 3. Remove local `PaginatedResult` interface (around line 730)
@@ -190,6 +199,7 @@ export interface BaseRecord {
 ### Task 3: UPDATE `app/features/sales/server.ts` - Remove Duplicate Types
 
 **IMPLEMENT**:
+
 1. Add import: `import type { PaginatedQuery, PaginatedResult } from '~/lib/types'`
 2. Remove local interfaces (lines 502-520)
 3. Export `SaleRecord` type for route usage
@@ -201,6 +211,7 @@ export interface BaseRecord {
 ### Task 4: UPDATE `app/features/expenses/server.ts` - Remove Duplicate Types
 
 **IMPLEMENT**:
+
 1. Add import from `~/lib/types`
 2. Remove local interfaces (lines 453-470)
 3. Export `ExpenseRecord` type
@@ -212,6 +223,7 @@ export interface BaseRecord {
 ### Task 5: UPDATE Remaining Feature Server Files
 
 **FILES** (repeat pattern from Tasks 2-4):
+
 - `app/features/customers/server.ts`
 - `app/features/suppliers/server.ts`
 - `app/features/invoices/server.ts`
@@ -223,6 +235,7 @@ export interface BaseRecord {
 - `app/features/vaccinations/server.ts`
 
 **IMPLEMENT**: For each file:
+
 1. Add `import type { PaginatedQuery, PaginatedResult } from '~/lib/types'`
 2. Remove duplicate interface definitions
 3. Export feature-specific record types
@@ -279,6 +292,7 @@ export interface BatchDetails {
 ### Task 7: FIX `app/routes/_auth/batches/$batchId/index.tsx` - Replace `any` Types
 
 **IMPLEMENT**:
+
 1. Add import: `import type { BatchDetails } from '~/features/batches/server'`
 2. Replace state types:
 
@@ -293,7 +307,9 @@ const [sales, setSales] = useState<Array<any>>([])
 // After
 const [details, setDetails] = useState<BatchDetails | null>(null)
 const [feedRecords, setFeedRecords] = useState<Array<FeedRecord>>([])
-const [mortalityRecords, setMortalityRecords] = useState<Array<MortalityRecord>>([])
+const [mortalityRecords, setMortalityRecords] = useState<
+  Array<MortalityRecord>
+>([])
 const [expenses, setExpenses] = useState<Array<ExpenseRecord>>([])
 const [sales, setSales] = useState<Array<SaleRecord>>([])
 ```
@@ -307,6 +323,7 @@ const [sales, setSales] = useState<Array<SaleRecord>>([])
 ### Task 8: FIX `app/routes/_auth/customers/index.tsx` - Replace `any` Types
 
 **IMPLEMENT**:
+
 1. Import `CustomerRecord` type from customers server
 2. Replace `PaginatedResult<any>` with `PaginatedResult<CustomerRecord>`
 3. Replace `useState<any | null>` with proper type
@@ -319,6 +336,7 @@ const [sales, setSales] = useState<Array<SaleRecord>>([])
 ### Task 9: FIX `app/routes/_auth/vaccinations/index.tsx` - Replace `any` Types
 
 **IMPLEMENT**:
+
 1. Define or import `VaccinationRecord` and `TreatmentRecord` types
 2. Replace all `any` usages with proper types
 3. Type the `upcoming` and `overdue` arrays properly
@@ -330,6 +348,7 @@ const [sales, setSales] = useState<Array<SaleRecord>>([])
 ### Task 10: FIX Remaining Route Files with `any` Types
 
 **FILES**:
+
 - `app/routes/_auth/feed/index.tsx`
 - `app/routes/_auth/mortality/index.tsx`
 - `app/routes/_auth/weight/index.tsx`
@@ -341,6 +360,7 @@ const [sales, setSales] = useState<Array<SaleRecord>>([])
 - `app/routes/_auth/farms/$farmId/index.tsx`
 
 **IMPLEMENT**: For each file:
+
 1. Import proper types from feature modules
 2. Replace `PaginatedResult<any>` with typed version
 3. Replace `useState<any>` with proper types
@@ -353,6 +373,7 @@ const [sales, setSales] = useState<Array<SaleRecord>>([])
 ### Task 11: FIX `app/routes/_auth/feed/new.tsx` and Similar "new" Routes
 
 **FILES**:
+
 - `app/routes/_auth/feed/new.tsx`
 - `app/routes/_auth/eggs/new.tsx`
 - `app/routes/_auth/weight/new.tsx`
@@ -366,7 +387,7 @@ const [sales, setSales] = useState<Array<SaleRecord>>([])
 batches.find((b: any) => b.id === formData.batchId)
 batches.map((batch: any) => (...))
 
-// After  
+// After
 batches.find((b) => b.id === formData.batchId)
 batches.map((batch) => (...))
 ```
@@ -380,6 +401,7 @@ batches.map((batch) => (...))
 ### Task 12: Final Validation
 
 **VALIDATE ALL**:
+
 ```bash
 # TypeScript check
 npx tsc --noEmit
@@ -398,6 +420,7 @@ bun test
 ### Type Safety Tests
 
 After refactoring, TypeScript compiler should catch:
+
 - Missing properties on typed objects
 - Incorrect property access
 - Type mismatches in function calls
@@ -405,6 +428,7 @@ After refactoring, TypeScript compiler should catch:
 ### Regression Tests
 
 Run existing test suite to ensure no behavioral changes:
+
 ```bash
 bun test
 ```
@@ -420,21 +444,25 @@ bun test
 ## VALIDATION COMMANDS
 
 ### Level 1: Syntax & Types
+
 ```bash
 npx tsc --noEmit
 ```
 
 ### Level 2: Linting
+
 ```bash
 bun run lint
 ```
 
 ### Level 3: Tests
+
 ```bash
 bun test
 ```
 
 ### Level 4: Manual Testing
+
 - Open batch details page
 - Open customers list with pagination
 - Create a new record in any form
@@ -483,6 +511,7 @@ bun test
 ### Future Improvements
 
 After this cleanup:
+
 - Add stricter ESLint rules to prevent `any`
 - Consider `strict: true` in tsconfig
 - Add type coverage reporting

@@ -1,16 +1,20 @@
 # Commit Plan: Day 13 Implementation
 
 ## Overview
+
 5 plans executed: Dashboard polish, notification tests, property tests, performance optimization, and notification types expansion.
 
 ## Commits (7 total)
 
 ### Commit 1: Dashboard - Add mortality and feed cards
+
 **Files**: 2
+
 - app/features/dashboard/server.ts
-- app/routes/_auth/dashboard/index.tsx
+- app/routes/\_auth/dashboard/index.tsx
 
 **Message**:
+
 ```
 feat(dashboard): add mortality and feed summary cards
 
@@ -23,12 +27,15 @@ feat(dashboard): add mortality and feed summary cards
 ```
 
 ### Commit 2: Tests - Add notification test suite
+
 **Files**: 3
+
 - tests/features/notifications/notifications.test.ts
 - tests/features/notifications/notifications.property.test.ts
 - tests/features/notifications/notifications.integration.test.ts
 
 **Message**:
+
 ```
 test(notifications): add comprehensive test coverage
 
@@ -40,12 +47,15 @@ test(notifications): add comprehensive test coverage
 ```
 
 ### Commit 3: Tests - Add property tests for business logic
+
 **Files**: 3
+
 - tests/features/batches/fcr.property.test.ts
 - tests/features/monitoring/mortality.property.test.ts
 - tests/features/finance/profit.property.test.ts
 
 **Message**:
+
 ```
 test(business-logic): add property-based tests
 
@@ -57,10 +67,13 @@ test(business-logic): add property-based tests
 ```
 
 ### Commit 4: Performance - Add database indexes
+
 **Files**: 1
+
 - app/lib/db/migrations/2026-01-14-001-add-performance-indexes.ts
 
 **Message**:
+
 ```
 perf(database): add indexes for common query patterns
 
@@ -78,11 +91,14 @@ Improves query performance for dashboard and list views
 ```
 
 ### Commit 5: Notifications - Add scheduler functions
+
 **Files**: 2
+
 - app/features/notifications/schedulers.ts
 - app/features/notifications/index.ts
 
 **Message**:
+
 ```
 feat(notifications): add low stock, invoice due, and harvest schedulers
 
@@ -95,11 +111,14 @@ feat(notifications): add low stock, invoice due, and harvest schedulers
 ```
 
 ### Commit 6: Dependencies - Add bundle analyzer
+
 **Files**: 2
+
 - package.json
 - bun.lockb
 
 **Message**:
+
 ```
 chore(deps): add rollup-plugin-visualizer for bundle analysis
 
@@ -107,10 +126,13 @@ Enables bundle size monitoring and optimization
 ```
 
 ### Commit 7: Documentation - Update DEVLOG
+
 **Files**: 1
+
 - DEVLOG.md
 
 **Message**:
+
 ```
 docs: update DEVLOG with Day 13 progress
 

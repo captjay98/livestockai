@@ -89,7 +89,11 @@
     },
     "cloudflare-observability": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://observability.mcp.cloudflare.com/mcp", "3337"]
+      "args": [
+        "mcp-remote",
+        "https://observability.mcp.cloudflare.com/mcp",
+        "3337"
+      ]
     },
     "cloudflare-docs": {
       "command": "bunx",

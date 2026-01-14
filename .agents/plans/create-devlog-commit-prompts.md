@@ -1,7 +1,9 @@
 # Plan: Create DEVLOG and Commit Prompts
 
 ## Objective
+
 Create two reusable prompts to automate common development workflow tasks:
+
 1. `@update-devlog` - Update DEVLOG.md with recent work
 2. `@commit-plan` - Create structured commit plan for changes
 
@@ -10,9 +12,11 @@ Create two reusable prompts to automate common development workflow tasks:
 ## Prompt 1: @update-devlog
 
 ### Purpose
+
 Automatically update DEVLOG.md with recent development work, maintaining consistent format and structure.
 
 ### Features
+
 - Detect current day number from git history
 - Analyze recent changes (git diff, modified files)
 - Generate structured DEVLOG entry
@@ -20,6 +24,7 @@ Automatically update DEVLOG.md with recent development work, maintaining consist
 - Maintain existing DEVLOG format
 
 ### Workflow
+
 1. Get first commit date to calculate day number
 2. Analyze git status and recent changes
 3. Review modified files and their purpose
@@ -33,11 +38,13 @@ Automatically update DEVLOG.md with recent development work, maintaining consist
 5. Append to DEVLOG.md
 
 ### Input Parameters
+
 - Optional: Custom description of work done
 - Optional: Time spent estimate
 - Optional: Key insights to include
 
 ### Output
+
 - Updated DEVLOG.md with new day entry
 - Summary of what was added
 
@@ -46,9 +53,11 @@ Automatically update DEVLOG.md with recent development work, maintaining consist
 ## Prompt 2: @commit-plan
 
 ### Purpose
+
 Create structured commit plan for staged/unstaged changes, following conventional commit format.
 
 ### Features
+
 - Analyze git status and changes
 - Group related changes logically
 - Generate commit messages following convention
@@ -56,6 +65,7 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 - Include validation steps
 
 ### Workflow
+
 1. Run git status to see changes
 2. Analyze modified files by category:
    - Features (feat)
@@ -72,6 +82,7 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 5. Create execution plan with validation
 
 ### Commit Message Format
+
 ```
 <type>(<scope>): <short description>
 
@@ -83,10 +94,12 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 ```
 
 ### Input Parameters
+
 - Optional: Custom commit grouping
 - Optional: Additional context for messages
 
 ### Output
+
 - Commit plan markdown file
 - Executable bash script (optional)
 - Validation checklist
@@ -96,9 +109,11 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 ## Implementation Steps
 
 ### Step 1: Create @update-devlog prompt ✅
+
 **File**: `.kiro/prompts/update-devlog.md`
 
 **Completed**: Option 1 (Review first) implemented
+
 - Finds last DEVLOG date automatically
 - Calculates day number from git history
 - Analyzes commits since last entry
@@ -110,9 +125,11 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 ---
 
 ### Step 2: Create @commit-plan prompt ✅
+
 **File**: `.kiro/prompts/commit-plan.md`
 
 **Completed**: Autonomous analysis implemented
+
 - Analyzes git status automatically
 - Categorizes changes by feature/type
 - Groups related changes logically
@@ -124,7 +141,9 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 ---
 
 ### Step 3: Test both prompts
+
 **Actions**:
+
 - Make some test changes
 - Run @commit-plan to create plan
 - Execute commits
@@ -136,7 +155,9 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 ---
 
 ### Step 4: Update .kiro/README.md
+
 **Actions**:
+
 - Add both prompts to prompt list
 - Add usage examples
 - Update workflow documentation
@@ -146,6 +167,7 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 ---
 
 ## Total Time Estimate
+
 45 minutes
 
 ---
@@ -153,18 +175,21 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 ## Success Criteria
 
 ✅ @update-devlog prompt:
+
 - Correctly calculates day number
 - Generates properly formatted DEVLOG entry
 - Includes all required sections
 - Maintains existing format
 
 ✅ @commit-plan prompt:
+
 - Analyzes changes correctly
 - Groups commits logically
 - Generates conventional commit messages
 - Creates executable plan
 
 ✅ Both prompts:
+
 - Clear documentation
 - Easy to use
 - Reusable across projects
@@ -175,6 +200,7 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 ## Example Usage
 
 ### @update-devlog
+
 ```bash
 kiro-cli
 @update-devlog
@@ -184,6 +210,7 @@ kiro-cli
 ```
 
 ### @commit-plan
+
 ```bash
 kiro-cli
 @commit-plan
@@ -195,6 +222,7 @@ kiro-cli
 ---
 
 ## Related Prompts
+
 - `@code-review` - Review code before committing
 - `@plan-feature` - Plan features before implementation
 - `@execute` - Execute implementation plans
@@ -202,6 +230,7 @@ kiro-cli
 ---
 
 ## Notes
+
 - Both prompts should be agent-agnostic (work with any agent)
 - Should handle edge cases (no changes, first commit, etc.)
 - Should be idempotent (safe to run multiple times)

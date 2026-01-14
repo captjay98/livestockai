@@ -74,6 +74,7 @@ Each agent has specific tools, write permissions, and MCP access:
 | `i18n-engineer`        | `app/lib/i18n/**`, `public/locales/**`, `app/routes/**`                                                    | -                | web_search, knowledge, todo_list               |
 
 **Recommended Agent Selection:**
+
 - **New features**: Use `fullstack-engineer` (handles DB → UI in one pass)
 - **Domain questions**: Use `livestock-specialist`
 - **Deployment/infra**: Use `devops-engineer`

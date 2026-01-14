@@ -46,12 +46,14 @@ So that I can start using the app effectively
 ### Relevant Codebase Files - MUST READ BEFORE IMPLEMENTING
 
 **Currency System:**
+
 - `app/features/settings/currency.ts` (lines 57-66) - PROBLEM: Hardcoded NGN formatting
 - `app/features/settings/currency-formatter.ts` (lines 48-65) - SOLUTION: Settings-aware formatter exists but unused
 - `app/features/settings/hooks.ts` (lines 35-55) - `useFormatCurrency` hook exists but unused
 - `app/features/settings/context.tsx` - SettingsProvider and useSettings hook
 
 **Onboarding System:**
+
 - `app/features/onboarding/server.ts` - Server functions for onboarding state
 - `app/features/onboarding/context.tsx` - Client-side onboarding state (localStorage)
 - `app/features/onboarding/types.ts` - Step definitions
@@ -59,6 +61,7 @@ So that I can start using the app effectively
 - `app/routes/_auth/onboarding/index.tsx` - Onboarding UI
 
 **Files Using formatCurrency (18 files to update):**
+
 - `app/routes/_auth/dashboard/index.tsx`
 - `app/routes/_auth/batches/index.tsx`
 - `app/routes/_auth/batches/$batchId/index.tsx`
@@ -77,11 +80,13 @@ So that I can start using the app effectively
 - `app/features/export/pdf.ts`
 
 **Database Schema:**
+
 - `app/lib/db/types.ts` (lines 77-79) - `onboardingCompleted` and `onboardingStep` fields exist
 
 ### Patterns to Follow
 
 **Hook Usage Pattern (from existing codebase):**
+
 ```typescript
 // In React components, use the hook
 import { useFormatCurrency } from '~/features/settings'
@@ -93,6 +98,7 @@ function MyComponent() {
 ```
 
 **Settings-Aware Formatter (for non-React contexts):**
+
 ```typescript
 // In server functions or utilities, pass settings explicitly
 import { formatCurrency } from '~/features/settings/currency-formatter'
@@ -303,21 +309,21 @@ if (userSettings?.onboardingCompleted) {
 - **IMPLEMENT**: `markOnboardingCompleteFn` to set flag in database
 
 ```typescript
-export const markOnboardingCompleteFn = createServerFn({ method: 'POST' }).handler(
-  async () => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    const { db } = await import('~/lib/db')
+export const markOnboardingCompleteFn = createServerFn({
+  method: 'POST',
+}).handler(async () => {
+  const { requireAuth } = await import('../auth/server-middleware')
+  const session = await requireAuth()
+  const { db } = await import('~/lib/db')
 
-    await db
-      .updateTable('user_settings')
-      .set({ onboardingCompleted: true })
-      .where('userId', '=', session.user.id)
-      .execute()
+  await db
+    .updateTable('user_settings')
+    .set({ onboardingCompleted: true })
+    .where('userId', '=', session.user.id)
+    .execute()
 
-    return { success: true }
-  },
-)
+  return { success: true }
+})
 ```
 
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep onboarding/server`

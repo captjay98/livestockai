@@ -17,10 +17,12 @@ So that I can quickly add data while maintaining context of what I'm working on
 ## Problem Statement
 
 Currently the app has two patterns for creating records:
+
 1. **Dialog modals** - Used on some index pages (batches, farms, sales, eggs, expenses, feed)
 2. **Dedicated /new routes** - Navigate to separate page with form
 
 This inconsistency:
+
 - Confuses users with different workflows per feature
 - Creates maintenance burden (duplicate form logic)
 - Breaks user context when navigating away
@@ -69,11 +71,13 @@ This inconsistency:
 ### Relevant Codebase Files - MUST READ BEFORE IMPLEMENTING
 
 **Dialog Pattern Reference:**
+
 - `app/components/dialogs/batch-dialog.tsx` (lines 1-80) - Full dialog pattern with collapsible sections
 - `app/components/dialogs/sale-dialog.tsx` (lines 1-100) - Dialog with server function for loading data
 - `app/components/dialogs/farm-dialog.tsx` - Simple dialog pattern
 
 **Routes to Remove:**
+
 - `app/routes/_auth/batches/new.tsx`
 - `app/routes/_auth/customers/new.tsx`
 - `app/routes/_auth/eggs/new.tsx`
@@ -88,11 +92,13 @@ This inconsistency:
 - `app/routes/_auth/weight/new.tsx`
 
 **Index Pages Using Dialogs (reference for pattern):**
+
 - `app/routes/_auth/batches/index.tsx` - Uses inline dialog state
 - `app/routes/_auth/farms/index.tsx` (line 107) - Uses FarmDialog
 - `app/routes/_auth/dashboard/index.tsx` (line 851) - Uses BatchDialog
 
 **Index Pages Needing Dialog Integration:**
+
 - `app/routes/_auth/customers/index.tsx` - Has inline create form, convert to dialog
 - `app/routes/_auth/suppliers/index.tsx` - Has inline create form, convert to dialog
 - `app/routes/_auth/invoices/index.tsx` (line 249) - Links to /invoices/new
@@ -101,6 +107,7 @@ This inconsistency:
 - `app/routes/_auth/weight/index.tsx` - Needs dialog
 
 **Server Functions (for dialog imports):**
+
 - `app/features/customers/server.ts` - createCustomer
 - `app/features/suppliers/server.ts` - createSupplier
 - `app/features/invoices/server.ts` - createInvoice
@@ -111,6 +118,7 @@ This inconsistency:
 ### Patterns to Follow
 
 **Dialog Component Pattern:**
+
 ```typescript
 interface XxxDialogProps {
   farmId: string
@@ -166,6 +174,7 @@ export function XxxDialog({ farmId, open, onOpenChange }: XxxDialogProps) {
 ```
 
 **Index Page Dialog Integration Pattern:**
+
 ```typescript
 // In index page component
 const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -377,6 +386,7 @@ No new unit tests required - this is a UI refactor. Existing tests should contin
 ### Manual Testing
 
 For each feature, verify:
+
 1. Dialog opens from index page button
 2. Form validates required fields
 3. Submit creates record successfully
@@ -386,9 +396,11 @@ For each feature, verify:
 ### Integration Tests
 
 Verify no broken links:
+
 ```bash
 grep -rn '"/.*new"' app/routes/ --include="*.tsx"
 ```
+
 Should return 0 results after completion.
 
 ---

@@ -5,6 +5,7 @@ The following plan should be complete, but validate documentation and codebase p
 ## Feature Description
 
 Standardize user feedback across the application by:
+
 1. Adding toast notifications for success/error feedback on all CRUD operations
 2. Replacing `window.confirm()` with proper AlertDialog components for destructive actions
 3. Ensuring consistent UX patterns for confirmations and notifications
@@ -18,6 +19,7 @@ So that I know whether my actions succeeded or failed without confusion
 ## Problem Statement
 
 Current issues:
+
 1. **No success feedback**: Users complete actions but receive no confirmation (only page refresh/navigation)
 2. **Inconsistent confirmations**: Some delete actions use proper dialogs, others use `window.confirm()`
 3. **Toast infrastructure unused**: Sonner Toaster is mounted but `toast()` is never called
@@ -52,10 +54,12 @@ Current issues:
 ### Files to Update
 
 **High Priority (window.confirm → AlertDialog):**
+
 - `app/routes/_auth/suppliers/$supplierId.tsx` - Replace confirm() with AlertDialog
 - `app/routes/_auth/invoices/$invoiceId.tsx` - Replace confirm() with AlertDialog
 
 **Medium Priority (Add toast notifications):**
+
 - `app/routes/_auth/batches/index.tsx` - Add success toasts for create/update/delete
 - `app/routes/_auth/sales/index.tsx` - Add success toasts
 - `app/routes/_auth/expenses/index.tsx` - Add success toasts
@@ -79,11 +83,13 @@ Current issues:
 ### Patterns to Follow
 
 **Toast Import:**
+
 ```typescript
 import { toast } from 'sonner'
 ```
 
 **Success Toast Pattern:**
+
 ```typescript
 // After successful operation
 toast.success('Batch created successfully')
@@ -92,6 +98,7 @@ toast.success('Record deleted')
 ```
 
 **Error Toast Pattern (supplement inline errors):**
+
 ```typescript
 catch (err) {
   const message = err instanceof Error ? err.message : 'Operation failed'
@@ -101,6 +108,7 @@ catch (err) {
 ```
 
 **AlertDialog Pattern (from batches/index.tsx):**
+
 ```typescript
 const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 const [selectedItem, setSelectedItem] = useState<Item | null>(null)
@@ -150,6 +158,7 @@ const handleDeleteConfirm = async () => {
 ### Phase 1: Fix Critical Issues (window.confirm)
 
 Replace `window.confirm()` with proper AlertDialog in:
+
 - suppliers/$supplierId.tsx
 - invoices/$invoiceId.tsx
 
@@ -188,7 +197,7 @@ Run TypeScript, ESLint, and manual testing.
 
 - **IMPLEMENT**: Add toast notifications for create/update/delete success
 - **IMPORTS**: Add `import { toast } from 'sonner'`
-- **LOCATIONS**: 
+- **LOCATIONS**:
   - handleSubmit success → `toast.success('Batch created successfully')`
   - handleEditSubmit success → `toast.success('Batch updated')`
   - handleDeleteConfirm success → `toast.success('Batch deleted')`
@@ -287,6 +296,7 @@ Run TypeScript, ESLint, and manual testing.
 ### Task 19: UPDATE Dialog Components
 
 Update all dialog components in `app/components/dialogs/`:
+
 - `batch-dialog.tsx` - Add `toast.success('Batch created')`
 - `sale-dialog.tsx` - Add `toast.success('Sale recorded')`
 - `expense-dialog.tsx` - Add `toast.success('Expense recorded')`
@@ -325,21 +335,25 @@ Update all dialog components in `app/components/dialogs/`:
 ## VALIDATION COMMANDS
 
 ### Level 1: Syntax & Types
+
 ```bash
 cd /Users/captjay98/projects/jayfarms && npx tsc --noEmit
 ```
 
 ### Level 2: Linting
+
 ```bash
 cd /Users/captjay98/projects/jayfarms && bun run lint
 ```
 
 ### Level 3: Tests
+
 ```bash
 cd /Users/captjay98/projects/jayfarms && bun test
 ```
 
 ### Level 4: Manual Validation
+
 - Test CRUD operations show success toasts
 - Test delete actions show proper confirmation dialogs
 - Verify no `window.confirm()` calls remain
@@ -370,6 +384,7 @@ cd /Users/captjay98/projects/jayfarms && bun test
 ## NOTES
 
 **Toast Message Guidelines:**
+
 - Success: Short, past tense ("Batch created", "Changes saved", "Record deleted")
 - Error: Include context ("Failed to create batch", "Could not save changes")
 

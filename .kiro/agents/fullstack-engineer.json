@@ -31,12 +31,7 @@
   ],
   "toolsSettings": {
     "fs_write": {
-      "allowedPaths": [
-        "app/**",
-        "tests/**",
-        "*.md",
-        ".kiro/**"
-      ]
+      "allowedPaths": ["app/**", "tests/**", "*.md", ".kiro/**"]
     },
     "execute_bash": {
       "allowedCommands": [

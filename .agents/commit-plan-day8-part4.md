@@ -1,6 +1,7 @@
 # Commit Plan - Day 8 Part 4 (January 14, 2026)
 
 ## Summary
+
 - 7 commits planned
 - 36 files changed
 - 298 insertions, 139 deletions
@@ -8,11 +9,14 @@
 ## Commits
 
 ### Commit 1: fix(onboarding): persist skip to database and fix redirect loop
+
 **Files**:
+
 - app/features/onboarding/context.tsx
-- app/routes/_auth/onboarding/index.tsx
+- app/routes/\_auth/onboarding/index.tsx
 
 **Message**:
+
 ```
 fix(onboarding): persist skip to database and fix redirect loop
 
@@ -26,12 +30,15 @@ Fixes redirect loop when skipping onboarding
 ```
 
 ### Commit 2: fix(settings): select all columns and merge with defaults
+
 **Files**:
+
 - app/features/settings/server.ts
 - app/features/settings/hooks.ts
 - app/features/settings/currency.ts
 
 **Message**:
+
 ```
 fix(settings): select all columns and merge with defaults
 
@@ -44,11 +51,14 @@ Fixes undefined errors for fiscalYearStartMonth and dashboardCards
 ```
 
 ### Commit 3: fix(database): quote camelCase columns in PostgreSQL orderBy
+
 **Files**:
+
 - app/features/customers/server.ts
 - app/features/suppliers/server.ts
 
 **Message**:
+
 ```
 fix(database): quote camelCase columns in PostgreSQL orderBy
 
@@ -59,10 +69,13 @@ PostgreSQL requires double quotes around camelCase identifiers
 ```
 
 ### Commit 4: fix(auth): add guard for missing user in AuthLayout
+
 **Files**:
-- app/routes/_auth.tsx
+
+- app/routes/\_auth.tsx
 
 **Message**:
+
 ```
 fix(auth): add guard for missing user in AuthLayout
 
@@ -71,7 +84,9 @@ fix(auth): add guard for missing user in AuthLayout
 ```
 
 ### Commit 5: refactor(ui): reduce padding for more screen real estate
+
 **Files**:
+
 - app/components/layout/shell.tsx
 - app/components/ui/card.tsx
 - app/components/ui/select.tsx
@@ -79,6 +94,7 @@ fix(auth): add guard for missing user in AuthLayout
 - app/components/ui/tabs.tsx
 
 **Message**:
+
 ```
 refactor(ui): reduce padding for more screen real estate
 
@@ -97,31 +113,34 @@ Other UI:
 ```
 
 ### Commit 6: refactor(routes): remove redundant container padding
+
 **Files**:
-- app/routes/_auth/batches/index.tsx
-- app/routes/_auth/batches/$batchId/index.tsx
-- app/routes/_auth/customers/index.tsx
-- app/routes/_auth/customers/$customerId.tsx
-- app/routes/_auth/suppliers/index.tsx
-- app/routes/_auth/suppliers/$supplierId.tsx
-- app/routes/_auth/sales/index.tsx
-- app/routes/_auth/expenses/index.tsx
-- app/routes/_auth/invoices/index.tsx
-- app/routes/_auth/invoices/$invoiceId.tsx
-- app/routes/_auth/farms/index.tsx
-- app/routes/_auth/farms/$farmId/index.tsx
-- app/routes/_auth/feed/index.tsx
-- app/routes/_auth/eggs/index.tsx
-- app/routes/_auth/weight/index.tsx
-- app/routes/_auth/water-quality/index.tsx
-- app/routes/_auth/mortality/index.tsx
-- app/routes/_auth/inventory/index.tsx
-- app/routes/_auth/vaccinations/index.tsx
-- app/routes/_auth/reports/index.tsx
-- app/routes/_auth/settings/index.tsx
-- app/routes/_auth/settings/modules.tsx
+
+- app/routes/\_auth/batches/index.tsx
+- app/routes/\_auth/batches/$batchId/index.tsx
+- app/routes/\_auth/customers/index.tsx
+- app/routes/\_auth/customers/$customerId.tsx
+- app/routes/\_auth/suppliers/index.tsx
+- app/routes/\_auth/suppliers/$supplierId.tsx
+- app/routes/\_auth/sales/index.tsx
+- app/routes/\_auth/expenses/index.tsx
+- app/routes/\_auth/invoices/index.tsx
+- app/routes/\_auth/invoices/$invoiceId.tsx
+- app/routes/\_auth/farms/index.tsx
+- app/routes/\_auth/farms/$farmId/index.tsx
+- app/routes/\_auth/feed/index.tsx
+- app/routes/\_auth/eggs/index.tsx
+- app/routes/\_auth/weight/index.tsx
+- app/routes/\_auth/water-quality/index.tsx
+- app/routes/\_auth/mortality/index.tsx
+- app/routes/\_auth/inventory/index.tsx
+- app/routes/\_auth/vaccinations/index.tsx
+- app/routes/\_auth/reports/index.tsx
+- app/routes/\_auth/settings/index.tsx
+- app/routes/\_auth/settings/modules.tsx
 
 **Message**:
+
 ```
 refactor(routes): remove redundant container padding
 
@@ -131,10 +150,13 @@ refactor(routes): remove redundant container padding
 ```
 
 ### Commit 7: test(currency): update tests for USD default
+
 **Files**:
+
 - tests/features/settings/currency.test.ts
 
 **Message**:
+
 ```
 test(currency): update tests for USD default
 
@@ -179,6 +201,7 @@ git commit -m "test(currency): update tests for USD default"
 ```
 
 ## Validation
+
 - [x] TypeScript: 0 errors
 - [x] ESLint: 0 errors (pre-existing issues in other files)
 - [x] Tests: 302 pass, 1 skip, 0 fail

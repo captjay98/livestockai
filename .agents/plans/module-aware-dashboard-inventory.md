@@ -15,6 +15,7 @@ So that I see a clean, focused view without irrelevant information cluttering my
 ## Problem Statement
 
 The current dashboard hardcodes poultry and fish inventory cards, showing them regardless of whether the farm actually has those livestock types enabled. This creates:
+
 - Visual clutter for specialized farms (e.g., cattle-only farm sees empty poultry/fish cards)
 - Missed opportunity to show other livestock types (cattle, goats, sheep, bees)
 - Inconsistent UX with the module system that already filters navigation and batch forms
@@ -22,6 +23,7 @@ The current dashboard hardcodes poultry and fish inventory cards, showing them r
 ## Solution Statement
 
 Use the existing module system to:
+
 1. Dynamically render inventory cards only for enabled modules
 2. Add inventory cards for all 6 livestock types (not just poultry/fish)
 3. Maintain responsive grid layout regardless of card count
@@ -41,15 +43,18 @@ Use the existing module system to:
 ### Relevant Codebase Files - MUST READ BEFORE IMPLEMENTING!
 
 **Module System:**
+
 - `app/features/modules/context.tsx` (lines 1-100) - ModuleProvider, useModules hook
 - `app/features/modules/constants.ts` (lines 1-200) - MODULE_METADATA with all 6 livestock types
 - `app/features/modules/types.ts` (lines 1-80) - ModuleKey type definition
 
 **Dashboard:**
+
 - `app/routes/_auth/dashboard/index.tsx` (lines 469-500) - Current inventory cards section
 - `app/routes/_auth/dashboard/index.tsx` (lines 160-180) - DashboardStats interface with inventory data
 
 **Icons:**
+
 - `lucide-react` - Bird, Fish, Beef, Rabbit (goat), Cloud (sheep), Hexagon (bees)
 
 ### New Files to Create
@@ -65,6 +70,7 @@ None - all changes are updates to existing dashboard file
 ### Patterns to Follow
 
 **Module Context Pattern:**
+
 ```typescript
 // From app/components/navigation.tsx
 import { useModules } from '~/features/modules/context'
@@ -78,6 +84,7 @@ const { enabledModules } = useModules()
 ```
 
 **Conditional Rendering Pattern:**
+
 ```typescript
 // From app/routes/_auth/dashboard/index.tsx (line 309)
 {!stats ? (
@@ -88,6 +95,7 @@ const { enabledModules } = useModules()
 ```
 
 **Card Grid Pattern:**
+
 ```typescript
 // From app/routes/_auth/dashboard/index.tsx (line 469)
 <div className="grid gap-3 sm:grid-cols-3">
@@ -105,6 +113,7 @@ const { enabledModules } = useModules()
 Add module context to dashboard and prepare livestock type metadata.
 
 **Tasks:**
+
 - Import useModules hook
 - Import additional icons for new livestock types
 - Define livestock type metadata (icon, color, label)
@@ -114,6 +123,7 @@ Add module context to dashboard and prepare livestock type metadata.
 Replace hardcoded inventory cards with dynamic rendering.
 
 **Tasks:**
+
 - Create livestock card configuration array
 - Map enabled modules to card configurations
 - Render cards dynamically based on enabled modules
@@ -124,6 +134,7 @@ Replace hardcoded inventory cards with dynamic rendering.
 Ensure dashboard stats include data for all livestock types.
 
 **Tasks:**
+
 - Verify getDashboardStats returns counts for all 6 types
 - Update DashboardStats interface if needed
 - Test with different module combinations
@@ -133,6 +144,7 @@ Ensure dashboard stats include data for all livestock types.
 Validate across different farm types and module combinations.
 
 **Tasks:**
+
 - Test with single module (poultry only)
 - Test with multiple modules (poultry + aquaculture)
 - Test with all modules enabled
@@ -142,7 +154,7 @@ Validate across different farm types and module combinations.
 
 ## STEP-BY-STEP TASKS
 
-### Task 1: UPDATE app/routes/_auth/dashboard/index.tsx - Add imports
+### Task 1: UPDATE app/routes/\_auth/dashboard/index.tsx - Add imports
 
 - **IMPLEMENT**: Add useModules import and additional livestock icons
 - **IMPORTS**:
@@ -153,7 +165,7 @@ Validate across different farm types and module combinations.
 - **LOCATION**: Add to existing import block (lines 1-40)
 - **VALIDATE**: `npx tsc --noEmit`
 
-### Task 2: UPDATE app/routes/_auth/dashboard/index.tsx - Add livestock metadata
+### Task 2: UPDATE app/routes/\_auth/dashboard/index.tsx - Add livestock metadata
 
 - **IMPLEMENT**: Create livestock type configuration object
 - **PATTERN**: Object mapping pattern from MODULE_METADATA
@@ -213,7 +225,7 @@ Validate across different farm types and module combinations.
   ```
 - **VALIDATE**: `npx tsc --noEmit`
 
-### Task 3: UPDATE app/routes/_auth/dashboard/index.tsx - Add module context
+### Task 3: UPDATE app/routes/\_auth/dashboard/index.tsx - Add module context
 
 - **IMPLEMENT**: Get enabled modules from context
 - **PATTERN**: useModules hook pattern
@@ -224,13 +236,14 @@ Validate across different farm types and module combinations.
   ```
 - **VALIDATE**: `npx tsc --noEmit`
 
-### Task 4: UPDATE app/routes/_auth/dashboard/index.tsx - Replace inventory cards section
+### Task 4: UPDATE app/routes/\_auth/dashboard/index.tsx - Replace inventory cards section
 
 - **IMPLEMENT**: Replace hardcoded cards with dynamic rendering
 - **PATTERN**: Array.map() with conditional rendering
 - **LOCATION**: Replace lines 469-500 (current inventory cards section)
 - **OLD CODE**: Look for `{/* Inventory Summary */}` comment
 - **NEW CODE**:
+
   ```typescript
   {/* Inventory Summary - Dynamic based on enabled modules */}
   {enabledModules.length > 0 && (
@@ -238,10 +251,10 @@ Validate across different farm types and module combinations.
       {enabledModules.map((moduleKey) => {
         const config = LIVESTOCK_CARDS[moduleKey]
         if (!config) return null
-        
+
         const Icon = config.icon
         const count = config.getValue(stats)
-        
+
         return (
           <Card key={moduleKey}>
             <CardContent className="p-4">
@@ -266,10 +279,11 @@ Validate across different farm types and module combinations.
     </div>
   )}
   ```
+
 - **GOTCHA**: Use `cn()` utility for conditional classes
 - **VALIDATE**: `npx tsc --noEmit`
 
-### Task 5: UPDATE app/routes/_auth/dashboard/index.tsx - Update DashboardStats interface
+### Task 5: UPDATE app/routes/\_auth/dashboard/index.tsx - Update DashboardStats interface
 
 - **IMPLEMENT**: Add optional fields for new livestock types
 - **LOCATION**: Find DashboardStats interface (around line 160-180)
@@ -305,26 +319,31 @@ Validate across different farm types and module combinations.
 Test dashboard with different module combinations:
 
 **Test Case 1: Single Module (Poultry Only)**
+
 - Enable only poultry module in settings
 - Dashboard should show only poultry card
 - Grid should adapt to single card layout
 
 **Test Case 2: Two Modules (Poultry + Aquaculture)**
+
 - Enable poultry and aquaculture modules
 - Dashboard should show 2 cards
 - Grid should show 2 columns on desktop
 
 **Test Case 3: All Modules**
+
 - Enable all 6 modules
 - Dashboard should show 6 cards
 - Grid should show 3 columns on desktop (2 rows)
 
 **Test Case 4: No Modules (Edge Case)**
+
 - Disable all modules
 - Inventory section should not render
 - No errors or empty grid
 
 **Test Case 5: Module with Zero Count**
+
 - Enable cattle module but have 0 cattle
 - Card should still show with "0" count
 - No errors
@@ -356,22 +375,26 @@ bun run build
 ### Level 3: Manual Validation
 
 **Test 1: Poultry-only farm**
+
 1. Go to Settings → Modules
 2. Enable only "Poultry" module
 3. Go to Dashboard
 4. Verify only poultry card shows
 
 **Test 2: Mixed farm**
+
 1. Enable Poultry + Aquaculture modules
 2. Go to Dashboard
 3. Verify both cards show
 
 **Test 3: All livestock types**
+
 1. Enable all 6 modules
 2. Go to Dashboard
 3. Verify 6 cards show with correct icons/colors
 
 **Test 4: Responsive layout**
+
 1. Resize browser window
 2. Verify grid adapts: 1 col mobile, 2 col tablet, 3 col desktop
 

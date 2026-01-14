@@ -13,6 +13,7 @@ So that I can manage my farm efficiently even with poor connectivity
 ## Problem Statement
 
 Current performance unknowns:
+
 - Bundle size not measured
 - No query performance monitoring
 - No Core Web Vitals tracking
@@ -22,6 +23,7 @@ Current performance unknowns:
 ## Solution Statement
 
 Implement performance optimizations:
+
 1. **Bundle Analysis** - Measure and reduce bundle size
 2. **Query Optimization** - Add indexes, optimize N+1 queries
 3. **Route Lazy Loading** - Code-split routes
@@ -81,6 +83,7 @@ Implement performance optimizations:
 ### Task 4: ADD route lazy loading
 
 - **UPDATE**: Route definitions to use lazy imports
+
 ```typescript
 // Before
 import { DashboardPage } from './dashboard'
@@ -88,6 +91,7 @@ import { DashboardPage } from './dashboard'
 // After
 const DashboardPage = lazy(() => import('./dashboard'))
 ```
+
 - **VALIDATE**: Check network tab for code splitting
 
 ### Task 5: OPTIMIZE images
@@ -149,6 +153,7 @@ const DashboardPage = lazy(() => import('./dashboard'))
 - **Build**: Successful compilation
 
 ---
+
 - [ ] No N+1 query patterns
 - [ ] Routes are code-split
 - [ ] Images optimized and lazy-loaded
@@ -159,14 +164,14 @@ const DashboardPage = lazy(() => import('./dashboard'))
 
 ## PERFORMANCE TARGETS
 
-| Metric | Target | Current | Optimized |
-|--------|--------|---------|-----------|
-| Bundle Size | <500KB | TBD | TBD |
-| LCP | <2.5s | TBD | TBD |
-| FID | <100ms | TBD | TBD |
-| CLS | <0.1 | TBD | TBD |
-| TTFB | <800ms | TBD | TBD |
-| Query Time | <100ms | TBD | TBD |
+| Metric      | Target | Current | Optimized |
+| ----------- | ------ | ------- | --------- |
+| Bundle Size | <500KB | TBD     | TBD       |
+| LCP         | <2.5s  | TBD     | TBD       |
+| FID         | <100ms | TBD     | TBD       |
+| CLS         | <0.1   | TBD     | TBD       |
+| TTFB        | <800ms | TBD     | TBD       |
+| Query Time  | <100ms | TBD     | TBD       |
 
 ---
 

@@ -17,6 +17,7 @@ Automatically update DEVLOG.md with recent commits that haven't been documented 
 ### 1. Find Last Documented Date
 
 Parse DEVLOG.md to find the most recent day entry:
+
 ```bash
 grep -E "^## Day [0-9]+ \(" DEVLOG.md | tail -1
 ```
@@ -48,6 +49,7 @@ git log --since="YYYY-MM-DD" --stat --oneline
 ### 4. Analyze Commits
 
 **Categorize by type**:
+
 - `feat(*)` → Features implemented
 - `fix(*)` → Bug fixes
 - `refactor(*)` → Code improvements
@@ -57,6 +59,7 @@ git log --since="YYYY-MM-DD" --stat --oneline
 - `perf` → Performance improvements
 
 **Extract scope**:
+
 - `feat(database)` → Database work
 - `feat(seeds)` → Seeder work
 - `fix(ui)` → UI fixes
@@ -64,6 +67,7 @@ git log --since="YYYY-MM-DD" --stat --oneline
 ### 5. Generate DEVLOG Entry
 
 **Template**:
+
 ```markdown
 ## Day X (Month DD) - [Auto-generated Title]
 
@@ -76,25 +80,28 @@ git log --since="YYYY-MM-DD" --stat --oneline
 **Objective**: [Extracted from commits]
 
 **Implementation**:
+
 - [Bullet points from commit bodies]
 
 **Files Modified**: X files
+
 - [Key files from git diff]
 
 **Commits Created** (X):
+
 1. `hash` - commit message
 2. `hash` - commit message
 
 ### Technical Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Files Changed** | X |
-| **Lines Added** | +X |
-| **Lines Removed** | -X |
-| **Commits** | X |
-| **TypeScript Errors** | 0 |
-| **ESLint Errors** | 0 |
+| Metric                | Value |
+| --------------------- | ----- |
+| **Files Changed**     | X     |
+| **Lines Added**       | +X    |
+| **Lines Removed**     | -X    |
+| **Commits**           | X     |
+| **TypeScript Errors** | 0     |
+| **ESLint Errors**     | 0     |
 
 ### Key Insights
 
@@ -118,6 +125,7 @@ git diff DEVLOG.md
 ```
 
 Display summary:
+
 ```
 ✅ DEVLOG updated with Day X entry
 
@@ -135,32 +143,41 @@ git commit -m "docs: update DEVLOG with Day X progress"
 ## Intelligence Features
 
 ### Auto-generate Title
+
 Based on commit patterns:
+
 - Mostly `feat(database)` → "Database Enhancement"
 - Mix of `feat` + `fix` → "Feature Implementation & Bug Fixes"
 - Mostly `refactor` → "Code Refactoring"
 - Mostly `docs` → "Documentation Updates"
 
 ### Extract Context
+
 From commit messages:
+
 - Look for "Fixes:", "Implements:", "Adds:"
 - Summarize what was accomplished
 - Note any breaking changes
 
 ### Calculate Time Estimate
+
 Heuristic:
+
 - 1-2 commits = 30 min - 1 hour
 - 3-5 commits = 1-3 hours
 - 6-10 commits = 3-5 hours
 - 10+ commits = 5+ hours
 
 Adjust based on:
+
 - File count (more files = more time)
 - Line changes (more lines = more time)
 - Complexity (database/tests = more time)
 
 ### Generate Insights
+
 Pattern detection:
+
 - New features → "X feature now complete"
 - Bug fixes → "Resolved Y issues"
 - Refactoring → "Improved code organization"
@@ -187,12 +204,14 @@ Pattern detection:
 ## Validation
 
 Before updating:
+
 - [ ] DEVLOG.md exists
 - [ ] Last date found successfully
 - [ ] New commits exist since last date
 - [ ] Day number calculated correctly
 
 After updating:
+
 - [ ] DEVLOG.md is valid markdown
 - [ ] Entry follows existing format
 - [ ] All commits included
@@ -201,18 +220,21 @@ After updating:
 ## Edge Cases
 
 **No new commits**:
+
 ```
 ℹ️  No new commits since last DEVLOG entry (Day X, January 13)
 Nothing to document.
 ```
 
 **First DEVLOG entry**:
+
 ```
 ℹ️  No existing DEVLOG entries found.
 Creating Day 1 entry with all commits...
 ```
 
 **DEVLOG.md doesn't exist**:
+
 ```
 ⚠️  DEVLOG.md not found. Create it first or run from project root.
 ```

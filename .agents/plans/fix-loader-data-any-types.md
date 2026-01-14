@@ -19,6 +19,7 @@ So that TypeScript catches type errors and IDE provides accurate autocomplete
 Route files use `any` type annotations in map callbacks and find operations because `Route.useLoaderData()` returns untyped data. The server functions return typed data, but the type information is lost when passing through the TanStack Router loader chain.
 
 **Current pattern (broken):**
+
 ```typescript
 const batches = Route.useLoaderData()  // Type: unknown
 batches.map((batch: any) => ...)       // Forces any annotation
@@ -29,6 +30,7 @@ batches.map((batch: any) => ...)       // Forces any annotation
 Create a shared `LoaderData` interface for each route that matches the server function return type, then cast `Route.useLoaderData()` to that interface. This preserves type safety while working within TanStack Router's type inference limitations.
 
 **Target pattern:**
+
 ```typescript
 interface LoaderData {
   batches: Array<Batch>
@@ -60,6 +62,7 @@ batches.map((batch) => ...)  // Type inferred from LoaderData
 ### Files to Modify
 
 **New form routes (6 files) - Simple batch loader:**
+
 1. `app/routes/_auth/feed/new.tsx` - batches only
 2. `app/routes/_auth/weight/new.tsx` - batches only
 3. `app/routes/_auth/water-quality/new.tsx` - batches only
@@ -67,17 +70,11 @@ batches.map((batch) => ...)  // Type inferred from LoaderData
 5. `app/routes/_auth/vaccinations/new.tsx` - batches only
 6. `app/routes/_auth/expenses/new.tsx` - suppliers only
 
-**Complex form routes (1 file):**
-7. `app/routes/_auth/sales/new.tsx` - batches + customers
+**Complex form routes (1 file):** 7. `app/routes/_auth/sales/new.tsx` - batches + customers
 
-**Index routes with state (2 files):**
-8. `app/routes/_auth/customers/index.tsx` - handleEditCustomer callback
-9. `app/routes/_auth/vaccinations/index.tsx` - alerts.overdue/upcoming
+**Index routes with state (2 files):** 8. `app/routes/_auth/customers/index.tsx` - handleEditCustomer callback 9. `app/routes/_auth/vaccinations/index.tsx` - alerts.overdue/upcoming
 
-**Detail routes (3 files):**
-10. `app/routes/_auth/customers/$customerId.tsx` - customer.sales
-11. `app/routes/_auth/suppliers/$supplierId.tsx` - supplier.products, supplier.expenses
-12. `app/routes/_auth/farms/$farmId/index.tsx` - activeBatches, recentSales, recentExpenses
+**Detail routes (3 files):** 10. `app/routes/_auth/customers/$customerId.tsx` - customer.sales 11. `app/routes/_auth/suppliers/$supplierId.tsx` - supplier.products, supplier.expenses 12. `app/routes/_auth/farms/$farmId/index.tsx` - activeBatches, recentSales, recentExpenses
 
 ### Non-Route Files to Fix
 
@@ -88,6 +85,7 @@ batches.map((batch) => ...)  // Type inferred from LoaderData
 ### Patterns to Follow
 
 **Batch Interface Pattern (from batches/index.tsx):**
+
 ```typescript
 interface Batch {
   id: string
@@ -99,6 +97,7 @@ interface Batch {
 ```
 
 **Customer Interface Pattern:**
+
 ```typescript
 interface Customer {
   id: string
@@ -108,6 +107,7 @@ interface Customer {
 ```
 
 **Supplier Interface Pattern:**
+
 ```typescript
 interface Supplier {
   id: string
@@ -117,6 +117,7 @@ interface Supplier {
 ```
 
 **LoaderData Cast Pattern:**
+
 ```typescript
 // For simple loaders returning array
 const batches = Route.useLoaderData() as Array<Batch>
@@ -157,6 +158,7 @@ Fix the expenses server updateData type.
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep feed/new`
 
 **Implementation:**
+
 ```typescript
 // Add interface if missing
 interface Batch {
@@ -211,6 +213,7 @@ batches.map((batch) => ...)
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep expenses/new`
 
 **Supplier interface:**
+
 ```typescript
 interface Supplier {
   id: string
@@ -227,6 +230,7 @@ interface Supplier {
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep sales/new`
 
 **Implementation:**
+
 ```typescript
 interface LoaderData {
   batches: Array<Batch>
@@ -243,6 +247,7 @@ const { batches, customers } = Route.useLoaderData() as LoaderData
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep customers/index`
 
 **Implementation:**
+
 ```typescript
 // Find the Customer type used in state
 const handleEditCustomer = (customer: Customer) => {
@@ -259,6 +264,7 @@ const handleEditCustomer = (customer: Customer) => {
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep vaccinations/index`
 
 **Implementation:**
+
 ```typescript
 interface VaccinationAlert {
   batchId: string
@@ -277,6 +283,7 @@ interface VaccinationAlert {
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep 'customers/\$customerId'`
 
 **Implementation:**
+
 ```typescript
 interface CustomerSale {
   id: string
@@ -311,6 +318,7 @@ customer.sales.slice(0, 10).map((sale: CustomerSale) => ...)
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep expenses/server`
 
 **Implementation:**
+
 ```typescript
 // Before
 const updateData: any = {}
@@ -343,6 +351,7 @@ No new tests needed - this is a type-level refactor with no runtime behavior cha
 ### Validation Tests
 
 Run full test suite to ensure no regressions:
+
 ```bash
 bun test
 ```
@@ -350,6 +359,7 @@ bun test
 ### Type Checking
 
 Primary validation is TypeScript compilation:
+
 ```bash
 npx tsc --noEmit
 ```

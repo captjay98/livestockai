@@ -1,17 +1,20 @@
 # Dev Seeder Validation Checklist
 
 ## Pre-Run Checks
+
 - [ ] DATABASE_URL is set in .env
 - [ ] Database is accessible
 - [ ] No TypeScript errors: `npx tsc --noEmit`
 - [ ] No ESLint errors: `bun run lint`
 
 ## Run Seeder
+
 ```bash
 bun run db:seed:dev
 ```
 
 ## Expected Output
+
 ```
 🌱 Seeding OpenLivestock Demo Data (5 Nigerian Farms)
 📅 Reference date: 2026-01-14
@@ -69,6 +72,7 @@ bun run db:seed:dev
 ## Post-Run Verification
 
 ### Database Queries
+
 ```bash
 # Check farms
 bun run db:query "SELECT id, name, location, type FROM farms ORDER BY name"
@@ -108,6 +112,7 @@ bun run db:query "SELECT f.name, fi.feedType, fi.quantityKg, fi.minThresholdKg F
 ```
 
 ### UI Verification
+
 1. [ ] Login with admin@openlivestock.local / password123
 2. [ ] Dashboard shows 5 farms
 3. [ ] Farm selector shows all 5 farms
@@ -124,6 +129,7 @@ bun run db:query "SELECT f.name, fi.feedType, fi.quantityKg, fi.minThresholdKg F
 9. [ ] Check inventory - verify low stock alerts
 
 ### New Enum Values Verification
+
 - [ ] Structure types: tarpaulin (2), kraal (1), hive (2)
 - [ ] Mortality causes: suffocation, injury
 - [ ] Sale units: head, liter, kg, colony
@@ -132,6 +138,7 @@ bun run db:query "SELECT f.name, fi.feedType, fi.quantityKg, fi.minThresholdKg F
 - [ ] Livestock types: All 6 (poultry, fish, cattle, goats, sheep, bees)
 
 ### Data Quality Checks
+
 - [ ] All batches have currentQuantity <= initialQuantity
 - [ ] All sales have valid customerId
 - [ ] All batches have valid structureId
@@ -142,6 +149,7 @@ bun run db:query "SELECT f.name, fi.feedType, fi.quantityKg, fi.minThresholdKg F
 - [ ] All foreign keys resolve correctly
 
 ## Issues to Watch For
+
 - [ ] Database connection timeout
 - [ ] Duplicate key violations
 - [ ] Foreign key constraint violations
@@ -150,6 +158,7 @@ bun run db:query "SELECT f.name, fi.feedType, fi.quantityKg, fi.minThresholdKg F
 - [ ] TypeScript type mismatches
 
 ## Success Criteria
+
 ✅ Seeder runs without errors
 ✅ All 5 farms created
 ✅ All 8 batches created
@@ -161,6 +170,7 @@ bun run db:query "SELECT f.name, fi.feedType, fi.quantityKg, fi.minThresholdKg F
 ✅ Navigation works
 
 ## Rollback (if needed)
+
 ```bash
 # Restore old seeder
 cp app/lib/db/seed-dev.backup.ts app/lib/db/seed-dev.ts

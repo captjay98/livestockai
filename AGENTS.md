@@ -6,7 +6,7 @@ This document helps AI coding assistants (Claude, GPT, Kiro, Cursor, etc.) under
 
 ## Project Overview
 
-**OpenLivestock Manager** is a full-stack livestock management application for poultry and aquaculture farms. It's built with:
+**OpenLivestock Manager** is a full-stack livestock management application supporting 6 livestock types (poultry, fish, cattle, goats, sheep, bees). It's built with:
 
 - **Frontend**: React 19 + TanStack Router + TanStack Query
 - **Backend**: TanStack Start (SSR) + Server Functions
@@ -28,11 +28,11 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
 1. **Server Functions**: All database operations use TanStack Start's `createServerFn()`:
 
    ```typescript
-   // app/lib/batches/server.ts
+   // app/features/batches/server.ts
    export const getBatches = createServerFn({ method: 'GET' })
      .validator(z.object({ farmId: z.string().uuid() }))
      .handler(async ({ data }) => {
-       const { db } = await import('../db')
+       const { db } = await import('~/lib/db')
        return db
          .selectFrom('batches')
          .where('farmId', '=', data.farmId)
@@ -52,7 +52,7 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
 
 3. **Type-Safe Queries**: Use Kysely's type-safe query builder:
    ```typescript
-   // Types are inferred from app/lib/db/schema.ts
+   // Types are inferred from app/lib/db/types.ts
    const batches = await db
      .selectFrom('batches')
      .leftJoin('farms', 'farms.id', 'batches.farmId')
@@ -64,19 +64,23 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
 
 ## Database Schema
 
-The database schema is defined in `app/lib/db/schema.ts`. Key tables:
+The database schema is defined in `app/lib/db/types.ts`. Key tables:
 
-| Table               | Purpose                          |
-| ------------------- | -------------------------------- |
-| `users`             | User accounts (Better Auth)      |
-| `farms`             | Farm entities                    |
-| `batches`           | Livestock batches (poultry/fish) |
-| `mortality_records` | Death tracking                   |
-| `feed_records`      | Feed consumption                 |
-| `weight_samples`    | Growth tracking                  |
-| `sales`             | Revenue records                  |
-| `expenses`          | Cost tracking                    |
-| `invoices`          | Customer invoices                |
+| Table               | Purpose                                 |
+| ------------------- | --------------------------------------- |
+| `users`             | User accounts (Better Auth)             |
+| `user_settings`     | Preferences (currency, units, language) |
+| `farms`             | Farm entities                           |
+| `farm_modules`      | Enabled livestock types per farm        |
+| `batches`           | Livestock batches (all 6 types)         |
+| `mortality_records` | Death tracking                          |
+| `feed_records`      | Feed consumption                        |
+| `weight_samples`    | Growth tracking                         |
+| `sales`             | Revenue records                         |
+| `expenses`          | Cost tracking                           |
+| `invoices`          | Customer invoices                       |
+| `notifications`     | In-app alerts                           |
+| `audit_logs`        | Activity history                        |
 
 ### Migrations
 
@@ -124,15 +128,15 @@ Cloudflare MCP servers authenticate via OAuth (no API keys needed).
 ### Adding a New Feature
 
 1. **Database changes**: Create migration in `app/lib/db/migrations/`
-2. **Update schema types**: Edit `app/lib/db/schema.ts`
-3. **Server functions**: Create in `app/lib/{feature}/server.ts`
+2. **Update schema types**: Edit `app/lib/db/types.ts`
+3. **Server functions**: Create in `app/features/{feature}/server.ts`
 4. **UI components**: Add to `app/components/`
-5. **Routes**: Add to `app/routes/`
+5. **Routes**: Add to `app/routes/_auth/{feature}/`
 
 ### Adding a New Server Function
 
 ```typescript
-// app/lib/myfeature/server.ts
+// app/features/myfeature/server.ts
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -143,7 +147,7 @@ export const myFunction = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('../db')
+    const { db } = await import('~/lib/db')
     // Database operations
   })
 ```
@@ -180,10 +184,10 @@ Reference: [Better Auth Users & Accounts](https://www.better-auth.com/docs/conce
 
 #### Correct Way to Create Users
 
-Always use the `createUserWithAuth` helper from `app/lib/db/seed-helpers.ts`:
+Always use the `createUserWithAuth` helper from `app/lib/db/seeds/helpers.ts`:
 
 ```typescript
-import { createUserWithAuth } from '~/lib/db/seed-helpers'
+import { createUserWithAuth } from '~/lib/db/seeds/helpers'
 import { db } from '~/lib/db'
 
 // Create a user with authentication
@@ -231,7 +235,7 @@ await db
 bun test
 
 # Run specific test file
-bun test app/lib/batches/batches.property.test.ts
+bun test tests/features/batches/batches.property.test.ts
 
 # Run with coverage
 bun test --coverage
@@ -269,10 +273,10 @@ import { format } from 'date-fns'
 
 // 3. Local imports (absolute)
 import { Button } from '~/components/ui/button'
-import { getBatches } from '~/lib/batches/server'
+import { getBatches } from '~/features/batches/server'
 
 // 4. Types
-import type { Batch } from '~/lib/db/schema'
+import type { Batch } from '~/lib/db/types'
 ```
 
 ---
@@ -325,16 +329,17 @@ bun run deploy             # Deploy to Cloudflare
 
 ## File Reference
 
-| Path                     | Purpose                     |
-| ------------------------ | --------------------------- |
-| `app/lib/db/index.ts`    | Database connection         |
-| `app/lib/db/schema.ts`   | TypeScript types for tables |
-| `app/lib/db/migrations/` | Database migrations         |
-| `app/lib/auth/config.ts` | Better Auth configuration   |
-| `app/lib/currency.ts`    | Currency formatting (NGN)   |
-| `app/lib/finance/`       | Financial calculations      |
-| `wrangler.jsonc`         | Cloudflare Workers config   |
-| `vite.config.ts`         | Vite + PWA configuration    |
+| Path                          | Purpose                        |
+| ----------------------------- | ------------------------------ |
+| `app/lib/db/index.ts`         | Database connection            |
+| `app/lib/db/types.ts`         | TypeScript types for tables    |
+| `app/lib/db/migrations/`      | Database migrations            |
+| `app/features/auth/config.ts` | Better Auth configuration      |
+| `app/features/settings/`      | Currency, date, unit utilities |
+| `app/features/finance/`       | Financial calculations         |
+| `wrangler.jsonc`              | Cloudflare Workers config      |
+| `vite.config.ts`              | Vite + PWA configuration       |
+| `docs/ARCHITECTURE.md`        | System architecture overview   |
 
 ---
 

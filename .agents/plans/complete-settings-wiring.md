@@ -15,6 +15,7 @@ So that the app adapts to my workflow and preferences without manual configurati
 ## Problem Statement
 
 While the settings UI and database schema are complete, several settings don't yet affect application behavior:
+
 - Default farm selection doesn't auto-select on app load
 - Theme setting doesn't apply dark/light mode
 - Low stock threshold is per-item, not using global percentage
@@ -24,6 +25,7 @@ While the settings UI and database schema are complete, several settings don't y
 ## Solution Statement
 
 Wire up each setting to its respective system:
+
 1. FarmProvider reads defaultFarmId and auto-selects on mount
 2. ThemeProvider reads theme setting and applies CSS classes
 3. Inventory uses lowStockThresholdPercent as multiplier on item thresholds
@@ -44,22 +46,27 @@ Wire up each setting to its respective system:
 ### Relevant Codebase Files - MUST READ BEFORE IMPLEMENTING!
 
 **Farm Context:**
+
 - `app/features/farms/context.tsx` (lines 1-100) - FarmProvider implementation, selectedFarmId state
 - `app/features/settings/hooks.ts` (lines 200-210) - usePreferences hook with defaultFarmId
 
 **Theme System:**
+
 - `app/components/theme-toggle.tsx` (lines 1-50) - Current theme toggle using localStorage
 - `app/features/settings/hooks.ts` (lines 200-210) - usePreferences hook with theme
 
 **Inventory:**
+
 - `app/routes/_auth/inventory/index.tsx` (lines 375-385) - lowStockFeedCount calculation
 - `app/features/settings/hooks.ts` (lines 215-225) - useAlertThresholds hook
 
 **Dashboard:**
+
 - `app/routes/_auth/dashboard/index.tsx` (lines 1-500) - Dashboard with summary cards
 - `app/features/settings/hooks.ts` (lines 240-250) - useDashboardPreferences hook
 
 **Settings Context:**
+
 - `app/features/settings/context.tsx` - SettingsProvider that wraps app
 - `app/features/settings/server.ts` - getUserSettings server function
 
@@ -77,6 +84,7 @@ None - all changes are updates to existing files
 ### Patterns to Follow
 
 **Context Provider Pattern:**
+
 ```typescript
 // From app/features/farms/context.tsx
 export function FarmProvider({ children }: { children: ReactNode }) {
@@ -86,6 +94,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 ```
 
 **Settings Hook Pattern:**
+
 ```typescript
 // From app/features/settings/hooks.ts
 export function usePreferences() {
@@ -99,6 +108,7 @@ export function usePreferences() {
 ```
 
 **Conditional Rendering Pattern:**
+
 ```typescript
 // From app/routes/_auth/dashboard/index.tsx
 {summary && (
@@ -117,6 +127,7 @@ export function usePreferences() {
 Wire up FarmProvider to use defaultFarmId from settings when no farm is selected.
 
 **Tasks:**
+
 - Read defaultFarmId from settings context
 - Auto-select on mount if no farm selected
 - Validate farm exists and user has access
@@ -126,6 +137,7 @@ Wire up FarmProvider to use defaultFarmId from settings when no farm is selected
 Implement theme switching based on user preference.
 
 **Tasks:**
+
 - Create ThemeProvider that reads from settings
 - Apply theme class to document root
 - Handle system theme detection
@@ -136,6 +148,7 @@ Implement theme switching based on user preference.
 Apply lowStockThresholdPercent to inventory calculations.
 
 **Tasks:**
+
 - Read lowStockThresholdPercent from settings
 - Calculate dynamic threshold as percentage of minThreshold
 - Update lowStockFeedCount and lowStockMedCount calculations
@@ -145,6 +158,7 @@ Apply lowStockThresholdPercent to inventory calculations.
 Filter dashboard cards based on user preferences.
 
 **Tasks:**
+
 - Read dashboardCards from settings
 - Conditionally render each card type
 - Maintain responsive grid layout
@@ -154,6 +168,7 @@ Filter dashboard cards based on user preferences.
 Ensure language setting is stored (translations deferred).
 
 **Tasks:**
+
 - Verify language setting persists correctly
 - Add comment for future i18n integration
 - Document translation approach
@@ -168,18 +183,20 @@ Ensure language setting is stored (translations deferred).
 - **PATTERN**: useEffect with dependency array (existing pattern in file)
 - **IMPORTS**: `import { usePreferences } from '~/features/settings'`
 - **LOGIC**:
+
   ```typescript
   const { defaultFarmId } = usePreferences()
-  
+
   useEffect(() => {
     if (!selectedFarmId && defaultFarmId && farms.length > 0) {
-      const farmExists = farms.some(f => f.id === defaultFarmId)
+      const farmExists = farms.some((f) => f.id === defaultFarmId)
       if (farmExists) {
         setSelectedFarmId(defaultFarmId)
       }
     }
   }, [defaultFarmId, farms, selectedFarmId])
   ```
+
 - **GOTCHA**: Only auto-select if farm exists in user's accessible farms
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -187,20 +204,21 @@ Ensure language setting is stored (translations deferred).
 
 - **IMPLEMENT**: ThemeProvider that reads from settings and applies theme
 - **PATTERN**: Context provider pattern from farms/context.tsx
-- **IMPORTS**: 
+- **IMPORTS**:
   ```typescript
   import { createContext, useContext, useEffect } from 'react'
   import { usePreferences } from '~/features/settings'
   ```
 - **LOGIC**:
+
   ```typescript
   export function ThemeProvider({ children }: { children: ReactNode }) {
     const { theme } = usePreferences()
-    
+
     useEffect(() => {
       const root = document.documentElement
       root.classList.remove('light', 'dark')
-      
+
       if (theme === 'system') {
         const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
         root.classList.add(systemTheme)
@@ -208,13 +226,14 @@ Ensure language setting is stored (translations deferred).
         root.classList.add(theme)
       }
     }, [theme])
-    
+
     return <>{children}</>
   }
   ```
+
 - **VALIDATE**: `npx tsc --noEmit`
 
-### Task 3: UPDATE app/routes/__root.tsx
+### Task 3: UPDATE app/routes/\_\_root.tsx
 
 - **IMPLEMENT**: Wrap app with ThemeProvider
 - **PATTERN**: Existing provider wrapping pattern in file
@@ -231,37 +250,41 @@ Ensure language setting is stored (translations deferred).
 - **GOTCHA**: Remove localStorage.getItem/setItem calls
 - **VALIDATE**: `npx tsc --noEmit && bun run lint`
 
-### Task 5: UPDATE app/routes/_auth/inventory/index.tsx
+### Task 5: UPDATE app/routes/\_auth/inventory/index.tsx
 
 - **IMPLEMENT**: Use lowStockThresholdPercent in calculations
 - **PATTERN**: Existing isLowStock function (line 364)
 - **IMPORTS**: `import { useAlertThresholds } from '~/features/settings'`
 - **LOGIC**:
+
   ```typescript
   const { lowStockPercent } = useAlertThresholds()
-  
+
   const lowStockFeedCount = feedInventory.filter((f) => {
     const qty = parseFloat(f.quantityKg)
     const threshold = parseFloat(f.minThresholdKg) * (lowStockPercent / 100)
     return qty <= threshold
   }).length
   ```
+
 - **VALIDATE**: `npx tsc --noEmit`
 
-### Task 6: UPDATE app/routes/_auth/dashboard/index.tsx
+### Task 6: UPDATE app/routes/\_auth/dashboard/index.tsx
 
 - **IMPLEMENT**: Conditionally render cards based on dashboardCards setting
 - **PATTERN**: Existing conditional rendering with `summary &&`
 - **IMPORTS**: `import { useDashboardPreferences } from '~/features/settings'`
 - **LOGIC**:
+
   ```typescript
   const { cards } = useDashboardPreferences()
-  
+
   // Wrap each card section:
   {cards.inventory && summary && (
     <Card>...</Card>
   )}
   ```
+
 - **CARDS TO WRAP**: inventory, revenue, expenses, profit, mortality, feed
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -277,7 +300,7 @@ Ensure language setting is stored (translations deferred).
 ### Task 8: VERIFY language setting persistence
 
 - **IMPLEMENT**: Add comment in settings UI about future i18n
-- **LOCATION**: app/routes/_auth/settings/index.tsx (Preferences tab)
+- **LOCATION**: app/routes/\_auth/settings/index.tsx (Preferences tab)
 - **COMMENT**: Already exists - "Interface language (translations coming soon)"
 - **VALIDATE**: Visual inspection
 
@@ -329,27 +352,32 @@ bun run build
 ### Level 3: Manual Validation
 
 **Default Farm:**
+
 1. Set default farm in settings
 2. Reload app
 3. Verify farm is auto-selected
 
 **Theme:**
+
 1. Change theme to dark
 2. Verify UI switches to dark mode
 3. Change to system
 4. Verify follows OS preference
 
 **Low Stock:**
+
 1. Set threshold to 50%
 2. Check inventory page
 3. Verify alerts trigger at 50% of item threshold
 
 **Dashboard:**
+
 1. Disable "Revenue" card in settings
 2. Go to dashboard
 3. Verify revenue card is hidden
 
 **Language:**
+
 1. Change language to Hausa
 2. Reload app
 3. Verify setting persists (check settings page)
