@@ -1,10 +1,29 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { usePreferences } from '~/features/settings'
+import { getStructuresFn } from '~/features/structures/server'
+import { getSuppliersFn } from '~/features/suppliers/server'
+
+interface Structure {
+  id: string
+  name: string
+  type: string
+  status: string
+}
+
+interface Supplier {
+  id: string
+  name: string
+  supplierType: string | null
+}
 
 interface FarmContextType {
   selectedFarmId: string | null
   setSelectedFarmId: (farmId: string | null) => void
+  structures: Array<Structure>
+  suppliers: Array<Supplier>
+  isLoadingFarmData: boolean
 }
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined)
@@ -15,6 +34,23 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const [selectedFarmId, setSelectedFarmIdState] = useState<string | null>(null)
   const [isHydrated, setIsHydrated] = useState(false)
   const { defaultFarmId } = usePreferences()
+
+  // Load structures for selected farm
+  const { data: structures = [], isLoading: isLoadingStructures } = useQuery({
+    queryKey: ['structures', selectedFarmId],
+    queryFn: () =>
+      selectedFarmId
+        ? getStructuresFn({ data: { farmId: selectedFarmId } })
+        : Promise.resolve([]),
+    enabled: !!selectedFarmId,
+  })
+
+  // Load suppliers (global, not farm-specific currently)
+  const { data: suppliers = [], isLoading: isLoadingSuppliers } = useQuery({
+    queryKey: ['suppliers'],
+    queryFn: () => getSuppliersFn(),
+    enabled: !!selectedFarmId,
+  })
 
   // Load from localStorage on mount, or use defaultFarmId from settings
   useEffect(() => {
@@ -43,7 +79,15 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <FarmContext.Provider value={{ selectedFarmId, setSelectedFarmId }}>
+    <FarmContext.Provider
+      value={{
+        selectedFarmId,
+        setSelectedFarmId,
+        structures: structures as Array<Structure>,
+        suppliers: suppliers as Array<Supplier>,
+        isLoadingFarmData: isLoadingStructures || isLoadingSuppliers,
+      }}
+    >
       {children}
     </FarmContext.Provider>
   )

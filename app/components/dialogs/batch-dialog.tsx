@@ -2,8 +2,9 @@ import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, ChevronUp, Users } from 'lucide-react'
+import { AlertCircle, ChevronDown, ChevronUp, Users } from 'lucide-react'
 import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/features/batches/server'
+import { useFarm } from '~/features/farms/context'
 import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -29,24 +30,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '~/components/ui/collapsible'
-
-interface Structure {
-  id: string
-  name: string
-  type: string
-}
-
-interface Supplier {
-  id: string
-  name: string
-}
+import { Alert, AlertDescription } from '~/components/ui/alert'
 
 interface BatchDialogProps {
-  farmId: string
   open: boolean
   onOpenChange: (open: boolean) => void
-  structures?: Array<Structure>
-  suppliers?: Array<Supplier>
 }
 
 const LIVESTOCK_TYPES = [
@@ -67,15 +55,10 @@ const SPECIES_OPTIONS = {
   ],
 }
 
-export function BatchDialog({
-  farmId,
-  open,
-  onOpenChange,
-  structures = [],
-  suppliers = [],
-}: BatchDialogProps) {
+export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { selectedFarmId, structures, suppliers } = useFarm()
   const { symbol: currencySymbol } = useFormatCurrency()
   const [formData, setFormData] = useState({
     livestockType: '' as 'poultry' | 'fish' | '',
@@ -103,6 +86,10 @@ export function BatchDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!selectedFarmId) {
+      setError('Please select a farm first')
+      return
+    }
     if (!formData.livestockType) return
     setIsSubmitting(true)
     setError('')
@@ -111,7 +98,7 @@ export function BatchDialog({
       await createBatchFn({
         data: {
           batch: {
-            farmId,
+            farmId: selectedFarmId,
             livestockType: formData.livestockType,
             species: formData.species,
             initialQuantity: parseInt(formData.initialQuantity),
@@ -134,7 +121,9 @@ export function BatchDialog({
       })
       toast.success('Batch created')
       onOpenChange(false)
-      queryClient.invalidateQueries({ queryKey: ['farm-modules', farmId] })
+      queryClient.invalidateQueries({
+        queryKey: ['farm-modules', selectedFarmId],
+      })
       setFormData({
         livestockType: '',
         species: '',
@@ -176,6 +165,16 @@ export function BatchDialog({
           </DialogTitle>
           <DialogDescription>Create a new livestock batch</DialogDescription>
         </DialogHeader>
+
+        {!selectedFarmId && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Please select a farm from the header before adding a batch.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="livestockType">Livestock Type</Label>
@@ -188,6 +187,7 @@ export function BatchDialog({
                   livestockType: value,
                 }))
               }
+              disabled={!selectedFarmId}
             >
               <SelectTrigger>
                 <SelectValue>
