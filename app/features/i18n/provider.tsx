@@ -1,7 +1,7 @@
-import {  useEffect } from 'react'
+import { useEffect } from 'react'
 import { I18nextProvider } from 'react-i18next'
 import i18n from './config'
-import type {ReactNode} from 'react';
+import type { ReactNode } from 'react'
 import { usePreferences } from '~/features/settings'
 
 export function I18nProvider({ children }: { children: ReactNode }) {

@@ -136,41 +136,41 @@ export const checkNeedsOnboardingFn = createServerFn({ method: 'GET' }).handler(
 /**
  * Mark onboarding as complete in database
  */
-export const markOnboardingCompleteFn = createServerFn({ method: 'POST' }).handler(
-  async () => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    const { db } = await import('~/lib/db')
+export const markOnboardingCompleteFn = createServerFn({
+  method: 'POST',
+}).handler(async () => {
+  const { requireAuth } = await import('../auth/server-middleware')
+  const session = await requireAuth()
+  const { db } = await import('~/lib/db')
 
-    // Check if user_settings exists
-    const existing = await db
-      .selectFrom('user_settings')
-      .select(['id'])
+  // Check if user_settings exists
+  const existing = await db
+    .selectFrom('user_settings')
+    .select(['id'])
+    .where('userId', '=', session.user.id)
+    .executeTakeFirst()
+
+  if (existing) {
+    await db
+      .updateTable('user_settings')
+      .set({ onboardingCompleted: true })
       .where('userId', '=', session.user.id)
-      .executeTakeFirst()
+      .execute()
+  } else {
+    // Create settings with onboardingCompleted = true
+    await db
+      .insertInto('user_settings')
+      .values({
+        userId: session.user.id,
+        onboardingCompleted: true,
+        onboardingStep: 8,
+        ...DEFAULT_SETTINGS,
+      })
+      .execute()
+  }
 
-    if (existing) {
-      await db
-        .updateTable('user_settings')
-        .set({ onboardingCompleted: true })
-        .where('userId', '=', session.user.id)
-        .execute()
-    } else {
-      // Create settings with onboardingCompleted = true
-      await db
-        .insertInto('user_settings')
-        .values({
-          userId: session.user.id,
-          onboardingCompleted: true,
-          onboardingStep: 8,
-          ...DEFAULT_SETTINGS,
-        })
-        .execute()
-    }
-
-    return { success: true }
-  },
-)
+  return { success: true }
+})
 
 /**
  * Reset onboarding to allow user to restart

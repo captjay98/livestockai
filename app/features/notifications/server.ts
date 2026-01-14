@@ -83,7 +83,9 @@ export async function markAllAsRead(userId: string): Promise<void> {
 /**
  * Delete a notification
  */
-export async function deleteNotification(notificationId: string): Promise<void> {
+export async function deleteNotification(
+  notificationId: string,
+): Promise<void> {
   const { db } = await import('~/lib/db')
 
   await db
@@ -109,12 +111,13 @@ export const markAsReadFn = createServerFn({ method: 'POST' })
     return markAsRead(data.notificationId)
   })
 
-export const markAllAsReadFn = createServerFn({ method: 'POST' })
-  .handler(async () => {
+export const markAllAsReadFn = createServerFn({ method: 'POST' }).handler(
+  async () => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
     return markAllAsRead(session.user.id)
-  })
+  },
+)
 
 export const deleteNotificationFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { notificationId: string }) => data)

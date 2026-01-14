@@ -322,4 +322,3 @@ export const DEFAULT_SETTINGS: UserSettings = {
     feed: true,
   },
 }
-

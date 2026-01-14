@@ -11,9 +11,7 @@ interface ProjectionsCardProps {
   batchId: string
 }
 
-export function ProjectionsCard({
-  batchId,
-}: ProjectionsCardProps) {
+export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
   const { symbol: currency } = useFormatCurrency()
   const { data: projection, isLoading } = useQuery({
     queryKey: ['batch', batchId, 'projection'],

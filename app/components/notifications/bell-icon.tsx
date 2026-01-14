@@ -8,8 +8,13 @@ import { useFormatDate } from '~/features/settings'
 import { cn } from '~/lib/utils'
 
 export function NotificationBell() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } =
-    useNotifications()
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications()
   const { format: formatDate } = useFormatDate()
   const [isOpen, setIsOpen] = useState(false)
 

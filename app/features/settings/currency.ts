@@ -16,7 +16,7 @@ Decimal.set({
  * Type alias for monetary values
  * Can be string (from DB), number, or Decimal
  */
-export type MoneyInput = string | number | Decimal
+export type MoneyInput = string | number | Decimal | undefined | null
 
 /**
  * Create a Decimal from various input types

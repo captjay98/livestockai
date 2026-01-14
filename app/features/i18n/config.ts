@@ -13,7 +13,7 @@ const resources = {
       expenses: 'Expenses',
       reports: 'Reports',
       settings: 'Settings',
-      
+
       // Common actions
       add: 'Add',
       edit: 'Edit',
@@ -23,7 +23,7 @@ const resources = {
       search: 'Search',
       filter: 'Filter',
       export: 'Export',
-      
+
       // Common labels
       date: 'Date',
       quantity: 'Quantity',
@@ -35,17 +35,15 @@ const resources = {
   },
 }
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: 'en',
-    fallbackLng: 'en',
-    ns: ['common'],
-    defaultNS: 'common',
-    interpolation: {
-      escapeValue: false,
-    },
-  })
+i18n.use(initReactI18next).init({
+  resources,
+  lng: 'en',
+  fallbackLng: 'en',
+  ns: ['common'],
+  defaultNS: 'common',
+  interpolation: {
+    escapeValue: false,
+  },
+})
 
 export default i18n

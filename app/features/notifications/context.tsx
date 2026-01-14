@@ -5,7 +5,7 @@
  * Auto-refreshes notifications every 30 seconds.
  */
 
-import {  createContext, useContext } from 'react'
+import { createContext, useContext } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   deleteNotificationFn,
@@ -13,7 +13,7 @@ import {
   markAllAsReadFn,
   markAsReadFn,
 } from './server'
-import type {ReactNode} from 'react';
+import type { ReactNode } from 'react'
 import type { Notification } from './types'
 
 interface NotificationsContextValue {
@@ -46,7 +46,11 @@ export function NotificationsProvider({
   const queryClient = useQueryClient()
 
   // Fetch notifications with auto-refresh
-  const { data: notifications = [], isLoading, refetch } = useQuery({
+  const {
+    data: notifications = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => getNotificationsFn({ data: { limit: 50 } }),
     refetchInterval: 30000, // 30 seconds

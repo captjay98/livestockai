@@ -157,7 +157,7 @@ export function OnboardingProvider({
       completedAt: new Date().toISOString(),
     }))
     setNeedsOnboarding(false)
-    
+
     // Persist to database
     try {
       const { markOnboardingCompleteFn } = await import('./server')

@@ -52,9 +52,12 @@ export async function calculateBatchProjection(
   } else {
     // Estimate based on age using growth standards
     const ageInDays = Math.floor(
-      (Date.now() - new Date(batch.acquisitionDate).getTime()) / (1000 * 60 * 60 * 24)
+      (Date.now() - new Date(batch.acquisitionDate).getTime()) /
+        (1000 * 60 * 60 * 24),
     )
-    const ageRecord = growthStandard.find((s) => s.day >= ageInDays) || growthStandard[growthStandard.length - 1]
+    const ageRecord =
+      growthStandard.find((s) => s.day >= ageInDays) ||
+      growthStandard[growthStandard.length - 1]
     currentWeightG = ageRecord.expected_weight_g
   }
 

@@ -38,9 +38,7 @@ export async function checkLowStockNotifications(
     .selectFrom('feed_inventory')
     .selectAll()
     .where('farmId', 'in', targetFarmIds)
-    .where((eb) =>
-      eb('quantityKg', '<', eb.ref('minThresholdKg')),
-    )
+    .where((eb) => eb('quantityKg', '<', eb.ref('minThresholdKg')))
     .execute()
 
   for (const item of lowFeedItems) {
@@ -75,9 +73,7 @@ export async function checkLowStockNotifications(
     .selectFrom('medication_inventory')
     .selectAll()
     .where('farmId', 'in', targetFarmIds)
-    .where((eb) =>
-      eb('quantity', '<', eb.ref('minThreshold')),
-    )
+    .where((eb) => eb('quantity', '<', eb.ref('minThreshold')))
     .execute()
 
   for (const item of lowMedItems) {
@@ -88,7 +84,10 @@ export async function checkLowStockNotifications(
       .where('type', '=', 'lowStock')
       .where('read', '=', false)
       .where((eb) =>
-        eb('metadata', '@>', { medicationName: item.medicationName, farmId: item.farmId }),
+        eb('metadata', '@>', {
+          medicationName: item.medicationName,
+          farmId: item.farmId,
+        }),
       )
       .executeTakeFirst()
 
@@ -174,14 +173,13 @@ export async function checkInvoiceDueNotifications(
       .where('userId', '=', userId)
       .where('type', '=', 'invoiceDue')
       .where('read', '=', false)
-      .where((eb) =>
-        eb('metadata', '@>', { invoiceId: invoice.id }),
-      )
+      .where((eb) => eb('metadata', '@>', { invoiceId: invoice.id }))
       .executeTakeFirst()
 
     if (!existing) {
       const daysUntilDue = Math.ceil(
-        (new Date(invoice.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+        (new Date(invoice.dueDate).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24),
       )
 
       await createNotification({
@@ -268,9 +266,7 @@ export async function checkBatchHarvestNotifications(
       .where('userId', '=', userId)
       .where('type', '=', 'batchHarvest')
       .where('read', '=', false)
-      .where((eb) =>
-        eb('metadata', '@>', { batchId: batch.id }),
-      )
+      .where((eb) => eb('metadata', '@>', { batchId: batch.id }))
       .executeTakeFirst()
 
     if (!existing) {

@@ -26,8 +26,12 @@ interface InvoiceData {
 /**
  * Generate PDF invoice
  */
-export function generateInvoicePDF(invoice: InvoiceData, settings: UserSettings): jsPDF {
-  const formatPdfCurrency = (amount: number): string => formatWithSettings(amount, settings)
+export function generateInvoicePDF(
+  invoice: InvoiceData,
+  settings: UserSettings,
+): jsPDF {
+  const formatPdfCurrency = (amount: number): string =>
+    formatWithSettings(amount, settings)
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
   let y = 20
@@ -114,7 +118,9 @@ export function generateInvoicePDF(invoice: InvoiceData, settings: UserSettings)
     doc.text(item.description, 25, y)
     doc.text(item.quantity.toString(), 100, y)
     doc.text(formatPdfCurrency(item.unitPrice), 125, y)
-    doc.text(formatPdfCurrency(item.total), pageWidth - 25, y, { align: 'right' })
+    doc.text(formatPdfCurrency(item.total), pageWidth - 25, y, {
+      align: 'right',
+    })
     y += 7
   }
 
