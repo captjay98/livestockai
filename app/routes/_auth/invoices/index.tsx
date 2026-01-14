@@ -139,7 +139,9 @@ function InvoicesPage() {
             searchParams.status === 'all' ? undefined : searchParams.status,
         },
       })
-      setPaginatedInvoices(result.paginatedInvoices as PaginatedResult<InvoiceRecord>)
+      setPaginatedInvoices(
+        result.paginatedInvoices as PaginatedResult<InvoiceRecord>,
+      )
     } catch (err) {
       console.error('Failed:', err)
     } finally {
@@ -194,9 +196,7 @@ function InvoicesPage() {
         accessorKey: 'dueDate',
         header: 'Due Date',
         cell: ({ row }) =>
-          row.original.dueDate
-            ? formatDate(row.original.dueDate)
-            : '-',
+          row.original.dueDate ? formatDate(row.original.dueDate) : '-',
       },
       {
         accessorKey: 'totalAmount',
@@ -236,7 +236,11 @@ function InvoicesPage() {
         id: 'actions',
         cell: ({ row }) => (
           <div className="flex justify-end">
-            <Button variant="ghost" size="sm" onClick={() => setViewInvoice(row.original)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setViewInvoice(row.original)}
+            >
               <Eye className="h-4 w-4 mr-2" />
               View
             </Button>
@@ -316,13 +320,14 @@ function InvoicesPage() {
       )}
 
       {/* View Invoice Dialog */}
-      <Dialog open={!!viewInvoice} onOpenChange={(open) => !open && setViewInvoice(null)}>
+      <Dialog
+        open={!!viewInvoice}
+        onOpenChange={(open) => !open && setViewInvoice(null)}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Invoice {viewInvoice?.invoiceNumber}</DialogTitle>
-            <DialogDescription>
-              {viewInvoice?.customerName}
-            </DialogDescription>
+            <DialogDescription>{viewInvoice?.customerName}</DialogDescription>
           </DialogHeader>
           {viewInvoice && (
             <div className="space-y-4">
@@ -333,16 +338,28 @@ function InvoicesPage() {
                 </div>
                 <div>
                   <p className="text-muted-foreground">Due Date</p>
-                  <p className="font-medium">{viewInvoice.dueDate ? formatDate(viewInvoice.dueDate) : '-'}</p>
+                  <p className="font-medium">
+                    {viewInvoice.dueDate
+                      ? formatDate(viewInvoice.dueDate)
+                      : '-'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Amount</p>
-                  <p className="font-medium">{formatCurrency(viewInvoice.totalAmount)}</p>
+                  <p className="font-medium">
+                    {formatCurrency(viewInvoice.totalAmount)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Status</p>
                   <Badge
-                    variant={viewInvoice.status === 'paid' ? 'default' : viewInvoice.status === 'partial' ? 'secondary' : 'destructive'}
+                    variant={
+                      viewInvoice.status === 'paid'
+                        ? 'default'
+                        : viewInvoice.status === 'partial'
+                          ? 'secondary'
+                          : 'destructive'
+                    }
                     className={
                       viewInvoice.status === 'paid'
                         ? 'bg-success/15 text-success'
@@ -351,7 +368,8 @@ function InvoicesPage() {
                           : 'bg-destructive/15 text-destructive'
                     }
                   >
-                    {viewInvoice.status.charAt(0).toUpperCase() + viewInvoice.status.slice(1)}
+                    {viewInvoice.status.charAt(0).toUpperCase() +
+                      viewInvoice.status.slice(1)}
                   </Badge>
                 </div>
               </div>

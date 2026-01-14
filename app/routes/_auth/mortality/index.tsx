@@ -242,7 +242,9 @@ function MortalityPage() {
           cause: searchParams.cause,
         },
       })
-      setPaginatedRecords(result.paginatedRecords as PaginatedResult<MortalityRecord>)
+      setPaginatedRecords(
+        result.paginatedRecords as PaginatedResult<MortalityRecord>,
+      )
       setBatches(result.batches)
       setAlerts(result.alerts)
       setSummary(result.summary)

@@ -67,7 +67,7 @@ export const Route = createFileRoute('/_auth/suppliers/$supplierId')({
 
 function SupplierDetailPage() {
   const supplier = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-  Route.useLoaderData() as SupplierWithExpenses | null
+    Route.useLoaderData() as SupplierWithExpenses | null
   const navigate = useNavigate()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
@@ -89,7 +89,9 @@ function SupplierDetailPage() {
       toast.success('Supplier deleted')
       navigate({ to: '/suppliers' })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to delete supplier')
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to delete supplier',
+      )
     }
   }
 
@@ -203,9 +205,7 @@ function SupplierDetailPage() {
                   <tbody>
                     {supplier.expenses.slice(0, 10).map((expense) => (
                       <tr key={expense.id} className="border-b last:border-0">
-                        <td className="py-2">
-                          {formatDate(expense.date)}
-                        </td>
+                        <td className="py-2">{formatDate(expense.date)}</td>
                         <td className="py-2 capitalize">{expense.category}</td>
                         <td className="py-2">{expense.description}</td>
                         <td className="py-2 text-right">
@@ -226,11 +226,15 @@ function SupplierDetailPage() {
             <DialogHeader>
               <DialogTitle>Delete Supplier</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete {supplier.name}? This action cannot be undone.
+                Are you sure you want to delete {supplier.name}? This action
+                cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button variant="destructive" onClick={handleDeleteConfirm}>

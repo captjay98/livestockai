@@ -28,7 +28,11 @@ import {
 import { getBatchesFn } from '~/features/batches/server'
 import { getCustomersFn } from '~/features/customers/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
+import {
+  useFormatCurrency,
+  useFormatDate,
+  useFormatWeight,
+} from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -481,9 +485,7 @@ function SalesPage() {
       header: 'Date',
       enableSorting: true,
       cell: ({ row }) => (
-        <Badge variant="outline">
-          {formatDate(row.original.date)}
-        </Badge>
+        <Badge variant="outline">{formatDate(row.original.date)}</Badge>
       ),
     },
     {
@@ -1000,7 +1002,9 @@ function SalesPage() {
                 {selectedSale.averageWeightKg && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Avg Weight:</span>
-                    <span>{formatWeight(parseFloat(selectedSale.averageWeightKg))}</span>
+                    <span>
+                      {formatWeight(parseFloat(selectedSale.averageWeightKg))}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">

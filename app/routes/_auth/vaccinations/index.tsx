@@ -208,7 +208,9 @@ function HealthPage() {
           type: searchParams.type,
         },
       })
-      setPaginatedRecords(result.paginatedRecords as PaginatedResult<HealthRecord>)
+      setPaginatedRecords(
+        result.paginatedRecords as PaginatedResult<HealthRecord>,
+      )
       setBatches(result.batches)
       setAlerts(result.alerts)
     } catch (err) {

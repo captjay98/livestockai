@@ -490,9 +490,7 @@ function ExpensesPage() {
       header: 'Date',
       enableSorting: true,
       cell: ({ row }) => (
-        <Badge variant="outline">
-          {formatDate(row.original.date)}
-        </Badge>
+        <Badge variant="outline">{formatDate(row.original.date)}</Badge>
       ),
     },
     {
@@ -959,9 +957,7 @@ function ExpensesPage() {
                 )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Date:</span>
-                  <span>
-                    {formatDate(selectedExpense.date)}
-                  </span>
+                  <span>{formatDate(selectedExpense.date)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Recurring:</span>

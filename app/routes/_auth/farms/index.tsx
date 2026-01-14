@@ -19,7 +19,7 @@ interface FarmWithStats {
   id: string
   name: string
   location: string
-  type: 'poultry' | 'fishery' | 'mixed'
+  type: 'poultry' | 'aquaculture' | 'mixed'
   activeBatches: number
   totalLivestock: number
 }
@@ -141,7 +141,7 @@ function FarmsIndexPage() {
                     variant={
                       farm.type === 'poultry'
                         ? 'default'
-                        : farm.type === 'fishery'
+                        : farm.type === 'aquaculture'
                           ? 'secondary'
                           : 'outline'
                     }
@@ -161,7 +161,7 @@ function FarmsIndexPage() {
                     <span>batches</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-muted-foreground">
-                    {farm.type === 'fishery' ? (
+                    {farm.type === 'aquaculture' ? (
                       <Fish className="h-4 w-4" />
                     ) : (
                       <Bird className="h-4 w-4" />

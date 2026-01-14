@@ -71,7 +71,9 @@ function InvoiceDetailPage() {
       toast.success('Invoice status updated')
       window.location.reload()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to update status')
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to update status',
+      )
     }
   }
 
@@ -81,7 +83,9 @@ function InvoiceDetailPage() {
       toast.success('Invoice deleted')
       navigate({ to: '/invoices' })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to delete invoice')
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to delete invoice',
+      )
     }
   }
 
@@ -289,11 +293,15 @@ function InvoiceDetailPage() {
             <DialogHeader>
               <DialogTitle>Delete Invoice</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete invoice #{invoice.invoiceNumber}? This action cannot be undone.
+                Are you sure you want to delete invoice #{invoice.invoiceNumber}
+                ? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button variant="destructive" onClick={handleDeleteConfirm}>

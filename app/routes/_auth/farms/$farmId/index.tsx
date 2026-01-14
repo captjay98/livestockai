@@ -28,7 +28,11 @@ import {
   updateStructureFn,
 } from '~/features/structures/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatArea, useFormatCurrency, useFormatDate } from '~/features/settings'
+import {
+  useFormatArea,
+  useFormatCurrency,
+  useFormatDate,
+} from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -181,7 +185,7 @@ export const Route = createFileRoute('/_auth/farms/$farmId/')({
 
 function FarmDetailsPage() {
   const loaderData = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-  Route.useLoaderData() as LoaderData
+    Route.useLoaderData() as LoaderData
   const { farmId } = Route.useParams()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
@@ -376,7 +380,7 @@ function FarmDetailsPage() {
               variant={
                 farm.type === 'poultry'
                   ? 'default'
-                  : farm.type === 'fishery'
+                  : farm.type === 'aquaculture'
                     ? 'secondary'
                     : 'outline'
               }
@@ -402,7 +406,7 @@ function FarmDetailsPage() {
           id: farm.id,
           name: farm.name,
           location: farm.location,
-          type: farm.type as 'poultry' | 'fishery' | 'mixed',
+          type: farm.type as 'poultry' | 'aquaculture' | 'mixed',
         }}
       />
 

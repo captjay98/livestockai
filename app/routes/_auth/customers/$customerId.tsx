@@ -91,7 +91,7 @@ export const Route = createFileRoute('/_auth/customers/$customerId')({
 
 function CustomerDetailPage() {
   const customer = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-  Route.useLoaderData() as CustomerWithSales | null
+    Route.useLoaderData() as CustomerWithSales | null
   const navigate = useNavigate()
   const router = useRouter()
   const { format: formatCurrency } = useFormatCurrency()
@@ -139,7 +139,9 @@ function CustomerDetailPage() {
       toast.success('Customer deleted')
       navigate({ to: '/customers' })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to delete customer')
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to delete customer',
+      )
     } finally {
       setIsSubmitting(false)
       setDeleteDialogOpen(false)
@@ -269,9 +271,7 @@ function CustomerDetailPage() {
                   <tbody>
                     {customer.sales.slice(0, 10).map((sale) => (
                       <tr key={sale.id} className="border-b last:border-0">
-                        <td className="py-2">
-                          {formatDate(sale.date)}
-                        </td>
+                        <td className="py-2">{formatDate(sale.date)}</td>
                         <td className="py-2 capitalize">
                           {sale.livestockType}
                         </td>

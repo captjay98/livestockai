@@ -26,8 +26,17 @@ import {
   getProfitLossReport,
   getSalesReport,
 } from '~/features/reports/server'
-import { useBusinessSettings, useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
-import { getFiscalYearEnd, getFiscalYearLabel, getFiscalYearStart } from '~/features/reports/fiscal-year'
+import {
+  useBusinessSettings,
+  useFormatCurrency,
+  useFormatDate,
+  useFormatWeight,
+} from '~/features/settings'
+import {
+  getFiscalYearEnd,
+  getFiscalYearLabel,
+  getFiscalYearStart,
+} from '~/features/reports/fiscal-year'
 import { DataTable } from '~/components/ui/data-table'
 import { Badge } from '~/components/ui/badge'
 
@@ -222,7 +231,9 @@ function ReportsPage() {
                       onChange={(e) => handleFiscalYearToggle(e.target.checked)}
                       className="h-4 w-4 rounded border-input"
                     />
-                    Use Fiscal Year {useFiscalYear && `(${getFiscalYearLabel(fiscalYearStartMonth)})`}
+                    Use Fiscal Year{' '}
+                    {useFiscalYear &&
+                      `(${getFiscalYearLabel(fiscalYearStartMonth)})`}
                   </label>
                 </div>
 
@@ -360,7 +371,9 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
                 className="flex justify-between p-2 bg-muted/50 rounded"
               >
                 <span className="capitalize">{item.type}</span>
-                <span className="font-medium">{formatCurrency(item.amount)}</span>
+                <span className="font-medium">
+                  {formatCurrency(item.amount)}
+                </span>
               </div>
             ))}
           </div>
@@ -374,7 +387,9 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
                 className="flex justify-between p-2 bg-muted/50 rounded"
               >
                 <span className="capitalize">{item.category}</span>
-                <span className="font-medium">{formatCurrency(item.amount)}</span>
+                <span className="font-medium">
+                  {formatCurrency(item.amount)}
+                </span>
               </div>
             ))}
           </div>

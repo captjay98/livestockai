@@ -12,7 +12,10 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { CustomerRecord, PaginatedResult } from '~/features/customers/server'
+import type {
+  CustomerRecord,
+  PaginatedResult,
+} from '~/features/customers/server'
 import {
   createCustomerFn,
   getCustomersPaginatedFn,
@@ -161,7 +164,8 @@ function CustomersPage() {
   })
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null)
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<CustomerRecord | null>(null)
   const [editFormData, setEditFormData] = useState({
     name: '',
     phone: '',
@@ -257,7 +261,12 @@ function CustomersPage() {
       phone: customer.phone,
       email: customer.email || '',
       location: customer.location || '',
-      customerType: (customer.customerType || '') as '' | 'individual' | 'restaurant' | 'retailer' | 'wholesaler',
+      customerType: (customer.customerType || '') as
+        | ''
+        | 'individual'
+        | 'restaurant'
+        | 'retailer'
+        | 'wholesaler',
     })
     setEditDialogOpen(true)
   }

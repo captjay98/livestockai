@@ -182,7 +182,9 @@ function WaterQualityPage() {
           search: searchParams.q,
         },
       })
-      setPaginatedRecords(result.paginatedRecords as PaginatedResult<WaterQualityRecord>)
+      setPaginatedRecords(
+        result.paginatedRecords as PaginatedResult<WaterQualityRecord>,
+      )
       setBatches(result.batches)
       setAlerts(result.alerts as Array<WaterQualityAlert>)
     } catch (err) {

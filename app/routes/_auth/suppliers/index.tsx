@@ -9,7 +9,10 @@ import { toast } from 'sonner'
 import { Building2, Eye, Mail, MapPin, Phone, Plus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { PaginatedResult, SupplierRecord } from '~/features/suppliers/server'
+import type {
+  PaginatedResult,
+  SupplierRecord,
+} from '~/features/suppliers/server'
 import {
   createSupplierFn,
   getSuppliersPaginatedFn,
@@ -164,7 +167,9 @@ function SuppliersPage() {
           supplierType: searchParams.supplierType,
         },
       })
-      setPaginatedSuppliers(result.paginatedSuppliers as PaginatedResult<SupplierRecord>)
+      setPaginatedSuppliers(
+        result.paginatedSuppliers as PaginatedResult<SupplierRecord>,
+      )
     } catch (err) {
       console.error('Failed:', err)
     } finally {

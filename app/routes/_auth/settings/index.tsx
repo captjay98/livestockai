@@ -618,7 +618,10 @@ function SettingsPage() {
                   value={localSettings.language}
                   onValueChange={(value) =>
                     value &&
-                    setLocalSettings((prev) => ({ ...prev, language: value as any }))
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      language: value as any,
+                    }))
                   }
                 >
                   <SelectTrigger id="language">
@@ -645,7 +648,10 @@ function SettingsPage() {
                   value={localSettings.theme}
                   onValueChange={(value) =>
                     value &&
-                    setLocalSettings((prev) => ({ ...prev, theme: value as any }))
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      theme: value as any,
+                    }))
                   }
                 >
                   <SelectTrigger id="theme">
@@ -737,7 +743,9 @@ function SettingsPage() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="paymentTerms">Default Payment Terms (Days)</Label>
+                <Label htmlFor="paymentTerms">
+                  Default Payment Terms (Days)
+                </Label>
                 <Input
                   id="paymentTerms"
                   type="number"
@@ -824,7 +832,8 @@ function SettingsPage() {
             variant="outline"
             onClick={async () => {
               try {
-                const { resetOnboardingFn } = await import('~/features/onboarding/server')
+                const { resetOnboardingFn } =
+                  await import('~/features/onboarding/server')
                 await resetOnboardingFn()
                 navigate({ to: '/onboarding' })
               } catch (err) {
@@ -863,7 +872,8 @@ function ModulesTabContent() {
       <div>
         <h2 className="text-lg font-semibold">Feature Modules</h2>
         <p className="text-sm text-muted-foreground">
-          Enable or disable livestock management features for your selected farm.
+          Enable or disable livestock management features for your selected
+          farm.
         </p>
       </div>
       <ModuleSelector />

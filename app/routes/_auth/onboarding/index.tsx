@@ -58,7 +58,15 @@ import {
 } from '~/components/ui/select'
 
 // Server actions
-type FarmType = 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
+type FarmType =
+  | 'poultry'
+  | 'aquaculture'
+  | 'mixed'
+  | 'cattle'
+  | 'goats'
+  | 'sheep'
+  | 'bees'
+  | 'multi'
 
 interface CreateFarmInput {
   name: string
@@ -355,12 +363,16 @@ function CreateFarmStep() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="poultry">🐔 Poultry</SelectItem>
-                  <SelectItem value="fishery">🐟 Fishery (Aquaculture)</SelectItem>
+                  <SelectItem value="aquaculture">
+                    🐟 Aquaculture (Fish Farming)
+                  </SelectItem>
                   <SelectItem value="cattle">🐄 Cattle</SelectItem>
                   <SelectItem value="goats">🐐 Goats</SelectItem>
                   <SelectItem value="sheep">🐑 Sheep</SelectItem>
                   <SelectItem value="bees">🐝 Bees (Apiary)</SelectItem>
-                  <SelectItem value="mixed">🏠 Mixed (Multiple Types)</SelectItem>
+                  <SelectItem value="mixed">
+                    🏠 Mixed (Multiple Types)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1011,7 +1023,8 @@ function CompleteStep() {
   const handleComplete = async () => {
     setIsCompleting(true)
     try {
-      const { markOnboardingCompleteFn } = await import('~/features/onboarding/server')
+      const { markOnboardingCompleteFn } =
+        await import('~/features/onboarding/server')
       await markOnboardingCompleteFn()
       navigate({ to: '/dashboard' })
     } catch (err) {
@@ -1047,7 +1060,8 @@ function CompleteStep() {
       )}
       <div className="space-y-3">
         <Button size="lg" onClick={handleComplete} disabled={isCompleting}>
-          {isCompleting ? 'Finishing...' : 'Go to Dashboard'} <ChevronRight className="ml-2 h-4 w-4" />
+          {isCompleting ? 'Finishing...' : 'Go to Dashboard'}{' '}
+          <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
         <p className="text-sm text-muted-foreground">
           Need help? Restart the tour anytime from Settings.

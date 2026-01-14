@@ -25,7 +25,11 @@ import {
 import { FEED_TYPES } from '~/features/feed/constants'
 import { getBatchesFn } from '~/features/batches/server'
 import { requireAuth } from '~/features/auth/server-middleware'
-import { useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
+import {
+  useFormatCurrency,
+  useFormatDate,
+  useFormatWeight,
+} from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -258,7 +262,9 @@ function FeedPage() {
           feedType: searchParams.feedType,
         },
       })
-      setPaginatedRecords(result.paginatedRecords as PaginatedResult<FeedRecord>)
+      setPaginatedRecords(
+        result.paginatedRecords as PaginatedResult<FeedRecord>,
+      )
       setBatches(result.batches)
       setInventory(result.inventory as Array<FeedInventory>)
       setSummary(result.summary)

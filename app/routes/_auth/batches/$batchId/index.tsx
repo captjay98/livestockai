@@ -16,11 +16,15 @@ import {
 import { useEffect, useState } from 'react'
 import { cn } from '~/lib/utils'
 import { getBatchDetailsFn } from '~/features/batches/server'
-import {  getFeedRecordsPaginatedFn } from '~/features/feed/server'
-import {  getMortalityRecordsPaginatedFn } from '~/features/mortality/server'
+import { getFeedRecordsPaginatedFn } from '~/features/feed/server'
+import { getMortalityRecordsPaginatedFn } from '~/features/mortality/server'
 import { getExpensesPaginatedFn } from '~/features/expenses/server'
 import { getSalesPaginatedFn } from '~/features/sales/server'
-import { useFormatCurrency, useFormatDate, useFormatWeight } from '~/features/settings'
+import {
+  useFormatCurrency,
+  useFormatDate,
+  useFormatWeight,
+} from '~/features/settings'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
@@ -75,13 +79,25 @@ function BatchDetailsPage() {
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
   const { format: formatWeight, label: weightLabel } = useFormatWeight()
-  const [details, setDetails] = useState<Awaited<ReturnType<typeof getBatchDetailsFn>> | null>(null)
+  const [details, setDetails] = useState<Awaited<
+    ReturnType<typeof getBatchDetailsFn>
+  > | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // Data States for Tabs
   const [feedRecords, setFeedRecords] = useState<Array<FeedRecord>>([])
-  const [mortalityRecords, setMortalityRecords] = useState<Array<MortalityRecord>>([])
-  const [expenses, setExpenses] = useState<Array<{ id: string; category: string; amount: string; date: Date; description: string }>>([])
+  const [mortalityRecords, setMortalityRecords] = useState<
+    Array<MortalityRecord>
+  >([])
+  const [expenses, setExpenses] = useState<
+    Array<{
+      id: string
+      category: string
+      amount: string
+      date: Date
+      description: string
+    }>
+  >([])
   const [sales, setSales] = useState<Array<SaleRecord>>([])
 
   useEffect(() => {
@@ -352,10 +368,11 @@ function BatchDetailsPage() {
                     header: 'Brand',
                     cell: ({ row }) => row.original.brandName || '-',
                   },
-                  { 
-                    accessorKey: 'quantityKg', 
+                  {
+                    accessorKey: 'quantityKg',
                     header: `Qty (${weightLabel})`,
-                    cell: ({ row }) => formatWeight(parseFloat(row.original.quantityKg))
+                    cell: ({ row }) =>
+                      formatWeight(parseFloat(row.original.quantityKg)),
                   },
                   {
                     accessorKey: 'cost',
