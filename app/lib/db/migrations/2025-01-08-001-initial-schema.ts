@@ -82,8 +82,12 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('onboardingStep', 'integer', (col) => col.defaultTo(0))
     // Preferences
     .addColumn('defaultFarmId', 'uuid', (col) => col)
-    .addColumn('language', 'varchar(10)', (col) => col.notNull().defaultTo('en'))
-    .addColumn('theme', 'varchar(10)', (col) => col.notNull().defaultTo('system'))
+    .addColumn('language', 'varchar(10)', (col) =>
+      col.notNull().defaultTo('en'),
+    )
+    .addColumn('theme', 'varchar(10)', (col) =>
+      col.notNull().defaultTo('system'),
+    )
     // Alerts
     .addColumn('lowStockThresholdPercent', 'integer', (col) =>
       col.notNull().defaultTo(10),
@@ -208,14 +212,14 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
     .addColumn('name', 'varchar(255)', (col) => col.notNull())
     .addColumn('location', 'varchar(255)', (col) => col.notNull())
-    .addColumn('type', 'varchar(10)', (col) => col.notNull())
+    .addColumn('type', 'varchar(20)', (col) => col.notNull())
     .addColumn('contactPhone', 'varchar(50)')
     .addColumn('notes', 'text')
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE farms ADD CONSTRAINT farms_type_check CHECK (type IN ('poultry', 'fishery', 'mixed', 'cattle', 'goats', 'sheep', 'bees', 'multi'))`.execute(
+  await sql`ALTER TABLE farms ADD CONSTRAINT farms_type_check CHECK (type IN ('poultry', 'aquaculture', 'mixed', 'cattle', 'goats', 'sheep', 'bees', 'multi'))`.execute(
     db,
   )
 
@@ -389,7 +393,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('farmId', 'uuid', (col) =>
       col.notNull().references('farms.id').onDelete('cascade'),
     )
-    .addColumn('livestockType', 'varchar(10)', (col) => col.notNull())
+    .addColumn('livestockType', 'varchar(20)', (col) => col.notNull())
     .addColumn('species', 'varchar(100)', (col) => col.notNull())
     .addColumn('initialQuantity', 'integer', (col) => col.notNull())
     .addColumn('currentQuantity', 'integer', (col) => col.notNull())
@@ -459,6 +463,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('cost', sql`decimal(19,2)`, (col) => col.notNull())
     .addColumn('date', 'date', (col) => col.notNull())
     .addColumn('supplierId', 'uuid', (col) => col.references('suppliers.id'))
+    .addColumn('inventoryId', 'uuid', (col) =>
+      col.references('feed_inventory.id').onDelete('set null'),
+    ) // Optional link to inventory for auto-deduction
     .addColumn('brandName', 'varchar(100)')
     .addColumn('bagSizeKg', 'integer')
     .addColumn('numberOfBags', 'integer')
@@ -609,7 +616,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
     .addColumn('batchId', 'uuid', (col) => col.references('batches.id'))
     .addColumn('customerId', 'uuid', (col) => col.references('customers.id'))
-    .addColumn('livestockType', 'varchar(10)', (col) => col.notNull())
+    .addColumn('livestockType', 'varchar(20)', (col) => col.notNull())
     .addColumn('quantity', 'integer', (col) => col.notNull())
     .addColumn('unitPrice', sql`decimal(19,2)`, (col) => col.notNull())
     .addColumn('totalAmount', sql`decimal(19,2)`, (col) => col.notNull())
@@ -628,6 +635,12 @@ export async function up(db: Kysely<any>): Promise<void> {
     db,
   )
   await sql`ALTER TABLE sales ADD CONSTRAINT sales_unit_type_check CHECK ("unitType" IS NULL OR "unitType" IN ('bird', 'kg', 'crate', 'piece', 'liter', 'head', 'colony', 'fleece'))`.execute(
+    db,
+  )
+  await sql`ALTER TABLE sales ADD CONSTRAINT sales_payment_status_check CHECK ("paymentStatus" IS NULL OR "paymentStatus" IN ('paid', 'pending', 'partial'))`.execute(
+    db,
+  )
+  await sql`ALTER TABLE sales ADD CONSTRAINT sales_payment_method_check CHECK ("paymentMethod" IS NULL OR "paymentMethod" IN ('cash', 'transfer', 'credit', 'mobile_money', 'check', 'card'))`.execute(
     db,
   )
 
@@ -668,6 +681,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('userId', 'uuid', (col) =>
       col.references('users.id').onDelete('set null'),
     )
+    .addColumn('userName', 'varchar(255)') // Preserved even if user deleted
     .addColumn('action', 'varchar(50)', (col) => col.notNull())
     .addColumn('entityType', 'varchar(50)', (col) => col.notNull())
     .addColumn('entityId', 'text', (col) => col.notNull())

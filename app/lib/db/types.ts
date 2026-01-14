@@ -156,7 +156,7 @@ export interface FarmTable {
   location: string
   type:
     | 'poultry'
-    | 'fishery'
+    | 'aquaculture'
     | 'mixed'
     | 'cattle'
     | 'goats'
@@ -280,6 +280,7 @@ export interface FeedTable {
   cost: string // DECIMAL(19,2) - returned as string from pg
   date: Date
   supplierId: string | null
+  inventoryId: string | null // Optional link to feed_inventory for auto-deduction
   notes: string | null
   createdAt: Generated<Date>
 }
@@ -365,11 +366,27 @@ export interface SaleTable {
   quantity: number
   unitPrice: string // DECIMAL(19,2) - returned as string from pg
   totalAmount: string // DECIMAL(19,2) - returned as string from pg
-  unitType: 'bird' | 'kg' | 'crate' | 'piece' | 'liter' | 'head' | 'colony' | 'fleece' | null // How sold
+  unitType:
+    | 'bird'
+    | 'kg'
+    | 'crate'
+    | 'piece'
+    | 'liter'
+    | 'head'
+    | 'colony'
+    | 'fleece'
+    | null // How sold
   ageWeeks: number | null // Age at sale (critical for broilers: 5 or 8 weeks)
   averageWeightKg: string | null // DECIMAL(8,3) - Weight at sale
   paymentStatus: 'paid' | 'pending' | 'partial' | null
-  paymentMethod: 'cash' | 'transfer' | 'credit' | 'mobile_money' | 'check' | 'card' | null
+  paymentMethod:
+    | 'cash'
+    | 'transfer'
+    | 'credit'
+    | 'mobile_money'
+    | 'check'
+    | 'card'
+    | null
   date: Date
   notes: string | null
   createdAt: Generated<Date>
@@ -507,6 +524,7 @@ export interface InvoiceItemTable {
 export interface AuditLogTable {
   id: Generated<string>
   userId: string | null
+  userName: string | null // Preserved even if user deleted
   action: string
   entityType: string
   entityId: string
