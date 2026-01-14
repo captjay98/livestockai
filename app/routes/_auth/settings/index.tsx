@@ -17,6 +17,7 @@ import {
   Calendar,
   ClipboardList,
   DollarSign,
+  Layers,
   Loader2,
   PlayCircle,
   RotateCcw,
@@ -46,6 +47,8 @@ import {
 } from '~/features/settings'
 import { formatCurrency } from '~/features/settings/currency-formatter'
 import { formatDate, formatTime } from '~/features/settings/date-formatter'
+import { useFarm } from '~/features/farms/context'
+import { ModuleSelector } from '~/components/modules/selector'
 import {
   formatArea,
   formatTemperature,
@@ -242,6 +245,10 @@ function SettingsPage() {
           <TabsTrigger value="business" className="gap-2">
             <Boxes className="h-4 w-4" />
             Business
+          </TabsTrigger>
+          <TabsTrigger value="modules" className="gap-2">
+            <Layers className="h-4 w-4" />
+            Modules
           </TabsTrigger>
         </TabsList>
 
@@ -785,6 +792,11 @@ function SettingsPage() {
             </div>
           </Card>
         </TabsContent>
+
+        {/* Modules Tab */}
+        <TabsContent value="modules">
+          <ModulesTabContent />
+        </TabsContent>
       </Tabs>
 
       {/* Save Button */}
@@ -826,5 +838,35 @@ function SettingsPage() {
         </div>
       </Card>
     </div>
+  )
+}
+
+function ModulesTabContent() {
+  const { selectedFarmId } = useFarm()
+
+  if (!selectedFarmId) {
+    return (
+      <Card className="p-6">
+        <div className="text-center py-8">
+          <Layers className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="font-semibold mb-2">No Farm Selected</h3>
+          <p className="text-sm text-muted-foreground">
+            Please create or select a farm to manage its modules.
+          </p>
+        </div>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="p-6 space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold">Feature Modules</h2>
+        <p className="text-sm text-muted-foreground">
+          Enable or disable livestock management features for your selected farm.
+        </p>
+      </div>
+      <ModuleSelector />
+    </Card>
   )
 }

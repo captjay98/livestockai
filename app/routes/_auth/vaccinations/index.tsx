@@ -392,15 +392,15 @@ function HealthPage() {
   )
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">Health Management</h1>
           <p className="text-muted-foreground mt-1">
             Vaccination schedules and medical treatments
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button onClick={() => setVaccinationDialogOpen(true)}>
             <Syringe className="h-4 w-4 mr-2" />
             Vaccinate

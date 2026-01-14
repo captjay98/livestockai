@@ -99,7 +99,7 @@ function CustomerDetailPage() {
 
   if (!customer) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Customer Not Found</h1>
           <Button asChild>
@@ -173,7 +173,7 @@ function CustomerDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
+      <main className="space-y-6">
         <Link
           to="/customers"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"

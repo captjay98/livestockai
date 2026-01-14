@@ -76,7 +76,7 @@ function SupplierDetailPage() {
   if (!supplier) {
     return (
       <div className="min-h-screen bg-background">
-        <main className="container mx-auto px-4 py-8">
+        <main className="space-y-6">
           <p>Supplier not found</p>
         </main>
       </div>
@@ -95,7 +95,7 @@ function SupplierDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
+      <main className="space-y-6">
         <Link
           to="/suppliers"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"

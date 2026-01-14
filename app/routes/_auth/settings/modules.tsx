@@ -20,10 +20,18 @@ function ModuleSettingsPage() {
   if (!selectedFarmId) {
     return (
       <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-medium">Feature Modules</h3>
-          <p className="text-sm text-muted-foreground">
-            Please select a farm to manage its modules.
+        <div className="flex items-center gap-3">
+          <Boxes className="h-6 w-6" />
+          <div>
+            <h3 className="text-lg font-medium">Feature Modules</h3>
+            <p className="text-sm text-muted-foreground">
+              Enable or disable livestock management features.
+            </p>
+          </div>
+        </div>
+        <div className="rounded-lg border border-dashed p-8 text-center">
+          <p className="text-muted-foreground">
+            Please create or select a farm first to manage its modules.
           </p>
         </div>
       </div>

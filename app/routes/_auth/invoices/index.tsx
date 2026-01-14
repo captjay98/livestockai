@@ -22,6 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog'
 import { InvoiceDialog } from '~/components/dialogs/invoice-dialog'
 import { useFarm } from '~/features/farms/context'
 
@@ -115,6 +123,7 @@ function InvoicesPage() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [viewInvoice, setViewInvoice] = useState<InvoiceRecord | null>(null)
 
   const loadData = async () => {
     setIsLoading(true)
@@ -227,11 +236,9 @@ function InvoicesPage() {
         id: 'actions',
         cell: ({ row }) => (
           <div className="flex justify-end">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to={`/invoices/${row.original.id}`}>
-                <Eye className="h-4 w-4 mr-2" />
-                View
-              </Link>
+            <Button variant="ghost" size="sm" onClick={() => setViewInvoice(row.original)}>
+              <Eye className="h-4 w-4 mr-2" />
+              View
             </Button>
           </div>
         ),
@@ -241,7 +248,7 @@ function InvoicesPage() {
   )
 
   return (
-    <div className="container mx-auto py-6 px-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
@@ -307,6 +314,61 @@ function InvoicesPage() {
           onOpenChange={setCreateDialogOpen}
         />
       )}
+
+      {/* View Invoice Dialog */}
+      <Dialog open={!!viewInvoice} onOpenChange={(open) => !open && setViewInvoice(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Invoice {viewInvoice?.invoiceNumber}</DialogTitle>
+            <DialogDescription>
+              {viewInvoice?.customerName}
+            </DialogDescription>
+          </DialogHeader>
+          {viewInvoice && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Date</p>
+                  <p className="font-medium">{formatDate(viewInvoice.date)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Due Date</p>
+                  <p className="font-medium">{viewInvoice.dueDate ? formatDate(viewInvoice.dueDate) : '-'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Amount</p>
+                  <p className="font-medium">{formatCurrency(viewInvoice.totalAmount)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Status</p>
+                  <Badge
+                    variant={viewInvoice.status === 'paid' ? 'default' : viewInvoice.status === 'partial' ? 'secondary' : 'destructive'}
+                    className={
+                      viewInvoice.status === 'paid'
+                        ? 'bg-success/15 text-success'
+                        : viewInvoice.status === 'partial'
+                          ? 'bg-warning/15 text-warning'
+                          : 'bg-destructive/15 text-destructive'
+                    }
+                  >
+                    {viewInvoice.status.charAt(0).toUpperCase() + viewInvoice.status.slice(1)}
+                  </Badge>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setViewInvoice(null)}>
+                  Close
+                </Button>
+                <Button asChild>
+                  <Link to={`/invoices/${viewInvoice.id}`}>
+                    View Full Details
+                  </Link>
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

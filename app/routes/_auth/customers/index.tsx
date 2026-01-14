@@ -379,7 +379,7 @@ function CustomersPage() {
   )
 
   return (
-    <div className="container mx-auto py-6 px-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Customers</h1>
@@ -410,7 +410,7 @@ function CustomersPage() {
                 {topCustomers.map((customer, index) => (
                   <div
                     key={customer.id}
-                    className="flex items-center justify-between p-3 border rounded-lg bg-white/50"
+                    className="flex items-center justify-between p-3 border rounded-lg bg-card"
                     style={{ borderColor: index === 0 ? '#fbbf24' : undefined }}
                   >
                     <div className="flex items-center gap-3">
