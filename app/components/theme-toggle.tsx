@@ -1,15 +1,21 @@
 import { Moon, Sun } from 'lucide-react'
-import { useTheme } from './theme-provider'
 import { Button } from './ui/button'
+import { usePreferences, useSettings } from '~/features/settings'
 
 export function ThemeToggle() {
-  const { setTheme, theme } = useTheme()
+  const { theme } = usePreferences()
+  const { updateSettings } = useSettings()
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light'
+    updateSettings({ theme: newTheme })
+  }
 
   return (
     <Button
       variant="outline"
       size="icon"
-      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      onClick={toggleTheme}
       className="rounded-full"
       title="Toggle theme"
     >

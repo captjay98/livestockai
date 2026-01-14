@@ -19,7 +19,7 @@ import type { UserSettings } from './currency-presets'
 
 interface SettingsContextValue {
   settings: UserSettings
-  updateSettings: (newSettings: UserSettings) => Promise<void>
+  updateSettings: (newSettings: Partial<UserSettings>) => Promise<void>
   isLoading: boolean
   error: string | null
 }
@@ -71,15 +71,16 @@ export function SettingsProvider({
 
   // Update settings with optimistic update
   const handleUpdateSettings = useCallback(
-    async (newSettings: UserSettings) => {
+    async (newSettings: Partial<UserSettings>) => {
       const previousSettings = settings
+      const mergedSettings = { ...settings, ...newSettings }
 
       // Optimistic update
-      setSettings(newSettings)
+      setSettings(mergedSettings)
       setError(null)
 
       try {
-        await updateUserSettings({ data: newSettings })
+        await updateUserSettings({ data: mergedSettings })
       } catch (err) {
         console.error('Failed to save settings:', err)
         // Rollback on error

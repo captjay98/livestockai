@@ -11,9 +11,9 @@ import { Toaster } from 'sonner'
 import type { QueryClient } from '@tanstack/react-query'
 import { createPersister } from '~/lib/query-client'
 // import { AppShell } from '~/components/layout/shell'
-import { ThemeProvider } from '~/components/theme-provider'
 import { FarmProvider } from '~/features/farms/context'
 import { SettingsProvider } from '~/features/settings'
+import { ThemeProvider } from '~/features/theme'
 import { NotFoundPage } from '~/components/not-found'
 import { ErrorPage } from '~/components/error-page'
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools'
@@ -73,39 +73,36 @@ function RootComponent() {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- persister is undefined on server, truthy on client
   if (!persister || !queryClient) {
     // Fallback for SSR or if setup failed, just render Outlet
-    // Actually, createPersister returns undefined check internal logic
-    // But we need to be safe.
     return (
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <html lang="en" suppressHydrationWarning>
-          <head>
-            <meta charSet="UTF-8" />
-            <meta
-              name="viewport"
-              content="width=device-width, initial-scale=1.0"
-            />
-            <title>OpenLivestock</title>
-            <HeadContent />
-          </head>
-          <body>
-            <FarmProvider>
-              <SettingsProvider>
+      <html lang="en" suppressHydrationWarning>
+        <head>
+          <meta charSet="UTF-8" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
+          <title>OpenLivestock</title>
+          <HeadContent />
+        </head>
+        <body>
+          <FarmProvider>
+            <SettingsProvider>
+              <ThemeProvider>
                 <Outlet />
                 <PWAPrompt />
-              </SettingsProvider>
-            </FarmProvider>
-            <Scripts />
-          </body>
-        </html>
-      </ThemeProvider>
+              </ThemeProvider>
+            </SettingsProvider>
+          </FarmProvider>
+          <Scripts />
+        </body>
+      </html>
     )
   }
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          <meta charSet="UTF-8" />
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta charSet="UTF-8" />
           <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
@@ -126,10 +123,12 @@ function RootComponent() {
                   })
                 }}
               >
-                <Outlet />
-                <PWAPrompt />
-                <OfflineIndicator />
-                <Toaster richColors position="top-right" />
+                <ThemeProvider>
+                  <Outlet />
+                  <PWAPrompt />
+                  <OfflineIndicator />
+                  <Toaster richColors position="top-right" />
+                </ThemeProvider>
               </PersistQueryClientProvider>
             </SettingsProvider>
           </FarmProvider>
@@ -137,6 +136,5 @@ function RootComponent() {
           {/* <TanStackRouterDevtools position="bottom-right" /> */}
         </body>
       </html>
-    </ThemeProvider>
-  )
+    )
 }

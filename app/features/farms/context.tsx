@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import { usePreferences } from '~/features/settings'
 
 interface FarmContextType {
   selectedFarmId: string | null
@@ -13,15 +14,19 @@ const STORAGE_KEY = 'openlivestock-selected-farm'
 export function FarmProvider({ children }: { children: ReactNode }) {
   const [selectedFarmId, setSelectedFarmIdState] = useState<string | null>(null)
   const [isHydrated, setIsHydrated] = useState(false)
+  const { defaultFarmId } = usePreferences()
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount, or use defaultFarmId from settings
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       setSelectedFarmIdState(stored)
+    } else if (defaultFarmId) {
+      // Auto-select default farm if no farm is currently selected
+      setSelectedFarmIdState(defaultFarmId)
     }
     setIsHydrated(true)
-  }, [])
+  }, [defaultFarmId])
 
   const setSelectedFarmId = (farmId: string | null) => {
     setSelectedFarmIdState(farmId)
