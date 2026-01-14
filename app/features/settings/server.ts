@@ -103,22 +103,12 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
         .insertInto('user_settings')
         .values({
           userId: userId,
+          ...DEFAULT_SETTINGS,
           ...data,
         })
         .onConflict((oc) =>
           oc.column('userId').doUpdateSet({
-            currencyCode: data.currencyCode,
-            currencySymbol: data.currencySymbol,
-            currencyDecimals: data.currencyDecimals,
-            currencySymbolPosition: data.currencySymbolPosition,
-            thousandSeparator: data.thousandSeparator,
-            decimalSeparator: data.decimalSeparator,
-            dateFormat: data.dateFormat,
-            timeFormat: data.timeFormat,
-            firstDayOfWeek: data.firstDayOfWeek,
-            weightUnit: data.weightUnit,
-            areaUnit: data.areaUnit,
-            temperatureUnit: data.temperatureUnit,
+            ...data,
           }),
         )
         .execute()

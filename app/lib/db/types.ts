@@ -74,6 +74,36 @@ export interface UserSettingsTable {
   areaUnit: 'sqm' | 'sqft'
   temperatureUnit: 'celsius' | 'fahrenheit'
 
+  // Preferences
+  defaultFarmId: string | null
+  language: 'en' | 'ha' | 'yo' | 'ig' | 'fr' | 'pt' | 'sw'
+  theme: 'light' | 'dark' | 'system'
+
+  // Alerts
+  lowStockThresholdPercent: number
+  mortalityAlertPercent: number
+  mortalityAlertQuantity: number
+  notifications: {
+    lowStock: boolean
+    highMortality: boolean
+    invoiceDue: boolean
+    batchHarvest: boolean
+  }
+
+  // Business
+  defaultPaymentTermsDays: number
+  fiscalYearStartMonth: number
+
+  // Dashboard
+  dashboardCards: {
+    inventory: boolean
+    revenue: boolean
+    expenses: boolean
+    profit: boolean
+    mortality: boolean
+    feed: boolean
+  }
+
   // Onboarding state
   onboardingCompleted: Generated<boolean>
   onboardingStep: Generated<number>

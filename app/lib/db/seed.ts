@@ -252,18 +252,7 @@ export async function seed() {
         .insertInto('user_settings')
         .values({
           userId: result.userId,
-          currencyCode: DEFAULT_SETTINGS.currencyCode,
-          currencySymbol: DEFAULT_SETTINGS.currencySymbol,
-          currencyDecimals: DEFAULT_SETTINGS.currencyDecimals,
-          currencySymbolPosition: DEFAULT_SETTINGS.currencySymbolPosition,
-          thousandSeparator: DEFAULT_SETTINGS.thousandSeparator,
-          decimalSeparator: DEFAULT_SETTINGS.decimalSeparator,
-          dateFormat: DEFAULT_SETTINGS.dateFormat,
-          timeFormat: DEFAULT_SETTINGS.timeFormat,
-          firstDayOfWeek: DEFAULT_SETTINGS.firstDayOfWeek,
-          weightUnit: DEFAULT_SETTINGS.weightUnit,
-          areaUnit: DEFAULT_SETTINGS.areaUnit,
-          temperatureUnit: DEFAULT_SETTINGS.temperatureUnit,
+          ...DEFAULT_SETTINGS,
         })
         .execute()
       console.log('   ✅ User settings created\n')

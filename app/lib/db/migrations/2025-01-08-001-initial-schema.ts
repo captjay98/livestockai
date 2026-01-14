@@ -80,6 +80,42 @@ export async function up(db: Kysely<any>): Promise<void> {
     // Onboarding state
     .addColumn('onboardingCompleted', 'boolean', (col) => col.defaultTo(false))
     .addColumn('onboardingStep', 'integer', (col) => col.defaultTo(0))
+    // Preferences
+    .addColumn('defaultFarmId', 'uuid', (col) => col)
+    .addColumn('language', 'varchar(10)', (col) => col.notNull().defaultTo('en'))
+    .addColumn('theme', 'varchar(10)', (col) => col.notNull().defaultTo('system'))
+    // Alerts
+    .addColumn('lowStockThresholdPercent', 'integer', (col) =>
+      col.notNull().defaultTo(10),
+    )
+    .addColumn('mortalityAlertPercent', 'integer', (col) =>
+      col.notNull().defaultTo(5),
+    )
+    .addColumn('mortalityAlertQuantity', 'integer', (col) =>
+      col.notNull().defaultTo(10),
+    )
+    .addColumn('notifications', 'jsonb', (col) =>
+      col
+        .notNull()
+        .defaultTo(
+          sql`'{"lowStock":true,"highMortality":true,"invoiceDue":true,"batchHarvest":true}'::jsonb`,
+        ),
+    )
+    // Business
+    .addColumn('defaultPaymentTermsDays', 'integer', (col) =>
+      col.notNull().defaultTo(30),
+    )
+    .addColumn('fiscalYearStartMonth', 'integer', (col) =>
+      col.notNull().defaultTo(1),
+    )
+    // Dashboard
+    .addColumn('dashboardCards', 'jsonb', (col) =>
+      col
+        .notNull()
+        .defaultTo(
+          sql`'{"inventory":true,"revenue":true,"expenses":true,"profit":true,"mortality":true,"feed":true}'::jsonb`,
+        ),
+    )
     // Timestamps
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
@@ -101,6 +137,21 @@ export async function up(db: Kysely<any>): Promise<void> {
     db,
   )
   await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_temp_unit_check CHECK ("temperatureUnit" IN ('celsius', 'fahrenheit'))`.execute(
+    db,
+  )
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT language_check CHECK (language IN ('en', 'ha', 'yo', 'ig', 'fr', 'pt', 'sw'))`.execute(
+    db,
+  )
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT theme_check CHECK (theme IN ('light', 'dark', 'system'))`.execute(
+    db,
+  )
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT fiscal_month_check CHECK ("fiscalYearStartMonth" BETWEEN 1 AND 12)`.execute(
+    db,
+  )
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT low_stock_check CHECK ("lowStockThresholdPercent" BETWEEN 1 AND 100)`.execute(
+    db,
+  )
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT mortality_percent_check CHECK ("mortalityAlertPercent" BETWEEN 1 AND 100)`.execute(
     db,
   )
 
@@ -167,6 +218,18 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`ALTER TABLE farms ADD CONSTRAINT farms_type_check CHECK (type IN ('poultry', 'fishery', 'mixed', 'cattle', 'goats', 'sheep', 'bees', 'multi'))`.execute(
     db,
   )
+
+  // Add foreign key for user_settings.defaultFarmId now that farms table exists
+  await db.schema
+    .alterTable('user_settings')
+    .addForeignKeyConstraint(
+      'user_settings_default_farm_fk',
+      ['defaultFarmId'],
+      'farms',
+      ['id'],
+      (cb) => cb.onDelete('set null'),
+    )
+    .execute()
 
   await db.schema
     .createTable('user_farms')

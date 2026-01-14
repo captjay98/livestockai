@@ -238,6 +238,36 @@ export interface UserSettings {
   weightUnit: 'kg' | 'lbs'
   areaUnit: 'sqm' | 'sqft'
   temperatureUnit: 'celsius' | 'fahrenheit'
+
+  // Preferences
+  defaultFarmId: string | null
+  language: 'en' | 'ha' | 'yo' | 'ig' | 'fr' | 'pt' | 'sw'
+  theme: 'light' | 'dark' | 'system'
+
+  // Alerts
+  lowStockThresholdPercent: number
+  mortalityAlertPercent: number
+  mortalityAlertQuantity: number
+  notifications: {
+    lowStock: boolean
+    highMortality: boolean
+    invoiceDue: boolean
+    batchHarvest: boolean
+  }
+
+  // Business
+  defaultPaymentTermsDays: number
+  fiscalYearStartMonth: number
+
+  // Dashboard
+  dashboardCards: {
+    inventory: boolean
+    revenue: boolean
+    expenses: boolean
+    profit: boolean
+    mortality: boolean
+    feed: boolean
+  }
 }
 
 /**
@@ -261,5 +291,35 @@ export const DEFAULT_SETTINGS: UserSettings = {
   weightUnit: 'kg',
   areaUnit: 'sqm',
   temperatureUnit: 'celsius',
+
+  // Preferences
+  defaultFarmId: null,
+  language: 'en',
+  theme: 'system',
+
+  // Alerts
+  lowStockThresholdPercent: 10,
+  mortalityAlertPercent: 5,
+  mortalityAlertQuantity: 10,
+  notifications: {
+    lowStock: true,
+    highMortality: true,
+    invoiceDue: true,
+    batchHarvest: true,
+  },
+
+  // Business
+  defaultPaymentTermsDays: 30,
+  fiscalYearStartMonth: 1,
+
+  // Dashboard
+  dashboardCards: {
+    inventory: true,
+    revenue: true,
+    expenses: true,
+    profit: true,
+    mortality: true,
+    feed: true,
+  },
 }
 

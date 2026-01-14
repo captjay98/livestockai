@@ -226,3 +226,53 @@ export function useFormatTemperature() {
     label: getTemperatureLabel(settings.temperatureUnit),
   }
 }
+
+/**
+ * Hook for user preferences
+ */
+export function usePreferences() {
+  const settings = useSettingsValue()
+
+  return {
+    defaultFarmId: settings.defaultFarmId,
+    language: settings.language,
+    theme: settings.theme,
+  }
+}
+
+/**
+ * Hook for alert thresholds
+ */
+export function useAlertThresholds() {
+  const settings = useSettingsValue()
+
+  return {
+    lowStockPercent: settings.lowStockThresholdPercent,
+    mortalityPercent: settings.mortalityAlertPercent,
+    mortalityQuantity: settings.mortalityAlertQuantity,
+    notifications: settings.notifications,
+  }
+}
+
+/**
+ * Hook for business settings
+ */
+export function useBusinessSettings() {
+  const settings = useSettingsValue()
+
+  return {
+    defaultPaymentTermsDays: settings.defaultPaymentTermsDays,
+    fiscalYearStartMonth: settings.fiscalYearStartMonth,
+  }
+}
+
+/**
+ * Hook for dashboard preferences
+ */
+export function useDashboardPreferences() {
+  const settings = useSettingsValue()
+
+  return {
+    cards: settings.dashboardCards,
+  }
+}

@@ -15,6 +15,7 @@
 
 import { createUserWithAuth } from './seed-helpers'
 import { db } from './index'
+import { DEFAULT_SETTINGS } from '~/features/settings'
 
 // ============ CONFIG ============
 const FARM_LOCATION = 'Demo Location'
@@ -121,21 +122,11 @@ export async function seedDev() {
       .insertInto('user_settings')
       .values({
         userId: result.userId,
-        // Currency - NGN for Nigerian demo data
+        ...DEFAULT_SETTINGS,
+        // Override with NGN for Nigerian demo data
         currencyCode: 'NGN',
         currencySymbol: '₦',
-        currencyDecimals: 2,
-        currencySymbolPosition: 'before',
-        thousandSeparator: ',',
-        decimalSeparator: '.',
-        // Date/Time
         dateFormat: 'DD/MM/YYYY',
-        timeFormat: '24h',
-        firstDayOfWeek: 1,
-        // Units - metric
-        weightUnit: 'kg',
-        areaUnit: 'sqm',
-        temperatureUnit: 'celsius',
       })
       .execute()
     console.log('  ✅ User settings created (NGN for demo)\n')
