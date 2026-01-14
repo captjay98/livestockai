@@ -2564,4 +2564,108 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 
 ---
 
+## Day 9 (January 15) - Schema Improvements, Dashboard UX & Documentation
+
+### Context
+
+Continued from Day 8 with focus on database schema improvements, dashboard workflow enhancements, and comprehensive documentation updates.
+
+### Database Schema Improvements
+
+**Objective**: Improve audit trail and enable optional feed inventory linking
+
+**Implementation**:
+- Added `userName` column to `audit_logs` table - preserves user name even if user deleted
+- Added `inventoryId` column to `feed_records` for optional inventory auto-deduction
+- Updated `logAudit()` to fetch and store userName automatically
+
+### Server Function Enhancements
+
+**Objective**: Ensure data integrity with transactional updates
+
+**Implementation**:
+- Wrapped `createSale()` in transaction for atomic batch quantity updates
+- Made feed inventory deduction optional - only deducts if `inventoryId` provided
+- Improved audit logging with userName preservation
+
+### FarmContext & Dialog Consolidation
+
+**Objective**: Centralize farm data loading and standardize batch creation
+
+**Implementation**:
+- Updated `FarmContext` to load structures and suppliers using TanStack Query
+- Updated `BatchDialog` to use FarmContext instead of props
+- Added farm selection validation with warning alert
+- Replaced inline batch form in `batches/index.tsx` with BatchDialog
+
+### Dashboard UX Improvements
+
+**Objective**: Improve workflow guidance with quick actions
+
+**Implementation**:
+- Created `MortalityDialog` component for quick mortality recording
+- Added Mortality button to dashboard quick actions
+- Quick actions now include: Batches, Feed, Expense, Sale, Mortality, Reports
+
+### Provider Order Fix
+
+**Issue**: `FarmProvider` uses `useQuery` but was outside `QueryClientProvider`
+**Solution**: Moved `PersistQueryClientProvider` to wrap `FarmProvider`
+
+### Documentation Overhaul
+
+**Objective**: Consolidate and update all documentation
+
+**Implementation**:
+- Created `docs/ARCHITECTURE.md` - comprehensive system architecture
+- Updated `AGENTS.md` - fixed outdated paths (`app/lib/` → `app/features/`)
+- Updated `.kiro/steering/structure.md` - correct directory layout
+- Updated `.kiro/steering/coding-standards.md` - multi-currency support
+
+### Commits Created (11)
+
+1. `5d74e71` - feat(database): add userName to audit_logs, inventoryId to feed_records
+2. `22cd813` - feat(server): add transactional updates and improved audit logging
+3. `6cc228e` - feat(farms): load structures/suppliers in context, improve BatchDialog
+4. `328dd71` - feat(dialogs): add MortalityDialog, update all dialogs for consistency
+5. `993a6c6` - feat(dashboard): add mortality quick action, use BatchDialog
+6. `50a4a99` - refactor(routes): minor fixes and improvements across pages
+7. `abd771b` - fix(providers): correct provider order - QueryClient must wrap FarmProvider
+8. `47c2c17` - refactor(features): minor improvements to notifications, settings, i18n
+9. `9a09942` - feat(seeds): update development seeder
+10. `abd0a40` - test: fix notification ordering test, update test assertions
+11. `8e0632d` - docs: add ARCHITECTURE.md, update AGENTS.md and steering files
+
+### Technical Metrics
+
+| Metric | Value |
+|--------|-------|
+| **Files Changed** | 108 |
+| **Lines Added** | +3,746 |
+| **Lines Removed** | -1,419 |
+| **Net Change** | +2,327 |
+| **Commits** | 11 |
+| **TypeScript Errors** | 0 |
+| **ESLint Errors** | 0 |
+| **Tests Passing** | 302/303 |
+
+### Key Insights
+
+- FarmContext now serves as central source for farm-related data (structures, suppliers)
+- Transactional wrappers ensure data integrity for sales and mortality
+- Documentation was significantly outdated - paths referenced old `app/lib/` structure
+- Dashboard already had comprehensive alerts system - just needed mortality quick action
+- Provider order matters when providers depend on each other's context
+
+### Time Investment
+
+- Schema & server improvements: ~45 minutes
+- Dialog consolidation: ~30 minutes
+- Dashboard UX: ~20 minutes
+- Provider fix: ~10 minutes
+- Documentation: ~45 minutes
+- **Total**: ~2.5 hours
+
+---
+
 _Built with ❤️ for Nigerian farmers_
