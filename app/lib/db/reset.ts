@@ -14,41 +14,20 @@ async function reset() {
   console.log('🗑️  Resetting database (dropping all tables)...\n')
 
   try {
-    // Drop all tables with CASCADE to handle FK constraints
-    const tables = [
-      'growth_standards',
-      'market_prices',
-      'audit_logs',
-      'invoice_items',
-      'sales',
-      'invoices',
-      'expenses',
-      'water_quality',
-      'treatments',
-      'vaccinations',
-      'weight_samples',
-      'egg_records',
-      'feed_records',
-      'mortality_records',
-      'batches',
-      'medication_inventory',
-      'feed_inventory',
-      'structures',
-      'farm_modules',
-      'user_farms',
-      'suppliers',
-      'customers',
-      'farms',
-      'user_settings',
-      'verification',
-      'account',
-      'sessions',
-      'users',
-      'kysely_migration',
-      'kysely_migration_lock',
-    ]
+    // Drop all tables dynamically by querying the database
+    const result = await sql<{ tablename: string }>`
+      SELECT tablename 
+      FROM pg_tables 
+      WHERE schemaname = 'public'
+    `.execute(db)
 
+    const tables = result.rows.map((row) => row.tablename)
+
+    console.log(`Found ${tables.length} tables to drop\n`)
+
+    // Drop all tables with CASCADE
     for (const table of tables) {
+      console.log(`Dropping ${table}...`)
       await sql`DROP TABLE IF EXISTS ${sql.ref(table)} CASCADE`.execute(db)
     }
 
@@ -57,7 +36,7 @@ async function reset() {
       db,
     )
 
-    console.log('✅ All tables dropped\n')
+    console.log('\n✅ All tables dropped\n')
     console.log('🔄 Now run: bun run db:migrate')
 
     await db.destroy()

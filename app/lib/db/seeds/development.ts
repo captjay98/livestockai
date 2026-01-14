@@ -1135,3 +1135,6 @@ export async function seedDev() {
     throw error
   }
 }
+
+
+seedDev()

@@ -282,7 +282,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE customers ADD CONSTRAINT customers_type_check CHECK ("customerType" IS NULL OR "customerType" IN ('individual', 'restaurant', 'retailer', 'wholesaler'))`.execute(
+  await sql`ALTER TABLE customers ADD CONSTRAINT customers_type_check CHECK ("customerType" IS NULL OR "customerType" IN ('individual', 'restaurant', 'retailer', 'wholesaler', 'processor', 'exporter', 'government'))`.execute(
     db,
   )
 
@@ -329,7 +329,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE structures ADD CONSTRAINT structures_type_check CHECK (type IN ('house', 'pond', 'pen', 'cage', 'barn', 'pasture', 'hive', 'milking_parlor', 'shearing_shed'))`.execute(
+  await sql`ALTER TABLE structures ADD CONSTRAINT structures_type_check CHECK (type IN ('house', 'pond', 'pen', 'cage', 'barn', 'pasture', 'hive', 'milking_parlor', 'shearing_shed', 'tank', 'tarpaulin', 'raceway', 'feedlot', 'kraal'))`.execute(
     db,
   )
   await sql`ALTER TABLE structures ADD CONSTRAINT structures_status_check CHECK (status IN ('active', 'empty', 'maintenance'))`.execute(
@@ -352,7 +352,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE medication_inventory ADD CONSTRAINT medication_inventory_unit_check CHECK (unit IN ('vial', 'bottle', 'sachet', 'ml', 'g', 'tablet'))`.execute(
+  await sql`ALTER TABLE medication_inventory ADD CONSTRAINT medication_inventory_unit_check CHECK (unit IN ('vial', 'bottle', 'sachet', 'ml', 'g', 'tablet', 'kg', 'liter'))`.execute(
     db,
   )
 
@@ -441,7 +441,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`ALTER TABLE mortality_records ADD CONSTRAINT mortality_records_quantity_check CHECK (quantity > 0)`.execute(
     db,
   )
-  await sql`ALTER TABLE mortality_records ADD CONSTRAINT mortality_records_cause_check CHECK (cause IN ('disease', 'predator', 'weather', 'unknown', 'other'))`.execute(
+  await sql`ALTER TABLE mortality_records ADD CONSTRAINT mortality_records_cause_check CHECK (cause IN ('disease', 'predator', 'weather', 'unknown', 'other', 'starvation', 'injury', 'poisoning', 'suffocation', 'culling'))`.execute(
     db,
   )
 
@@ -623,10 +623,10 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE sales ADD CONSTRAINT sales_livestock_type_check CHECK ("livestockType" IN ('poultry', 'fish', 'eggs', 'cattle', 'goats', 'sheep', 'honey', 'milk', 'wool'))`.execute(
+  await sql`ALTER TABLE sales ADD CONSTRAINT sales_livestock_type_check CHECK ("livestockType" IN ('poultry', 'fish', 'eggs', 'cattle', 'goats', 'sheep', 'honey', 'milk', 'wool', 'beeswax', 'propolis', 'royal_jelly', 'manure'))`.execute(
     db,
   )
-  await sql`ALTER TABLE sales ADD CONSTRAINT sales_unit_type_check CHECK ("unitType" IS NULL OR "unitType" IN ('bird', 'kg', 'crate', 'piece'))`.execute(
+  await sql`ALTER TABLE sales ADD CONSTRAINT sales_unit_type_check CHECK ("unitType" IS NULL OR "unitType" IN ('bird', 'kg', 'crate', 'piece', 'liter', 'head', 'colony', 'fleece'))`.execute(
     db,
   )
 
@@ -652,7 +652,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
-  await sql`ALTER TABLE expenses ADD CONSTRAINT expenses_category_check CHECK (category IN ('feed', 'medicine', 'equipment', 'utilities', 'labor', 'transport', 'livestock', 'livestock_chicken', 'livestock_fish', 'livestock_cattle', 'livestock_goats', 'livestock_sheep', 'livestock_bees', 'maintenance', 'marketing', 'other'))`.execute(
+  await sql`ALTER TABLE expenses ADD CONSTRAINT expenses_category_check CHECK (category IN ('feed', 'medicine', 'equipment', 'utilities', 'labor', 'transport', 'livestock', 'livestock_chicken', 'livestock_fish', 'livestock_cattle', 'livestock_goats', 'livestock_sheep', 'livestock_bees', 'maintenance', 'marketing', 'insurance', 'veterinary', 'other'))`.execute(
     db,
   )
 
