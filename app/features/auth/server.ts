@@ -33,7 +33,8 @@ export const checkAuthFn = createServerFn({ method: 'GET' }).handler(
       const session = await requireAuth()
       return { user: session.user }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Auth check failed'
+      const message =
+        error instanceof Error ? error.message : 'Auth check failed'
       console.error('checkAuthFn error:', message)
       throw error
     }

@@ -19,6 +19,7 @@ export type AuditEntityType =
 
 export interface AuditLogParams {
   userId: string
+  userName?: string
   action: AuditAction
   entityType: AuditEntityType
   entityId: string
@@ -28,6 +29,7 @@ export interface AuditLogParams {
 
 export async function logAudit({
   userId,
+  userName,
   action,
   entityType,
   entityId,
@@ -36,10 +38,23 @@ export async function logAudit({
 }: AuditLogParams) {
   try {
     const { db } = await import('~/lib/db')
+
+    // If userName not provided, fetch it from the database
+    let resolvedUserName = userName
+    if (!resolvedUserName && userId) {
+      const user = await db
+        .selectFrom('users')
+        .select('name')
+        .where('id', '=', userId)
+        .executeTakeFirst()
+      resolvedUserName = user?.name
+    }
+
     await db
       .insertInto('audit_logs')
       .values({
         userId,
+        userName: resolvedUserName,
         action,
         entityType,
         entityId,

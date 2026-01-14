@@ -66,59 +66,74 @@ export async function createSale(
 
   const totalAmount = input.quantity * input.unitPrice
 
-  // If selling from a batch, update the batch quantity
-  if (input.batchId && input.livestockType !== 'eggs') {
-    const batch = await db
-      .selectFrom('batches')
-      .select(['id', 'currentQuantity', 'farmId'])
-      .where('id', '=', input.batchId)
-      .where('farmId', '=', input.farmId)
-      .executeTakeFirst()
+  // Use transaction to ensure batch quantity and sale are updated atomically
+  const saleId = await db.transaction().execute(async (trx) => {
+    // If selling from a batch, update the batch quantity
+    if (input.batchId && input.livestockType !== 'eggs') {
+      const batch = await trx
+        .selectFrom('batches')
+        .select(['id', 'currentQuantity', 'farmId'])
+        .where('id', '=', input.batchId)
+        .where('farmId', '=', input.farmId)
+        .executeTakeFirst()
 
-    if (!batch) {
-      throw new Error('Batch not found or does not belong to this farm')
+      if (!batch) {
+        throw new Error('Batch not found or does not belong to this farm')
+      }
+
+      if (batch.currentQuantity < input.quantity) {
+        throw new Error('Quantity exceeds available stock')
+      }
+
+      const newQuantity = batch.currentQuantity - input.quantity
+
+      await trx
+        .updateTable('batches')
+        .set({
+          currentQuantity: newQuantity,
+          status: newQuantity === 0 ? 'sold' : 'active',
+          updatedAt: new Date(),
+        })
+        .where('id', '=', input.batchId)
+        .execute()
     }
 
-    if (batch.currentQuantity < input.quantity) {
-      throw new Error('Quantity exceeds available stock')
-    }
-
-    const newQuantity = batch.currentQuantity - input.quantity
-
-    await db
-      .updateTable('batches')
-      .set({
-        currentQuantity: newQuantity,
-        status: newQuantity === 0 ? 'sold' : 'active',
-        updatedAt: new Date(),
+    const result = await trx
+      .insertInto('sales')
+      .values({
+        farmId: input.farmId,
+        batchId: input.batchId || null,
+        customerId: input.customerId || null,
+        livestockType: input.livestockType,
+        quantity: input.quantity,
+        unitPrice: input.unitPrice.toString(),
+        totalAmount: totalAmount.toString(),
+        date: input.date,
+        notes: input.notes || null,
+        // Enhanced fields
+        unitType: input.unitType || null,
+        ageWeeks: input.ageWeeks || null,
+        averageWeightKg: input.averageWeightKg?.toString() || null,
+        paymentStatus: input.paymentStatus || 'paid',
+        paymentMethod: input.paymentMethod || null,
       })
-      .where('id', '=', input.batchId)
-      .execute()
-  }
+      .returning('id')
+      .executeTakeFirstOrThrow()
 
-  const result = await db
-    .insertInto('sales')
-    .values({
-      farmId: input.farmId,
-      batchId: input.batchId || null,
-      customerId: input.customerId || null,
-      livestockType: input.livestockType,
-      quantity: input.quantity,
-      unitPrice: input.unitPrice.toString(),
-      totalAmount: totalAmount.toString(),
-      date: input.date,
-      notes: input.notes || null,
-      // Enhanced fields
-      unitType: input.unitType || null,
-      ageWeeks: input.ageWeeks || null,
-      averageWeightKg: input.averageWeightKg?.toString() || null,
-      paymentStatus: input.paymentStatus || 'paid',
-      paymentMethod: input.paymentMethod || null,
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+    return result.id
+  })
 
-  return result.id
+  // Log audit (outside transaction)
+  const { logAudit } = await import('~/features/logging/audit')
+  await logAudit({
+    userId,
+    action: 'create',
+    entityType: 'sale',
+    entityId: saleId,
+    details: input,
+  })
+
+  return saleId
 }
 
 // Server function for client-side calls

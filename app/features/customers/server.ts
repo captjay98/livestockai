@@ -238,7 +238,10 @@ export async function getCustomersPaginated(query: CustomerQuery = {}) {
     if (query.sortBy === 'totalSpent' || query.sortBy === 'salesCount') {
       dataQuery = dataQuery.orderBy(sql.raw(`"${sortCol}"`), sortOrder)
     } else {
-      dataQuery = dataQuery.orderBy(sql.raw(`customers."${sortCol}"`), sortOrder)
+      dataQuery = dataQuery.orderBy(
+        sql.raw(`customers."${sortCol}"`),
+        sortOrder,
+      )
     }
   } else {
     dataQuery = dataQuery.orderBy(sql.raw('customers."createdAt"'), 'desc')

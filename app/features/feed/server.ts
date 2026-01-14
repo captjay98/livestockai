@@ -26,6 +26,11 @@ export interface CreateFeedRecordInput {
   cost: number
   date: Date
   supplierId?: string | null
+  inventoryId?: string | null // Optional: link to inventory for auto-deduction
+  brandName?: string | null
+  bagSizeKg?: number | null
+  numberOfBags?: number | null
+  notes?: string | null
 }
 
 export interface FeedQuery extends BasePaginatedQuery {
@@ -55,34 +60,44 @@ export async function createFeedRecord(
   }
 
   const result = await db.transaction().execute(async (tx) => {
-    // 1. Check current inventory
-    const inventory = await tx
-      .selectFrom('feed_inventory')
-      .select(['id', 'quantityKg'])
-      .where('farmId', '=', farmId)
-      .where('feedType', '=', input.feedType)
-      .executeTakeFirst()
+    let inventoryId: string | null = null
 
-    if (!inventory || parseFloat(inventory.quantityKg) < input.quantityKg) {
-      throw new Error(
-        `Insufficient inventory for ${input.feedType}. Available: ${inventory ? parseFloat(inventory.quantityKg) : 0}kg`,
-      )
+    // If inventoryId provided, deduct from that specific inventory
+    if (input.inventoryId) {
+      const inventory = await tx
+        .selectFrom('feed_inventory')
+        .select(['id', 'quantityKg', 'feedType'])
+        .where('id', '=', input.inventoryId)
+        .where('farmId', '=', farmId)
+        .executeTakeFirst()
+
+      if (!inventory) {
+        throw new Error('Inventory not found')
+      }
+
+      if (parseFloat(inventory.quantityKg) < input.quantityKg) {
+        throw new Error(
+          `Insufficient inventory. Available: ${parseFloat(inventory.quantityKg)}kg`,
+        )
+      }
+
+      // Deduct from inventory
+      const newQuantity = (
+        parseFloat(inventory.quantityKg) - input.quantityKg
+      ).toString()
+      await tx
+        .updateTable('feed_inventory')
+        .set({
+          quantityKg: newQuantity,
+          updatedAt: new Date(),
+        })
+        .where('id', '=', inventory.id)
+        .execute()
+
+      inventoryId = inventory.id
     }
 
-    // 2. Subtract from inventory
-    const newQuantity = (
-      parseFloat(inventory.quantityKg) - input.quantityKg
-    ).toString()
-    await tx
-      .updateTable('feed_inventory')
-      .set({
-        quantityKg: newQuantity,
-        updatedAt: new Date(),
-      })
-      .where('id', '=', inventory.id)
-      .execute()
-
-    // 3. Record the feed consumption
+    // Record the feed consumption
     return await tx
       .insertInto('feed_records')
       .values({
@@ -92,9 +107,24 @@ export async function createFeedRecord(
         cost: input.cost.toString(),
         date: input.date,
         supplierId: input.supplierId || null,
+        inventoryId: inventoryId,
+        brandName: input.brandName || null,
+        bagSizeKg: input.bagSizeKg || null,
+        numberOfBags: input.numberOfBags || null,
+        notes: input.notes || null,
       })
       .returning('id')
       .executeTakeFirstOrThrow()
+  })
+
+  // Log audit
+  const { logAudit } = await import('~/features/logging/audit')
+  await logAudit({
+    userId,
+    action: 'create',
+    entityType: 'feed_record',
+    entityId: result.id,
+    details: input,
   })
 
   return result.id

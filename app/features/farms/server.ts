@@ -7,7 +7,7 @@ export interface CreateFarmData {
   location: string
   type:
     | 'poultry'
-    | 'fishery'
+    | 'aquaculture'
     | 'mixed'
     | 'cattle'
     | 'goats'
@@ -21,7 +21,7 @@ export interface UpdateFarmData {
   location?: string
   type?:
     | 'poultry'
-    | 'fishery'
+    | 'aquaculture'
     | 'mixed'
     | 'cattle'
     | 'goats'
@@ -162,7 +162,7 @@ export async function updateFarm(
     location?: string
     type?:
       | 'poultry'
-      | 'fishery'
+      | 'aquaculture'
       | 'mixed'
       | 'cattle'
       | 'goats'
@@ -191,7 +191,7 @@ export const updateFarmFn = createServerFn({ method: 'POST' })
       farmId: string
       name: string
       location: string
-      type: 'poultry' | 'fishery' | 'mixed'
+      type: 'poultry' | 'aquaculture' | 'mixed'
     }) => data,
   )
   .handler(async ({ data }) => {

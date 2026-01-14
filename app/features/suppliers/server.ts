@@ -206,7 +206,10 @@ export async function getSuppliersPaginated(query: SupplierQuery = {}) {
     if (query.sortBy === 'totalSpent' || query.sortBy === 'expenseCount') {
       dataQuery = dataQuery.orderBy(sql.raw(`"${sortCol}"`), sortOrder)
     } else {
-      dataQuery = dataQuery.orderBy(sql.raw(`suppliers."${sortCol}"`), sortOrder)
+      dataQuery = dataQuery.orderBy(
+        sql.raw(`suppliers."${sortCol}"`),
+        sortOrder,
+      )
     }
   } else {
     dataQuery = dataQuery.orderBy(sql.raw('suppliers."createdAt"'), 'desc')
