@@ -50,21 +50,21 @@ describe('Currency Utilities', () => {
 
     describe('formatCurrency', () => {
       it('formats zero correctly', () => {
-        expect(formatCurrency(0)).toBe('₦0.00')
+        expect(formatCurrency(0)).toBe('$0.00')
       })
 
       it('formats small amounts correctly', () => {
-        expect(formatCurrency(100)).toBe('₦100.00')
-        expect(formatCurrency(100.5)).toBe('₦100.50')
+        expect(formatCurrency(100)).toBe('$100.00')
+        expect(formatCurrency(100.5)).toBe('$100.50')
       })
 
       it('formats large amounts with separators', () => {
-        expect(formatCurrency(1500000)).toBe('₦1,500,000.00')
-        expect(formatCurrency('2500000.75')).toBe('₦2,500,000.75')
+        expect(formatCurrency(1500000)).toBe('$1,500,000.00')
+        expect(formatCurrency('2500000.75')).toBe('$2,500,000.75')
       })
 
       it('handles Decimal input', () => {
-        expect(formatCurrency(new Decimal('1500.50'))).toBe('₦1,500.50')
+        expect(formatCurrency(new Decimal('1500.50'))).toBe('$1,500.50')
       })
     })
 
@@ -84,18 +84,18 @@ describe('Currency Utilities', () => {
 
     describe('formatCurrencyCompact', () => {
       it('formats millions correctly', () => {
-        expect(formatCurrencyCompact(1500000)).toBe('₦1.5M')
-        expect(formatCurrencyCompact(2300000)).toBe('₦2.3M')
+        expect(formatCurrencyCompact(1500000)).toBe('$1.5M')
+        expect(formatCurrencyCompact(2300000)).toBe('$2.3M')
       })
 
       it('formats thousands correctly', () => {
-        expect(formatCurrencyCompact(1500)).toBe('₦1.5K')
-        expect(formatCurrencyCompact(25000)).toBe('₦25.0K')
+        expect(formatCurrencyCompact(1500)).toBe('$1.5K')
+        expect(formatCurrencyCompact(25000)).toBe('$25K')
       })
 
       it('formats small amounts normally', () => {
-        expect(formatCurrencyCompact(500)).toBe('₦500.00')
-        expect(formatCurrencyCompact(999)).toBe('₦999.00')
+        expect(formatCurrencyCompact(500)).toBe('$500.00')
+        expect(formatCurrencyCompact(999)).toBe('$999.00')
       })
     })
 
@@ -192,13 +192,13 @@ describe('Currency Utilities', () => {
       .double({ min: 0, max: 1_000_000_000, noNaN: true })
       .map((n) => Math.round(n * 100) / 100) // Round to 2 decimal places
 
-    it('formatCurrency produces strings starting with ₦ and containing correct value', () => {
+    it('formatCurrency produces strings starting with $ and containing correct value', () => {
       fc.assert(
         fc.property(currencyArb, (amount) => {
           const formatted = formatCurrency(amount)
 
-          // Should start with ₦
-          expect(formatted.startsWith('₦')).toBe(true)
+          // Should start with $
+          expect(formatted.startsWith('$')).toBe(true)
 
           // Should be parseable back (approximately)
           const parsed = parseCurrency(formatted)
