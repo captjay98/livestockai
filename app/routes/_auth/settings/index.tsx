@@ -231,6 +231,18 @@ function SettingsPage() {
             <Ruler className="h-4 w-4" />
             Units
           </TabsTrigger>
+          <TabsTrigger value="preferences" className="gap-2">
+            <Settings className="h-4 w-4" />
+            Preferences
+          </TabsTrigger>
+          <TabsTrigger value="alerts" className="gap-2">
+            <ClipboardList className="h-4 w-4" />
+            Alerts
+          </TabsTrigger>
+          <TabsTrigger value="business" className="gap-2">
+            <Boxes className="h-4 w-4" />
+            Business
+          </TabsTrigger>
         </TabsList>
 
         {/* Currency Tab */}
@@ -582,6 +594,193 @@ function SettingsPage() {
                     {formatTemperature(previewTemp, localSettings)}
                   </p>
                 </div>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Preferences Tab */}
+        <TabsContent value="preferences">
+          <Card className="p-6 space-y-6">
+            <h2 className="text-lg font-semibold">Preferences</h2>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="language">Language</Label>
+                <Select
+                  value={localSettings.language}
+                  onValueChange={(value) =>
+                    value &&
+                    setLocalSettings((prev) => ({ ...prev, language: value as any }))
+                  }
+                >
+                  <SelectTrigger id="language">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="ha">Hausa</SelectItem>
+                    <SelectItem value="yo">Yoruba</SelectItem>
+                    <SelectItem value="ig">Igbo</SelectItem>
+                    <SelectItem value="fr">French</SelectItem>
+                    <SelectItem value="pt">Portuguese</SelectItem>
+                    <SelectItem value="sw">Swahili</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Interface language (translations coming soon)
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="theme">Theme</Label>
+                <Select
+                  value={localSettings.theme}
+                  onValueChange={(value) =>
+                    value &&
+                    setLocalSettings((prev) => ({ ...prev, theme: value as any }))
+                  }
+                >
+                  <SelectTrigger id="theme">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Alerts Tab */}
+        <TabsContent value="alerts">
+          <Card className="p-6 space-y-6">
+            <h2 className="text-lg font-semibold">Alert Thresholds</h2>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="lowStock">Low Stock Threshold (%)</Label>
+                <Input
+                  id="lowStock"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={localSettings.lowStockThresholdPercent}
+                  onChange={(e) =>
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      lowStockThresholdPercent: parseInt(e.target.value) || 10,
+                    }))
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Alert when inventory falls below this percentage
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mortalityPercent">Mortality Alert (%)</Label>
+                <Input
+                  id="mortalityPercent"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={localSettings.mortalityAlertPercent}
+                  onChange={(e) =>
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      mortalityAlertPercent: parseInt(e.target.value) || 5,
+                    }))
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Alert when mortality rate exceeds this percentage
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mortalityQty">Mortality Alert (Quantity)</Label>
+                <Input
+                  id="mortalityQty"
+                  type="number"
+                  min="1"
+                  value={localSettings.mortalityAlertQuantity}
+                  onChange={(e) =>
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      mortalityAlertQuantity: parseInt(e.target.value) || 10,
+                    }))
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Alert when deaths exceed this number in a single day
+                </p>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Business Tab */}
+        <TabsContent value="business">
+          <Card className="p-6 space-y-6">
+            <h2 className="text-lg font-semibold">Business Settings</h2>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="paymentTerms">Default Payment Terms (Days)</Label>
+                <Input
+                  id="paymentTerms"
+                  type="number"
+                  min="0"
+                  value={localSettings.defaultPaymentTermsDays}
+                  onChange={(e) =>
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      defaultPaymentTermsDays: parseInt(e.target.value) || 30,
+                    }))
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Default due date for invoices (e.g., 30 days)
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fiscalYear">Fiscal Year Start Month</Label>
+                <Select
+                  value={localSettings.fiscalYearStartMonth.toString()}
+                  onValueChange={(value) =>
+                    value &&
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      fiscalYearStartMonth: parseInt(value),
+                    }))
+                  }
+                >
+                  <SelectTrigger id="fiscalYear">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">January</SelectItem>
+                    <SelectItem value="2">February</SelectItem>
+                    <SelectItem value="3">March</SelectItem>
+                    <SelectItem value="4">April</SelectItem>
+                    <SelectItem value="5">May</SelectItem>
+                    <SelectItem value="6">June</SelectItem>
+                    <SelectItem value="7">July</SelectItem>
+                    <SelectItem value="8">August</SelectItem>
+                    <SelectItem value="9">September</SelectItem>
+                    <SelectItem value="10">October</SelectItem>
+                    <SelectItem value="11">November</SelectItem>
+                    <SelectItem value="12">December</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Start month for financial year reporting
+                </p>
               </div>
             </div>
           </Card>
