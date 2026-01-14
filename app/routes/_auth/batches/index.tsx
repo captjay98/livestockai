@@ -226,6 +226,7 @@ function BatchesPage() {
     initialQuantity: '',
     acquisitionDate: new Date().toISOString().split('T')[0],
     costPerUnit: '',
+    targetPricePerUnit: '',
   })
 
   const [editFormData, setEditFormData] = useState({
@@ -291,6 +292,7 @@ function BatchesPage() {
       initialQuantity: '',
       acquisitionDate: new Date().toISOString().split('T')[0],
       costPerUnit: '',
+      targetPricePerUnit: '',
     })
     setError('')
   }
@@ -759,6 +761,24 @@ function BatchesPage() {
                 }
                 placeholder="Enter cost per unit"
                 required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="targetPricePerUnit">Target Sale Price ({currencySymbol})</Label>
+              <Input
+                id="targetPricePerUnit"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.targetPricePerUnit}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    targetPricePerUnit: e.target.value,
+                  }))
+                }
+                placeholder="Expected price per unit at sale"
               />
             </div>
 

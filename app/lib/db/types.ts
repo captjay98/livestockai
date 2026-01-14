@@ -232,6 +232,7 @@ export interface BatchTable {
   structureId: string | null // Which house/pond/barn/pasture/hive
   targetHarvestDate: Date | null // Planned sale date
   target_weight_g: number | null // Forecasting
+  targetPricePerUnit: string | null // DECIMAL(19,2) - User's expected sale price
   notes: string | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>

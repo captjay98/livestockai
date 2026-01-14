@@ -405,6 +405,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('structureId', 'uuid', (col) => col.references('structures.id'))
     .addColumn('targetHarvestDate', 'date')
     .addColumn('target_weight_g', 'integer') // Forecasting
+    .addColumn('targetPricePerUnit', sql`decimal(19,2)`) // User's expected sale price
     .addColumn('notes', 'text')
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
