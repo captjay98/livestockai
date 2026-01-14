@@ -87,8 +87,8 @@ function RootComponent() {
           <HeadContent />
         </head>
         <body>
-          <FarmProvider>
-            <SettingsProvider>
+          <SettingsProvider>
+            <FarmProvider>
               <ThemeProvider>
                 <I18nProvider>
                   <NotificationsProvider>
@@ -97,8 +97,8 @@ function RootComponent() {
                   </NotificationsProvider>
                 </I18nProvider>
               </ThemeProvider>
-            </SettingsProvider>
-          </FarmProvider>
+            </FarmProvider>
+          </SettingsProvider>
           <Scripts />
         </body>
       </html>
@@ -117,8 +117,8 @@ function RootComponent() {
           <HeadContent />
         </head>
         <body>
-          <FarmProvider>
-            <SettingsProvider>
+          <SettingsProvider>
+            <FarmProvider>
               <PersistQueryClientProvider
                 client={queryClient}
                 persistOptions={{ persister }}
@@ -130,14 +130,18 @@ function RootComponent() {
                 }}
               >
                 <ThemeProvider>
-                  <Outlet />
-                  <PWAPrompt />
-                  <OfflineIndicator />
-                  <Toaster richColors position="top-right" />
+                  <I18nProvider>
+                    <NotificationsProvider>
+                      <Outlet />
+                      <PWAPrompt />
+                      <OfflineIndicator />
+                      <Toaster richColors position="top-right" />
+                    </NotificationsProvider>
+                  </I18nProvider>
                 </ThemeProvider>
               </PersistQueryClientProvider>
-            </SettingsProvider>
-          </FarmProvider>
+            </FarmProvider>
+          </SettingsProvider>
           <Scripts />
           {/* <TanStackRouterDevtools position="bottom-right" /> */}
         </body>
