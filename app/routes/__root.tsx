@@ -74,7 +74,8 @@ function RootComponent() {
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- persister is undefined on server, truthy on client
   if (!persister || !queryClient) {
-    // Fallback for SSR or if setup failed, just render Outlet
+    // Fallback for SSR or if setup failed - no QueryClient available
+    // FarmProvider uses useQuery, so we can't render it here
     return (
       <html lang="en" suppressHydrationWarning>
         <head>
@@ -88,16 +89,9 @@ function RootComponent() {
         </head>
         <body>
           <SettingsProvider>
-            <FarmProvider>
-              <ThemeProvider>
-                <I18nProvider>
-                  <NotificationsProvider>
-                    <Outlet />
-                    <PWAPrompt />
-                  </NotificationsProvider>
-                </I18nProvider>
-              </ThemeProvider>
-            </FarmProvider>
+            <ThemeProvider>
+              <Outlet />
+            </ThemeProvider>
           </SettingsProvider>
           <Scripts />
         </body>
@@ -109,42 +103,39 @@ function RootComponent() {
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="UTF-8" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-          <title>{import.meta.env.VITE_APP_NAME ?? 'OpenLivestock'}</title>
-          <HeadContent />
-        </head>
-        <body>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{import.meta.env.VITE_APP_NAME ?? 'OpenLivestock'}</title>
+        <HeadContent />
+      </head>
+      <body>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{ persister }}
+          onSuccess={() => {
+            // Optional: Resume paused mutations
+            queryClient.resumePausedMutations().then(() => {
+              queryClient.invalidateQueries()
+            })
+          }}
+        >
           <SettingsProvider>
             <FarmProvider>
-              <PersistQueryClientProvider
-                client={queryClient}
-                persistOptions={{ persister }}
-                onSuccess={() => {
-                  // Optional: Resume paused mutations
-                  queryClient.resumePausedMutations().then(() => {
-                    queryClient.invalidateQueries()
-                  })
-                }}
-              >
-                <ThemeProvider>
-                  <I18nProvider>
-                    <NotificationsProvider>
-                      <Outlet />
-                      <PWAPrompt />
-                      <OfflineIndicator />
-                      <Toaster richColors position="top-right" />
-                    </NotificationsProvider>
-                  </I18nProvider>
-                </ThemeProvider>
-              </PersistQueryClientProvider>
+              <ThemeProvider>
+                <I18nProvider>
+                  <NotificationsProvider>
+                    <Outlet />
+                    <PWAPrompt />
+                    <OfflineIndicator />
+                    <Toaster richColors position="top-right" />
+                  </NotificationsProvider>
+                </I18nProvider>
+              </ThemeProvider>
             </FarmProvider>
           </SettingsProvider>
-          <Scripts />
-          {/* <TanStackRouterDevtools position="bottom-right" /> */}
-        </body>
-      </html>
-    )
+        </PersistQueryClientProvider>
+        <Scripts />
+        {/* <TanStackRouterDevtools position="bottom-right" /> */}
+      </body>
+    </html>
+  )
 }
