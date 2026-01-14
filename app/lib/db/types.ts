@@ -200,6 +200,11 @@ export interface StructureTable {
     | 'hive'
     | 'milking_parlor'
     | 'shearing_shed'
+    | 'tank' // Concrete/plastic tanks
+    | 'tarpaulin' // Tarpaulin ponds (popular in Nigeria)
+    | 'raceway' // Flow-through systems
+    | 'feedlot' // Intensive feeding area
+    | 'kraal' // Traditional African livestock enclosure
   capacity: number | null // Max animals
   areaSqm: string | null // DECIMAL(10,2) - Size in square meters
   status: 'active' | 'empty' | 'maintenance'
@@ -237,7 +242,17 @@ export interface MortalityTable {
   batchId: string
   quantity: number
   date: Date
-  cause: 'disease' | 'predator' | 'weather' | 'unknown' | 'other'
+  cause:
+    | 'disease'
+    | 'predator'
+    | 'weather'
+    | 'unknown'
+    | 'other'
+    | 'starvation'
+    | 'injury'
+    | 'poisoning'
+    | 'suffocation'
+    | 'culling'
   notes: string | null
   createdAt: Generated<Date>
 }
@@ -342,14 +357,18 @@ export interface SaleTable {
     | 'honey'
     | 'milk'
     | 'wool'
+    | 'beeswax'
+    | 'propolis'
+    | 'royal_jelly'
+    | 'manure'
   quantity: number
   unitPrice: string // DECIMAL(19,2) - returned as string from pg
   totalAmount: string // DECIMAL(19,2) - returned as string from pg
-  unitType: 'bird' | 'kg' | 'crate' | 'piece' | null // How sold
+  unitType: 'bird' | 'kg' | 'crate' | 'piece' | 'liter' | 'head' | 'colony' | 'fleece' | null // How sold
   ageWeeks: number | null // Age at sale (critical for broilers: 5 or 8 weeks)
   averageWeightKg: string | null // DECIMAL(8,3) - Weight at sale
   paymentStatus: 'paid' | 'pending' | 'partial' | null
-  paymentMethod: 'cash' | 'transfer' | 'credit' | null
+  paymentMethod: 'cash' | 'transfer' | 'credit' | 'mobile_money' | 'check' | 'card' | null
   date: Date
   notes: string | null
   createdAt: Generated<Date>
@@ -375,6 +394,8 @@ export interface ExpenseTable {
     | 'livestock_bees'
     | 'maintenance'
     | 'marketing'
+    | 'insurance'
+    | 'veterinary'
     | 'other'
   amount: string // DECIMAL(19,2) - returned as string from pg
   date: Date
@@ -409,7 +430,7 @@ export interface MedicationInventoryTable {
   farmId: string
   medicationName: string
   quantity: number
-  unit: 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet'
+  unit: 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet' | 'kg' | 'liter'
   expiryDate: Date | null
   minThreshold: number
   updatedAt: Generated<Date>
@@ -422,7 +443,15 @@ export interface CustomerTable {
   phone: string
   email: string | null
   location: string | null
-  customerType: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
+  customerType:
+    | 'individual'
+    | 'restaurant'
+    | 'retailer'
+    | 'wholesaler'
+    | 'processor'
+    | 'exporter'
+    | 'government'
+    | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
