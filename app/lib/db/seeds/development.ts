@@ -1,13 +1,13 @@
 /**
  * Development/Demo Farm Seeder - OpenLivestock Manager
- * 
+ *
  * Creates 5 realistic Nigerian farms showcasing all 6 livestock types:
  * 1. Sunrise Poultry Farm (Kaduna) - Poultry only
- * 2. Blue Waters Fish Farm (Ibadan) - Aquaculture only  
+ * 2. Blue Waters Fish Farm (Ibadan) - Aquaculture only
  * 3. Green Valley Mixed Farm (Jos) - Poultry + Aquaculture
  * 4. Savanna Livestock Ranch (Kano) - Cattle + Goats + Sheep
  * 5. Golden Hive Apiary (Enugu) - Bees only
- * 
+ *
  * Run: bun run db:seed:dev
  */
 
@@ -53,7 +53,8 @@ const DEFAULT_SETTINGS = {
 
 // ============ DATE HELPERS ============
 const TODAY = new Date()
-const daysAgo = (days: number) => new Date(TODAY.getTime() - days * 24 * 60 * 60 * 1000)
+const daysAgo = (days: number) =>
+  new Date(TODAY.getTime() - days * 24 * 60 * 60 * 1000)
 const monthsAgo = (months: number) => {
   const d = new Date(TODAY)
   d.setMonth(d.getMonth() - months)
@@ -634,7 +635,7 @@ export async function seedDev() {
       .values({
         name: 'Blue Waters Fish Farm',
         location: 'Ibadan, Oyo State',
-        type: 'fishery',
+        type: 'aquaculture',
         contactPhone: '+234-805-200-0002',
         notes: 'Catfish and tilapia production using tarpaulin ponds',
       })
@@ -709,8 +710,20 @@ export async function seedDev() {
     await db
       .insertInto('mortality_records')
       .values([
-        { batchId: f2b1.id, quantity: 50, date: monthsAgo(3), cause: 'disease', notes: 'Fungal infection' },
-        { batchId: f2b1.id, quantity: 30, date: monthsAgo(1), cause: 'predator', notes: 'Snake attack' },
+        {
+          batchId: f2b1.id,
+          quantity: 50,
+          date: monthsAgo(3),
+          cause: 'disease',
+          notes: 'Fungal infection',
+        },
+        {
+          batchId: f2b1.id,
+          quantity: 30,
+          date: monthsAgo(1),
+          cause: 'predator',
+          notes: 'Snake attack',
+        },
       ])
       .execute()
 
@@ -749,9 +762,24 @@ export async function seedDev() {
     await db
       .insertInto('weight_samples')
       .values([
-        { batchId: f2b1.id, date: monthsAgo(2), sampleSize: 20, averageWeightKg: '0.250' },
-        { batchId: f2b1.id, date: monthsAgo(1), sampleSize: 20, averageWeightKg: '0.650' },
-        { batchId: f2b1.id, date: daysAgo(7), sampleSize: 20, averageWeightKg: '1.100' },
+        {
+          batchId: f2b1.id,
+          date: monthsAgo(2),
+          sampleSize: 20,
+          averageWeightKg: '0.250',
+        },
+        {
+          batchId: f2b1.id,
+          date: monthsAgo(1),
+          sampleSize: 20,
+          averageWeightKg: '0.650',
+        },
+        {
+          batchId: f2b1.id,
+          date: daysAgo(7),
+          sampleSize: 20,
+          averageWeightKg: '1.100',
+        },
       ])
       .execute()
 
@@ -806,8 +834,22 @@ export async function seedDev() {
     const f3Structures = await db
       .insertInto('structures')
       .values([
-        { farmId: farm3.id, name: 'Broiler House', type: 'house', capacity: 100, areaSqm: '60.00', status: 'active' },
-        { farmId: farm3.id, name: 'Fish Pond', type: 'tarpaulin', capacity: 500, areaSqm: '80.00', status: 'active' },
+        {
+          farmId: farm3.id,
+          name: 'Broiler House',
+          type: 'house',
+          capacity: 100,
+          areaSqm: '60.00',
+          status: 'active',
+        },
+        {
+          farmId: farm3.id,
+          name: 'Fish Pond',
+          type: 'tarpaulin',
+          capacity: 500,
+          areaSqm: '80.00',
+          status: 'active',
+        },
       ])
       .returningAll()
       .execute()
@@ -833,9 +875,35 @@ export async function seedDev() {
       .returningAll()
       .executeTakeFirstOrThrow()
 
-    await db.insertInto('mortality_records').values({ batchId: f3b1.id, quantity: 5, date: daysAgo(35), cause: 'disease' }).execute()
-    await db.insertInto('feed_records').values({ batchId: f3b1.id, feedType: 'starter', quantityKg: '40.00', cost: '24000.00', date: daysAgo(40), supplierId: suppliers[0].id }).execute()
-    await db.insertInto('weight_samples').values({ batchId: f3b1.id, date: daysAgo(21), sampleSize: 10, averageWeightKg: '1.200' }).execute()
+    await db
+      .insertInto('mortality_records')
+      .values({
+        batchId: f3b1.id,
+        quantity: 5,
+        date: daysAgo(35),
+        cause: 'disease',
+      })
+      .execute()
+    await db
+      .insertInto('feed_records')
+      .values({
+        batchId: f3b1.id,
+        feedType: 'starter',
+        quantityKg: '40.00',
+        cost: '24000.00',
+        date: daysAgo(40),
+        supplierId: suppliers[0].id,
+      })
+      .execute()
+    await db
+      .insertInto('weight_samples')
+      .values({
+        batchId: f3b1.id,
+        date: daysAgo(21),
+        sampleSize: 10,
+        averageWeightKg: '1.200',
+      })
+      .execute()
 
     // Catfish batch
     const f3b2 = await db
@@ -858,9 +926,37 @@ export async function seedDev() {
       .returningAll()
       .executeTakeFirstOrThrow()
 
-    await db.insertInto('mortality_records').values({ batchId: f3b2.id, quantity: 40, date: monthsAgo(2), cause: 'disease' }).execute()
-    await db.insertInto('feed_records').values({ batchId: f3b2.id, feedType: 'fish_feed', quantityKg: '100.00', cost: '90000.00', date: monthsAgo(2), supplierId: suppliers[1].id }).execute()
-    await db.insertInto('water_quality').values({ batchId: f3b2.id, date: daysAgo(3), ph: '7.00', temperatureCelsius: '27.00', dissolvedOxygenMgL: '6.00', ammoniaMgL: '0.20' }).execute()
+    await db
+      .insertInto('mortality_records')
+      .values({
+        batchId: f3b2.id,
+        quantity: 40,
+        date: monthsAgo(2),
+        cause: 'disease',
+      })
+      .execute()
+    await db
+      .insertInto('feed_records')
+      .values({
+        batchId: f3b2.id,
+        feedType: 'fish_feed',
+        quantityKg: '100.00',
+        cost: '90000.00',
+        date: monthsAgo(2),
+        supplierId: suppliers[1].id,
+      })
+      .execute()
+    await db
+      .insertInto('water_quality')
+      .values({
+        batchId: f3b2.id,
+        date: daysAgo(3),
+        ph: '7.00',
+        temperatureCelsius: '27.00',
+        dissolvedOxygenMgL: '6.00',
+        ammoniaMgL: '0.20',
+      })
+      .execute()
 
     console.log('  ✅ Farm 3: Green Valley Mixed (1 broiler, 1 catfish)\n')
 
@@ -895,9 +991,30 @@ export async function seedDev() {
     const f4Structures = await db
       .insertInto('structures')
       .values([
-        { farmId: farm4.id, name: 'Traditional Kraal', type: 'kraal', capacity: 50, areaSqm: '200.00', status: 'active' },
-        { farmId: farm4.id, name: 'Shelter Barn', type: 'barn', capacity: 100, areaSqm: '150.00', status: 'active' },
-        { farmId: farm4.id, name: 'Grazing Pasture A', type: 'pasture', capacity: 200, areaSqm: '5000.00', status: 'active' },
+        {
+          farmId: farm4.id,
+          name: 'Traditional Kraal',
+          type: 'kraal',
+          capacity: 50,
+          areaSqm: '200.00',
+          status: 'active',
+        },
+        {
+          farmId: farm4.id,
+          name: 'Shelter Barn',
+          type: 'barn',
+          capacity: 100,
+          areaSqm: '150.00',
+          status: 'active',
+        },
+        {
+          farmId: farm4.id,
+          name: 'Grazing Pasture A',
+          type: 'pasture',
+          capacity: 200,
+          areaSqm: '5000.00',
+          status: 'active',
+        },
       ])
       .returningAll()
       .execute()
@@ -923,9 +1040,37 @@ export async function seedDev() {
       .returningAll()
       .executeTakeFirstOrThrow()
 
-    await db.insertInto('feed_records').values({ batchId: f4b1.id, feedType: 'cattle_feed', quantityKg: '500.00', cost: '200000.00', date: monthsAgo(3), supplierId: suppliers[3].id }).execute()
-    await db.insertInto('weight_samples').values({ batchId: f4b1.id, date: monthsAgo(3), sampleSize: 10, averageWeightKg: '180.000' }).execute()
-    await db.insertInto('treatments').values({ batchId: f4b1.id, medicationName: 'Ivermectin', reason: 'Deworming', date: monthsAgo(4), dosage: '1ml per 50kg', withdrawalDays: 28 }).execute()
+    await db
+      .insertInto('feed_records')
+      .values({
+        batchId: f4b1.id,
+        feedType: 'cattle_feed',
+        quantityKg: '500.00',
+        cost: '200000.00',
+        date: monthsAgo(3),
+        supplierId: suppliers[3].id,
+      })
+      .execute()
+    await db
+      .insertInto('weight_samples')
+      .values({
+        batchId: f4b1.id,
+        date: monthsAgo(3),
+        sampleSize: 10,
+        averageWeightKg: '180.000',
+      })
+      .execute()
+    await db
+      .insertInto('treatments')
+      .values({
+        batchId: f4b1.id,
+        medicationName: 'Ivermectin',
+        reason: 'Deworming',
+        date: monthsAgo(4),
+        dosage: '1ml per 50kg',
+        withdrawalDays: 28,
+      })
+      .execute()
 
     // Sales - sold by head (industry standard)
     await db
@@ -967,8 +1112,25 @@ export async function seedDev() {
       .returningAll()
       .executeTakeFirstOrThrow()
 
-    await db.insertInto('mortality_records').values({ batchId: f4b2.id, quantity: 1, date: monthsAgo(2), cause: 'injury' }).execute()
-    await db.insertInto('feed_records').values({ batchId: f4b2.id, feedType: 'goat_feed', quantityKg: '200.00', cost: '80000.00', date: monthsAgo(2) }).execute()
+    await db
+      .insertInto('mortality_records')
+      .values({
+        batchId: f4b2.id,
+        quantity: 1,
+        date: monthsAgo(2),
+        cause: 'injury',
+      })
+      .execute()
+    await db
+      .insertInto('feed_records')
+      .values({
+        batchId: f4b2.id,
+        feedType: 'goat_feed',
+        quantityKg: '200.00',
+        cost: '80000.00',
+        date: monthsAgo(2),
+      })
+      .execute()
 
     console.log('  ✅ Farm 4: Savanna Livestock (cattle, goats)\n')
 
@@ -999,8 +1161,22 @@ export async function seedDev() {
     const f5Structures = await db
       .insertInto('structures')
       .values([
-        { farmId: farm5.id, name: 'Hive Row 1', type: 'hive', capacity: 5, areaSqm: '10.00', status: 'active' },
-        { farmId: farm5.id, name: 'Hive Row 2', type: 'hive', capacity: 5, areaSqm: '10.00', status: 'active' },
+        {
+          farmId: farm5.id,
+          name: 'Hive Row 1',
+          type: 'hive',
+          capacity: 5,
+          areaSqm: '10.00',
+          status: 'active',
+        },
+        {
+          farmId: farm5.id,
+          name: 'Hive Row 2',
+          type: 'hive',
+          capacity: 5,
+          areaSqm: '10.00',
+          status: 'active',
+        },
       ])
       .returningAll()
       .execute()
@@ -1026,7 +1202,16 @@ export async function seedDev() {
       .returningAll()
       .executeTakeFirstOrThrow()
 
-    await db.insertInto('feed_records').values({ batchId: f5b1.id, feedType: 'bee_feed', quantityKg: '5.00', cost: '10000.00', date: monthsAgo(6) }).execute()
+    await db
+      .insertInto('feed_records')
+      .values({
+        batchId: f5b1.id,
+        feedType: 'bee_feed',
+        quantityKg: '5.00',
+        cost: '10000.00',
+        date: monthsAgo(6),
+      })
+      .execute()
 
     // Honey sales - sold by liter
     await db
@@ -1071,21 +1256,72 @@ export async function seedDev() {
     await db
       .insertInto('feed_inventory')
       .values([
-        { farmId: farm2.id, feedType: 'fish_feed', quantityKg: '150.00', minThresholdKg: '200.00' },
-        { farmId: farm3.id, feedType: 'starter', quantityKg: '30.00', minThresholdKg: '50.00' },
-        { farmId: farm3.id, feedType: 'fish_feed', quantityKg: '80.00', minThresholdKg: '100.00' },
-        { farmId: farm4.id, feedType: 'cattle_feed', quantityKg: '300.00', minThresholdKg: '500.00' },
-        { farmId: farm4.id, feedType: 'goat_feed', quantityKg: '100.00', minThresholdKg: '150.00' },
-        { farmId: farm5.id, feedType: 'bee_feed', quantityKg: '3.00', minThresholdKg: '5.00' },
+        {
+          farmId: farm2.id,
+          feedType: 'fish_feed',
+          quantityKg: '150.00',
+          minThresholdKg: '200.00',
+        },
+        {
+          farmId: farm3.id,
+          feedType: 'starter',
+          quantityKg: '30.00',
+          minThresholdKg: '50.00',
+        },
+        {
+          farmId: farm3.id,
+          feedType: 'fish_feed',
+          quantityKg: '80.00',
+          minThresholdKg: '100.00',
+        },
+        {
+          farmId: farm4.id,
+          feedType: 'cattle_feed',
+          quantityKg: '300.00',
+          minThresholdKg: '500.00',
+        },
+        {
+          farmId: farm4.id,
+          feedType: 'goat_feed',
+          quantityKg: '100.00',
+          minThresholdKg: '150.00',
+        },
+        {
+          farmId: farm5.id,
+          feedType: 'bee_feed',
+          quantityKg: '3.00',
+          minThresholdKg: '5.00',
+        },
       ])
       .execute()
 
     await db
       .insertInto('medication_inventory')
       .values([
-        { farmId: farm2.id, medicationName: 'Malachite Green', quantity: 2, unit: 'bottle', expiryDate: new Date('2026-08-31'), minThreshold: 5 },
-        { farmId: farm4.id, medicationName: 'Ivermectin', quantity: 10, unit: 'vial', expiryDate: new Date('2027-01-31'), minThreshold: 15 },
-        { farmId: farm4.id, medicationName: 'Antibiotics', quantity: 5, unit: 'bottle', expiryDate: new Date('2026-09-30'), minThreshold: 10 },
+        {
+          farmId: farm2.id,
+          medicationName: 'Malachite Green',
+          quantity: 2,
+          unit: 'bottle',
+          expiryDate: new Date('2026-08-31'),
+          minThreshold: 5,
+        },
+        {
+          farmId: farm4.id,
+          medicationName: 'Ivermectin',
+          quantity: 10,
+          unit: 'vial',
+          expiryDate: new Date('2027-01-31'),
+          minThreshold: 15,
+        },
+        {
+          farmId: farm4.id,
+          medicationName: 'Antibiotics',
+          quantity: 5,
+          unit: 'bottle',
+          expiryDate: new Date('2026-09-30'),
+          minThreshold: 10,
+        },
       ])
       .execute()
     console.log('  ✅ Inventory added\n')
@@ -1135,6 +1371,5 @@ export async function seedDev() {
     throw error
   }
 }
-
 
 seedDev()
