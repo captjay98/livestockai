@@ -68,24 +68,44 @@ export async function getAllBatchAlerts(
   if (batches.length === 0) return []
 
   // Run analysis in parallel
-  const results = await Promise.all(batches.map((batch) => analyzeBatch(batch)))
+  const results = await Promise.all(
+    batches.map((batch) => analyzeBatch(batch, userId)),
+  )
   return results.flat()
 }
 
 /**
  * Core analysis logic for a batch
  */
-async function analyzeBatch(batch: {
-  id: string
-  species: string
-  currentQuantity: number
-  initialQuantity: number
-}): Promise<Array<BatchAlert>> {
+async function analyzeBatch(
+  batch: {
+    id: string
+    species: string
+    currentQuantity: number
+    initialQuantity: number
+  },
+  userId?: string,
+): Promise<Array<BatchAlert>> {
   const { db } = await import('~/lib/db')
   const alerts: Array<BatchAlert> = []
   const twentyFourHoursAgo = subHours(new Date(), 24)
 
-  // 1. Check Sudden Death (Mortality > 1.5% in 24h)
+  // Get user's mortality alert thresholds
+  let mortalityAlertPercent = 5 // default
+  let mortalityAlertQuantity = 10 // default
+  if (userId) {
+    const settings = await db
+      .selectFrom('user_settings')
+      .select(['mortalityAlertPercent', 'mortalityAlertQuantity'])
+      .where('userId', '=', userId)
+      .executeTakeFirst()
+    if (settings) {
+      mortalityAlertPercent = settings.mortalityAlertPercent
+      mortalityAlertQuantity = settings.mortalityAlertQuantity
+    }
+  }
+
+  // 1. Check Sudden Death (Mortality > threshold% in 24h OR > threshold quantity)
   const recentMortality = await db
     .selectFrom('mortality_records')
     .select(({ fn }) => [fn.sum<number>('quantity').as('run_total')])
@@ -97,7 +117,10 @@ async function analyzeBatch(batch: {
   const dailyMortalityRate =
     batch.currentQuantity > 0 ? deadInLast24h / batch.currentQuantity : 0
 
-  if (dailyMortalityRate > 0.015) {
+  if (
+    dailyMortalityRate > mortalityAlertPercent / 100 ||
+    deadInLast24h > mortalityAlertQuantity
+  ) {
     alerts.push({
       id: `mortality-sudden-${batch.id}-${Date.now()}`,
       batchId: batch.id,

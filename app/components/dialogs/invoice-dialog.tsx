@@ -1,10 +1,10 @@
 import { toast } from 'sonner'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { FileText, Plus, Trash2 } from 'lucide-react'
 import { createInvoiceFn } from '~/features/invoices/server'
-import { useFormatCurrency } from '~/features/settings'
+import { useBusinessSettings, useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -52,12 +52,22 @@ interface InvoiceDialogProps {
 export function InvoiceDialog({ farmId, open, onOpenChange }: InvoiceDialogProps) {
   const router = useRouter()
   const { format: formatCurrency } = useFormatCurrency()
+  const { defaultPaymentTermsDays } = useBusinessSettings()
   const [customers, setCustomers] = useState<Array<Customer>>([])
   const [customerId, setCustomerId] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [items, setItems] = useState<Array<LineItem>>([{ description: '', quantity: '', unitPrice: '' }])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  // Auto-calculate due date based on payment terms
+  useEffect(() => {
+    if (open && !dueDate) {
+      const today = new Date()
+      today.setDate(today.getDate() + defaultPaymentTermsDays)
+      setDueDate(today.toISOString().split('T')[0])
+    }
+  }, [open, defaultPaymentTermsDays])
 
   const handleOpenChange = async (isOpen: boolean) => {
     onOpenChange(isOpen)
