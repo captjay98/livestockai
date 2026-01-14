@@ -1,7 +1,9 @@
-import { Link,
+import {
+  Link,
   createFileRoute,
   redirect,
-  useNavigate } from '@tanstack/react-router'
+  useNavigate,
+} from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -19,13 +21,11 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/batches/server'
 import {
-  createBatch,
   deleteBatchFn,
   getBatchesPaginated,
   getInventorySummary,
   updateBatchFn,
 } from '~/features/batches/server'
-import { getSpeciesOptions } from '~/features/batches/constants'
 import { requireAuth } from '~/features/auth/server-middleware'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -50,6 +50,7 @@ import {
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
+import { BatchDialog } from '~/components/dialogs/batch-dialog'
 
 interface Batch {
   id: string
@@ -87,15 +88,6 @@ interface BatchSearchParams {
   q?: string
   status?: 'active' | 'depleted' | 'sold'
   livestockType?: 'poultry' | 'fish'
-}
-
-interface CreateBatchData {
-  farmId: string
-  livestockType: 'poultry' | 'fish'
-  species: string
-  initialQuantity: number
-  acquisitionDate: string
-  costPerUnit: number
 }
 
 const getBatchesForFarmFn = createServerFn({ method: 'GET' })
@@ -139,28 +131,6 @@ const getBatchesForFarmFn = createServerFn({ method: 'GET' })
     }
   })
 
-const createBatchAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateBatchData) => data)
-  .handler(async ({ data }) => {
-    try {
-      const session = await requireAuth()
-      const batchId = await createBatch(session.user.id, {
-        farmId: data.farmId,
-        livestockType: data.livestockType,
-        species: data.species,
-        initialQuantity: data.initialQuantity,
-        acquisitionDate: new Date(data.acquisitionDate),
-        costPerUnit: data.costPerUnit,
-      })
-      return { success: true, batchId }
-    } catch (err) {
-      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
-        throw redirect({ to: '/login' })
-      }
-      throw err
-    }
-  })
-
 export const Route = createFileRoute('/_auth/batches/')({
   component: BatchesPage,
   validateSearch: (search: Record<string, unknown>): BatchSearchParams => {
@@ -195,7 +165,7 @@ export const Route = createFileRoute('/_auth/batches/')({
 
 function BatchesPage() {
   const { selectedFarmId } = useFarm()
-  const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
+  const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -214,20 +184,11 @@ function BatchesPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   // Dialog states
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [batchDialogOpen, setBatchDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null)
-
-  const [formData, setFormData] = useState({
-    livestockType: 'poultry' as 'poultry' | 'fish',
-    species: '',
-    initialQuantity: '',
-    acquisitionDate: new Date().toISOString().split('T')[0],
-    costPerUnit: '',
-    targetPricePerUnit: '',
-  })
 
   const [editFormData, setEditFormData] = useState({
     currentQuantity: '',
@@ -236,8 +197,6 @@ function BatchesPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-
-  const speciesOptions = getSpeciesOptions(formData.livestockType)
 
   const loadData = async () => {
     setIsLoading(true)
@@ -283,54 +242,6 @@ function BatchesPage() {
         ...updates,
       }),
     })
-  }
-
-  const resetForm = () => {
-    setFormData({
-      livestockType: 'poultry',
-      species: '',
-      initialQuantity: '',
-      acquisitionDate: new Date().toISOString().split('T')[0],
-      costPerUnit: '',
-      targetPricePerUnit: '',
-    })
-    setError('')
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedFarmId) return
-
-    setIsSubmitting(true)
-    setError('')
-
-    try {
-      await createBatchAction({
-        data: {
-          farmId: selectedFarmId,
-          livestockType: formData.livestockType,
-          species: formData.species,
-          initialQuantity: parseInt(formData.initialQuantity),
-          acquisitionDate: formData.acquisitionDate,
-          costPerUnit: parseFloat(formData.costPerUnit),
-        },
-      })
-      setDialogOpen(false)
-      resetForm()
-      toast.success('Batch created')
-      queryClient.invalidateQueries({ queryKey: ['farm-modules', selectedFarmId] })
-      loadData()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create batch')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleLivestockTypeChange = (type: string | null) => {
-    if (type === 'poultry' || type === 'fish') {
-      setFormData((prev) => ({ ...prev, livestockType: type, species: '' }))
-    }
   }
 
   const handleEditBatch = (batch: Batch) => {
@@ -383,7 +294,9 @@ function BatchesPage() {
       })
       setDeleteDialogOpen(false)
       toast.success('Batch deleted')
-      queryClient.invalidateQueries({ queryKey: ['farm-modules', selectedFarmId] })
+      queryClient.invalidateQueries({
+        queryKey: ['farm-modules', selectedFarmId],
+      })
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete batch')
@@ -498,7 +411,7 @@ function BatchesPage() {
             Manage your livestock batches and inventory
           </p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
+        <Button onClick={() => setBatchDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Batch
         </Button>
@@ -673,192 +586,7 @@ function BatchesPage() {
       />
 
       {/* Create Batch Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create New Batch</DialogTitle>
-            <DialogDescription>
-              Add a new livestock batch to your inventory
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="livestockType">Livestock Type</Label>
-              <Select
-                value={formData.livestockType}
-                onValueChange={handleLivestockTypeChange}
-              >
-                <SelectTrigger>
-                  <SelectValue>
-                    {formData.livestockType.charAt(0).toUpperCase() +
-                      formData.livestockType.slice(1)}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="poultry">Poultry</SelectItem>
-                  <SelectItem value="fish">Fish</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="species">Species</Label>
-              <Select
-                value={formData.species}
-                onValueChange={(value: string | null) =>
-                  value && setFormData((prev) => ({ ...prev, species: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue>
-                    {formData.species
-                      ? speciesOptions.find((s) => s.value === formData.species)
-                          ?.label
-                      : 'Select species'}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {speciesOptions.map((species) => (
-                    <SelectItem key={species.value} value={species.value}>
-                      {species.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="initialQuantity">Initial Quantity</Label>
-              <Input
-                id="initialQuantity"
-                type="number"
-                min="1"
-                value={formData.initialQuantity}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    initialQuantity: e.target.value,
-                  }))
-                }
-                placeholder="Enter initial quantity"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="costPerUnit">Cost per Unit ({currencySymbol})</Label>
-              <Input
-                id="costPerUnit"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.costPerUnit}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    costPerUnit: e.target.value,
-                  }))
-                }
-                placeholder="Enter cost per unit"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="targetPricePerUnit">Target Sale Price ({currencySymbol})</Label>
-              <Input
-                id="targetPricePerUnit"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.targetPricePerUnit}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    targetPricePerUnit: e.target.value,
-                  }))
-                }
-                placeholder="Expected price per unit at sale"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="acquisitionDate">Acquisition Date</Label>
-              <Input
-                id="acquisitionDate"
-                type="date"
-                value={formData.acquisitionDate}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    acquisitionDate: e.target.value,
-                  }))
-                }
-                required
-              />
-            </div>
-
-            {formData.initialQuantity && formData.costPerUnit && (
-              <div className="bg-muted p-4 rounded-md">
-                <h4 className="font-medium mb-2">Cost Summary</h4>
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span>Quantity:</span>
-                    <span>
-                      {parseInt(
-                        formData.initialQuantity || '0',
-                      ).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Cost per Unit:</span>
-                    <span>
-                      {formatCurrency(parseFloat(formData.costPerUnit || '0'))}
-                    </span>
-                  </div>
-                  <div className="flex justify-between font-medium border-t pt-1">
-                    <span>Total Cost:</span>
-                    <span>
-                      {formatCurrency(
-                        parseInt(formData.initialQuantity || '0') *
-                        parseFloat(formData.costPerUnit || '0')
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-                {error}
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setDialogOpen(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={
-                  isSubmitting ||
-                  !formData.species ||
-                  !formData.initialQuantity ||
-                  !formData.costPerUnit
-                }
-              >
-                {isSubmitting ? 'Creating...' : 'Create Batch'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <BatchDialog open={batchDialogOpen} onOpenChange={setBatchDialogOpen} />
 
       {/* Edit Batch Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
@@ -913,15 +641,25 @@ function BatchesPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                  {error}
+                </div>
+              )}
+
               <DialogFooter>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setEditDialogOpen(false)}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </Button>
               </DialogFooter>
             </form>
           )}

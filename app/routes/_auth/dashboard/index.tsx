@@ -29,7 +29,11 @@ import { useEffect, useState } from 'react'
 import { getDashboardStats } from '~/features/dashboard/server'
 import { requireAuth } from '~/features/auth/server-middleware'
 import { getUserFarms } from '~/features/auth/utils'
-import { useDashboardPreferences, useFormatCurrency, useFormatDate } from '~/features/settings'
+import {
+  useDashboardPreferences,
+  useFormatCurrency,
+  useFormatDate,
+} from '~/features/settings'
 import { useModules } from '~/features/modules/context'
 import { Button, buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -41,6 +45,7 @@ import { EditFarmDialog } from '~/components/dialogs/edit-farm-dialog'
 import { BatchDialog } from '~/components/dialogs/batch-dialog'
 import { SaleDialog } from '~/components/dialogs/sale-dialog'
 import { FeedDialog } from '~/components/dialogs/feed-dialog'
+import { MortalityDialog } from '~/components/dialogs/mortality-dialog'
 import { EggDialog } from '~/components/dialogs/egg-dialog'
 
 interface TopCustomer {
@@ -63,7 +68,7 @@ interface Farm {
   location: string
   type:
     | 'poultry'
-    | 'fishery'
+    | 'aquaculture'
     | 'mixed'
     | 'cattle'
     | 'goats'
@@ -257,6 +262,7 @@ function DashboardPage() {
   const [saleDialogOpen, setSaleDialogOpen] = useState(false)
   const [feedDialogOpen, setFeedDialogOpen] = useState(false)
   const [eggDialogOpen, setEggDialogOpen] = useState(false)
+  const [mortalityDialogOpen, setMortalityDialogOpen] = useState(false)
   const [selectedFarmForEdit, setSelectedFarmForEdit] = useState<Farm | null>(
     null,
   )
@@ -392,126 +398,126 @@ function DashboardPage() {
           {/* Stats Row */}
           <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
             {cards.revenue && (
-            <Card>
-              <CardContent className="p-3 shadow-none">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Revenue
-                  </p>
-                  <div className="h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-                    <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400">
-                      {currencySymbol}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-lg sm:text-xl font-bold">
-                    {formatCurrency(stats.financial.monthlyRevenue)}
-                  </div>
-                  {stats.financial.revenueChange !== undefined && (
-                    <div className="flex items-center gap-1 text-[10px] sm:text-xs">
-                      <span
-                        className={cn(
-                          'flex items-center gap-0.5 font-medium',
-                          stats.financial.revenueChange >= 0
-                            ? 'text-emerald-600'
-                            : 'text-red-600',
-                        )}
-                      >
-                        {stats.financial.revenueChange >= 0 ? (
-                          <TrendingUpIcon className="h-3 w-3" />
-                        ) : (
-                          <TrendingDownIcon className="h-3 w-3" />
-                        )}
-                        {stats.financial.revenueChange >= 0 ? '+' : ''}
-                        {stats.financial.revenueChange.toFixed(1)}%
+              <Card>
+                <CardContent className="p-3 shadow-none">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-1">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Revenue
+                    </p>
+                    <div className="h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                      <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400">
+                        {currencySymbol}
                       </span>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                  <div>
+                    <div className="text-lg sm:text-xl font-bold">
+                      {formatCurrency(stats.financial.monthlyRevenue)}
+                    </div>
+                    {stats.financial.revenueChange !== undefined && (
+                      <div className="flex items-center gap-1 text-[10px] sm:text-xs">
+                        <span
+                          className={cn(
+                            'flex items-center gap-0.5 font-medium',
+                            stats.financial.revenueChange >= 0
+                              ? 'text-emerald-600'
+                              : 'text-red-600',
+                          )}
+                        >
+                          {stats.financial.revenueChange >= 0 ? (
+                            <TrendingUpIcon className="h-3 w-3" />
+                          ) : (
+                            <TrendingDownIcon className="h-3 w-3" />
+                          )}
+                          {stats.financial.revenueChange >= 0 ? '+' : ''}
+                          {stats.financial.revenueChange.toFixed(1)}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             {cards.expenses && (
-            <Card>
-              <CardContent className="p-3 shadow-none">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Expenses
-                  </p>
-                  <div className="h-6 w-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
-                    <span className="font-bold text-xs text-red-600 dark:text-red-400">
-                      {currencySymbol}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-lg sm:text-xl font-bold">
-                    {formatCurrency(stats.financial.monthlyExpenses)}
-                  </div>
-                  {stats.financial.expensesChange !== undefined && (
-                    <div className="flex items-center gap-1 text-[10px] sm:text-xs">
-                      <span
-                        className={cn(
-                          'flex items-center gap-0.5 font-medium',
-                          stats.financial.expensesChange >= 0
-                            ? 'text-red-600'
-                            : 'text-emerald-600',
-                        )}
-                      >
-                        {stats.financial.expensesChange >= 0 ? (
-                          <TrendingUpIcon className="h-3 w-3" />
-                        ) : (
-                          <TrendingDownIcon className="h-3 w-3" />
-                        )}
-                        {stats.financial.expensesChange >= 0 ? '+' : ''}
-                        {stats.financial.expensesChange.toFixed(1)}%
+              <Card>
+                <CardContent className="p-3 shadow-none">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-1">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Expenses
+                    </p>
+                    <div className="h-6 w-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+                      <span className="font-bold text-xs text-red-600 dark:text-red-400">
+                        {currencySymbol}
                       </span>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                  <div>
+                    <div className="text-lg sm:text-xl font-bold">
+                      {formatCurrency(stats.financial.monthlyExpenses)}
+                    </div>
+                    {stats.financial.expensesChange !== undefined && (
+                      <div className="flex items-center gap-1 text-[10px] sm:text-xs">
+                        <span
+                          className={cn(
+                            'flex items-center gap-0.5 font-medium',
+                            stats.financial.expensesChange >= 0
+                              ? 'text-red-600'
+                              : 'text-emerald-600',
+                          )}
+                        >
+                          {stats.financial.expensesChange >= 0 ? (
+                            <TrendingUpIcon className="h-3 w-3" />
+                          ) : (
+                            <TrendingDownIcon className="h-3 w-3" />
+                          )}
+                          {stats.financial.expensesChange >= 0 ? '+' : ''}
+                          {stats.financial.expensesChange.toFixed(1)}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             {cards.profit && (
-            <Card>
-              <CardContent className="p-3 shadow-none">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Profit
-                  </p>
-                  <div
-                    className={cn(
-                      'h-6 w-6 rounded-full flex items-center justify-center shrink-0',
-                      stats.financial.monthlyProfit >= 0
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30'
-                        : 'bg-red-100 dark:bg-red-900/30',
-                    )}
-                  >
-                    <span
+              <Card>
+                <CardContent className="p-3 shadow-none">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-1">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Profit
+                    </p>
+                    <div
                       className={cn(
-                        'font-bold text-xs',
+                        'h-6 w-6 rounded-full flex items-center justify-center shrink-0',
                         stats.financial.monthlyProfit >= 0
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-red-600 dark:text-red-400',
+                          ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                          : 'bg-red-100 dark:bg-red-900/30',
                       )}
                     >
-                      {currencySymbol}
-                    </span>
+                      <span
+                        className={cn(
+                          'font-bold text-xs',
+                          stats.financial.monthlyProfit >= 0
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-red-600 dark:text-red-400',
+                        )}
+                      >
+                        {currencySymbol}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <div className="text-lg sm:text-xl font-bold">
-                    {formatCurrency(stats.financial.monthlyProfit)}
+                  <div>
+                    <div className="text-lg sm:text-xl font-bold">
+                      {formatCurrency(stats.financial.monthlyProfit)}
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">
+                      Net margin
+                    </p>
                   </div>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">
-                    Net margin
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
             )}
 
             <Card>
@@ -625,17 +631,20 @@ function DashboardPage() {
             !cards.inventory &&
             !cards.mortality &&
             !cards.feed && (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <p className="text-muted-foreground">
-                  All dashboard cards are hidden.{' '}
-                  <Link to="/settings" className="text-primary hover:underline">
-                    Customize dashboard
-                  </Link>
-                </p>
-              </CardContent>
-            </Card>
-          )}
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <p className="text-muted-foreground">
+                    All dashboard cards are hidden.{' '}
+                    <Link
+                      to="/settings"
+                      className="text-primary hover:underline"
+                    >
+                      Customize dashboard
+                    </Link>
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
           {/* Quick Actions */}
           <Card>
@@ -678,6 +687,14 @@ function DashboardPage() {
                 >
                   <ShoppingCart className="h-5 w-5" />
                   <span className="text-xs font-medium">New Sale</span>
+                </button>
+                <button
+                  onClick={() => selectedFarmId && setMortalityDialogOpen(true)}
+                  disabled={!selectedFarmId}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <AlertTriangle className="h-5 w-5" />
+                  <span className="text-xs font-medium">Mortality</span>
                 </button>
                 {/* <button
                   onClick={() => selectedFarmId && setEggDialogOpen(true)}
@@ -808,7 +825,9 @@ function DashboardPage() {
                             )}
                           >
                             {tx.type === 'sale' ? (
-                              <span className="font-bold text-xs">{currencySymbol}</span>
+                              <span className="font-bold text-xs">
+                                {currencySymbol}
+                              </span>
                             ) : (
                               <Receipt className="h-4 w-4" />
                             )}
@@ -975,7 +994,6 @@ function DashboardPage() {
             onOpenChange={setExpenseDialogOpen}
           />
           <BatchDialog
-            farmId={selectedFarmId}
             open={batchDialogOpen}
             onOpenChange={setBatchDialogOpen}
           />
@@ -993,6 +1011,10 @@ function DashboardPage() {
             farmId={selectedFarmId}
             open={eggDialogOpen}
             onOpenChange={setEggDialogOpen}
+          />
+          <MortalityDialog
+            open={mortalityDialogOpen}
+            onOpenChange={setMortalityDialogOpen}
           />
         </>
       )}
