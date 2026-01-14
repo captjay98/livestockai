@@ -61,7 +61,7 @@ export function AppShell({
           </Link>
         </div>
 
-        <main className="flex-1 px-3 py-4 sm:p-8 overflow-y-auto overflow-x-hidden">
+        <main className="flex-1 px-3 py-4 sm:px-4 sm:py-6 overflow-y-auto overflow-x-hidden">
           <div className="max-w-7xl mx-auto animate-in fade-in-up duration-500">
             {children}
           </div>
