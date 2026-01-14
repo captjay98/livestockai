@@ -1,0 +1,300 @@
+import { createNotification } from './server'
+
+/**
+ * Check for low stock and create notifications
+ */
+export async function checkLowStockNotifications(
+  userId: string,
+  farmId?: string,
+): Promise<number> {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('../auth/utils')
+
+  // Get user settings
+  const settings = await db
+    .selectFrom('user_settings')
+    .select(['notifications'])
+    .where('userId', '=', userId)
+    .executeTakeFirst()
+
+  if (!settings?.notifications.lowStock) {
+    return 0
+  }
+
+  // Determine target farms
+  let targetFarmIds: Array<string> = []
+  if (farmId) {
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
+
+  if (targetFarmIds.length === 0) return 0
+
+  let notificationCount = 0
+
+  // Check feed inventory
+  const lowFeedItems = await db
+    .selectFrom('feed_inventory')
+    .selectAll()
+    .where('farmId', 'in', targetFarmIds)
+    .where((eb) =>
+      eb('quantityKg', '<', eb.ref('minThresholdKg')),
+    )
+    .execute()
+
+  for (const item of lowFeedItems) {
+    // Check if notification already exists (avoid duplicates)
+    const existing = await db
+      .selectFrom('notifications')
+      .select('id')
+      .where('userId', '=', userId)
+      .where('type', '=', 'lowStock')
+      .where('read', '=', false)
+      .where((eb) =>
+        eb('metadata', '@>', { feedType: item.feedType, farmId: item.farmId }),
+      )
+      .executeTakeFirst()
+
+    if (!existing) {
+      await createNotification({
+        userId,
+        farmId: item.farmId,
+        type: 'lowStock',
+        title: 'Low Feed Stock',
+        message: `${item.feedType} feed is running low (${Number(item.quantityKg).toFixed(1)}kg remaining)`,
+        actionUrl: '/inventory',
+        metadata: { feedType: item.feedType, farmId: item.farmId },
+      })
+      notificationCount++
+    }
+  }
+
+  // Check medication inventory
+  const lowMedItems = await db
+    .selectFrom('medication_inventory')
+    .selectAll()
+    .where('farmId', 'in', targetFarmIds)
+    .where((eb) =>
+      eb('quantity', '<', eb.ref('minThreshold')),
+    )
+    .execute()
+
+  for (const item of lowMedItems) {
+    const existing = await db
+      .selectFrom('notifications')
+      .select('id')
+      .where('userId', '=', userId)
+      .where('type', '=', 'lowStock')
+      .where('read', '=', false)
+      .where((eb) =>
+        eb('metadata', '@>', { medicationName: item.medicationName, farmId: item.farmId }),
+      )
+      .executeTakeFirst()
+
+    if (!existing) {
+      await createNotification({
+        userId,
+        farmId: item.farmId,
+        type: 'lowStock',
+        title: 'Low Medication Stock',
+        message: `${item.medicationName} is running low (${item.quantity} ${item.unit} remaining)`,
+        actionUrl: '/inventory',
+        metadata: { medicationName: item.medicationName, farmId: item.farmId },
+      })
+      notificationCount++
+    }
+  }
+
+  return notificationCount
+}
+
+/**
+ * Check for invoices due soon and create notifications
+ */
+export async function checkInvoiceDueNotifications(
+  userId: string,
+  farmId?: string,
+): Promise<number> {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('../auth/utils')
+
+  // Get user settings
+  const settings = await db
+    .selectFrom('user_settings')
+    .select(['notifications'])
+    .where('userId', '=', userId)
+    .executeTakeFirst()
+
+  if (!settings?.notifications.invoiceDue) {
+    return 0
+  }
+
+  // Determine target farms
+  let targetFarmIds: Array<string> = []
+  if (farmId) {
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
+
+  if (targetFarmIds.length === 0) return 0
+
+  // Check invoices due within 7 days
+  const sevenDaysFromNow = new Date()
+  sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
+
+  const dueInvoices = await db
+    .selectFrom('invoices')
+    .leftJoin('customers', 'customers.id', 'invoices.customerId')
+    .select([
+      'invoices.id',
+      'invoices.invoiceNumber',
+      'invoices.dueDate',
+      'invoices.totalAmount',
+      'invoices.farmId',
+      'customers.name as customerName',
+    ])
+    .where('invoices.farmId', 'in', targetFarmIds)
+    .where('invoices.status', 'in', ['unpaid', 'partial'])
+    .where('invoices.dueDate', 'is not', null)
+    .where('invoices.dueDate', '<=', sevenDaysFromNow)
+    .where('invoices.dueDate', '>=', new Date())
+    .execute()
+
+  let notificationCount = 0
+
+  for (const invoice of dueInvoices) {
+    if (!invoice.dueDate) continue
+
+    // Check if notification already exists
+    const existing = await db
+      .selectFrom('notifications')
+      .select('id')
+      .where('userId', '=', userId)
+      .where('type', '=', 'invoiceDue')
+      .where('read', '=', false)
+      .where((eb) =>
+        eb('metadata', '@>', { invoiceId: invoice.id }),
+      )
+      .executeTakeFirst()
+
+    if (!existing) {
+      const daysUntilDue = Math.ceil(
+        (new Date(invoice.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+      )
+
+      await createNotification({
+        userId,
+        farmId: invoice.farmId,
+        type: 'invoiceDue',
+        title: 'Invoice Due Soon',
+        message: `Invoice ${invoice.invoiceNumber} for ${invoice.customerName || 'customer'} is due in ${daysUntilDue} days`,
+        actionUrl: `/invoices/${invoice.id}`,
+        metadata: {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          daysUntilDue,
+        },
+      })
+      notificationCount++
+    }
+  }
+
+  return notificationCount
+}
+
+/**
+ * Check for batches approaching harvest date and create notifications
+ */
+export async function checkBatchHarvestNotifications(
+  userId: string,
+  farmId?: string,
+): Promise<number> {
+  const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('../auth/utils')
+
+  // Get user settings
+  const settings = await db
+    .selectFrom('user_settings')
+    .select(['notifications'])
+    .where('userId', '=', userId)
+    .executeTakeFirst()
+
+  if (!settings?.notifications.batchHarvest) {
+    return 0
+  }
+
+  // Determine target farms
+  let targetFarmIds: Array<string> = []
+  if (farmId) {
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+  }
+
+  if (targetFarmIds.length === 0) return 0
+
+  // Check batches with harvest date within 7 days
+  const sevenDaysFromNow = new Date()
+  sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
+
+  const harvestBatches = await db
+    .selectFrom('batches')
+    .select([
+      'id',
+      'batchName',
+      'species',
+      'targetHarvestDate',
+      'currentQuantity',
+      'farmId',
+    ])
+    .where('farmId', 'in', targetFarmIds)
+    .where('status', '=', 'active')
+    .where('targetHarvestDate', 'is not', null)
+    .where('targetHarvestDate', '<=', sevenDaysFromNow)
+    .where('targetHarvestDate', '>=', new Date())
+    .execute()
+
+  let notificationCount = 0
+
+  for (const batch of harvestBatches) {
+    if (!batch.targetHarvestDate) continue
+
+    // Check if notification already exists
+    const existing = await db
+      .selectFrom('notifications')
+      .select('id')
+      .where('userId', '=', userId)
+      .where('type', '=', 'batchHarvest')
+      .where('read', '=', false)
+      .where((eb) =>
+        eb('metadata', '@>', { batchId: batch.id }),
+      )
+      .executeTakeFirst()
+
+    if (!existing) {
+      const daysUntilHarvest = Math.ceil(
+        (new Date(batch.targetHarvestDate).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24),
+      )
+
+      await createNotification({
+        userId,
+        farmId: batch.farmId,
+        type: 'batchHarvest',
+        title: 'Batch Ready for Harvest',
+        message: `${batch.batchName || batch.species} batch is ready for harvest in ${daysUntilHarvest} days (${batch.currentQuantity} units)`,
+        actionUrl: `/batches/${batch.id}`,
+        metadata: {
+          batchId: batch.id,
+          species: batch.species,
+          daysUntilHarvest,
+        },
+      })
+      notificationCount++
+    }
+  }
+
+  return notificationCount
+}
