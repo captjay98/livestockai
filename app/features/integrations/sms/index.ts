@@ -5,6 +5,10 @@ type ProviderFactory = () => Promise<SMSProvider>
 
 const providers = new Map<string, ProviderFactory>([
   [
+    'console',
+    async () => new (await import('./providers/console')).ConsoleProvider(),
+  ],
+  [
     'termii',
     async () => new (await import('./providers/termii')).TermiiProvider(),
   ],

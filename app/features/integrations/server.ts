@@ -5,8 +5,7 @@ export const testEmailFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     await requireAuth()
-    const { sendEmail } = await import('./email/service')
-    const { emailTemplates } = await import('./email/templates')
+    const { sendEmail, emailTemplates } = await import('./email')
     const template = emailTemplates.test()
     return sendEmail({ to: data.to, ...template })
   })
@@ -16,7 +15,7 @@ export const testSMSFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     await requireAuth()
-    const { sendSMS } = await import('./sms/service')
+    const { sendSMS } = await import('./sms')
     return sendSMS({
       to: data.to,
       message: 'OpenLivestock: Your SMS integration is working!',

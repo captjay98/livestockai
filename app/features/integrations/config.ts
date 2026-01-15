@@ -1,7 +1,7 @@
 import type { IntegrationStatus } from './types'
 
 // Provider-based detection
-const SMS_PROVIDERS = ['termii', 'twilio']
+const SMS_PROVIDERS = ['console', 'termii', 'twilio']
 const EMAIL_PROVIDERS = ['resend', 'smtp']
 
 export const INTEGRATIONS = {
