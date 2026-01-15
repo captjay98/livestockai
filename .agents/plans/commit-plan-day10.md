@@ -13,12 +13,14 @@
 ### Commit 1: feat(daily-ops): add update/delete server functions for all daily operations
 
 **Files**:
+
 - `app/features/mortality/server.ts`
 - `app/features/weight/server.ts`
 - `app/features/vaccinations/server.ts`
 - `app/features/water-quality/server.ts`
 
 **Message**:
+
 ```
 feat(daily-ops): add update/delete server functions for all daily operations
 
@@ -35,12 +37,14 @@ All functions include auth checks via checkFarmAccess
 ### Commit 2: feat(daily-ops): add Edit/Delete UI to daily operations pages
 
 **Files**:
+
 - `app/routes/_auth/mortality/index.tsx`
 - `app/routes/_auth/weight/index.tsx`
 - `app/routes/_auth/vaccinations/index.tsx`
 - `app/routes/_auth/water-quality/index.tsx`
 
 **Message**:
+
 ```
 feat(daily-ops): add Edit/Delete UI to daily operations pages
 
@@ -57,10 +61,12 @@ Completes CRUD functionality for Mortality, Weight, Vaccinations, Water Quality
 ### Commit 3: fix(onboarding): fix Create Farm button and expand livestock types
 
 **Files**:
+
 - `app/features/onboarding/context.tsx`
 - `app/routes/_auth/onboarding/index.tsx`
 
 **Message**:
+
 ```
 fix(onboarding): fix Create Farm button and expand livestock types
 
@@ -75,11 +81,13 @@ fix(onboarding): fix Create Farm button and expand livestock types
 ### Commit 4: fix(settings): fix restart tour and consolidate modules UI
 
 **Files**:
+
 - `app/routes/_auth/settings/index.tsx`
 - `app/routes/_auth/settings/modules.tsx` (deleted)
 - `app/components/modules/selector.tsx`
 
 **Message**:
+
 ```
 fix(settings): fix restart tour and consolidate modules UI
 
@@ -93,12 +101,14 @@ fix(settings): fix restart tour and consolidate modules UI
 ### Commit 5: fix(sidebar): show all navigation when no farm selected
 
 **Files**:
+
 - `app/components/layout/sidebar.tsx`
 - `app/components/navigation.tsx`
 - `app/features/modules/constants.ts`
 - `app/components/layout/nav-section.tsx` (new)
 
 **Message**:
+
 ```
 fix(sidebar): show all navigation when no farm selected
 
@@ -112,6 +122,7 @@ fix(sidebar): show all navigation when no farm selected
 ### Commit 6: refactor(routes): add PageHeader component to route pages
 
 **Files**:
+
 - `app/components/page-header.tsx` (new)
 - `app/routes/_auth/batches/index.tsx`
 - `app/routes/_auth/customers/index.tsx`
@@ -127,6 +138,7 @@ fix(sidebar): show all navigation when no farm selected
 - `app/routeTree.gen.ts`
 
 **Message**:
+
 ```
 refactor(routes): add PageHeader component to route pages
 
@@ -140,11 +152,13 @@ refactor(routes): add PageHeader component to route pages
 ### Commit 7: docs: add implementation plans and update DEVLOG
 
 **Files**:
+
 - `.agents/plans/daily-operations-crud-completion.md` (new)
 - `.agents/plans/ux-sidebar-navigation-redesign.md` (new)
 - `DEVLOG.md`
 
 **Message**:
+
 ```
 docs: add implementation plans and update DEVLOG
 
@@ -191,6 +205,6 @@ git commit -m "docs: add implementation plans and update DEVLOG"
 ## Validation
 
 - [x] TypeScript: 0 errors
-- [x] ESLint: 0 errors  
+- [x] ESLint: 0 errors
 - [x] Tests: 302 pass
 - [ ] Git status clean (after commits)
