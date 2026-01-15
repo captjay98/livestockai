@@ -1,6 +1,65 @@
 import { createNotification } from './server'
 
 /**
+ * Send external notification (email/SMS) if configured
+ * Fire-and-forget - errors are logged but don't block
+ */
+async function sendExternalNotification(
+  userId: string,
+  type: 'lowStock' | 'highMortality' | 'invoiceDue' | 'batchHarvest',
+  templateData: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const { db } = await import('~/lib/db')
+    const { INTEGRATIONS } = await import('../integrations/config')
+
+    if (!INTEGRATIONS.email) return
+
+    const user = await db
+      .selectFrom('users')
+      .select(['email'])
+      .where('id', '=', userId)
+      .executeTakeFirst()
+
+    if (!user?.email) return
+
+    const { sendEmail } = await import('../integrations/email')
+    const { emailTemplates } = await import('../integrations/email')
+
+    let template
+    switch (type) {
+      case 'lowStock':
+        template = emailTemplates.lowStock(
+          templateData.itemName as string,
+          templateData.quantity as number,
+        )
+        break
+      case 'invoiceDue':
+        template = emailTemplates.invoiceDue(
+          templateData.invoiceNumber as string,
+          templateData.customerName as string,
+          templateData.daysUntilDue as number,
+        )
+        break
+      case 'batchHarvest':
+        template = emailTemplates.batchHarvest(
+          templateData.batchName as string,
+          templateData.species as string,
+          templateData.daysUntilHarvest as number,
+          templateData.quantity as number,
+        )
+        break
+      default:
+        return
+    }
+
+    await sendEmail({ to: user.email, ...template })
+  } catch (error) {
+    console.error('External notification failed:', error)
+  }
+}
+
+/**
  * Check for low stock and create notifications
  */
 export async function checkLowStockNotifications(
@@ -64,6 +123,11 @@ export async function checkLowStockNotifications(
         actionUrl: '/inventory',
         metadata: { feedType: item.feedType, farmId: item.farmId },
       })
+      // Send external notification (fire-and-forget)
+      sendExternalNotification(userId, 'lowStock', {
+        itemName: item.feedType,
+        quantity: Number(item.quantityKg),
+      })
       notificationCount++
     }
   }
@@ -100,6 +164,11 @@ export async function checkLowStockNotifications(
         message: `${item.medicationName} is running low (${item.quantity} ${item.unit} remaining)`,
         actionUrl: '/inventory',
         metadata: { medicationName: item.medicationName, farmId: item.farmId },
+      })
+      // Send external notification (fire-and-forget)
+      sendExternalNotification(userId, 'lowStock', {
+        itemName: item.medicationName,
+        quantity: item.quantity,
       })
       notificationCount++
     }
@@ -195,6 +264,12 @@ export async function checkInvoiceDueNotifications(
           daysUntilDue,
         },
       })
+      // Send external notification (fire-and-forget)
+      sendExternalNotification(userId, 'invoiceDue', {
+        invoiceNumber: invoice.invoiceNumber,
+        customerName: invoice.customerName || 'customer',
+        daysUntilDue,
+      })
       notificationCount++
     }
   }
@@ -287,6 +362,13 @@ export async function checkBatchHarvestNotifications(
           species: batch.species,
           daysUntilHarvest,
         },
+      })
+      // Send external notification (fire-and-forget)
+      sendExternalNotification(userId, 'batchHarvest', {
+        batchName: batch.batchName || '',
+        species: batch.species,
+        daysUntilHarvest,
+        quantity: batch.currentQuantity,
       })
       notificationCount++
     }

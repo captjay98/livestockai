@@ -27,6 +27,29 @@ export default defineConfig(({ mode }) => {
       'process.env.BETTER_AUTH_SECRET': JSON.stringify(env.BETTER_AUTH_SECRET),
       'process.env.BETTER_AUTH_URL': JSON.stringify(env.BETTER_AUTH_URL),
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
+      // SMS Providers
+      'process.env.SMS_PROVIDER': JSON.stringify(env.SMS_PROVIDER || ''),
+      'process.env.TERMII_API_KEY': JSON.stringify(env.TERMII_API_KEY || ''),
+      'process.env.TERMII_SENDER_ID': JSON.stringify(
+        env.TERMII_SENDER_ID || '',
+      ),
+      'process.env.TWILIO_ACCOUNT_SID': JSON.stringify(
+        env.TWILIO_ACCOUNT_SID || '',
+      ),
+      'process.env.TWILIO_AUTH_TOKEN': JSON.stringify(
+        env.TWILIO_AUTH_TOKEN || '',
+      ),
+      'process.env.TWILIO_PHONE_NUMBER': JSON.stringify(
+        env.TWILIO_PHONE_NUMBER || '',
+      ),
+      // Email Providers
+      'process.env.EMAIL_PROVIDER': JSON.stringify(env.EMAIL_PROVIDER || ''),
+      'process.env.EMAIL_FROM': JSON.stringify(env.EMAIL_FROM || ''),
+      'process.env.RESEND_API_KEY': JSON.stringify(env.RESEND_API_KEY || ''),
+      'process.env.SMTP_HOST': JSON.stringify(env.SMTP_HOST || ''),
+      'process.env.SMTP_PORT': JSON.stringify(env.SMTP_PORT || ''),
+      'process.env.SMTP_USER': JSON.stringify(env.SMTP_USER || ''),
+      'process.env.SMTP_PASS': JSON.stringify(env.SMTP_PASS || ''),
     },
     plugins: [
       cloudflare({ viteEnvironment: { name: 'ssr' } }),

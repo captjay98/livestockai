@@ -100,6 +100,29 @@ export async function getAllBatchAlerts(
           actionUrl: `/batches/${alert.batchId}`,
           metadata: { batchId: alert.batchId, species: batch?.species },
         })
+
+        // Send external notification if configured (fire-and-forget)
+        try {
+          const { INTEGRATIONS } = await import('../integrations/config')
+          if (INTEGRATIONS.email) {
+            const user = await db
+              .selectFrom('users')
+              .select(['email'])
+              .where('id', '=', userId)
+              .executeTakeFirst()
+            if (user?.email) {
+              const { sendEmail } = await import('../integrations/email')
+              const { emailTemplates } = await import('../integrations/email')
+              const template = emailTemplates.highMortality(
+                alert.message,
+                batch?.species || 'Unknown',
+              )
+              sendEmail({ to: user.email, ...template })
+            }
+          }
+        } catch (error) {
+          console.error('External notification failed:', error)
+        }
       }
     }
   }
