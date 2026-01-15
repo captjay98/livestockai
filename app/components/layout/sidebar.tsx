@@ -1,12 +1,16 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { LogOut, User as UserIcon, X } from 'lucide-react'
+import { useMemo } from 'react'
+import { NavSection } from './nav-section'
 import type { User } from '~/features/auth/types'
-import { navigation } from '~/components/navigation'
+import { NAVIGATION_SECTIONS } from '~/components/navigation'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import { FarmSelector } from '~/components/farms/selector'
 import { ThemeToggle } from '~/components/theme-toggle'
 import { Logo } from '~/components/logo'
+import { useModules } from '~/features/modules/context'
+import { filterNavigationByModules } from '~/hooks/useModuleNavigation'
 
 interface SidebarProps {
   className?: string
@@ -16,6 +20,19 @@ interface SidebarProps {
 
 export function Sidebar({ className, onClose, user }: SidebarProps) {
   const location = useLocation()
+  const { enabledModules, isLoading } = useModules()
+
+  const filteredSections = useMemo(() => {
+    // Show all navigation when no modules loaded (no farm selected or loading)
+    if (enabledModules.length === 0 && !isLoading) {
+      return NAVIGATION_SECTIONS
+    }
+
+    return NAVIGATION_SECTIONS.map((section) => ({
+      ...section,
+      items: filterNavigationByModules(section.items, enabledModules),
+    })).filter((section) => section.items.length > 0)
+  }, [enabledModules, isLoading])
 
   const userName = user.name || 'User'
   const userEmail = user.email || ''
@@ -51,38 +68,16 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
         <FarmSelector className="w-full shadow-sm rounded-lg" />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-2 no-scrollbar">
-        <nav className="space-y-1.5">
-          {navigation.map((item) => {
-            const isActive =
-              location.pathname.startsWith(item.href) &&
-              (item.href !== '/' || location.pathname === '/')
-
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                onClick={onClose}
-                className={cn(
-                  'group flex items-center gap-3.5 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200',
-                  isActive
-                    ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
-                    : 'text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:translate-x-1',
-                )}
-              >
-                <item.icon
-                  className={cn(
-                    'h-5 w-5 transition-colors',
-                    isActive
-                      ? 'text-primary'
-                      : 'text-muted-foreground group-hover:text-foreground',
-                  )}
-                />
-                {item.name}
-              </Link>
-            )
-          })}
-        </nav>
+      <div className="flex-1 overflow-y-auto px-3 py-2 no-scrollbar space-y-4">
+        {filteredSections.map((section) => (
+          <NavSection
+            key={section.title}
+            title={section.title}
+            items={section.items}
+            defaultOpen={section.title !== 'Setup'}
+            onItemClick={onClose}
+          />
+        ))}
       </div>
 
       <div className="p-4 m-4 mt-2 bg-sidebar-accent rounded-lg border border-sidebar-border shadow-sm">

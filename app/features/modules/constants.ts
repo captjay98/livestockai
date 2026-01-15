@@ -166,16 +166,17 @@ export const DEFAULT_MODULES_BY_FARM_TYPE: Record<string, Array<ModuleKey>> = {
   multi: [], // User selects manually
 }
 
-// Core navigation items (always visible)
+// Core navigation items (always visible regardless of modules)
 export const CORE_NAVIGATION = [
   'Dashboard',
-  'Farms',
-  'Settings',
   'Reports',
+  'Sales',
+  'Expenses',
+  'Invoices',
   'Customers',
   'Suppliers',
-  'Invoices',
-  'Expenses',
+  'Farms',
+  'Settings',
 ]
 
 // Module-specific navigation items

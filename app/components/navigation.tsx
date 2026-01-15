@@ -1,11 +1,9 @@
-import { Link, useLocation } from '@tanstack/react-router'
 import {
   BarChart3,
   Building2,
   Droplets,
   FileText,
   Home,
-  Menu,
   Package,
   Receipt,
   Scale,
@@ -17,34 +15,57 @@ import {
   UserCircle,
   Warehouse,
   Wheat,
-  X,
 } from 'lucide-react'
-import { useState } from 'react'
-import { cn } from '~/lib/utils'
-import { ThemeToggle } from '~/components/theme-toggle'
-import { NotificationBell } from '~/components/notifications/bell-icon'
-import { Button } from '~/components/ui/button'
-import { useModuleNavigation } from '~/hooks/useModuleNavigation'
 
-export const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Farms', href: '/farms', icon: Building2 },
-  { name: 'Batches', href: '/batches', icon: Package },
-  { name: 'Inventory', href: '/inventory', icon: Warehouse },
-  { name: 'Mortality', href: '/mortality', icon: TrendingDown },
-  { name: 'Feed', href: '/feed', icon: Wheat },
-  // { name: 'Eggs', href: '/eggs', icon: Egg },
-  { name: 'Weight', href: '/weight', icon: Scale },
-  { name: 'Sales', href: '/sales', icon: ShoppingCart },
-  { name: 'Expenses', href: '/expenses', icon: Receipt },
-  { name: 'Health', href: '/vaccinations', icon: Syringe },
-  { name: 'Water', href: '/water-quality', icon: Droplets },
-  { name: 'Customers', href: '/customers', icon: UserCircle },
-  { name: 'Suppliers', href: '/suppliers', icon: Truck },
-  { name: 'Invoices', href: '/invoices', icon: FileText },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
-  { name: 'Settings', href: '/settings', icon: Settings },
+// Grouped navigation structure
+export const NAVIGATION_SECTIONS = [
+  {
+    title: 'Overview',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: Home },
+      { name: 'Reports', href: '/reports', icon: BarChart3 },
+    ],
+  },
+  {
+    title: 'Daily Operations',
+    items: [
+      { name: 'Batches', href: '/batches', icon: Package },
+      { name: 'Feed', href: '/feed', icon: Wheat },
+      { name: 'Mortality', href: '/mortality', icon: TrendingDown },
+      { name: 'Weight', href: '/weight', icon: Scale },
+      { name: 'Health', href: '/vaccinations', icon: Syringe },
+      { name: 'Water', href: '/water-quality', icon: Droplets },
+      { name: 'Inventory', href: '/inventory', icon: Warehouse },
+    ],
+  },
+  {
+    title: 'Finance',
+    items: [
+      { name: 'Sales', href: '/sales', icon: ShoppingCart },
+      { name: 'Expenses', href: '/expenses', icon: Receipt },
+      { name: 'Invoices', href: '/invoices', icon: FileText },
+    ],
+  },
+  {
+    title: 'Contacts',
+    items: [
+      { name: 'Customers', href: '/customers', icon: UserCircle },
+      { name: 'Suppliers', href: '/suppliers', icon: Truck },
+    ],
+  },
+  {
+    title: 'Setup',
+    items: [
+      { name: 'Farms', href: '/farms', icon: Building2 },
+      { name: 'Settings', href: '/settings', icon: Settings },
+    ],
+  },
 ]
+
+// Flat navigation for backward compatibility
+export const navigation = NAVIGATION_SECTIONS.flatMap(
+  (section) => section.items,
+)
 
 export function Navigation() {
   const location = useLocation()
