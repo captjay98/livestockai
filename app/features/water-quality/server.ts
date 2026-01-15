@@ -345,3 +345,99 @@ export const getWaterQualityRecordsPaginatedFn = createServerFn({
     const session = await requireAuth()
     return getWaterQualityRecordsPaginated(session.user.id, data)
   })
+
+// Update water quality input
+export interface UpdateWaterQualityInput {
+  date?: Date
+  ph?: number
+  temperatureCelsius?: number
+  dissolvedOxygenMgL?: number
+  ammoniaMgL?: number
+  notes?: string | null
+}
+
+/**
+ * Update water quality record
+ */
+export async function updateWaterQualityRecord(
+  userId: string,
+  recordId: string,
+  input: UpdateWaterQualityInput,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('water_quality')
+    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+    .select(['water_quality.id', 'batches.farmId'])
+    .where('water_quality.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db
+    .updateTable('water_quality')
+    .set({
+      ...(input.date !== undefined && { date: input.date }),
+      ...(input.ph !== undefined && { ph: input.ph.toString() }),
+      ...(input.temperatureCelsius !== undefined && {
+        temperatureCelsius: input.temperatureCelsius.toString(),
+      }),
+      ...(input.dissolvedOxygenMgL !== undefined && {
+        dissolvedOxygenMgL: input.dissolvedOxygenMgL.toString(),
+      }),
+      ...(input.ammoniaMgL !== undefined && {
+        ammoniaMgL: input.ammoniaMgL.toString(),
+      }),
+      ...(input.notes !== undefined && { notes: input.notes }),
+    })
+    .where('id', '=', recordId)
+    .execute()
+}
+
+export const updateWaterQualityRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: { recordId: string; data: UpdateWaterQualityInput }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return updateWaterQualityRecord(session.user.id, data.recordId, data.data)
+  })
+
+/**
+ * Delete water quality record
+ */
+export async function deleteWaterQualityRecord(
+  userId: string,
+  recordId: string,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('water_quality')
+    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+    .select(['water_quality.id', 'batches.farmId'])
+    .where('water_quality.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db.deleteFrom('water_quality').where('id', '=', recordId).execute()
+}
+
+export const deleteWaterQualityRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { recordId: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteWaterQualityRecord(session.user.id, data.recordId)
+  })

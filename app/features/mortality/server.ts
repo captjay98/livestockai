@@ -404,3 +404,146 @@ export async function getMortalitySummary(userId: string, farmId?: string) {
     totalAlerts,
   }
 }
+
+// Update mortality input
+export interface UpdateMortalityInput {
+  quantity?: number
+  date?: Date
+  cause?:
+    | 'disease'
+    | 'predator'
+    | 'weather'
+    | 'unknown'
+    | 'other'
+    | 'starvation'
+    | 'injury'
+    | 'poisoning'
+    | 'suffocation'
+    | 'culling'
+  notes?: string | null
+}
+
+/**
+ * Update mortality record - adjusts batch quantity if quantity changed
+ */
+export async function updateMortalityRecord(
+  userId: string,
+  recordId: string,
+  input: UpdateMortalityInput,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('mortality_records')
+    .innerJoin('batches', 'batches.id', 'mortality_records.batchId')
+    .select([
+      'mortality_records.id',
+      'mortality_records.batchId',
+      'mortality_records.quantity',
+      'batches.farmId',
+      'batches.currentQuantity',
+    ])
+    .where('mortality_records.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db.transaction().execute(async (trx) => {
+    // Adjust batch quantity if mortality quantity changed
+    if (input.quantity !== undefined && input.quantity !== existing.quantity) {
+      const diff = existing.quantity - input.quantity
+      const newBatchQty = existing.currentQuantity + diff
+
+      if (newBatchQty < 0)
+        throw new Error('Cannot increase mortality beyond batch quantity')
+
+      await trx
+        .updateTable('batches')
+        .set({
+          currentQuantity: newBatchQty,
+          status: newBatchQty <= 0 ? 'depleted' : 'active',
+        })
+        .where('id', '=', existing.batchId)
+        .execute()
+    }
+
+    await trx
+      .updateTable('mortality_records')
+      .set({
+        ...(input.quantity !== undefined && { quantity: input.quantity }),
+        ...(input.date !== undefined && { date: input.date }),
+        ...(input.cause !== undefined && { cause: input.cause }),
+        ...(input.notes !== undefined && { notes: input.notes }),
+      })
+      .where('id', '=', recordId)
+      .execute()
+  })
+}
+
+export const updateMortalityRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: { recordId: string; data: UpdateMortalityInput }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return updateMortalityRecord(session.user.id, data.recordId, data.data)
+  })
+
+/**
+ * Delete mortality record - restores batch quantity
+ */
+export async function deleteMortalityRecord(
+  userId: string,
+  recordId: string,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('mortality_records')
+    .innerJoin('batches', 'batches.id', 'mortality_records.batchId')
+    .select([
+      'mortality_records.id',
+      'mortality_records.batchId',
+      'mortality_records.quantity',
+      'batches.farmId',
+      'batches.currentQuantity',
+    ])
+    .where('mortality_records.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db.transaction().execute(async (trx) => {
+    // Restore batch quantity
+    await trx
+      .updateTable('batches')
+      .set({
+        currentQuantity: existing.currentQuantity + existing.quantity,
+        status: 'active',
+      })
+      .where('id', '=', existing.batchId)
+      .execute()
+
+    await trx
+      .deleteFrom('mortality_records')
+      .where('id', '=', recordId)
+      .execute()
+  })
+}
+
+export const deleteMortalityRecordFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { recordId: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteMortalityRecord(session.user.id, data.recordId)
+  })

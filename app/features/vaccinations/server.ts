@@ -381,3 +381,191 @@ export async function getVaccinationAlerts(userId: string, farmId?: string) {
     totalAlerts: upcoming.length + overdue.length,
   }
 }
+
+// Update vaccination input
+export interface UpdateVaccinationInput {
+  vaccineName?: string
+  dateAdministered?: Date
+  dosage?: string
+  nextDueDate?: Date | null
+  notes?: string | null
+}
+
+// Update treatment input
+export interface UpdateTreatmentInput {
+  medicationName?: string
+  reason?: string
+  date?: Date
+  dosage?: string
+  withdrawalDays?: number
+  notes?: string | null
+}
+
+/**
+ * Update vaccination record
+ */
+export async function updateVaccination(
+  userId: string,
+  recordId: string,
+  input: UpdateVaccinationInput,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('vaccinations')
+    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+    .select(['vaccinations.id', 'batches.farmId'])
+    .where('vaccinations.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db
+    .updateTable('vaccinations')
+    .set({
+      ...(input.vaccineName !== undefined && {
+        vaccineName: input.vaccineName,
+      }),
+      ...(input.dateAdministered !== undefined && {
+        dateAdministered: input.dateAdministered,
+      }),
+      ...(input.dosage !== undefined && { dosage: input.dosage }),
+      ...(input.nextDueDate !== undefined && {
+        nextDueDate: input.nextDueDate,
+      }),
+      ...(input.notes !== undefined && { notes: input.notes }),
+    })
+    .where('id', '=', recordId)
+    .execute()
+}
+
+export const updateVaccinationFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: { recordId: string; data: UpdateVaccinationInput }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return updateVaccination(session.user.id, data.recordId, data.data)
+  })
+
+/**
+ * Delete vaccination record
+ */
+export async function deleteVaccination(
+  userId: string,
+  recordId: string,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('vaccinations')
+    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+    .select(['vaccinations.id', 'batches.farmId'])
+    .where('vaccinations.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db.deleteFrom('vaccinations').where('id', '=', recordId).execute()
+}
+
+export const deleteVaccinationFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { recordId: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteVaccination(session.user.id, data.recordId)
+  })
+
+/**
+ * Update treatment record
+ */
+export async function updateTreatment(
+  userId: string,
+  recordId: string,
+  input: UpdateTreatmentInput,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('treatments')
+    .innerJoin('batches', 'batches.id', 'treatments.batchId')
+    .select(['treatments.id', 'batches.farmId'])
+    .where('treatments.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db
+    .updateTable('treatments')
+    .set({
+      ...(input.medicationName !== undefined && {
+        medicationName: input.medicationName,
+      }),
+      ...(input.reason !== undefined && { reason: input.reason }),
+      ...(input.date !== undefined && { date: input.date }),
+      ...(input.dosage !== undefined && { dosage: input.dosage }),
+      ...(input.withdrawalDays !== undefined && {
+        withdrawalDays: input.withdrawalDays,
+      }),
+      ...(input.notes !== undefined && { notes: input.notes }),
+    })
+    .where('id', '=', recordId)
+    .execute()
+}
+
+export const updateTreatmentFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: { recordId: string; data: UpdateTreatmentInput }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return updateTreatment(session.user.id, data.recordId, data.data)
+  })
+
+/**
+ * Delete treatment record
+ */
+export async function deleteTreatment(
+  userId: string,
+  recordId: string,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('treatments')
+    .innerJoin('batches', 'batches.id', 'treatments.batchId')
+    .select(['treatments.id', 'batches.farmId'])
+    .where('treatments.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db.deleteFrom('treatments').where('id', '=', recordId).execute()
+}
+
+export const deleteTreatmentFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { recordId: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteTreatment(session.user.id, data.recordId)
+  })

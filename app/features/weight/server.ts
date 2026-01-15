@@ -350,3 +350,99 @@ export const getWeightRecordsPaginatedFn = createServerFn({ method: 'GET' })
     const session = await requireAuth()
     return getWeightRecordsPaginated(session.user.id, data)
   })
+
+// Update weight sample input
+export interface UpdateWeightSampleInput {
+  date?: Date
+  sampleSize?: number
+  averageWeightKg?: number
+  minWeightKg?: number | null
+  maxWeightKg?: number | null
+  notes?: string | null
+}
+
+/**
+ * Update weight sample record
+ */
+export async function updateWeightSample(
+  userId: string,
+  recordId: string,
+  input: UpdateWeightSampleInput,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('weight_samples')
+    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+    .select(['weight_samples.id', 'batches.farmId'])
+    .where('weight_samples.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db
+    .updateTable('weight_samples')
+    .set({
+      ...(input.date !== undefined && { date: input.date }),
+      ...(input.sampleSize !== undefined && { sampleSize: input.sampleSize }),
+      ...(input.averageWeightKg !== undefined && {
+        averageWeightKg: input.averageWeightKg.toString(),
+      }),
+      ...(input.minWeightKg !== undefined && {
+        minWeightKg: input.minWeightKg?.toString() ?? null,
+      }),
+      ...(input.maxWeightKg !== undefined && {
+        maxWeightKg: input.maxWeightKg?.toString() ?? null,
+      }),
+      ...(input.notes !== undefined && { notes: input.notes }),
+    })
+    .where('id', '=', recordId)
+    .execute()
+}
+
+export const updateWeightSampleFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: { recordId: string; data: UpdateWeightSampleInput }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return updateWeightSample(session.user.id, data.recordId, data.data)
+  })
+
+/**
+ * Delete weight sample record
+ */
+export async function deleteWeightSample(
+  userId: string,
+  recordId: string,
+): Promise<void> {
+  const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('../auth/utils')
+
+  const existing = await db
+    .selectFrom('weight_samples')
+    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+    .select(['weight_samples.id', 'batches.farmId'])
+    .where('weight_samples.id', '=', recordId)
+    .executeTakeFirst()
+
+  if (!existing) throw new Error('Record not found')
+
+  const hasAccess = await checkFarmAccess(userId, existing.farmId)
+  if (!hasAccess) throw new Error('Access denied')
+
+  await db.deleteFrom('weight_samples').where('id', '=', recordId).execute()
+}
+
+export const deleteWeightSampleFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { recordId: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteWeightSample(session.user.id, data.recordId)
+  })
