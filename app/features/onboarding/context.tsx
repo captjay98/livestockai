@@ -151,20 +151,21 @@ export function OnboardingProvider({
   }, [steps])
 
   const skipOnboarding = useCallback(async () => {
-    setProgress((prev) => ({
-      ...prev,
-      skipped: true,
-      completedAt: new Date().toISOString(),
-    }))
-    setNeedsOnboarding(false)
-
-    // Persist to database
+    // Persist to database FIRST before updating local state
     try {
       const { markOnboardingCompleteFn } = await import('./server')
       await markOnboardingCompleteFn()
     } catch (err) {
       console.error('Failed to mark onboarding complete:', err)
     }
+
+    // Only update local state after database is updated
+    setProgress((prev) => ({
+      ...prev,
+      skipped: true,
+      completedAt: new Date().toISOString(),
+    }))
+    setNeedsOnboarding(false)
   }, [])
 
   const restartTour = useCallback(() => {

@@ -77,14 +77,14 @@ interface CreateFarmInput {
 const createFarmAction = createServerFn({ method: 'POST' })
   .inputValidator((data: CreateFarmInput) => data)
   .handler(async ({ data }) => {
-    await requireAuth()
-    const farmId = await createFarm(data)
+    const session = await requireAuth()
+    const farmId = await createFarm(data, session.user.id)
     return { success: true, farmId }
   })
 
 interface CreateBatchInput {
   farmId: string
-  livestockType: 'poultry' | 'fish'
+  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   species: string
   initialQuantity: number
   acquisitionDate: string
@@ -383,6 +383,7 @@ function CreateFarmStep() {
             )}
             <div className="flex gap-3 pt-2">
               <Button
+                type="button"
                 variant="outline"
                 onClick={skipStep}
                 disabled={isSubmitting}
@@ -390,6 +391,7 @@ function CreateFarmStep() {
                 Skip
               </Button>
               <Button
+                type="submit"
                 className="flex-1"
                 disabled={isSubmitting || !formData.name || !formData.location}
               >
@@ -578,11 +580,20 @@ function CreateBatchStep() {
   const { completeStep, skipStep, progress, setBatchId } = useOnboarding()
   const { symbol: currencySymbol } = useFormatCurrency()
 
-  // Default to poultry and fish as available types
-  const availableTypes: Array<'poultry' | 'fish'> = ['poultry', 'fish']
+  // All available livestock types
+  const availableTypes = [
+    { value: 'poultry', label: '🐔 Poultry' },
+    { value: 'fish', label: '🐟 Fish' },
+    { value: 'cattle', label: '🐄 Cattle' },
+    { value: 'goats', label: '🐐 Goats' },
+    { value: 'sheep', label: '🐑 Sheep' },
+    { value: 'bees', label: '🐝 Bees' },
+  ] as const
+
+  type LivestockType = (typeof availableTypes)[number]['value']
 
   const [formData, setFormData] = useState({
-    livestockType: 'poultry' as 'poultry' | 'fish',
+    livestockType: 'poultry' as LivestockType,
     species: '',
     initialQuantity: '',
     acquisitionDate: new Date().toISOString().split('T')[0],
@@ -687,8 +698,8 @@ function CreateBatchStep() {
                 </SelectTrigger>
                 <SelectContent>
                   {availableTypes.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t.charAt(0).toUpperCase() + t.slice(1)}
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -769,6 +780,7 @@ function CreateBatchStep() {
             )}
             <div className="flex gap-3 pt-2">
               <Button
+                type="button"
                 variant="outline"
                 onClick={skipStep}
                 disabled={isSubmitting}
@@ -776,6 +788,7 @@ function CreateBatchStep() {
                 Skip
               </Button>
               <Button
+                type="submit"
                 className="flex-1"
                 disabled={
                   isSubmitting ||
