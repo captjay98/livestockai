@@ -1,7 +1,15 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
-import { Activity, AlertTriangle, Calendar, Pill, Syringe } from 'lucide-react'
+import {
+  Activity,
+  AlertTriangle,
+  Calendar,
+  Edit,
+  Pill,
+  Syringe,
+  Trash2,
+} from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/vaccinations/server'
@@ -9,8 +17,12 @@ import { useFormatDate } from '~/features/settings'
 import {
   createTreatmentFn,
   createVaccinationFn,
+  deleteTreatmentFn,
+  deleteVaccinationFn,
   getHealthRecordsPaginated,
   getVaccinationAlerts,
+  updateTreatmentFn,
+  updateVaccinationFn,
 } from '~/features/vaccinations/server'
 import { getBatches } from '~/features/batches/server'
 import { requireAuth } from '~/features/auth/server-middleware'
@@ -37,6 +49,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 
 interface HealthRecord {
   id: string
@@ -171,6 +184,11 @@ function HealthPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [vaccinationDialogOpen, setVaccinationDialogOpen] = useState(false)
   const [treatmentDialogOpen, setTreatmentDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedRecord, setSelectedRecord] = useState<HealthRecord | null>(
+    null,
+  )
 
   // Forms
   const [vaccineForm, setVaccineForm] = useState({
@@ -389,33 +407,150 @@ function HealthPage() {
           return null
         },
       },
+      {
+        id: 'actions',
+        cell: ({ row }) => (
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleEdit(row.original)}
+              title="Edit"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-destructive hover:text-destructive"
+              onClick={() => handleDelete(row.original)}
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      },
     ],
     [],
   )
 
+  const handleEdit = (record: HealthRecord) => {
+    setSelectedRecord(record)
+    if (record.type === 'vaccination') {
+      setVaccineForm({
+        batchId: record.batchId,
+        vaccineName: record.name,
+        dateAdministered: new Date(record.date).toISOString().split('T')[0],
+        dosage: record.dosage,
+        nextDueDate: record.nextDueDate
+          ? new Date(record.nextDueDate).toISOString().split('T')[0]
+          : '',
+        notes: record.notes || '',
+      })
+    } else {
+      setTreatmentForm({
+        batchId: record.batchId,
+        medicationName: record.name,
+        reason: record.reason || '',
+        date: new Date(record.date).toISOString().split('T')[0],
+        dosage: record.dosage,
+        withdrawalDays: (record.withdrawalDays || 0).toString(),
+        notes: record.notes || '',
+      })
+    }
+    setEditDialogOpen(true)
+  }
+
+  const handleDelete = (record: HealthRecord) => {
+    setSelectedRecord(record)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    try {
+      if (selectedRecord.type === 'vaccination') {
+        await updateVaccinationFn({
+          data: {
+            vaccinationId: selectedRecord.id,
+            vaccineName: vaccineForm.vaccineName,
+            dosage: vaccineForm.dosage,
+            nextDueDate: vaccineForm.nextDueDate
+              ? new Date(vaccineForm.nextDueDate)
+              : undefined,
+            notes: vaccineForm.notes || undefined,
+          },
+        })
+      } else {
+        await updateTreatmentFn({
+          data: {
+            treatmentId: selectedRecord.id,
+            medicationName: treatmentForm.medicationName,
+            reason: treatmentForm.reason,
+            dosage: treatmentForm.dosage,
+            withdrawalDays: parseInt(treatmentForm.withdrawalDays),
+            notes: treatmentForm.notes || undefined,
+          },
+        })
+      }
+      setEditDialogOpen(false)
+      toast.success('Record updated')
+      loadData()
+    } catch (err) {
+      console.error('Failed:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    try {
+      if (selectedRecord.type === 'vaccination') {
+        await deleteVaccinationFn({
+          data: { vaccinationId: selectedRecord.id },
+        })
+      } else {
+        await deleteTreatmentFn({ data: { treatmentId: selectedRecord.id } })
+      }
+      setDeleteDialogOpen(false)
+      toast.success('Record deleted')
+      loadData()
+    } catch (err) {
+      console.error('Failed:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Health Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Vaccination schedules and medical treatments
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button onClick={() => setVaccinationDialogOpen(true)}>
-            <Syringe className="h-4 w-4 mr-2" />
-            Vaccinate
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setTreatmentDialogOpen(true)}
-          >
-            <Pill className="h-4 w-4 mr-2" />
-            Treat
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Health Records"
+        description="Log vaccinations and treatments to maintain health schedules and compliance."
+        icon={Syringe}
+        actions={
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button onClick={() => setVaccinationDialogOpen(true)}>
+              <Syringe className="h-4 w-4 mr-2" />
+              Vaccinate
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setTreatmentDialogOpen(true)}
+            >
+              <Pill className="h-4 w-4 mr-2" />
+              Treat
+            </Button>
+          </div>
+        }
+      />
 
       {alerts && (alerts.upcoming.length > 0 || alerts.overdue.length > 0) && (
         <div className="grid gap-4 mb-6 md:grid-cols-2">
@@ -749,6 +884,175 @@ function HealthPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Edit{' '}
+              {selectedRecord?.type === 'vaccination'
+                ? 'Vaccination'
+                : 'Treatment'}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Batch</Label>
+              <Input value={selectedRecord?.species || ''} disabled />
+            </div>
+
+            {selectedRecord?.type === 'vaccination' ? (
+              <>
+                <div className="space-y-2">
+                  <Label>Vaccine Name</Label>
+                  <Input
+                    value={vaccineForm.vaccineName}
+                    onChange={(e) =>
+                      setVaccineForm((prev) => ({
+                        ...prev,
+                        vaccineName: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Dosage</Label>
+                  <Input
+                    value={vaccineForm.dosage}
+                    onChange={(e) =>
+                      setVaccineForm((prev) => ({
+                        ...prev,
+                        dosage: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Next Due Date</Label>
+                  <Input
+                    type="date"
+                    value={vaccineForm.nextDueDate}
+                    onChange={(e) =>
+                      setVaccineForm((prev) => ({
+                        ...prev,
+                        nextDueDate: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label>Medication Name</Label>
+                  <Input
+                    value={treatmentForm.medicationName}
+                    onChange={(e) =>
+                      setTreatmentForm((prev) => ({
+                        ...prev,
+                        medicationName: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Reason</Label>
+                  <Input
+                    value={treatmentForm.reason}
+                    onChange={(e) =>
+                      setTreatmentForm((prev) => ({
+                        ...prev,
+                        reason: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Dosage</Label>
+                    <Input
+                      value={treatmentForm.dosage}
+                      onChange={(e) =>
+                        setTreatmentForm((prev) => ({
+                          ...prev,
+                          dosage: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Withdrawal Days</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={treatmentForm.withdrawalDays}
+                      onChange={(e) =>
+                        setTreatmentForm((prev) => ({
+                          ...prev,
+                          withdrawalDays: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Delete{' '}
+              {selectedRecord?.type === 'vaccination'
+                ? 'Vaccination'
+                : 'Treatment'}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete this {selectedRecord?.type} record
+            for {selectedRecord?.name}?
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

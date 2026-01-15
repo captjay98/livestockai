@@ -1,15 +1,17 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
-import { AlertTriangle, Droplets, Plus } from 'lucide-react'
+import { AlertTriangle, Droplets, Edit, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/water-quality/server'
 import { useFormatDate, useFormatTemperature } from '~/features/settings'
 import {
   createWaterQualityRecordFn,
+  deleteWaterQualityRecordFn,
   getWaterQualityAlerts,
   getWaterQualityRecordsPaginatedFn,
+  updateWaterQualityRecordFn,
 } from '~/features/water-quality/server'
 import { WATER_QUALITY_THRESHOLDS } from '~/features/water-quality/constants'
 import { getBatches } from '~/features/batches/server'
@@ -34,6 +36,7 @@ import {
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 
 interface WaterQualityRecord {
   id: string
@@ -156,6 +159,10 @@ function WaterQualityPage() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedRecord, setSelectedRecord] =
+    useState<WaterQualityRecord | null>(null)
 
   const [formData, setFormData] = useState({
     batchId: '',
@@ -323,24 +330,109 @@ function WaterQualityPage() {
           )
         },
       },
+      {
+        id: 'actions',
+        cell: ({ row }) => (
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleEdit(row.original)}
+              title="Edit"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-destructive hover:text-destructive"
+              onClick={() => handleDelete(row.original)}
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      },
     ],
     [],
   )
 
+  const handleEdit = (record: WaterQualityRecord) => {
+    setSelectedRecord(record)
+    setFormData({
+      batchId: record.batchId,
+      date: new Date(record.date).toISOString().split('T')[0],
+      ph: record.ph,
+      temperatureCelsius: record.temperatureCelsius,
+      dissolvedOxygenMgL: record.dissolvedOxygenMgL,
+      ammoniaMgL: record.ammoniaMgL,
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleDelete = (record: WaterQualityRecord) => {
+    setSelectedRecord(record)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await updateWaterQualityRecordFn({
+        data: {
+          recordId: selectedRecord.id,
+          ph: parseFloat(formData.ph),
+          temperatureCelsius: parseFloat(formData.temperatureCelsius),
+          dissolvedOxygenMgL: parseFloat(formData.dissolvedOxygenMgL),
+          ammoniaMgL: parseFloat(formData.ammoniaMgL),
+        },
+      })
+      setEditDialogOpen(false)
+      toast.success('Record updated')
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    try {
+      await deleteWaterQualityRecordFn({
+        data: { recordId: selectedRecord.id },
+      })
+      setDeleteDialogOpen(false)
+      toast.success('Record deleted')
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Water Quality</h1>
-          <p className="text-muted-foreground mt-1">
-            Track parameters for aquaculture
-          </p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Record
-        </Button>
-      </div>
+      <PageHeader
+        title="Water Quality"
+        description="Monitor pond conditions (pH, temperature, oxygen) to ensure optimal fish health."
+        icon={Droplets}
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Record
+          </Button>
+        }
+      />
 
       {alerts.length > 0 && (
         <div className="mb-6 grid gap-4 md:grid-cols-2">
@@ -529,6 +621,132 @@ function WaterQualityPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Water Quality Record</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Batch</Label>
+              <Input value={selectedRecord?.species || ''} disabled />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>pH</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="14"
+                  value={formData.ph}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, ph: e.target.value }))
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Temperature ({tempLabel})</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  value={formData.temperatureCelsius}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      temperatureCelsius: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Dissolved Oxygen (mg/L)</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={formData.dissolvedOxygenMgL}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      dissolvedOxygenMgL: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Ammonia (mg/L)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.ammoniaMgL}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      ammoniaMgL: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting || !formData.ph}>
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Water Quality Record</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete this water quality record?
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -1,15 +1,17 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
-import { Plus, Scale, TrendingUp } from 'lucide-react'
+import { Edit, Plus, Scale, Trash2, TrendingUp } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/weight/server'
 import { useFormatDate, useFormatWeight } from '~/features/settings'
 import {
   createWeightSampleFn,
+  deleteWeightSampleFn,
   getGrowthAlerts,
   getWeightRecordsPaginatedFn,
+  updateWeightSampleFn,
 } from '~/features/weight/server'
 import { getBatches } from '~/features/batches/server'
 import { requireAuth } from '~/features/auth/server-middleware'
@@ -33,6 +35,7 @@ import {
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 
 interface WeightSample {
   id: string
@@ -152,6 +155,16 @@ function WeightPage() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedRecord, setSelectedRecord] = useState<WeightSample | null>(
+    null,
+  )
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedRecord, setSelectedRecord] = useState<WeightSample | null>(
+    null,
+  )
 
   const [formData, setFormData] = useState({
     batchId: '',
@@ -274,24 +287,103 @@ function WeightPage() {
           </span>
         ),
       },
+      {
+        id: 'actions',
+        cell: ({ row }) => (
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleEdit(row.original)}
+              title="Edit"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-destructive hover:text-destructive"
+              onClick={() => handleDelete(row.original)}
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      },
     ],
     [],
   )
 
+  const handleEdit = (record: WeightSample) => {
+    setSelectedRecord(record)
+    setFormData({
+      batchId: record.batchId,
+      date: new Date(record.date).toISOString().split('T')[0],
+      sampleSize: record.sampleSize.toString(),
+      averageWeightKg: record.averageWeightKg,
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleDelete = (record: WeightSample) => {
+    setSelectedRecord(record)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await updateWeightSampleFn({
+        data: {
+          sampleId: selectedRecord.id,
+          sampleSize: parseInt(formData.sampleSize),
+          averageWeightKg: parseFloat(formData.averageWeightKg),
+        },
+      })
+      setEditDialogOpen(false)
+      toast.success('Sample updated')
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    try {
+      await deleteWeightSampleFn({ data: { sampleId: selectedRecord.id } })
+      setDeleteDialogOpen(false)
+      toast.success('Sample deleted')
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Weight Tracking</h1>
-          <p className="text-muted-foreground mt-1">
-            Monitor growth and performance
-          </p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Sample
-        </Button>
-      </div>
+      <PageHeader
+        title="Weight Samples"
+        description="Track growth by recording periodic weight samples. Compare against industry standards."
+        icon={Scale}
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Sample
+          </Button>
+        }
+      />
 
       {alerts.length > 0 && (
         <div className="mb-6 grid gap-4 md:grid-cols-2">
@@ -446,6 +538,105 @@ function WeightPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Weight Sample</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Batch</Label>
+              <Input value={selectedRecord?.species || ''} disabled />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Avg Weight (kg)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.averageWeightKg}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      averageWeightKg: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Sample Size</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={formData.sampleSize}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      sampleSize: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !formData.averageWeightKg}
+              >
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Weight Sample</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete this weight sample?
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

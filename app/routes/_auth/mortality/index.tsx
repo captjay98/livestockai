@@ -8,10 +8,12 @@ import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
 import {
   AlertTriangle,
+  Edit,
   HeartPulse,
   Info,
   Plus,
   Skull,
+  Trash2,
   TrendingDown,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -20,9 +22,11 @@ import type { PaginatedResult } from '~/features/mortality/server'
 import type { BatchAlert } from '~/features/monitoring/alerts'
 import { useFormatDate } from '~/features/settings'
 import {
+  deleteMortalityRecordFn,
   getMortalityRecordsPaginated,
   getMortalitySummary,
   recordMortality,
+  updateMortalityRecordFn,
 } from '~/features/mortality/server'
 import { getAllBatchAlerts } from '~/features/monitoring/alerts'
 import { getBatchesFn } from '~/features/batches/server'
@@ -55,6 +59,7 @@ import {
 } from '~/components/ui/tooltip'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 
 interface MortalityRecord {
   id: string
@@ -216,6 +221,11 @@ function MortalityPage() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedRecord, setSelectedRecord] = useState<MortalityRecord | null>(
+    null,
+  )
 
   const [formData, setFormData] = useState({
     batchId: '',
@@ -365,24 +375,105 @@ function MortalityPage() {
           )
         },
       },
+      {
+        id: 'actions',
+        cell: ({ row }) => (
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleEdit(row.original)}
+              title="Edit"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-destructive hover:text-destructive"
+              onClick={() => handleDelete(row.original)}
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+      },
     ],
     [],
   )
 
+  const handleEdit = (record: MortalityRecord) => {
+    setSelectedRecord(record)
+    setFormData({
+      batchId: record.batchId,
+      quantity: record.quantity.toString(),
+      date: new Date(record.date).toISOString().split('T')[0],
+      cause: record.cause,
+      notes: record.notes || '',
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleDelete = (record: MortalityRecord) => {
+    setSelectedRecord(record)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await updateMortalityRecordFn({
+        data: {
+          recordId: selectedRecord.id,
+          quantity: parseInt(formData.quantity),
+          cause: formData.cause as any,
+          notes: formData.notes || undefined,
+        },
+      })
+      setEditDialogOpen(false)
+      toast.success('Record updated')
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedRecord) return
+
+    setIsSubmitting(true)
+    try {
+      await deleteMortalityRecordFn({ data: { recordId: selectedRecord.id } })
+      setDeleteDialogOpen(false)
+      toast.success('Record deleted')
+      loadData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Mortality Tracking</h1>
-          <p className="text-muted-foreground mt-1">
-            Monitor livestock health and losses
-          </p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)} variant="destructive">
-          <Plus className="h-4 w-4 mr-2" />
-          Record Loss
-        </Button>
-      </div>
+      <PageHeader
+        title="Mortality Records"
+        description="Record deaths to monitor flock health and identify potential issues early."
+        icon={TrendingDown}
+        actions={
+          <Button onClick={() => setDialogOpen(true)} variant="destructive">
+            <Plus className="h-4 w-4 mr-2" />
+            Record Loss
+          </Button>
+        }
+      />
 
       {summary && (
         <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 mb-6 md:mb-8">
@@ -638,6 +729,121 @@ function MortalityPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Mortality Record</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Batch</Label>
+              <Input value={selectedRecord?.species || ''} disabled />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-cause">Cause</Label>
+              <Select
+                value={formData.cause}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, cause: value || '' }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue>
+                    {MORTALITY_CAUSES.find((c) => c.value === formData.cause)
+                      ?.label || 'Select cause'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {MORTALITY_CAUSES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-quantity">Quantity</Label>
+              <Input
+                id="edit-quantity"
+                type="number"
+                min="1"
+                value={formData.quantity}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, quantity: e.target.value }))
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-notes">Notes</Label>
+              <Textarea
+                id="edit-notes"
+                value={formData.notes}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                }
+              />
+            </div>
+
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !formData.quantity}
+              >
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Mortality Record</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Are you sure? This will restore {selectedRecord?.quantity} to the
+            batch quantity.
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
