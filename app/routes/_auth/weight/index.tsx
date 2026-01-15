@@ -160,11 +160,6 @@ function WeightPage() {
   const [selectedRecord, setSelectedRecord] = useState<WeightSample | null>(
     null,
   )
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedRecord, setSelectedRecord] = useState<WeightSample | null>(
-    null,
-  )
 
   const [formData, setFormData] = useState({
     batchId: '',
