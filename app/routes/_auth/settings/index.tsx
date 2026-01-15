@@ -64,7 +64,6 @@ export const Route = createFileRoute('/_auth/settings/')({
 // Settings sub-navigation items
 const settingsNav = [
   { name: 'Regional', href: '/settings', icon: Settings, adminOnly: false },
-  { name: 'Modules', href: '/settings/modules', icon: Boxes, adminOnly: false },
   { name: 'Users', href: '/settings/users', icon: Users, adminOnly: true },
   {
     name: 'Audit Log',
@@ -835,7 +834,10 @@ function SettingsPage() {
                 const { resetOnboardingFn } =
                   await import('~/features/onboarding/server')
                 await resetOnboardingFn()
-                navigate({ to: '/onboarding' })
+                // Clear localStorage onboarding state
+                localStorage.removeItem('openlivestock_onboarding')
+                // Force full page reload to clear all cached state
+                window.location.href = '/onboarding'
               } catch (err) {
                 console.error('Failed to reset onboarding:', err)
               }
@@ -860,7 +862,7 @@ function ModulesTabContent() {
           <Layers className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="font-semibold mb-2">No Farm Selected</h3>
           <p className="text-sm text-muted-foreground">
-            Please create or select a farm to manage its modules.
+            Select a farm to manage its modules.
           </p>
         </div>
       </Card>
@@ -872,8 +874,7 @@ function ModulesTabContent() {
       <div>
         <h2 className="text-lg font-semibold">Feature Modules</h2>
         <p className="text-sm text-muted-foreground">
-          Enable or disable livestock management features for your selected
-          farm.
+          Enable or disable livestock types for your farm.
         </p>
       </div>
       <ModuleSelector />
