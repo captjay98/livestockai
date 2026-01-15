@@ -2575,6 +2575,7 @@ Continued from Day 8 with focus on database schema improvements, dashboard workf
 **Objective**: Improve audit trail and enable optional feed inventory linking
 
 **Implementation**:
+
 - Added `userName` column to `audit_logs` table - preserves user name even if user deleted
 - Added `inventoryId` column to `feed_records` for optional inventory auto-deduction
 - Updated `logAudit()` to fetch and store userName automatically
@@ -2584,6 +2585,7 @@ Continued from Day 8 with focus on database schema improvements, dashboard workf
 **Objective**: Ensure data integrity with transactional updates
 
 **Implementation**:
+
 - Wrapped `createSale()` in transaction for atomic batch quantity updates
 - Made feed inventory deduction optional - only deducts if `inventoryId` provided
 - Improved audit logging with userName preservation
@@ -2593,6 +2595,7 @@ Continued from Day 8 with focus on database schema improvements, dashboard workf
 **Objective**: Centralize farm data loading and standardize batch creation
 
 **Implementation**:
+
 - Updated `FarmContext` to load structures and suppliers using TanStack Query
 - Updated `BatchDialog` to use FarmContext instead of props
 - Added farm selection validation with warning alert
@@ -2603,6 +2606,7 @@ Continued from Day 8 with focus on database schema improvements, dashboard workf
 **Objective**: Improve workflow guidance with quick actions
 
 **Implementation**:
+
 - Created `MortalityDialog` component for quick mortality recording
 - Added Mortality button to dashboard quick actions
 - Quick actions now include: Batches, Feed, Expense, Sale, Mortality, Reports
@@ -2617,6 +2621,7 @@ Continued from Day 8 with focus on database schema improvements, dashboard workf
 **Objective**: Consolidate and update all documentation
 
 **Implementation**:
+
 - Created `docs/ARCHITECTURE.md` - comprehensive system architecture
 - Updated `AGENTS.md` - fixed outdated paths (`app/lib/` → `app/features/`)
 - Updated `.kiro/steering/structure.md` - correct directory layout
@@ -2638,16 +2643,16 @@ Continued from Day 8 with focus on database schema improvements, dashboard workf
 
 ### Technical Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Files Changed** | 108 |
-| **Lines Added** | +3,746 |
-| **Lines Removed** | -1,419 |
-| **Net Change** | +2,327 |
-| **Commits** | 11 |
-| **TypeScript Errors** | 0 |
-| **ESLint Errors** | 0 |
-| **Tests Passing** | 302/303 |
+| Metric                | Value   |
+| --------------------- | ------- |
+| **Files Changed**     | 108     |
+| **Lines Added**       | +3,746  |
+| **Lines Removed**     | -1,419  |
+| **Net Change**        | +2,327  |
+| **Commits**           | 11      |
+| **TypeScript Errors** | 0       |
+| **ESLint Errors**     | 0       |
+| **Tests Passing**     | 302/303 |
 
 ### Key Insights
 
