@@ -57,6 +57,7 @@ import {
   DialogTrigger,
 } from '~/components/ui/dialog'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 
 interface FeedInventoryItem {
   id: string
@@ -389,17 +390,11 @@ function InventoryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Warehouse className="h-8 w-8" />
-            Inventory
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage feed and medication stock levels
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Inventory"
+        description="Manage feed and medication stock levels"
+        icon={Warehouse}
+      />
 
       {/* Alert Summary */}
       {(lowStockFeedCount > 0 ||

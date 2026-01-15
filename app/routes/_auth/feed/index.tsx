@@ -52,6 +52,7 @@ import {
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 
 interface FeedRecord {
   id: string
@@ -519,18 +520,17 @@ function FeedPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Feed Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Track feed consumption and costs
-          </p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Feed
-        </Button>
-      </div>
+      <PageHeader
+        title="Feed Records"
+        description="Log daily feed consumption to track costs and calculate feed conversion ratios."
+        icon={Wheat}
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Feed
+          </Button>
+        }
+      />
 
       {summary && (
         <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 mb-6 md:mb-8">

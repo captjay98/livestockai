@@ -50,6 +50,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import { PageHeader } from '~/components/page-header'
 
 interface TopCustomer {
   id: string
@@ -389,18 +390,17 @@ function CustomersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Customers</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your customer relationships
-          </p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Customer
-        </Button>
-      </div>
+      <PageHeader
+        title="Customers"
+        description="Manage your customer relationships"
+        icon={Users}
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Customer
+          </Button>
+        }
+      />
 
       {/* Top Customers */}
       {topCustomers.length > 0 &&

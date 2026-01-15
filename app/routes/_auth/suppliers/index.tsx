@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { useFormatCurrency } from '~/features/settings'
+import { PageHeader } from '~/components/page-header'
 
 interface Supplier {
   id: string
@@ -341,18 +342,17 @@ function SuppliersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Suppliers</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your feed and livestock suppliers
-          </p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Supplier
-        </Button>
-      </div>
+      <PageHeader
+        title="Suppliers"
+        description="Manage your feed and livestock suppliers"
+        icon={Building2}
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Supplier
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}

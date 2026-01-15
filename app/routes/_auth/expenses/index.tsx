@@ -12,6 +12,7 @@ import {
   Package,
   Pill,
   Plus,
+  Receipt,
   Settings,
   Trash2,
   Truck,
@@ -60,6 +61,7 @@ import {
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 
 interface Expense {
   id: string
@@ -539,221 +541,217 @@ function ExpensesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Expenses</h1>
-          <p className="text-muted-foreground mt-1">
-            Track and manage your farm expenses
-          </p>
-        </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger
-            render={
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Record Expense
-              </Button>
-            }
-          />
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Record Expense</DialogTitle>
-              <DialogDescription>Log a new expense</DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <PageHeader
+        title="Expenses"
+        description="Track and manage your farm expenses"
+        icon={Receipt}
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Record Expense
+          </Button>
+        }
+      />
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record Expense</DialogTitle>
+            <DialogDescription>Log a new expense</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value: string | null) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    category: value || '',
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue>
+                    {formData.category
+                      ? EXPENSE_CATEGORIES.find(
+                          (c) => c.value === formData.category,
+                        )?.label
+                      : 'Select category'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {EXPENSE_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      <span className="flex items-center gap-2">
+                        {getCategoryIcon(cat.value)}
+                        {cat.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {batches.length > 0 && (
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="batchId">Batch (Optional)</Label>
                 <Select
-                  value={formData.category}
+                  value={formData.batchId || undefined}
                   onValueChange={(value: string | null) =>
                     setFormData((prev) => ({
                       ...prev,
-                      category: value || '',
+                      batchId: value || '',
                     }))
                   }
                 >
                   <SelectTrigger>
                     <SelectValue>
-                      {formData.category
-                        ? EXPENSE_CATEGORIES.find(
-                            (c) => c.value === formData.category,
-                          )?.label
-                        : 'Select category'}
+                      {formData.batchId
+                        ? batches.find((b) => b.id === formData.batchId)
+                            ?.species
+                        : 'Select batch (optional)'}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {EXPENSE_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        <span className="flex items-center gap-2">
-                          {getCategoryIcon(cat.value)}
-                          {cat.label}
-                        </span>
+                    {batches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id}>
+                        {batch.species} ({batch.currentQuantity} available)
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+            )}
 
-              {batches.length > 0 && (
-                <div className="space-y-2">
-                  <Label htmlFor="batchId">Batch (Optional)</Label>
-                  <Select
-                    value={formData.batchId || undefined}
-                    onValueChange={(value: string | null) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        batchId: value || '',
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue>
-                        {formData.batchId
-                          ? batches.find((b) => b.id === formData.batchId)
-                              ?.species
-                          : 'Select batch (optional)'}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {batches.map((batch) => (
-                        <SelectItem key={batch.id} value={batch.id}>
-                          {batch.species} ({batch.currentQuantity} available)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {suppliers.length > 0 && (
-                <div className="space-y-2">
-                  <Label htmlFor="supplierId">Supplier (Optional)</Label>
-                  <Select
-                    value={formData.supplierId || undefined}
-                    onValueChange={(value: string | null) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        supplierId: value || '',
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue>
-                        {formData.supplierId
-                          ? suppliers.find((s) => s.id === formData.supplierId)
-                              ?.name
-                          : 'Select supplier (optional)'}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {suppliers.map((supplier) => (
-                        <SelectItem key={supplier.id} value={supplier.id}>
-                          {supplier.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Amount ({currencySymbol})</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.amount}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        amount: e.target.value,
-                      }))
-                    }
-                    placeholder="0.00"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        date: e.target.value,
-                      }))
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
+            {suppliers.length > 0 && (
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="supplierId">Supplier (Optional)</Label>
+                <Select
+                  value={formData.supplierId || undefined}
+                  onValueChange={(value: string | null) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      supplierId: value || '',
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue>
+                      {formData.supplierId
+                        ? suppliers.find((s) => s.id === formData.supplierId)
+                            ?.name
+                        : 'Select supplier (optional)'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {suppliers.map((supplier) => (
+                      <SelectItem key={supplier.id} value={supplier.id}>
+                        {supplier.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="amount">Amount ({currencySymbol})</Label>
                 <Input
-                  id="description"
-                  value={formData.description}
+                  id="amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.amount}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      description: e.target.value,
+                      amount: e.target.value,
                     }))
                   }
-                  placeholder="Brief description"
+                  placeholder="0.00"
                   required
                 />
               </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="isRecurring"
-                  checked={formData.isRecurring}
+              <div className="space-y-2">
+                <Label htmlFor="date">Date</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      isRecurring: e.target.checked,
+                      date: e.target.value,
                     }))
                   }
-                  className="h-4 w-4"
+                  required
                 />
-                <Label htmlFor="isRecurring" className="text-sm">
-                  This is a recurring expense
-                </Label>
               </div>
+            </div>
 
-              {error && (
-                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-                  {error}
-                </div>
-              )}
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder="Brief description"
+                required
+              />
+            </div>
 
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    isSubmitting || !formData.amount || !formData.description
-                  }
-                >
-                  {isSubmitting ? 'Recording...' : 'Record Expense'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isRecurring"
+                checked={formData.isRecurring}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    isRecurring: e.target.checked,
+                  }))
+                }
+                className="h-4 w-4"
+              />
+              <Label htmlFor="isRecurring" className="text-sm">
+                This is a recurring expense
+              </Label>
+            </div>
+
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  isSubmitting || !formData.amount || !formData.description
+                }
+              >
+                {isSubmitting ? 'Recording...' : 'Record Expense'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Summary Cards */}
       {summary && (

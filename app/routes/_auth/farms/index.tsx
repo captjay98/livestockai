@@ -14,6 +14,7 @@ import {
 } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { FarmDialog } from '~/components/dialogs/farm-dialog'
+import { PageHeader } from '~/components/page-header'
 
 interface FarmWithStats {
   id: string
@@ -91,18 +92,17 @@ function FarmsIndexPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Farm Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your farms and view their performance
-          </p>
-        </div>
-        <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Farm
-        </Button>
-      </div>
+      <PageHeader
+        title="Farm Management"
+        description="Manage your farms and view their performance"
+        icon={Building2}
+        actions={
+          <Button onClick={handleCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Farm
+          </Button>
+        }
+      />
 
       <FarmDialog
         open={dialogOpen}

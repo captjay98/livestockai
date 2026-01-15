@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
 import {
   Bird,
+  DollarSign,
   Edit,
   Egg,
   Eye,
@@ -56,6 +57,7 @@ import {
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 
 interface Sale {
   id: string
@@ -524,228 +526,220 @@ function SalesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Sales</h1>
-          <p className="text-muted-foreground mt-1">
-            Track your farm sales and revenue
-          </p>
-        </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger
-            render={
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Record Sale
-              </Button>
-            }
-          />
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Record Sale</DialogTitle>
-              <DialogDescription>Log a new sale</DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <PageHeader
+        title="Sales"
+        description="Track your farm sales and revenue"
+        icon={DollarSign}
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Record Sale
+          </Button>
+        }
+      />
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record Sale</DialogTitle>
+            <DialogDescription>Log a new sale</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Type</Label>
+              <Select
+                value={formData.livestockType}
+                onValueChange={(value: string | null) =>
+                  value &&
+                  setFormData((prev) => ({
+                    ...prev,
+                    livestockType: value as 'poultry' | 'fish' | 'eggs',
+                    batchId: '',
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="poultry">
+                    <span className="flex items-center gap-2">
+                      <Bird className="h-4 w-4" />
+                      Poultry
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="fish">
+                    <span className="flex items-center gap-2">
+                      <Fish className="h-4 w-4" />
+                      Fish
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="eggs">
+                    <span className="flex items-center gap-2">
+                      <Egg className="h-4 w-4" />
+                      Eggs
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {batches.length > 0 && formData.livestockType !== 'eggs' && (
               <div className="space-y-2">
-                <Label>Type</Label>
+                <Label>Batch (Optional)</Label>
                 <Select
-                  value={formData.livestockType}
+                  value={formData.batchId || undefined}
                   onValueChange={(value: string | null) =>
-                    value &&
                     setFormData((prev) => ({
                       ...prev,
-                      livestockType: value as 'poultry' | 'fish' | 'eggs',
-                      batchId: '',
+                      batchId: value || '',
                     }))
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue>
+                      {formData.batchId
+                        ? batches.find((b) => b.id === formData.batchId)
+                            ?.species
+                        : 'Select batch'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="poultry">
-                      <span className="flex items-center gap-2">
-                        <Bird className="h-4 w-4" />
-                        Poultry
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="fish">
-                      <span className="flex items-center gap-2">
-                        <Fish className="h-4 w-4" />
-                        Fish
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="eggs">
-                      <span className="flex items-center gap-2">
-                        <Egg className="h-4 w-4" />
-                        Eggs
-                      </span>
-                    </SelectItem>
+                    {batches
+                      .filter((b) => b.livestockType === formData.livestockType)
+                      .map((batch) => (
+                        <SelectItem key={batch.id} value={batch.id}>
+                          {batch.species} ({batch.currentQuantity} available)
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
+            )}
 
-              {batches.length > 0 && formData.livestockType !== 'eggs' && (
-                <div className="space-y-2">
-                  <Label>Batch (Optional)</Label>
-                  <Select
-                    value={formData.batchId || undefined}
-                    onValueChange={(value: string | null) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        batchId: value || '',
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue>
-                        {formData.batchId
-                          ? batches.find((b) => b.id === formData.batchId)
-                              ?.species
-                          : 'Select batch'}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {batches
-                        .filter(
-                          (b) => b.livestockType === formData.livestockType,
-                        )
-                        .map((batch) => (
-                          <SelectItem key={batch.id} value={batch.id}>
-                            {batch.species} ({batch.currentQuantity} available)
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {customers.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Customer (Optional)</Label>
-                  <Select
-                    value={formData.customerId || undefined}
-                    onValueChange={(value: string | null) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        customerId: value || '',
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue>
-                        {formData.customerId
-                          ? customers.find((c) => c.id === formData.customerId)
-                              ?.name
-                          : 'Walk-in customer'}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {customers.map((customer) => (
-                        <SelectItem key={customer.id} value={customer.id}>
-                          {customer.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Quantity</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={formData.quantity}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        quantity: e.target.value,
-                      }))
-                    }
-                    placeholder="0"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Unit Price ({currencySymbol})</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.unitPrice}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        unitPrice: e.target.value,
-                      }))
-                    }
-                    placeholder="0.00"
-                    required
-                  />
-                </div>
-              </div>
-
+            {customers.length > 0 && (
               <div className="space-y-2">
-                <Label>Date</Label>
+                <Label>Customer (Optional)</Label>
+                <Select
+                  value={formData.customerId || undefined}
+                  onValueChange={(value: string | null) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      customerId: value || '',
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue>
+                      {formData.customerId
+                        ? customers.find((c) => c.id === formData.customerId)
+                            ?.name
+                        : 'Walk-in customer'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id}>
+                        {customer.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Quantity</Label>
                 <Input
-                  type="date"
-                  value={formData.date}
+                  type="number"
+                  min="1"
+                  value={formData.quantity}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      date: e.target.value,
+                      quantity: e.target.value,
                     }))
                   }
+                  placeholder="0"
                   required
                 />
               </div>
-
-              {formData.quantity && formData.unitPrice && (
-                <div className="p-3 bg-muted rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Total:
-                    </span>
-                    <span className="text-lg font-bold text-success">
-                      {formatCurrency(
-                        parseInt(formData.quantity || '0') *
-                          parseFloat(formData.unitPrice || '0'),
-                      )}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {error && (
-                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-                  {error}
-                </div>
-              )}
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    isSubmitting || !formData.quantity || !formData.unitPrice
+              <div className="space-y-2">
+                <Label>Unit Price ({currencySymbol})</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.unitPrice}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      unitPrice: e.target.value,
+                    }))
                   }
-                >
-                  {isSubmitting ? 'Recording...' : 'Record Sale'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Date</Label>
+              <Input
+                type="date"
+                value={formData.date}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    date: e.target.value,
+                  }))
+                }
+                required
+              />
+            </div>
+
+            {formData.quantity && formData.unitPrice && (
+              <div className="p-3 bg-muted rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Total:</span>
+                  <span className="text-lg font-bold text-success">
+                    {formatCurrency(
+                      parseInt(formData.quantity || '0') *
+                        parseFloat(formData.unitPrice || '0'),
+                    )}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  isSubmitting || !formData.quantity || !formData.unitPrice
+                }
+              >
+                {isSubmitting ? 'Recording...' : 'Record Sale'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Summary Cards */}
       {summary && (

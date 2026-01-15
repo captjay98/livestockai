@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useMemo, useState } from 'react'
 import {
+  BarChart3,
   Egg,
   FileSpreadsheet,
   FileText,
@@ -39,6 +40,7 @@ import {
 } from '~/features/reports/fiscal-year'
 import { DataTable } from '~/components/ui/data-table'
 import { Badge } from '~/components/ui/badge'
+import { PageHeader } from '~/components/page-header'
 
 const fetchReportData = createServerFn({ method: 'GET' })
   .inputValidator(
@@ -167,12 +169,11 @@ function ReportsPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="space-y-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
-          <p className="text-muted-foreground mt-1">
-            Generate and export business reports
-          </p>
-        </div>
+        <PageHeader
+          title="Reports"
+          description="Generate and export business reports"
+          icon={BarChart3}
+        />
 
         {/* Report Selection */}
         <div className="bg-card rounded-lg border p-6 mb-6">

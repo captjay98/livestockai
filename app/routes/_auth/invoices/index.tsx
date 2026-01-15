@@ -32,6 +32,7 @@ import {
 } from '~/components/ui/dialog'
 import { InvoiceDialog } from '~/components/dialogs/invoice-dialog'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 
 interface Invoice {
   id: string
@@ -253,16 +254,17 @@ function InvoicesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
-          <p className="text-muted-foreground mt-1">Manage customer invoices</p>
-        </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Invoice
-        </Button>
-      </div>
+      <PageHeader
+        title="Invoices"
+        description="Manage customer invoices"
+        icon={FileText}
+        actions={
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Invoice
+          </Button>
+        }
+      />
 
       <div className="flex items-center gap-4 mb-4">
         <Select

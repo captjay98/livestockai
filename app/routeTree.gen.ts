@@ -32,7 +32,6 @@ import { Route as AuthCustomersIndexRouteImport } from './routes/_auth/customers
 import { Route as AuthBatchesIndexRouteImport } from './routes/_auth/batches/index'
 import { Route as AuthSuppliersSupplierIdRouteImport } from './routes/_auth/suppliers/$supplierId'
 import { Route as AuthSettingsUsersRouteImport } from './routes/_auth/settings/users'
-import { Route as AuthSettingsModulesRouteImport } from './routes/_auth/settings/modules'
 import { Route as AuthSettingsAuditRouteImport } from './routes/_auth/settings/audit'
 import { Route as AuthReportsExportRouteImport } from './routes/_auth/reports/export'
 import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth/invoices/$invoiceId'
@@ -155,11 +154,6 @@ const AuthSettingsUsersRoute = AuthSettingsUsersRouteImport.update({
   path: '/settings/users',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthSettingsModulesRoute = AuthSettingsModulesRouteImport.update({
-  id: '/settings/modules',
-  path: '/settings/modules',
-  getParentRoute: () => AuthRoute,
-} as any)
 const AuthSettingsAuditRoute = AuthSettingsAuditRouteImport.update({
   id: '/settings/audit',
   path: '/settings/audit',
@@ -204,7 +198,6 @@ export interface FileRoutesByFullPath {
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
   '/reports/export': typeof AuthReportsExportRoute
   '/settings/audit': typeof AuthSettingsAuditRoute
-  '/settings/modules': typeof AuthSettingsModulesRoute
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/batches': typeof AuthBatchesIndexRoute
@@ -235,7 +228,6 @@ export interface FileRoutesByTo {
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
   '/reports/export': typeof AuthReportsExportRoute
   '/settings/audit': typeof AuthSettingsAuditRoute
-  '/settings/modules': typeof AuthSettingsModulesRoute
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/batches': typeof AuthBatchesIndexRoute
@@ -269,7 +261,6 @@ export interface FileRoutesById {
   '/_auth/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
   '/_auth/reports/export': typeof AuthReportsExportRoute
   '/_auth/settings/audit': typeof AuthSettingsAuditRoute
-  '/_auth/settings/modules': typeof AuthSettingsModulesRoute
   '/_auth/settings/users': typeof AuthSettingsUsersRoute
   '/_auth/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/_auth/batches/': typeof AuthBatchesIndexRoute
@@ -303,7 +294,6 @@ export interface FileRouteTypes {
     | '/invoices/$invoiceId'
     | '/reports/export'
     | '/settings/audit'
-    | '/settings/modules'
     | '/settings/users'
     | '/suppliers/$supplierId'
     | '/batches'
@@ -334,7 +324,6 @@ export interface FileRouteTypes {
     | '/invoices/$invoiceId'
     | '/reports/export'
     | '/settings/audit'
-    | '/settings/modules'
     | '/settings/users'
     | '/suppliers/$supplierId'
     | '/batches'
@@ -367,7 +356,6 @@ export interface FileRouteTypes {
     | '/_auth/invoices/$invoiceId'
     | '/_auth/reports/export'
     | '/_auth/settings/audit'
-    | '/_auth/settings/modules'
     | '/_auth/settings/users'
     | '/_auth/suppliers/$supplierId'
     | '/_auth/batches/'
@@ -561,13 +549,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSettingsUsersRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/settings/modules': {
-      id: '/_auth/settings/modules'
-      path: '/settings/modules'
-      fullPath: '/settings/modules'
-      preLoaderRoute: typeof AuthSettingsModulesRouteImport
-      parentRoute: typeof AuthRoute
-    }
     '/_auth/settings/audit': {
       id: '/_auth/settings/audit'
       path: '/settings/audit'
@@ -638,7 +619,6 @@ interface AuthRouteChildren {
   AuthInvoicesInvoiceIdRoute: typeof AuthInvoicesInvoiceIdRoute
   AuthReportsExportRoute: typeof AuthReportsExportRoute
   AuthSettingsAuditRoute: typeof AuthSettingsAuditRoute
-  AuthSettingsModulesRoute: typeof AuthSettingsModulesRoute
   AuthSettingsUsersRoute: typeof AuthSettingsUsersRoute
   AuthSuppliersSupplierIdRoute: typeof AuthSuppliersSupplierIdRoute
   AuthBatchesIndexRoute: typeof AuthBatchesIndexRoute
@@ -668,7 +648,6 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthInvoicesInvoiceIdRoute: AuthInvoicesInvoiceIdRoute,
   AuthReportsExportRoute: AuthReportsExportRoute,
   AuthSettingsAuditRoute: AuthSettingsAuditRoute,
-  AuthSettingsModulesRoute: AuthSettingsModulesRoute,
   AuthSettingsUsersRoute: AuthSettingsUsersRoute,
   AuthSuppliersSupplierIdRoute: AuthSuppliersSupplierIdRoute,
   AuthBatchesIndexRoute: AuthBatchesIndexRoute,

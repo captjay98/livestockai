@@ -12,6 +12,7 @@ import {
   Edit,
   Eye,
   Fish,
+  Package,
   Plus,
   Trash2,
   TrendingUp,
@@ -50,6 +51,7 @@ import {
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
+import { PageHeader } from '~/components/page-header'
 import { BatchDialog } from '~/components/dialogs/batch-dialog'
 
 interface Batch {
@@ -404,18 +406,17 @@ function BatchesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Livestock Inventory</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your livestock batches and inventory
-          </p>
-        </div>
-        <Button onClick={() => setBatchDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Batch
-        </Button>
-      </div>
+      <PageHeader
+        title="Livestock Batches"
+        description="Track groups of animals from acquisition to sale. Each batch represents a cohort you manage together."
+        icon={Package}
+        actions={
+          <Button onClick={() => setBatchDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Batch
+          </Button>
+        }
+      />
 
       {summary && (
         <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4 mb-6 md:mb-8">

@@ -68,13 +68,21 @@ export function MortalityDialog({
 }: MortalityDialogProps) {
   const queryClient = useQueryClient()
   const { selectedFarmId } = useFarm()
-  const [batches, setBatches] = useState<Array<{ id: string; species: string; currentQuantity: number; status: string }>>([])
+  const [batches, setBatches] = useState<
+    Array<{
+      id: string
+      species: string
+      currentQuantity: number
+      status: string
+    }>
+  >([])
 
   useEffect(() => {
     const loadBatches = async () => {
       if (selectedFarmId && open) {
         try {
-          const { getBatchesPaginated } = await import('~/features/batches/server')
+          const { getBatchesPaginated } =
+            await import('~/features/batches/server')
           const result = await getBatchesPaginated(selectedFarmId, {
             page: 1,
             pageSize: 100,
@@ -152,7 +160,8 @@ export function MortalityDialog({
               <SelectTrigger>
                 <SelectValue>
                   {formData.batchId
-                    ? activeBatches.find((b) => b.id === formData.batchId)?.species
+                    ? activeBatches.find((b) => b.id === formData.batchId)
+                        ?.species
                     : 'Select batch'}
                 </SelectValue>
               </SelectTrigger>
@@ -206,7 +215,8 @@ export function MortalityDialog({
               <SelectTrigger>
                 <SelectValue>
                   {formData.cause
-                    ? MORTALITY_CAUSES.find((c) => c.value === formData.cause)?.label
+                    ? MORTALITY_CAUSES.find((c) => c.value === formData.cause)
+                        ?.label
                     : 'Select cause'}
                 </SelectValue>
               </SelectTrigger>
