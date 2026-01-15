@@ -253,6 +253,13 @@ export interface UserSettings {
     highMortality: boolean
     invoiceDue: boolean
     batchHarvest: boolean
+    vaccinationDue: boolean
+    medicationExpiry: boolean
+    waterQualityAlert: boolean
+    weeklySummary: boolean
+    dailySales: boolean
+    batchPerformance: boolean
+    paymentReceived: boolean
   }
 
   // Business
@@ -306,6 +313,13 @@ export const DEFAULT_SETTINGS: UserSettings = {
     highMortality: true,
     invoiceDue: true,
     batchHarvest: true,
+    vaccinationDue: true,
+    medicationExpiry: true,
+    waterQualityAlert: true,
+    weeklySummary: false,
+    dailySales: false,
+    batchPerformance: false,
+    paymentReceived: true,
   },
 
   // Business

@@ -89,6 +89,13 @@ export interface UserSettingsTable {
     highMortality: boolean
     invoiceDue: boolean
     batchHarvest: boolean
+    vaccinationDue: boolean
+    medicationExpiry: boolean
+    waterQualityAlert: boolean
+    weeklySummary: boolean
+    dailySales: boolean
+    batchPerformance: boolean
+    paymentReceived: boolean
   }
 
   // Business
