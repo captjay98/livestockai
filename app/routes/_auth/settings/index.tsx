@@ -4,12 +4,7 @@
  * User settings for currency, date/time, and units of measurement.
  */
 
-import {
-  Link,
-  createFileRoute,
-  useLocation,
-  useNavigate,
-} from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import {
@@ -29,7 +24,6 @@ import {
   Save,
   Send,
   Settings,
-  Users,
   XCircle,
 } from 'lucide-react'
 import type { UserSettings } from '~/features/settings'
@@ -38,6 +32,7 @@ import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { Switch } from '~/components/ui/switch'
 import {
   Select,
   SelectContent,
@@ -61,39 +56,17 @@ import {
   formatTemperature,
   formatWeight,
 } from '~/features/settings/unit-converter'
-import { useSession } from '~/features/auth/client'
-import { cn } from '~/lib/utils'
 
 export const Route = createFileRoute('/_auth/settings/')({
   component: SettingsPage,
 })
 
-// Settings sub-navigation items
-const settingsNav = [
-  { name: 'Regional', href: '/settings', icon: Settings, adminOnly: false },
-  { name: 'Users', href: '/settings/users', icon: Users, adminOnly: true },
-  {
-    name: 'Audit Log',
-    href: '/settings/audit',
-    icon: ClipboardList,
-    adminOnly: true,
-  },
-]
-
 function SettingsPage() {
   const { settings, updateSettings, isLoading, error } = useSettings()
-  const { data: session } = useSession()
-  const location = useLocation()
-  const navigate = useNavigate()
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
-
-  const isAdmin = session?.user.role === 'admin'
-
-  // Filter nav items based on admin status
-  const visibleNav = settingsNav.filter((item) => !item.adminOnly || isAdmin)
 
   // Sync local settings when context settings change
   useEffect(() => {
@@ -186,32 +159,9 @@ function SettingsPage() {
         <div>
           <h1 className="text-2xl font-bold">Settings</h1>
           <p className="text-muted-foreground">
-            Configure your regional preferences
+            Manage your preferences and farm configuration
           </p>
         </div>
-      </div>
-
-      {/* Settings Sub-Navigation */}
-      <div className="flex gap-1 border-b pb-2 overflow-x-auto">
-        {visibleNav.map((item) => {
-          const Icon = item.icon
-          const isActive = location.pathname === item.href
-          return (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                'inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap',
-                isActive
-                  ? 'bg-accent text-accent-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted',
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {item.name}
-            </Link>
-          )
-        })}
       </div>
 
       {(error || saveError) && (
@@ -226,27 +176,19 @@ function SettingsPage() {
         </div>
       )}
 
-      <Tabs defaultValue="currency" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="currency" className="gap-2">
+      <Tabs defaultValue="regional" className="space-y-4">
+        <TabsList className="flex-wrap">
+          <TabsTrigger value="regional" className="gap-2">
             <DollarSign className="h-4 w-4" />
-            Currency
-          </TabsTrigger>
-          <TabsTrigger value="datetime" className="gap-2">
-            <Calendar className="h-4 w-4" />
-            Date & Time
-          </TabsTrigger>
-          <TabsTrigger value="units" className="gap-2">
-            <Ruler className="h-4 w-4" />
-            Units
+            Regional
           </TabsTrigger>
           <TabsTrigger value="preferences" className="gap-2">
             <Settings className="h-4 w-4" />
             Preferences
           </TabsTrigger>
-          <TabsTrigger value="alerts" className="gap-2">
+          <TabsTrigger value="notifications" className="gap-2">
             <ClipboardList className="h-4 w-4" />
-            Alerts
+            Notifications
           </TabsTrigger>
           <TabsTrigger value="business" className="gap-2">
             <Boxes className="h-4 w-4" />
@@ -262,354 +204,216 @@ function SettingsPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Currency Tab */}
-        <TabsContent value="currency">
-          <Card className="p-6 space-y-6">
+        {/* Regional Tab - Combines Currency, Date/Time, Units */}
+        <TabsContent value="regional">
+          <Card className="p-6 space-y-8">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Currency Settings</h2>
+              <h2 className="text-lg font-semibold">Regional Settings</h2>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleReset('currency')}
+                onClick={() => {
+                  handleReset('currency')
+                  handleReset('datetime')
+                  handleReset('units')
+                }}
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Reset
+                Reset All
               </Button>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Currency Preset</Label>
-                <Select
-                  value={localSettings.currencyCode}
-                  onValueChange={(code) => {
-                    if (code) {
-                      handleCurrencyPresetChange(code)
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CURRENCY_PRESETS.map((preset) => (
-                      <SelectItem key={preset.code} value={preset.code}>
-                        {preset.symbol} {preset.code} - {preset.name}
+            {/* Currency Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-muted-foreground" />
+                <h3 className="font-medium">Currency</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Currency</Label>
+                  <Select
+                    value={localSettings.currencyCode}
+                    onValueChange={(code) => {
+                      if (code) {
+                        handleCurrencyPresetChange(code)
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CURRENCY_PRESETS.map((preset) => (
+                        <SelectItem key={preset.code} value={preset.code}>
+                          {preset.symbol} {preset.code} - {preset.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="pt-2 border-t">
+                <Label className="text-muted-foreground">Preview</Label>
+                <p className="text-2xl font-semibold mt-2">
+                  {formatCurrency(previewAmount, localSettings)}
+                </p>
+              </div>
+            </div>
+
+            {/* Date & Time Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-muted-foreground" />
+                <h3 className="font-medium">Date & Time</h3>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Date Format</Label>
+                  <Select
+                    value={localSettings.dateFormat}
+                    onValueChange={(v) => {
+                      if (v) {
+                        setLocalSettings((prev) => ({ ...prev, dateFormat: v }))
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MM/DD/YYYY">MM/DD/YYYY (US)</SelectItem>
+                      <SelectItem value="DD/MM/YYYY">
+                        DD/MM/YYYY (UK/EU)
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                      <SelectItem value="YYYY-MM-DD">YYYY-MM-DD (ISO)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label>Symbol</Label>
-                <Input
-                  value={localSettings.currencySymbol}
-                  onChange={(e) =>
-                    setLocalSettings((prev) => ({
-                      ...prev,
-                      currencySymbol: e.target.value,
-                    }))
-                  }
-                  maxLength={5}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label>Time Format</Label>
+                  <Select
+                    value={localSettings.timeFormat}
+                    onValueChange={(v) => {
+                      if (v) {
+                        setLocalSettings((prev) => ({ ...prev, timeFormat: v }))
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="12h">12-hour (2:30 PM)</SelectItem>
+                      <SelectItem value="24h">24-hour (14:30)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label>Decimal Places</Label>
-                <Select
-                  value={String(localSettings.currencyDecimals)}
-                  onValueChange={(v) =>
-                    setLocalSettings((prev) => ({
-                      ...prev,
-                      currencyDecimals: parseInt(v || '2'),
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">0 (e.g., ¥100)</SelectItem>
-                    <SelectItem value="2">2 (e.g., $100.00)</SelectItem>
-                    <SelectItem value="3">3 (e.g., KWD 100.000)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Symbol Position</Label>
-                <Select
-                  value={localSettings.currencySymbolPosition}
-                  onValueChange={(v) => {
-                    if (v) {
+                <div className="space-y-2">
+                  <Label>First Day of Week</Label>
+                  <Select
+                    value={String(localSettings.firstDayOfWeek)}
+                    onValueChange={(v) =>
                       setLocalSettings((prev) => ({
                         ...prev,
-                        currencySymbolPosition: v,
+                        firstDayOfWeek: parseInt(v || '0'),
                       }))
                     }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="before">Before ($100)</SelectItem>
-                    <SelectItem value="after">After (100€)</SelectItem>
-                  </SelectContent>
-                </Select>
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">Sunday</SelectItem>
+                      <SelectItem value="1">Monday</SelectItem>
+                      <SelectItem value="6">Saturday</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label>Thousand Separator</Label>
-                <Select
-                  value={localSettings.thousandSeparator}
-                  onValueChange={(v) =>
-                    setLocalSettings((prev) => ({
-                      ...prev,
-                      thousandSeparator: v || ',',
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value=",">Comma (1,000)</SelectItem>
-                    <SelectItem value=".">Period (1.000)</SelectItem>
-                    <SelectItem value=" ">Space (1 000)</SelectItem>
-                    <SelectItem value="'">Apostrophe (1'000)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Decimal Separator</Label>
-                <Select
-                  value={localSettings.decimalSeparator}
-                  onValueChange={(v) =>
-                    setLocalSettings((prev) => ({
-                      ...prev,
-                      decimalSeparator: v || '.',
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value=".">Period (100.50)</SelectItem>
-                    <SelectItem value=",">Comma (100,50)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t">
-              <Label className="text-muted-foreground">Preview</Label>
-              <p className="text-2xl font-semibold mt-2">
-                {formatCurrency(previewAmount, localSettings)}
-              </p>
-            </div>
-          </Card>
-        </TabsContent>
-
-        {/* Date & Time Tab */}
-        <TabsContent value="datetime">
-          <Card className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Date & Time Settings</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleReset('datetime')}
-              >
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Reset
-              </Button>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Date Format</Label>
-                <Select
-                  value={localSettings.dateFormat}
-                  onValueChange={(v) => {
-                    if (v) {
-                      setLocalSettings((prev) => ({ ...prev, dateFormat: v }))
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MM/DD/YYYY">MM/DD/YYYY (US)</SelectItem>
-                    <SelectItem value="DD/MM/YYYY">
-                      DD/MM/YYYY (UK/EU)
-                    </SelectItem>
-                    <SelectItem value="YYYY-MM-DD">YYYY-MM-DD (ISO)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Time Format</Label>
-                <Select
-                  value={localSettings.timeFormat}
-                  onValueChange={(v) => {
-                    if (v) {
-                      setLocalSettings((prev) => ({ ...prev, timeFormat: v }))
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="12h">12-hour (2:30 PM)</SelectItem>
-                    <SelectItem value="24h">24-hour (14:30)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>First Day of Week</Label>
-                <Select
-                  value={String(localSettings.firstDayOfWeek)}
-                  onValueChange={(v) =>
-                    setLocalSettings((prev) => ({
-                      ...prev,
-                      firstDayOfWeek: parseInt(v || '0'),
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">Sunday</SelectItem>
-                    <SelectItem value="1">Monday</SelectItem>
-                    <SelectItem value="6">Saturday</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t">
-              <Label className="text-muted-foreground">Preview</Label>
-              <div className="mt-2 space-y-1">
-                <p className="text-lg font-semibold">
-                  {formatDate(previewDate, localSettings)}
-                </p>
-                <p className="text-muted-foreground">
-                  {formatTime(previewDate, localSettings)}
-                </p>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-
-        {/* Units Tab */}
-        <TabsContent value="units">
-          <Card className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Units of Measurement</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleReset('units')}
-              >
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Reset
-              </Button>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Weight</Label>
-                <Select
-                  value={localSettings.weightUnit}
-                  onValueChange={(v) => {
-                    if (v) {
-                      setLocalSettings((prev) => ({ ...prev, weightUnit: v }))
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="kg">Kilograms (kg)</SelectItem>
-                    <SelectItem value="lbs">Pounds (lbs)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Area</Label>
-                <Select
-                  value={localSettings.areaUnit}
-                  onValueChange={(v) => {
-                    if (v) {
-                      setLocalSettings((prev) => ({ ...prev, areaUnit: v }))
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sqm">Square Meters (m²)</SelectItem>
-                    <SelectItem value="sqft">Square Feet (ft²)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Temperature</Label>
-                <Select
-                  value={localSettings.temperatureUnit}
-                  onValueChange={(v) => {
-                    if (v) {
-                      setLocalSettings((prev) => ({
-                        ...prev,
-                        temperatureUnit: v,
-                      }))
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="celsius">Celsius (°C)</SelectItem>
-                    <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t">
-              <Label className="text-muted-foreground">Preview</Label>
-              <div className="mt-2 grid grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Weight</p>
-                  <p className="font-semibold">
-                    {formatWeight(previewWeight, localSettings)}
+              <div className="pt-2 border-t">
+                <Label className="text-muted-foreground">Preview</Label>
+                <div className="mt-2 space-y-1">
+                  <p className="text-lg font-semibold">
+                    {formatDate(previewDate, localSettings)}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {formatTime(previewDate, localSettings)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Area</p>
-                  <p className="font-semibold">
-                    {formatArea(previewArea, localSettings)}
-                  </p>
+              </div>
+            </div>
+
+            {/* Units Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Ruler className="h-5 w-5 text-muted-foreground" />
+                <h3 className="font-medium">Units of Measurement</h3>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Weight</Label>
+                  <Select
+                    value={localSettings.weightUnit}
+                    onValueChange={(v) => {
+                      if (v) {
+                        setLocalSettings((prev) => ({ ...prev, weightUnit: v }))
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="kg">Kilograms (kg)</SelectItem>
+                      <SelectItem value="lbs">Pounds (lbs)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Temperature</p>
-                  <p className="font-semibold">
-                    {formatTemperature(previewTemp, localSettings)}
-                  </p>
+
+                <div className="space-y-2">
+                  <Label>Area</Label>
+                  <Select
+                    value={localSettings.areaUnit}
+                    onValueChange={(v) => {
+                      if (v) {
+                        setLocalSettings((prev) => ({ ...prev, areaUnit: v }))
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sqm">Square Meters (m²)</SelectItem>
+                      <SelectItem value="sqft">Square Feet (ft²)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Temperature</Label>
+                  <Select
+                    value={localSettings.temperatureUnit}
+                    onValueChange={(v) => {
+                      if (v) {
+                        setLocalSettings((prev) => ({
+                          ...prev,
+                          temperatureUnit: v,
+                        }))
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="celsius">Celsius (°C)</SelectItem>
+                      <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -678,8 +482,8 @@ function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* Alerts Tab */}
-        <TabsContent value="alerts">
+        {/* Notifications Tab */}
+        <TabsContent value="notifications">
           <Card className="p-6 space-y-6">
             <h2 className="text-lg font-semibold">Alert Thresholds</h2>
 
@@ -741,6 +545,286 @@ function SettingsPage() {
                 <p className="text-xs text-muted-foreground">
                   Alert when deaths exceed this number in a single day
                 </p>
+              </div>
+            </div>
+
+            <div className="border-t pt-6">
+              <h3 className="text-base font-semibold mb-2">
+                Email Notifications
+              </h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                Choose which notifications to receive via email. Requires email
+                provider to be configured.
+              </p>
+
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-medium mb-3">Critical Alerts</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-highMortality" className="font-normal">High Mortality</Label>
+                        <p className="text-xs text-muted-foreground">
+                          When mortality exceeds thresholds
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-highMortality"
+                        checked={localSettings.notifications.highMortality}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              highMortality: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-lowStock" className="font-normal">Low Stock</Label>
+                        <p className="text-xs text-muted-foreground">
+                          When feed or medication runs low
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-lowStock"
+                        checked={localSettings.notifications.lowStock}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              lowStock: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-waterQuality" className="font-normal">
+                          Water Quality Alert
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          When pH, temp, or ammonia is out of range
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-waterQuality"
+                        checked={localSettings.notifications.waterQualityAlert}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              waterQualityAlert: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium mb-3">Reminders</h4>
+                  <div className="space-y-3">
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-vaccinationDue" className="font-normal">
+                          Vaccination Due
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          3 days before scheduled vaccinations
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-vaccinationDue"
+                        checked={localSettings.notifications.vaccinationDue}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              vaccinationDue: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-medicationExpiry" className="font-normal">
+                          Medication Expiry
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          30 days before medications expire
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-medicationExpiry"
+                        checked={localSettings.notifications.medicationExpiry}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              medicationExpiry: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-invoiceDue" className="font-normal">Invoice Due</Label>
+                        <p className="text-xs text-muted-foreground">
+                          7 days before invoice due dates
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-invoiceDue"
+                        checked={localSettings.notifications.invoiceDue}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              invoiceDue: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-batchHarvest" className="font-normal">Batch Harvest</Label>
+                        <p className="text-xs text-muted-foreground">
+                          7 days before target harvest dates
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-batchHarvest"
+                        checked={localSettings.notifications.batchHarvest}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              batchHarvest: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-paymentReceived" className="font-normal">
+                          Payment Received
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          When invoices are marked as paid
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-paymentReceived"
+                        checked={localSettings.notifications.paymentReceived}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              paymentReceived: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium mb-3">Reports</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-weeklySummary" className="font-normal">Weekly Summary</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Farm performance overview every Monday
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-weeklySummary"
+                        checked={localSettings.notifications.weeklySummary}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              weeklySummary: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-dailySales" className="font-normal">Daily Sales</Label>
+                        <p className="text-xs text-muted-foreground">
+                          End-of-day sales summary
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-dailySales"
+                        checked={localSettings.notifications.dailySales}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              dailySales: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor="notify-batchPerformance" className="font-normal">
+                          Batch Performance
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Weekly growth and FCR reports per batch
+                        </p>
+                      </div>
+                      <Switch
+                        id="notify-batchPerformance"
+                        checked={localSettings.notifications.batchPerformance}
+                        onCheckedChange={(checked) =>
+                          setLocalSettings((prev) => ({
+                            ...prev,
+                            notifications: {
+                              ...prev.notifications,
+                              batchPerformance: !!checked,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </Card>
@@ -983,7 +1067,12 @@ function IntegrationsTabContent() {
         <div className="flex items-center gap-3">
           <Mail className="h-5 w-5" />
           <div className="flex-1">
-            <h3 className="font-semibold">Email (Resend)</h3>
+            <h3 className="font-semibold">
+              Email
+              {emailIntegration?.provider
+                ? ` (${emailIntegration.provider})`
+                : ''}
+            </h3>
             <p className="text-sm text-muted-foreground">
               Send critical alerts via email
             </p>
@@ -1017,17 +1106,9 @@ function IntegrationsTabContent() {
             <p className="text-xs text-muted-foreground mb-2">
               Add to your .env file:
             </p>
-            <code className="text-xs">RESEND_API_KEY=re_your_key</code>
+            <code className="text-xs">EMAIL_PROVIDER=smtp</code>
             <p className="text-xs text-muted-foreground mt-2">
-              Get key from{' '}
-              <a
-                href="https://resend.com/api-keys"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline"
-              >
-                resend.com
-              </a>
+              Options: <code>smtp</code> (Mailpit, Gmail), <code>resend</code>
             </p>
           </div>
         )}
@@ -1037,7 +1118,10 @@ function IntegrationsTabContent() {
         <div className="flex items-center gap-3">
           <MessageSquare className="h-5 w-5" />
           <div className="flex-1">
-            <h3 className="font-semibold">SMS (Termii)</h3>
+            <h3 className="font-semibold">
+              SMS
+              {smsIntegration?.provider ? ` (${smsIntegration.provider})` : ''}
+            </h3>
             <p className="text-sm text-muted-foreground">
               Send critical alerts via SMS
             </p>
@@ -1071,17 +1155,10 @@ function IntegrationsTabContent() {
             <p className="text-xs text-muted-foreground mb-2">
               Add to your .env file:
             </p>
-            <code className="text-xs">TERMII_API_KEY=your_key</code>
+            <code className="text-xs">SMS_PROVIDER=termii</code>
             <p className="text-xs text-muted-foreground mt-2">
-              Get key from{' '}
-              <a
-                href="https://accounts.termii.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline"
-              >
-                termii.com
-              </a>
+              Options: <code>termii</code> (Africa), <code>twilio</code>{' '}
+              (Global)
             </p>
           </div>
         )}
@@ -1091,8 +1168,8 @@ function IntegrationsTabContent() {
         <h4 className="font-medium mb-2">How it works</h4>
         <ul className="text-sm text-muted-foreground space-y-1">
           <li>• Integrations are optional - app works without them</li>
-          <li>• When configured, critical alerts sent via email/SMS</li>
-          <li>• Alert types: High mortality, Low stock, Invoice due</li>
+          <li>• When configured, alerts sent via email/SMS</li>
+          <li>• Toggle notifications in Settings → Alerts</li>
         </ul>
       </Card>
     </div>

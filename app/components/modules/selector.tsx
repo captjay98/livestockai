@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { AlertCircle, Check, Loader2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { AlertCircle, Check, ChevronDown, Loader2, Save } from 'lucide-react'
+import { toast } from 'sonner'
 
 import type { ModuleKey } from '~/features/modules/types'
 import { useModules } from '~/features/modules/context'
@@ -21,51 +22,62 @@ import { cn } from '~/lib/utils'
 export function ModuleSelector() {
   const { enabledModules, toggleModule, canDisableModule, isLoading } =
     useModules()
-  const [pendingToggle, setPendingToggle] = useState<ModuleKey | null>(null)
+  const [localEnabled, setLocalEnabled] = useState<Array<ModuleKey>>([])
+  const [expandedModule, setExpandedModule] = useState<ModuleKey | null>(null)
+  const [pendingDisable, setPendingDisable] = useState<ModuleKey | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isChecking, setIsChecking] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
-  const handleToggle = async (moduleKey: ModuleKey) => {
-    const isEnabled = enabledModules.includes(moduleKey)
-    setError(null)
+  // Sync local state when enabledModules loads
+  useEffect(() => {
+    if (enabledModules.length > 0 && localEnabled.length === 0) {
+      setLocalEnabled(enabledModules)
+    }
+  }, [enabledModules, localEnabled.length])
 
+  const hasChanges =
+    JSON.stringify([...localEnabled].sort()) !==
+    JSON.stringify([...enabledModules].sort())
+
+  const handleToggle = (moduleKey: ModuleKey) => {
+    const isEnabled = localEnabled.includes(moduleKey)
     if (isEnabled) {
-      // Check if can disable
-      setIsChecking(true)
-      try {
+      setLocalEnabled(localEnabled.filter((k) => k !== moduleKey))
+    } else {
+      setLocalEnabled([...localEnabled, moduleKey])
+    }
+  }
+
+  const handleSave = async () => {
+    setError(null)
+    setIsSaving(true)
+
+    try {
+      // Check modules being disabled
+      const toDisable = enabledModules.filter((k) => !localEnabled.includes(k))
+      for (const moduleKey of toDisable) {
         const canDisable = await canDisableModule(moduleKey)
-        setIsChecking(false)
         if (!canDisable) {
           setError(
             `Cannot disable ${MODULE_METADATA[moduleKey].name}: active batches exist.`,
           )
+          setIsSaving(false)
           return
         }
-        setPendingToggle(moduleKey)
-      } catch {
-        setIsChecking(false)
-        setError('Failed to check module status')
       }
-    } else {
-      // Enable directly
-      try {
-        await toggleModule(moduleKey)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to enable module')
-      }
-    }
-  }
 
-  const handleConfirmDisable = async () => {
-    if (pendingToggle) {
-      try {
-        await toggleModule(pendingToggle)
-        setPendingToggle(null)
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : 'Failed to disable module',
-        )
+      // Apply changes
+      const toEnable = localEnabled.filter((k) => !enabledModules.includes(k))
+      for (const moduleKey of [...toDisable, ...toEnable]) {
+        await toggleModule(moduleKey)
       }
+
+      toast.success('Modules updated')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update modules')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -90,77 +102,93 @@ export function ModuleSelector() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {allModuleKeys.map((moduleKey) => {
           const module = MODULE_METADATA[moduleKey]
-          const isEnabled = enabledModules.includes(moduleKey)
+          const isEnabled = localEnabled.includes(moduleKey)
+          const isExpanded = expandedModule === moduleKey
 
           return (
             <Card
               key={moduleKey}
               className={cn(
-                'cursor-pointer transition-all hover:shadow-md',
+                'transition-all',
                 isEnabled
                   ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                  : 'hover:border-muted-foreground/50',
+                  : 'border-muted',
               )}
-              onClick={() =>
-                !isLoading && !isChecking && handleToggle(moduleKey)
-              }
             >
               <CardHeader className="p-4 pb-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div
+                    className="flex items-center gap-2 flex-1 cursor-pointer"
+                    onClick={() => handleToggle(moduleKey)}
+                  >
                     <span className="text-2xl">{module.icon}</span>
                     <CardTitle className="text-sm">{module.name}</CardTitle>
                   </div>
-                  <div
-                    className={cn(
-                      'flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors',
-                      isEnabled
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-muted-foreground/30',
-                    )}
-                  >
-                    {isEnabled && <Check className="h-3 w-3" />}
-                    {isChecking && <Loader2 className="h-3 w-3 animate-spin" />}
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={cn(
+                        'flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors cursor-pointer',
+                        isEnabled
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-muted-foreground/30',
+                      )}
+                      onClick={() => handleToggle(moduleKey)}
+                    >
+                      {isEnabled && <Check className="h-3 w-3" />}
+                    </div>
+                    <button
+                      onClick={() =>
+                        setExpandedModule(isExpanded ? null : moduleKey)
+                      }
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <ChevronDown
+                        className={cn(
+                          'h-4 w-4 transition-transform',
+                          isExpanded && 'rotate-180',
+                        )}
+                      />
+                    </button>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <p className="text-xs text-muted-foreground line-clamp-2">
+                <p className="text-xs text-muted-foreground">
                   {module.description}
                 </p>
+                {isExpanded && (
+                  <div className="mt-3 pt-3 border-t space-y-2">
+                    <p className="text-xs font-medium">Species:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {module.speciesOptions.map((species) => (
+                        <span
+                          key={species.value}
+                          className="text-xs px-2 py-0.5 bg-muted rounded"
+                        >
+                          {species.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )
         })}
       </div>
 
-      <AlertDialog
-        open={!!pendingToggle}
-        onOpenChange={() => setPendingToggle(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Disable Module?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {pendingToggle && (
-                <>
-                  Disable{' '}
-                  <span className="font-semibold">
-                    {MODULE_METADATA[pendingToggle].name}
-                  </span>
-                  ? Related features will be hidden. You can re-enable anytime.
-                </>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button variant="destructive" onClick={handleConfirmDisable}>
-              Disable
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {hasChanges && (
+        <div className="flex justify-end">
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
+            Save Changes
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
