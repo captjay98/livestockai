@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Open-source, offline-first livestock management for poultry and aquaculture farms.</strong>
+  <strong>Open-source, offline-first livestock management supporting 6 livestock types.</strong>
 </p>
 
 <p align="center">
