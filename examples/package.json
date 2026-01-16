@@ -1,0 +1,21 @@
+{
+  "name": "open-livestock-examples",
+  "version": "1.0.0",
+  "description": "Interactive provider examples for OpenLivestock",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
