@@ -262,6 +262,22 @@ The app can be deployed to any platform supporting Node.js:
 
 ---
 
+## Documentation
+
+Comprehensive guides for users, developers, and AI agents:
+
+| Document                                     | Description                | Audience      |
+| -------------------------------------------- | -------------------------- | ------------- |
+| **[docs/INDEX.md](docs/INDEX.md)**           | **Documentation hub**      | Everyone      |
+| [AGENTS.md](AGENTS.md)                       | AI agent development guide | AI assistants |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture        | Developers    |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)     | Production deployment      | DevOps        |
+| [docs/TESTING.md](docs/TESTING.md)           | Testing strategies         | Developers    |
+| [docs/DATABASE.md](docs/DATABASE.md)         | Database schema & Kysely   | Developers    |
+| [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md) | SMS/Email providers        | Developers    |
+| [DEVLOG.md](DEVLOG.md)                       | Development timeline       | Everyone      |
+| [CONTRIBUTING.md](CONTRIBUTING.md)           | Contribution guide         | Contributors  |
+
 ## For AI Agents
 
 This project is designed to be AI-agent friendly. See these resources:
