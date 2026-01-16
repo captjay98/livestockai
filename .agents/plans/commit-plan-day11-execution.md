@@ -11,10 +11,12 @@
 ### Commit 1: feat(settings): consolidate tabs and improve UX
 
 **Files**:
-- app/routes/_auth/settings/index.tsx
+
+- app/routes/\_auth/settings/index.tsx
 - app/components/modules/selector.tsx
 
 **Message**:
+
 ```
 feat(settings): consolidate tabs and improve UX
 
@@ -37,6 +39,7 @@ Changes:
 ### Commit 2: feat(integrations): add console SMS provider and update templates
 
 **Files**:
+
 - app/features/integrations/sms/providers/console.ts
 - app/features/integrations/sms/index.ts
 - app/features/integrations/config.ts
@@ -45,6 +48,7 @@ Changes:
 - .env.example
 
 **Message**:
+
 ```
 feat(integrations): add console SMS provider and email templates
 
@@ -69,10 +73,12 @@ weeklySummary, dailySales, batchPerformance, paymentReceived
 ### Commit 3: feat(settings): add 7 new notification types
 
 **Files**:
+
 - app/features/settings/currency-presets.ts
 - app/lib/db/types.ts
 
 **Message**:
+
 ```
 feat(settings): add 7 new notification types
 
@@ -95,6 +101,7 @@ Critical notifications enabled by default, reports disabled
 ### Commit 4: docs: update plans and DEVLOG
 
 **Files**:
+
 - .agents/plans/commit-plan-day10.md
 - .agents/plans/commit-plan-day11.md
 - .agents/plans/optional-integrations-implementation.md
@@ -104,6 +111,7 @@ Critical notifications enabled by default, reports disabled
 - DEVLOG.md
 
 **Message**:
+
 ```
 docs: update plans and DEVLOG
 
