@@ -4,6 +4,24 @@
 
 OpenLivestock Manager is a full-stack livestock management platform built with TypeScript across the entire stack. It supports 6 livestock types (poultry, fish, cattle, goats, sheep, bees) with offline-first capabilities.
 
+```mermaid
+graph TD
+    Browser[Browser / React 19]
+    CF[Cloudflare Workers]
+    TS[TanStack Start]
+    Kysely[Kysely ORM]
+    Neon[Neon PostgreSQL]
+    TQ[TanStack Query]
+    IDB[IndexedDB / Offline]
+
+    Browser <--> CF
+    CF <--> TS
+    TS <--> Kysely
+    Kysely <--> Neon
+    Browser <--> TQ
+    TQ <--> IDB
+```
+
 ## Technology Stack
 
 | Layer      | Technology                 | Purpose                          |
@@ -17,11 +35,22 @@ OpenLivestock Manager is a full-stack livestock management platform built with T
 
 ## Request Flow
 
-```
-┌──────────┐    ┌───────────────┐    ┌─────────────┐    ┌────────┐    ┌──────┐
-│ BROWSER  │───▶│  CLOUDFLARE   │───▶│  TANSTACK   │───▶│ KYSELY │───▶│ NEON │
-│ (React)  │    │   WORKER      │    │   START     │    │  ORM   │    │  DB  │
-└──────────┘    └───────────────┘    └─────────────┘    └────────┘    └──────┘
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant CF as Cloudflare Worker
+    participant TS as TanStack Start
+    participant K as Kysely ORM
+    participant N as Neon DB
+
+    B->>CF: HTTP Request
+    CF->>TS: Execute SSR/Server Function
+    TS->>K: Build Query
+    K->>N: Execute SQL
+    N-->>K: Data Result
+    K-->>TS: Type-safe Data
+    TS-->>CF: Rendered HTML/JSON
+    CF-->>B: HTTP Response
 ```
 
 1. **Browser** sends HTTP request
@@ -31,6 +60,22 @@ OpenLivestock Manager is a full-stack livestock management platform built with T
 5. **Neon** executes queries (serverless PostgreSQL)
 
 ## Directory Structure
+
+```mermaid
+graph TD
+    App[app/]
+    Features[features/ - Business Logic]
+    Routes[routes/ - Pages & Loaders]
+    Components[components/ - UI Library]
+    Lib[lib/ - DB & Core Utilities]
+    Hooks[hooks/ - Custom React Hooks]
+
+    App --> Features
+    App --> Routes
+    App --> Components
+    App --> Lib
+    App --> Hooks
+```
 
 ```
 app/
@@ -108,6 +153,26 @@ USER
 
 ## Server Function Pattern
 
+```mermaid
+graph TD
+    Start[createServerFn Entry]
+    Validator[Input Validator - Zod]
+    Handler[Handler Function]
+    Auth[Auth Middleware Check]
+    DBImport[Dynamic Import DB/Features]
+    Query[Kysely DB Query]
+    Audit[Log Audit Action]
+    Response[Return Data]
+
+    Start --> Validator
+    Validator --> Handler
+    Handler --> Auth
+    Auth --> DBImport
+    DBImport --> Query
+    Query --> Audit
+    Audit --> Response
+```
+
 **Critical**: All database operations use dynamic imports for Cloudflare Workers compatibility.
 
 ```typescript
@@ -139,26 +204,19 @@ export const createBatchFn = createServerFn({ method: 'POST' })
 
 ## State Management
 
+```mermaid
+graph LR
+    UI[React Component]
+    TQ[TanStack Query]
+    Cache[(In-memory Cache)]
+    IDB[(IndexedDB persistence)]
+    Server[Server Functions]
+
+    UI <--> TQ
+    TQ <--> Cache
+    Cache <--> IDB
+    TQ <--> Server
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      REACT COMPONENT                             │
-│                                                                  │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐         │
-│  │ LOCAL STATE │    │  CONTEXTS   │    │ TANSTACK    │         │
-│  │ useState()  │    │             │    │ QUERY       │         │
-│  │             │    │ • FarmCtx   │    │             │         │
-│  │ • form data │    │ • Settings  │    │ • Server    │         │
-│  │ • dialogs   │    │ • Modules   │    │   data      │         │
-│  │ • UI state  │    │ • Auth      │    │ • Caching   │         │
-│  └─────────────┘    │ • Notifs    │    │ • Mutations │         │
-│                     └─────────────┘    └──────┬──────┘         │
-│                                               │                 │
-│                                               ▼                 │
-│                                        ┌─────────────┐         │
-│                                        │  IndexedDB  │         │
-│                                        │  (offline)  │         │
-│                                        └─────────────┘         │
-└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### When to Use What
