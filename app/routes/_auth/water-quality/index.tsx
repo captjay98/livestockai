@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Droplets, Edit, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -46,6 +47,7 @@ interface WaterQualityRecord {
   temperatureCelsius: string
   dissolvedOxygenMgL: string
   ammoniaMgL: string
+  notes?: string | null
   species: string
   farmName?: string
 }
@@ -139,6 +141,7 @@ export const Route = createFileRoute('/_auth/water-quality/')({
 })
 
 function WaterQualityPage() {
+  const { t } = useTranslation(['waterQuality', 'common', 'batches'])
   const { format: formatDate } = useFormatDate()
   const { format: formatTemperature, label: tempLabel } = useFormatTemperature()
   const { selectedFarmId } = useFarm()
@@ -171,6 +174,7 @@ function WaterQualityPage() {
     temperatureCelsius: '',
     dissolvedOxygenMgL: '',
     ammoniaMgL: '',
+    notes: '',
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -243,7 +247,9 @@ function WaterQualityPage() {
         },
       })
       setDialogOpen(false)
-      toast.success('Water quality recorded')
+      toast.success(
+        t('waterQuality:recorded', { defaultValue: 'Water quality recorded' }),
+      )
       setFormData({
         batchId: '',
         date: new Date().toISOString().split('T')[0],
@@ -251,10 +257,17 @@ function WaterQualityPage() {
         temperatureCelsius: '',
         dissolvedOxygenMgL: '',
         ammoniaMgL: '',
+        notes: '',
       })
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save record')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('waterQuality:error.record', {
+              defaultValue: 'Failed to save record',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -264,12 +277,12 @@ function WaterQualityPage() {
     () => [
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: t('common:date', { defaultValue: 'Date' }),
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'species',
-        header: 'Batch',
+        header: t('batches:batch', { defaultValue: 'Batch' }),
         cell: ({ row }) => (
           <span className="font-medium">{row.original.species}</span>
         ),
@@ -291,7 +304,10 @@ function WaterQualityPage() {
       },
       {
         accessorKey: 'temperatureCelsius',
-        header: `Temp (${tempLabel})`,
+        header: t('waterQuality:temp', {
+          label: tempLabel,
+          defaultValue: 'Temp ({{label}})',
+        }),
         cell: ({ row }) => {
           const temp = parseFloat(row.original.temperatureCelsius)
           const isBad =
@@ -306,7 +322,7 @@ function WaterQualityPage() {
       },
       {
         accessorKey: 'dissolvedOxygenMgL',
-        header: 'DO (mg/L)',
+        header: t('waterQuality:do', { defaultValue: 'DO (mg/L)' }),
         cell: ({ row }) => {
           const val = parseFloat(row.original.dissolvedOxygenMgL)
           const isBad = val < WATER_QUALITY_THRESHOLDS.dissolvedOxygen.min
@@ -319,7 +335,7 @@ function WaterQualityPage() {
       },
       {
         accessorKey: 'ammoniaMgL',
-        header: 'Ammonia',
+        header: t('waterQuality:ammonia', { defaultValue: 'Ammonia' }),
         cell: ({ row }) => {
           const val = parseFloat(row.original.ammoniaMgL)
           const isBad = val > WATER_QUALITY_THRESHOLDS.ammonia.max
@@ -338,7 +354,7 @@ function WaterQualityPage() {
               variant="ghost"
               size="icon"
               onClick={() => handleEdit(row.original)}
-              title="Edit"
+              title={t('common:edit', { defaultValue: 'Edit' })}
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -347,7 +363,7 @@ function WaterQualityPage() {
               size="icon"
               className="text-destructive hover:text-destructive"
               onClick={() => handleDelete(row.original)}
-              title="Delete"
+              title={t('common:delete', { defaultValue: 'Delete' })}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -367,6 +383,7 @@ function WaterQualityPage() {
       temperatureCelsius: record.temperatureCelsius,
       dissolvedOxygenMgL: record.dissolvedOxygenMgL,
       ammoniaMgL: record.ammoniaMgL,
+      notes: record.notes || '',
     })
     setEditDialogOpen(true)
   }
@@ -386,17 +403,25 @@ function WaterQualityPage() {
       await updateWaterQualityRecordFn({
         data: {
           recordId: selectedRecord.id,
-          ph: parseFloat(formData.ph),
-          temperatureCelsius: parseFloat(formData.temperatureCelsius),
-          dissolvedOxygenMgL: parseFloat(formData.dissolvedOxygenMgL),
-          ammoniaMgL: parseFloat(formData.ammoniaMgL),
+          data: {
+            ph: parseFloat(formData.ph),
+            temperatureCelsius: parseFloat(formData.temperatureCelsius),
+            dissolvedOxygenMgL: parseFloat(formData.dissolvedOxygenMgL),
+            ammoniaMgL: parseFloat(formData.ammoniaMgL),
+            date: new Date(formData.date),
+            notes: (formData as any).notes || null,
+          },
         },
       })
       setEditDialogOpen(false)
-      toast.success('Record updated')
+      toast.success(t('common:updated', { defaultValue: 'Record updated' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('common:error.update', { defaultValue: 'Failed to update' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -411,10 +436,14 @@ function WaterQualityPage() {
         data: { recordId: selectedRecord.id },
       })
       setDeleteDialogOpen(false)
-      toast.success('Record deleted')
+      toast.success(t('common:deleted', { defaultValue: 'Record deleted' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('common:error.delete', { defaultValue: 'Failed to delete' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -423,13 +452,16 @@ function WaterQualityPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Water Quality"
-        description="Monitor pond conditions (pH, temperature, oxygen) to ensure optimal fish health."
+        title={t('waterQuality:title', { defaultValue: 'Water Quality' })}
+        description={t('waterQuality:description', {
+          defaultValue:
+            'Monitor pond conditions (pH, temperature, oxygen) to ensure optimal fish health.',
+        })}
         icon={Droplets}
         actions={
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Record
+            {t('waterQuality:addRecord', { defaultValue: 'Add Record' })}
           </Button>
         }
       />
@@ -440,7 +472,9 @@ function WaterQualityPage() {
             <CardHeader className="py-3">
               <CardTitle className="text-sm font-medium text-destructive flex items-center">
                 <AlertTriangle className="h-4 w-4 mr-2" />
-                Quality Alerts
+                {t('waterQuality:qualityAlerts', {
+                  defaultValue: 'Quality Alerts',
+                })}
               </CardTitle>
             </CardHeader>
             <CardContent className="py-2 text-sm space-y-2">
@@ -474,7 +508,9 @@ function WaterQualityPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search batches..."
+        searchPlaceholder={t('batches:searchPlaceholder', {
+          defaultValue: 'Search batches...',
+        })}
         isLoading={isLoading}
         onPaginationChange={(page, pageSize) => {
           updateSearch({ page, pageSize })
@@ -486,19 +522,27 @@ function WaterQualityPage() {
           updateSearch({ q, page: 1 })
         }}
         emptyIcon={<Droplets className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No water quality records"
-        emptyDescription="Monitor your water parameters regularly."
+        emptyTitle={t('waterQuality:emptyTitle', {
+          defaultValue: 'No water quality records',
+        })}
+        emptyDescription={t('waterQuality:emptyDescription', {
+          defaultValue: 'Monitor your water parameters regularly.',
+        })}
       />
 
       {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Record Water Quality</DialogTitle>
+            <DialogTitle>
+              {t('waterQuality:addRecordTitle', {
+                defaultValue: 'Record Water Quality',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Batch</Label>
+              <Label>{t('batches:batch', { defaultValue: 'Batch' })}</Label>
               <Select
                 value={formData.batchId}
                 onValueChange={(val) =>
@@ -509,13 +553,20 @@ function WaterQualityPage() {
                   <SelectValue>
                     {formData.batchId
                       ? batches.find((b) => b.id === formData.batchId)?.species
-                      : 'Select fish batch'}
+                      : t('waterQuality:selectFishBatch', {
+                          defaultValue: 'Select fish batch',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (
                     <SelectItem key={batch.id} value={batch.id}>
-                      {batch.species} ({batch.currentQuantity} fish)
+                      {batch.species} (
+                      {t('batches:fishCount', {
+                        count: batch.currentQuantity,
+                        defaultValue: '{{count}} fish',
+                      })}
+                      )
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -523,7 +574,7 @@ function WaterQualityPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Date</Label>
+              <Label>{t('common:date', { defaultValue: 'Date' })}</Label>
               <Input
                 type="date"
                 value={formData.date}
@@ -611,13 +662,17 @@ function WaterQualityPage() {
                 onClick={() => setDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !formData.batchId || !formData.ph}
               >
-                {isSubmitting ? 'Saving...' : 'Save Record'}
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('waterQuality:saveRecord', {
+                      defaultValue: 'Save Record',
+                    })}
               </Button>
             </DialogFooter>
           </form>
@@ -628,11 +683,15 @@ function WaterQualityPage() {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Water Quality Record</DialogTitle>
+            <DialogTitle>
+              {t('waterQuality:editRecordTitle', {
+                defaultValue: 'Edit Water Quality Record',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Batch</Label>
+              <Label>{t('batches:batch', { defaultValue: 'Batch' })}</Label>
               <Input value={selectedRecord?.species || ''} disabled />
             </div>
 
@@ -713,10 +772,12 @@ function WaterQualityPage() {
                 onClick={() => setEditDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button type="submit" disabled={isSubmitting || !formData.ph}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('common:saveChanges', { defaultValue: 'Save Changes' })}
               </Button>
             </DialogFooter>
           </form>
@@ -727,24 +788,33 @@ function WaterQualityPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Water Quality Record</DialogTitle>
+            <DialogTitle>
+              {t('waterQuality:deleteRecordTitle', {
+                defaultValue: 'Delete Water Quality Record',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete this water quality record?
+            {t('waterQuality:deleteConfirmation', {
+              defaultValue:
+                'Are you sure you want to delete this water quality record?',
+            })}
           </p>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+              {isSubmitting
+                ? t('common:deleting', { defaultValue: 'Deleting...' })
+                : t('common:delete', { defaultValue: 'Delete' })}
             </Button>
           </DialogFooter>
         </DialogContent>

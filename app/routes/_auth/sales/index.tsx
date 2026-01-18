@@ -13,6 +13,7 @@ import {
   Trash2,
   TrendingUp,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/sales/server'
@@ -53,7 +54,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
@@ -210,6 +210,8 @@ export const Route = createFileRoute('/_auth/sales/')({
 })
 
 function SalesPage() {
+  const { t } = useTranslation(['sales', 'common'])
+  // const { sales, pagination } = Route.useLoaderData()
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
@@ -331,7 +333,7 @@ function SalesPage() {
       })
       setDialogOpen(false)
       resetForm()
-      toast.success('Sale recorded')
+      toast.success(t('messages.recorded'))
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to record sale')
@@ -375,7 +377,7 @@ function SalesPage() {
         },
       })
       setEditDialogOpen(false)
-      toast.success('Sale updated')
+      toast.success(t('messages.updated'))
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update sale')
@@ -391,7 +393,7 @@ function SalesPage() {
     try {
       await deleteSaleFn({ data: { saleId: selectedSale.id } })
       setDeleteDialogOpen(false)
-      toast.success('Sale deleted')
+      toast.success(t('messages.deleted'))
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete sale')
@@ -423,7 +425,7 @@ function SalesPage() {
     const statusInfo =
       PAYMENT_STATUSES.find((s) => s.value === status) || PAYMENT_STATUSES[0]
     return (
-      <Badge className={`${statusInfo.color} border-0`}>
+      <Badge className={`${statusInfo.color} border - 0`}>
         {statusInfo.label}
       </Badge>
     )
@@ -433,12 +435,12 @@ function SalesPage() {
   const columns: Array<ColumnDef<Sale>> = [
     {
       accessorKey: 'livestockType',
-      header: 'Type',
+      header: t('labels.type'),
       enableSorting: true,
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <div
-            className={`h-8 w-8 rounded-full flex items-center justify-center ${TYPE_COLORS[row.original.livestockType] || 'bg-muted'}`}
+            className={`h - 8 w - 8 rounded - full flex items - center justify - center ${TYPE_COLORS[row.original.livestockType] || 'bg-muted'} `}
           >
             {getTypeIcon(row.original.livestockType)}
           </div>
@@ -450,7 +452,7 @@ function SalesPage() {
     },
     {
       accessorKey: 'customerName',
-      header: 'Customer',
+      header: t('labels.customer'),
       enableSorting: true,
       cell: ({ row }) => (
         <span className="text-muted-foreground">
@@ -460,7 +462,7 @@ function SalesPage() {
     },
     {
       accessorKey: 'quantity',
-      header: 'Quantity',
+      header: t('labels.quantity'),
       enableSorting: true,
       cell: ({ row }) => (
         <span className="font-medium">{row.original.quantity}</span>
@@ -468,7 +470,7 @@ function SalesPage() {
     },
     {
       accessorKey: 'totalAmount',
-      header: 'Amount',
+      header: t('labels.amount'),
       enableSorting: true,
       cell: ({ row }) => (
         <span className="font-medium text-success">
@@ -478,13 +480,13 @@ function SalesPage() {
     },
     {
       accessorKey: 'paymentStatus',
-      header: 'Payment',
+      header: t('labels.payment'),
       enableSorting: true,
       cell: ({ row }) => getPaymentStatusBadge(row.original.paymentStatus),
     },
     {
       accessorKey: 'date',
-      header: 'Date',
+      header: t('labels.date'),
       enableSorting: true,
       cell: ({ row }) => (
         <Badge variant="outline">{formatDate(row.original.date)}</Badge>
@@ -527,13 +529,13 @@ function SalesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Sales"
-        description="Track your farm sales and revenue"
+        title={t('title')}
+        description={t('description')}
         icon={DollarSign}
         actions={
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Record Sale
+            {t('record')}
           </Button>
         }
       />
@@ -541,12 +543,12 @@ function SalesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Record Sale</DialogTitle>
-            <DialogDescription>Log a new sale</DialogDescription>
+            <DialogTitle>{t('dialog.recordTitle')}</DialogTitle>
+            <DialogDescription>{t('dialog.recordDesc')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Type</Label>
+              <Label>{t('labels.type')}</Label>
               <Select
                 value={formData.livestockType}
                 onValueChange={(value: string | null) =>
@@ -565,19 +567,19 @@ function SalesPage() {
                   <SelectItem value="poultry">
                     <span className="flex items-center gap-2">
                       <Bird className="h-4 w-4" />
-                      Poultry
+                      {t('livestockTypes.poultry')}
                     </span>
                   </SelectItem>
                   <SelectItem value="fish">
                     <span className="flex items-center gap-2">
                       <Fish className="h-4 w-4" />
-                      Fish
+                      {t('livestockTypes.fish')}
                     </span>
                   </SelectItem>
                   <SelectItem value="eggs">
                     <span className="flex items-center gap-2">
                       <Egg className="h-4 w-4" />
-                      Eggs
+                      {t('livestockTypes.eggs')}
                     </span>
                   </SelectItem>
                 </SelectContent>
@@ -586,7 +588,9 @@ function SalesPage() {
 
             {batches.length > 0 && formData.livestockType !== 'eggs' && (
               <div className="space-y-2">
-                <Label>Batch (Optional)</Label>
+                <Label>
+                  {t('labels.batch')} ({t('common.optional')})
+                </Label>
                 <Select
                   value={formData.batchId || undefined}
                   onValueChange={(value: string | null) =>
@@ -601,7 +605,7 @@ function SalesPage() {
                       {formData.batchId
                         ? batches.find((b) => b.id === formData.batchId)
                             ?.species
-                        : 'Select batch'}
+                        : t('placeholders.selectBatch')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
@@ -619,7 +623,9 @@ function SalesPage() {
 
             {customers.length > 0 && (
               <div className="space-y-2">
-                <Label>Customer (Optional)</Label>
+                <Label>
+                  {t('labels.customer')} ({t('common.optional')})
+                </Label>
                 <Select
                   value={formData.customerId || undefined}
                   onValueChange={(value: string | null) =>
@@ -634,7 +640,7 @@ function SalesPage() {
                       {formData.customerId
                         ? customers.find((c) => c.id === formData.customerId)
                             ?.name
-                        : 'Walk-in customer'}
+                        : t('placeholders.walkInCustomer')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
@@ -666,7 +672,9 @@ function SalesPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Unit Price ({currencySymbol})</Label>
+                <Label>
+                  {t('labels.unitPrice')} ({currencySymbol})
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -685,7 +693,7 @@ function SalesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Date</Label>
+              <Label>{t('labels.date')}</Label>
               <Input
                 type="date"
                 value={formData.date}
@@ -702,7 +710,9 @@ function SalesPage() {
             {formData.quantity && formData.unitPrice && (
               <div className="p-3 bg-muted rounded-lg">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Total:</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t('labels.total')}:
+                  </span>
                   <span className="text-lg font-bold text-success">
                     {formatCurrency(
                       parseInt(formData.quantity || '0') *
@@ -726,7 +736,7 @@ function SalesPage() {
                 onClick={() => setDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -734,7 +744,7 @@ function SalesPage() {
                   isSubmitting || !formData.quantity || !formData.unitPrice
                 }
               >
-                {isSubmitting ? 'Recording...' : 'Record Sale'}
+                {isSubmitting ? t('dialog.recording') : t('record')}
               </Button>
             </DialogFooter>
           </form>
@@ -747,7 +757,7 @@ function SalesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Revenue
+                {t('summaries.totalRevenue')}
               </CardTitle>
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
             </CardHeader>
@@ -756,7 +766,7 @@ function SalesPage() {
                 {formatCurrency(summary.total.revenue)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {summary.total.count} sales
+                {summary.total.count} {t('summaries.sales')}
               </p>
             </CardContent>
           </Card>
@@ -764,7 +774,7 @@ function SalesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Poultry
+                {t('livestockTypes.poultry')}
               </CardTitle>
               <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
             </CardHeader>
@@ -773,7 +783,8 @@ function SalesPage() {
                 {formatCurrency(summary.poultry.revenue)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {summary.poultry.quantity.toLocaleString()} sold
+                {summary.poultry.quantity.toLocaleString()}{' '}
+                {t('summaries.sold')}
               </p>
             </CardContent>
           </Card>
@@ -781,16 +792,17 @@ function SalesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Fish
+                {t('livestockTypes.fish')}
               </CardTitle>
-              <Fish className="h-3 w-3 sm:h-4 sm:w-4 text-info" />
+              <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-info" />
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <div className="text-lg sm:text-2xl font-bold">
                 {formatCurrency(summary.fish.revenue)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {summary.fish.quantity.toLocaleString()} sold
+                {summary.fish.quantity.toLocaleString()}{' '}
+                {t('sales.summaries.sold')}
               </p>
             </CardContent>
           </Card>
@@ -798,7 +810,7 @@ function SalesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Eggs
+                {t('livestockTypes.eggs')}
               </CardTitle>
               <Egg className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />
             </CardHeader>
@@ -807,7 +819,8 @@ function SalesPage() {
                 {formatCurrency(summary.eggs.revenue)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {summary.eggs.quantity.toLocaleString()} crates
+                {summary.eggs.quantity.toLocaleString()}{' '}
+                {t('common.units', { defaultValue: 'units' })}
               </p>
             </CardContent>
           </Card>
@@ -824,7 +837,9 @@ function SalesPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search sales..."
+        searchPlaceholder={t('placeholders.search', {
+          defaultValue: 'Search sales...',
+        })}
         isLoading={isLoading}
         filters={
           <div className="flex gap-2">
@@ -896,7 +911,7 @@ function SalesPage() {
                   <SelectItem key={status.value} value={status.value}>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`w-2 h-2 rounded-full ${status.color.split(' ')[1]}`}
+                        className={`w - 2 h - 2 rounded - full ${status.color.split(' ')[1]} `}
                       />
                       {status.label}
                     </div>
@@ -930,7 +945,7 @@ function SalesPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <div
-                  className={`h-10 w-10 rounded-full flex items-center justify-center ${TYPE_COLORS[selectedSale.livestockType] || 'bg-gray-100'}`}
+                  className={`h - 10 w - 10 rounded - full flex items - center justify - center ${TYPE_COLORS[selectedSale.livestockType] || 'bg-gray-100'} `}
                 >
                   {getTypeIcon(selectedSale.livestockType)}
                 </div>
@@ -1136,7 +1151,7 @@ function SalesPage() {
             <div className="py-4">
               <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
                 <div
-                  className={`h-10 w-10 rounded-full flex items-center justify-center ${TYPE_COLORS[selectedSale.livestockType] || 'bg-gray-100'}`}
+                  className={`h - 10 w - 10 rounded - full flex items - center justify - center ${TYPE_COLORS[selectedSale.livestockType] || 'bg-gray-100'} `}
                 >
                   {getTypeIcon(selectedSale.livestockType)}
                 </div>

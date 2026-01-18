@@ -1,7 +1,8 @@
 import { toast } from 'sonner'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Syringe } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   createTreatmentFn,
   createVaccinationFn,
@@ -45,6 +46,7 @@ export function VaccinationDialog({
   open,
   onOpenChange,
 }: VaccinationDialogProps) {
+  const { t } = useTranslation(['health', 'batches', 'common'])
   const router = useRouter()
   const [recordType, setRecordType] = useState<'vaccination' | 'treatment'>(
     'vaccination',
@@ -102,8 +104,12 @@ export function VaccinationDialog({
       }
       toast.success(
         recordType === 'vaccination'
-          ? 'Vaccination recorded'
-          : 'Treatment recorded',
+          ? t('vaccinationRecorded', {
+              defaultValue: 'Vaccination recorded',
+            })
+          : t('treatmentRecorded', {
+              defaultValue: 'Treatment recorded',
+            }),
       )
       onOpenChange(false)
       setFormData({
@@ -118,7 +124,13 @@ export function VaccinationDialog({
       })
       router.invalidate()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create record')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('error.create', {
+              defaultValue: 'Failed to create record',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -130,10 +142,12 @@ export function VaccinationDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Syringe className="h-5 w-5" />
-            Add Health Record
+            {t('addHealthRecord', { defaultValue: 'Add Health Record' })}
           </DialogTitle>
           <DialogDescription>
-            Record a vaccination or treatment
+            {t('addDescription', {
+              defaultValue: 'Record a vaccination or treatment',
+            })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -144,7 +158,7 @@ export function VaccinationDialog({
               size="sm"
               onClick={() => setRecordType('vaccination')}
             >
-              Vaccination
+              {t('vaccination', { defaultValue: 'Vaccination' })}
             </Button>
             <Button
               type="button"
@@ -152,12 +166,12 @@ export function VaccinationDialog({
               size="sm"
               onClick={() => setRecordType('treatment')}
             >
-              Treatment
+              {t('treatment', { defaultValue: 'Treatment' })}
             </Button>
           </div>
 
           <div className="space-y-2">
-            <Label>Batch *</Label>
+            <Label>{t('batches:batch', { defaultValue: 'Batch' })} *</Label>
             <Select
               value={formData.batchId}
               onValueChange={(value) =>
@@ -168,7 +182,9 @@ export function VaccinationDialog({
                 <SelectValue>
                   {formData.batchId
                     ? batches.find((b) => b.id === formData.batchId)?.species
-                    : 'Select batch'}
+                    : t('batches:selectBatch', {
+                        defaultValue: 'Select batch',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -184,8 +200,10 @@ export function VaccinationDialog({
           <div className="space-y-2">
             <Label>
               {recordType === 'vaccination'
-                ? 'Vaccine Name'
-                : 'Medication Name'}{' '}
+                ? t('vaccineName', { defaultValue: 'Vaccine Name' })
+                : t('medicationName', {
+                    defaultValue: 'Medication Name',
+                  })}{' '}
               *
             </Label>
             <Input
@@ -195,8 +213,12 @@ export function VaccinationDialog({
               }
               placeholder={
                 recordType === 'vaccination'
-                  ? 'e.g., Newcastle Disease'
-                  : 'e.g., Oxytetracycline'
+                  ? t('placeholders.vaccine', {
+                      defaultValue: 'e.g., Newcastle Disease',
+                    })
+                  : t('placeholders.medication', {
+                      defaultValue: 'e.g., Oxytetracycline',
+                    })
               }
               required
             />
@@ -204,13 +226,15 @@ export function VaccinationDialog({
 
           {recordType === 'treatment' && (
             <div className="space-y-2">
-              <Label>Reason *</Label>
+              <Label>{t('reason', { defaultValue: 'Reason' })} *</Label>
               <Input
                 value={formData.reason}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, reason: e.target.value }))
                 }
-                placeholder="e.g., Respiratory infection"
+                placeholder={t('placeholders.reason', {
+                  defaultValue: 'e.g., Respiratory infection',
+                })}
                 required
               />
             </div>
@@ -218,7 +242,7 @@ export function VaccinationDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Date *</Label>
+              <Label>{t('common:date', { defaultValue: 'Date' })} *</Label>
               <Input
                 type="date"
                 value={formData.date}
@@ -229,13 +253,15 @@ export function VaccinationDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Dosage *</Label>
+              <Label>{t('common:dosage', { defaultValue: 'Dosage' })} *</Label>
               <Input
                 value={formData.dosage}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, dosage: e.target.value }))
                 }
-                placeholder="e.g., 0.5ml"
+                placeholder={t('health:placeholders.dosage', {
+                  defaultValue: 'e.g., 0.5ml',
+                })}
                 required
               />
             </div>
@@ -243,7 +269,9 @@ export function VaccinationDialog({
 
           {recordType === 'vaccination' ? (
             <div className="space-y-2">
-              <Label>Next Due Date</Label>
+              <Label>
+                {t('nextDueDate', { defaultValue: 'Next Due Date' })}
+              </Label>
               <Input
                 type="date"
                 value={formData.nextDueDate}
@@ -257,7 +285,11 @@ export function VaccinationDialog({
             </div>
           ) : (
             <div className="space-y-2">
-              <Label>Withdrawal Days</Label>
+              <Label>
+                {t('withdrawalDays', {
+                  defaultValue: 'Withdrawal Days',
+                })}
+              </Label>
               <Input
                 type="number"
                 min="0"
@@ -268,19 +300,23 @@ export function VaccinationDialog({
                     withdrawalDays: e.target.value,
                   }))
                 }
-                placeholder="Days before safe for consumption"
+                placeholder={t('placeholders.withdrawal', {
+                  defaultValue: 'Days before safe for consumption',
+                })}
               />
             </div>
           )}
 
           <div className="space-y-2">
-            <Label>Notes</Label>
+            <Label>{t('common:notes', { defaultValue: 'Notes' })}</Label>
             <Textarea
               value={formData.notes}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, notes: e.target.value }))
               }
-              placeholder="Additional notes"
+              placeholder={t('common:additionalNotes', {
+                defaultValue: 'Additional notes',
+              })}
               rows={2}
             />
           </div>
@@ -298,7 +334,7 @@ export function VaccinationDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
@@ -309,7 +345,9 @@ export function VaccinationDialog({
                 !formData.dosage
               }
             >
-              {isSubmitting ? 'Creating...' : 'Add Record'}
+              {isSubmitting
+                ? t('common:creating', { defaultValue: 'Creating...' })
+                : t('addRecord', { defaultValue: 'Add Record' })}
             </Button>
           </DialogFooter>
         </form>

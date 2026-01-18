@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { format } from 'date-fns'
 import {
   Ban,
@@ -115,6 +116,7 @@ export const Route = createFileRoute('/_auth/settings/users')({
 })
 
 function UsersSettingsPage() {
+  const { t } = useTranslation(['settings', 'common'])
   const { users: initialUsers, farms, session } = Route.useLoaderData()
   const [users, setUsers] = useState<Array<UserData>>(
     initialUsers as Array<UserData>,
@@ -146,7 +148,7 @@ function UsersSettingsPage() {
       const updated = await listUsersFn()
       setUsers(updated as Array<UserData>)
     } catch {
-      setError('Failed to refresh users')
+      setError(t('users.errors.refresh'))
     }
   }
 
@@ -155,7 +157,7 @@ function UsersSettingsPage() {
       const userData = await getUserFn({ data: { userId } })
       setUserFarmAssignments(userData.farmAssignments)
     } catch {
-      setError('Failed to load farm assignments')
+      setError(t('users.errors.loadAssignments'))
     }
   }
 
@@ -169,7 +171,7 @@ function UsersSettingsPage() {
       setBanDialogOpen(false)
       setSelectedUser(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to ban user')
+      setError(err instanceof Error ? err.message : t('users.errors.ban'))
     } finally {
       setIsLoading(false)
     }
@@ -182,7 +184,7 @@ function UsersSettingsPage() {
       await unbanUserFn({ data: { userId } })
       await refreshUsers()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to unban user')
+      setError(err instanceof Error ? err.message : t('users.errors.unban'))
     } finally {
       setIsLoading(false)
     }
@@ -198,7 +200,7 @@ function UsersSettingsPage() {
       setDeleteDialogOpen(false)
       setSelectedUser(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete user')
+      setError(err instanceof Error ? err.message : t('users.errors.delete'))
     } finally {
       setIsLoading(false)
     }
@@ -212,7 +214,7 @@ function UsersSettingsPage() {
       await updateUserRoleFn({ data: { userId, role: newRole } })
       await refreshUsers()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update role')
+      setError(err instanceof Error ? err.message : t('users.errors.role'))
     } finally {
       setIsLoading(false)
     }
@@ -224,259 +226,269 @@ function UsersSettingsPage() {
         <div className="flex items-center gap-3">
           <Users className="h-6 w-6" />
           <div>
-            <h3 className="text-lg font-medium">User Management</h3>
-            <p className="text-sm text-muted-foreground">
-              Manage users, roles, and permissions
-            </p>
+            <div>
+              <h3 className="text-lg font-medium">{t('users.title')}</h3>
+              <p className="text-sm text-muted-foreground">
+                {t('users.description')}
+              </p>
+            </div>
+            <Button onClick={() => setAddUserOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t('users.add')}
+            </Button>
           </div>
         </div>
-        <Button onClick={() => setAddUserOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
-      </div>
 
-      {error && (
-        <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md text-sm">
-          {error}
+        {error && (
+          <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md text-sm">
+            {error}
+          </div>
+        )}
+
+        {/* Search */}
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder={t('users.search')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
         </div>
-      )}
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search users..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9"
-        />
-      </div>
-
-      {/* User List */}
-      <div className="space-y-2">
-        {filteredUsers.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="font-medium mb-1">No users found</h3>
-            <p className="text-sm text-muted-foreground">
-              {searchQuery
-                ? 'Try a different search term'
-                : 'Add your first user to get started'}
-            </p>
-          </Card>
-        ) : (
-          filteredUsers.map((user) => (
-            <Card key={user.id} className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                    <span className="text-sm font-medium">
-                      {user.name?.charAt(0).toUpperCase() ||
-                        user.email.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium truncate">
-                        {user.name || 'Unnamed'}
+        {/* User List */}
+        <div className="space-y-2">
+          {filteredUsers.length === 0 ? (
+            <Card className="p-8 text-center">
+              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="font-medium mb-1">{t('users.empty.title')}</h3>
+              <p className="text-sm text-muted-foreground">
+                {searchQuery
+                  ? t('users.empty.desc')
+                  : t('users.empty.descEmpty')}
+              </p>
+            </Card>
+          ) : (
+            filteredUsers.map((user) => (
+              <Card key={user.id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <span className="text-sm font-medium">
+                        {user.name?.charAt(0).toUpperCase() ||
+                          user.email.charAt(0).toUpperCase()}
                       </span>
-                      {user.role === 'admin' && (
-                        <Badge variant="default" className="shrink-0">
-                          <Shield className="h-3 w-3 mr-1" />
-                          Admin
-                        </Badge>
-                      )}
-                      {user.banned && (
-                        <Badge variant="destructive" className="shrink-0">
-                          <Ban className="h-3 w-3 mr-1" />
-                          Banned
-                        </Badge>
-                      )}
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {user.email}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Joined {format(new Date(user.createdAt), 'MMM d, yyyy')}
-                    </p>
-                  </div>
-                </div>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button variant="ghost" size="icon" disabled={isLoading}>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    }
-                  />
-                  <DropdownMenuContent align="end">
-                    {/* Manage Farm Assignments */}
-                    <DropdownMenuItem
-                      onClick={async () => {
-                        setSelectedUser(user)
-                        await loadUserFarmAssignments(user.id)
-                        setFarmAssignmentOpen(true)
-                      }}
-                    >
-                      <Building2 className="h-4 w-4 mr-2" />
-                      Manage Farms
-                    </DropdownMenuItem>
-
-                    {/* Reset Password */}
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedUser(user)
-                        setResetPasswordOpen(true)
-                      }}
-                    >
-                      <KeyRound className="h-4 w-4 mr-2" />
-                      Reset Password
-                    </DropdownMenuItem>
-
-                    {/* Toggle Admin (not for self) */}
-                    {user.id !== session.user.id && (
-                      <DropdownMenuItem
-                        onClick={() => handleToggleAdmin(user.id, user.role)}
-                      >
-                        {user.role === 'admin' ? (
-                          <>
-                            <ShieldOff className="h-4 w-4 mr-2" />
-                            Remove Admin
-                          </>
-                        ) : (
-                          <>
-                            <Shield className="h-4 w-4 mr-2" />
-                            Make Admin
-                          </>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium truncate">
+                          {user.name || t('users.unnamed')}
+                        </span>
+                        {user.role === 'admin' && (
+                          <Badge variant="default" className="shrink-0">
+                            <Shield className="h-3 w-3 mr-1" />
+                            {t('users.roles.admin')}
+                          </Badge>
                         )}
-                      </DropdownMenuItem>
-                    )}
+                        {user.banned && (
+                          <Badge variant="destructive" className="shrink-0">
+                            <Ban className="h-3 w-3 mr-1" />
+                            {t('users.status.banned')}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {user.email}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('users.status.joined')}{' '}
+                        {format(new Date(user.createdAt), 'MMM d, yyyy')}
+                      </p>
+                    </div>
+                  </div>
 
-                    <DropdownMenuSeparator />
-
-                    {/* Ban/Unban (not for self or admins) */}
-                    {user.id !== session.user.id &&
-                      user.role !== 'admin' &&
-                      (user.banned ? (
-                        <DropdownMenuItem
-                          onClick={() => handleUnbanUser(user.id)}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled={isLoading}
                         >
-                          <Check className="h-4 w-4 mr-2" />
-                          Unban User
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedUser(user)
-                            setBanDialogOpen(true)
-                          }}
-                        >
-                          <Ban className="h-4 w-4 mr-2" />
-                          Ban User
-                        </DropdownMenuItem>
-                      ))}
-
-                    {/* Delete (not for self or admins) */}
-                    {user.id !== session.user.id && user.role !== 'admin' && (
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      }
+                    />
+                    <DropdownMenuContent align="end">
+                      {/* Manage Farm Assignments */}
                       <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => {
+                        onClick={async () => {
                           setSelectedUser(user)
-                          setDeleteDialogOpen(true)
+                          await loadUserFarmAssignments(user.id)
+                          setFarmAssignmentOpen(true)
                         }}
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete User
+                        <Building2 className="h-4 w-4 mr-2" />
+                        {t('users.actions.manageFarms')}
                       </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                      {/* Reset Password */}
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setResetPasswordOpen(true)
+                        }}
+                      >
+                        <KeyRound className="h-4 w-4 mr-2" />
+                        {t('users.actions.resetPassword')}
+                      </DropdownMenuItem>
 
-              {/* Show ban reason if banned */}
-              {user.banned && user.banReason && (
-                <div className="mt-3 pt-3 border-t text-sm text-muted-foreground">
-                  <span className="font-medium">Ban reason:</span>{' '}
-                  {user.banReason}
+                      {/* Toggle Admin (not for self) */}
+                      {user.id !== session.user.id && (
+                        <DropdownMenuItem
+                          onClick={() => handleToggleAdmin(user.id, user.role)}
+                        >
+                          {user.role === 'admin' ? (
+                            <>
+                              <ShieldOff className="h-4 w-4 mr-2" />
+                              {t('users.actions.removeAdmin')}
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="h-4 w-4 mr-2" />
+                              {t('users.actions.makeAdmin')}
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                      )}
+
+                      <DropdownMenuSeparator />
+
+                      {/* Ban/Unban (not for self or admins) */}
+                      {user.id !== session.user.id &&
+                        user.role !== 'admin' &&
+                        (user.banned ? (
+                          <DropdownMenuItem
+                            onClick={() => handleUnbanUser(user.id)}
+                          >
+                            <Check className="h-4 w-4 mr-2" />
+                            {t('users.actions.unban')}
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedUser(user)
+                              setBanDialogOpen(true)
+                            }}
+                          >
+                            <Ban className="h-4 w-4 mr-2" />
+                            {t('users.actions.ban')}
+                          </DropdownMenuItem>
+                        ))}
+
+                      {/* Delete (not for self or admins) */}
+                      {user.id !== session.user.id && user.role !== 'admin' && (
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => {
+                            setSelectedUser(user)
+                            setDeleteDialogOpen(true)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          {t('users.actions.delete')}
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-              )}
-            </Card>
-          ))
-        )}
+
+                {/* Show ban reason if banned */}
+                {user.banned && user.banReason && (
+                  <div className="mt-3 pt-3 border-t text-sm text-muted-foreground">
+                    <span className="font-medium">{t('users.banReason')}:</span>{' '}
+                    {user.banReason}
+                  </div>
+                )}
+              </Card>
+            ))
+          )}
+        </div>
+
+        {/* Add User Dialog */}
+        <AddUserDialog
+          open={addUserOpen}
+          onOpenChange={setAddUserOpen}
+          onSuccess={() => {
+            setAddUserOpen(false)
+            refreshUsers()
+          }}
+        />
+
+        {/* Ban User Dialog */}
+        <BanUserDialog
+          open={banDialogOpen}
+          onOpenChange={setBanDialogOpen}
+          user={selectedUser}
+          onConfirm={handleBanUser}
+          isLoading={isLoading}
+        />
+
+        {/* Delete User Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t('users.dialogs.delete.title')}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                <Trans
+                  i18nKey="users.dialogs.delete.desc"
+                  values={{ name: selectedUser?.name || selectedUser?.email }}
+                  components={{ b: <b /> }}
+                />
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteUser}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  t('users.dialogs.delete.submit')
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Reset Password Dialog */}
+        <ResetPasswordDialog
+          open={resetPasswordOpen}
+          onOpenChange={setResetPasswordOpen}
+          user={selectedUser}
+          onSuccess={() => {
+            setResetPasswordOpen(false)
+            setSelectedUser(null)
+          }}
+        />
+
+        {/* Farm Assignment Dialog */}
+        <FarmAssignmentDialog
+          open={farmAssignmentOpen}
+          onOpenChange={setFarmAssignmentOpen}
+          user={selectedUser}
+          farms={farms as Array<FarmData>}
+          assignments={userFarmAssignments}
+          onAssignmentChange={async () => {
+            if (selectedUser) {
+              await loadUserFarmAssignments(selectedUser.id)
+            }
+          }}
+        />
       </div>
-
-      {/* Add User Dialog */}
-      <AddUserDialog
-        open={addUserOpen}
-        onOpenChange={setAddUserOpen}
-        onSuccess={() => {
-          setAddUserOpen(false)
-          refreshUsers()
-        }}
-      />
-
-      {/* Ban User Dialog */}
-      <BanUserDialog
-        open={banDialogOpen}
-        onOpenChange={setBanDialogOpen}
-        user={selectedUser}
-        onConfirm={handleBanUser}
-        isLoading={isLoading}
-      />
-
-      {/* Delete User Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete User</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete{' '}
-              {selectedUser?.name || selectedUser?.email}? This action cannot be
-              undone and will remove all their data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteUser}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                'Delete'
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Reset Password Dialog */}
-      <ResetPasswordDialog
-        open={resetPasswordOpen}
-        onOpenChange={setResetPasswordOpen}
-        user={selectedUser}
-        onSuccess={() => {
-          setResetPasswordOpen(false)
-          setSelectedUser(null)
-        }}
-      />
-
-      {/* Farm Assignment Dialog */}
-      <FarmAssignmentDialog
-        open={farmAssignmentOpen}
-        onOpenChange={setFarmAssignmentOpen}
-        user={selectedUser}
-        farms={farms as Array<FarmData>}
-        assignments={userFarmAssignments}
-        onAssignmentChange={async () => {
-          if (selectedUser) {
-            await loadUserFarmAssignments(selectedUser.id)
-          }
-        }}
-      />
     </div>
   )
 }
@@ -494,6 +506,7 @@ function AddUserDialog({
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
 }) {
+  const { t } = useTranslation(['settings', 'common'])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -513,7 +526,7 @@ function AddUserDialog({
       setFormData({ email: '', password: '', name: '', role: 'user' })
       onSuccess()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create user')
+      setError(err instanceof Error ? err.message : t('users.errors.create'))
     } finally {
       setIsLoading(false)
     }
@@ -523,11 +536,8 @@ function AddUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add New User</DialogTitle>
-          <DialogDescription>
-            Create a new user account. They will be able to log in with these
-            credentials.
-          </DialogDescription>
+          <DialogTitle>{t('users.dialogs.add.title')}</DialogTitle>
+          <DialogDescription>{t('users.dialogs.add.desc')}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -538,20 +548,20 @@ function AddUserDialog({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t('users.form.name')}</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
               }
-              placeholder="John Doe"
+              placeholder={t('users.form.namePlaceholder')}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('users.form.email')}</Label>
             <Input
               id="email"
               type="email"
@@ -559,13 +569,13 @@ function AddUserDialog({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, email: e.target.value }))
               }
-              placeholder="john@example.com"
+              placeholder={t('users.form.emailPlaceholder')}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('users.form.password')}</Label>
             <Input
               id="password"
               type="password"
@@ -573,14 +583,14 @@ function AddUserDialog({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, password: e.target.value }))
               }
-              placeholder="Minimum 8 characters"
+              placeholder={t('users.form.passwordPlaceholder')}
               minLength={8}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">{t('users.form.role')}</Label>
             <Select
               value={formData.role}
               onValueChange={(v) => {
@@ -593,13 +603,12 @@ function AddUserDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="user">{t('users.roles.user')}</SelectItem>
+                <SelectItem value="admin">{t('users.roles.admin')}</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Admins can manage all users and farms. Regular users need farm
-              assignments.
+              {t('users.form.roleDesc')}
             </p>
           </div>
 
@@ -609,13 +618,13 @@ function AddUserDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                'Create User'
+                t('users.dialogs.add.submit')
               )}
             </Button>
           </DialogFooter>
@@ -642,32 +651,36 @@ function BanUserDialog({
   onConfirm: (reason?: string) => void
   isLoading: boolean
 }) {
+  const { t } = useTranslation(['settings', 'common'])
   const [reason, setReason] = useState('')
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Ban User</AlertDialogTitle>
+          <AlertDialogTitle>{t('users.dialogs.ban.title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to ban {user?.name || user?.email}? They will
-            not be able to log in until unbanned.
+            <Trans
+              i18nKey="users.dialogs.ban.desc"
+              values={{ name: user?.name || user?.email }}
+              components={{ b: <b /> }}
+            />
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <div className="space-y-2">
-          <Label htmlFor="ban-reason">Reason (optional)</Label>
+          <Label htmlFor="ban-reason">{t('users.dialogs.ban.reason')}</Label>
           <Input
             id="ban-reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Enter reason for ban..."
+            placeholder={t('users.dialogs.ban.reason')}
           />
         </div>
 
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setReason('')}>
-            Cancel
+            {t('common.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
@@ -679,7 +692,7 @@ function BanUserDialog({
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Ban User'
+              t('users.dialogs.ban.submit')
             )}
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -703,6 +716,7 @@ function ResetPasswordDialog({
   user: UserData | null
   onSuccess: () => void
 }) {
+  const { t } = useTranslation(['settings', 'common'])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [newPassword, setNewPassword] = useState('')
@@ -719,7 +733,9 @@ function ResetPasswordDialog({
       setNewPassword('')
       onSuccess()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reset password')
+      setError(
+        err instanceof Error ? err.message : t('users.errors.resetPassword'),
+      )
     } finally {
       setIsLoading(false)
     }
@@ -729,9 +745,13 @@ function ResetPasswordDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reset Password</DialogTitle>
+          <DialogTitle>{t('users.dialogs.reset.title')}</DialogTitle>
           <DialogDescription>
-            Set a new password for {user?.name || user?.email}.
+            <Trans
+              i18nKey="users.dialogs.reset.desc"
+              values={{ name: user?.name || user?.email }}
+              components={{ b: <b /> }}
+            />
           </DialogDescription>
         </DialogHeader>
 
@@ -743,13 +763,13 @@ function ResetPasswordDialog({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="new-password">New Password</Label>
+            <Label htmlFor="new-password">{t('users.form.newPassword')}</Label>
             <Input
               id="new-password"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Minimum 8 characters"
+              placeholder={t('users.form.passwordPlaceholder')}
               minLength={8}
               required
             />
@@ -761,13 +781,13 @@ function ResetPasswordDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                'Reset Password'
+                t('users.dialogs.reset.submit')
               )}
             </Button>
           </DialogFooter>
@@ -796,6 +816,7 @@ function FarmAssignmentDialog({
   assignments: Array<FarmAssignment>
   onAssignmentChange: () => void
 }) {
+  const { t } = useTranslation(['settings', 'common'])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [addFarmOpen, setAddFarmOpen] = useState(false)
@@ -827,7 +848,9 @@ function FarmAssignmentDialog({
       setSelectedRole('viewer')
       onAssignmentChange()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to assign farm')
+      setError(
+        err instanceof Error ? err.message : t('users.errors.assignFarm'),
+      )
     } finally {
       setIsLoading(false)
     }
@@ -851,7 +874,9 @@ function FarmAssignmentDialog({
       })
       onAssignmentChange()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update role')
+      setError(
+        err instanceof Error ? err.message : t('users.errors.updateFarmRole'),
+      )
     } finally {
       setIsLoading(false)
     }
@@ -872,7 +897,7 @@ function FarmAssignmentDialog({
       onAssignmentChange()
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to remove from farm',
+        err instanceof Error ? err.message : t('users.errors.removeFromFarm'),
       )
     } finally {
       setIsLoading(false)
@@ -883,9 +908,11 @@ function FarmAssignmentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Farm Assignments</DialogTitle>
+          <DialogTitle>{t('users.dialogs.farms.title')}</DialogTitle>
           <DialogDescription>
-            Manage farm access for {user?.name || user?.email}
+            {t('users.dialogs.farms.desc', {
+              name: user?.name || user?.email,
+            })}
           </DialogDescription>
         </DialogHeader>
 
@@ -900,7 +927,7 @@ function FarmAssignmentDialog({
           {assignments.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground">
               <Building2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>No farm assignments yet</p>
+              <p>{t('users.dialogs.farms.empty')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -930,9 +957,19 @@ function FarmAssignmentDialog({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="owner">Owner</SelectItem>
-                          <SelectItem value="manager">Manager</SelectItem>
-                          <SelectItem value="viewer">Viewer</SelectItem>
+                          <SelectItem value="owner">
+                            {t('users.roles.owner', { defaultValue: 'Owner' })}
+                          </SelectItem>
+                          <SelectItem value="manager">
+                            {t('users.roles.manager', {
+                              defaultValue: 'Manager',
+                            })}
+                          </SelectItem>
+                          <SelectItem value="viewer">
+                            {t('users.roles.viewer', {
+                              defaultValue: 'Viewer',
+                            })}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <Button
@@ -955,7 +992,7 @@ function FarmAssignmentDialog({
           {addFarmOpen ? (
             <Card className="p-4 space-y-3 border-dashed">
               <div className="space-y-2">
-                <Label>Select Farm</Label>
+                <Label>{t('users.dialogs.farms.selectFarm')}</Label>
                 <Select
                   value={selectedFarmId}
                   onValueChange={(v) => setSelectedFarmId(v || '')}
@@ -966,7 +1003,7 @@ function FarmAssignmentDialog({
                   <SelectContent>
                     {availableFarms.length === 0 ? (
                       <SelectItem value="none" disabled>
-                        No farms available
+                        {t('users.dialogs.farms.noFarms')}
                       </SelectItem>
                     ) : (
                       availableFarms.map((farm) => (
@@ -980,7 +1017,7 @@ function FarmAssignmentDialog({
               </div>
 
               <div className="space-y-2">
-                <Label>Role</Label>
+                <Label>{t('users.dialogs.farms.role')}</Label>
                 <Select
                   value={selectedRole}
                   onValueChange={(v) => {
@@ -993,11 +1030,15 @@ function FarmAssignmentDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="owner">Owner - Full access</SelectItem>
-                    <SelectItem value="manager">
-                      Manager - Can edit data
+                    <SelectItem value="owner">
+                      {t('users.dialogs.farms.owner')}
                     </SelectItem>
-                    <SelectItem value="viewer">Viewer - Read only</SelectItem>
+                    <SelectItem value="manager">
+                      {t('users.dialogs.farms.manager')}
+                    </SelectItem>
+                    <SelectItem value="viewer">
+                      {t('users.dialogs.farms.viewer')}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1012,7 +1053,7 @@ function FarmAssignmentDialog({
                     setSelectedRole('viewer')
                   }}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   size="sm"
@@ -1022,7 +1063,7 @@ function FarmAssignmentDialog({
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    'Assign'
+                    t('users.dialogs.farms.assign')
                   )}
                 </Button>
               </div>
@@ -1036,15 +1077,15 @@ function FarmAssignmentDialog({
             >
               <Plus className="h-4 w-4 mr-2" />
               {availableFarms.length === 0
-                ? 'All farms assigned'
-                : 'Add Farm Assignment'}
+                ? t('users.dialogs.farms.assigned')
+                : t('users.dialogs.farms.add')}
             </Button>
           )}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Done
+            {t('common.done', { defaultValue: 'Done' })}
           </Button>
         </DialogFooter>
       </DialogContent>

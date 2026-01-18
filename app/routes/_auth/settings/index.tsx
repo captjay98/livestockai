@@ -26,6 +26,7 @@ import {
   Settings,
   XCircle,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { UserSettings } from '~/features/settings'
 import type { IntegrationStatus } from '~/features/integrations'
 import { Button } from '~/components/ui/button'
@@ -51,17 +52,14 @@ import { formatCurrency } from '~/features/settings/currency-formatter'
 import { formatDate, formatTime } from '~/features/settings/date-formatter'
 import { useFarm } from '~/features/farms/context'
 import { ModuleSelector } from '~/components/modules/selector'
-import {
-  formatArea,
-  formatTemperature,
-  formatWeight,
-} from '~/features/settings/unit-converter'
+import { LanguageSwitcher } from '~/components/ui/language-switcher'
 
 export const Route = createFileRoute('/_auth/settings/')({
   component: SettingsPage,
 })
 
 function SettingsPage() {
+  const { t } = useTranslation(['settings', 'common', 'inventory'])
   const { settings, updateSettings, isLoading, error } = useSettings()
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings)
   const [isSaving, setIsSaving] = useState(false)
@@ -73,19 +71,19 @@ function SettingsPage() {
     setLocalSettings(settings)
   }, [settings])
 
-  const handleSave = async () => {
+  const saveSettings = async (partialSettings: Partial<UserSettings>) => {
     setIsSaving(true)
     setSaveError(null)
     setSaveSuccess(false)
 
     try {
-      await updateSettings(localSettings)
+      await updateSettings(partialSettings)
       setSaveSuccess(true)
-      toast.success('Settings saved')
+      toast.success(t('saved'))
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch {
-      setSaveError('Failed to save settings. Please try again.')
-      toast.error('Failed to save settings')
+      setSaveError(t('saveError'))
+      toast.error(t('saveError'))
     } finally {
       setIsSaving(false)
     }
@@ -148,19 +146,14 @@ function SettingsPage() {
   // Preview values
   const previewAmount = 1234567.89
   const previewDate = new Date()
-  const previewWeight = 2.5 // kg
-  const previewArea = 100 // sqm
-  const previewTemp = 25 // celsius
 
   return (
     <div className="container max-w-4xl py-6 space-y-6">
       <div className="flex items-center gap-3">
         <Settings className="h-8 w-8" />
         <div>
-          <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">
-            Manage your preferences and farm configuration
-          </p>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('description')}</p>
         </div>
       </div>
 
@@ -172,7 +165,7 @@ function SettingsPage() {
 
       {saveSuccess && (
         <div className="bg-green-500/10 text-green-600 px-4 py-3 rounded-md">
-          Settings saved successfully!
+          {t('saved')}
         </div>
       )}
 
@@ -180,27 +173,27 @@ function SettingsPage() {
         <TabsList className="flex-wrap">
           <TabsTrigger value="regional" className="gap-2">
             <DollarSign className="h-4 w-4" />
-            Regional
+            {t('tabs.regional')}
           </TabsTrigger>
           <TabsTrigger value="preferences" className="gap-2">
             <Settings className="h-4 w-4" />
-            Preferences
+            {t('tabs.preferences')}
           </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2">
             <ClipboardList className="h-4 w-4" />
-            Notifications
+            {t('tabs.notifications')}
           </TabsTrigger>
           <TabsTrigger value="business" className="gap-2">
             <Boxes className="h-4 w-4" />
-            Business
+            {t('tabs.business')}
           </TabsTrigger>
           <TabsTrigger value="modules" className="gap-2">
             <Layers className="h-4 w-4" />
-            Modules
+            {t('tabs.modules')}
           </TabsTrigger>
           <TabsTrigger value="integrations" className="gap-2">
             <Plug className="h-4 w-4" />
-            Integrations
+            {t('tabs.integrations')}
           </TabsTrigger>
         </TabsList>
 
@@ -208,7 +201,7 @@ function SettingsPage() {
         <TabsContent value="regional">
           <Card className="p-6 space-y-8">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Regional Settings</h2>
+              <h2 className="text-lg font-semibold">{t('regional.title')}</h2>
               <Button
                 variant="outline"
                 size="sm"
@@ -219,7 +212,7 @@ function SettingsPage() {
                 }}
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Reset All
+                {t('regional.reset')}
               </Button>
             </div>
 
@@ -227,11 +220,11 @@ function SettingsPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-muted-foreground" />
-                <h3 className="font-medium">Currency</h3>
+                <h3 className="font-medium">{t('regional.currency.title')}</h3>
               </div>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Currency</Label>
+                  <Label>{t('regional.currency.label')}</Label>
                   <Select
                     value={localSettings.currencyCode}
                     onValueChange={(code) => {
@@ -254,7 +247,9 @@ function SettingsPage() {
                 </div>
               </div>
               <div className="pt-2 border-t">
-                <Label className="text-muted-foreground">Preview</Label>
+                <Label className="text-muted-foreground">
+                  {t('common.preview', { defaultValue: 'Preview' })}
+                </Label>
                 <p className="text-2xl font-semibold mt-2">
                   {formatCurrency(previewAmount, localSettings)}
                 </p>
@@ -265,11 +260,13 @@ function SettingsPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-muted-foreground" />
-                <h3 className="font-medium">Date & Time</h3>
+                <h3 className="font-medium">
+                  {t('settings:regional.dateTime.title')}
+                </h3>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Date Format</Label>
+                  <Label>{t('settings:regional.dateTime.dateFormat')}</Label>
                   <Select
                     value={localSettings.dateFormat}
                     onValueChange={(v) => {
@@ -282,17 +279,21 @@ function SettingsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="MM/DD/YYYY">MM/DD/YYYY (US)</SelectItem>
+                      <SelectItem value="MM/DD/YYYY">
+                        MM/DD/YYYY (US)
+                      </SelectItem>
                       <SelectItem value="DD/MM/YYYY">
                         DD/MM/YYYY (UK/EU)
                       </SelectItem>
-                      <SelectItem value="YYYY-MM-DD">YYYY-MM-DD (ISO)</SelectItem>
+                      <SelectItem value="YYYY-MM-DD">
+                        YYYY-MM-DD (ISO)
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Time Format</Label>
+                  <Label>{t('settings:regional.dateTime.timeFormat')}</Label>
                   <Select
                     value={localSettings.timeFormat}
                     onValueChange={(v) => {
@@ -305,14 +306,22 @@ function SettingsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="12h">12-hour (2:30 PM)</SelectItem>
-                      <SelectItem value="24h">24-hour (14:30)</SelectItem>
+                      <SelectItem value="12h">
+                        {t('settings:regional.dateTime.h12', {
+                          defaultValue: '12-hour (2:30 PM)',
+                        })}
+                      </SelectItem>
+                      <SelectItem value="24h">
+                        {t('settings:regional.dateTime.h24', {
+                          defaultValue: '24-hour (14:30)',
+                        })}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>First Day of Week</Label>
+                  <Label>{t('settings:regional.dateTime.firstDay')}</Label>
                   <Select
                     value={String(localSettings.firstDayOfWeek)}
                     onValueChange={(v) =>
@@ -326,15 +335,23 @@ function SettingsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0">Sunday</SelectItem>
-                      <SelectItem value="1">Monday</SelectItem>
-                      <SelectItem value="6">Saturday</SelectItem>
+                      <SelectItem value="0">
+                        {t('settings:regional.dateTime.days.sunday')}
+                      </SelectItem>
+                      <SelectItem value="1">
+                        {t('settings:regional.dateTime.days.monday')}
+                      </SelectItem>
+                      <SelectItem value="6">
+                        {t('settings:regional.dateTime.days.saturday')}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="pt-2 border-t">
-                <Label className="text-muted-foreground">Preview</Label>
+                <Label className="text-muted-foreground">
+                  {t('common:preview', { defaultValue: 'Preview' })}
+                </Label>
                 <div className="mt-2 space-y-1">
                   <p className="text-lg font-semibold">
                     {formatDate(previewDate, localSettings)}
@@ -350,11 +367,13 @@ function SettingsPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Ruler className="h-5 w-5 text-muted-foreground" />
-                <h3 className="font-medium">Units of Measurement</h3>
+                <h3 className="font-medium">
+                  {t('settings:regional.units.title')}
+                </h3>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Weight</Label>
+                  <Label>{t('settings:regional.units.weight')}</Label>
                   <Select
                     value={localSettings.weightUnit}
                     onValueChange={(v) => {
@@ -367,14 +386,22 @@ function SettingsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="kg">Kilograms (kg)</SelectItem>
-                      <SelectItem value="lbs">Pounds (lbs)</SelectItem>
+                      <SelectItem value="kg">
+                        {t('common:units.kgLong', {
+                          defaultValue: 'Kilograms (kg)',
+                        })}
+                      </SelectItem>
+                      <SelectItem value="lbs">
+                        {t('common:units.lbsLong', {
+                          defaultValue: 'Pounds (lbs)',
+                        })}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Area</Label>
+                  <Label>{t('regional.units.area')}</Label>
                   <Select
                     value={localSettings.areaUnit}
                     onValueChange={(v) => {
@@ -387,14 +414,22 @@ function SettingsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sqm">Square Meters (m²)</SelectItem>
-                      <SelectItem value="sqft">Square Feet (ft²)</SelectItem>
+                      <SelectItem value="sqm">
+                        {t('common:units.sqmLong', {
+                          defaultValue: 'Square Meters (m²)',
+                        })}
+                      </SelectItem>
+                      <SelectItem value="sqft">
+                        {t('common:units.sqftLong', {
+                          defaultValue: 'Square Feet (ft²)',
+                        })}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Temperature</Label>
+                  <Label>{t('regional.units.temperature')}</Label>
                   <Select
                     value={localSettings.temperatureUnit}
                     onValueChange={(v) => {
@@ -410,12 +445,50 @@ function SettingsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="celsius">Celsius (°C)</SelectItem>
-                      <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
+                      <SelectItem value="celsius">
+                        {t('common:units.celsius', {
+                          defaultValue: 'Celsius (°C)',
+                        })}
+                      </SelectItem>
+                      <SelectItem value="fahrenheit">
+                        {t('common:units.fahrenheit', {
+                          defaultValue: 'Fahrenheit (°F)',
+                        })}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
+            </div>
+            {/* Save Button */}
+            <div className="flex justify-end pt-4 border-t">
+              <Button
+                onClick={() =>
+                  saveSettings({
+                    currencyCode: localSettings.currencyCode,
+                    currencySymbol: localSettings.currencySymbol,
+                    currencyDecimals: localSettings.currencyDecimals,
+                    currencySymbolPosition:
+                      localSettings.currencySymbolPosition,
+                    thousandSeparator: localSettings.thousandSeparator,
+                    decimalSeparator: localSettings.decimalSeparator,
+                    dateFormat: localSettings.dateFormat,
+                    timeFormat: localSettings.timeFormat,
+                    firstDayOfWeek: localSettings.firstDayOfWeek,
+                    weightUnit: localSettings.weightUnit,
+                    areaUnit: localSettings.areaUnit,
+                    temperatureUnit: localSettings.temperatureUnit,
+                  })
+                }
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
+                {t('common:save')}
+              </Button>
             </div>
           </Card>
         </TabsContent>
@@ -423,41 +496,21 @@ function SettingsPage() {
         {/* Preferences Tab */}
         <TabsContent value="preferences">
           <Card className="p-6 space-y-6">
-            <h2 className="text-lg font-semibold">Preferences</h2>
+            <h2 className="text-lg font-semibold">{t('title')}</h2>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="language">Language</Label>
-                <Select
-                  value={localSettings.language}
-                  onValueChange={(value) =>
-                    value &&
-                    setLocalSettings((prev) => ({
-                      ...prev,
-                      language: value as any,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="language">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="ha">Hausa</SelectItem>
-                    <SelectItem value="yo">Yoruba</SelectItem>
-                    <SelectItem value="ig">Igbo</SelectItem>
-                    <SelectItem value="fr">French</SelectItem>
-                    <SelectItem value="pt">Portuguese</SelectItem>
-                    <SelectItem value="sw">Swahili</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="language">{t('language')}</Label>
+                <LanguageSwitcher />
                 <p className="text-xs text-muted-foreground">
-                  Interface language (translations coming soon)
+                  {t('languageDescription')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="theme">Theme</Label>
+                <Label htmlFor="theme">
+                  {t('theme.label', { defaultValue: 'Theme' })}
+                </Label>
                 <Select
                   value={localSettings.theme}
                   onValueChange={(value) =>
@@ -472,12 +525,37 @@ function SettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
+                    <SelectItem value="light">
+                      {t('theme.light', { defaultValue: 'Light' })}
+                    </SelectItem>
+                    <SelectItem value="dark">
+                      {t('theme.dark', { defaultValue: 'Dark' })}
+                    </SelectItem>
+                    <SelectItem value="system">
+                      {t('theme.system', { defaultValue: 'System' })}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            {/* Save Button */}
+            <div className="flex justify-end pt-4 border-t">
+              <Button
+                onClick={() =>
+                  saveSettings({
+                    language: localSettings.language, // Should be managed by LanguageSwitcher context but kept here for safety
+                    theme: localSettings.theme,
+                  })
+                }
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
+                {t('common:save')}
+              </Button>
             </div>
           </Card>
         </TabsContent>
@@ -485,11 +563,13 @@ function SettingsPage() {
         {/* Notifications Tab */}
         <TabsContent value="notifications">
           <Card className="p-6 space-y-6">
-            <h2 className="text-lg font-semibold">Alert Thresholds</h2>
+            <h2 className="text-lg font-semibold">
+              {t('notifications.title')}
+            </h2>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="lowStock">Low Stock Threshold (%)</Label>
+                <Label htmlFor="lowStock">{t('notifications.lowStock')}</Label>
                 <Input
                   id="lowStock"
                   type="number"
@@ -504,12 +584,14 @@ function SettingsPage() {
                   }
                 />
                 <p className="text-xs text-muted-foreground">
-                  Alert when inventory falls below this percentage
+                  {t('notifications.lowStockDesc')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mortalityPercent">Mortality Alert (%)</Label>
+                <Label htmlFor="mortalityPercent">
+                  {t('notifications.mortalityPercent')}
+                </Label>
                 <Input
                   id="mortalityPercent"
                   type="number"
@@ -524,12 +606,14 @@ function SettingsPage() {
                   }
                 />
                 <p className="text-xs text-muted-foreground">
-                  Alert when mortality rate exceeds this percentage
+                  {t('notifications.mortalityPercentDesc')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mortalityQty">Mortality Alert (Quantity)</Label>
+                <Label htmlFor="mortalityQty">
+                  {t('notifications.mortalityQty')}
+                </Label>
                 <Input
                   id="mortalityQty"
                   type="number"
@@ -543,29 +627,37 @@ function SettingsPage() {
                   }
                 />
                 <p className="text-xs text-muted-foreground">
-                  Alert when deaths exceed this number in a single day
+                  {t('notifications.mortalityQtyDesc')}
                 </p>
               </div>
             </div>
 
             <div className="border-t pt-6">
               <h3 className="text-base font-semibold mb-2">
-                Email Notifications
+                {t('notifications.emailTitle')}
               </h3>
               <p className="text-sm text-muted-foreground mb-6">
-                Choose which notifications to receive via email. Requires email
-                provider to be configured.
+                {t('notifications.emailDesc')}
               </p>
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-sm font-medium mb-3">Critical Alerts</h4>
+                  <h4 className="text-sm font-medium mb-3">
+                    {t('notifications.criticalAlerts', {
+                      defaultValue: 'Critical Alerts',
+                    })}
+                  </h4>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-highMortality" className="font-normal">High Mortality</Label>
+                        <Label
+                          htmlFor="notify-highMortality"
+                          className="font-normal"
+                        >
+                          {t('notifications.highMortality')}
+                        </Label>
                         <p className="text-xs text-muted-foreground">
-                          When mortality exceeds thresholds
+                          {t('notifications.highMortalityDesc')}
                         </p>
                       </div>
                       <Switch
@@ -585,9 +677,14 @@ function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-lowStock" className="font-normal">Low Stock</Label>
+                        <Label
+                          htmlFor="notify-lowStock"
+                          className="font-normal"
+                        >
+                          {t('inventory:feed.lowStock')}
+                        </Label>
                         <p className="text-xs text-muted-foreground">
-                          When feed or medication runs low
+                          {t('notifications.lowStockDesc')}
                         </p>
                       </div>
                       <Switch
@@ -607,11 +704,14 @@ function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-waterQuality" className="font-normal">
-                          Water Quality Alert
+                        <Label
+                          htmlFor="notify-waterQuality"
+                          className="font-normal"
+                        >
+                          {t('notifications.waterQuality')}
                         </Label>
                         <p className="text-xs text-muted-foreground">
-                          When pH, temp, or ammonia is out of range
+                          {t('notifications.waterQualityDesc')}
                         </p>
                       </div>
                       <Switch
@@ -632,16 +732,22 @@ function SettingsPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium mb-3">Reminders</h4>
+                  <h4 className="text-sm font-medium mb-3">
+                    {t('notifications.reminders', {
+                      defaultValue: 'Reminders',
+                    })}
+                  </h4>
                   <div className="space-y-3">
-
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-vaccinationDue" className="font-normal">
-                          Vaccination Due
+                        <Label
+                          htmlFor="notify-vaccinationDue"
+                          className="font-normal"
+                        >
+                          {t('notifications.vaccinationDue')}
                         </Label>
                         <p className="text-xs text-muted-foreground">
-                          3 days before scheduled vaccinations
+                          {t('notifications.vaccinationDueDesc')}
                         </p>
                       </div>
                       <Switch
@@ -661,11 +767,14 @@ function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-medicationExpiry" className="font-normal">
-                          Medication Expiry
+                        <Label
+                          htmlFor="notify-medicationExpiry"
+                          className="font-normal"
+                        >
+                          {t('notifications.medicationExpiry')}
                         </Label>
                         <p className="text-xs text-muted-foreground">
-                          30 days before medications expire
+                          {t('notifications.medicationExpiryDesc')}
                         </p>
                       </div>
                       <Switch
@@ -685,9 +794,14 @@ function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-invoiceDue" className="font-normal">Invoice Due</Label>
+                        <Label
+                          htmlFor="notify-invoiceDue"
+                          className="font-normal"
+                        >
+                          {t('notifications.invoiceDue')}
+                        </Label>
                         <p className="text-xs text-muted-foreground">
-                          7 days before invoice due dates
+                          {t('notifications.invoiceDueDesc')}
                         </p>
                       </div>
                       <Switch
@@ -707,9 +821,14 @@ function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-batchHarvest" className="font-normal">Batch Harvest</Label>
+                        <Label
+                          htmlFor="notify-batchHarvest"
+                          className="font-normal"
+                        >
+                          {t('notifications.batchHarvest')}
+                        </Label>
                         <p className="text-xs text-muted-foreground">
-                          7 days before target harvest dates
+                          {t('notifications.batchHarvestDesc')}
                         </p>
                       </div>
                       <Switch
@@ -729,11 +848,14 @@ function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-paymentReceived" className="font-normal">
-                          Payment Received
+                        <Label
+                          htmlFor="notify-paymentReceived"
+                          className="font-normal"
+                        >
+                          {t('notifications.paymentReceived')}
                         </Label>
                         <p className="text-xs text-muted-foreground">
-                          When invoices are marked as paid
+                          {t('notifications.paymentReceivedDesc')}
                         </p>
                       </div>
                       <Switch
@@ -754,13 +876,22 @@ function SettingsPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium mb-3">Reports</h4>
+                  <h4 className="text-sm font-medium mb-3">
+                    {t('settings.notifications.reports', {
+                      defaultValue: 'Reports',
+                    })}
+                  </h4>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-weeklySummary" className="font-normal">Weekly Summary</Label>
+                        <Label
+                          htmlFor="notify-weeklySummary"
+                          className="font-normal"
+                        >
+                          {t('notifications.weeklySummary')}
+                        </Label>
                         <p className="text-xs text-muted-foreground">
-                          Farm performance overview every Monday
+                          {t('notifications.weeklySummaryDesc')}
                         </p>
                       </div>
                       <Switch
@@ -780,7 +911,12 @@ function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-dailySales" className="font-normal">Daily Sales</Label>
+                        <Label
+                          htmlFor="notify-dailySales"
+                          className="font-normal"
+                        >
+                          Daily Sales
+                        </Label>
                         <p className="text-xs text-muted-foreground">
                           End-of-day sales summary
                         </p>
@@ -802,7 +938,10 @@ function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor="notify-batchPerformance" className="font-normal">
+                        <Label
+                          htmlFor="notify-batchPerformance"
+                          className="font-normal"
+                        >
                           Batch Performance
                         </Label>
                         <p className="text-xs text-muted-foreground">
@@ -827,18 +966,41 @@ function SettingsPage() {
                 </div>
               </div>
             </div>
+            {/* Save Button */}
+            <div className="flex justify-end pt-4 border-t">
+              <Button
+                onClick={() =>
+                  saveSettings({
+                    lowStockThresholdPercent:
+                      localSettings.lowStockThresholdPercent,
+                    mortalityAlertPercent: localSettings.mortalityAlertPercent,
+                    mortalityAlertQuantity:
+                      localSettings.mortalityAlertQuantity,
+                    notifications: localSettings.notifications,
+                  })
+                }
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
+                {t('common:save')}
+              </Button>
+            </div>
           </Card>
         </TabsContent>
 
         {/* Business Tab */}
         <TabsContent value="business">
           <Card className="p-6 space-y-6">
-            <h2 className="text-lg font-semibold">Business Settings</h2>
+            <h2 className="text-lg font-semibold">{t('business.title')}</h2>
 
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="paymentTerms">
-                  Default Payment Terms (Days)
+                  {t('business.paymentTerms')}
                 </Label>
                 <Input
                   id="paymentTerms"
@@ -853,12 +1015,12 @@ function SettingsPage() {
                   }
                 />
                 <p className="text-xs text-muted-foreground">
-                  Default due date for invoices (e.g., 30 days)
+                  {t('business.paymentTermsDesc')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fiscalYear">Fiscal Year Start Month</Label>
+                <Label htmlFor="fiscalYear">{t('business.fiscalYear')}</Label>
                 <Select
                   value={localSettings.fiscalYearStartMonth.toString()}
                   onValueChange={(value) =>
@@ -888,9 +1050,29 @@ function SettingsPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Start month for financial year reporting
+                  {t('business.fiscalYearDesc')}
                 </p>
               </div>
+            </div>
+            {/* Save Button */}
+            <div className="flex justify-end pt-4 border-t">
+              <Button
+                onClick={() =>
+                  saveSettings({
+                    defaultPaymentTermsDays:
+                      localSettings.defaultPaymentTermsDays,
+                    fiscalYearStartMonth: localSettings.fiscalYearStartMonth,
+                  })
+                }
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
+                {t('common:save')}
+              </Button>
             </div>
           </Card>
         </TabsContent>
@@ -906,25 +1088,13 @@ function SettingsPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={isSaving} size="lg">
-          {isSaving ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          Save Settings
-        </Button>
-      </div>
-
       {/* Help Section */}
       <Card className="p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold">Need a refresher?</h3>
+            <h3 className="font-semibold">{t('help.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              Restart the feature tour to learn about all the features
+              {t('help.description')}
             </p>
           </div>
           <Button
@@ -944,7 +1114,7 @@ function SettingsPage() {
             }}
           >
             <PlayCircle className="h-4 w-4 mr-2" />
-            Restart Tour
+            {t('help.restart')}
           </Button>
         </div>
       </Card>
@@ -953,6 +1123,7 @@ function SettingsPage() {
 }
 
 function ModulesTabContent() {
+  const { t } = useTranslation(['settings', 'common'])
   const { selectedFarmId } = useFarm()
 
   if (!selectedFarmId) {
@@ -960,9 +1131,9 @@ function ModulesTabContent() {
       <Card className="p-6">
         <div className="text-center py-8">
           <Layers className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="font-semibold mb-2">No Farm Selected</h3>
+          <h3 className="font-semibold mb-2">{t('modules.noFarm')}</h3>
           <p className="text-sm text-muted-foreground">
-            Select a farm to manage its modules.
+            {t('modules.noFarmDesc')}
           </p>
         </div>
       </Card>
@@ -972,9 +1143,9 @@ function ModulesTabContent() {
   return (
     <Card className="p-6 space-y-6">
       <div>
-        <h2 className="text-lg font-semibold">Feature Modules</h2>
+        <h2 className="text-lg font-semibold">{t('modules.title')}</h2>
         <p className="text-sm text-muted-foreground">
-          Enable or disable livestock types for your farm.
+          {t('modules.description')}
         </p>
       </div>
       <ModuleSelector />
@@ -983,6 +1154,7 @@ function ModulesTabContent() {
 }
 
 function IntegrationsTabContent() {
+  const { t } = useTranslation(['settings', 'common'])
   const [integrations, setIntegrations] = useState<Array<IntegrationStatus>>([])
   const [isLoading, setIsLoading] = useState(true)
   const [testEmail, setTestEmail] = useState('')
@@ -1068,13 +1240,13 @@ function IntegrationsTabContent() {
           <Mail className="h-5 w-5" />
           <div className="flex-1">
             <h3 className="font-semibold">
-              Email
+              {t('integrations.email')}
               {emailIntegration?.provider
                 ? ` (${emailIntegration.provider})`
                 : ''}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Send critical alerts via email
+              {t('integrations.emailDesc')}
             </p>
           </div>
           {emailIntegration?.configured ? (
@@ -1119,11 +1291,11 @@ function IntegrationsTabContent() {
           <MessageSquare className="h-5 w-5" />
           <div className="flex-1">
             <h3 className="font-semibold">
-              SMS
+              {t('integrations.sms')}
               {smsIntegration?.provider ? ` (${smsIntegration.provider})` : ''}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Send critical alerts via SMS
+              {t('integrations.smsDesc')}
             </p>
           </div>
           {smsIntegration?.configured ? (
@@ -1165,11 +1337,11 @@ function IntegrationsTabContent() {
       </Card>
 
       <Card className="p-6">
-        <h4 className="font-medium mb-2">How it works</h4>
+        <h4 className="font-medium mb-2">{t('integrations.howItWorks')}</h4>
         <ul className="text-sm text-muted-foreground space-y-1">
-          <li>• Integrations are optional - app works without them</li>
-          <li>• When configured, alerts sent via email/SMS</li>
-          <li>• Toggle notifications in Settings → Alerts</li>
+          <li>• {t('integrations.howItWorksDesc1')}</li>
+          <li>• {t('integrations.howItWorksDesc2')}</li>
+          <li>• {t('integrations.howItWorksDesc3')}</li>
         </ul>
       </Card>
     </div>

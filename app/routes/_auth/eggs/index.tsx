@@ -11,6 +11,7 @@ import {
   Trash2,
   TrendingUp,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/eggs/server'
@@ -175,6 +176,7 @@ export const Route = createFileRoute('/_auth/eggs/')({
 })
 
 function EggsPage() {
+  const { t } = useTranslation(['eggs', 'common', 'batches'])
   const { format: formatDate } = useFormatDate()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
@@ -297,10 +299,14 @@ function EggsPage() {
       })
       setDialogOpen(false)
       resetForm()
-      toast.success('Egg record added')
+      toast.success(t('eggs:recorded', { defaultValue: 'Egg record added' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create record')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('eggs:error.record', { defaultValue: 'Failed to create record' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -335,10 +341,14 @@ function EggsPage() {
         },
       })
       setEditDialogOpen(false)
-      toast.success('Egg record updated')
+      toast.success(t('common:updated', { defaultValue: 'Egg record updated' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed update')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('common:error.update', { defaultValue: 'Failed update' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -355,10 +365,14 @@ function EggsPage() {
         },
       })
       setDeleteDialogOpen(false)
-      toast.success('Egg record deleted')
+      toast.success(t('common:deleted', { defaultValue: 'Egg record deleted' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed delete')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('common:error.delete', { defaultValue: 'Failed delete' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -368,12 +382,12 @@ function EggsPage() {
     () => [
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: t('common:date', { defaultValue: 'Date' }),
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'batchSpecies',
-        header: 'Batch',
+        header: t('batches:batch', { defaultValue: 'Batch' }),
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <Bird className="h-4 w-4 text-orange-600" />
@@ -383,7 +397,7 @@ function EggsPage() {
       },
       {
         accessorKey: 'quantityCollected',
-        header: 'Collected',
+        header: t('eggs:collected', { defaultValue: 'Collected' }),
         cell: ({ row }) => (
           <span className="font-bold text-green-600">
             {row.original.quantityCollected}
@@ -392,7 +406,7 @@ function EggsPage() {
       },
       {
         accessorKey: 'quantityBroken',
-        header: 'Broken',
+        header: t('eggs:broken', { defaultValue: 'Broken' }),
         cell: ({ row }) => (
           <Badge
             variant={
@@ -405,7 +419,7 @@ function EggsPage() {
       },
       {
         accessorKey: 'quantitySold',
-        header: 'Sold',
+        header: t('eggs:sold', { defaultValue: 'Sold' }),
         cell: ({ row }) => row.original.quantitySold,
       },
       {
@@ -441,14 +455,18 @@ function EggsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Egg Production</h1>
+          <h1 className="text-3xl font-bold">
+            {t('eggs:title', { defaultValue: 'Egg Production' })}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Track egg collection and sales
+            {t('eggs:description', {
+              defaultValue: 'Track egg collection and sales',
+            })}
           </p>
         </div>
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Record
+          {t('eggs:addRecord', { defaultValue: 'Add Record' })}
         </Button>
       </div>
 
@@ -457,7 +475,7 @@ function EggsPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Collected
+                {t('eggs:totalCollected', { defaultValue: 'Total Collected' })}
               </CardTitle>
               <Egg className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -471,7 +489,7 @@ function EggsPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Broken/Loss
+                {t('eggs:brokenLoss', { defaultValue: 'Broken/Loss' })}
               </CardTitle>
               <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
             </CardHeader>
@@ -485,7 +503,7 @@ function EggsPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Sold
+                {t('eggs:totalSold', { defaultValue: 'Total Sold' })}
               </CardTitle>
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
             </CardHeader>
@@ -499,7 +517,7 @@ function EggsPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                In Inventory
+                {t('eggs:inInventory', { defaultValue: 'In Inventory' })}
               </CardTitle>
               <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -522,7 +540,9 @@ function EggsPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.search}
-        searchPlaceholder="Search by batch species..."
+        searchPlaceholder={t('eggs:searchPlaceholder', {
+          defaultValue: 'Search by batch species...',
+        })}
         isLoading={isLoading}
         onPaginationChange={(page, pageSize) => {
           updateSearch({ page, pageSize })
@@ -534,22 +554,34 @@ function EggsPage() {
           updateSearch({ search, page: 1 })
         }}
         emptyIcon={<Egg className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No production records"
-        emptyDescription="Start tracking daily egg production."
+        emptyTitle={t('eggs:emptyTitle', {
+          defaultValue: 'No production records',
+        })}
+        emptyDescription={t('eggs:emptyDescription', {
+          defaultValue: 'Start tracking daily egg production.',
+        })}
       />
 
       {/* Create Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Record Egg Production</DialogTitle>
+            <DialogTitle>
+              {t('eggs:addRecordTitle', {
+                defaultValue: 'Record Egg Production',
+              })}
+            </DialogTitle>
             <DialogDescription>
-              Enter daily egg collection details
+              {t('eggs:addRecordDescription', {
+                defaultValue: 'Enter daily egg collection details',
+              })}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="batch">Batch</Label>
+              <Label htmlFor="batch">
+                {t('batches:batch', { defaultValue: 'Batch' })}
+              </Label>
               <Select
                 value={formData.batchId}
                 onValueChange={(value: string | null) =>
@@ -560,13 +592,20 @@ function EggsPage() {
                   <SelectValue>
                     {formData.batchId
                       ? batches.find((b) => b.id === formData.batchId)?.species
-                      : 'Select batch'}
+                      : t('batches:selectBatch', {
+                          defaultValue: 'Select batch',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (
                     <SelectItem key={batch.id} value={batch.id}>
-                      {batch.species} ({batch.currentQuantity} birds)
+                      {batch.species} (
+                      {t('batches:birdCount', {
+                        count: batch.currentQuantity,
+                        defaultValue: '{{count}} birds',
+                      })}
+                      )
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -574,7 +613,9 @@ function EggsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">
+                {t('common:date', { defaultValue: 'Date' })}
+              </Label>
               <Input
                 id="date"
                 type="date"
@@ -588,7 +629,9 @@ function EggsPage() {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="collected">Collected</Label>
+                <Label htmlFor="collected">
+                  {t('eggs:collected', { defaultValue: 'Collected' })}
+                </Label>
                 <Input
                   id="collected"
                   type="number"
@@ -604,7 +647,9 @@ function EggsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="broken">Broken</Label>
+                <Label htmlFor="broken">
+                  {t('eggs:broken', { defaultValue: 'Broken' })}
+                </Label>
                 <Input
                   id="broken"
                   type="number"
@@ -620,7 +665,9 @@ function EggsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sold">Sold</Label>
+                <Label htmlFor="sold">
+                  {t('eggs:sold', { defaultValue: 'Sold' })}
+                </Label>
                 <Input
                   id="sold"
                   type="number"
@@ -650,7 +697,7 @@ function EggsPage() {
                 onClick={() => setDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 type="submit"
@@ -660,7 +707,9 @@ function EggsPage() {
                   !formData.quantityCollected
                 }
               >
-                {isSubmitting ? 'Saving...' : 'Save Record'}
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('eggs:saveRecord', { defaultValue: 'Save Record' })}
               </Button>
             </DialogFooter>
           </form>
@@ -671,12 +720,14 @@ function EggsPage() {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Egg Record</DialogTitle>
+            <DialogTitle>
+              {t('eggs:editRecordTitle', { defaultValue: 'Edit Egg Record' })}
+            </DialogTitle>
           </DialogHeader>
           {selectedRecord && (
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label>Date</Label>
+                <Label>{t('common:date', { defaultValue: 'Date' })}</Label>
                 <Input
                   type="date"
                   value={editFormData.date}
@@ -690,7 +741,9 @@ function EggsPage() {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Collected</Label>
+                  <Label>
+                    {t('eggs:collected', { defaultValue: 'Collected' })}
+                  </Label>
                   <Input
                     type="number"
                     value={editFormData.quantityCollected}
@@ -703,7 +756,7 @@ function EggsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Broken</Label>
+                  <Label>{t('eggs:broken', { defaultValue: 'Broken' })}</Label>
                   <Input
                     type="number"
                     value={editFormData.quantityBroken}
@@ -716,7 +769,7 @@ function EggsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Sold</Label>
+                  <Label>{t('eggs:sold', { defaultValue: 'Sold' })}</Label>
                   <Input
                     type="number"
                     value={editFormData.quantitySold}
@@ -735,10 +788,10 @@ function EggsPage() {
                   variant="outline"
                   onClick={() => setEditDialogOpen(false)}
                 >
-                  Cancel
+                  {t('common:cancel', { defaultValue: 'Cancel' })}
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  Save Changes
+                  {t('common:saveChanges', { defaultValue: 'Save Changes' })}
                 </Button>
               </DialogFooter>
             </form>
@@ -750,18 +803,24 @@ function EggsPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Record</DialogTitle>
-            <DialogDescription>Are you sure?</DialogDescription>
+            <DialogTitle>
+              {t('eggs.deleteRecordTitle', { defaultValue: 'Delete Record' })}
+            </DialogTitle>
+            <DialogDescription>
+              {t('common.deleteConfirmation', {
+                defaultValue: 'Are you sure?',
+              })}
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
             >
-              Cancel
+              {t('common.cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Delete
+              {t('common.delete', { defaultValue: 'Delete' })}
             </Button>
           </DialogFooter>
         </DialogContent>

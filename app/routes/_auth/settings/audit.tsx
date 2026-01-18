@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { RotateCcw, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getAuditLogsFn } from '~/features/logging/audit'
 import { AuditLogTable } from '~/components/settings/audit-log-table'
 import { Card, CardContent } from '~/components/ui/card'
@@ -53,6 +54,7 @@ function AuditLogPage() {
   const data = Route.useLoaderData()
   const navigate = useNavigate({ from: Route.fullPath })
   const searchParams = Route.useSearch()
+  const { t } = useTranslation(['settings', 'common'])
 
   const [search, setSearch] = useState(searchParams.q || '')
 
@@ -76,10 +78,12 @@ function AuditLogPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Audit Logs</h3>
-        <p className="text-sm text-muted-foreground">
-          View and track system activity and changes.
-        </p>
+        <div>
+          <h3 className="text-lg font-medium">{t('audit.title')}</h3>
+          <p className="text-sm text-muted-foreground">
+            {t('audit.description')}
+          </p>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -87,7 +91,7 @@ function AuditLogPage() {
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search logs..."
+              placeholder={t('audit.search')}
               className="pl-8"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -103,13 +107,21 @@ function AuditLogPage() {
             }
           >
             <SelectTrigger className="w-[130px]">
-              <SelectValue>Action</SelectValue>
+              <SelectValue>{t('audit.filters.action')}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Actions</SelectItem>
-              <SelectItem value="create">Create</SelectItem>
-              <SelectItem value="update">Update</SelectItem>
-              <SelectItem value="delete">Delete</SelectItem>
+              <SelectItem value="all">
+                {t('audit.filters.allActions')}
+              </SelectItem>
+              <SelectItem value="create">
+                {t('common:actions.create', { defaultValue: 'Create' })}
+              </SelectItem>
+              <SelectItem value="update">
+                {t('common:actions.update', { defaultValue: 'Update' })}
+              </SelectItem>
+              <SelectItem value="delete">
+                {t('common:actions.delete', { defaultValue: 'Delete' })}
+              </SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -122,14 +134,24 @@ function AuditLogPage() {
             }
           >
             <SelectTrigger className="w-[130px]">
-              <SelectValue>Entity</SelectValue>
+              <SelectValue>{t('audit.filters.entity')}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Entities</SelectItem>
-              <SelectItem value="batch">Batch</SelectItem>
-              <SelectItem value="expense">Expense</SelectItem>
-              <SelectItem value="mortality">Mortality</SelectItem>
-              <SelectItem value="sale">Sale</SelectItem>
+              <SelectItem value="all">
+                {t('audit.filters.allEntities')}
+              </SelectItem>
+              <SelectItem value="batch">
+                {t('common:entities.batch', { defaultValue: 'Batch' })}
+              </SelectItem>
+              <SelectItem value="expense">
+                {t('common:entities.expense', { defaultValue: 'Expense' })}
+              </SelectItem>
+              <SelectItem value="mortality">
+                {t('common:entities.mortality', { defaultValue: 'Mortality' })}
+              </SelectItem>
+              <SelectItem value="sale">
+                {t('common:entities.sale', { defaultValue: 'Sale' })}
+              </SelectItem>
             </SelectContent>
           </Select>
           <Button
@@ -144,7 +166,7 @@ function AuditLogPage() {
                 page: 1,
               })
             }}
-            title="Reset filters"
+            title={t('audit.filters.reset')}
           >
             <RotateCcw className="h-4 w-4" />
           </Button>

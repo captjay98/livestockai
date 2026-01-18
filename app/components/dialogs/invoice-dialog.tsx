@@ -1,8 +1,9 @@
 import { toast } from 'sonner'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { FileText, Plus, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { createInvoiceFn } from '~/features/invoices/server'
 import { useBusinessSettings, useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -56,6 +57,7 @@ export function InvoiceDialog({
   open,
   onOpenChange,
 }: InvoiceDialogProps) {
+  const { t } = useTranslation(['invoices', 'common'])
   const router = useRouter()
   const { format: formatCurrency } = useFormatCurrency()
   const { defaultPaymentTermsDays } = useBusinessSettings()
@@ -68,7 +70,6 @@ export function InvoiceDialog({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  // Auto-calculate due date based on payment terms
   useEffect(() => {
     if (open && !dueDate) {
       const today = new Date()
@@ -129,14 +130,20 @@ export function InvoiceDialog({
           dueDate: dueDate ? new Date(dueDate) : null,
         },
       })
-      toast.success('Invoice created')
+      toast.success(t('messages.created', { defaultValue: 'Invoice created' }))
       onOpenChange(false)
       setCustomerId('')
       setDueDate('')
       setItems([{ description: '', quantity: '', unitPrice: '' }])
       router.invalidate()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create invoice')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('error.create', {
+              defaultValue: 'Failed to create invoice',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -148,15 +155,19 @@ export function InvoiceDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Create Invoice
+            {t('createInvoice', { defaultValue: 'Create Invoice' })}
           </DialogTitle>
           <DialogDescription>
-            Create a new invoice for a customer
+            {t('createDescription', {
+              defaultValue: 'Create a new invoice for a customer',
+            })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Customer *</Label>
+            <Label>
+              {t('common:customer', { defaultValue: 'Customer' })} *
+            </Label>
             <Select
               value={customerId}
               onValueChange={(v) => v && setCustomerId(v)}
@@ -165,7 +176,9 @@ export function InvoiceDialog({
                 <SelectValue>
                   {customerId
                     ? customers.find((c) => c.id === customerId)?.name
-                    : 'Select customer'}
+                    : t('selectCustomer', {
+                        defaultValue: 'Select customer',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -179,7 +192,7 @@ export function InvoiceDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Due Date</Label>
+            <Label>{t('dueDate', { defaultValue: 'Due Date' })}</Label>
             <Input
               type="date"
               value={dueDate}
@@ -189,21 +202,24 @@ export function InvoiceDialog({
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Line Items *</Label>
+              <Label>{t('lineItems', { defaultValue: 'Line Items' })} *</Label>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={addItem}
               >
-                <Plus className="h-3 w-3 mr-1" /> Add
+                <Plus className="h-3 w-3 mr-1" />{' '}
+                {t('common:add', { defaultValue: 'Add' })}
               </Button>
             </div>
             <div className="space-y-2">
               {items.map((item, i) => (
                 <div key={i} className="flex gap-2 items-start">
                   <Input
-                    placeholder="Description"
+                    placeholder={t('description', {
+                      defaultValue: 'Description',
+                    })}
                     value={item.description}
                     onChange={(e) =>
                       updateItem(i, 'description', e.target.value)
@@ -213,7 +229,7 @@ export function InvoiceDialog({
                   />
                   <Input
                     type="number"
-                    placeholder="Qty"
+                    placeholder={t('common:qty', { defaultValue: 'Qty' })}
                     value={item.quantity}
                     onChange={(e) => updateItem(i, 'quantity', e.target.value)}
                     className="w-16"
@@ -222,7 +238,7 @@ export function InvoiceDialog({
                   />
                   <Input
                     type="number"
-                    placeholder="Price"
+                    placeholder={t('common:price', { defaultValue: 'Price' })}
                     value={item.unitPrice}
                     onChange={(e) => updateItem(i, 'unitPrice', e.target.value)}
                     className="w-24"
@@ -246,7 +262,9 @@ export function InvoiceDialog({
           </div>
 
           <div className="p-3 bg-muted rounded-lg flex justify-between">
-            <span className="font-medium">Total:</span>
+            <span className="font-medium">
+              {t('common:total', { defaultValue: 'Total' })}:
+            </span>
             <span className="font-bold">{formatCurrency(total)}</span>
           </div>
 
@@ -263,10 +281,14 @@ export function InvoiceDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button type="submit" disabled={isSubmitting || !isValid}>
-              {isSubmitting ? 'Creating...' : 'Create Invoice'}
+              {isSubmitting
+                ? t('common:creating', { defaultValue: 'Creating...' })
+                : t('createInvoice', {
+                    defaultValue: 'Create Invoice',
+                  })}
             </Button>
           </DialogFooter>
         </form>

@@ -1,7 +1,8 @@
 import { toast } from 'sonner'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Building2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { getFarmByIdFn, updateFarmFn } from '~/features/farms/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -35,6 +36,7 @@ export function EditFarmDialog({
   onOpenChange,
   onSuccess,
 }: EditFarmDialogProps) {
+  const { t } = useTranslation(['farms', 'common'])
   const router = useRouter()
   const [formData, setFormData] = useState({
     name: '',
@@ -45,7 +47,6 @@ export function EditFarmDialog({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  // Load farm data when dialog opens
   useEffect(() => {
     const loadFarm = async () => {
       if (open && farmId) {
@@ -82,12 +83,16 @@ export function EditFarmDialog({
           type: formData.type,
         },
       })
-      toast.success('Farm updated')
+      toast.success(t('farms:updated', { defaultValue: 'Farm updated' }))
       onOpenChange(false)
       if (onSuccess) onSuccess()
       router.invalidate()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update farm')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('farms:error.update', { defaultValue: 'Failed to update farm' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -99,9 +104,13 @@ export function EditFarmDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
-            Edit Farm
+            {t('farms:editFarm', { defaultValue: 'Edit Farm' })}
           </DialogTitle>
-          <DialogDescription>Update your farm information</DialogDescription>
+          <DialogDescription>
+            {t('farms:editDescription', {
+              defaultValue: 'Update your farm information',
+            })}
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
@@ -113,33 +122,43 @@ export function EditFarmDialog({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-farm-name">Farm Name</Label>
+              <Label htmlFor="edit-farm-name">
+                {t('farms:farmName', { defaultValue: 'Farm Name' })}
+              </Label>
               <Input
                 id="edit-farm-name"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="Enter farm name"
+                placeholder={t('farms:placeholders.name', {
+                  defaultValue: 'Enter farm name',
+                })}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-farm-location">Location</Label>
+              <Label htmlFor="edit-farm-location">
+                {t('farms:location', { defaultValue: 'Location' })}
+              </Label>
               <Input
                 id="edit-farm-location"
                 value={formData.location}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, location: e.target.value }))
                 }
-                placeholder="Enter farm location"
+                placeholder={t('farms:placeholders.location', {
+                  defaultValue: 'Enter farm location',
+                })}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-farm-type">Farm Type</Label>
+              <Label htmlFor="edit-farm-type">
+                {t('farms:farmType', { defaultValue: 'Farm Type' })}
+              </Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => {
@@ -156,9 +175,17 @@ export function EditFarmDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="poultry">Poultry</SelectItem>
-                  <SelectItem value="aquaculture">Aquaculture</SelectItem>
-                  <SelectItem value="mixed">Mixed</SelectItem>
+                  <SelectItem value="poultry">
+                    {t('common:livestock.poultry', { defaultValue: 'Poultry' })}
+                  </SelectItem>
+                  <SelectItem value="aquaculture">
+                    {t('common:livestock.aquaculture', {
+                      defaultValue: 'Aquaculture',
+                    })}
+                  </SelectItem>
+                  <SelectItem value="mixed">
+                    {t('common:livestock.mixed', { defaultValue: 'Mixed' })}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -176,13 +203,15 @@ export function EditFarmDialog({
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !formData.name || !formData.location}
               >
-                {isSubmitting ? 'Updating...' : 'Update Farm'}
+                {isSubmitting
+                  ? t('common:updating', { defaultValue: 'Updating...' })
+                  : t('farms:updateFarm', { defaultValue: 'Update Farm' })}
               </Button>
             </DialogFooter>
           </form>

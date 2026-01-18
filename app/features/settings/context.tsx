@@ -80,10 +80,35 @@ export function SettingsProvider({
       setError(null)
 
       try {
-        await updateUserSettings({ data: mergedSettings })
-      } catch (err) {
+        await updateUserSettings({ data: newSettings })
+      } catch (err: any) {
+        // Log the full error to understand its structure
+        console.warn('[SettingsContext] Update failed:', err)
+
+        // If unauthorized (e.g. login page), don't rollback - keep local state
+        const errString = String(err).toLowerCase()
+        const msg = err?.message?.toLowerCase() || ''
+
+        if (
+          errString.includes('unauthorized') ||
+          errString.includes('access denied') ||
+          errString.includes('401') ||
+          errString.includes('403') ||
+          msg.includes('unauthorized') ||
+          msg.includes('access denied') ||
+          err?.status === 401 ||
+          err?.status === 403 ||
+          err?.statusCode === 401 ||
+          err?.statusCode === 403
+        ) {
+          console.warn(
+            'Failed to persist settings (unauthorized) - keeping local state',
+          )
+          return
+        }
+
         console.error('Failed to save settings:', err)
-        // Rollback on error
+        // Rollback on other errors
         setSettings(previousSettings)
         setError('Failed to save settings')
         throw err

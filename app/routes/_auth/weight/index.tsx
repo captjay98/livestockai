@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { Edit, Plus, Scale, Trash2, TrendingUp } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -135,6 +136,7 @@ export const Route = createFileRoute('/_auth/weight/')({
 })
 
 function WeightPage() {
+  const { t } = useTranslation(['weight', 'common', 'batches'])
   const { format: formatDate } = useFormatDate()
   const { format: formatWeight } = useFormatWeight()
   const { selectedFarmId } = useFarm()
@@ -234,7 +236,9 @@ function WeightPage() {
         },
       })
       setDialogOpen(false)
-      toast.success('Weight sample recorded')
+      toast.success(
+        t('weight:recorded', { defaultValue: 'Weight sample recorded' }),
+      )
       setFormData({
         batchId: '',
         date: new Date().toISOString().split('T')[0],
@@ -243,7 +247,11 @@ function WeightPage() {
       })
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save sample')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('weight:error.record', { defaultValue: 'Failed to save sample' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -253,19 +261,19 @@ function WeightPage() {
     () => [
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: t('common:date', { defaultValue: 'Date' }),
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'species',
-        header: 'Batch',
+        header: t('batches:batch', { defaultValue: 'Batch' }),
         cell: ({ row }) => (
           <span className="font-medium">{row.original.species}</span>
         ),
       },
       {
         accessorKey: 'averageWeightKg',
-        header: 'Avg Weight',
+        header: t('weight:avgWeight', { defaultValue: 'Avg Weight' }),
         cell: ({ row }) => (
           <div className="font-bold flex items-center">
             <Scale className="h-3 w-3 mr-1 text-muted-foreground" />
@@ -275,10 +283,13 @@ function WeightPage() {
       },
       {
         accessorKey: 'sampleSize',
-        header: 'Sample Size',
+        header: t('weight:sampleSize', { defaultValue: 'Sample Size' }),
         cell: ({ row }) => (
           <span className="text-muted-foreground">
-            {row.original.sampleSize} animals
+            {t('weight:animalsCount', {
+              count: row.original.sampleSize,
+              defaultValue: '{{count}} animals',
+            })}
           </span>
         ),
       },
@@ -290,7 +301,7 @@ function WeightPage() {
               variant="ghost"
               size="icon"
               onClick={() => handleEdit(row.original)}
-              title="Edit"
+              title={t('common:edit', { defaultValue: 'Edit' })}
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -299,7 +310,7 @@ function WeightPage() {
               size="icon"
               className="text-destructive hover:text-destructive"
               onClick={() => handleDelete(row.original)}
-              title="Delete"
+              title={t('common:delete', { defaultValue: 'Delete' })}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -335,16 +346,23 @@ function WeightPage() {
     try {
       await updateWeightSampleFn({
         data: {
-          sampleId: selectedRecord.id,
-          sampleSize: parseInt(formData.sampleSize),
-          averageWeightKg: parseFloat(formData.averageWeightKg),
+          recordId: selectedRecord.id,
+          data: {
+            sampleSize: parseInt(formData.sampleSize),
+            averageWeightKg: parseFloat(formData.averageWeightKg),
+            date: new Date(formData.date),
+          },
         },
       })
       setEditDialogOpen(false)
-      toast.success('Sample updated')
+      toast.success(t('common:updated', { defaultValue: 'Sample updated' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('common:error.update', { defaultValue: 'Failed to update' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -355,12 +373,16 @@ function WeightPage() {
 
     setIsSubmitting(true)
     try {
-      await deleteWeightSampleFn({ data: { sampleId: selectedRecord.id } })
+      await deleteWeightSampleFn({ data: { recordId: selectedRecord.id } })
       setDeleteDialogOpen(false)
-      toast.success('Sample deleted')
+      toast.success(t('common:deleted', { defaultValue: 'Sample deleted' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('common:error.delete', { defaultValue: 'Failed to delete' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -369,13 +391,16 @@ function WeightPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Weight Samples"
-        description="Track growth by recording periodic weight samples. Compare against industry standards."
+        title={t('weight:title', { defaultValue: 'Weight Samples' })}
+        description={t('weight:description', {
+          defaultValue:
+            'Track growth by recording periodic weight samples. Compare against industry standards.',
+        })}
         icon={Scale}
         actions={
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Sample
+            {t('weight:addSample', { defaultValue: 'Add Sample' })}
           </Button>
         }
       />
@@ -386,7 +411,7 @@ function WeightPage() {
             <CardHeader className="py-3">
               <CardTitle className="text-sm font-medium text-primary flex items-center">
                 <TrendingUp className="h-4 w-4 mr-2" />
-                Growth Alerts
+                {t('weight:growthAlerts', { defaultValue: 'Growth Alerts' })}
               </CardTitle>
             </CardHeader>
             <CardContent className="py-2 text-sm space-y-2">
@@ -414,7 +439,9 @@ function WeightPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search batches..."
+        searchPlaceholder={t('batches:searchPlaceholder', {
+          defaultValue: 'Search batches...',
+        })}
         isLoading={isLoading}
         onPaginationChange={(page, pageSize) => {
           updateSearch({ page, pageSize })
@@ -426,19 +453,27 @@ function WeightPage() {
           updateSearch({ q, page: 1 })
         }}
         emptyIcon={<Scale className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No weight samples"
-        emptyDescription="Track the weight of your livestock regularly."
+        emptyTitle={t('weight:emptyTitle', {
+          defaultValue: 'No weight samples',
+        })}
+        emptyDescription={t('weight:emptyDescription', {
+          defaultValue: 'Track the weight of your livestock regularly.',
+        })}
       />
 
       {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Record Weight Sample</DialogTitle>
+            <DialogTitle>
+              {t('weight:addSampleTitle', {
+                defaultValue: 'Record Weight Sample',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Batch</Label>
+              <Label>{t('batches:batch', { defaultValue: 'Batch' })}</Label>
               <Select
                 value={formData.batchId}
                 onValueChange={(val) =>
@@ -449,13 +484,20 @@ function WeightPage() {
                   <SelectValue>
                     {formData.batchId
                       ? batches.find((b) => b.id === formData.batchId)?.species
-                      : 'Select batch'}
+                      : t('batches:selectBatch', {
+                          defaultValue: 'Select batch',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (
                     <SelectItem key={batch.id} value={batch.id}>
-                      {batch.species} ({batch.currentQuantity} active)
+                      {batch.species} (
+                      {t('batches:activeCount', {
+                        count: batch.currentQuantity,
+                        defaultValue: '{{count}} active',
+                      })}
+                      )
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -463,7 +505,7 @@ function WeightPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Date</Label>
+              <Label>{t('common:date', { defaultValue: 'Date' })}</Label>
               <Input
                 type="date"
                 value={formData.date}
@@ -476,7 +518,9 @@ function WeightPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Avg Weight (kg)</Label>
+                <Label>
+                  {t('weight:avgWeight', { defaultValue: 'Avg Weight' })} (kg)
+                </Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -492,7 +536,9 @@ function WeightPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Sample Size</Label>
+                <Label>
+                  {t('weight:sampleSize', { defaultValue: 'Sample Size' })}
+                </Label>
                 <Input
                   type="number"
                   min="1"
@@ -521,7 +567,7 @@ function WeightPage() {
                 onClick={() => setDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 type="submit"
@@ -529,7 +575,9 @@ function WeightPage() {
                   isSubmitting || !formData.batchId || !formData.averageWeightKg
                 }
               >
-                {isSubmitting ? 'Saving...' : 'Save Sample'}
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('weight:saveSample', { defaultValue: 'Save Sample' })}
               </Button>
             </DialogFooter>
           </form>
@@ -540,17 +588,23 @@ function WeightPage() {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Weight Sample</DialogTitle>
+            <DialogTitle>
+              {t('weight:editSampleTitle', {
+                defaultValue: 'Edit Weight Sample',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Batch</Label>
+              <Label>{t('batches:batch', { defaultValue: 'Batch' })}</Label>
               <Input value={selectedRecord?.species || ''} disabled />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Avg Weight (kg)</Label>
+                <Label>
+                  {t('weight:avgWeight', { defaultValue: 'Avg Weight' })} (kg)
+                </Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -566,7 +620,9 @@ function WeightPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Sample Size</Label>
+                <Label>
+                  {t('weight:sampleSize', { defaultValue: 'Sample Size' })}
+                </Label>
                 <Input
                   type="number"
                   min="1"
@@ -595,13 +651,15 @@ function WeightPage() {
                 onClick={() => setEditDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !formData.averageWeightKg}
               >
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('common:saveChanges', { defaultValue: 'Save Changes' })}
               </Button>
             </DialogFooter>
           </form>
@@ -612,24 +670,33 @@ function WeightPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Weight Sample</DialogTitle>
+            <DialogTitle>
+              {t('weight:deleteSampleTitle', {
+                defaultValue: 'Delete Weight Sample',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete this weight sample?
+            {t('weight:deleteConfirmation', {
+              defaultValue:
+                'Are you sure you want to delete this weight sample?',
+            })}
           </p>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+              {isSubmitting
+                ? t('common:deleting', { defaultValue: 'Deleting...' })
+                : t('common:delete', { defaultValue: 'Delete' })}
             </Button>
           </DialogFooter>
         </DialogContent>

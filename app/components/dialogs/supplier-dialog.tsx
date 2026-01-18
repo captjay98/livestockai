@@ -1,7 +1,8 @@
 import { toast } from 'sonner'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Truck } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { createSupplierFn } from '~/features/suppliers/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -37,6 +38,7 @@ interface SupplierDialogProps {
 }
 
 export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
+  const { t } = useTranslation(['suppliers', 'common'])
   const router = useRouter()
   const [formData, setFormData] = useState({
     name: '',
@@ -76,7 +78,7 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
             : null,
         },
       })
-      toast.success('Supplier created')
+      toast.success(t('created', { defaultValue: 'Supplier created' }))
       onOpenChange(false)
       setFormData({
         name: '',
@@ -88,7 +90,13 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
       })
       router.invalidate()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create supplier')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('error.create', {
+              defaultValue: 'Failed to create supplier',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -100,28 +108,36 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Truck className="h-5 w-5" />
-            Add Supplier
+            {t('addSupplier', { defaultValue: 'Add Supplier' })}
           </DialogTitle>
           <DialogDescription>
-            Add a new supplier to your contacts
+            {t('addDescription', {
+              defaultValue: 'Add a new supplier to your contacts',
+            })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name">
+              {t('common:name', { defaultValue: 'Name' })} *
+            </Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
               }
-              placeholder="Supplier name"
+              placeholder={t('placeholders.name', {
+                defaultValue: 'Supplier name',
+              })}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone *</Label>
+            <Label htmlFor="phone">
+              {t('common:phone', { defaultValue: 'Phone' })} *
+            </Label>
             <Input
               id="phone"
               value={formData.phone}
@@ -134,7 +150,9 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">
+              {t('common:email', { defaultValue: 'Email' })}
+            </Label>
             <Input
               id="email"
               type="email"
@@ -147,31 +165,43 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location">
+              {t('common:location', { defaultValue: 'Location' })}
+            </Label>
             <Input
               id="location"
               value={formData.location}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, location: e.target.value }))
               }
-              placeholder="City or address"
+              placeholder={t('placeholders.location', {
+                defaultValue: 'City or address',
+              })}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="products">Products (comma-separated)</Label>
+            <Label htmlFor="products">
+              {t('products', {
+                defaultValue: 'Products (comma-separated)',
+              })}
+            </Label>
             <Input
               id="products"
               value={formData.products}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, products: e.target.value }))
               }
-              placeholder="Feed, Vaccines, Equipment"
+              placeholder={t('placeholders.products', {
+                defaultValue: 'Feed, Vaccines, Equipment',
+              })}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Supplier Type</Label>
+            <Label>
+              {t('supplierType', { defaultValue: 'Supplier Type' })}
+            </Label>
             <Select
               value={formData.supplierType || undefined}
               onValueChange={(value) =>
@@ -181,16 +211,22 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
               <SelectTrigger>
                 <SelectValue>
                   {formData.supplierType
-                    ? SUPPLIER_TYPES.find(
-                        (t) => t.value === formData.supplierType,
-                      )?.label
-                    : 'Select type'}
+                    ? t(`types.${formData.supplierType}`, {
+                        defaultValue: SUPPLIER_TYPES.find(
+                          (st) => st.value === formData.supplierType,
+                        )?.label,
+                      })
+                    : t('selectType', {
+                        defaultValue: 'Select type',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {SUPPLIER_TYPES.map((type) => (
                   <SelectItem key={type.value} value={type.value}>
-                    {type.label}
+                    {t(`types.${type.value}`, {
+                      defaultValue: type.label,
+                    })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -210,13 +246,15 @@ export function SupplierDialog({ open, onOpenChange }: SupplierDialogProps) {
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || !formData.name || !formData.phone}
             >
-              {isSubmitting ? 'Creating...' : 'Add Supplier'}
+              {isSubmitting
+                ? t('common:creating', { defaultValue: 'Creating...' })
+                : t('addSupplier', { defaultValue: 'Add Supplier' })}
             </Button>
           </DialogFooter>
         </form>

@@ -8,6 +8,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ArrowLeft, Edit, Mail, MapPin, Phone, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   deleteCustomer,
   getCustomerWithSales,
@@ -90,6 +91,7 @@ export const Route = createFileRoute('/_auth/customers/$customerId')({
 })
 
 function CustomerDetailPage() {
+  const { t } = useTranslation(['customers', 'common'])
   const customer = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     Route.useLoaderData() as CustomerWithSales | null
   const navigate = useNavigate()
@@ -101,9 +103,13 @@ function CustomerDetailPage() {
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Customer Not Found</h1>
+          <h1 className="text-2xl font-bold mb-4">
+            {t('customers:notFound', { defaultValue: 'Customer Not Found' })}
+          </h1>
           <Button asChild>
-            <Link to="/customers">Back to Customers</Link>
+            <Link to="/customers">
+              {t('customers:back', { defaultValue: 'Back to Customers' })}
+            </Link>
           </Button>
         </div>
       </div>
@@ -132,15 +138,29 @@ function CustomerDetailPage() {
       | '',
   })
 
+  // Customer types helper
+  const customer_types = [
+    { value: 'individual', label: t('customers:types.individual') },
+    { value: 'restaurant', label: t('customers:types.restaurant') },
+    { value: 'retailer', label: t('customers:types.retailer') },
+    { value: 'wholesaler', label: t('customers:types.wholesaler') },
+  ]
+
   const handleDelete = async () => {
     setIsSubmitting(true)
     try {
       await removeCustomer({ data: { customerId: customer.id } })
-      toast.success('Customer deleted')
+      toast.success(
+        t('customers:messages.deleted', { defaultValue: 'Customer deleted' }),
+      )
       navigate({ to: '/customers' })
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : 'Failed to delete customer',
+        err instanceof Error
+          ? err.message
+          : t('customers:errors.delete', {
+              defaultValue: 'Failed to delete customer',
+            }),
       )
     } finally {
       setIsSubmitting(false)
@@ -164,6 +184,9 @@ function CustomerDetailPage() {
           },
         },
       })
+      toast.success(
+        t('customers:messages.updated', { defaultValue: 'Customer updated' }),
+      )
       setEditDialogOpen(false)
       router.invalidate()
     } catch (err) {
@@ -181,9 +204,8 @@ function CustomerDetailPage() {
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Customers
+          {t('customers:back', { defaultValue: 'Back to Customers' })}
         </Link>
-
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="min-w-0">
             <div className="flex items-center gap-3 flex-wrap">
@@ -192,16 +214,22 @@ function CustomerDetailPage() {
               </h1>
               {customer.customerType && (
                 <Badge variant="outline" className="capitalize">
-                  {customer.customerType}
+                  {t(`customers:types.${customer.customerType}`, {
+                    defaultValue: customer.customerType,
+                  })}
                 </Badge>
               )}
             </div>
-            <p className="text-muted-foreground mt-1">Customer Details</p>
+            <p className="text-muted-foreground mt-1">
+              {t('customers:details.title', {
+                defaultValue: 'Customer Details',
+              })}
+            </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
               <Edit className="h-4 w-4 mr-2" />
-              Edit
+              {t('customers:details.edit', { defaultValue: 'Edit' })}
             </Button>
             <Button
               variant="outline"
@@ -209,14 +237,18 @@ function CustomerDetailPage() {
               className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete
+              {t('customers:details.delete', { defaultValue: 'Delete' })}
             </Button>
           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           <div className="bg-card rounded-lg border p-6">
-            <h2 className="font-semibold mb-4">Contact Information</h2>
+            <h2 className="font-semibold mb-4">
+              {t('customers:details.contactInfo', {
+                defaultValue: 'Contact Information',
+              })}
+            </h2>
             <div className="space-y-3">
               <div className="flex items-center text-sm">
                 <Phone className="h-4 w-4 mr-3 text-muted-foreground" />
@@ -239,33 +271,60 @@ function CustomerDetailPage() {
 
           <div className="bg-card rounded-lg border p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold">Purchase Summary</h2>
+              <h2 className="font-semibold">
+                {t('customers:details.purchaseSummary', {
+                  defaultValue: 'Purchase Summary',
+                })}
+              </h2>
               <div className="text-right">
-                <p className="text-sm text-muted-foreground">Total Spent</p>
+                <p className="text-sm text-muted-foreground">
+                  {t('customers:table.totalSpent', {
+                    defaultValue: 'Total Spent',
+                  })}
+                </p>
                 <p className="text-2xl font-bold text-primary">
                   {formatCurrency(customer.totalSpent)}
                 </p>
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              {customer.salesCount} purchases recorded
+              {customer.salesCount}{' '}
+              {t('customers:details.purchasesRecorded', {
+                defaultValue: 'purchases recorded',
+              })}
             </p>
           </div>
 
           {customer.sales.length > 0 && (
             <div className="bg-card rounded-lg border p-6 md:col-span-2">
-              <h2 className="font-semibold mb-4">Recent Purchases</h2>
+              <h2 className="font-semibold mb-4">
+                {t('customers:details.recentPurchases', {
+                  defaultValue: 'Recent Purchases',
+                })}
+              </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-2 font-medium">Date</th>
-                      <th className="text-left py-2 font-medium">Type</th>
-                      <th className="text-right py-2 font-medium">Quantity</th>
-                      <th className="text-right py-2 font-medium">
-                        Unit Price
+                      <th className="text-left py-2 font-medium">
+                        {t('customers:table.date', { defaultValue: 'Date' })}
                       </th>
-                      <th className="text-right py-2 font-medium">Total</th>
+                      <th className="text-left py-2 font-medium">
+                        {t('customers:table.type', { defaultValue: 'Type' })}
+                      </th>
+                      <th className="text-right py-2 font-medium">
+                        {t('customers:table.quantity', {
+                          defaultValue: 'Quantity',
+                        })}
+                      </th>
+                      <th className="text-right py-2 font-medium">
+                        {t('customers:table.unitPrice', {
+                          defaultValue: 'Unit Price',
+                        })}
+                      </th>
+                      <th className="text-right py-2 font-medium">
+                        {t('customers:table.total', { defaultValue: 'Total' })}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -295,11 +354,17 @@ function CustomerDetailPage() {
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit Customer</DialogTitle>
+              <DialogTitle>
+                {t('customers:form.editTitle', {
+                  defaultValue: 'Edit Customer',
+                })}
+              </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Name *</Label>
+                <Label htmlFor="edit-name">
+                  {t('customers:form.name', { defaultValue: 'Name' })}
+                </Label>
                 <Input
                   id="edit-name"
                   value={editFormData.name}
@@ -313,7 +378,9 @@ function CustomerDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-phone">Phone *</Label>
+                <Label htmlFor="edit-phone">
+                  {t('customers:form.phone', { defaultValue: 'Phone' })}
+                </Label>
                 <Input
                   id="edit-phone"
                   value={editFormData.phone}
@@ -327,7 +394,9 @@ function CustomerDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-email">Email</Label>
+                <Label htmlFor="edit-email">
+                  {t('customers:form.email', { defaultValue: 'Email' })}
+                </Label>
                 <Input
                   id="edit-email"
                   type="email"
@@ -341,7 +410,9 @@ function CustomerDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-location">Location</Label>
+                <Label htmlFor="edit-location">
+                  {t('customers:form.location', { defaultValue: 'Location' })}
+                </Label>
                 <Input
                   id="edit-location"
                   value={editFormData.location}
@@ -354,7 +425,9 @@ function CustomerDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-customerType">Customer Type</Label>
+                <Label htmlFor="edit-customerType">
+                  {t('customers:form.type', { defaultValue: 'Customer Type' })}
+                </Label>
                 <Select
                   value={editFormData.customerType}
                   onValueChange={(value) =>
@@ -366,14 +439,21 @@ function CustomerDetailPage() {
                 >
                   <SelectTrigger>
                     <SelectValue>
-                      {editFormData.customerType || 'Select type'}
+                      {editFormData.customerType
+                        ? customer_types.find(
+                            (item) => item.value === editFormData.customerType,
+                          )?.label || editFormData.customerType
+                        : t('customers:form.selectType', {
+                            defaultValue: 'Select type',
+                          })}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="individual">Individual</SelectItem>
-                    <SelectItem value="restaurant">Restaurant</SelectItem>
-                    <SelectItem value="retailer">Retailer</SelectItem>
-                    <SelectItem value="wholesaler">Wholesaler</SelectItem>
+                    {customer_types.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -383,7 +463,7 @@ function CustomerDetailPage() {
                   variant="outline"
                   onClick={() => setEditDialogOpen(false)}
                 >
-                  Cancel
+                  {t('common:cancel', { defaultValue: 'Cancel' })}
                 </Button>
                 <Button
                   type="submit"
@@ -391,7 +471,11 @@ function CustomerDetailPage() {
                     isSubmitting || !editFormData.name || !editFormData.phone
                   }
                 >
-                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                  {isSubmitting
+                    ? t('common:saving', { defaultValue: 'Saving...' })
+                    : t('customers:form.save', {
+                        defaultValue: 'Save Changes',
+                      })}
                 </Button>
               </DialogFooter>
             </form>
@@ -402,14 +486,23 @@ function CustomerDetailPage() {
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Delete Customer</DialogTitle>
+              <DialogTitle>
+                {t('customers:dialog.deleteTitle', {
+                  defaultValue: 'Delete Customer',
+                })}
+              </DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete {customer.name}? This action
-                cannot be undone.
+                {t('customers:dialog.deleteDesc', {
+                  defaultValue: 'Are you sure you want to delete {{name}}?',
+                  name: customer.name,
+                })}
                 {customer.salesCount > 0 && (
                   <span className="block mt-2 text-destructive">
-                    Warning: This customer has {customer.salesCount} sales
-                    records.
+                    {t('customers:dialog.deleteWarning', {
+                      defaultValue:
+                        'Warning: This customer has {{count}} sales records.',
+                      count: customer.salesCount,
+                    })}
                   </span>
                 )}
               </DialogDescription>
@@ -420,7 +513,7 @@ function CustomerDetailPage() {
                 variant="outline"
                 onClick={() => setDeleteDialogOpen(false)}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 type="button"
@@ -428,7 +521,9 @@ function CustomerDetailPage() {
                 onClick={handleDelete}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Deleting...' : 'Delete'}
+                {isSubmitting
+                  ? t('common:deleting', { defaultValue: 'Deleting...' })
+                  : t('common:delete', { defaultValue: 'Delete' })}
               </Button>
             </DialogFooter>
           </DialogContent>

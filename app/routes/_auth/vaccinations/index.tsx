@@ -1,4 +1,9 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  redirect,
+  useNavigate,
+  useRouter,
+} from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
 import {
@@ -10,9 +15,15 @@ import {
   Syringe,
   Trash2,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { PaginatedResult } from '~/features/vaccinations/server'
+import type {
+  PaginatedQuery,
+  PaginatedResult,
+  UpdateTreatmentInput,
+  UpdateVaccinationInput,
+} from '~/features/vaccinations/server'
 import { useFormatDate } from '~/features/settings'
 import {
   createTreatmentFn,
@@ -91,14 +102,13 @@ interface Batch {
   status: string
 }
 
-// Search params
 interface HealthSearchParams {
-  page?: number
-  pageSize?: number
-  sortBy?: string
-  sortOrder?: 'asc' | 'desc'
-  q?: string
-  type?: 'all' | 'vaccination' | 'treatment'
+  page: number
+  pageSize: number
+  sortBy: string
+  sortOrder: 'asc' | 'desc'
+  search: string
+  type: 'all' | 'vaccination' | 'treatment'
 }
 
 const getHealthDataForFarm = createServerFn({ method: 'GET' })
@@ -148,26 +158,27 @@ const getHealthDataForFarm = createServerFn({ method: 'GET' })
   })
 
 export const Route = createFileRoute('/_auth/vaccinations/')({
-  component: HealthPage,
-  validateSearch: (search: Record<string, unknown>): HealthSearchParams => ({
+  validateSearch: (search: Record<string, unknown>): PaginatedQuery => ({
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
-    sortBy: (search.sortBy as string) || 'date',
+    sortBy: typeof search.sortBy === 'string' ? search.sortBy : 'date',
     sortOrder:
-      typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+      search.sortOrder === 'asc' || search.sortOrder === 'desc'
         ? search.sortOrder
         : 'desc',
-    q: typeof search.q === 'string' ? search.q : '',
+    search: typeof search.q === 'string' ? search.q : '',
     type: search.type ? (search.type as any) : 'all',
   }),
+  component: VaccinationsPage,
 })
 
-function HealthPage() {
+function VaccinationsPage() {
+  const { t } = useTranslation(['health', 'common'])
   const { format: formatDate } = useFormatDate()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
+  const router = useRouter()
 
   const [paginatedRecords, setPaginatedRecords] = useState<
     PaginatedResult<HealthRecord>
@@ -280,7 +291,7 @@ function HealthPage() {
         },
       })
       setVaccinationDialogOpen(false)
-      toast.success('Vaccination recorded')
+      toast.success(t('vaccinations:messages.vaccinationRecorded'))
       setVaccineForm({
         batchId: '',
         vaccineName: '',
@@ -317,7 +328,7 @@ function HealthPage() {
         },
       })
       setTreatmentDialogOpen(false)
-      toast.success('Treatment recorded')
+      toast.success(t('vaccinations:messages.treatmentRecorded'))
       setTreatmentForm({
         batchId: '',
         medicationName: '',
@@ -339,12 +350,12 @@ function HealthPage() {
     () => [
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: t('vaccinations:columns.date'),
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'type',
-        header: 'Type',
+        header: t('vaccinations:columns.type'),
         cell: ({ row }) => (
           <Badge
             variant={
@@ -358,11 +369,13 @@ function HealthPage() {
           >
             {row.original.type === 'vaccination' ? (
               <>
-                <Syringe className="h-3 w-3 mr-1" /> Prevention
+                <Syringe className="h-3 w-3 mr-1" />{' '}
+                {t('vaccinations:types.prevention')}
               </>
             ) : (
               <>
-                <Pill className="h-3 w-3 mr-1" /> Treatment
+                <Pill className="h-3 w-3 mr-1" />{' '}
+                {t('vaccinations:types.treatment')}
               </>
             )}
           </Badge>
@@ -370,12 +383,12 @@ function HealthPage() {
       },
       {
         accessorKey: 'name',
-        header: 'Name',
+        header: t('vaccinations:columns.name'),
         cell: ({ row }) => row.original.name,
       },
       {
         accessorKey: 'species',
-        header: 'Batch',
+        header: t('vaccinations:columns.batch'),
         cell: ({ row }) => (
           <span className="font-medium text-muted-foreground">
             {row.original.species}
@@ -384,22 +397,27 @@ function HealthPage() {
       },
       {
         id: 'details',
-        header: 'Details',
+        header: t('vaccinations:columns.details'),
         cell: ({ row }) => {
           if (row.original.type === 'vaccination' && row.original.nextDueDate) {
             return (
               <div className="flex items-center text-xs text-muted-foreground">
                 <Calendar className="h-3 w-3 mr-1" />
-                Next: {formatDate(row.original.nextDueDate)}
+                {t('vaccinations:details.next')}:{' '}
+                {formatDate(row.original.nextDueDate)}
               </div>
             )
           }
           if (row.original.type === 'treatment') {
             return (
               <div className="text-xs text-muted-foreground">
-                {row.original.reason && <span>for {row.original.reason}</span>}
+                {row.original.reason && (
+                  <span>
+                    {t('vaccinations:details.for')} {row.original.reason}
+                  </span>
+                )}
                 {row.original.withdrawalDays
-                  ? ` • ${row.original.withdrawalDays}d withdrawal`
+                  ? ` • ${row.original.withdrawalDays}${t('vaccinations:details.withdrawalSuffix')}`
                   : ''}
               </div>
             )
@@ -415,7 +433,7 @@ function HealthPage() {
               variant="ghost"
               size="icon"
               onClick={() => handleEdit(row.original)}
-              title="Edit"
+              title={t('common:edit', { defaultValue: 'Edit' })}
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -424,7 +442,7 @@ function HealthPage() {
               size="icon"
               className="text-destructive hover:text-destructive"
               onClick={() => handleDelete(row.original)}
-              title="Delete"
+              title={t('common:delete', { defaultValue: 'Delete' })}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -467,7 +485,7 @@ function HealthPage() {
     setDeleteDialogOpen(true)
   }
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedRecord) return
 
@@ -476,32 +494,45 @@ function HealthPage() {
       if (selectedRecord.type === 'vaccination') {
         await updateVaccinationFn({
           data: {
-            vaccinationId: selectedRecord.id,
-            vaccineName: vaccineForm.vaccineName,
-            dosage: vaccineForm.dosage,
-            nextDueDate: vaccineForm.nextDueDate
-              ? new Date(vaccineForm.nextDueDate)
-              : undefined,
-            notes: vaccineForm.notes || undefined,
+            recordId: selectedRecord.id,
+            data: {
+              vaccineName: vaccineForm.vaccineName,
+              dosage: vaccineForm.dosage,
+              dateAdministered: vaccineForm.dateAdministered
+                ? new Date(vaccineForm.dateAdministered)
+                : new Date(),
+              nextDueDate: vaccineForm.nextDueDate
+                ? new Date(vaccineForm.nextDueDate)
+                : null,
+              notes: vaccineForm.notes || null,
+            } as UpdateVaccinationInput,
           },
         })
       } else {
         await updateTreatmentFn({
           data: {
-            treatmentId: selectedRecord.id,
-            medicationName: treatmentForm.medicationName,
-            reason: treatmentForm.reason,
-            dosage: treatmentForm.dosage,
-            withdrawalDays: parseInt(treatmentForm.withdrawalDays),
-            notes: treatmentForm.notes || undefined,
+            recordId: selectedRecord.id,
+            data: {
+              medicationName: treatmentForm.medicationName,
+              reason: treatmentForm.reason,
+              date: treatmentForm.date
+                ? new Date(treatmentForm.date)
+                : new Date(),
+              dosage: treatmentForm.dosage,
+              withdrawalDays: treatmentForm.withdrawalDays
+                ? parseInt(treatmentForm.withdrawalDays)
+                : 0,
+              notes: treatmentForm.notes || null,
+            } as UpdateTreatmentInput,
           },
         })
       }
+      toast.success(t('common.saved'))
       setEditDialogOpen(false)
-      toast.success('Record updated')
-      loadData()
+      router.invalidate()
     } catch (err) {
       console.error('Failed:', err)
+      toast.error(t('common.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -514,16 +545,17 @@ function HealthPage() {
     try {
       if (selectedRecord.type === 'vaccination') {
         await deleteVaccinationFn({
-          data: { vaccinationId: selectedRecord.id },
+          data: { recordId: selectedRecord.id },
         })
       } else {
-        await deleteTreatmentFn({ data: { treatmentId: selectedRecord.id } })
+        await deleteTreatmentFn({ data: { recordId: selectedRecord.id } })
       }
       setDeleteDialogOpen(false)
-      toast.success('Record deleted')
-      loadData()
+      toast.success(t('common.deleted'))
+      router.invalidate()
     } catch (err) {
       console.error('Failed:', err)
+      toast.error(t('common.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -532,21 +564,21 @@ function HealthPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Health Records"
-        description="Log vaccinations and treatments to maintain health schedules and compliance."
+        title={t('vaccinations:title')}
+        description={t('vaccinations:description')}
         icon={Syringe}
         actions={
           <div className="flex flex-col sm:flex-row gap-2">
             <Button onClick={() => setVaccinationDialogOpen(true)}>
               <Syringe className="h-4 w-4 mr-2" />
-              Vaccinate
+              {t('vaccinations:actions.vaccinate')}
             </Button>
             <Button
               variant="outline"
               onClick={() => setTreatmentDialogOpen(true)}
             >
               <Pill className="h-4 w-4 mr-2" />
-              Treat
+              {t('vaccinations:actions.treat')}
             </Button>
           </div>
         }
@@ -559,7 +591,7 @@ function HealthPage() {
               <CardHeader className="py-3">
                 <CardTitle className="text-sm font-medium text-destructive flex items-center">
                   <AlertTriangle className="h-4 w-4 mr-2" />
-                  Overdue Vaccinations
+                  {t('vaccinations:alerts.overdue')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="py-2 text-sm space-y-2">
@@ -581,7 +613,7 @@ function HealthPage() {
               <CardHeader className="py-3">
                 <CardTitle className="text-sm font-medium text-info flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
-                  Upcoming Vaccinations
+                  {t('vaccinations:alerts.upcoming')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="py-2 text-sm space-y-2">
@@ -611,7 +643,7 @@ function HealthPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search by name, species..."
+        searchPlaceholder={t('vaccinations:placeholders.search')}
         isLoading={isLoading}
         filters={
           <div className="flex items-center space-x-2">
@@ -623,9 +655,13 @@ function HealthPage() {
               className="w-auto"
             >
               <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="vaccination">Vaccinations</TabsTrigger>
-                <TabsTrigger value="treatment">Treatments</TabsTrigger>
+                <TabsTrigger value="all">{t('common:all')}</TabsTrigger>
+                <TabsTrigger value="vaccination">
+                  {t('vaccinations:tabs.vaccinations')}
+                </TabsTrigger>
+                <TabsTrigger value="treatment">
+                  {t('vaccinations:tabs.treatments')}
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -636,12 +672,12 @@ function HealthPage() {
         onSortChange={(sortBy, sortOrder) => {
           updateSearch({ sortBy, sortOrder, page: 1 })
         }}
-        onSearchChange={(q) => {
-          updateSearch({ q, page: 1 })
+        onSearchChange={(search) => {
+          updateSearch({ search, page: 1 })
         }}
         emptyIcon={<Activity className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No health records"
-        emptyDescription="Keep your livestock healthy by tracking vaccinations and treatments."
+        emptyTitle={t('vaccinations:empty.title')}
+        emptyDescription={t('vaccinations:empty.description')}
       />
 
       {/* Vaccination Dialog */}
@@ -651,11 +687,13 @@ function HealthPage() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Record Vaccination</DialogTitle>
+            <DialogTitle>
+              {t('vaccinations:dialog.vaccinationTitle')}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleVaccineSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Batch</Label>
+              <Label>{t('batches:batch', { defaultValue: 'Batch' })}</Label>
               <Select
                 value={vaccineForm.batchId}
                 onValueChange={(val) =>
@@ -675,7 +713,7 @@ function HealthPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Vaccine Name</Label>
+              <Label>{t('vaccinations:labels.vaccineName')}</Label>
               <Input
                 value={vaccineForm.vaccineName}
                 onChange={(e) =>
@@ -689,7 +727,7 @@ function HealthPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Date</Label>
+                <Label>{t('common:date', { defaultValue: 'Date' })}</Label>
                 <Input
                   type="date"
                   value={vaccineForm.dateAdministered}
@@ -703,7 +741,7 @@ function HealthPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Dosage</Label>
+                <Label>{t('common:dosage', { defaultValue: 'Dosage' })}</Label>
                 <Input
                   value={vaccineForm.dosage}
                   onChange={(e) =>
@@ -713,12 +751,16 @@ function HealthPage() {
                     }))
                   }
                   required
-                  placeholder="e.g. 10ml"
+                  placeholder={t('vaccinations:placeholders.dosage', {
+                    defaultValue: 'e.g. 10ml',
+                  })}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Next Due Date (Optional)</Label>
+              <Label>
+                {t('vaccinations:labels.nextDueDate')} ({t('common:optional')})
+              </Label>
               <Input
                 type="date"
                 value={vaccineForm.nextDueDate}
@@ -731,7 +773,7 @@ function HealthPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Notes</Label>
+              <Label>{t('common:notes', { defaultValue: 'Notes' })}</Label>
               <Textarea
                 value={vaccineForm.notes}
                 onChange={(e) =>
@@ -744,14 +786,15 @@ function HealthPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setVaccinationDialogOpen(false)}
+                disabled={isSubmitting}
               >
-                Cancel
+                {t('common:cancel')}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !vaccineForm.batchId}
               >
-                Save
+                {isSubmitting ? t('common:saving') : t('common:save')}
               </Button>
             </DialogFooter>
           </form>
@@ -762,7 +805,7 @@ function HealthPage() {
       <Dialog open={treatmentDialogOpen} onOpenChange={setTreatmentDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Record Treatment</DialogTitle>
+            <DialogTitle>{t('vaccinations:dialog.treatmentTitle')}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleTreatmentSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -786,7 +829,7 @@ function HealthPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Medication Name</Label>
+              <Label>{t('health.labels.medicationName')}</Label>
               <Input
                 value={treatmentForm.medicationName}
                 onChange={(e) =>
@@ -799,7 +842,7 @@ function HealthPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Reason</Label>
+              <Label>{t('health.labels.reason')}</Label>
               <Input
                 value={treatmentForm.reason}
                 onChange={(e) =>
@@ -814,7 +857,7 @@ function HealthPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Date</Label>
+                <Label>{t('common.date', { defaultValue: 'Date' })}</Label>
                 <Input
                   type="date"
                   value={treatmentForm.date}
@@ -828,7 +871,7 @@ function HealthPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Dosage</Label>
+                <Label>{t('common.dosage', { defaultValue: 'Dosage' })}</Label>
                 <Input
                   value={treatmentForm.dosage}
                   onChange={(e) =>
@@ -843,7 +886,7 @@ function HealthPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Withdrawal Period (Days)</Label>
+              <Label>{t('health.labels.withdrawalDays')}</Label>
               <Input
                 type="number"
                 min="0"
@@ -857,7 +900,7 @@ function HealthPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Notes</Label>
+              <Label>{t('common.notes', { defaultValue: 'Notes' })}</Label>
               <Textarea
                 value={treatmentForm.notes}
                 onChange={(e) =>
@@ -873,14 +916,15 @@ function HealthPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setTreatmentDialogOpen(false)}
+                disabled={isSubmitting}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !treatmentForm.batchId}
               >
-                Save
+                {isSubmitting ? t('common.saving') : t('common.save')}
               </Button>
             </DialogFooter>
           </form>
@@ -892,13 +936,13 @@ function HealthPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              Edit{' '}
+              {t('common.edit')}{' '}
               {selectedRecord?.type === 'vaccination'
-                ? 'Vaccination'
-                : 'Treatment'}
+                ? t('health.types.vaccination')
+                : t('health.types.treatment')}
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleEditSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>Batch</Label>
               <Input value={selectedRecord?.species || ''} disabled />
@@ -907,7 +951,7 @@ function HealthPage() {
             {selectedRecord?.type === 'vaccination' ? (
               <>
                 <div className="space-y-2">
-                  <Label>Vaccine Name</Label>
+                  <Label>{t('health.labels.vaccineName')}</Label>
                   <Input
                     value={vaccineForm.vaccineName}
                     onChange={(e) =>
@@ -920,7 +964,7 @@ function HealthPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Dosage</Label>
+                  <Label>{t('health.labels.dosage')}</Label>
                   <Input
                     value={vaccineForm.dosage}
                     onChange={(e) =>
@@ -933,7 +977,7 @@ function HealthPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Next Due Date</Label>
+                  <Label>{t('health.labels.nextDueDate')}</Label>
                   <Input
                     type="date"
                     value={vaccineForm.nextDueDate}
@@ -949,7 +993,7 @@ function HealthPage() {
             ) : (
               <>
                 <div className="space-y-2">
-                  <Label>Medication Name</Label>
+                  <Label>{t('health.labels.medicationName')}</Label>
                   <Input
                     value={treatmentForm.medicationName}
                     onChange={(e) =>
@@ -962,7 +1006,7 @@ function HealthPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Reason</Label>
+                  <Label>{t('health.labels.reason')}</Label>
                   <Input
                     value={treatmentForm.reason}
                     onChange={(e) =>
@@ -976,7 +1020,7 @@ function HealthPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Dosage</Label>
+                    <Label>{t('health.labels.dosage')}</Label>
                     <Input
                       value={treatmentForm.dosage}
                       onChange={(e) =>
@@ -989,7 +1033,7 @@ function HealthPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Withdrawal Days</Label>
+                    <Label>{t('health.labels.withdrawalDays')}</Label>
                     <Input
                       type="number"
                       min="0"
@@ -1013,10 +1057,10 @@ function HealthPage() {
                 onClick={() => setEditDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting ? t('common.saving') : t('common.saveChanges')}
               </Button>
             </DialogFooter>
           </form>
@@ -1028,29 +1072,35 @@ function HealthPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              Delete{' '}
+              {t('common.delete')}{' '}
               {selectedRecord?.type === 'vaccination'
-                ? 'Vaccination'
-                : 'Treatment'}
+                ? t('health.types.vaccination')
+                : t('health.types.treatment')}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete this {selectedRecord?.type} record
-            for {selectedRecord?.name}?
+            {t('health.messages.confirmDelete', {
+              type:
+                selectedRecord?.type === 'vaccination'
+                  ? t('health.types.vaccination')
+                  : t('health.types.treatment'),
+              name: selectedRecord?.name,
+            })}
           </p>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
+              disabled={isSubmitting}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+              {isSubmitting ? t('common.deleting') : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

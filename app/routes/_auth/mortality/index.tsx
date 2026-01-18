@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import {
   AlertTriangle,
   Edit,
@@ -18,16 +19,19 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { PaginatedResult } from '~/features/mortality/server'
 import type { BatchAlert } from '~/features/monitoring/alerts'
-import { useFormatDate } from '~/features/settings'
+import type {
+  PaginatedResult,
+  UpdateMortalityInput,
+} from '~/features/mortality/server'
 import {
   deleteMortalityRecordFn,
-  getMortalityRecordsPaginated,
+  getMortalityRecordsPaginatedFn,
   getMortalitySummary,
-  recordMortality,
+  recordMortalityFn,
   updateMortalityRecordFn,
 } from '~/features/mortality/server'
+import { useFormatDate } from '~/features/settings'
 import { getAllBatchAlerts } from '~/features/monitoring/alerts'
 import { getBatchesFn } from '~/features/batches/server'
 import { requireAuth } from '~/features/auth/server-middleware'
@@ -92,12 +96,29 @@ interface MortalitySearchParams {
   cause?: string
 }
 
-const MORTALITY_CAUSES = [
-  { value: 'disease', label: 'Disease' },
-  { value: 'predator', label: 'Predator Attack' },
-  { value: 'weather', label: 'Weather/Environment' },
-  { value: 'unknown', label: 'Unknown' },
-  { value: 'other', label: 'Other' },
+const MORTALITY_CAUSES = (t: any) => [
+  {
+    value: 'disease',
+    label: t('mortality:causes.disease', { defaultValue: 'Disease' }),
+  },
+  {
+    value: 'predator',
+    label: t('mortality:causes.predator', { defaultValue: 'Predator Attack' }),
+  },
+  {
+    value: 'weather',
+    label: t('mortality:causes.weather', {
+      defaultValue: 'Weather/Environment',
+    }),
+  },
+  {
+    value: 'unknown',
+    label: t('mortality:causes.unknown', { defaultValue: 'Unknown' }),
+  },
+  {
+    value: 'other',
+    label: t('mortality:causes.other', { defaultValue: 'Other' }),
+  },
 ]
 
 const getMortalityDataForFarm = createServerFn({ method: 'GET' })
@@ -119,13 +140,16 @@ const getMortalityDataForFarm = createServerFn({ method: 'GET' })
 
       const [paginatedRecords, alerts, summary, allBatches] = await Promise.all(
         [
-          getMortalityRecordsPaginated(session.user.id, {
-            farmId,
-            page: data.page,
-            pageSize: data.pageSize,
-            sortBy: data.sortBy,
-            sortOrder: data.sortOrder,
-            search: data.search,
+          getMortalityRecordsPaginatedFn({
+            data: {
+              farmId,
+              page: data.page,
+              pageSize: data.pageSize,
+              sortBy: data.sortBy,
+              sortOrder: data.sortOrder,
+              search: data.search,
+              // batchId: data.batchId, // batchId is not in the inputValidator for getMortalityDataForFarm
+            },
           }),
           getAllBatchAlerts(session.user.id, farmId),
           getMortalitySummary(session.user.id, farmId),
@@ -162,13 +186,17 @@ const recordMortalityAction = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     try {
-      const session = await requireAuth()
-      const id = await recordMortality(session.user.id, {
-        batchId: data.batchId,
-        quantity: data.quantity,
-        date: new Date(data.date),
-        cause: data.cause,
-        notes: data.notes,
+      const id = await recordMortalityFn({
+        data: {
+          farmId: data.farmId,
+          data: {
+            batchId: data.batchId,
+            quantity: data.quantity,
+            date: new Date(data.date),
+            cause: data.cause,
+            notes: data.notes,
+          },
+        },
       })
       return { success: true, id }
     } catch (err) {
@@ -196,6 +224,7 @@ export const Route = createFileRoute('/_auth/mortality/')({
 })
 
 function MortalityPage() {
+  const { t } = useTranslation(['mortality', 'common', 'batches'])
   const { format: formatDate } = useFormatDate()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
@@ -305,7 +334,9 @@ function MortalityPage() {
         },
       })
       setDialogOpen(false)
-      toast.success('Mortality recorded')
+      toast.success(
+        t('mortality:recorded', { defaultValue: 'Mortality recorded' }),
+      )
       setFormData({
         batchId: '',
         quantity: '',
@@ -316,7 +347,11 @@ function MortalityPage() {
       loadData()
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to record mortality',
+        err instanceof Error
+          ? err.message
+          : t('mortality:error.record', {
+              defaultValue: 'Failed to record mortality',
+            }),
       )
     } finally {
       setIsSubmitting(false)
@@ -327,19 +362,19 @@ function MortalityPage() {
     () => [
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: t('common:date', { defaultValue: 'Date' }),
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'species',
-        header: 'Batch',
+        header: t('batches:batch', { defaultValue: 'Batch' }),
         cell: ({ row }) => (
           <span className="font-medium">{row.original.species}</span>
         ),
       },
       {
         accessorKey: 'quantity',
-        header: 'Quantity',
+        header: t('common:quantity', { defaultValue: 'Quantity' }),
         cell: ({ row }) => (
           <span className="font-bold text-destructive">
             -{row.original.quantity}
@@ -348,17 +383,18 @@ function MortalityPage() {
       },
       {
         accessorKey: 'cause',
-        header: 'Cause',
+        header: t('mortality:cause', { defaultValue: 'Cause' }),
         cell: ({ row }) => {
+          const causes = MORTALITY_CAUSES(t)
           const cause =
-            MORTALITY_CAUSES.find((c) => c.value === row.original.cause)
-              ?.label || row.original.cause
+            causes.find((c) => c.value === row.original.cause)?.label ||
+            row.original.cause
           return <Badge variant="outline">{cause}</Badge>
         },
       },
       {
         accessorKey: 'notes',
-        header: 'Notes',
+        header: t('common:notes', { defaultValue: 'Notes' }),
         cell: ({ row }) => {
           if (!row.original.notes) return null
           return (
@@ -383,7 +419,7 @@ function MortalityPage() {
               variant="ghost"
               size="icon"
               onClick={() => handleEdit(row.original)}
-              title="Edit"
+              title={t('common:edit', { defaultValue: 'Edit' })}
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -392,7 +428,7 @@ function MortalityPage() {
               size="icon"
               className="text-destructive hover:text-destructive"
               onClick={() => handleDelete(row.original)}
-              title="Delete"
+              title={t('common:delete', { defaultValue: 'Delete' })}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -430,16 +466,23 @@ function MortalityPage() {
       await updateMortalityRecordFn({
         data: {
           recordId: selectedRecord.id,
-          quantity: parseInt(formData.quantity),
-          cause: formData.cause as any,
-          notes: formData.notes || undefined,
+          data: {
+            quantity: parseInt(formData.quantity),
+            cause: formData.cause as any,
+            date: new Date(formData.date),
+            notes: formData.notes || undefined,
+          } as UpdateMortalityInput,
         },
       })
       setEditDialogOpen(false)
-      toast.success('Record updated')
+      toast.success(t('common:updated', { defaultValue: 'Record updated' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('common:error.update', { defaultValue: 'Failed to update' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -452,10 +495,14 @@ function MortalityPage() {
     try {
       await deleteMortalityRecordFn({ data: { recordId: selectedRecord.id } })
       setDeleteDialogOpen(false)
-      toast.success('Record deleted')
+      toast.success(t('common:deleted', { defaultValue: 'Record deleted' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('common:error.delete', { defaultValue: 'Failed to delete' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -464,13 +511,16 @@ function MortalityPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Mortality Records"
-        description="Record deaths to monitor flock health and identify potential issues early."
+        title={t('mortality:title', { defaultValue: 'Mortality Records' })}
+        description={t('mortality:description', {
+          defaultValue:
+            'Record deaths to monitor flock health and identify potential issues early.',
+        })}
         icon={TrendingDown}
         actions={
           <Button onClick={() => setDialogOpen(true)} variant="destructive">
             <Plus className="h-4 w-4 mr-2" />
-            Record Loss
+            {t('mortality:recordLoss', { defaultValue: 'Record Loss' })}
           </Button>
         }
       />
@@ -480,7 +530,7 @@ function MortalityPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Deaths
+                {t('mortality:totalDeaths', { defaultValue: 'Total Deaths' })}
               </CardTitle>
               <Skull className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
             </CardHeader>
@@ -494,7 +544,7 @@ function MortalityPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Health Alerts
+                {t('mortality:healthAlerts', { defaultValue: 'Health Alerts' })}
               </CardTitle>
               <HeartPulse className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
             </CardHeader>
@@ -502,11 +552,14 @@ function MortalityPage() {
               <div className="text-lg sm:text-2xl font-bold text-orange-600">
                 {summary.criticalAlerts}{' '}
                 <span className="text-sm font-normal text-muted-foreground">
-                  Critical
+                  {t('common:critical', { defaultValue: 'Critical' })}
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                {summary.totalAlerts} total alerts
+                {t('mortality:totalAlerts', {
+                  count: summary.totalAlerts,
+                  defaultValue: '{{count}} total alerts',
+                })}
               </p>
             </CardContent>
           </Card>
@@ -514,7 +567,7 @@ function MortalityPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Records
+                {t('common:records', { defaultValue: 'Records' })}
               </CardTitle>
               <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -523,7 +576,9 @@ function MortalityPage() {
                 {summary.recordCount}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                Recorded incidents
+                {t('mortality:recordedIncidents', {
+                  defaultValue: 'Recorded incidents',
+                })}
               </p>
             </CardContent>
           </Card>
@@ -550,7 +605,7 @@ function MortalityPage() {
                 </span>
               </div>
               <Link to={`/batches`} className="text-xs underline">
-                View
+                {t('common:view', { defaultValue: 'View' })}
               </Link>
             </div>
           ))}
@@ -567,7 +622,9 @@ function MortalityPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search records..."
+        searchPlaceholder={t('common:searchPlaceholder', {
+          defaultValue: 'Search records...',
+        })}
         isLoading={isLoading}
         filters={
           <Select
@@ -580,11 +637,16 @@ function MortalityPage() {
             }}
           >
             <SelectTrigger className="w-[180px] h-10">
-              <SelectValue>{searchParams.cause || 'All Causes'}</SelectValue>
+              <SelectValue>
+                {searchParams.cause ||
+                  t('mortality:allCauses', { defaultValue: 'All Causes' })}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Causes</SelectItem>
-              {MORTALITY_CAUSES.map((cause) => (
+              <SelectItem value="all">
+                {t('mortality:allCauses', { defaultValue: 'All Causes' })}
+              </SelectItem>
+              {MORTALITY_CAUSES(t).map((cause) => (
                 <SelectItem key={cause.value} value={cause.value}>
                   {cause.label}
                 </SelectItem>
@@ -602,19 +664,29 @@ function MortalityPage() {
           updateSearch({ q, page: 1 })
         }}
         emptyIcon={<Skull className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No mortality records"
-        emptyDescription="Hopefully you don't need to add any soon."
+        emptyTitle={t('mortality:emptyTitle', {
+          defaultValue: 'No mortality records',
+        })}
+        emptyDescription={t('mortality:emptyDescription', {
+          defaultValue: "Hopefully you don't need to add any soon.",
+        })}
       />
 
       {/* Record Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Record Mortality</DialogTitle>
+            <DialogTitle>
+              {t('mortality:recordLossTitle', {
+                defaultValue: 'Record Mortality',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="batch">Batch</Label>
+              <Label htmlFor="batch">
+                {t('batches:batch', { defaultValue: 'Batch' })}
+              </Label>
               <Select
                 value={formData.batchId}
                 onValueChange={(value) =>
@@ -625,13 +697,20 @@ function MortalityPage() {
                   <SelectValue>
                     {formData.batchId
                       ? batches.find((b) => b.id === formData.batchId)?.species
-                      : 'Select batch'}
+                      : t('batches:selectBatch', {
+                          defaultValue: 'Select batch',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {batches.map((batch) => (
                     <SelectItem key={batch.id} value={batch.id}>
-                      {batch.species} ({batch.currentQuantity} remaining)
+                      {batch.species} (
+                      {t('batches:remaining', {
+                        count: batch.currentQuantity,
+                        defaultValue: '{{count}} remaining',
+                      })}
+                      )
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -639,7 +718,9 @@ function MortalityPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cause">Cause</Label>
+              <Label htmlFor="cause">
+                {t('mortality:cause', { defaultValue: 'Cause' })}
+              </Label>
               <Select
                 value={formData.cause}
                 onValueChange={(value) =>
@@ -649,13 +730,16 @@ function MortalityPage() {
                 <SelectTrigger>
                   <SelectValue>
                     {formData.cause
-                      ? MORTALITY_CAUSES.find((c) => c.value === formData.cause)
-                          ?.label
-                      : 'Select cause'}
+                      ? MORTALITY_CAUSES(t).find(
+                          (c) => c.value === formData.cause,
+                        )?.label
+                      : t('mortality:selectCause', {
+                          defaultValue: 'Select cause',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {MORTALITY_CAUSES.map((c) => (
+                  {MORTALITY_CAUSES(t).map((c) => (
                     <SelectItem key={c.value} value={c.value}>
                       {c.label}
                     </SelectItem>
@@ -665,7 +749,9 @@ function MortalityPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity</Label>
+              <Label htmlFor="quantity">
+                {t('common:quantity', { defaultValue: 'Quantity' })}
+              </Label>
               <Input
                 id="quantity"
                 type="number"
@@ -679,7 +765,9 @@ function MortalityPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">
+                {t('common:date', { defaultValue: 'Date' })}
+              </Label>
               <Input
                 id="date"
                 type="date"
@@ -692,14 +780,18 @@ function MortalityPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">
+                {t('common:notes', { defaultValue: 'Notes' })}
+              </Label>
               <Textarea
                 id="notes"
                 value={formData.notes}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, notes: e.target.value }))
                 }
-                placeholder="Describe symptoms or incident..."
+                placeholder={t('mortality:notesPlaceholder', {
+                  defaultValue: 'Describe symptoms or incident...',
+                })}
               />
             </div>
 
@@ -716,7 +808,7 @@ function MortalityPage() {
                 onClick={() => setDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 type="submit"
@@ -725,7 +817,11 @@ function MortalityPage() {
                   isSubmitting || !formData.batchId || !formData.quantity
                 }
               >
-                {isSubmitting ? 'Saving...' : 'Record Loss'}
+                {isSubmitting
+                  ? t('common.saving', { defaultValue: 'Saving...' })
+                  : t('mortality.recordLossButton', {
+                      defaultValue: 'Record Loss',
+                    })}
               </Button>
             </DialogFooter>
           </form>
@@ -736,16 +832,22 @@ function MortalityPage() {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Mortality Record</DialogTitle>
+            <DialogTitle>
+              {t('mortality.editRecord', {
+                defaultValue: 'Edit Mortality Record',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Batch</Label>
+              <Label>{t('batches.batch', { defaultValue: 'Batch' })}</Label>
               <Input value={selectedRecord?.species || ''} disabled />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-cause">Cause</Label>
+              <Label htmlFor="edit-cause">
+                {t('mortality.cause', { defaultValue: 'Cause' })}
+              </Label>
               <Select
                 value={formData.cause}
                 onValueChange={(value) =>
@@ -754,12 +856,15 @@ function MortalityPage() {
               >
                 <SelectTrigger>
                   <SelectValue>
-                    {MORTALITY_CAUSES.find((c) => c.value === formData.cause)
-                      ?.label || 'Select cause'}
+                    {MORTALITY_CAUSES(t).find((c) => c.value === formData.cause)
+                      ?.label ||
+                      t('mortality.selectCause', {
+                        defaultValue: 'Select cause',
+                      })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {MORTALITY_CAUSES.map((c) => (
+                  {MORTALITY_CAUSES(t).map((c) => (
                     <SelectItem key={c.value} value={c.value}>
                       {c.label}
                     </SelectItem>
@@ -769,7 +874,9 @@ function MortalityPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-quantity">Quantity</Label>
+              <Label htmlFor="edit-quantity">
+                {t('common.quantity', { defaultValue: 'Quantity' })}
+              </Label>
               <Input
                 id="edit-quantity"
                 type="number"
@@ -783,7 +890,9 @@ function MortalityPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-notes">Notes</Label>
+              <Label htmlFor="edit-notes">
+                {t('common.notes', { defaultValue: 'Notes' })}
+              </Label>
               <Textarea
                 id="edit-notes"
                 value={formData.notes}
@@ -806,13 +915,15 @@ function MortalityPage() {
                 onClick={() => setEditDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common.cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !formData.quantity}
               >
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting
+                  ? t('common.saving', { defaultValue: 'Saving...' })
+                  : t('common.saveChanges', { defaultValue: 'Save Changes' })}
               </Button>
             </DialogFooter>
           </form>
@@ -823,25 +934,34 @@ function MortalityPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Mortality Record</DialogTitle>
+            <DialogTitle>
+              {t('mortality.deleteTitle', {
+                defaultValue: 'Delete Mortality Record',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Are you sure? This will restore {selectedRecord?.quantity} to the
-            batch quantity.
+            {t('mortality.deleteDescription', {
+              count: selectedRecord?.quantity,
+              defaultValue:
+                'Are you sure? This will restore {{count}} to the batch quantity.',
+            })}
           </p>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
             >
-              Cancel
+              {t('common.cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+              {isSubmitting
+                ? t('common.deleting', { defaultValue: 'Deleting...' })
+                : t('common.delete', { defaultValue: 'Delete' })}
             </Button>
           </DialogFooter>
         </DialogContent>

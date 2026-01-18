@@ -6,27 +6,19 @@ import type { ModuleKey } from '~/features/modules/types'
 import { useModules } from '~/features/modules/context'
 import { MODULE_METADATA } from '~/features/modules/constants'
 import { Alert, AlertDescription } from '~/components/ui/alert'
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '~/components/ui/alert-dialog'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { cn } from '~/lib/utils'
 
 export function ModuleSelector() {
-  const { enabledModules, toggleModule, canDisableModule, isLoading } =
-    useModules()
+  const { enabledModules, toggleModule, canDisableModule } = useModules()
   const [localEnabled, setLocalEnabled] = useState<Array<ModuleKey>>([])
   const [expandedModule, setExpandedModule] = useState<ModuleKey | null>(null)
-  const [pendingDisable, setPendingDisable] = useState<ModuleKey | null>(null)
+
+  // Unused state commented out for future use
+  // const [pendingDisable, setPendingDisable] = useState<ModuleKey | null>(null)
+  // const [isChecking, setIsChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isChecking, setIsChecking] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
   // Sync local state when enabledModules loads

@@ -1,7 +1,8 @@
+import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { AlertCircle, ChevronDown, ChevronUp, Users } from 'lucide-react'
 import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/features/batches/server'
 import { useFarm } from '~/features/farms/context'
@@ -37,25 +38,47 @@ interface BatchDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-const LIVESTOCK_TYPES = [
-  { value: 'poultry', label: 'Poultry' },
-  { value: 'fish', label: 'Fish' },
+const getLivestockTypes = (t: any) => [
+  {
+    value: 'poultry',
+    label: t('batches:poultry', { defaultValue: 'Poultry' }),
+  },
+  { value: 'fish', label: t('batches:fish', { defaultValue: 'Fish' }) },
 ]
 
-const SPECIES_OPTIONS = {
+const getSpeciesOptions = (t: any) => ({
   poultry: [
-    { value: 'broiler', label: 'Broiler' },
-    { value: 'layer', label: 'Layer' },
-    { value: 'cockerel', label: 'Cockerel' },
-    { value: 'turkey', label: 'Turkey' },
+    {
+      value: 'broiler',
+      label: t('batches:species_broiler', { defaultValue: 'Broiler' }),
+    },
+    {
+      value: 'layer',
+      label: t('batches:species_layer', { defaultValue: 'Layer' }),
+    },
+    {
+      value: 'cockerel',
+      label: t('batches:species_cockerel', { defaultValue: 'Cockerel' }),
+    },
+    {
+      value: 'turkey',
+      label: t('batches:species_turkey', { defaultValue: 'Turkey' }),
+    },
   ],
   fish: [
-    { value: 'catfish', label: 'Catfish' },
-    { value: 'tilapia', label: 'Tilapia' },
+    {
+      value: 'catfish',
+      label: t('batches:species_catfish', { defaultValue: 'Catfish' }),
+    },
+    {
+      value: 'tilapia',
+      label: t('batches:species_tilapia', { defaultValue: 'Tilapia' }),
+    },
   ],
-}
+})
 
 export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
+  const { t } = useTranslation(['batches', 'common'])
   const router = useRouter()
   const queryClient = useQueryClient()
   const { selectedFarmId, structures, suppliers } = useFarm()
@@ -87,7 +110,14 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFarmId) {
-      setError('Please select a farm first')
+      if (!selectedFarmId) {
+        setError(
+          t('messages.selectFarm', {
+            defaultValue: 'Please select a farm first',
+          }),
+        )
+        return
+      }
       return
     }
     if (!formData.livestockType) return
@@ -119,7 +149,7 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
           },
         },
       })
-      toast.success('Batch created')
+      toast.success(t('messages.created', { defaultValue: 'Batch created' }))
       onOpenChange(false)
       queryClient.invalidateQueries({
         queryKey: ['farm-modules', selectedFarmId],
@@ -141,19 +171,27 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
       setShowAdditional(false)
       router.invalidate()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create batch')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('messages.createError', {
+              defaultValue: 'Failed to create batch',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const speciesOptions = formData.livestockType
-    ? SPECIES_OPTIONS[formData.livestockType]
+    ? getSpeciesOptions(t)[formData.livestockType]
     : []
 
   const sourceSizeOptions = formData.livestockType
     ? SOURCE_SIZE_OPTIONS[formData.livestockType]
     : []
+
+  const livestockTypes = getLivestockTypes(t)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -161,9 +199,13 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Add New Batch
+            {t('create')}
           </DialogTitle>
-          <DialogDescription>Create a new livestock batch</DialogDescription>
+          <DialogDescription>
+            {t('description', {
+              defaultValue: 'Create a new livestock batch',
+            })}
+          </DialogDescription>
         </DialogHeader>
 
         {!selectedFarmId && (
@@ -177,7 +219,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="livestockType">Livestock Type</Label>
+            <Label htmlFor="livestockType">
+              {t('livestockType', { defaultValue: 'Livestock Type' })}
+            </Label>
             <Select
               value={formData.livestockType}
               onValueChange={(value) =>
@@ -192,14 +236,16 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
               <SelectTrigger>
                 <SelectValue>
                   {formData.livestockType
-                    ? LIVESTOCK_TYPES.find(
-                        (t) => t.value === formData.livestockType,
+                    ? livestockTypes.find(
+                        (lt) => lt.value === formData.livestockType,
                       )?.label
-                    : 'Select type'}
+                    : t('placeholders.selectType', {
+                        defaultValue: 'Select type',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {LIVESTOCK_TYPES.map((type) => (
+                {livestockTypes.map((type) => (
                   <SelectItem key={type.value} value={type.value}>
                     {type.label}
                   </SelectItem>
@@ -210,7 +256,7 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
 
           {formData.livestockType && (
             <div className="space-y-2">
-              <Label htmlFor="species">Species</Label>
+              <Label htmlFor="species">{t('species')}</Label>
               <Select
                 value={formData.species}
                 onValueChange={(value) =>
@@ -222,7 +268,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                     {formData.species
                       ? speciesOptions.find((s) => s.value === formData.species)
                           ?.label
-                      : 'Select species'}
+                      : t('placeholders.selectSpecies', {
+                          defaultValue: 'Select species',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -238,7 +286,7 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="initialQuantity">Quantity</Label>
+              <Label htmlFor="initialQuantity">{t('common:quantity')}</Label>
               <Input
                 id="initialQuantity"
                 type="number"
@@ -255,7 +303,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="costPerUnit">Cost/Unit ({currencySymbol})</Label>
+              <Label htmlFor="costPerUnit">
+                {t('common:price')} ({currencySymbol})
+              </Label>
               <Input
                 id="costPerUnit"
                 type="number"
@@ -275,7 +325,7 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="acquisitionDate">Acquisition Date</Label>
+            <Label htmlFor="acquisitionDate">{t('common:date')}</Label>
             <Input
               id="acquisitionDate"
               type="date"
@@ -298,7 +348,11 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                 type="button"
                 className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground"
               >
-                <span>Additional Details</span>
+                <span>
+                  {t('additionalDetails', {
+                    defaultValue: 'Additional Details',
+                  })}
+                </span>
                 {showAdditional ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (
@@ -308,7 +362,10 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
             </CollapsibleTrigger>
             <CollapsibleContent className="space-y-4 pt-4">
               <div className="space-y-2">
-                <Label htmlFor="batchName">Batch Name (Optional)</Label>
+                <Label htmlFor="batchName">
+                  {t('batchName', { defaultValue: 'Batch Name' })} (
+                  {t('common:optional', { defaultValue: 'Optional' })})
+                </Label>
                 <Input
                   id="batchName"
                   value={formData.batchName}
@@ -318,13 +375,18 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                       batchName: e.target.value,
                     }))
                   }
-                  placeholder="e.g., JAN-2026-BR-01"
+                  placeholder={t('batchNamePlaceholder', {
+                    defaultValue: 'e.g., JAN-2026-BR-01',
+                  })}
                 />
               </div>
 
               {formData.livestockType && (
                 <div className="space-y-2">
-                  <Label htmlFor="sourceSize">Source Size (Optional)</Label>
+                  <Label htmlFor="sourceSize">
+                    {t('sourceSize', { defaultValue: 'Source Size' })} (
+                    {t('common:optional', { defaultValue: 'Optional' })})
+                  </Label>
                   <Select
                     value={formData.sourceSize || undefined}
                     onValueChange={(value) =>
@@ -340,7 +402,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                           ? sourceSizeOptions.find(
                               (s) => s.value === formData.sourceSize,
                             )?.label
-                          : 'Select source size'}
+                          : t('selectSourceSize', {
+                              defaultValue: 'Select source size',
+                            })}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -356,7 +420,10 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
 
               {structures.length > 0 && (
                 <div className="space-y-2">
-                  <Label htmlFor="structureId">Structure (Optional)</Label>
+                  <Label htmlFor="structureId">
+                    {t('structure', { defaultValue: 'Structure' })} (
+                    {t('common:optional', { defaultValue: 'Optional' })})
+                  </Label>
                   <Select
                     value={formData.structureId || undefined}
                     onValueChange={(value) =>
@@ -372,7 +439,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                           ? structures.find(
                               (s) => s.id === formData.structureId,
                             )?.name
-                          : 'Select structure'}
+                          : t('selectStructure', {
+                              defaultValue: 'Select structure',
+                            })}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -388,7 +457,10 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
 
               {suppliers.length > 0 && (
                 <div className="space-y-2">
-                  <Label htmlFor="supplierId">Supplier (Optional)</Label>
+                  <Label htmlFor="supplierId">
+                    {t('supplier', { defaultValue: 'Supplier' })} (
+                    {t('common:optional', { defaultValue: 'Optional' })})
+                  </Label>
                   <Select
                     value={formData.supplierId || undefined}
                     onValueChange={(value) =>
@@ -403,7 +475,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                         {formData.supplierId
                           ? suppliers.find((s) => s.id === formData.supplierId)
                               ?.name
-                          : 'Select supplier'}
+                          : t('selectSupplier', {
+                              defaultValue: 'Select supplier',
+                            })}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -419,7 +493,10 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="targetHarvestDate">
-                  Target Harvest Date (Optional)
+                  {t('targetHarvestDate', {
+                    defaultValue: 'Target Harvest Date',
+                  })}{' '}
+                  ({t('common:optional', { defaultValue: 'Optional' })})
                 </Label>
                 <Input
                   id="targetHarvestDate"
@@ -435,7 +512,10 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Label htmlFor="notes">
+                  {t('common:notes', { defaultValue: 'Notes' })} (
+                  {t('common.optional', { defaultValue: 'Optional' })})
+                </Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
@@ -445,7 +525,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                       notes: e.target.value,
                     }))
                   }
-                  placeholder="Any additional notes about this batch..."
+                  placeholder={t('notesPlaceholder', {
+                    defaultValue: 'Any additional notes about this batch...',
+                  })}
                   rows={3}
                 />
               </div>
@@ -465,7 +547,7 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
@@ -477,7 +559,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                 !formData.costPerUnit
               }
             >
-              {isSubmitting ? 'Creating...' : 'Create Batch'}
+              {isSubmitting
+                ? t('common:saving', { defaultValue: 'Creating...' })
+                : t('create')}
             </Button>
           </DialogFooter>
         </form>

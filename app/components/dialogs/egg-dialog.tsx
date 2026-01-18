@@ -1,8 +1,9 @@
 import { toast } from 'sonner'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { Egg } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { createEggRecordFn } from '~/features/eggs/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -23,7 +24,6 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 
-// Server function to get poultry batches for the farm
 const getPoultryBatchesFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
@@ -53,6 +53,7 @@ interface EggDialogProps {
 }
 
 export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
+  const { t } = useTranslation(['eggs', 'batches', 'common'])
   const router = useRouter()
   const [batches, setBatches] = useState<Array<Batch>>([])
   const [formData, setFormData] = useState({
@@ -65,7 +66,6 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  // Load batches when dialog opens
   const handleOpenChange = async (isOpen: boolean) => {
     onOpenChange(isOpen)
     if (isOpen) {
@@ -97,7 +97,9 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
           },
         },
       })
-      toast.success('Egg record created')
+      toast.success(
+        t('messages.recorded', { defaultValue: 'Egg record created' }),
+      )
       handleOpenChange(false)
       setFormData({
         batchId: '',
@@ -109,7 +111,11 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
       router.invalidate()
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to record egg collection',
+        err instanceof Error
+          ? err.message
+          : t('error.record', {
+              defaultValue: 'Failed to record egg collection',
+            }),
       )
     } finally {
       setIsSubmitting(false)
@@ -128,15 +134,21 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Egg className="h-5 w-5" />
-            Record Egg Collection
+            {t('recordCollection', {
+              defaultValue: 'Record Egg Collection',
+            })}
           </DialogTitle>
           <DialogDescription>
-            Log today's egg collection from a layer batch
+            {t('recordDescription', {
+              defaultValue: "Log today's egg collection from a layer batch",
+            })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="batchId">Layer Batch</Label>
+            <Label htmlFor="batchId">
+              {t('layerBatch', { defaultValue: 'Layer Batch' })}
+            </Label>
             <Select
               value={formData.batchId}
               onValueChange={(value) =>
@@ -146,27 +158,34 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
               <SelectTrigger>
                 <SelectValue>
                   {formData.batchId
-                    ? `${selectedBatch?.species} (${selectedBatch?.currentQuantity} birds)`
-                    : 'Select batch'}
+                    ? `${selectedBatch?.species} (${selectedBatch?.currentQuantity} ${t('birds', { defaultValue: 'birds' })})`
+                    : t('batches:selectBatch', {
+                        defaultValue: 'Select batch',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {batches.map((batch) => (
                   <SelectItem key={batch.id} value={batch.id}>
-                    {batch.species} ({batch.currentQuantity} birds)
+                    {batch.species} ({batch.currentQuantity}{' '}
+                    {t('birds', { defaultValue: 'birds' })})
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             {batches.length === 0 && (
               <p className="text-xs text-muted-foreground">
-                No active poultry batches found
+                {t('noBatches', {
+                  defaultValue: 'No active poultry batches found',
+                })}
               </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date">Collection Date</Label>
+            <Label htmlFor="date">
+              {t('collectionDate', { defaultValue: 'Collection Date' })}
+            </Label>
             <Input
               id="date"
               type="date"
@@ -179,7 +198,9 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="quantityCollected">Eggs Collected</Label>
+            <Label htmlFor="quantityCollected">
+              {t('collected', { defaultValue: 'Eggs Collected' })}
+            </Label>
             <Input
               id="quantityCollected"
               type="number"
@@ -198,7 +219,9 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="quantityBroken">Broken</Label>
+              <Label htmlFor="quantityBroken">
+                {t('broken', { defaultValue: 'Broken' })}
+              </Label>
               <Input
                 id="quantityBroken"
                 type="number"
@@ -215,7 +238,9 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="quantitySold">Sold</Label>
+              <Label htmlFor="quantitySold">
+                {t('sold', { defaultValue: 'Sold' })}
+              </Label>
               <Input
                 id="quantitySold"
                 type="number"
@@ -236,19 +261,19 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
           {collected > 0 && (
             <div className="p-3 bg-muted rounded-lg space-y-1">
               <div className="flex justify-between text-sm">
-                <span>Collected:</span>
+                <span>{t('collected', { defaultValue: 'Collected' })}:</span>
                 <span className="font-medium">{collected}</span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Broken:</span>
+                <span>{t('broken', { defaultValue: 'Broken' })}:</span>
                 <span>-{broken}</span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Sold:</span>
+                <span>{t('sold', { defaultValue: 'Sold' })}:</span>
                 <span>-{sold}</span>
               </div>
               <div className="border-t pt-1 flex justify-between text-sm font-medium">
-                <span>In Stock:</span>
+                <span>{t('inStock', { defaultValue: 'In Stock' })}:</span>
                 <span className={remaining < 0 ? 'text-destructive' : ''}>
                   {remaining}
                 </span>
@@ -269,7 +294,7 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
@@ -277,7 +302,11 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
                 isSubmitting || !formData.batchId || !formData.quantityCollected
               }
             >
-              {isSubmitting ? 'Recording...' : 'Record Collection'}
+              {isSubmitting
+                ? t('common:recording', { defaultValue: 'Recording...' })
+                : t('recordCollection', {
+                    defaultValue: 'Record Collection',
+                  })}
             </Button>
           </DialogFooter>
         </form>

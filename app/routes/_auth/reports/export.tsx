@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useTranslation } from 'react-i18next'
 import type { ExportOptions } from '~/features/export/server'
 import { generateExportData } from '~/features/export/server'
 
@@ -43,6 +44,7 @@ function getDefaultEndDate() {
 
 function ExportPage() {
   const data = Route.useLoaderData()
+  const { t } = useTranslation()
 
   // Trigger download
   if (typeof window !== 'undefined') {
@@ -63,9 +65,9 @@ function ExportPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
-        <p className="text-lg">Generating export...</p>
+        <p className="text-lg">{t('reports.export.generating')}</p>
         <p className="text-sm text-muted-foreground mt-2">
-          Your download should start automatically.
+          {t('reports.export.autoDownload')}
         </p>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ArrowLeft, Edit, Printer, Trash2 } from 'lucide-react'
@@ -48,6 +49,7 @@ export const Route = createFileRoute('/_auth/invoices/$invoiceId')({
 })
 
 function InvoiceDetailPage() {
+  const { t } = useTranslation()
   const invoice = Route.useLoaderData()
   const navigate = useNavigate()
   const params = Route.useParams()
@@ -59,7 +61,7 @@ function InvoiceDetailPage() {
     return (
       <div className="min-h-screen bg-background">
         <main className="space-y-6">
-          <p>Invoice not found</p>
+          <p>{t('invoices.detail.notFound')}</p>
         </main>
       </div>
     )
@@ -68,11 +70,11 @@ function InvoiceDetailPage() {
   const handleStatusChange = async (status: 'unpaid' | 'partial' | 'paid') => {
     try {
       await changeStatus({ data: { invoiceId: params.invoiceId, status } })
-      toast.success('Invoice status updated')
+      toast.success(t('invoices.messages.statusUpdated'))
       window.location.reload()
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : 'Failed to update status',
+        err instanceof Error ? err.message : t('invoices.messages.statusError'),
       )
     }
   }
@@ -80,11 +82,11 @@ function InvoiceDetailPage() {
   const handleDeleteConfirm = async () => {
     try {
       await removeInvoice({ data: { invoiceId: params.invoiceId } })
-      toast.success('Invoice deleted')
+      toast.success(t('invoices.messages.deleted'))
       navigate({ to: '/invoices' })
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : 'Failed to delete invoice',
+        err instanceof Error ? err.message : t('invoices.messages.deleteError'),
       )
     }
   }
@@ -102,26 +104,26 @@ function InvoiceDetailPage() {
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Invoices
+            {t('invoices.detail.back')}
           </Link>
           <div className="flex gap-2">
             <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3 min-h-[44px]">
               <Edit className="h-4 w-4 mr-2" />
-              Edit
+              {t('common.edit')}
             </button>
             <button
               onClick={handlePrint}
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3 min-h-[44px]"
             >
               <Printer className="h-4 w-4 mr-2" />
-              Print
+              {t('invoices.actions.print')}
             </button>
             <button
               onClick={() => setDeleteDialogOpen(true)}
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground h-9 px-3 min-h-[44px]"
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete
+              {t('common.delete')}
             </button>
           </div>
         </div>
@@ -131,7 +133,9 @@ function InvoiceDetailPage() {
           {/* Header */}
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h1 className="text-2xl font-bold">INVOICE</h1>
+              <h1 className="text-2xl font-bold">
+                {t('invoices.detail.title')}
+              </h1>
               <p className="text-muted-foreground font-mono">
                 {invoice.invoiceNumber}
               </p>
@@ -148,7 +152,7 @@ function InvoiceDetailPage() {
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                Bill To
+                {t('invoices.detail.billTo')}
               </h3>
               <p className="font-medium">{invoice.customerName}</p>
               {invoice.customerPhone && (
@@ -163,13 +167,15 @@ function InvoiceDetailPage() {
             </div>
             <div className="text-right">
               <div className="mb-2">
-                <span className="text-sm text-muted-foreground">Date: </span>
+                <span className="text-sm text-muted-foreground">
+                  {t('invoices.labels.date')}:{' '}
+                </span>
                 <span>{formatDate(invoice.date)}</span>
               </div>
               {invoice.dueDate && (
                 <div className="mb-2">
                   <span className="text-sm text-muted-foreground">
-                    Due Date:{' '}
+                    {t('invoices.labels.dueDate')}:{' '}
                   </span>
                   <span>{formatDate(invoice.dueDate)}</span>
                 </div>
@@ -184,7 +190,7 @@ function InvoiceDetailPage() {
                         : 'bg-destructive/10 text-destructive'
                   }`}
                 >
-                  {invoice.status.toUpperCase()}
+                  {t('invoices.status.' + invoice.status).toUpperCase()}
                 </span>
               </div>
             </div>
@@ -195,10 +201,18 @@ function InvoiceDetailPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b-2">
-                  <th className="text-left py-3 font-medium">Description</th>
-                  <th className="text-right py-3 font-medium">Qty</th>
-                  <th className="text-right py-3 font-medium">Unit Price</th>
-                  <th className="text-right py-3 font-medium">Total</th>
+                  <th className="text-left py-3 font-medium">
+                    {t('invoices.detail.items.description')}
+                  </th>
+                  <th className="text-right py-3 font-medium">
+                    {t('invoices.detail.items.qty')}
+                  </th>
+                  <th className="text-right py-3 font-medium">
+                    {t('invoices.detail.items.unitPrice')}
+                  </th>
+                  <th className="text-right py-3 font-medium">
+                    {t('invoices.detail.items.total')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -226,7 +240,7 @@ function InvoiceDetailPage() {
               <tfoot>
                 <tr>
                   <td colSpan={3} className="py-4 text-right font-medium">
-                    Total:
+                    {t('invoices.detail.items.total')}:
                   </td>
                   <td className="py-4 text-right text-xl font-bold">
                     {formatCurrency(parseFloat(invoice.totalAmount))}
@@ -240,7 +254,7 @@ function InvoiceDetailPage() {
           {invoice.notes && (
             <div className="mb-8">
               <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                Notes
+                {t('invoices.detail.notes')}
               </h3>
               <p className="text-sm">{invoice.notes}</p>
             </div>
@@ -248,7 +262,9 @@ function InvoiceDetailPage() {
 
           {/* Status Actions */}
           <div className="print:hidden border-t pt-6">
-            <h3 className="text-sm font-medium mb-3">Update Status</h3>
+            <h3 className="text-sm font-medium mb-3">
+              {t('invoices.detail.updateStatus')}
+            </h3>
             <div className="flex gap-2">
               <button
                 onClick={() => handleStatusChange('unpaid')}
@@ -259,7 +275,7 @@ function InvoiceDetailPage() {
                     : 'border border-input hover:bg-muted'
                 }`}
               >
-                Unpaid
+                {t('invoices.status.unpaid')}
               </button>
               <button
                 onClick={() => handleStatusChange('partial')}
@@ -270,7 +286,7 @@ function InvoiceDetailPage() {
                     : 'border border-input hover:bg-muted'
                 }`}
               >
-                Partial
+                {t('invoices.status.partial')}
               </button>
               <button
                 onClick={() => handleStatusChange('paid')}
@@ -281,7 +297,7 @@ function InvoiceDetailPage() {
                     : 'border border-input hover:bg-muted'
                 }`}
               >
-                Paid
+                {t('invoices.status.paid')}
               </button>
             </div>
           </div>
@@ -291,10 +307,11 @@ function InvoiceDetailPage() {
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Delete Invoice</DialogTitle>
+              <DialogTitle>{t('invoices.detail.deleteTitle')}</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete invoice #{invoice.invoiceNumber}
-                ? This action cannot be undone.
+                {t('invoices.detail.deleteDesc', {
+                  number: invoice.invoiceNumber,
+                })}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -302,10 +319,10 @@ function InvoiceDetailPage() {
                 variant="outline"
                 onClick={() => setDeleteDialogOpen(false)}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button variant="destructive" onClick={handleDeleteConfirm}>
-                Delete
+                {t('common.delete')}
               </Button>
             </DialogFooter>
           </DialogContent>

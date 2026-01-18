@@ -1,9 +1,10 @@
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { LogOut, User as UserIcon, X } from 'lucide-react'
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NavSection } from './nav-section'
 import type { User } from '~/features/auth/types'
-import { NAVIGATION_SECTIONS } from '~/components/navigation'
+import { getNavigationSections } from '~/components/navigation'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import { FarmSelector } from '~/components/farms/selector'
@@ -19,22 +20,26 @@ interface SidebarProps {
 }
 
 export function Sidebar({ className, onClose, user }: SidebarProps) {
-  const location = useLocation()
+  const { t } = useTranslation(['common'])
   const { enabledModules, isLoading } = useModules()
+
+  const sections = useMemo(() => getNavigationSections(t), [t])
 
   const filteredSections = useMemo(() => {
     // Show all navigation when no modules loaded (no farm selected or loading)
     if (enabledModules.length === 0 && !isLoading) {
-      return NAVIGATION_SECTIONS
+      return sections
     }
 
-    return NAVIGATION_SECTIONS.map((section) => ({
-      ...section,
-      items: filterNavigationByModules(section.items, enabledModules),
-    })).filter((section) => section.items.length > 0)
-  }, [enabledModules, isLoading])
+    return sections
+      .map((section) => ({
+        ...section,
+        items: filterNavigationByModules(section.items, enabledModules),
+      }))
+      .filter((section) => section.items.length > 0)
+  }, [enabledModules, isLoading, sections])
 
-  const userName = user.name || 'User'
+  const userName = user.name || t('common:user')
   const userEmail = user.email || ''
 
   return (
@@ -104,7 +109,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
             size="sm"
           >
             <LogOut className="h-4 w-4" />
-            Sign Out
+            {t('common:signOut')}
           </Button>
         </Link>
       </div>

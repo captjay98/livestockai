@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { ChevronDown, ChevronUp, ShoppingCart } from 'lucide-react'
@@ -77,6 +78,7 @@ const LIVESTOCK_TYPES = [
 ]
 
 export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
+  const { t } = useTranslation(['sales', 'batches', 'customers', 'common'])
   const router = useRouter()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const [batches, setBatches] = useState<Array<Batch>>([])
@@ -138,7 +140,7 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
           },
         },
       })
-      toast.success('Sale recorded')
+      toast.success(t('messages.recorded', { defaultValue: 'Sale recorded' }))
       handleOpenChange(false)
       setFormData({
         livestockType: '',
@@ -153,7 +155,11 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
       })
       router.invalidate()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to record sale')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('error.record', { defaultValue: 'Failed to record sale' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -172,13 +178,21 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
-            Record Sale
+            {t('recordSale', { defaultValue: 'Record Sale' })}
           </DialogTitle>
-          <DialogDescription>Record a new sale transaction</DialogDescription>
+          <DialogDescription>
+            {t('recordDescription', {
+              defaultValue: 'Record a new sale transaction',
+            })}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="livestockType">What are you selling?</Label>
+            <Label htmlFor="livestockType">
+              {t('sellingWhat', {
+                defaultValue: 'What are you selling?',
+              })}
+            </Label>
             <Select
               value={formData.livestockType}
               onValueChange={(value) =>
@@ -193,15 +207,17 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
                 <SelectValue>
                   {formData.livestockType
                     ? LIVESTOCK_TYPES.find(
-                        (t) => t.value === formData.livestockType,
+                        (type) => type.value === formData.livestockType,
                       )?.label
-                    : 'Select type'}
+                    : t('common:selectType', { defaultValue: 'Select type' })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {LIVESTOCK_TYPES.map((type) => (
                   <SelectItem key={type.value} value={type.value}>
-                    {type.label}
+                    {t(`common:livestock.${type.value}`, {
+                      defaultValue: type.label,
+                    })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -213,7 +229,9 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
             filteredBatches.length > 0 && (
               <div className="space-y-2">
                 <Label htmlFor="batchId">
-                  Batch (Optional - deducts from stock)
+                  {t('batches:batchOptional', {
+                    defaultValue: 'Batch (Optional - deducts from stock)',
+                  })}
                 </Label>
                 <Select
                   value={formData.batchId || undefined}
@@ -224,14 +242,21 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
                   <SelectTrigger>
                     <SelectValue>
                       {formData.batchId
-                        ? `${selectedBatch?.species} (${selectedBatch?.currentQuantity} available)`
-                        : 'Select batch (optional)'}
+                        ? `${selectedBatch?.species} (${t('batches:availableCount', { count: selectedBatch?.currentQuantity, defaultValue: '{{count}} available' })})`
+                        : t('batches:selectBatchOptional', {
+                            defaultValue: 'Select batch (optional)',
+                          })}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {filteredBatches.map((batch) => (
                       <SelectItem key={batch.id} value={batch.id}>
-                        {batch.species} ({batch.currentQuantity} available)
+                        {batch.species} (
+                        {t('batches.availableCount', {
+                          count: batch.currentQuantity,
+                          defaultValue: '{{count}} available',
+                        })}
+                        )
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -241,7 +266,9 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity</Label>
+              <Label htmlFor="quantity">
+                {t('common:quantity', { defaultValue: 'Quantity' })}
+              </Label>
               <Input
                 id="quantity"
                 type="number"
@@ -261,7 +288,12 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="unitPrice">Price/Unit ({currencySymbol})</Label>
+              <Label htmlFor="unitPrice">
+                {t('pricePerUnit', {
+                  symbol: currencySymbol,
+                  defaultValue: 'Price/Unit ({{symbol}})',
+                })}
+              </Label>
               <Input
                 id="unitPrice"
                 type="number"
@@ -281,7 +313,9 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date">Sale Date</Label>
+            <Label htmlFor="date">
+              {t('saleDate', { defaultValue: 'Sale Date' })}
+            </Label>
             <Input
               id="date"
               type="date"
@@ -295,7 +329,11 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
 
           {customers.length > 0 && (
             <div className="space-y-2">
-              <Label>Customer (Optional)</Label>
+              <Label>
+                {t('customers:customerOptional', {
+                  defaultValue: 'Customer (Optional)',
+                })}
+              </Label>
               <Select
                 value={formData.customerId || undefined}
                 onValueChange={(value) =>
@@ -307,7 +345,9 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
                     {formData.customerId
                       ? customers.find((c) => c.id === formData.customerId)
                           ?.name
-                      : 'Select customer'}
+                      : t('customers:selectCustomer', {
+                          defaultValue: 'Select customer',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -322,7 +362,9 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
           )}
 
           <div className="space-y-2">
-            <Label>Payment Status</Label>
+            <Label>
+              {t('paymentStatus', { defaultValue: 'Payment Status' })}
+            </Label>
             <Select
               value={formData.paymentStatus}
               onValueChange={(value) =>
@@ -335,17 +377,17 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
             >
               <SelectTrigger>
                 <SelectValue>
-                  {
-                    PAYMENT_STATUSES.find(
+                  {t(`status.${formData.paymentStatus}`, {
+                    defaultValue: PAYMENT_STATUSES.find(
                       (s) => s.value === formData.paymentStatus,
-                    )?.label
-                  }
+                    )?.label,
+                  })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {PAYMENT_STATUSES.map((s) => (
                   <SelectItem key={s.value} value={s.value}>
-                    {s.label}
+                    {t(`status.${s.value}`, { defaultValue: s.label })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -362,13 +404,20 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
             ) : (
               <ChevronDown className="h-4 w-4" />
             )}
-            {showAdvanced ? 'Hide' : 'Show'} additional details
+            {showAdvanced
+              ? t('common:hide', { defaultValue: 'Hide' })
+              : t('common:show', { defaultValue: 'Show' })}{' '}
+            {t('additionalDetails', {
+              defaultValue: 'additional details',
+            })}
           </button>
 
           {showAdvanced && (
             <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
               <div className="space-y-2">
-                <Label>Payment Method</Label>
+                <Label>
+                  {t('paymentMethod', { defaultValue: 'Payment Method' })}
+                </Label>
                 <Select
                   value={formData.paymentMethod || undefined}
                   onValueChange={(value) =>
@@ -381,29 +430,37 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
                   <SelectTrigger>
                     <SelectValue>
                       {formData.paymentMethod
-                        ? PAYMENT_METHODS.find(
-                            (m) => m.value === formData.paymentMethod,
-                          )?.label
-                        : 'Select method'}
+                        ? t(`method.${formData.paymentMethod}`, {
+                            defaultValue: PAYMENT_METHODS.find(
+                              (m) => m.value === formData.paymentMethod,
+                            )?.label,
+                          })
+                        : t('selectMethod', {
+                            defaultValue: 'Select method',
+                          })}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {PAYMENT_METHODS.map((m) => (
                       <SelectItem key={m.value} value={m.value}>
-                        {m.label}
+                        {t(`method.${m.value}`, {
+                          defaultValue: m.label,
+                        })}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Notes</Label>
+                <Label>{t('common:notes', { defaultValue: 'Notes' })}</Label>
                 <Textarea
                   value={formData.notes}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, notes: e.target.value }))
                   }
-                  placeholder="Delivery details, etc."
+                  placeholder={t('notesPlaceholder', {
+                    defaultValue: 'Delivery details, etc.',
+                  })}
                   rows={2}
                 />
               </div>
@@ -413,7 +470,7 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
           {formData.quantity && formData.unitPrice && (
             <div className="p-3 bg-muted rounded-lg">
               <p className="text-sm font-medium">
-                Total:{' '}
+                {t('common:total', { defaultValue: 'Total' })}:{' '}
                 <span className="text-lg">
                   {formatCurrency(
                     parseInt(formData.quantity) *
@@ -437,7 +494,7 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
@@ -448,7 +505,9 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
                 !formData.unitPrice
               }
             >
-              {isSubmitting ? 'Recording...' : 'Record Sale'}
+              {isSubmitting
+                ? t('common:recording', { defaultValue: 'Recording...' })
+                : t('recordSale', { defaultValue: 'Record Sale' })}
             </Button>
           </DialogFooter>
         </form>

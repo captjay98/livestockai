@@ -7,6 +7,7 @@ import {
 import { createServerFn } from '@tanstack/react-start'
 import { Eye, FileText, Plus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { InvoiceRecord, PaginatedResult } from '~/features/invoices/server'
 import { getInvoicesPaginatedFn } from '~/features/invoices/server'
@@ -106,6 +107,7 @@ export const Route = createFileRoute('/_auth/invoices/')({
 })
 
 function InvoicesPage() {
+  const { t } = useTranslation(['invoices', 'common'])
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -174,7 +176,7 @@ function InvoicesPage() {
     () => [
       {
         accessorKey: 'invoiceNumber',
-        header: 'Invoice #',
+        header: t('labels.invoiceNumber'),
         cell: ({ row }) => (
           <span className="font-mono text-xs">
             {row.original.invoiceNumber}
@@ -183,25 +185,25 @@ function InvoicesPage() {
       },
       {
         accessorKey: 'customerName',
-        header: 'Customer',
+        header: t('labels.customer'),
         cell: ({ row }) => (
           <span className="font-medium">{row.original.customerName}</span>
         ),
       },
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: t('labels.date'),
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'dueDate',
-        header: 'Due Date',
+        header: t('labels.dueDate'),
         cell: ({ row }) =>
           row.original.dueDate ? formatDate(row.original.dueDate) : '-',
       },
       {
         accessorKey: 'totalAmount',
-        header: 'Amount',
+        header: t('labels.amount'),
         cell: ({ row }) => (
           <span className="font-medium">
             {formatCurrency(row.original.totalAmount)}
@@ -210,7 +212,7 @@ function InvoicesPage() {
       },
       {
         accessorKey: 'status',
-        header: 'Status',
+        header: t('labels.status'),
         cell: ({ row }) => (
           <Badge
             variant={
@@ -228,8 +230,9 @@ function InvoicesPage() {
                   : 'bg-destructive/15 text-destructive hover:bg-destructive/25'
             }
           >
-            {row.original.status.charAt(0).toUpperCase() +
-              row.original.status.slice(1)}
+            {t('status.' + row.original.status, {
+              defaultValue: row.original.status,
+            })}
           </Badge>
         ),
       },
@@ -243,7 +246,7 @@ function InvoicesPage() {
               onClick={() => setViewInvoice(row.original)}
             >
               <Eye className="h-4 w-4 mr-2" />
-              View
+              {t('common.view')}
             </Button>
           </div>
         ),
@@ -255,13 +258,13 @@ function InvoicesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Invoices"
-        description="Manage customer invoices"
+        title={t('title')}
+        description={t('description')}
         icon={FileText}
         actions={
           <Button onClick={() => setCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Create Invoice
+            {t('create')}
           </Button>
         }
       />
@@ -275,14 +278,18 @@ function InvoicesPage() {
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue>
-              {searchParams.status || 'Filter by status'}
+              {searchParams.status
+                ? t('status.' + searchParams.status, {
+                    defaultValue: searchParams.status,
+                  })
+                : t('labels.filterStatus')}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="paid">Paid</SelectItem>
-            <SelectItem value="partial">Partial</SelectItem>
-            <SelectItem value="unpaid">Unpaid</SelectItem>
+            <SelectItem value="all">{t('status.all')}</SelectItem>
+            <SelectItem value="paid">{t('status.paid')}</SelectItem>
+            <SelectItem value="partial">{t('status.partial')}</SelectItem>
+            <SelectItem value="unpaid">{t('status.unpaid')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -297,7 +304,7 @@ function InvoicesPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search invoices..."
+        searchPlaceholder={t('placeholders.search')}
         isLoading={isLoading}
         onPaginationChange={(page, pageSize) => {
           updateSearch({ page, pageSize })
@@ -309,8 +316,8 @@ function InvoicesPage() {
           updateSearch({ q, page: 1 })
         }}
         emptyIcon={<FileText className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No invoices"
-        emptyDescription="Create invoices to track payments."
+        emptyTitle={t('placeholders.empty')}
+        emptyDescription={t('placeholders.emptyDesc')}
       />
 
       {selectedFarmId && (
@@ -328,18 +335,21 @@ function InvoicesPage() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Invoice {viewInvoice?.invoiceNumber}</DialogTitle>
+            <DialogTitle>
+              {t('labels.invoice', { defaultValue: 'Invoice' })}{' '}
+              {viewInvoice?.invoiceNumber}
+            </DialogTitle>
             <DialogDescription>{viewInvoice?.customerName}</DialogDescription>
           </DialogHeader>
           {viewInvoice && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Date</p>
+                  <p className="text-muted-foreground">{t('labels.date')}</p>
                   <p className="font-medium">{formatDate(viewInvoice.date)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Due Date</p>
+                  <p className="text-muted-foreground">{t('labels.dueDate')}</p>
                   <p className="font-medium">
                     {viewInvoice.dueDate
                       ? formatDate(viewInvoice.dueDate)
@@ -347,13 +357,13 @@ function InvoicesPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Amount</p>
+                  <p className="text-muted-foreground">{t('labels.amount')}</p>
                   <p className="font-medium">
                     {formatCurrency(viewInvoice.totalAmount)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Status</p>
+                  <p className="text-muted-foreground">{t('labels.status')}</p>
                   <Badge
                     variant={
                       viewInvoice.status === 'paid'
@@ -370,18 +380,19 @@ function InvoicesPage() {
                           : 'bg-destructive/15 text-destructive'
                     }
                   >
-                    {viewInvoice.status.charAt(0).toUpperCase() +
-                      viewInvoice.status.slice(1)}
+                    {t('status.' + viewInvoice.status, {
+                      defaultValue: viewInvoice.status,
+                    })}
                   </Badge>
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setViewInvoice(null)}>
-                  Close
+                  {t('common.close')}
                 </Button>
                 <Button asChild>
                   <Link to={`/invoices/${viewInvoice.id}`}>
-                    View Full Details
+                    {t('viewFull')}
                   </Link>
                 </Button>
               </DialogFooter>

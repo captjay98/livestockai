@@ -1,7 +1,11 @@
 import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useTranslation } from 'react-i18next'
 import {
   Activity,
+  // ... (omitting lines 5-171 to keep context manageable, I will use multi_replace or targeting specific blocks if possible)
+  // The file view showed lines 1-800.
+  // I will split this into imports and then the component body edits.
   AlertTriangle,
   Beef,
   Bird,
@@ -171,6 +175,15 @@ function TrendingDownIcon({ className }: { className?: string }) {
 }
 
 function DashboardPage() {
+  const { t } = useTranslation([
+    'dashboard',
+    'common',
+    'batches',
+    'farms',
+    'inventory',
+    'expenses',
+    'sales',
+  ])
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
@@ -181,42 +194,42 @@ function DashboardPage() {
   const LIVESTOCK_CARDS = {
     poultry: {
       icon: Bird,
-      label: 'Poultry',
+      label: t('batches:poultry'),
       bgClass: 'bg-primary/10',
       textClass: 'text-primary',
       getValue: (s: typeof stats) => s?.inventory.totalPoultry || 0,
     },
     aquaculture: {
       icon: Fish,
-      label: 'Fish',
+      label: t('batches:fish'),
       bgClass: 'bg-blue-100 dark:bg-blue-900/30',
       textClass: 'text-blue-600 dark:text-blue-400',
       getValue: (s: typeof stats) => s?.inventory.totalFish || 0,
     },
     cattle: {
       icon: Beef,
-      label: 'Cattle',
+      label: t('common:cattle', { defaultValue: 'Cattle' }),
       bgClass: 'bg-orange-100 dark:bg-orange-900/30',
       textClass: 'text-orange-600 dark:text-orange-400',
       getValue: (s: typeof stats) => s?.inventory.totalCattle || 0,
     },
     goats: {
       icon: Rabbit,
-      label: 'Goats',
+      label: t('common:goats', { defaultValue: 'Goats' }),
       bgClass: 'bg-green-100 dark:bg-green-900/30',
       textClass: 'text-green-600 dark:text-green-400',
       getValue: (s: typeof stats) => s?.inventory.totalGoats || 0,
     },
     sheep: {
       icon: Cloud,
-      label: 'Sheep',
+      label: t('common:sheep', { defaultValue: 'Sheep' }),
       bgClass: 'bg-purple-100 dark:bg-purple-900/30',
       textClass: 'text-purple-600 dark:text-purple-400',
       getValue: (s: typeof stats) => s?.inventory.totalSheep || 0,
     },
     bees: {
       icon: Hexagon,
-      label: 'Bees',
+      label: t('common:bees', { defaultValue: 'Bees' }),
       bgClass: 'bg-amber-100 dark:bg-amber-900/30',
       textClass: 'text-amber-600 dark:text-amber-400',
       getValue: (s: typeof stats) => s?.inventory.totalBees || 0,
@@ -299,15 +312,17 @@ function DashboardPage() {
           <Building2 className="h-10 w-10 sm:h-12 sm:w-12 text-foreground mx-auto" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
-          Welcome to OpenLivestock
+          {t('welcome', { defaultValue: 'Welcome to OpenLivestock' })}
         </h1>
         <p className="text-muted-foreground text-base max-w-md mb-6">
-          Your complete poultry and fishery management solution. Start by
-          creating your first farm.
+          {t('welcomeDescription', {
+            defaultValue:
+              'Your complete poultry and fishery management solution. Start by creating your first farm.',
+          })}
         </p>
         <Link to="/farms" className={buttonVariants({ size: 'lg' })}>
           <Plus className="h-5 w-5 mr-2" />
-          Create Your First Farm
+          {t('farms:createFirst', { defaultValue: 'Create Your First Farm' })}
         </Link>
       </div>
     )
@@ -335,10 +350,12 @@ function DashboardPage() {
       <div className="flex flex-col gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Dashboard
+            {t('common:dashboard')}
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Here's what's happening on your farms.
+            {t('subtitle', {
+              defaultValue: "Here's what's happening on your farms.",
+            })}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -351,7 +368,7 @@ function DashboardPage() {
                   {selectedFarmId
                     ? farms.find((f) => f.id === selectedFarmId)?.name ||
                       farms[0]?.name
-                    : 'All Farms'}
+                    : t('common:allFarms', { defaultValue: 'All Farms' })}
                 </span>
                 {selectedFarmId && (
                   <button
@@ -372,7 +389,10 @@ function DashboardPage() {
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
             <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span>Last updated: Just now</span>
+            <span>
+              {t('common:lastUpdated', { defaultValue: 'Last updated' })}:{' '}
+              {t('common:justNow', { defaultValue: 'Just now' })}
+            </span>
           </div>
         </div>
       </div>
@@ -382,14 +402,18 @@ function DashboardPage() {
           <CardContent className="py-12 sm:py-16 text-center">
             <Package className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
             <h3 className="text-lg font-semibold mb-2">
-              No data available yet
+              {t('noDataTitle', {
+                defaultValue: 'No data available yet',
+              })}
             </h3>
             <p className="text-muted-foreground mb-4">
-              Start adding batches to see your metrics.
+              {t('noDataDescription', {
+                defaultValue: 'Start adding batches to see your metrics.',
+              })}
             </p>
             <Button onClick={() => selectedFarmId && setBatchDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Your First Batch
+              {t('batches:create', { defaultValue: 'Add Your First Batch' })}
             </Button>
           </CardContent>
         </Card>
@@ -402,7 +426,7 @@ function DashboardPage() {
                 <CardContent className="p-3 shadow-none">
                   <div className="flex flex-row items-center justify-between space-y-0 pb-1">
                     <p className="text-xs font-medium text-muted-foreground">
-                      Revenue
+                      {t('common:revenue', { defaultValue: 'Revenue' })}
                     </p>
                     <div className="h-6 w-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
                       <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400">
@@ -444,7 +468,7 @@ function DashboardPage() {
                 <CardContent className="p-3 shadow-none">
                   <div className="flex flex-row items-center justify-between space-y-0 pb-1">
                     <p className="text-xs font-medium text-muted-foreground">
-                      Expenses
+                      {t('common:expenses', { defaultValue: 'Expenses' })}
                     </p>
                     <div className="h-6 w-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
                       <span className="font-bold text-xs text-red-600 dark:text-red-400">
@@ -486,7 +510,7 @@ function DashboardPage() {
                 <CardContent className="p-3 shadow-none">
                   <div className="flex flex-row items-center justify-between space-y-0 pb-1">
                     <p className="text-xs font-medium text-muted-foreground">
-                      Profit
+                      {t('common:profit', { defaultValue: 'Profit' })}
                     </p>
                     <div
                       className={cn(
@@ -513,7 +537,7 @@ function DashboardPage() {
                       {formatCurrency(stats.financial.monthlyProfit)}
                     </div>
                     <p className="text-[10px] sm:text-xs text-muted-foreground">
-                      Net margin
+                      {t('netMargin', { defaultValue: 'Net margin' })}
                     </p>
                   </div>
                 </CardContent>
@@ -524,7 +548,7 @@ function DashboardPage() {
               <CardContent className="p-3 shadow-none">
                 <div className="flex flex-row items-center justify-between space-y-0 pb-1">
                   <p className="text-xs font-medium text-muted-foreground">
-                    Batches
+                    {t('common:batches', { defaultValue: 'Batches' })}
                   </p>
                   <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
                     <Users className="h-3 w-3 text-muted-foreground" />
@@ -535,7 +559,7 @@ function DashboardPage() {
                     {stats.inventory.activeBatches}
                   </div>
                   <p className="text-[10px] sm:text-xs text-muted-foreground">
-                    Active
+                    {t('active', { defaultValue: 'Active' })}
                   </p>
                 </div>
               </CardContent>
@@ -546,7 +570,7 @@ function DashboardPage() {
                 <CardContent className="p-3 shadow-none">
                   <div className="flex flex-row items-center justify-between space-y-0 pb-1">
                     <p className="text-xs font-medium text-muted-foreground">
-                      Mortality
+                      {t('common:mortality', { defaultValue: 'Mortality' })}
                     </p>
                     <div className="h-6 w-6 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
                       <AlertTriangle className="h-3 w-3 text-destructive" />
@@ -557,7 +581,8 @@ function DashboardPage() {
                       {stats.mortality.totalDeaths}
                     </div>
                     <p className="text-[10px] sm:text-xs text-muted-foreground">
-                      {stats.mortality.mortalityRate.toFixed(1)}% rate
+                      {stats.mortality.mortalityRate.toFixed(1)}
+                      {t('rate', { defaultValue: '% rate' })}
                     </p>
                   </div>
                 </CardContent>
@@ -569,7 +594,7 @@ function DashboardPage() {
                 <CardContent className="p-3 shadow-none">
                   <div className="flex flex-row items-center justify-between space-y-0 pb-1">
                     <p className="text-xs font-medium text-muted-foreground">
-                      Feed
+                      {t('common:feed', { defaultValue: 'Feed' })}
                     </p>
                     <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       <Wheat className="h-3 w-3 text-primary" />
@@ -580,7 +605,8 @@ function DashboardPage() {
                       {formatCurrency(stats.feed.totalCost)}
                     </div>
                     <p className="text-[10px] sm:text-xs text-muted-foreground">
-                      FCR: {stats.feed.fcr.toFixed(2)}
+                      {t('common:feed', { defaultValue: 'Feed' })} FCR:{' '}
+                      {stats.feed.fcr.toFixed(2)}
                     </p>
                   </div>
                 </CardContent>
@@ -634,12 +660,16 @@ function DashboardPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <p className="text-muted-foreground">
-                    All dashboard cards are hidden.{' '}
+                    {t('allCardsHidden', {
+                      defaultValue: 'All dashboard cards are hidden.',
+                    })}{' '}
                     <Link
                       to="/settings"
                       className="text-primary hover:underline"
                     >
-                      Customize dashboard
+                      {t('customize', {
+                        defaultValue: 'Customize dashboard',
+                      })}
                     </Link>
                   </p>
                 </CardContent>
@@ -651,7 +681,7 @@ function DashboardPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <Activity className="h-4 w-4" />
-                Quick Actions
+                {t('quickActions', { defaultValue: 'Quick Actions' })}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -662,7 +692,9 @@ function DashboardPage() {
                   className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Users className="h-5 w-5" />
-                  <span className="text-xs font-medium">Batches</span>
+                  <span className="text-xs font-medium">
+                    {t('common:batches', { defaultValue: 'Batches' })}
+                  </span>
                 </button>
                 <button
                   onClick={() => selectedFarmId && setFeedDialogOpen(true)}
@@ -670,7 +702,9 @@ function DashboardPage() {
                   className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Wheat className="h-5 w-5" />
-                  <span className="text-xs font-medium">Feed</span>
+                  <span className="text-xs font-medium">
+                    {t('common:feed', { defaultValue: 'Feed' })}
+                  </span>
                 </button>
                 <button
                   onClick={() => selectedFarmId && setExpenseDialogOpen(true)}
@@ -678,7 +712,9 @@ function DashboardPage() {
                   className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Receipt className="h-5 w-5" />
-                  <span className="text-xs font-medium">Expense</span>
+                  <span className="text-xs font-medium">
+                    {t('common:expenses', { defaultValue: 'Expenses' })}
+                  </span>
                 </button>
                 <button
                   onClick={() => selectedFarmId && setSaleDialogOpen(true)}
@@ -686,7 +722,9 @@ function DashboardPage() {
                   className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  <span className="text-xs font-medium">New Sale</span>
+                  <span className="text-xs font-medium">
+                    {t('newSale', { defaultValue: 'New Sale' })}
+                  </span>
                 </button>
                 <button
                   onClick={() => selectedFarmId && setMortalityDialogOpen(true)}
@@ -694,7 +732,9 @@ function DashboardPage() {
                   className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <AlertTriangle className="h-5 w-5" />
-                  <span className="text-xs font-medium">Mortality</span>
+                  <span className="text-xs font-medium">
+                    {t('common:mortality', { defaultValue: 'Mortality' })}
+                  </span>
                 </button>
                 {/* <button
                   onClick={() => selectedFarmId && setEggDialogOpen(true)}
@@ -717,7 +757,9 @@ function DashboardPage() {
                   className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-center"
                 >
                   <TrendingUp className="h-5 w-5" />
-                  <span className="text-xs font-medium">Reports</span>
+                  <span className="text-xs font-medium">
+                    {t('common:reports', { defaultValue: 'Reports' })}
+                  </span>
                 </Link>
               </div>
             </CardContent>
@@ -734,7 +776,7 @@ function DashboardPage() {
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
                       <AlertTriangle className="h-4 w-4" />
-                      Alerts
+                      {t('alerts', { defaultValue: 'Alerts' })}
                       <Badge
                         variant="outline"
                         className="ml-auto bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700"
@@ -782,7 +824,7 @@ function DashboardPage() {
                             variant="destructive"
                             className="text-[10px] shrink-0 ml-2"
                           >
-                            Critical
+                            {t('common.critical', { defaultValue: 'Critical' })}
                           </Badge>
                         )}
                         {alert.type === 'warning' && (
@@ -790,7 +832,7 @@ function DashboardPage() {
                             variant="secondary"
                             className="text-[10px] bg-amber-100 text-amber-700 shrink-0 ml-2"
                           >
-                            Warning
+                            {t('common.warning', { defaultValue: 'Warning' })}
                           </Badge>
                         )}
                       </div>
@@ -804,7 +846,9 @@ function DashboardPage() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Activity className="h-4 w-4" />
-                    Recent Transactions
+                    {t('dashboard.recentTransactions', {
+                      defaultValue: 'Recent Transactions',
+                    })}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -856,7 +900,9 @@ function DashboardPage() {
                     ))}
                   {stats.recentTransactions.length === 0 && (
                     <p className="text-center py-4 text-sm text-muted-foreground">
-                      No transactions yet
+                      {t('dashboard.noTransactions', {
+                        defaultValue: 'No transactions yet',
+                      })}
                     </p>
                   )}
                 </CardContent>
@@ -870,7 +916,9 @@ function DashboardPage() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <UserCircle className="h-4 w-4" />
-                    Top Customers
+                    {t('dashboard.topCustomers', {
+                      defaultValue: 'Top Customers',
+                    })}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -907,7 +955,9 @@ function DashboardPage() {
                     ))}
                   {stats.topCustomers.length === 0 && (
                     <p className="text-center py-4 text-sm text-muted-foreground">
-                      No customer data yet
+                      {t('dashboard.noCustomerData', {
+                        defaultValue: 'No customer data yet',
+                      })}
                     </p>
                   )}
                 </CardContent>
@@ -918,7 +968,9 @@ function DashboardPage() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    Recent Activity
+                    {t('dashboard.recentActivity', {
+                      defaultValue: 'Recent Activity',
+                    })}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -926,29 +978,51 @@ function DashboardPage() {
                     {[
                       {
                         icon: Plus,
-                        title: 'Batch added',
-                        desc: 'New livestock',
-                        time: '2h ago',
+                        title: t('dashboard.activity.batchAdded', {
+                          defaultValue: 'Batch added',
+                        }),
+                        desc: t('dashboard.activity.newLivestock', {
+                          defaultValue: 'New livestock',
+                        }),
+                        time: t('common.hoursAgo', {
+                          count: 2,
+                          defaultValue: '2h ago',
+                        }),
                         color: 'text-emerald-600 bg-emerald-100',
                       },
                       {
                         icon: ShoppingCart,
-                        title: 'Sale recorded',
-                        desc: 'Customer purchase',
-                        time: '4h ago',
+                        title: t('dashboard.activity.saleRecorded', {
+                          defaultValue: 'Sale recorded',
+                        }),
+                        desc: t('dashboard.activity.customerPurchase', {
+                          defaultValue: 'Customer purchase',
+                        }),
+                        time: t('common.hoursAgo', {
+                          count: 4,
+                          defaultValue: '4h ago',
+                        }),
                         color: 'text-blue-600 bg-blue-100',
                       },
                       {
                         icon: Receipt,
-                        title: 'Expense logged',
-                        desc: 'Farm supplies',
+                        title: t('dashboard.activity.expenseLogged', {
+                          defaultValue: 'Expense logged',
+                        }),
+                        desc: t('dashboard.activity.farmSupplies', {
+                          defaultValue: 'Farm supplies',
+                        }),
                         time: 'Yesterday',
                         color: 'text-red-600 bg-red-100',
                       },
                       {
                         icon: TrendingDown,
-                        title: 'Mortality',
-                        desc: 'Health check',
+                        title: t('dashboard.activity.mortality', {
+                          defaultValue: 'Mortality',
+                        }),
+                        desc: t('dashboard.activity.healthCheck', {
+                          defaultValue: 'Health check',
+                        }),
                         time: 'Yesterday',
                         color: 'text-amber-600 bg-amber-100',
                       },

@@ -1,7 +1,8 @@
 import { toast } from 'sonner'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { ChevronDown, ChevronUp, Scale } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { createWeightSampleFn } from '~/features/weight/server'
 import { useFormatWeight } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -43,6 +44,7 @@ export function WeightDialog({
   open,
   onOpenChange,
 }: WeightDialogProps) {
+  const { t } = useTranslation(['weight', 'batches', 'common'])
   const router = useRouter()
   const { format: formatWeight } = useFormatWeight()
   const [showAdvanced, setShowAdvanced] = useState(false)
@@ -90,7 +92,7 @@ export function WeightDialog({
           },
         },
       })
-      toast.success('Weight recorded')
+      toast.success(t('recorded', { defaultValue: 'Weight recorded' }))
       onOpenChange(false)
       setFormData({
         batchId: '',
@@ -103,7 +105,11 @@ export function WeightDialog({
       })
       router.invalidate()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to record')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('error.record', { defaultValue: 'Failed to record' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -115,15 +121,17 @@ export function WeightDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Scale className="h-5 w-5" />
-            Weight Sample
+            {t('sample', { defaultValue: 'Weight Sample' })}
           </DialogTitle>
           <DialogDescription>
-            Record a weight sample for growth tracking
+            {t('recordDescription', {
+              defaultValue: 'Record a weight sample for growth tracking',
+            })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Batch *</Label>
+            <Label>{t('batches:batch', { defaultValue: 'Batch' })} *</Label>
             <Select
               value={formData.batchId}
               onValueChange={(value) =>
@@ -134,7 +142,9 @@ export function WeightDialog({
                 <SelectValue>
                   {formData.batchId
                     ? batches.find((b) => b.id === formData.batchId)?.species
-                    : 'Select batch'}
+                    : t('batches:selectBatch', {
+                        defaultValue: 'Select batch',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -149,7 +159,7 @@ export function WeightDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Date *</Label>
+              <Label>{t('common:date', { defaultValue: 'Date' })} *</Label>
               <Input
                 type="date"
                 value={formData.date}
@@ -160,7 +170,9 @@ export function WeightDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Sample Size *</Label>
+              <Label>
+                {t('sampleSize', { defaultValue: 'Sample Size' })} *
+              </Label>
               <Input
                 type="number"
                 min="1"
@@ -171,14 +183,21 @@ export function WeightDialog({
                     sampleSize: e.target.value,
                   }))
                 }
-                placeholder="e.g., 10"
+                placeholder={t('placeholders.sampleSize', {
+                  defaultValue: 'e.g., 10',
+                })}
                 required
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Average Weight (kg) *</Label>
+            <Label>
+              {t('averageWeight', {
+                defaultValue: 'Average Weight (kg)',
+              })}{' '}
+              *
+            </Label>
             <Input
               type="number"
               step="0.001"
@@ -190,14 +209,18 @@ export function WeightDialog({
                   averageWeightKg: e.target.value,
                 }))
               }
-              placeholder="e.g., 1.5"
+              placeholder={t('placeholders.weight', {
+                defaultValue: 'e.g., 1.5',
+              })}
               required
             />
           </div>
 
           {estimatedTotal && (
             <div className="p-3 bg-muted rounded-lg text-sm">
-              Estimated batch total:{' '}
+              {t('estimatedTotal', {
+                defaultValue: 'Estimated batch total:',
+              })}{' '}
               <span className="font-medium">{estimatedTotal}</span>
             </div>
           )}
@@ -212,14 +235,21 @@ export function WeightDialog({
             ) : (
               <ChevronDown className="h-4 w-4" />
             )}
-            {showAdvanced ? 'Hide' : 'Show'} additional details
+            {showAdvanced
+              ? t('common:hide', { defaultValue: 'Hide' })
+              : t('common:show', { defaultValue: 'Show' })}{' '}
+            {t('additionalDetails', {
+              defaultValue: 'additional details',
+            })}
           </button>
 
           {showAdvanced && (
             <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>Min Weight (kg)</Label>
+                  <Label>
+                    {t('minWeight', { defaultValue: 'Min Weight (kg)' })}
+                  </Label>
                   <Input
                     type="number"
                     step="0.001"
@@ -234,7 +264,9 @@ export function WeightDialog({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Max Weight (kg)</Label>
+                  <Label>
+                    {t('maxWeight', { defaultValue: 'Max Weight (kg)' })}
+                  </Label>
                   <Input
                     type="number"
                     step="0.001"
@@ -250,13 +282,15 @@ export function WeightDialog({
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Notes</Label>
+                <Label>{t('common:notes', { defaultValue: 'Notes' })}</Label>
                 <Textarea
                   value={formData.notes}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, notes: e.target.value }))
                   }
-                  placeholder="Additional observations"
+                  placeholder={t('common:additionalObservations', {
+                    defaultValue: 'Additional observations',
+                  })}
                   rows={2}
                 />
               </div>
@@ -276,7 +310,7 @@ export function WeightDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
@@ -287,7 +321,9 @@ export function WeightDialog({
                 !formData.averageWeightKg
               }
             >
-              {isSubmitting ? 'Recording...' : 'Record Sample'}
+              {isSubmitting
+                ? t('common:recording', { defaultValue: 'Recording...' })
+                : t('recordSample', { defaultValue: 'Record Sample' })}
             </Button>
           </DialogFooter>
         </form>

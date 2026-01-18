@@ -11,6 +11,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 import type {
   CustomerRecord,
@@ -70,11 +71,23 @@ interface CustomerSearchParams {
   customerType?: string
 }
 
-const CUSTOMER_TYPES = [
-  { value: 'individual', label: 'Individual' },
-  { value: 'restaurant', label: 'Restaurant' },
-  { value: 'retailer', label: 'Retailer' },
-  { value: 'wholesaler', label: 'Wholesaler' },
+const get_customer_types = (t: any) => [
+  {
+    value: 'individual',
+    label: t('customers:types.individual', { defaultValue: 'Individual' }),
+  },
+  {
+    value: 'restaurant',
+    label: t('customers:types.restaurant', { defaultValue: 'Restaurant' }),
+  },
+  {
+    value: 'retailer',
+    label: t('customers:types.retailer', { defaultValue: 'Retailer' }),
+  },
+  {
+    value: 'wholesaler',
+    label: t('customers:types.wholesaler', { defaultValue: 'Wholesaler' }),
+  },
 ]
 
 const getCustomerData = createServerFn({ method: 'GET' })
@@ -132,9 +145,11 @@ export const Route = createFileRoute('/_auth/customers/')({
 })
 
 function CustomersPage() {
+  const { t } = useTranslation(['customers', 'common'])
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const { format: formatCurrency } = useFormatCurrency()
+  const customer_types = get_customer_types(t)
 
   const [paginatedCustomers, setPaginatedCustomers] = useState<
     PaginatedResult<CustomerRecord>
@@ -239,7 +254,9 @@ function CustomersPage() {
         },
       })
       setDialogOpen(false)
-      toast.success('Customer added')
+      toast.success(
+        t('customers:form.createSuccess', { defaultValue: 'Customer added' }),
+      )
       setFormData({
         name: '',
         phone: '',
@@ -249,7 +266,13 @@ function CustomersPage() {
       })
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create customer')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('customers:errors.create', {
+              defaultValue: 'Failed to create customer',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -291,6 +314,9 @@ function CustomersPage() {
         },
       })
       setEditDialogOpen(false)
+      toast.success(
+        t('customers:messages.updated', { defaultValue: 'Customer updated' }),
+      )
       loadData()
     } catch (err) {
       console.error(err)
@@ -303,7 +329,7 @@ function CustomersPage() {
     () => [
       {
         accessorKey: 'name',
-        header: 'Name',
+        header: t('customers:table.name'),
         cell: ({ row }) => (
           <div className="flex flex-col">
             <span className="font-medium">{row.original.name}</span>
@@ -315,7 +341,7 @@ function CustomersPage() {
       },
       {
         accessorKey: 'phone',
-        header: 'Contact',
+        header: t('customers:table.contact', { defaultValue: 'Contact' }),
         cell: ({ row }) => (
           <div className="flex flex-col text-sm">
             <div className="flex items-center gap-1">
@@ -333,7 +359,7 @@ function CustomersPage() {
       },
       {
         accessorKey: 'location',
-        header: 'Location',
+        header: t('customers:table.location', { defaultValue: 'Location' }),
         cell: ({ row }) =>
           row.original.location ? (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -346,11 +372,11 @@ function CustomersPage() {
       },
       {
         accessorKey: 'customerType',
-        header: 'Type',
+        header: t('customers:table.type', { defaultValue: 'Type' }),
         cell: ({ row }) =>
           row.original.customerType ? (
             <Badge variant="outline" className="capitalize text-xs">
-              {row.original.customerType}
+              {t(`customers:types.${row.original.customerType}`)}
             </Badge>
           ) : (
             '-'
@@ -358,12 +384,12 @@ function CustomersPage() {
       },
       {
         accessorKey: 'salesCount',
-        header: 'Orders',
+        header: t('customers:table.orders'),
         cell: ({ row }) => row.original.salesCount,
       },
       {
         accessorKey: 'totalSpent',
-        header: 'Total Spent',
+        header: t('customers:table.totalSpent'),
         cell: ({ row }) => (
           <span className="font-medium">
             {formatCurrency(row.original.totalSpent)}
@@ -391,13 +417,13 @@ function CustomersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Customers"
-        description="Manage your customer relationships"
+        title={t('customers:title')}
+        description={t('customers:description')}
         icon={Users}
         actions={
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Customer
+            {t('customers:add')}
           </Button>
         }
       />
@@ -410,9 +436,9 @@ function CustomersPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Top Customers
+                {t('customers:top.title')}
               </CardTitle>
-              <CardDescription>Customers by total revenue</CardDescription>
+              <CardDescription>{t('customers:top.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -432,7 +458,7 @@ function CustomersPage() {
                       <div>
                         <p className="font-medium">{customer.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {customer.salesCount} purchases
+                          {customer.salesCount} {t('customers:top.purchases')}
                         </p>
                       </div>
                     </div>
@@ -441,7 +467,7 @@ function CustomersPage() {
                         {formatCurrency(customer.totalSpent)}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Total spent
+                        {t('customers:top.spent')}
                       </p>
                     </div>
                   </div>
@@ -461,7 +487,7 @@ function CustomersPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q || ''}
-        searchPlaceholder="Search customers..."
+        searchPlaceholder={t('customers:search')}
         isLoading={isLoading}
         filters={
           <Select
@@ -476,13 +502,17 @@ function CustomersPage() {
             <SelectTrigger className="w-[150px] h-10">
               <SelectValue>
                 {searchParams.customerType === undefined
-                  ? 'All Types'
-                  : searchParams.customerType}
+                  ? t('customers:types.all')
+                  : t(`customers:types.${searchParams.customerType}`, {
+                      defaultValue:
+                        searchParams.customerType.charAt(0).toUpperCase() +
+                        searchParams.customerType.slice(1),
+                    })}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {CUSTOMER_TYPES.map((type) => (
+              <SelectItem value="all">{t('customers:types.all')}</SelectItem>
+              {customer_types.map((type) => (
                 <SelectItem key={type.value} value={type.value}>
                   {type.label}
                 </SelectItem>
@@ -500,20 +530,20 @@ function CustomersPage() {
           updateSearch({ q, page: 1 })
         }}
         emptyIcon={<Users className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No customers"
-        emptyDescription="Add customers to start tracking sales."
+        emptyTitle={t('customers:empty.title')}
+        emptyDescription={t('customers:empty.desc')}
       />
 
       {/* Create Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Customer</DialogTitle>
-            <DialogDescription>Create a new customer profile</DialogDescription>
+            <DialogTitle>{t('customers:form.addTitle')}</DialogTitle>
+            <DialogDescription>{t('customers:form.addDesc')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">{t('customers:form.name')}</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -524,7 +554,7 @@ function CustomersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone *</Label>
+              <Label htmlFor="phone">{t('customers:form.phone')}</Label>
               <Input
                 id="phone"
                 value={formData.phone}
@@ -535,7 +565,7 @@ function CustomersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">{t('customers:form.location')}</Label>
               <Input
                 id="location"
                 value={formData.location}
@@ -545,7 +575,7 @@ function CustomersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="customerType">Customer Type</Label>
+              <Label htmlFor="customerType">{t('customers:form.type')}</Label>
               <Select
                 value={formData.customerType}
                 onValueChange={(value: string | null) =>
@@ -558,22 +588,25 @@ function CustomersPage() {
                 <SelectTrigger>
                   <SelectValue>
                     {formData.customerType
-                      ? CUSTOMER_TYPES.find(
-                          (t) => t.value === formData.customerType,
+                      ? customer_types.find(
+                          (item) => item.value === formData.customerType,
                         )?.label
-                      : 'Select type'}
+                      : t('customers:form.selectType', {
+                          defaultValue: 'Select type',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="individual">Individual</SelectItem>
-                  <SelectItem value="restaurant">Restaurant</SelectItem>
-                  <SelectItem value="retailer">Retailer</SelectItem>
-                  <SelectItem value="wholesaler">Wholesaler</SelectItem>
+                  {customer_types.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('customers:form.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -589,10 +622,12 @@ function CustomersPage() {
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
-                Cancel
+                {t('customers:form.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting || !formData.name}>
-                Create
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('customers:form.create')}
               </Button>
             </DialogFooter>
           </form>
@@ -603,11 +638,11 @@ function CustomersPage() {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Customer</DialogTitle>
+            <DialogTitle>{t('customers:form.editTitle')}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-name">Name *</Label>
+              <Label htmlFor="edit-name">{t('customers:form.name')}</Label>
               <Input
                 id="edit-name"
                 value={editFormData.name}
@@ -618,7 +653,7 @@ function CustomersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-phone">Phone *</Label>
+              <Label htmlFor="edit-phone">{t('customers:form.phone')}</Label>
               <Input
                 id="edit-phone"
                 value={editFormData.phone}
@@ -632,7 +667,9 @@ function CustomersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-location">Location</Label>
+              <Label htmlFor="edit-location">
+                {t('customers:form.location')}
+              </Label>
               <Input
                 id="edit-location"
                 value={editFormData.location}
@@ -645,7 +682,9 @@ function CustomersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-customerType">Customer Type</Label>
+              <Label htmlFor="edit-customerType">
+                {t('customers:form.type')}
+              </Label>
               <Select
                 value={editFormData.customerType}
                 onValueChange={(value: string | null) =>
@@ -658,22 +697,25 @@ function CustomersPage() {
                 <SelectTrigger>
                   <SelectValue>
                     {editFormData.customerType
-                      ? CUSTOMER_TYPES.find(
-                          (t) => t.value === editFormData.customerType,
+                      ? customer_types.find(
+                          (item) => item.value === editFormData.customerType,
                         )?.label
-                      : 'Select type'}
+                      : t('customers:form.selectType', {
+                          defaultValue: 'Select type',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="individual">Individual</SelectItem>
-                  <SelectItem value="restaurant">Restaurant</SelectItem>
-                  <SelectItem value="retailer">Retailer</SelectItem>
-                  <SelectItem value="wholesaler">Wholesaler</SelectItem>
+                  {customer_types.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-email">Email</Label>
+              <Label htmlFor="edit-email">{t('customers:form.email')}</Label>
               <Input
                 id="edit-email"
                 type="email"
@@ -692,10 +734,12 @@ function CustomersPage() {
                 variant="outline"
                 onClick={() => setEditDialogOpen(false)}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                Save Changes
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('customers:form.save', { defaultValue: 'Save Changes' })}
               </Button>
             </DialogFooter>
           </form>

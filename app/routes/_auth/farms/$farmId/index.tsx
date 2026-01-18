@@ -14,6 +14,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type {
   StructureStatus,
   StructureType,
@@ -184,6 +185,7 @@ export const Route = createFileRoute('/_auth/farms/$farmId/')({
 })
 
 function FarmDetailsPage() {
+  const { t } = useTranslation(['farms', 'common', 'batches', 'expenses'])
   const loaderData = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     Route.useLoaderData() as LoaderData
   const { farmId } = Route.useParams()
@@ -347,15 +349,16 @@ function FarmDetailsPage() {
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Farm not found</h1>
+          <h1 className="text-2xl font-bold mb-2">
+            {t('farms:detail.notFound')}
+          </h1>
           <p className="text-muted-foreground mb-4">
-            The farm you're looking for doesn't exist or you don't have access
-            to it.
+            {t('farms:detail.notFoundDesc')}
           </p>
           <Link to="/farms">
             <Button>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Farms
+              {t('farms:detail.back')}
             </Button>
           </Link>
         </div>
@@ -370,7 +373,7 @@ function FarmDetailsPage() {
         <Link to="/farms">
           <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
             <ArrowLeft className="h-4 w-4" />
-            <span className="sr-only">Back to Farms</span>
+            <span className="sr-only">{t('farms:detail.back')}</span>
           </Button>
         </Link>
         <div className="flex-1">
@@ -395,7 +398,7 @@ function FarmDetailsPage() {
         </div>
         <Button onClick={() => setEditDialogOpen(true)}>
           <Edit className="h-4 w-4 mr-2" />
-          Edit Farm
+          {t('farms:detail.edit')}
         </Button>
       </div>
 
@@ -416,7 +419,7 @@ function FarmDetailsPage() {
           {/* Active Batches */}
           <Card className="glass">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle>Active Batches</CardTitle>
+              <CardTitle>{t('farms:activeBatches.title')}</CardTitle>
               <Link to="/batches">
                 <Button variant="link" size="sm" className="h-8">
                   View All
@@ -426,11 +429,11 @@ function FarmDetailsPage() {
             <CardContent>
               {activeBatches.length === 0 ? (
                 <div className="text-center py-6 text-muted-foreground">
-                  No active batches found.
+                  {t('farms:activeBatches.noBatches')}
                   <div className="mt-2">
                     <Link to="/batches">
                       <Button variant="outline" size="sm">
-                        Create Batch
+                        {t('farms:activeBatches.create')}
                       </Button>
                     </Link>
                   </div>
@@ -455,7 +458,7 @@ function FarmDetailsPage() {
                           {batch.currentQuantity.toLocaleString()}
                         </div>
                         <Badge variant="outline" className="text-xs uppercase">
-                          {batch.livestockType}
+                          {t(`common:livestock.${batch.livestockType}`)}
                         </Badge>
                       </div>
                     </div>
@@ -469,9 +472,9 @@ function FarmDetailsPage() {
           <Card className="glass">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>
-                <CardTitle>Structures</CardTitle>
+                <CardTitle>{t('farms:structures.title')}</CardTitle>
                 <CardDescription>
-                  Houses, ponds, pens, and cages
+                  {t('farms:structures.description')}
                 </CardDescription>
               </div>
               <Dialog
@@ -482,20 +485,22 @@ function FarmDetailsPage() {
                   render={
                     <Button size="sm">
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Structure
+                      {t('farms:structures.add')}
                     </Button>
                   }
                 />
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Add Structure</DialogTitle>
+                    <DialogTitle>
+                      {t('farms:structures.form.addTitle')}
+                    </DialogTitle>
                     <DialogDescription>
-                      Add a new structure to this farm
+                      {t('farms:structures.form.addDesc')}
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleCreateStructure} className="space-y-4">
                     <div className="space-y-2">
-                      <Label>Name</Label>
+                      <Label>{t('farms:structures.form.name')}</Label>
                       <Input
                         value={structureForm.name}
                         onChange={(e) =>
@@ -504,13 +509,15 @@ function FarmDetailsPage() {
                             name: e.target.value,
                           }))
                         }
-                        placeholder="e.g., House A, Pond 1"
+                        placeholder={t(
+                          'farms:structures.form.placeholder.name',
+                        )}
                         required
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Type</Label>
+                        <Label>{t('farms:structures.form.type')}</Label>
                         <Select
                           value={structureForm.type}
                           onValueChange={(v) =>
@@ -525,16 +532,16 @@ function FarmDetailsPage() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {STRUCTURE_TYPES.map((t) => (
-                              <SelectItem key={t.value} value={t.value}>
-                                {t.label}
+                            {STRUCTURE_TYPES.map((item) => (
+                              <SelectItem key={item.value} value={item.value}>
+                                {t(`farms:structures.types.${item.value}`)}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label>Status</Label>
+                        <Label>{t('farms:structures.form.status')}</Label>
                         <Select
                           value={structureForm.status}
                           onValueChange={(v) =>
@@ -551,7 +558,7 @@ function FarmDetailsPage() {
                           <SelectContent>
                             {STRUCTURE_STATUSES.map((s) => (
                               <SelectItem key={s.value} value={s.value}>
-                                {s.label}
+                                {t(`farms:structures.statuses.${s.value}`)}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -560,7 +567,7 @@ function FarmDetailsPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Capacity (optional)</Label>
+                        <Label>{t('farms:structures.form.capacity')}</Label>
                         <Input
                           type="number"
                           min="0"
@@ -571,11 +578,15 @@ function FarmDetailsPage() {
                               capacity: e.target.value,
                             }))
                           }
-                          placeholder="Max animals"
+                          placeholder={t(
+                            'farms:structures.form.placeholder.capacity',
+                          )}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Area ({areaLabel}) (optional)</Label>
+                        <Label>
+                          {t('farms:structures.form.area', { unit: areaLabel })}
+                        </Label>
                         <Input
                           type="number"
                           min="0"
@@ -587,12 +598,14 @@ function FarmDetailsPage() {
                               areaSqm: e.target.value,
                             }))
                           }
-                          placeholder="Size"
+                          placeholder={t(
+                            'farms:structures.form.placeholder.area',
+                          )}
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Notes (optional)</Label>
+                      <Label>{t('farms:structures.form.notes')}</Label>
                       <Input
                         value={structureForm.notes}
                         onChange={(e) =>
@@ -601,7 +614,9 @@ function FarmDetailsPage() {
                             notes: e.target.value,
                           }))
                         }
-                        placeholder="Additional notes"
+                        placeholder={t(
+                          'farms:structures.form.placeholder.notes',
+                        )}
                       />
                     </div>
                     {error && (
@@ -615,10 +630,12 @@ function FarmDetailsPage() {
                         variant="outline"
                         onClick={() => setStructureDialogOpen(false)}
                       >
-                        Cancel
+                        {t('farms:structures.form.cancel')}
                       </Button>
                       <Button type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Adding...' : 'Add Structure'}
+                        {isSubmitting
+                          ? t('farms:structures.form.adding')
+                          : t('farms:structures.form.add')}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -629,7 +646,7 @@ function FarmDetailsPage() {
               {structures.length === 0 ? (
                 <div className="text-center py-6 text-muted-foreground">
                   <Home className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  No structures added yet.
+                  {t('farms:structures.noStructures')}
                 </div>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -651,16 +668,19 @@ function FarmDetailsPage() {
                             }
                             className="text-xs"
                           >
-                            {structure.status}
+                            {t(`farms:structures.statuses.${structure.status}`)}
                           </Badge>
                         </div>
                         <div className="text-sm text-muted-foreground capitalize">
-                          {structure.type}
+                          {t(`farms:structures.types.${structure.type}`)}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">
                           {structure.batchCount > 0
-                            ? `${structure.batchCount} batch(es), ${structure.totalAnimals} animals`
-                            : 'No batches assigned'}
+                            ? t('farms:structures.batchCount', {
+                                count: structure.batchCount,
+                                animals: structure.totalAnimals,
+                              })
+                            : t('farms:structures.noBatches')}
                         </div>
                       </div>
                       <div className="flex gap-1">
@@ -695,7 +715,7 @@ function FarmDetailsPage() {
           <Card className="glass">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Recent Activity</CardTitle>
+                <CardTitle>{t('farms:recentActivity.title')}</CardTitle>
                 <div className="flex bg-muted rounded-md p-1">
                   <button
                     onClick={() => setActivityTab('sales')}
@@ -705,7 +725,7 @@ function FarmDetailsPage() {
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    Sales
+                    {t('farms:recentActivity.sales')}
                   </button>
                   <button
                     onClick={() => setActivityTab('expenses')}
@@ -715,7 +735,7 @@ function FarmDetailsPage() {
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    Expenses
+                    {t('farms:recentActivity.expenses')}
                   </button>
                 </div>
               </div>
@@ -724,7 +744,7 @@ function FarmDetailsPage() {
               {activityTab === 'sales' ? (
                 recentSales.length === 0 ? (
                   <p className="text-center py-6 text-muted-foreground">
-                    No recent sales recorded.
+                    {t('farms:recentActivity.noSales')}
                   </p>
                 ) : (
                   <div className="space-y-4">
@@ -735,11 +755,15 @@ function FarmDetailsPage() {
                       >
                         <div>
                           <div className="font-medium">
-                            {sale.customerName || 'Unknown Customer'}
+                            {sale.customerName ||
+                              t('farms:recentActivity.noCustomer', {
+                                defaultValue: 'Unknown Customer',
+                              })}
                           </div>
                           <div className="text-sm text-muted-foreground">
                             {sale.quantity}{' '}
-                            {sale.batchSpecies || sale.livestockType}
+                            {sale.batchSpecies ||
+                              t(`common:livestock.${sale.livestockType}`)}
                           </div>
                         </div>
                         <div className="text-right">
@@ -755,7 +779,7 @@ function FarmDetailsPage() {
                     <div className="pt-2 text-center">
                       <Link to="/sales">
                         <Button variant="ghost" size="sm" className="w-full">
-                          View All Sales
+                          {t('farms:recentActivity.viewAllSales')}
                         </Button>
                       </Link>
                     </div>
@@ -763,7 +787,7 @@ function FarmDetailsPage() {
                 )
               ) : recentExpenses.length === 0 ? (
                 <p className="text-center py-6 text-muted-foreground">
-                  No recent expenses recorded.
+                  {t('farms:recentActivity.noExpenses')}
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -774,7 +798,7 @@ function FarmDetailsPage() {
                     >
                       <div>
                         <div className="font-medium capitalize">
-                          {expense.category}
+                          {t(`expenses:categories.${expense.category}`)}
                         </div>
                         <div className="text-sm text-muted-foreground truncate max-w-[200px]">
                           {expense.description}
@@ -793,7 +817,7 @@ function FarmDetailsPage() {
                   <div className="pt-2 text-center">
                     <Link to="/expenses">
                       <Button variant="ghost" size="sm" className="w-full">
-                        View All Expenses
+                        {t('farms:recentActivity.viewAllExpenses')}
                       </Button>
                     </Link>
                   </div>
@@ -805,9 +829,9 @@ function FarmDetailsPage() {
           {/* Quick Actions */}
           <Card className="glass">
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+              <CardTitle>{t('farms:quickActions.title')}</CardTitle>
               <CardDescription>
-                Common tasks for managing this farm
+                {t('farms:quickActions.description')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -818,7 +842,9 @@ function FarmDetailsPage() {
                     className="h-auto p-4 w-full glass flex flex-col items-center justify-center gap-2 hover:bg-accent"
                   >
                     <Building2 className="h-6 w-6 text-primary" />
-                    <div className="font-medium">Manage Batches</div>
+                    <div className="font-medium">
+                      {t('farms:quickActions.manageBatches')}
+                    </div>
                   </Button>
                 </Link>
 
@@ -828,7 +854,9 @@ function FarmDetailsPage() {
                   onClick={() => setSaleDialogOpen(true)}
                 >
                   <TrendingUp className="h-6 w-6" />
-                  <div className="font-medium">Record Sale</div>
+                  <div className="font-medium">
+                    {t('farms:quickActions.recordSale')}
+                  </div>
                 </Button>
 
                 <Button
@@ -837,7 +865,9 @@ function FarmDetailsPage() {
                   onClick={() => setExpenseDialogOpen(true)}
                 >
                   <TrendingDown className="h-6 w-6" />
-                  <div className="font-medium">Record Expense</div>
+                  <div className="font-medium">
+                    {t('farms:quickActions.recordExpense')}
+                  </div>
                 </Button>
 
                 <Link
@@ -857,7 +887,9 @@ function FarmDetailsPage() {
                     className="h-auto p-4 w-full glass text-blue-600 flex flex-col items-center justify-center gap-2 hover:bg-blue-50"
                   >
                     <Building2 className="h-6 w-6" />
-                    <div className="font-medium">View Reports</div>
+                    <div className="font-medium">
+                      {t('farms:quickActions.viewReports')}
+                    </div>
                   </Button>
                 </Link>
               </div>
@@ -867,19 +899,19 @@ function FarmDetailsPage() {
           {/* Farm Information */}
           <Card className="glass">
             <CardHeader>
-              <CardTitle>Farm Information</CardTitle>
+              <CardTitle>{t('farms:detail.info')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Name
+                    {t('farms:detail.name')}
                   </p>
                   <p className="text-sm border-b pb-1">{farm.name}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Type
+                    {t('farms:detail.type')}
                   </p>
                   <p className="text-sm capitalize border-b pb-1">
                     {farm.type}
@@ -887,13 +919,13 @@ function FarmDetailsPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Location
+                    {t('farms:detail.location')}
                   </p>
                   <p className="text-sm border-b pb-1">{farm.location}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Created
+                    {t('farms:detail.created')}
                   </p>
                   <p className="text-sm border-b pb-1">
                     {formatDate(farm.createdAt)}
@@ -908,7 +940,9 @@ function FarmDetailsPage() {
         <div className="space-y-6">
           <Card className="glass">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Livestock</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {t('farms:dashboard.livestock')}
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -916,7 +950,9 @@ function FarmDetailsPage() {
                 {stats.batches.totalLivestock.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats.batches.active} active batches
+                {t('farms:dashboard.activeBatches', {
+                  count: stats.batches.active,
+                })}
               </p>
             </CardContent>
           </Card>
@@ -924,7 +960,7 @@ function FarmDetailsPage() {
           <Card className="glass">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Revenue (30 days)
+                {t('farms:dashboard.revenue')}
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -933,7 +969,9 @@ function FarmDetailsPage() {
                 {formatCurrency(stats.sales.revenue)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats.sales.count} sales transactions
+                {t('farms:dashboard.salesTransactions', {
+                  count: stats.sales.count,
+                })}
               </p>
             </CardContent>
           </Card>
@@ -941,7 +979,7 @@ function FarmDetailsPage() {
           <Card className="glass">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Expenses (30 days)
+                {t('farms:dashboard.expenses')}
               </CardTitle>
               <TrendingDown className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -950,17 +988,18 @@ function FarmDetailsPage() {
                 {formatCurrency(stats.expenses.total)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats.expenses.count} expense records
+                {t('farms:dashboard.expenseRecords', {
+                  count: stats.expenses.count,
+                })}
               </p>
             </CardContent>
           </Card>
 
           <div className="p-4 rounded-lg bg-muted/50 border border-muted text-sm text-muted-foreground">
-            <h4 className="font-semibold text-foreground mb-1">Tip</h4>
-            <p>
-              Use the Quick Actions to efficiently manage your farm's daily
-              operations.
-            </p>
+            <h4 className="font-semibold text-foreground mb-1">
+              {t('farms:quickActions.tip.title')}
+            </h4>
+            <p>{t('farms:quickActions.tip.text')}</p>
           </div>
         </div>
       </div>
@@ -972,11 +1011,11 @@ function FarmDetailsPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Structure</DialogTitle>
+            <DialogTitle>{t('farms:structures.form.editTitle')}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditStructure} className="space-y-4">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label>{t('farms:structures.form.name')}</Label>
               <Input
                 value={structureForm.name}
                 onChange={(e) =>
@@ -987,7 +1026,7 @@ function FarmDetailsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Type</Label>
+                <Label>{t('farms:structures.form.type')}</Label>
                 <Select
                   value={structureForm.type}
                   onValueChange={(v) =>
@@ -1002,16 +1041,16 @@ function FarmDetailsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {STRUCTURE_TYPES.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>
-                        {t.label}
+                    {STRUCTURE_TYPES.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {t(`farms:structures.types.${item.value}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Status</Label>
+                <Label>{t('farms:structures.form.status')}</Label>
                 <Select
                   value={structureForm.status}
                   onValueChange={(v) =>
@@ -1028,7 +1067,7 @@ function FarmDetailsPage() {
                   <SelectContent>
                     {STRUCTURE_STATUSES.map((s) => (
                       <SelectItem key={s.value} value={s.value}>
-                        {s.label}
+                        {t(`farms:structures.statuses.${s.value}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1037,7 +1076,7 @@ function FarmDetailsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Capacity</Label>
+                <Label>{t('farms:structures.form.capacity')}</Label>
                 <Input
                   type="number"
                   min="0"
@@ -1051,7 +1090,9 @@ function FarmDetailsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Area ({areaLabel})</Label>
+                <Label>
+                  {t('farms:structures.form.area', { unit: areaLabel })}
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -1064,7 +1105,7 @@ function FarmDetailsPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Notes</Label>
+              <Label>{t('farms:structures.form.notes')}</Label>
               <Input
                 value={structureForm.notes}
                 onChange={(e) =>
@@ -1083,10 +1124,12 @@ function FarmDetailsPage() {
                 variant="outline"
                 onClick={() => setEditStructureDialogOpen(false)}
               >
-                Cancel
+                {t('farms:structures.form.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting
+                  ? t('farms:structures.form.saving')
+                  : t('farms:structures.form.save')}
               </Button>
             </DialogFooter>
           </form>
@@ -1100,14 +1143,16 @@ function FarmDetailsPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Structure</DialogTitle>
+            <DialogTitle>{t('farms:structures.form.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{selectedStructure?.name}"? This
-              action cannot be undone.
+              {t('farms:structures.form.deleteDesc', {
+                name: selectedStructure?.name,
+              })}
               {selectedStructure && selectedStructure.batchCount > 0 && (
                 <span className="block mt-2 text-destructive">
-                  Warning: This structure has {selectedStructure.batchCount}{' '}
-                  active batch(es) assigned.
+                  {t('farms:structures.form.deleteWarning', {
+                    count: selectedStructure.batchCount,
+                  })}
                 </span>
               )}
             </DialogDescription>
@@ -1123,14 +1168,16 @@ function FarmDetailsPage() {
               variant="outline"
               onClick={() => setDeleteStructureDialogOpen(false)}
             >
-              Cancel
+              {t('farms:structures.form.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteStructure}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+              {isSubmitting
+                ? t('farms:structures.form.deleting')
+                : t('farms:structures.form.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

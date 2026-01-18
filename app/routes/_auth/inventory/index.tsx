@@ -11,6 +11,7 @@ import {
   Warehouse,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { FeedType } from '~/features/inventory/feed-server'
 import type { MedicationUnit } from '~/features/inventory/medication-server'
 import { useFormatDate, useFormatWeight } from '~/features/settings'
@@ -107,6 +108,7 @@ export const Route = createFileRoute('/_auth/inventory/')({
 type TabType = 'feed' | 'medication'
 
 function InventoryPage() {
+  const { t } = useTranslation(['inventory', 'common'])
   const { format: formatDate } = useFormatDate()
   const { format: formatWeight } = useFormatWeight()
   const { selectedFarmId } = useFarm()
@@ -161,7 +163,10 @@ function InventoryPage() {
       setFeedInventory(result.feedInventory)
       setMedicationInventory(result.medicationInventory)
     } catch (err) {
-      console.error('Failed to load inventory:', err)
+      console.error(
+        t('inventory:error.load', { defaultValue: 'Failed to load inventory' }),
+        err,
+      )
     } finally {
       setIsLoading(false)
     }
@@ -191,7 +196,11 @@ function InventoryPage() {
   const handleCreateFeed = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedFarmId) {
-      setError('Please select a farm first')
+      setError(
+        t('common:selectFarm', {
+          defaultValue: 'Please select a farm first',
+        }),
+      )
       return
     }
     setIsSubmitting(true)
@@ -208,12 +217,18 @@ function InventoryPage() {
         },
       })
       setFeedDialogOpen(false)
-      toast.success('Feed inventory added')
+      toast.success(
+        t('inventory:feed.recorded', { defaultValue: 'Feed inventory added' }),
+      )
       resetFeedForm()
       loadData()
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to create feed inventory',
+        err instanceof Error
+          ? err.message
+          : t('inventory:feed.error.create', {
+              defaultValue: 'Failed to create feed inventory',
+            }),
       )
     } finally {
       setIsSubmitting(false)
@@ -249,7 +264,9 @@ function InventoryPage() {
     try {
       await deleteFeedInventoryFn({ data: { id: selectedFeed.id } })
       setDeleteFeedDialogOpen(false)
-      toast.success('Feed inventory deleted')
+      toast.success(
+        t('inventory:feed.deleted', { defaultValue: 'Feed inventory deleted' }),
+      )
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete')
@@ -283,12 +300,20 @@ function InventoryPage() {
         },
       })
       setMedDialogOpen(false)
-      toast.success('Medication added')
+      toast.success(
+        t('inventory:medication.recorded', {
+          defaultValue: 'Medication added',
+        }),
+      )
       resetMedForm()
       loadData()
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to create medication',
+        err instanceof Error
+          ? err.message
+          : t('inventory:medication.error.create', {
+              defaultValue: 'Failed to create medication',
+            }),
       )
     } finally {
       setIsSubmitting(false)
@@ -329,7 +354,11 @@ function InventoryPage() {
     try {
       await deleteMedicationFn({ data: { id: selectedMed.id } })
       setDeleteMedDialogOpen(false)
-      toast.success('Medication deleted')
+      toast.success(
+        t('inventory:medication.deleted', {
+          defaultValue: 'Medication deleted',
+        }),
+      )
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete')
@@ -391,8 +420,10 @@ function InventoryPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inventory"
-        description="Manage feed and medication stock levels"
+        title={t('inventory:title', { defaultValue: 'Inventory' })}
+        description={t('inventory:subtitle', {
+          defaultValue: 'Manage feed and medication stock levels',
+        })}
         icon={Warehouse}
       />
 
@@ -405,7 +436,9 @@ function InventoryPage() {
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2 text-warning">
               <AlertTriangle className="h-5 w-5" />
-              Inventory Alerts
+              {t('inventory:alerts.title', {
+                defaultValue: 'Inventory Alerts',
+              })}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -415,7 +448,10 @@ function InventoryPage() {
                   variant="outline"
                   className="text-warning border-warning"
                 >
-                  {lowStockFeedCount} feed type(s) low stock
+                  {lowStockFeedCount}{' '}
+                  {t('inventory:alerts.feedLow', {
+                    defaultValue: 'feed type(s) low stock',
+                  })}
                 </Badge>
               )}
               {lowStockMedCount > 0 && (
@@ -423,7 +459,10 @@ function InventoryPage() {
                   variant="outline"
                   className="text-warning border-warning"
                 >
-                  {lowStockMedCount} medication(s) low stock
+                  {lowStockMedCount}{' '}
+                  {t('inventory:alerts.medLow', {
+                    defaultValue: 'medication(s) low stock',
+                  })}
                 </Badge>
               )}
               {expiringMedCount > 0 && (
@@ -431,7 +470,10 @@ function InventoryPage() {
                   variant="outline"
                   className="text-orange-600 border-orange-500"
                 >
-                  {expiringMedCount} medication(s) expiring soon
+                  {expiringMedCount}{' '}
+                  {t('inventory:alerts.medExpiring', {
+                    defaultValue: 'medication(s) expiring soon',
+                  })}
                 </Badge>
               )}
               {expiredMedCount > 0 && (
@@ -439,7 +481,10 @@ function InventoryPage() {
                   variant="outline"
                   className="text-destructive border-destructive"
                 >
-                  {expiredMedCount} medication(s) expired
+                  {expiredMedCount}{' '}
+                  {t('inventory:alerts.medExpired', {
+                    defaultValue: 'medication(s) expired',
+                  })}
                 </Badge>
               )}
             </div>
@@ -455,7 +500,7 @@ function InventoryPage() {
           className="flex items-center gap-2"
         >
           <Package className="h-4 w-4" />
-          Feed Inventory
+          {t('inventory:tabs.feed', { defaultValue: 'Feed Inventory' })}
           {lowStockFeedCount > 0 && (
             <Badge
               variant="destructive"
@@ -471,7 +516,9 @@ function InventoryPage() {
           className="flex items-center gap-2"
         >
           <Pill className="h-4 w-4" />
-          Medication Inventory
+          {t('inventory:tabs.medication', {
+            defaultValue: 'Medication Inventory',
+          })}
           {lowStockMedCount + expiredMedCount > 0 && (
             <Badge
               variant="destructive"
@@ -488,28 +535,42 @@ function InventoryPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Feed Inventory</CardTitle>
-              <CardDescription>Track feed stock levels by type</CardDescription>
+              <CardTitle>
+                {t('inventory:feed.title', { defaultValue: 'Feed Inventory' })}
+              </CardTitle>
+              <CardDescription>
+                {t('inventory:feed.description', {
+                  defaultValue: 'Track feed stock levels by type',
+                })}
+              </CardDescription>
             </div>
             <Dialog open={feedDialogOpen} onOpenChange={setFeedDialogOpen}>
               <DialogTrigger
                 render={
                   <Button disabled={!selectedFarmId}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Feed
+                    {t('inventory:feed.add', { defaultValue: 'Add Feed' })}
                   </Button>
                 }
               />
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Add Feed Inventory</DialogTitle>
+                  <DialogTitle>
+                    {t('inventory:dialog.addFeedTitle', {
+                      defaultValue: 'Add Feed Inventory',
+                    })}
+                  </DialogTitle>
                   <DialogDescription>
-                    Add a new feed type to track
+                    {t('inventory:dialog.addFeedDesc', {
+                      defaultValue: 'Add a new feed type to track',
+                    })}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleCreateFeed} className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Feed Type</Label>
+                    <Label>
+                      {t('inventory:feed.type', { defaultValue: 'Feed Type' })}
+                    </Label>
                     <Select
                       value={feedForm.feedType}
                       onValueChange={(v) =>
@@ -521,9 +582,12 @@ function InventoryPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {FEED_TYPES.map((t) => (
-                          <SelectItem key={t.value} value={t.value}>
-                            {t.label}
+                        {FEED_TYPES.map((typeItem) => (
+                          <SelectItem
+                            key={typeItem.value}
+                            value={typeItem.value}
+                          >
+                            {typeItem.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -531,7 +595,11 @@ function InventoryPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Quantity (kg)</Label>
+                      <Label>
+                        {t('inventory:feed.quantity', {
+                          defaultValue: 'Quantity (kg)',
+                        })}
+                      </Label>
                       <Input
                         type="number"
                         min="0"
@@ -547,7 +615,11 @@ function InventoryPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Min Threshold (kg)</Label>
+                      <Label>
+                        {t('inventory:feed.threshold', {
+                          defaultValue: 'Min Threshold (kg)',
+                        })}
+                      </Label>
                       <Input
                         type="number"
                         min="0"
@@ -574,10 +646,14 @@ function InventoryPage() {
                       variant="outline"
                       onClick={() => setFeedDialogOpen(false)}
                     >
-                      Cancel
+                      {t('common:cancel', { defaultValue: 'Cancel' })}
                     </Button>
                     <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? 'Adding...' : 'Add Feed'}
+                      {isSubmitting
+                        ? t('inventory:dialog.adding', {
+                            defaultValue: 'Adding...',
+                          })
+                        : t('inventory:feed.add', { defaultValue: 'Add Feed' })}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -588,16 +664,21 @@ function InventoryPage() {
           <CardContent>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">
-                Loading...
+                {t('common:loading', { defaultValue: 'Loading...' })}
               </div>
             ) : feedInventory.length === 0 ? (
               <div className="text-center py-8">
                 <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
-                  No feed inventory records
+                  {t('inventory:feed.empty', {
+                    defaultValue: 'No feed inventory records',
+                  })}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Add feed types to start tracking stock levels
+                  {t('inventory:feed.emptyDesc', {
+                    defaultValue:
+                      'Add feed types to start tracking stock levels',
+                  })}
                 </p>
               </div>
             ) : (
@@ -645,7 +726,10 @@ function InventoryPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
-                              Stock:
+                              {t('inventory:feed.stock', {
+                                defaultValue: 'Stock',
+                              })}
+                              :
                             </span>
                             <span
                               className={`font-bold ${lowStock ? 'text-warning' : ''}`}
@@ -655,7 +739,10 @@ function InventoryPage() {
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
-                              Min Threshold:
+                              {t('inventory:feed.threshold', {
+                                defaultValue: 'Min Threshold',
+                              })}
+                              :
                             </span>
                             <span>{formatWeight(threshold)}</span>
                           </div>
@@ -664,7 +751,9 @@ function InventoryPage() {
                               variant="outline"
                               className="text-warning border-warning w-full justify-center"
                             >
-                              Low Stock
+                              {t('inventory:feed.lowStock', {
+                                defaultValue: 'Low Stock',
+                              })}
                             </Badge>
                           )}
                         </div>
@@ -683,9 +772,15 @@ function InventoryPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Medication Inventory</CardTitle>
+              <CardTitle>
+                {t('inventory:medication.title', {
+                  defaultValue: 'Medication Inventory',
+                })}
+              </CardTitle>
               <CardDescription>
-                Track medication stock and expiry dates
+                {t('inventory:medication.description', {
+                  defaultValue: 'Track medication stock and expiry dates',
+                })}
               </CardDescription>
             </div>
             <Dialog open={medDialogOpen} onOpenChange={setMedDialogOpen}>
@@ -693,20 +788,32 @@ function InventoryPage() {
                 render={
                   <Button disabled={!selectedFarmId}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Medication
+                    {t('inventory:medication.add', {
+                      defaultValue: 'Add Medication',
+                    })}
                   </Button>
                 }
               />
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Add Medication</DialogTitle>
+                  <DialogTitle>
+                    {t('inventory:dialog.addMedTitle', {
+                      defaultValue: 'Add Medication',
+                    })}
+                  </DialogTitle>
                   <DialogDescription>
-                    Add a new medication to inventory
+                    {t('inventory:dialog.addMedDesc', {
+                      defaultValue: 'Add a new medication to inventory',
+                    })}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleCreateMed} className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Medication Name</Label>
+                    <Label>
+                      {t('inventory:medication.name', {
+                        defaultValue: 'Medication Name',
+                      })}
+                    </Label>
                     <Input
                       value={medForm.medicationName}
                       onChange={(e) =>
@@ -721,7 +828,11 @@ function InventoryPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Quantity</Label>
+                      <Label>
+                        {t('inventory:medication.quantity', {
+                          defaultValue: 'Quantity',
+                        })}
+                      </Label>
                       <Input
                         type="number"
                         min="0"
@@ -736,7 +847,11 @@ function InventoryPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Unit</Label>
+                      <Label>
+                        {t('inventory:medication.unit', {
+                          defaultValue: 'Unit',
+                        })}
+                      </Label>
                       <Select
                         value={medForm.unit}
                         onValueChange={(v) =>
@@ -762,7 +877,12 @@ function InventoryPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Expiry Date (Optional)</Label>
+                      <Label>
+                        {t('inventory:medication.expiry', {
+                          defaultValue: 'Expiry Date',
+                        })}{' '}
+                        ({t('common:optional', { defaultValue: 'Optional' })})
+                      </Label>
                       <Input
                         type="date"
                         value={medForm.expiryDate}
@@ -775,7 +895,11 @@ function InventoryPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Min Threshold</Label>
+                      <Label>
+                        {t('inventory:medication.threshold', {
+                          defaultValue: 'Min Threshold',
+                        })}
+                      </Label>
                       <Input
                         type="number"
                         min="0"
@@ -801,10 +925,16 @@ function InventoryPage() {
                       variant="outline"
                       onClick={() => setMedDialogOpen(false)}
                     >
-                      Cancel
+                      {t('common:cancel', { defaultValue: 'Cancel' })}
                     </Button>
                     <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? 'Adding...' : 'Add Medication'}
+                      {isSubmitting
+                        ? t('inventory:dialog.adding', {
+                            defaultValue: 'Adding...',
+                          })
+                        : t('inventory:medication.add', {
+                            defaultValue: 'Add Medication',
+                          })}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -815,16 +945,21 @@ function InventoryPage() {
           <CardContent>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">
-                Loading...
+                {t('common:loading', { defaultValue: 'Loading...' })}
               </div>
             ) : medicationInventory.length === 0 ? (
               <div className="text-center py-8">
                 <Pill className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
-                  No medication inventory records
+                  {t('inventory:medication.empty', {
+                    defaultValue: 'No medication inventory records',
+                  })}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Add medications to start tracking stock and expiry
+                  {t('inventory:medication.emptyDesc', {
+                    defaultValue:
+                      'Add medications to start tracking stock and expiry',
+                  })}
                 </p>
               </div>
             ) : (
@@ -882,7 +1017,10 @@ function InventoryPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
-                              Stock:
+                              {t('inventory:medication.stock', {
+                                defaultValue: 'Stock',
+                              })}
+                              :
                             </span>
                             <span
                               className={`font-bold ${lowStock ? 'text-yellow-600' : ''}`}
@@ -892,7 +1030,10 @@ function InventoryPage() {
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
-                              Min Threshold:
+                              {t('inventory:medication.threshold', {
+                                defaultValue: 'Min Threshold',
+                              })}
+                              :
                             </span>
                             <span>
                               {item.minThreshold} {item.unit}
@@ -901,7 +1042,10 @@ function InventoryPage() {
                           {item.expiryDate && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">
-                                Expires:
+                                {t('inventory:medication.expiry', {
+                                  defaultValue: 'Expires',
+                                })}
+                                :
                               </span>
                               <span
                                 className={
@@ -922,7 +1066,9 @@ function InventoryPage() {
                                 variant="outline"
                                 className="text-yellow-600 border-yellow-500"
                               >
-                                Low Stock
+                                {t('inventory:medication.lowStock', {
+                                  defaultValue: 'Low Stock',
+                                })}
                               </Badge>
                             )}
                             {expiring && (
@@ -930,7 +1076,9 @@ function InventoryPage() {
                                 variant="outline"
                                 className="text-orange-600 border-orange-500"
                               >
-                                Expiring Soon
+                                {t('inventory:medication.expiringSoon', {
+                                  defaultValue: 'Expiring Soon',
+                                })}
                               </Badge>
                             )}
                             {expired && (
@@ -938,7 +1086,9 @@ function InventoryPage() {
                                 variant="outline"
                                 className="text-red-600 border-red-500"
                               >
-                                Expired
+                                {t('inventory:medication.expired', {
+                                  defaultValue: 'Expired',
+                                })}
                               </Badge>
                             )}
                           </div>
@@ -957,12 +1107,20 @@ function InventoryPage() {
       <Dialog open={editFeedDialogOpen} onOpenChange={setEditFeedDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Feed Inventory</DialogTitle>
+            <DialogTitle>
+              {t('inventory:dialog.editFeedTitle', {
+                defaultValue: 'Edit Feed Inventory',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditFeed} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Quantity (kg)</Label>
+                <Label>
+                  {t('inventory.feed.quantity', {
+                    defaultValue: 'Quantity (kg)',
+                  })}
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -975,7 +1133,11 @@ function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Min Threshold (kg)</Label>
+                <Label>
+                  {t('inventory.feed.threshold', {
+                    defaultValue: 'Min Threshold (kg)',
+                  })}
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -1002,10 +1164,12 @@ function InventoryPage() {
                 variant="outline"
                 onClick={() => setEditFeedDialogOpen(false)}
               >
-                Cancel
+                {t('common.cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('common:save', { defaultValue: 'Save Changes' })}
               </Button>
             </DialogFooter>
           </form>
@@ -1019,10 +1183,16 @@ function InventoryPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Feed Inventory</DialogTitle>
+            <DialogTitle>
+              {t('inventory:dialog.deleteFeedTitle', {
+                defaultValue: 'Delete Feed Inventory',
+              })}
+            </DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this feed inventory record? This
-              action cannot be undone.
+              {t('inventory:dialog.deleteFeedDesc', {
+                defaultValue:
+                  'Are you sure you want to delete this feed inventory record? This action cannot be undone.',
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -1031,14 +1201,16 @@ function InventoryPage() {
               variant="outline"
               onClick={() => setDeleteFeedDialogOpen(false)}
             >
-              Cancel
+              {t('common.cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteFeed}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+              {isSubmitting
+                ? t('common:deleting', { defaultValue: 'Deleting...' })
+                : t('common:delete', { defaultValue: 'Delete' })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1048,11 +1220,19 @@ function InventoryPage() {
       <Dialog open={editMedDialogOpen} onOpenChange={setEditMedDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Medication</DialogTitle>
+            <DialogTitle>
+              {t('inventory:dialog.editMedTitle', {
+                defaultValue: 'Edit Medication',
+              })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditMed} className="space-y-4">
             <div className="space-y-2">
-              <Label>Medication Name</Label>
+              <Label>
+                {t('inventory.medication.name', {
+                  defaultValue: 'Medication Name',
+                })}
+              </Label>
               <Input
                 value={medForm.medicationName}
                 onChange={(e) =>
@@ -1063,7 +1243,11 @@ function InventoryPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Quantity</Label>
+                <Label>
+                  {t('inventory.medication.quantity', {
+                    defaultValue: 'Quantity',
+                  })}
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -1075,7 +1259,9 @@ function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Unit</Label>
+                <Label>
+                  {t('inventory.medication.unit', { defaultValue: 'Unit' })}
+                </Label>
                 <Select
                   value={medForm.unit}
                   onValueChange={(v) =>
@@ -1098,7 +1284,11 @@ function InventoryPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Expiry Date</Label>
+                <Label>
+                  {t('inventory.medication.expiry', {
+                    defaultValue: 'Expiry Date',
+                  })}
+                </Label>
                 <Input
                   type="date"
                   value={medForm.expiryDate}
@@ -1108,7 +1298,11 @@ function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Min Threshold</Label>
+                <Label>
+                  {t('inventory.medication.threshold', {
+                    defaultValue: 'Min Threshold',
+                  })}
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -1131,10 +1325,12 @@ function InventoryPage() {
                 variant="outline"
                 onClick={() => setEditMedDialogOpen(false)}
               >
-                Cancel
+                {t('common.cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('common:save', { defaultValue: 'Save Changes' })}
               </Button>
             </DialogFooter>
           </form>
@@ -1145,10 +1341,16 @@ function InventoryPage() {
       <Dialog open={deleteMedDialogOpen} onOpenChange={setDeleteMedDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Medication</DialogTitle>
+            <DialogTitle>
+              {t('inventory:dialog.deleteMedTitle', {
+                defaultValue: 'Delete Medication',
+              })}
+            </DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this medication? This action
-              cannot be undone.
+              {t('inventory:dialog.deleteMedDesc', {
+                defaultValue:
+                  'Are you sure you want to delete this medication? This action cannot be undone.',
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -1157,14 +1359,16 @@ function InventoryPage() {
               variant="outline"
               onClick={() => setDeleteMedDialogOpen(false)}
             >
-              Cancel
+              {t('common.cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteMed}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+              {isSubmitting
+                ? t('common:deleting', { defaultValue: 'Deleting...' })
+                : t('common:delete', { defaultValue: 'Delete' })}
             </Button>
           </DialogFooter>
         </DialogContent>

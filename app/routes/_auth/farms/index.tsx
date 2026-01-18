@@ -2,6 +2,7 @@ import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { Bird, Building2, Edit, Fish, MapPin, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getFarmsForUser } from '~/features/farms/server'
 import { requireAuth } from '~/features/auth/server-middleware'
 import { Button, buttonVariants } from '~/components/ui/button'
@@ -74,6 +75,7 @@ export const Route = createFileRoute('/_auth/farms/')({
 })
 
 function FarmsIndexPage() {
+  const { t } = useTranslation(['farms', 'common'])
   const loaderData = Route.useLoaderData()
   const farms = loaderData.farms as Array<FarmWithStats>
 
@@ -93,13 +95,13 @@ function FarmsIndexPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Farm Management"
-        description="Manage your farms and view their performance"
+        title={t('farms:title')}
+        description={t('farms:description')}
         icon={Building2}
         actions={
           <Button onClick={handleCreate}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Farm
+            {t('farms:add')}
           </Button>
         }
       />
@@ -114,13 +116,15 @@ function FarmsIndexPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No farms found</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              {t('farms:empty.title')}
+            </h3>
             <p className="text-muted-foreground mb-4">
-              Get started by creating your first farm
+              {t('farms:empty.description')}
             </p>
             <Button onClick={handleCreate}>
               <Plus className="h-4 w-4 mr-2" />
-              Create Farm
+              {t('farms:create')}
             </Button>
           </CardContent>
         </Card>
@@ -146,7 +150,7 @@ function FarmsIndexPage() {
                           : 'outline'
                     }
                   >
-                    {farm.type}
+                    {t(`farms:types.${farm.type}`)}
                   </Badge>
                 </div>
               </CardHeader>
@@ -158,7 +162,9 @@ function FarmsIndexPage() {
                     <span className="font-medium text-foreground">
                       {farm.activeBatches}
                     </span>
-                    <span>batches</span>
+                    <span>
+                      {t('farms:stats.batches', { count: farm.activeBatches })}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     {farm.type === 'aquaculture' ? (
@@ -169,7 +175,7 @@ function FarmsIndexPage() {
                     <span className="font-medium text-foreground">
                       {farm.totalLivestock.toLocaleString()}
                     </span>
-                    <span>livestock</span>
+                    <span>{t('farms:stats.livestock')}</span>
                   </div>
                 </div>
 
@@ -184,7 +190,7 @@ function FarmsIndexPage() {
                       className: 'flex-1',
                     })}
                   >
-                    View Details
+                    {t('farms:detail.view', { defaultValue: 'View Details' })}
                   </Link>
                   <Button
                     variant="outline"
@@ -193,7 +199,7 @@ function FarmsIndexPage() {
                     onClick={() => handleEdit(farm)}
                   >
                     <Edit className="h-4 w-4 mr-2" />
-                    Edit
+                    {t('common:edit')}
                   </Button>
                 </div>
               </CardContent>

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { createServerFn } from '@tanstack/react-start'
+import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -66,6 +67,7 @@ export function MortalityDialog({
   onOpenChange,
   onSuccess,
 }: MortalityDialogProps) {
+  const { t } = useTranslation(['mortality', 'batches', 'common'])
   const queryClient = useQueryClient()
   const { selectedFarmId } = useFarm()
   const [batches, setBatches] = useState<
@@ -124,7 +126,7 @@ export function MortalityDialog({
           notes: formData.notes || undefined,
         },
       })
-      toast.success('Mortality recorded')
+      toast.success(t('recorded', { defaultValue: 'Mortality recorded' }))
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       onOpenChange(false)
       setFormData({
@@ -136,7 +138,11 @@ export function MortalityDialog({
       })
       onSuccess?.()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to record')
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t('error.record', { defaultValue: 'Failed to record' }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -146,11 +152,17 @@ export function MortalityDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Record Mortality</DialogTitle>
+          <DialogTitle>
+            {t('recordMortality', {
+              defaultValue: 'Record Mortality',
+            })}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="batch">Batch *</Label>
+            <Label htmlFor="batch">
+              {t('batches:batch', { defaultValue: 'Batch' })} *
+            </Label>
             <Select
               value={formData.batchId}
               onValueChange={(v) =>
@@ -162,13 +174,20 @@ export function MortalityDialog({
                   {formData.batchId
                     ? activeBatches.find((b) => b.id === formData.batchId)
                         ?.species
-                    : 'Select batch'}
+                    : t('batches:selectBatch', {
+                        defaultValue: 'Select batch',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {activeBatches.map((batch) => (
                   <SelectItem key={batch.id} value={batch.id}>
-                    {batch.species} ({batch.currentQuantity} remaining)
+                    {batch.species} (
+                    {t('batches:remaining', {
+                      count: batch.currentQuantity,
+                      defaultValue: '{{count}} remaining',
+                    })}
+                    )
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -177,7 +196,9 @@ export function MortalityDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity *</Label>
+              <Label htmlFor="quantity">
+                {t('common:quantity', { defaultValue: 'Quantity' })} *
+              </Label>
               <Input
                 id="quantity"
                 type="number"
@@ -191,7 +212,9 @@ export function MortalityDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="date">Date *</Label>
+              <Label htmlFor="date">
+                {t('common:date', { defaultValue: 'Date' })} *
+              </Label>
               <Input
                 id="date"
                 type="date"
@@ -205,7 +228,9 @@ export function MortalityDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cause">Cause *</Label>
+            <Label htmlFor="cause">
+              {t('cause', { defaultValue: 'Cause' })} *
+            </Label>
             <Select
               value={formData.cause}
               onValueChange={(v) =>
@@ -215,15 +240,22 @@ export function MortalityDialog({
               <SelectTrigger>
                 <SelectValue>
                   {formData.cause
-                    ? MORTALITY_CAUSES.find((c) => c.value === formData.cause)
-                        ?.label
-                    : 'Select cause'}
+                    ? t(`causes.${formData.cause}`, {
+                        defaultValue: MORTALITY_CAUSES.find(
+                          (c) => c.value === formData.cause,
+                        )?.label,
+                      })
+                    : t('selectCause', {
+                        defaultValue: 'Select cause',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {MORTALITY_CAUSES.map((cause) => (
                   <SelectItem key={cause.value} value={cause.value}>
-                    {cause.label}
+                    {t(`causes.${cause.value}`, {
+                      defaultValue: cause.label,
+                    })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -231,14 +263,18 @@ export function MortalityDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">
+              {t('common:notes', { defaultValue: 'Notes' })}
+            </Label>
             <Textarea
               id="notes"
               value={formData.notes}
               onChange={(e) =>
                 setFormData((p) => ({ ...p, notes: e.target.value }))
               }
-              placeholder="Optional notes..."
+              placeholder={t('common:optionalNotes', {
+                defaultValue: 'Optional notes...',
+              })}
               rows={2}
             />
           </div>
@@ -249,7 +285,7 @@ export function MortalityDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
@@ -260,7 +296,9 @@ export function MortalityDialog({
                 !formData.cause
               }
             >
-              {isSubmitting ? 'Recording...' : 'Record'}
+              {isSubmitting
+                ? t('common:recording', { defaultValue: 'Recording...' })
+                : t('common:record', { defaultValue: 'Record' })}
             </Button>
           </DialogFooter>
         </form>

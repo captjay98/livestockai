@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { Wheat } from 'lucide-react'
@@ -75,6 +76,7 @@ interface FeedDialogProps {
 }
 
 export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
+  const { t } = useTranslation(['feed', 'batches', 'common'])
   const router = useRouter()
   const { symbol: currencySymbol } = useFormatCurrency()
   const { format: formatWeight } = useFormatWeight()
@@ -126,7 +128,9 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
           },
         },
       })
-      toast.success('Feed record created')
+      toast.success(
+        t('messages.recorded', { defaultValue: 'Feed record created' }),
+      )
       handleOpenChange(false)
       setFormData({
         batchId: '',
@@ -138,7 +142,11 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
       router.invalidate()
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to record feed usage',
+        err instanceof Error
+          ? err.message
+          : t('error.record', {
+              defaultValue: 'Failed to record feed usage',
+            }),
       )
     } finally {
       setIsSubmitting(false)
@@ -158,15 +166,19 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Wheat className="h-5 w-5" />
-            Record Feed Usage
+            {t('recordUsage', { defaultValue: 'Record Feed Usage' })}
           </DialogTitle>
           <DialogDescription>
-            Log feed consumption for a batch
+            {t('recordDescription', {
+              defaultValue: 'Log feed consumption for a batch',
+            })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="batchId">Batch</Label>
+            <Label htmlFor="batchId">
+              {t('batches:batch', { defaultValue: 'Batch' })}
+            </Label>
             <Select
               value={formData.batchId}
               onValueChange={(value) =>
@@ -177,14 +189,23 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
                 <SelectValue>
                   {formData.batchId
                     ? batches.find((b) => b.id === formData.batchId)?.species
-                    : 'Select batch'}
+                    : t('batches:selectBatch', {
+                        defaultValue: 'Select batch',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {batches.map((batch) => (
                   <SelectItem key={batch.id} value={batch.id}>
-                    {batch.species} ({batch.currentQuantity}{' '}
-                    {batch.livestockType})
+                    {batch.species} (
+                    {t('batches:activeCount', {
+                      count: batch.currentQuantity,
+                      defaultValue: '{{count}} active',
+                    })}{' '}
+                    {t(`common:livestock.${batch.livestockType}`, {
+                      defaultValue: batch.livestockType,
+                    })}
+                    )
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -192,7 +213,9 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="feedType">Feed Type</Label>
+            <Label htmlFor="feedType">
+              {t('feedType', { defaultValue: 'Feed Type' })}
+            </Label>
             <Select
               value={formData.feedType}
               onValueChange={(value) =>
@@ -206,9 +229,12 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
               <SelectTrigger>
                 <SelectValue>
                   {formData.feedType
-                    ? FEED_TYPES.find((t) => t.value === formData.feedType)
-                        ?.label
-                    : 'Select feed type'}
+                    ? FEED_TYPES.find(
+                        (type) => type.value === formData.feedType,
+                      )?.label
+                    : t('selectFeedType', {
+                        defaultValue: 'Select feed type',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -221,7 +247,19 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
                       value={type.value}
                       disabled={qty <= 0}
                     >
-                      {type.label} ({formatWeight(qty)} available)
+                      {
+                        t(`types.${type.value}`, {
+                          defaultValue: type.label,
+                        } as any) as string
+                      }{' '}
+                      (
+                      {
+                        t('availableCount', {
+                          count: formatWeight(qty),
+                          defaultValue: '{{count}} available',
+                        } as any) as string
+                      }
+                      )
                     </SelectItem>
                   )
                 })}
@@ -231,7 +269,12 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="quantityKg">Quantity (kg)</Label>
+              <Label htmlFor="quantityKg">
+                {t('common:quantityLabel', {
+                  unit: 'kg',
+                  defaultValue: 'Quantity ({{unit}})',
+                })}
+              </Label>
               <Input
                 id="quantityKg"
                 type="number"
@@ -250,12 +293,22 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
               />
               {formData.feedType && (
                 <p className="text-xs text-muted-foreground">
-                  Available: {formatWeight(availableKg)}
+                  {
+                    t('available', {
+                      count: formatWeight(availableKg),
+                      defaultValue: 'Available: {{ count }}',
+                    } as any) as string
+                  }
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cost">Cost ({currencySymbol})</Label>
+              <Label htmlFor="cost">
+                {t('common:cost', {
+                  symbol: currencySymbol,
+                  defaultValue: 'Cost ({{symbol}})',
+                })}
+              </Label>
               <Input
                 id="cost"
                 type="number"
@@ -272,7 +325,9 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
+            <Label htmlFor="date">
+              {t('common:date', { defaultValue: 'Date' })}
+            </Label>
             <Input
               id="date"
               type="date"
@@ -297,7 +352,7 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
@@ -309,7 +364,9 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
                 !formData.cost
               }
             >
-              {isSubmitting ? 'Recording...' : 'Record Feed'}
+              {isSubmitting
+                ? t('common:recording', { defaultValue: 'Recording...' })
+                : t('recordFeed', { defaultValue: 'Record Feed' })}
             </Button>
           </DialogFooter>
         </form>

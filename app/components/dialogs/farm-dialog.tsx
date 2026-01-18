@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { Building2 } from 'lucide-react'
 import { createFarmFn, updateFarmFn } from '~/features/farms/server'
@@ -36,6 +37,7 @@ interface FarmDialogProps {
 }
 
 export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
+  const { t } = useTranslation(['farms', 'common'])
   const router = useRouter()
   const isEditing = !!farm
 
@@ -94,14 +96,20 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
         })
       }
 
-      toast.success(isEditing ? 'Farm updated' : 'Farm created')
+      toast.success(
+        isEditing
+          ? t('farms:updated', { defaultValue: 'Farm updated' })
+          : t('farms:created', { defaultValue: 'Farm created' }),
+      )
       onOpenChange(false)
       router.invalidate()
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : `Failed to ${isEditing ? 'update' : 'create'} farm`,
+          : t(isEditing ? 'farms:error.update' : 'farms:error.create', {
+              defaultValue: `Failed to ${isEditing ? 'update' : 'create'} farm`,
+            }),
       )
     } finally {
       setIsSubmitting(false)
@@ -114,30 +122,42 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
-            {isEditing ? 'Edit Farm' : 'Create New Farm'}
+            {isEditing
+              ? t('farms:editFarm', { defaultValue: 'Edit Farm' })
+              : t('farms:createNewFarm', { defaultValue: 'Create New Farm' })}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? 'Update the details of your farm'
-              : 'Enter the basic information for your new farm'}
+              ? t('farms:editDescription', {
+                  defaultValue: 'Update the details of your farm',
+                })
+              : t('farms:createDescription', {
+                  defaultValue: 'Enter the basic information for your new farm',
+                })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Farm Name</Label>
+            <Label htmlFor="name">
+              {t('farms:farmName', { defaultValue: 'Farm Name' })}
+            </Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
               }
-              placeholder="e.g. Green Valley Farms"
+              placeholder={t('farms:namePlaceholder', {
+                defaultValue: 'e.g. Green Valley Farms',
+              })}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location">
+              {t('farms:location', { defaultValue: 'Location' })}
+            </Label>
             <Input
               id="location"
               value={formData.location}
@@ -147,13 +167,17 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
                   location: e.target.value,
                 }))
               }
-              placeholder="e.g. Lagos, Nigeria"
+              placeholder={t('farms:locationPlaceholder', {
+                defaultValue: 'e.g. Lagos, Nigeria',
+              })}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="type">Farm Type</Label>
+            <Label htmlFor="type">
+              {t('farms:farmType', { defaultValue: 'Farm Type' })}
+            </Label>
             <Select
               value={formData.type}
               onValueChange={(value) => {
@@ -169,9 +193,17 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="poultry">Poultry</SelectItem>
-                <SelectItem value="aquaculture">Aquaculture</SelectItem>
-                <SelectItem value="mixed">Mixed</SelectItem>
+                <SelectItem value="poultry">
+                  {t('common:livestock.poultry', { defaultValue: 'Poultry' })}
+                </SelectItem>
+                <SelectItem value="aquaculture">
+                  {t('common:livestock.aquaculture', {
+                    defaultValue: 'Aquaculture',
+                  })}
+                </SelectItem>
+                <SelectItem value="mixed">
+                  {t('common:livestock.mixed', { defaultValue: 'Mixed' })}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -189,7 +221,7 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
@@ -197,11 +229,11 @@ export function FarmDialog({ farm, open, onOpenChange }: FarmDialogProps) {
             >
               {isSubmitting
                 ? isEditing
-                  ? 'Saving...'
-                  : 'Creating...'
+                  ? t('common:saving', { defaultValue: 'Saving...' })
+                  : t('common:creating', { defaultValue: 'Creating...' })
                 : isEditing
-                  ? 'Save Changes'
-                  : 'Create Farm'}
+                  ? t('common:saveChanges', { defaultValue: 'Save Changes' })
+                  : t('farms:createFarm', { defaultValue: 'Create Farm' })}
             </Button>
           </DialogFooter>
         </form>

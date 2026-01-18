@@ -19,6 +19,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/batches/server'
 import {
@@ -166,6 +167,7 @@ export const Route = createFileRoute('/_auth/batches/')({
 })
 
 function BatchesPage() {
+  const { t } = useTranslation(['batches', 'common'])
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
@@ -276,10 +278,16 @@ function BatchesPage() {
         },
       })
       setEditDialogOpen(false)
-      toast.success('Batch updated')
+      toast.success(t('messages.updated', { defaultValue: 'Batch updated' }))
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update batch')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('errors.update', {
+              defaultValue: 'Failed to update batch',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -295,13 +303,19 @@ function BatchesPage() {
         data: { batchId: selectedBatch.id },
       })
       setDeleteDialogOpen(false)
-      toast.success('Batch deleted')
+      toast.success(t('messages.deleted', { defaultValue: 'Batch deleted' }))
       queryClient.invalidateQueries({
         queryKey: ['farm-modules', selectedFarmId],
       })
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete batch')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('errors.delete', {
+              defaultValue: 'Failed to delete batch',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -311,7 +325,7 @@ function BatchesPage() {
     () => [
       {
         accessorKey: 'species',
-        header: 'Species',
+        header: t('columns.species', { defaultValue: 'Species' }),
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             {row.original.livestockType === 'poultry' ? (
@@ -327,7 +341,7 @@ function BatchesPage() {
       },
       {
         accessorKey: 'status',
-        header: 'Status',
+        header: t('columns.status', { defaultValue: 'Status' }),
         cell: ({ row }) => {
           const status = row.original.status
           const isLowStock =
@@ -345,11 +359,11 @@ function BatchesPage() {
                       : 'secondary'
                 }
               >
-                {status}
+                {t(`statuses.${status}`, { defaultValue: status })}
               </Badge>
               {isLowStock && (
                 <Badge variant="warning" className="text-[10px] px-1 py-0 h-4">
-                  Low Stock
+                  {t('lowStock', { defaultValue: 'Low Stock' })}
                 </Badge>
               )}
             </div>
@@ -358,24 +372,37 @@ function BatchesPage() {
       },
       {
         accessorKey: 'currentQuantity',
-        header: 'Current Qty',
+        header: t('columns.currentQty', {
+          defaultValue: 'Current Qty',
+        }),
         cell: ({ row }) => row.original.currentQuantity.toLocaleString(),
       },
       {
         accessorKey: 'initialQuantity',
-        header: 'Initial Qty',
+        header: t('columns.initialQty', {
+          defaultValue: 'Initial Qty',
+        }),
         cell: ({ row }) => row.original.initialQuantity.toLocaleString(),
       },
       {
         accessorKey: 'acquisitionDate',
-        header: 'Acquisition Date',
+        header: t('columns.acquisitionDate', {
+          defaultValue: 'Acquisition Date',
+        }),
         cell: ({ row }) => formatDate(row.original.acquisitionDate),
       },
       {
         id: 'actions',
         cell: ({ row }) => (
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="icon" asChild title="View Details">
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              title={t('actions.viewDetails', {
+                defaultValue: 'View Details',
+              })}
+            >
               <Link to={`/batches/${row.original.id}` as any}>
                 <Eye className="h-4 w-4" />
               </Link>
@@ -384,7 +411,9 @@ function BatchesPage() {
               variant="ghost"
               size="icon"
               onClick={() => handleEditBatch(row.original)}
-              title="Edit Batch"
+              title={t('actions.editBatch', {
+                defaultValue: 'Edit Batch',
+              })}
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -393,7 +422,9 @@ function BatchesPage() {
               size="icon"
               className="text-destructive hover:text-destructive"
               onClick={() => handleDeleteBatch(row.original)}
-              title="Delete Batch"
+              title={t('actions.deleteBatch', {
+                defaultValue: 'Delete Batch',
+              })}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -407,13 +438,16 @@ function BatchesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Livestock Batches"
-        description="Track groups of animals from acquisition to sale. Each batch represents a cohort you manage together."
+        title={t('title', { defaultValue: 'Livestock Batches' })}
+        description={t('description', {
+          defaultValue:
+            'Track groups of animals from acquisition to sale. Each batch represents a cohort you manage together.',
+        })}
         icon={Package}
         actions={
           <Button onClick={() => setBatchDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Batch
+            {t('create', { defaultValue: 'Add Batch' })}
           </Button>
         }
       />
@@ -423,7 +457,9 @@ function BatchesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Livestock
+                {t('totalLivestock', {
+                  defaultValue: 'Total Livestock',
+                })}
               </CardTitle>
               <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -432,7 +468,8 @@ function BatchesPage() {
                 {summary.overall.totalQuantity.toLocaleString()}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                {summary.overall.activeBatches} active batches
+                {summary.overall.activeBatches}{' '}
+                {t('activeBatches', { defaultValue: 'active batches' })}
               </p>
             </CardContent>
           </Card>
@@ -440,7 +477,7 @@ function BatchesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Poultry
+                {t('poultry', { defaultValue: 'Poultry' })}
               </CardTitle>
               <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -449,7 +486,8 @@ function BatchesPage() {
                 {summary.poultry.quantity.toLocaleString()}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                {summary.poultry.batches} batches
+                {summary.poultry.batches}{' '}
+                {t('common:batches', { defaultValue: 'batches' })}
               </p>
             </CardContent>
           </Card>
@@ -457,7 +495,7 @@ function BatchesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Fish
+                {t('fish', { defaultValue: 'Fish' })}
               </CardTitle>
               <Fish className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -466,7 +504,8 @@ function BatchesPage() {
                 {summary.fish.quantity.toLocaleString()}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                {summary.fish.batches} batches
+                {summary.fish.batches}{' '}
+                {t('common:batches', { defaultValue: 'batches' })}
               </p>
             </CardContent>
           </Card>
@@ -474,7 +513,9 @@ function BatchesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Investment
+                {t('totalInvestment', {
+                  defaultValue: 'Total Investment',
+                })}
               </CardTitle>
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -483,7 +524,10 @@ function BatchesPage() {
                 {formatCurrency(summary.overall.totalInvestment)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                {summary.overall.depletedBatches} depleted batches
+                {summary.overall.depletedBatches}{' '}
+                {t('depletedBatches', {
+                  defaultValue: 'depleted batches',
+                })}
               </p>
             </CardContent>
           </Card>
@@ -500,7 +544,7 @@ function BatchesPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search batches..."
+        searchPlaceholder={t('common:search', { defaultValue: 'Search...' })}
         isLoading={isLoading}
         filters={
           <>
@@ -518,20 +562,30 @@ function BatchesPage() {
             >
               <SelectTrigger className="w-[150px] h-10">
                 <SelectValue>
-                  {searchParams.status === 'active'
-                    ? 'Active'
-                    : searchParams.status === 'depleted'
-                      ? 'Depleted'
-                      : searchParams.status === 'sold'
-                        ? 'Sold'
-                        : 'All Status'}
+                  {searchParams.status
+                    ? t(`statuses.${searchParams.status}`, {
+                        defaultValue:
+                          searchParams.status.charAt(0).toUpperCase() +
+                          searchParams.status.slice(1),
+                      })
+                    : t('filters.allStatus', {
+                        defaultValue: 'All Status',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="depleted">Depleted</SelectItem>
-                <SelectItem value="sold">Sold</SelectItem>
+                <SelectItem value="all">
+                  {t('allStatus', { defaultValue: 'All Status' })}
+                </SelectItem>
+                <SelectItem value="active">
+                  {t('active', { defaultValue: 'Active' })}
+                </SelectItem>
+                <SelectItem value="depleted">
+                  {t('depleted', { defaultValue: 'Depleted' })}
+                </SelectItem>
+                <SelectItem value="sold">
+                  {t('sold', { defaultValue: 'Sold' })}
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -547,25 +601,33 @@ function BatchesPage() {
             >
               <SelectTrigger className="w-[150px] h-10">
                 <SelectValue>
-                  {searchParams.livestockType === 'poultry'
-                    ? 'Poultry'
-                    : searchParams.livestockType === 'fish'
-                      ? 'Fish'
-                      : 'All Types'}
+                  {searchParams.livestockType
+                    ? t(`livestockTypes.${searchParams.livestockType}`, {
+                        defaultValue:
+                          searchParams.livestockType.charAt(0).toUpperCase() +
+                          searchParams.livestockType.slice(1),
+                      })
+                    : t('filters.allTypes', {
+                        defaultValue: 'All Types',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="all">
+                  {t('filters.allTypes', { defaultValue: 'All Types' })}
+                </SelectItem>
                 <SelectItem value="poultry">
                   <div className="flex items-center gap-2">
                     <Bird className="h-4 w-4" />
-                    Poultry
+                    {t('livestockTypes.poultry', {
+                      defaultValue: 'Poultry',
+                    })}
                   </div>
                 </SelectItem>
                 <SelectItem value="fish">
                   <div className="flex items-center gap-2">
                     <Fish className="h-4 w-4" />
-                    Fish
+                    {t('livestockTypes.fish', { defaultValue: 'Fish' })}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -582,8 +644,12 @@ function BatchesPage() {
           updateSearch({ q, page: 1 })
         }}
         emptyIcon={<Users className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No batches found"
-        emptyDescription="Get started by creating your first livestock batch."
+        emptyTitle={t('empty.title', {
+          defaultValue: 'No batches found',
+        })}
+        emptyDescription={t('empty.description', {
+          defaultValue: 'Get started by creating your first livestock batch.',
+        })}
       />
 
       {/* Create Batch Dialog */}
@@ -593,17 +659,25 @@ function BatchesPage() {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Batch</DialogTitle>
-            <DialogDescription>Update batch information</DialogDescription>
+            <DialogTitle>
+              {t('dialog.editTitle', { defaultValue: 'Edit Batch' })}
+            </DialogTitle>
+            <DialogDescription>
+              {t('dialog.editDescription', {
+                defaultValue: 'Update batch information',
+              })}
+            </DialogDescription>
           </DialogHeader>
           {selectedBatch && (
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label>Species</Label>
+                <Label>{t('species', { defaultValue: 'Species' })}</Label>
                 <Input value={selectedBatch.species} disabled />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-current-quantity">Current Quantity</Label>
+                <Label htmlFor="edit-current-quantity">
+                  {t('quantity', { defaultValue: 'Quantity' })}
+                </Label>
                 <Input
                   id="edit-current-quantity"
                   type="number"
@@ -619,7 +693,9 @@ function BatchesPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-status">Status</Label>
+                <Label htmlFor="edit-status">
+                  {t('columns.status', { defaultValue: 'Status' })}
+                </Label>
                 <Select
                   value={editFormData.status}
                   onValueChange={(value: string | null) => {
@@ -636,9 +712,17 @@ function BatchesPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="depleted">Depleted</SelectItem>
-                    <SelectItem value="sold">Sold</SelectItem>
+                    <SelectItem value="active">
+                      {t('statuses.active', { defaultValue: 'Active' })}
+                    </SelectItem>
+                    <SelectItem value="depleted">
+                      {t('statuses.depleted', {
+                        defaultValue: 'Depleted',
+                      })}
+                    </SelectItem>
+                    <SelectItem value="sold">
+                      {t('statuses.sold', { defaultValue: 'Sold' })}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -656,10 +740,12 @@ function BatchesPage() {
                   onClick={() => setEditDialogOpen(false)}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {t('common:cancel', { defaultValue: 'Cancel' })}
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                  {isSubmitting
+                    ? t('common:saving', { defaultValue: 'Saving...' })
+                    : t('common:save', { defaultValue: 'Save' })}
                 </Button>
               </DialogFooter>
             </form>
@@ -671,10 +757,16 @@ function BatchesPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Batch</DialogTitle>
+            <DialogTitle>
+              {t('dialog.deleteTitle', {
+                defaultValue: 'Delete Batch',
+              })}
+            </DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this batch? This action cannot be
-              undone.
+              {t('dialog.deleteDescription', {
+                defaultValue:
+                  'Are you sure you want to delete this batch? This action cannot be undone.',
+              })}
             </DialogDescription>
           </DialogHeader>
           {selectedBatch && (
@@ -693,10 +785,12 @@ function BatchesPage() {
                   variant="outline"
                   onClick={() => setDeleteDialogOpen(false)}
                 >
-                  Cancel
+                  {t('common:cancel', { defaultValue: 'Cancel' })}
                 </Button>
                 <Button variant="destructive" onClick={handleDeleteConfirm}>
-                  Delete Batch
+                  {t('dialog.deleteConfirm', {
+                    defaultValue: 'Delete',
+                  })}
                 </Button>
               </DialogFooter>
             </div>

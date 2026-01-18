@@ -21,6 +21,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 import type {
   ExpenseCategory,
@@ -57,7 +58,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
@@ -200,6 +200,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 function ExpensesPage() {
+  const { t } = useTranslation(['expenses', 'common'])
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
@@ -327,7 +328,7 @@ function ExpensesPage() {
         },
       })
       setEditDialogOpen(false)
-      toast.success('Expense updated')
+      toast.success(t('messages.updated'))
       // Reload data
       const result = await getExpensesDataForFarm({
         data: {
@@ -357,7 +358,7 @@ function ExpensesPage() {
     try {
       await deleteExpenseFn({ data: { expenseId: selectedExpense.id } })
       setDeleteDialogOpen(false)
-      toast.success('Expense deleted')
+      toast.success(t('messages.deleted'))
       // Reload data
       const result = await getExpensesDataForFarm({
         data: {
@@ -402,7 +403,7 @@ function ExpensesPage() {
         },
       })
       setDialogOpen(false)
-      toast.success('Expense recorded')
+      toast.success(t('messages.recorded'))
       setFormData({
         category: '',
         amount: '',
@@ -452,7 +453,7 @@ function ExpensesPage() {
   const columns: Array<ColumnDef<Expense>> = [
     {
       accessorKey: 'category',
-      header: 'Category',
+      header: t('labels.category'),
       enableSorting: true,
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
@@ -462,14 +463,16 @@ function ExpensesPage() {
             {getCategoryIcon(row.original.category)}
           </div>
           <span className="capitalize font-medium">
-            {row.original.category}
+            {t('categories.' + row.original.category, {
+              defaultValue: row.original.category,
+            })}
           </span>
         </div>
       ),
     },
     {
       accessorKey: 'description',
-      header: 'Description',
+      header: t('labels.description'),
       enableSorting: true,
       cell: ({ row }) => (
         <span className="text-muted-foreground">
@@ -479,7 +482,7 @@ function ExpensesPage() {
     },
     {
       accessorKey: 'amount',
-      header: 'Amount',
+      header: t('labels.amount'),
       enableSorting: true,
       cell: ({ row }) => (
         <span className="font-medium text-destructive">
@@ -489,7 +492,7 @@ function ExpensesPage() {
     },
     {
       accessorKey: 'date',
-      header: 'Date',
+      header: t('labels.date'),
       enableSorting: true,
       cell: ({ row }) => (
         <Badge variant="outline">{formatDate(row.original.date)}</Badge>
@@ -497,7 +500,7 @@ function ExpensesPage() {
     },
     {
       accessorKey: 'supplierName',
-      header: 'Supplier',
+      header: t('labels.supplier'),
       enableSorting: true,
       cell: ({ row }) => (
         <span className="text-muted-foreground">
@@ -542,13 +545,13 @@ function ExpensesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Expenses"
-        description="Track and manage your farm expenses"
+        title={t('title')}
+        description={t('description')}
         icon={Receipt}
         actions={
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Record Expense
+            {t('record')}
           </Button>
         }
       />
@@ -556,12 +559,12 @@ function ExpensesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Record Expense</DialogTitle>
-            <DialogDescription>Log a new expense</DialogDescription>
+            <DialogTitle>{t('dialog.recordTitle')}</DialogTitle>
+            <DialogDescription>{t('dialog.recordDesc')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">{t('labels.category')}</Label>
               <Select
                 value={formData.category}
                 onValueChange={(value: string | null) =>
@@ -577,7 +580,7 @@ function ExpensesPage() {
                       ? EXPENSE_CATEGORIES.find(
                           (c) => c.value === formData.category,
                         )?.label
-                      : 'Select category'}
+                      : t('placeholders.selectCategory')}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -585,7 +588,9 @@ function ExpensesPage() {
                     <SelectItem key={cat.value} value={cat.value}>
                       <span className="flex items-center gap-2">
                         {getCategoryIcon(cat.value)}
-                        {cat.label}
+                        {t('categories.' + cat.value, {
+                          defaultValue: cat.label,
+                        })}
                       </span>
                     </SelectItem>
                   ))}
@@ -595,7 +600,9 @@ function ExpensesPage() {
 
             {batches.length > 0 && (
               <div className="space-y-2">
-                <Label htmlFor="batchId">Batch (Optional)</Label>
+                <Label htmlFor="batchId">
+                  {t('labels.batch')} ({t('common.optional')})
+                </Label>
                 <Select
                   value={formData.batchId || undefined}
                   onValueChange={(value: string | null) =>
@@ -610,7 +617,7 @@ function ExpensesPage() {
                       {formData.batchId
                         ? batches.find((b) => b.id === formData.batchId)
                             ?.species
-                        : 'Select batch (optional)'}
+                        : t('placeholders.selectBatch')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
@@ -626,7 +633,9 @@ function ExpensesPage() {
 
             {suppliers.length > 0 && (
               <div className="space-y-2">
-                <Label htmlFor="supplierId">Supplier (Optional)</Label>
+                <Label htmlFor="supplierId">
+                  {t('labels.supplier')} ({t('common.optional')})
+                </Label>
                 <Select
                   value={formData.supplierId || undefined}
                   onValueChange={(value: string | null) =>
@@ -641,7 +650,7 @@ function ExpensesPage() {
                       {formData.supplierId
                         ? suppliers.find((s) => s.id === formData.supplierId)
                             ?.name
-                        : 'Select supplier (optional)'}
+                        : t('placeholders.selectSupplier')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
@@ -657,7 +666,9 @@ function ExpensesPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="amount">Amount ({currencySymbol})</Label>
+                <Label htmlFor="amount">
+                  {t('labels.amount')} ({currencySymbol})
+                </Label>
                 <Input
                   id="amount"
                   type="number"
@@ -675,7 +686,7 @@ function ExpensesPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
+                <Label htmlFor="date">{t('labels.date')}</Label>
                 <Input
                   id="date"
                   type="date"
@@ -692,7 +703,7 @@ function ExpensesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('labels.description')}</Label>
               <Input
                 id="description"
                 value={formData.description}
@@ -702,7 +713,7 @@ function ExpensesPage() {
                     description: e.target.value,
                   }))
                 }
-                placeholder="Brief description"
+                placeholder={t('placeholders.description')}
                 required
               />
             </div>
@@ -721,7 +732,7 @@ function ExpensesPage() {
                 className="h-4 w-4"
               />
               <Label htmlFor="isRecurring" className="text-sm">
-                This is a recurring expense
+                {t('labels.isRecurring')}
               </Label>
             </div>
 
@@ -738,7 +749,7 @@ function ExpensesPage() {
                 onClick={() => setDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -746,7 +757,7 @@ function ExpensesPage() {
                   isSubmitting || !formData.amount || !formData.description
                 }
               >
-                {isSubmitting ? 'Recording...' : 'Record Expense'}
+                {isSubmitting ? t('dialog.recording') : t('record')}
               </Button>
             </DialogFooter>
           </form>
@@ -759,7 +770,7 @@ function ExpensesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Expenses
+                {t('labels.totalExpenses')}
               </CardTitle>
               <Banknote className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -768,7 +779,7 @@ function ExpensesPage() {
                 {formatCurrency(summary.total.amount)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {summary.total.count} records
+                {summary.total.count} {t('labels.records')}
               </p>
             </CardContent>
           </Card>
@@ -776,7 +787,7 @@ function ExpensesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Feed
+                {t('labels.feed')}
               </CardTitle>
               <Package className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
             </CardHeader>
@@ -792,7 +803,7 @@ function ExpensesPage() {
                 {'feed' in summary.byCategory
                   ? summary.byCategory.feed.count
                   : 0}{' '}
-                purchases
+                {t('expenses.labels.purchases')}
               </p>
             </CardContent>
           </Card>
@@ -800,7 +811,7 @@ function ExpensesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Livestock
+                {t('expenses.labels.livestock')}
               </CardTitle>
               <div className="flex -space-x-1">
                 <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
@@ -825,7 +836,7 @@ function ExpensesPage() {
                   ('livestock_fish' in summary.byCategory
                     ? summary.byCategory.livestock_fish.count
                     : 0)}{' '}
-                purchases
+                {t('expenses.labels.purchases')}
               </p>
             </CardContent>
           </Card>
@@ -833,7 +844,7 @@ function ExpensesPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Labor
+                {t('expenses.labels.labor')}
               </CardTitle>
               <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple" />
             </CardHeader>
@@ -849,7 +860,7 @@ function ExpensesPage() {
                 {'labor' in summary.byCategory
                   ? summary.byCategory.labor.count
                   : 0}{' '}
-                payments
+                {t('expenses.labels.payments')}
               </p>
             </CardContent>
           </Card>
@@ -867,7 +878,7 @@ function ExpensesPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search expenses..."
+        searchPlaceholder={t('expenses.placeholders.search')}
         isLoading={isLoading}
         filters={
           <Select
@@ -881,16 +892,22 @@ function ExpensesPage() {
           >
             <SelectTrigger className="w-[180px] h-10">
               <SelectValue>
-                {searchParams.category || 'All Categories'}
+                {searchParams.category
+                  ? t('expenses.categories.' + searchParams.category, {
+                      defaultValue: searchParams.category,
+                    })
+                  : t('expenses.categories.all')}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="all">
+                {t('expenses.categories.all')}
+              </SelectItem>
               {Object.keys(CATEGORY_ICONS).map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   <div className="flex items-center gap-2 capitalize">
                     {CATEGORY_ICONS[cat]}
-                    {cat}
+                    {t('expenses.categories.' + cat, { defaultValue: cat })}
                   </div>
                 </SelectItem>
               ))}
@@ -898,8 +915,8 @@ function ExpensesPage() {
           </Select>
         }
         emptyIcon={<Banknote className="h-12 w-12" />}
-        emptyTitle="No expenses yet"
-        emptyDescription="Record your first expense to get started."
+        emptyTitle={t('expenses.placeholders.noExpenses')}
+        emptyDescription={t('expenses.placeholders.noExpensesDesc')}
         onPaginationChange={(page, pageSize) => {
           updateSearch({ page, pageSize })
         }}
@@ -915,7 +932,7 @@ function ExpensesPage() {
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Expense Details</DialogTitle>
+            <DialogTitle>{t('expenses.dialog.viewTitle')}</DialogTitle>
           </DialogHeader>
           {selectedExpense && (
             <div className="space-y-4">
@@ -927,7 +944,9 @@ function ExpensesPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-lg capitalize">
-                    {selectedExpense.category}
+                    {t('expenses.categories.' + selectedExpense.category, {
+                      defaultValue: selectedExpense.category,
+                    })}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {selectedExpense.description}
@@ -936,30 +955,45 @@ function ExpensesPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Amount:</span>
+                  <span className="text-muted-foreground">
+                    {t('expenses.labels.amount')}:
+                  </span>
                   <span className="font-bold text-lg text-destructive">
                     -{formatCurrency(parseFloat(selectedExpense.amount))}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Supplier:</span>
+                  <span className="text-muted-foreground">
+                    {t('expenses.labels.supplier')}:
+                  </span>
                   <span className="font-medium">
-                    {selectedExpense.supplierName || 'None'}
+                    {selectedExpense.supplierName ||
+                      t('common.none', { defaultValue: 'None' })}
                   </span>
                 </div>
                 {selectedExpense.batchSpecies && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Batch:</span>
+                    <span className="text-muted-foreground">
+                      {t('expenses.labels.batch')}:
+                    </span>
                     <span>{selectedExpense.batchSpecies}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Date:</span>
+                  <span className="text-muted-foreground">
+                    {t('expenses.labels.date')}:
+                  </span>
                   <span>{formatDate(selectedExpense.date)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Recurring:</span>
-                  <span>{selectedExpense.isRecurring ? 'Yes' : 'No'}</span>
+                  <span className="text-muted-foreground">
+                    {t('expenses.labels.recurring')}:
+                  </span>
+                  <span>
+                    {selectedExpense.isRecurring
+                      ? t('common.yes', { defaultValue: 'Yes' })
+                      : t('common.no', { defaultValue: 'No' })}
+                  </span>
                 </div>
               </div>
               <div className="flex gap-2 justify-end">
@@ -971,7 +1005,7 @@ function ExpensesPage() {
                   }}
                 >
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit
+                  {t('common.edit')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -981,7 +1015,7 @@ function ExpensesPage() {
                   }}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
+                  {t('common.delete')}
                 </Button>
               </div>
             </div>
@@ -993,12 +1027,16 @@ function ExpensesPage() {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Expense</DialogTitle>
-            <DialogDescription>Update expense details</DialogDescription>
+            <DialogTitle>{t('expenses.dialog.editTitle')}</DialogTitle>
+            <DialogDescription>
+              {t('expenses.dialog.editDesc')}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="editCategory">Category</Label>
+              <Label htmlFor="editCategory">
+                {t('expenses.labels.category')}
+              </Label>
               <Select
                 value={editFormData.category}
                 onValueChange={(value: string | null) =>
@@ -1014,7 +1052,7 @@ function ExpensesPage() {
                       ? EXPENSE_CATEGORIES.find(
                           (c) => c.value === editFormData.category,
                         )?.label
-                      : 'Select category'}
+                      : t('expenses.placeholders.selectCategory')}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -1022,7 +1060,9 @@ function ExpensesPage() {
                     <SelectItem key={cat.value} value={cat.value}>
                       <span className="flex items-center gap-2">
                         {getCategoryIcon(cat.value)}
-                        {cat.label}
+                        {t('expenses.categories.' + cat.value, {
+                          defaultValue: cat.label,
+                        })}
                       </span>
                     </SelectItem>
                   ))}
@@ -1030,7 +1070,9 @@ function ExpensesPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="editAmount">Amount ({currencySymbol})</Label>
+              <Label htmlFor="editAmount">
+                {t('expenses.labels.amount')} ({currencySymbol})
+              </Label>
               <Input
                 id="editAmount"
                 type="number"
@@ -1047,7 +1089,9 @@ function ExpensesPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="editDescription">Description</Label>
+              <Label htmlFor="editDescription">
+                {t('expenses.labels.description')}
+              </Label>
               <Input
                 id="editDescription"
                 value={editFormData.description}
@@ -1072,10 +1116,10 @@ function ExpensesPage() {
                 onClick={() => setEditDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting ? t('common.saving') : t('common.save')}
               </Button>
             </DialogFooter>
           </form>
@@ -1086,10 +1130,9 @@ function ExpensesPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Expense</DialogTitle>
+            <DialogTitle>{t('expenses.dialog.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this expense? This action cannot
-              be undone.
+              {t('expenses.dialog.deleteDesc')}
             </DialogDescription>
           </DialogHeader>
           {selectedExpense && (
@@ -1118,14 +1161,14 @@ function ExpensesPage() {
               onClick={() => setDeleteDialogOpen(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Deleting...' : 'Delete'}
+              {isSubmitting ? t('common.deleting') : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

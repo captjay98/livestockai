@@ -11,7 +11,7 @@ import {
   TrendingUp,
   Wheat,
 } from 'lucide-react'
-import type { ColumnDef } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import type {
   EggReport,
   FeedReport,
@@ -19,7 +19,16 @@ import type {
   ProfitLossReport,
   SalesReport,
 } from '~/features/reports/server'
+import type { ColumnDef } from '@tanstack/react-table'
 import { getFarms } from '~/features/farms/server'
+import {
+  getFiscalYearEnd,
+  getFiscalYearLabel,
+  getFiscalYearStart,
+} from '~/features/reports/fiscal-year'
+import { PageHeader } from '~/components/page-header'
+import { Badge } from '~/components/ui/badge'
+import { DataTable } from '~/components/ui/data-table'
 import {
   getEggReport,
   getFeedReport,
@@ -33,14 +42,6 @@ import {
   useFormatDate,
   useFormatWeight,
 } from '~/features/settings'
-import {
-  getFiscalYearEnd,
-  getFiscalYearLabel,
-  getFiscalYearStart,
-} from '~/features/reports/fiscal-year'
-import { DataTable } from '~/components/ui/data-table'
-import { Badge } from '~/components/ui/badge'
-import { PageHeader } from '~/components/page-header'
 
 const fetchReportData = createServerFn({ method: 'GET' })
   .inputValidator(
@@ -136,6 +137,7 @@ const reportTypes = [
 ]
 
 function ReportsPage() {
+  const { t } = useTranslation(['reports', 'common'])
   const { farms, report, reportType } = Route.useLoaderData()
   const search = Route.useSearch()
   const { fiscalYearStartMonth } = useBusinessSettings()
@@ -170,14 +172,14 @@ function ReportsPage() {
     <div className="min-h-screen bg-background">
       <main className="space-y-6">
         <PageHeader
-          title="Reports"
-          description="Generate and export business reports"
+          title={t('title')}
+          description={t('description')}
           icon={BarChart3}
         />
 
         {/* Report Selection */}
         <div className="bg-card rounded-lg border p-6 mb-6">
-          <h2 className="font-semibold mb-4">Generate Report</h2>
+          <h2 className="font-semibold mb-4">{t('generate')}</h2>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-4">
             {reportTypes.map((type) => {
@@ -199,7 +201,12 @@ function ReportsPage() {
                         : 'text-muted-foreground'
                     }`}
                   />
-                  <div className="font-medium text-sm">{type.name}</div>
+                  <div className="font-medium text-sm">
+                    {t(
+                      `types.${type.id === 'profit-loss' ? 'profitLoss' : type.id}` as any,
+                      { defaultValue: type.name },
+                    )}
+                  </div>
                 </button>
               )
             })}
@@ -207,13 +214,13 @@ function ReportsPage() {
 
           <div className="grid gap-4 md:grid-cols-4 mb-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Farm</label>
+              <label className="text-sm font-medium">{t('labels.farm')}</label>
               <select
                 value={selectedFarm}
                 onChange={(e) => setSelectedFarm(e.target.value)}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
-                <option value="">All Farms</option>
+                <option value="">{t('labels.allFarms')}</option>
                 {farms.map((farm: { id: string; name: string }) => (
                   <option key={farm.id} value={farm.id}>
                     {farm.name}
@@ -232,14 +239,16 @@ function ReportsPage() {
                       onChange={(e) => handleFiscalYearToggle(e.target.checked)}
                       className="h-4 w-4 rounded border-input"
                     />
-                    Use Fiscal Year{' '}
+                    {t('labels.useFiscalYear')}{' '}
                     {useFiscalYear &&
                       `(${getFiscalYearLabel(fiscalYearStartMonth)})`}
                   </label>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Start Date</label>
+                  <label className="text-sm font-medium">
+                    {t('labels.startDate')}
+                  </label>
                   <input
                     type="date"
                     value={startDate}
@@ -250,7 +259,9 @@ function ReportsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">End Date</label>
+                  <label className="text-sm font-medium">
+                    {t('labels.endDate')}
+                  </label>
                   <input
                     type="date"
                     value={endDate}
@@ -267,7 +278,7 @@ function ReportsPage() {
                 onClick={handleGenerateReport}
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
               >
-                Generate Report
+                {t('generate')}
               </button>
             </div>
           </div>
@@ -278,7 +289,10 @@ function ReportsPage() {
           <div className="bg-card rounded-lg border p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">
-                {reportTypes.find((r) => r.id === reportType)?.name} Report
+                {t(
+                  `types.${reportType === 'profit-loss' ? 'profitLoss' : reportType}` as any,
+                )}{' '}
+                {t('labels.reportSuffix', { defaultValue: 'Report' })}
               </h2>
               <div className="flex gap-2">
                 <button
@@ -288,7 +302,7 @@ function ReportsPage() {
                   className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3"
                 >
                   <FileSpreadsheet className="h-4 w-4 mr-2" />
-                  Excel
+                  {t('actions.excel')}
                 </button>
                 <button
                   onClick={() => {
@@ -297,7 +311,7 @@ function ReportsPage() {
                   className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3"
                 >
                   <FileText className="h-4 w-4 mr-2" />
-                  PDF
+                  {t('actions.pdf')}
                 </button>
               </div>
             </div>
@@ -326,12 +340,13 @@ function ReportsPage() {
 
 function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
   const { format: formatCurrency } = useFormatCurrency()
+  const { t } = useTranslation(['reports', 'common'])
   return (
     <div className="space-y-6">
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
         <div className="p-3 sm:p-4 bg-success/10 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Revenue
+            {t('profitLoss.totalRevenue')}
           </div>
           <div className="text-lg sm:text-2xl font-bold text-success">
             {formatCurrency(report.revenue.total)}
@@ -339,7 +354,7 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-destructive/10 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Expenses
+            {t('profitLoss.totalExpenses')}
           </div>
           <div className="text-lg sm:text-2xl font-bold text-destructive">
             {formatCurrency(report.expenses.total)}
@@ -349,7 +364,7 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
           className={`p-3 sm:p-4 rounded-lg col-span-2 sm:col-span-1 ${report.profit >= 0 ? 'bg-info/10' : 'bg-warning/10'}`}
         >
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Net Profit
+            {t('profitLoss.netProfit')}
           </div>
           <div
             className={`text-lg sm:text-2xl font-bold ${report.profit >= 0 ? 'text-info' : 'text-warning'}`}
@@ -357,21 +372,25 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
             {formatCurrency(report.profit)}
           </div>
           <div className="text-[10px] sm:text-xs text-muted-foreground">
-            {report.profitMargin}% margin
+            {report.profitMargin}% {t('profitLoss.margin')}
           </div>
         </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div>
-          <h3 className="font-medium mb-3">Revenue by Type</h3>
+          <h3 className="font-medium mb-3">{t('profitLoss.revenueByType')}</h3>
           <div className="space-y-2">
             {report.revenue.byType.map((item) => (
               <div
                 key={item.type}
                 className="flex justify-between p-2 bg-muted/50 rounded"
               >
-                <span className="capitalize">{item.type}</span>
+                <span className="capitalize">
+                  {t(`common.livestock.${item.type}`, {
+                    defaultValue: item.type,
+                  })}
+                </span>
                 <span className="font-medium">
                   {formatCurrency(item.amount)}
                 </span>
@@ -380,14 +399,20 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
           </div>
         </div>
         <div>
-          <h3 className="font-medium mb-3">Expenses by Category</h3>
+          <h3 className="font-medium mb-3">
+            {t('profitLoss.expensesByCategory')}
+          </h3>
           <div className="space-y-2">
             {report.expenses.byCategory.map((item) => (
               <div
                 key={item.category}
                 className="flex justify-between p-2 bg-muted/50 rounded"
               >
-                <span className="capitalize">{item.category}</span>
+                <span className="capitalize">
+                  {t('expenses.categories.' + item.category, {
+                    defaultValue: item.category,
+                  })}
+                </span>
                 <span className="font-medium">
                   {formatCurrency(item.amount)}
                 </span>
@@ -401,6 +426,7 @@ function ProfitLossReportView({ report }: { report: ProfitLossReport }) {
 }
 
 function InventoryReportView({ report }: { report: InventoryReport }) {
+  const { t } = useTranslation(['reports', 'common'])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -408,41 +434,49 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
     () => [
       {
         accessorKey: 'species',
-        header: 'Species',
+        header: t('inventory.columns.species'),
         cell: ({ row }) => (
-          <span className="capitalize">{row.original.species}</span>
+          <span className="capitalize">
+            {t(`common.livestock.${row.original.species}`, {
+              defaultValue: row.original.species,
+            })}
+          </span>
         ),
       },
       {
         accessorKey: 'livestockType',
-        header: 'Type',
+        header: t('inventory.columns.type'),
         cell: ({ row }) => (
-          <span className="capitalize">{row.original.livestockType}</span>
+          <span className="capitalize">
+            {t(`common.livestock.${row.original.livestockType}`, {
+              defaultValue: row.original.livestockType,
+            })}
+          </span>
         ),
       },
       {
         accessorKey: 'initialQuantity',
-        header: 'Initial',
+        header: t('inventory.columns.initial'),
         cell: ({ row }) => row.original.initialQuantity.toLocaleString(),
       },
       {
         accessorKey: 'currentQuantity',
-        header: 'Current',
+        header: t('inventory.columns.current'),
         cell: ({ row }) => row.original.currentQuantity.toLocaleString(),
       },
       {
         accessorKey: 'mortalityCount',
-        header: 'Mortality',
+        header: t('inventory.columns.mortality'),
         cell: ({ row }) => row.original.mortalityCount.toLocaleString(),
       },
       {
         accessorKey: 'mortalityRate',
-        header: 'Rate',
+        header: t('inventory.columns.rate'),
         cell: ({ row }) => `${row.original.mortalityRate}%`,
       },
       {
         accessorKey: 'status',
-        header: 'Status',
+        header: t('inventory.columns.status'),
         cell: ({ row }) => (
           <Badge
             variant={row.original.status === 'active' ? 'default' : 'secondary'}
@@ -452,7 +486,9 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
                 : ''
             }
           >
-            {row.original.status}
+            {t(`batches.statuses.${row.original.status}`, {
+              defaultValue: row.original.status,
+            })}
           </Badge>
         ),
       },
@@ -473,7 +509,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4">
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Poultry
+            {t('inventory.summary.totalPoultry')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.totalPoultry.toLocaleString()}
@@ -481,7 +517,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Fish
+            {t('inventory.summary.totalFish')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.totalFish.toLocaleString()}
@@ -489,7 +525,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Mortality
+            {t('inventory.summary.totalMortality')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.totalMortality.toLocaleString()}
@@ -497,7 +533,7 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Mortality Rate
+            {t('inventory.summary.mortalityRate')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.overallMortalityRate}%
@@ -518,14 +554,15 @@ function InventoryReportView({ report }: { report: InventoryReport }) {
         }}
         onSortChange={() => {}}
         isLoading={false}
-        emptyTitle="No inventory data"
-        emptyDescription="Inventory data will appear here."
+        emptyTitle={t('inventory.empty.title')}
+        emptyDescription={t('inventory.empty.description')}
       />
     </div>
   )
 }
 
 function SalesReportView({ report }: { report: SalesReport }) {
+  const { t } = useTranslation(['reports', 'common'])
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
   const [page, setPage] = useState(1)
@@ -535,34 +572,38 @@ function SalesReportView({ report }: { report: SalesReport }) {
     () => [
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: t('sales.columns.date'),
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'livestockType',
-        header: 'Type',
+        header: t('sales.columns.type'),
         cell: ({ row }) => (
-          <span className="capitalize">{row.original.livestockType}</span>
+          <span className="capitalize">
+            {t(`common.livestock.${row.original.livestockType}`, {
+              defaultValue: row.original.livestockType,
+            })}
+          </span>
         ),
       },
       {
         accessorKey: 'quantity',
-        header: 'Quantity',
+        header: t('sales.columns.quantity'),
         cell: ({ row }) => row.original.quantity,
       },
       {
         accessorKey: 'unitPrice',
-        header: 'Price',
+        header: t('sales.columns.price'),
         cell: ({ row }) => formatCurrency(row.original.unitPrice),
       },
       {
         accessorKey: 'totalAmount',
-        header: 'Total',
+        header: t('sales.columns.total'),
         cell: ({ row }) => formatCurrency(row.original.totalAmount),
       },
       {
         accessorKey: 'customerName',
-        header: 'Customer',
+        header: t('sales.columns.customer'),
         cell: ({ row }) => row.original.customerName || '-',
       },
     ],
@@ -582,7 +623,7 @@ function SalesReportView({ report }: { report: SalesReport }) {
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Sales
+            {t('sales.summary.totalSales')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.totalSales}
@@ -590,7 +631,7 @@ function SalesReportView({ report }: { report: SalesReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-success/10 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Revenue
+            {t('sales.summary.totalRevenue')}
           </div>
           <div className="text-lg sm:text-2xl font-bold text-success">
             {formatCurrency(report.summary.totalRevenue)}
@@ -598,13 +639,21 @@ function SalesReportView({ report }: { report: SalesReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg col-span-2 sm:col-span-1">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            By Type
+            {t('sales.summary.byType')}
           </div>
           <div className="text-xs sm:text-sm">
-            {report.summary.byType.map((t) => (
-              <div key={t.type} className="flex justify-between">
-                <span className="capitalize">{t.type}:</span>
-                <span>{t.quantity} units</span>
+            {report.summary.byType.map((typeInfo) => (
+              <div key={typeInfo.type} className="flex justify-between">
+                <span className="capitalize">
+                  {t(`common.livestock.${typeInfo.type}`, {
+                    defaultValue: typeInfo.type,
+                  })}
+                  :
+                </span>
+                <span>
+                  {typeInfo.quantity}{' '}
+                  {t('common.units', { defaultValue: 'units' })}
+                </span>
               </div>
             ))}
           </div>
@@ -624,14 +673,15 @@ function SalesReportView({ report }: { report: SalesReport }) {
         }}
         onSortChange={() => {}}
         isLoading={false}
-        emptyTitle="No sales data"
-        emptyDescription="Sales records will appear here."
+        emptyTitle={t('sales.empty.title')}
+        emptyDescription={t('sales.empty.description')}
       />
     </div>
   )
 }
 
 function FeedReportView({ report }: { report: FeedReport }) {
+  const { t } = useTranslation(['reports', 'common'])
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatWeight, label: weightLabel } = useFormatWeight()
   const [page, setPage] = useState(1)
@@ -641,14 +691,18 @@ function FeedReportView({ report }: { report: FeedReport }) {
     () => [
       {
         accessorKey: 'species',
-        header: 'Species',
+        header: t('feed.columns.species'),
         cell: ({ row }) => (
-          <span className="capitalize">{row.original.species}</span>
+          <span className="capitalize">
+            {t(`common.livestock.${row.original.species}`, {
+              defaultValue: row.original.species,
+            })}
+          </span>
         ),
       },
       {
         accessorKey: 'feedType',
-        header: 'Feed Type',
+        header: t('feed.columns.type'),
         cell: ({ row }) => (
           <span className="capitalize">
             {row.original.feedType?.replace('_', ' ')}
@@ -657,12 +711,12 @@ function FeedReportView({ report }: { report: FeedReport }) {
       },
       {
         accessorKey: 'totalQuantityKg',
-        header: `Quantity (${weightLabel})`,
+        header: `${t('feed.columns.quantity')} (${weightLabel})`,
         cell: ({ row }) => formatWeight(row.original.totalQuantityKg),
       },
       {
         accessorKey: 'totalCost',
-        header: 'Cost',
+        header: t('feed.columns.cost'),
         cell: ({ row }) => formatCurrency(row.original.totalCost),
       },
     ],
@@ -682,15 +736,16 @@ function FeedReportView({ report }: { report: FeedReport }) {
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Feed
+            {t('feed.summary.totalFeed')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
-            {report.summary.totalFeedKg.toLocaleString()} kg
+            {report.summary.totalFeedKg.toLocaleString()}{' '}
+            {t('health.details.kg', { defaultValue: 'kg' })}
           </div>
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Cost
+            {t('feed.summary.totalCost')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {formatCurrency(report.summary.totalCost)}
@@ -698,13 +753,18 @@ function FeedReportView({ report }: { report: FeedReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg col-span-2 sm:col-span-1">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            By Feed Type
+            {t('feed.summary.byType')}
           </div>
           <div className="text-xs sm:text-sm">
-            {report.summary.byFeedType.map((t) => (
-              <div key={t.type} className="flex justify-between">
-                <span className="capitalize">{t.type.replace('_', ' ')}:</span>
-                <span>{formatWeight(t.quantityKg)}</span>
+            {report.summary.byFeedType.map((typeInfo) => (
+              <div key={typeInfo.type} className="flex justify-between">
+                <span className="capitalize">
+                  {t(`feed.types.${typeInfo.type}`, {
+                    defaultValue: typeInfo.type.replace('_', ' '),
+                  })}
+                  :
+                </span>
+                <span>{formatWeight(typeInfo.quantityKg)}</span>
               </div>
             ))}
           </div>
@@ -724,14 +784,15 @@ function FeedReportView({ report }: { report: FeedReport }) {
         }}
         onSortChange={() => {}}
         isLoading={false}
-        emptyTitle="No feed data"
-        emptyDescription="Feed records will appear here."
+        emptyTitle={t('feed.empty.title')}
+        emptyDescription={t('feed.empty.description')}
       />
     </div>
   )
 }
 
 function EggReportView({ report }: { report: EggReport }) {
+  const { t } = useTranslation()
   const { format: formatDate } = useFormatDate()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -740,27 +801,27 @@ function EggReportView({ report }: { report: EggReport }) {
     () => [
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: t('eggs.columns.date'),
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'collected',
-        header: 'Collected',
+        header: t('eggs.columns.collected'),
         cell: ({ row }) => row.original.collected.toLocaleString(),
       },
       {
         accessorKey: 'broken',
-        header: 'Broken',
+        header: t('eggs.columns.broken'),
         cell: ({ row }) => row.original.broken.toLocaleString(),
       },
       {
         accessorKey: 'sold',
-        header: 'Sold',
+        header: t('eggs.columns.sold'),
         cell: ({ row }) => row.original.sold.toLocaleString(),
       },
       {
         accessorKey: 'inventory',
-        header: 'Inventory',
+        header: t('eggs.columns.inventory'),
         cell: ({ row }) => row.original.inventory.toLocaleString(),
       },
     ],
@@ -780,7 +841,7 @@ function EggReportView({ report }: { report: EggReport }) {
       <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-5">
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Collected
+            {t('eggs.summary.totalCollected')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.totalCollected.toLocaleString()}
@@ -788,7 +849,7 @@ function EggReportView({ report }: { report: EggReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Sold
+            {t('eggs.summary.totalSold')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.totalSold.toLocaleString()}
@@ -796,7 +857,7 @@ function EggReportView({ report }: { report: EggReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Total Broken
+            {t('eggs.summary.totalBroken')}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.totalBroken.toLocaleString()}
@@ -804,7 +865,9 @@ function EggReportView({ report }: { report: EggReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Current Inventory
+            {t('eggs.summary.currentInventory', {
+              defaultValue: 'Current Inventory',
+            })}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.currentInventory.toLocaleString()}
@@ -812,7 +875,7 @@ function EggReportView({ report }: { report: EggReport }) {
         </div>
         <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
           <div className="text-[10px] sm:text-sm text-muted-foreground mb-1">
-            Laying %
+            {t('eggs.summary.layingRate', { defaultValue: 'Laying %' })}
           </div>
           <div className="text-lg sm:text-2xl font-bold">
             {report.summary.averageLayingPercentage}%

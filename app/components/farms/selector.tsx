@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Building2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useFarm } from '~/features/farms/context'
 import {
   Select,
@@ -16,6 +17,7 @@ interface FarmSelectorProps {
 }
 
 export function FarmSelector({ className }: FarmSelectorProps) {
+  const { t } = useTranslation(['common'])
   const { selectedFarmId, setSelectedFarmId } = useFarm()
   const [farms, setFarms] = useState<
     Array<{ id: string; name: string; type: string }>
@@ -46,7 +48,9 @@ export function FarmSelector({ className }: FarmSelectorProps) {
     return (
       <div className={cn('flex items-center gap-2', className)}>
         <Building2 className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Loading...</span>
+        <span className="text-sm text-muted-foreground">
+          {t('common:loading')}
+        </span>
       </div>
     )
   }

@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { Receipt } from 'lucide-react'
 import type { ExpenseCategory } from '~/features/expenses/server'
@@ -42,6 +43,7 @@ export function ExpenseDialog({
   open,
   onOpenChange,
 }: ExpenseDialogProps) {
+  const { t } = useTranslation(['expenses', 'common', 'suppliers'])
   const router = useRouter()
   const { symbol: currencySymbol } = useFormatCurrency()
   const [suppliers, setSuppliers] = useState<Array<Supplier>>([])
@@ -88,7 +90,9 @@ export function ExpenseDialog({
           },
         },
       })
-      toast.success('Expense recorded')
+      toast.success(
+        t('messages.recorded', { defaultValue: 'Expense recorded' }),
+      )
       handleOpenChange(false)
       setFormData({
         category: '',
@@ -100,7 +104,13 @@ export function ExpenseDialog({
       })
       router.invalidate()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to record expense')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('messages.recordError', {
+              defaultValue: 'Failed to record expense',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -112,13 +122,19 @@ export function ExpenseDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Receipt className="h-5 w-5" />
-            Record Expense
+            {t('recordExpense', { defaultValue: 'Record Expense' })}
           </DialogTitle>
-          <DialogDescription>Log a new expense transaction</DialogDescription>
+          <DialogDescription>
+            {t('recordDescription', {
+              defaultValue: 'Log a new expense transaction',
+            })}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">
+              {t('labels.category', { defaultValue: 'Category' })}
+            </Label>
             <Select
               value={formData.category}
               onValueChange={(value) =>
@@ -131,13 +147,17 @@ export function ExpenseDialog({
                     ? EXPENSE_CATEGORIES.find(
                         (c) => c.value === formData.category,
                       )?.label
-                    : 'Select category'}
+                    : t('placeholders.selectCategory', {
+                        defaultValue: 'Select category',
+                      })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {EXPENSE_CATEGORIES.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
+                    {t(`categories.${cat.value}`, {
+                      defaultValue: cat.label,
+                    })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -145,7 +165,9 @@ export function ExpenseDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">
+              {t('common:description', { defaultValue: 'Description' })}
+            </Label>
             <Input
               id="description"
               value={formData.description}
@@ -155,14 +177,21 @@ export function ExpenseDialog({
                   description: e.target.value,
                 }))
               }
-              placeholder="e.g., 50 bags of starter feed"
+              placeholder={t('placeholders.description', {
+                defaultValue: 'e.g., 50 bags of starter feed',
+              })}
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount ({currencySymbol})</Label>
+              <Label htmlFor="amount">
+                {t('common:amount', {
+                  symbol: currencySymbol,
+                  defaultValue: 'Amount ({{symbol}})',
+                })}
+              </Label>
               <Input
                 id="amount"
                 type="number"
@@ -177,7 +206,9 @@ export function ExpenseDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">
+                {t('common:date', { defaultValue: 'Date' })}
+              </Label>
               <Input
                 id="date"
                 type="date"
@@ -192,7 +223,11 @@ export function ExpenseDialog({
 
           {suppliers.length > 0 && (
             <div className="space-y-2">
-              <Label htmlFor="supplierId">Supplier (Optional)</Label>
+              <Label htmlFor="supplierId">
+                {t('suppliers:supplierOptional', {
+                  defaultValue: 'Supplier (Optional)',
+                })}
+              </Label>
               <Select
                 value={formData.supplierId || undefined}
                 onValueChange={(value) =>
@@ -204,7 +239,9 @@ export function ExpenseDialog({
                     {formData.supplierId
                       ? suppliers.find((s) => s.id === formData.supplierId)
                           ?.name
-                      : 'Select supplier'}
+                      : t('suppliers:selectSupplier', {
+                          defaultValue: 'Select supplier',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -231,9 +268,9 @@ export function ExpenseDialog({
               }
               className="h-4 w-4 rounded border-input"
             />
-            <Label htmlFor="isRecurring" className="text-sm font-normal">
-              This is a recurring expense
-            </Label>
+            {t('labels.isRecurring', {
+              defaultValue: 'This is a recurring expense',
+            })}
           </div>
 
           {error && (
@@ -249,7 +286,7 @@ export function ExpenseDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
@@ -260,7 +297,11 @@ export function ExpenseDialog({
                 !formData.description
               }
             >
-              {isSubmitting ? 'Recording...' : 'Record Expense'}
+              {isSubmitting
+                ? t('dialog.recording', { defaultValue: 'Recording...' })
+                : t('recordExpense', {
+                    defaultValue: 'Record Expense',
+                  })}
             </Button>
           </DialogFooter>
         </form>

@@ -1,45 +1,78 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import {
+  am,
+  bn,
+  en,
+  es,
+  fr,
+  ha,
+  hi,
+  id,
+  ig,
+  pt,
+  sw,
+  th,
+  tr,
+  vi,
+  yo,
+} from './locales'
+
+// Storage key for language preference
+export const LANGUAGE_STORAGE_KEY = 'app-language'
+
+// Read saved language from localStorage (client-side only)
+const getSavedLanguage = (): string | null => {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem(LANGUAGE_STORAGE_KEY)
+}
 
 // English translations (baseline)
 const resources = {
-  en: {
-    common: {
-      // Navigation
-      dashboard: 'Dashboard',
-      batches: 'Batches',
-      inventory: 'Inventory',
-      sales: 'Sales',
-      expenses: 'Expenses',
-      reports: 'Reports',
-      settings: 'Settings',
-
-      // Common actions
-      add: 'Add',
-      edit: 'Edit',
-      delete: 'Delete',
-      save: 'Save',
-      cancel: 'Cancel',
-      search: 'Search',
-      filter: 'Filter',
-      export: 'Export',
-
-      // Common labels
-      date: 'Date',
-      quantity: 'Quantity',
-      price: 'Price',
-      total: 'Total',
-      status: 'Status',
-      actions: 'Actions',
-    },
-  },
+  en,
+  fr,
+  pt,
+  sw,
+  es,
+  tr,
+  hi,
+  ha,
+  yo,
+  ig,
+  id,
+  bn,
+  th,
+  vi,
+  am,
 }
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'en',
+  lng: getSavedLanguage() || 'en',
   fallbackLng: 'en',
-  ns: ['common'],
+  ns: [
+    'common',
+    'auth',
+    'batches',
+    'dashboard',
+    'settings',
+    'eggs',
+    'feed',
+    'mortality',
+    'vaccinations',
+    'weight',
+    'water-quality',
+    'expenses',
+    'invoices',
+    'reports',
+    'inventory',
+    'customers',
+    'suppliers',
+    'farms',
+    'validation',
+    'errors',
+    'onboarding',
+  ],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false,

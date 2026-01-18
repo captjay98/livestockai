@@ -14,6 +14,7 @@ import {
   Utensils,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '~/lib/utils'
 import { getBatchDetailsFn } from '~/features/batches/server'
 import { getFeedRecordsPaginatedFn } from '~/features/feed/server'
@@ -75,6 +76,7 @@ export const Route = createFileRoute('/_auth/batches/$batchId/')({
 })
 
 function BatchDetailsPage() {
+  const { t } = useTranslation(['batches', 'common', 'dashboard'])
   const { batchId } = Route.useParams()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
@@ -215,7 +217,9 @@ function BatchDetailsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-              Current Stock
+              {t('detail.currentStock', {
+                defaultValue: 'Current Stock',
+              })}
             </CardTitle>
             <Package className="h-4 w-4 text-emerald-600" />
           </CardHeader>
@@ -224,7 +228,8 @@ function BatchDetailsPage() {
               {batch.currentQuantity.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              {batch.initialQuantity.toLocaleString()} initial
+              {batch.initialQuantity.toLocaleString()}{' '}
+              {t('detail.initial', { defaultValue: 'initial' })}
             </p>
           </CardContent>
         </Card>
@@ -232,7 +237,7 @@ function BatchDetailsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-              Mortality
+              {t('common:mortality', { defaultValue: 'Mortality' })}
             </CardTitle>
             <HeartPulse className="h-4 w-4 text-red-600" />
           </CardHeader>
@@ -248,7 +253,9 @@ function BatchDetailsPage() {
               >
                 {mortality.rate.toFixed(1)}%
               </span>
-              <span className="ml-1">rate</span>
+              <span className="ml-1">
+                {t('dashboard:rate', { defaultValue: 'rate' })}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -256,7 +263,7 @@ function BatchDetailsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-              Feed ({weightLabel})
+              {t('common:feed', { defaultValue: 'Feed' })} ({weightLabel})
             </CardTitle>
             <Utensils className="h-4 w-4 text-orange-600" />
           </CardHeader>
@@ -273,7 +280,7 @@ function BatchDetailsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-              Expenses
+              {t('common:expenses', { defaultValue: 'Expenses' })}
             </CardTitle>
             <TrendingDown className="h-4 w-4 text-red-600" />
           </CardHeader>
@@ -290,7 +297,7 @@ function BatchDetailsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-              Revenue
+              {t('common:revenue', { defaultValue: 'Revenue' })}
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
@@ -299,7 +306,9 @@ function BatchDetailsPage() {
               {formatCurrency(batchSales.totalRevenue)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {batchSales.totalQuantity} sold @ {formatCurrency(avgSalesPrice)}
+              {batchSales.totalQuantity}{' '}
+              {t('statuses.sold', { defaultValue: 'sold' })} @{' '}
+              {formatCurrency(avgSalesPrice)}
             </p>
           </CardContent>
         </Card>
@@ -307,7 +316,7 @@ function BatchDetailsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-              Profit / Loss
+              {t('detail.profit', { defaultValue: 'Profit / Loss' })}
             </CardTitle>
             <DollarSign className="h-4 w-4 text-blue-600" />
           </CardHeader>
@@ -324,7 +333,7 @@ function BatchDetailsPage() {
               {totalInvestment > 0
                 ? ((netProfit / totalInvestment) * 100).toFixed(1)
                 : 0}
-              % ROI
+              % {t('detail.roi', { defaultValue: 'ROI' })}
             </p>
           </CardContent>
         </Card>
@@ -333,25 +342,39 @@ function BatchDetailsPage() {
       {/* Tabs */}
       <Tabs defaultValue="feed" className="w-full">
         <TabsList>
-          <TabsTrigger value="feed">Feed Logs</TabsTrigger>
-          <TabsTrigger value="projections">Projections</TabsTrigger>
-          <TabsTrigger value="health">Mortality & Health</TabsTrigger>
-          <TabsTrigger value="expenses">Expenses</TabsTrigger>
-          <TabsTrigger value="sales">Sales</TabsTrigger>
+          <TabsTrigger value="feed">
+            {t('tabs.feed', { defaultValue: 'Feed Logs' })}
+          </TabsTrigger>
+          <TabsTrigger value="projections">
+            {t('tabs.projections', { defaultValue: 'Projections' })}
+          </TabsTrigger>
+          <TabsTrigger value="health">
+            {t('tabs.health', { defaultValue: 'Mortality & Health' })}
+          </TabsTrigger>
+          <TabsTrigger value="expenses">
+            {t('tabs.expenses', { defaultValue: 'Expenses' })}
+          </TabsTrigger>
+          <TabsTrigger value="sales">
+            {t('tabs.sales', { defaultValue: 'Sales' })}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="feed" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Feeding History</CardTitle>
-              <CardDescription>Recent records</CardDescription>
+              <CardTitle>
+                {t('feed.history', { defaultValue: 'Feeding History' })}
+              </CardTitle>
+              <CardDescription>
+                {t('feed.recent', { defaultValue: 'Recent records' })}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <DataTable
                 columns={[
                   {
                     accessorKey: 'date',
-                    header: 'Date',
+                    header: t('common:date', { defaultValue: 'Date' }),
                     cell: ({ row }) => formatDate(row.original.date),
                   },
                   {
@@ -370,13 +393,13 @@ function BatchDetailsPage() {
                   },
                   {
                     accessorKey: 'quantityKg',
-                    header: `Qty (${weightLabel})`,
+                    header: `${t('common:quantity', { defaultValue: 'Qty' })} (${weightLabel})`,
                     cell: ({ row }) =>
                       formatWeight(parseFloat(row.original.quantityKg)),
                   },
                   {
                     accessorKey: 'cost',
-                    header: 'Cost',
+                    header: t('common:price', { defaultValue: 'Cost' }),
                     cell: ({ row }) => formatCurrency(row.original.cost),
                   },
                 ]}
@@ -401,17 +424,24 @@ function BatchDetailsPage() {
         <TabsContent value="health" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Mortality Records</CardTitle>
+              <CardTitle>
+                {t('mortality.records', {
+                  defaultValue: 'Mortality Records',
+                })}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <DataTable
                 columns={[
                   {
                     accessorKey: 'date',
-                    header: 'Date',
+                    header: t('common:date', { defaultValue: 'Date' }),
                     cell: ({ row }) => formatDate(row.original.date),
                   },
-                  { accessorKey: 'quantity', header: 'Quantity' },
+                  {
+                    accessorKey: 'quantity',
+                    header: t('common:quantity', { defaultValue: 'Quantity' }),
+                  },
                   {
                     accessorKey: 'cause',
                     header: 'Cause',
@@ -419,7 +449,10 @@ function BatchDetailsPage() {
                       <span className="capitalize">{row.original.cause}</span>
                     ),
                   },
-                  { accessorKey: 'notes', header: 'Notes' },
+                  {
+                    accessorKey: 'notes',
+                    header: t('common:notes', { defaultValue: 'Notes' }),
+                  },
                 ]}
                 data={mortalityRecords}
                 total={mortalityRecords.length}
@@ -438,14 +471,16 @@ function BatchDetailsPage() {
         <TabsContent value="expenses" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Expenses</CardTitle>
+              <CardTitle>
+                {t('common:expenses', { defaultValue: 'Expenses' })}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <DataTable
                 columns={[
                   {
                     accessorKey: 'date',
-                    header: 'Date',
+                    header: t('common:date', { defaultValue: 'Date' }),
                     cell: ({ row }) => formatDate(row.original.date),
                   },
                   {
@@ -481,17 +516,22 @@ function BatchDetailsPage() {
         <TabsContent value="sales" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Sales History</CardTitle>
+              <CardTitle>
+                {t('sales.history', { defaultValue: 'Sales History' })}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <DataTable
                 columns={[
                   {
                     accessorKey: 'date',
-                    header: 'Date',
+                    header: t('common:date', { defaultValue: 'Date' }),
                     cell: ({ row }) => formatDate(row.original.date),
                   },
-                  { accessorKey: 'quantity', header: 'Qty' },
+                  {
+                    accessorKey: 'quantity',
+                    header: t('common:quantity', { defaultValue: 'Qty' }),
+                  },
                   {
                     accessorKey: 'unitType',
                     header: 'Unit',
@@ -516,7 +556,7 @@ function BatchDetailsPage() {
                   },
                   {
                     accessorKey: 'paymentStatus',
-                    header: 'Status',
+                    header: t('common:status', { defaultValue: 'Status' }),
                     cell: ({ row }) => (
                       <Badge
                         variant={
@@ -531,7 +571,12 @@ function BatchDetailsPage() {
                       </Badge>
                     ),
                   },
-                  { accessorKey: 'customerName', header: 'Customer' },
+                  {
+                    accessorKey: 'customerName',
+                    header: t('sales.customer', {
+                      defaultValue: 'Customer',
+                    }),
+                  },
                 ]}
                 data={sales}
                 total={sales.length}

@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import {
   Bird,
   Edit,
@@ -197,6 +198,7 @@ export const Route = createFileRoute('/_auth/feed/')({
 })
 
 function FeedPage() {
+  const { t } = useTranslation(['feed', 'common'])
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
@@ -328,7 +330,7 @@ function FeedPage() {
       })
       setDialogOpen(false)
       resetForm()
-      toast.success('Feed record added')
+      toast.success(t('feed:messages.recorded'))
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create record')
@@ -375,7 +377,7 @@ function FeedPage() {
         },
       })
       setEditDialogOpen(false)
-      toast.success('Feed record updated')
+      toast.success(t('feed:messages.updated'))
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update record')
@@ -397,7 +399,7 @@ function FeedPage() {
         },
       })
       setDeleteDialogOpen(false)
-      toast.success('Feed record deleted')
+      toast.success(t('feed:messages.deleted'))
       loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete record')
@@ -410,12 +412,12 @@ function FeedPage() {
     () => [
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: t('feed:labels.date'),
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
         accessorKey: 'species',
-        header: 'Batch',
+        header: t('feed:labels.batch'),
         cell: ({ row }) => (
           <div className="flex flex-col">
             <div className="flex items-center gap-1 font-medium capitalize">
@@ -436,7 +438,7 @@ function FeedPage() {
       },
       {
         accessorKey: 'brandName',
-        header: 'Brand / Type',
+        header: t('feed:labels.brand'),
         cell: ({ row }) => {
           const feedTypeLabel = row.original.feedType
             .split('_')
@@ -460,7 +462,7 @@ function FeedPage() {
       },
       {
         accessorKey: 'quantityKg',
-        header: 'Quantity',
+        header: t('feed:labels.quantity'),
         cell: ({ row }) => {
           const bags = row.original.numberOfBags
           const bagSize = row.original.bagSizeKg
@@ -479,7 +481,7 @@ function FeedPage() {
       },
       {
         accessorKey: 'supplierName',
-        header: 'Supplier',
+        header: t('feed:labels.supplier'),
         cell: ({ row }) =>
           row.original.supplierName || (
             <span className="text-muted-foreground">—</span>
@@ -487,7 +489,7 @@ function FeedPage() {
       },
       {
         accessorKey: 'cost',
-        header: 'Cost',
+        header: t('feed:labels.cost'),
         cell: ({ row }) => formatCurrency(row.original.cost),
       },
       {
@@ -498,7 +500,7 @@ function FeedPage() {
               variant="ghost"
               size="icon"
               onClick={() => handleEditRecord(row.original)}
-              title="Edit Record"
+              title={t('feed:actions.edit', { defaultValue: 'Edit Record' })}
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -507,7 +509,9 @@ function FeedPage() {
               size="icon"
               className="text-destructive hover:text-destructive"
               onClick={() => handleDeleteRecord(row.original)}
-              title="Delete Record"
+              title={t('feed:actions.delete', {
+                defaultValue: 'Delete Record',
+              })}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -521,13 +525,13 @@ function FeedPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Feed Records"
-        description="Log daily feed consumption to track costs and calculate feed conversion ratios."
+        title={t('feed:title')}
+        description={t('feed:description')}
         icon={Wheat}
         actions={
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Feed
+            {t('feed:record')}
           </Button>
         }
       />
@@ -537,16 +541,17 @@ function FeedPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Consumed
+                {t('feed:summaries.totalConsumed')}
               </CardTitle>
               <Wheat className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="p-2 pt-0 sm:p-3 sm:pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {summary.totalQuantityKg.toLocaleString()} kg
+                {summary.totalQuantityKg.toLocaleString()}{' '}
+                {t('common:units.kg', { defaultValue: 'kg' })}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                {summary.recordCount} records
+                {summary.recordCount} {t('feed:summaries.records')}
               </p>
             </CardContent>
           </Card>
@@ -554,7 +559,7 @@ function FeedPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Cost
+                {t('feed:summaries.totalCost')}
               </CardTitle>
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -563,7 +568,7 @@ function FeedPage() {
                 {formatCurrency(summary.totalCost)}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                Across all batches
+                {t('feed:summaries.acrossBatches')}
               </p>
             </CardContent>
           </Card>
@@ -571,7 +576,7 @@ function FeedPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 p-2 sm:pb-1 sm:p-3">
               <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Feed Types
+                {t('feed:summaries.feedTypes')}
               </CardTitle>
               <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
@@ -580,7 +585,7 @@ function FeedPage() {
                 {inventory.length}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                Types in inventory
+                {t('feed:summaries.inInventory')}
               </p>
             </CardContent>
           </Card>
@@ -597,7 +602,7 @@ function FeedPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search feed records..."
+        searchPlaceholder={t('feed:placeholders.search')}
         isLoading={isLoading}
         filters={
           <Select
@@ -612,16 +617,19 @@ function FeedPage() {
             <SelectTrigger className="w-[180px] h-10">
               <SelectValue>
                 {searchParams.feedType
-                  ? FEED_TYPES.find((t) => t.value === searchParams.feedType)
-                      ?.label
-                  : 'All Feed Types'}
+                  ? FEED_TYPES.find(
+                      (tInfo) => tInfo.value === searchParams.feedType,
+                    )?.label
+                  : t('feed:placeholders.allTypes')}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Feed Types</SelectItem>
-              {FEED_TYPES.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
+              <SelectItem value="all">
+                {t('feed:placeholders.allTypes')}
+              </SelectItem>
+              {FEED_TYPES.map((typeItem) => (
+                <SelectItem key={typeItem.value} value={typeItem.value}>
+                  {typeItem.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -637,22 +645,20 @@ function FeedPage() {
           updateSearch({ q, page: 1 })
         }}
         emptyIcon={<Wheat className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No feed records"
-        emptyDescription="Get started by adding a feed record."
+        emptyTitle={t('feed:empty.title')}
+        emptyDescription={t('feed:empty.description')}
       />
 
       {/* Create Feed Record Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Feed Record</DialogTitle>
-            <DialogDescription>
-              Record feed consumption for a batch
-            </DialogDescription>
+            <DialogTitle>{t('feed:dialog.addTitle')}</DialogTitle>
+            <DialogDescription>{t('feed:dialog.addDesc')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="batch">Batch</Label>
+              <Label htmlFor="batch">{t('feed:labels.batch')}</Label>
               <Select
                 value={formData.batchId}
                 onValueChange={(value) =>
@@ -663,7 +669,7 @@ function FeedPage() {
                   <SelectValue>
                     {formData.batchId
                       ? batches.find((b) => b.id === formData.batchId)?.species
-                      : 'Select batch'}
+                      : t('feed:placeholders.selectBatch')}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -677,7 +683,7 @@ function FeedPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="feedType">Feed Type</Label>
+              <Label htmlFor="feedType">{t('feed:labels.feedType')}</Label>
               <Select
                 value={formData.feedType}
                 onValueChange={(value) =>
@@ -687,9 +693,10 @@ function FeedPage() {
                 <SelectTrigger>
                   <SelectValue>
                     {formData.feedType
-                      ? FEED_TYPES.find((t) => t.value === formData.feedType)
-                          ?.label
-                      : 'Select feed type'}
+                      ? FEED_TYPES.find(
+                          (tInfo) => tInfo.value === formData.feedType,
+                        )?.label
+                      : t('feed:placeholders.selectType')}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -702,18 +709,18 @@ function FeedPage() {
               </Select>
               {formData.feedType && (
                 <p className="text-xs text-muted-foreground">
-                  Available:{' '}
+                  {t('feed:labels.available', { defaultValue: 'Available' })}:{' '}
                   {parseFloat(
                     inventory.find((i) => i.feedType === formData.feedType)
                       ?.quantityKg || '0',
                   ).toLocaleString()}{' '}
-                  kg
+                  {t('common:units.kg', { defaultValue: 'kg' })}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity (kg)</Label>
+              <Label htmlFor="quantity">{t('feed:labels.quantity')} (kg)</Label>
               <Input
                 id="quantity"
                 type="number"
@@ -731,7 +738,9 @@ function FeedPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cost">Cost ({currencySymbol})</Label>
+              <Label htmlFor="cost">
+                {t('feed:labels.cost')} ({currencySymbol})
+              </Label>
               <Input
                 id="cost"
                 type="number"
@@ -746,7 +755,7 @@ function FeedPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">{t('feed:labels.date')}</Label>
               <Input
                 id="date"
                 type="date"
@@ -771,7 +780,7 @@ function FeedPage() {
                 onClick={() => setDialogOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('common:cancel')}
               </Button>
               <Button
                 type="submit"
@@ -783,7 +792,7 @@ function FeedPage() {
                   !formData.cost
                 }
               >
-                {isSubmitting ? 'Saving...' : 'Save Record'}
+                {isSubmitting ? t('feed:dialog.saving') : t('feed:record')}
               </Button>
             </DialogFooter>
           </form>
@@ -794,7 +803,9 @@ function FeedPage() {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Feed Record</DialogTitle>
+            <DialogTitle>
+              {t('feed.dialog.editTitle', { defaultValue: 'Edit Feed Record' })}
+            </DialogTitle>
           </DialogHeader>
           {selectedRecord && (
             <form onSubmit={handleEditSubmit} className="space-y-4">
@@ -826,7 +837,7 @@ function FeedPage() {
                     <SelectValue>
                       {editFormData.feedType
                         ? FEED_TYPES.find(
-                            (t) => t.value === editFormData.feedType,
+                            (type) => type.value === editFormData.feedType,
                           )?.label
                         : 'Select feed type'}
                     </SelectValue>

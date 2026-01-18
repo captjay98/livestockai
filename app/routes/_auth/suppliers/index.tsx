@@ -8,6 +8,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
 import { Building2, Eye, Mail, MapPin, Phone, Plus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 import type {
   PaginatedResult,
@@ -57,17 +58,35 @@ interface SupplierSearchParams {
   pageSize?: number
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
-  q?: string
   supplierType?: string
+  q?: string
 }
 
-const SUPPLIER_TYPES = [
-  { value: 'hatchery', label: 'Hatchery' },
-  { value: 'feed_mill', label: 'Feed Mill' },
-  { value: 'fingerlings', label: 'Fingerlings' },
-  { value: 'pharmacy', label: 'Pharmacy' },
-  { value: 'equipment', label: 'Equipment' },
-  { value: 'other', label: 'Other' },
+const get_supplier_types = (t: any) => [
+  {
+    value: 'hatchery',
+    label: t('suppliers:types.hatchery', { defaultValue: 'Hatchery' }),
+  },
+  {
+    value: 'feed_mill',
+    label: t('suppliers:types.feed_mill', { defaultValue: 'Feed Mill' }),
+  },
+  {
+    value: 'fingerlings',
+    label: t('suppliers:types.fingerlings', { defaultValue: 'Fingerlings' }),
+  },
+  {
+    value: 'pharmacy',
+    label: t('suppliers:types.pharmacy', { defaultValue: 'Pharmacy' }),
+  },
+  {
+    value: 'equipment',
+    label: t('suppliers:types.equipment', { defaultValue: 'Equipment' }),
+  },
+  {
+    value: 'other',
+    label: t('suppliers:types.other', { defaultValue: 'Other' }),
+  },
 ]
 
 const getSupplierData = createServerFn({ method: 'GET' })
@@ -121,9 +140,11 @@ export const Route = createFileRoute('/_auth/suppliers/')({
 })
 
 function SuppliersPage() {
+  const { t } = useTranslation(['suppliers', 'common'])
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const { format: formatCurrency } = useFormatCurrency()
+  const supplier_types = get_supplier_types(t)
 
   const [paginatedSuppliers, setPaginatedSuppliers] = useState<
     PaginatedResult<SupplierRecord>
@@ -215,7 +236,9 @@ function SuppliersPage() {
         },
       })
       setDialogOpen(false)
-      toast.success('Supplier added')
+      toast.success(
+        t('suppliers:form.addSuccess', { defaultValue: 'Supplier added' }),
+      )
       setFormData({
         name: '',
         phone: '',
@@ -226,7 +249,13 @@ function SuppliersPage() {
       })
       loadData()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create supplier')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('suppliers:error.create', {
+              defaultValue: 'Failed to create supplier',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -236,7 +265,7 @@ function SuppliersPage() {
     () => [
       {
         accessorKey: 'name',
-        header: 'Name',
+        header: t('suppliers:table.name'),
         cell: ({ row }) => (
           <div className="flex flex-col">
             <span className="font-medium">{row.original.name}</span>
@@ -248,7 +277,7 @@ function SuppliersPage() {
       },
       {
         accessorKey: 'phone',
-        header: 'Contact',
+        header: t('suppliers:table.contact'),
         cell: ({ row }) => (
           <div className="flex flex-col text-sm">
             <div className="flex items-center gap-1">
@@ -266,7 +295,7 @@ function SuppliersPage() {
       },
       {
         accessorKey: 'location',
-        header: 'Location',
+        header: t('suppliers:table.location'),
         cell: ({ row }) =>
           row.original.location ? (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -279,11 +308,11 @@ function SuppliersPage() {
       },
       {
         accessorKey: 'supplierType',
-        header: 'Type',
+        header: t('suppliers:table.type'),
         cell: ({ row }) =>
           row.original.supplierType ? (
             <Badge variant="outline" className="capitalize text-xs">
-              {row.original.supplierType.replace('_', ' ')}
+              {t(`suppliers:types.${row.original.supplierType}`)}
             </Badge>
           ) : (
             '-'
@@ -291,7 +320,7 @@ function SuppliersPage() {
       },
       {
         accessorKey: 'products',
-        header: 'Products',
+        header: t('suppliers:table.products'),
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-1">
             {row.original.products?.slice(0, 3).map((product, i) => (
@@ -313,7 +342,7 @@ function SuppliersPage() {
       },
       {
         accessorKey: 'totalSpent',
-        header: 'Total Spent',
+        header: t('suppliers:table.totalSpent'),
         cell: ({ row }) => (
           <span className="font-medium">
             {formatCurrency(row.original.totalSpent)}
@@ -330,7 +359,7 @@ function SuppliersPage() {
                 params={{ supplierId: row.original.id }}
               >
                 <Eye className="h-4 w-4 mr-2" />
-                View
+                {t('suppliers:table.view')}
               </Link>
             </Button>
           </div>
@@ -343,13 +372,13 @@ function SuppliersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Suppliers"
-        description="Manage your feed and livestock suppliers"
+        title={t('suppliers:title')}
+        description={t('suppliers:description')}
         icon={Building2}
         actions={
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Supplier
+            {t('suppliers:add')}
           </Button>
         }
       />
@@ -364,7 +393,7 @@ function SuppliersPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder="Search suppliers..."
+        searchPlaceholder={t('suppliers:search')}
         isLoading={isLoading}
         filters={
           <Select
@@ -378,11 +407,15 @@ function SuppliersPage() {
             }}
           >
             <SelectTrigger className="w-[150px] h-10">
-              <SelectValue>All Types</SelectValue>
+              <SelectValue>
+                {searchParams.supplierType
+                  ? t(`suppliers:types.${searchParams.supplierType}`)
+                  : t('suppliers:types.all')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {SUPPLIER_TYPES.map((type) => (
+              <SelectItem value="all">{t('suppliers:types.all')}</SelectItem>
+              {supplier_types.map((type) => (
                 <SelectItem key={type.value} value={type.value}>
                   {type.label}
                 </SelectItem>
@@ -400,19 +433,19 @@ function SuppliersPage() {
           updateSearch({ q, page: 1 })
         }}
         emptyIcon={<Building2 className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No suppliers"
-        emptyDescription="Add suppliers to track your purchases."
+        emptyTitle={t('suppliers:empty.title')}
+        emptyDescription={t('suppliers:empty.desc')}
       />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Supplier</DialogTitle>
-            <DialogDescription>Add a new supplier profile</DialogDescription>
+            <DialogTitle>{t('suppliers:form.addTitle')}</DialogTitle>
+            <DialogDescription>{t('suppliers:form.addDesc')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Supplier Name *</Label>
+              <Label htmlFor="name">{t('suppliers:form.name')}</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -424,7 +457,7 @@ function SuppliersPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number *</Label>
+              <Label htmlFor="phone">{t('suppliers:form.phone')}</Label>
               <Input
                 id="phone"
                 value={formData.phone}
@@ -436,7 +469,7 @@ function SuppliersPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('suppliers:form.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -448,7 +481,7 @@ function SuppliersPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">{t('suppliers:form.location')}</Label>
               <Input
                 id="location"
                 value={formData.location}
@@ -462,7 +495,7 @@ function SuppliersPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="supplierType">Supplier Type</Label>
+              <Label htmlFor="supplierType">{t('suppliers:form.type')}</Label>
               <Select
                 value={formData.supplierType}
                 onValueChange={(value) =>
@@ -473,21 +506,26 @@ function SuppliersPage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue>Select type</SelectValue>
+                  <SelectValue>
+                    {formData.supplierType
+                      ? supplier_types.find(
+                          (s) => s.value === formData.supplierType,
+                        )?.label
+                      : t('suppliers:form.selectType')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="hatchery">Hatchery</SelectItem>
-                  <SelectItem value="feed_mill">Feed Mill</SelectItem>
-                  <SelectItem value="fingerlings">Fingerlings</SelectItem>
-                  <SelectItem value="pharmacy">Pharmacy</SelectItem>
-                  <SelectItem value="equipment">Equipment</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  {supplier_types.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="products">Products (comma separated)</Label>
+              <Label htmlFor="products">{t('suppliers:form.products')}</Label>
               <Input
                 id="products"
                 value={formData.products}
@@ -497,7 +535,7 @@ function SuppliersPage() {
                     products: e.target.value,
                   }))
                 }
-                placeholder="e.g. Feed, Medicine"
+                placeholder={t('suppliers:form.productsPlaceholder')}
               />
             </div>
 
@@ -507,13 +545,13 @@ function SuppliersPage() {
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
-                Cancel
+                {t('suppliers:form.cancel')}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !formData.name || !formData.phone}
               >
-                Add Supplier
+                {isSubmitting ? t('common:saving') : t('suppliers:form.add')}
               </Button>
             </DialogFooter>
           </form>

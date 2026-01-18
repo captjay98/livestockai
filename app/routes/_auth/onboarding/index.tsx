@@ -7,13 +7,13 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
   ArrowLeft,
   ArrowRight,
   BarChart3,
   Check,
-  ChevronRight,
   ClipboardList,
   DollarSign,
   Home,
@@ -136,6 +136,14 @@ function OnboardingPage() {
 }
 
 function OnboardingContent() {
+  const { t } = useTranslation([
+    'onboarding',
+    'common',
+    'settings',
+    'farms',
+    'batches',
+    'reports',
+  ])
   const navigate = useNavigate()
   const {
     progress,
@@ -156,7 +164,9 @@ function OnboardingContent() {
   if (isLoading || !needsOnboarding) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="animate-pulse text-muted-foreground">
+          {t('common:loading', { defaultValue: 'Loading...' })}
+        </div>
       </div>
     )
   }
@@ -170,19 +180,32 @@ function OnboardingContent() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              <span className="font-semibold">Getting Started</span>
+              <span className="font-semibold">
+                {t('header.title', {
+                  defaultValue: 'Getting Started',
+                })}
+              </span>
             </div>
             <Button variant="ghost" size="sm" onClick={skipOnboarding}>
               <SkipForward className="h-4 w-4 mr-1" />
-              Skip Setup
+              {t('header.skip', { defaultValue: 'Skip Setup' })}
             </Button>
           </div>
           <Progress value={progressPercent} className="h-2" />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
             <span>
-              Step {currentStepIndex + 1} of {totalSteps}
+              {t('header.step', {
+                defaultValue: 'Step {{current}} of {{total}}',
+                current: currentStepIndex + 1,
+                total: totalSteps,
+              })}
             </span>
-            <span>{Math.round(progressPercent)}% complete</span>
+            <span>
+              {t('header.percent', {
+                defaultValue: '{{percent}}% complete',
+                percent: Math.round(progressPercent),
+              })}
+            </span>
           </div>
         </div>
       </div>
@@ -219,28 +242,45 @@ function StepRenderer({ currentStep }: { currentStep: OnboardingStep }) {
 
 // Step 1: Welcome
 function WelcomeStep() {
+  const { t } = useTranslation(['onboarding', 'common'])
   const { completeStep, isAdminAdded } = useOnboarding()
 
   const benefits = [
     {
       icon: Package,
-      title: 'Track Your Livestock',
-      description: 'Monitor batches from acquisition to sale',
+      title: t('welcome.benefits.livestock.title', {
+        defaultValue: 'Track Your Livestock',
+      }),
+      description: t('welcome.benefits.livestock.desc', {
+        defaultValue: 'Monitor batches from acquisition to sale',
+      }),
     },
     {
       icon: BarChart3,
-      title: 'Growth Forecasting',
-      description: 'Predict harvest dates and weights',
+      title: t('welcome.benefits.growth.title', {
+        defaultValue: 'Growth Forecasting',
+      }),
+      description: t('welcome.benefits.growth.desc', {
+        defaultValue: 'Predict harvest dates and weights',
+      }),
     },
     {
       icon: DollarSign,
-      title: 'Financial Insights',
-      description: 'Track costs, revenue, and profit margins',
+      title: t('welcome.benefits.financials.title', {
+        defaultValue: 'Financial Insights',
+      }),
+      description: t('welcome.benefits.financials.desc', {
+        defaultValue: 'Track costs, revenue, and profit margins',
+      }),
     },
     {
       icon: ClipboardList,
-      title: 'Complete Records',
-      description: 'Feed, mortality, vaccinations, and more',
+      title: t('welcome.benefits.records.title', {
+        defaultValue: 'Complete Records',
+      }),
+      description: t('welcome.benefits.records.desc', {
+        defaultValue: 'Feed, mortality, vaccinations, and more',
+      }),
     },
   ]
 
@@ -250,11 +290,21 @@ function WelcomeStep() {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary">
           <Rocket className="h-8 w-8" />
         </div>
-        <h1 className="text-3xl font-bold">Welcome to OpenLivestock!</h1>
+        <h1 className="text-3xl font-bold">
+          {t('welcome.title', {
+            defaultValue: 'Welcome to OpenLivestock!',
+          })}
+        </h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto">
           {isAdminAdded
-            ? "You've been added to a farm. Let's take a quick tour."
-            : "Let's get your farm set up in just a few minutes."}
+            ? t('welcome.descAdmin', {
+                defaultValue:
+                  "You've been added to a farm. Let's take a quick tour.",
+              })
+            : t('welcome.descUser', {
+                defaultValue:
+                  "Let's get your farm set up in just a few minutes.",
+              })}
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -278,7 +328,8 @@ function WelcomeStep() {
       </div>
       <div className="flex justify-center pt-4">
         <Button size="lg" onClick={() => completeStep('welcome')}>
-          Get Started <ArrowRight className="ml-2 h-4 w-4" />
+          {t('welcome.start', { defaultValue: 'Get Started' })}{' '}
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -287,6 +338,7 @@ function WelcomeStep() {
 
 // Step 2: Create Farm
 function CreateFarmStep() {
+  const { t } = useTranslation(['onboarding', 'common'])
   const { completeStep, setFarmId, skipStep } = useOnboarding()
   const [formData, setFormData] = useState<CreateFarmInput>({
     name: '',
@@ -303,10 +355,16 @@ function CreateFarmStep() {
     try {
       const result = await createFarmAction({ data: formData })
       if (result.farmId) setFarmId(result.farmId)
-      toast.success('Farm created')
+      toast.success(t('createFarm.success', { defaultValue: 'Farm created' }))
       completeStep('create-farm')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create farm')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('createFarm.error', {
+              defaultValue: 'Failed to create farm',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -318,40 +376,64 @@ function CreateFarmStep() {
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
           <Home className="h-6 w-6" />
         </div>
-        <h2 className="text-2xl font-bold">Create Your Farm</h2>
+        <h2 className="text-2xl font-bold">
+          {t('createFarm.title', {
+            defaultValue: 'Create Your Farm',
+          })}
+        </h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          A farm is your main workspace with its own batches and records.
+          {t('createFarm.desc', {
+            defaultValue:
+              'A farm is your main workspace with its own batches and records.',
+          })}
         </p>
       </div>
       <Card className="max-w-md mx-auto">
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Farm Name</Label>
+              <Label htmlFor="name">
+                {t('createFarm.form.name', {
+                  defaultValue: 'Farm Name',
+                })}
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData((p) => ({ ...p, name: e.target.value }))
                 }
-                placeholder="e.g., Sunshine Poultry Farm"
+                placeholder={t('createFarm.form.namePlaceholder', {
+                  defaultValue: 'e.g., Sunshine Poultry Farm',
+                })}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">
+                {t('createFarm.form.location', {
+                  defaultValue: 'Location',
+                })}
+              </Label>
               <Input
                 id="location"
                 value={formData.location}
                 onChange={(e) =>
                   setFormData((p) => ({ ...p, location: e.target.value }))
                 }
-                placeholder="e.g., Lagos, Nigeria"
+                placeholder={t(
+                  'onboarding.createFarm.form.locationPlaceholder',
+                  { defaultValue: 'e.g., Lagos, Nigeria' },
+                )}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label>Farm Type</Label>
+              <Label>
+                {t('createFarm.form.type', {
+                  defaultValue: 'Farm Type',
+                })}
+              </Label>
               <Select
                 value={formData.type}
                 onValueChange={(v) => {
@@ -362,16 +444,33 @@ function CreateFarmStep() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="poultry">🐔 Poultry</SelectItem>
-                  <SelectItem value="aquaculture">
-                    🐟 Aquaculture (Fish Farming)
+                  <SelectItem value="poultry">
+                    🐔 {t('farms:types.poultry', { defaultValue: 'Poultry' })}
                   </SelectItem>
-                  <SelectItem value="cattle">🐄 Cattle</SelectItem>
-                  <SelectItem value="goats">🐐 Goats</SelectItem>
-                  <SelectItem value="sheep">🐑 Sheep</SelectItem>
-                  <SelectItem value="bees">🐝 Bees (Apiary)</SelectItem>
+                  <SelectItem value="aquaculture">
+                    🐟{' '}
+                    {t('farms:types.aquaculture', {
+                      defaultValue: 'Aquaculture (Fish Farming)',
+                    })}
+                  </SelectItem>
+                  <SelectItem value="cattle">
+                    🐄 {t('farms:types.cattle', { defaultValue: 'Cattle' })}
+                  </SelectItem>
+                  <SelectItem value="goats">
+                    🐐 {t('farms:types.goats', { defaultValue: 'Goats' })}
+                  </SelectItem>
+                  <SelectItem value="sheep">
+                    🐑 {t('farms:types.sheep', { defaultValue: 'Sheep' })}
+                  </SelectItem>
+                  <SelectItem value="bees">
+                    🐝{' '}
+                    {t('farms:types.bees', { defaultValue: 'Bees (Apiary)' })}
+                  </SelectItem>
                   <SelectItem value="mixed">
-                    🏠 Mixed (Multiple Types)
+                    🏠{' '}
+                    {t('farms:types.mixed', {
+                      defaultValue: 'Mixed (Multiple Types)',
+                    })}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -388,14 +487,20 @@ function CreateFarmStep() {
                 onClick={skipStep}
                 disabled={isSubmitting}
               >
-                Skip
+                {t('common:skip', { defaultValue: 'Skip' })}
               </Button>
               <Button
                 type="submit"
                 className="flex-1"
                 disabled={isSubmitting || !formData.name || !formData.location}
               >
-                {isSubmitting ? 'Creating...' : 'Create Farm'}{' '}
+                {isSubmitting
+                  ? t('createFarm.form.submitting', {
+                      defaultValue: 'Creating...',
+                    })
+                  : t('createFarm.form.submit', {
+                      defaultValue: 'Create Farm',
+                    })}{' '}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -408,6 +513,7 @@ function CreateFarmStep() {
 
 // Step 3: Enable Modules
 function EnableModulesStep() {
+  const { t } = useTranslation(['onboarding', 'common'])
   const { completeStep, skipStep, progress } = useOnboarding()
   const [selectedModules, setSelectedModules] = useState<Array<ModuleKey>>([
     'poultry',
@@ -422,14 +528,21 @@ function EnableModulesStep() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted text-muted-foreground">
             <Layers className="h-6 w-6" />
           </div>
-          <h2 className="text-2xl font-bold">Module Selection</h2>
+          <h2 className="text-2xl font-bold">
+            {t('enableModules.title', {
+              defaultValue: 'Module Selection',
+            })}
+          </h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Create a farm first to enable livestock modules.
+            {t('enableModules.descEmpty', {
+              defaultValue: 'Create a farm first to enable livestock modules.',
+            })}
           </p>
         </div>
         <div className="flex justify-center gap-3 pt-4">
           <Button variant="outline" onClick={skipStep}>
-            Skip <ArrowRight className="ml-2 h-4 w-4" />
+            {t('common:skip', { defaultValue: 'Skip' })}{' '}
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -463,9 +576,15 @@ function EnableModulesStep() {
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
           <Layers className="h-6 w-6" />
         </div>
-        <h2 className="text-2xl font-bold">Choose Your Modules</h2>
+        <h2 className="text-2xl font-bold">
+          {t('enableModules.title', {
+            defaultValue: 'Choose Your Modules',
+          })}
+        </h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          Select the livestock types you manage.
+          {t('enableModules.desc', {
+            defaultValue: 'Select the livestock types you manage.',
+          })}
         </p>
       </div>
       <div className="grid gap-3 max-w-lg mx-auto">
@@ -486,7 +605,7 @@ function EnableModulesStep() {
                   <span className="font-semibold">{m.name}</span>
                   {!available && (
                     <span className="text-xs bg-muted px-2 py-0.5 rounded">
-                      Coming Soon
+                      {t('common:comingSoon', { defaultValue: 'Coming Soon' })}
                     </span>
                   )}
                 </div>
@@ -503,13 +622,14 @@ function EnableModulesStep() {
       </div>
       <div className="flex justify-center gap-3 pt-4">
         <Button variant="outline" onClick={skipStep}>
-          Skip
+          {t('common:skip', { defaultValue: 'Skip' })}
         </Button>
         <Button
           onClick={handleContinue}
           disabled={selectedModules.length === 0}
         >
-          Continue <ArrowRight className="ml-2 h-4 w-4" />
+          {t('common:continue', { defaultValue: 'Continue' })}{' '}
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -518,6 +638,7 @@ function EnableModulesStep() {
 
 // Step 4: Create Structure (Informational)
 function CreateStructureStep() {
+  const { t } = useTranslation(['onboarding', 'common'])
   const { completeStep, skipStep } = useOnboarding()
   return (
     <div className="space-y-6">
@@ -525,24 +646,42 @@ function CreateStructureStep() {
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
           <Home className="h-6 w-6" />
         </div>
-        <h2 className="text-2xl font-bold">Farm Organization</h2>
+        <h2 className="text-2xl font-bold">
+          {t('createStructure.title', {
+            defaultValue: 'Farm Organization',
+          })}
+        </h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          How OpenLivestock organizes your data.
+          {t('createStructure.desc', {
+            defaultValue: 'How OpenLivestock organizes your data.',
+          })}
         </p>
       </div>
       <Card className="max-w-lg mx-auto">
         <CardContent className="pt-6 space-y-4">
           {[
-            { n: '1', t: 'Farm', d: 'Your top-level workspace' },
+            {
+              n: '1',
+              t: t('farms:title', { defaultValue: 'Farm' }),
+              d: t('createStructure.items.farm', {
+                defaultValue: 'Your top-level workspace',
+              }),
+            },
             {
               n: '2',
-              t: 'Batches',
-              d: 'Groups of livestock acquired together',
+              t: t('batches:title', { defaultValue: 'Batches' }),
+              d: t('createStructure.items.batches', {
+                defaultValue: 'Groups of livestock acquired together',
+              }),
             },
             {
               n: '3',
-              t: 'Records',
-              d: 'Daily entries for feed, mortality, weights',
+              t: t('createStructure.items.recordsTitle', {
+                defaultValue: 'Records',
+              }),
+              d: t('createStructure.items.records', {
+                defaultValue: 'Daily entries for feed, mortality, weights',
+              }),
             },
           ].map((i) => (
             <div key={i.n} className="flex items-start gap-3">
@@ -557,18 +696,22 @@ function CreateStructureStep() {
           ))}
           <div className="bg-muted/50 p-4 rounded-lg">
             <p className="text-sm">
-              <strong>Tip:</strong> Start by creating a batch for your current
-              livestock.
+              <strong>{t('common:tip', { defaultValue: 'Tip' })}:</strong>{' '}
+              {t('createStructure.tip', {
+                defaultValue:
+                  'Start by creating a batch for your current livestock.',
+              })}
             </p>
           </div>
         </CardContent>
       </Card>
       <div className="flex justify-center gap-3 pt-4">
         <Button variant="outline" onClick={skipStep}>
-          Skip
+          {t('common:skip', { defaultValue: 'Skip' })}
         </Button>
         <Button onClick={() => completeStep('create-structure')}>
-          Got it <ArrowRight className="ml-2 h-4 w-4" />
+          {t('createStructure.submit', { defaultValue: 'Got it' })}{' '}
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -577,6 +720,7 @@ function CreateStructureStep() {
 
 // Step 5: Create Batch
 function CreateBatchStep() {
+  const { t } = useTranslation(['onboarding', 'common'])
   const { completeStep, skipStep, progress, setBatchId } = useOnboarding()
   const { symbol: currencySymbol } = useFormatCurrency()
 
@@ -612,14 +756,21 @@ function CreateBatchStep() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted text-muted-foreground">
             <Package className="h-6 w-6" />
           </div>
-          <h2 className="text-2xl font-bold">Create Your First Batch</h2>
+          <h2 className="text-2xl font-bold">
+            {t('createBatch.title', {
+              defaultValue: 'Create Your First Batch',
+            })}
+          </h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Create a farm first to add livestock batches.
+            {t('createBatch.descEmpty', {
+              defaultValue: 'Create a farm first to add livestock batches.',
+            })}
           </p>
         </div>
         <div className="flex justify-center gap-3 pt-4">
           <Button variant="outline" onClick={skipStep}>
-            Skip <ArrowRight className="ml-2 h-4 w-4" />
+            {t('common:skip', { defaultValue: 'Skip' })}{' '}
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -642,10 +793,16 @@ function CreateBatchStep() {
         },
       })
       if (result.batchId) setBatchId(result.batchId)
-      toast.success('Batch created')
+      toast.success(t('createBatch.success', { defaultValue: 'Batch created' }))
       completeStep('create-batch')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create batch')
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('createBatch.error', {
+              defaultValue: 'Failed to create batch',
+            }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -657,11 +814,19 @@ function CreateBatchStep() {
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-yellow-100 text-yellow-600">
           <Package className="h-6 w-6" />
         </div>
-        <h2 className="text-2xl font-bold">Create a Farm First</h2>
+        <h2 className="text-2xl font-bold">
+          {t('createBatch.farmFirst.title', {
+            defaultValue: 'Create a Farm First',
+          })}
+        </h2>
         <p className="text-muted-foreground">
-          You need a farm before adding batches.
+          {t('createBatch.farmFirst.desc', {
+            defaultValue: 'You need a farm before adding batches.',
+          })}
         </p>
-        <Button onClick={skipStep}>Continue anyway</Button>
+        <Button onClick={skipStep}>
+          {t('common:continue', { defaultValue: 'Continue anyway' })}
+        </Button>
       </div>
     )
   }
@@ -672,16 +837,24 @@ function CreateBatchStep() {
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
           <Package className="h-6 w-6" />
         </div>
-        <h2 className="text-2xl font-bold">Create Your First Batch</h2>
+        <h2 className="text-2xl font-bold">
+          {t('createBatch.title', {
+            defaultValue: 'Create Your First Batch',
+          })}
+        </h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          A batch is a group of livestock acquired together.
+          {t('createBatch.desc', {
+            defaultValue: 'A batch is a group of livestock acquired together.',
+          })}
         </p>
       </div>
       <Card className="max-w-md mx-auto">
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Livestock Type</Label>
+              <Label>
+                {t('batches:form.type', { defaultValue: 'Livestock Type' })}
+              </Label>
               <Select
                 value={formData.livestockType}
                 onValueChange={(v) =>
@@ -697,16 +870,18 @@ function CreateBatchStep() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableTypes.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
+                  {availableTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Species</Label>
+              <Label>
+                {t('batches:form.species', { defaultValue: 'Species' })}
+              </Label>
               <Select
                 value={formData.species}
                 onValueChange={(v) =>
@@ -715,7 +890,10 @@ function CreateBatchStep() {
               >
                 <SelectTrigger>
                   <SelectValue>
-                    {formData.species || 'Select species'}
+                    {formData.species ||
+                      t('batches:form.selectSpecies', {
+                        defaultValue: 'Select species',
+                      })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -729,7 +907,9 @@ function CreateBatchStep() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Quantity</Label>
+                <Label>
+                  {t('batches:form.quantity', { defaultValue: 'Quantity' })}
+                </Label>
                 <Input
                   type="number"
                   min="1"
@@ -745,7 +925,12 @@ function CreateBatchStep() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Cost per Unit ({currencySymbol})</Label>
+                <Label>
+                  {t('batches:form.costPerUnit', {
+                    defaultValue: 'Cost per Unit',
+                  })}{' '}
+                  ({currencySymbol})
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -760,7 +945,11 @@ function CreateBatchStep() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Acquisition Date</Label>
+              <Label>
+                {t('batches:form.acquisitionDate', {
+                  defaultValue: 'Acquisition Date',
+                })}
+              </Label>
               <Input
                 type="date"
                 value={formData.acquisitionDate}
@@ -785,7 +974,7 @@ function CreateBatchStep() {
                 onClick={skipStep}
                 disabled={isSubmitting}
               >
-                Skip
+                {t('common:skip', { defaultValue: 'Skip' })}
               </Button>
               <Button
                 type="submit"
@@ -797,7 +986,13 @@ function CreateBatchStep() {
                   !formData.costPerUnit
                 }
               >
-                {isSubmitting ? 'Creating...' : 'Create Batch'}{' '}
+                {isSubmitting
+                  ? t('createBatch.form.submitting', {
+                      defaultValue: 'Creating...',
+                    })
+                  : t('createBatch.form.submit', {
+                      defaultValue: 'Create Batch',
+                    })}{' '}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -810,6 +1005,7 @@ function CreateBatchStep() {
 
 // Step 6: Preferences
 function PreferencesStep() {
+  const { t } = useTranslation(['onboarding', 'common'])
   const { completeStep, skipStep } = useOnboarding()
   const { settings, updateSettings } = useSettings()
   const [localSettings, setLocalSettings] = useState<Partial<UserSettings>>({
@@ -836,15 +1032,25 @@ function PreferencesStep() {
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
           <Settings className="h-6 w-6" />
         </div>
-        <h2 className="text-2xl font-bold">Your Preferences</h2>
+        <h2 className="text-2xl font-bold">
+          {t('preferences.title', {
+            defaultValue: 'Your Preferences',
+          })}
+        </h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          Set your currency and units.
+          {t('preferences.desc', {
+            defaultValue: 'Set your currency and units.',
+          })}
         </p>
       </div>
       <Card className="max-w-md mx-auto">
         <CardContent className="pt-6 space-y-4">
           <div className="space-y-2">
-            <Label>Currency</Label>
+            <Label>
+              {t('settings:regional.currency.title', {
+                defaultValue: 'Currency',
+              })}
+            </Label>
             <Select
               value={localSettings.currencyCode}
               onValueChange={(v) => {
@@ -868,7 +1074,11 @@ function PreferencesStep() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Weight Unit</Label>
+            <Label>
+              {t('settings:regional.units.weight', {
+                defaultValue: 'Weight Unit',
+              })}
+            </Label>
             <Select
               value={localSettings.weightUnit}
               onValueChange={(v) =>
@@ -883,13 +1093,25 @@ function PreferencesStep() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="kg">Kilograms (kg)</SelectItem>
-                <SelectItem value="lbs">Pounds (lbs)</SelectItem>
+                <SelectItem value="kg">
+                  {t('settings:regional.units.kg', {
+                    defaultValue: 'Kilograms (kg)',
+                  })}
+                </SelectItem>
+                <SelectItem value="lbs">
+                  {t('settings:regional.units.lbs', {
+                    defaultValue: 'Pounds (lbs)',
+                  })}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Date Format</Label>
+            <Label>
+              {t('settings:regional.dateTime.dateFormat', {
+                defaultValue: 'Date Format',
+              })}
+            </Label>
             <Select
               value={localSettings.dateFormat}
               onValueChange={(v) =>
@@ -914,10 +1136,14 @@ function PreferencesStep() {
       </Card>
       <div className="flex justify-center gap-3 pt-4">
         <Button variant="outline" onClick={skipStep}>
-          Skip
+          {t('common:skip', { defaultValue: 'Skip' })}
         </Button>
         <Button onClick={handleSave} disabled={isSaving}>
-          {isSaving ? 'Saving...' : 'Save & Continue'}{' '}
+          {isSaving
+            ? t('common:saving', { defaultValue: 'Saving...' })
+            : t('preferences.submit', {
+                defaultValue: 'Save & Continue',
+              })}{' '}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
@@ -927,39 +1153,66 @@ function PreferencesStep() {
 
 // Step 7: Feature Tour
 function TourStep() {
+  const { t } = useTranslation(['onboarding', 'common'])
   const { completeStep } = useOnboarding()
   const [idx, setIdx] = useState(0)
 
   const items = [
     {
       icon: Home,
-      title: 'Dashboard',
-      desc: 'Your command center - see farm health at a glance.',
-      tip: 'Check daily to stay on top of operations.',
+      title: t('tour.dashboard.title', {
+        defaultValue: 'Dashboard',
+      }),
+      desc: t('tour.dashboard.desc', {
+        defaultValue: 'Your command center - see farm health at a glance.',
+      }),
+      tip: t('tour.dashboard.tip', {
+        defaultValue: 'Check daily to stay on top of operations.',
+      }),
     },
     {
       icon: Package,
-      title: 'Batches',
-      desc: 'View batches, record feed, log mortality, track weights.',
-      tip: 'Click any batch for detailed records.',
+      title: t('batches:title', { defaultValue: 'Batches' }),
+      desc: t('tour.batches.desc', {
+        defaultValue:
+          'View batches, record feed, log mortality, track weights.',
+      }),
+      tip: t('tour.batches.tip', {
+        defaultValue: 'Click any batch for detailed records.',
+      }),
     },
     {
       icon: DollarSign,
-      title: 'Sales & Expenses',
-      desc: 'Track every transaction - sales and costs.',
-      tip: 'Accurate records reveal true profit margins.',
+      title: t('tour.finance.title', {
+        defaultValue: 'Sales & Expenses',
+      }),
+      desc: t('tour.finance.desc', {
+        defaultValue: 'Track every transaction - sales and costs.',
+      }),
+      tip: t('tour.finance.tip', {
+        defaultValue: 'Accurate records reveal true profit margins.',
+      }),
     },
     {
       icon: BarChart3,
-      title: 'Reports',
-      desc: 'Growth curves, batch comparisons, profitability analysis.',
-      tip: 'Identify which batches perform best.',
+      title: t('reports:title', { defaultValue: 'Reports' }),
+      desc: t('tour.reports.desc', {
+        defaultValue:
+          'Growth curves, batch comparisons, profitability analysis.',
+      }),
+      tip: t('tour.reports.tip', {
+        defaultValue: 'Identify which batches perform best.',
+      }),
     },
     {
       icon: Settings,
-      title: 'Settings',
-      desc: 'Manage modules, preferences, and account.',
-      tip: 'Enable only modules you need.',
+      title: t('settings:title', { defaultValue: 'Settings' }),
+      desc: t('tour.settings.desc', {
+        defaultValue: 'Manage modules, preferences, and account.',
+      }),
+      tip: t('tour.settings.tip', {
+        defaultValue: 'Enable only modules you need.',
+      }),
     },
   ]
 
@@ -969,9 +1222,13 @@ function TourStep() {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold">Quick Tour</h2>
+        <h2 className="text-2xl font-bold">
+          {t('tour.title', { defaultValue: 'Quick Tour' })}
+        </h2>
         <p className="text-muted-foreground">
-          Explore key features of OpenLivestock
+          {t('tour.summary', {
+            defaultValue: 'Explore key features of OpenLivestock',
+          })}
         </p>
       </div>
       <div className="flex justify-center gap-2">
@@ -996,7 +1253,8 @@ function TourStep() {
           </div>
           <div className="bg-muted/50 p-4 rounded-lg">
             <p className="text-sm">
-              <strong>💡 Tip:</strong> {item.tip}
+              <strong>💡 {t('common:tip', { defaultValue: 'Tip' })}:</strong>{' '}
+              {item.tip}
             </p>
           </div>
         </CardContent>
@@ -1007,12 +1265,15 @@ function TourStep() {
           onClick={() => setIdx((i) => Math.max(0, i - 1))}
           disabled={idx === 0}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+          <ArrowLeft className="mr-2 h-4 w-4" />{' '}
+          {t('common:previous', { defaultValue: 'Previous' })}
         </Button>
         <Button
           onClick={() => (isLast ? completeStep('tour') : setIdx((i) => i + 1))}
         >
-          {isLast ? 'Finish Tour' : 'Next'}{' '}
+          {isLast
+            ? t('tour.finish', { defaultValue: 'Finish Tour' })
+            : t('common:next', { defaultValue: 'Next' })}{' '}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
@@ -1022,15 +1283,24 @@ function TourStep() {
 
 // Step 8: Complete
 function CompleteStep() {
+  const { t } = useTranslation(['onboarding', 'common'])
   const navigate = useNavigate()
   const { progress } = useOnboarding()
   const [isCompleting, setIsCompleting] = useState(false)
 
   const items = [
-    progress.farmId && 'Created your farm',
-    progress.batchId && 'Added your first batch',
-    'Configured preferences',
-    'Completed the tour',
+    progress.farmId &&
+      t('complete.items.farm', {
+        defaultValue: 'Created your farm',
+      }),
+    progress.batchId &&
+      t('complete.items.batch', {
+        defaultValue: 'Added your first batch',
+      }),
+    t('complete.items.preferences', {
+      defaultValue: 'Configured preferences',
+    }),
+    t('complete.items.tour', { defaultValue: 'Completed the tour' }),
   ].filter(Boolean)
 
   const handleComplete = async () => {
@@ -1052,15 +1322,25 @@ function CompleteStep() {
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600">
           <Check className="h-10 w-10" />
         </div>
-        <h1 className="text-3xl font-bold">You're All Set! 🎉</h1>
+        <h1 className="text-3xl font-bold">
+          {t('complete.title', {
+            defaultValue: "You're All Set! 🎉",
+          })}
+        </h1>
         <p className="text-lg text-muted-foreground max-w-md mx-auto">
-          Your farm is ready. Start tracking your livestock!
+          {t('complete.desc', {
+            defaultValue: 'Your farm is ready. Start tracking your livestock!',
+          })}
         </p>
       </div>
       {items.length > 0 && (
         <Card className="max-w-sm mx-auto">
           <CardContent className="pt-6">
-            <h4 className="font-semibold mb-3">What you accomplished</h4>
+            <h4 className="font-semibold mb-3">
+              {t('complete.accomplished', {
+                defaultValue: 'What you accomplished',
+              })}
+            </h4>
             <ul className="space-y-2 text-left">
               {items.map((item, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm">
@@ -1073,11 +1353,19 @@ function CompleteStep() {
       )}
       <div className="space-y-3">
         <Button size="lg" onClick={handleComplete} disabled={isCompleting}>
-          {isCompleting ? 'Finishing...' : 'Go to Dashboard'}{' '}
-          <ChevronRight className="ml-2 h-4 w-4" />
+          {isCompleting
+            ? t('complete.finishing', {
+                defaultValue: 'Finishing...',
+              })
+            : t('complete.submit', {
+                defaultValue: 'Go to Dashboard',
+              })}{' '}
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
         <p className="text-sm text-muted-foreground">
-          Need help? Restart the tour anytime from Settings.
+          {t('complete.help', {
+            defaultValue: 'Need help? Restart the tour anytime from Settings.',
+          })}
         </p>
       </div>
     </div>
