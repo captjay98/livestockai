@@ -1,12 +1,12 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/structures/server](../README.md) / STRUCTURE\_STATUSES
+[OpenLivestock API Reference](../../../../modules.md) / [features/structures/server](../README.md) / STRUCTURE_STATUSES
 
-# Variable: STRUCTURE\_STATUSES
+# Variable: STRUCTURE_STATUSES
 
-> `const` **STRUCTURE\_STATUSES**: `object`[]
+> `const` **STRUCTURE_STATUSES**: `object`[]
 
 Defined in: features/structures/server.ts:26
 

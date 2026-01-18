@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/settings/date-formatter](../README.md) / formatTime
 
@@ -22,7 +22,7 @@ The date/time to format (Date object or ISO string)
 
 ### settings
 
-`Pick`\<`UserSettings`, `"timeFormat"`\>
+`Pick`\<[`UserSettings`](../../currency-presets/interfaces/UserSettings.md), `"timeFormat"`\>
 
 User settings containing time format configuration
 

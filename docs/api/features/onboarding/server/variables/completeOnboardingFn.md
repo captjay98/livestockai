@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/onboarding/server](../README.md) / completeOnboardingFn
 
@@ -8,6 +8,10 @@
 
 > `const` **completeOnboardingFn**: `OptionalFetcher`\<`undefined`, `undefined`, `Promise`\<\{ `completedAt`: `string`; `success`: `true`; \}\>\>
 
-Defined in: features/onboarding/server.ts:92
+Defined in: features/onboarding/server.ts:101
 
-Mark onboarding as complete
+Mark onboarding as complete.
+
+## Returns
+
+A promise resolving to the success state and completion timestamp.

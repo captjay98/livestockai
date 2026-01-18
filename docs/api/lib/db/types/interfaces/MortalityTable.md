@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / MortalityTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:266
 
 Defined in: lib/db/types.ts:268
 
-***
+---
 
 ### cause
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:268
 
 Defined in: lib/db/types.ts:271
 
-***
+---
 
 ### createdAt
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:271
 
 Defined in: lib/db/types.ts:283
 
-***
+---
 
 ### date
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:283
 
 Defined in: lib/db/types.ts:270
 
-***
+---
 
 ### id
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:270
 
 Defined in: lib/db/types.ts:267
 
-***
+---
 
 ### notes
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:267
 
 Defined in: lib/db/types.ts:282
 
-***
+---
 
 ### quantity
 

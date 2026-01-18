@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / PaginatedResult
 
@@ -24,7 +24,7 @@ Standard paginated response wrapper
 
 Defined in: lib/types.ts:22
 
-***
+---
 
 ### page
 
@@ -32,7 +32,7 @@ Defined in: lib/types.ts:22
 
 Defined in: lib/types.ts:24
 
-***
+---
 
 ### pageSize
 
@@ -40,7 +40,7 @@ Defined in: lib/types.ts:24
 
 Defined in: lib/types.ts:25
 
-***
+---
 
 ### total
 
@@ -48,7 +48,7 @@ Defined in: lib/types.ts:25
 
 Defined in: lib/types.ts:23
 
-***
+---
 
 ### totalPages
 

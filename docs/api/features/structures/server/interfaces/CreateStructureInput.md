@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/structures/server](../README.md) / CreateStructureInput
 
@@ -20,7 +20,7 @@ Defined in: features/structures/server.ts:48
 
 Floor or surface area in square meters
 
-***
+---
 
 ### capacity?
 
@@ -30,7 +30,7 @@ Defined in: features/structures/server.ts:46
 
 Maximum number of animals the structure can hold
 
-***
+---
 
 ### farmId
 
@@ -40,7 +40,7 @@ Defined in: features/structures/server.ts:40
 
 ID of the farm owning the structure
 
-***
+---
 
 ### name
 
@@ -50,7 +50,7 @@ Defined in: features/structures/server.ts:42
 
 Unique name or number of the structure on the farm
 
-***
+---
 
 ### notes?
 
@@ -60,7 +60,7 @@ Defined in: features/structures/server.ts:52
 
 Optional notes about the construction or features
 
-***
+---
 
 ### status
 
@@ -70,7 +70,7 @@ Defined in: features/structures/server.ts:50
 
 Initial operational status
 
-***
+---
 
 ### type
 

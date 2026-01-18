@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/customers/server](../README.md) / CustomerRecord
 
@@ -21,7 +21,7 @@ Defined in: features/customers/server.ts:27
 
 Timestamp when the customer was first recorded
 
-***
+---
 
 ### customerType
 
@@ -32,7 +32,7 @@ Defined in: features/customers/server.ts:25
 Categorization of the customer.
 Helps in targeted marketing and pricing.
 
-***
+---
 
 ### email
 
@@ -42,7 +42,7 @@ Defined in: features/customers/server.ts:18
 
 Optional email address
 
-***
+---
 
 ### id
 
@@ -52,7 +52,7 @@ Defined in: features/customers/server.ts:12
 
 Unique identifier for the customer
 
-***
+---
 
 ### location
 
@@ -62,7 +62,7 @@ Defined in: features/customers/server.ts:20
 
 Optional physical or delivery address
 
-***
+---
 
 ### name
 
@@ -72,7 +72,7 @@ Defined in: features/customers/server.ts:14
 
 Full name of the customer or business
 
-***
+---
 
 ### phone
 
@@ -82,7 +82,7 @@ Defined in: features/customers/server.ts:16
 
 Contact phone number
 
-***
+---
 
 ### salesCount
 
@@ -92,7 +92,7 @@ Defined in: features/customers/server.ts:29
 
 Aggregate count of sales made to this customer
 
-***
+---
 
 ### totalSpent
 

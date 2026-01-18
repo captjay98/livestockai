@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / CreateBatchData
 
@@ -20,7 +20,7 @@ Defined in: features/batches/server.ts:62
 
 Date when the batch was acquired or started
 
-***
+---
 
 ### batchName?
 
@@ -30,7 +30,7 @@ Defined in: features/batches/server.ts:66
 
 Optional custom name for the batch
 
-***
+---
 
 ### costPerUnit
 
@@ -40,7 +40,7 @@ Defined in: features/batches/server.ts:64
 
 Cost per unit/animal in the system's currency
 
-***
+---
 
 ### farmId
 
@@ -50,7 +50,7 @@ Defined in: features/batches/server.ts:54
 
 The ID of the farm where the batch will be located
 
-***
+---
 
 ### initialQuantity
 
@@ -60,7 +60,7 @@ Defined in: features/batches/server.ts:60
 
 Initial number of units in the batch
 
-***
+---
 
 ### livestockType
 
@@ -70,7 +70,7 @@ Defined in: features/batches/server.ts:56
 
 The type of livestock (poultry, fish, etc.)
 
-***
+---
 
 ### notes?
 
@@ -80,7 +80,7 @@ Defined in: features/batches/server.ts:78
 
 Optional additional notes
 
-***
+---
 
 ### sourceSize?
 
@@ -90,7 +90,7 @@ Defined in: features/batches/server.ts:68
 
 Optional starting size/age description
 
-***
+---
 
 ### species
 
@@ -100,7 +100,7 @@ Defined in: features/batches/server.ts:58
 
 The specific species or breed (e.g., 'Broiler', 'Catfish')
 
-***
+---
 
 ### structureId?
 
@@ -110,7 +110,7 @@ Defined in: features/batches/server.ts:70
 
 Optional reference to the structure where the batch is housed
 
-***
+---
 
 ### supplierId?
 
@@ -120,17 +120,17 @@ Defined in: features/batches/server.ts:76
 
 Optional ID of the supplier
 
-***
+---
 
-### target\_weight\_g?
+### target_weight_g?
 
-> `optional` **target\_weight\_g**: `number` \| `null`
+> `optional` **target_weight_g**: `number` \| `null`
 
 Defined in: features/batches/server.ts:74
 
 Optional target weight in grams for harvest
 
-***
+---
 
 ### targetHarvestDate?
 

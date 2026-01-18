@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/reports/server](../README.md) / getSalesReport
 
@@ -8,7 +8,7 @@
 
 > **getSalesReport**(`farmId`, `dateRange`): `Promise`\<[`SalesReport`](../interfaces/SalesReport.md)\>
 
-Defined in: features/reports/server.ts:269
+Defined in: features/reports/server.ts:294
 
 ## Parameters
 

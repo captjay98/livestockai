@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/dashboard/server](../README.md) / DashboardStats
 
@@ -20,7 +20,7 @@ Defined in: features/dashboard/server.ts:62
 
 Prioritized health, stock, or water quality alerts
 
-***
+---
 
 ### feed
 
@@ -48,7 +48,7 @@ Total spent on feed in the current month
 
 Total feed quantity in kilograms
 
-***
+---
 
 ### financial
 
@@ -88,7 +88,7 @@ Total revenue for the current month
 
 Percentage change in revenue compared to the previous month
 
-***
+---
 
 ### inventory
 
@@ -140,7 +140,7 @@ Combined poultry count (layers, broilers, etc.)
 
 Total sheep count
 
-***
+---
 
 ### mortality
 
@@ -162,7 +162,7 @@ Mortality rate percentage (deaths / initial population)
 
 Total combined deaths in the current month
 
-***
+---
 
 ### production
 
@@ -184,7 +184,7 @@ Total eggs collected during the current month
 
 Average laying rate percentage (eggs / possible eggs)
 
-***
+---
 
 ### recentTransactions
 
@@ -214,7 +214,7 @@ Combined chronological list of recent income and expenditures
 
 > **type**: `"sale"` \| `"expense"`
 
-***
+---
 
 ### topCustomers
 

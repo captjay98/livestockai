@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/modules/server](../README.md) / canDisableModuleFn
 
@@ -10,4 +10,4 @@
 
 Defined in: features/modules/server.ts:218
 
-Check if module can be disabled (with auth)
+Server function to check if a module can be disabled (with auth).

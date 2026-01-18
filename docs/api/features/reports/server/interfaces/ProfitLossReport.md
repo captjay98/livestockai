@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/reports/server](../README.md) / ProfitLossReport
 
@@ -32,7 +32,7 @@ Costs categorized by ledger item
 
 Combined operational cost
 
-***
+---
 
 ### period
 
@@ -42,7 +42,7 @@ Defined in: features/reports/server.ts:18
 
 The report window
 
-***
+---
 
 ### profit
 
@@ -52,7 +52,7 @@ Defined in: features/reports/server.ts:34
 
 Net profit (Revenue - Expenses)
 
-***
+---
 
 ### profitMargin
 
@@ -62,7 +62,7 @@ Defined in: features/reports/server.ts:36
 
 Profit as a percentage of revenue
 
-***
+---
 
 ### revenue
 

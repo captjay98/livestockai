@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / features/suppliers/server
 

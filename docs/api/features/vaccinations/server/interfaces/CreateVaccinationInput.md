@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / CreateVaccinationInput
 
@@ -20,7 +20,7 @@ Defined in: features/vaccinations/server.ts:37
 
 ID of the target batch
 
-***
+---
 
 ### dateAdministered
 
@@ -30,7 +30,7 @@ Defined in: features/vaccinations/server.ts:41
 
 Date of administration
 
-***
+---
 
 ### dosage
 
@@ -40,7 +40,7 @@ Defined in: features/vaccinations/server.ts:43
 
 Dose amount administered
 
-***
+---
 
 ### nextDueDate?
 
@@ -50,7 +50,7 @@ Defined in: features/vaccinations/server.ts:45
 
 Optional next scheduled dose
 
-***
+---
 
 ### notes?
 
@@ -60,7 +60,7 @@ Defined in: features/vaccinations/server.ts:47
 
 Optional administration notes
 
-***
+---
 
 ### vaccineName
 

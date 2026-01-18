@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/feed/server](../README.md) / CreateFeedRecordInput
 
@@ -20,7 +20,7 @@ Defined in: features/feed/server.ts:46
 
 Optional individual bag size in kilograms
 
-***
+---
 
 ### batchId
 
@@ -30,7 +30,7 @@ Defined in: features/feed/server.ts:30
 
 ID of the livestock batch being fed
 
-***
+---
 
 ### brandName?
 
@@ -40,7 +40,7 @@ Defined in: features/feed/server.ts:44
 
 Optional name of the feed brand
 
-***
+---
 
 ### cost
 
@@ -50,7 +50,7 @@ Defined in: features/feed/server.ts:36
 
 Total cost of the feed consumed in the system currency
 
-***
+---
 
 ### date
 
@@ -60,7 +60,7 @@ Defined in: features/feed/server.ts:38
 
 Date of the feeding event
 
-***
+---
 
 ### feedType
 
@@ -70,7 +70,7 @@ Defined in: features/feed/server.ts:32
 
 The specific category of feed used
 
-***
+---
 
 ### inventoryId?
 
@@ -80,7 +80,7 @@ Defined in: features/feed/server.ts:42
 
 Optional ID of the feed inventory item to deduct from
 
-***
+---
 
 ### notes?
 
@@ -90,7 +90,7 @@ Defined in: features/feed/server.ts:50
 
 Optional additional notes or observations
 
-***
+---
 
 ### numberOfBags?
 
@@ -100,7 +100,7 @@ Defined in: features/feed/server.ts:48
 
 Optional number of bags consumed
 
-***
+---
 
 ### quantityKg
 
@@ -110,7 +110,7 @@ Defined in: features/feed/server.ts:34
 
 Total weight of feed consumed in kilograms
 
-***
+---
 
 ### supplierId?
 

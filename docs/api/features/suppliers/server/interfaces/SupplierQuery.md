@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/suppliers/server](../README.md) / SupplierQuery
 
@@ -26,7 +26,7 @@ Defined in: lib/types.ts:15
 
 `BasePaginatedQuery.farmId`
 
-***
+---
 
 ### page?
 
@@ -38,7 +38,7 @@ Defined in: lib/types.ts:10
 
 `BasePaginatedQuery.page`
 
-***
+---
 
 ### pageSize?
 
@@ -50,7 +50,7 @@ Defined in: lib/types.ts:11
 
 `BasePaginatedQuery.pageSize`
 
-***
+---
 
 ### search?
 
@@ -62,7 +62,7 @@ Defined in: lib/types.ts:14
 
 `BasePaginatedQuery.search`
 
-***
+---
 
 ### sortBy?
 
@@ -74,7 +74,7 @@ Defined in: lib/types.ts:12
 
 `BasePaginatedQuery.sortBy`
 
-***
+---
 
 ### sortOrder?
 
@@ -86,7 +86,7 @@ Defined in: lib/types.ts:13
 
 `BasePaginatedQuery.sortOrder`
 
-***
+---
 
 ### supplierType?
 

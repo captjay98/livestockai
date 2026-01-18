@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/mortality/server](../README.md) / MortalityQuery
 
@@ -24,7 +24,7 @@ Defined in: features/mortality/server.ts:47
 
 Optional filter for a specific livestock batch
 
-***
+---
 
 ### farmId?
 
@@ -36,7 +36,7 @@ Defined in: lib/types.ts:15
 
 `BasePaginatedQuery.farmId`
 
-***
+---
 
 ### page?
 
@@ -48,7 +48,7 @@ Defined in: lib/types.ts:10
 
 `BasePaginatedQuery.page`
 
-***
+---
 
 ### pageSize?
 
@@ -60,7 +60,7 @@ Defined in: lib/types.ts:11
 
 `BasePaginatedQuery.pageSize`
 
-***
+---
 
 ### search?
 
@@ -72,7 +72,7 @@ Defined in: lib/types.ts:14
 
 `BasePaginatedQuery.search`
 
-***
+---
 
 ### sortBy?
 
@@ -84,7 +84,7 @@ Defined in: lib/types.ts:12
 
 `BasePaginatedQuery.sortBy`
 
-***
+---
 
 ### sortOrder?
 

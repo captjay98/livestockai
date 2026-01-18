@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / features/expenses/server
 
@@ -20,7 +20,7 @@
 
 - [createExpenseFn](variables/createExpenseFn.md)
 - [deleteExpenseFn](variables/deleteExpenseFn.md)
-- [EXPENSE\_CATEGORIES](variables/EXPENSE_CATEGORIES.md)
+- [EXPENSE_CATEGORIES](variables/EXPENSE_CATEGORIES.md)
 - [getExpensesPaginatedFn](variables/getExpensesPaginatedFn.md)
 - [updateExpenseFn](variables/updateExpenseFn.md)
 

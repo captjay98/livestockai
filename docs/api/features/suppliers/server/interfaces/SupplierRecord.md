@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/suppliers/server](../README.md) / SupplierRecord
 
@@ -20,7 +20,7 @@ Defined in: features/suppliers/server.ts:25
 
 Timestamp when the supplier was registered
 
-***
+---
 
 ### email
 
@@ -30,7 +30,7 @@ Defined in: features/suppliers/server.ts:17
 
 Optional contact email address
 
-***
+---
 
 ### id
 
@@ -40,7 +40,7 @@ Defined in: features/suppliers/server.ts:11
 
 Unique identifier for the supplier
 
-***
+---
 
 ### location
 
@@ -50,7 +50,7 @@ Defined in: features/suppliers/server.ts:19
 
 Optional physical address or headquarters
 
-***
+---
 
 ### name
 
@@ -60,7 +60,7 @@ Defined in: features/suppliers/server.ts:13
 
 Name of the supplier or business entity
 
-***
+---
 
 ### phone
 
@@ -70,7 +70,7 @@ Defined in: features/suppliers/server.ts:15
 
 Primary contact phone number
 
-***
+---
 
 ### products
 
@@ -80,7 +80,7 @@ Defined in: features/suppliers/server.ts:21
 
 List of products or services provided by this supplier
 
-***
+---
 
 ### supplierType
 
@@ -90,7 +90,7 @@ Defined in: features/suppliers/server.ts:23
 
 Specific classification (e.g., hatchery, feed mill)
 
-***
+---
 
 ### totalSpent
 

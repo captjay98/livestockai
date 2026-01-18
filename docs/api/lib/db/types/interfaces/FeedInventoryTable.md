@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / FeedInventoryTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:451
 
 Defined in: lib/db/types.ts:453
 
-***
+---
 
 ### feedType
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:453
 
 Defined in: lib/db/types.ts:454
 
-***
+---
 
 ### id
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:454
 
 Defined in: lib/db/types.ts:452
 
-***
+---
 
 ### minThresholdKg
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:452
 
 Defined in: lib/db/types.ts:467
 
-***
+---
 
 ### quantityKg
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:467
 
 Defined in: lib/db/types.ts:466
 
-***
+---
 
 ### updatedAt
 

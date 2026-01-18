@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / WaterQualityTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:358
 
 Defined in: lib/db/types.ts:365
 
-***
+---
 
 ### batchId
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:365
 
 Defined in: lib/db/types.ts:360
 
-***
+---
 
 ### createdAt
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:360
 
 Defined in: lib/db/types.ts:367
 
-***
+---
 
 ### date
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:367
 
 Defined in: lib/db/types.ts:361
 
-***
+---
 
 ### dissolvedOxygenMgL
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:361
 
 Defined in: lib/db/types.ts:364
 
-***
+---
 
 ### id
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:364
 
 Defined in: lib/db/types.ts:359
 
-***
+---
 
 ### notes
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:359
 
 Defined in: lib/db/types.ts:366
 
-***
+---
 
 ### ph
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:366
 
 Defined in: lib/db/types.ts:362
 
-***
+---
 
 ### temperatureCelsius
 

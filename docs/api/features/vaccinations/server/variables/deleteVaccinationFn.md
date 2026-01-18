@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / deleteVaccinationFn
 
@@ -8,4 +8,6 @@
 
 > `const` **deleteVaccinationFn**: `RequiredFetcher`\<`undefined`, (`data`) => `object`, `Promise`\<`void`\>\>
 
-Defined in: features/vaccinations/server.ts:529
+Defined in: features/vaccinations/server.ts:595
+
+Server function to delete a vaccination record.

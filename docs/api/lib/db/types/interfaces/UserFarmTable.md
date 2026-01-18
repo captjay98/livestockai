@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / UserFarmTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:205
 
 Defined in: lib/db/types.ts:207
 
-***
+---
 
 ### role
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:207
 
 Defined in: lib/db/types.ts:208
 
-***
+---
 
 ### userId
 

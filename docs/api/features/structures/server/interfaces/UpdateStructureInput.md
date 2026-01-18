@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/structures/server](../README.md) / UpdateStructureInput
 
@@ -20,7 +20,7 @@ Defined in: features/structures/server.ts:66
 
 Updated area measurement
 
-***
+---
 
 ### capacity?
 
@@ -30,7 +30,7 @@ Defined in: features/structures/server.ts:64
 
 Updated occupancy capacity
 
-***
+---
 
 ### name?
 
@@ -40,7 +40,7 @@ Defined in: features/structures/server.ts:60
 
 Updated display name
 
-***
+---
 
 ### notes?
 
@@ -50,7 +50,7 @@ Defined in: features/structures/server.ts:70
 
 Updated descriptive notes
 
-***
+---
 
 ### status?
 
@@ -60,7 +60,7 @@ Defined in: features/structures/server.ts:68
 
 Updated operational status
 
-***
+---
 
 ### type?
 

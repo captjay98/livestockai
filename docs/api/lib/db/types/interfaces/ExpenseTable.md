@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / ExpenseTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:420
 
 Defined in: lib/db/types.ts:443
 
-***
+---
 
 ### batchId
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:443
 
 Defined in: lib/db/types.ts:423
 
-***
+---
 
 ### category
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:423
 
 Defined in: lib/db/types.ts:424
 
-***
+---
 
 ### createdAt
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:424
 
 Defined in: lib/db/types.ts:448
 
-***
+---
 
 ### date
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:448
 
 Defined in: lib/db/types.ts:444
 
-***
+---
 
 ### description
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:444
 
 Defined in: lib/db/types.ts:445
 
-***
+---
 
 ### farmId
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:445
 
 Defined in: lib/db/types.ts:422
 
-***
+---
 
 ### id
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:422
 
 Defined in: lib/db/types.ts:421
 
-***
+---
 
 ### isRecurring
 
@@ -80,7 +80,7 @@ Defined in: lib/db/types.ts:421
 
 Defined in: lib/db/types.ts:447
 
-***
+---
 
 ### supplierId
 

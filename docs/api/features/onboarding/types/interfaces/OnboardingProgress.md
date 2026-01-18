@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/onboarding/types](../README.md) / OnboardingProgress
 
@@ -16,7 +16,7 @@ Defined in: features/onboarding/types.ts:17
 
 Defined in: features/onboarding/types.ts:22
 
-***
+---
 
 ### completedAt?
 
@@ -24,7 +24,7 @@ Defined in: features/onboarding/types.ts:22
 
 Defined in: features/onboarding/types.ts:24
 
-***
+---
 
 ### completedSteps
 
@@ -32,7 +32,7 @@ Defined in: features/onboarding/types.ts:24
 
 Defined in: features/onboarding/types.ts:19
 
-***
+---
 
 ### currentStep
 
@@ -40,7 +40,7 @@ Defined in: features/onboarding/types.ts:19
 
 Defined in: features/onboarding/types.ts:18
 
-***
+---
 
 ### farmId?
 
@@ -48,7 +48,7 @@ Defined in: features/onboarding/types.ts:18
 
 Defined in: features/onboarding/types.ts:20
 
-***
+---
 
 ### skipped
 
@@ -56,7 +56,7 @@ Defined in: features/onboarding/types.ts:20
 
 Defined in: features/onboarding/types.ts:23
 
-***
+---
 
 ### structureId?
 

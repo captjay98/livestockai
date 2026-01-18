@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/settings/date-formatter](../README.md) / formatRelativeDate
 
@@ -22,7 +22,7 @@ The date to format
 
 ### settings
 
-`Pick`\<`UserSettings`, `"dateFormat"`\>
+`Pick`\<[`UserSettings`](../../currency-presets/interfaces/UserSettings.md), `"dateFormat"`\>
 
 User settings containing date format configuration
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/feed/server](../README.md) / createFeedRecord
 
@@ -50,6 +50,6 @@ const recordId = await createFeedRecord('user_1', 'farm_A', {
   feedType: 'starter',
   quantityKg: 25,
   cost: 15000,
-  date: new Date()
+  date: new Date(),
 })
 ```

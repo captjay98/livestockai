@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/monitoring/alerts](../README.md) / BatchAlert
 
@@ -16,7 +16,7 @@ Defined in: features/monitoring/alerts.ts:13
 
 Defined in: features/monitoring/alerts.ts:15
 
-***
+---
 
 ### id
 
@@ -24,7 +24,7 @@ Defined in: features/monitoring/alerts.ts:15
 
 Defined in: features/monitoring/alerts.ts:14
 
-***
+---
 
 ### message
 
@@ -32,7 +32,7 @@ Defined in: features/monitoring/alerts.ts:14
 
 Defined in: features/monitoring/alerts.ts:19
 
-***
+---
 
 ### metadata?
 
@@ -40,7 +40,7 @@ Defined in: features/monitoring/alerts.ts:19
 
 Defined in: features/monitoring/alerts.ts:22
 
-***
+---
 
 ### source
 
@@ -48,7 +48,7 @@ Defined in: features/monitoring/alerts.ts:22
 
 Defined in: features/monitoring/alerts.ts:18
 
-***
+---
 
 ### species
 
@@ -56,7 +56,7 @@ Defined in: features/monitoring/alerts.ts:18
 
 Defined in: features/monitoring/alerts.ts:16
 
-***
+---
 
 ### timestamp
 
@@ -64,7 +64,7 @@ Defined in: features/monitoring/alerts.ts:16
 
 Defined in: features/monitoring/alerts.ts:20
 
-***
+---
 
 ### type
 
@@ -72,7 +72,7 @@ Defined in: features/monitoring/alerts.ts:20
 
 Defined in: features/monitoring/alerts.ts:17
 
-***
+---
 
 ### value?
 

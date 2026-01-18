@@ -1,12 +1,12 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/water-quality/server](../README.md) / WATER\_QUALITY\_THRESHOLDS
+[OpenLivestock API Reference](../../../../modules.md) / [features/water-quality/server](../README.md) / WATER_QUALITY_THRESHOLDS
 
-# Variable: WATER\_QUALITY\_THRESHOLDS
+# Variable: WATER_QUALITY_THRESHOLDS
 
-> `const` **WATER\_QUALITY\_THRESHOLDS**: `object`
+> `const` **WATER_QUALITY_THRESHOLDS**: `object`
 
 Defined in: features/water-quality/constants.ts:2
 

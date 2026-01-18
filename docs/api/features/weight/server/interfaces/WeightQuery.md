@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/weight/server](../README.md) / WeightQuery
 
@@ -24,7 +24,7 @@ Defined in: features/weight/server.ts:55
 
 Filter records by a specific batch ID
 
-***
+---
 
 ### farmId?
 
@@ -36,7 +36,7 @@ Defined in: lib/types.ts:15
 
 `BasePaginatedQuery.farmId`
 
-***
+---
 
 ### page?
 
@@ -48,7 +48,7 @@ Defined in: lib/types.ts:10
 
 `BasePaginatedQuery.page`
 
-***
+---
 
 ### pageSize?
 
@@ -60,7 +60,7 @@ Defined in: lib/types.ts:11
 
 `BasePaginatedQuery.pageSize`
 
-***
+---
 
 ### search?
 
@@ -72,7 +72,7 @@ Defined in: lib/types.ts:14
 
 `BasePaginatedQuery.search`
 
-***
+---
 
 ### sortBy?
 
@@ -84,7 +84,7 @@ Defined in: lib/types.ts:12
 
 `BasePaginatedQuery.sortBy`
 
-***
+---
 
 ### sortOrder?
 

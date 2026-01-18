@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/finance/calculations](../README.md) / calculateROI
 
@@ -11,7 +11,7 @@
 Defined in: features/finance/calculations.ts:41
 
 Calculates the Return on Investment (ROI) percentage.
-Formula: (Net Profit / Total Investment) * 100
+Formula: (Net Profit / Total Investment) \* 100
 
 ## Parameters
 

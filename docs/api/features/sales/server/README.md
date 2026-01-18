@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / features/sales/server
 
@@ -24,9 +24,9 @@
 - [deleteSaleFn](variables/deleteSaleFn.md)
 - [getSalesPaginatedFn](variables/getSalesPaginatedFn.md)
 - [getSalesSummaryFn](variables/getSalesSummaryFn.md)
-- [PAYMENT\_METHODS](variables/PAYMENT_METHODS.md)
-- [PAYMENT\_STATUSES](variables/PAYMENT_STATUSES.md)
-- [UNIT\_TYPES](variables/UNIT_TYPES.md)
+- [PAYMENT_METHODS](variables/PAYMENT_METHODS.md)
+- [PAYMENT_STATUSES](variables/PAYMENT_STATUSES.md)
+- [UNIT_TYPES](variables/UNIT_TYPES.md)
 - [updateSaleFn](variables/updateSaleFn.md)
 
 ## Functions

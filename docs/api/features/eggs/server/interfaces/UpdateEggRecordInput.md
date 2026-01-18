@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/eggs/server](../README.md) / UpdateEggRecordInput
 
@@ -20,7 +20,7 @@ Defined in: features/eggs/server.ts:135
 
 Updated date
 
-***
+---
 
 ### quantityBroken?
 
@@ -30,7 +30,7 @@ Defined in: features/eggs/server.ts:139
 
 Updated breakage count
 
-***
+---
 
 ### quantityCollected?
 
@@ -40,7 +40,7 @@ Defined in: features/eggs/server.ts:137
 
 Updated collection count
 
-***
+---
 
 ### quantitySold?
 

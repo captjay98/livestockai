@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / features/structures/server
 
@@ -23,8 +23,8 @@
 - [getStructureFn](variables/getStructureFn.md)
 - [getStructuresFn](variables/getStructuresFn.md)
 - [getStructuresWithCountsFn](variables/getStructuresWithCountsFn.md)
-- [STRUCTURE\_STATUSES](variables/STRUCTURE_STATUSES.md)
-- [STRUCTURE\_TYPES](variables/STRUCTURE_TYPES.md)
+- [STRUCTURE_STATUSES](variables/STRUCTURE_STATUSES.md)
+- [STRUCTURE_TYPES](variables/STRUCTURE_TYPES.md)
 - [updateStructureFn](variables/updateStructureFn.md)
 
 ## Functions

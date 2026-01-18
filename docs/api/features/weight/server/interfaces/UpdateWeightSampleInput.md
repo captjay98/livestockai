@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/weight/server](../README.md) / UpdateWeightSampleInput
 
@@ -20,7 +20,7 @@ Defined in: features/weight/server.ts:443
 
 Updated average weight in kilograms
 
-***
+---
 
 ### date?
 
@@ -30,7 +30,7 @@ Defined in: features/weight/server.ts:439
 
 Updated date
 
-***
+---
 
 ### maxWeightKg?
 
@@ -40,7 +40,7 @@ Defined in: features/weight/server.ts:447
 
 Updated maximum weight
 
-***
+---
 
 ### minWeightKg?
 
@@ -50,7 +50,7 @@ Defined in: features/weight/server.ts:445
 
 Updated minimum weight
 
-***
+---
 
 ### notes?
 
@@ -60,7 +60,7 @@ Defined in: features/weight/server.ts:449
 
 Updated optional notes
 
-***
+---
 
 ### sampleSize?
 

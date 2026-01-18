@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / UpdateBatchData
 
@@ -21,7 +21,7 @@ Defined in: features/batches/server.ts:96
 
 Updated custom batch name or reference identifier
 
-***
+---
 
 ### notes?
 
@@ -31,7 +31,7 @@ Defined in: features/batches/server.ts:106
 
 Updated additional notes or observations
 
-***
+---
 
 ### sourceSize?
 
@@ -41,7 +41,7 @@ Defined in: features/batches/server.ts:98
 
 Updated source size description (e.g., 'day-old')
 
-***
+---
 
 ### species?
 
@@ -51,7 +51,7 @@ Defined in: features/batches/server.ts:87
 
 Updated species or breed name (e.g., 'Broiler', 'Catfish')
 
-***
+---
 
 ### status?
 
@@ -64,7 +64,7 @@ Updated batch status.
 'depleted' - all animals died or removed without sale
 'sold' - all animals sold
 
-***
+---
 
 ### structureId?
 
@@ -74,17 +74,17 @@ Defined in: features/batches/server.ts:100
 
 Updated reference to the structure where the batch is housed
 
-***
+---
 
-### target\_weight\_g?
+### target_weight_g?
 
-> `optional` **target\_weight\_g**: `number` \| `null`
+> `optional` **target_weight_g**: `number` \| `null`
 
 Defined in: features/batches/server.ts:104
 
 Updated target weight in grams for harvest forecasting
 
-***
+---
 
 ### targetHarvestDate?
 

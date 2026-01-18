@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / [hooks/useModuleNavigation](../README.md) / useModuleNavigation
 
@@ -17,7 +17,7 @@ This ensures that menu items for inactive modules (e.g., eggs, management) are h
 
 ### T
 
-`T` *extends* `object`
+`T` _extends_ `object`
 
 ## Parameters
 

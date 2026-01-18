@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/settings/server](../README.md) / updateUserSettings
 
@@ -8,7 +8,7 @@
 
 > `const` **updateUserSettings**: `RequiredFetcher`\<`undefined`, (`data`) => `object`, `Promise`\<\{ `success`: `true`; \}\>\>
 
-Defined in: features/settings/server.ts:102
+Defined in: features/settings/server.ts:115
 
 Update the current user's settings. Performs an upsert operation.
 

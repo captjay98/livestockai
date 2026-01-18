@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / Database
 
@@ -18,15 +18,15 @@ Defined in: lib/db/types.ts:13
 
 OAuth and credential account links
 
-***
+---
 
-### audit\_logs
+### audit_logs
 
-> **audit\_logs**: [`AuditLogTable`](AuditLogTable.md)
+> **audit_logs**: [`AuditLogTable`](AuditLogTable.md)
 
 Defined in: lib/db/types.ts:49
 
-***
+---
 
 ### batches
 
@@ -36,7 +36,7 @@ Defined in: lib/db/types.ts:24
 
 Livestock batch definitions
 
-***
+---
 
 ### customers
 
@@ -44,17 +44,17 @@ Livestock batch definitions
 
 Defined in: lib/db/types.ts:43
 
-***
+---
 
-### egg\_records
+### egg_records
 
-> **egg\_records**: [`EggTable`](EggTable.md)
+> **egg_records**: [`EggTable`](EggTable.md)
 
 Defined in: lib/db/types.ts:30
 
 Records of egg collection and sales
 
-***
+---
 
 ### expenses
 
@@ -64,17 +64,17 @@ Defined in: lib/db/types.ts:42
 
 Farm expenses
 
-***
+---
 
-### farm\_modules
+### farm_modules
 
-> **farm\_modules**: [`FarmModuleTable`](FarmModuleTable.md)
+> **farm_modules**: [`FarmModuleTable`](FarmModuleTable.md)
 
 Defined in: lib/db/types.ts:19
 
 Enabled modules for each farm
 
-***
+---
 
 ### farms
 
@@ -84,41 +84,41 @@ Defined in: lib/db/types.ts:17
 
 Farm definitions
 
-***
+---
 
-### feed\_inventory
+### feed_inventory
 
-> **feed\_inventory**: [`FeedInventoryTable`](FeedInventoryTable.md)
+> **feed_inventory**: [`FeedInventoryTable`](FeedInventoryTable.md)
 
 Defined in: lib/db/types.ts:47
 
-***
+---
 
-### feed\_records
+### feed_records
 
-> **feed\_records**: [`FeedTable`](FeedTable.md)
+> **feed_records**: [`FeedTable`](FeedTable.md)
 
 Defined in: lib/db/types.ts:28
 
 Records of feeding events
 
-***
+---
 
-### growth\_standards
+### growth_standards
 
-> **growth\_standards**: [`GrowthStandardTable`](GrowthStandardTable.md)
+> **growth_standards**: [`GrowthStandardTable`](GrowthStandardTable.md)
 
 Defined in: lib/db/types.ts:50
 
-***
+---
 
-### invoice\_items
+### invoice_items
 
-> **invoice\_items**: [`InvoiceItemTable`](InvoiceItemTable.md)
+> **invoice_items**: [`InvoiceItemTable`](InvoiceItemTable.md)
 
 Defined in: lib/db/types.ts:46
 
-***
+---
 
 ### invoices
 
@@ -126,33 +126,33 @@ Defined in: lib/db/types.ts:46
 
 Defined in: lib/db/types.ts:45
 
-***
+---
 
-### market\_prices
+### market_prices
 
-> **market\_prices**: [`MarketPriceTable`](MarketPriceTable.md)
+> **market_prices**: [`MarketPriceTable`](MarketPriceTable.md)
 
 Defined in: lib/db/types.ts:51
 
-***
+---
 
-### medication\_inventory
+### medication_inventory
 
-> **medication\_inventory**: [`MedicationInventoryTable`](MedicationInventoryTable.md)
+> **medication_inventory**: [`MedicationInventoryTable`](MedicationInventoryTable.md)
 
 Defined in: lib/db/types.ts:48
 
-***
+---
 
-### mortality\_records
+### mortality_records
 
-> **mortality\_records**: [`MortalityTable`](MortalityTable.md)
+> **mortality_records**: [`MortalityTable`](MortalityTable.md)
 
 Defined in: lib/db/types.ts:26
 
 Records of livestock mortality events
 
-***
+---
 
 ### notifications
 
@@ -160,7 +160,7 @@ Records of livestock mortality events
 
 Defined in: lib/db/types.ts:52
 
-***
+---
 
 ### sales
 
@@ -170,7 +170,7 @@ Defined in: lib/db/types.ts:40
 
 Sales transactions
 
-***
+---
 
 ### sessions
 
@@ -180,7 +180,7 @@ Defined in: lib/db/types.ts:11
 
 Authentication sessions
 
-***
+---
 
 ### structures
 
@@ -188,7 +188,7 @@ Authentication sessions
 
 Defined in: lib/db/types.ts:22
 
-***
+---
 
 ### suppliers
 
@@ -196,7 +196,7 @@ Defined in: lib/db/types.ts:22
 
 Defined in: lib/db/types.ts:44
 
-***
+---
 
 ### treatments
 
@@ -206,27 +206,27 @@ Defined in: lib/db/types.ts:36
 
 Medical treatment records
 
-***
+---
 
-### user\_farms
+### user_farms
 
-> **user\_farms**: [`UserFarmTable`](UserFarmTable.md)
+> **user_farms**: [`UserFarmTable`](UserFarmTable.md)
 
 Defined in: lib/db/types.ts:21
 
 Junction table linking users to farms with roles
 
-***
+---
 
-### user\_settings
+### user_settings
 
-> **user\_settings**: [`UserSettingsTable`](UserSettingsTable.md)
+> **user_settings**: [`UserSettingsTable`](UserSettingsTable.md)
 
 Defined in: lib/db/types.ts:9
 
 User-specific preferences for currency, units, etc.
 
-***
+---
 
 ### users
 
@@ -236,7 +236,7 @@ Defined in: lib/db/types.ts:7
 
 System users and their core profile data
 
-***
+---
 
 ### vaccinations
 
@@ -246,7 +246,7 @@ Defined in: lib/db/types.ts:34
 
 Vaccination schedule and records
 
-***
+---
 
 ### verification
 
@@ -256,21 +256,21 @@ Defined in: lib/db/types.ts:15
 
 Email and phone verification tokens
 
-***
+---
 
-### water\_quality
+### water_quality
 
-> **water\_quality**: [`WaterQualityTable`](WaterQualityTable.md)
+> **water_quality**: [`WaterQualityTable`](WaterQualityTable.md)
 
 Defined in: lib/db/types.ts:38
 
 Water parameters (pH, temperature, DO)
 
-***
+---
 
-### weight\_samples
+### weight_samples
 
-> **weight\_samples**: [`WeightTable`](WeightTable.md)
+> **weight_samples**: [`WeightTable`](WeightTable.md)
 
 Defined in: lib/db/types.ts:32
 

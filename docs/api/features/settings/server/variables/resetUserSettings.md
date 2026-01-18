@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/settings/server](../README.md) / resetUserSettings
 
@@ -8,7 +8,7 @@
 
 > `const` **resetUserSettings**: `OptionalFetcher`\<`undefined`, `undefined`, `Promise`\<\{ `success`: `true`; \}\>\>
 
-Defined in: features/settings/server.ts:142
+Defined in: features/settings/server.ts:155
 
 Reset user settings back to their default values.
 

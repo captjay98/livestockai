@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / TreatmentTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:346
 
 Defined in: lib/db/types.ts:348
 
-***
+---
 
 ### createdAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:348
 
 Defined in: lib/db/types.ts:355
 
-***
+---
 
 ### date
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:355
 
 Defined in: lib/db/types.ts:351
 
-***
+---
 
 ### dosage
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:351
 
 Defined in: lib/db/types.ts:352
 
-***
+---
 
 ### id
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:352
 
 Defined in: lib/db/types.ts:347
 
-***
+---
 
 ### medicationName
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:347
 
 Defined in: lib/db/types.ts:349
 
-***
+---
 
 ### notes
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:349
 
 Defined in: lib/db/types.ts:354
 
-***
+---
 
 ### reason
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:354
 
 Defined in: lib/db/types.ts:350
 
-***
+---
 
 ### withdrawalDays
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / FeedTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:286
 
 Defined in: lib/db/types.ts:302
 
-***
+---
 
 ### batchId
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:302
 
 Defined in: lib/db/types.ts:288
 
-***
+---
 
 ### brandName
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:288
 
 Defined in: lib/db/types.ts:301
 
-***
+---
 
 ### cost
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:301
 
 Defined in: lib/db/types.ts:305
 
-***
+---
 
 ### createdAt
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:305
 
 Defined in: lib/db/types.ts:310
 
-***
+---
 
 ### date
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:310
 
 Defined in: lib/db/types.ts:306
 
-***
+---
 
 ### feedType
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:306
 
 Defined in: lib/db/types.ts:289
 
-***
+---
 
 ### id
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:289
 
 Defined in: lib/db/types.ts:287
 
-***
+---
 
 ### inventoryId
 
@@ -80,7 +80,7 @@ Defined in: lib/db/types.ts:287
 
 Defined in: lib/db/types.ts:308
 
-***
+---
 
 ### notes
 
@@ -88,7 +88,7 @@ Defined in: lib/db/types.ts:308
 
 Defined in: lib/db/types.ts:309
 
-***
+---
 
 ### numberOfBags
 
@@ -96,7 +96,7 @@ Defined in: lib/db/types.ts:309
 
 Defined in: lib/db/types.ts:303
 
-***
+---
 
 ### quantityKg
 
@@ -104,7 +104,7 @@ Defined in: lib/db/types.ts:303
 
 Defined in: lib/db/types.ts:304
 
-***
+---
 
 ### supplierId
 

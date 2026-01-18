@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / MarketPriceTable
 
@@ -16,23 +16,23 @@ Defined in: lib/db/types.ts:572
 
 Defined in: lib/db/types.ts:573
 
-***
+---
 
-### price\_per\_unit
+### price_per_unit
 
-> **price\_per\_unit**: `string`
+> **price_per_unit**: `string`
 
 Defined in: lib/db/types.ts:576
 
-***
+---
 
-### size\_category
+### size_category
 
-> **size\_category**: `string`
+> **size_category**: `string`
 
 Defined in: lib/db/types.ts:575
 
-***
+---
 
 ### species
 
@@ -40,10 +40,10 @@ Defined in: lib/db/types.ts:575
 
 Defined in: lib/db/types.ts:574
 
-***
+---
 
-### updated\_at
+### updated_at
 
-> **updated\_at**: `Generated`\<`Date`\>
+> **updated_at**: `Generated`\<`Date`\>
 
 Defined in: lib/db/types.ts:577

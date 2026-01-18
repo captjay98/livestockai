@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/logging/audit](../README.md) / AuditLogParams
 
@@ -16,7 +16,7 @@ Defined in: features/logging/audit.ts:20
 
 Defined in: features/logging/audit.ts:23
 
-***
+---
 
 ### details?
 
@@ -24,7 +24,7 @@ Defined in: features/logging/audit.ts:23
 
 Defined in: features/logging/audit.ts:26
 
-***
+---
 
 ### entityId
 
@@ -32,7 +32,7 @@ Defined in: features/logging/audit.ts:26
 
 Defined in: features/logging/audit.ts:25
 
-***
+---
 
 ### entityType
 
@@ -40,7 +40,7 @@ Defined in: features/logging/audit.ts:25
 
 Defined in: features/logging/audit.ts:24
 
-***
+---
 
 ### ipAddress?
 
@@ -48,7 +48,7 @@ Defined in: features/logging/audit.ts:24
 
 Defined in: features/logging/audit.ts:27
 
-***
+---
 
 ### userId
 
@@ -56,7 +56,7 @@ Defined in: features/logging/audit.ts:27
 
 Defined in: features/logging/audit.ts:21
 
-***
+---
 
 ### userName?
 

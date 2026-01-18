@@ -1,12 +1,12 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/structures/server](../README.md) / STRUCTURE\_TYPES
+[OpenLivestock API Reference](../../../../modules.md) / [features/structures/server](../README.md) / STRUCTURE_TYPES
 
-# Variable: STRUCTURE\_TYPES
+# Variable: STRUCTURE_TYPES
 
-> `const` **STRUCTURE\_TYPES**: `object`[]
+> `const` **STRUCTURE_TYPES**: `object`[]
 
 Defined in: features/structures/server.ts:16
 

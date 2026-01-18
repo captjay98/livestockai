@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / features/batches/server
 
@@ -20,7 +20,7 @@
 - [getBatchDetailsFn](variables/getBatchDetailsFn.md)
 - [getBatchesFn](variables/getBatchesFn.md)
 - [getBatchesPaginatedFn](variables/getBatchesPaginatedFn.md)
-- [SOURCE\_SIZE\_OPTIONS](variables/SOURCE_SIZE_OPTIONS.md)
+- [SOURCE_SIZE_OPTIONS](variables/SOURCE_SIZE_OPTIONS.md)
 - [updateBatchFn](variables/updateBatchFn.md)
 
 ## Functions

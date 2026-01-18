@@ -1,12 +1,12 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / PAYMENT\_METHODS
+[OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / PAYMENT_METHODS
 
-# Variable: PAYMENT\_METHODS
+# Variable: PAYMENT_METHODS
 
-> `const` **PAYMENT\_METHODS**: `object`[]
+> `const` **PAYMENT_METHODS**: `object`[]
 
 Defined in: features/sales/server.ts:44
 

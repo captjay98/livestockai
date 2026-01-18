@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/water-quality/server](../README.md) / CreateWaterQualityInput
 
@@ -20,7 +20,7 @@ Defined in: features/water-quality/server.ts:50
 
 Ammonia in mg/L
 
-***
+---
 
 ### batchId
 
@@ -30,7 +30,7 @@ Defined in: features/water-quality/server.ts:40
 
 ID of the fish batch
 
-***
+---
 
 ### date
 
@@ -40,7 +40,7 @@ Defined in: features/water-quality/server.ts:42
 
 Measurement date
 
-***
+---
 
 ### dissolvedOxygenMgL
 
@@ -50,7 +50,7 @@ Defined in: features/water-quality/server.ts:48
 
 Dissolved Oxygen in mg/L
 
-***
+---
 
 ### notes?
 
@@ -60,7 +60,7 @@ Defined in: features/water-quality/server.ts:52
 
 Optional notes
 
-***
+---
 
 ### ph
 
@@ -70,7 +70,7 @@ Defined in: features/water-quality/server.ts:44
 
 pH value
 
-***
+---
 
 ### temperatureCelsius
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / PaginatedQuery
 
@@ -18,7 +18,7 @@ Paginated batches query with sorting and search
 
 Defined in: features/batches/server.ts:817
 
-***
+---
 
 ### livestockType?
 
@@ -26,7 +26,7 @@ Defined in: features/batches/server.ts:817
 
 Defined in: features/batches/server.ts:819
 
-***
+---
 
 ### page?
 
@@ -34,7 +34,7 @@ Defined in: features/batches/server.ts:819
 
 Defined in: features/batches/server.ts:812
 
-***
+---
 
 ### pageSize?
 
@@ -42,7 +42,7 @@ Defined in: features/batches/server.ts:812
 
 Defined in: features/batches/server.ts:813
 
-***
+---
 
 ### search?
 
@@ -50,7 +50,7 @@ Defined in: features/batches/server.ts:813
 
 Defined in: features/batches/server.ts:816
 
-***
+---
 
 ### sortBy?
 
@@ -58,7 +58,7 @@ Defined in: features/batches/server.ts:816
 
 Defined in: features/batches/server.ts:814
 
-***
+---
 
 ### sortOrder?
 
@@ -66,7 +66,7 @@ Defined in: features/batches/server.ts:814
 
 Defined in: features/batches/server.ts:815
 
-***
+---
 
 ### status?
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / createTreatment
 
@@ -8,7 +8,7 @@
 
 > **createTreatment**(`userId`, `farmId`, `input`): `Promise`\<`string`\>
 
-Defined in: features/vaccinations/server.ts:144
+Defined in: features/vaccinations/server.ts:158
 
 Records a medical treatment for a batch.
 

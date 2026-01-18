@@ -1,12 +1,12 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / UNIT\_TYPES
+[OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / UNIT_TYPES
 
-# Variable: UNIT\_TYPES
+# Variable: UNIT_TYPES
 
-> `const` **UNIT\_TYPES**: `object`[]
+> `const` **UNIT_TYPES**: `object`[]
 
 Defined in: features/sales/server.ts:13
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / features/feed/server
 
@@ -20,7 +20,7 @@
 
 - [createFeedRecordFn](variables/createFeedRecordFn.md)
 - [deleteFeedRecordFn](variables/deleteFeedRecordFn.md)
-- [FEED\_TYPES](variables/FEED_TYPES.md)
+- [FEED_TYPES](variables/FEED_TYPES.md)
 - [getFeedRecordsPaginatedFn](variables/getFeedRecordsPaginatedFn.md)
 - [updateFeedRecordFn](variables/updateFeedRecordFn.md)
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / updateTreatmentFn
 
@@ -8,4 +8,6 @@
 
 > `const` **updateTreatmentFn**: `RequiredFetcher`\<`undefined`, (`data`) => `object`, `Promise`\<`void`\>\>
 
-Defined in: features/vaccinations/server.ts:578
+Defined in: features/vaccinations/server.ts:651
+
+Server function to update a treatment record.

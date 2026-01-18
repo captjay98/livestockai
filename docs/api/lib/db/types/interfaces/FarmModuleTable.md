@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / FarmModuleTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:197
 
 Defined in: lib/db/types.ts:202
 
-***
+---
 
 ### enabled
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:202
 
 Defined in: lib/db/types.ts:201
 
-***
+---
 
 ### farmId
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:201
 
 Defined in: lib/db/types.ts:199
 
-***
+---
 
 ### id
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:199
 
 Defined in: lib/db/types.ts:198
 
-***
+---
 
 ### moduleKey
 

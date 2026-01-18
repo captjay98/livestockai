@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/water-quality/server](../README.md) / WaterQualityRecord
 
@@ -21,7 +21,7 @@ Defined in: features/water-quality/server.ts:27
 
 Ammonia concentration in mg/L
 
-***
+---
 
 ### batchId
 
@@ -31,7 +31,7 @@ Defined in: features/water-quality/server.ts:15
 
 ID of the livestock batch being monitored
 
-***
+---
 
 ### batchSpecies
 
@@ -41,7 +41,7 @@ Defined in: features/water-quality/server.ts:17
 
 Display name of the batch species
 
-***
+---
 
 ### date
 
@@ -51,7 +51,7 @@ Defined in: features/water-quality/server.ts:19
 
 Date and time of the measurement
 
-***
+---
 
 ### dissolvedOxygenMgL
 
@@ -61,7 +61,7 @@ Defined in: features/water-quality/server.ts:25
 
 Dissolved Oxygen concentration in mg/L
 
-***
+---
 
 ### id
 
@@ -71,7 +71,7 @@ Defined in: features/water-quality/server.ts:13
 
 Unique identifier for the measurement
 
-***
+---
 
 ### notes
 
@@ -81,7 +81,7 @@ Defined in: features/water-quality/server.ts:29
 
 Optional observer notes
 
-***
+---
 
 ### ph
 
@@ -91,7 +91,7 @@ Defined in: features/water-quality/server.ts:21
 
 pH level (0-14)
 
-***
+---
 
 ### temperatureCelsius
 

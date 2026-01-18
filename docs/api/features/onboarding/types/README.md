@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / features/onboarding/types
 
@@ -16,6 +16,6 @@
 
 ## Variables
 
-- [ABBREVIATED\_STEPS](variables/ABBREVIATED_STEPS.md)
-- [DEFAULT\_PROGRESS](variables/DEFAULT_PROGRESS.md)
-- [ONBOARDING\_STEPS](variables/ONBOARDING_STEPS.md)
+- [ABBREVIATED_STEPS](variables/ABBREVIATED_STEPS.md)
+- [DEFAULT_PROGRESS](variables/DEFAULT_PROGRESS.md)
+- [ONBOARDING_STEPS](variables/ONBOARDING_STEPS.md)

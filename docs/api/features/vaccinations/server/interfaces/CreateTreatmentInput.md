@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / CreateTreatmentInput
 
@@ -20,7 +20,7 @@ Defined in: features/vaccinations/server.ts:55
 
 ID of the target batch
 
-***
+---
 
 ### date
 
@@ -30,7 +30,7 @@ Defined in: features/vaccinations/server.ts:61
 
 Start date of treatment
 
-***
+---
 
 ### dosage
 
@@ -40,7 +40,7 @@ Defined in: features/vaccinations/server.ts:63
 
 Dose amount administered
 
-***
+---
 
 ### medicationName
 
@@ -50,7 +50,7 @@ Defined in: features/vaccinations/server.ts:57
 
 Name of the medication used
 
-***
+---
 
 ### notes?
 
@@ -60,7 +60,7 @@ Defined in: features/vaccinations/server.ts:67
 
 Optional treatment details
 
-***
+---
 
 ### reason
 
@@ -70,7 +70,7 @@ Defined in: features/vaccinations/server.ts:59
 
 Symptom or diagnosis necessitating treatment
 
-***
+---
 
 ### withdrawalDays
 

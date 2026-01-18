@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / CustomerTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:483
 
 Defined in: lib/db/types.ts:498
 
-***
+---
 
 ### customerType
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:498
 
 Defined in: lib/db/types.ts:489
 
-***
+---
 
 ### email
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:489
 
 Defined in: lib/db/types.ts:487
 
-***
+---
 
 ### id
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:487
 
 Defined in: lib/db/types.ts:484
 
-***
+---
 
 ### location
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:484
 
 Defined in: lib/db/types.ts:488
 
-***
+---
 
 ### name
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:488
 
 Defined in: lib/db/types.ts:485
 
-***
+---
 
 ### phone
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:485
 
 Defined in: lib/db/types.ts:486
 
-***
+---
 
 ### updatedAt
 

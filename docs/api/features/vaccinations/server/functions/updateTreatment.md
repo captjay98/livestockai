@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / updateTreatment
 
@@ -8,9 +8,9 @@
 
 > **updateTreatment**(`userId`, `recordId`, `input`): `Promise`\<`void`\>
 
-Defined in: features/vaccinations/server.ts:540
+Defined in: features/vaccinations/server.ts:610
 
-Update treatment record
+Update a specific treatment record.
 
 ## Parameters
 
@@ -18,13 +18,19 @@ Update treatment record
 
 `string`
 
+ID of the user
+
 ### recordId
 
 `string`
 
+ID of the record to update
+
 ### input
 
 [`UpdateTreatmentInput`](../interfaces/UpdateTreatmentInput.md)
+
+Fields to update
 
 ## Returns
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / VaccinationTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:335
 
 Defined in: lib/db/types.ts:337
 
-***
+---
 
 ### createdAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:337
 
 Defined in: lib/db/types.ts:343
 
-***
+---
 
 ### dateAdministered
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:343
 
 Defined in: lib/db/types.ts:339
 
-***
+---
 
 ### dosage
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:339
 
 Defined in: lib/db/types.ts:340
 
-***
+---
 
 ### id
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:340
 
 Defined in: lib/db/types.ts:336
 
-***
+---
 
 ### nextDueDate
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:336
 
 Defined in: lib/db/types.ts:341
 
-***
+---
 
 ### notes
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:341
 
 Defined in: lib/db/types.ts:342
 
-***
+---
 
 ### vaccineName
 

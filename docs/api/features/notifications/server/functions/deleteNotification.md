@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/notifications/server](../README.md) / deleteNotification
 
@@ -8,15 +8,17 @@
 
 > **deleteNotification**(`notificationId`): `Promise`\<`void`\>
 
-Defined in: features/notifications/server.ts:89
+Defined in: features/notifications/server.ts:101
 
-Delete a notification
+Delete a notification.
 
 ## Parameters
 
 ### notificationId
 
 `string`
+
+The ID of the notification to delete.
 
 ## Returns
 

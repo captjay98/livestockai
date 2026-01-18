@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/invoices/server](../README.md) / InvoiceRecord
 
@@ -20,7 +20,7 @@ Defined in: features/invoices/server.ts:23
 
 Name of the customer associated with this invoice
 
-***
+---
 
 ### date
 
@@ -30,7 +30,7 @@ Defined in: features/invoices/server.ts:19
 
 Date the invoice was issued
 
-***
+---
 
 ### dueDate
 
@@ -40,7 +40,7 @@ Defined in: features/invoices/server.ts:21
 
 Optional date by which payment is expected
 
-***
+---
 
 ### id
 
@@ -50,7 +50,7 @@ Defined in: features/invoices/server.ts:11
 
 Unique identifier for the invoice
 
-***
+---
 
 ### invoiceNumber
 
@@ -60,7 +60,7 @@ Defined in: features/invoices/server.ts:13
 
 Human-readable invoice number (e.g., INV-2024-0001)
 
-***
+---
 
 ### status
 
@@ -70,7 +70,7 @@ Defined in: features/invoices/server.ts:17
 
 Payment status of the invoice
 
-***
+---
 
 ### totalAmount
 

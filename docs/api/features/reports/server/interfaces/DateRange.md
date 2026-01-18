@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/reports/server](../README.md) / DateRange
 
@@ -20,7 +20,7 @@ Defined in: features/reports/server.ts:10
 
 End boundary (inclusive)
 
-***
+---
 
 ### startDate
 

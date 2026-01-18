@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / AuditLogTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:549
 
 Defined in: lib/db/types.ts:553
 
-***
+---
 
 ### createdAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:553
 
 Defined in: lib/db/types.ts:558
 
-***
+---
 
 ### details
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:558
 
 Defined in: lib/db/types.ts:556
 
-***
+---
 
 ### entityId
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:556
 
 Defined in: lib/db/types.ts:555
 
-***
+---
 
 ### entityType
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:555
 
 Defined in: lib/db/types.ts:554
 
-***
+---
 
 ### id
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:554
 
 Defined in: lib/db/types.ts:550
 
-***
+---
 
 ### ipAddress
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:550
 
 Defined in: lib/db/types.ts:557
 
-***
+---
 
 ### userId
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:557
 
 Defined in: lib/db/types.ts:551
 
-***
+---
 
 ### userName
 

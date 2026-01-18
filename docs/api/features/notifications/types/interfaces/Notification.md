@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/notifications/types](../README.md) / Notification
 
@@ -16,7 +16,7 @@ Defined in: features/notifications/types.ts:7
 
 Defined in: features/notifications/types.ts:15
 
-***
+---
 
 ### createdAt
 
@@ -24,7 +24,7 @@ Defined in: features/notifications/types.ts:15
 
 Defined in: features/notifications/types.ts:17
 
-***
+---
 
 ### farmId
 
@@ -32,7 +32,7 @@ Defined in: features/notifications/types.ts:17
 
 Defined in: features/notifications/types.ts:10
 
-***
+---
 
 ### id
 
@@ -40,7 +40,7 @@ Defined in: features/notifications/types.ts:10
 
 Defined in: features/notifications/types.ts:8
 
-***
+---
 
 ### message
 
@@ -48,7 +48,7 @@ Defined in: features/notifications/types.ts:8
 
 Defined in: features/notifications/types.ts:13
 
-***
+---
 
 ### metadata
 
@@ -56,7 +56,7 @@ Defined in: features/notifications/types.ts:13
 
 Defined in: features/notifications/types.ts:16
 
-***
+---
 
 ### read
 
@@ -64,7 +64,7 @@ Defined in: features/notifications/types.ts:16
 
 Defined in: features/notifications/types.ts:14
 
-***
+---
 
 ### title
 
@@ -72,7 +72,7 @@ Defined in: features/notifications/types.ts:14
 
 Defined in: features/notifications/types.ts:12
 
-***
+---
 
 ### type
 
@@ -80,7 +80,7 @@ Defined in: features/notifications/types.ts:12
 
 Defined in: features/notifications/types.ts:11
 
-***
+---
 
 ### userId
 

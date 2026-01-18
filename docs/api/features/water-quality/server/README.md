@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / features/water-quality/server
 
@@ -19,7 +19,7 @@
 - [deleteWaterQualityRecordFn](variables/deleteWaterQualityRecordFn.md)
 - [getWaterQualityRecordsPaginatedFn](variables/getWaterQualityRecordsPaginatedFn.md)
 - [updateWaterQualityRecordFn](variables/updateWaterQualityRecordFn.md)
-- [WATER\_QUALITY\_THRESHOLDS](variables/WATER_QUALITY_THRESHOLDS.md)
+- [WATER_QUALITY_THRESHOLDS](variables/WATER_QUALITY_THRESHOLDS.md)
 
 ## Functions
 

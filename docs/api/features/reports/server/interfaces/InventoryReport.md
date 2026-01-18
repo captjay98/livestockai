@@ -1,12 +1,14 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/reports/server](../README.md) / InventoryReport
 
 # Interface: InventoryReport
 
-Defined in: features/reports/server.ts:39
+Defined in: features/reports/server.ts:42
+
+Report detailing livestock quantities and mortality.
 
 ## Properties
 
@@ -14,7 +16,9 @@ Defined in: features/reports/server.ts:39
 
 > **batches**: `object`[]
 
-Defined in: features/reports/server.ts:40
+Defined in: features/reports/server.ts:44
+
+List of individual batch statuses
 
 #### currentQuantity
 
@@ -48,13 +52,15 @@ Defined in: features/reports/server.ts:40
 
 > **status**: `string`
 
-***
+---
 
 ### summary
 
 > **summary**: `object`
 
-Defined in: features/reports/server.ts:50
+Defined in: features/reports/server.ts:55
+
+Farm-wide totals
 
 #### overallMortalityRate
 

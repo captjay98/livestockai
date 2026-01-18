@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/onboarding/server](../README.md) / resetOnboardingFn
 
@@ -8,6 +8,10 @@
 
 > `const` **resetOnboardingFn**: `OptionalFetcher`\<`undefined`, `undefined`, `Promise`\<\{ `success`: `true`; \}\>\>
 
-Defined in: features/onboarding/server.ts:179
+Defined in: features/onboarding/server.ts:195
 
-Reset onboarding to allow user to restart
+Reset onboarding state to allow user to restart the guide.
+
+## Returns
+
+A promise resolving to a success indicator.

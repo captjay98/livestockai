@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/modules/types](../README.md) / ModuleContextState
 
@@ -26,7 +26,7 @@ Defined in: features/modules/types.ts:79
 
 `Promise`\<`boolean`\>
 
-***
+---
 
 ### enabledModules
 
@@ -34,7 +34,7 @@ Defined in: features/modules/types.ts:79
 
 Defined in: features/modules/types.ts:76
 
-***
+---
 
 ### isLoading
 
@@ -42,7 +42,7 @@ Defined in: features/modules/types.ts:76
 
 Defined in: features/modules/types.ts:77
 
-***
+---
 
 ### refreshModules()
 
@@ -54,7 +54,7 @@ Defined in: features/modules/types.ts:80
 
 `Promise`\<`void`\>
 
-***
+---
 
 ### toggleModule()
 

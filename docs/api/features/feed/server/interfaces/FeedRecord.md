@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/feed/server](../README.md) / FeedRecord
 
@@ -18,7 +18,7 @@ Core interface representing a single feeding record with joined batch and suppli
 
 Defined in: features/feed/server.ts:11
 
-***
+---
 
 ### batchSpecies
 
@@ -26,7 +26,7 @@ Defined in: features/feed/server.ts:11
 
 Defined in: features/feed/server.ts:12
 
-***
+---
 
 ### brandName
 
@@ -34,7 +34,7 @@ Defined in: features/feed/server.ts:12
 
 Defined in: features/feed/server.ts:14
 
-***
+---
 
 ### cost
 
@@ -42,7 +42,7 @@ Defined in: features/feed/server.ts:14
 
 Defined in: features/feed/server.ts:16
 
-***
+---
 
 ### date
 
@@ -50,7 +50,7 @@ Defined in: features/feed/server.ts:16
 
 Defined in: features/feed/server.ts:17
 
-***
+---
 
 ### feedType
 
@@ -58,7 +58,7 @@ Defined in: features/feed/server.ts:17
 
 Defined in: features/feed/server.ts:13
 
-***
+---
 
 ### id
 
@@ -66,7 +66,7 @@ Defined in: features/feed/server.ts:13
 
 Defined in: features/feed/server.ts:10
 
-***
+---
 
 ### notes
 
@@ -74,7 +74,7 @@ Defined in: features/feed/server.ts:10
 
 Defined in: features/feed/server.ts:19
 
-***
+---
 
 ### quantityKg
 
@@ -82,7 +82,7 @@ Defined in: features/feed/server.ts:19
 
 Defined in: features/feed/server.ts:15
 
-***
+---
 
 ### supplierName
 

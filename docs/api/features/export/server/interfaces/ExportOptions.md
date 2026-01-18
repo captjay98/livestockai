@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/export/server](../README.md) / ExportOptions
 
@@ -20,7 +20,7 @@ Defined in: features/export/server.ts:22
 
 Upper bound for date-filtered data (ISO string)
 
-***
+---
 
 ### farmId?
 
@@ -30,7 +30,7 @@ Defined in: features/export/server.ts:18
 
 Optional specific farm filter
 
-***
+---
 
 ### format
 
@@ -40,7 +40,7 @@ Defined in: features/export/server.ts:16
 
 Output file format
 
-***
+---
 
 ### reportType
 
@@ -50,7 +50,7 @@ Defined in: features/export/server.ts:14
 
 The logic/data source (e.g., 'profit-loss', 'inventory')
 
-***
+---
 
 ### startDate
 

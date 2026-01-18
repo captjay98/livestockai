@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/settings/currency](../README.md) / multiply
 
@@ -10,7 +10,7 @@
 
 Defined in: features/settings/currency.ts:159
 
-Multiply two amounts (e.g., quantity * unit_price)
+Multiply two amounts (e.g., quantity \* unit_price)
 
 ## Parameters
 

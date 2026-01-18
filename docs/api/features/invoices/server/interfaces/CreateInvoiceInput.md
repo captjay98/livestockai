@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/invoices/server](../README.md) / CreateInvoiceInput
 
@@ -20,7 +20,7 @@ Defined in: features/invoices/server.ts:31
 
 ID of the customer being billed
 
-***
+---
 
 ### dueDate?
 
@@ -30,7 +30,7 @@ Defined in: features/invoices/server.ts:44
 
 Optional payment deadline
 
-***
+---
 
 ### farmId
 
@@ -40,7 +40,7 @@ Defined in: features/invoices/server.ts:33
 
 ID of the farm issuing the invoice
 
-***
+---
 
 ### items
 
@@ -68,7 +68,7 @@ Quantity sold
 
 Price per unit
 
-***
+---
 
 ### notes?
 

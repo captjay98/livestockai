@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / InvoiceItemTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:539
 
 Defined in: lib/db/types.ts:542
 
-***
+---
 
 ### id
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:542
 
 Defined in: lib/db/types.ts:540
 
-***
+---
 
 ### invoiceId
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:540
 
 Defined in: lib/db/types.ts:541
 
-***
+---
 
 ### quantity
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:541
 
 Defined in: lib/db/types.ts:543
 
-***
+---
 
 ### total
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:543
 
 Defined in: lib/db/types.ts:545
 
-***
+---
 
 ### unitPrice
 

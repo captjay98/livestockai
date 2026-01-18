@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/water-quality/server](../README.md) / UpdateWaterQualityInput
 
@@ -20,7 +20,7 @@ Defined in: features/water-quality/server.ts:439
 
 Updated Ammonia in mg/L
 
-***
+---
 
 ### date?
 
@@ -30,7 +30,7 @@ Defined in: features/water-quality/server.ts:431
 
 Updated measurement date
 
-***
+---
 
 ### dissolvedOxygenMgL?
 
@@ -40,7 +40,7 @@ Defined in: features/water-quality/server.ts:437
 
 Updated Dissolved Oxygen in mg/L
 
-***
+---
 
 ### notes?
 
@@ -50,7 +50,7 @@ Defined in: features/water-quality/server.ts:441
 
 Updated notes
 
-***
+---
 
 ### ph?
 
@@ -60,7 +60,7 @@ Defined in: features/water-quality/server.ts:433
 
 Updated pH value
 
-***
+---
 
 ### temperatureCelsius?
 

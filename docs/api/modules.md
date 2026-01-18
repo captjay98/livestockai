@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](README.md)
 
-***
+---
 
 # OpenLivestock API Reference
 
@@ -17,6 +17,7 @@
 - [features/feed/server](features/feed/server/README.md)
 - [features/finance/calculations](features/finance/calculations/README.md)
 - [features/integrations/server](features/integrations/server/README.md)
+- [features/integrations/types](features/integrations/types/README.md)
 - [features/invoices/server](features/invoices/server/README.md)
 - [features/logging/audit](features/logging/audit/README.md)
 - [features/modules/server](features/modules/server/README.md)
@@ -31,6 +32,7 @@
 - [features/sales/server](features/sales/server/README.md)
 - [features/settings/currency](features/settings/currency/README.md)
 - [features/settings/currency-formatter](features/settings/currency-formatter/README.md)
+- [features/settings/currency-presets](features/settings/currency-presets/README.md)
 - [features/settings/date-formatter](features/settings/date-formatter/README.md)
 - [features/settings/hooks](features/settings/hooks/README.md)
 - [features/settings/server](features/settings/server/README.md)

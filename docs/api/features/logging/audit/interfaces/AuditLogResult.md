@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/logging/audit](../README.md) / AuditLogResult
 
@@ -52,7 +52,7 @@ Defined in: features/logging/audit.ts:86
 
 > **userName**: `string` \| `null`
 
-***
+---
 
 ### page
 
@@ -60,7 +60,7 @@ Defined in: features/logging/audit.ts:86
 
 Defined in: features/logging/audit.ts:98
 
-***
+---
 
 ### pageSize
 
@@ -68,7 +68,7 @@ Defined in: features/logging/audit.ts:98
 
 Defined in: features/logging/audit.ts:99
 
-***
+---
 
 ### total
 
@@ -76,7 +76,7 @@ Defined in: features/logging/audit.ts:99
 
 Defined in: features/logging/audit.ts:97
 
-***
+---
 
 ### totalPages
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / getSalesForFarm
 
@@ -55,5 +55,7 @@ If user lacks access to the farm
 ## Example
 
 ```typescript
-const sales = await getSalesForFarm('user_1', 'farm_A', { startDate: new Date('2024-01-01') })
+const sales = await getSalesForFarm('user_1', 'farm_A', {
+  startDate: new Date('2024-01-01'),
+})
 ```

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/suppliers/server](../README.md) / CreateSupplierInput
 
@@ -20,7 +20,7 @@ Defined in: features/suppliers/server.ts:39
 
 Optional contact email
 
-***
+---
 
 ### location?
 
@@ -30,7 +30,7 @@ Defined in: features/suppliers/server.ts:41
 
 Optional location description
 
-***
+---
 
 ### name
 
@@ -40,7 +40,7 @@ Defined in: features/suppliers/server.ts:35
 
 Supplier's full name
 
-***
+---
 
 ### phone
 
@@ -50,7 +50,7 @@ Defined in: features/suppliers/server.ts:37
 
 Contact phone number
 
-***
+---
 
 ### products
 
@@ -60,7 +60,7 @@ Defined in: features/suppliers/server.ts:43
 
 List of products supplied
 
-***
+---
 
 ### supplierType?
 

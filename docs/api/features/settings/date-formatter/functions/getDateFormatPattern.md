@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/settings/date-formatter](../README.md) / getDateFormatPattern
 
@@ -16,7 +16,7 @@ Get the date-fns format pattern representing the user's preferred date format.
 
 ### settings
 
-`Pick`\<`UserSettings`, `"dateFormat"`\>
+`Pick`\<[`UserSettings`](../../currency-presets/interfaces/UserSettings.md), `"dateFormat"`\>
 
 User settings containing date format
 

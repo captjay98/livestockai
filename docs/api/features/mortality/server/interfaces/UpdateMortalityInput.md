@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/mortality/server](../README.md) / UpdateMortalityInput
 
@@ -20,7 +20,7 @@ Defined in: features/mortality/server.ts:459
 
 Updated cause of death
 
-***
+---
 
 ### date?
 
@@ -30,7 +30,7 @@ Defined in: features/mortality/server.ts:457
 
 Updated date of occurrence
 
-***
+---
 
 ### notes?
 
@@ -40,7 +40,7 @@ Defined in: features/mortality/server.ts:471
 
 Updated optional notes
 
-***
+---
 
 ### quantity?
 

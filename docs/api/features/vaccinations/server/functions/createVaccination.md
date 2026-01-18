@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / createVaccination
 
@@ -8,7 +8,7 @@
 
 > **createVaccination**(`userId`, `farmId`, `input`): `Promise`\<`string`\>
 
-Defined in: features/vaccinations/server.ts:89
+Defined in: features/vaccinations/server.ts:100
 
 Records a new vaccination event for a batch.
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/users/server](../README.md) / setUserPasswordFn
 
@@ -8,4 +8,4 @@
 
 > `const` **setUserPasswordFn**: `RequiredFetcher`\<`undefined`, (`data`) => `object`, `Promise`\<\{ `success`: `true`; \}\>\> = `setUserPassword`
 
-Defined in: features/users/server.ts:331
+Defined in: features/users/server.ts:354

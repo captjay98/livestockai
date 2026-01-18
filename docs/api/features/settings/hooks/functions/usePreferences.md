@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/settings/hooks](../README.md) / usePreferences
 
@@ -24,7 +24,7 @@ Object containing defaultFarmId, language, and theme
 
 ### language
 
-> **language**: `"en"` \| `"ha"` \| `"yo"` \| `"ig"` \| `"fr"` \| `"pt"` \| `"sw"` \| `"es"` \| `"ar"` \| `"tr"` = `settings.language`
+> **language**: `"en"` \| `"ha"` \| `"yo"` \| `"ig"` \| `"fr"` \| `"pt"` \| `"sw"` \| `"es"` \| `"hi"` \| `"tr"` = `settings.language`
 
 ### theme
 

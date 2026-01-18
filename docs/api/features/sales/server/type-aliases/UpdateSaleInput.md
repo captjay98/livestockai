@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / UpdateSaleInput
 
@@ -22,7 +22,7 @@ Defined in: features/sales/server.ts:267
 
 Updated age in weeks
 
-***
+---
 
 ### averageWeightKg?
 
@@ -32,7 +32,7 @@ Defined in: features/sales/server.ts:269
 
 Updated average weight in kg
 
-***
+---
 
 ### date?
 
@@ -42,7 +42,7 @@ Defined in: features/sales/server.ts:260
 
 Updated transaction date
 
-***
+---
 
 ### notes?
 
@@ -52,7 +52,7 @@ Defined in: features/sales/server.ts:262
 
 Updated transaction notes
 
-***
+---
 
 ### paymentMethod?
 
@@ -62,7 +62,7 @@ Defined in: features/sales/server.ts:273
 
 Updated payment method
 
-***
+---
 
 ### paymentStatus?
 
@@ -72,7 +72,7 @@ Defined in: features/sales/server.ts:271
 
 Updated payment status
 
-***
+---
 
 ### quantity?
 
@@ -82,7 +82,7 @@ Defined in: features/sales/server.ts:256
 
 Updated quantity sold
 
-***
+---
 
 ### unitPrice?
 
@@ -92,7 +92,7 @@ Defined in: features/sales/server.ts:258
 
 Updated unit price
 
-***
+---
 
 ### unitType?
 

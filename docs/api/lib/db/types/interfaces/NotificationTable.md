@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / NotificationTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:581
 
 Defined in: lib/db/types.ts:589
 
-***
+---
 
 ### createdAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:589
 
 Defined in: lib/db/types.ts:591
 
-***
+---
 
 ### farmId
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:591
 
 Defined in: lib/db/types.ts:584
 
-***
+---
 
 ### id
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:584
 
 Defined in: lib/db/types.ts:582
 
-***
+---
 
 ### message
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:582
 
 Defined in: lib/db/types.ts:587
 
-***
+---
 
 ### metadata
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:587
 
 Defined in: lib/db/types.ts:590
 
-***
+---
 
 ### read
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:590
 
 Defined in: lib/db/types.ts:588
 
-***
+---
 
 ### title
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:588
 
 Defined in: lib/db/types.ts:586
 
-***
+---
 
 ### type
 
@@ -80,7 +80,7 @@ Defined in: lib/db/types.ts:586
 
 Defined in: lib/db/types.ts:585
 
-***
+---
 
 ### userId
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/expenses/server](../README.md) / CreateExpenseInput
 
@@ -21,7 +21,7 @@ Defined in: features/expenses/server.ts:33
 
 Monetary amount in system currency
 
-***
+---
 
 ### batchId?
 
@@ -31,7 +31,7 @@ Defined in: features/expenses/server.ts:17
 
 Optional ID of a specific livestock batch for cost attribution
 
-***
+---
 
 ### category
 
@@ -41,7 +41,7 @@ Defined in: features/expenses/server.ts:19
 
 Specific expense classification
 
-***
+---
 
 ### date
 
@@ -51,7 +51,7 @@ Defined in: features/expenses/server.ts:35
 
 Date the expense occurred
 
-***
+---
 
 ### description
 
@@ -61,7 +61,7 @@ Defined in: features/expenses/server.ts:37
 
 Brief description or item name
 
-***
+---
 
 ### farmId
 
@@ -71,7 +71,7 @@ Defined in: features/expenses/server.ts:15
 
 ID of the farm incurred the expense
 
-***
+---
 
 ### feedQuantityKg?
 
@@ -81,7 +81,7 @@ Defined in: features/expenses/server.ts:45
 
 Feed weight in kilograms for inventory tracking
 
-***
+---
 
 ### feedType?
 
@@ -91,7 +91,7 @@ Defined in: features/expenses/server.ts:43
 
 Specific feed category when category is 'feed'
 
-***
+---
 
 ### isRecurring?
 
@@ -101,7 +101,7 @@ Defined in: features/expenses/server.ts:41
 
 Whether this is a recurring monthly/weekly cost
 
-***
+---
 
 ### supplierId?
 

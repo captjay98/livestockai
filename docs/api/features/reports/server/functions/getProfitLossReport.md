@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/reports/server](../README.md) / getProfitLossReport
 
@@ -8,7 +8,7 @@
 
 > **getProfitLossReport**(`farmId`, `dateRange`): `Promise`\<[`ProfitLossReport`](../interfaces/ProfitLossReport.md)\>
 
-Defined in: features/reports/server.ts:114
+Defined in: features/reports/server.ts:139
 
 Generates a Profit and Loss report.
 Aggregates all sales and expenses within the specified window.

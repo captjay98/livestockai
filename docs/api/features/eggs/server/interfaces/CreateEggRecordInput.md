@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/eggs/server](../README.md) / CreateEggRecordInput
 
@@ -20,7 +20,7 @@ Defined in: features/eggs/server.ts:11
 
 ID of the layer poultry batch
 
-***
+---
 
 ### date
 
@@ -30,7 +30,7 @@ Defined in: features/eggs/server.ts:13
 
 Collection date
 
-***
+---
 
 ### quantityBroken
 
@@ -40,7 +40,7 @@ Defined in: features/eggs/server.ts:17
 
 Number of eggs broken or discarded during collection
 
-***
+---
 
 ### quantityCollected
 
@@ -50,7 +50,7 @@ Defined in: features/eggs/server.ts:15
 
 Total quantity of good eggs collected
 
-***
+---
 
 ### quantitySold
 

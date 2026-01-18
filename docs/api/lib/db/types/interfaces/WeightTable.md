@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / WeightTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:323
 
 Defined in: lib/db/types.ts:328
 
-***
+---
 
 ### batchId
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:328
 
 Defined in: lib/db/types.ts:325
 
-***
+---
 
 ### createdAt
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:325
 
 Defined in: lib/db/types.ts:332
 
-***
+---
 
 ### date
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:332
 
 Defined in: lib/db/types.ts:326
 
-***
+---
 
 ### id
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:326
 
 Defined in: lib/db/types.ts:324
 
-***
+---
 
 ### maxWeightKg
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:324
 
 Defined in: lib/db/types.ts:330
 
-***
+---
 
 ### minWeightKg
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:330
 
 Defined in: lib/db/types.ts:329
 
-***
+---
 
 ### notes
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:329
 
 Defined in: lib/db/types.ts:331
 
-***
+---
 
 ### sampleSize
 

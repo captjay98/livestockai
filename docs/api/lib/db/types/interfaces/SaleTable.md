@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / SaleTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:371
 
 Defined in: lib/db/types.ts:404
 
-***
+---
 
 ### averageWeightKg
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:404
 
 Defined in: lib/db/types.ts:405
 
-***
+---
 
 ### batchId
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:405
 
 Defined in: lib/db/types.ts:374
 
-***
+---
 
 ### createdAt
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:374
 
 Defined in: lib/db/types.ts:417
 
-***
+---
 
 ### customerId
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:417
 
 Defined in: lib/db/types.ts:375
 
-***
+---
 
 ### date
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:375
 
 Defined in: lib/db/types.ts:415
 
-***
+---
 
 ### farmId
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:415
 
 Defined in: lib/db/types.ts:373
 
-***
+---
 
 ### id
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:373
 
 Defined in: lib/db/types.ts:372
 
-***
+---
 
 ### invoiceId
 
@@ -80,7 +80,7 @@ Defined in: lib/db/types.ts:372
 
 Defined in: lib/db/types.ts:376
 
-***
+---
 
 ### livestockType
 
@@ -88,7 +88,7 @@ Defined in: lib/db/types.ts:376
 
 Defined in: lib/db/types.ts:377
 
-***
+---
 
 ### notes
 
@@ -96,7 +96,7 @@ Defined in: lib/db/types.ts:377
 
 Defined in: lib/db/types.ts:416
 
-***
+---
 
 ### paymentMethod
 
@@ -104,7 +104,7 @@ Defined in: lib/db/types.ts:416
 
 Defined in: lib/db/types.ts:407
 
-***
+---
 
 ### paymentStatus
 
@@ -112,7 +112,7 @@ Defined in: lib/db/types.ts:407
 
 Defined in: lib/db/types.ts:406
 
-***
+---
 
 ### quantity
 
@@ -120,7 +120,7 @@ Defined in: lib/db/types.ts:406
 
 Defined in: lib/db/types.ts:391
 
-***
+---
 
 ### totalAmount
 
@@ -128,7 +128,7 @@ Defined in: lib/db/types.ts:391
 
 Defined in: lib/db/types.ts:393
 
-***
+---
 
 ### unitPrice
 
@@ -136,7 +136,7 @@ Defined in: lib/db/types.ts:393
 
 Defined in: lib/db/types.ts:392
 
-***
+---
 
 ### unitType
 

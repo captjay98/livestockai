@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / InvoiceTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:526
 
 Defined in: lib/db/types.ts:536
 
-***
+---
 
 ### customerId
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:536
 
 Defined in: lib/db/types.ts:529
 
-***
+---
 
 ### date
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:529
 
 Defined in: lib/db/types.ts:533
 
-***
+---
 
 ### dueDate
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:533
 
 Defined in: lib/db/types.ts:534
 
-***
+---
 
 ### farmId
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:534
 
 Defined in: lib/db/types.ts:530
 
-***
+---
 
 ### id
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:530
 
 Defined in: lib/db/types.ts:527
 
-***
+---
 
 ### invoiceNumber
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:527
 
 Defined in: lib/db/types.ts:528
 
-***
+---
 
 ### notes
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:528
 
 Defined in: lib/db/types.ts:535
 
-***
+---
 
 ### status
 
@@ -80,7 +80,7 @@ Defined in: lib/db/types.ts:535
 
 Defined in: lib/db/types.ts:532
 
-***
+---
 
 ### totalAmount
 

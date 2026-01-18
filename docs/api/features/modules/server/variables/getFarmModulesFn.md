@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/modules/server](../README.md) / getFarmModulesFn
 
@@ -10,4 +10,4 @@
 
 Defined in: features/modules/server.ts:156
 
-Get farm modules (with auth)
+Server function to get farm modules (with auth).

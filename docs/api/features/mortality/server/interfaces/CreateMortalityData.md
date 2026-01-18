@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/mortality/server](../README.md) / CreateMortalityData
 
@@ -20,7 +20,7 @@ Defined in: features/mortality/server.ts:31
 
 ID of the affected livestock batch
 
-***
+---
 
 ### cause
 
@@ -30,7 +30,7 @@ Defined in: features/mortality/server.ts:37
 
 Categorized cause of death
 
-***
+---
 
 ### date
 
@@ -40,7 +40,7 @@ Defined in: features/mortality/server.ts:35
 
 Date of occurrence
 
-***
+---
 
 ### notes?
 
@@ -50,7 +50,7 @@ Defined in: features/mortality/server.ts:39
 
 Optional descriptive notes
 
-***
+---
 
 ### quantity
 

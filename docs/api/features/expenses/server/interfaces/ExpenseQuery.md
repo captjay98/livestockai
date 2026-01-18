@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/expenses/server](../README.md) / ExpenseQuery
 
@@ -24,7 +24,7 @@ Defined in: features/expenses/server.ts:542
 
 Filter by a specific livestock batch
 
-***
+---
 
 ### category?
 
@@ -34,7 +34,7 @@ Defined in: features/expenses/server.ts:544
 
 Filter by an expense category
 
-***
+---
 
 ### farmId?
 
@@ -46,7 +46,7 @@ Defined in: lib/types.ts:15
 
 `BasePaginatedQuery.farmId`
 
-***
+---
 
 ### page?
 
@@ -58,7 +58,7 @@ Defined in: lib/types.ts:10
 
 `BasePaginatedQuery.page`
 
-***
+---
 
 ### pageSize?
 
@@ -70,7 +70,7 @@ Defined in: lib/types.ts:11
 
 `BasePaginatedQuery.pageSize`
 
-***
+---
 
 ### search?
 
@@ -82,7 +82,7 @@ Defined in: lib/types.ts:14
 
 `BasePaginatedQuery.search`
 
-***
+---
 
 ### sortBy?
 
@@ -94,7 +94,7 @@ Defined in: lib/types.ts:12
 
 `BasePaginatedQuery.sortBy`
 
-***
+---
 
 ### sortOrder?
 

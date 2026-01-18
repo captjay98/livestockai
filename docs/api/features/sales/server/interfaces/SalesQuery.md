@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / SalesQuery
 
@@ -22,7 +22,7 @@ Paginated sales query with sorting and search
 
 Defined in: features/sales/server.ts:652
 
-***
+---
 
 ### farmId?
 
@@ -34,7 +34,7 @@ Defined in: lib/types.ts:15
 
 `BasePaginatedQuery.farmId`
 
-***
+---
 
 ### livestockType?
 
@@ -42,7 +42,7 @@ Defined in: lib/types.ts:15
 
 Defined in: features/sales/server.ts:653
 
-***
+---
 
 ### page?
 
@@ -54,7 +54,7 @@ Defined in: lib/types.ts:10
 
 `BasePaginatedQuery.page`
 
-***
+---
 
 ### pageSize?
 
@@ -66,7 +66,7 @@ Defined in: lib/types.ts:11
 
 `BasePaginatedQuery.pageSize`
 
-***
+---
 
 ### paymentStatus?
 
@@ -74,7 +74,7 @@ Defined in: lib/types.ts:11
 
 Defined in: features/sales/server.ts:654
 
-***
+---
 
 ### search?
 
@@ -86,7 +86,7 @@ Defined in: lib/types.ts:14
 
 `BasePaginatedQuery.search`
 
-***
+---
 
 ### sortBy?
 
@@ -98,7 +98,7 @@ Defined in: lib/types.ts:12
 
 `BasePaginatedQuery.sortBy`
 
-***
+---
 
 ### sortOrder?
 

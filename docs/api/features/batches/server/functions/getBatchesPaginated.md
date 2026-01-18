@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / getBatchesPaginated
 
@@ -35,5 +35,9 @@ Promise resolving to a paginated result set
 ## Example
 
 ```typescript
-const result = await getBatchesPaginated('user_1', { page: 1, pageSize: 20, status: 'active' })
+const result = await getBatchesPaginated('user_1', {
+  page: 1,
+  pageSize: 20,
+  status: 'active',
+})
 ```

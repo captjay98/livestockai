@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/farms/server](../README.md) / UpdateFarmData
 
@@ -20,7 +20,7 @@ Defined in: features/farms/server.ts:35
 
 New location description
 
-***
+---
 
 ### name?
 
@@ -30,7 +30,7 @@ Defined in: features/farms/server.ts:33
 
 New display name
 
-***
+---
 
 ### type?
 

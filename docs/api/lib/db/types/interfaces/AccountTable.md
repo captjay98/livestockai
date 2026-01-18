@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / AccountTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:152
 
 Defined in: lib/db/types.ts:157
 
-***
+---
 
 ### accessTokenExpiresAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:157
 
 Defined in: lib/db/types.ts:159
 
-***
+---
 
 ### accountId
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:159
 
 Defined in: lib/db/types.ts:155
 
-***
+---
 
 ### createdAt
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:155
 
 Defined in: lib/db/types.ts:164
 
-***
+---
 
 ### id
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:164
 
 Defined in: lib/db/types.ts:153
 
-***
+---
 
 ### idToken
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:153
 
 Defined in: lib/db/types.ts:162
 
-***
+---
 
 ### password
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:162
 
 Defined in: lib/db/types.ts:163
 
-***
+---
 
 ### providerId
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:163
 
 Defined in: lib/db/types.ts:156
 
-***
+---
 
 ### refreshToken
 
@@ -80,7 +80,7 @@ Defined in: lib/db/types.ts:156
 
 Defined in: lib/db/types.ts:158
 
-***
+---
 
 ### refreshTokenExpiresAt
 
@@ -88,7 +88,7 @@ Defined in: lib/db/types.ts:158
 
 Defined in: lib/db/types.ts:160
 
-***
+---
 
 ### scope
 
@@ -96,7 +96,7 @@ Defined in: lib/db/types.ts:160
 
 Defined in: lib/db/types.ts:161
 
-***
+---
 
 ### updatedAt
 
@@ -104,7 +104,7 @@ Defined in: lib/db/types.ts:161
 
 Defined in: lib/db/types.ts:165
 
-***
+---
 
 ### userId
 

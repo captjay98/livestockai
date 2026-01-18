@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / deleteTreatment
 
@@ -8,9 +8,9 @@
 
 > **deleteTreatment**(`userId`, `recordId`): `Promise`\<`void`\>
 
-Defined in: features/vaccinations/server.ts:591
+Defined in: features/vaccinations/server.ts:667
 
-Delete treatment record
+Permanently delete a treatment record.
 
 ## Parameters
 
@@ -18,9 +18,13 @@ Delete treatment record
 
 `string`
 
+ID of the user
+
 ### recordId
 
 `string`
+
+ID of the record to delete
 
 ## Returns
 

@@ -1,12 +1,12 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / SOURCE\_SIZE\_OPTIONS
+[OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / SOURCE_SIZE_OPTIONS
 
-# Variable: SOURCE\_SIZE\_OPTIONS
+# Variable: SOURCE_SIZE_OPTIONS
 
-> `const` **SOURCE\_SIZE\_OPTIONS**: `object`
+> `const` **SOURCE_SIZE_OPTIONS**: `object`
 
 Defined in: features/batches/server.ts:40
 

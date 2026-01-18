@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/settings/currency-formatter](../README.md) / parseCurrency
 
@@ -22,7 +22,7 @@ The formatted currency string
 
 ### settings
 
-`Pick`\<`UserSettings`, `"currencySymbol"` \| `"thousandSeparator"` \| `"decimalSeparator"`\>
+`Pick`\<[`UserSettings`](../../currency-presets/interfaces/UserSettings.md), `"currencySymbol"` \| `"thousandSeparator"` \| `"decimalSeparator"`\>
 
 User settings containing currency configuration
 

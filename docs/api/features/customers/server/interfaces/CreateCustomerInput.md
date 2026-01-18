@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/customers/server](../README.md) / CreateCustomerInput
 
@@ -20,7 +20,7 @@ Defined in: features/customers/server.ts:47
 
 Optional classification of the customer
 
-***
+---
 
 ### email?
 
@@ -30,7 +30,7 @@ Defined in: features/customers/server.ts:43
 
 Optional contact email
 
-***
+---
 
 ### location?
 
@@ -40,7 +40,7 @@ Defined in: features/customers/server.ts:45
 
 Optional delivery or business address
 
-***
+---
 
 ### name
 
@@ -50,7 +50,7 @@ Defined in: features/customers/server.ts:39
 
 Customer's full name
 
-***
+---
 
 ### phone
 

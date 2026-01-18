@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/modules/types](../README.md) / ModuleMetadata
 
@@ -16,7 +16,7 @@ Defined in: features/modules/types.ts:54
 
 Defined in: features/modules/types.ts:57
 
-***
+---
 
 ### feedTypes
 
@@ -24,7 +24,7 @@ Defined in: features/modules/types.ts:57
 
 Defined in: features/modules/types.ts:63
 
-***
+---
 
 ### icon
 
@@ -32,7 +32,7 @@ Defined in: features/modules/types.ts:63
 
 Defined in: features/modules/types.ts:58
 
-***
+---
 
 ### key
 
@@ -40,7 +40,7 @@ Defined in: features/modules/types.ts:58
 
 Defined in: features/modules/types.ts:55
 
-***
+---
 
 ### livestockTypes
 
@@ -48,7 +48,7 @@ Defined in: features/modules/types.ts:55
 
 Defined in: features/modules/types.ts:59
 
-***
+---
 
 ### name
 
@@ -56,7 +56,7 @@ Defined in: features/modules/types.ts:59
 
 Defined in: features/modules/types.ts:56
 
-***
+---
 
 ### productTypes
 
@@ -64,7 +64,7 @@ Defined in: features/modules/types.ts:56
 
 Defined in: features/modules/types.ts:60
 
-***
+---
 
 ### sourceSizeOptions
 
@@ -80,7 +80,7 @@ Defined in: features/modules/types.ts:62
 
 > **value**: `string`
 
-***
+---
 
 ### speciesOptions
 
@@ -96,7 +96,7 @@ Defined in: features/modules/types.ts:61
 
 > **value**: `string`
 
-***
+---
 
 ### structureTypes
 

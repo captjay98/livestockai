@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / CreateSaleInput
 
@@ -20,7 +20,7 @@ Defined in: features/sales/server.ts:74
 
 Optional age of the livestock in weeks at time of sale
 
-***
+---
 
 ### averageWeightKg?
 
@@ -30,7 +30,7 @@ Defined in: features/sales/server.ts:76
 
 Optional average weight in kilograms at time of sale
 
-***
+---
 
 ### batchId?
 
@@ -40,7 +40,7 @@ Defined in: features/sales/server.ts:57
 
 Optional ID of the specific batch being sold from
 
-***
+---
 
 ### customerId?
 
@@ -50,7 +50,7 @@ Defined in: features/sales/server.ts:59
 
 Optional ID of the customer who made the purchase
 
-***
+---
 
 ### date
 
@@ -60,7 +60,7 @@ Defined in: features/sales/server.ts:67
 
 Date of the transaction
 
-***
+---
 
 ### farmId
 
@@ -70,7 +70,7 @@ Defined in: features/sales/server.ts:55
 
 ID of the farm the sale belongs to
 
-***
+---
 
 ### livestockType
 
@@ -80,7 +80,7 @@ Defined in: features/sales/server.ts:61
 
 The type of item sold (poultry, fish, or eggs)
 
-***
+---
 
 ### notes?
 
@@ -90,7 +90,7 @@ Defined in: features/sales/server.ts:69
 
 Optional transaction notes
 
-***
+---
 
 ### paymentMethod?
 
@@ -100,7 +100,7 @@ Defined in: features/sales/server.ts:80
 
 Method of payment used (cash, transfer, credit)
 
-***
+---
 
 ### paymentStatus?
 
@@ -110,7 +110,7 @@ Defined in: features/sales/server.ts:78
 
 Status of the payment (paid, pending, partial)
 
-***
+---
 
 ### quantity
 
@@ -120,7 +120,7 @@ Defined in: features/sales/server.ts:63
 
 Quantity of items sold
 
-***
+---
 
 ### unitPrice
 
@@ -130,7 +130,7 @@ Defined in: features/sales/server.ts:65
 
 Unit price for the item sold
 
-***
+---
 
 ### unitType?
 

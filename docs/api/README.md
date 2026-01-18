@@ -1,6 +1,6 @@
 **OpenLivestock API Reference**
 
-***
+---
 
 # OpenLivestock Manager
 
@@ -277,26 +277,26 @@ The app can be deployed to any platform supporting Node.js:
 
 Comprehensive guides for users, developers, and AI agents:
 
-| Document                                     | Description                | Audience      |
-| -------------------------------------------- | -------------------------- | ------------- |
+| Document                                       | Description                | Audience      |
+| ---------------------------------------------- | -------------------------- | ------------- |
 | **[docs/INDEX.md](_media/INDEX.md)**           | **Documentation hub**      | Everyone      |
-| [AGENTS.md](_media/AGENTS.md)                       | AI agent development guide | AI assistants |
+| [AGENTS.md](_media/AGENTS.md)                  | AI agent development guide | AI assistants |
 | [docs/ARCHITECTURE.md](_media/ARCHITECTURE.md) | System architecture        | Developers    |
 | [docs/DEPLOYMENT.md](_media/DEPLOYMENT.md)     | Production deployment      | DevOps        |
 | [docs/TESTING.md](_media/TESTING.md)           | Testing strategies         | Developers    |
 | [docs/DATABASE.md](_media/DATABASE.md)         | Database schema & Kysely   | Developers    |
 | [docs/INTEGRATIONS.md](_media/INTEGRATIONS.md) | SMS/Email providers        | Developers    |
-| [DEVLOG.md](_media/DEVLOG.md)                       | Development timeline       | Everyone      |
-| [CONTRIBUTING.md](_media/CONTRIBUTING.md)           | Contribution guide         | Contributors  |
+| [DEVLOG.md](_media/DEVLOG.md)                  | Development timeline       | Everyone      |
+| [CONTRIBUTING.md](_media/CONTRIBUTING.md)      | Contribution guide         | Contributors  |
 
 ## For AI Agents
 
 This project is designed to be AI-agent friendly. See these resources:
 
-| File                               | Purpose                                      |
-| ---------------------------------- | -------------------------------------------- |
-| [AGENTS.md](_media/AGENTS.md)             | Comprehensive guide for AI coding assistants |
-| [DEVLOG.md](_media/DEVLOG.md)             | Development timeline and decisions           |
+| File                                | Purpose                                      |
+| ----------------------------------- | -------------------------------------------- |
+| [AGENTS.md](_media/AGENTS.md)       | Comprehensive guide for AI coding assistants |
+| [DEVLOG.md](_media/DEVLOG.md)       | Development timeline and decisions           |
 | [.kiro/README.md](_media/README.md) | Kiro CLI configuration guide                 |
 
 ### Kiro CLI Setup

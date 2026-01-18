@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / UserTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:57
 
 Defined in: lib/db/types.ts:68
 
-***
+---
 
 ### banned
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:68
 
 Defined in: lib/db/types.ts:66
 
-***
+---
 
 ### banReason
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:66
 
 Defined in: lib/db/types.ts:67
 
-***
+---
 
 ### createdAt
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:67
 
 Defined in: lib/db/types.ts:69
 
-***
+---
 
 ### email
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:69
 
 Defined in: lib/db/types.ts:59
 
-***
+---
 
 ### emailVerified
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:59
 
 Defined in: lib/db/types.ts:63
 
-***
+---
 
 ### id
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:63
 
 Defined in: lib/db/types.ts:58
 
-***
+---
 
 ### image
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:58
 
 Defined in: lib/db/types.ts:64
 
-***
+---
 
 ### name
 
@@ -80,7 +80,7 @@ Defined in: lib/db/types.ts:64
 
 Defined in: lib/db/types.ts:61
 
-***
+---
 
 ### role
 
@@ -88,7 +88,7 @@ Defined in: lib/db/types.ts:61
 
 Defined in: lib/db/types.ts:62
 
-***
+---
 
 ### updatedAt
 

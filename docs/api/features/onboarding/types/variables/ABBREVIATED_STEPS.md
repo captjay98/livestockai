@@ -1,11 +1,11 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/onboarding/types](../README.md) / ABBREVIATED\_STEPS
+[OpenLivestock API Reference](../../../../modules.md) / [features/onboarding/types](../README.md) / ABBREVIATED_STEPS
 
-# Variable: ABBREVIATED\_STEPS
+# Variable: ABBREVIATED_STEPS
 
-> `const` **ABBREVIATED\_STEPS**: [`OnboardingStep`](../type-aliases/OnboardingStep.md)[]
+> `const` **ABBREVIATED_STEPS**: [`OnboardingStep`](../type-aliases/OnboardingStep.md)[]
 
 Defined in: features/onboarding/types.ts:38

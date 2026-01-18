@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / BatchTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:243
 
 Defined in: lib/db/types.ts:252
 
-***
+---
 
 ### batchName
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:252
 
 Defined in: lib/db/types.ts:246
 
-***
+---
 
 ### costPerUnit
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:246
 
 Defined in: lib/db/types.ts:253
 
-***
+---
 
 ### createdAt
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:253
 
 Defined in: lib/db/types.ts:262
 
-***
+---
 
 ### currentQuantity
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:262
 
 Defined in: lib/db/types.ts:251
 
-***
+---
 
 ### farmId
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:251
 
 Defined in: lib/db/types.ts:245
 
-***
+---
 
 ### id
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:245
 
 Defined in: lib/db/types.ts:244
 
-***
+---
 
 ### initialQuantity
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:244
 
 Defined in: lib/db/types.ts:250
 
-***
+---
 
 ### livestockType
 
@@ -80,7 +80,7 @@ Defined in: lib/db/types.ts:250
 
 Defined in: lib/db/types.ts:247
 
-***
+---
 
 ### notes
 
@@ -88,7 +88,7 @@ Defined in: lib/db/types.ts:247
 
 Defined in: lib/db/types.ts:261
 
-***
+---
 
 ### sourceSize
 
@@ -96,7 +96,7 @@ Defined in: lib/db/types.ts:261
 
 Defined in: lib/db/types.ts:249
 
-***
+---
 
 ### species
 
@@ -104,7 +104,7 @@ Defined in: lib/db/types.ts:249
 
 Defined in: lib/db/types.ts:248
 
-***
+---
 
 ### status
 
@@ -112,7 +112,7 @@ Defined in: lib/db/types.ts:248
 
 Defined in: lib/db/types.ts:255
 
-***
+---
 
 ### structureId
 
@@ -120,7 +120,7 @@ Defined in: lib/db/types.ts:255
 
 Defined in: lib/db/types.ts:257
 
-***
+---
 
 ### supplierId
 
@@ -128,15 +128,15 @@ Defined in: lib/db/types.ts:257
 
 Defined in: lib/db/types.ts:256
 
-***
+---
 
-### target\_weight\_g
+### target_weight_g
 
-> **target\_weight\_g**: `number` \| `null`
+> **target_weight_g**: `number` \| `null`
 
 Defined in: lib/db/types.ts:259
 
-***
+---
 
 ### targetHarvestDate
 
@@ -144,7 +144,7 @@ Defined in: lib/db/types.ts:259
 
 Defined in: lib/db/types.ts:258
 
-***
+---
 
 ### targetPricePerUnit
 
@@ -152,7 +152,7 @@ Defined in: lib/db/types.ts:258
 
 Defined in: lib/db/types.ts:260
 
-***
+---
 
 ### totalCost
 
@@ -160,7 +160,7 @@ Defined in: lib/db/types.ts:260
 
 Defined in: lib/db/types.ts:254
 
-***
+---
 
 ### updatedAt
 

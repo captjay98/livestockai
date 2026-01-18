@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/farms/server](../README.md) / CreateFarmData
 
@@ -20,7 +20,7 @@ Defined in: features/farms/server.ts:12
 
 Physical or geographical location description
 
-***
+---
 
 ### name
 
@@ -30,7 +30,7 @@ Defined in: features/farms/server.ts:10
 
 Display name of the farm
 
-***
+---
 
 ### type
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/expenses/server](../README.md) / UpdateExpenseInput
 
@@ -20,7 +20,7 @@ Defined in: features/expenses/server.ts:209
 
 Updated amount
 
-***
+---
 
 ### batchId?
 
@@ -30,7 +30,7 @@ Defined in: features/expenses/server.ts:215
 
 Updated batch association
 
-***
+---
 
 ### category?
 
@@ -40,7 +40,7 @@ Defined in: features/expenses/server.ts:207
 
 Updated category
 
-***
+---
 
 ### date?
 
@@ -50,7 +50,7 @@ Defined in: features/expenses/server.ts:211
 
 Updated date
 
-***
+---
 
 ### description?
 
@@ -60,7 +60,7 @@ Defined in: features/expenses/server.ts:213
 
 Updated description
 
-***
+---
 
 ### isRecurring?
 
@@ -70,7 +70,7 @@ Defined in: features/expenses/server.ts:219
 
 Updated recurring flag
 
-***
+---
 
 ### supplierId?
 

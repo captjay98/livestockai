@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / createSale
 
@@ -44,6 +44,6 @@ const saleId = await createSale('user_1', {
   livestockType: 'poultry',
   quantity: 50,
   unitPrice: 2500,
-  date: new Date()
+  date: new Date(),
 })
 ```

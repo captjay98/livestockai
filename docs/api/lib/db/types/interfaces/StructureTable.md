@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / StructureTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:214
 
 Defined in: lib/db/types.ts:234
 
-***
+---
 
 ### capacity
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:234
 
 Defined in: lib/db/types.ts:233
 
-***
+---
 
 ### createdAt
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:233
 
 Defined in: lib/db/types.ts:237
 
-***
+---
 
 ### farmId
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:237
 
 Defined in: lib/db/types.ts:216
 
-***
+---
 
 ### id
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:216
 
 Defined in: lib/db/types.ts:215
 
-***
+---
 
 ### name
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:215
 
 Defined in: lib/db/types.ts:217
 
-***
+---
 
 ### notes
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:217
 
 Defined in: lib/db/types.ts:236
 
-***
+---
 
 ### status
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:236
 
 Defined in: lib/db/types.ts:235
 
-***
+---
 
 ### type
 

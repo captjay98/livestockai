@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / getTotalRevenue
 
@@ -47,5 +47,7 @@ Promise resolving to the total revenue amount
 ## Example
 
 ```typescript
-const revenue = await getTotalRevenue('user_1', 'farm_A', { startDate: weekStart })
+const revenue = await getTotalRevenue('user_1', 'farm_A', {
+  startDate: weekStart,
+})
 ```

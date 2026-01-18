@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/users/server](../README.md) / createUserFn
 
@@ -8,4 +8,4 @@
 
 > `const` **createUserFn**: `RequiredFetcher`\<`undefined`, (`data`) => `object`, `Promise`\<\{ \}\>\> = `createUser`
 
-Defined in: features/users/server.ts:330
+Defined in: features/users/server.ts:353

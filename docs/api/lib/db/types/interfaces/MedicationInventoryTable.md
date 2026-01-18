@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / MedicationInventoryTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:471
 
 Defined in: lib/db/types.ts:477
 
-***
+---
 
 ### farmId
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:477
 
 Defined in: lib/db/types.ts:473
 
-***
+---
 
 ### id
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:473
 
 Defined in: lib/db/types.ts:472
 
-***
+---
 
 ### medicationName
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:472
 
 Defined in: lib/db/types.ts:474
 
-***
+---
 
 ### minThreshold
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:474
 
 Defined in: lib/db/types.ts:478
 
-***
+---
 
 ### quantity
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:478
 
 Defined in: lib/db/types.ts:475
 
-***
+---
 
 ### unit
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:475
 
 Defined in: lib/db/types.ts:476
 
-***
+---
 
 ### updatedAt
 

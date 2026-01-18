@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / HealthRecord
 
@@ -20,7 +20,7 @@ Defined in: features/vaccinations/server.ts:13
 
 ID of the livestock batch
 
-***
+---
 
 ### batchSpecies
 
@@ -30,7 +30,7 @@ Defined in: features/vaccinations/server.ts:15
 
 Species of the batch for display purposes
 
-***
+---
 
 ### date
 
@@ -40,7 +40,7 @@ Defined in: features/vaccinations/server.ts:21
 
 Date the intervention was performed
 
-***
+---
 
 ### dosage
 
@@ -50,7 +50,7 @@ Defined in: features/vaccinations/server.ts:23
 
 Amount and unit of administration (e.g., "0.5ml")
 
-***
+---
 
 ### id
 
@@ -60,7 +60,7 @@ Defined in: features/vaccinations/server.ts:11
 
 Unique identifier for the record
 
-***
+---
 
 ### name
 
@@ -70,7 +70,7 @@ Defined in: features/vaccinations/server.ts:19
 
 Name of the vaccine or medication
 
-***
+---
 
 ### nextDueDate
 
@@ -80,7 +80,7 @@ Defined in: features/vaccinations/server.ts:25
 
 Expected date for the next dose (primarily for vaccinations)
 
-***
+---
 
 ### notes
 
@@ -90,7 +90,7 @@ Defined in: features/vaccinations/server.ts:29
 
 Diagnostic or administrative details
 
-***
+---
 
 ### type
 
@@ -100,7 +100,7 @@ Defined in: features/vaccinations/server.ts:17
 
 Discriminator between preventative and curative care
 
-***
+---
 
 ### withdrawalDays
 

@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / FarmTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:178
 
 Defined in: lib/db/types.ts:191
 
-***
+---
 
 ### createdAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:191
 
 Defined in: lib/db/types.ts:193
 
-***
+---
 
 ### id
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:193
 
 Defined in: lib/db/types.ts:179
 
-***
+---
 
 ### location
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:179
 
 Defined in: lib/db/types.ts:181
 
-***
+---
 
 ### name
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:181
 
 Defined in: lib/db/types.ts:180
 
-***
+---
 
 ### notes
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:180
 
 Defined in: lib/db/types.ts:192
 
-***
+---
 
 ### type
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:192
 
 Defined in: lib/db/types.ts:182
 
-***
+---
 
 ### updatedAt
 

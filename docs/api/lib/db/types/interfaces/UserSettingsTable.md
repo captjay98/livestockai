@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / UserSettingsTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:74
 
 Defined in: lib/db/types.ts:93
 
-***
+---
 
 ### createdAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:93
 
 Defined in: lib/db/types.ts:137
 
-***
+---
 
 ### currencyCode
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:137
 
 Defined in: lib/db/types.ts:79
 
-***
+---
 
 ### currencyDecimals
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:79
 
 Defined in: lib/db/types.ts:81
 
-***
+---
 
 ### currencySymbol
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:81
 
 Defined in: lib/db/types.ts:80
 
-***
+---
 
 ### currencySymbolPosition
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:80
 
 Defined in: lib/db/types.ts:82
 
-***
+---
 
 ### dashboardCards
 
@@ -88,7 +88,7 @@ Defined in: lib/db/types.ts:124
 
 > **revenue**: `boolean`
 
-***
+---
 
 ### dateFormat
 
@@ -96,7 +96,7 @@ Defined in: lib/db/types.ts:124
 
 Defined in: lib/db/types.ts:87
 
-***
+---
 
 ### decimalSeparator
 
@@ -104,7 +104,7 @@ Defined in: lib/db/types.ts:87
 
 Defined in: lib/db/types.ts:84
 
-***
+---
 
 ### defaultFarmId
 
@@ -112,7 +112,7 @@ Defined in: lib/db/types.ts:84
 
 Defined in: lib/db/types.ts:97
 
-***
+---
 
 ### defaultPaymentTermsDays
 
@@ -120,7 +120,7 @@ Defined in: lib/db/types.ts:97
 
 Defined in: lib/db/types.ts:120
 
-***
+---
 
 ### firstDayOfWeek
 
@@ -128,7 +128,7 @@ Defined in: lib/db/types.ts:120
 
 Defined in: lib/db/types.ts:89
 
-***
+---
 
 ### fiscalYearStartMonth
 
@@ -136,7 +136,7 @@ Defined in: lib/db/types.ts:89
 
 Defined in: lib/db/types.ts:121
 
-***
+---
 
 ### id
 
@@ -144,7 +144,7 @@ Defined in: lib/db/types.ts:121
 
 Defined in: lib/db/types.ts:75
 
-***
+---
 
 ### language
 
@@ -152,7 +152,7 @@ Defined in: lib/db/types.ts:75
 
 Defined in: lib/db/types.ts:98
 
-***
+---
 
 ### lowStockThresholdPercent
 
@@ -160,7 +160,7 @@ Defined in: lib/db/types.ts:98
 
 Defined in: lib/db/types.ts:102
 
-***
+---
 
 ### mortalityAlertPercent
 
@@ -168,7 +168,7 @@ Defined in: lib/db/types.ts:102
 
 Defined in: lib/db/types.ts:103
 
-***
+---
 
 ### mortalityAlertQuantity
 
@@ -176,7 +176,7 @@ Defined in: lib/db/types.ts:103
 
 Defined in: lib/db/types.ts:104
 
-***
+---
 
 ### notifications
 
@@ -228,7 +228,7 @@ Defined in: lib/db/types.ts:105
 
 > `optional` **weeklySummary**: `boolean`
 
-***
+---
 
 ### onboardingCompleted
 
@@ -236,7 +236,7 @@ Defined in: lib/db/types.ts:105
 
 Defined in: lib/db/types.ts:134
 
-***
+---
 
 ### onboardingStep
 
@@ -244,7 +244,7 @@ Defined in: lib/db/types.ts:134
 
 Defined in: lib/db/types.ts:135
 
-***
+---
 
 ### temperatureUnit
 
@@ -252,7 +252,7 @@ Defined in: lib/db/types.ts:135
 
 Defined in: lib/db/types.ts:94
 
-***
+---
 
 ### theme
 
@@ -260,7 +260,7 @@ Defined in: lib/db/types.ts:94
 
 Defined in: lib/db/types.ts:99
 
-***
+---
 
 ### thousandSeparator
 
@@ -268,7 +268,7 @@ Defined in: lib/db/types.ts:99
 
 Defined in: lib/db/types.ts:83
 
-***
+---
 
 ### timeFormat
 
@@ -276,7 +276,7 @@ Defined in: lib/db/types.ts:83
 
 Defined in: lib/db/types.ts:88
 
-***
+---
 
 ### updatedAt
 
@@ -284,7 +284,7 @@ Defined in: lib/db/types.ts:88
 
 Defined in: lib/db/types.ts:138
 
-***
+---
 
 ### userId
 
@@ -292,7 +292,7 @@ Defined in: lib/db/types.ts:138
 
 Defined in: lib/db/types.ts:76
 
-***
+---
 
 ### weightUnit
 

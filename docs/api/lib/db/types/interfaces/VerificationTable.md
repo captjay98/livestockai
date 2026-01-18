@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / VerificationTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:168
 
 Defined in: lib/db/types.ts:173
 
-***
+---
 
 ### expiresAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:173
 
 Defined in: lib/db/types.ts:172
 
-***
+---
 
 ### id
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:172
 
 Defined in: lib/db/types.ts:169
 
-***
+---
 
 ### identifier
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:169
 
 Defined in: lib/db/types.ts:170
 
-***
+---
 
 ### updatedAt
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:170
 
 Defined in: lib/db/types.ts:174
 
-***
+---
 
 ### value
 

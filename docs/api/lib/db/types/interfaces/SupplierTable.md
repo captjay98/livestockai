@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / SupplierTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:502
 
 Defined in: lib/db/types.ts:521
 
-***
+---
 
 ### email
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:521
 
 Defined in: lib/db/types.ts:506
 
-***
+---
 
 ### id
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:506
 
 Defined in: lib/db/types.ts:503
 
-***
+---
 
 ### location
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:503
 
 Defined in: lib/db/types.ts:507
 
-***
+---
 
 ### name
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:507
 
 Defined in: lib/db/types.ts:504
 
-***
+---
 
 ### phone
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:504
 
 Defined in: lib/db/types.ts:505
 
-***
+---
 
 ### products
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:505
 
 Defined in: lib/db/types.ts:508
 
-***
+---
 
 ### supplierType
 
@@ -72,7 +72,7 @@ Defined in: lib/db/types.ts:508
 
 Defined in: lib/db/types.ts:509
 
-***
+---
 
 ### updatedAt
 

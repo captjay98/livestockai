@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / SessionTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:141
 
 Defined in: lib/db/types.ts:148
 
-***
+---
 
 ### expiresAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:148
 
 Defined in: lib/db/types.ts:144
 
-***
+---
 
 ### id
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:144
 
 Defined in: lib/db/types.ts:142
 
-***
+---
 
 ### ipAddress
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:142
 
 Defined in: lib/db/types.ts:146
 
-***
+---
 
 ### token
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:146
 
 Defined in: lib/db/types.ts:145
 
-***
+---
 
 ### updatedAt
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:145
 
 Defined in: lib/db/types.ts:149
 
-***
+---
 
 ### userAgent
 
@@ -64,7 +64,7 @@ Defined in: lib/db/types.ts:149
 
 Defined in: lib/db/types.ts:147
 
-***
+---
 
 ### userId
 

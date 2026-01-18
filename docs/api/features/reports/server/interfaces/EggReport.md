@@ -1,12 +1,14 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/reports/server](../README.md) / EggReport
 
 # Interface: EggReport
 
-Defined in: features/reports/server.ts:92
+Defined in: features/reports/server.ts:114
+
+Report on egg production and inventory.
 
 ## Properties
 
@@ -14,15 +16,19 @@ Defined in: features/reports/server.ts:92
 
 > **period**: [`DateRange`](DateRange.md)
 
-Defined in: features/reports/server.ts:93
+Defined in: features/reports/server.ts:116
 
-***
+The report window
+
+---
 
 ### records
 
 > **records**: `object`[]
 
-Defined in: features/reports/server.ts:94
+Defined in: features/reports/server.ts:118
+
+Daily egg records
 
 #### broken
 
@@ -44,13 +50,15 @@ Defined in: features/reports/server.ts:94
 
 > **sold**: `number`
 
-***
+---
 
 ### summary
 
 > **summary**: `object`
 
-Defined in: features/reports/server.ts:101
+Defined in: features/reports/server.ts:126
+
+Production summary
 
 #### averageLayingPercentage
 

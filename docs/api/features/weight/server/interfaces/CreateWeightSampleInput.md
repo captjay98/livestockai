@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/weight/server](../README.md) / CreateWeightSampleInput
 
@@ -20,7 +20,7 @@ Defined in: features/weight/server.ts:41
 
 Average weight of the animals in kilograms
 
-***
+---
 
 ### batchId
 
@@ -30,7 +30,7 @@ Defined in: features/weight/server.ts:35
 
 ID of the batch being measured
 
-***
+---
 
 ### date
 
@@ -40,7 +40,7 @@ Defined in: features/weight/server.ts:37
 
 Date of the measurement
 
-***
+---
 
 ### maxWeightKg?
 
@@ -50,7 +50,7 @@ Defined in: features/weight/server.ts:45
 
 Largest individual weight recorded in the sample
 
-***
+---
 
 ### minWeightKg?
 
@@ -60,7 +60,7 @@ Defined in: features/weight/server.ts:43
 
 Smallest individual weight recorded in the sample
 
-***
+---
 
 ### notes?
 
@@ -70,7 +70,7 @@ Defined in: features/weight/server.ts:47
 
 Optional descriptive notes
 
-***
+---
 
 ### sampleSize
 

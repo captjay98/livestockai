@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / EggTable
 
@@ -16,7 +16,7 @@ Defined in: lib/db/types.ts:313
 
 Defined in: lib/db/types.ts:315
 
-***
+---
 
 ### createdAt
 
@@ -24,7 +24,7 @@ Defined in: lib/db/types.ts:315
 
 Defined in: lib/db/types.ts:320
 
-***
+---
 
 ### date
 
@@ -32,7 +32,7 @@ Defined in: lib/db/types.ts:320
 
 Defined in: lib/db/types.ts:316
 
-***
+---
 
 ### id
 
@@ -40,7 +40,7 @@ Defined in: lib/db/types.ts:316
 
 Defined in: lib/db/types.ts:314
 
-***
+---
 
 ### quantityBroken
 
@@ -48,7 +48,7 @@ Defined in: lib/db/types.ts:314
 
 Defined in: lib/db/types.ts:318
 
-***
+---
 
 ### quantityCollected
 
@@ -56,7 +56,7 @@ Defined in: lib/db/types.ts:318
 
 Defined in: lib/db/types.ts:317
 
-***
+---
 
 ### quantitySold
 

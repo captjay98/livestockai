@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / getSalesPaginated
 
@@ -35,5 +35,9 @@ Promise resolving to a paginated result set
 ## Example
 
 ```typescript
-const result = await getSalesPaginated('user_1', { page: 1, pageSize: 20, livestockType: 'poultry' })
+const result = await getSalesPaginated('user_1', {
+  page: 1,
+  pageSize: 20,
+  livestockType: 'poultry',
+})
 ```

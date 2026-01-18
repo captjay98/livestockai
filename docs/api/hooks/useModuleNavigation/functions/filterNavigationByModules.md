@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / [hooks/useModuleNavigation](../README.md) / filterNavigationByModules
 
@@ -17,7 +17,7 @@ Exported for testing
 
 ### T
 
-`T` *extends* `object`
+`T` _extends_ `object`
 
 ## Parameters
 

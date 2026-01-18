@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../modules.md) / [hooks/useModuleNavigation](../README.md) / NavigationItem
 
@@ -16,7 +16,7 @@ Defined in: hooks/useModuleNavigation.ts:11
 
 Defined in: hooks/useModuleNavigation.ts:13
 
-***
+---
 
 ### icon
 
@@ -24,7 +24,7 @@ Defined in: hooks/useModuleNavigation.ts:13
 
 Defined in: hooks/useModuleNavigation.ts:14
 
-***
+---
 
 ### name
 

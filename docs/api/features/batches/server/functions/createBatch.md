@@ -1,6 +1,6 @@
 [**OpenLivestock API Reference**](../../../../README.md)
 
-***
+---
 
 [OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / createBatch
 
@@ -45,6 +45,6 @@ const id = await createBatch('user_1', {
   species: 'Broiler',
   initialQuantity: 100,
   acquisitionDate: new Date(),
-  costPerUnit: 500
+  costPerUnit: 500,
 })
 ```

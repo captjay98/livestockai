@@ -37,22 +37,19 @@
     "app/features/settings/date-formatter.ts",
     "app/features/settings/hooks.ts",
     "app/hooks/useModuleNavigation.ts",
-    "app/lib/db/types.ts"
+    "app/lib/db/types.ts",
+    "examples/email/*.ts",
+    "examples/sms/*.ts",
+    "examples/templates/*.ts"
   ],
-  "out": "docs/api",
+  "out": "public/docs",
   "cleanOutputDir": true,
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "**/node_modules/**",
-    "examples/**"
-  ],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/node_modules/**"],
   "excludePrivate": true,
   "excludeProtected": true,
   "includeVersion": true,
   "name": "OpenLivestock API Reference",
-  "plugin": [
-    "typedoc-plugin-markdown"
-  ],
+  "plugin": ["typedoc-rhineai-theme"],
+  "theme": "typedoc-rhineai-theme",
   "skipErrorChecking": true
 }
