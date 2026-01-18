@@ -3,49 +3,100 @@ import type { PaginatedResult } from '~/lib/types'
 
 export type { PaginatedResult }
 
+/**
+ * Represents a historical or upcoming health intervention for a batch.
+ */
 export interface HealthRecord {
+  /** Unique identifier for the record */
   id: string
+  /** ID of the livestock batch */
   batchId: string
+  /** Species of the batch for display purposes */
   batchSpecies: string | null
+  /** Discriminator between preventative and curative care */
   type: 'vaccination' | 'treatment'
+  /** Name of the vaccine or medication */
   name: string
+  /** Date the intervention was performed */
   date: Date
+  /** Amount and unit of administration (e.g., "0.5ml") */
   dosage: string
+  /** Expected date for the next dose (primarily for vaccinations) */
   nextDueDate: Date | null
+  /** Mandatory wait time before slaughter/sale after medication */
   withdrawalDays: number | null
+  /** Diagnostic or administrative details */
   notes: string | null
 }
 
+/**
+ * Input for recording a preventative vaccination event.
+ */
 export interface CreateVaccinationInput {
+  /** ID of the target batch */
   batchId: string
+  /** Name of the vaccine used */
   vaccineName: string
+  /** Date of administration */
   dateAdministered: Date
+  /** Dose amount administered */
   dosage: string
+  /** Optional next scheduled dose */
   nextDueDate?: Date | null
+  /** Optional administration notes */
   notes?: string | null
 }
 
+/**
+ * Input for recording a curative medical treatment.
+ */
 export interface CreateTreatmentInput {
+  /** ID of the target batch */
   batchId: string
+  /** Name of the medication used */
   medicationName: string
+  /** Symptom or diagnosis necessitating treatment */
   reason: string
+  /** Start date of treatment */
   date: Date
+  /** Dose amount administered */
   dosage: string
+  /** Wait period required after final dose */
   withdrawalDays: number
+  /** Optional treatment details */
   notes?: string | null
 }
 
+/**
+ * Pagination and filtering options for health records.
+ */
 export interface PaginatedQuery {
+  /** Page number (1-based) */
   page?: number
+  /** Items per page */
   pageSize?: number
+  /** Field to sort by */
   sortBy?: string
+  /** Sort direction */
   sortOrder?: 'asc' | 'desc'
+  /** Search term for filtering by name or species */
   search?: string
+  /** Filter by farm ID */
   farmId?: string
+  /** Filter by batch ID */
   batchId?: string
+  /** Filter by record type */
   type?: 'all' | 'vaccination' | 'treatment'
 }
 
+/**
+ * Records a new vaccination event for a batch.
+ *
+ * @param userId - ID of the user performing the action
+ * @param farmId - ID of the farm owning the batch
+ * @param input - Vaccination details including next due date
+ * @returns Promise resolving to the new vaccination ID
+ */
 export async function createVaccination(
   userId: string,
   farmId: string,
@@ -83,6 +134,9 @@ export async function createVaccination(
   return result.id
 }
 
+/**
+ * Server function to create a vaccination record.
+ */
 export const createVaccinationFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { farmId: string; data: CreateVaccinationInput }) => data,
@@ -93,6 +147,14 @@ export const createVaccinationFn = createServerFn({ method: 'POST' })
     return createVaccination(session.user.id, data.farmId, data.data)
   })
 
+/**
+ * Records a medical treatment for a batch.
+ *
+ * @param userId - ID of the user performing the action
+ * @param farmId - ID of the farm owning the batch
+ * @param input - Treatment details including withdrawal period
+ * @returns Promise resolving to the new treatment ID
+ */
 export async function createTreatment(
   userId: string,
   farmId: string,
@@ -131,6 +193,9 @@ export async function createTreatment(
   return result.id
 }
 
+/**
+ * Server function to create a treatment record.
+ */
 export const createTreatmentFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { farmId: string; data: CreateTreatmentInput }) => data,
@@ -141,6 +206,13 @@ export const createTreatmentFn = createServerFn({ method: 'POST' })
     return createTreatment(session.user.id, data.farmId, data.data)
   })
 
+/**
+ * Retrieve paginated health records (vaccinations and treatments) with filtering and sorting.
+ *
+ * @param userId - ID of the user
+ * @param query - Pagination and filter parameters
+ * @returns Promise resolving to a paginated list of health records
+ */
 export async function getHealthRecordsPaginated(
   userId: string,
   query: PaginatedQuery = {},
@@ -282,6 +354,9 @@ export async function getHealthRecordsPaginated(
   }
 }
 
+/**
+ * Server function to get paginated health records.
+ */
 export const getHealthRecordsPaginatedFn = createServerFn({ method: 'GET' })
   .inputValidator((data: PaginatedQuery) => data)
   .handler(async ({ data }) => {
@@ -290,6 +365,14 @@ export const getHealthRecordsPaginatedFn = createServerFn({ method: 'GET' })
     return getHealthRecordsPaginated(session.user.id, data)
   })
 
+/**
+ * retrieves upcoming vaccinations (due within X days) for active batches.
+ *
+ * @param userId - ID of the user
+ * @param farmId - Optional farm filter
+ * @param daysAhead - Number of days to look ahead (default: 7)
+ * @returns Promise resolving to list of upcoming vaccinations
+ */
 export async function getUpcomingVaccinations(
   userId: string,
   farmId?: string,
@@ -333,6 +416,13 @@ export async function getUpcomingVaccinations(
     .execute()
 }
 
+/**
+ * Retrieves overdue vaccination events.
+ *
+ * @param userId - ID of the user
+ * @param farmId - Optional farm filter
+ * @returns Promise resolving to list of overdue vaccinations
+ */
 export async function getOverdueVaccinations(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } =
@@ -369,6 +459,13 @@ export async function getOverdueVaccinations(userId: string, farmId?: string) {
     .execute()
 }
 
+/**
+ * Gets a summary of vaccination alerts (upcoming and overdue).
+ *
+ * @param userId - ID of the user
+ * @param farmId - Optional farm filter
+ * @returns Promise with upcoming, overdue, and total alert count
+ */
 export async function getVaccinationAlerts(userId: string, farmId?: string) {
   const [upcoming, overdue] = await Promise.all([
     getUpcomingVaccinations(userId, farmId),
@@ -382,7 +479,9 @@ export async function getVaccinationAlerts(userId: string, farmId?: string) {
   }
 }
 
-// Update vaccination input
+/**
+ * Input for updating a vaccination record.
+ */
 export interface UpdateVaccinationInput {
   vaccineName?: string
   dateAdministered?: Date
@@ -391,7 +490,9 @@ export interface UpdateVaccinationInput {
   notes?: string | null
 }
 
-// Update treatment input
+/**
+ * Input for updating a treatment record.
+ */
 export interface UpdateTreatmentInput {
   medicationName?: string
   reason?: string
@@ -402,7 +503,11 @@ export interface UpdateTreatmentInput {
 }
 
 /**
- * Update vaccination record
+ * Update a specific vaccination record.
+ *
+ * @param userId - ID of the user
+ * @param recordId - ID of the record to update
+ * @param input - Fields to update
  */
 export async function updateVaccination(
   userId: string,
@@ -443,6 +548,9 @@ export async function updateVaccination(
     .execute()
 }
 
+/**
+ * Server function to update a vaccination record.
+ */
 export const updateVaccinationFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { recordId: string; data: UpdateVaccinationInput }) => data,
@@ -454,7 +562,10 @@ export const updateVaccinationFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Delete vaccination record
+ * Permanently delete a vaccination record.
+ *
+ * @param userId - ID of the user
+ * @param recordId - ID of the record needed
  */
 export async function deleteVaccination(
   userId: string,
@@ -478,6 +589,9 @@ export async function deleteVaccination(
   await db.deleteFrom('vaccinations').where('id', '=', recordId).execute()
 }
 
+/**
+ * Server function to delete a vaccination record.
+ */
 export const deleteVaccinationFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { recordId: string }) => data)
   .handler(async ({ data }) => {
@@ -487,7 +601,11 @@ export const deleteVaccinationFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Update treatment record
+ * Update a specific treatment record.
+ *
+ * @param userId - ID of the user
+ * @param recordId - ID of the record to update
+ * @param input - Fields to update
  */
 export async function updateTreatment(
   userId: string,
@@ -527,6 +645,9 @@ export async function updateTreatment(
     .execute()
 }
 
+/**
+ * Server function to update a treatment record.
+ */
 export const updateTreatmentFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { recordId: string; data: UpdateTreatmentInput }) => data,
@@ -538,7 +659,10 @@ export const updateTreatmentFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Delete treatment record
+ * Permanently delete a treatment record.
+ *
+ * @param userId - ID of the user
+ * @param recordId - ID of the record to delete
  */
 export async function deleteTreatment(
   userId: string,
@@ -562,6 +686,9 @@ export async function deleteTreatment(
   await db.deleteFrom('treatments').where('id', '=', recordId).execute()
 }
 
+/**
+ * Server function to delete a treatment record.
+ */
 export const deleteTreatmentFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { recordId: string }) => data)
   .handler(async ({ data }) => {

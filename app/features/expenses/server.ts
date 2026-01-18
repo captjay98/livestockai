@@ -6,9 +6,16 @@ export type { PaginatedResult }
 // Re-export constants for backward compatibility
 export { EXPENSE_CATEGORIES, type ExpenseCategory } from './constants'
 
+/**
+ * Data structure for recording a new financial expense.
+ * Supports linking to specific batches, suppliers, and feed inventory.
+ */
 export interface CreateExpenseInput {
+  /** ID of the farm incurred the expense */
   farmId: string
+  /** Optional ID of a specific livestock batch for cost attribution */
   batchId?: string | null
+  /** Specific expense classification */
   category:
     | 'feed'
     | 'medicine'
@@ -22,16 +29,31 @@ export interface CreateExpenseInput {
     | 'maintenance'
     | 'marketing'
     | 'other'
+  /** Monetary amount in system currency */
   amount: number
+  /** Date the expense occurred */
   date: Date
+  /** Brief description or item name */
   description: string
+  /** Optional ID of the supplier for sourcing history */
   supplierId?: string | null
+  /** Whether this is a recurring monthly/weekly cost */
   isRecurring?: boolean
-  // Optional feed details for inventory tracking
+  /** Specific feed category when category is 'feed' */
   feedType?: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+  /** Feed weight in kilograms for inventory tracking */
   feedQuantityKg?: number
 }
 
+/**
+ * Record a new expense in a transaction.
+ * If the expense is for livestock feed and includes quantity, the feed inventory is automatically updated.
+ *
+ * @param userId - ID of the user creating the expense
+ * @param input - Expense details and optional feed tracking data
+ * @returns Promise resolving to the new expense ID
+ * @throws {Error} If user does not have access to the specified farm
+ */
 export async function createExpense(
   userId: string,
   input: CreateExpenseInput,
@@ -96,13 +118,6 @@ export async function createExpense(
       }
     }
 
-    // Log audit inside transaction or outside? Outside is safer for performance, but inside ensures consistency.
-    // However, logAudit creates its own connection usually? No, it uses `db`.
-    // Kysely `tx` is different from `db`. If I use `logAudit` which imports `db`, it might not be in the transaction.
-    // That's fine for audit logs (consistency is good but if the main tx succeeds and audit fails, well...)
-    // Actually, `logAudit` inside `db.transaction()` callback using the global `db` handles it separately.
-    // To match transaction, I would need to pass `tx` to `logAudit`.
-    // For now, I'll log *after* the transaction commits.
     return expense
   })
 
@@ -119,7 +134,9 @@ export async function createExpense(
   return result.id
 }
 
-// Server function for client-side calls
+/**
+ * Server function to create an expense record.
+ */
 export const createExpenseFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { expense: CreateExpenseInput }) => data)
   .handler(async ({ data }) => {
@@ -130,6 +147,13 @@ export const createExpenseFn = createServerFn({ method: 'POST' })
 
 /**
  * Delete an expense record
+ */
+/**
+ * Permanently remove an expense record.
+ *
+ * @param userId - ID of the user requesting deletion
+ * @param expenseId - ID of the expense to delete
+ * @throws {Error} If expense not found or user lacks permission
  */
 export async function deleteExpense(userId: string, expenseId: string) {
   const { db } = await import('~/lib/db')
@@ -164,26 +188,46 @@ export async function deleteExpense(userId: string, expenseId: string) {
   })
 }
 
-// Server function for client-side calls
+/**
+ * Server function to delete an expense record.
+ */
 export const deleteExpenseFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { expenseId: string }) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     return deleteExpense(session.user.id, data.expenseId)
-    return deleteExpense(session.user.id, data.expenseId)
   })
 
-export type UpdateExpenseInput = {
+/**
+ * Data structure for updating an existing expense.
+ */
+export interface UpdateExpenseInput {
+  /** Updated category */
   category?: string
+  /** Updated amount */
   amount?: number
+  /** Updated date */
   date?: Date
+  /** Updated description */
   description?: string
+  /** Updated batch association */
   batchId?: string | null
+  /** Updated supplier association */
   supplierId?: string | null
+  /** Updated recurring flag */
   isRecurring?: boolean
 }
 
+/**
+ * Update an existing expense record.
+ *
+ * @param userId - ID of the user performing the update
+ * @param expenseId - ID of the expense to update
+ * @param data - Partial update parameters
+ * @returns Promise resolving to true on successful update
+ * @throws {Error} If expense not found or user unauthorized
+ */
 export async function updateExpense(
   userId: string,
   expenseId: string,
@@ -233,6 +277,9 @@ export async function updateExpense(
   return true
 }
 
+/**
+ * Server function to update an expense record.
+ */
 export const updateExpenseFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { expenseId: string; data: UpdateExpenseInput }) => data,
@@ -245,6 +292,16 @@ export const updateExpenseFn = createServerFn({ method: 'POST' })
 
 /**
  * Get expenses for a user - optionally filtered by farm (All Farms Support)
+ */
+/**
+ * Retrieve a list of expenses for a user.
+ * Supports filtering by a single farm or retrieving all expenses across all accessible farms.
+ *
+ * @param userId - ID of the user requesting data
+ * @param farmId - Optional farm filter (returns allaccessible if omitted)
+ * @param options - Additional filters (date range, category)
+ * @returns Promise resolving to an array of expense records with joined entity names
+ * @throws {Error} If user does not have access to the specified farm
  */
 export async function getExpenses(
   userId: string,
@@ -303,6 +360,15 @@ export async function getExpenses(
   return query.orderBy('expenses.date', 'desc').execute()
 }
 
+/**
+ * Retrieve a limited list of expenses for a specific farm.
+ *
+ * @param userId - ID of the user requesting data
+ * @param farmId - ID of the target farm
+ * @param options - Pagination and filtering options (limit, category, dates)
+ * @returns Promise resolving to an array of expenses
+ * @throws {Error} If user lacks access to the farm
+ */
 export async function getExpensesForFarm(
   userId: string,
   farmId: string,
@@ -356,6 +422,15 @@ export async function getExpensesForFarm(
   return query.orderBy('expenses.date', 'desc').execute()
 }
 
+/**
+ * Calculate categorized totals for expenses within a specific time period.
+ * Useful for building financial reports and dashboard charts.
+ *
+ * @param userId - ID of the requesting user
+ * @param farmId - Optional farm filter
+ * @param options - Start and end date for the summary
+ * @returns Promise resolving to an object containing categorized totals and overall sum
+ */
 export async function getExpensesSummary(
   userId: string,
   farmId?: string,
@@ -421,6 +496,15 @@ export async function getExpensesSummary(
   }
 }
 
+/**
+ * Calculate the total aggregated spend for a specific farm.
+ *
+ * @param userId - ID of the requesting user
+ * @param farmId - ID of the farm
+ * @param options - Optional date range for the total
+ * @returns Promise resolving to the total currency amount
+ * @throws {Error} If user lacks access to the farm
+ */
 export async function getTotalExpenses(
   userId: string,
   farmId: string,
@@ -451,13 +535,22 @@ export async function getTotalExpenses(
 }
 
 /**
- * Paginated expenses query with sorting and search
+ * Filter and pagination parameters for querying expenses.
  */
 export interface ExpenseQuery extends BasePaginatedQuery {
+  /** Filter by a specific livestock batch */
   batchId?: string
+  /** Filter by an expense category */
   category?: string
 }
 
+/**
+ * Retrieve a paginated list of expenses with full text search and advanced filters.
+ *
+ * @param userId - ID of the user requesting data
+ * @param query - Sorting, pagination, and filter parameters
+ * @returns Promise resolving to a paginated set of expense records with joined entity names
+ */
 export async function getExpensesPaginated(
   userId: string,
   query: ExpenseQuery = {},
@@ -608,7 +701,9 @@ export async function getExpensesPaginated(
   }
 }
 
-// Server function for paginated expenses
+/**
+ * Server function to retrieve paginated expense records.
+ */
 export const getExpensesPaginatedFn = createServerFn({ method: 'GET' })
   .inputValidator((data: ExpenseQuery) => data)
   .handler(async ({ data }) => {

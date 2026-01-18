@@ -1,7 +1,8 @@
 /**
- * Settings Server Functions
+ * @module Settings
  *
- * Server-side functions for managing user settings.
+ * User preferences and configuration management.
+ * Handles currency, localization, theming, and notification settings.
  * All database operations use dynamic imports for Cloudflare Workers compatibility.
  */
 
@@ -13,29 +14,83 @@ import type { UserSettings } from './currency-presets'
 /**
  * Zod schema for validating user settings
  */
-const userSettingsSchema = z.object({
-  // Currency
-  currencyCode: z.string().min(1).max(3),
-  currencySymbol: z.string().min(1).max(5),
-  currencyDecimals: z.number().int().min(0).max(3),
-  currencySymbolPosition: z.enum(['before', 'after']),
-  thousandSeparator: z.string().max(1),
-  decimalSeparator: z.string().min(1).max(1),
+/**
+ * Zod schema for validating user settings.
+ * Defines structure and constraints for preferences, alerts, and business configs.
+ */
+export const userSettingsSchema = z.object({
+  // Preferences
+  /** Default farm ID to load on login */
+  defaultFarmId: z.string().nullable().optional(),
+  /** User interface language code (ISO 639-1) */
+  language: z.enum([
+    'en',
+    'ha',
+    'yo',
+    'ig',
+    'fr',
+    'pt',
+    'sw',
+    'es',
+    'hi',
+    'tr',
+    'id',
+    'bn',
+    'th',
+    'vi',
+    'am',
+  ]),
+  /** User interface theme preference */
+  theme: z.enum(['light', 'dark', 'system']),
 
-  // Date/Time
-  dateFormat: z.enum(['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD']),
-  timeFormat: z.enum(['12h', '24h']),
-  firstDayOfWeek: z.number().int().min(0).max(6),
+  // Alerts
+  /** Threshold percentage for low stock alerts */
+  lowStockThresholdPercent: z
+    .number()
+    .int()
+    .min(1, 'validation.min')
+    .max(100, 'validation.max'),
+  /** Threshold percentage for mortality alerts */
+  mortalityAlertPercent: z
+    .number()
+    .int()
+    .min(1, 'validation.min')
+    .max(100, 'validation.max'),
+  /** Minimum absolute quantity for mortality alerts */
+  mortalityAlertQuantity: z.number().int().min(1, 'validation.min'),
+  /** Enabled/disabled status for specific notification types */
+  notifications: z
+    .object({
+      lowStock: z.boolean().optional(),
+      highMortality: z.boolean().optional(),
+      invoiceDue: z.boolean().optional(),
+      batchHarvest: z.boolean().optional(),
+      vaccinationDue: z.boolean().optional(),
+      medicationExpiry: z.boolean().optional(),
+      waterQualityAlert: z.boolean().optional(),
+      weeklySummary: z.boolean().optional(),
+      dailySales: z.boolean().optional(),
+      batchPerformance: z.boolean().optional(),
+      paymentReceived: z.boolean().optional(),
+    })
+    .optional(),
 
-  // Units
-  weightUnit: z.enum(['kg', 'lbs']),
-  areaUnit: z.enum(['sqm', 'sqft']),
-  temperatureUnit: z.enum(['celsius', 'fahrenheit']),
+  // Business
+  /** Default payment term in days for new invoices */
+  defaultPaymentTermsDays: z.number().int().min(0, 'validation.min'),
+  /** Starting month of the fiscal year (1-12) */
+  fiscalYearStartMonth: z
+    .number()
+    .int()
+    .min(1, 'validation.min')
+    .max(12, 'validation.max'),
 })
 
 /**
- * Get the current user's settings
- * Returns default settings if none exist
+ * Get the current user's settings, including currency, units, and date preferences.
+ * Returns default settings if none exist for the user.
+ *
+ * @returns Promise resolving to the user's settings object
  */
 export const getUserSettings = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -71,11 +126,15 @@ export const getUserSettings = createServerFn({ method: 'GET' }).handler(
 )
 
 /**
- * Update the current user's settings
+ * Update the current user's settings. Performs an upsert operation.
+ *
+ * @param data - The new settings data (validated against userSettingsSchema)
+ * @returns Promise resolving to a success indicator
+ * @throws {Error} If update fails
  */
 export const updateUserSettings = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof userSettingsSchema>) =>
-    userSettingsSchema.parse(data),
+  .inputValidator((data: Partial<z.infer<typeof userSettingsSchema>>) =>
+    userSettingsSchema.partial().parse(data),
   )
   .handler(async ({ data }) => {
     const { db } = await import('~/lib/db')
@@ -103,12 +162,15 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
       return { success: true }
     } catch (error) {
       console.error('Failed to update user settings:', error)
-      throw new Error('Failed to save settings')
+      throw new Error('errors.saveFailed')
     }
   })
 
 /**
- * Reset user settings to defaults
+ * Reset user settings back to their default values.
+ *
+ * @returns Promise resolving to a success indicator
+ * @throws {Error} If reset fails
  */
 export const resetUserSettings = createServerFn({ method: 'POST' }).handler(
   async () => {
@@ -128,7 +190,7 @@ export const resetUserSettings = createServerFn({ method: 'POST' }).handler(
       return { success: true }
     } catch (error) {
       console.error('Failed to reset user settings:', error)
-      throw new Error('Failed to reset settings')
+      throw new Error('errors.resetFailed')
     }
   },
 )

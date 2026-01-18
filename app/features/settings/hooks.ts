@@ -228,7 +228,9 @@ export function useFormatTemperature() {
 }
 
 /**
- * Hook for user preferences
+ * Hook for accessing general user preferences
+ *
+ * @returns Object containing defaultFarmId, language, and theme
  */
 export function usePreferences() {
   const settings = useSettingsValue()
@@ -241,7 +243,9 @@ export function usePreferences() {
 }
 
 /**
- * Hook for alert thresholds
+ * Hook for accessing monitoring and alert threshold settings
+ *
+ * @returns Object containing stock and mortality thresholds, and notifications flag
  */
 export function useAlertThresholds() {
   const settings = useSettingsValue()
@@ -255,7 +259,9 @@ export function useAlertThresholds() {
 }
 
 /**
- * Hook for business settings
+ * Hook for accessing business-related settings
+ *
+ * @returns Object containing payment terms and fiscal year start
  */
 export function useBusinessSettings() {
   const settings = useSettingsValue()
@@ -267,7 +273,9 @@ export function useBusinessSettings() {
 }
 
 /**
- * Hook for dashboard preferences
+ * Hook for accessing dashboard layout preferences
+ *
+ * @returns Object containing visible dashboard cards
  */
 export function useDashboardPreferences() {
   const settings = useSettingsValue()

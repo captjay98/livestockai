@@ -1,25 +1,53 @@
 import { sql } from 'kysely'
 
+/**
+ * @module Reports
+ *
+ * Core reporting engine for generating detailed business insights.
+ * Includes logic for Profit & Loss, Inventory, Sales, Feed, and Egg production reports.
+ */
+
+/**
+ * Universal date range for report generation.
+ */
 export interface DateRange {
+  /** Start boundary (inclusive) */
   startDate: Date
+  /** End boundary (inclusive) */
   endDate: Date
 }
 
+/**
+ * Multi-dimensional financial overview for the farm.
+ */
 export interface ProfitLossReport {
+  /** The report window */
   period: DateRange
+  /** Revenue breakdown */
   revenue: {
+    /** Combined revenue */
     total: number
+    /** Revenue categorized by product or livestock type */
     byType: Array<{ type: string; amount: number }>
   }
+  /** Expense breakdown */
   expenses: {
+    /** Combined operational cost */
     total: number
+    /** Costs categorized by ledger item */
     byCategory: Array<{ category: string; amount: number }>
   }
+  /** Net profit (Revenue - Expenses) */
   profit: number
+  /** Profit as a percentage of revenue */
   profitMargin: number
 }
 
+/**
+ * Report detailing livestock quantities and mortality.
+ */
 export interface InventoryReport {
+  /** List of individual batch statuses */
   batches: Array<{
     id: string
     species: string
@@ -30,6 +58,7 @@ export interface InventoryReport {
     mortalityRate: number
     status: string
   }>
+  /** Farm-wide totals */
   summary: {
     totalPoultry: number
     totalFish: number
@@ -38,8 +67,13 @@ export interface InventoryReport {
   }
 }
 
+/**
+ * Detailed record of sales over a period.
+ */
 export interface SalesReport {
+  /** The report window */
   period: DateRange
+  /** Individual sales transactions */
   sales: Array<{
     id: string
     date: Date
@@ -49,15 +83,22 @@ export interface SalesReport {
     totalAmount: number
     customerName: string | null
   }>
+  /** Sales summary */
   summary: {
     totalSales: number
     totalRevenue: number
+    /** Revenue aggregated by livestock type */
     byType: Array<{ type: string; quantity: number; revenue: number }>
   }
 }
 
+/**
+ * Report on feed consumption and costs.
+ */
 export interface FeedReport {
+  /** The report window */
   period: DateRange
+  /** Feed consumption records */
   records: Array<{
     batchId: string
     species: string
@@ -65,15 +106,22 @@ export interface FeedReport {
     totalQuantityKg: number
     totalCost: number
   }>
+  /** Feed summary */
   summary: {
     totalFeedKg: number
     totalCost: number
+    /** Consumption aggregated by feed type */
     byFeedType: Array<{ type: string; quantityKg: number; cost: number }>
   }
 }
 
+/**
+ * Report on egg production and inventory.
+ */
 export interface EggReport {
+  /** The report window */
   period: DateRange
+  /** Daily egg records */
   records: Array<{
     date: Date
     collected: number
@@ -81,6 +129,7 @@ export interface EggReport {
     sold: number
     inventory: number
   }>
+  /** Production summary */
   summary: {
     totalCollected: number
     totalBroken: number
@@ -90,6 +139,14 @@ export interface EggReport {
   }
 }
 
+/**
+ * Generates a Profit and Loss report.
+ * Aggregates all sales and expenses within the specified window.
+ *
+ * @param farmId - Optional farm ID to filter by, or undefined for all farms
+ * @param dateRange - The date range for the report
+ * @returns Promise resolving to a ProfitLossReport with revenue, expenses, and profit margins
+ */
 export async function getProfitLossReport(
   farmId: string | undefined,
   dateRange: DateRange,
@@ -162,6 +219,12 @@ export async function getProfitLossReport(
   }
 }
 
+/**
+ * Generates a real-time livestock count and health report.
+ *
+ * @param farmId - Optional farm ID to filter by, or undefined for all farms
+ * @returns Promise resolving to an InventoryReport with batch details and mortality rates
+ */
 export async function getInventoryReport(
   farmId: string | undefined,
 ): Promise<InventoryReport> {
@@ -242,6 +305,13 @@ export async function getInventoryReport(
   }
 }
 
+/**
+ * Generates a detailed sales report for a given period.
+ *
+ * @param farmId - Optional farm ID to filter by, or undefined for all farms
+ * @param dateRange - The date range for the report
+ * @returns Promise resolving to a SalesReport with transactions and revenue breakdown
+ */
 export async function getSalesReport(
   farmId: string | undefined,
   dateRange: DateRange,
@@ -308,6 +378,13 @@ export async function getSalesReport(
   }
 }
 
+/**
+ * Generates a feed consumption and cost report.
+ *
+ * @param farmId - Optional farm ID to filter by, or undefined for all farms
+ * @param dateRange - The date range for the report
+ * @returns Promise resolving to a FeedReport with consumption records and cost breakdown
+ */
 export async function getFeedReport(
   farmId: string | undefined,
   dateRange: DateRange,
@@ -374,6 +451,13 @@ export async function getFeedReport(
   }
 }
 
+/**
+ * Generates an egg production and inventory report.
+ *
+ * @param farmId - Optional farm ID to filter by, or undefined for all farms
+ * @param dateRange - The date range for the report
+ * @returns Promise resolving to an EggReport with daily records and laying percentages
+ */
 export async function getEggReport(
   farmId: string | undefined,
   dateRange: DateRange,

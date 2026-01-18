@@ -3,6 +3,9 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 
 export type { PaginatedResult }
 
+/**
+ * Core interface representing a single feeding record with joined batch and supplier info
+ */
 export interface FeedRecord {
   id: string
   batchId: string
@@ -19,24 +22,62 @@ export interface FeedRecord {
 // Re-export constants for backward compatibility
 export { FEED_TYPES, type FeedType } from './constants'
 
+/**
+ * Data required to create a new feed consumption record.
+ */
 export interface CreateFeedRecordInput {
+  /** ID of the livestock batch being fed */
   batchId: string
+  /** The specific category of feed used */
   feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+  /** Total weight of feed consumed in kilograms */
   quantityKg: number
+  /** Total cost of the feed consumed in the system currency */
   cost: number
+  /** Date of the feeding event */
   date: Date
+  /** Optional ID of the supplier of the feed */
   supplierId?: string | null
-  inventoryId?: string | null // Optional: link to inventory for auto-deduction
+  /** Optional ID of the feed inventory item to deduct from */
+  inventoryId?: string | null
+  /** Optional name of the feed brand */
   brandName?: string | null
+  /** Optional individual bag size in kilograms */
   bagSizeKg?: number | null
+  /** Optional number of bags consumed */
   numberOfBags?: number | null
+  /** Optional additional notes or observations */
   notes?: string | null
 }
 
+/**
+ * Parameters for filtering and paginating feeding records.
+ */
 export interface FeedQuery extends BasePaginatedQuery {
+  /** Optional filter for a specific livestock batch */
   batchId?: string
 }
 
+/**
+ * Create a new feed record, optionally deduct from inventory, and log audit
+ *
+ * @param userId - ID of the user creating the record
+ * @param farmId - ID of the farm
+ * @param input - Feed record data
+ * @returns Promise resolving to the created record ID
+ * @throws {Error} If user lacks access to the farm or inventory is insufficient
+ *
+ * @example
+ * ```typescript
+ * const recordId = await createFeedRecord('user_1', 'farm_A', {
+ *   batchId: 'batch_123',
+ *   feedType: 'starter',
+ *   quantityKg: 25,
+ *   cost: 15000,
+ *   date: new Date()
+ * })
+ * ```
+ */
 export async function createFeedRecord(
   userId: string,
   farmId: string,
@@ -142,7 +183,12 @@ export const createFeedRecordFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Delete a feed record and restore inventory
+ * Delete a feeding record and restore the consumed quantity back to inventory
+ *
+ * @param userId - ID of the user performing the deletion
+ * @param farmId - ID of the farm
+ * @param recordId - ID of the feed record to delete
+ * @throws {Error} If record is not found or access is denied
  */
 export async function deleteFeedRecord(
   userId: string,
@@ -201,6 +247,15 @@ export const deleteFeedRecordFn = createServerFn({ method: 'POST' })
     return deleteFeedRecord(session.user.id, data.farmId, data.recordId)
   })
 
+/**
+ * Update an existing feeding record and adjust inventory accordingly
+ *
+ * @param userId - ID of the user performing the update
+ * @param farmId - ID of the farm
+ * @param recordId - ID of the record to update
+ * @param data - Partial feed record data
+ * @throws {Error} If record not found, or insufficient inventory for new selection
+ */
 export async function updateFeedRecord(
   userId: string,
   farmId: string,
@@ -307,6 +362,14 @@ export const updateFeedRecordFn = createServerFn({ method: 'POST' })
     )
   })
 
+/**
+ * Retrieve all feeding records for a specific livestock batch
+ *
+ * @param userId - ID of the user
+ * @param farmId - ID of the farm
+ * @param batchId - ID of the batch
+ * @returns Promise resolving to an array of feed records
+ */
 export async function getFeedRecordsForBatch(
   userId: string,
   farmId: string,
@@ -336,6 +399,13 @@ export async function getFeedRecordsForBatch(
     .execute()
 }
 
+/**
+ * Fetches all feeding records for one or more farms.
+ * Defaults to all farms belonging to the user if no specific farm is provided.
+ *
+ * @param userId - ID of the requesting user
+ * @param farmId - Optional specific farm to filter by
+ */
 export async function getFeedRecords(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
@@ -370,6 +440,14 @@ export async function getFeedRecords(userId: string, farmId?: string) {
     .execute()
 }
 
+/**
+ * Get summary of total feed consumption and costs for a batch, grouped by feed type
+ *
+ * @param userId - ID of the user
+ * @param farmId - ID of the farm
+ * @param batchId - ID of the batch
+ * @returns Promise resolving to a feed summary object
+ */
 export async function getFeedSummaryForBatch(
   userId: string,
   farmId: string,
@@ -422,6 +500,14 @@ export async function getFeedSummaryForBatch(
   }
 }
 
+/**
+ * Calculate the Feed Conversion Ratio (FCR) for a batch based on feed consumed and weight gain
+ *
+ * @param userId - ID of the user
+ * @param farmId - ID of the farm
+ * @param batchId - ID of the batch
+ * @returns Promise resolving to the FCR (number) or null if data is insufficient
+ */
 export async function calculateFCR(
   userId: string,
   farmId: string,
@@ -476,6 +562,12 @@ export async function calculateFCR(
   return Math.round(fcr * 100) / 100 // Round to 2 decimal places
 }
 
+/**
+ * Fetches the current inventory levels for all feed types.
+ *
+ * @param userId - ID of the requesting user
+ * @param farmId - Optional specific farm to filter by
+ */
 export async function getFeedInventory(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
@@ -494,6 +586,13 @@ export async function getFeedInventory(userId: string, farmId?: string) {
     .execute()
 }
 
+/**
+ * Perform a paginated query for feeding records with sorting and search support
+ *
+ * @param userId - ID of the user
+ * @param query - Pagination and filtering parameters
+ * @returns Promise resolving to a paginated result set
+ */
 export async function getFeedRecordsPaginated(
   userId: string,
   query: FeedQuery = {},
@@ -605,6 +704,12 @@ export const getFeedRecordsPaginatedFn = createServerFn({ method: 'GET' })
     return getFeedRecordsPaginated(session.user.id, data)
   })
 
+/**
+ * Generates high-level statistics for feed consumption.
+ *
+ * @param userId - ID of the requesting user
+ * @param farmId - Optional specific farm to filter by
+ */
 export async function getFeedStats(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')

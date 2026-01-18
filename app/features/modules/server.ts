@@ -5,7 +5,10 @@ import { DEFAULT_MODULES_BY_FARM_TYPE } from './constants'
 import type { FarmModule, ModuleKey } from './types'
 
 /**
- * Get all modules for a farm
+ * Fetches all module state records for a farm.
+ *
+ * @param farmId - ID of the target farm
+ * @returns Array of module configuration records
  */
 export async function getFarmModules(
   farmId: string,
@@ -35,7 +38,10 @@ export async function getEnabledModules(
 }
 
 /**
- * Create default modules for a new farm based on farm type
+ * Initializes a new farm with a set of active modules based on its primary type.
+ *
+ * @param farmId - Target farm
+ * @param farmType - Category (e.g., 'poultry', 'fish')
  */
 export async function createDefaultModules(
   farmId: string,
@@ -71,7 +77,12 @@ export async function createDefaultModules(
 }
 
 /**
- * Toggle a module on or off
+ * Enables or disables a specific subsystem (e.g., 'bees') for a farm.
+ * Handles both new module enabling and updating existing states.
+ *
+ * @param farmId - Target farm
+ * @param moduleKey - Logic identifier
+ * @param enabled - Target state
  */
 export async function toggleModule(
   farmId: string,
@@ -140,7 +151,7 @@ export async function canDisableModule(
 // Server functions for client-side calls
 
 /**
- * Get farm modules (with auth)
+ * Server function to get farm modules (with auth).
  */
 export const getFarmModulesFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
@@ -159,7 +170,7 @@ export const getFarmModulesFn = createServerFn({ method: 'GET' })
   })
 
 /**
- * Toggle module (with auth and validation)
+ * Server function to toggle a module (with auth and validation).
  */
 export const toggleModuleFn = createServerFn({ method: 'POST' })
   .inputValidator(
@@ -202,7 +213,7 @@ export const toggleModuleFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Check if module can be disabled (with auth)
+ * Server function to check if a module can be disabled (with auth).
  */
 export const canDisableModuleFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string; moduleKey: ModuleKey }) => data)

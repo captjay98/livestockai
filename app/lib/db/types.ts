@@ -2,35 +2,68 @@ import type { Generated } from 'kysely'
 
 // Database interface for Kysely
 // Note: Column names use camelCase to match Better Auth expectations
+/**
+ * Database schema interface for Kysely ORM.
+ * Defines all tables and their structures for the OpenLivestock platform.
+ */
 export interface Database {
+  /** System users and their core profile data */
   users: UserTable
+  /** User-specific preferences for currency, units, etc. */
   user_settings: UserSettingsTable
+  /** Authentication sessions */
   sessions: SessionTable
+  /** OAuth and credential account links */
   account: AccountTable
+  /** Email and phone verification tokens */
   verification: VerificationTable
+  /** Farm definitions */
   farms: FarmTable
+  /** Enabled modules for each farm */
   farm_modules: FarmModuleTable
+  /** Junction table linking users to farms with roles */
   user_farms: UserFarmTable
+  /** Farm structures (houses, ponds, etc.) */
   structures: StructureTable
+  /** Livestock batch definitions */
   batches: BatchTable
+  /** Records of livestock mortality events */
   mortality_records: MortalityTable
+  /** Records of feeding events */
   feed_records: FeedTable
+  /** Records of egg collection and sales */
   egg_records: EggTable
+  /** Periodic weight sampling records */
   weight_samples: WeightTable
+  /** Vaccination schedule and records */
   vaccinations: VaccinationTable
+  /** Medical treatment records */
   treatments: TreatmentTable
+  /** Water parameters (pH, temperature, DO) */
   water_quality: WaterQualityTable
+  /** Sales transactions */
   sales: SaleTable
+  /** Farm expenses */
   expenses: ExpenseTable
+  /** Customer contacts */
   customers: CustomerTable
+  /** Supplier contacts */
   suppliers: SupplierTable
+  /** Sales invoices */
   invoices: InvoiceTable
+  /** Invoice line items */
   invoice_items: InvoiceItemTable
+  /** Feed inventory tracking */
   feed_inventory: FeedInventoryTable
+  /** Medication inventory tracking */
   medication_inventory: MedicationInventoryTable
+  /** System audit logs */
   audit_logs: AuditLogTable
+  /** Expected growth standards by species */
   growth_standards: GrowthStandardTable
+  /** Current market prices by species */
   market_prices: MarketPriceTable
+  /** User notifications */
   notifications: NotificationTable
 }
 
@@ -53,56 +86,98 @@ export interface UserTable {
 }
 
 // User Settings (Internationalization)
+/**
+ * User-specific preferences for currency, units, language, and alerts.
+ */
 export interface UserSettingsTable {
+  /** Unique settings identifier */
   id: Generated<string>
+  /** User these settings belong to */
   userId: string
 
   // Currency settings
+  /** ISO 4217 currency code (USD, EUR, NGN, etc.) */
   currencyCode: string
+  /** Currency symbol ($ , €, ₦, etc.) */
   currencySymbol: string
+  /** Number of decimals to display for currency */
   currencyDecimals: number
+  /** Position of the currency symbol */
   currencySymbolPosition: 'before' | 'after'
+  /** Character used for thousands separator */
   thousandSeparator: string
+  /** Character used for decimal separator */
   decimalSeparator: string
 
   // Date/Time settings
+  /** Date format preference */
   dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
+  /** Time format preference */
   timeFormat: '12h' | '24h'
+  /** Day the week starts on (0=Sunday, 1=Monday) */
   firstDayOfWeek: number
 
   // Unit settings
+  /** Unit for weight measurements */
   weightUnit: 'kg' | 'lbs'
+  /** Unit for area measurements */
   areaUnit: 'sqm' | 'sqft'
+  /** Unit for temperature measurements */
   temperatureUnit: 'celsius' | 'fahrenheit'
 
   // Preferences
+  /** Default farm to load on login */
   defaultFarmId: string | null
-  language: 'en' | 'ha' | 'yo' | 'ig' | 'fr' | 'pt' | 'sw'
+  /** UI language code */
+  language:
+    | 'en'
+    | 'ha'
+    | 'yo'
+    | 'ig'
+    | 'fr'
+    | 'pt'
+    | 'sw'
+    | 'es'
+    | 'hi'
+    | 'tr'
+    | 'id'
+    | 'bn'
+    | 'th'
+    | 'vi'
+    | 'am'
+  /** UI theme preference */
   theme: 'light' | 'dark' | 'system'
 
   // Alerts
+  /** Threshold percentage for low stock alerts */
   lowStockThresholdPercent: number
+  /** Threshold percentage for mortality alerts */
   mortalityAlertPercent: number
+  /** Minimum absolute quantity for mortality alerts */
   mortalityAlertQuantity: number
+  /** Enabled/disabled status for specific notification types */
   notifications: {
     lowStock: boolean
     highMortality: boolean
     invoiceDue: boolean
     batchHarvest: boolean
-    vaccinationDue: boolean
-    medicationExpiry: boolean
-    waterQualityAlert: boolean
-    weeklySummary: boolean
-    dailySales: boolean
-    batchPerformance: boolean
-    paymentReceived: boolean
+    vaccinationDue?: boolean
+    medicationExpiry?: boolean
+    waterQualityAlert?: boolean
+    weeklySummary?: boolean
+    dailySales?: boolean
+    batchPerformance?: boolean
+    paymentReceived?: boolean
   }
 
   // Business
+  /** Default payment term in days for new invoices */
   defaultPaymentTermsDays: number
+  /** Starting month of the fiscal year (1-12) */
   fiscalYearStartMonth: number
 
   // Dashboard
+  /** Visibility of dashboard cards */
   dashboardCards: {
     inventory: boolean
     revenue: boolean
@@ -113,7 +188,9 @@ export interface UserSettingsTable {
   }
 
   // Onboarding state
+  /** Whether the user has completed onboarding */
   onboardingCompleted: Generated<boolean>
+  /** Current step in the onboarding process */
   onboardingStep: Generated<number>
 
   createdAt: Generated<Date>
@@ -560,15 +637,27 @@ export interface MarketPriceTable {
 }
 
 // Notifications
+/**
+ * User notifications.
+ */
 export interface NotificationTable {
+  /** Unique notification identifier */
   id: Generated<string>
+  /** User ID */
   userId: string
+  /** Farm ID */
   farmId: string | null
+  /** Type of notification */
   type: string // 'lowStock' | 'highMortality' | 'invoiceDue' | 'batchHarvest'
+  /** Notification title */
   title: string
+  /** Notification message */
   message: string
+  /** Read status */
   read: Generated<boolean>
+  /** Action URL (optional) */
   actionUrl: string | null
+  /** Additional metadata */
   metadata: Record<string, any> | null
   createdAt: Generated<Date>
 }

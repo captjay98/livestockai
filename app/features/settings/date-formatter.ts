@@ -130,8 +130,10 @@ export function formatRelativeDate(
 }
 
 /**
- * Get the date-fns format pattern for the user's date format
- * Useful for date picker components
+ * Get the date-fns format pattern representing the user's preferred date format.
+ *
+ * @param settings - User settings containing date format
+ * @returns String pattern (e.g., "MM/dd/yyyy")
  */
 export function getDateFormatPattern(
   settings: Pick<UserSettings, 'dateFormat'>,

@@ -123,6 +123,7 @@ export const auth = betterAuth({
   },
   trustedOrigins: [
     'http://localhost:3000',
+    'http://localhost:3001',
     'http://localhost:5173',
     // Add your production domain here
     // 'https://your-app.workers.dev',

@@ -241,7 +241,7 @@ export interface UserSettings {
 
   // Preferences
   defaultFarmId: string | null
-  language: 'en' | 'ha' | 'yo' | 'ig' | 'fr' | 'pt' | 'sw'
+  language: 'en' | 'ha' | 'yo' | 'ig' | 'fr' | 'pt' | 'sw' | 'es' | 'hi' | 'tr'
   theme: 'light' | 'dark' | 'system'
 
   // Alerts

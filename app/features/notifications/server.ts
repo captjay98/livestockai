@@ -2,7 +2,10 @@ import { createServerFn } from '@tanstack/react-start'
 import type { CreateNotificationData, Notification } from './types'
 
 /**
- * Create a new notification
+ * Persistence layer for system notifications.
+ *
+ * @param data - Target user and content of the notification
+ * @returns Promise resolving to the unique notification ID
  */
 export async function createNotification(
   data: CreateNotificationData,
@@ -27,7 +30,13 @@ export async function createNotification(
 }
 
 /**
- * Get notifications for a user
+ * Get notifications for a user.
+ *
+ * @param userId - The ID of the user.
+ * @param options - Filtering and pagination options.
+ * @param options.unreadOnly - If true, returns only unread notifications.
+ * @param options.limit - Maximum number of notifications to return.
+ * @returns A promise resolving to a list of notifications.
  */
 export async function getNotifications(
   userId: string,
@@ -54,7 +63,9 @@ export async function getNotifications(
 }
 
 /**
- * Mark notification as read
+ * Mark a specific notification as read.
+ *
+ * @param notificationId - The ID of the notification.
  */
 export async function markAsRead(notificationId: string): Promise<void> {
   const { db } = await import('~/lib/db')
@@ -67,7 +78,9 @@ export async function markAsRead(notificationId: string): Promise<void> {
 }
 
 /**
- * Mark all notifications as read for a user
+ * Mark all notifications as read for a specific user.
+ *
+ * @param userId - The ID of the user.
  */
 export async function markAllAsRead(userId: string): Promise<void> {
   const { db } = await import('~/lib/db')
@@ -81,7 +94,9 @@ export async function markAllAsRead(userId: string): Promise<void> {
 }
 
 /**
- * Delete a notification
+ * Delete a notification.
+ *
+ * @param notificationId - The ID of the notification to delete.
  */
 export async function deleteNotification(
   notificationId: string,
@@ -95,6 +110,10 @@ export async function deleteNotification(
 }
 
 // Server functions for client-side calls
+
+/**
+ * Server function to get notifications.
+ */
 export const getNotificationsFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { unreadOnly?: boolean; limit?: number }) => data)
   .handler(async ({ data }) => {
@@ -103,6 +122,9 @@ export const getNotificationsFn = createServerFn({ method: 'GET' })
     return getNotifications(session.user.id, data)
   })
 
+/**
+ * Server function to mark a notification as read.
+ */
 export const markAsReadFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { notificationId: string }) => data)
   .handler(async ({ data }) => {
@@ -111,6 +133,9 @@ export const markAsReadFn = createServerFn({ method: 'POST' })
     return markAsRead(data.notificationId)
   })
 
+/**
+ * Server function to mark all notifications as read.
+ */
 export const markAllAsReadFn = createServerFn({ method: 'POST' }).handler(
   async () => {
     const { requireAuth } = await import('../auth/server-middleware')
@@ -119,6 +144,9 @@ export const markAllAsReadFn = createServerFn({ method: 'POST' }).handler(
   },
 )
 
+/**
+ * Server function to delete a notification.
+ */
 export const deleteNotificationFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { notificationId: string }) => data)
   .handler(async ({ data }) => {

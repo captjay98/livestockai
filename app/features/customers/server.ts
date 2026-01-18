@@ -3,30 +3,64 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 
 export type { PaginatedResult }
 
+/**
+ * Represents a customer record with aggregated sales metrics.
+ * Used for CRM and reporting.
+ */
 export interface CustomerRecord {
+  /** Unique identifier for the customer */
   id: string
+  /** Full name of the customer or business */
   name: string
+  /** Contact phone number */
   phone: string
+  /** Optional email address */
   email: string | null
+  /** Optional physical or delivery address */
   location: string | null
+  /**
+   * Categorization of the customer.
+   * Helps in targeted marketing and pricing.
+   */
   customerType: string | null
+  /** Timestamp when the customer was first recorded */
   createdAt: Date
+  /** Aggregate count of sales made to this customer */
   salesCount: number
+  /** Aggregate total amount spent by this customer in system currency */
   totalSpent: number
 }
 
+/**
+ * Data structure for creating a new customer record.
+ */
 export interface CreateCustomerInput {
+  /** Customer's full name */
   name: string
+  /** Contact phone number */
   phone: string
+  /** Optional contact email */
   email?: string | null
+  /** Optional delivery or business address */
   location?: string | null
+  /** Optional classification of the customer */
   customerType?: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
 }
 
+/**
+ * Filter and pagination parameters for querying customers.
+ */
 export interface CustomerQuery extends BasePaginatedQuery {
+  /** Filter by a specific customer classification */
   customerType?: string
 }
 
+/**
+ * Register a new customer in the system.
+ *
+ * @param input - Customer details (name, phone, etc.)
+ * @returns Promise resolving to the new customer ID
+ */
 export async function createCustomer(
   input: CreateCustomerInput,
 ): Promise<string> {
@@ -46,17 +80,32 @@ export async function createCustomer(
   return result.id
 }
 
+/**
+ * Server function to create a customer record.
+ * Validates input data.
+ */
 export const createCustomerFn = createServerFn({ method: 'POST' })
   .inputValidator((data: CreateCustomerInput) => data)
   .handler(async ({ data }) => {
     return createCustomer(data)
   })
 
+/**
+ * Retrieve all customers in alphabetical order.
+ *
+ * @returns Promise resolving to an array of all customer records
+ */
 export async function getCustomers() {
   const { db } = await import('~/lib/db')
   return db.selectFrom('customers').selectAll().orderBy('name', 'asc').execute()
 }
 
+/**
+ * Retrieve a single customer record by its unique ID.
+ *
+ * @param customerId - ID of the customer to retrieve
+ * @returns Promise resolving to the customer or undefined
+ */
 export async function getCustomerById(customerId: string) {
   const { db } = await import('~/lib/db')
   return db
@@ -66,6 +115,12 @@ export async function getCustomerById(customerId: string) {
     .executeTakeFirst()
 }
 
+/**
+ * Update an existing customer's details.
+ *
+ * @param customerId - ID of the customer to update
+ * @param input - Partial customer data to apply
+ */
 export async function updateCustomer(
   customerId: string,
   input: Partial<CreateCustomerInput>,
@@ -81,6 +136,9 @@ export async function updateCustomer(
     .execute()
 }
 
+/**
+ * Server function to update a customer record.
+ */
 export const updateCustomerFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { id: string; data: Partial<CreateCustomerInput> }) => data,
@@ -89,6 +147,11 @@ export const updateCustomerFn = createServerFn({ method: 'POST' })
     return updateCustomer(data.id, data.data)
   })
 
+/**
+ * Permanently remove a customer record from the system.
+ *
+ * @param customerId - ID of the customer to delete
+ */
 export async function deleteCustomer(customerId: string) {
   const { db } = await import('~/lib/db')
   // Check for sales first? Or cascade?
@@ -96,12 +159,21 @@ export async function deleteCustomer(customerId: string) {
   await db.deleteFrom('customers').where('id', '=', customerId).execute()
 }
 
+/**
+ * Server function to delete a customer record.
+ */
 export const deleteCustomerFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { id: string }) => data)
   .handler(async ({ data }) => {
     return deleteCustomer(data.id)
   })
 
+/**
+ * Retrieve a customer's full profile including their entire purchase history.
+ *
+ * @param customerId - ID of the customer
+ * @returns Promise resolving to customer details with sales history and total spent
+ */
 export async function getCustomerWithSales(customerId: string) {
   const { db } = await import('~/lib/db')
 
@@ -135,6 +207,12 @@ export async function getCustomerWithSales(customerId: string) {
   }
 }
 
+/**
+ * Retrieve a list of customers ranked by their lifetime spending.
+ *
+ * @param limit - Maximum number of customers to return (default: 10)
+ * @returns Promise resolving to the highest spending customers
+ */
 export async function getTopCustomers(limit: number = 10) {
   const { db } = await import('~/lib/db')
 
@@ -166,6 +244,13 @@ export async function getTopCustomers(limit: number = 10) {
   }))
 }
 
+/**
+ * Retrieve a paginated list of customers with search and filter capabilities.
+ * Includes aggregated sales metrics for each customer.
+ *
+ * @param query - Query parameters (search, pagination, sorting, customerType)
+ * @returns Promise resolving to a paginated set of customer records
+ */
 export async function getCustomersPaginated(query: CustomerQuery = {}) {
   const { db } = await import('~/lib/db')
   const { sql } = await import('kysely')
@@ -264,12 +349,18 @@ export async function getCustomersPaginated(query: CustomerQuery = {}) {
   }
 }
 
+/**
+ * Server function to retrieve paginated customer records.
+ */
 export const getCustomersPaginatedFn = createServerFn({ method: 'GET' })
   .inputValidator((data: CustomerQuery) => data)
   .handler(async ({ data }) => {
     return getCustomersPaginated(data)
   })
 
+/**
+ * Server function to retrieve all customers (unpaginated).
+ */
 export const getCustomersFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     return getCustomers()

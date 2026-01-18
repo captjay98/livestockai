@@ -4,35 +4,68 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 
 export type { PaginatedResult }
 
+/**
+ * Represents a single water quality measurement record.
+ * Primarily used for aquaculture (fish) monitoring.
+ */
 export interface WaterQualityRecord {
+  /** Unique identifier for the measurement */
   id: string
+  /** ID of the livestock batch being monitored */
   batchId: string
+  /** Display name of the batch species */
   batchSpecies: string | null
+  /** Date and time of the measurement */
   date: Date
+  /** pH level (0-14) */
   ph: string
+  /** Temperature in degrees Celsius */
   temperatureCelsius: string
+  /** Dissolved Oxygen concentration in mg/L */
   dissolvedOxygenMgL: string
+  /** Ammonia concentration in mg/L */
   ammoniaMgL: string
+  /** Optional observer notes */
   notes: string | null
 }
 
 // Re-export constants for backward compatibility
 export { WATER_QUALITY_THRESHOLDS } from './constants'
 
+/**
+ * Data structure for creating a new water quality record.
+ */
 export interface CreateWaterQualityInput {
+  /** ID of the fish batch */
   batchId: string
+  /** Measurement date */
   date: Date
+  /** pH value */
   ph: number
+  /** Temperature in Celsius */
   temperatureCelsius: number
+  /** Dissolved Oxygen in mg/L */
   dissolvedOxygenMgL: number
+  /** Ammonia in mg/L */
   ammoniaMgL: number
+  /** Optional notes */
   notes?: string | null
 }
 
+/**
+ * Filter parameters for paginated water quality queries.
+ */
 export interface WaterQualityQuery extends BasePaginatedQuery {
+  /** Optional filter by specific batch */
   batchId?: string
 }
 
+/**
+ * Evaluates whether a set of water parameters falls outside of acceptable thresholds.
+ *
+ * @param params - Object containing pH, temperature, DO, and ammonia levels
+ * @returns True if any parameter is out of safe range
+ */
 export function isWaterQualityAlert(params: {
   ph: number
   temperatureCelsius: number
@@ -52,6 +85,12 @@ export function isWaterQualityAlert(params: {
   )
 }
 
+/**
+ * Identifies specific issues in water quality measurements based on system thresholds.
+ *
+ * @param params - Object containing pH, temperature, DO, and ammonia levels
+ * @returns Array of descriptive error messages for each threshold violation
+ */
 export function getWaterQualityIssues(params: {
   ph: number
   temperatureCelsius: number
@@ -85,6 +124,16 @@ export function getWaterQualityIssues(params: {
   return issues
 }
 
+/**
+ * Saves a new water quality record to the database.
+ * Verifies that the batch belongs to the farm and is of type 'fish'.
+ *
+ * @param userId - ID of the user performing the action
+ * @param farmId - ID of the farm owning the batch
+ * @param input - Water quality metrics
+ * @returns Promise resolving to the new record ID
+ * @throws {Error} If batch not found or is not a fish batch
+ */
 export async function createWaterQualityRecord(
   userId: string,
   farmId: string,
@@ -130,6 +179,9 @@ export async function createWaterQualityRecord(
   return result.id
 }
 
+/**
+ * Server function to create a water quality record.
+ */
 export const createWaterQualityRecordFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { farmId: string; data: CreateWaterQualityInput }) => data,
@@ -140,6 +192,13 @@ export const createWaterQualityRecordFn = createServerFn({ method: 'POST' })
     return createWaterQualityRecord(session.user.id, data.farmId, data.data)
   })
 
+/**
+ * Retrieves all water quality records for a specific farm or all accessible farms.
+ *
+ * @param userId - ID of the user requesting data
+ * @param farmId - Optional farm filter
+ * @returns Promise resolving to an array of water quality records with batch and farm info
+ */
 export async function getWaterQualityForFarm(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } =
@@ -177,6 +236,13 @@ export async function getWaterQualityForFarm(userId: string, farmId?: string) {
     .execute()
 }
 
+/**
+ * Computes active alerts for all fish batches based on their most recent water quality readings.
+ *
+ * @param userId - ID of the user requesting alerts
+ * @param farmId - Optional farm filter
+ * @returns Promise resolving to an array of active alerts with issues and severity
+ */
 export async function getWaterQualityAlerts(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } =
@@ -254,6 +320,13 @@ export async function getWaterQualityAlerts(userId: string, farmId?: string) {
   return alerts
 }
 
+/**
+ * Retrieves a paginated list of water quality records with sorting and search.
+ *
+ * @param userId - ID of the user requesting data
+ * @param query - Pagination, sorting, and filter parameters
+ * @returns Promise resolving to a paginated set of measurements
+ */
 export async function getWaterQualityRecordsPaginated(
   userId: string,
   query: WaterQualityQuery = {},
@@ -336,6 +409,9 @@ export async function getWaterQualityRecordsPaginated(
   }
 }
 
+/**
+ * Server function to retrieve paginated water quality records.
+ */
 export const getWaterQualityRecordsPaginatedFn = createServerFn({
   method: 'GET',
 })
@@ -347,17 +423,35 @@ export const getWaterQualityRecordsPaginatedFn = createServerFn({
   })
 
 // Update water quality input
+/**
+ * Data structure for updating an existing water quality record.
+ */
 export interface UpdateWaterQualityInput {
+  /** Updated measurement date */
   date?: Date
+  /** Updated pH value */
   ph?: number
+  /** Updated temperature in Celsius */
   temperatureCelsius?: number
+  /** Updated Dissolved Oxygen in mg/L */
   dissolvedOxygenMgL?: number
+  /** Updated Ammonia in mg/L */
   ammoniaMgL?: number
+  /** Updated notes */
   notes?: string | null
 }
 
 /**
  * Update water quality record
+ */
+/**
+ * Updates an existing water quality record.
+ *
+ * @param userId - ID of the user performing the update
+ * @param recordId - ID of the record to update
+ * @param input - Partial update parameters
+ * @returns Promise resolving when update is complete
+ * @throws {Error} If record not found or user unauthorized
  */
 export async function updateWaterQualityRecord(
   userId: string,
@@ -399,6 +493,9 @@ export async function updateWaterQualityRecord(
     .execute()
 }
 
+/**
+ * Server function to update a water quality record.
+ */
 export const updateWaterQualityRecordFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { recordId: string; data: UpdateWaterQualityInput }) => data,
@@ -411,6 +508,14 @@ export const updateWaterQualityRecordFn = createServerFn({ method: 'POST' })
 
 /**
  * Delete water quality record
+ */
+/**
+ * Deletes a water quality record from the database.
+ *
+ * @param userId - ID of the user requesting deletion
+ * @param recordId - ID of the record to delete
+ * @returns Promise resolving when deletion is complete
+ * @throws {Error} If record not found or user unauthorized
  */
 export async function deleteWaterQualityRecord(
   userId: string,
@@ -434,6 +539,9 @@ export async function deleteWaterQualityRecord(
   await db.deleteFrom('water_quality').where('id', '=', recordId).execute()
 }
 
+/**
+ * Server function to delete a water quality record.
+ */
 export const deleteWaterQualityRecordFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { recordId: string }) => data)
   .handler(async ({ data }) => {

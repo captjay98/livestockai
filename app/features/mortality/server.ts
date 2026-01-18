@@ -3,30 +3,72 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 
 export type { PaginatedResult }
 
+/**
+ * Core interface representing a single mortality record
+ */
 export interface MortalityRecord {
+  /** Unique record ID */
   id: string
+  /** ID of the batch affected */
   batchId: string
+  /** Species of the batch (joined) */
   batchSpecies: string | null
+  /** Number of animals deceased */
   quantity: number
+  /** Date of the mortality event */
   date: Date
+  /** Cause of death */
   cause: string
+  /** Optional notes */
   notes: string | null
 }
 
+/**
+ * Data required to record a new mortality event
+ */
 export interface CreateMortalityData {
+  /** ID of the affected livestock batch */
   batchId: string
+  /** Number of heads lost */
   quantity: number
+  /** Date of occurrence */
   date: Date
+  /** Categorized cause of death */
   cause: 'disease' | 'predator' | 'weather' | 'unknown' | 'other'
+  /** Optional descriptive notes */
   notes?: string
 }
 
+/**
+ * Parameters for filtering and paginating mortality records.
+ */
 export interface MortalityQuery extends BasePaginatedQuery {
+  /** Optional filter for a specific livestock batch */
   batchId?: string
 }
 
 /**
- * Record mortality and update batch quantity
+ * Record a mortality event and automatically update batch quantity
+ *
+ * This function creates a mortality record and decrements the batch's current quantity
+ * in a single transaction. If the mortality reduces quantity to zero, the batch status
+ * is automatically set to 'depleted'.
+ *
+ * @param userId - ID of the user recording the mortality
+ * @param data - Mortality event details including batch, quantity, date, and cause
+ * @returns Promise resolving to the created mortality record ID
+ * @throws {Error} If batch not found, access denied, or invalid quantity
+ *
+ * @example
+ * ```typescript
+ * const recordId = await recordMortality('user-123', {
+ *   batchId: 'batch-456',
+ *   quantity: 5,
+ *   date: new Date(),
+ *   cause: 'disease',
+ *   notes: 'Newcastle disease outbreak'
+ * })
+ * ```
  */
 export async function recordMortality(
   userId: string,
@@ -102,7 +144,18 @@ export const recordMortalityFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Get mortality records for a batch
+ * Retrieve all mortality records for a specific batch
+ *
+ * @param userId - ID of the user requesting records
+ * @param batchId - ID of the batch to query
+ * @returns Promise resolving to array of mortality records, ordered by date (newest first)
+ * @throws {Error} If batch not found or access denied
+ *
+ * @example
+ * ```typescript
+ * const records = await getMortalityRecords('user-123', 'batch-456')
+ * // Returns: [{ id, batchId, quantity, date, cause, notes }, ...]
+ * ```
  */
 export async function getMortalityRecords(userId: string, batchId: string) {
   const { db } = await import('~/lib/db')
@@ -123,7 +176,20 @@ export async function getMortalityRecords(userId: string, batchId: string) {
 }
 
 /**
- * Get mortality statistics for a batch
+ * Calculate comprehensive mortality statistics for a batch
+ *
+ * Aggregates total deaths, mortality rate, breakdown by cause, and recent trends.
+ *
+ * @param userId - ID of the user requesting statistics
+ * @param batchId - ID of the batch to analyze
+ * @returns Promise resolving to mortality statistics object with totals, rates, and cause breakdown
+ * @throws {Error} If batch not found or access denied
+ *
+ * @example
+ * ```typescript
+ * const stats = await getMortalityStats('user-123', 'batch-456')
+ * // Returns: { totalDeaths: 15, mortalityRate: 15%, byCause: {...}, recent: [...] }
+ * ```
  */
 export async function getMortalityStats(userId: string, batchId: string) {
   const { db } = await import('~/lib/db')
@@ -214,6 +280,12 @@ export async function getMortalityStats(userId: string, batchId: string) {
 
 /**
  * Get mortality trends for a batch (daily/weekly/monthly)
+ *
+ * @param userId - ID of the user
+ * @param batchId - ID of the batch
+ * @param period - Time grouping (daily, weekly, monthly)
+ * @param days - Number of days to look back
+ * @returns Promise resolving to an array of trend data points
  */
 export async function getMortalityTrends(
   userId: string,
@@ -268,6 +340,13 @@ export async function getMortalityTrends(
   }))
 }
 
+/**
+ * Perform a paginated query for mortality records with sorting and search support
+ *
+ * @param userId - ID of the user
+ * @param query - Pagination and filtering parameters
+ * @returns Promise resolving to a paginated result set
+ */
 export async function getMortalityRecordsPaginated(
   userId: string,
   query: MortalityQuery = {},
@@ -369,6 +448,13 @@ export const getMortalityRecordsPaginatedFn = createServerFn({ method: 'GET' })
     return getMortalityRecordsPaginated(session.user.id, data)
   })
 
+/**
+ * Get a summary of mortality losses across all farms or for a specific farm
+ *
+ * @param userId - ID of the user
+ * @param farmId - Optional farm ID to filter by
+ * @returns Promise resolving to a mortality summary object
+ */
 export async function getMortalitySummary(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
@@ -405,10 +491,15 @@ export async function getMortalitySummary(userId: string, farmId?: string) {
   }
 }
 
-// Update mortality input
+/**
+ * Data available for updating an existing mortality record.
+ */
 export interface UpdateMortalityInput {
+  /** Updated number of animals lost */
   quantity?: number
+  /** Updated date of occurrence */
   date?: Date
+  /** Updated cause of death */
   cause?:
     | 'disease'
     | 'predator'
@@ -420,11 +511,17 @@ export interface UpdateMortalityInput {
     | 'poisoning'
     | 'suffocation'
     | 'culling'
+  /** Updated optional notes */
   notes?: string | null
 }
 
 /**
- * Update mortality record - adjusts batch quantity if quantity changed
+ * Update a mortality record and adjust batch quantity if the mortality count changed
+ *
+ * @param userId - ID of the user
+ * @param recordId - ID of the mortality record to update
+ * @param input - Updated data
+ * @throws {Error} If record not found, or access denied
  */
 export async function updateMortalityRecord(
   userId: string,
@@ -495,7 +592,11 @@ export const updateMortalityRecordFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Delete mortality record - restores batch quantity
+ * Delete a mortality record and restore the deceased quantity back to the batch
+ *
+ * @param userId - ID of the user
+ * @param recordId - ID of the mortality record to delete
+ * @throws {Error} If record not found, or access denied
  */
 export async function deleteMortalityRecord(
   userId: string,

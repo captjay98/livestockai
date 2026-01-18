@@ -7,7 +7,16 @@ import { multiply, toDbString, toNumber } from '~/features/settings/currency'
 export type { PaginatedResult }
 
 /**
- * Get source size options for a livestock type
+ * Get source size options for a livestock type based on module metadata
+ *
+ * @param livestockType - The type of livestock (e.g., 'poultry', 'fish')
+ * @returns Array of value/label pairs for source size options
+ *
+ * @example
+ * ```typescript
+ * const options = getSourceSizeOptions('poultry')
+ * // Returns: [{ value: 'day-old', label: 'Day Old' }, ...]
+ * ```
  */
 export function getSourceSizeOptions(
   livestockType: LivestockType,
@@ -24,7 +33,10 @@ export function getSourceSizeOptions(
   return moduleEntry[1].sourceSizeOptions
 }
 
-// Pre-computed source size options by livestock type
+/**
+ * Pre-computed source size options organized by livestock type.
+ * Useful for populating dropdowns and selection menus.
+ */
 export const SOURCE_SIZE_OPTIONS = {
   poultry: getSourceSizeOptions('poultry'),
   fish: getSourceSizeOptions('fish'),
@@ -34,36 +46,85 @@ export const SOURCE_SIZE_OPTIONS = {
   bees: getSourceSizeOptions('bees'),
 }
 
+/**
+ * Data required to create a new livestock batch
+ */
 export interface CreateBatchData {
+  /** The ID of the farm where the batch will be located */
   farmId: string
+  /** The type of livestock (poultry, fish, etc.) */
   livestockType: LivestockType
+  /** The specific species or breed (e.g., 'Broiler', 'Catfish') */
   species: string
+  /** Initial number of units in the batch */
   initialQuantity: number
+  /** Date when the batch was acquired or started */
   acquisitionDate: Date
-  costPerUnit: number // in Naira
-  // Enhanced fields
+  /** Cost per unit/animal in the system's currency */
+  costPerUnit: number
+  /** Optional custom name for the batch */
   batchName?: string | null
+  /** Optional starting size/age description */
   sourceSize?: string | null
+  /** Optional reference to the structure where the batch is housed */
   structureId?: string | null
+  /** Optional expected harvest or depletion date */
   targetHarvestDate?: Date | null
-  target_weight_g?: number | null // Enhanced
+  /** Optional target weight in grams for harvest */
+  target_weight_g?: number | null
+  /** Optional ID of the supplier */
   supplierId?: string | null
-  notes?: string | null
-}
-
-export interface UpdateBatchData {
-  species?: string
-  status?: 'active' | 'depleted' | 'sold'
-  batchName?: string | null
-  sourceSize?: string | null
-  structureId?: string | null
-  targetHarvestDate?: Date | null
-  target_weight_g?: number | null // Enhanced
+  /** Optional additional notes */
   notes?: string | null
 }
 
 /**
- * Create a new batch
+ * Data available for updating an existing livestock batch.
+ * All fields are optional to allow partial updates.
+ */
+export interface UpdateBatchData {
+  /** Updated species or breed name (e.g., 'Broiler', 'Catfish') */
+  species?: string
+  /**
+   * Updated batch status.
+   * 'active' - currently growing
+   * 'depleted' - all animals died or removed without sale
+   * 'sold' - all animals sold
+   */
+  status?: 'active' | 'depleted' | 'sold'
+  /** Updated custom batch name or reference identifier */
+  batchName?: string | null
+  /** Updated source size description (e.g., 'day-old') */
+  sourceSize?: string | null
+  /** Updated reference to the structure where the batch is housed */
+  structureId?: string | null
+  /** Updated target harvest or depletion date */
+  targetHarvestDate?: Date | null
+  /** Updated target weight in grams for harvest forecasting */
+  target_weight_g?: number | null
+  /** Updated additional notes or observations */
+  notes?: string | null
+}
+
+/**
+ * Create a new livestock batch and log an audit record
+ *
+ * @param userId - ID of the user performing the action
+ * @param data - Batch creation data
+ * @returns Promise resolving to the created batch ID
+ * @throws {Error} If the user lacks access to the specified farm
+ *
+ * @example
+ * ```typescript
+ * const id = await createBatch('user_1', {
+ *   farmId: 'farm_A',
+ *   livestockType: 'poultry',
+ *   species: 'Broiler',
+ *   initialQuantity: 100,
+ *   acquisitionDate: new Date(),
+ *   costPerUnit: 500
+ * })
+ * ```
  */
 export async function createBatch(
   userId: string,
@@ -127,8 +188,18 @@ export const createBatchFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Get batches for a user - optionally filtered by farm
- * If farmId is undefined, returns batches from all user's farms
+ * Get batches for a user, optionally filtered by farm and other criteria
+ *
+ * @param userId - ID of the user requesting batches
+ * @param farmId - Optional farm ID to filter by
+ * @param filters - Optional filters for status, livestock type, and species
+ * @returns Promise resolving to an array of batches with farm names
+ * @throws {Error} If the user lacks access to the requested farm
+ *
+ * @example
+ * ```typescript
+ * const batches = await getBatches('user_1', 'farm_A', { status: 'active' })
+ * ```
  */
 export async function getBatches(
   userId: string,
@@ -195,7 +266,17 @@ export async function getBatches(
 }
 
 /**
- * Get a single batch by ID
+ * Get a single batch by its unique ID
+ *
+ * @param userId - ID of the user requesting the batch
+ * @param batchId - Unique ID of the batch
+ * @returns Promise resolving to the batch data or null if not found
+ * @throws {Error} If the user lacks access to the batch's farm
+ *
+ * @example
+ * ```typescript
+ * const batch = await getBatchById('user_1', 'batch_123')
+ * ```
  */
 export async function getBatchById(userId: string, batchId: string) {
   const { db } = await import('~/lib/db')
@@ -242,7 +323,18 @@ export async function getBatchById(userId: string, batchId: string) {
 }
 
 /**
- * Update a batch
+ * Update an existing livestock batch
+ *
+ * @param userId - ID of the user performing the update
+ * @param batchId - ID of the batch to update
+ * @param data - Updated batch fields
+ * @returns Promise resolving to the updated batch data
+ * @throws {Error} If the batch is not found or access is denied
+ *
+ * @example
+ * ```typescript
+ * await updateBatch('user_1', 'batch_123', { status: 'depleted' })
+ * ```
  */
 export async function updateBatch(
   userId: string,
@@ -310,7 +402,16 @@ export const updateBatchFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Delete a batch
+ * Delete a batch if it has no related records (feed, sales, etc.)
+ *
+ * @param userId - ID of the user performing the deletion
+ * @param batchId - ID of the batch to delete
+ * @throws {Error} If the batch is not found, access is denied, or it has related records
+ *
+ * @example
+ * ```typescript
+ * await deleteBatch('user_1', 'batch_123')
+ * ```
  */
 export async function deleteBatch(userId: string, batchId: string) {
   const { db } = await import('~/lib/db')
@@ -373,7 +474,11 @@ export const deleteBatchFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Update batch quantity (used by mortality, sales, etc.)
+ * Internal utility to update batch quantity and status based on quantity
+ *
+ * @param batchId - ID of the batch to update
+ * @param newQuantity - The new quantity to set
+ * @internal
  */
 export async function updateBatchQuantity(
   batchId: string,
@@ -394,7 +499,18 @@ export async function updateBatchQuantity(
 }
 
 /**
- * Get batch statistics
+ * Retrieve comprehensive statistics for a specific batch, including mortality, feed, and sales
+ *
+ * @param userId - ID of the user requesting stats
+ * @param batchId - ID of the batch
+ * @returns Promise resolving to a statistical summary object
+ * @throws {Error} If the batch is not found or access is denied
+ *
+ * @example
+ * ```typescript
+ * const stats = await getBatchStats('user_1', 'batch_123')
+ * console.log(stats.mortality.rate)
+ * ```
  */
 export async function getBatchStats(userId: string, batchId: string) {
   const { db } = await import('~/lib/db')
@@ -502,7 +618,16 @@ export async function getBatchStats(userId: string, batchId: string) {
 }
 
 /**
- * Get inventory summary for a farm or all farms
+ * Get inventory summary across all farms or for a specific farm
+ *
+ * @param userId - ID of the user requesting the summary
+ * @param farmId - Optional farm ID to filter by
+ * @returns Promise resolving to an inventory summary (overall, poultry, fish, etc.)
+ *
+ * @example
+ * ```typescript
+ * const summary = await getInventorySummary('user_1')
+ * ```
  */
 export async function getInventorySummary(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
@@ -694,6 +819,18 @@ export interface PaginatedQuery {
   livestockType?: string
 }
 
+/**
+ * Perform a paginated query for batches with support for searching, sorting, and filtering
+ *
+ * @param userId - ID of the user performing the query
+ * @param query - Pagination and filter parameters
+ * @returns Promise resolving to a paginated result set
+ *
+ * @example
+ * ```typescript
+ * const result = await getBatchesPaginated('user_1', { page: 1, pageSize: 20, status: 'active' })
+ * ```
+ */
 export async function getBatchesPaginated(
   userId: string,
   query: PaginatedQuery = {},

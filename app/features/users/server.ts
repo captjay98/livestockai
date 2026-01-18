@@ -3,9 +3,9 @@ import { z } from 'zod'
 
 // Schema definitions
 const createUserSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  name: z.string().min(1),
+  email: z.string().email('validation.email'),
+  password: z.string().min(8, 'validation.min'),
+  name: z.string().min(1, 'validation.required'),
   role: z.enum(['user', 'admin']).default('user'),
 })
 
@@ -17,7 +17,7 @@ const banUserSchema = z.object({
 
 const setPasswordSchema = z.object({
   userId: z.string().uuid(),
-  newPassword: z.string().min(8),
+  newPassword: z.string().min(8, 'validation.min'),
 })
 
 const userIdSchema = z.object({
@@ -25,7 +25,10 @@ const userIdSchema = z.object({
 })
 
 /**
- * List all users (admin only)
+ * List all users (admin only).
+ *
+ * @internal Restricted to administrative context.
+ * @returns A promise resolving to a list of users with their details and ban status.
  */
 export const listUsers = createServerFn({ method: 'GET' }).handler(async () => {
   const { requireAdmin } = await import('../auth/server-middleware')
@@ -49,7 +52,11 @@ export const listUsers = createServerFn({ method: 'GET' }).handler(async () => {
 })
 
 /**
- * Get a single user by ID (admin only)
+ * Get a single user by ID (admin only).
+ *
+ * @param data - Object containing `userId`.
+ * @returns A promise resolving to the user details and farm assignments.
+ * @throws {Error} If the user is not found.
  */
 export const getUser = createServerFn({ method: 'GET' })
   .inputValidator((data: { userId: string }) => userIdSchema.parse(data))
@@ -74,7 +81,7 @@ export const getUser = createServerFn({ method: 'GET' })
       .executeTakeFirst()
 
     if (!user) {
-      throw new Error('User not found')
+      throw new Error('errors.userNotFound')
     }
 
     // Get user's farm assignments
@@ -93,7 +100,11 @@ export const getUser = createServerFn({ method: 'GET' })
   })
 
 /**
- * Create a new user (admin only)
+ * Create a new user (admin only).
+ *
+ * @param data - User credentials and initial profile.
+ * @returns A promise resolving to the created user result.
+ * @throws {Error} If the email already exists.
  */
 export const createUser = createServerFn({ method: 'POST' })
   .inputValidator((data: z.infer<typeof createUserSchema>) =>
@@ -131,7 +142,10 @@ export const createUser = createServerFn({ method: 'POST' })
   })
 
 /**
- * Set user password (admin only)
+ * Set a new password for a user (admin only).
+ *
+ * @param data - Object containing userId and newPassword.
+ * @returns A promise resolving to a success indicator.
  */
 export const setUserPassword = createServerFn({ method: 'POST' })
   .inputValidator((data: z.infer<typeof setPasswordSchema>) =>
@@ -154,7 +168,11 @@ export const setUserPassword = createServerFn({ method: 'POST' })
   })
 
 /**
- * Ban a user (admin only)
+ * Ban a user from the platform (admin only).
+ *
+ * @param data - Object containing userId, reason, and optional expiration.
+ * @returns A promise resolving to a success indicator.
+ * @throws {Error} If attempting to ban self or another admin.
  */
 export const banUser = createServerFn({ method: 'POST' })
   .inputValidator((data: z.infer<typeof banUserSchema>) =>
@@ -201,7 +219,10 @@ export const banUser = createServerFn({ method: 'POST' })
   })
 
 /**
- * Unban a user (admin only)
+ * Unban a previously banned user (admin only).
+ *
+ * @param data - Object containing userId.
+ * @returns A promise resolving to a success indicator.
  */
 export const unbanUser = createServerFn({ method: 'POST' })
   .inputValidator((data: { userId: string }) => userIdSchema.parse(data))
@@ -225,7 +246,11 @@ export const unbanUser = createServerFn({ method: 'POST' })
   })
 
 /**
- * Remove a user (admin only)
+ * Permanently remove a user account (admin only).
+ *
+ * @param data - Object containing userId.
+ * @returns A promise resolving to a success indicator.
+ * @throws {Error} If attempting to delete self, another admin, or a sole farm owner.
  */
 export const removeUser = createServerFn({ method: 'POST' })
   .inputValidator((data: { userId: string }) => userIdSchema.parse(data))
@@ -287,7 +312,11 @@ export const removeUser = createServerFn({ method: 'POST' })
   })
 
 /**
- * Update user role (admin only)
+ * Update a user's role (admin only).
+ *
+ * @param data - Object containing userId and the new role.
+ * @returns A promise resolving to a success indicator.
+ * @throws {Error} If attempting to change own role.
  */
 export const updateUserRole = createServerFn({ method: 'POST' })
   .inputValidator((data: { userId: string; role: 'user' | 'admin' }) =>

@@ -18,7 +18,8 @@
     "db:seed": "bun run app/lib/db/seeds/production.ts",
     "db:seed:prod": "bun run app/lib/db/seeds/production.ts",
     "db:seed:dev": "bun run app/lib/db/seeds/development.ts",
-    "deploy": "vite build && wrangler deploy"
+    "deploy": "vite build && wrangler deploy",
+    "docs:generate": "typedoc"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
@@ -71,6 +72,9 @@
     "prettier": "^3.5.3",
     "rollup-plugin-visualizer": "^6.0.5",
     "tailwindcss": "^4",
+    "typedoc": "^0.28.16",
+    "typedoc-plugin-markdown": "^4.9.0",
+    "typedoc-rhineai-theme": "^1.2.0",
     "typescript": "^5.7.2",
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^3.0.5"

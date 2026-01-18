@@ -10,7 +10,14 @@ import type { MoneyInput } from './currency'
 import type { UserSettings } from './currency-presets'
 
 /**
- * Format a number with custom thousand and decimal separators
+ * Format a number with custom thousand and decimal separators.
+ * Internal utility function used by formatters.
+ *
+ * @param value - The numeric value to format
+ * @param decimals - Number of decimal places
+ * @param thousandSeparator - Character used for thousands
+ * @param decimalSeparator - Character used for decimal point
+ * @returns Formatted numeric string
  */
 function formatNumber(
   value: number,

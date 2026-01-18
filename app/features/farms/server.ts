@@ -2,9 +2,18 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { toNumber } from '~/features/settings/currency'
 
+/**
+ * Data structure for creating a new farm.
+ */
 export interface CreateFarmData {
+  /** Display name of the farm */
   name: string
+  /** Physical or geographical location description */
   location: string
+  /**
+   * Primary livestock focus of the farm.
+   * Helps determine which modules are enabled by default.
+   */
   type:
     | 'poultry'
     | 'aquaculture'
@@ -16,9 +25,15 @@ export interface CreateFarmData {
     | 'multi'
 }
 
+/**
+ * Data structure for updating an existing farm's details.
+ */
 export interface UpdateFarmData {
+  /** New display name */
   name?: string
+  /** New location description */
   location?: string
+  /** New primary livestock focus */
   type?:
     | 'poultry'
     | 'aquaculture'
@@ -31,7 +46,12 @@ export interface UpdateFarmData {
 }
 
 /**
- * Create a new farm and assign creator as owner
+ * Create a new farm and assign the creator as the owner.
+ * Automatically initializes default modules for the farm.
+ *
+ * @param data - Farm details (name, location, type)
+ * @param creatorUserId - ID of the user creating the farm (optional)
+ * @returns Promise resolving to the new farm's ID
  */
 export async function createFarm(
   data: CreateFarmData,
@@ -69,7 +89,10 @@ export async function createFarm(
 }
 
 /**
- * Get all farms (admin use)
+ * Retrieve all farms in the system.
+ * This is an administrative function and should be protected.
+ *
+ * @returns Promise resolving to an array of all farms
  */
 export async function getFarms() {
   const { db } = await import('~/lib/db')
@@ -82,7 +105,10 @@ export async function getFarms() {
 }
 
 /**
- * Get all farms accessible to a user
+ * Retrieve all farms that a specific user has access to.
+ *
+ * @param userId - ID of the user
+ * @returns Promise resolving to an array of farms accessible to the user
  */
 export async function getFarmsForUser(userId: string) {
   const { db } = await import('~/lib/db')
@@ -102,7 +128,11 @@ export async function getFarmsForUser(userId: string) {
     .execute()
 }
 
-// Server function for client-side calls
+/**
+ * Server function to retrieve all farms accessible to the currently authenticated user.
+ *
+ * @returns Promise resolving to an array of farms
+ */
 export const getFarmsForUserFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const { requireAuth } = await import('../auth/server-middleware')
@@ -112,7 +142,12 @@ export const getFarmsForUserFn = createServerFn({ method: 'GET' }).handler(
 )
 
 /**
- * Get a single farm by ID (with access check)
+ * Retrieve a single farm by its ID, with a security check to ensure the user has access.
+ *
+ * @param farmId - ID of the farm to retrieve
+ * @param userId - ID of the user requesting the farm
+ * @returns Promise resolving to the farm object or undefined if not found/denied
+ * @throws {Error} If user does not have access to the farm
  */
 export async function getFarmById(farmId: string, userId: string) {
   const { db } = await import('~/lib/db')
@@ -121,7 +156,7 @@ export async function getFarmById(farmId: string, userId: string) {
   const hasAccess = await checkFarmAccess(userId, farmId)
 
   if (!hasAccess) {
-    throw new Error('Access denied to this farm')
+    throw new Error('errors.accessDeniedFarm')
   }
 
   return await db
@@ -131,7 +166,12 @@ export async function getFarmById(farmId: string, userId: string) {
     .executeTakeFirst()
 }
 
-// Server function for client-side calls
+/**
+ * Server function to retrieve a specific farm by ID for the current user.
+ *
+ * @param data - Object containing the farmId
+ * @returns Promise resolving to the farm object
+ */
 export const getFarmByIdFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
@@ -184,7 +224,12 @@ export async function updateFarm(
   return await getFarmById(farmId, userId)
 }
 
-// Server function for client-side calls
+/**
+ * Server function to update a farm's details.
+ *
+ * @param data - Farm ID and updated details
+ * @returns Promise resolving to the updated farm object
+ */
 export const updateFarmFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: {
@@ -205,7 +250,11 @@ export const updateFarmFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Delete a farm (admin only - checked at route level)
+ * Permanently delete a farm and its associated user mappings.
+ * Fails if the farm still has active batches, sales, or expenses.
+ *
+ * @param farmId - ID of the farm to delete
+ * @throws {Error} If the farm has dependent records
  */
 export async function deleteFarm(farmId: string) {
   const { db } = await import('~/lib/db')
@@ -230,9 +279,7 @@ export async function deleteFarm(farmId: string) {
   ])
 
   if (batches || sales || expenses) {
-    throw new Error(
-      'Cannot delete farm with existing records. Please delete all batches, sales, and expenses first.',
-    )
+    throw new Error('errors.farmDeleteFailed')
   }
 
   // Remove user assignments
@@ -243,7 +290,13 @@ export async function deleteFarm(farmId: string) {
 }
 
 /**
- * Get farm statistics
+ * Calculate and retrieve key statistics for a farm, including livestock count,
+ * recent sales volume, and expense totals.
+ *
+ * @param farmId - ID of the farm
+ * @param userId - ID of the user requesting stats
+ * @returns Promise resolving to a statistics summary object
+ * @throws {Error} If access is denied
  */
 export async function getFarmStats(farmId: string, userId: string) {
   const { db } = await import('~/lib/db')
@@ -311,6 +364,12 @@ export async function getFarmStats(farmId: string, userId: string) {
 }
 
 // Server function to create a farm with auth
+/**
+ * Server function to create a new farm and assign the current user as owner.
+ *
+ * @param data - Farm creation details
+ * @returns Promise resolving to the new farm ID
+ */
 export const createFarmFn = createServerFn({ method: 'POST' })
   .inputValidator((data: CreateFarmData) => data)
   .handler(async ({ data }) => {
@@ -358,7 +417,7 @@ export const assignUserToFarmFn = createServerFn({ method: 'POST' })
       .executeTakeFirst()
 
     if (!user) {
-      throw new Error('User not found')
+      throw new Error('errors.userNotFound')
     }
 
     // Check if farm exists
@@ -369,7 +428,7 @@ export const assignUserToFarmFn = createServerFn({ method: 'POST' })
       .executeTakeFirst()
 
     if (!farm) {
-      throw new Error('Farm not found')
+      throw new Error('errors.farmNotFound')
     }
 
     // Insert or update assignment
@@ -410,7 +469,7 @@ export const removeUserFromFarmFn = createServerFn({ method: 'POST' })
       .executeTakeFirst()
 
     if (!assignment) {
-      throw new Error('User is not assigned to this farm')
+      throw new Error('errors.userNotAssigned')
     }
 
     // If user is an owner, check if they're the last owner
@@ -424,7 +483,7 @@ export const removeUserFromFarmFn = createServerFn({ method: 'POST' })
         .execute()
 
       if (otherOwners.length === 0) {
-        throw new Error('Cannot remove the last owner from a farm')
+        throw new Error('errors.lastOwnerRemove')
       }
     }
 
@@ -474,7 +533,7 @@ export const updateUserFarmRoleFn = createServerFn({ method: 'POST' })
         .execute()
 
       if (otherOwners.length === 0) {
-        throw new Error('Cannot demote the last owner of a farm')
+        throw new Error('errors.lastOwnerDemote')
       }
     }
 

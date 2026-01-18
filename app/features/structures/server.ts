@@ -1,8 +1,18 @@
 import { createServerFn } from '@tanstack/react-start'
 
+/**
+ * Valid physical structure types for housing livestock.
+ */
 export type StructureType = 'house' | 'pond' | 'pen' | 'cage'
+
+/**
+ * Operational status of a farm structure.
+ */
 export type StructureStatus = 'active' | 'empty' | 'maintenance'
 
+/**
+ * UI-friendly labels for each structure type.
+ */
 export const STRUCTURE_TYPES: Array<{ value: StructureType; label: string }> = [
   { value: 'house', label: 'House' },
   { value: 'pond', label: 'Pond' },
@@ -10,6 +20,9 @@ export const STRUCTURE_TYPES: Array<{ value: StructureType; label: string }> = [
   { value: 'cage', label: 'Cage' },
 ]
 
+/**
+ * UI-friendly labels for each structure status.
+ */
 export const STRUCTURE_STATUSES: Array<{
   value: StructureStatus
   label: string
@@ -19,27 +32,51 @@ export const STRUCTURE_STATUSES: Array<{
   { value: 'maintenance', label: 'Maintenance' },
 ]
 
+/**
+ * Data required to create a new physical structure on a farm.
+ */
 export interface CreateStructureInput {
+  /** ID of the farm owning the structure */
   farmId: string
+  /** Unique name or number of the structure on the farm */
   name: string
+  /** Type of housing (e.g., pond, pen) */
   type: StructureType
+  /** Maximum number of animals the structure can hold */
   capacity?: number | null
+  /** Floor or surface area in square meters */
   areaSqm?: number | null
+  /** Initial operational status */
   status: StructureStatus
-  notes?: string | null
-}
-
-export interface UpdateStructureInput {
-  name?: string
-  type?: StructureType
-  capacity?: number | null
-  areaSqm?: number | null
-  status?: StructureStatus
+  /** Optional notes about the construction or features */
   notes?: string | null
 }
 
 /**
- * Get all structures for a farm
+ * Data structure for updating an existing structure's details.
+ */
+export interface UpdateStructureInput {
+  /** Updated display name */
+  name?: string
+  /** Updated housing type */
+  type?: StructureType
+  /** Updated occupancy capacity */
+  capacity?: number | null
+  /** Updated area measurement */
+  areaSqm?: number | null
+  /** Updated operational status */
+  status?: StructureStatus
+  /** Updated descriptive notes */
+  notes?: string | null
+}
+
+/**
+ * Retrieve all physical structures belonging to a specific farm.
+ *
+ * @param userId - ID of the user requesting the data
+ * @param farmId - ID of the farm
+ * @returns Promise resolving to an array of structures
+ * @throws {Error} If user does not have access to the farm
  */
 export async function getStructures(userId: string, farmId: string) {
   const { db } = await import('~/lib/db')
@@ -65,6 +102,9 @@ export async function getStructures(userId: string, farmId: string) {
     .execute()
 }
 
+/**
+ * Server function to retrieve all structures for a farm.
+ */
 export const getStructuresFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
@@ -74,7 +114,12 @@ export const getStructuresFn = createServerFn({ method: 'GET' })
   })
 
 /**
- * Get a single structure with its assigned batches
+ * Retrieve details for a single structure, including currently active livestock batches.
+ *
+ * @param userId - ID of the user requesting the data
+ * @param structureId - ID of the structure to retrieve
+ * @returns Promise resolving to the structure details with active batch list
+ * @throws {Error} If structure is not found or access is denied
  */
 export async function getStructure(userId: string, structureId: string) {
   const { db } = await import('~/lib/db')
@@ -121,6 +166,9 @@ export async function getStructure(userId: string, structureId: string) {
   return { ...structure, batches }
 }
 
+/**
+ * Server function to retrieve a specific structure's details.
+ */
 export const getStructureFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { structureId: string }) => data)
   .handler(async ({ data }) => {
@@ -130,7 +178,12 @@ export const getStructureFn = createServerFn({ method: 'GET' })
   })
 
 /**
- * Create a new structure
+ * Create a new physical structure for a farm.
+ *
+ * @param userId - ID of the user creating the structure
+ * @param input - Creation details (farmId, name, type, capacity, etc.)
+ * @returns Promise resolving to the new structure record ID
+ * @throws {Error} If user does not have access to the specified farm
  */
 export async function createStructure(
   userId: string,
@@ -158,6 +211,9 @@ export async function createStructure(
   return result.id
 }
 
+/**
+ * Server function to create a new farm structure.
+ */
 export const createStructureFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { input: CreateStructureInput }) => data)
   .handler(async ({ data }) => {
@@ -167,7 +223,12 @@ export const createStructureFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Update a structure
+ * Update an existing structure's configuration or status.
+ *
+ * @param userId - ID of the user performing the update
+ * @param id - ID of the structure to update
+ * @param input - Partial update parameters
+ * @returns Promise resolving to true on success
  */
 export async function updateStructure(
   userId: string,
@@ -208,6 +269,9 @@ export async function updateStructure(
   return true
 }
 
+/**
+ * Server function to update a farm structure.
+ */
 export const updateStructureFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { id: string; input: UpdateStructureInput }) => data)
   .handler(async ({ data }) => {
@@ -217,7 +281,13 @@ export const updateStructureFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Delete a structure
+ * Permanently delete a structure record from a farm.
+ * Operation fails if the structure has any active livestock batches assigned to it.
+ *
+ * @param userId - ID of the user requesting deletion
+ * @param id - ID of the structure to delete
+ * @returns Promise resolving to true on successful deletion
+ * @throws {Error} If structure is not found, user is unauthorized, or structure has active batches
  */
 export async function deleteStructure(userId: string, id: string) {
   const { db } = await import('~/lib/db')
@@ -252,6 +322,9 @@ export async function deleteStructure(userId: string, id: string) {
   return true
 }
 
+/**
+ * Server function to delete a farm structure.
+ */
 export const deleteStructureFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { id: string }) => data)
   .handler(async ({ data }) => {
@@ -261,7 +334,12 @@ export const deleteStructureFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Get structures with batch counts for a farm
+ * Retrieve a list of farm structures including aggregated livestock counts for each.
+ * Calculates both the number of active batches and the total animal headcount per structure.
+ *
+ * @param userId - ID of the user requesting the data
+ * @param farmId - ID of the farm
+ * @returns Promise resolving to an array of structures with batch and animal totals
  */
 export async function getStructuresWithCounts(userId: string, farmId: string) {
   const { db } = await import('~/lib/db')
@@ -300,6 +378,9 @@ export async function getStructuresWithCounts(userId: string, farmId: string) {
   return structures
 }
 
+/**
+ * Server function to retrieve structures with summary counts.
+ */
 export const getStructuresWithCountsFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {

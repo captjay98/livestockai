@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { ChevronLeft, ChevronRight, Eye } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { AuditLogResult } from '~/features/logging/audit'
 import {
   Table,
@@ -32,24 +33,25 @@ export function AuditLogTable({
   totalPages,
   onPageChange,
 }: AuditLogTableProps) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-4">
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>User</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead>Entity</TableHead>
-              <TableHead>Details</TableHead>
+              <TableHead>{t('settings.audit.table.date')}</TableHead>
+              <TableHead>{t('settings.audit.table.user')}</TableHead>
+              <TableHead>{t('settings.audit.table.action')}</TableHead>
+              <TableHead>{t('settings.audit.table.entity')}</TableHead>
+              <TableHead>{t('settings.audit.table.details')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {logs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center h-24">
-                  No audit logs found.
+                  {t('settings.audit.table.empty')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -109,7 +111,9 @@ export function AuditLogTable({
                         </DialogTrigger>
                         <DialogContent className="max-w-xl max-h-[80vh] overflow-y-auto">
                           <DialogHeader>
-                            <DialogTitle>Change Details</DialogTitle>
+                            <DialogTitle>
+                              {t('settings.audit.dialog.title')}
+                            </DialogTitle>
                           </DialogHeader>
                           <pre className="bg-muted p-4 rounded-md overflow-x-auto text-xs font-mono">
                             {JSON.stringify(

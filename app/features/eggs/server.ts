@@ -3,18 +3,40 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 
 export type { PaginatedResult }
 
+/**
+ * Input for recording egg collection and wastage.
+ */
 export interface CreateEggRecordInput {
+  /** ID of the layer poultry batch */
   batchId: string
+  /** Collection date */
   date: Date
+  /** Total quantity of good eggs collected */
   quantityCollected: number
+  /** Number of eggs broken or discarded during collection */
   quantityBroken: number
+  /** Number of eggs from this batch sold specifically on this date */
   quantitySold: number
 }
 
+/**
+ * Filter parameters for paginated egg record queries.
+ */
 export interface EggQuery extends BasePaginatedQuery {
+  /** Optional filter by specific poultry batch */
   batchId?: string
 }
 
+/**
+ * Creates a new egg production record.
+ * Validates that the batch is of type 'poultry'.
+ *
+ * @param userId - ID of the user performing the action
+ * @param farmId - ID of the farm owning the batch
+ * @param input - Production and wastage metrics
+ * @returns Promise resolving to the new record ID
+ * @throws {Error} If batch not found or is not a poultry batch
+ */
 export async function createEggRecord(
   userId: string,
   farmId: string,
@@ -105,13 +127,28 @@ export const deleteEggRecordFn = createServerFn({ method: 'POST' })
     return deleteEggRecord(session.user.id, data.farmId, data.recordId)
   })
 
-export type UpdateEggRecordInput = {
+/**
+ * Data structure for updating an egg production record.
+ */
+export interface UpdateEggRecordInput {
+  /** Updated date */
   date?: Date
+  /** Updated collection count */
   quantityCollected?: number
+  /** Updated breakage count */
   quantityBroken?: number
+  /** Updated sales count */
   quantitySold?: number
 }
 
+/**
+ * Updates an existing production entry.
+ *
+ * @param userId - ID of the user performing the update
+ * @param recordId - ID of the record to update
+ * @param data - Partial update parameters
+ * @returns Promise resolving to true on success
+ */
 export async function updateEggRecord(
   userId: string,
   recordId: string,
@@ -154,6 +191,15 @@ export const updateEggRecordFn = createServerFn({ method: 'POST' })
 
 /**
  * Get egg records for a user - optionally filtered by farm (All Farms Support)
+ */
+/**
+ * Retrieves egg records for a user, optionally filtered by farm ID and date range.
+ * Supports cross-farm data aggregation.
+ *
+ * @param userId - ID of the requesting user
+ * @param farmId - Optional farm filter
+ * @param options - Start and end date filters
+ * @returns Array of production records with batch and farm details
  */
 export async function getEggRecords(
   userId: string,
@@ -260,6 +306,13 @@ export async function getEggRecordsForFarm(userId: string, farmId: string) {
     .execute()
 }
 
+/**
+ * Aggregates production totals, breakage, and current cumulative inventory.
+ *
+ * @param userId - ID of the requesting user
+ * @param farmId - Optional farm filter
+ * @returns Summary metrics including total collected and current stock
+ */
 export async function getEggRecordsSummary(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } =
@@ -313,6 +366,15 @@ export async function getEggRecordsSummary(userId: string, farmId?: string) {
   }
 }
 
+/**
+ * Calculates what percentage of the current flock produced eggs on a given date.
+ *
+ * @param userId - ID of the calling user
+ * @param farmId - ID of the farm
+ * @param batchId - ID of the layer batch
+ * @param date - Optional specific date (defaults to most recent collection)
+ * @returns Average laying percentage (0-100) or null if no flock present
+ */
 export async function calculateLayingPercentage(
   userId: string,
   farmId: string,
@@ -395,6 +457,13 @@ export async function getEggInventory(
   return totalCollected - totalBroken - totalSold
 }
 
+/**
+ * Retrieves a filtered and sorted list of production entries.
+ *
+ * @param userId - ID of the requesting user
+ * @param query - Sorting, searches, and pagination params
+ * @returns Paginated result set of egg collection entries
+ */
 export async function getEggRecordsPaginated(
   userId: string,
   query: EggQuery = {},
@@ -484,7 +553,9 @@ export async function getEggRecordsPaginated(
   }
 }
 
-// Server function for paginated egg records
+/**
+ * Server function to retrieve paginated egg production records.
+ */
 export const getEggRecordsPaginatedFn = createServerFn({ method: 'GET' })
   .inputValidator((data: EggQuery) => data)
   .handler(async ({ data }) => {

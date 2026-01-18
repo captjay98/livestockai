@@ -10,7 +10,10 @@ import type { OnboardingProgress } from './types'
 import { DEFAULT_SETTINGS } from '~/features/settings/currency-presets'
 
 /**
- * Get onboarding progress for the current user
+ * Get onboarding progress for the current user.
+ * Checks if the user has farms (admin added) or stored progress.
+ *
+ * @returns A promise resolving to the onboarding status object.
  */
 export const getOnboardingProgressFn = createServerFn({
   method: 'GET',
@@ -73,7 +76,11 @@ export const getOnboardingProgressFn = createServerFn({
 })
 
 /**
- * Save onboarding progress
+ * Save onboarding progress.
+ * Currently returns the data back as it's primarily client-managed.
+ *
+ * @param data.progress - The current progress object.
+ * @returns A promise resolving to the success state and saving progress.
  */
 export const saveOnboardingProgressFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { progress: OnboardingProgress }) => data)
@@ -87,7 +94,9 @@ export const saveOnboardingProgressFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Mark onboarding as complete
+ * Mark onboarding as complete.
+ *
+ * @returns A promise resolving to the success state and completion timestamp.
  */
 export const completeOnboardingFn = createServerFn({ method: 'POST' }).handler(
   async () => {
@@ -99,7 +108,10 @@ export const completeOnboardingFn = createServerFn({ method: 'POST' }).handler(
 )
 
 /**
- * Check if user needs onboarding (lightweight check)
+ * Evaluates whether a user requires the onboarding walkthrough.
+ * Checks both explicit completion flags and heuristic (presence of farms).
+ *
+ * @returns A promise resolving to the needsOnboarding flag and farm presence.
  */
 export const checkNeedsOnboardingFn = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -134,7 +146,10 @@ export const checkNeedsOnboardingFn = createServerFn({ method: 'GET' }).handler(
 )
 
 /**
- * Mark onboarding as complete in database
+ * Mark onboarding as complete in the database.
+ * Updates or creates the user's settings.
+ *
+ * @returns A promise resolving to a success indicator.
  */
 export const markOnboardingCompleteFn = createServerFn({
   method: 'POST',
@@ -173,7 +188,9 @@ export const markOnboardingCompleteFn = createServerFn({
 })
 
 /**
- * Reset onboarding to allow user to restart
+ * Reset onboarding state to allow user to restart the guide.
+ *
+ * @returns A promise resolving to a success indicator.
  */
 export const resetOnboardingFn = createServerFn({ method: 'POST' }).handler(
   async () => {

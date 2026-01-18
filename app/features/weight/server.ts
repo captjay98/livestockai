@@ -3,33 +3,67 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 
 export type { PaginatedResult }
 
+/**
+ * Represents a historical weight measurement record for a livestock batch.
+ */
 export interface WeightRecord {
+  /** Unique identifier for the weight record */
   id: string
+  /** ID of the associated livestock batch */
   batchId: string
+  /** Optional species name for the batch */
   batchSpecies: string | null
+  /** Date the weight sample was taken */
   date: Date
+  /** Number of animals measured in this sample */
   sampleSize: number
+  /** Calculated average weight in kilograms */
   averageWeightKg: string
+  /** Minimum weight measured in the sample (optional) */
   minWeightKg: string | null
+  /** Maximum weight measured in the sample (optional) */
   maxWeightKg: string | null
+  /** Optional notes or observations about the sample */
   notes: string | null
 }
 
+/**
+ * Input data required to create a new weight measurement record.
+ */
 export interface CreateWeightSampleInput {
+  /** ID of the batch being measured */
   batchId: string
+  /** Date of the measurement */
   date: Date
+  /** Number of animals included in the sample */
   sampleSize: number
+  /** Average weight of the animals in kilograms */
   averageWeightKg: number
-  // Enhanced fields
+  /** Smallest individual weight recorded in the sample */
   minWeightKg?: number | null
+  /** Largest individual weight recorded in the sample */
   maxWeightKg?: number | null
+  /** Optional descriptive notes */
   notes?: string | null
 }
 
+/**
+ * Filter and pagination parameters for querying weight records.
+ */
 export interface WeightQuery extends BasePaginatedQuery {
+  /** Filter records by a specific batch ID */
   batchId?: string
 }
 
+/**
+ * Create a new weight measurement record for a batch.
+ *
+ * @param userId - ID of the user performing the action
+ * @param farmId - ID of the farm the batch belongs to
+ * @param input - Weight measurement details
+ * @returns Promise resolving to the new record's ID
+ * @throws {Error} If farm access is denied or batch not found
+ */
 export async function createWeightSample(
   userId: string,
   farmId: string,
@@ -69,6 +103,10 @@ export async function createWeightSample(
   return result.id
 }
 
+/**
+ * Server function to create a weight sample.
+ * Validates input and user authentication.
+ */
 export const createWeightSampleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { farmId: string; data: CreateWeightSampleInput }) => data,
@@ -79,6 +117,14 @@ export const createWeightSampleFn = createServerFn({ method: 'POST' })
     return createWeightSample(session.user.id, data.farmId, data.data)
   })
 
+/**
+ * Retrieve all weight samples for a specific livestock batch.
+ *
+ * @param userId - ID of the user
+ * @param farmId - ID of the farm
+ * @param batchId - ID of the batch
+ * @returns Promise resolving to an array of weight records
+ */
 export async function getWeightSamplesForBatch(
   userId: string,
   farmId: string,
@@ -109,6 +155,13 @@ export async function getWeightSamplesForBatch(
     .execute()
 }
 
+/**
+ * Retrieve all weight samples across a farm or for all farms assigned to a user.
+ *
+ * @param userId - ID of the user
+ * @param farmId - Optional ID of a specific farm to filter by
+ * @returns Promise resolving to an array of weight records with batch and farm details
+ */
 export async function getWeightSamplesForFarm(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } =
@@ -146,6 +199,15 @@ export async function getWeightSamplesForFarm(userId: string, farmId?: string) {
     .execute()
 }
 
+/**
+ * Calculate the Average Daily Gain (ADG) for a specific livestock batch.
+ * Calculates growth rate based on the first and last recorded weight samples.
+ *
+ * @param userId - ID of the user
+ * @param farmId - ID of the farm
+ * @param batchId - ID of the batch
+ * @returns Promise resolving to an ADG summary or null if insufficient data
+ */
 export async function calculateADG(
   userId: string,
   farmId: string,
@@ -187,6 +249,13 @@ export async function calculateADG(
   }
 }
 
+/**
+ * Generate alerts for batches with growth rates significantly below expectations.
+ *
+ * @param userId - ID of the user
+ * @param farmId - Optional ID of a specific farm
+ * @returns Promise resolving to an array of growth alerts
+ */
 export async function getGrowthAlerts(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } =
@@ -258,6 +327,13 @@ export async function getGrowthAlerts(userId: string, farmId?: string) {
   return alerts
 }
 
+/**
+ * Retrieve a paginated list of weight records for a user's farms.
+ *
+ * @param userId - ID of the user
+ * @param query - Query parameters (search, pagination, sorting)
+ * @returns Promise resolving to a paginated set of weight records
+ */
 export async function getWeightRecordsPaginated(
   userId: string,
   query: WeightQuery = {},
@@ -343,6 +419,9 @@ export async function getWeightRecordsPaginated(
   }
 }
 
+/**
+ * Server function to retrieve paginated weight records.
+ */
 export const getWeightRecordsPaginatedFn = createServerFn({ method: 'GET' })
   .inputValidator((data: WeightQuery) => data)
   .handler(async ({ data }) => {
@@ -352,17 +431,31 @@ export const getWeightRecordsPaginatedFn = createServerFn({ method: 'GET' })
   })
 
 // Update weight sample input
+/**
+ * Data available for updating a weight record.
+ */
 export interface UpdateWeightSampleInput {
+  /** Updated date */
   date?: Date
+  /** Updated sample size */
   sampleSize?: number
+  /** Updated average weight in kilograms */
   averageWeightKg?: number
+  /** Updated minimum weight */
   minWeightKg?: number | null
+  /** Updated maximum weight */
   maxWeightKg?: number | null
+  /** Updated optional notes */
   notes?: string | null
 }
 
 /**
- * Update weight sample record
+ * Update an existing weight measurement record.
+ *
+ * @param userId - ID of the user
+ * @param recordId - ID of the record to update
+ * @param input - Updated measurement details
+ * @throws {Error} If record not found or access denied
  */
 export async function updateWeightSample(
   userId: string,
@@ -404,6 +497,9 @@ export async function updateWeightSample(
     .execute()
 }
 
+/**
+ * Server function to update a weight record.
+ */
 export const updateWeightSampleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: { recordId: string; data: UpdateWeightSampleInput }) => data,
@@ -415,7 +511,11 @@ export const updateWeightSampleFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Delete weight sample record
+ * Permanently delete a weight measurement record.
+ *
+ * @param userId - ID of the user
+ * @param recordId - ID of the record to delete
+ * @throws {Error} If record not found or access denied
  */
 export async function deleteWeightSample(
   userId: string,
@@ -439,6 +539,9 @@ export async function deleteWeightSample(
   await db.deleteFrom('weight_samples').where('id', '=', recordId).execute()
 }
 
+/**
+ * Server function to delete a weight record.
+ */
 export const deleteWeightSampleFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { recordId: string }) => data)
   .handler(async ({ data }) => {

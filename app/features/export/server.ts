@@ -6,15 +6,35 @@ import {
   getSalesReport,
 } from '~/features/reports/server'
 
+/**
+ * @module Export
+ *
+ * Handles data export functionality for various system reports.
+ * Converts report data into downloadable formats (CSV, etc.).
+ */
+
+/**
+ * Parameters for generating a downloadable report.
+ */
 export interface ExportOptions {
+  /** The logic/data source (e.g., 'profit-loss', 'inventory') */
   reportType: string
+  /** Output file format */
   format: 'xlsx' | 'pdf'
+  /** Optional specific farm filter */
   farmId?: string
+  /** Lower bound for date-filtered data (ISO string) */
   startDate: string
+  /** Upper bound for date-filtered data (ISO string) */
   endDate: string
 }
 
-// Generate CSV content (can be opened in Excel)
+/**
+ * Orchestrates data retrieval and transformation into CSV format for export.
+ *
+ * @param options - Report type and filtering criteria
+ * @returns Object contains raw CSV string and metadata for browser download
+ */
 export async function generateExportData(options: ExportOptions): Promise<{
   content: string
   filename: string

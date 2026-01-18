@@ -1,38 +1,75 @@
 import { sql } from 'kysely'
 import type { BatchAlert } from '~/features/monitoring/alerts'
 
+/**
+ * @module Dashboard
+ *
+ * Aggregates high-level farm statistics for the main dashboard view.
+ * Combines data from inventory, finance, production, and monitoring modules.
+ */
+
+/**
+ * High-level business and production metrics for the farm dashboard.
+ */
 export interface DashboardStats {
+  /** Aggregated active livestock counts across all species */
   inventory: {
+    /** Combined poultry count (layers, broilers, etc.) */
     totalPoultry: number
+    /** Total fish count */
     totalFish: number
+    /** Total cattle count */
     totalCattle: number
+    /** Total goats count */
     totalGoats: number
+    /** Total sheep count */
     totalSheep: number
+    /** Total bee colonies count */
     totalBees: number
+    /** Number of currently active livestock batches */
     activeBatches: number
   }
+  /** Monthly financial performance summary */
   financial: {
+    /** Total revenue for the current month */
     monthlyRevenue: number
+    /** Total expenses for the current month */
     monthlyExpenses: number
+    /** Net profit (Revenue - Expenses) */
     monthlyProfit: number
+    /** Percentage change in revenue compared to the previous month */
     revenueChange: number
+    /** Percentage change in expenses compared to the previous month */
     expensesChange: number
   }
+  /** Production metrics for egg-laying species */
   production: {
+    /** Total eggs collected during the current month */
     eggsThisMonth: number
+    /** Average laying rate percentage (eggs / possible eggs) */
     layingPercentage: number
   }
+  /** Livestock health monitoring summary */
   mortality: {
+    /** Total combined deaths in the current month */
     totalDeaths: number
+    /** Mortality rate percentage (deaths / initial population) */
     mortalityRate: number
   }
+  /** Feed management summary */
   feed: {
+    /** Total spent on feed in the current month */
     totalCost: number
+    /** Total feed quantity in kilograms */
     totalKg: number
+    /** Average Feed Conversion Ratio */
     fcr: number
   }
+  /** Prioritized health, stock, or water quality alerts */
   alerts: Array<BatchAlert>
+  /** Highest spend/revenue customers for the farm */
   topCustomers: Array<{ id: string; name: string; totalSpent: number }>
+  /** Combined chronological list of recent income and expenditures */
   recentTransactions: Array<{
     id: string
     type: 'sale' | 'expense'
@@ -42,6 +79,14 @@ export interface DashboardStats {
   }>
 }
 
+/**
+ * Computes comprehensive dashboard statistics for a user or a specific farm.
+ * Aggregates data from inventory, sales, expenses, production, and monitoring.
+ *
+ * @param userId - ID of the user requesting the dashboard
+ * @param farmId - Optional specific farm filter (returns combined stats if omitted)
+ * @returns Promise resolving to the complete breakdown of dashboard metrics
+ */
 export async function getDashboardStats(
   userId: string,
   farmId?: string,

@@ -4,11 +4,25 @@ import { z } from 'zod'
 import { auth } from './config'
 import { requireAuth } from './server-middleware'
 
+/**
+ * @module Authentication
+ *
+ * Server components for user authentication and session management.
+ * Wraps Better Auth functionality for server-side usage.
+ */
+
 const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().email('validation.email'),
+  password: z.string().min(1, 'validation.required'),
 })
 
+/**
+ * Server function for user login using email and password.
+ * Utilizes Better Auth for session management.
+ *
+ * @param data - User credentials (email and password)
+ * @returns Promise resolving to a success indicator and user data, or an error message
+ */
 export const loginFn = createServerFn({ method: 'POST' })
   .inputValidator(LoginSchema)
   .handler(async ({ data }) => {
@@ -27,6 +41,13 @@ export const loginFn = createServerFn({ method: 'POST' })
     }
   })
 
+/**
+ * Server function to check the current user's authentication status.
+ * Returns the session user if authenticated.
+ *
+ * @returns Promise resolving to the current user object
+ * @throws {Error} If the user is not authenticated
+ */
 export const checkAuthFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     try {

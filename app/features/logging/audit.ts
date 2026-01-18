@@ -27,6 +27,12 @@ export interface AuditLogParams {
   ipAddress?: string
 }
 
+/**
+ * Records an entry in the system audit trail.
+ * Gracefully handles failures to ensure logging never blocks primary business logic.
+ *
+ * @param params - User info, action type, and entity metadata
+ */
 export async function logAudit({
   userId,
   userName,
@@ -94,6 +100,13 @@ export interface AuditLogResult {
   totalPages: number
 }
 
+/**
+ * Retrieves a paginated list of audit logs.
+ * Restricted to administrative access via server function wrapper.
+ *
+ * @param _userId - ID of the requesting user (for permission check)
+ * @param query - Filtering and pagination parameters
+ */
 export async function getAuditLogs(
   _userId: string, // Admin checking
   query: AuditLogQuery = {},
