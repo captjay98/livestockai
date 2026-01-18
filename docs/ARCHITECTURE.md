@@ -217,6 +217,7 @@ graph LR
     Cache <--> IDB
     TQ <--> Server
 ```
+
 ```
 
 ### When to Use What
@@ -232,18 +233,20 @@ graph LR
 Users enable livestock types per farm:
 
 ```
-Farm: "Sunrise Poultry"          Farm: "Blue Waters Fish"
-┌─────────────────────┐          ┌─────────────────────┐
-│ ✅ Poultry          │          │ ❌ Poultry          │
-│ ❌ Aquaculture      │          │ ✅ Aquaculture      │
-│ ❌ Cattle           │          │ ❌ Cattle           │
-└─────────────────────┘          └─────────────────────┘
-         │                                │
-         ▼                                ▼
-Navigation shows:                Navigation shows:
-• Batches (poultry)              • Batches (fish)
-• Eggs                           • Water Quality
-• Vaccinations                   • Weight Samples
+
+Farm: "Sunrise Poultry" Farm: "Blue Waters Fish"
+┌─────────────────────┐ ┌─────────────────────┐
+│ ✅ Poultry │ │ ❌ Poultry │
+│ ❌ Aquaculture │ │ ✅ Aquaculture │
+│ ❌ Cattle │ │ ❌ Cattle │
+└─────────────────────┘ └─────────────────────┘
+│ │
+▼ ▼
+Navigation shows: Navigation shows:
+• Batches (poultry) • Batches (fish)
+• Eggs • Water Quality
+• Vaccinations • Weight Samples
+
 ```
 
 ## Automatic Behaviors
@@ -273,17 +276,19 @@ User settings affect the entire application:
 ## Authentication Flow
 
 ```
-┌─────────────┐    ┌─────────────┐    ┌─────────────────────────────────┐
-│ Login Page  │───▶│ Better Auth │───▶│ Session Created (cookie)        │
-│ email/pass  │    │ Verify      │    │ Stored in sessions table        │
-└─────────────┘    └─────────────┘    └─────────────────────────────────┘
-                                                    │
-                                                    ▼
-                                      ┌─────────────────────────────────┐
-                                      │ Onboarding Check                │
-                                      │ if (!completed) → 6-step wizard │
-                                      └─────────────────────────────────┘
-```
+
+┌─────────────┐ ┌─────────────┐ ┌─────────────────────────────────┐
+│ Login Page │───▶│ Better Auth │───▶│ Session Created (cookie) │
+│ email/pass │ │ Verify │ │ Stored in sessions table │
+└─────────────┘ └─────────────┘ └─────────────────────────────────┘
+│
+▼
+┌─────────────────────────────────┐
+│ Onboarding Check │
+│ if (!completed) → 6-step wizard │
+└─────────────────────────────────┘
+
+````
 
 ### Better Auth Tables
 
@@ -315,7 +320,7 @@ User settings affect the entire application:
 
   // ... operation
 })
-```
+````
 
 ## Testing Strategy
 

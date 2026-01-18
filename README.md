@@ -16,6 +16,16 @@
   <a href="#contributing">Contributing</a>
 </p>
 
+<p align="center">
+  🌍 <strong>Languages:</strong>
+  <a href="docs/i18n/README.fr.md">Français</a> •
+  <a href="docs/i18n/README.pt.md">Português</a> •
+  <a href="docs/i18n/README.sw.md">Kiswahili</a> •
+  <a href="docs/i18n/README.es.md">Español</a> •
+  <a href="docs/i18n/README.tr.md">Türkçe</a> •
+  <a href="docs/i18n/README.hi.md">हिन्दी</a>
+</p>
+
 ---
 
 ## Features
@@ -159,7 +169,7 @@ The quickstart wizard will:
 bun dev  # If not started automatically
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3001](http://localhost:3001)
 
 ### Default Login Credentials
 
@@ -207,7 +217,7 @@ DATABASE_URL=postgresql://user:password@your-neon-host/dbname?sslmode=require
 
 # Auth - Generate with: openssl rand -base64 32
 BETTER_AUTH_SECRET=your-secret-key-at-least-32-chars
-BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_URL=http://localhost:3001
 ```
 
 #### Initialize Database

@@ -210,14 +210,14 @@ graph TD
     Channel{Channel?}
     SMS[SMS]
     Email[Email]
-    
+
     EnvSMS{Environment?}
     DevSMS[Local Dev]
     ProdSMS[Production]
     RegionSMS{Region?}
     AfricaSMS[Africa]
     GlobalSMS[Global]
-    
+
     EnvEmail{Environment?}
     DevEmail[Local Dev]
     ProdEmail[Production]
@@ -227,7 +227,7 @@ graph TD
 
     Channel --> SMS
     Channel --> Email
-    
+
     SMS --> EnvSMS
     EnvSMS --> DevSMS --> ConsoleProvider[Console Provider]
     EnvSMS --> ProdSMS --> RegionSMS
