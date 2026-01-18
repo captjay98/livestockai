@@ -13,12 +13,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     server: {
-      port: 3000,
+      port: 3001,
     },
     resolve: {
       alias: {
-        // Suppress node:http warnings in development
-        'node:http': 'node:http',
+        'node:http':
+          '/Users/captjay98/projects/jayfarms/app/lib/shims/node-http.ts',
       },
     },
     define: {
@@ -52,7 +52,9 @@ export default defineConfig(({ mode }) => {
       'process.env.SMTP_PASS': JSON.stringify(env.SMTP_PASS || ''),
     },
     plugins: [
-      cloudflare({ viteEnvironment: { name: 'ssr' } }),
+      cloudflare({
+        viteEnvironment: { name: 'ssr' },
+      }),
       tailwindcss(),
       tsconfigPaths({
         projects: ['./tsconfig.json'],
