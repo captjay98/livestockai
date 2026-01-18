@@ -1,5 +1,9 @@
+// @ts-ignore - explicitly used
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
-import type { EmailProvider, ProviderResult } from 'contracts'
+import type {
+  EmailProvider,
+  ProviderResult,
+} from '../../app/features/integrations/contracts'
 
 /**
  * AWS SES Email Provider Implementation

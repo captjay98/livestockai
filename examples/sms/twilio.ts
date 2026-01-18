@@ -1,4 +1,7 @@
-import type { ProviderResult, SMSProvider } from 'contracts'
+import type {
+  ProviderResult,
+  SMSProvider,
+} from '../../app/features/integrations/contracts'
 
 /**
  * Twilio SMS Provider Implementation (Core Service)

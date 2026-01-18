@@ -1,4 +1,7 @@
-import type { EmailProvider, ProviderResult } from 'contracts'
+import type {
+  EmailProvider,
+  ProviderResult,
+} from '../../app/features/integrations/contracts'
 
 /**
  * Resend Email Provider Implementation (Core Service)

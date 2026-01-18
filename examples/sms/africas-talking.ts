@@ -1,4 +1,7 @@
-import type { ProviderResult, SMSProvider } from 'contracts'
+import type {
+  ProviderResult,
+  SMSProvider,
+} from '../../app/features/integrations/contracts'
 
 /**
  * Africa's Talking SMS Provider Implementation
@@ -81,7 +84,7 @@ export class AfricasTalkingProvider implements SMSProvider {
 
       // 5. Parse and Validate Response
       // Africa's Talking returns a 'SMSMessageData' object containing recipients.
-      const data = (await response.json())
+      const data = await response.json()
 
       const recipients = data.SMSMessageData?.Recipients
 

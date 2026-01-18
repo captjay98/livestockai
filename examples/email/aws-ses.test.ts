@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+// @ts-ignore - explicitly used in mock
 import { SESClient } from '@aws-sdk/client-ses'
 import { AwsSesProvider } from './aws-ses'
 

@@ -1,4 +1,7 @@
-import type { ProviderResult, SMSProvider } from 'contracts'
+import type {
+  ProviderResult,
+  SMSProvider,
+} from '../../app/features/integrations/contracts'
 
 /**
  * MSG91 SMS Provider Implementation (India)
@@ -54,7 +57,7 @@ export class Msg91Provider implements SMSProvider {
         body: JSON.stringify(body),
       })
 
-      const data = (await response.json())
+      const data = await response.json()
 
       if (data.type === 'success') {
         return {

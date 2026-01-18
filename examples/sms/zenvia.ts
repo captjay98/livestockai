@@ -1,4 +1,7 @@
-import type { ProviderResult, SMSProvider } from 'contracts'
+import type {
+  ProviderResult,
+  SMSProvider,
+} from '../../app/features/integrations/contracts'
 
 /**
  * Zenvia SMS Provider Implementation (Brazil)
@@ -52,14 +55,14 @@ export class ZenviaProvider implements SMSProvider {
       })
 
       if (!response.ok) {
-        const errorData = (await response.json())
+        const errorData = await response.json()
         return {
           success: false,
           error: `Zenvia API Error (${response.status}): ${errorData.message || response.statusText}`,
         }
       }
 
-      const data = (await response.json())
+      const data = await response.json()
 
       // Zenvia returns a success status if the message is accepted
       return {

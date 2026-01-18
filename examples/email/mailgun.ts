@@ -1,4 +1,7 @@
-import type { EmailProvider, ProviderResult } from 'contracts'
+import type {
+  EmailProvider,
+  ProviderResult,
+} from '../../app/features/integrations/contracts'
 
 /**
  * Mailgun Email Provider Implementation (Global)
@@ -64,14 +67,14 @@ export class MailgunProvider implements EmailProvider {
       })
 
       if (!response.ok) {
-        const errorData = (await response.json())
+        const errorData = await response.json()
         return {
           success: false,
           error: `Mailgun API Error (${response.status}): ${errorData.message || response.statusText}`,
         }
       }
 
-      const data = (await response.json())
+      const data = await response.json()
 
       return {
         success: true,

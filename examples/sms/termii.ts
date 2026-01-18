@@ -1,4 +1,7 @@
-import type { ProviderResult, SMSProvider } from 'contracts'
+import type {
+  ProviderResult,
+  SMSProvider,
+} from '../../app/features/integrations/contracts'
 
 /**
  * Termii SMS Provider Implementation (Core Service - Nigeria)

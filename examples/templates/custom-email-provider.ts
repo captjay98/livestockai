@@ -2,7 +2,10 @@
  * STEP 1: Import the base contracts.
  * These ensure your provider follows the standard required by OpenLivestock.
  */
-import type { EmailProvider, ProviderResult } from 'contracts'
+import type {
+  EmailProvider,
+  ProviderResult,
+} from '../../app/features/integrations/contracts'
 
 /**
  * STEP 2: Name and Define your Provider.
@@ -74,7 +77,7 @@ export class MyCustomEmailProvider implements EmailProvider {
       /**
        * SECTION D: Parse the Response.
        */
-      const data = (await response.json())
+      const data = await response.json()
 
       /**
        * SECTION E: Return the Result.
