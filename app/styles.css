@@ -3,15 +3,17 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import '@fontsource-variable/inter';
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/jetbrains-mono';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* AYU LIGHT THEME */
+  /* LIGHT THEME */
   --background: #fbfbfb;
-  /* Start slightly off-white for warmth */
+  /* Soft off-white background */
   --foreground: #5c6166;
-  /* Ayu Light UI FG */
+  /* Primary text color */
 
   --card: #ffffff;
   --card-foreground: #5c6166;
@@ -19,22 +21,22 @@
   --popover: #ffffff;
   --popover-foreground: #5c6166;
 
-  --primary: #ff9940;
-  /* Ayu Orange */
+  --primary: #059669;
+  /* Emerald 600 */
   --primary-foreground: #ffffff;
 
   --secondary: #e6b673;
-  /* Aligned with Ayu accent logic, or softer orange/yellow */
+  /* Warm accent for highlights */
   --secondary: #f3f4f5;
-  /* Using Ayu generic UI bg for secondary backgrounds */
+  /* Neutral secondary background */
   --secondary-foreground: #5c6166;
 
   --muted: #f3f4f5;
   --muted-foreground: #828a95;
   /* Lighter text */
 
-  --accent: #ff9940;
-  /* Keeping consistency with primary */
+  --accent: #059669;
+  /* Emerald 600 */
   --accent-foreground: #ffffff;
 
   --destructive: #ff3333;
@@ -64,7 +66,7 @@
   --border: #e6e4e4;
   /* Soft border */
   --input: #e6e4e4;
-  --ring: #ff9940;
+  --ring: #059669;
 
   --radius: 0.4rem;
   /* Slightly reduced squircle for "sleek" vs "bubbly" */
@@ -79,12 +81,23 @@
 
   --sidebar: #f8f9fa;
   --sidebar-foreground: #5c6166;
-  --sidebar-primary: #ff9940;
+  --sidebar-primary: #059669;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f3f4f5;
   --sidebar-accent-foreground: #5c6166;
   --sidebar-border: #e6e4e4;
-  --sidebar-ring: #ff9940;
+  --sidebar-ring: #059669;
+
+  /* Landing Page Semantic Tokens (Light Mode Default) */
+  --bg-landing-page: #fafafa;
+  --bg-landing-card: rgba(255, 255, 255, 0.7);
+  --bg-landing-pill: rgba(255, 255, 255, 0.8);
+  --border-landing-subtle: rgba(0, 0, 0, 0.05);
+  --text-landing-primary: #171717;
+  --text-landing-secondary: #525252;
+  --landing-accent-glow: rgba(16, 185, 129, 0.1);
+  --landing-grid-color: #000;
+  --landing-grid-opacity: 0.03;
 }
 
 @utility glass {
@@ -116,11 +129,11 @@
 }
 
 .dark {
-  /* AYU DARK / MIRAGE THEME */
+  /* DARK THEME */
   --background: #0b0e14;
-  /* Ayu Dark BG */
+  /* Deep dark background */
   --foreground: #b3b1ad;
-  /* Ayu FG Common */
+  /* Primary text color */
 
   --card: #151a21;
   /* Slightly lighter than BG */
@@ -129,23 +142,23 @@
   --popover: #0b0e14;
   --popover-foreground: #b3b1ad;
 
-  --primary: #ffb454;
-  /* Ayu Dark Orange */
+  --primary: #34d399;
+  /* Emerald 400 */
   --primary-foreground: #0b0e14;
 
   --secondary: #1f2430;
-  /* Ayu Mirage BG */
+  /* Dark secondary background */
   --secondary-foreground: #b3b1ad;
 
   --muted: #1f2430;
   --muted-foreground: #707a8c;
-  /* Ayu Comment Color */
+  /* Subdued text */
 
-  --accent: #ffb454;
+  --accent: #34d399;
   --accent-foreground: #0b0e14;
 
   --destructive: #ff5f5f;
-  /* Ayu Error Red-ish */
+  /* Error/danger red */
   --destructive-foreground: #ffffff;
 
   --success: #34d399;
@@ -170,17 +183,28 @@
 
   --border: #242936;
   --input: #242936;
-  --ring: #ffb454;
+  --ring: #34d399;
 
   --sidebar: #0f131a;
   /* Just slightly off from main BG */
   --sidebar-foreground: #b3b1ad;
-  --sidebar-primary: #ffb454;
+  --sidebar-primary: #34d399;
   --sidebar-primary-foreground: #0b0e14;
   --sidebar-accent: #1f2430;
   --sidebar-accent-foreground: #b3b1ad;
   --sidebar-border: #242936;
-  --sidebar-ring: #ffb454;
+  --sidebar-ring: #34d399;
+
+  /* Landing Page Semantic Tokens (Dark Mode) */
+  --bg-landing-page: #030303;
+  --bg-landing-card: rgba(10, 10, 10, 0.6);
+  --bg-landing-pill: rgba(10, 10, 10, 0.6);
+  --border-landing-subtle: rgba(255, 255, 255, 0.1);
+  --text-landing-primary: #ffffff;
+  --text-landing-secondary: #a3a3a3;
+  --landing-accent-glow: rgba(16, 185, 129, 0.2);
+  --landing-grid-color: #fff;
+  --landing-grid-opacity: 0.03;
 }
 
 @theme inline {
@@ -301,4 +325,125 @@
   box-shadow:
     0 4px 20px -2px rgb(0 0 0 / 0.05),
     0 0 0 1px rgb(0 0 0 / 0.02);
+}
+
+/* Landing Page Specific Utilities & Variables */
+@layer base {
+  :root {
+    --neon-glow-primary: rgba(16, 185, 129, 0.5);
+    /* Emerald 500/50 */
+    --neon-glow-secondary: rgba(34, 211, 238, 0.5);
+    /* Cyan 400/50 */
+  }
+}
+
+@utility glass-card-landing {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+@utility glass-card-landing-hover {
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+@utility glass-panel-landing {
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@utility reveal-blur {
+  opacity: 0;
+  filter: blur(20px);
+  transform: scale(0.95);
+  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility is-visible {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1) translateY(0);
+}
+
+@utility reveal-curtain {
+  transform: translateY(100%);
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility char-reveal {
+  display: inline-block;
+  transform: translateY(40%);
+  opacity: 0;
+  filter: blur(8px);
+  transition:
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 1s ease,
+    filter 1s ease;
+  will-change: transform, opacity, filter;
+}
+
+@theme inline {
+  --animate-sys-scan: sys-scan 12s linear infinite;
+  --animate-light-scan: light-scan 5s linear infinite;
+  --animate-marquee-left: scroll-left-exact 40s linear infinite;
+  --animate-marquee-right: scroll-right-exact 40s linear infinite;
+
+  @keyframes sys-scan {
+    0% {
+      top: 0;
+      opacity: 0;
+    }
+
+    20% {
+      opacity: 1;
+    }
+
+    80% {
+      opacity: 1;
+    }
+
+    100% {
+      top: 100%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes light-scan {
+    0% {
+      background-position: -100% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  @keyframes scroll-left-exact {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-1696px);
+    }
+  }
+
+  @keyframes scroll-right-exact {
+    0% {
+      transform: translateX(-1696px);
+    }
+
+    100% {
+      transform: translateX(0);
+    }
+  }
 }

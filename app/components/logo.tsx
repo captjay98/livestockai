@@ -1,26 +1,56 @@
-import { useTheme } from './theme-provider'
-
 interface LogoProps {
   className?: string
-  variant?: 'wordmark' | 'icon'
+  variant?: 'wordmark' | 'icon' | 'full'
 }
 
 export function Logo({ className = 'h-8', variant = 'wordmark' }: LogoProps) {
-  const { theme } = useTheme()
+  if (variant === 'icon') {
+    return (
+      <div className={`relative ${className}`}>
+        <img
+          src="/logo-icon.svg"
+          alt="OpenLivestock"
+          className="h-full w-auto object-contain dark:hidden"
+        />
+        <img
+          src="/logo-icon-dark.svg"
+          alt="OpenLivestock"
+          className="hidden h-full w-auto object-contain dark:block"
+        />
+      </div>
+    )
+  }
 
-  // Determine effective theme (handle 'system' preference)
-  const isDark =
-    theme === 'dark' ||
-    (theme === 'system' &&
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches)
+  if (variant === 'full') {
+    return (
+      <div className={`relative ${className}`}>
+        <img
+          src="/logo-full.svg"
+          alt="OpenLivestock"
+          className="h-full w-auto object-contain dark:hidden"
+        />
+        <img
+          src="/logo-full-dark.svg"
+          alt="OpenLivestock"
+          className="hidden h-full w-auto object-contain dark:block"
+        />
+      </div>
+    )
+  }
 
-  const src =
-    variant === 'icon'
-      ? '/logo-icon.svg'
-      : isDark
-        ? '/logo-wordmark-dark.svg'
-        : '/logo-wordmark.svg'
-
-  return <img src={src} alt="OpenLivestock" className={className} />
+  // Wordmark only
+  return (
+    <div className={`relative ${className}`}>
+      <img
+        src="/logo-wordmark.svg"
+        alt="OpenLivestock"
+        className="h-full w-auto object-contain dark:hidden"
+      />
+      <img
+        src="/logo-wordmark-dark.svg"
+        alt="OpenLivestock"
+        className="hidden h-full w-auto object-contain dark:block"
+      />
+    </div>
+  )
 }

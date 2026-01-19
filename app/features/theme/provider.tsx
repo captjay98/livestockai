@@ -7,17 +7,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement
-    root.classList.remove('light', 'dark')
+    const currentTheme = root.classList.contains('dark') ? 'dark' : 'light'
+    const targetTheme =
+      theme === 'system'
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
+        : theme
 
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-        .matches
-        ? 'dark'
-        : 'light'
-      root.classList.add(systemTheme)
-    } else {
-      root.classList.add(theme)
-    }
+    // Skip if inline script already set the correct theme
+    if (currentTheme === targetTheme) return
+
+    root.classList.remove('light', 'dark')
+    root.classList.add(targetTheme)
   }, [theme])
 
   return <>{children}</>
