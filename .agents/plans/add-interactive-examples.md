@@ -13,6 +13,7 @@ So that **I can quickly implement my own provider without reading extensive docu
 ## Problem Statement
 
 Current INTEGRATIONS.md documentation explains the provider pattern conceptually, but lacks:
+
 - Working code examples developers can copy and run
 - Real-world provider implementations (Africa's Talking, AWS SES)
 - Step-by-step commented templates for custom providers
@@ -23,6 +24,7 @@ Developers learn best from working examples they can modify and test locally.
 ## Solution Statement
 
 Create `examples/` directory with:
+
 1. **Africa's Talking SMS provider** - Popular in East Africa (Kenya, Uganda, Tanzania)
 2. **AWS SES email provider** - Enterprise-grade email service
 3. **Custom provider template** - Heavily commented template for any provider
@@ -80,12 +82,13 @@ Create `examples/` directory with:
 ### Patterns to Follow
 
 **Provider Implementation Pattern:**
+
 ```typescript
 import type { SMSProvider, ProviderResult } from '../../contracts'
 
 export class MyProvider implements SMSProvider {
   readonly name = 'my-provider'
-  
+
   async send(to: string, message: string): Promise<ProviderResult> {
     // 1. Validate environment variables
     // 2. Make API call
@@ -96,25 +99,27 @@ export class MyProvider implements SMSProvider {
 ```
 
 **Error Handling Pattern:**
+
 ```typescript
 try {
   const response = await fetch(url, options)
   const data = await response.json()
-  
+
   if (data.success) {
     return { success: true, messageId: data.id }
   }
-  
+
   return { success: false, error: data.error }
 } catch (error) {
   return {
     success: false,
-    error: error instanceof Error ? error.message : 'Unknown error'
+    error: error instanceof Error ? error.message : 'Unknown error',
   }
 }
 ```
 
 **Test Pattern:**
+
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest'
 
@@ -122,7 +127,7 @@ describe('MyProvider', () => {
   beforeEach(() => {
     process.env.API_KEY = 'test-key'
   })
-  
+
   it('should send successfully', async () => {
     const provider = new MyProvider()
     const result = await provider.send('+1234567890', 'Test')
@@ -138,6 +143,7 @@ describe('MyProvider', () => {
 ### Phase 1: Directory Setup
 
 Create examples/ directory structure:
+
 - README.md with quick start guide
 - package.json with dependencies
 - tsconfig.json for TypeScript
@@ -146,6 +152,7 @@ Create examples/ directory structure:
 ### Phase 2: SMS Provider Example (Africa's Talking)
 
 Implement Africa's Talking SMS provider:
+
 - Full implementation with error handling
 - Comprehensive comments explaining each step
 - Test file with mock API responses
@@ -154,6 +161,7 @@ Implement Africa's Talking SMS provider:
 ### Phase 3: Email Provider Example (AWS SES)
 
 Implement AWS SES email provider:
+
 - AWS SDK v3 integration
 - Comprehensive comments
 - Test file with mock SDK
@@ -162,6 +170,7 @@ Implement AWS SES email provider:
 ### Phase 4: Custom Provider Templates
 
 Create heavily commented templates:
+
 - SMS provider template with step-by-step comments
 - Email provider template with step-by-step comments
 - Explain each section (validation, API call, error handling)
@@ -169,6 +178,7 @@ Create heavily commented templates:
 ### Phase 5: Documentation
 
 Update examples/README.md:
+
 - Quick start instructions
 - How to test providers locally
 - How to integrate into main app
@@ -221,7 +231,7 @@ Update examples/README.md:
 ### Task 6: CREATE examples/sms/africas-talking.test.ts
 
 - **IMPLEMENT**: Test file for Africa's Talking provider
-- **TESTS**: 
+- **TESTS**:
   - Should send SMS successfully
   - Should handle missing API key
   - Should handle API errors
@@ -257,7 +267,7 @@ Update examples/README.md:
 ### Task 9: CREATE examples/templates/custom-sms-provider.ts
 
 - **IMPLEMENT**: Heavily commented SMS provider template
-- **COMMENTS**: 
+- **COMMENTS**:
   - Step 1: Import types (explain ProviderResult)
   - Step 2: Define class (explain readonly name)
   - Step 3: Validate environment (explain why)
@@ -299,6 +309,7 @@ Update examples/README.md:
 ### Unit Tests
 
 Each provider example includes test file:
+
 - Success case (valid credentials, successful API call)
 - Missing credentials case
 - API error case
@@ -426,6 +437,7 @@ bun dev
 ### Integration Strategy
 
 Examples are designed to be:
+
 1. **Testable** - Run locally without affecting main app
 2. **Copyable** - Easy to copy into main app
 3. **Modifiable** - Developers can adapt for their needs

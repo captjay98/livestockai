@@ -575,13 +575,20 @@ function SettingsPage() {
                   type="number"
                   min="1"
                   max="100"
-                  value={localSettings.lowStockThresholdPercent}
-                  onChange={(e) =>
+                  value={localSettings.lowStockThresholdPercent || ''}
+                  onChange={(e) => {
+                    const val = e.target.value
                     setLocalSettings((prev) => ({
                       ...prev,
-                      lowStockThresholdPercent: parseInt(e.target.value) || 10,
+                      lowStockThresholdPercent: val === '' ? 0 : parseInt(val),
                     }))
-                  }
+                  }}
+                  onBlur={(e) => {
+                    const val = parseInt(e.target.value)
+                    if (isNaN(val) || val < 1) {
+                      setLocalSettings((prev) => ({ ...prev, lowStockThresholdPercent: 10 }))
+                    }
+                  }}
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('notifications.lowStockDesc')}
@@ -597,13 +604,20 @@ function SettingsPage() {
                   type="number"
                   min="1"
                   max="100"
-                  value={localSettings.mortalityAlertPercent}
-                  onChange={(e) =>
+                  value={localSettings.mortalityAlertPercent || ''}
+                  onChange={(e) => {
+                    const val = e.target.value
                     setLocalSettings((prev) => ({
                       ...prev,
-                      mortalityAlertPercent: parseInt(e.target.value) || 5,
+                      mortalityAlertPercent: val === '' ? 0 : parseInt(val),
                     }))
-                  }
+                  }}
+                  onBlur={(e) => {
+                    const val = parseInt(e.target.value)
+                    if (isNaN(val) || val < 1) {
+                      setLocalSettings((prev) => ({ ...prev, mortalityAlertPercent: 5 }))
+                    }
+                  }}
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('notifications.mortalityPercentDesc')}
@@ -618,13 +632,20 @@ function SettingsPage() {
                   id="mortalityQty"
                   type="number"
                   min="1"
-                  value={localSettings.mortalityAlertQuantity}
-                  onChange={(e) =>
+                  value={localSettings.mortalityAlertQuantity || ''}
+                  onChange={(e) => {
+                    const val = e.target.value
                     setLocalSettings((prev) => ({
                       ...prev,
-                      mortalityAlertQuantity: parseInt(e.target.value) || 10,
+                      mortalityAlertQuantity: val === '' ? 0 : parseInt(val),
                     }))
-                  }
+                  }}
+                  onBlur={(e) => {
+                    const val = parseInt(e.target.value)
+                    if (isNaN(val) || val < 1) {
+                      setLocalSettings((prev) => ({ ...prev, mortalityAlertQuantity: 10 }))
+                    }
+                  }}
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('notifications.mortalityQtyDesc')}
@@ -1006,13 +1027,29 @@ function SettingsPage() {
                   id="paymentTerms"
                   type="number"
                   min="0"
-                  value={localSettings.defaultPaymentTermsDays}
-                  onChange={(e) =>
-                    setLocalSettings((prev) => ({
-                      ...prev,
-                      defaultPaymentTermsDays: parseInt(e.target.value) || 30,
-                    }))
-                  }
+                  value={localSettings.defaultPaymentTermsDays === 0 ? '0' : (localSettings.defaultPaymentTermsDays || '')}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    // Allow empty string while typing
+                    if (val === '') {
+                      setLocalSettings((prev) => ({
+                        ...prev,
+                        defaultPaymentTermsDays: NaN, // Use NaN to mark as "empty"
+                      }))
+                    } else {
+                      setLocalSettings((prev) => ({
+                        ...prev,
+                        defaultPaymentTermsDays: parseInt(val),
+                      }))
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const val = parseInt(e.target.value)
+                    if (isNaN(val)) {
+                      // Default to 30 if left empty
+                      setLocalSettings((prev) => ({ ...prev, defaultPaymentTermsDays: 30 }))
+                    }
+                  }}
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('business.paymentTermsDesc')}

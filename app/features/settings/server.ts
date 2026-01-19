@@ -22,6 +22,36 @@ export const userSettingsSchema = z.object({
   // Preferences
   /** Default farm ID to load on login */
   defaultFarmId: z.string().nullable().optional(),
+
+  // Regional - Currency
+  currencyCode: z.string().optional(),
+  currencySymbol: z.string().optional(),
+  currencyDecimals: z.number().int().min(0).max(4).optional(),
+  currencySymbolPosition: z.enum(['before', 'after']).optional(),
+  thousandSeparator: z.string().optional(),
+  decimalSeparator: z.string().optional(),
+
+  // Regional - Date/Time
+  dateFormat: z.enum(['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD']).optional(),
+  timeFormat: z.enum(['12h', '24h']).optional(),
+  firstDayOfWeek: z.number().int().min(0).max(6).optional(),
+
+  // Regional - Units
+  weightUnit: z.enum(['kg', 'lbs']).optional(),
+  areaUnit: z.enum(['sqm', 'sqft']).optional(),
+  temperatureUnit: z.enum(['celsius', 'fahrenheit']).optional(),
+
+  // Dashboard
+  dashboardCards: z
+    .object({
+      inventory: z.boolean(),
+      revenue: z.boolean(),
+      expenses: z.boolean(),
+      profit: z.boolean(),
+      mortality: z.boolean(),
+      feed: z.boolean(),
+    })
+    .optional(),
   /** User interface language code (ISO 639-1) */
   language: z.enum([
     'en',
@@ -61,10 +91,13 @@ export const userSettingsSchema = z.object({
   /** Enabled/disabled status for specific notification types */
   notifications: z
     .object({
+      // Core notifications - all optional for partial updates
+      // Default values used for new records, database schema enforces required
       lowStock: z.boolean().optional(),
       highMortality: z.boolean().optional(),
       invoiceDue: z.boolean().optional(),
       batchHarvest: z.boolean().optional(),
+      // Optional notifications
       vaccinationDue: z.boolean().optional(),
       medicationExpiry: z.boolean().optional(),
       waterQualityAlert: z.boolean().optional(),
@@ -144,18 +177,52 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
     const userId = session.user.id
 
     try {
-      // Upsert: insert if not exists, update if exists
+      // Fetch existing settings to merge nested objects properly
+      const existingSettings = await db
+        .selectFrom('user_settings')
+        .selectAll()
+        .where('userId', '=', userId)
+        .executeTakeFirst()
+
+      // Merge nested objects (notifications, dashboardCards) to avoid overwriting
+      // Start with defaults, then existing, then new data
+      const baseNotifications = {
+        ...DEFAULT_SETTINGS.notifications,
+        ...(existingSettings?.notifications || {}),
+        ...(data.notifications || {}),
+      }
+
+      const baseDashboardCards = {
+        ...DEFAULT_SETTINGS.dashboardCards,
+        ...(existingSettings?.dashboardCards || {}),
+        ...(data.dashboardCards || {}),
+      }
+
+      // Build the final merged data for database
+      const finalData = {
+        ...data,
+        // Only include notifications if provided in update
+        ...(data.notifications ? { notifications: baseNotifications } : {}),
+        ...(data.dashboardCards ? { dashboardCards: baseDashboardCards } : {}),
+      }
+
+      // Build insert values with ALL required fields from defaults
+      const insertValues = {
+        userId: userId,
+        ...DEFAULT_SETTINGS,
+        ...finalData,
+        // Ensure notifications has all required fields for new records
+        notifications: baseNotifications,
+        dashboardCards: baseDashboardCards,
+      }
+
+      // For update, we only send the fields that were changed
+      // We use type assertion since we've ensured the data is correctly merged
       await db
         .insertInto('user_settings')
-        .values({
-          userId: userId,
-          ...DEFAULT_SETTINGS,
-          ...data,
-        })
+        .values(insertValues as any)
         .onConflict((oc) =>
-          oc.column('userId').doUpdateSet({
-            ...data,
-          }),
+          oc.column('userId').doUpdateSet(finalData as any),
         )
         .execute()
 

@@ -13,6 +13,7 @@ So that **I can quickly understand complex relationships and data flows without 
 ## Problem Statement
 
 Current documentation is text-heavy and lacks visual representations of:
+
 - System architecture and component relationships
 - Request flow through the stack (Browser → Cloudflare → TanStack Start → Kysely → Neon)
 - Provider pattern architecture (contracts, registry, facade)
@@ -62,15 +63,20 @@ None - only modifying existing documentation files.
 ### Patterns to Follow
 
 **Mermaid Code Block Pattern:**
-```markdown
-```mermaid
+
+`````markdown
+````mermaid
 graph TD
     A[Start] --> B[Process]
     B --> C[End]
 \```
-```
+````
+`````
+
+````
 
 **Diagram Placement:**
+
 - Place diagrams immediately after section headings
 - Add brief description before diagram
 - Keep diagrams focused (one concept per diagram)
@@ -82,6 +88,7 @@ graph TD
 ### Phase 1: Architecture Diagrams
 
 Add visual diagrams to ARCHITECTURE.md:
+
 1. System architecture overview (component relationships)
 2. Request flow diagram (Browser → Cloudflare → TanStack Start → Kysely → Neon)
 3. Directory structure tree diagram
@@ -91,6 +98,7 @@ Add visual diagrams to ARCHITECTURE.md:
 ### Phase 2: Integration Diagrams
 
 Add visual diagrams to INTEGRATIONS.md:
+
 1. Provider pattern architecture (contracts, registry, facade)
 2. SMS sending sequence diagram
 3. Email sending sequence diagram
@@ -100,6 +108,7 @@ Add visual diagrams to INTEGRATIONS.md:
 ### Phase 3: Validation
 
 Test all diagrams:
+
 1. Verify Mermaid syntax in live editor
 2. Check GitHub rendering
 3. Ensure diagrams are readable and accurate
@@ -196,16 +205,19 @@ Test all diagrams:
 ### Manual Validation
 
 **Mermaid Syntax Validation:**
+
 1. Copy each diagram to [Mermaid Live Editor](https://mermaid.live/)
 2. Verify diagram renders without errors
 3. Check diagram is readable and accurate
 
 **GitHub Rendering:**
+
 1. Commit changes to branch
 2. View files on GitHub
 3. Verify diagrams render correctly
 
 **Accuracy Check:**
+
 1. Compare diagrams to actual codebase
 2. Verify component names match
 3. Ensure flows match actual execution
@@ -317,3 +329,4 @@ git push origin <branch-name>
 ### Confidence Score
 
 **9/10** - Straightforward documentation enhancement with clear patterns and validation steps. Only risk is ensuring diagrams accurately represent complex flows.
+````

@@ -13,6 +13,7 @@ So that **I can quickly understand function signatures, parameters, return types
 ## Problem Statement
 
 Current documentation lacks:
+
 - Searchable API reference for 24 server function modules
 - Documentation for hooks and utilities
 - Type definitions reference
@@ -25,6 +26,7 @@ Developers must read source code to understand APIs, which is time-consuming and
 ## Solution Statement
 
 Use TypeDoc to auto-generate API documentation from TypeScript code:
+
 1. Add comprehensive JSDoc comments to all public functions
 2. Configure TypeDoc to generate HTML documentation
 3. Organize documentation by module (batches, sales, feed, etc.)
@@ -78,15 +80,16 @@ Use TypeDoc to auto-generate API documentation from TypeScript code:
 ### Patterns to Follow
 
 **JSDoc Comment Pattern:**
-```typescript
+
+````typescript
 /**
  * Create a new batch for livestock tracking
- * 
+ *
  * @param userId - The ID of the user creating the batch
  * @param data - Batch creation data including farm, species, quantity
  * @returns Promise resolving to the created batch ID
  * @throws {Error} If user doesn't have access to the farm
- * 
+ *
  * @example
  * ```typescript
  * const batchId = await createBatch('user-123', {
@@ -105,9 +108,10 @@ export async function createBatch(
 ): Promise<string> {
   // Implementation
 }
-```
+````
 
 **Interface Documentation Pattern:**
+
 ```typescript
 /**
  * Data required to create a new batch
@@ -115,33 +119,34 @@ export async function createBatch(
 export interface CreateBatchData {
   /** The farm ID where the batch will be created */
   farmId: string
-  
+
   /** Type of livestock (poultry, fish, cattle, goats, sheep, bees) */
   livestockType: LivestockType
-  
+
   /** Specific species (e.g., broiler, catfish, angus) */
   species: string
-  
+
   /** Initial number of animals in the batch */
   initialQuantity: number
-  
+
   /** Date the batch was acquired */
   acquisitionDate: Date
-  
+
   /** Cost per animal unit in user's currency */
   costPerUnit: number
 }
 ```
 
 **Utility Function Pattern:**
-```typescript
+
+````typescript
 /**
  * Format a number as currency based on user settings
- * 
+ *
  * @param amount - The numeric amount to format
  * @param settings - User currency settings (symbol, decimals, separators)
  * @returns Formatted currency string (e.g., "$1,234.56" or "₦1,234.56")
- * 
+ *
  * @example
  * ```typescript
  * formatCurrency(1234.56, {
@@ -155,11 +160,11 @@ export interface CreateBatchData {
  */
 export function formatCurrency(
   amount: number,
-  settings: CurrencySettings
+  settings: CurrencySettings,
 ): string {
   // Implementation
 }
-```
+````
 
 ---
 
@@ -168,6 +173,7 @@ export function formatCurrency(
 ### Phase 1: Setup TypeDoc
 
 Install TypeDoc and configure:
+
 - Add typedoc dependency
 - Create typedoc.json configuration
 - Configure output directory (docs/api/)
@@ -176,6 +182,7 @@ Install TypeDoc and configure:
 ### Phase 2: Add JSDoc Comments
 
 Add comprehensive JSDoc comments to:
+
 - All server functions (24 modules)
 - All utility functions (currency, date, units)
 - All React hooks
@@ -184,6 +191,7 @@ Add comprehensive JSDoc comments to:
 ### Phase 3: Generate Documentation
 
 Generate initial documentation:
+
 - Run TypeDoc
 - Review output
 - Fix any issues
@@ -192,6 +200,7 @@ Generate initial documentation:
 ### Phase 4: Automation
 
 Automate documentation generation:
+
 - Add npm script
 - Create CI workflow
 - Add pre-commit hook (optional)
@@ -272,7 +281,7 @@ Automate documentation generation:
 
 - **IMPLEMENT**: Add JSDoc comments to all interfaces
 - **INTERFACES**: BatchTable, SaleTable, FeedTable, MortalityTable, etc.
-- **PATTERN**: Document each field with /** comment */
+- **PATTERN**: Document each field with /\*_ comment _/
 - **VALIDATE**: Check types in generated docs
 
 ### Task 11: CREATE scripts/generate-docs.ts
@@ -320,6 +329,7 @@ Automate documentation generation:
 ### Manual Validation
 
 **Documentation Quality:**
+
 1. Generate documentation: `bun run docs:generate`
 2. Open docs/api/index.html in browser
 3. Navigate to each module
@@ -327,11 +337,13 @@ Automate documentation generation:
 5. Check examples render correctly
 
 **Search Functionality:**
+
 1. Use search bar in generated docs
 2. Search for function names
 3. Verify results are accurate
 
 **Mobile Responsiveness:**
+
 1. Open docs on mobile device
 2. Verify navigation works
 3. Check readability
@@ -339,11 +351,13 @@ Automate documentation generation:
 ### Automated Validation
 
 **TypeScript Compilation:**
+
 ```bash
 bun run check
 ```
 
 **JSDoc Syntax:**
+
 ```bash
 bun run docs:generate
 # Check for warnings/errors
@@ -452,6 +466,7 @@ git push origin main
 ### Documentation Organization
 
 TypeDoc will organize by:
+
 1. **Modules** - Each feature (batches, sales, feed)
 2. **Functions** - Exported functions
 3. **Interfaces** - Type definitions
@@ -477,6 +492,7 @@ TypeDoc will organize by:
 ### Confidence Score
 
 **7/10** - Moderate complexity. Main risks:
+
 1. Time-consuming to add JSDoc to all functions
 2. Ensuring examples are accurate and helpful
 3. TypeDoc configuration may need tweaking

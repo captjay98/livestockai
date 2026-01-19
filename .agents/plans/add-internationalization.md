@@ -13,11 +13,13 @@ So that **I can manage my farm more effectively without language barriers**
 ## Problem Statement
 
 Current application only supports English, limiting adoption in:
+
 - **Francophone Africa**: Senegal, Côte d'Ivoire, Cameroon, DRC, Mali, Burkina Faso (26 countries, 120M+ French speakers)
 - **Lusophone Africa**: Angola, Mozambique, Guinea-Bissau, Cape Verde (5 countries, 30M+ Portuguese speakers)
 - **Swahili-speaking Africa**: Kenya, Tanzania, Uganda, DRC (4 countries, 100M+ Swahili speakers)
 
 Language barriers prevent farmers from:
+
 - Understanding UI labels and navigation
 - Reading error messages and alerts
 - Following documentation and guides
@@ -26,6 +28,7 @@ Language barriers prevent farmers from:
 ## Solution Statement
 
 Expand existing i18n infrastructure (i18next + react-i18next) with:
+
 1. **Complete French translations** - All UI text, documentation, error messages
 2. **Complete Portuguese translations** - All UI text, documentation, error messages
 3. **Complete Swahili translations** - All UI text, documentation, error messages
@@ -87,6 +90,7 @@ Expand existing i18n infrastructure (i18next + react-i18next) with:
 ### Patterns to Follow
 
 **Translation File Structure:**
+
 ```typescript
 export const fr = {
   common: {
@@ -98,7 +102,7 @@ export const fr = {
     expenses: 'Dépenses',
     reports: 'Rapports',
     settings: 'Paramètres',
-    
+
     // Actions
     add: 'Ajouter',
     edit: 'Modifier',
@@ -117,12 +121,13 @@ export const fr = {
 ```
 
 **Using Translations in Components:**
+
 ```typescript
 import { useTranslation } from 'react-i18next'
 
 function MyComponent() {
   const { t } = useTranslation()
-  
+
   return (
     <div>
       <h1>{t('common.dashboard')}</h1>
@@ -133,6 +138,7 @@ function MyComponent() {
 ```
 
 **Pluralization Pattern:**
+
 ```typescript
 // Translation
 {
@@ -152,6 +158,7 @@ t('items', { count: 5 })  // "5 éléments"
 ### Phase 1: Translation Infrastructure
 
 Expand i18n configuration:
+
 - Add French, Portuguese, Swahili to resources
 - Organize translations by namespace
 - Add pluralization rules
@@ -160,6 +167,7 @@ Expand i18n configuration:
 ### Phase 2: French Translations
 
 Complete French translations:
+
 - All UI text (navigation, buttons, labels)
 - All error messages
 - All validation messages
@@ -169,6 +177,7 @@ Complete French translations:
 ### Phase 3: Portuguese Translations
 
 Complete Portuguese translations:
+
 - Same scope as French
 - Focus on Brazilian Portuguese (more widely understood)
 - Documentation translations
@@ -176,12 +185,14 @@ Complete Portuguese translations:
 ### Phase 4: Swahili Translations
 
 Complete Swahili translations:
+
 - Same scope as French/Portuguese
 - Documentation translations
 
 ### Phase 5: UI Integration
 
 Update all components to use translations:
+
 - Replace hardcoded strings with t() calls
 - Add language switcher component
 - Update navigation
@@ -190,6 +201,7 @@ Update all components to use translations:
 ### Phase 6: Validation & Testing
 
 Validate translations:
+
 - Check for missing keys
 - Test language switching
 - Verify pluralization
@@ -258,7 +270,7 @@ Validate translations:
 - **KEYS**: batches.create, batches.species, batches.quantity, etc.
 - **VALIDATE**: Test dialog in all languages
 
-### Task 9: UPDATE app/routes/_auth/settings/index.tsx
+### Task 9: UPDATE app/routes/\_auth/settings/index.tsx
 
 - **IMPLEMENT**: Add language switcher to settings page
 - **LOCATION**: Regional tab (with currency, date, units)
@@ -335,11 +347,13 @@ Validate translations:
 ### Translation Validation
 
 **Automated Checks:**
+
 ```bash
 bun run scripts/validate-translations.ts
 ```
 
 **Manual Review:**
+
 1. Switch to each language in UI
 2. Navigate through all pages
 3. Check all dialogs and forms
@@ -349,16 +363,19 @@ bun run scripts/validate-translations.ts
 ### Native Speaker Review
 
 **French:**
+
 - Review by native French speaker from West/Central Africa
 - Check for regional variations
 - Verify technical terms
 
 **Portuguese:**
+
 - Review by native Portuguese speaker from Angola/Mozambique
 - Check for regional variations
 - Verify technical terms
 
 **Swahili:**
+
 - Review by native Swahili speaker from East Africa
 - Check for regional variations
 - Verify technical terms
@@ -460,12 +477,15 @@ bun dev
 ### Language Selection Rationale
 
 **French** - 26 African countries, 120M+ speakers
+
 - Senegal, Côte d'Ivoire, Cameroon, DRC, Mali, Burkina Faso, Niger, Chad, Guinea, Benin, Togo, Rwanda, Burundi, etc.
 
 **Portuguese** - 5 African countries, 30M+ speakers
+
 - Angola, Mozambique, Guinea-Bissau, Cape Verde, São Tomé and Príncipe
 
 **Swahili** - 4 African countries, 100M+ speakers
+
 - Kenya, Tanzania, Uganda, DRC (eastern regions)
 - Lingua franca of East Africa
 
@@ -507,6 +527,7 @@ bun dev
 ### Confidence Score
 
 **6/10** - High complexity due to:
+
 1. Requires native speakers for accurate translations
 2. Large volume of text to translate (~500 keys × 3 languages)
 3. Cultural adaptation needed
