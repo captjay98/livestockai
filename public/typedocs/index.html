@@ -1,0 +1,1405 @@
+<!doctype html>
+<html class="default" lang="en" data-base="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <title>OpenLivestock API Reference</title>
+    <meta
+      name="description"
+      content="Documentation for OpenLivestock API Reference"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/style.css" />
+    <link rel="stylesheet" href="assets/highlight.css" />
+    <script defer src="assets/main.js"></script>
+    <script async src="assets/icons.js" id="tsd-icons-script"></script>
+    <script async src="assets/search.js" id="tsd-search-script"></script>
+    <script async src="assets/navigation.js" id="tsd-nav-script"></script>
+    <script async src="assets/hierarchy.js" id="tsd-hierarchy-script"></script>
+    <link rel="stylesheet" href="assets/rhineai-style.css" />
+  </head>
+  <body>
+    <script>
+      document.documentElement.dataset.theme =
+        localStorage.getItem('tsd-theme') || 'os'
+      document.body.style.display = 'none'
+      setTimeout(
+        () =>
+          window.app
+            ? app.showPage()
+            : document.body.style.removeProperty('display'),
+        500,
+      )
+    </script>
+    <header class="tsd-page-toolbar">
+      <div class="tsd-toolbar-contents container">
+        <a href="index.html" class="title">OpenLivestock API Reference</a>
+        <div id="tsd-toolbar-links"></div>
+        <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <use href="assets/icons.svg#icon-search"></use>
+          </svg>
+        </button>
+        <dialog id="tsd-search" aria-label="Search">
+          <input
+            role="combobox"
+            id="tsd-search-input"
+            aria-controls="tsd-search-results"
+            aria-autocomplete="list"
+            aria-expanded="true"
+            autocapitalize="off"
+            autocomplete="off"
+            placeholder="Search the docs"
+            maxlength="100"
+          />
+          <ul role="listbox" id="tsd-search-results"></ul>
+          <div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+            <div>Preparing search index...</div>
+          </div>
+        </dialog>
+        <a
+          href="#"
+          class="tsd-widget menu"
+          id="tsd-toolbar-menu-trigger"
+          data-toggle="menu"
+          aria-label="Menu"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <use href="assets/icons.svg#icon-menu"></use></svg
+        ></a>
+      </div>
+    </header>
+    <div class="container container-main">
+      <div class="col-content">
+        <div class="tsd-page-title"><h1>OpenLivestock API Reference</h1></div>
+        <div class="tsd-panel tsd-typography">
+          <h1 id="openlivestock-manager" class="tsd-anchor-link">
+            OpenLivestock Manager<a
+              href="#openlivestock-manager"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h1>
+          <p align="center">
+            <img
+              src="public/logo-icon.png"
+              alt="OpenLivestock Logo"
+              width="120"
+            />
+          </p>
+          <p align="center">
+            <strong
+              >Open-source, offline-first livestock management supporting 6
+              livestock types.</strong
+            >
+          </p>
+          <p align="center">
+            <a href="#features">Features</a> •
+            <a href="#quick-start">Quick Start</a> •
+            <a href="#deployment">Deployment</a> •
+            <a href="#for-ai-agents">For AI Agents</a> •
+            <a href="#contributing">Contributing</a>
+          </p>
+          <p align="center">
+            🌍 <strong>Languages:</strong>
+            <a href="media/README.fr.md">Français</a> •
+            <a href="media/README.pt.md">Português</a> •
+            <a href="media/README.sw.md">Kiswahili</a> •
+            <a href="media/README.es.md">Español</a> •
+            <a href="media/README.tr.md">Türkçe</a> •
+            <a href="media/README.hi.md">हिन्दी</a>
+          </p>
+          <hr />
+          <h2 id="features" class="tsd-anchor-link">
+            Features<a
+              href="#features"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <h3
+            id="🐔-multi-species-livestock-management"
+            class="tsd-anchor-link"
+          >
+            🐔 Multi-Species Livestock Management<a
+              href="#🐔-multi-species-livestock-management"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li>
+              <strong>Modular species support</strong> — Poultry (broilers,
+              layers, turkey, duck), Aquaculture (catfish, tilapia), with
+              extensible architecture for Cattle, Goats, Sheep, and Bees
+            </li>
+            <li>
+              <strong>Batch lifecycle tracking</strong> — From acquisition to
+              sale with status management (active, depleted, sold)
+            </li>
+            <li>
+              <strong>Species-specific metrics</strong> — Feed types, growth
+              standards, and structure types per species
+            </li>
+            <li>
+              <strong>Multi-farm support</strong> — Manage multiple farms from a
+              single account with farm-level filtering
+            </li>
+          </ul>
+          <h3
+            id="📊-predictive-analytics-health-monitoring"
+            class="tsd-anchor-link"
+          >
+            📊 Predictive Analytics &amp; Health Monitoring<a
+              href="#📊-predictive-analytics-health-monitoring"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li>
+              <strong>Growth forecasting</strong> — Predict harvest dates and
+              target weights using species-specific growth curves
+            </li>
+            <li>
+              <strong>Revenue projections</strong> — Estimate profit based on
+              current weight samples and market prices
+            </li>
+            <li>
+              <strong>Weight sampling</strong> — Track average, min, max weights
+              with sample sizes
+            </li>
+            <li>
+              <strong>Mortality alerts</strong> — Automatic warnings when
+              batches exceed normal mortality thresholds
+            </li>
+            <li>
+              <strong>Mortality tracking</strong> — Record deaths by cause
+              (disease, predator, weather, unknown) with rate analysis
+            </li>
+            <li>
+              <strong>Vaccination schedules</strong> — Track vaccinations with
+              due date reminders
+            </li>
+            <li>
+              <strong>Water quality</strong> (Aquaculture) — Monitor pH,
+              temperature, dissolved oxygen, ammonia levels
+            </li>
+          </ul>
+          <h3 id="💰-financial-management" class="tsd-anchor-link">
+            💰 Financial Management<a
+              href="#💰-financial-management"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li>
+              <strong>Sales tracking</strong> — Record sales by quantity,
+              weight, or unit with customer linking
+            </li>
+            <li>
+              <strong>Expense management</strong> — Categorized expenses (feed,
+              medicine, equipment, labor, utilities, etc.)
+            </li>
+            <li>
+              <strong>Invoicing</strong> — Generate customer invoices with line
+              items and payment status tracking
+            </li>
+            <li>
+              <strong>Profit/Loss reports</strong> — Period-based P&amp;L
+              analysis with revenue and expense breakdowns
+            </li>
+            <li>
+              <strong>20+ currency presets</strong> — International support
+              (USD, EUR, GBP, NGN, KES, ZAR, INR, etc.)
+            </li>
+          </ul>
+          <h3 id="📦-inventory-feed" class="tsd-anchor-link">
+            📦 Inventory &amp; Feed<a
+              href="#📦-inventory-feed"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li>
+              <strong>Feed inventory</strong> — Track stock levels with
+              low-threshold alerts
+            </li>
+            <li>
+              <strong>Medication inventory</strong> — Monitor quantities with
+              expiry date tracking
+            </li>
+            <li>
+              <strong>Feed consumption</strong> — Log daily feeding by batch
+              with cost tracking
+            </li>
+            <li>
+              <strong>Feed conversion analysis</strong> — Calculate efficiency
+              ratios
+            </li>
+          </ul>
+          <h3 id="👥-crm-contacts" class="tsd-anchor-link">
+            👥 CRM &amp; Contacts<a
+              href="#👥-crm-contacts"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li>
+              <strong>Customer management</strong> — Track buyers with contact
+              info and purchase history
+            </li>
+            <li>
+              <strong>Supplier management</strong> — Manage hatcheries, feed
+              mills, pharmacies, equipment suppliers
+            </li>
+            <li>
+              <strong>Customer types</strong> — Individual, restaurant,
+              retailer, wholesaler classification
+            </li>
+          </ul>
+          <h3 id="📱-progressive-web-app-pwa" class="tsd-anchor-link">
+            📱 Progressive Web App (PWA)<a
+              href="#📱-progressive-web-app-pwa"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li>
+              <strong>Offline-first</strong> — Full functionality without
+              internet; syncs when reconnected
+            </li>
+            <li>
+              <strong>Installable</strong> — Add to home screen on mobile and
+              desktop
+            </li>
+            <li>
+              <strong>Auto-updates</strong> — Service worker handles app updates
+              seamlessly
+            </li>
+          </ul>
+          <h3 id="🌍-internationalization" class="tsd-anchor-link">
+            🌍 Internationalization<a
+              href="#🌍-internationalization"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li>
+              <strong>Configurable currency</strong> — Symbol, decimals,
+              position, separators
+            </li>
+            <li>
+              <strong>Date formats</strong> — MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD
+            </li>
+            <li>
+              <strong>Units</strong> — Weight (kg/lbs), area (sqm/sqft),
+              temperature (°C/°F)
+            </li>
+            <li><strong>Time formats</strong> — 12-hour or 24-hour clock</li>
+          </ul>
+          <h3 id="📋-reporting-audit" class="tsd-anchor-link">
+            📋 Reporting &amp; Audit<a
+              href="#📋-reporting-audit"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li>
+              <strong>5 report types</strong> — Profit/Loss, Inventory, Sales,
+              Feed, Eggs
+            </li>
+            <li>
+              <strong>Date range filtering</strong> — Custom period analysis
+            </li>
+            <li>
+              <strong>Export capability</strong> — Download reports for external
+              use
+            </li>
+            <li>
+              <strong>Audit logs</strong> — Complete activity history with user,
+              action, entity tracking
+            </li>
+          </ul>
+          <h3 id="🔐-security-auth" class="tsd-anchor-link">
+            🔐 Security &amp; Auth<a
+              href="#🔐-security-auth"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li>
+              <strong>Better Auth</strong> — Secure session-based authentication
+            </li>
+            <li><strong>Role-based access</strong> — Admin and staff roles</li>
+            <li>
+              <strong>Protected routes</strong> — All farm data behind
+              authentication
+            </li>
+          </ul>
+          <hr />
+          <h2 id="screenshots" class="tsd-anchor-link">
+            Screenshots<a
+              href="#screenshots"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <!-- TODO: Add screenshots -->
+          <table>
+            <thead>
+              <tr>
+                <th>Dashboard</th>
+                <th>Batch Management</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><img src="screenshots/dashboard.png" alt="Dashboard" /></td>
+                <td><img src="screenshots/batches.png" alt="Batches" /></td>
+              </tr>
+              <tr>
+                <td>
+                  <em>Farm overview with KPIs, alerts, and quick actions</em>
+                </td>
+                <td>
+                  <em>Batch list with status, species, and mortality rates</em>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th>Batch Detail</th>
+                <th>Financial Reports</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <img src="screenshots/batch-detail.png" alt="Batch Detail" />
+                </td>
+                <td><img src="screenshots/reports.png" alt="Reports" /></td>
+              </tr>
+              <tr>
+                <td><em>Growth chart, projections, and batch timeline</em></td>
+                <td><em>Profit/Loss analysis with expense breakdown</em></td>
+              </tr>
+            </tbody>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th>Mobile View</th>
+                <th>Offline Mode</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><img src="screenshots/mobile.png" alt="Mobile" /></td>
+                <td><img src="screenshots/offline.png" alt="Offline" /></td>
+              </tr>
+              <tr>
+                <td><em>Responsive design for field use</em></td>
+                <td><em>Works without internet connection</em></td>
+              </tr>
+            </tbody>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th>Settings</th>
+                <th>Invoices</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><img src="screenshots/settings.png" alt="Settings" /></td>
+                <td><img src="screenshots/invoices.png" alt="Invoices" /></td>
+              </tr>
+              <tr>
+                <td><em>Currency, date, and unit preferences</em></td>
+                <td><em>Customer invoicing with payment tracking</em></td>
+              </tr>
+            </tbody>
+          </table>
+          <h2 id="tech-stack" class="tsd-anchor-link">
+            Tech Stack<a
+              href="#tech-stack"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Layer</th>
+                <th>Technology</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Framework</td>
+                <td>
+                  <a href="https://tanstack.com/start">TanStack Start</a> (React
+                  19, SSR)
+                </td>
+              </tr>
+              <tr>
+                <td>Database</td>
+                <td>
+                  PostgreSQL via
+                  <a href="https://neon.tech">Neon</a> (serverless)
+                </td>
+              </tr>
+              <tr>
+                <td>ORM</td>
+                <td><a href="https://kysely.dev">Kysely</a> (type-safe SQL)</td>
+              </tr>
+              <tr>
+                <td>Styling</td>
+                <td><a href="https://tailwindcss.com">Tailwind CSS v4</a></td>
+              </tr>
+              <tr>
+                <td>State</td>
+                <td>
+                  <a href="https://tanstack.com/query">TanStack Query</a> +
+                  IndexedDB persistence
+                </td>
+              </tr>
+              <tr>
+                <td>Deployment</td>
+                <td>
+                  <a href="https://workers.cloudflare.com"
+                    >Cloudflare Workers</a
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <hr />
+          <h2 id="quick-start" class="tsd-anchor-link">
+            Quick Start<a
+              href="#quick-start"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <h3 id="prerequisites" class="tsd-anchor-link">
+            Prerequisites<a
+              href="#prerequisites"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ul>
+            <li><strong>Node.js 22+</strong> (or Bun 1.0+)</li>
+            <li>
+              <strong>Neon account</strong> — Free at
+              <a href="https://neon.tech">neon.tech</a> (database setup is
+              automated)
+            </li>
+          </ul>
+          <h3 id="1-clone-install" class="tsd-anchor-link">
+            1. Clone &amp; Install<a
+              href="#1-clone-install"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <pre><code class="bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-2">clone</span><span class="hl-1"> </span><span class="hl-2">https://github.com/yourusername/open-livestock-manager.git</span><br/><span class="hl-0">cd</span><span class="hl-1"> </span><span class="hl-2">open-livestock-manager</span><br/><span class="hl-0">bun</span><span class="hl-1"> </span><span class="hl-2">install</span>
+</code><button type="button">Copy</button></pre>
+
+          <h3 id="2-automated-setup" class="tsd-anchor-link">
+            2. Automated Setup<a
+              href="#2-automated-setup"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <pre><code class="bash"><span class="hl-0">kiro-cli</span><br/><span class="hl-0">@quickstart</span><span class="hl-1">  </span><span class="hl-3"># Interactive setup wizard</span>
+</code><button type="button">Copy</button></pre>
+
+          <p>The quickstart wizard will:</p>
+          <ul>
+            <li>✅ Check your environment (Node, Bun)</li>
+            <li>✅ Create your database automatically via Neon MCP</li>
+            <li>✅ Configure environment variables</li>
+            <li>✅ Run migrations and seed demo data</li>
+            <li>✅ Start the development server</li>
+          </ul>
+          <h3 id="3-start-developing" class="tsd-anchor-link">
+            3. Start Developing<a
+              href="#3-start-developing"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <pre><code class="bash"><span class="hl-0">bun</span><span class="hl-1"> </span><span class="hl-2">dev</span><span class="hl-1">  </span><span class="hl-3"># If not started automatically</span>
+</code><button type="button">Copy</button></pre>
+
+          <p>Open <a href="http://localhost:3001">http://localhost:3001</a></p>
+          <h3 id="default-login-credentials" class="tsd-anchor-link">
+            Default Login Credentials<a
+              href="#default-login-credentials"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <p>
+            After running the seeder, you can log in with these default
+            accounts:
+          </p>
+          <h4 id="production-seeder-" class="tsd-anchor-link">
+            Production Seeder (<code>bun run db:seed</code>)<a
+              href="#production-seeder-"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Password</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Admin</td>
+                <td><code>admin@openlivestock.local</code></td>
+                <td><code>password123</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <h4 id="development-seeder-" class="tsd-anchor-link">
+            Development Seeder (<code>bun run db:seed:dev</code>)<a
+              href="#development-seeder-"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Password</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Admin</td>
+                <td><code>admin@openlivestock.local</code></td>
+                <td><code>password123</code></td>
+              </tr>
+              <tr>
+                <td>Demo</td>
+                <td><code>demo@openlivestock.local</code></td>
+                <td><code>demo123</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>⚠️ Security Note</strong>: Change these default passwords
+            immediately in production environments. You can set custom
+            credentials via environment variables:
+          </p>
+          <pre><code class="env">ADMIN_EMAIL=your-admin@example.com
+ADMIN_PASSWORD=your-secure-password
+ADMIN_NAME=Your Name
+</code><button type="button">Copy</button></pre>
+
+          <h3 id="manual-setup-alternative" class="tsd-anchor-link">
+            Manual Setup (Alternative)<a
+              href="#manual-setup-alternative"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <p>If you prefer manual setup or don't have Kiro CLI:</p>
+          <details>
+            <summary>Click to expand manual setup instructions</summary>
+            <h4 id="configure-environment" class="tsd-anchor-link">
+              Configure Environment<a
+                href="#configure-environment"
+                aria-label="Permalink"
+                class="tsd-anchor-icon"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="assets/icons.svg#icon-anchor"></use></svg
+              ></a>
+            </h4>
+            <pre><code class="bash"><span class="hl-0">cp</span><span class="hl-1"> </span><span class="hl-2">.env.example</span><span class="hl-1"> </span><span class="hl-2">.env</span>
+</code><button type="button">Copy</button></pre>
+
+            <p>Edit <code>.env</code> with your values:</p>
+            <pre><code class="env"># Database - Get a free Neon database at https://neon.tech
+DATABASE_URL=postgresql://user:password@your-neon-host/dbname?sslmode=require
+
+# Auth - Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET=your-secret-key-at-least-32-chars
+BETTER_AUTH_URL=http://localhost:3001
+</code><button type="button">Copy</button></pre>
+
+            <h4 id="initialize-database" class="tsd-anchor-link">
+              Initialize Database<a
+                href="#initialize-database"
+                aria-label="Permalink"
+                class="tsd-anchor-icon"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="assets/icons.svg#icon-anchor"></use></svg
+              ></a>
+            </h4>
+            <pre><code class="bash"><span class="hl-0">bun</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">db:migrate</span><span class="hl-1">   </span><span class="hl-3"># Run migrations</span><br/><span class="hl-0">bun</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">db:seed</span><span class="hl-1">      </span><span class="hl-3"># Seed production data (admin user + reference data)</span>
+</code><button type="button">Copy</button></pre>
+
+            <p>For development with demo data:</p>
+            <pre><code class="bash"><span class="hl-0">bun</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">db:seed:dev</span><span class="hl-1">  </span><span class="hl-3"># Seed full demo data</span>
+</code><button type="button">Copy</button></pre>
+          </details>
+          <hr />
+          <h2 id="deployment" class="tsd-anchor-link">
+            Deployment<a
+              href="#deployment"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <h3 id="cloudflare-workers-recommended" class="tsd-anchor-link">
+            Cloudflare Workers (Recommended)<a
+              href="#cloudflare-workers-recommended"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <ol>
+            <li>
+              <p>Install Wrangler CLI:</p>
+              <pre><code class="bash"><span class="hl-0">bun</span><span class="hl-1"> </span><span class="hl-2">add</span><span class="hl-1"> </span><span class="hl-4">-g</span><span class="hl-1"> </span><span class="hl-2">wrangler</span><br/><span class="hl-0">wrangler</span><span class="hl-1"> </span><span class="hl-2">login</span>
+</code><button type="button">Copy</button></pre>
+            </li>
+            <li>
+              <p>Set your secrets:</p>
+              <pre><code class="bash"><span class="hl-0">wrangler</span><span class="hl-1"> </span><span class="hl-2">secret</span><span class="hl-1"> </span><span class="hl-2">put</span><span class="hl-1"> </span><span class="hl-2">DATABASE_URL</span><br/><span class="hl-0">wrangler</span><span class="hl-1"> </span><span class="hl-2">secret</span><span class="hl-1"> </span><span class="hl-2">put</span><span class="hl-1"> </span><span class="hl-2">BETTER_AUTH_SECRET</span><br/><span class="hl-0">wrangler</span><span class="hl-1"> </span><span class="hl-2">secret</span><span class="hl-1"> </span><span class="hl-2">put</span><span class="hl-1"> </span><span class="hl-2">BETTER_AUTH_URL</span>
+</code><button type="button">Copy</button></pre>
+            </li>
+            <li>
+              <p>Deploy:</p>
+              <pre><code class="bash"><span class="hl-0">bun</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">deploy</span>
+</code><button type="button">Copy</button></pre>
+            </li>
+          </ol>
+          <h3 id="other-platforms" class="tsd-anchor-link">
+            Other Platforms<a
+              href="#other-platforms"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <p>The app can be deployed to any platform supporting Node.js:</p>
+          <ul>
+            <li>Vercel</li>
+            <li>Railway</li>
+            <li>Render</li>
+            <li>Self-hosted with Docker</li>
+          </ul>
+          <hr />
+          <h2 id="documentation" class="tsd-anchor-link">
+            Documentation<a
+              href="#documentation"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <p>Comprehensive guides for users, developers, and AI agents:</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Description</th>
+                <th>Audience</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong><a href="media/INDEX.md">docs/INDEX.md</a></strong>
+                </td>
+                <td><strong>Documentation hub</strong></td>
+                <td>Everyone</td>
+              </tr>
+              <tr>
+                <td><a href="media/AGENTS.md">AGENTS.md</a></td>
+                <td>AI agent development guide</td>
+                <td>AI assistants</td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="media/ARCHITECTURE.md">docs/ARCHITECTURE.md</a>
+                </td>
+                <td>System architecture</td>
+                <td>Developers</td>
+              </tr>
+              <tr>
+                <td><a href="media/DEPLOYMENT.md">docs/DEPLOYMENT.md</a></td>
+                <td>Production deployment</td>
+                <td>DevOps</td>
+              </tr>
+              <tr>
+                <td><a href="media/TESTING.md">docs/TESTING.md</a></td>
+                <td>Testing strategies</td>
+                <td>Developers</td>
+              </tr>
+              <tr>
+                <td><a href="media/DATABASE.md">docs/DATABASE.md</a></td>
+                <td>Database schema &amp; Kysely</td>
+                <td>Developers</td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="media/INTEGRATIONS.md">docs/INTEGRATIONS.md</a>
+                </td>
+                <td>SMS/Email providers</td>
+                <td>Developers</td>
+              </tr>
+              <tr>
+                <td><a href="media/DEVLOG.md">DEVLOG.md</a></td>
+                <td>Development timeline</td>
+                <td>Everyone</td>
+              </tr>
+              <tr>
+                <td><a href="media/CONTRIBUTING.md">CONTRIBUTING.md</a></td>
+                <td>Contribution guide</td>
+                <td>Contributors</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2 id="for-ai-agents" class="tsd-anchor-link">
+            For AI Agents<a
+              href="#for-ai-agents"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <p>
+            This project is designed to be AI-agent friendly. See these
+            resources:
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="media/AGENTS.md">AGENTS.md</a></td>
+                <td>Comprehensive guide for AI coding assistants</td>
+              </tr>
+              <tr>
+                <td><a href="media/DEVLOG.md">DEVLOG.md</a></td>
+                <td>Development timeline and decisions</td>
+              </tr>
+              <tr>
+                <td><a href="media/README.md">.kiro/README.md</a></td>
+                <td>Kiro CLI configuration guide</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3 id="kiro-cli-setup" class="tsd-anchor-link">
+            Kiro CLI Setup<a
+              href="#kiro-cli-setup"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <p>The project includes comprehensive Kiro CLI configuration:</p>
+          <p><strong>Quick Start:</strong></p>
+          <pre><code class="bash"><span class="hl-0">kiro-cli</span><br/><span class="hl-0">@quickstart</span><span class="hl-1">  </span><span class="hl-3"># Interactive setup wizard</span>
+</code><button type="button">Copy</button></pre>
+
+          <p><strong>Available Agents (7):</strong></p>
+          <pre><code class="bash"><span class="hl-0">kiro-cli</span><span class="hl-1"> </span><span class="hl-4">--agent</span><span class="hl-1"> </span><span class="hl-2">livestock-specialist</span><span class="hl-1">  </span><span class="hl-3"># Domain expertise</span><br/><span class="hl-0">kiro-cli</span><span class="hl-1"> </span><span class="hl-4">--agent</span><span class="hl-1"> </span><span class="hl-2">backend-engineer</span><span class="hl-1">      </span><span class="hl-3"># DB, API, Kysely</span><br/><span class="hl-0">kiro-cli</span><span class="hl-1"> </span><span class="hl-4">--agent</span><span class="hl-1"> </span><span class="hl-2">frontend-engineer</span><span class="hl-1">     </span><span class="hl-3"># React, UI, PWA</span><br/><span class="hl-0">kiro-cli</span><span class="hl-1"> </span><span class="hl-4">--agent</span><span class="hl-1"> </span><span class="hl-2">devops-engineer</span><span class="hl-1">       </span><span class="hl-3"># Cloudflare, deployment</span><br/><span class="hl-0">kiro-cli</span><span class="hl-1"> </span><span class="hl-4">--agent</span><span class="hl-1"> </span><span class="hl-2">data-analyst</span><span class="hl-1">          </span><span class="hl-3"># Analytics, forecasting</span><br/><span class="hl-0">kiro-cli</span><span class="hl-1"> </span><span class="hl-4">--agent</span><span class="hl-1"> </span><span class="hl-2">qa-engineer</span><span class="hl-1">           </span><span class="hl-3"># Testing</span><br/><span class="hl-0">kiro-cli</span><span class="hl-1"> </span><span class="hl-4">--agent</span><span class="hl-1"> </span><span class="hl-2">security-engineer</span><span class="hl-1">     </span><span class="hl-3"># Auth, security</span>
+</code><button type="button">Copy</button></pre>
+
+          <p><strong>Key Prompts (25):</strong></p>
+          <pre><code class="bash"><span class="hl-0">@prime</span><span class="hl-1">              </span><span class="hl-3"># Load project context</span><br/><span class="hl-0">@plan-feature</span><span class="hl-1">       </span><span class="hl-3"># Plan new features</span><br/><span class="hl-0">@execute</span><span class="hl-1">            </span><span class="hl-3"># Implement from plans</span><br/><span class="hl-0">@code-review</span><span class="hl-1">        </span><span class="hl-3"># Review code quality</span><br/><span class="hl-0">@neon-setup</span><span class="hl-1">         </span><span class="hl-3"># Database setup</span><br/><span class="hl-0">@cloudflare-deploy</span><span class="hl-1">  </span><span class="hl-3"># Deploy to Workers</span><br/><span class="hl-0">@batch-analysis</span><span class="hl-1">     </span><span class="hl-3"># Livestock analytics</span><br/><span class="hl-0">@financial-report</span><span class="hl-1">   </span><span class="hl-3"># P&amp;L analysis</span>
+</code><button type="button">Copy</button></pre>
+
+          <p>
+            See <a href="media/README.md">.kiro/README.md</a> for full
+            documentation.
+          </p>
+          <h3 id="mcp-integration" class="tsd-anchor-link">
+            MCP Integration<a
+              href="#mcp-integration"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h3>
+          <p>
+            This project includes pre-configured MCP servers for database and
+            Cloudflare Workers management:
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Server</th>
+                <th>Purpose</th>
+                <th>Agent Access</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>neon</code></td>
+                <td>PostgreSQL database queries</td>
+                <td>
+                  backend-engineer, devops-engineer, data-analyst,
+                  livestock-specialist
+                </td>
+              </tr>
+              <tr>
+                <td><code>cloudflare-bindings</code></td>
+                <td>Workers management</td>
+                <td>devops-engineer</td>
+              </tr>
+              <tr>
+                <td><code>cloudflare-builds</code></td>
+                <td>Deployment status</td>
+                <td>devops-engineer</td>
+              </tr>
+              <tr>
+                <td><code>cloudflare-observability</code></td>
+                <td>Logs and debugging</td>
+                <td>devops-engineer</td>
+              </tr>
+              <tr>
+                <td><code>cloudflare-docs</code></td>
+                <td>Documentation search</td>
+                <td>devops-engineer</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            All MCP servers authenticate via OAuth (no API keys needed).
+            Enhanced agents can now:
+          </p>
+          <ul>
+            <li>Query database directly for analysis and development</li>
+            <li>Manage Cloudflare infrastructure programmatically</li>
+            <li>Access indexed knowledge bases across sessions</li>
+            <li>Create and manage todo lists for complex workflows</li>
+          </ul>
+          <p>See <a href="media/AGENTS.md">AGENTS.md</a> for details.</p>
+          <hr />
+          <h2 id="project-structure" class="tsd-anchor-link">
+            Project Structure<a
+              href="#project-structure"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <pre><code><span class="hl-1">├── </span><span class="hl-5">app</span><span class="hl-1">/</span><br/><span class="hl-1">│   ├── </span><span class="hl-5">components</span><span class="hl-1">/     # </span><span class="hl-5">Reusable</span><span class="hl-1"> </span><span class="hl-6">UI</span><span class="hl-1"> </span><span class="hl-5">components</span><br/><span class="hl-1">│   ├── </span><span class="hl-5">lib</span><span class="hl-1">/            # </span><span class="hl-5">Business</span><span class="hl-1"> </span><span class="hl-5">logic</span><span class="hl-1"> &amp; </span><span class="hl-5">utilities</span><br/><span class="hl-1">│   │   ├── </span><span class="hl-5">auth</span><span class="hl-1">/       # </span><span class="hl-0">Authentication</span><span class="hl-1"> (</span><span class="hl-5">Better</span><span class="hl-1"> </span><span class="hl-5">Auth</span><span class="hl-1">)</span><br/><span class="hl-1">│   │   ├── </span><span class="hl-5">batches</span><span class="hl-1">/    # </span><span class="hl-5">Batch</span><span class="hl-1"> </span><span class="hl-5">management</span><br/><span class="hl-1">│   │   ├── </span><span class="hl-5">db</span><span class="hl-1">/         # </span><span class="hl-0">Database</span><span class="hl-1"> (</span><span class="hl-5">Kysely</span><span class="hl-1"> + </span><span class="hl-5">migrations</span><span class="hl-1">)</span><br/><span class="hl-1">│   │   ├── </span><span class="hl-5">finance</span><span class="hl-1">/    # </span><span class="hl-5">Financial</span><span class="hl-1"> </span><span class="hl-5">calculations</span><br/><span class="hl-1">│   │   └── ...         # </span><span class="hl-5">Other</span><span class="hl-1"> </span><span class="hl-5">domain</span><span class="hl-1"> </span><span class="hl-5">modules</span><br/><span class="hl-1">│   └── </span><span class="hl-5">routes</span><span class="hl-1">/         # </span><span class="hl-5">TanStack</span><span class="hl-1"> </span><span class="hl-5">Router</span><span class="hl-1"> </span><span class="hl-5">pages</span><br/><span class="hl-1">├── </span><span class="hl-5">public</span><span class="hl-1">/             # </span><span class="hl-5">Static</span><span class="hl-1"> </span><span class="hl-5">assets</span><br/><span class="hl-1">├── .</span><span class="hl-5">kiro</span><span class="hl-1">/              # </span><span class="hl-6">AI</span><span class="hl-1"> </span><span class="hl-5">agent</span><span class="hl-1"> </span><span class="hl-5">configuration</span><br/><span class="hl-1">│   ├── </span><span class="hl-5">settings</span><span class="hl-1">/       # </span><span class="hl-6">MCP</span><span class="hl-1"> </span><span class="hl-5">configs</span><br/><span class="hl-1">│   ├── </span><span class="hl-5">steering</span><span class="hl-1">/       # </span><span class="hl-5">Coding</span><span class="hl-1"> </span><span class="hl-5">guidelines</span><br/><span class="hl-1">│   └── </span><span class="hl-5">specs</span><span class="hl-1">/          # </span><span class="hl-5">Feature</span><span class="hl-1"> </span><span class="hl-5">specifications</span><br/><span class="hl-1">└── ...</span>
+</code><button>Copy</button></pre>
+
+          <hr />
+          <h2 id="scripts" class="tsd-anchor-link">
+            Scripts<a
+              href="#scripts"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>bun dev</code></td>
+                <td>Start development server</td>
+              </tr>
+              <tr>
+                <td><code>bun build</code></td>
+                <td>Build for production</td>
+              </tr>
+              <tr>
+                <td><code>bun test</code></td>
+                <td>Run tests</td>
+              </tr>
+              <tr>
+                <td><code>bun run lint</code></td>
+                <td>Run ESLint</td>
+              </tr>
+              <tr>
+                <td><code>bun run check</code></td>
+                <td>Format + lint</td>
+              </tr>
+              <tr>
+                <td><code>bun run db:migrate</code></td>
+                <td>Run database migrations</td>
+              </tr>
+              <tr>
+                <td><code>bun run db:seed</code></td>
+                <td>Seed production data (admin + refs)</td>
+              </tr>
+              <tr>
+                <td><code>bun run db:seed:dev</code></td>
+                <td>Seed full demo data (farms, batches)</td>
+              </tr>
+              <tr>
+                <td><code>bun run db:rollback</code></td>
+                <td>Rollback last migration</td>
+              </tr>
+              <tr>
+                <td><code>bun run deploy</code></td>
+                <td>Build &amp; deploy to Cloudflare</td>
+              </tr>
+            </tbody>
+          </table>
+          <hr />
+          <h2 id="contributing" class="tsd-anchor-link">
+            Contributing<a
+              href="#contributing"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <p>
+            We welcome contributions! Please see
+            <a href="media/CONTRIBUTING.md">CONTRIBUTING.md</a> for:
+          </p>
+          <ul>
+            <li>Development workflow</li>
+            <li>Commit conventions</li>
+            <li>Pull request guidelines</li>
+          </ul>
+          <hr />
+          <h2 id="license" class="tsd-anchor-link">
+            License<a
+              href="#license"
+              aria-label="Permalink"
+              class="tsd-anchor-icon"
+              ><svg viewBox="0 0 24 24" aria-hidden="true">
+                <use href="assets/icons.svg#icon-anchor"></use></svg
+            ></a>
+          </h2>
+          <p>
+            MIT License — see <a href="media/LICENSE">LICENSE</a> for details.
+          </p>
+          <hr />
+          <p align="center">Made with ❤️ for farmers everywhere</p>
+        </div>
+      </div>
+      <div class="col-sidebar">
+        <div class="page-menu">
+          <div class="tsd-navigation settings">
+            <details class="tsd-accordion">
+              <summary class="tsd-accordion-summary">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <use href="assets/icons.svg#icon-chevronDown"></use>
+                </svg>
+                <h3>Settings</h3>
+              </summary>
+              <div class="tsd-accordion-details">
+                <div class="tsd-filter-visibility">
+                  <span class="settings-label">Member Visibility</span>
+                  <ul id="tsd-filter-options">
+                    <li class="tsd-filter-item">
+                      <label class="tsd-filter-input"
+                        ><input
+                          type="checkbox"
+                          id="tsd-filter-inherited"
+                          name="inherited"
+                          checked
+                        /><svg
+                          width="32"
+                          height="32"
+                          viewBox="0 0 32 32"
+                          aria-hidden="true"
+                        >
+                          <rect
+                            class="tsd-checkbox-background"
+                            width="30"
+                            height="30"
+                            x="1"
+                            y="1"
+                            rx="6"
+                            fill="none"
+                          ></rect>
+                          <path
+                            class="tsd-checkbox-checkmark"
+                            d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+                            stroke="none"
+                            stroke-width="3.5"
+                            stroke-linejoin="round"
+                            fill="none"
+                          ></path></svg
+                        ><span>Inherited</span></label
+                      >
+                    </li>
+                    <li class="tsd-filter-item">
+                      <label class="tsd-filter-input"
+                        ><input
+                          type="checkbox"
+                          id="tsd-filter-external"
+                          name="external"
+                        /><svg
+                          width="32"
+                          height="32"
+                          viewBox="0 0 32 32"
+                          aria-hidden="true"
+                        >
+                          <rect
+                            class="tsd-checkbox-background"
+                            width="30"
+                            height="30"
+                            x="1"
+                            y="1"
+                            rx="6"
+                            fill="none"
+                          ></rect>
+                          <path
+                            class="tsd-checkbox-checkmark"
+                            d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+                            stroke="none"
+                            stroke-width="3.5"
+                            stroke-linejoin="round"
+                            fill="none"
+                          ></path></svg
+                        ><span>External</span></label
+                      >
+                    </li>
+                  </ul>
+                </div>
+                <div class="tsd-theme-toggle">
+                  <label class="settings-label" for="tsd-theme">Theme</label
+                  ><select id="tsd-theme">
+                    <option value="os">OS</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                </div>
+              </div>
+            </details>
+          </div>
+          <details open class="tsd-accordion tsd-page-navigation">
+            <summary class="tsd-accordion-summary">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <use href="assets/icons.svg#icon-chevronDown"></use>
+              </svg>
+              <h3>On This Page</h3>
+            </summary>
+            <div class="tsd-accordion-details">
+              <a href="#openlivestock-manager"
+                ><span>Open<wbr />Livestock <wbr />Manager</span></a
+              >
+              <ul>
+                <li>
+                  <a href="#features"><span>Features</span></a>
+                </li>
+                <li>
+                  <ul>
+                    <li>
+                      <a href="#🐔-multi-species-livestock-management"
+                        ><span
+                          >🐔 <wbr />Multi-<wbr />Species <wbr />Livestock
+                          <wbr />Management</span
+                        ></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#📊-predictive-analytics-health-monitoring"
+                        ><span
+                          >📊 <wbr />Predictive <wbr />Analytics &amp;
+                          <wbr />Health <wbr />Monitoring</span
+                        ></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#💰-financial-management"
+                        ><span>💰 <wbr />Financial <wbr />Management</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#📦-inventory-feed"
+                        ><span>📦 <wbr />Inventory &amp; <wbr />Feed</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#👥-crm-contacts"
+                        ><span>👥 <wbr />CRM &amp; <wbr />Contacts</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#📱-progressive-web-app-pwa"
+                        ><span
+                          >📱 <wbr />Progressive <wbr />Web <wbr />App (<wbr />PWA)</span
+                        ></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#🌍-internationalization"
+                        ><span>🌍 <wbr />Internationalization</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#📋-reporting-audit"
+                        ><span>📋 <wbr />Reporting &amp; <wbr />Audit</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#🔐-security-auth"
+                        ><span>🔐 <wbr />Security &amp; <wbr />Auth</span></a
+                      >
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#screenshots"><span>Screenshots</span></a>
+                </li>
+                <li>
+                  <a href="#tech-stack"
+                    ><span>Tech <wbr />Stack</span></a
+                  >
+                </li>
+                <li>
+                  <a href="#quick-start"
+                    ><span>Quick <wbr />Start</span></a
+                  >
+                </li>
+                <li>
+                  <ul>
+                    <li>
+                      <a href="#prerequisites"><span>Prerequisites</span></a>
+                    </li>
+                    <li>
+                      <a href="#1-clone-install"
+                        ><span>1. <wbr />Clone &amp; <wbr />Install</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#2-automated-setup"
+                        ><span>2. <wbr />Automated <wbr />Setup</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#3-start-developing"
+                        ><span>3. <wbr />Start <wbr />Developing</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#default-login-credentials"
+                        ><span>Default <wbr />Login <wbr />Credentials</span></a
+                      >
+                    </li>
+                    <li>
+                      <ul>
+                        <li>
+                          <a href="#production-seeder-"
+                            ><span>Production <wbr />Seeder ()</span></a
+                          >
+                        </li>
+                        <li>
+                          <a href="#development-seeder-"
+                            ><span>Development <wbr />Seeder ()</span></a
+                          >
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      <a href="#manual-setup-alternative"
+                        ><span
+                          >Manual <wbr />Setup (<wbr />Alternative)</span
+                        ></a
+                      >
+                    </li>
+                    <li>
+                      <ul>
+                        <li>
+                          <a href="#configure-environment"
+                            ><span>Configure <wbr />Environment</span></a
+                          >
+                        </li>
+                        <li>
+                          <a href="#initialize-database"
+                            ><span>Initialize <wbr />Database</span></a
+                          >
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#deployment"><span>Deployment</span></a>
+                </li>
+                <li>
+                  <ul>
+                    <li>
+                      <a href="#cloudflare-workers-recommended"
+                        ><span
+                          >Cloudflare <wbr />Workers (<wbr />Recommended)</span
+                        ></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#other-platforms"
+                        ><span>Other <wbr />Platforms</span></a
+                      >
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#documentation"><span>Documentation</span></a>
+                </li>
+                <li>
+                  <a href="#for-ai-agents"
+                    ><span>For <wbr />AI <wbr />Agents</span></a
+                  >
+                </li>
+                <li>
+                  <ul>
+                    <li>
+                      <a href="#kiro-cli-setup"
+                        ><span>Kiro <wbr />CLI <wbr />Setup</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#mcp-integration"
+                        ><span>MCP <wbr />Integration</span></a
+                      >
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#project-structure"
+                    ><span>Project <wbr />Structure</span></a
+                  >
+                </li>
+                <li>
+                  <a href="#scripts"><span>Scripts</span></a>
+                </li>
+                <li>
+                  <a href="#contributing"><span>Contributing</span></a>
+                </li>
+                <li>
+                  <a href="#license"><span>License</span></a>
+                </li>
+              </ul>
+            </div>
+          </details>
+        </div>
+        <div class="site-menu">
+          <nav class="tsd-navigation">
+            <a href="modules.html">OpenLivestock API Reference</a>
+            <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+              <li>Loading...</li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+    <div class="overlay"></div>
+  </body>
+</html>

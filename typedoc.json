@@ -31,6 +31,7 @@
     "app/features/notifications/types.ts",
     "app/features/onboarding/types.ts",
     "app/features/integrations/types.ts",
+    "app/features/integrations/contracts.ts",
     "app/features/settings/currency-presets.ts",
     "app/features/settings/currency.ts",
     "app/features/settings/currency-formatter.ts",
@@ -42,7 +43,7 @@
     "examples/sms/*.ts",
     "examples/templates/*.ts"
   ],
-  "out": "public/docs",
+  "out": "public/typedocs",
   "cleanOutputDir": true,
   "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/node_modules/**"],
   "excludePrivate": true,
