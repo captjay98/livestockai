@@ -1076,6 +1076,21 @@ export const bn = {
       },
       logo: 'খামারের লোগো',
     },
+    register: {
+      title: 'অ্যাকাউন্ট তৈরি করুন',
+      description: 'কৃষির ভবিষ্যতে যোগ দিন',
+      name: 'পুরো নাম',
+      submitting: 'অ্যাকাউন্ট তৈরি হচ্ছে...',
+      submit: 'অ্যাকাউন্ট তৈরি করুন',
+      haveAccount: 'ইতিমধ্যে একটি অ্যাকাউন্ট আছে?',
+      placeholder: {
+        name: 'রহিম উদ্দিন',
+      },
+      errors: {
+        default: 'নিবন্ধন ব্যর্থ হয়েছে',
+        unexpected: 'একটি অপ্রত্যাশিত ত্রুটি ঘটেছে',
+      },
+    },
   },
   suppliers: {
     title: 'সরবরাহকারী',

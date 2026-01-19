@@ -1063,6 +1063,21 @@ export const fr = {
       },
       logo: 'Logo Ferme',
     },
+    register: {
+      title: 'Créer un compte',
+      description: "Rejoignez l'avenir de l'agriculture",
+      name: 'Nom complet',
+      submitting: 'Création du compte...',
+      submit: 'Créer un compte',
+      haveAccount: 'Vous avez déjà un compte ?',
+      placeholder: {
+        name: 'Jean Dupont',
+      },
+      errors: {
+        default: "Échec de l'inscription",
+        unexpected: 'Une erreur inattendue est survenue',
+      },
+    },
   },
   suppliers: {
     title: 'Fournisseurs',

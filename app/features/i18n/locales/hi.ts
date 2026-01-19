@@ -1049,6 +1049,21 @@ export const hi = {
       },
       logo: 'फार्म लोगो',
     },
+    register: {
+      title: 'खाता बनाएं',
+      description: 'कृषि के भविष्य में शामिल हों',
+      name: 'पूरा नाम',
+      submitting: 'खाता बनाया जा रहा है...',
+      submit: 'खाता बनाएं',
+      haveAccount: 'क्या आपके पास पहले से खाता है?',
+      placeholder: {
+        name: 'राहुल कुमार',
+      },
+      errors: {
+        default: 'पंजीकरण विफल रहा',
+        unexpected: 'एक अप्रत्याशित त्रुटि हुई',
+      },
+    },
   },
   suppliers: {
     title: 'आपूर्तिकर्ता',

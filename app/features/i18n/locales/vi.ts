@@ -1076,6 +1076,21 @@ export const vi = {
       },
       logo: 'Logo Trang trại',
     },
+    register: {
+      title: 'Tạo tài khoản',
+      description: 'Tham gia vào tương lai của nông nghiệp',
+      name: 'Họ và tên',
+      submitting: 'Đang tạo tài khoản...',
+      submit: 'Tạo tài khoản',
+      haveAccount: 'Đã có tài khoản?',
+      placeholder: {
+        name: 'Nguyễn Văn A',
+      },
+      errors: {
+        default: 'Đăng ký thất bại',
+        unexpected: 'Đã xảy ra lỗi không mong muốn',
+      },
+    },
   },
   suppliers: {
     title: 'Nhà Cung Cấp',

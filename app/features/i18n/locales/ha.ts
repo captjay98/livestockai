@@ -1177,6 +1177,21 @@ export const ha = {
       },
       logo: 'Alamar gona',
     },
+    register: {
+      title: 'Ƙirƙiri Asusun',
+      description: 'Shiga cikin makomar noma',
+      name: 'Cikakken Suna',
+      submitting: 'Ana ƙirƙirar asusun...',
+      submit: 'Ƙirƙiri Asusun',
+      haveAccount: 'Kuna da asusu?',
+      placeholder: {
+        name: 'Musa Ibrahim',
+      },
+      errors: {
+        default: 'Rijista ya kasa',
+        unexpected: 'Kuskure da ba a yi tsammani ba ya faru',
+      },
+    },
   },
   suppliers: {
     title: 'Masu Sayarwa',

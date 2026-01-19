@@ -1073,6 +1073,21 @@ export const th = {
       },
       logo: 'โลโก้ฟาร์ม',
     },
+    register: {
+      title: 'สร้างบัญชี',
+      description: 'ร่วมเป็นส่วนหนึ่งของอนาคตการเกษตร',
+      name: 'ชื่อ - นามสกุล',
+      submitting: 'กำลังสร้างบัญชี...',
+      submit: 'สร้างบัญชี',
+      haveAccount: 'มีบัญชีอยู่แล้ว?',
+      placeholder: {
+        name: 'สมชาย ใจดี',
+      },
+      errors: {
+        default: 'การลงทะเบียนล้มเหลว',
+        unexpected: 'เกิดข้อผิดพลาดที่ไม่คาดคิด',
+      },
+    },
   },
   suppliers: {
     title: 'ซัพพลายเออร์',

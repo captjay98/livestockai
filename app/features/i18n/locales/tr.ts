@@ -1053,6 +1053,21 @@ export const tr = {
       },
       logo: 'Çiftlik Logosu',
     },
+    register: {
+      title: 'Hesap Oluştur',
+      description: 'Tarımın geleceğine katılın',
+      name: 'Tam İsim',
+      submitting: 'Hesap oluşturuluyor...',
+      submit: 'Hesap Oluştur',
+      haveAccount: 'Zaten bir hesabınız var mı?',
+      placeholder: {
+        name: 'Ahmet Yılmaz',
+      },
+      errors: {
+        default: 'Kayıt başarısız',
+        unexpected: 'Beklenmeyen bir hata oluştu',
+      },
+    },
   },
   suppliers: {
     title: 'Tedarikçiler',

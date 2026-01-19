@@ -1051,6 +1051,21 @@ export const id = {
       },
       logo: 'Logo Peternakan',
     },
+    register: {
+      title: 'Buat Akun',
+      description: 'Bergabung dengan masa depan pertanian',
+      name: 'Nama Lengkap',
+      submitting: 'Membuat akun...',
+      submit: 'Buat Akun',
+      haveAccount: 'Sudah punya akun?',
+      placeholder: {
+        name: 'Budi Santoso',
+      },
+      errors: {
+        default: 'Registrasi gagal',
+        unexpected: 'Terjadi kesalahan yang tidak terduga',
+      },
+    },
   },
   suppliers: {
     title: 'Pemasok',

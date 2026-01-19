@@ -1049,6 +1049,21 @@ export const yo = {
       },
       logo: 'Logo Oko',
     },
+    register: {
+      title: 'Ṣẹda Akọọlẹ',
+      description: 'Darapọ mọ ojo iwaju ti iṣẹ-ogbin',
+      name: 'Orukọ Kikun',
+      submitting: 'Nṣẹda akọọlẹ...',
+      submit: 'Ṣẹda Akọọlẹ',
+      haveAccount: 'Ṣe o ti ni akọọlẹ tẹlẹ?',
+      placeholder: {
+        name: 'Ade Wale',
+      },
+      errors: {
+        default: 'Iforukọsilẹ kuna',
+        unexpected: 'Aṣiṣe airotẹlẹ kan waye',
+      },
+    },
   },
   suppliers: {
     title: 'Awọn Olupese',

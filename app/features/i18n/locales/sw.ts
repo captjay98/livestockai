@@ -1051,6 +1051,21 @@ export const sw = {
       },
       logo: 'Nembo ya Shamba',
     },
+    register: {
+      title: 'Unda Akaunti',
+      description: 'Jiunge na mustakabali wa kilimo',
+      name: 'Jina Kamili',
+      submitting: 'Inaunda akaunti...',
+      submit: 'Unda Akaunti',
+      haveAccount: 'Tayari unayo akaunti?',
+      placeholder: {
+        name: 'Juma Juma',
+      },
+      errors: {
+        default: 'Usajili umeshindwa',
+        unexpected: 'Hitilafu isiyotarajiwa imetokea',
+      },
+    },
   },
   suppliers: {
     title: 'Wauzaji',

@@ -1019,6 +1019,21 @@ export const en = {
       },
       logo: 'Farm Logo',
     },
+    register: {
+      title: 'Create Account',
+      description: 'Join the future of farming',
+      name: 'Full Name',
+      submitting: 'Creating account...',
+      submit: 'Create Account',
+      haveAccount: 'Already have an account?',
+      placeholder: {
+        name: 'John Doe',
+      },
+      errors: {
+        default: 'Registration failed',
+        unexpected: 'An unexpected error occurred',
+      },
+    },
   },
   suppliers: {
     title: 'Suppliers',

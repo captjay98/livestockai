@@ -1172,6 +1172,21 @@ export const ig = {
       },
       logo: 'Logo Ugbo',
     },
+    register: {
+      title: 'Mepụta Akaụntụ',
+      description: "Banye n'ọdịnihu nke ọrụ ugbo",
+      name: 'Aha zuru oke',
+      submitting: 'Na-emepụta akaụntụ...',
+      submit: 'Mepụta Akaụntụ',
+      haveAccount: 'I nwere akaụntụ ugbua?',
+      placeholder: {
+        name: 'Chinedu Okeke',
+      },
+      errors: {
+        default: 'Ndebanye aha kụrụ',
+        unexpected: 'Mmejọ a na-atụghị anya ya mere',
+      },
+    },
   },
   suppliers: {
     title: 'Ndị Na-eweta Ihe',

@@ -73,7 +73,9 @@ export function LanguageSwitcher({ showLabel = false }: LanguageSwitcherProps) {
           ) : (
             <>
               <Globe className="h-4 w-4 text-muted-foreground" />
-              {showLabel && <span className="text-sm font-medium">Language</span>}
+              {showLabel && (
+                <span className="text-sm font-medium">Language</span>
+              )}
             </>
           )}
           <span className="sr-only">Switch language</span>

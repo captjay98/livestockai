@@ -1053,6 +1053,22 @@ export const es = {
       },
       logo: 'Logo Granja',
     },
+    register: {
+      title: 'Crear Cuenta',
+      description: 'Únete al futuro de la agricultura',
+      name: 'Nombre Completo',
+      submitting: 'Creando cuenta...',
+      submit: 'Crear Cuenta',
+      haveAccount: '¿Ya tiene una cuenta?',
+      placeholder: {
+        name: 'Juan Pérez',
+      },
+      errors: {
+        default: 'Registro fallido',
+        unexpected: 'Ocurrió un error inesperado',
+      },
+    },
+
   },
   suppliers: {
     title: 'Proveedores',

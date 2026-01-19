@@ -1050,6 +1050,21 @@ export const pt = {
       },
       logo: 'Logo Fazenda',
     },
+    register: {
+      title: 'Criar Conta',
+      description: 'Junte-se ao futuro da agricultura',
+      name: 'Nome Completo',
+      submitting: 'Criando conta...',
+      submit: 'Criar Conta',
+      haveAccount: 'Já tem uma conta?',
+      placeholder: {
+        name: 'João Silva',
+      },
+      errors: {
+        default: 'Falha no registro',
+        unexpected: 'Ocorreu um erro inesperado',
+      },
+    },
   },
   suppliers: {
     title: 'Fornecedores',

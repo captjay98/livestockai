@@ -1064,6 +1064,21 @@ export const am = {
       },
       logo: 'የእርሻ አርማ',
     },
+    register: {
+      title: 'መለያ ይፍጠሩ',
+      description: 'የወደፊቱን እርሻ ተቀላቀሉ',
+      name: 'ሙሉ ስም',
+      submitting: 'መለያ በመፍጠር ላይ...',
+      submit: 'መለያ ይፍጠሩ',
+      haveAccount: 'መለያ አለዎት?',
+      placeholder: {
+        name: 'አለማየhu',
+      },
+      errors: {
+        default: 'መመዝገብ አልተሳካም',
+        unexpected: 'ያልተጠበቀ ስህተት ተፈጥሯል',
+      },
+    },
   },
   suppliers: {
     title: 'አቅራቢዎች',
