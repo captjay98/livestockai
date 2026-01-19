@@ -60,18 +60,21 @@ export function LanguageSwitcher({ showLabel = false }: LanguageSwitcherProps) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size={showLabel ? 'default' : 'icon'}
-          className={showLabel ? 'gap-2 px-3' : 'h-9 w-9 rounded-full'}
+          size={showLabel ? 'default' : 'sm'}
+          className="gap-2 px-3"
         >
           {currentLanguage ? (
-            <span className="text-base mr-1">{currentLanguage.flag}</span>
+            <>
+              <span className="text-base">{currentLanguage.flag}</span>
+              <span className="text-sm font-medium">
+                {currentLanguage.label}
+              </span>
+            </>
           ) : (
-            <Globe className="h-4 w-4 text-muted-foreground" />
-          )}
-          {showLabel && (
-            <span className="text-sm font-medium">
-              {currentLanguage?.label || 'Language'}
-            </span>
+            <>
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              {showLabel && <span className="text-sm font-medium">Language</span>}
+            </>
           )}
           <span className="sr-only">Switch language</span>
         </Button>
