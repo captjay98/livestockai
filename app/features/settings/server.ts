@@ -221,9 +221,7 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
       await db
         .insertInto('user_settings')
         .values(insertValues as any)
-        .onConflict((oc) =>
-          oc.column('userId').doUpdateSet(finalData as any),
-        )
+        .onConflict((oc) => oc.column('userId').doUpdateSet(finalData as any))
         .execute()
 
       return { success: true }

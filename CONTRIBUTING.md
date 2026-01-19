@@ -18,7 +18,17 @@ Thank you for your interest in contributing! We love pull requests from everyone
 
 We follow the **[Conventional Commits](https://www.conventionalcommits.org/)** specification. This helps us generate changelogs and version numbers automatically.
 
-**Format**: `<type>(<scope>): <description>`
+**Format**:
+```
+<type>(<scope>): <short description>
+
+<body with details>
+- Change 1
+- Change 2
+- Change 3
+
+<optional footer>
+```
 
 ### Allowed Types:
 
@@ -33,9 +43,28 @@ We follow the **[Conventional Commits](https://www.conventionalcommits.org/)** s
 
 ### Examples:
 
-- `feat(auth): implement google oauth login`
-- `fix(db): add missing index on batch_id`
-- `docs: update installation steps in readme`
+```
+feat(auth): implement google oauth login
+
+- Add Google OAuth provider to Better Auth config
+- Create OAuth callback route
+- Add "Sign in with Google" button to login page
+```
+
+```
+fix(db): add missing index on batch_id
+
+- Add composite index on (farmId, batchId) for feed_records
+- Improves query performance by ~40% on large farms
+```
+
+```
+docs: update installation steps in readme
+
+- Add Bun as alternative to npm
+- Update Node.js version requirement to 22+
+- Add troubleshooting section for common issues
+```
 
 ## 3. Pull Request Guidelines
 

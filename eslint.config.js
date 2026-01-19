@@ -8,7 +8,8 @@ export default [
     ignores: [
       'eslint.config.js',
       'prettier.config.js',
-      'public/docs/assets/**',
+      'public/docs/**',
+      'public/typedocs/**',
     ],
   },
 ]

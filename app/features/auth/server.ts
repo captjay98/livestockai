@@ -48,6 +48,33 @@ export const loginFn = createServerFn({ method: 'POST' })
  * @returns Promise resolving to the current user object
  * @throws {Error} If the user is not authenticated
  */
+const RegisterSchema = z.object({
+  name: z.string().min(2, 'validation.name'),
+  email: z.string().email('validation.email'),
+  password: z.string().min(8, 'validation.password'),
+})
+
+/**
+ * Server function for user registration.
+ */
+export const registerFn = createServerFn({ method: 'POST' })
+  .inputValidator(RegisterSchema)
+  .handler(async ({ data }) => {
+    const headers = getRequestHeaders()
+    try {
+      const { email, password, name } = data
+      const res = await auth.api.signUpEmail({
+        body: { email, password, name },
+        headers,
+      })
+      return { success: true, user: res.user }
+    } catch (e: unknown) {
+      console.error('Register Error:', e)
+      const message = e instanceof Error ? e.message : 'Registration failed'
+      return { success: false, error: message }
+    }
+  })
+
 export const checkAuthFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     try {

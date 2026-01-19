@@ -5,7 +5,7 @@ interface EmailTemplate {
 
 // Brand colors matching app theme
 const COLORS = {
-  primary: '#ff9940',
+  primary: '#059669',
   destructive: '#ff3333',
   success: '#059669',
   warning: '#f59e0b',
