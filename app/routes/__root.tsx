@@ -6,6 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { Toaster } from 'sonner'
 import type { QueryClient } from '@tanstack/react-query'
@@ -72,32 +73,25 @@ function RootComponent() {
   const queryClient = router.options.context.queryClient as QueryClient
   const persister = useMemo(() => createPersister(), [])
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- persister is undefined on server, truthy on client
-  if (!persister || !queryClient) {
-    // Fallback for SSR or if setup failed - no QueryClient available
-    // FarmProvider uses useQuery, so we can't render it here
-    return (
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          <meta charSet="UTF-8" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-          <title>OpenLivestock</title>
-          <HeadContent />
-        </head>
-        <body>
-          <SettingsProvider>
-            <ThemeProvider>
-              <Outlet />
-            </ThemeProvider>
-          </SettingsProvider>
-          <Scripts />
-        </body>
-      </html>
-    )
-  }
+  // Common content that should be identical on server and client
+  const content = (
+    <>
+      <SettingsProvider>
+        <FarmProvider>
+          <ThemeProvider>
+            <I18nProvider>
+              <NotificationsProvider>
+                <Outlet />
+                <PWAPrompt />
+                <OfflineIndicator />
+                <Toaster richColors position="top-right" />
+              </NotificationsProvider>
+            </I18nProvider>
+          </ThemeProvider>
+        </FarmProvider>
+      </SettingsProvider>
+    </>
+  )
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -107,34 +101,25 @@ function RootComponent() {
         <title>{import.meta.env.VITE_APP_NAME ?? 'OpenLivestock'}</title>
         <HeadContent />
       </head>
-      <body>
-        <PersistQueryClientProvider
-          client={queryClient}
-          persistOptions={{ persister }}
-          onSuccess={() => {
-            // Optional: Resume paused mutations
-            queryClient.resumePausedMutations().then(() => {
-              queryClient.invalidateQueries()
-            })
-          }}
-        >
-          <SettingsProvider>
-            <FarmProvider>
-              <ThemeProvider>
-                <I18nProvider>
-                  <NotificationsProvider>
-                    <Outlet />
-                    <PWAPrompt />
-                    <OfflineIndicator />
-                    <Toaster richColors position="top-right" />
-                  </NotificationsProvider>
-                </I18nProvider>
-              </ThemeProvider>
-            </FarmProvider>
-          </SettingsProvider>
-        </PersistQueryClientProvider>
+      <body suppressHydrationWarning>
+        {persister ? (
+          <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{ persister }}
+            onSuccess={() => {
+              queryClient.resumePausedMutations().then(() => {
+                queryClient.invalidateQueries()
+              })
+            }}
+          >
+            {content}
+          </PersistQueryClientProvider>
+        ) : (
+          <QueryClientProvider client={queryClient}>
+            {content}
+          </QueryClientProvider>
+        )}
         <Scripts />
-        {/* <TanStackRouterDevtools position="bottom-right" /> */}
       </body>
     </html>
   )

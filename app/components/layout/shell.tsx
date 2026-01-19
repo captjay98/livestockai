@@ -57,7 +57,7 @@ export function AppShell({
             <Menu className="h-6 w-6" />
           </Button>
           <Link to="/" className="flex items-center">
-            <Logo className="h-7" />
+            <Logo className="h-7" variant="full" />
           </Link>
         </div>
 

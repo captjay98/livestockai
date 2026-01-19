@@ -586,7 +586,10 @@ function SettingsPage() {
                   onBlur={(e) => {
                     const val = parseInt(e.target.value)
                     if (isNaN(val) || val < 1) {
-                      setLocalSettings((prev) => ({ ...prev, lowStockThresholdPercent: 10 }))
+                      setLocalSettings((prev) => ({
+                        ...prev,
+                        lowStockThresholdPercent: 10,
+                      }))
                     }
                   }}
                 />
@@ -615,7 +618,10 @@ function SettingsPage() {
                   onBlur={(e) => {
                     const val = parseInt(e.target.value)
                     if (isNaN(val) || val < 1) {
-                      setLocalSettings((prev) => ({ ...prev, mortalityAlertPercent: 5 }))
+                      setLocalSettings((prev) => ({
+                        ...prev,
+                        mortalityAlertPercent: 5,
+                      }))
                     }
                   }}
                 />
@@ -643,7 +649,10 @@ function SettingsPage() {
                   onBlur={(e) => {
                     const val = parseInt(e.target.value)
                     if (isNaN(val) || val < 1) {
-                      setLocalSettings((prev) => ({ ...prev, mortalityAlertQuantity: 10 }))
+                      setLocalSettings((prev) => ({
+                        ...prev,
+                        mortalityAlertQuantity: 10,
+                      }))
                     }
                   }}
                 />
@@ -1027,7 +1036,11 @@ function SettingsPage() {
                   id="paymentTerms"
                   type="number"
                   min="0"
-                  value={localSettings.defaultPaymentTermsDays === 0 ? '0' : (localSettings.defaultPaymentTermsDays || '')}
+                  value={
+                    localSettings.defaultPaymentTermsDays === 0
+                      ? '0'
+                      : localSettings.defaultPaymentTermsDays || ''
+                  }
                   onChange={(e) => {
                     const val = e.target.value
                     // Allow empty string while typing
@@ -1047,7 +1060,10 @@ function SettingsPage() {
                     const val = parseInt(e.target.value)
                     if (isNaN(val)) {
                       // Default to 30 if left empty
-                      setLocalSettings((prev) => ({ ...prev, defaultPaymentTermsDays: 30 }))
+                      setLocalSettings((prev) => ({
+                        ...prev,
+                        defaultPaymentTermsDays: 30,
+                      }))
                     }
                   }}
                 />

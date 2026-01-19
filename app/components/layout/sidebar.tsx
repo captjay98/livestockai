@@ -56,7 +56,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
             className="flex items-center gap-3 transition-transform hover:scale-[1.02]"
             onClick={onClose}
           >
-            <Logo className="h-8" />
+            <Logo className="h-8" variant="full" />
           </Link>
           {onClose && (
             <Button
