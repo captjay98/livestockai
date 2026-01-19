@@ -1,20 +1,12 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlertCircle } from 'lucide-react'
-import { LanguageSwitcher } from '~/components/ui/language-switcher'
-import { Logo } from '~/components/logo'
+import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
 import { loginFn } from '~/features/auth/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from '~/components/ui/card'
-import { Field, FieldContent } from '~/components/ui/field'
+import { AuthShell } from '~/features/auth/components/AuthShell'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -42,9 +34,6 @@ function LoginPage() {
       })
 
       if (!result.success) {
-        // Ideally we map error codes, but for now we fallback to the translated default or display the server error
-        // If the server error is "Login failed", we use the key.
-        // Map error codes or use the key if it looks like a translation key
         const errorKey = result.error || 'login.errors.default'
         const errorMessage = errorKey.includes('.') ? t(errorKey) : errorKey
 
@@ -54,7 +43,6 @@ function LoginPage() {
             : errorMessage,
         )
       } else {
-        // Redirect to dashboard
         await router.invalidate()
         window.location.href = '/dashboard'
       }
@@ -66,66 +54,104 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4 relative">
-      <div className="absolute top-4 right-4">
-        <LanguageSwitcher showLabel />
-      </div>
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Logo className="h-12" />
+    <AuthShell
+      title={t('login.title', 'Welcome Back')}
+      subtitle={t('login.description')}
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="flex items-center gap-3 p-4 text-sm font-medium border-l-2 bg-red-500/5 text-red-500 border-red-500 rounded-r-md">
+            <AlertCircle className="size-5 shrink-0" />
+            {error}
           </div>
-          <CardDescription>{t('login.description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-                <AlertCircle className="size-4" />
-                {error}
-              </div>
-            )}
+        )}
 
-            <Field>
-              <FieldContent>
-                <Label htmlFor="email">{t('login.email')}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('login.placeholder.email')}
-                  required
-                  disabled={isLoading}
-                />
-              </FieldContent>
-            </Field>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label
+              htmlFor="email"
+              className="text-xs font-mono uppercase tracking-wider opacity-70"
+              style={{ color: 'var(--text-landing-secondary)' }}
+            >
+              {t('login.email')}
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t('login.placeholder.email')}
+              required
+              disabled={isLoading}
+              className="h-12 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium"
+              style={{ color: 'var(--text-landing-primary)' }}
+            />
+          </div>
 
-            <Field>
-              <FieldContent>
-                <Label htmlFor="password">{t('login.password')}</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t('login.placeholder.password')}
-                  required
-                  disabled={isLoading}
-                />
-              </FieldContent>
-            </Field>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label
+                htmlFor="password"
+                className="text-xs font-mono uppercase tracking-wider opacity-70"
+                style={{ color: 'var(--text-landing-secondary)' }}
+              >
+                {t('login.password')}
+              </Label>
+              <Link
+                to="/forgot-password"
+                className="text-xs hover:text-emerald-500 transition-colors"
+                style={{ color: 'var(--text-landing-secondary)' }}
+              >
+                Forgot password?
+              </Link>
+            </div>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={t('login.placeholder.password')}
+              required
+              disabled={isLoading}
+              className="h-12 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium"
+              style={{ color: 'var(--text-landing-primary)' }}
+            />
+          </div>
+        </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? t('login.submitting') : t('login.submit')}
-            </Button>
+        <Button
+          type="submit"
+          className="w-full h-12 text-base font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />{' '}
+              {t('login.submitting')}
+            </>
+          ) : (
+            <>
+              {t('login.submit')}{' '}
+              <ArrowRight className="w-5 h-5 ml-2 opacity-80" />
+            </>
+          )}
+        </Button>
 
-            <p className="text-center text-sm text-muted-foreground">
-              {t('login.contactAdmin')}
-            </p>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+        <div className="text-center pt-2">
+          <p
+            className="text-sm"
+            style={{ color: 'var(--text-landing-secondary)' }}
+          >
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              className="font-bold text-emerald-500 hover:text-emerald-400 hover:underline underline-offset-4 transition-all"
+            >
+              Create an account
+            </Link>
+          </p>
+        </div>
+      </form>
+    </AuthShell>
   )
 }
