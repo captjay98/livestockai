@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useErrorMessage } from '~/hooks/useErrorMessage'
 import { createCustomerFn } from '~/features/customers/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -37,6 +38,7 @@ interface CustomerDialogProps {
 
 export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
   const { t } = useTranslation(['customers', 'common'])
+  const getErrorMessage = useErrorMessage()
   const router = useRouter()
   const [formData, setFormData] = useState({
     name: '',
@@ -80,13 +82,7 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
       })
       router.invalidate()
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('error.create', {
-              defaultValue: 'Failed to create customer',
-            }),
-      )
+      setError(getErrorMessage(err))
     } finally {
       setIsSubmitting(false)
     }
@@ -94,7 +90,7 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />

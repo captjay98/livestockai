@@ -74,6 +74,11 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
         setBatches(batchesData)
       } catch (err) {
         console.error('Failed to load batches:', err)
+        toast.error(
+          t('common:errors.operationFailed', {
+            defaultValue: 'Operation failed',
+          }),
+        )
       }
     }
   }

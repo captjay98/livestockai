@@ -26,28 +26,26 @@ function LoginPage() {
     setError('')
 
     try {
-      const result = await loginFn({
+      await loginFn({
         data: {
           email,
           password,
         },
       })
 
-      if (!result.success) {
-        const errorKey = result.error || 'login.errors.default'
-        const errorMessage = errorKey.includes('.') ? t(errorKey) : errorKey
+      await router.invalidate()
+      window.location.href = '/dashboard'
+    } catch (err: any) {
+      console.error('Login error:', err)
+      // Attempt to extract meaningful error message
+      const message = err.message || err.region || 'login.errors.default'
+      const errorMessage = message.includes('.') ? t(message) : message
 
-        setError(
-          result.error === 'Login failed'
-            ? t('login.errors.default')
-            : errorMessage,
-        )
-      } else {
-        await router.invalidate()
-        window.location.href = '/dashboard'
-      }
-    } catch (err) {
-      setError(t('login.errors.unexpected'))
+      setError(
+        message === 'Invalid email or password'
+          ? t('login.errors.invalid_credentials')
+          : errorMessage,
+      )
     } finally {
       setIsLoading(false)
     }
@@ -142,12 +140,12 @@ function LoginPage() {
             className="text-sm"
             style={{ color: 'var(--text-landing-secondary)' }}
           >
-            Don't have an account?{' '}
+            {t('login.noAccount')}{' '}
             <Link
               to="/register"
               className="font-bold text-emerald-500 hover:text-emerald-400 hover:underline underline-offset-4 transition-all"
             >
-              Create an account
+              {t('login.createAccount')}
             </Link>
           </p>
         </div>

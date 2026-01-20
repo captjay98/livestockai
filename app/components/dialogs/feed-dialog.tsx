@@ -105,6 +105,11 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
         setInventory(inventoryData)
       } catch (err) {
         console.error('Failed to load data:', err)
+        toast.error(
+          t('common:errors.operationFailed', {
+            defaultValue: 'Operation failed',
+          }),
+        )
       }
     }
   }
@@ -247,19 +252,9 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
                       value={type.value}
                       disabled={qty <= 0}
                     >
-                      {
-                        t(`types.${type.value}`, {
-                          defaultValue: type.label,
-                        } as any) as string
-                      }{' '}
-                      (
-                      {
-                        t('availableCount', {
-                          count: formatWeight(qty),
-                          defaultValue: '{{count}} available',
-                        } as any) as string
-                      }
-                      )
+                      {t(`types.${type.value}`, { defaultValue: type.label })} (
+                      {formatWeight(qty)}{' '}
+                      {t('available', { defaultValue: 'available' })})
                     </SelectItem>
                   )
                 })}
@@ -293,12 +288,8 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
               />
               {formData.feedType && (
                 <p className="text-xs text-muted-foreground">
-                  {
-                    t('available', {
-                      count: formatWeight(availableKg),
-                      defaultValue: 'Available: {{ count }}',
-                    } as any) as string
-                  }
+                  {t('availableLabel', { defaultValue: 'Available' })}:{' '}
+                  {formatWeight(availableKg)}
                 </p>
               )}
             </div>

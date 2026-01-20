@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { createServerFn } from '@tanstack/react-start'
 import { useTranslation } from 'react-i18next'
+import type { MortalityTable } from '~/lib/db/types'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -23,12 +24,20 @@ import {
 } from '~/components/ui/select'
 import { useFarm } from '~/features/farms/context'
 
-const MORTALITY_CAUSES = [
+type MortalityCause = MortalityTable['cause']
+
+const MORTALITY_CAUSES: ReadonlyArray<{
+  value: MortalityCause
+  label: string
+}> = [
   { value: 'disease', label: 'Disease' },
   { value: 'predator', label: 'Predator Attack' },
   { value: 'weather', label: 'Weather/Environment' },
   { value: 'starvation', label: 'Starvation' },
   { value: 'injury', label: 'Injury' },
+  { value: 'poisoning', label: 'Poisoning' },
+  { value: 'suffocation', label: 'Suffocation' },
+  { value: 'culling', label: 'Culling' },
   { value: 'unknown', label: 'Unknown' },
   { value: 'other', label: 'Other' },
 ]
@@ -39,7 +48,7 @@ const recordMortalityFn = createServerFn({ method: 'POST' })
       batchId: string
       quantity: number
       date: string
-      cause: string
+      cause: MortalityCause
       notes?: string
     }) => data,
   )
@@ -51,7 +60,7 @@ const recordMortalityFn = createServerFn({ method: 'POST' })
       batchId: data.batchId,
       quantity: data.quantity,
       date: new Date(data.date),
-      cause: data.cause as any,
+      cause: data.cause,
       notes: data.notes,
     })
   })
@@ -100,7 +109,13 @@ export function MortalityDialog({
 
   const activeBatches = batches
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    batchId: string
+    quantity: string
+    date: string
+    cause: MortalityCause | ''
+    notes: string
+  }>({
     batchId: '',
     quantity: '',
     date: new Date().toISOString().split('T')[0],
@@ -150,7 +165,7 @@ export function MortalityDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {t('recordMortality', {

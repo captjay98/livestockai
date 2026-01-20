@@ -144,12 +144,13 @@ export function RoadmapTimeline() {
                         {milestone.items.map((item, i) => (
                           <li key={i} className="flex items-start gap-3">
                             <div
-                              className={`mt-1.5 w-1.5 h-1.5 rounded-full ${milestone.status === 'completed'
+                              className={`mt-1.5 w-1.5 h-1.5 rounded-full ${
+                                milestone.status === 'completed'
                                   ? 'bg-emerald-500'
                                   : milestone.status === 'in-progress'
                                     ? 'bg-blue-500'
                                     : 'bg-neutral-400'
-                                }`}
+                              }`}
                             />
                             <span
                               className="text-sm font-light leading-relaxed"

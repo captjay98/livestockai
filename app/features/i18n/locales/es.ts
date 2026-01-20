@@ -465,8 +465,29 @@ export const es = {
       selectFarm: 'Seleccione una granja primero',
     },
     errors: {
-      update: 'Error al actualizar lote',
-      delete: 'Error al eliminar lote',
+      UNAUTHORIZED: 'Inicie sesión para continuar',
+      SESSION_EXPIRED:
+        'Su sesión ha expirado. Por favor, inicie sesión de nuevo',
+      INVALID_CREDENTIALS: 'Correo electrónico o contraseña incorrectos',
+      ACCESS_DENIED: 'No tiene permiso para acceder a este recurso',
+      BANNED: 'Su cuenta ha sido suspendida',
+      NOT_FOUND: 'El recurso solicitado no fue encontrado',
+      FARM_NOT_FOUND: 'Granja no encontrada',
+      BATCH_NOT_FOUND: 'Lote no encontrado',
+      CUSTOMER_NOT_FOUND: 'Cliente no encontrado',
+      SUPPLIER_NOT_FOUND: 'Proveedor no encontrado',
+      INVOICE_NOT_FOUND: 'Factura no encontrada',
+      STRUCTURE_NOT_FOUND: 'Estructura no encontrada',
+      SALE_NOT_FOUND: 'Venta no encontrada',
+      VALIDATION_ERROR:
+        'Por favor, verifique su información e intente de nuevo',
+      INVALID_INPUT: 'Se proporcionó información no válida',
+      INSUFFICIENT_STOCK: 'No hay suficiente stock disponible',
+      INTERNAL_ERROR: 'Algo salió mal. Por favor, intente de nuevo más tarde',
+      DATABASE_ERROR:
+        'Ocurrió un error en la base de datos. Por favor, intente de nuevo',
+      update: 'Error al actualizar el lote',
+      delete: 'Error al eliminar el lote',
     },
     placeholders: {
       selectType: 'Seleccionar tipo',
@@ -998,16 +1019,16 @@ export const es = {
       unnamed: 'Sin nombre',
       errors: {
         refresh: 'Error al actualizar usuarios',
-        loadAssignments: 'Error al cargar asignaciones',
+        loadAssignments: 'Error al cargar asignaciones de granja',
         ban: 'Error al banear usuario',
         unban: 'Error al desbanear usuario',
         delete: 'Error al eliminar usuario',
-        role: 'Error al actualizar rol',
+        role: 'Error al actualizar el rol',
         create: 'Error al crear usuario',
-        resetPassword: 'Error al restablecer contraseña',
-        assignFarm: 'Error al asignar granja',
-        updateFarmRole: 'Error al actualizar rol',
-        removeFromFarm: 'Error al quitar de granja',
+        resetPassword: 'Error al restablecer la contraseña',
+        assignFarm: 'Error al asignar la granja',
+        updateFarmRole: 'Error al actualizar el rol',
+        removeFromFarm: 'Error al eliminar de la granja',
       },
     },
     audit: {
@@ -1037,6 +1058,8 @@ export const es = {
   auth: {
     login: {
       title: 'Iniciar Sesión',
+      noAccount: '¿No tienes una cuenta?',
+      createAccount: 'Crear una cuenta',
       description: 'Inicie sesión para gestionar su granja',
       email: 'Email',
       password: 'Contraseña',
@@ -1047,11 +1070,13 @@ export const es = {
         email: 'Ingrese su email',
         password: 'Ingrese su contraseña',
       },
-      errors: {
-        default: 'Inicio de sesión fallido',
-        unexpected: 'Ocurrió un error inesperado',
-      },
+
       logo: 'Logo Granja',
+      errors: {
+        invalid_credentials: 'Correo electrónico o contraseña incorrectos',
+        default: 'Error al iniciar sesión',
+        unexpected: 'Ha ocurrido un error inesperado',
+      },
     },
     register: {
       title: 'Crear Cuenta',
@@ -1064,11 +1089,10 @@ export const es = {
         name: 'Juan Pérez',
       },
       errors: {
-        default: 'Registro fallido',
-        unexpected: 'Ocurrió un error inesperado',
+        default: 'El registro falló',
+        unexpected: 'Ha ocurrido un error inesperado',
       },
     },
-
   },
   suppliers: {
     title: 'Proveedores',
@@ -1201,10 +1225,7 @@ export const es = {
       updated: 'Cliente actualizado',
       deleted: 'Cliente eliminado',
     },
-    errors: {
-      create: 'Error al crear cliente',
-      delete: 'Error al eliminar cliente',
-    },
+
     dialog: {
       deleteTitle: 'Eliminar Cliente',
       deleteDesc:
@@ -1218,6 +1239,10 @@ export const es = {
       wholesaler: 'Mayorista',
       all: 'Todos los Tipos',
     },
+    errors: {
+      create: 'Error al crear el cliente',
+      delete: 'Error al eliminar el cliente',
+    },
   },
   validation: {
     required: 'Este campo es obligatorio',
@@ -1227,23 +1252,7 @@ export const es = {
     url: 'Por favor, ingrese una URL válida',
     numeric: 'Debe ser un número',
   },
-  errors: {
-    unauthorized: 'Acceso no autorizado',
-    forbidden: 'Acceso denegado',
-    notFound: 'Recurso no encontrado',
-    internal: 'Error interno del servidor',
-    unknown: 'Ocurrió un error desconocido',
-    userNotFound: 'Usuario no encontrado',
-    saveFailed: 'Error al guardar configuración',
-    resetFailed: 'Error al restablecer configuración',
-    farmNotFound: 'Granja no encontrada',
-    farmDeleteFailed:
-      'No se puede eliminar una granja con registros existentes',
-    userNotAssigned: 'El usuario no está asignado a esta granja',
-    lastOwnerRemove: 'No se puede eliminar al último propietario de una granja',
-    lastOwnerDemote: 'No se puede degradar al último propietario de una granja',
-    accessDeniedFarm: 'Acceso denegado a esta granja',
-  },
+
   onboarding: {
     header: {
       title: 'Comenzando',
@@ -1368,5 +1377,35 @@ export const es = {
       finishing: 'Finalizando...',
       help: '¿Necesita ayuda? Reinicie el recorrido en cualquier momento desde Configuración.',
     },
+  },
+  errors: {
+    UNAUTHORIZED: 'Por favor, inicie sesión para continuar',
+    INVALID_CREDENTIALS: 'Correo electrónico o contraseña incorrectos',
+    SESSION_EXPIRED: 'Su sesión ha caducado. Por favor, inicie sesión de nuevo',
+    ACCESS_DENIED: 'No tiene permiso para acceder a este recurso',
+    BANNED: 'Su cuenta ha sido suspendida',
+    NOT_FOUND: 'El recurso solicitado no fue encontrado',
+    FARM_NOT_FOUND: 'Granja no encontrada',
+    BATCH_NOT_FOUND: 'Lote no encontrado',
+    CUSTOMER_NOT_FOUND: 'Cliente no encontrado',
+    SUPPLIER_NOT_FOUND: 'Proveedor no encontrado',
+    INVOICE_NOT_FOUND: 'Factura no encontrada',
+    STRUCTURE_NOT_FOUND: 'Estructura no encontrada',
+    SALE_NOT_FOUND: 'Venta no encontrada',
+    VALIDATION_ERROR: 'Por favor, compruebe su entrada e inténtelo de nuevo',
+    INVALID_INPUT: 'Entrada no válida',
+    INSUFFICIENT_STOCK: 'No hay suficiente stock disponible',
+    ALREADY_EXISTS: 'El recurso ya existe',
+    INTERNAL_ERROR: 'Algo salió mal. Por favor, inténtelo de nuevo más tarde',
+    DATABASE_ERROR: 'Ocurrió un error en la base de datos. Por favor, inténtelo de nuevo',
+    unknown: 'Ha ocurrido un error desconocido',
+    userNotFound: 'Usuario no encontrado',
+    saveFailed: 'Error al guardar la configuración',
+    resetFailed: 'Error al restablecer la configuración',
+    farmDeleteFailed: 'No se puede eliminar una granja con registros existentes',
+    userNotAssigned: 'El usuario no está asignado a esta granja',
+    lastOwnerRemove: 'No se puede eliminar al último propietario de una granja',
+    lastOwnerDemote: 'No se puede degradar al último propietario de una granja',
+    accessDeniedFarm: 'Acceso denegado a esta granja',
   },
 }

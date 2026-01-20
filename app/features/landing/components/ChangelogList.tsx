@@ -85,12 +85,13 @@ export function ChangelogList() {
                   {entry.date}
                 </time>
                 <span
-                  className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider mt-2 border ${entry.type === 'major'
+                  className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider mt-2 border ${
+                    entry.type === 'major'
                       ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                       : entry.type === 'minor'
                         ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
                         : 'bg-neutral-500/10 text-neutral-500 border-neutral-500/20'
-                    }`}
+                  }`}
                 >
                   {entry.type} Release
                 </span>

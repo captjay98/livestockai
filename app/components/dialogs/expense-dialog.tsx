@@ -67,6 +67,11 @@ export function ExpenseDialog({
         setSuppliers(suppliersData)
       } catch (err) {
         console.error('Failed to load suppliers:', err)
+        toast.error(
+          t('common:errors.operationFailed', {
+            defaultValue: 'Operation failed',
+          }),
+        )
       }
     }
   }

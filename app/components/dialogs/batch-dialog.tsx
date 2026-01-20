@@ -4,6 +4,7 @@ import { useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { AlertCircle, ChevronDown, ChevronUp, Users } from 'lucide-react'
+import { useErrorMessage } from '~/hooks/useErrorMessage'
 import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/features/batches/server'
 import { useFarm } from '~/features/farms/context'
 import { useFormatCurrency } from '~/features/settings'
@@ -79,6 +80,7 @@ const getSpeciesOptions = (t: any) => ({
 
 export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
   const { t } = useTranslation(['batches', 'common'])
+  const getErrorMessage = useErrorMessage()
   const router = useRouter()
   const queryClient = useQueryClient()
   const { selectedFarmId, structures, suppliers } = useFarm()
@@ -171,13 +173,7 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
       setShowAdditional(false)
       router.invalidate()
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('messages.createError', {
-              defaultValue: 'Failed to create batch',
-            }),
-      )
+      setError(getErrorMessage(err))
     } finally {
       setIsSubmitting(false)
     }

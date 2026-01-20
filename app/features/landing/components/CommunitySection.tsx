@@ -115,7 +115,7 @@ export function CommunitySection() {
             <div className="mt-8 flex gap-1 justify-center opacity-20 mask-gradient-b">
               {Array.from({ length: 30 }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-1">
-                  {Array.from({ length: 5 }).map((_, j) => (
+                  {Array.from({ length: 5 }).map((__, j) => (
                     <div
                       key={j}
                       className={`w-3 h-3 rounded-sm ${

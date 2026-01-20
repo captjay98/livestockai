@@ -1,8 +1,8 @@
 import { QueryClient } from '@tanstack/react-query'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { del, get, set } from 'idb-keyval'
-
 import type { Persister } from '@tanstack/react-query-persist-client'
+import { AppError } from '~/lib/errors'
 
 export const createPersister = (): Persister | undefined => {
   // Only create persister on client side
@@ -43,8 +43,18 @@ export const createQueryClient = () => {
         gcTime: 1000 * 60 * 60 * 24, // 24 hours
         staleTime: 1000 * 60, // 1 minute
         // Prevent retries on 404s/403s maybe?
-        retry: (failureCount, error: Error & { status?: number }) => {
-          if (error.status === 404) return false
+        retry: (failureCount, error) => {
+          if (AppError.isAppError(error)) {
+            // Don't retry auth or forbidden errors
+            if (error.category === 'AUTH' || error.category === 'FORBIDDEN') {
+              return false
+            }
+            // Don't retry not found
+            if (error.category === 'NOT_FOUND') return false
+            // Don't retry validation errors
+            if (error.category === 'VALIDATION') return false
+          }
+          if ((error as any).status === 404) return false
           return failureCount < 3
         },
       },

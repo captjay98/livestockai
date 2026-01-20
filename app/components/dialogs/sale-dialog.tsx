@@ -108,6 +108,11 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
         setCustomers(data.customers)
       } catch (err) {
         console.error('Failed to load data:', err)
+        toast.error(
+          t('common:errors.operationFailed', {
+            defaultValue: 'Operation failed',
+          }),
+        )
       }
     }
   }

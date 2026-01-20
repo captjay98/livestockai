@@ -86,6 +86,11 @@ export function InvoiceDialog({
         setCustomers(data)
       } catch (err) {
         console.error('Failed to load customers:', err)
+        toast.error(
+          t('common:errors.operationFailed', {
+            defaultValue: 'Operation failed',
+          }),
+        )
       }
     }
   }
@@ -151,7 +156,7 @@ export function InvoiceDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />

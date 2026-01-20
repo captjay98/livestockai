@@ -922,8 +922,8 @@ function SalesPage() {
           </div>
         }
         emptyIcon={<ShoppingCart className="h-12 w-12" />}
-        emptyTitle="No sales yet"
-        emptyDescription="Record your first sale to get started."
+        emptyTitle={t('empty.title')}
+        emptyDescription={t('empty.description')}
         onPaginationChange={(page, pageSize) => {
           updateSearch({ page, pageSize })
         }}

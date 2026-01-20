@@ -466,8 +466,28 @@ export const pt = {
       selectFarm: 'Por favor, selecione uma fazenda primeiro',
     },
     errors: {
-      update: 'Falha ao atualizar lote',
-      delete: 'Falha ao excluir lote',
+      UNAUTHORIZED: 'Faça login para continuar',
+      SESSION_EXPIRED: 'Sua sessão expirou. Por favor, faça login novamente',
+      INVALID_CREDENTIALS: 'E-mail ou senha inválidos',
+      ACCESS_DENIED: 'Você não tem permissão para acessar este recurso',
+      BANNED: 'Sua conta foi suspensa',
+      NOT_FOUND: 'O recurso solicitado não foi encontrado',
+      FARM_NOT_FOUND: 'Fazenda não encontrada',
+      BATCH_NOT_FOUND: 'Lote não encontrado',
+      CUSTOMER_NOT_FOUND: 'Cliente não encontrado',
+      SUPPLIER_NOT_FOUND: 'Fornecedor não encontrado',
+      INVOICE_NOT_FOUND: 'Fatura não encontrada',
+      STRUCTURE_NOT_FOUND: 'Estrutura no encontrada',
+      SALE_NOT_FOUND: 'Venda não encontrada',
+      VALIDATION_ERROR:
+        'Por favor, verifique suas informações e tente novamente',
+      INVALID_INPUT: 'Informações inválidas fornecidas',
+      INSUFFICIENT_STOCK: 'Estoque insuficiente disponível',
+      INTERNAL_ERROR: 'Algo deu errado. Por favor, tente novamente mais tarde',
+      DATABASE_ERROR:
+        'Ocorreu um erro no banco de dados. Por favor, tente novamente',
+      update: 'Falha ao atualizar o lote',
+      delete: 'Falha ao excluir o lote',
     },
     placeholders: {
       selectType: 'Selecionar tipo',
@@ -995,15 +1015,15 @@ export const pt = {
       unnamed: 'Sem nome',
       errors: {
         refresh: 'Falha ao atualizar usuários',
-        loadAssignments: 'Falha ao carregar atribuições',
+        loadAssignments: 'Falha ao carregar atribuições de fazenda',
         ban: 'Falha ao banir usuário',
         unban: 'Falha ao desbanir usuário',
         delete: 'Falha ao excluir usuário',
-        role: 'Falha ao atualizar função',
+        role: 'Falha ao atualizar o cargo',
         create: 'Falha ao criar usuário',
-        resetPassword: 'Falha ao redefinir senha',
+        resetPassword: 'Falha ao redefinir a senha',
         assignFarm: 'Falha ao atribuir fazenda',
-        updateFarmRole: 'Falha ao atualizar função',
+        updateFarmRole: 'Falha ao atualizar o cargo',
         removeFromFarm: 'Falha ao remover da fazenda',
       },
     },
@@ -1034,6 +1054,8 @@ export const pt = {
   auth: {
     login: {
       title: 'Entrar',
+      noAccount: 'Não tem uma conta?',
+      createAccount: 'Criar uma conta',
       description: 'Entre para gerenciar sua fazenda',
       email: 'Email',
       password: 'Senha',
@@ -1044,11 +1066,13 @@ export const pt = {
         email: 'Insira seu email',
         password: 'Insira sua senha',
       },
+
+      logo: 'Logo Fazenda',
       errors: {
+        invalid_credentials: 'E-mail ou senha inválidos',
         default: 'Falha ao entrar',
         unexpected: 'Ocorreu um erro inesperado',
       },
-      logo: 'Logo Fazenda',
     },
     register: {
       title: 'Criar Conta',
@@ -1197,10 +1221,7 @@ export const pt = {
       updated: 'Cliente atualizado',
       deleted: 'Cliente excluído',
     },
-    errors: {
-      create: 'Falha ao criar cliente',
-      delete: 'Falha ao excluir cliente',
-    },
+
     dialog: {
       deleteTitle: 'Excluir Cliente',
       deleteDesc:
@@ -1214,6 +1235,10 @@ export const pt = {
       wholesaler: 'Atacadista',
       all: 'Todos os Tipos',
     },
+    errors: {
+      create: 'Falha ao criar o cliente',
+      delete: 'Falha ao excluir o cliente',
+    },
   },
   validation: {
     required: 'Este campo é obrigatório',
@@ -1223,25 +1248,7 @@ export const pt = {
     url: 'Por favor, insira uma URL válida',
     numeric: 'Deve ser um número',
   },
-  errors: {
-    unauthorized: 'Acesso não autorizado',
-    forbidden: 'Acesso negado',
-    notFound: 'Recurso não encontrado',
-    internal: 'Erro interno do servidor',
-    unknown: 'Ocorreu um erro desconhecido',
-    userNotFound: 'Usuário não encontrado',
-    saveFailed: 'Falha ao salvar configurações',
-    resetFailed: 'Falha ao redefinir configurações',
-    farmNotFound: 'Fazenda não encontrada',
-    farmDeleteFailed:
-      'Não é possível excluir uma fazenda com registros existentes',
-    userNotAssigned: 'Usuário não atribuído a esta fazenda',
-    lastOwnerRemove:
-      'Não é possível remover o último proprietário de uma fazenda',
-    lastOwnerDemote:
-      'Não é possível rebaixar o último proprietário de uma fazenda',
-    accessDeniedFarm: 'Acesso negado a esta fazenda',
-  },
+
   onboarding: {
     header: {
       title: 'Começando',
@@ -1367,5 +1374,35 @@ export const pt = {
       finishing: 'Finalizando...',
       help: 'Precisa de ajuda? Reinicie o tour a qualquer momento nas Configurações.',
     },
+  },
+  errors: {
+    UNAUTHORIZED: 'Por favor, entre para continuar',
+    INVALID_CREDENTIALS: 'E-mail ou senha inválidos',
+    SESSION_EXPIRED: 'Sua sessão expirou. Por favor, entre novamente',
+    ACCESS_DENIED: 'Você não tem permissão para acessar este recurso',
+    BANNED: 'Sua conta foi suspensa',
+    NOT_FOUND: 'O recurso solicitado não foi encontrado',
+    FARM_NOT_FOUND: 'Fazenda não encontrada',
+    BATCH_NOT_FOUND: 'Lote não encontrado',
+    CUSTOMER_NOT_FOUND: 'Cliente não encontrado',
+    SUPPLIER_NOT_FOUND: 'Fornecedor não encontrado',
+    INVOICE_NOT_FOUND: 'Fatura não encontrada',
+    STRUCTURE_NOT_FOUND: 'Estrutura não encontrada',
+    SALE_NOT_FOUND: 'Venda não encontrada',
+    VALIDATION_ERROR: 'Por favor, verifique seus dados e tente novamente',
+    INVALID_INPUT: 'Dados inválidos fornecidos',
+    INSUFFICIENT_STOCK: 'Estoque insuficiente disponível',
+    ALREADY_EXISTS: 'O recurso já existe',
+    INTERNAL_ERROR: 'Algo deu errado. Por favor, tente novamente mais tarde',
+    DATABASE_ERROR: 'Ocorreu um erro no banco de datos. Por favor, tente novamente',
+    unknown: 'Ocorreu um erro desconhecido',
+    userNotFound: 'Usuário não encontrado',
+    saveFailed: 'Falha ao salvar as configurações',
+    resetFailed: 'Falha ao redefinir as configurações',
+    farmDeleteFailed: 'Não é possível excluir uma fazenda com registros existentes',
+    userNotAssigned: 'O usuário não está atribuído a esta fazenda',
+    lastOwnerRemove: 'Não é possível remover o último proprietário de uma fazenda',
+    lastOwnerDemote: 'Não é possível rebaixar o último proprietário de uma fazenda',
+    accessDeniedFarm: 'Acesso negado a esta fazenda',
   },
 }

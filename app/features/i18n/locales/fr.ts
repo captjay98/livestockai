@@ -376,11 +376,15 @@ export const fr = {
     livestockType: 'Type de bétail',
     species: 'Espèce',
     quantity: 'Quantité',
-    active: 'Actif',
-    depleted: 'Épuisé',
-    sold: 'Vendu',
-    allStatus: 'Tous les statuts',
-    allTypes: 'Tous les types',
+    statuses: {
+      active: 'Actif',
+      depleted: 'Épuisé',
+      sold: 'Vendu',
+    },
+    livestockTypes: {
+      poultry: 'Volaille',
+      fish: 'Poisson',
+    },
     poultry: 'Volaille',
     fish: 'Poisson',
     totalLivestock: 'Total Bétail',
@@ -469,16 +473,27 @@ export const fr = {
       selectType: 'Sélectionner le type',
       selectSpecies: "Sélectionner l'espèce",
     },
-    statuses: {
-      active: 'Actif',
-      depleted: 'Épuisé',
-      sold: 'Vendu',
-    },
-    livestockTypes: {
-      poultry: 'Volaille',
-      fish: 'Poisson',
-    },
     errors: {
+      UNAUTHORIZED: 'Veuillez vous connecter pour continuer',
+      SESSION_EXPIRED: 'Votre session a expiré. Veuillez vous reconnecter',
+      INVALID_CREDENTIALS: 'Email ou mot de passe invalide',
+      ACCESS_DENIED:
+        'Vous n’avez pas la permission d’accéder à cette ressource',
+      BANNED: 'Votre compte a été suspendu',
+      NOT_FOUND: 'La ressource demandée est introuvable',
+      FARM_NOT_FOUND: 'Ferme introuvable',
+      BATCH_NOT_FOUND: 'Lot introuvable',
+      CUSTOMER_NOT_FOUND: 'Client introuvable',
+      SUPPLIER_NOT_FOUND: 'Fournisseur introuvable',
+      INVOICE_NOT_FOUND: 'Facture introuvable',
+      STRUCTURE_NOT_FOUND: 'Structure introuvable',
+      SALE_NOT_FOUND: 'Vente introuvable',
+      VALIDATION_ERROR: 'Veuillez vérifier vos informations et réessayer',
+      INVALID_INPUT: 'Informations invalides transmises',
+      INSUFFICIENT_STOCK: 'Stock insuffisant',
+      INTERNAL_ERROR: 'Une erreur est survenue. Veuillez réessayer plus tard',
+      DATABASE_ERROR:
+        'Une erreur de base de données est survenue. Veuillez réessayer',
       update: 'Échec de la mise à jour du lot',
       delete: 'Échec de la suppression du lot',
     },
@@ -1006,17 +1021,17 @@ export const fr = {
       },
       unnamed: 'Sans nom',
       errors: {
-        refresh: "Échec de l'actualisation des utilisateurs",
-        loadAssignments: 'Échec du chargement des assignations',
-        ban: 'Échec du bannissement',
-        unban: 'Échec du débannissement',
-        delete: 'Échec de la suppression',
+        refresh: 'Échec de l’actualisation des utilisateurs',
+        loadAssignments: 'Échec du chargement des affectations de ferme',
+        ban: 'Échec du bannissement de l’utilisateur',
+        unban: 'Échec de la réactivation de l’utilisateur',
+        delete: 'Échec de la suppression de l’utilisateur',
         role: 'Échec de la mise à jour du rôle',
-        create: "Échec de la création de l'utilisateur",
+        create: 'Échec de la création de l’utilisateur',
         resetPassword: 'Échec de la réinitialisation du mot de passe',
-        assignFarm: "Échec de l'assignation de la ferme",
+        assignFarm: 'Échec de l’affectation de la ferme',
         updateFarmRole: 'Échec de la mise à jour du rôle',
-        removeFromFarm: 'Échec du retrait de la ferme',
+        removeFromFarm: 'Échec de la suppression de la ferme',
       },
     },
     audit: {
@@ -1046,6 +1061,8 @@ export const fr = {
   auth: {
     login: {
       title: 'Connexion',
+      noAccount: "Vous n'avez pas de compte ?",
+      createAccount: 'Créer un compte',
       description: 'Connectez-vous pour gérer votre ferme',
       email: 'Email',
       password: 'Mot de passe',
@@ -1057,11 +1074,13 @@ export const fr = {
         email: 'Entrez votre email',
         password: 'Entrez votre mot de passe',
       },
+
+      logo: 'Logo Ferme',
       errors: {
-        default: 'Connexion échouée',
+        invalid_credentials: 'Email ou mot de passe invalide',
+        default: 'Échec de la connexion',
         unexpected: 'Une erreur inattendue est survenue',
       },
-      logo: 'Logo Ferme',
     },
     register: {
       title: 'Créer un compte',
@@ -1074,7 +1093,7 @@ export const fr = {
         name: 'Jean Dupont',
       },
       errors: {
-        default: "Échec de l'inscription",
+        default: "L'inscription a échoué",
         unexpected: 'Une erreur inattendue est survenue',
       },
     },
@@ -1210,10 +1229,7 @@ export const fr = {
       updated: 'Client mis à jour',
       deleted: 'Client supprimé',
     },
-    errors: {
-      create: 'Échec de la création du client',
-      delete: 'Échec de la suppression du client',
-    },
+
     dialog: {
       deleteTitle: 'Supprimer Client',
       deleteDesc:
@@ -1227,6 +1243,10 @@ export const fr = {
       wholesaler: 'Grossiste',
       all: 'Tous Types',
     },
+    errors: {
+      create: 'Échec de la création du client',
+      delete: 'Échec de la suppression du client',
+    },
   },
   validation: {
     required: 'Ce champ est requis',
@@ -1236,25 +1256,7 @@ export const fr = {
     url: 'Veuillez entrer une URL valide',
     numeric: 'Doit être un nombre',
   },
-  errors: {
-    unauthorized: 'Accès non autorisé',
-    forbidden: 'Accès refusé',
-    notFound: 'Ressource non trouvée',
-    internal: 'Erreur interne du serveur',
-    unknown: 'Une erreur inconnue est survenue',
-    userNotFound: 'Utilisateur non trouvé',
-    saveFailed: "Échec de l'enregistrement des paramètres",
-    resetFailed: 'Échec de la réinitialisation des paramètres',
-    farmNotFound: 'Ferme non trouvée',
-    farmDeleteFailed:
-      'Impossible de supprimer une ferme avec des enregistrements existants',
-    userNotAssigned: "L'utilisateur n'est pas assigné à cette ferme",
-    lastOwnerRemove:
-      "Impossible de retirer le dernier propriétaire d'une ferme",
-    lastOwnerDemote:
-      "Impossible de rétrograder le dernier propriétaire d'une ferme",
-    accessDeniedFarm: 'Accès refusé à cette ferme',
-  },
+
   onboarding: {
     header: {
       title: 'Démarrage',
@@ -1379,5 +1381,35 @@ export const fr = {
       finishing: 'Finalisation...',
       help: "Besoin d'aide ? Redémarrez la visite à tout moment depuis les Paramètres.",
     },
+  },
+  errors: {
+    UNAUTHORIZED: 'Veuillez vous connecter pour continuer',
+    INVALID_CREDENTIALS: 'Email ou mot de passe invalide',
+    SESSION_EXPIRED: 'Votre session a expiré. Veuillez vous reconnecter',
+    ACCESS_DENIED: "Vous n'avez pas la permission d'accéder à cette ressource",
+    BANNED: 'Votre compte a été suspendu',
+    NOT_FOUND: 'La ressource demandée est introuvable',
+    FARM_NOT_FOUND: 'Ferme introuvable',
+    BATCH_NOT_FOUND: 'Lot introuvable',
+    CUSTOMER_NOT_FOUND: 'Client introuvable',
+    SUPPLIER_NOT_FOUND: 'Fournisseur introuvable',
+    INVOICE_NOT_FOUND: 'Facture introuvable',
+    STRUCTURE_NOT_FOUND: 'Structure introuvable',
+    SALE_NOT_FOUND: 'Vente introuvable',
+    VALIDATION_ERROR: 'Veuillez vérifier vos informations et réessayer',
+    INVALID_INPUT: 'Informations invalides fournies',
+    INSUFFICIENT_STOCK: 'Stock insuffisant',
+    ALREADY_EXISTS: 'La ressource existe déjà',
+    INTERNAL_ERROR: 'Une erreur est survenue. Veuillez réessayer plus tard',
+    DATABASE_ERROR: 'Une erreur de base de données est survenue. Veuillez réessayer',
+    unknown: 'Une erreur inconnue est survenue',
+    userNotFound: 'Utilisateur introuvable',
+    saveFailed: 'Échec de l’enregistrement des paramètres',
+    resetFailed: 'Échec de la réinitialisation des paramètres',
+    farmDeleteFailed: 'Impossible de supprimer une ferme avec des enregistrements existants',
+    userNotAssigned: 'L’utilisateur n’est pas affecté à cette ferme',
+    lastOwnerRemove: 'Impossible de supprimer le dernier propriétaire d’une ferme',
+    lastOwnerDemote: 'Impossible de rétrograder le dernier propriétaire d’une ferme',
+    accessDeniedFarm: 'Accès refusé à cette ferme',
   },
 }

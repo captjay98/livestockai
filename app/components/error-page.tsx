@@ -2,6 +2,7 @@ import { Link, useRouter } from '@tanstack/react-router'
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Logo } from '~/components/logo'
+import { useErrorMessage } from '~/hooks/useErrorMessage'
 
 interface ErrorPageProps {
   error?: Error
@@ -10,6 +11,8 @@ interface ErrorPageProps {
 
 export function ErrorPage({ error, reset }: ErrorPageProps) {
   const router = useRouter()
+  const getErrorMessage = useErrorMessage()
+  const message = getErrorMessage(error)
 
   const handleRetry = () => {
     if (reset) {
@@ -38,8 +41,7 @@ export function ErrorPage({ error, reset }: ErrorPageProps) {
         Something Went Wrong
       </h1>
       <p className="text-muted-foreground text-center max-w-md mb-4 leading-relaxed">
-        We encountered an unexpected error. Don't worry, your data is safe.
-        Please try again or return to the dashboard.
+        {message}
       </p>
 
       {/* Error Details (dev only) */}

@@ -82,6 +82,17 @@ export const en = {
       sqftLong: 'Square Feet (ft²)',
       celsius: 'Celsius (°C)',
       fahrenheit: 'Fahrenheit (°F)',
+      title: 'Units of Measurement',
+      weight: 'Weight',
+      area: 'Area',
+      temperature: 'Temperature',
+    },
+    formats: {
+      us: 'MM/DD/YYYY (US)',
+      eu: 'DD/MM/YYYY (UK/EU)',
+      iso: 'YYYY-MM-DD (ISO)',
+      h12: '12-hour (2:30 PM)',
+      h24: '24-hour (14:30)',
     },
   },
   eggs: {
@@ -105,6 +116,18 @@ export const en = {
     editRecordTitle: 'Edit Egg Record',
     error: {
       record: 'Failed to create record',
+    },
+    columns: {
+      date: 'Date',
+      collected: 'Collected',
+      broken: 'Broken',
+      sold: 'Sold',
+      inventory: 'Inventory',
+    },
+    summary: {
+      totalCollected: 'Total Collected',
+      totalSold: 'Total Sold',
+      totalBroken: 'Total Broken',
     },
   },
   feed: {
@@ -153,6 +176,17 @@ export const en = {
       addDesc: 'Record feed consumption for a batch',
       saving: 'Saving...',
     },
+    columns: {
+      species: 'Species',
+      type: 'Feed Type',
+      quantity: 'Quantity',
+      cost: 'Cost',
+    },
+    summary: {
+      totalFeed: 'Total Feed',
+      totalCost: 'Total Cost',
+      byType: 'By Feed Type',
+    },
   },
   mortality: {
     title: 'Mortality Records',
@@ -181,6 +215,7 @@ export const en = {
       record: 'Failed to record mortality',
     },
     notesPlaceholder: 'Describe symptoms or incident...',
+    records: 'Mortality Records',
   },
   vaccinations: {
     title: 'Health Records',
@@ -438,6 +473,34 @@ export const en = {
       selectFarm: 'Please select a farm first',
     },
     errors: {
+      // Auth
+      UNAUTHORIZED: 'Please sign in to continue',
+      SESSION_EXPIRED: 'Your session has expired. Please sign in again',
+      INVALID_CREDENTIALS: 'Invalid email or password',
+
+      // Forbidden
+      ACCESS_DENIED: "You don't have permission to access this resource",
+      BANNED: 'Your account has been suspended',
+
+      // Not Found
+      NOT_FOUND: 'The requested resource was not found',
+      FARM_NOT_FOUND: 'Farm not found',
+      BATCH_NOT_FOUND: 'Batch not found',
+      CUSTOMER_NOT_FOUND: 'Customer not found',
+      SUPPLIER_NOT_FOUND: 'Supplier not found',
+      INVOICE_NOT_FOUND: 'Invoice not found',
+      STRUCTURE_NOT_FOUND: 'Structure not found',
+      SALE_NOT_FOUND: 'Sale not found',
+
+      // Validation
+      VALIDATION_ERROR: 'Please check your input and try again',
+      INVALID_INPUT: 'Invalid input provided',
+      INSUFFICIENT_STOCK: 'Not enough stock available',
+
+      // Server
+      INTERNAL_ERROR: 'Something went wrong. Please try again later',
+      DATABASE_ERROR: 'A database error occurred. Please try again',
+
       update: 'Failed to update batch',
       delete: 'Failed to delete batch',
     },
@@ -1016,8 +1079,11 @@ export const en = {
       errors: {
         default: 'Login failed',
         unexpected: 'An unexpected error occurred',
+        invalid_credentials: 'Invalid email or password',
       },
       logo: 'Farm Logo',
+      noAccount: "Don't have an account?",
+      createAccount: 'Create an account',
     },
     register: {
       title: 'Create Account',
@@ -1193,15 +1259,32 @@ export const en = {
     numeric: 'Must be a number',
   },
   errors: {
-    unauthorized: 'Unauthorized access',
-    forbidden: 'Access denied',
-    notFound: 'Resource not found',
-    internal: 'Internal server error',
+    UNAUTHORIZED: 'Unauthorized access',
+    INVALID_CREDENTIALS: 'Invalid email or password',
+    SESSION_EXPIRED: 'Session expired',
+    ACCESS_DENIED: 'Access denied',
+    BANNED: 'Your account has been suspended',
+    NOT_FOUND: 'Resource not found',
+    FARM_NOT_FOUND: 'Farm not found',
+    BATCH_NOT_FOUND: 'Batch not found',
+    CUSTOMER_NOT_FOUND: 'Customer not found',
+    SUPPLIER_NOT_FOUND: 'Supplier not found',
+    INVOICE_NOT_FOUND: 'Invoice not found',
+    STRUCTURE_NOT_FOUND: 'Structure not found',
+    SALE_NOT_FOUND: 'Sale not found',
+    VALIDATION_ERROR: 'Validation failed',
+    INVALID_INPUT: 'Invalid input',
+    INSUFFICIENT_STOCK: 'Insufficient stock',
+    ALREADY_EXISTS: 'Resource already exists',
+    INTERNAL_ERROR: 'Internal server error',
+    DATABASE_ERROR: 'Database error',
     unknown: 'An unknown error occurred',
+
+    // Legacy/UI specific (keep camelCase if used directly in UI components, or map them)
+    // For now keeping them as they might be used elsewhere
     userNotFound: 'User not found',
     saveFailed: 'Failed to save settings',
     resetFailed: 'Failed to reset settings',
-    farmNotFound: 'Farm not found',
     farmDeleteFailed: 'Cannot delete farm with existing records',
     userNotAssigned: 'User is not assigned to this farm',
     lastOwnerRemove: 'Cannot remove the last owner from a farm',

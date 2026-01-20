@@ -27,7 +27,7 @@ function RegisterPage() {
     setError('')
 
     try {
-      const result = await registerFn({
+      await registerFn({
         data: {
           name,
           email,
@@ -35,19 +35,13 @@ function RegisterPage() {
         },
       })
 
-      if (!result.success) {
-        const errorKey = result.error || 'register.errors.default'
-        // If translation key exists use it, else raw message
-        const errorMessage = errorKey.includes('.')
-          ? t(errorKey, errorKey)
-          : errorKey
-        setError(errorMessage)
-      } else {
-        await router.invalidate()
-        window.location.href = '/dashboard'
-      }
-    } catch (err) {
-      setError(t('register.errors.unexpected', 'An unexpected error occurred'))
+      await router.invalidate()
+      window.location.href = '/dashboard'
+    } catch (err: any) {
+      console.error('Registration error:', err)
+      const message = err.message || 'register.errors.default'
+      const errorMessage = message.includes('.') ? t(message) : message
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
