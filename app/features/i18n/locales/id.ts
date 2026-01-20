@@ -1401,10 +1401,12 @@ export const id = {
     userNotFound: 'Pengguna tidak ditemukan',
     saveFailed: 'Gagal menyimpan pengaturan',
     resetFailed: 'Gagal mengatur ulang pengaturan',
-    farmDeleteFailed: 'Tidak dapat menghapus peternakan dengan catatan yang ada',
+    farmDeleteFailed:
+      'Tidak dapat menghapus peternakan dengan catatan yang ada',
     userNotAssigned: 'Pengguna tidak ditugaskan ke peternakan ini',
     lastOwnerRemove: 'Tidak dapat menghapus pemilik terakhir dari peternakan',
-    lastOwnerDemote: 'Tidak dapat menurunkan jabatan pemilik terakhir dari peternakan',
+    lastOwnerDemote:
+      'Tidak dapat menurunkan jabatan pemilik terakhir dari peternakan',
     accessDeniedFarm: 'Akses ditolak ke peternakan ini',
   },
 }

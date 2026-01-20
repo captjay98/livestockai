@@ -1394,7 +1394,8 @@ export const ha = {
     INVALID_INPUT: 'An bayar da bayanan da ba su da inganci',
     INSUFFICIENT_STOCK: 'Babu isassun jari',
     ALREADY_EXISTS: 'Albarkatun sun riga sun wanzu',
-    INTERNAL_ERROR: 'Wani abu ya sami matsala. Da fatan a sake gwadawa daga baya',
+    INTERNAL_ERROR:
+      'Wani abu ya sami matsala. Da fatan a sake gwadawa daga baya',
     DATABASE_ERROR: 'Kuskuren rumbun bayanai ya faru. Da fatan a sake gwadawa',
     unknown: 'Wani kuskure da ba a sani ba ya faru',
     userNotFound: 'Ba a sami mai amfani ba',

@@ -1398,12 +1398,14 @@ export const es = {
     INSUFFICIENT_STOCK: 'No hay suficiente stock disponible',
     ALREADY_EXISTS: 'El recurso ya existe',
     INTERNAL_ERROR: 'Algo salió mal. Por favor, inténtelo de nuevo más tarde',
-    DATABASE_ERROR: 'Ocurrió un error en la base de datos. Por favor, inténtelo de nuevo',
+    DATABASE_ERROR:
+      'Ocurrió un error en la base de datos. Por favor, inténtelo de nuevo',
     unknown: 'Ha ocurrido un error desconocido',
     userNotFound: 'Usuario no encontrado',
     saveFailed: 'Error al guardar la configuración',
     resetFailed: 'Error al restablecer la configuración',
-    farmDeleteFailed: 'No se puede eliminar una granja con registros existentes',
+    farmDeleteFailed:
+      'No se puede eliminar una granja con registros existentes',
     userNotAssigned: 'El usuario no está asignado a esta granja',
     lastOwnerRemove: 'No se puede eliminar al último propietario de una granja',
     lastOwnerDemote: 'No se puede degradar al último propietario de una granja',

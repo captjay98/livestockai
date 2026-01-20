@@ -466,7 +466,8 @@ export const vi = {
     },
     errors: {
       UNAUTHORIZED: 'Vui lòng đăng nhập để tiếp tục',
-      SESSION_EXPIRED: 'Phiên làm việc của bạn đã hết hạn. Vui lòng đăng nhập lại',
+      SESSION_EXPIRED:
+        'Phiên làm việc của bạn đã hết hạn. Vui lòng đăng nhập lại',
       INVALID_CREDENTIALS: 'Email hoặc mật khẩu không hợp lệ',
       ACCESS_DENIED: 'Bạn không có quyền truy cập vào tài nguyên này',
       BANNED: 'Tài khoản của bạn đã bị tạm đình chỉ',
@@ -1375,7 +1376,8 @@ export const vi = {
   errors: {
     UNAUTHORIZED: 'Vui lòng đăng nhập để tiếp tục',
     INVALID_CREDENTIALS: 'Email hoặc mật khẩu không hợp lệ',
-    SESSION_EXPIRED: 'Phiên làm việc của bạn đã hết hạn. Vui lòng đăng nhập lại',
+    SESSION_EXPIRED:
+      'Phiên làm việc của bạn đã hết hạn. Vui lòng đăng nhập lại',
     ACCESS_DENIED: 'Bạn không có quyền truy cập tài nguyên này',
     BANNED: 'Tài khoản của bạn đã bị tạm đình chỉ',
     NOT_FOUND: 'Không tìm thấy tài nguyên yêu cầu',

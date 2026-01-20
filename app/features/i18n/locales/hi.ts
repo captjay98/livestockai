@@ -478,7 +478,8 @@ export const hi = {
       INVOICE_NOT_FOUND: 'चालान नहीं मिला',
       STRUCTURE_NOT_FOUND: 'संरचना नहीं मिली',
       SALE_NOT_FOUND: 'बिक्री नहीं मिली',
-      VALIDATION_ERROR: 'कृपया अपनी प्रविष्टियों की जाँच करें और पुन: प्रयास करें',
+      VALIDATION_ERROR:
+        'कृपया अपनी प्रविष्टियों की जाँच करें और पुन: प्रयास करें',
       INVALID_INPUT: 'अमान्य जानकारी प्रदान की गई',
       INSUFFICIENT_STOCK: 'पर्याप्त स्टॉक उपलब्ध नहीं है',
       INTERNAL_ERROR: 'कुछ गलत हो गया। कृपया बाद में पुन: प्रयास करें',

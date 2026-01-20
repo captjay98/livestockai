@@ -1395,15 +1395,19 @@ export const pt = {
     INSUFFICIENT_STOCK: 'Estoque insuficiente disponível',
     ALREADY_EXISTS: 'O recurso já existe',
     INTERNAL_ERROR: 'Algo deu errado. Por favor, tente novamente mais tarde',
-    DATABASE_ERROR: 'Ocorreu um erro no banco de datos. Por favor, tente novamente',
+    DATABASE_ERROR:
+      'Ocorreu um erro no banco de datos. Por favor, tente novamente',
     unknown: 'Ocorreu um erro desconhecido',
     userNotFound: 'Usuário não encontrado',
     saveFailed: 'Falha ao salvar as configurações',
     resetFailed: 'Falha ao redefinir as configurações',
-    farmDeleteFailed: 'Não é possível excluir uma fazenda com registros existentes',
+    farmDeleteFailed:
+      'Não é possível excluir uma fazenda com registros existentes',
     userNotAssigned: 'O usuário não está atribuído a esta fazenda',
-    lastOwnerRemove: 'Não é possível remover o último proprietário de uma fazenda',
-    lastOwnerDemote: 'Não é possível rebaixar o último proprietário de uma fazenda',
+    lastOwnerRemove:
+      'Não é possível remover o último proprietário de uma fazenda',
+    lastOwnerDemote:
+      'Não é possível rebaixar o último proprietário de uma fazenda',
     accessDeniedFarm: 'Acesso negado a esta fazenda',
   },
 }

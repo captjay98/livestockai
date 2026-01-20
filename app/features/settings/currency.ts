@@ -5,6 +5,11 @@
  */
 
 import Decimal from 'decimal.js'
+import {
+  formatCompactCurrency,
+  formatCurrency as formatWithSettings,
+} from './currency-formatter'
+import { DEFAULT_SETTINGS } from './currency-presets'
 
 // Configure Decimal.js for currency operations
 Decimal.set({
@@ -61,8 +66,6 @@ export function toDbString(value: MoneyInput): string {
  * @returns Formatted currency string
  */
 export function formatCurrency(amount: MoneyInput): string {
-  const { formatCurrency: formatWithSettings } = require('./currency-formatter')
-  const { DEFAULT_SETTINGS } = require('./currency-presets')
   return formatWithSettings(amount, DEFAULT_SETTINGS)
 }
 
@@ -111,8 +114,6 @@ export function formatCompactNumber(num: number): string {
  * @returns Compact formatted currency string
  */
 export function formatCurrencyCompact(amount: MoneyInput): string {
-  const { formatCompactCurrency } = require('./currency-formatter')
-  const { DEFAULT_SETTINGS } = require('./currency-presets')
   return formatCompactCurrency(amount, DEFAULT_SETTINGS)
 }
 
@@ -230,4 +231,4 @@ export function equals(a: MoneyInput, b: MoneyInput): boolean {
 export { Decimal }
 
 // Re-export settings-aware formatter for components that need explicit settings
-export { formatCurrency as formatCurrencyWithSettings } from './currency-formatter'
+export { formatWithSettings as formatCurrencyWithSettings }

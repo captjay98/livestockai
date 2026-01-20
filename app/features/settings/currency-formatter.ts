@@ -5,8 +5,8 @@
  * Supports symbol positioning, decimal places, and custom separators.
  */
 
-import { toNumber } from './currency'
-import type { MoneyInput } from './currency'
+import { toNumber } from './currency-core'
+import type { MoneyInput } from './currency-core'
 import type { UserSettings } from './currency-presets'
 
 /**

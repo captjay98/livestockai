@@ -1402,15 +1402,19 @@ export const fr = {
     INSUFFICIENT_STOCK: 'Stock insuffisant',
     ALREADY_EXISTS: 'La ressource existe déjà',
     INTERNAL_ERROR: 'Une erreur est survenue. Veuillez réessayer plus tard',
-    DATABASE_ERROR: 'Une erreur de base de données est survenue. Veuillez réessayer',
+    DATABASE_ERROR:
+      'Une erreur de base de données est survenue. Veuillez réessayer',
     unknown: 'Une erreur inconnue est survenue',
     userNotFound: 'Utilisateur introuvable',
     saveFailed: 'Échec de l’enregistrement des paramètres',
     resetFailed: 'Échec de la réinitialisation des paramètres',
-    farmDeleteFailed: 'Impossible de supprimer une ferme avec des enregistrements existants',
+    farmDeleteFailed:
+      'Impossible de supprimer une ferme avec des enregistrements existants',
     userNotAssigned: 'L’utilisateur n’est pas affecté à cette ferme',
-    lastOwnerRemove: 'Impossible de supprimer le dernier propriétaire d’une ferme',
-    lastOwnerDemote: 'Impossible de rétrograder le dernier propriétaire d’une ferme',
+    lastOwnerRemove:
+      'Impossible de supprimer le dernier propriétaire d’une ferme',
+    lastOwnerDemote:
+      'Impossible de rétrograder le dernier propriétaire d’une ferme',
     accessDeniedFarm: 'Accès refusé à cette ferme',
   },
 }

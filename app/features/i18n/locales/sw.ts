@@ -481,7 +481,8 @@ export const sw = {
       VALIDATION_ERROR: 'Tafadhali kagua maelezo yako na ujaribu tena',
       INVALID_INPUT: 'Maelezo yasiyo sahihi yametolewa',
       INSUFFICIENT_STOCK: 'Hakuna akiba ya kutosha',
-      INTERNAL_ERROR: 'Kuna kitu kimeenda vibaya. Tafadhali jaribu tena baadaye',
+      INTERNAL_ERROR:
+        'Kuna kitu kimeenda vibaya. Tafadhali jaribu tena baadaye',
       DATABASE_ERROR: 'Hitilafu ya hifadhidata imetokea. Tafadhali jaribu tena',
       update: 'Imeshindwa kusasisha kundi',
       delete: 'Imeshindwa kufuta kundi',
