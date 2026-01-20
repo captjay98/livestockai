@@ -152,70 +152,78 @@ export async function getProfitLossReport(
   dateRange: DateRange,
 ): Promise<ProfitLossReport> {
   const { db } = await import('~/lib/db')
+  const { AppError } = await import('~/lib/errors')
 
-  // Revenue by type
-  let salesQuery = db
-    .selectFrom('sales')
-    .select([
-      'livestockType',
-      sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as('total'),
-    ])
-    .where('date', '>=', dateRange.startDate)
-    .where('date', '<=', dateRange.endDate)
-    .groupBy('livestockType')
+  try {
+    // Revenue by type
+    let salesQuery = db
+      .selectFrom('sales')
+      .select([
+        'livestockType',
+        sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as(
+          'total',
+        ),
+      ])
+      .where('date', '>=', dateRange.startDate)
+      .where('date', '<=', dateRange.endDate)
+      .groupBy('livestockType')
 
-  if (farmId) {
-    salesQuery = salesQuery.where('farmId', '=', farmId)
-  }
+    if (farmId) {
+      salesQuery = salesQuery.where('farmId', '=', farmId)
+    }
 
-  const salesByType = await salesQuery.execute()
+    const salesByType = await salesQuery.execute()
 
-  // Expenses by category
-  let expensesQuery = db
-    .selectFrom('expenses')
-    .select([
-      'category',
-      sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)`.as('total'),
-    ])
-    .where('date', '>=', dateRange.startDate)
-    .where('date', '<=', dateRange.endDate)
-    .groupBy('category')
+    // Expenses by category
+    let expensesQuery = db
+      .selectFrom('expenses')
+      .select([
+        'category',
+        sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)`.as('total'),
+      ])
+      .where('date', '>=', dateRange.startDate)
+      .where('date', '<=', dateRange.endDate)
+      .groupBy('category')
 
-  if (farmId) {
-    expensesQuery = expensesQuery.where('farmId', '=', farmId)
-  }
+    if (farmId) {
+      expensesQuery = expensesQuery.where('farmId', '=', farmId)
+    }
 
-  const expensesByCategory = await expensesQuery.execute()
+    const expensesByCategory = await expensesQuery.execute()
 
-  const totalRevenue = salesByType.reduce(
-    (sum, s) => sum + parseFloat(s.total),
-    0,
-  )
-  const totalExpenses = expensesByCategory.reduce(
-    (sum, e) => sum + parseFloat(e.total),
-    0,
-  )
-  const profit = totalRevenue - totalExpenses
-  const profitMargin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0
+    const totalRevenue = salesByType.reduce(
+      (sum, s) => sum + parseFloat(s.total),
+      0,
+    )
+    const totalExpenses = expensesByCategory.reduce(
+      (sum, e) => sum + parseFloat(e.total),
+      0,
+    )
+    const profit = totalRevenue - totalExpenses
+    const profitMargin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0
 
-  return {
-    period: dateRange,
-    revenue: {
-      total: totalRevenue,
-      byType: salesByType.map((s) => ({
-        type: s.livestockType,
-        amount: parseFloat(s.total),
-      })),
-    },
-    expenses: {
-      total: totalExpenses,
-      byCategory: expensesByCategory.map((e) => ({
-        category: e.category,
-        amount: parseFloat(e.total),
-      })),
-    },
-    profit,
-    profitMargin: Math.round(profitMargin * 10) / 10,
+    return {
+      period: dateRange,
+      revenue: {
+        total: totalRevenue,
+        byType: salesByType.map((s) => ({
+          type: s.livestockType,
+          amount: parseFloat(s.total),
+        })),
+      },
+      expenses: {
+        total: totalExpenses,
+        byCategory: expensesByCategory.map((e) => ({
+          category: e.category,
+          amount: parseFloat(e.total),
+        })),
+      },
+      profit,
+      profitMargin: Math.round(profitMargin * 10) / 10,
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }
 
@@ -229,79 +237,86 @@ export async function getInventoryReport(
   farmId: string | undefined,
 ): Promise<InventoryReport> {
   const { db } = await import('~/lib/db')
+  const { AppError } = await import('~/lib/errors')
 
-  let batchQuery = db
-    .selectFrom('batches')
-    .leftJoin('mortality_records', 'mortality_records.batchId', 'batches.id')
-    .select([
-      'batches.id',
-      'batches.species',
-      'batches.livestockType',
-      'batches.initialQuantity',
-      'batches.currentQuantity',
-      'batches.status',
-      sql<number>`COALESCE(SUM(mortality_records.quantity), 0)`.as(
-        'mortalityCount',
-      ),
-    ])
-    .groupBy([
-      'batches.id',
-      'batches.species',
-      'batches.livestockType',
-      'batches.initialQuantity',
-      'batches.currentQuantity',
-      'batches.status',
-    ])
+  try {
+    let batchQuery = db
+      .selectFrom('batches')
+      .leftJoin('mortality_records', 'mortality_records.batchId', 'batches.id')
+      .select([
+        'batches.id',
+        'batches.species',
+        'batches.livestockType',
+        'batches.initialQuantity',
+        'batches.currentQuantity',
+        'batches.status',
+        sql<number>`COALESCE(SUM(mortality_records.quantity), 0)`.as(
+          'mortalityCount',
+        ),
+      ])
+      .groupBy([
+        'batches.id',
+        'batches.species',
+        'batches.livestockType',
+        'batches.initialQuantity',
+        'batches.currentQuantity',
+        'batches.status',
+      ])
 
-  if (farmId) {
-    batchQuery = batchQuery.where('batches.farmId', '=', farmId)
-  }
+    if (farmId) {
+      batchQuery = batchQuery.where('batches.farmId', '=', farmId)
+    }
 
-  const batches = await batchQuery.execute()
+    const batches = await batchQuery.execute()
 
-  const batchesWithRates = batches.map((b) => ({
-    id: b.id,
-    species: b.species,
-    livestockType: b.livestockType,
-    initialQuantity: b.initialQuantity,
-    currentQuantity: b.currentQuantity,
-    mortalityCount: Number(b.mortalityCount),
-    mortalityRate:
-      b.initialQuantity > 0
-        ? Math.round((Number(b.mortalityCount) / b.initialQuantity) * 1000) / 10
-        : 0,
-    status: b.status,
-  }))
+    const batchesWithRates = batches.map((b) => ({
+      id: b.id,
+      species: b.species,
+      livestockType: b.livestockType,
+      initialQuantity: b.initialQuantity,
+      currentQuantity: b.currentQuantity,
+      mortalityCount: Number(b.mortalityCount),
+      mortalityRate:
+        b.initialQuantity > 0
+          ? Math.round((Number(b.mortalityCount) / b.initialQuantity) * 1000) /
+            10
+          : 0,
+      status: b.status,
+    }))
 
-  const totalPoultry = batchesWithRates
-    .filter((b) => b.livestockType === 'poultry' && b.status === 'active')
-    .reduce((sum, b) => sum + b.currentQuantity, 0)
+    const totalPoultry = batchesWithRates
+      .filter((b) => b.livestockType === 'poultry' && b.status === 'active')
+      .reduce((sum, b) => sum + b.currentQuantity, 0)
 
-  const totalFish = batchesWithRates
-    .filter((b) => b.livestockType === 'fish' && b.status === 'active')
-    .reduce((sum, b) => sum + b.currentQuantity, 0)
+    const totalFish = batchesWithRates
+      .filter((b) => b.livestockType === 'fish' && b.status === 'active')
+      .reduce((sum, b) => sum + b.currentQuantity, 0)
 
-  const totalMortality = batchesWithRates.reduce(
-    (sum, b) => sum + b.mortalityCount,
-    0,
-  )
-  const totalInitial = batchesWithRates.reduce(
-    (sum, b) => sum + b.initialQuantity,
-    0,
-  )
-  const overallMortalityRate =
-    totalInitial > 0
-      ? Math.round((totalMortality / totalInitial) * 1000) / 10
-      : 0
+    const totalMortality = batchesWithRates.reduce(
+      (sum, b) => sum + b.mortalityCount,
+      0,
+    )
+    const totalInitial = batchesWithRates.reduce(
+      (sum, b) => sum + b.initialQuantity,
+      0,
+    )
+    const overallMortalityRate =
+      totalInitial > 0
+        ? Math.round((totalMortality / totalInitial) * 1000) / 10
+        : 0
 
-  return {
-    batches: batchesWithRates,
-    summary: {
-      totalPoultry,
-      totalFish,
-      totalMortality,
-      overallMortalityRate,
-    },
+    return {
+      batches: batchesWithRates,
+      summary: {
+        totalPoultry,
+        totalFish,
+        totalMortality,
+        overallMortalityRate,
+      },
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }
 
@@ -317,64 +332,70 @@ export async function getSalesReport(
   dateRange: DateRange,
 ): Promise<SalesReport> {
   const { db } = await import('~/lib/db')
+  const { AppError } = await import('~/lib/errors')
 
-  let query = db
-    .selectFrom('sales')
-    .leftJoin('customers', 'customers.id', 'sales.customerId')
-    .select([
-      'sales.id',
-      'sales.date',
-      'sales.livestockType',
-      'sales.quantity',
-      'sales.unitPrice',
-      'sales.totalAmount',
-      'customers.name as customerName',
-    ])
-    .where('sales.date', '>=', dateRange.startDate)
-    .where('sales.date', '<=', dateRange.endDate)
-    .orderBy('sales.date', 'desc')
+  try {
+    let query = db
+      .selectFrom('sales')
+      .leftJoin('customers', 'customers.id', 'sales.customerId')
+      .select([
+        'sales.id',
+        'sales.date',
+        'sales.livestockType',
+        'sales.quantity',
+        'sales.unitPrice',
+        'sales.totalAmount',
+        'customers.name as customerName',
+      ])
+      .where('sales.date', '>=', dateRange.startDate)
+      .where('sales.date', '<=', dateRange.endDate)
+      .orderBy('sales.date', 'desc')
 
-  if (farmId) {
-    query = query.where('sales.farmId', '=', farmId)
-  }
-
-  const sales = await query.execute()
-
-  const salesData = sales.map((s) => ({
-    id: s.id,
-    date: s.date,
-    livestockType: s.livestockType,
-    quantity: s.quantity,
-    unitPrice: parseFloat(s.unitPrice),
-    totalAmount: parseFloat(s.totalAmount),
-    customerName: s.customerName,
-  }))
-
-  // Summary by type
-  const byType = new Map<string, { quantity: number; revenue: number }>()
-  for (const sale of salesData) {
-    const existing = byType.get(sale.livestockType) || {
-      quantity: 0,
-      revenue: 0,
+    if (farmId) {
+      query = query.where('sales.farmId', '=', farmId)
     }
-    byType.set(sale.livestockType, {
-      quantity: existing.quantity + sale.quantity,
-      revenue: existing.revenue + sale.totalAmount,
-    })
-  }
 
-  return {
-    period: dateRange,
-    sales: salesData,
-    summary: {
-      totalSales: salesData.length,
-      totalRevenue: salesData.reduce((sum, s) => sum + s.totalAmount, 0),
-      byType: Array.from(byType.entries()).map(([type, data]) => ({
-        type,
-        quantity: data.quantity,
-        revenue: data.revenue,
-      })),
-    },
+    const sales = await query.execute()
+
+    const salesData = sales.map((s) => ({
+      id: s.id,
+      date: s.date,
+      livestockType: s.livestockType,
+      quantity: s.quantity,
+      unitPrice: parseFloat(s.unitPrice),
+      totalAmount: parseFloat(s.totalAmount),
+      customerName: s.customerName,
+    }))
+
+    // Summary by type
+    const byType = new Map<string, { quantity: number; revenue: number }>()
+    for (const sale of salesData) {
+      const existing = byType.get(sale.livestockType) || {
+        quantity: 0,
+        revenue: 0,
+      }
+      byType.set(sale.livestockType, {
+        quantity: existing.quantity + sale.quantity,
+        revenue: existing.revenue + sale.totalAmount,
+      })
+    }
+
+    return {
+      period: dateRange,
+      sales: salesData,
+      summary: {
+        totalSales: salesData.length,
+        totalRevenue: salesData.reduce((sum, s) => sum + s.totalAmount, 0),
+        byType: Array.from(byType.entries()).map(([type, data]) => ({
+          type,
+          quantity: data.quantity,
+          revenue: data.revenue,
+        })),
+      },
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }
 
@@ -390,64 +411,70 @@ export async function getFeedReport(
   dateRange: DateRange,
 ): Promise<FeedReport> {
   const { db } = await import('~/lib/db')
+  const { AppError } = await import('~/lib/errors')
 
-  let query = db
-    .selectFrom('feed_records')
-    .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-    .select([
-      'feed_records.batchId',
-      'batches.species',
-      'feed_records.feedType',
-      sql<string>`SUM(CAST("quantityKg" AS DECIMAL))`.as('totalQuantityKg'),
-      sql<string>`SUM(CAST(feed_records.cost AS DECIMAL))`.as('totalCost'),
-    ])
-    .where('feed_records.date', '>=', dateRange.startDate)
-    .where('feed_records.date', '<=', dateRange.endDate)
-    .groupBy([
-      'feed_records.batchId',
-      'batches.species',
-      'feed_records.feedType',
-    ])
+  try {
+    let query = db
+      .selectFrom('feed_records')
+      .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+      .select([
+        'feed_records.batchId',
+        'batches.species',
+        'feed_records.feedType',
+        sql<string>`SUM(CAST("quantityKg" AS DECIMAL))`.as('totalQuantityKg'),
+        sql<string>`SUM(CAST(feed_records.cost AS DECIMAL))`.as('totalCost'),
+      ])
+      .where('feed_records.date', '>=', dateRange.startDate)
+      .where('feed_records.date', '<=', dateRange.endDate)
+      .groupBy([
+        'feed_records.batchId',
+        'batches.species',
+        'feed_records.feedType',
+      ])
 
-  if (farmId) {
-    query = query.where('batches.farmId', '=', farmId)
-  }
-
-  const records = await query.execute()
-
-  const recordsData = records.map((r) => ({
-    batchId: r.batchId,
-    species: r.species,
-    feedType: r.feedType,
-    totalQuantityKg: parseFloat(r.totalQuantityKg),
-    totalCost: parseFloat(r.totalCost),
-  }))
-
-  // Summary by feed type
-  const byFeedType = new Map<string, { quantityKg: number; cost: number }>()
-  for (const record of recordsData) {
-    const existing = byFeedType.get(record.feedType) || {
-      quantityKg: 0,
-      cost: 0,
+    if (farmId) {
+      query = query.where('batches.farmId', '=', farmId)
     }
-    byFeedType.set(record.feedType, {
-      quantityKg: existing.quantityKg + record.totalQuantityKg,
-      cost: existing.cost + record.totalCost,
-    })
-  }
 
-  return {
-    period: dateRange,
-    records: recordsData,
-    summary: {
-      totalFeedKg: recordsData.reduce((sum, r) => sum + r.totalQuantityKg, 0),
-      totalCost: recordsData.reduce((sum, r) => sum + r.totalCost, 0),
-      byFeedType: Array.from(byFeedType.entries()).map(([type, data]) => ({
-        type,
-        quantityKg: data.quantityKg,
-        cost: data.cost,
-      })),
-    },
+    const records = await query.execute()
+
+    const recordsData = records.map((r) => ({
+      batchId: r.batchId,
+      species: r.species,
+      feedType: r.feedType,
+      totalQuantityKg: parseFloat(r.totalQuantityKg),
+      totalCost: parseFloat(r.totalCost),
+    }))
+
+    // Summary by feed type
+    const byFeedType = new Map<string, { quantityKg: number; cost: number }>()
+    for (const record of recordsData) {
+      const existing = byFeedType.get(record.feedType) || {
+        quantityKg: 0,
+        cost: 0,
+      }
+      byFeedType.set(record.feedType, {
+        quantityKg: existing.quantityKg + record.totalQuantityKg,
+        cost: existing.cost + record.totalCost,
+      })
+    }
+
+    return {
+      period: dateRange,
+      records: recordsData,
+      summary: {
+        totalFeedKg: recordsData.reduce((sum, r) => sum + r.totalQuantityKg, 0),
+        totalCost: recordsData.reduce((sum, r) => sum + r.totalCost, 0),
+        byFeedType: Array.from(byFeedType.entries()).map(([type, data]) => ({
+          type,
+          quantityKg: data.quantityKg,
+          cost: data.cost,
+        })),
+      },
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }
 
@@ -463,78 +490,87 @@ export async function getEggReport(
   dateRange: DateRange,
 ): Promise<EggReport> {
   const { db } = await import('~/lib/db')
+  const { AppError } = await import('~/lib/errors')
 
-  let query = db
-    .selectFrom('egg_records')
-    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
-    .select([
-      'egg_records.date',
-      sql<number>`SUM("quantityCollected")`.as('collected'),
-      sql<number>`SUM("quantityBroken")`.as('broken'),
-      sql<number>`SUM("quantitySold")`.as('sold'),
-    ])
-    .where('egg_records.date', '>=', dateRange.startDate)
-    .where('egg_records.date', '<=', dateRange.endDate)
-    .groupBy('egg_records.date')
-    .orderBy('egg_records.date', 'desc')
+  try {
+    let query = db
+      .selectFrom('egg_records')
+      .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+      .select([
+        'egg_records.date',
+        sql<number>`SUM("quantityCollected")`.as('collected'),
+        sql<number>`SUM("quantityBroken")`.as('broken'),
+        sql<number>`SUM("quantitySold")`.as('sold'),
+      ])
+      .where('egg_records.date', '>=', dateRange.startDate)
+      .where('egg_records.date', '<=', dateRange.endDate)
+      .groupBy('egg_records.date')
+      .orderBy('egg_records.date', 'desc')
 
-  if (farmId) {
-    query = query.where('batches.farmId', '=', farmId)
-  }
+    if (farmId) {
+      query = query.where('batches.farmId', '=', farmId)
+    }
 
-  const records = await query.execute()
+    const records = await query.execute()
 
-  let runningInventory = 0
-  const recordsWithInventory = records
-    .reverse()
-    .map((r) => {
-      runningInventory +=
-        Number(r.collected) - Number(r.broken) - Number(r.sold)
-      return {
-        date: r.date,
-        collected: Number(r.collected),
-        broken: Number(r.broken),
-        sold: Number(r.sold),
-        inventory: runningInventory,
-      }
-    })
-    .reverse()
+    let runningInventory = 0
+    const recordsWithInventory = records
+      .reverse()
+      .map((r) => {
+        runningInventory +=
+          Number(r.collected) - Number(r.broken) - Number(r.sold)
+        return {
+          date: r.date,
+          collected: Number(r.collected),
+          broken: Number(r.broken),
+          sold: Number(r.sold),
+          inventory: runningInventory,
+        }
+      })
+      .reverse()
 
-  const totalCollected = recordsWithInventory.reduce(
-    (sum, r) => sum + r.collected,
-    0,
-  )
-  const totalBroken = recordsWithInventory.reduce((sum, r) => sum + r.broken, 0)
-  const totalSold = recordsWithInventory.reduce((sum, r) => sum + r.sold, 0)
+    const totalCollected = recordsWithInventory.reduce(
+      (sum, r) => sum + r.collected,
+      0,
+    )
+    const totalBroken = recordsWithInventory.reduce(
+      (sum, r) => sum + r.broken,
+      0,
+    )
+    const totalSold = recordsWithInventory.reduce((sum, r) => sum + r.sold, 0)
 
-  // Get layer bird count for laying percentage
-  let layerQuery = db
-    .selectFrom('batches')
-    .select(sql<number>`COALESCE(SUM("currentQuantity"), 0)`.as('total'))
-    .where('species', 'ilike', '%layer%')
-    .where('status', '=', 'active')
+    // Get layer bird count for laying percentage
+    let layerQuery = db
+      .selectFrom('batches')
+      .select(sql<number>`COALESCE(SUM("currentQuantity"), 0)`.as('total'))
+      .where('species', 'ilike', '%layer%')
+      .where('status', '=', 'active')
 
-  if (farmId) {
-    layerQuery = layerQuery.where('farmId', '=', farmId)
-  }
+    if (farmId) {
+      layerQuery = layerQuery.where('farmId', '=', farmId)
+    }
 
-  const layerResult = await layerQuery.executeTakeFirst()
-  const layerBirds = Number(layerResult?.total || 0)
-  const days = recordsWithInventory.length || 1
-  const averageLayingPercentage =
-    layerBirds > 0
-      ? Math.round((totalCollected / (layerBirds * days)) * 1000) / 10
-      : 0
+    const layerResult = await layerQuery.executeTakeFirst()
+    const layerBirds = Number(layerResult?.total || 0)
+    const days = recordsWithInventory.length || 1
+    const averageLayingPercentage =
+      layerBirds > 0
+        ? Math.round((totalCollected / (layerBirds * days)) * 1000) / 10
+        : 0
 
-  return {
-    period: dateRange,
-    records: recordsWithInventory,
-    summary: {
-      totalCollected,
-      totalBroken,
-      totalSold,
-      currentInventory: recordsWithInventory[0]?.inventory || 0,
-      averageLayingPercentage,
-    },
+    return {
+      period: dateRange,
+      records: recordsWithInventory,
+      summary: {
+        totalCollected,
+        totalBroken,
+        totalSold,
+        currentInventory: recordsWithInventory[0]?.inventory || 0,
+        averageLayingPercentage,
+      },
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }

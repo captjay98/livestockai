@@ -35,33 +35,43 @@ export async function getFeedInventory(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  let targetFarmIds: Array<string> = []
+  try {
+    let targetFarmIds: Array<string> = []
 
-  if (farmId) {
-    const hasAccess = await checkFarmAccess(userId, farmId)
-    if (!hasAccess) throw new Error('Access denied')
-    targetFarmIds = [farmId]
-  } else {
-    targetFarmIds = await getUserFarms(userId)
-    if (targetFarmIds.length === 0) return []
+    if (farmId) {
+      const hasAccess = await checkFarmAccess(userId, farmId)
+      if (!hasAccess)
+        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+      targetFarmIds = [farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) return []
+    }
+
+    return await db
+      .selectFrom('feed_inventory')
+      .leftJoin('farms', 'farms.id', 'feed_inventory.farmId')
+      .select([
+        'feed_inventory.id',
+        'feed_inventory.farmId',
+        'feed_inventory.feedType',
+        'feed_inventory.quantityKg',
+        'feed_inventory.minThresholdKg',
+        'feed_inventory.updatedAt',
+        'farms.name as farmName',
+      ])
+      .where('feed_inventory.farmId', 'in', targetFarmIds)
+      .orderBy('feed_inventory.feedType', 'asc')
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch feed inventory',
+      cause: error,
+    })
   }
-
-  return db
-    .selectFrom('feed_inventory')
-    .leftJoin('farms', 'farms.id', 'feed_inventory.farmId')
-    .select([
-      'feed_inventory.id',
-      'feed_inventory.farmId',
-      'feed_inventory.feedType',
-      'feed_inventory.quantityKg',
-      'feed_inventory.minThresholdKg',
-      'feed_inventory.updatedAt',
-      'farms.name as farmName',
-    ])
-    .where('feed_inventory.farmId', 'in', targetFarmIds)
-    .orderBy('feed_inventory.feedType', 'asc')
-    .execute()
 }
 
 export const getFeedInventoryFn = createServerFn({ method: 'GET' })
@@ -81,36 +91,46 @@ export async function createFeedInventory(
 ): Promise<string> {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  await verifyFarmAccess(userId, input.farmId)
+  try {
+    await verifyFarmAccess(userId, input.farmId)
 
-  // Check if record already exists for this farm + feedType
-  const existing = await db
-    .selectFrom('feed_inventory')
-    .select('id')
-    .where('farmId', '=', input.farmId)
-    .where('feedType', '=', input.feedType)
-    .executeTakeFirst()
+    // Check if record already exists for this farm + feedType
+    const existing = await db
+      .selectFrom('feed_inventory')
+      .select('id')
+      .where('farmId', '=', input.farmId)
+      .where('feedType', '=', input.feedType)
+      .executeTakeFirst()
 
-  if (existing) {
-    throw new Error(
-      `Feed inventory for ${input.feedType} already exists. Please update the existing record.`,
-    )
-  }
+    if (existing) {
+      throw new AppError('VALIDATION_ERROR', {
+        message: `Feed inventory for ${input.feedType} already exists`,
+        metadata: { field: 'feedType' },
+      })
+    }
 
-  const result = await db
-    .insertInto('feed_inventory')
-    .values({
-      farmId: input.farmId,
-      feedType: input.feedType,
-      quantityKg: input.quantityKg.toString(),
-      minThresholdKg: input.minThresholdKg.toString(),
-      updatedAt: new Date(),
+    const result = await db
+      .insertInto('feed_inventory')
+      .values({
+        farmId: input.farmId,
+        feedType: input.feedType,
+        quantityKg: input.quantityKg.toString(),
+        minThresholdKg: input.minThresholdKg.toString(),
+        updatedAt: new Date(),
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
+
+    return result.id
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to create feed inventory record',
+      cause: error,
     })
-    .returning('id')
-    .executeTakeFirstOrThrow()
-
-  return result.id
+  }
 }
 
 export const createFeedInventoryFn = createServerFn({ method: 'POST' })
@@ -131,32 +151,49 @@ export async function updateFeedInventory(
 ) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  const farmIds = await getUserFarms(userId)
+  try {
+    const farmIds = await getUserFarms(userId)
 
-  const record = await db
-    .selectFrom('feed_inventory')
-    .select(['id', 'farmId'])
-    .where('id', '=', id)
-    .executeTakeFirst()
+    const record = await db
+      .selectFrom('feed_inventory')
+      .select(['id', 'farmId'])
+      .where('id', '=', id)
+      .executeTakeFirst()
 
-  if (!record) throw new Error('Feed inventory record not found')
-  if (!farmIds.includes(record.farmId)) throw new Error('Unauthorized')
+    if (!record) {
+      throw new AppError('FEED_INVENTORY_NOT_FOUND', {
+        metadata: { resource: 'FeedInventory', id },
+      })
+    }
+    if (!farmIds.includes(record.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: record.farmId },
+      })
+    }
 
-  const updateData: Record<string, unknown> = { updatedAt: new Date() }
-  if (input.feedType !== undefined) updateData.feedType = input.feedType
-  if (input.quantityKg !== undefined)
-    updateData.quantityKg = input.quantityKg.toString()
-  if (input.minThresholdKg !== undefined)
-    updateData.minThresholdKg = input.minThresholdKg.toString()
+    const updateData: Record<string, unknown> = { updatedAt: new Date() }
+    if (input.feedType !== undefined) updateData.feedType = input.feedType
+    if (input.quantityKg !== undefined)
+      updateData.quantityKg = input.quantityKg.toString()
+    if (input.minThresholdKg !== undefined)
+      updateData.minThresholdKg = input.minThresholdKg.toString()
 
-  await db
-    .updateTable('feed_inventory')
-    .set(updateData)
-    .where('id', '=', id)
-    .execute()
+    await db
+      .updateTable('feed_inventory')
+      .set(updateData)
+      .where('id', '=', id)
+      .execute()
 
-  return true
+    return true
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to update feed inventory',
+      cause: error,
+    })
+  }
 }
 
 export const updateFeedInventoryFn = createServerFn({ method: 'POST' })
@@ -175,20 +212,37 @@ export const updateFeedInventoryFn = createServerFn({ method: 'POST' })
 export async function deleteFeedInventory(userId: string, id: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  const farmIds = await getUserFarms(userId)
+  try {
+    const farmIds = await getUserFarms(userId)
 
-  const record = await db
-    .selectFrom('feed_inventory')
-    .select(['id', 'farmId'])
-    .where('id', '=', id)
-    .executeTakeFirst()
+    const record = await db
+      .selectFrom('feed_inventory')
+      .select(['id', 'farmId'])
+      .where('id', '=', id)
+      .executeTakeFirst()
 
-  if (!record) throw new Error('Feed inventory record not found')
-  if (!farmIds.includes(record.farmId)) throw new Error('Unauthorized')
+    if (!record) {
+      throw new AppError('FEED_INVENTORY_NOT_FOUND', {
+        metadata: { resource: 'FeedInventory', id },
+      })
+    }
+    if (!farmIds.includes(record.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: record.farmId },
+      })
+    }
 
-  await db.deleteFrom('feed_inventory').where('id', '=', id).execute()
-  return true
+    await db.deleteFrom('feed_inventory').where('id', '=', id).execute()
+    return true
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to delete feed inventory',
+      cause: error,
+    })
+  }
 }
 
 export const deleteFeedInventoryFn = createServerFn({ method: 'POST' })
@@ -210,40 +264,49 @@ export async function addFeedStock(
 ) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  await verifyFarmAccess(userId, farmId)
+  try {
+    await verifyFarmAccess(userId, farmId)
 
-  const existing = await db
-    .selectFrom('feed_inventory')
-    .select(['id', 'quantityKg'])
-    .where('farmId', '=', farmId)
-    .where('feedType', '=', feedType)
-    .executeTakeFirst()
+    const existing = await db
+      .selectFrom('feed_inventory')
+      .select(['id', 'quantityKg'])
+      .where('farmId', '=', farmId)
+      .where('feedType', '=', feedType)
+      .executeTakeFirst()
 
-  if (existing) {
-    const newQuantity = parseFloat(existing.quantityKg) + quantityKg
-    await db
-      .updateTable('feed_inventory')
-      .set({
-        quantityKg: newQuantity.toString(),
-        updatedAt: new Date(),
-      })
-      .where('id', '=', existing.id)
-      .execute()
-  } else {
-    await db
-      .insertInto('feed_inventory')
-      .values({
-        farmId,
-        feedType,
-        quantityKg: quantityKg.toString(),
-        minThresholdKg: '10.00',
-        updatedAt: new Date(),
-      })
-      .execute()
+    if (existing) {
+      const newQuantity = parseFloat(existing.quantityKg) + quantityKg
+      await db
+        .updateTable('feed_inventory')
+        .set({
+          quantityKg: newQuantity.toString(),
+          updatedAt: new Date(),
+        })
+        .where('id', '=', existing.id)
+        .execute()
+    } else {
+      await db
+        .insertInto('feed_inventory')
+        .values({
+          farmId,
+          feedType,
+          quantityKg: quantityKg.toString(),
+          minThresholdKg: '10.00',
+          updatedAt: new Date(),
+        })
+        .execute()
+    }
+
+    return true
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to add feed stock',
+      cause: error,
+    })
   }
-
-  return true
 }
 
 /**
@@ -257,36 +320,49 @@ export async function reduceFeedStock(
 ) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  await verifyFarmAccess(userId, farmId)
+  try {
+    await verifyFarmAccess(userId, farmId)
 
-  const existing = await db
-    .selectFrom('feed_inventory')
-    .select(['id', 'quantityKg'])
-    .where('farmId', '=', farmId)
-    .where('feedType', '=', feedType)
-    .executeTakeFirst()
+    const existing = await db
+      .selectFrom('feed_inventory')
+      .select(['id', 'quantityKg'])
+      .where('farmId', '=', farmId)
+      .where('feedType', '=', feedType)
+      .executeTakeFirst()
 
-  if (!existing) {
-    throw new Error(`No ${feedType} inventory found for this farm`)
-  }
+    if (!existing) {
+      throw new AppError('FEED_INVENTORY_NOT_FOUND', {
+        message: `No ${feedType} inventory found for this farm`,
+        metadata: { resource: 'FeedInventory', feedType },
+      })
+    }
 
-  const currentQty = parseFloat(existing.quantityKg)
-  if (currentQty < quantityKg) {
-    throw new Error(
-      `Insufficient ${feedType} stock. Available: ${currentQty}kg, Requested: ${quantityKg}kg`,
-    )
-  }
+    const currentQty = parseFloat(existing.quantityKg)
+    if (currentQty < quantityKg) {
+      throw new AppError('INSUFFICIENT_STOCK', {
+        message: `Insufficient ${feedType} stock`,
+        metadata: { available: currentQty, requested: quantityKg },
+      })
+    }
 
-  const newQuantity = currentQty - quantityKg
-  await db
-    .updateTable('feed_inventory')
-    .set({
-      quantityKg: newQuantity.toString(),
-      updatedAt: new Date(),
+    const newQuantity = currentQty - quantityKg
+    await db
+      .updateTable('feed_inventory')
+      .set({
+        quantityKg: newQuantity.toString(),
+        updatedAt: new Date(),
+      })
+      .where('id', '=', existing.id)
+      .execute()
+
+    return true
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to reduce feed stock',
+      cause: error,
     })
-    .where('id', '=', existing.id)
-    .execute()
-
-  return true
+  }
 }

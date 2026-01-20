@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { DEFAULT_MODULES_BY_FARM_TYPE } from './constants'
 
 import type { FarmModule, ModuleKey } from './types'
+import { AppError } from '~/lib/errors'
 
 /**
  * Fetches all module state records for a farm.
@@ -15,16 +16,24 @@ export async function getFarmModules(
 ): Promise<Array<FarmModule>> {
   const { db } = await import('~/lib/db')
 
-  const modules = await db
-    .selectFrom('farm_modules')
-    .selectAll()
-    .where('farmId', '=', farmId)
-    .execute()
+  try {
+    const modules = await db
+      .selectFrom('farm_modules')
+      .selectAll()
+      .where('farmId', '=', farmId)
+      .execute()
 
-  return modules.map((m) => ({
-    ...m,
-    createdAt: new Date(m.createdAt),
-  }))
+    return modules.map((m) => ({
+      ...m,
+      createdAt: new Date(m.createdAt),
+    }))
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch farm modules',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -49,31 +58,39 @@ export async function createDefaultModules(
 ): Promise<void> {
   const { db } = await import('~/lib/db')
 
-  // Get default modules for this farm type (empty array for unknown types)
-  const defaultModules = DEFAULT_MODULES_BY_FARM_TYPE[farmType] ?? []
+  try {
+    // Get default modules for this farm type (empty array for unknown types)
+    const defaultModules = DEFAULT_MODULES_BY_FARM_TYPE[farmType] ?? []
 
-  // For 'multi' type or empty defaults, don't create any defaults
-  if (defaultModules.length === 0) {
-    return
+    // For 'multi' type or empty defaults, don't create any defaults
+    if (defaultModules.length === 0) {
+      return
+    }
+
+    // Create all module records (enabled by default)
+    const allModules: Array<ModuleKey> = [
+      'poultry',
+      'aquaculture',
+      'cattle',
+      'goats',
+      'sheep',
+      'bees',
+    ]
+
+    const moduleRecords = allModules.map((moduleKey) => ({
+      farmId,
+      moduleKey,
+      enabled: defaultModules.includes(moduleKey),
+    }))
+
+    await db.insertInto('farm_modules').values(moduleRecords).execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to create default modules',
+      cause: error,
+    })
   }
-
-  // Create all module records (enabled by default)
-  const allModules: Array<ModuleKey> = [
-    'poultry',
-    'aquaculture',
-    'cattle',
-    'goats',
-    'sheep',
-    'bees',
-  ]
-
-  const moduleRecords = allModules.map((moduleKey) => ({
-    farmId,
-    moduleKey,
-    enabled: defaultModules.includes(moduleKey),
-  }))
-
-  await db.insertInto('farm_modules').values(moduleRecords).execute()
 }
 
 /**
@@ -90,33 +107,40 @@ export async function toggleModule(
   enabled: boolean,
 ): Promise<void> {
   const { db } = await import('~/lib/db')
-
-  // Check if module record exists
-  const existing = await db
-    .selectFrom('farm_modules')
-    .selectAll()
-    .where('farmId', '=', farmId)
-    .where('moduleKey', '=', moduleKey)
-    .executeTakeFirst()
-
-  if (existing) {
-    // Update existing record
-    await db
-      .updateTable('farm_modules')
-      .set({ enabled })
+  try {
+    // Check if module record exists
+    const existing = await db
+      .selectFrom('farm_modules')
+      .selectAll()
       .where('farmId', '=', farmId)
       .where('moduleKey', '=', moduleKey)
-      .execute()
-  } else {
-    // Create new record
-    await db
-      .insertInto('farm_modules')
-      .values({
-        farmId,
-        moduleKey,
-        enabled,
-      })
-      .execute()
+      .executeTakeFirst()
+
+    if (existing) {
+      // Update existing record
+      await db
+        .updateTable('farm_modules')
+        .set({ enabled })
+        .where('farmId', '=', farmId)
+        .where('moduleKey', '=', moduleKey)
+        .execute()
+    } else {
+      // Create new record
+      await db
+        .insertInto('farm_modules')
+        .values({
+          farmId,
+          moduleKey,
+          enabled,
+        })
+        .execute()
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to toggle module',
+      cause: error,
+    })
   }
 }
 
@@ -130,22 +154,30 @@ export async function canDisableModule(
   const { db } = await import('~/lib/db')
   const { MODULE_METADATA } = await import('./constants')
 
-  // Get livestock types for this module
-  const metadata = MODULE_METADATA[moduleKey]
-  const livestockTypes = metadata.livestockTypes
+  try {
+    // Get livestock types for this module
+    const metadata = MODULE_METADATA[moduleKey]
+    const livestockTypes = metadata.livestockTypes
 
-  // Check for active batches with these livestock types
-  const activeBatches = await db
-    .selectFrom('batches')
-    .select('id')
-    .where('farmId', '=', farmId)
-    .where('status', '=', 'active')
-    .where('livestockType', 'in', livestockTypes)
-    .limit(1)
-    .execute()
+    // Check for active batches with these livestock types
+    const activeBatches = await db
+      .selectFrom('batches')
+      .select('id')
+      .where('farmId', '=', farmId)
+      .where('status', '=', 'active')
+      .where('livestockType', 'in', livestockTypes)
+      .limit(1)
+      .execute()
 
-  // Can disable if no active batches found
-  return activeBatches.length === 0
+    // Can disable if no active batches found
+    return activeBatches.length === 0
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to checking disable status',
+      cause: error,
+    })
+  }
 }
 
 // Server functions for client-side calls
@@ -163,7 +195,7 @@ export const getFarmModulesFn = createServerFn({ method: 'GET' })
     const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
 
     if (!hasAccess) {
-      throw new Error('Access denied to this farm')
+      throw new AppError('ACCESS_DENIED', { metadata: { farmId: data.farmId } })
     }
 
     return getFarmModules(data.farmId)
@@ -184,16 +216,17 @@ export const toggleModuleFn = createServerFn({ method: 'POST' })
     const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
 
     if (!hasAccess) {
-      throw new Error('Access denied to this farm')
+      throw new AppError('ACCESS_DENIED', { metadata: { farmId: data.farmId } })
     }
 
     // If disabling, check for active batches
     if (!data.enabled) {
       const canDisable = await canDisableModule(data.farmId, data.moduleKey)
       if (!canDisable) {
-        throw new Error(
-          'Cannot disable module with active batches. Please complete or sell all batches first.',
-        )
+        throw new AppError('VALIDATION_ERROR', {
+          message:
+            'Cannot disable module with active batches. Please complete or sell all batches first.',
+        })
       }
     }
 
@@ -225,7 +258,7 @@ export const canDisableModuleFn = createServerFn({ method: 'GET' })
     const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
 
     if (!hasAccess) {
-      throw new Error('Access denied to this farm')
+      throw new AppError('ACCESS_DENIED', { metadata: { farmId: data.farmId } })
     }
 
     return canDisableModule(data.farmId, data.moduleKey)

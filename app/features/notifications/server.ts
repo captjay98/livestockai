@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import type { CreateNotificationData, Notification } from './types'
+import { AppError } from '~/lib/errors'
 
 /**
  * Persistence layer for system notifications.
@@ -12,21 +13,29 @@ export async function createNotification(
 ): Promise<string> {
   const { db } = await import('~/lib/db')
 
-  const result = await db
-    .insertInto('notifications')
-    .values({
-      userId: data.userId,
-      farmId: data.farmId || null,
-      type: data.type,
-      title: data.title,
-      message: data.message,
-      actionUrl: data.actionUrl || null,
-      metadata: data.metadata || null,
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+  try {
+    const result = await db
+      .insertInto('notifications')
+      .values({
+        userId: data.userId,
+        farmId: data.farmId || null,
+        type: data.type,
+        title: data.title,
+        message: data.message,
+        actionUrl: data.actionUrl || null,
+        metadata: data.metadata || null,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
 
-  return result.id
+    return result.id
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to create notification',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -44,22 +53,30 @@ export async function getNotifications(
 ): Promise<Array<Notification>> {
   const { db } = await import('~/lib/db')
 
-  let query = db
-    .selectFrom('notifications')
-    .selectAll()
-    .where('userId', '=', userId)
-    .orderBy('createdAt', 'desc')
+  try {
+    let query = db
+      .selectFrom('notifications')
+      .selectAll()
+      .where('userId', '=', userId)
+      .orderBy('createdAt', 'desc')
 
-  if (options?.unreadOnly) {
-    query = query.where('read', '=', false)
+    if (options?.unreadOnly) {
+      query = query.where('read', '=', false)
+    }
+
+    if (options?.limit) {
+      query = query.limit(options.limit)
+    }
+
+    const results = await query.execute()
+    return results as Array<Notification>
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch notifications',
+      cause: error,
+    })
   }
-
-  if (options?.limit) {
-    query = query.limit(options.limit)
-  }
-
-  const results = await query.execute()
-  return results as Array<Notification>
 }
 
 /**
@@ -70,11 +87,19 @@ export async function getNotifications(
 export async function markAsRead(notificationId: string): Promise<void> {
   const { db } = await import('~/lib/db')
 
-  await db
-    .updateTable('notifications')
-    .set({ read: true })
-    .where('id', '=', notificationId)
-    .execute()
+  try {
+    await db
+      .updateTable('notifications')
+      .set({ read: true })
+      .where('id', '=', notificationId)
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to mark notification as read',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -85,12 +110,20 @@ export async function markAsRead(notificationId: string): Promise<void> {
 export async function markAllAsRead(userId: string): Promise<void> {
   const { db } = await import('~/lib/db')
 
-  await db
-    .updateTable('notifications')
-    .set({ read: true })
-    .where('userId', '=', userId)
-    .where('read', '=', false)
-    .execute()
+  try {
+    await db
+      .updateTable('notifications')
+      .set({ read: true })
+      .where('userId', '=', userId)
+      .where('read', '=', false)
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to mark all notifications as read',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -103,10 +136,18 @@ export async function deleteNotification(
 ): Promise<void> {
   const { db } = await import('~/lib/db')
 
-  await db
-    .deleteFrom('notifications')
-    .where('id', '=', notificationId)
-    .execute()
+  try {
+    await db
+      .deleteFrom('notifications')
+      .where('id', '=', notificationId)
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to delete notification',
+      cause: error,
+    })
+  }
 }
 
 // Server functions for client-side calls
@@ -117,9 +158,14 @@ export async function deleteNotification(
 export const getNotificationsFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { unreadOnly?: boolean; limit?: number }) => data)
   .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    return getNotifications(session.user.id, data)
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      const session = await requireAuth()
+      return await getNotifications(session.user.id, data)
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('INTERNAL_ERROR', { cause: error })
+    }
   })
 
 /**
@@ -128,9 +174,14 @@ export const getNotificationsFn = createServerFn({ method: 'GET' })
 export const markAsReadFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { notificationId: string }) => data)
   .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
-    return markAsRead(data.notificationId)
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      await requireAuth()
+      return await markAsRead(data.notificationId)
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('INTERNAL_ERROR', { cause: error })
+    }
   })
 
 /**
@@ -138,9 +189,14 @@ export const markAsReadFn = createServerFn({ method: 'POST' })
  */
 export const markAllAsReadFn = createServerFn({ method: 'POST' }).handler(
   async () => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    return markAllAsRead(session.user.id)
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      const session = await requireAuth()
+      return await markAllAsRead(session.user.id)
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('INTERNAL_ERROR', { cause: error })
+    }
   },
 )
 
@@ -150,7 +206,12 @@ export const markAllAsReadFn = createServerFn({ method: 'POST' }).handler(
 export const deleteNotificationFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { notificationId: string }) => data)
   .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
-    return deleteNotification(data.notificationId)
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      await requireAuth()
+      return await deleteNotification(data.notificationId)
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('INTERNAL_ERROR', { cause: error })
+    }
   })

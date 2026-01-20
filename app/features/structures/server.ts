@@ -81,25 +81,34 @@ export interface UpdateStructureInput {
 export async function getStructures(userId: string, farmId: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  await verifyFarmAccess(userId, farmId)
+  try {
+    await verifyFarmAccess(userId, farmId)
 
-  return db
-    .selectFrom('structures')
-    .select([
-      'id',
-      'farmId',
-      'name',
-      'type',
-      'capacity',
-      'areaSqm',
-      'status',
-      'notes',
-      'createdAt',
-    ])
-    .where('farmId', '=', farmId)
-    .orderBy('name', 'asc')
-    .execute()
+    return await db
+      .selectFrom('structures')
+      .select([
+        'id',
+        'farmId',
+        'name',
+        'type',
+        'capacity',
+        'areaSqm',
+        'status',
+        'notes',
+        'createdAt',
+      ])
+      .where('farmId', '=', farmId)
+      .orderBy('name', 'asc')
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch structures',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -124,46 +133,63 @@ export const getStructuresFn = createServerFn({ method: 'GET' })
 export async function getStructure(userId: string, structureId: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  const farmIds = await getUserFarms(userId)
+  try {
+    const farmIds = await getUserFarms(userId)
 
-  const structure = await db
-    .selectFrom('structures')
-    .leftJoin('farms', 'farms.id', 'structures.farmId')
-    .select([
-      'structures.id',
-      'structures.farmId',
-      'structures.name',
-      'structures.type',
-      'structures.capacity',
-      'structures.areaSqm',
-      'structures.status',
-      'structures.notes',
-      'structures.createdAt',
-      'farms.name as farmName',
-    ])
-    .where('structures.id', '=', structureId)
-    .executeTakeFirst()
+    const structure = await db
+      .selectFrom('structures')
+      .leftJoin('farms', 'farms.id', 'structures.farmId')
+      .select([
+        'structures.id',
+        'structures.farmId',
+        'structures.name',
+        'structures.type',
+        'structures.capacity',
+        'structures.areaSqm',
+        'structures.status',
+        'structures.notes',
+        'structures.createdAt',
+        'farms.name as farmName',
+      ])
+      .where('structures.id', '=', structureId)
+      .executeTakeFirst()
 
-  if (!structure) throw new Error('Structure not found')
-  if (!farmIds.includes(structure.farmId)) throw new Error('Unauthorized')
+    if (!structure) {
+      throw new AppError('STRUCTURE_NOT_FOUND', {
+        metadata: { resource: 'Structure', id: structureId },
+      })
+    }
+    if (!farmIds.includes(structure.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: structure.farmId },
+      })
+    }
 
-  // Get batches assigned to this structure
-  const batches = await db
-    .selectFrom('batches')
-    .select([
-      'id',
-      'batchName',
-      'species',
-      'livestockType',
-      'currentQuantity',
-      'status',
-    ])
-    .where('structureId', '=', structureId)
-    .where('status', '=', 'active')
-    .execute()
+    // Get batches assigned to this structure
+    const batches = await db
+      .selectFrom('batches')
+      .select([
+        'id',
+        'batchName',
+        'species',
+        'livestockType',
+        'currentQuantity',
+        'status',
+      ])
+      .where('structureId', '=', structureId)
+      .where('status', '=', 'active')
+      .execute()
 
-  return { ...structure, batches }
+    return { ...structure, batches }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch structure details',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -191,24 +217,33 @@ export async function createStructure(
 ): Promise<string> {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  await verifyFarmAccess(userId, input.farmId)
+  try {
+    await verifyFarmAccess(userId, input.farmId)
 
-  const result = await db
-    .insertInto('structures')
-    .values({
-      farmId: input.farmId,
-      name: input.name,
-      type: input.type,
-      capacity: input.capacity || null,
-      areaSqm: input.areaSqm?.toString() || null,
-      status: input.status,
-      notes: input.notes || null,
+    const result = await db
+      .insertInto('structures')
+      .values({
+        farmId: input.farmId,
+        name: input.name,
+        type: input.type,
+        capacity: input.capacity || null,
+        areaSqm: input.areaSqm?.toString() || null,
+        status: input.status,
+        notes: input.notes || null,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
+
+    return result.id
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to create structure',
+      cause: error,
     })
-    .returning('id')
-    .executeTakeFirstOrThrow()
-
-  return result.id
+  }
 }
 
 /**
@@ -237,36 +272,53 @@ export async function updateStructure(
 ) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  const farmIds = await getUserFarms(userId)
+  try {
+    const farmIds = await getUserFarms(userId)
 
-  const structure = await db
-    .selectFrom('structures')
-    .select(['id', 'farmId'])
-    .where('id', '=', id)
-    .executeTakeFirst()
-
-  if (!structure) throw new Error('Structure not found')
-  if (!farmIds.includes(structure.farmId)) throw new Error('Unauthorized')
-
-  const updateData: Record<string, unknown> = {}
-  if (input.name !== undefined) updateData.name = input.name
-  if (input.type !== undefined) updateData.type = input.type
-  if (input.capacity !== undefined) updateData.capacity = input.capacity
-  if (input.areaSqm !== undefined)
-    updateData.areaSqm = input.areaSqm?.toString() || null
-  if (input.status !== undefined) updateData.status = input.status
-  if (input.notes !== undefined) updateData.notes = input.notes
-
-  if (Object.keys(updateData).length > 0) {
-    await db
-      .updateTable('structures')
-      .set(updateData)
+    const structure = await db
+      .selectFrom('structures')
+      .select(['id', 'farmId'])
       .where('id', '=', id)
-      .execute()
-  }
+      .executeTakeFirst()
 
-  return true
+    if (!structure) {
+      throw new AppError('STRUCTURE_NOT_FOUND', {
+        metadata: { resource: 'Structure', id },
+      })
+    }
+    if (!farmIds.includes(structure.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: structure.farmId },
+      })
+    }
+
+    const updateData: Record<string, unknown> = {}
+    if (input.name !== undefined) updateData.name = input.name
+    if (input.type !== undefined) updateData.type = input.type
+    if (input.capacity !== undefined) updateData.capacity = input.capacity
+    if (input.areaSqm !== undefined)
+      updateData.areaSqm = input.areaSqm?.toString() || null
+    if (input.status !== undefined) updateData.status = input.status
+    if (input.notes !== undefined) updateData.notes = input.notes
+
+    if (Object.keys(updateData).length > 0) {
+      await db
+        .updateTable('structures')
+        .set(updateData)
+        .where('id', '=', id)
+        .execute()
+    }
+
+    return true
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to update structure',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -292,34 +344,51 @@ export const updateStructureFn = createServerFn({ method: 'POST' })
 export async function deleteStructure(userId: string, id: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  const farmIds = await getUserFarms(userId)
+  try {
+    const farmIds = await getUserFarms(userId)
 
-  const structure = await db
-    .selectFrom('structures')
-    .select(['id', 'farmId'])
-    .where('id', '=', id)
-    .executeTakeFirst()
+    const structure = await db
+      .selectFrom('structures')
+      .select(['id', 'farmId'])
+      .where('id', '=', id)
+      .executeTakeFirst()
 
-  if (!structure) throw new Error('Structure not found')
-  if (!farmIds.includes(structure.farmId)) throw new Error('Unauthorized')
+    if (!structure) {
+      throw new AppError('STRUCTURE_NOT_FOUND', {
+        metadata: { resource: 'Structure', id },
+      })
+    }
+    if (!farmIds.includes(structure.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: structure.farmId },
+      })
+    }
 
-  // Check if any active batches are assigned
-  const assignedBatches = await db
-    .selectFrom('batches')
-    .select('id')
-    .where('structureId', '=', id)
-    .where('status', '=', 'active')
-    .execute()
+    // Check if any active batches are assigned
+    const assignedBatches = await db
+      .selectFrom('batches')
+      .select('id')
+      .where('structureId', '=', id)
+      .where('status', '=', 'active')
+      .execute()
 
-  if (assignedBatches.length > 0) {
-    throw new Error(
-      `Cannot delete structure with ${assignedBatches.length} active batch(es) assigned. Please reassign or complete the batches first.`,
-    )
+    if (assignedBatches.length > 0) {
+      throw new AppError('VALIDATION_ERROR', {
+        message: `Cannot delete structure with ${assignedBatches.length} active batch(es) assigned. Please reassign or complete the batches first.`,
+      })
+    }
+
+    await db.deleteFrom('structures').where('id', '=', id).execute()
+    return true
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to delete structure',
+      cause: error,
+    })
   }
-
-  await db.deleteFrom('structures').where('id', '=', id).execute()
-  return true
 }
 
 /**
@@ -345,37 +414,46 @@ export async function getStructuresWithCounts(userId: string, farmId: string) {
   const { db } = await import('~/lib/db')
   const { sql } = await import('kysely')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  await verifyFarmAccess(userId, farmId)
+  try {
+    await verifyFarmAccess(userId, farmId)
 
-  const structures = await db
-    .selectFrom('structures')
-    .leftJoin('batches', (join) =>
-      join
-        .onRef('batches.structureId', '=', 'structures.id')
-        .on('batches.status', '=', 'active'),
-    )
-    .select([
-      'structures.id',
-      'structures.farmId',
-      'structures.name',
-      'structures.type',
-      'structures.capacity',
-      'structures.areaSqm',
-      'structures.status',
-      'structures.notes',
-      'structures.createdAt',
-      sql<number>`count(batches.id)`.as('batchCount'),
-      sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
-        'totalAnimals',
-      ),
-    ])
-    .where('structures.farmId', '=', farmId)
-    .groupBy('structures.id')
-    .orderBy('structures.name', 'asc')
-    .execute()
+    const structures = await db
+      .selectFrom('structures')
+      .leftJoin('batches', (join) =>
+        join
+          .onRef('batches.structureId', '=', 'structures.id')
+          .on('batches.status', '=', 'active'),
+      )
+      .select([
+        'structures.id',
+        'structures.farmId',
+        'structures.name',
+        'structures.type',
+        'structures.capacity',
+        'structures.areaSqm',
+        'structures.status',
+        'structures.notes',
+        'structures.createdAt',
+        sql<number>`count(batches.id)`.as('batchCount'),
+        sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
+          'totalAnimals',
+        ),
+      ])
+      .where('structures.farmId', '=', farmId)
+      .groupBy('structures.id')
+      .orderBy('structures.name', 'asc')
+      .execute()
 
-  return structures
+    return structures
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch structures with counts',
+      cause: error,
+    })
+  }
 }
 
 /**

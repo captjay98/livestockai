@@ -3,6 +3,7 @@ import { getRequestHeaders } from '@tanstack/react-start/server'
 import { z } from 'zod'
 import { auth } from './config'
 import { requireAuth } from './server-middleware'
+import { AppError } from '~/lib/errors'
 
 /**
  * @module Authentication
@@ -36,8 +37,10 @@ export const loginFn = createServerFn({ method: 'POST' })
       return { success: true, user: res.user }
     } catch (e: unknown) {
       console.error('Login Error:', e)
-      const message = e instanceof Error ? e.message : 'Login failed'
-      return { success: false, error: message }
+      throw new AppError('UNAUTHORIZED', {
+        message: 'Invalid email or password',
+        cause: e,
+      })
     }
   })
 
@@ -70,8 +73,10 @@ export const registerFn = createServerFn({ method: 'POST' })
       return { success: true, user: res.user }
     } catch (e: unknown) {
       console.error('Register Error:', e)
-      const message = e instanceof Error ? e.message : 'Registration failed'
-      return { success: false, error: message }
+      throw new AppError('VALIDATION_ERROR', {
+        message: 'Registration failed',
+        cause: e,
+      })
     }
   })
 
@@ -81,10 +86,9 @@ export const checkAuthFn = createServerFn({ method: 'GET' }).handler(
       const session = await requireAuth()
       return { user: session.user }
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : 'Auth check failed'
-      console.error('checkAuthFn error:', message)
-      throw error
+      if (error instanceof AppError) throw error
+      console.error('checkAuthFn error:', error)
+      throw new AppError('UNAUTHORIZED', { cause: error })
     }
   },
 )

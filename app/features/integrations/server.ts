@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { AppError } from '~/lib/errors'
 
 /**
  * @module Integrations
@@ -16,11 +17,19 @@ import { createServerFn } from '@tanstack/react-start'
 export const testEmailFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { to: string }) => data)
   .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
-    const { sendEmail, emailTemplates } = await import('./email')
-    const template = emailTemplates.test()
-    return sendEmail({ to: data.to, ...template })
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      await requireAuth()
+      const { sendEmail, emailTemplates } = await import('./email')
+      const template = emailTemplates.test()
+      return await sendEmail({ to: data.to, ...template })
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('INTERNAL_ERROR', {
+        message: 'Failed to send test email',
+        cause: error,
+      })
+    }
   })
 
 /**
@@ -32,13 +41,21 @@ export const testEmailFn = createServerFn({ method: 'POST' })
 export const testSMSFn = createServerFn({ method: 'POST' })
   .inputValidator((data: { to: string }) => data)
   .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
-    const { sendSMS } = await import('./sms')
-    return sendSMS({
-      to: data.to,
-      message: 'OpenLivestock: Your SMS integration is working!',
-    })
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      await requireAuth()
+      const { sendSMS } = await import('./sms')
+      return await sendSMS({
+        to: data.to,
+        message: 'OpenLivestock: Your SMS integration is working!',
+      })
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('INTERNAL_ERROR', {
+        message: 'Failed to send test SMS',
+        cause: error,
+      })
+    }
   })
 
 /**
@@ -48,9 +65,17 @@ export const testSMSFn = createServerFn({ method: 'POST' })
  */
 export const getIntegrationStatusFn = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
-    const { getIntegrationStatus } = await import('./config')
-    return getIntegrationStatus()
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      await requireAuth()
+      const { getIntegrationStatus } = await import('./config')
+      return await getIntegrationStatus()
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('INTERNAL_ERROR', {
+        message: 'Failed to retrieve integration status',
+        cause: error,
+      })
+    }
   },
 )

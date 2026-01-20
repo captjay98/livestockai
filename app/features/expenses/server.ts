@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import { AppError } from '~/lib/errors'
 
 export type { PaginatedResult }
 
@@ -61,77 +62,85 @@ export async function createExpense(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
-  await verifyFarmAccess(userId, input.farmId)
+  try {
+    await verifyFarmAccess(userId, input.farmId)
 
-  const result = await db.transaction().execute(async (tx) => {
-    // 1. Record the expense
-    const expense = await tx
-      .insertInto('expenses')
-      .values({
-        farmId: input.farmId,
-        batchId: input.batchId || null,
-        category: input.category,
-        amount: input.amount.toString(),
-        date: input.date,
-        description: input.description,
-        supplierId: input.supplierId || null,
-        isRecurring: input.isRecurring || false,
-      })
-      .returning('id')
-      .executeTakeFirstOrThrow()
+    const result = await db.transaction().execute(async (tx) => {
+      // 1. Record the expense
+      const expense = await tx
+        .insertInto('expenses')
+        .values({
+          farmId: input.farmId,
+          batchId: input.batchId || null,
+          category: input.category,
+          amount: input.amount.toString(),
+          date: input.date,
+          description: input.description,
+          supplierId: input.supplierId || null,
+          isRecurring: input.isRecurring || false,
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow()
 
-    // 2. If it's a feed expense with quantity, update inventory
-    if (input.category === 'feed' && input.feedType && input.feedQuantityKg) {
-      // Check if inventory record exists
-      const existing = await tx
-        .selectFrom('feed_inventory')
-        .select(['id', 'quantityKg'])
-        .where('farmId', '=', input.farmId)
-        .where('feedType', '=', input.feedType)
-        .executeTakeFirst()
+      // 2. If it's a feed expense with quantity, update inventory
+      if (input.category === 'feed' && input.feedType && input.feedQuantityKg) {
+        // Check if inventory record exists
+        const existing = await tx
+          .selectFrom('feed_inventory')
+          .select(['id', 'quantityKg'])
+          .where('farmId', '=', input.farmId)
+          .where('feedType', '=', input.feedType)
+          .executeTakeFirst()
 
-      if (existing) {
-        // Update existing stock
-        const newQuantity = (
-          parseFloat(existing.quantityKg) + input.feedQuantityKg
-        ).toString()
-        await tx
-          .updateTable('feed_inventory')
-          .set({
-            quantityKg: newQuantity,
-            updatedAt: new Date(),
-          })
-          .where('id', '=', existing.id)
-          .execute()
-      } else {
-        // Create new inventory record
-        await tx
-          .insertInto('feed_inventory')
-          .values({
-            farmId: input.farmId,
-            feedType: input.feedType,
-            quantityKg: input.feedQuantityKg.toString(),
-            minThresholdKg: '10.00', // Default threshold
-            updatedAt: new Date(),
-          })
-          .execute()
+        if (existing) {
+          // Update existing stock
+          const newQuantity = (
+            parseFloat(existing.quantityKg) + input.feedQuantityKg
+          ).toString()
+          await tx
+            .updateTable('feed_inventory')
+            .set({
+              quantityKg: newQuantity,
+              updatedAt: new Date(),
+            })
+            .where('id', '=', existing.id)
+            .execute()
+        } else {
+          // Create new inventory record
+          await tx
+            .insertInto('feed_inventory')
+            .values({
+              farmId: input.farmId,
+              feedType: input.feedType,
+              quantityKg: input.feedQuantityKg.toString(),
+              minThresholdKg: '10.00', // Default threshold
+              updatedAt: new Date(),
+            })
+            .execute()
+        }
       }
-    }
 
-    return expense
-  })
+      return expense
+    })
 
-  // Log audit
-  const { logAudit } = await import('~/features/logging/audit')
-  await logAudit({
-    userId,
-    action: 'create',
-    entityType: 'expense',
-    entityId: result.id,
-    details: input,
-  })
+    // Log audit
+    const { logAudit } = await import('~/features/logging/audit')
+    await logAudit({
+      userId,
+      action: 'create',
+      entityType: 'expense',
+      entityId: result.id,
+      details: input,
+    })
 
-  return result.id
+    return result.id
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to create expense',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -159,33 +168,46 @@ export async function deleteExpense(userId: string, expenseId: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
 
-  const userFarms = await getUserFarms(userId)
-  const farmIds = userFarms // getUserFarms already returns string[]
+  try {
+    // getUserFarms returns string[] of accessible farm IDs
+    const userFarms = await getUserFarms(userId)
+    const farmIds = userFarms
 
-  const expense = await db
-    .selectFrom('expenses')
-    .select(['id', 'farmId'])
-    .where('id', '=', expenseId)
-    .executeTakeFirst()
+    const expense = await db
+      .selectFrom('expenses')
+      .select(['id', 'farmId'])
+      .where('id', '=', expenseId)
+      .executeTakeFirst()
 
-  if (!expense) {
-    throw new Error('Expense not found')
+    if (!expense) {
+      throw new AppError('EXPENSE_NOT_FOUND', {
+        metadata: { resource: 'Expense', id: expenseId },
+      })
+    }
+
+    if (!farmIds.includes(expense.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: expense.farmId },
+      })
+    }
+
+    await db.deleteFrom('expenses').where('id', '=', expenseId).execute()
+
+    const { logAudit } = await import('~/features/logging/audit')
+    await logAudit({
+      userId,
+      action: 'delete',
+      entityType: 'expense',
+      entityId: expenseId,
+      details: { message: 'Expense deleted', snapshot: expense },
+    })
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to delete expense',
+      cause: error,
+    })
   }
-
-  if (!farmIds.includes(expense.farmId)) {
-    throw new Error('Not authorized to delete this expense')
-  }
-
-  await db.deleteFrom('expenses').where('id', '=', expenseId).execute()
-
-  const { logAudit } = await import('~/features/logging/audit')
-  await logAudit({
-    userId,
-    action: 'delete',
-    entityType: 'expense',
-    entityId: expenseId,
-    details: { message: 'Expense deleted', snapshot: expense },
-  })
 }
 
 /**
@@ -236,45 +258,61 @@ export async function updateExpense(
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
 
-  const farmIds = await getUserFarms(userId)
+  try {
+    const farmIds = await getUserFarms(userId)
 
-  const expense = await db
-    .selectFrom('expenses')
-    .select(['id', 'farmId'])
-    .where('id', '=', expenseId)
-    .executeTakeFirst()
+    const expense = await db
+      .selectFrom('expenses')
+      .select(['id', 'farmId'])
+      .where('id', '=', expenseId)
+      .executeTakeFirst()
 
-  if (!expense) throw new Error('Expense not found')
-  if (!farmIds.includes(expense.farmId)) throw new Error('Unauthorized')
+    if (!expense)
+      throw new AppError('EXPENSE_NOT_FOUND', {
+        metadata: { resource: 'Expense', id: expenseId },
+      })
+    if (!farmIds.includes(expense.farmId))
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: expense.farmId },
+      })
 
-  // We are not handling complex feed inventory restoration on update for now
-  // Assumes simple field updates.
+    // We are not handling complex feed inventory restoration on update for now
+    // Assumes simple field updates.
 
-  const updateData: Record<string, unknown> = {}
-  if (data.category !== undefined) updateData.category = data.category
-  if (data.amount !== undefined) updateData.amount = data.amount.toString()
-  if (data.date !== undefined) updateData.date = data.date
-  if (data.description !== undefined) updateData.description = data.description
-  if (data.batchId !== undefined) updateData.batchId = data.batchId
-  if (data.supplierId !== undefined) updateData.supplierId = data.supplierId
-  if (data.isRecurring !== undefined) updateData.isRecurring = data.isRecurring
+    const updateData: Record<string, unknown> = {}
+    if (data.category !== undefined) updateData.category = data.category
+    if (data.amount !== undefined) updateData.amount = data.amount.toString()
+    if (data.date !== undefined) updateData.date = data.date
+    if (data.description !== undefined)
+      updateData.description = data.description
+    if (data.batchId !== undefined) updateData.batchId = data.batchId
+    if (data.supplierId !== undefined) updateData.supplierId = data.supplierId
+    if (data.isRecurring !== undefined)
+      updateData.isRecurring = data.isRecurring
 
-  await db
-    .updateTable('expenses')
-    .set(updateData)
-    .where('id', '=', expenseId)
-    .execute()
+    await db
+      .updateTable('expenses')
+      .set(updateData)
+      .where('id', '=', expenseId)
+      .execute()
 
-  const { logAudit } = await import('~/features/logging/audit')
-  await logAudit({
-    userId,
-    action: 'update',
-    entityType: 'expense',
-    entityId: expenseId,
-    details: data,
-  })
+    const { logAudit } = await import('~/features/logging/audit')
+    await logAudit({
+      userId,
+      action: 'update',
+      entityType: 'expense',
+      entityId: expenseId,
+      details: data,
+    })
 
-  return true
+    return true
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to update expense',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -316,48 +354,57 @@ export async function getExpenses(
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
-  let targetFarmIds: Array<string> = []
+  try {
+    let targetFarmIds: Array<string> = []
 
-  if (farmId) {
-    const hasAccess = await checkFarmAccess(userId, farmId)
-    if (!hasAccess) throw new Error('Access denied')
-    targetFarmIds = [farmId]
-  } else {
-    targetFarmIds = await getUserFarms(userId)
-    if (targetFarmIds.length === 0) return []
+    if (farmId) {
+      const hasAccess = await checkFarmAccess(userId, farmId)
+      if (!hasAccess)
+        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+      targetFarmIds = [farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) return []
+    }
+
+    let query = db
+      .selectFrom('expenses')
+      .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+      .leftJoin('batches', 'batches.id', 'expenses.batchId')
+      .leftJoin('farms', 'farms.id', 'expenses.farmId')
+      .select([
+        'expenses.id',
+        'expenses.farmId',
+        'expenses.category',
+        'expenses.amount',
+        'expenses.date',
+        'expenses.description',
+        'expenses.supplierId',
+        'expenses.batchId',
+        'expenses.isRecurring',
+        'expenses.createdAt',
+        'suppliers.name as supplierName',
+        'batches.species as batchSpecies',
+        'batches.livestockType as batchType',
+        'farms.name as farmName',
+      ])
+      .where('expenses.farmId', 'in', targetFarmIds)
+
+    if (options?.startDate) {
+      query = query.where('expenses.date', '>=', options.startDate)
+    }
+    if (options?.category) {
+      query = query.where('expenses.category', '=', options.category as any)
+    }
+
+    return await query.orderBy('expenses.date', 'desc').execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch expenses',
+      cause: error,
+    })
   }
-
-  let query = db
-    .selectFrom('expenses')
-    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-    .leftJoin('batches', 'batches.id', 'expenses.batchId')
-    .leftJoin('farms', 'farms.id', 'expenses.farmId')
-    .select([
-      'expenses.id',
-      'expenses.farmId',
-      'expenses.category',
-      'expenses.amount',
-      'expenses.date',
-      'expenses.description',
-      'expenses.supplierId',
-      'expenses.batchId',
-      'expenses.isRecurring',
-      'expenses.createdAt',
-      'suppliers.name as supplierName',
-      'batches.species as batchSpecies',
-      'batches.livestockType as batchType',
-      'farms.name as farmName',
-    ])
-    .where('expenses.farmId', 'in', targetFarmIds)
-
-  if (options?.startDate) {
-    query = query.where('expenses.date', '>=', options.startDate)
-  }
-  if (options?.category) {
-    query = query.where('expenses.category', '=', options.category as any)
-  }
-
-  return query.orderBy('expenses.date', 'desc').execute()
 }
 
 /**
@@ -382,44 +429,52 @@ export async function getExpensesForFarm(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
-  await verifyFarmAccess(userId, farmId)
+  try {
+    await verifyFarmAccess(userId, farmId)
 
-  let query = db
-    .selectFrom('expenses')
-    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-    .leftJoin('batches', 'batches.id', 'expenses.batchId')
-    .select([
-      'expenses.id',
-      'expenses.farmId',
-      'expenses.batchId',
-      'expenses.category',
-      'expenses.amount',
-      'expenses.date',
-      'expenses.description',
-      'expenses.supplierId',
-      'expenses.isRecurring',
-      'expenses.createdAt',
-      'suppliers.name as supplierName',
-      'batches.species as batchSpecies',
-      'batches.livestockType as batchType',
-    ])
-    .where('expenses.farmId', '=', farmId)
+    let query = db
+      .selectFrom('expenses')
+      .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+      .leftJoin('batches', 'batches.id', 'expenses.batchId')
+      .select([
+        'expenses.id',
+        'expenses.farmId',
+        'expenses.batchId',
+        'expenses.category',
+        'expenses.amount',
+        'expenses.date',
+        'expenses.description',
+        'expenses.supplierId',
+        'expenses.isRecurring',
+        'expenses.createdAt',
+        'suppliers.name as supplierName',
+        'batches.species as batchSpecies',
+        'batches.livestockType as batchType',
+      ])
+      .where('expenses.farmId', '=', farmId)
 
-  if (options?.startDate) {
-    query = query.where('expenses.date', '>=', options.startDate)
-  }
-  if (options?.endDate) {
-    query = query.where('expenses.date', '<=', options.endDate)
-  }
-  if (options?.category) {
-    query = query.where('expenses.category', '=', options.category as any)
-  }
+    if (options?.startDate) {
+      query = query.where('expenses.date', '>=', options.startDate)
+    }
+    if (options?.endDate) {
+      query = query.where('expenses.date', '<=', options.endDate)
+    }
+    if (options?.category) {
+      query = query.where('expenses.category', '=', options.category as any)
+    }
 
-  if (options?.limit) {
-    query = query.limit(options.limit)
-  }
+    if (options?.limit) {
+      query = query.limit(options.limit)
+    }
 
-  return query.orderBy('expenses.date', 'desc').execute()
+    return await query.orderBy('expenses.date', 'desc').execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch expenses',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -443,56 +498,65 @@ export async function getExpensesSummary(
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
-  let targetFarmIds: Array<string> = []
+  try {
+    let targetFarmIds: Array<string> = []
 
-  if (farmId) {
-    const hasAccess = await checkFarmAccess(userId, farmId)
-    if (!hasAccess) throw new Error('Access denied')
-    targetFarmIds = [farmId]
-  } else {
-    targetFarmIds = await getUserFarms(userId)
-    if (targetFarmIds.length === 0) {
-      return {
-        byCategory: {},
-        total: { count: 0, amount: 0 },
+    if (farmId) {
+      const hasAccess = await checkFarmAccess(userId, farmId)
+      if (!hasAccess)
+        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+      targetFarmIds = [farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) {
+        return {
+          byCategory: {},
+          total: { count: 0, amount: 0 },
+        }
       }
     }
-  }
 
-  let query = db
-    .selectFrom('expenses')
-    .select([
-      'category',
-      db.fn.count('id').as('count'),
-      db.fn.sum<string>('amount').as('totalAmount'),
-    ])
-    .where('farmId', 'in', targetFarmIds)
-    .groupBy('category')
+    let query = db
+      .selectFrom('expenses')
+      .select([
+        'category',
+        db.fn.count('id').as('count'),
+        db.fn.sum<string>('amount').as('totalAmount'),
+      ])
+      .where('farmId', 'in', targetFarmIds)
+      .groupBy('category')
 
-  if (options?.startDate) {
-    query = query.where('date', '>=', options.startDate)
-  }
-  if (options?.endDate) {
-    query = query.where('date', '<=', options.endDate)
-  }
+    if (options?.startDate) {
+      query = query.where('date', '>=', options.startDate)
+    }
+    if (options?.endDate) {
+      query = query.where('date', '<=', options.endDate)
+    }
 
-  const results = await query.execute()
+    const results = await query.execute()
 
-  const summary: Record<string, { count: number; amount: number }> = {}
-  let totalCount = 0
-  let totalAmount = 0
+    const summary: Record<string, { count: number; amount: number }> = {}
+    let totalCount = 0
+    let totalAmount = 0
 
-  for (const row of results) {
-    const count = Number(row.count)
-    const amount = parseFloat(row.totalAmount)
-    summary[row.category] = { count, amount }
-    totalCount += count
-    totalAmount += amount
-  }
+    for (const row of results) {
+      const count = Number(row.count)
+      const amount = parseFloat(row.totalAmount)
+      summary[row.category] = { count, amount }
+      totalCount += count
+      totalAmount += amount
+    }
 
-  return {
-    byCategory: summary,
-    total: { count: totalCount, amount: totalAmount },
+    return {
+      byCategory: summary,
+      total: { count: totalCount, amount: totalAmount },
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch expenses summary',
+      cause: error,
+    })
   }
 }
 
@@ -516,22 +580,30 @@ export async function getTotalExpenses(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
-  await verifyFarmAccess(userId, farmId)
+  try {
+    await verifyFarmAccess(userId, farmId)
 
-  let query = db
-    .selectFrom('expenses')
-    .select(db.fn.sum<string>('amount').as('total'))
-    .where('farmId', '=', farmId)
+    let query = db
+      .selectFrom('expenses')
+      .select(db.fn.sum<string>('amount').as('total'))
+      .where('farmId', '=', farmId)
 
-  if (options?.startDate) {
-    query = query.where('date', '>=', options.startDate)
+    if (options?.startDate) {
+      query = query.where('date', '>=', options.startDate)
+    }
+    if (options?.endDate) {
+      query = query.where('date', '<=', options.endDate)
+    }
+
+    const result = await query.executeTakeFirst()
+    return parseFloat(result?.total || '0')
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to calculate total expenses',
+      cause: error,
+    })
   }
-  if (options?.endDate) {
-    query = query.where('date', '<=', options.endDate)
-  }
-
-  const result = await query.executeTakeFirst()
-  return parseFloat(result?.total || '0')
 }
 
 /**
@@ -574,130 +646,141 @@ export async function getExpensesPaginated(
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
-  const page = query.page || 1
-  const pageSize = query.pageSize || 10
-  const sortBy = query.sortBy || 'date'
-  const sortOrder = query.sortOrder || 'desc'
-  const search = query.search || ''
-  const category = query.category
+  try {
+    const page = query.page || 1
+    const pageSize = query.pageSize || 10
+    const sortBy = query.sortBy || 'date'
+    const sortOrder = query.sortOrder || 'desc'
+    const search = query.search || ''
+    const category = query.category
 
-  // Determine target farms
-  let targetFarmIds: Array<string> = []
-  if (query.farmId) {
-    const hasAccess = await checkFarmAccess(userId, query.farmId)
-    if (!hasAccess) throw new Error('Access denied')
-    targetFarmIds = [query.farmId]
-  } else {
-    targetFarmIds = await getUserFarms(userId)
-    if (targetFarmIds.length === 0) {
-      return { data: [], total: 0, page, pageSize, totalPages: 0 }
+    // Determine target farms
+    let targetFarmIds: Array<string> = []
+    if (query.farmId) {
+      const hasAccess = await checkFarmAccess(userId, query.farmId)
+      if (!hasAccess)
+        throw new AppError('ACCESS_DENIED', {
+          metadata: { farmId: query.farmId },
+        })
+      targetFarmIds = [query.farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) {
+        return { data: [], total: 0, page, pageSize, totalPages: 0 }
+      }
     }
-  }
 
-  // Build base query
-  let baseQuery = db
-    .selectFrom('expenses')
-    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-    .leftJoin('batches', 'batches.id', 'expenses.batchId')
-    .leftJoin('farms', 'farms.id', 'expenses.farmId')
-    .where('expenses.farmId', 'in', targetFarmIds)
+    // Build base query
+    let baseQuery = db
+      .selectFrom('expenses')
+      .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+      .leftJoin('batches', 'batches.id', 'expenses.batchId')
+      .leftJoin('farms', 'farms.id', 'expenses.farmId')
+      .where('expenses.farmId', 'in', targetFarmIds)
 
-  // Apply search filter
-  if (search) {
-    baseQuery = baseQuery.where((eb) =>
-      eb.or([
-        eb('expenses.description', 'ilike', `%${search}%`),
-        eb('suppliers.name', 'ilike', `%${search}%`),
-        eb('batches.species', 'ilike', `%${search}%`),
-      ]),
-    )
-  }
+    // Apply search filter
+    if (search) {
+      baseQuery = baseQuery.where((eb) =>
+        eb.or([
+          eb('expenses.description', 'ilike', `%${search}%`),
+          eb('suppliers.name', 'ilike', `%${search}%`),
+          eb('batches.species', 'ilike', `%${search}%`),
+        ]),
+      )
+    }
 
-  // Apply category filter
-  if (category) {
-    baseQuery = baseQuery.where('expenses.category', '=', category as any)
-  }
+    // Apply category filter
+    if (category) {
+      baseQuery = baseQuery.where('expenses.category', '=', category as any)
+    }
 
-  // Apply batchId filter
-  if (query.batchId) {
-    baseQuery = baseQuery.where('expenses.batchId', '=', query.batchId)
-  }
+    // Apply batchId filter
+    if (query.batchId) {
+      baseQuery = baseQuery.where('expenses.batchId', '=', query.batchId)
+    }
 
-  // Get total count
-  const countResult = await baseQuery
-    .select(sql<number>`count(*)`.as('count'))
-    .executeTakeFirst()
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
+    // Get total count
+    const countResult = await baseQuery
+      .select(sql<number>`count(*)`.as('count'))
+      .executeTakeFirst()
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
 
-  // Apply sorting
-  const sortColumn =
-    sortBy === 'amount'
-      ? 'expenses.amount'
-      : sortBy === 'category'
-        ? 'expenses.category'
-        : sortBy === 'description'
-          ? 'expenses.description'
-          : sortBy === 'supplierName'
-            ? 'suppliers.name'
-            : 'expenses.date'
+    // Apply sorting
+    const sortColumn =
+      sortBy === 'amount'
+        ? 'expenses.amount'
+        : sortBy === 'category'
+          ? 'expenses.category'
+          : sortBy === 'description'
+            ? 'expenses.description'
+            : sortBy === 'supplierName'
+              ? 'suppliers.name'
+              : 'expenses.date'
 
-  let dataQuery = db
-    .selectFrom('expenses')
-    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-    .leftJoin('batches', 'batches.id', 'expenses.batchId')
-    .leftJoin('farms', 'farms.id', 'expenses.farmId')
-    .select([
-      'expenses.id',
-      'expenses.farmId',
-      'expenses.category',
-      'expenses.amount',
-      'expenses.date',
-      'expenses.description',
-      'expenses.isRecurring',
-      'suppliers.name as supplierName',
-      'batches.species as batchSpecies',
-      'batches.livestockType as batchType',
-      'farms.name as farmName',
-    ])
-    .where('expenses.farmId', 'in', targetFarmIds)
+    let dataQuery = db
+      .selectFrom('expenses')
+      .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+      .leftJoin('batches', 'batches.id', 'expenses.batchId')
+      .leftJoin('farms', 'farms.id', 'expenses.farmId')
+      .select([
+        'expenses.id',
+        'expenses.farmId',
+        'expenses.category',
+        'expenses.amount',
+        'expenses.date',
+        'expenses.description',
+        'expenses.isRecurring',
+        'suppliers.name as supplierName',
+        'batches.species as batchSpecies',
+        'batches.livestockType as batchType',
+        'farms.name as farmName',
+      ])
+      .where('expenses.farmId', 'in', targetFarmIds)
 
-  // Re-apply filters
-  if (search) {
-    dataQuery = dataQuery.where((eb) =>
-      eb.or([
-        eb('expenses.description', 'ilike', `%${search}%`),
-        eb('suppliers.name', 'ilike', `%${search}%`),
-        eb('batches.species', 'ilike', `%${search}%`),
-      ]),
-    )
-  }
-  if (category) {
-    dataQuery = dataQuery.where('expenses.category', '=', category as any)
-  }
-  if (query.batchId) {
-    dataQuery = dataQuery.where('expenses.batchId', '=', query.batchId)
-  }
+    // Re-apply filters
+    if (search) {
+      dataQuery = dataQuery.where((eb) =>
+        eb.or([
+          eb('expenses.description', 'ilike', `%${search}%`),
+          eb('suppliers.name', 'ilike', `%${search}%`),
+          eb('batches.species', 'ilike', `%${search}%`),
+        ]),
+      )
+    }
+    if (category) {
+      dataQuery = dataQuery.where('expenses.category', '=', category as any)
+    }
+    if (query.batchId) {
+      dataQuery = dataQuery.where('expenses.batchId', '=', query.batchId)
+    }
 
-  // Apply sorting and pagination
-  const data = await dataQuery
-    .orderBy(sortColumn as any, sortOrder)
-    .limit(pageSize)
-    .offset((page - 1) * pageSize)
-    .execute()
+    // Apply sorting and pagination
+    const data = await dataQuery
+      .orderBy(sortColumn as any, sortOrder)
+      .limit(pageSize)
+      .offset((page - 1) * pageSize)
+      .execute()
 
-  return {
-    data: data.map((d) => ({
-      ...d,
-      farmName: d.farmName || null,
-      supplierName: d.supplierName || null,
-      batchSpecies: d.batchSpecies || null,
-      batchType: d.batchType || null,
-    })),
-    total,
-    page,
-    pageSize,
-    totalPages,
+    return {
+      data: data.map((d) => ({
+        ...d,
+        farmName: d.farmName || null,
+        supplierName: d.supplierName || null,
+        batchSpecies: d.batchSpecies || null,
+        batchType: d.batchType || null,
+      })),
+      total,
+      page,
+      pageSize,
+      totalPages,
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch paginated expenses',
+      cause: error,
+    })
   }
 }
 

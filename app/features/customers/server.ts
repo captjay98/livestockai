@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import { AppError } from '~/lib/errors'
 
 export type { PaginatedResult }
 
@@ -66,18 +67,27 @@ export async function createCustomer(
 ): Promise<string> {
   const { db } = await import('~/lib/db')
 
-  const result = await db
-    .insertInto('customers')
-    .values({
-      name: input.name,
-      phone: input.phone,
-      email: input.email || null,
-      location: input.location || null,
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+  try {
+    const result = await db
+      .insertInto('customers')
+      .values({
+        name: input.name,
+        phone: input.phone,
+        email: input.email || null,
+        location: input.location || null,
+        customerType: input.customerType || null,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
 
-  return result.id
+    return result.id
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to create customer',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -97,7 +107,18 @@ export const createCustomerFn = createServerFn({ method: 'POST' })
  */
 export async function getCustomers() {
   const { db } = await import('~/lib/db')
-  return db.selectFrom('customers').selectAll().orderBy('name', 'asc').execute()
+  try {
+    return await db
+      .selectFrom('customers')
+      .selectAll()
+      .orderBy('name', 'asc')
+      .execute()
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch customers',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -108,11 +129,18 @@ export async function getCustomers() {
  */
 export async function getCustomerById(customerId: string) {
   const { db } = await import('~/lib/db')
-  return db
-    .selectFrom('customers')
-    .selectAll()
-    .where('id', '=', customerId)
-    .executeTakeFirst()
+  try {
+    return await db
+      .selectFrom('customers')
+      .selectAll()
+      .where('id', '=', customerId)
+      .executeTakeFirst()
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch customer',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -126,14 +154,21 @@ export async function updateCustomer(
   input: Partial<CreateCustomerInput>,
 ) {
   const { db } = await import('~/lib/db')
-  await db
-    .updateTable('customers')
-    .set({
-      ...input,
-      updatedAt: new Date(),
+  try {
+    await db
+      .updateTable('customers')
+      .set({
+        ...input,
+        updatedAt: new Date(),
+      })
+      .where('id', '=', customerId)
+      .execute()
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to update customer',
+      cause: error,
     })
-    .where('id', '=', customerId)
-    .execute()
+  }
 }
 
 /**
@@ -154,9 +189,14 @@ export const updateCustomerFn = createServerFn({ method: 'POST' })
  */
 export async function deleteCustomer(customerId: string) {
   const { db } = await import('~/lib/db')
-  // Check for sales first? Or cascade?
-  // Ideally check for dependencies. For now assumes safe deletion or DB error.
-  await db.deleteFrom('customers').where('id', '=', customerId).execute()
+  try {
+    await db.deleteFrom('customers').where('id', '=', customerId).execute()
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to delete customer',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -177,33 +217,41 @@ export const deleteCustomerFn = createServerFn({ method: 'POST' })
 export async function getCustomerWithSales(customerId: string) {
   const { db } = await import('~/lib/db')
 
-  const customer = await getCustomerById(customerId)
-  if (!customer) return null
+  try {
+    const customer = await getCustomerById(customerId)
+    if (!customer) return null
 
-  const sales = await db
-    .selectFrom('sales')
-    .select([
-      'id',
-      'livestockType',
-      'quantity',
-      'unitPrice',
-      'totalAmount',
-      'date',
-    ])
-    .where('customerId', '=', customerId)
-    .orderBy('date', 'desc')
-    .execute()
+    const sales = await db
+      .selectFrom('sales')
+      .select([
+        'id',
+        'livestockType',
+        'quantity',
+        'unitPrice',
+        'totalAmount',
+        'date',
+      ])
+      .where('customerId', '=', customerId)
+      .orderBy('date', 'desc')
+      .execute()
 
-  const totalSpent = sales.reduce(
-    (sum, s) => sum + parseFloat(s.totalAmount),
-    0,
-  )
+    const totalSpent = sales.reduce(
+      (sum, s) => sum + parseFloat(s.totalAmount),
+      0,
+    )
 
-  return {
-    ...customer,
-    sales,
-    totalSpent,
-    salesCount: sales.length,
+    return {
+      ...customer,
+      sales,
+      totalSpent,
+      salesCount: sales.length,
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch customer details',
+      cause: error,
+    })
   }
 }
 
@@ -216,32 +264,39 @@ export async function getCustomerWithSales(customerId: string) {
 export async function getTopCustomers(limit: number = 10) {
   const { db } = await import('~/lib/db')
 
-  const customers = await db
-    .selectFrom('customers')
-    .leftJoin('sales', 'sales.customerId', 'customers.id')
-    .select([
-      'customers.id',
-      'customers.name',
-      'customers.phone',
-      'customers.location',
-      db.fn.count('sales.id').as('salesCount'),
-      db.fn.sum<string>('sales.totalAmount').as('totalSpent'),
-    ])
-    .groupBy([
-      'customers.id',
-      'customers.name',
-      'customers.phone',
-      'customers.location',
-    ])
-    .orderBy('totalSpent', 'desc')
-    .limit(limit)
-    .execute()
+  try {
+    const customers = await db
+      .selectFrom('customers')
+      .leftJoin('sales', 'sales.customerId', 'customers.id')
+      .select([
+        'customers.id',
+        'customers.name',
+        'customers.phone',
+        'customers.location',
+        db.fn.count('sales.id').as('salesCount'),
+        db.fn.sum<string>('sales.totalAmount').as('totalSpent'),
+      ])
+      .groupBy([
+        'customers.id',
+        'customers.name',
+        'customers.phone',
+        'customers.location',
+      ])
+      .orderBy('totalSpent', 'desc')
+      .limit(limit)
+      .execute()
 
-  return customers.map((c) => ({
-    ...c,
-    salesCount: Number(c.salesCount),
-    totalSpent: parseFloat(c.totalSpent || '0'),
-  }))
+    return customers.map((c) => ({
+      ...c,
+      salesCount: Number(c.salesCount),
+      totalSpent: parseFloat(c.totalSpent || '0'),
+    }))
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch top customers',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -255,97 +310,106 @@ export async function getCustomersPaginated(query: CustomerQuery = {}) {
   const { db } = await import('~/lib/db')
   const { sql } = await import('kysely')
 
-  const page = query.page || 1
-  const pageSize = query.pageSize || 10
-  const offset = (page - 1) * pageSize
+  try {
+    const page = query.page || 1
+    const pageSize = query.pageSize || 10
+    const offset = (page - 1) * pageSize
 
-  let baseQuery = db
-    .selectFrom('customers')
-    .leftJoin('sales', 'sales.customerId', 'customers.id')
+    let baseQuery = db
+      .selectFrom('customers')
+      .leftJoin('sales', 'sales.customerId', 'customers.id')
 
-  if (query.search) {
-    const searchLower = `%${query.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) =>
-      eb.or([
-        eb('customers.name', 'ilike', searchLower),
-        eb('customers.phone', 'ilike', searchLower),
-        eb('customers.location', 'ilike', searchLower),
-        eb('customers.email', 'ilike', searchLower),
-      ]),
-    )
-  }
-
-  // Apply customerType filter
-  if (query.customerType) {
-    baseQuery = baseQuery.where(
-      'customers.customerType',
-      '=',
-      query.customerType as any,
-    )
-  }
-
-  // Count
-  const countResult = await baseQuery
-    .select(sql<number>`count(distinct customers.id)`.as('count'))
-    .executeTakeFirst()
-
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
-
-  // Data
-  let dataQuery = baseQuery
-    .select([
-      'customers.id',
-      'customers.name',
-      'customers.phone',
-      'customers.email',
-      'customers.location',
-      'customers.customerType',
-      'customers.createdAt',
-      sql<number>`count(sales.id)`.as('salesCount'),
-      sql<string>`coalesce(sum(sales."totalAmount"), 0)`.as('totalSpent'),
-    ])
-    .groupBy([
-      'customers.id',
-      'customers.name',
-      'customers.phone',
-      'customers.email',
-      'customers.location',
-      'customers.customerType',
-      'customers.createdAt',
-    ])
-    .limit(pageSize)
-    .offset(offset)
-
-  if (query.sortBy) {
-    const sortOrder = query.sortOrder || 'desc'
-    const sortCol = query.sortBy
-    if (query.sortBy === 'totalSpent' || query.sortBy === 'salesCount') {
-      dataQuery = dataQuery.orderBy(sql.raw(`"${sortCol}"`), sortOrder)
-    } else {
-      dataQuery = dataQuery.orderBy(
-        sql.raw(`customers."${sortCol}"`),
-        sortOrder,
+    if (query.search) {
+      const searchLower = `%${query.search.toLowerCase()}%`
+      baseQuery = baseQuery.where((eb) =>
+        eb.or([
+          eb('customers.name', 'ilike', searchLower),
+          eb('customers.phone', 'ilike', searchLower),
+          eb('customers.location', 'ilike', searchLower),
+          eb('customers.email', 'ilike', searchLower),
+        ]),
       )
     }
-  } else {
-    dataQuery = dataQuery.orderBy(sql.raw('customers."createdAt"'), 'desc')
-  }
 
-  const rawData = await dataQuery.execute()
+    // Apply customerType filter
+    if (query.customerType) {
+      baseQuery = baseQuery.where(
+        'customers.customerType',
+        '=',
+        query.customerType as any,
+      )
+    }
 
-  const data = rawData.map((d) => ({
-    ...d,
-    salesCount: Number(d.salesCount),
-    totalSpent: parseFloat(d.totalSpent || '0'),
-  }))
+    // Count
+    const countResult = await baseQuery
+      .select(sql<number>`count(distinct customers.id)`.as('count'))
+      .executeTakeFirst()
 
-  return {
-    data,
-    total,
-    page,
-    pageSize,
-    totalPages,
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
+
+    // Data
+    let dataQuery = baseQuery
+      .select([
+        'customers.id',
+        'customers.name',
+        'customers.phone',
+        'customers.email',
+        'customers.location',
+        'customers.customerType',
+        'customers.createdAt',
+        'customers.updatedAt',
+        sql<number>`count(sales.id)`.as('salesCount'),
+        sql<string>`coalesce(sum(sales."totalAmount"), 0)`.as('totalSpent'),
+      ])
+      .groupBy([
+        'customers.id',
+        'customers.name',
+        'customers.phone',
+        'customers.email',
+        'customers.location',
+        'customers.customerType',
+        'customers.createdAt',
+        'customers.updatedAt',
+      ])
+      .limit(pageSize)
+      .offset(offset)
+
+    if (query.sortBy) {
+      const sortOrder = query.sortOrder || 'desc'
+      const sortCol = query.sortBy
+      if (query.sortBy === 'totalSpent' || query.sortBy === 'salesCount') {
+        dataQuery = dataQuery.orderBy(sql.raw(`"${sortCol}"`), sortOrder)
+      } else {
+        dataQuery = dataQuery.orderBy(
+          sql.raw(`customers."${sortCol}"`),
+          sortOrder,
+        )
+      }
+    } else {
+      dataQuery = dataQuery.orderBy(sql.raw('customers."createdAt"'), 'desc')
+    }
+
+    const rawData = await dataQuery.execute()
+
+    const data = rawData.map((d) => ({
+      ...d,
+      salesCount: Number(d.salesCount),
+      totalSpent: parseFloat(d.totalSpent || '0'),
+    }))
+
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    }
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch paginated customers',
+      cause: error,
+    })
   }
 }
 

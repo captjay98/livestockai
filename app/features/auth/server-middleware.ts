@@ -1,5 +1,6 @@
 import { getRequestHeaders } from '@tanstack/react-start/server'
 import { auth } from './config'
+import { AppError } from '~/lib/errors'
 
 /**
  * Middleware to check authentication and authorization
@@ -13,7 +14,7 @@ export async function requireAuth() {
 
   if (!session) {
     // Throw a plain error that can be serialized
-    throw new Error('UNAUTHORIZED')
+    throw new AppError('UNAUTHORIZED')
   }
 
   // Check if user is banned
@@ -34,7 +35,7 @@ export async function requireAuth() {
         .where('id', '=', session.user.id)
         .execute()
     } else {
-      throw new Error('BANNED')
+      throw new AppError('BANNED', { metadata: { userId: session.user.id } })
     }
   }
 
@@ -57,7 +58,9 @@ export async function requireAdmin() {
     .executeTakeFirst()
 
   if (!user || user.role !== 'admin') {
-    throw new Error('FORBIDDEN')
+    throw new AppError('ACCESS_DENIED', {
+      metadata: { userId: session.user.id, role: user?.role },
+    })
   }
 
   return { session, user }
@@ -75,7 +78,9 @@ export async function requireFarmAccess(farmId: string) {
   const hasAccess = await checkFarmAccess(session.user.id, farmId)
 
   if (!hasAccess) {
-    throw new Error('FORBIDDEN')
+    throw new AppError('ACCESS_DENIED', {
+      metadata: { userId: session.user.id, farmId },
+    })
   }
 
   return session

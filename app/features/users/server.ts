@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+import { AppError } from '~/lib/errors'
 
 // Schema definitions
 const createUserSchema = z.object({
@@ -32,23 +33,32 @@ const userIdSchema = z.object({
  */
 export const listUsers = createServerFn({ method: 'GET' }).handler(async () => {
   const { requireAdmin } = await import('../auth/server-middleware')
-  await requireAdmin()
-
   const { db } = await import('~/lib/db')
-  return db
-    .selectFrom('users')
-    .select([
-      'id',
-      'name',
-      'email',
-      'role',
-      'banned',
-      'banReason',
-      'banExpires',
-      'createdAt',
-    ])
-    .orderBy('createdAt', 'desc')
-    .execute()
+
+  try {
+    await requireAdmin()
+
+    return await db
+      .selectFrom('users')
+      .select([
+        'id',
+        'name',
+        'email',
+        'role',
+        'banned',
+        'banReason',
+        'banExpires',
+        'createdAt',
+      ])
+      .orderBy('createdAt', 'desc')
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to list users',
+      cause: error,
+    })
+  }
 })
 
 /**
@@ -62,41 +72,52 @@ export const getUser = createServerFn({ method: 'GET' })
   .inputValidator((data: { userId: string }) => userIdSchema.parse(data))
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    await requireAdmin()
-
     const { db } = await import('~/lib/db')
-    const user = await db
-      .selectFrom('users')
-      .select([
-        'id',
-        'name',
-        'email',
-        'role',
-        'banned',
-        'banReason',
-        'banExpires',
-        'createdAt',
-      ])
-      .where('id', '=', data.userId)
-      .executeTakeFirst()
 
-    if (!user) {
-      throw new Error('errors.userNotFound')
+    try {
+      await requireAdmin()
+
+      const user = await db
+        .selectFrom('users')
+        .select([
+          'id',
+          'name',
+          'email',
+          'role',
+          'banned',
+          'banReason',
+          'banExpires',
+          'createdAt',
+        ])
+        .where('id', '=', data.userId)
+        .executeTakeFirst()
+
+      if (!user) {
+        throw new AppError('USER_NOT_FOUND', {
+          metadata: { resource: 'User', id: data.userId },
+        })
+      }
+
+      // Get user's farm assignments
+      const farmAssignments = await db
+        .selectFrom('user_farms')
+        .innerJoin('farms', 'farms.id', 'user_farms.farmId')
+        .select([
+          'user_farms.farmId',
+          'user_farms.role',
+          'farms.name as farmName',
+        ])
+        .where('user_farms.userId', '=', data.userId)
+        .execute()
+
+      return { ...user, farmAssignments }
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to fetch user details',
+        cause: error,
+      })
     }
-
-    // Get user's farm assignments
-    const farmAssignments = await db
-      .selectFrom('user_farms')
-      .innerJoin('farms', 'farms.id', 'user_farms.farmId')
-      .select([
-        'user_farms.farmId',
-        'user_farms.role',
-        'farms.name as farmName',
-      ])
-      .where('user_farms.userId', '=', data.userId)
-      .execute()
-
-    return { ...user, farmAssignments }
   })
 
 /**
@@ -112,33 +133,44 @@ export const createUser = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    await requireAdmin()
-
     const { auth } = await import('../auth/config')
-
-    // Check if email already exists
     const { db } = await import('~/lib/db')
-    const existing = await db
-      .selectFrom('users')
-      .select(['id'])
-      .where('email', '=', data.email)
-      .executeTakeFirst()
 
-    if (existing) {
-      throw new Error('Email already exists')
+    try {
+      await requireAdmin()
+
+      // Check if email already exists
+      const existing = await db
+        .selectFrom('users')
+        .select(['id'])
+        .where('email', '=', data.email)
+        .executeTakeFirst()
+
+      if (existing) {
+        throw new AppError('ALREADY_EXISTS', {
+          message: 'Email already exists',
+          metadata: { resource: 'User', field: 'email', value: data.email },
+        })
+      }
+
+      // Create user via Better Auth admin API
+      const result = await auth.api.createUser({
+        body: {
+          email: data.email,
+          password: data.password,
+          name: data.name,
+          role: data.role,
+        },
+      })
+
+      return result
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to create user',
+        cause: error,
+      })
     }
-
-    // Create user via Better Auth admin API
-    const result = await auth.api.createUser({
-      body: {
-        email: data.email,
-        password: data.password,
-        name: data.name,
-        role: data.role,
-      },
-    })
-
-    return result
   })
 
 /**
@@ -153,18 +185,26 @@ export const setUserPassword = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    await requireAdmin()
-
     const { auth } = await import('../auth/config')
 
-    await auth.api.setUserPassword({
-      body: {
-        userId: data.userId,
-        newPassword: data.newPassword,
-      },
-    })
+    try {
+      await requireAdmin()
 
-    return { success: true }
+      await auth.api.setUserPassword({
+        body: {
+          userId: data.userId,
+          newPassword: data.newPassword,
+        },
+      })
+
+      return { success: true }
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('INTERNAL_ERROR', {
+        message: 'Failed to set password',
+        cause: error,
+      })
+    }
   })
 
 /**
@@ -180,42 +220,56 @@ export const banUser = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { session } = await requireAdmin()
-
-    // Prevent self-ban
-    if (data.userId === session.user.id) {
-      throw new Error('Cannot ban yourself')
-    }
-
     const { db } = await import('~/lib/db')
 
-    // Check if user exists
-    const user = await db
-      .selectFrom('users')
-      .select(['id', 'role'])
-      .where('id', '=', data.userId)
-      .executeTakeFirst()
+    try {
+      const { session } = await requireAdmin()
 
-    if (!user) {
-      throw new Error('User not found')
-    }
+      // Prevent self-ban
+      if (data.userId === session.user.id) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: 'Cannot ban yourself',
+        })
+      }
 
-    // Prevent banning other admins
-    if (user.role === 'admin') {
-      throw new Error('Cannot ban admin users')
-    }
+      // Check if user exists
+      const user = await db
+        .selectFrom('users')
+        .select(['id', 'role'])
+        .where('id', '=', data.userId)
+        .executeTakeFirst()
 
-    await db
-      .updateTable('users')
-      .set({
-        banned: true,
-        banReason: data.reason || null,
-        banExpires: data.expiresAt ? new Date(data.expiresAt) : null,
+      if (!user) {
+        throw new AppError('USER_NOT_FOUND', {
+          metadata: { resource: 'User', id: data.userId },
+        })
+      }
+
+      // Prevent banning other admins
+      if (user.role === 'admin') {
+        throw new AppError('ACCESS_DENIED', {
+          message: 'Cannot ban admin users',
+        })
+      }
+
+      await db
+        .updateTable('users')
+        .set({
+          banned: true,
+          banReason: data.reason || null,
+          banExpires: data.expiresAt ? new Date(data.expiresAt) : null,
+        })
+        .where('id', '=', data.userId)
+        .execute()
+
+      return { success: true }
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to ban user',
+        cause: error,
       })
-      .where('id', '=', data.userId)
-      .execute()
-
-    return { success: true }
+    }
   })
 
 /**
@@ -228,21 +282,29 @@ export const unbanUser = createServerFn({ method: 'POST' })
   .inputValidator((data: { userId: string }) => userIdSchema.parse(data))
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    await requireAdmin()
-
     const { db } = await import('~/lib/db')
 
-    await db
-      .updateTable('users')
-      .set({
-        banned: false,
-        banReason: null,
-        banExpires: null,
-      })
-      .where('id', '=', data.userId)
-      .execute()
+    try {
+      await requireAdmin()
 
-    return { success: true }
+      await db
+        .updateTable('users')
+        .set({
+          banned: false,
+          banReason: null,
+          banExpires: null,
+        })
+        .where('id', '=', data.userId)
+        .execute()
+
+      return { success: true }
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to unban user',
+        cause: error,
+      })
+    }
   })
 
 /**
@@ -256,59 +318,74 @@ export const removeUser = createServerFn({ method: 'POST' })
   .inputValidator((data: { userId: string }) => userIdSchema.parse(data))
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { session } = await requireAdmin()
-
-    // Prevent self-deletion
-    if (data.userId === session.user.id) {
-      throw new Error('Cannot delete yourself')
-    }
-
     const { db } = await import('~/lib/db')
 
-    // Check if user exists
-    const user = await db
-      .selectFrom('users')
-      .select(['id', 'role'])
-      .where('id', '=', data.userId)
-      .executeTakeFirst()
+    try {
+      const { session } = await requireAdmin()
 
-    if (!user) {
-      throw new Error('User not found')
-    }
+      // Prevent self-deletion
+      if (data.userId === session.user.id) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: 'Cannot delete yourself',
+        })
+      }
 
-    // Prevent deleting other admins
-    if (user.role === 'admin') {
-      throw new Error('Cannot delete admin users')
-    }
+      // Check if user exists
+      const user = await db
+        .selectFrom('users')
+        .select(['id', 'role'])
+        .where('id', '=', data.userId)
+        .executeTakeFirst()
 
-    // Check if user is the last owner of any farm
-    const ownedFarms = await db
-      .selectFrom('user_farms')
-      .select(['farmId'])
-      .where('userId', '=', data.userId)
-      .where('role', '=', 'owner')
-      .execute()
+      if (!user) {
+        throw new AppError('USER_NOT_FOUND', {
+          metadata: { resource: 'User', id: data.userId },
+        })
+      }
 
-    for (const { farmId } of ownedFarms) {
-      const otherOwners = await db
+      // Prevent deleting other admins
+      if (user.role === 'admin') {
+        throw new AppError('ACCESS_DENIED', {
+          message: 'Cannot delete admin users',
+        })
+      }
+
+      // Check if user is the last owner of any farm
+      const ownedFarms = await db
         .selectFrom('user_farms')
-        .select(['userId'])
-        .where('farmId', '=', farmId)
+        .select(['farmId'])
+        .where('userId', '=', data.userId)
         .where('role', '=', 'owner')
-        .where('userId', '!=', data.userId)
         .execute()
 
-      if (otherOwners.length === 0) {
-        throw new Error(
-          'Cannot delete user who is the last owner of a farm. Transfer ownership first.',
-        )
+      for (const { farmId } of ownedFarms) {
+        const otherOwners = await db
+          .selectFrom('user_farms')
+          .select(['userId'])
+          .where('farmId', '=', farmId)
+          .where('role', '=', 'owner')
+          .where('userId', '!=', data.userId)
+          .execute()
+
+        if (otherOwners.length === 0) {
+          throw new AppError('VALIDATION_ERROR', {
+            message:
+              'Cannot delete user who is the last owner of a farm. Transfer ownership first.',
+          })
+        }
       }
+
+      // Delete user (cascades to user_farms, sessions, etc.)
+      await db.deleteFrom('users').where('id', '=', data.userId).execute()
+
+      return { success: true }
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to remove user',
+        cause: error,
+      })
     }
-
-    // Delete user (cascades to user_farms, sessions, etc.)
-    await db.deleteFrom('users').where('id', '=', data.userId).execute()
-
-    return { success: true }
   })
 
 /**
@@ -329,22 +406,32 @@ export const updateUserRole = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { session } = await requireAdmin()
-
-    // Prevent changing own role
-    if (data.userId === session.user.id) {
-      throw new Error('Cannot change your own role')
-    }
-
     const { db } = await import('~/lib/db')
 
-    await db
-      .updateTable('users')
-      .set({ role: data.role })
-      .where('id', '=', data.userId)
-      .execute()
+    try {
+      const { session } = await requireAdmin()
 
-    return { success: true }
+      // Prevent changing own role
+      if (data.userId === session.user.id) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: 'Cannot change your own role',
+        })
+      }
+
+      await db
+        .updateTable('users')
+        .set({ role: data.role })
+        .where('id', '=', data.userId)
+        .execute()
+
+      return { success: true }
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to update user role',
+        cause: error,
+      })
+    }
   })
 
 // Export server function wrappers with 'Fn' suffix for consistency

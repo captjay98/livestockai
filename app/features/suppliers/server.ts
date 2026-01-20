@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import { AppError } from '~/lib/errors'
 
 export type { PaginatedResult }
 
@@ -70,18 +71,27 @@ export async function createSupplier(
   input: CreateSupplierInput,
 ): Promise<string> {
   const { db } = await import('~/lib/db')
-  const result = await db
-    .insertInto('suppliers')
-    .values({
-      name: input.name,
-      phone: input.phone,
-      email: input.email || null,
-      location: input.location || null,
-      products: input.products,
+  try {
+    const result = await db
+      .insertInto('suppliers')
+      .values({
+        name: input.name,
+        phone: input.phone,
+        email: input.email || null,
+        location: input.location || null,
+        products: input.products,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
+    return result.id
+  } catch (error) {
+    console.error('Failed to create supplier:', error)
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to create supplier',
+      cause: error,
     })
-    .returning('id')
-    .executeTakeFirstOrThrow()
-  return result.id
+  }
 }
 
 /**
@@ -101,7 +111,15 @@ export const createSupplierFn = createServerFn({ method: 'POST' })
  */
 export async function getSuppliers() {
   const { db } = await import('~/lib/db')
-  return db.selectFrom('suppliers').selectAll().orderBy('name', 'asc').execute()
+  try {
+    return await db
+      .selectFrom('suppliers')
+      .selectAll()
+      .orderBy('name', 'asc')
+      .execute()
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', { cause: error })
+  }
 }
 
 /**
@@ -121,11 +139,15 @@ export const getSuppliersFn = createServerFn({ method: 'GET' }).handler(
  */
 export async function getSupplierById(supplierId: string) {
   const { db } = await import('~/lib/db')
-  return db
-    .selectFrom('suppliers')
-    .selectAll()
-    .where('id', '=', supplierId)
-    .executeTakeFirst()
+  try {
+    return await db
+      .selectFrom('suppliers')
+      .selectAll()
+      .where('id', '=', supplierId)
+      .executeTakeFirst()
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', { cause: error })
+  }
 }
 
 /**
@@ -139,14 +161,21 @@ export async function updateSupplier(
   input: Partial<CreateSupplierInput>,
 ) {
   const { db } = await import('~/lib/db')
-  await db
-    .updateTable('suppliers')
-    .set({
-      ...input,
-      updatedAt: new Date(),
+  try {
+    await db
+      .updateTable('suppliers')
+      .set({
+        ...input,
+        updatedAt: new Date(),
+      })
+      .where('id', '=', supplierId)
+      .execute()
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to update supplier',
+      cause: error,
     })
-    .where('id', '=', supplierId)
-    .execute()
+  }
 }
 
 /**
@@ -167,7 +196,21 @@ export const updateSupplierFn = createServerFn({ method: 'POST' })
  */
 export async function deleteSupplier(supplierId: string) {
   const { db } = await import('~/lib/db')
-  await db.deleteFrom('suppliers').where('id', '=', supplierId).execute()
+  try {
+    await db.deleteFrom('suppliers').where('id', '=', supplierId).execute()
+  } catch (error) {
+    console.error('Failed to delete supplier:', error)
+    if (String(error).includes('foreign key constraint')) {
+      throw new AppError('VALIDATION_ERROR', {
+        message: 'Cannot delete supplier with existing expenses',
+        cause: error,
+      })
+    }
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to delete supplier',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -187,20 +230,29 @@ export const deleteSupplierFn = createServerFn({ method: 'POST' })
  */
 export async function getSupplierWithExpenses(supplierId: string) {
   const { db } = await import('~/lib/db')
-  const supplier = await getSupplierById(supplierId)
-  if (!supplier) return null
-  const expenses = await db
-    .selectFrom('expenses')
-    .select(['id', 'category', 'amount', 'date', 'description'])
-    .where('supplierId', '=', supplierId)
-    .orderBy('date', 'desc')
-    .execute()
-  const totalSpent = expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0)
-  return {
-    ...supplier,
-    expenses,
-    totalSpent,
-    expenseCount: expenses.length,
+
+  try {
+    const supplier = await getSupplierById(supplierId)
+    if (!supplier) return null
+    const expenses = await db
+      .selectFrom('expenses')
+      .select(['id', 'category', 'amount', 'date', 'description'])
+      .where('supplierId', '=', supplierId)
+      .orderBy('date', 'desc')
+      .execute()
+    const totalSpent = expenses.reduce(
+      (sum, e) => sum + parseFloat(e.amount),
+      0,
+    )
+    return {
+      ...supplier,
+      expenses,
+      totalSpent,
+      expenseCount: expenses.length,
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }
 
@@ -214,99 +266,103 @@ export async function getSuppliersPaginated(query: SupplierQuery = {}) {
   const { db } = await import('~/lib/db')
   const { sql } = await import('kysely')
 
-  const page = query.page || 1
-  const pageSize = query.pageSize || 10
-  const offset = (page - 1) * pageSize
+  try {
+    const page = query.page || 1
+    const pageSize = query.pageSize || 10
+    const offset = (page - 1) * pageSize
 
-  let baseQuery = db
-    .selectFrom('suppliers')
-    .leftJoin('expenses', 'expenses.supplierId', 'suppliers.id')
+    let baseQuery = db
+      .selectFrom('suppliers')
+      .leftJoin('expenses', 'expenses.supplierId', 'suppliers.id')
 
-  if (query.search) {
-    const searchLower = `%${query.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) =>
-      eb.or([
-        eb('suppliers.name', 'ilike', searchLower),
-        eb('suppliers.phone', 'ilike', searchLower),
-        eb('suppliers.location', 'ilike', searchLower),
-        eb('suppliers.email', 'ilike', searchLower),
-      ]),
-    )
-  }
-
-  // Apply supplierType filter
-  if (query.supplierType) {
-    baseQuery = baseQuery.where(
-      'suppliers.supplierType',
-      '=',
-      query.supplierType as any,
-    )
-  }
-
-  // Count
-  const countResult = await baseQuery
-    .select(sql<number>`count(distinct suppliers.id)`.as('count'))
-    .executeTakeFirst()
-
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
-
-  // Data
-  let dataQuery = baseQuery
-    .select([
-      'suppliers.id',
-      'suppliers.name',
-      'suppliers.phone',
-      'suppliers.email',
-      'suppliers.location',
-      'suppliers.products',
-      'suppliers.supplierType',
-      'suppliers.createdAt',
-      sql<number>`count(expenses.id)`.as('expenseCount'),
-      sql<string>`coalesce(sum(expenses.amount), 0)`.as('totalSpent'),
-    ])
-    .groupBy([
-      'suppliers.id',
-      'suppliers.name',
-      'suppliers.phone',
-      'suppliers.email',
-      'suppliers.location',
-      'suppliers.products',
-      'suppliers.supplierType',
-      'suppliers.createdAt',
-    ])
-    .limit(pageSize)
-    .offset(offset)
-
-  if (query.sortBy) {
-    const sortOrder = query.sortOrder || 'desc'
-    const sortCol = query.sortBy
-    if (query.sortBy === 'totalSpent' || query.sortBy === 'expenseCount') {
-      dataQuery = dataQuery.orderBy(sql.raw(`"${sortCol}"`), sortOrder)
-    } else {
-      dataQuery = dataQuery.orderBy(
-        sql.raw(`suppliers."${sortCol}"`),
-        sortOrder,
+    if (query.search) {
+      const searchLower = `%${query.search.toLowerCase()}%`
+      baseQuery = baseQuery.where((eb) =>
+        eb.or([
+          eb('suppliers.name', 'ilike', searchLower),
+          eb('suppliers.phone', 'ilike', searchLower),
+          eb('suppliers.location', 'ilike', searchLower),
+          eb('suppliers.email', 'ilike', searchLower),
+        ]),
       )
     }
-  } else {
-    dataQuery = dataQuery.orderBy(sql.raw('suppliers."createdAt"'), 'desc')
-  }
 
-  const rawData = await dataQuery.execute()
+    // Apply supplierType filter
+    if (query.supplierType) {
+      baseQuery = baseQuery.where(
+        'suppliers.supplierType',
+        '=',
+        query.supplierType as any,
+      )
+    }
 
-  const data = rawData.map((d) => ({
-    ...d,
-    expenseCount: Number(d.expenseCount),
-    totalSpent: parseFloat(d.totalSpent || '0'),
-  }))
+    // Count
+    const countResult = await baseQuery
+      .select(sql<number>`count(distinct suppliers.id)`.as('count'))
+      .executeTakeFirst()
 
-  return {
-    data,
-    total,
-    page,
-    pageSize,
-    totalPages,
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
+
+    // Data
+    let dataQuery = baseQuery
+      .select([
+        'suppliers.id',
+        'suppliers.name',
+        'suppliers.phone',
+        'suppliers.email',
+        'suppliers.location',
+        'suppliers.products',
+        'suppliers.supplierType',
+        'suppliers.createdAt',
+        sql<number>`count(expenses.id)`.as('expenseCount'),
+        sql<string>`coalesce(sum(expenses.amount), 0)`.as('totalSpent'),
+      ])
+      .groupBy([
+        'suppliers.id',
+        'suppliers.name',
+        'suppliers.phone',
+        'suppliers.email',
+        'suppliers.location',
+        'suppliers.products',
+        'suppliers.supplierType',
+        'suppliers.createdAt',
+      ])
+      .limit(pageSize)
+      .offset(offset)
+
+    if (query.sortBy) {
+      const sortOrder = query.sortOrder || 'desc'
+      const sortCol = query.sortBy
+      if (query.sortBy === 'totalSpent' || query.sortBy === 'expenseCount') {
+        dataQuery = dataQuery.orderBy(sql.raw(`"${sortCol}"`), sortOrder)
+      } else {
+        dataQuery = dataQuery.orderBy(
+          sql.raw(`suppliers."${sortCol}"`),
+          sortOrder,
+        )
+      }
+    } else {
+      dataQuery = dataQuery.orderBy(sql.raw('suppliers."createdAt"'), 'desc')
+    }
+
+    const rawData = await dataQuery.execute()
+
+    const data = rawData.map((d) => ({
+      ...d,
+      expenseCount: Number(d.expenseCount),
+      totalSpent: parseFloat(d.totalSpent || '0'),
+    }))
+
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    }
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }
 

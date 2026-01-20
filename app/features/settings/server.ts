@@ -10,6 +10,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { DEFAULT_SETTINGS } from './currency-presets'
 import type { UserSettings } from './currency-presets'
+import { AppError } from '~/lib/errors'
 
 /**
  * Zod schema for validating user settings
@@ -227,7 +228,12 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
       return { success: true }
     } catch (error) {
       console.error('Failed to update user settings:', error)
-      throw new Error('errors.saveFailed')
+      console.error('Failed to update user settings:', error)
+      console.error('Failed to update user settings:', error)
+      throw new AppError('DATABASE_ERROR', {
+        message: 'errors.saveFailed',
+        cause: error,
+      })
     }
   })
 
@@ -255,7 +261,12 @@ export const resetUserSettings = createServerFn({ method: 'POST' }).handler(
       return { success: true }
     } catch (error) {
       console.error('Failed to reset user settings:', error)
-      throw new Error('errors.resetFailed')
+      console.error('Failed to reset user settings:', error)
+      console.error('Failed to reset user settings:', error)
+      throw new AppError('DATABASE_ERROR', {
+        message: 'errors.resetFailed',
+        cause: error,
+      })
     }
   },
 )

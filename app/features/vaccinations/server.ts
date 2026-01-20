@@ -104,34 +104,45 @@ export async function createVaccination(
 ): Promise<string> {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  await verifyFarmAccess(userId, farmId)
+  try {
+    await verifyFarmAccess(userId, farmId)
 
-  const batch = await db
-    .selectFrom('batches')
-    .select(['id', 'farmId'])
-    .where('id', '=', input.batchId)
-    .where('farmId', '=', farmId)
-    .executeTakeFirst()
+    const batch = await db
+      .selectFrom('batches')
+      .select(['id', 'farmId'])
+      .where('id', '=', input.batchId)
+      .where('farmId', '=', farmId)
+      .executeTakeFirst()
 
-  if (!batch) {
-    throw new Error('Batch not found or does not belong to this farm')
-  }
+    if (!batch) {
+      throw new AppError('BATCH_NOT_FOUND', {
+        metadata: { batchId: input.batchId, farmId },
+      })
+    }
 
-  const result = await db
-    .insertInto('vaccinations')
-    .values({
-      batchId: input.batchId,
-      vaccineName: input.vaccineName,
-      dateAdministered: input.dateAdministered,
-      dosage: input.dosage,
-      nextDueDate: input.nextDueDate || null,
-      notes: input.notes || null,
+    const result = await db
+      .insertInto('vaccinations')
+      .values({
+        batchId: input.batchId,
+        vaccineName: input.vaccineName,
+        dateAdministered: input.dateAdministered,
+        dosage: input.dosage,
+        nextDueDate: input.nextDueDate || null,
+        notes: input.notes || null,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
+
+    return result.id
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to create vaccination',
+      cause: error,
     })
-    .returning('id')
-    .executeTakeFirstOrThrow()
-
-  return result.id
+  }
 }
 
 /**
@@ -162,35 +173,46 @@ export async function createTreatment(
 ): Promise<string> {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  await verifyFarmAccess(userId, farmId)
+  try {
+    await verifyFarmAccess(userId, farmId)
 
-  const batch = await db
-    .selectFrom('batches')
-    .select(['id', 'farmId'])
-    .where('id', '=', input.batchId)
-    .where('farmId', '=', farmId)
-    .executeTakeFirst()
+    const batch = await db
+      .selectFrom('batches')
+      .select(['id', 'farmId'])
+      .where('id', '=', input.batchId)
+      .where('farmId', '=', farmId)
+      .executeTakeFirst()
 
-  if (!batch) {
-    throw new Error('Batch not found or does not belong to this farm')
-  }
+    if (!batch) {
+      throw new AppError('BATCH_NOT_FOUND', {
+        metadata: { batchId: input.batchId, farmId },
+      })
+    }
 
-  const result = await db
-    .insertInto('treatments')
-    .values({
-      batchId: input.batchId,
-      medicationName: input.medicationName,
-      reason: input.reason,
-      date: input.date,
-      dosage: input.dosage,
-      withdrawalDays: input.withdrawalDays,
-      notes: input.notes || null,
+    const result = await db
+      .insertInto('treatments')
+      .values({
+        batchId: input.batchId,
+        medicationName: input.medicationName,
+        reason: input.reason,
+        date: input.date,
+        dosage: input.dosage,
+        withdrawalDays: input.withdrawalDays,
+        notes: input.notes || null,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
+
+    return result.id
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to create treatment',
+      cause: error,
     })
-    .returning('id')
-    .executeTakeFirstOrThrow()
-
-  return result.id
+  }
 }
 
 /**
@@ -220,137 +242,146 @@ export async function getHealthRecordsPaginated(
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
   const { sql } = await import('kysely')
+  const { AppError } = await import('~/lib/errors')
 
-  let targetFarmIds: Array<string> = []
-  if (query.farmId) {
-    targetFarmIds = [query.farmId]
-  } else {
-    targetFarmIds = await getUserFarms(userId)
-  }
+  try {
+    let targetFarmIds: Array<string> = []
+    if (query.farmId) {
+      targetFarmIds = [query.farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+    }
 
-  // Construct Vaccines Query
-  let vaccinesQuery = db
-    .selectFrom('vaccinations')
-    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'vaccinations.id',
-      'vaccinations.batchId',
-      sql<string>`'vaccination'`.as('type'),
-      'vaccinations.vaccineName as name',
-      'vaccinations.dateAdministered as date',
-      'vaccinations.dosage',
-      'vaccinations.notes',
-      sql<string>`NULL`.as('reason'),
-      sql<number>`NULL`.as('withdrawalDays'),
-      'vaccinations.nextDueDate',
-      'batches.species',
-      'batches.livestockType',
-      'farms.name as farmName',
-      'batches.farmId',
-    ])
-    .where('batches.farmId', 'in', targetFarmIds)
+    // Construct Vaccines Query
+    let vaccinesQuery = db
+      .selectFrom('vaccinations')
+      .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+      .innerJoin('farms', 'farms.id', 'batches.farmId')
+      .select([
+        'vaccinations.id',
+        'vaccinations.batchId',
+        sql<string>`'vaccination'`.as('type'),
+        'vaccinations.vaccineName as name',
+        'vaccinations.dateAdministered as date',
+        'vaccinations.dosage',
+        'vaccinations.notes',
+        sql<string>`NULL`.as('reason'),
+        sql<number>`NULL`.as('withdrawalDays'),
+        'vaccinations.nextDueDate',
+        'batches.species',
+        'batches.livestockType',
+        'farms.name as farmName',
+        'batches.farmId',
+      ])
+      .where('batches.farmId', 'in', targetFarmIds)
 
-  // Construct Treatments Query
-  let treatmentsQuery = db
-    .selectFrom('treatments')
-    .innerJoin('batches', 'batches.id', 'treatments.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'treatments.id',
-      'treatments.batchId',
-      sql<string>`'treatment'`.as('type'),
-      'treatments.medicationName as name',
-      'treatments.date',
-      'treatments.dosage',
-      'treatments.notes',
-      'treatments.reason',
-      'treatments.withdrawalDays',
-      sql<Date>`NULL`.as('nextDueDate'),
-      'batches.species',
-      'batches.livestockType',
-      'farms.name as farmName',
-      'batches.farmId',
-    ])
-    .where('batches.farmId', 'in', targetFarmIds)
+    // Construct Treatments Query
+    let treatmentsQuery = db
+      .selectFrom('treatments')
+      .innerJoin('batches', 'batches.id', 'treatments.batchId')
+      .innerJoin('farms', 'farms.id', 'batches.farmId')
+      .select([
+        'treatments.id',
+        'treatments.batchId',
+        sql<string>`'treatment'`.as('type'),
+        'treatments.medicationName as name',
+        'treatments.date',
+        'treatments.dosage',
+        'treatments.notes',
+        'treatments.reason',
+        'treatments.withdrawalDays',
+        sql<Date>`NULL`.as('nextDueDate'),
+        'batches.species',
+        'batches.livestockType',
+        'farms.name as farmName',
+        'batches.farmId',
+      ])
+      .where('batches.farmId', 'in', targetFarmIds)
 
-  // Apply filters to subqueries if precise, but for Union we usually wrap or Apply to both
-  if (query.search) {
-    const searchLower = `%${query.search.toLowerCase()}%`
-    vaccinesQuery = vaccinesQuery.where((eb) =>
-      eb.or([
-        eb('vaccinations.vaccineName', 'ilike', searchLower),
-        eb('batches.species', 'ilike', searchLower),
-      ]),
-    )
-    treatmentsQuery = treatmentsQuery.where((eb) =>
-      eb.or([
-        eb('treatments.medicationName', 'ilike', searchLower),
-        eb('treatments.reason', 'ilike', searchLower),
-        eb('batches.species', 'ilike', searchLower),
-      ]),
-    )
-  }
+    // Apply filters to subqueries if precise, but for Union we usually wrap or Apply to both
+    if (query.search) {
+      const searchLower = `%${query.search.toLowerCase()}%`
+      vaccinesQuery = vaccinesQuery.where((eb) =>
+        eb.or([
+          eb('vaccinations.vaccineName', 'ilike', searchLower),
+          eb('batches.species', 'ilike', searchLower),
+        ]),
+      )
+      treatmentsQuery = treatmentsQuery.where((eb) =>
+        eb.or([
+          eb('treatments.medicationName', 'ilike', searchLower),
+          eb('treatments.reason', 'ilike', searchLower),
+          eb('batches.species', 'ilike', searchLower),
+        ]),
+      )
+    }
 
-  if (query.batchId) {
-    vaccinesQuery = vaccinesQuery.where(
-      'vaccinations.batchId',
-      '=',
-      query.batchId,
-    )
-    treatmentsQuery = treatmentsQuery.where(
-      'treatments.batchId',
-      '=',
-      query.batchId,
-    )
-  }
+    if (query.batchId) {
+      vaccinesQuery = vaccinesQuery.where(
+        'vaccinations.batchId',
+        '=',
+        query.batchId,
+      )
+      treatmentsQuery = treatmentsQuery.where(
+        'treatments.batchId',
+        '=',
+        query.batchId,
+      )
+    }
 
-  let finalQuery
-  if (query.type === 'vaccination') {
-    finalQuery = vaccinesQuery
-  } else if (query.type === 'treatment') {
-    finalQuery = treatmentsQuery
-  } else {
-    finalQuery = vaccinesQuery.unionAll(treatmentsQuery)
-  }
+    let finalQuery
+    if (query.type === 'vaccination') {
+      finalQuery = vaccinesQuery
+    } else if (query.type === 'treatment') {
+      finalQuery = treatmentsQuery
+    } else {
+      finalQuery = vaccinesQuery.unionAll(treatmentsQuery)
+    }
 
-  // Get total count
-  const countResult = await db
-    .with('union_table', () => finalQuery)
-    .selectFrom('union_table')
-    .select(sql<number>`count(*)`.as('count'))
-    .executeTakeFirst()
+    // Get total count
+    const countResult = await db
+      .with('union_table', () => finalQuery)
+      .selectFrom('union_table')
+      .select(sql<number>`count(*)`.as('count'))
+      .executeTakeFirst()
 
-  const total = Number(countResult?.count || 0)
-  const page = query.page || 1
-  const pageSize = query.pageSize || 10
-  const totalPages = Math.ceil(total / pageSize)
-  const offset = (page - 1) * pageSize
+    const total = Number(countResult?.count || 0)
+    const page = query.page || 1
+    const pageSize = query.pageSize || 10
+    const totalPages = Math.ceil(total / pageSize)
+    const offset = (page - 1) * pageSize
 
-  // Get Data
-  let dataQuery = db
-    .with('union_table', () => finalQuery)
-    .selectFrom('union_table')
-    .selectAll()
-    .limit(pageSize)
-    .offset(offset)
+    // Get Data
+    let dataQuery = db
+      .with('union_table', () => finalQuery)
+      .selectFrom('union_table')
+      .selectAll()
+      .limit(pageSize)
+      .offset(offset)
 
-  // Sorting
-  if (query.sortBy) {
-    const sortOrder = query.sortOrder || 'desc'
-    dataQuery = dataQuery.orderBy(sql.raw(query.sortBy), sortOrder)
-  } else {
-    dataQuery = dataQuery.orderBy(sql.raw('date'), 'desc')
-  }
+    // Sorting
+    if (query.sortBy) {
+      const sortOrder = query.sortOrder || 'desc'
+      dataQuery = dataQuery.orderBy(sql.raw(query.sortBy), sortOrder)
+    } else {
+      dataQuery = dataQuery.orderBy(sql.raw('date'), 'desc')
+    }
 
-  const data = await dataQuery.execute()
+    const data = await dataQuery.execute()
 
-  return {
-    data,
-    total,
-    page,
-    pageSize,
-    totalPages,
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch health records',
+      cause: error,
+    })
   }
 }
 
@@ -381,39 +412,48 @@ export async function getUpcomingVaccinations(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  let targetFarmIds: Array<string> = []
-  if (farmId) {
-    await verifyFarmAccess(userId, farmId)
-    targetFarmIds = [farmId]
-  } else {
-    targetFarmIds = await getUserFarms(userId)
-    if (targetFarmIds.length === 0) return []
+  try {
+    let targetFarmIds: Array<string> = []
+    if (farmId) {
+      await verifyFarmAccess(userId, farmId)
+      targetFarmIds = [farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) return []
+    }
+
+    const today = new Date()
+    const futureDate = new Date()
+    futureDate.setDate(today.getDate() + daysAhead)
+
+    return await db
+      .selectFrom('vaccinations')
+      .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+      .innerJoin('farms', 'farms.id', 'batches.farmId')
+      .select([
+        'vaccinations.id',
+        'vaccinations.batchId',
+        'vaccinations.vaccineName',
+        'vaccinations.nextDueDate',
+        'batches.species',
+        'batches.livestockType',
+        'farms.name as farmName',
+      ])
+      .where('batches.farmId', 'in', targetFarmIds)
+      .where('batches.status', '=', 'active')
+      .where('vaccinations.nextDueDate', '>=', today)
+      .where('vaccinations.nextDueDate', '<=', futureDate)
+      .orderBy('vaccinations.nextDueDate', 'asc')
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch upcoming vaccinations',
+      cause: error,
+    })
   }
-
-  const today = new Date()
-  const futureDate = new Date()
-  futureDate.setDate(today.getDate() + daysAhead)
-
-  return db
-    .selectFrom('vaccinations')
-    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'vaccinations.id',
-      'vaccinations.batchId',
-      'vaccinations.vaccineName',
-      'vaccinations.nextDueDate',
-      'batches.species',
-      'batches.livestockType',
-      'farms.name as farmName',
-    ])
-    .where('batches.farmId', 'in', targetFarmIds)
-    .where('batches.status', '=', 'active')
-    .where('vaccinations.nextDueDate', '>=', today)
-    .where('vaccinations.nextDueDate', '<=', futureDate)
-    .orderBy('vaccinations.nextDueDate', 'asc')
-    .execute()
 }
 
 /**
@@ -427,36 +467,45 @@ export async function getOverdueVaccinations(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  let targetFarmIds: Array<string> = []
-  if (farmId) {
-    await verifyFarmAccess(userId, farmId)
-    targetFarmIds = [farmId]
-  } else {
-    targetFarmIds = await getUserFarms(userId)
-    if (targetFarmIds.length === 0) return []
+  try {
+    let targetFarmIds: Array<string> = []
+    if (farmId) {
+      await verifyFarmAccess(userId, farmId)
+      targetFarmIds = [farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) return []
+    }
+
+    const today = new Date()
+
+    return await db
+      .selectFrom('vaccinations')
+      .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+      .innerJoin('farms', 'farms.id', 'batches.farmId')
+      .select([
+        'vaccinations.id',
+        'vaccinations.batchId',
+        'vaccinations.vaccineName',
+        'vaccinations.nextDueDate',
+        'batches.species',
+        'batches.livestockType',
+        'farms.name as farmName',
+      ])
+      .where('batches.farmId', 'in', targetFarmIds)
+      .where('batches.status', '=', 'active')
+      .where('vaccinations.nextDueDate', '<', today)
+      .orderBy('vaccinations.nextDueDate', 'asc')
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch overdue vaccinations',
+      cause: error,
+    })
   }
-
-  const today = new Date()
-
-  return db
-    .selectFrom('vaccinations')
-    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'vaccinations.id',
-      'vaccinations.batchId',
-      'vaccinations.vaccineName',
-      'vaccinations.nextDueDate',
-      'batches.species',
-      'batches.livestockType',
-      'farms.name as farmName',
-    ])
-    .where('batches.farmId', 'in', targetFarmIds)
-    .where('batches.status', '=', 'active')
-    .where('vaccinations.nextDueDate', '<', today)
-    .orderBy('vaccinations.nextDueDate', 'asc')
-    .execute()
 }
 
 /**
@@ -516,36 +565,53 @@ export async function updateVaccination(
 ): Promise<void> {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess } = await import('../auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  const existing = await db
-    .selectFrom('vaccinations')
-    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
-    .select(['vaccinations.id', 'batches.farmId'])
-    .where('vaccinations.id', '=', recordId)
-    .executeTakeFirst()
+  try {
+    const existing = await db
+      .selectFrom('vaccinations')
+      .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+      .select(['vaccinations.id', 'batches.farmId'])
+      .where('vaccinations.id', '=', recordId)
+      .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) {
+      throw new AppError('VACCINATION_NOT_FOUND', {
+        metadata: { recordId },
+      })
+    }
 
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: existing.farmId },
+      })
+    }
 
-  await db
-    .updateTable('vaccinations')
-    .set({
-      ...(input.vaccineName !== undefined && {
-        vaccineName: input.vaccineName,
-      }),
-      ...(input.dateAdministered !== undefined && {
-        dateAdministered: input.dateAdministered,
-      }),
-      ...(input.dosage !== undefined && { dosage: input.dosage }),
-      ...(input.nextDueDate !== undefined && {
-        nextDueDate: input.nextDueDate,
-      }),
-      ...(input.notes !== undefined && { notes: input.notes }),
+    await db
+      .updateTable('vaccinations')
+      .set({
+        ...(input.vaccineName !== undefined && {
+          vaccineName: input.vaccineName,
+        }),
+        ...(input.dateAdministered !== undefined && {
+          dateAdministered: input.dateAdministered,
+        }),
+        ...(input.dosage !== undefined && { dosage: input.dosage }),
+        ...(input.nextDueDate !== undefined && {
+          nextDueDate: input.nextDueDate,
+        }),
+        ...(input.notes !== undefined && { notes: input.notes }),
+      })
+      .where('id', '=', recordId)
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to update vaccination',
+      cause: error,
     })
-    .where('id', '=', recordId)
-    .execute()
+  }
 }
 
 /**
@@ -573,20 +639,37 @@ export async function deleteVaccination(
 ): Promise<void> {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess } = await import('../auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  const existing = await db
-    .selectFrom('vaccinations')
-    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
-    .select(['vaccinations.id', 'batches.farmId'])
-    .where('vaccinations.id', '=', recordId)
-    .executeTakeFirst()
+  try {
+    const existing = await db
+      .selectFrom('vaccinations')
+      .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+      .select(['vaccinations.id', 'batches.farmId'])
+      .where('vaccinations.id', '=', recordId)
+      .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) {
+      throw new AppError('VACCINATION_NOT_FOUND', {
+        metadata: { recordId },
+      })
+    }
 
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: existing.farmId },
+      })
+    }
 
-  await db.deleteFrom('vaccinations').where('id', '=', recordId).execute()
+    await db.deleteFrom('vaccinations').where('id', '=', recordId).execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to delete vaccination',
+      cause: error,
+    })
+  }
 }
 
 /**
@@ -614,35 +697,52 @@ export async function updateTreatment(
 ): Promise<void> {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess } = await import('../auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  const existing = await db
-    .selectFrom('treatments')
-    .innerJoin('batches', 'batches.id', 'treatments.batchId')
-    .select(['treatments.id', 'batches.farmId'])
-    .where('treatments.id', '=', recordId)
-    .executeTakeFirst()
+  try {
+    const existing = await db
+      .selectFrom('treatments')
+      .innerJoin('batches', 'batches.id', 'treatments.batchId')
+      .select(['treatments.id', 'batches.farmId'])
+      .where('treatments.id', '=', recordId)
+      .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) {
+      throw new AppError('TREATMENT_NOT_FOUND', {
+        metadata: { recordId },
+      })
+    }
 
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: existing.farmId },
+      })
+    }
 
-  await db
-    .updateTable('treatments')
-    .set({
-      ...(input.medicationName !== undefined && {
-        medicationName: input.medicationName,
-      }),
-      ...(input.reason !== undefined && { reason: input.reason }),
-      ...(input.date !== undefined && { date: input.date }),
-      ...(input.dosage !== undefined && { dosage: input.dosage }),
-      ...(input.withdrawalDays !== undefined && {
-        withdrawalDays: input.withdrawalDays,
-      }),
-      ...(input.notes !== undefined && { notes: input.notes }),
+    await db
+      .updateTable('treatments')
+      .set({
+        ...(input.medicationName !== undefined && {
+          medicationName: input.medicationName,
+        }),
+        ...(input.reason !== undefined && { reason: input.reason }),
+        ...(input.date !== undefined && { date: input.date }),
+        ...(input.dosage !== undefined && { dosage: input.dosage }),
+        ...(input.withdrawalDays !== undefined && {
+          withdrawalDays: input.withdrawalDays,
+        }),
+        ...(input.notes !== undefined && { notes: input.notes }),
+      })
+      .where('id', '=', recordId)
+      .execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to update treatment',
+      cause: error,
     })
-    .where('id', '=', recordId)
-    .execute()
+  }
 }
 
 /**
@@ -670,20 +770,37 @@ export async function deleteTreatment(
 ): Promise<void> {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess } = await import('../auth/utils')
+  const { AppError } = await import('~/lib/errors')
 
-  const existing = await db
-    .selectFrom('treatments')
-    .innerJoin('batches', 'batches.id', 'treatments.batchId')
-    .select(['treatments.id', 'batches.farmId'])
-    .where('treatments.id', '=', recordId)
-    .executeTakeFirst()
+  try {
+    const existing = await db
+      .selectFrom('treatments')
+      .innerJoin('batches', 'batches.id', 'treatments.batchId')
+      .select(['treatments.id', 'batches.farmId'])
+      .where('treatments.id', '=', recordId)
+      .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) {
+      throw new AppError('TREATMENT_NOT_FOUND', {
+        metadata: { recordId },
+      })
+    }
 
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: existing.farmId },
+      })
+    }
 
-  await db.deleteFrom('treatments').where('id', '=', recordId).execute()
+    await db.deleteFrom('treatments').where('id', '=', recordId).execute()
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to delete treatment',
+      cause: error,
+    })
+  }
 }
 
 /**
