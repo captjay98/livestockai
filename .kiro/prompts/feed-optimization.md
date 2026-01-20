@@ -9,9 +9,10 @@ Analyze feed conversion efficiency and recommend feeding program improvements.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
-**Species**: Broilers, Layers, Catfish, Tilapia
-**Currency**: Nigerian Naira (₦)
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Species**: All 6 livestock types with species-specific feed efficiency metrics
+**Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
+**Database**: PostgreSQL (Neon) via Kysely ORM
 
 ## Analysis Scope
 
@@ -23,7 +24,7 @@ Analyze feed conversion efficiency and recommend feeding program improvements.
 
 ```
 # List batches with feed records
-neon_run_sql "SELECT DISTINCT b.id, b.batchName, b.species FROM batches b JOIN feed_records f ON b.id = f.batchId WHERE b.status = 'active'"
+neon__run_sql "SELECT DISTINCT b.id, b.batchName, b.species FROM batches b JOIN feed_records f ON b.id = f.batchId WHERE b.status = 'active'"
 ```
 
 ## Data Collection (MCP)
@@ -31,27 +32,27 @@ neon_run_sql "SELECT DISTINCT b.id, b.batchName, b.species FROM batches b JOIN f
 ### 1. Feed Records
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    recordDate,
+    date,
     feedType,
     ROUND(quantityKg::numeric, 2) as quantity_kg,
-    ROUND(costNgn::numeric, 2) as cost_ngn
+    ROUND(cost::numeric, 2) as cost_ngn
   FROM feed_records
   WHERE batchId = 'batch-id'
-  ORDER BY recordDate
+  ORDER BY date
 "
 ```
 
 ### 2. Feed Summary by Type
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     feedType,
     ROUND(SUM(quantityKg)::numeric, 2) as total_kg,
-    ROUND(SUM(costNgn)::numeric, 2) as total_cost,
-    ROUND(AVG(costNgn / NULLIF(quantityKg, 0))::numeric, 2) as cost_per_kg,
+    ROUND(SUM(cost)::numeric, 2) as total_cost,
+    ROUND(AVG(cost / NULLIF(quantityKg, 0))::numeric, 2) as cost_per_kg,
     COUNT(*) as feeding_days
   FROM feed_records
   WHERE batchId = 'batch-id'
@@ -63,11 +64,11 @@ neon_run_sql "
 ### 3. Weight Gain Data
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    MIN(avgWeightKg) as start_weight,
-    MAX(avgWeightKg) as current_weight,
-    MAX(avgWeightKg) - MIN(avgWeightKg) as weight_gain
+    MIN(averageWeightKg) as start_weight,
+    MAX(averageWeightKg) as current_weight,
+    MAX(averageWeightKg) - MIN(averageWeightKg) as weight_gain
   FROM weight_samples
   WHERE batchId = 'batch-id'
 "
@@ -76,14 +77,14 @@ neon_run_sql "
 ### 4. Calculate FCR
 
 ```
-neon_run_sql "
+neon__run_sql "
   WITH feed_total AS (
     SELECT SUM(quantityKg) as total_feed
     FROM feed_records WHERE batchId = 'batch-id'
   ),
   weight_gain AS (
     SELECT
-      (MAX(avgWeightKg) - MIN(avgWeightKg)) *
+      (MAX(averageWeightKg) - MIN(averageWeightKg)) *
       (SELECT currentQuantity FROM batches WHERE id = 'batch-id') as total_gain
     FROM weight_samples WHERE batchId = 'batch-id'
   )
@@ -142,13 +143,13 @@ Target: 60-70% for broilers, 50-60% for catfish
 
 ```sql
 SELECT
-  recordDate,
+  date,
   SUM(quantityKg) as daily_feed,
   SUM(quantityKg) / current_stock as feed_per_bird
 FROM feed_records
 WHERE batchId = 'batch-id'
-GROUP BY recordDate
-ORDER BY recordDate;
+GROUP BY date
+ORDER BY date;
 ```
 
 ### Feed Type Distribution
@@ -165,7 +166,7 @@ ORDER BY recordDate;
 ## Summary
 
 - **Total Feed**: X kg
-- **Total Cost**: ₦X
+- **Total Cost**: [Currency]X
 - **Current FCR**: X
 - **Target FCR**: X
 - **Status**: [Efficient/Average/Inefficient]
@@ -180,17 +181,17 @@ ORDER BY recordDate;
 
 ## Cost Analysis
 
-- **Feed Cost/kg Meat**: ₦X
+- **Feed Cost/kg Meat**: [Currency]X
 - **Feed % of Total Cost**: X%
 - **vs Budget**: X% (over/under)
 
 ## Feed Type Breakdown
 
-| Type     | Quantity | Cost | Cost/kg |
-| -------- | -------- | ---- | ------- |
-| Starter  | X kg     | ₦X   | ₦X      |
-| Grower   | X kg     | ₦X   | ₦X      |
-| Finisher | X kg     | ₦X   | ₦X      |
+| Type     | Quantity | Cost        | Cost/kg     |
+| -------- | -------- | ----------- | ----------- |
+| Starter  | X kg     | [Currency]X | [Currency]X |
+| Grower   | X kg     | [Currency]X | [Currency]X |
+| Finisher | X kg     | [Currency]X | [Currency]X |
 
 ## Optimization Recommendations
 
@@ -211,9 +212,9 @@ ORDER BY recordDate;
 
 ## Projected Savings
 
-- **If FCR improved to target**: ₦X saved
-- **Feed waste reduction**: ₦X saved
-- **Total potential savings**: ₦X
+- **If FCR improved to target**: [Currency]X saved
+- **Feed waste reduction**: [Currency]X saved
+- **Total potential savings**: [Currency]X
 ```
 
 ## Alerts

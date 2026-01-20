@@ -8,9 +8,11 @@ Analyze current test coverage and recommend improvements.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Testing**: Vitest + fast-check (property-based testing)
 **Framework**: TanStack Start (React 19)
+**Database**: PostgreSQL (Neon) + Kysely ORM
+**Deployment**: Cloudflare Workers
 
 ## Run Coverage Report
 
@@ -44,7 +46,8 @@ bun test --coverage --reporter=text
 - Profit/loss calculations
 - FCR calculations
 - Cost per unit calculations
-- Currency formatting
+- Multi-currency formatting (useFormatCurrency)
+- Currency conversion utilities
 
 **Growth Forecasting**:
 
@@ -57,6 +60,12 @@ bun test --coverage --reporter=text
 - Mortality rate calculations
 - Stock quantity updates
 - Status transitions
+
+**Error Handling**:
+
+- AppError creation and handling
+- Error code validation
+- i18n error messages
 
 ### 3. Server Functions
 
@@ -83,7 +92,7 @@ describe('getBatches', () => {
 ### Unit Tests
 
 ```typescript
-// app/lib/finance/calculations.test.ts
+// app/features/finance/calculations.test.ts
 import { describe, it, expect } from 'vitest'
 import { calculateProfit, calculateFCR } from './calculations'
 
@@ -137,15 +146,29 @@ describe('calculateFCR', () => {
 // Test server function with database
 describe('createBatch', () => {
   it('creates batch and returns id', async () => {
-    const batch = await createBatch({
+    const batch = await createBatch('user-id', {
       farmId: 'test-farm',
-      batchName: 'Test Batch',
+      livestockType: 'poultry',
       species: 'Broiler',
       initialQuantity: 1000,
+      acquisitionDate: new Date(),
+      costPerUnit: 500,
     })
 
-    expect(batch.id).toBeDefined()
-    expect(batch.batchName).toBe('Test Batch')
+    expect(batch).toBeDefined()
+  })
+
+  it('throws AppError for invalid farm access', async () => {
+    await expect(
+      createBatch('wrong-user', {
+        farmId: 'test-farm',
+        livestockType: 'poultry',
+        species: 'Broiler',
+        initialQuantity: 1000,
+        acquisitionDate: new Date(),
+        costPerUnit: 500,
+      }),
+    ).rejects.toThrow('ACCESS_DENIED')
   })
 })
 ```
@@ -156,44 +179,43 @@ describe('createBatch', () => {
 
 - [ ] Financial calculations: 100%
 - [ ] Growth calculations: 90%
-- [ ] Currency formatting: 100%
+- [ ] Multi-currency formatting: 100%
+- [ ] AppError handling: 90%
 
 ### Phase 2: High Priority (Week 2)
 
 - [ ] Server functions: 80%
 - [ ] Batch management: 85%
 - [ ] Authentication: 80%
+- [ ] i18n integration: 75%
 
 ### Phase 3: Medium Priority (Week 3)
 
 - [ ] UI components: 70%
 - [ ] Form validation: 80%
 - [ ] Utilities: 80%
+- [ ] Notification system: 75%
 
 ## Test File Structure
 
 ```
 tests/
-├── unit/
-│   ├── lib/
-│   │   ├── finance/
-│   │   │   ├── calculations.test.ts
-│   │   │   └── currency.test.ts
-│   │   ├── growth/
-│   │   │   └── forecast.test.ts
-│   │   └── batches/
-│   │       └── calculations.test.ts
-│   └── components/
-│       └── BatchCard.test.tsx
-├── integration/
-│   ├── server/
+├── features/
+│   ├── batches/
 │   │   ├── batches.test.ts
-│   │   └── sales.test.ts
-│   └── database/
-│       └── migrations.test.ts
-└── e2e/
-    ├── auth.test.ts
-    └── batch-workflow.test.ts
+│   │   ├── batches.property.test.ts
+│   │   └── batches.integration.test.ts
+│   ├── finance/
+│   │   ├── calculations.test.ts
+│   │   └── profit.property.test.ts
+│   ├── settings/
+│   │   ├── currency.test.ts
+│   │   └── currency.property.test.ts
+│   └── monitoring/
+│       └── mortality.property.test.ts
+└── components/
+    └── dialogs/
+        └── batch-dialog.test.tsx
 ```
 
 ## Output Report

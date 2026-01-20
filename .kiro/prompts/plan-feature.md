@@ -4,11 +4,15 @@ description: 'Create comprehensive feature plan with deep codebase analysis and 
 
 # Plan a new task
 
-## Feature: $ARGUMENTS
-
 ## Mission
 
 Transform a feature request into a **comprehensive implementation plan** through systematic codebase analysis, external research, and strategic planning.
+
+**Feature Request**: $ARGUMENTS
+
+**Project Context**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Tech Stack**: TanStack Start + React 19 + Kysely + Neon PostgreSQL + Cloudflare Workers
+**Architecture**: Server functions with dynamic imports, type-safe queries, multi-currency, i18n
 
 **Core Principle**: We do NOT write code in this phase. Our goal is to create a context-rich implementation plan that enables one-pass implementation success for ai agents.
 
@@ -17,6 +21,15 @@ Transform a feature request into a **comprehensive implementation plan** through
 ## Planning Process
 
 ### Phase 1: Feature Understanding
+
+**Parse the Feature Request ($ARGUMENTS):**
+
+First, understand what the user is asking for. The feature request is provided as $ARGUMENTS above. Extract:
+
+- What needs to be built/fixed/changed
+- Why it's needed (if mentioned)
+- Any specific requirements or constraints
+- Expected outcome
 
 **Deep Feature Analysis:**
 
@@ -40,45 +53,109 @@ So that <benefit/value>
 
 **1. Project Structure Analysis**
 
-- Detect primary language(s), frameworks, and runtime versions
-- Map directory structure and architectural patterns
-- Identify service/component boundaries and integration points
-- Locate configuration files (pyproject.toml, package.json, etc.)
-- Find environment setup and build processes
+OpenLivestock-specific structure:
+
+- **Server functions**: `app/features/{feature}/server.ts` with dynamic imports
+- **Types**: `app/lib/db/types.ts` for database, `app/features/{feature}/types.ts` for feature types
+- **Routes**: `app/routes/_auth/{feature}/` (directory-based, protected)
+- **Components**: `app/components/ui/` (base) and `app/components/dialogs/` (CRUD modals)
+- **Database**: `app/lib/db/migrations/` for schema changes
+
+Check:
+
+- Does this feature need database changes? → Check `app/lib/db/types.ts`
+- Does it need server functions? → Look at `app/features/*/server.ts` patterns
+- Does it need UI? → Check existing dialogs and routes
+- Does it affect multiple livestock types? → Check `app/features/modules/constants.ts`
 
 **2. Pattern Recognition** (Use specialized subagents when beneficial)
 
-- Search for similar implementations in codebase
-- Identify coding conventions:
-  - Naming patterns (CamelCase, snake_case, kebab-case)
-  - File organization and module structure
-  - Error handling approaches
-  - Logging patterns and standards
-- Extract common patterns for the feature's domain
-- Document anti-patterns to avoid
-- Check project-specific rules and conventions in steering documents
+OpenLivestock mandatory patterns:
+
+- **Dynamic imports**: `const { db } = await import('~/lib/db')` in ALL server functions
+- **Error handling**: Use `AppError` from `~/lib/errors` with typed error codes
+- **Currency**: Use `useFormatCurrency()` hook, never hardcode symbols
+- **i18n**: Use `useTranslation()` hook, never hardcode user-facing strings
+- **Auth**: Use `requireAuth()` in server functions, check farm access with `checkFarmAccess()`
+- **Validation**: Zod schemas for all server function inputs
+- **Database**: Kysely type-safe queries, explicit column selection (no SELECT \*)
+
+Search for similar implementations:
+
+- Similar server functions in `app/features/*/server.ts`
+- Similar dialogs in `app/components/dialogs/`
+- Similar routes in `app/routes/_auth/*/`
+- Similar tests in `tests/features/*/`
+
+Check steering documents:
+
+- `.kiro/steering/coding-standards.md` - Mandatory patterns
+- `.kiro/steering/structure.md` - File organization
+- `.kiro/steering/tech.md` - Architecture decisions
 
 **3. Dependency Analysis**
 
-- Catalog external libraries relevant to feature
-- Understand how libraries are integrated (check imports, configs)
-- Find relevant documentation in docs/, ai_docs/, .agents/reference or ai-wiki if available
-- Note library versions and compatibility requirements
+OpenLivestock tech stack:
+
+- **TanStack Start**: Server functions, SSR, file-based routing
+- **TanStack Router**: Routes, loaders, search params
+- **TanStack Query**: Caching, mutations, optimistic updates
+- **Kysely**: Type-safe SQL queries
+- **Neon**: Serverless PostgreSQL
+- **Better Auth**: Authentication and sessions
+- **Zod**: Schema validation
+- **Tailwind CSS v4**: Styling
+- **Lucide React**: Icons
+- **React 19**: UI components
+
+Check existing integrations:
+
+- Database: `app/lib/db/index.ts`
+- Auth: `app/features/auth/config.ts`
+- Settings: `app/features/settings/` (currency, i18n, units)
+- Modules: `app/features/modules/` (livestock type management)
 
 **4. Testing Patterns**
 
-- Identify test framework and structure (pytest, jest, etc.)
-- Find similar test examples for reference
-- Understand test organization (unit vs integration)
-- Note coverage requirements and testing standards
+OpenLivestock testing approach:
+
+- **Framework**: Vitest + fast-check (property-based testing)
+- **Location**: `tests/features/{feature}/`
+- **Types**: Unit tests, property tests, integration tests
+- **Coverage targets**: Financial 100%, Business logic 90%, Server functions 80%
+
+Find similar test examples:
+
+- Property tests: `tests/features/batches/batches.property.test.ts`
+- Integration tests: `tests/features/notifications/notifications.integration.test.ts`
+- Server function tests: `tests/features/settings/currency.test.ts`
+
+Test patterns to follow:
+
+- Property tests for calculations (FCR, profit, mortality rate)
+- Integration tests for server functions with database
+- Mock auth with test user IDs
 
 **5. Integration Points**
 
-- Identify existing files that need updates
-- Determine new files that need creation and their locations
-- Map router/API registration patterns
-- Understand database/model patterns if applicable
-- Identify authentication/authorization patterns if relevant
+OpenLivestock integration checklist:
+
+- **Database**: Does it need new tables/columns? → Create migration in `app/lib/db/migrations/`
+- **Types**: Update `app/lib/db/types.ts` for database changes
+- **Server functions**: Create in `app/features/{feature}/server.ts` with `createServerFn()`
+- **Routes**: Add to `app/routes/_auth/{feature}/` (protected) or `app/routes/` (public)
+- **Navigation**: Update `app/components/navigation.tsx` if adding new page
+- **Dialogs**: Create in `app/components/dialogs/` for CRUD operations
+- **Farm context**: Use `useFarm()` hook for current farm selection
+- **Settings**: Use `useFormatCurrency()`, `useFormatDate()`, `useTranslation()` hooks
+- **Notifications**: Create notifications via `app/features/notifications/server.ts`
+- **Audit logs**: Log actions via `app/features/logging/audit.ts`
+
+Check if feature affects:
+
+- Multiple livestock types → Check `MODULE_METADATA` in `app/features/modules/constants.ts`
+- Financial calculations → Use currency utilities from `app/features/settings/currency.ts`
+- User preferences → Check `UserSettingsTable` in `app/lib/db/types.ts`
 
 **Clarify Ambiguities:**
 
@@ -143,7 +220,7 @@ So that <benefit/value>
 
 Whats below here is a template for you to fill for th4e implementation agent:
 
-```markdown
+````markdown
 # Feature: <feature-name>
 
 The following plan should be complete, but its important that you validate documentation and codebase patterns and task sanity before you start implementing.
@@ -204,15 +281,78 @@ So that <benefit/value>
 
 ### Patterns to Follow
 
-<Specific patterns extracted from codebase - include actual code examples from the project>
+**OpenLivestock Mandatory Patterns:**
 
-**Naming Conventions:** (for example)
+**Server Function Pattern:**
 
-**Error Handling:** (for example)
+```typescript
+// app/features/{feature}/server.ts
+import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
+import { AppError } from '~/lib/errors'
 
-**Logging Pattern:** (for example)
+export const myFunction = createServerFn({ method: 'POST' })
+  .inputValidator(
+    z.object({
+      /* schema */
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
 
-**Other Relevant Patterns:** (for example)
+    const { db } = await import('~/lib/db') // MUST be dynamic
+
+    try {
+      // Implementation
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', { cause: error })
+    }
+  })
+```
+````
+
+**Currency Pattern:**
+
+```typescript
+// In components
+import { useFormatCurrency } from '~/features/settings'
+
+const { format: formatCurrency, symbol } = useFormatCurrency()
+// Use: formatCurrency(amount) and {symbol}
+```
+
+**i18n Pattern:**
+
+```typescript
+// In components
+import { useTranslation } from 'react-i18next'
+
+const { t } = useTranslation(['feature', 'common'])
+// Use: t('key', { defaultValue: 'Fallback' })
+```
+
+**Database Query Pattern:**
+
+```typescript
+// Explicit column selection, type-safe
+const results = await db
+  .selectFrom('batches')
+  .leftJoin('farms', 'farms.id', 'batches.farmId')
+  .select(['batches.id', 'batches.species', 'farms.name as farmName'])
+  .where('batches.farmId', '=', farmId)
+  .execute()
+```
+
+**Error Handling Pattern:**
+
+```typescript
+// Use AppError with typed codes
+throw new AppError('BATCH_NOT_FOUND', { metadata: { batchId } })
+throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+throw new AppError('VALIDATION_ERROR', { metadata: { field: 'quantity' } })
+```
 
 ---
 
@@ -292,41 +432,111 @@ Use information-dense keywords for clarity:
 
 ## TESTING STRATEGY
 
-<Define testing approach based on project's test framework and patterns discovered in during research>
+OpenLivestock testing approach:
 
 ### Unit Tests
 
-<Scope and requirements based on project standards>
+**Location**: `tests/features/{feature}/`
+**Framework**: Vitest + fast-check
+**Coverage Target**: 80%+ (90%+ for business logic, 100% for financial calculations)
 
-Design unit tests with fixtures and assertions following existing testing approaches
+Design unit tests following existing patterns:
+
+- Property tests for calculations (see `tests/features/batches/fcr.property.test.ts`)
+- Unit tests for utilities (see `tests/features/settings/currency.test.ts`)
+- Mock database with test data
 
 ### Integration Tests
 
-<Scope and requirements based on project standards>
+**Scope**: Server functions with database operations
+**Pattern**: See `tests/features/notifications/notifications.integration.test.ts`
+
+Test:
+
+- Server function authentication
+- Database CRUD operations
+- Error handling (AppError codes)
+- Farm access control
 
 ### Edge Cases
 
-<List specific edge cases that must be tested for this feature>
+OpenLivestock-specific edge cases to test:
+
+- Multi-currency calculations (different decimal separators)
+- Multi-language strings (Unicode handling)
+- Offline/online state transitions
+- Farm access permissions
+- Module-specific features (livestock type filtering)
+- Batch quantity updates (mortality, sales)
+- Date formatting across locales
 
 ---
 
 ## VALIDATION COMMANDS
 
-<Define validation commands based on project's tools discovered in Phase 2>
-
-Execute every command to ensure zero regressions and 100% feature correctness.
+OpenLivestock validation suite - execute in order, fail fast:
 
 ### Level 1: Syntax & Style
 
-<Project-specific linting and formatting commands>
+```bash
+# Type checking (fail fast)
+npx tsc --noEmit || exit 1
+
+# Linting (fail fast)
+bun run lint || exit 1
+```
 
 ### Level 2: Unit Tests
 
-<Project-specific unit test commands>
+```bash
+# Run all tests (fail fast)
+bun test --run || exit 1
+```
+
+### Level 3: Build Verification
+
+```bash
+# Verify production build works
+bun run build || exit 1
+```
+
+### Level 4: Database Validation (if schema changed)
+
+```bash
+# Run migrations
+bun run db:migrate
+
+# Verify with Neon MCP
+neon__get_database_tables
+neon__describe_table_schema {table_name}
+```
+
+### Complete Validation
+
+```bash
+# Run all checks
+bun run check && bun test --run && bun run build
+```
+
+# Run specific test file
+
+bun test path/to/test.ts
+
+# Run with coverage
+
+bun test --coverage
+
+````
 
 ### Level 3: Integration Tests
 
-<Project-specific integration test commands>
+```bash
+# Run integration tests (if separate)
+bun test tests/integration
+
+# Run full test suite
+bun test --run
+````
 
 ### Level 4: Manual Validation
 
@@ -340,17 +550,28 @@ Execute every command to ensure zero regressions and 100% feature correctness.
 
 ## ACCEPTANCE CRITERIA
 
-<List specific, measurable criteria that must be met for completion>
+OpenLivestock feature completion checklist:
 
 - [ ] Feature implements all specified functionality
-- [ ] All validation commands pass with zero errors
-- [ ] Unit test coverage meets requirements (80%+)
+- [ ] All validation commands pass: `bun run check && bun test --run && bun run build`
+- [ ] Test coverage meets requirements (80%+ overall, 90%+ business logic, 100% financial)
 - [ ] Integration tests verify end-to-end workflows
-- [ ] Code follows project conventions and patterns
-- [ ] No regressions in existing functionality
-- [ ] Documentation is updated (if applicable)
-- [ ] Performance meets requirements (if applicable)
-- [ ] Security considerations addressed (if applicable)
+- [ ] Code follows OpenLivestock patterns:
+  - [ ] Dynamic imports in server functions
+  - [ ] AppError for error handling
+  - [ ] useFormatCurrency() for currency display
+  - [ ] useTranslation() for user-facing strings
+  - [ ] requireAuth() and checkFarmAccess() for protected operations
+  - [ ] Kysely type-safe queries with explicit column selection
+- [ ] No regressions in existing functionality (all 300+ tests pass)
+- [ ] Database migration created (if schema changed)
+- [ ] Types updated in `app/lib/db/types.ts` (if schema changed)
+- [ ] Navigation updated (if new page added)
+- [ ] Works across all 6 livestock types (if applicable)
+- [ ] Multi-currency support (no hardcoded symbols)
+- [ ] i18n support (no hardcoded strings)
+- [ ] Mobile-responsive UI (if UI changes)
+- [ ] Offline-compatible (if applicable)
 
 ---
 
@@ -370,6 +591,7 @@ Execute every command to ensure zero regressions and 100% feature correctness.
 ## NOTES
 
 <Additional context, design decisions, trade-offs>
+
 ```
 
 ## Output Format
@@ -443,3 +665,4 @@ After creating the Plan, provide:
 - `@execute` - Implement the generated plan
 - `@code-review` - Review implementation quality
 - `@prime` - Load project context before planning
+```

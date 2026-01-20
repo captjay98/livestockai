@@ -9,9 +9,10 @@ Generate comprehensive profit and loss analysis for OpenLivestock Manager.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
-**Species**: Broilers, Layers, Catfish, Tilapia
-**Currency**: Nigerian Naira (₦)
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Species**: All 6 livestock types with species-specific financial metrics
+**Currency**: Multi-currency - use user preference
+**Database**: PostgreSQL (Neon) via Kysely ORM
 
 ## Report Scope
 
@@ -24,8 +25,8 @@ Generate comprehensive profit and loss analysis for OpenLivestock Manager.
 
 ```
 # List farms and batches
-neon_run_sql "SELECT id, name FROM farms"
-neon_run_sql "SELECT id, batchName, farmId, status FROM batches WHERE status IN ('active', 'sold')"
+neon__run_sql "SELECT id, name FROM farms"
+neon__run_sql "SELECT id, batchName, farmId, status FROM batches WHERE status IN ('active', 'sold')"
 ```
 
 ## Data Collection (MCP)
@@ -33,11 +34,11 @@ neon_run_sql "SELECT id, batchName, farmId, status FROM batches WHERE status IN 
 ### 1. Revenue (Sales)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    s.saleDate,
+    s.date,
     s.quantity as quantitySold,
-    s.pricePerUnit,
+    s.unitPrice,
     ROUND(s.totalAmount::numeric, 2) as totalAmount,
     c.name as customerName,
     b.batchName
@@ -45,19 +46,19 @@ neon_run_sql "
   LEFT JOIN customers c ON s.customerId = c.id
   LEFT JOIN batches b ON s.batchId = b.id
   WHERE s.batchId = 'batch-id'
-  ORDER BY s.saleDate
+  ORDER BY s.date
 "
 ```
 
 ### 2. Revenue Summary
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     COUNT(*) as total_sales,
     SUM(quantity) as total_quantity,
     ROUND(SUM(totalAmount)::numeric, 2) as total_revenue,
-    ROUND(AVG(pricePerUnit)::numeric, 2) as avg_price
+    ROUND(AVG(unitPrice)::numeric, 2) as avg_price
   FROM sales
   WHERE batchId = 'batch-id'
 "
@@ -66,11 +67,11 @@ neon_run_sql "
 ### 3. Feed Costs
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     feedType,
     ROUND(SUM(quantityKg)::numeric, 2) as total_kg,
-    ROUND(SUM(costNgn)::numeric, 2) as total_cost
+    ROUND(SUM(cost)::numeric, 2) as total_cost
   FROM feed_records
   WHERE batchId = 'batch-id'
   GROUP BY feedType
@@ -80,7 +81,7 @@ neon_run_sql "
 ### 4. Other Expenses
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     category,
     ROUND(SUM(amount)::numeric, 2) as total,
@@ -95,11 +96,11 @@ neon_run_sql "
 ### 5. Batch Investment (Initial Costs)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     initialQuantity,
-    acquisitionCost,
-    ROUND((acquisitionCost / initialQuantity)::numeric, 2) as cost_per_unit
+    totalCost,
+    ROUND((totalCost / initialQuantity)::numeric, 2) as cost_per_unit
   FROM batches
   WHERE id = 'batch-id'
 "
@@ -165,61 +166,61 @@ Profit per kg = Revenue per kg - Cost per kg
 # Financial Report: [Batch/Farm Name]
 
 **Period**: [Start Date] to [End Date]
-**Currency**: Nigerian Naira (₦)
+**Currency**: Nigerian Naira ([Currency])
 
 ## Executive Summary
 
-- **Total Revenue**: ₦X
-- **Total Cost**: ₦X
-- **Net Profit**: ₦X
+- **Total Revenue**: [Currency]X
+- **Total Cost**: [Currency]X
+- **Net Profit**: [Currency]X
 - **Profit Margin**: X%
 - **ROI**: X%
 
 ## Revenue Breakdown
 
-| Source            | Quantity | Unit Price | Total  |
-| ----------------- | -------- | ---------- | ------ |
-| Live Sales        | X kg     | ₦X         | ₦X     |
-| Processed         | X kg     | ₦X         | ₦X     |
-| **Total Revenue** |          |            | **₦X** |
+| Source            | Quantity | Unit Price  | Total           |
+| ----------------- | -------- | ----------- | --------------- |
+| Live Sales        | X kg     | [Currency]X | [Currency]X     |
+| Processed         | X kg     | [Currency]X | [Currency]X     |
+| **Total Revenue** |          |             | **[Currency]X** |
 
 ## Cost Breakdown
 
-| Category           | Amount | % of Total |
-| ------------------ | ------ | ---------- |
-| Feed               | ₦X     | X%         |
-| Chicks/Fingerlings | ₦X     | X%         |
-| Labor              | ₦X     | X%         |
-| Medications        | ₦X     | X%         |
-| Utilities          | ₦X     | X%         |
-| Other              | ₦X     | X%         |
-| **Total Cost**     | **₦X** | **100%**   |
+| Category           | Amount          | % of Total |
+| ------------------ | --------------- | ---------- |
+| Feed               | [Currency]X     | X%         |
+| Chicks/Fingerlings | [Currency]X     | X%         |
+| Labor              | [Currency]X     | X%         |
+| Medications        | [Currency]X     | X%         |
+| Utilities          | [Currency]X     | X%         |
+| Other              | [Currency]X     | X%         |
+| **Total Cost**     | **[Currency]X** | **100%**   |
 
 ## Profitability Analysis
 
-| Metric             | Value | Status   |
-| ------------------ | ----- | -------- |
-| Gross Profit       | ₦X    | ✅/⚠️/❌ |
-| Gross Margin       | X%    | ✅/⚠️/❌ |
-| Operating Expenses | ₦X    | ✅/⚠️/❌ |
-| Net Profit         | ₦X    | ✅/⚠️/❌ |
-| Net Margin         | X%    | ✅/⚠️/❌ |
+| Metric             | Value       | Status   |
+| ------------------ | ----------- | -------- |
+| Gross Profit       | [Currency]X | ✅/⚠️/❌ |
+| Gross Margin       | X%          | ✅/⚠️/❌ |
+| Operating Expenses | [Currency]X | ✅/⚠️/❌ |
+| Net Profit         | [Currency]X | ✅/⚠️/❌ |
+| Net Margin         | X%          | ✅/⚠️/❌ |
 
 ## Per Unit Analysis
 
-| Metric  | Per Bird/Fish | Per kg |
-| ------- | ------------- | ------ |
-| Revenue | ₦X            | ₦X     |
-| Cost    | ₦X            | ₦X     |
-| Profit  | ₦X            | ₦X     |
+| Metric  | Per Bird/Fish | Per kg      |
+| ------- | ------------- | ----------- |
+| Revenue | [Currency]X   | [Currency]X |
+| Cost    | [Currency]X   | [Currency]X |
+| Profit  | [Currency]X   | [Currency]X |
 
 ## Comparison to Budget
 
-| Item       | Budget | Actual | Variance | Status   |
-| ---------- | ------ | ------ | -------- | -------- |
-| Revenue    | ₦X     | ₦X     | X%       | ✅/⚠️/❌ |
-| Feed Cost  | ₦X     | ₦X     | X%       | ✅/⚠️/❌ |
-| Net Profit | ₦X     | ₦X     | X%       | ✅/⚠️/❌ |
+| Item       | Budget      | Actual      | Variance | Status   |
+| ---------- | ----------- | ----------- | -------- | -------- |
+| Revenue    | [Currency]X | [Currency]X | X%       | ✅/⚠️/❌ |
+| Feed Cost  | [Currency]X | [Currency]X | X%       | ✅/⚠️/❌ |
+| Net Profit | [Currency]X | [Currency]X | X%       | ✅/⚠️/❌ |
 
 ## Recommendations
 

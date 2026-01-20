@@ -9,9 +9,10 @@ Analyze livestock batch performance and provide actionable insights.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
-**Species**: Broilers, Layers, Catfish, Tilapia
-**Currency**: Nigerian Naira (₦)
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Species**: All 6 livestock types with species-specific metrics
+**Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
+**Database**: PostgreSQL (Neon) via Kysely ORM
 
 ## Analysis Scope
 
@@ -23,10 +24,10 @@ Analyze livestock batch performance and provide actionable insights.
 
 ```
 # Get batch overview
-neon_run_sql "SELECT id, batchName, species, status, initialQuantity, currentQuantity, startDate FROM batches WHERE status = 'active'"
+neon__run_sql "SELECT id, batchName, species, status, initialQuantity, currentQuantity, acquisitionDate FROM batches WHERE status = 'active'"
 
 # Get specific batch
-neon_run_sql "SELECT * FROM batches WHERE id = 'batch-id'"
+neon__run_sql "SELECT * FROM batches WHERE id = 'batch-id'"
 ```
 
 ## Data to Gather
@@ -34,11 +35,11 @@ neon_run_sql "SELECT * FROM batches WHERE id = 'batch-id'"
 ### 1. Batch Overview (MCP)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    b.id, b.batchName, b.species, b.status,
+    b.id, b.batchName, b.species, b.livestockType, b.status,
     b.initialQuantity, b.currentQuantity,
-    b.startDate, b.targetHarvestDate,
+    b.acquisitionDate, b.targetHarvestDate,
     f.name as farmName
   FROM batches b
   JOIN farms f ON b.farmId = f.id
@@ -49,7 +50,7 @@ neon_run_sql "
 ### 2. Mortality Analysis (MCP)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     SUM(quantity) as total_deaths,
     ROUND((SUM(quantity)::numeric / b.initialQuantity * 100), 2) as mortality_rate,
@@ -66,28 +67,27 @@ neon_run_sql "
 ### 3. Growth Performance (MCP)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    sampleDate,
-    ROUND(AVG(avgWeightKg)::numeric, 3) as avg_weight,
-    ROUND(MIN(minWeightKg)::numeric, 3) as min_weight,
-    ROUND(MAX(maxWeightKg)::numeric, 3) as max_weight,
-    SUM(sampleSize) as total_samples
+    date,
+    ROUND(averageWeightKg::numeric, 3) as avg_weight,
+    ROUND(minWeightKg::numeric, 3) as min_weight,
+    ROUND(maxWeightKg::numeric, 3) as max_weight,
+    sampleSize
   FROM weight_samples
   WHERE batchId = 'batch-id'
-  GROUP BY sampleDate
-  ORDER BY sampleDate
+  ORDER BY date
 "
 ```
 
 ### 4. Feed Consumption (MCP)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     feedType,
-    ROUND(SUM(quantityKg)::numeric, 2) as total_feed_kg,
-    ROUND(SUM(costNgn)::numeric, 2) as total_feed_cost
+    ROUND(SUM(quantityKg::numeric), 2) as total_feed_kg,
+    ROUND(SUM(cost::numeric), 2) as total_feed_cost
   FROM feed_records
   WHERE batchId = 'batch-id'
   GROUP BY feedType
@@ -97,11 +97,11 @@ neon_run_sql "
 ### 5. Sales Revenue (MCP)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     SUM(quantity) as total_sold,
-    ROUND(SUM(totalAmount)::numeric, 2) as total_revenue,
-    ROUND(AVG(pricePerUnit)::numeric, 2) as avg_price
+    ROUND(SUM(totalAmount::numeric), 2) as total_revenue,
+    ROUND(AVG(unitPrice::numeric), 2) as avg_price
   FROM sales
   WHERE batchId = 'batch-id'
 "
@@ -143,9 +143,11 @@ neon_run_sql "
 
 ### Financial Summary
 
-- **Feed Cost**: ₦X,XXX,XXX
-- **Revenue (if sold)**: ₦X,XXX,XXX
-- **Projected Profit**: ₦X,XXX,XXX
+- **Feed Cost**: [Currency Symbol]X,XXX (based on user settings)
+- **Revenue (if sold)**: [Currency Symbol]X,XXX
+- **Projected Profit**: [Currency Symbol]X,XXX
+
+**Note**: Currency display uses user's preference from settings (USD, EUR, NGN, etc.)
 
 ### Issues Identified
 
@@ -215,7 +217,9 @@ For comprehensive analysis, delegate to specialized agents:
 
 ## Financial Projection
 
-- Estimated Revenue: ₦X
-- Estimated Cost: ₦X
-- Projected Profit: ₦X
+- Estimated Revenue: [Currency]X
+- Estimated Cost: [Currency]X
+- Projected Profit: [Currency]X
+
+**Note**: All financial values use user's currency preference
 ```

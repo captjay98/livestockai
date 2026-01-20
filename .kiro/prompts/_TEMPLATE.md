@@ -16,7 +16,7 @@ Brief one-line description of the prompt's purpose.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Tech Stack**: TanStack Start, Kysely ORM, Neon PostgreSQL, Cloudflare Workers
 **Target Users**: Nigerian farmers with varying technical skills
 

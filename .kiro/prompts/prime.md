@@ -8,7 +8,7 @@ Build deep understanding of the OpenLivestock Manager codebase through documenta
 
 ## Context
 
-**Project**: OpenLivestock Manager - Offline-first livestock management for Nigerian poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Tech Stack**: TanStack Start, Kysely ORM, Neon PostgreSQL, Cloudflare Workers, Better Auth
 **Target Users**: Nigerian farmers managing poultry (broilers, layers) and aquaculture (catfish, tilapia)
 
@@ -112,13 +112,13 @@ neon_run_sql "SELECT SUM(totalAmount) as total_revenue FROM sales"
 **Key Tables:**
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
-| `farms` | Farm entities | id, name, ownerId |
-| `batches` | Livestock batches | farmId, species, status, currentQuantity |
-| `mortality_records` | Death tracking | batchId, quantity, cause |
-| `feed_records` | Feed consumption | batchId, feedType, quantityKg, costNgn |
-| `weight_samples` | Growth tracking | batchId, avgWeightKg, sampleDate |
-| `sales` | Revenue | batchId, quantity, totalAmount, customerId |
-| `expenses` | Costs | farmId, category, amount |
+| `farms` | Farm entities | id, name, type |
+| `batches` | Livestock batches | farmId, species, livestockType, status, currentQuantity |
+| `mortality_records` | Death tracking | batchId, quantity, cause, date |
+| `feed_records` | Feed consumption | batchId, feedType, quantityKg, cost, date |
+| `weight_samples` | Growth tracking | batchId, averageWeightKg, date |
+| `sales` | Revenue | batchId, quantity, totalAmount, customerId, date |
+| `expenses` | Costs | farmId, category, amount, date |
 | `users` | Accounts | email, name, role |
 | `customers` | Buyers | name, type, contactInfo |
 | `suppliers` | Vendors | name, type, contactInfo |

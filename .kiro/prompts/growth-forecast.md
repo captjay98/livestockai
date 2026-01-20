@@ -9,9 +9,10 @@ Analyze growth trends and predict harvest timing for livestock batches.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
-**Species**: Broilers, Layers, Catfish, Tilapia
-**Currency**: Nigerian Naira (₦)
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Species**: All 6 livestock types with species-specific growth patterns
+**Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
+**Database**: PostgreSQL (Neon) via Kysely ORM
 
 ## Analysis Scope
 
@@ -23,7 +24,7 @@ Analyze growth trends and predict harvest timing for livestock batches.
 
 ```
 # List batches with weight samples
-neon_run_sql "SELECT DISTINCT b.id, b.batchName, b.species, b.startDate FROM batches b JOIN weight_samples w ON b.id = w.batchId WHERE b.status = 'active'"
+neon__run_sql "SELECT DISTINCT b.id, b.batchName, b.species, b.acquisitionDate FROM batches b JOIN weight_samples w ON b.id = w.batchId WHERE b.status = 'active'"
 ```
 
 ## Data Collection (MCP)
@@ -31,12 +32,12 @@ neon_run_sql "SELECT DISTINCT b.id, b.batchName, b.species, b.startDate FROM bat
 ### 1. Batch Details
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    id, batchName, species, breed,
+    id, batchName, species, livestockType,
     initialQuantity, currentQuantity,
-    startDate, targetHarvestDate,
-    targetWeightKg
+    acquisitionDate, targetHarvestDate,
+    target_weight_g
   FROM batches
   WHERE id = 'batch-id'
 "
@@ -45,36 +46,36 @@ neon_run_sql "
 ### 2. Weight Sample History
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    sampleDate,
-    ROUND(avgWeightKg::numeric, 3) as avg_weight,
+    date,
+    ROUND(averageWeightKg::numeric, 3) as avg_weight,
     ROUND(minWeightKg::numeric, 3) as min_weight,
     ROUND(maxWeightKg::numeric, 3) as max_weight,
     sampleSize
   FROM weight_samples
   WHERE batchId = 'batch-id'
-  ORDER BY sampleDate
+  ORDER BY date
 "
 ```
 
 ### 3. Calculate Growth Rate
 
 ```
-neon_run_sql "
+neon__run_sql "
   WITH ordered_samples AS (
     SELECT
-      sampleDate,
-      avgWeightKg,
-      LAG(avgWeightKg) OVER (ORDER BY sampleDate) as prev_weight,
-      LAG(sampleDate) OVER (ORDER BY sampleDate) as prev_date
+      date,
+      averageWeightKg,
+      LAG(averageWeightKg) OVER (ORDER BY date) as prev_weight,
+      LAG(date) OVER (ORDER BY date) as prev_date
     FROM weight_samples
     WHERE batchId = 'batch-id'
   )
   SELECT
-    sampleDate,
-    ROUND(avgWeightKg::numeric, 3) as weight_kg,
-    ROUND(((avgWeightKg - prev_weight) / NULLIF(EXTRACT(DAY FROM sampleDate - prev_date), 0) * 1000)::numeric, 1) as adg_grams
+    date,
+    ROUND(averageWeightKg::numeric, 3) as weight_kg,
+    ROUND(((averageWeightKg - prev_weight) / NULLIF(EXTRACT(DAY FROM date - prev_date), 0) * 1000)::numeric, 1) as adg_grams
   FROM ordered_samples
   WHERE prev_weight IS NOT NULL
 "
@@ -154,7 +155,7 @@ Where:
 
 - **Age**: X days
 - **Average Weight**: X.XX kg
-- **Sample Size**: X birds/fish
+- **Sample Size**: X animals
 - **Weight Uniformity**: X% CV (target <10%)
 
 ## Growth Performance
@@ -176,8 +177,10 @@ Where:
 ## Revenue Projection
 
 - **Projected Total Weight**: X,XXX kg
-- **Market Price**: ₦X,XXX/kg
-- **Projected Revenue**: ₦X,XXX,XXX
+- **Market Price**: [Currency]X,XXX/kg
+- **Projected Revenue**: [Currency]X,XXX,XXX
+
+**Note**: All financial values use user's currency preference
 
 ## Recommendations
 

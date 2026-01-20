@@ -8,7 +8,7 @@ Systematic approach to debugging Cloudflare Workers deployment problems.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Deployment**: Cloudflare Workers (edge computing)
 **Database**: Neon PostgreSQL (serverless)
 
@@ -114,8 +114,8 @@ wrangler tail --format pretty
 **Check with Neon MCP**:
 
 ```
-neon_run_sql "SELECT 1"  # Test connection
-neon_get_database_tables  # Verify schema
+neon__run_sql "SELECT 1"  # Test connection
+neon__get_database_tables  # Verify schema
 ```
 
 **Check secrets**:
@@ -189,7 +189,7 @@ wrangler deploy --env preview
 | Build failure    | `bun run check`       | `workers_builds_get_build_logs` |
 | Deploy failure   | `wrangler whoami`     | `workers_list`                  |
 | Runtime error    | `wrangler tail`       | `query_worker_observability`    |
-| DB connection    | Check secrets         | `neon_run_sql`                  |
+| DB connection    | Check secrets         | `neon__run_sql`                 |
 | Module not found | Check dynamic imports | -                               |
 
 ## Agent Delegation

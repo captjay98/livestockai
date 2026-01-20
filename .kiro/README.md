@@ -31,7 +31,7 @@ kiro-cli --agent backend-engineer
 │   ├── data-analyst.json
 │   ├── qa-engineer.json
 │   └── security-engineer.json
-├── prompts/                   # Custom prompts (25 total)
+├── prompts/                   # Custom prompts (30 total)
 ├── steering/                  # Project knowledge
 │   ├── product.md
 │   ├── tech.md
@@ -61,17 +61,17 @@ kiro-cli --agent backend-engineer
 
 Each agent has specific tools, write permissions, and MCP access:
 
-| Agent                  | Write Paths                                                                                                | MCP Access       | Key Tools                                      |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------- |
-| `fullstack-engineer`   | `app/**`, `tests/**`, `*.md`, `.kiro/**`                                                                   | Neon             | code, web_search, knowledge, todo_list         |
-| `livestock-specialist` | `app/lib/monitoring/**`, `app/lib/batches/**`, `app/lib/growth/**`, `app/lib/health/**`, `app/lib/feed/**` | Neon             | web_search, knowledge, todo_list               |
-| `backend-engineer`     | `app/lib/**`, `app/routes/api/**`, `*.md`                                                                  | Neon             | code, web_search, knowledge, todo_list         |
-| `frontend-engineer`    | `app/components/**`, `app/routes/**`, `*.md`                                                               | -                | code, web_search, knowledge, todo_list         |
-| `devops-engineer`      | `wrangler.jsonc`, `.github/**`, `.kiro/**`, `.env*`, `package.json`                                        | Neon, Cloudflare | wrangler, web_search, knowledge, todo_list     |
-| `data-analyst`         | `app/lib/reports/**`, `app/lib/monitoring/**`, `app/lib/analytics/**`                                      | Neon             | web_search, execute_bash, knowledge, todo_list |
-| `qa-engineer`          | `app/**/*.test.ts`, `tests/**`, `*.md`                                                                     | -                | code, web_search, knowledge, todo_list         |
-| `security-engineer`    | `app/lib/auth/**`, `app/routes/_auth.tsx`                                                                  | -                | code, web_search, knowledge, todo_list         |
-| `i18n-engineer`        | `app/lib/i18n/**`, `public/locales/**`, `app/routes/**`                                                    | -                | web_search, knowledge, todo_list               |
+| Agent                  | Write Paths                                                                                                                         | MCP Access       | Key Tools                                      |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------- |
+| `fullstack-engineer`   | `app/**`, `tests/**`, `*.md`, `.kiro/**`                                                                                            | Neon             | code, web_search, knowledge, todo_list         |
+| `livestock-specialist` | `app/features/monitoring/**`, `app/features/batches/**`, `app/features/growth/**`, `app/features/health/**`, `app/features/feed/**` | Neon             | web_search, knowledge, todo_list               |
+| `backend-engineer`     | `app/features/**`, `app/lib/**`, `*.md`                                                                                             | Neon             | code, web_search, knowledge, todo_list         |
+| `frontend-engineer`    | `app/components/**`, `app/routes/**`, `*.md`                                                                                        | -                | code, web_search, knowledge, todo_list         |
+| `devops-engineer`      | `wrangler.jsonc`, `.github/**`, `.kiro/**`, `.env*`, `package.json`                                                                 | Neon, Cloudflare | wrangler, web_search, knowledge, todo_list     |
+| `data-analyst`         | `app/features/reports/**`, `app/features/monitoring/**`, `app/features/analytics/**`                                                | Neon             | web_search, execute_bash, knowledge, todo_list |
+| `qa-engineer`          | `app/**/*.test.ts`, `tests/**`, `*.md`                                                                                              | -                | code, web_search, knowledge, todo_list         |
+| `security-engineer`    | `app/features/auth/**`, `app/routes/_auth.tsx`                                                                                      | -                | code, web_search, knowledge, todo_list         |
+| `i18n-engineer`        | `app/features/i18n/**`, `public/locales/**`, `app/routes/**`                                                                        | -                | web_search, knowledge, todo_list               |
 
 **Recommended Agent Selection:**
 
@@ -82,7 +82,7 @@ Each agent has specific tools, write permissions, and MCP access:
 
 ### Universal Agent Tools
 
-All 8 agents now have access to:
+All 9 agents now have access to:
 
 - **knowledge**: Access indexed knowledge bases across chat sessions
 - **todo_list**: Create and manage task lists for complex workflows
@@ -106,7 +106,7 @@ kiro-cli --agent backend-engineer
 
 # Agent responds with:
 # ⚙️ Backend Engineer ready.
-# M app/lib/batches/server.ts
+# M app/features/batches/server.ts
 # M app/routes/api/batches.ts
 
 # Then you can ask:

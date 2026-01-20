@@ -8,7 +8,7 @@ Execute a production deployment to Cloudflare Workers with comprehensive validat
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Platform**: Cloudflare Workers (Edge computing)
 **Critical**: All server functions MUST use dynamic imports for Workers compatibility
 
@@ -134,8 +134,8 @@ ls -la dist/
 
 ```bash
 # Search for violations
-grep -rn "^import.*{ db }.*from" app/lib/*/server.ts
-grep -rn "^import.*db.*from.*\/db" app/lib/
+grep -rn "^import.*{ db }.*from" app/features/*/server.ts
+grep -rn "^import.*db.*from.*\/db" app/features/
 
 # Expected: No results (all imports should be dynamic)
 ```
@@ -144,10 +144,10 @@ grep -rn "^import.*db.*from.*\/db" app/lib/
 
 ```typescript
 // ❌ WRONG - breaks Workers
-import { db } from '../db'
+import { db } from '~/lib/db'
 
 // ✅ CORRECT - works on Workers
-const { db } = await import('../db')
+const { db } = await import('~/lib/db')
 ```
 
 ## Deployment

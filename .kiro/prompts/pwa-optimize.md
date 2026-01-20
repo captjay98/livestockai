@@ -8,7 +8,7 @@ Optimize Progressive Web App performance for OpenLivestock Manager.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **PWA**: Vite PWA plugin with Workbox
 **Target**: Rural farmers with limited connectivity
 
@@ -70,7 +70,7 @@ Optimize Progressive Web App performance for OpenLivestock Manager.
 {
   "name": "OpenLivestock Manager",
   "short_name": "Livestock",
-  "description": "Livestock management for poultry and aquaculture farms",
+  "description": "Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -9,9 +9,9 @@ Project revenue based on current batch performance and market conditions.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
-**Species**: Broilers, Layers, Catfish, Tilapia
-**Currency**: Nigerian Naira (₦)
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Species**: All 6 livestock types
+**Currency**: Multi-currency - use user preference
 
 ## Forecast Scope
 
@@ -23,7 +23,7 @@ Project revenue based on current batch performance and market conditions.
 
 ```
 # List active batches for forecasting
-neon_run_sql "SELECT id, batchName, species, currentQuantity, targetHarvestDate FROM batches WHERE status = 'active'"
+neon__run_sql "SELECT id, batchName, species, currentQuantity, targetHarvestDate FROM batches WHERE status = 'active'"
 ```
 
 ## Data Collection (MCP)
@@ -31,13 +31,13 @@ neon_run_sql "SELECT id, batchName, species, currentQuantity, targetHarvestDate 
 ### 1. Current Batch Status
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     batchName,
     species,
     initialQuantity,
     currentQuantity,
-    startDate,
+    acquisitionDate,
     targetHarvestDate,
     targetWeightKg
   FROM batches
@@ -48,14 +48,14 @@ neon_run_sql "
 ### 2. Current Weight Data
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    ROUND(AVG(avgWeightKg)::numeric, 3) as avg_weight,
-    MAX(sampleDate) as last_sample,
+    ROUND(AVG(averageWeightKg)::numeric, 3) as avg_weight,
+    MAX(date) as last_sample,
     COUNT(*) as sample_count
   FROM weight_samples
   WHERE batchId = 'batch-id'
-  ORDER BY sampleDate DESC
+  ORDER BY date DESC
   LIMIT 1
 "
 ```
@@ -63,17 +63,17 @@ neon_run_sql "
 ### 3. Growth Rate (ADG)
 
 ```
-neon_run_sql "
+neon__run_sql "
   WITH recent_samples AS (
-    SELECT avgWeightKg, sampleDate
+    SELECT averageWeightKg, date
     FROM weight_samples
     WHERE batchId = 'batch-id'
-    ORDER BY sampleDate DESC
+    ORDER BY date DESC
     LIMIT 2
   )
   SELECT
-    ROUND(((MAX(avgWeightKg) - MIN(avgWeightKg)) /
-      NULLIF(EXTRACT(DAY FROM MAX(sampleDate) - MIN(sampleDate)), 0) * 1000)::numeric, 1) as adg_grams
+    ROUND(((MAX(averageWeightKg) - MIN(averageWeightKg)) /
+      NULLIF(EXTRACT(DAY FROM MAX(date) - MIN(date)), 0) * 1000)::numeric, 1) as adg_grams
   FROM recent_samples
 "
 ```
@@ -81,26 +81,26 @@ neon_run_sql "
 ### 4. Historical Sales Data (Market Prices)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    ROUND(AVG(pricePerUnit)::numeric, 2) as avg_price,
-    ROUND(MIN(pricePerUnit)::numeric, 2) as min_price,
-    ROUND(MAX(pricePerUnit)::numeric, 2) as max_price,
+    ROUND(AVG(unitPrice)::numeric, 2) as avg_price,
+    ROUND(MIN(unitPrice)::numeric, 2) as min_price,
+    ROUND(MAX(unitPrice)::numeric, 2) as max_price,
     COUNT(*) as sales_count
   FROM sales s
   JOIN batches b ON s.batchId = b.id
   WHERE b.species = 'Broiler'
-    AND s.saleDate > NOW() - INTERVAL '3 months'
+    AND s.date > NOW() - INTERVAL '3 months'
 "
 ```
 
 ### 5. Total Costs (for Profit Projection)
 
 ```
-neon_run_sql "
+neon__run_sql "
   WITH costs AS (
     SELECT
-      COALESCE((SELECT SUM(costNgn) FROM feed_records WHERE batchId = 'batch-id'), 0) as feed_cost,
+      COALESCE((SELECT SUM(cost) FROM feed_records WHERE batchId = 'batch-id'), 0) as feed_cost,
       COALESCE((SELECT SUM(amount) FROM expenses WHERE batchId = 'batch-id'), 0) as other_cost,
       COALESCE((SELECT acquisitionCost FROM batches WHERE id = 'batch-id'), 0) as acquisition_cost
   )
@@ -140,11 +140,11 @@ Revenue = Quantity × Projected Weight × Expected Price
 
 ### Scenarios
 
-| Scenario    | Price  | Quantity | Weight | Revenue |
-| ----------- | ------ | -------- | ------ | ------- |
-| Optimistic  | +10%   | 100%     | +5%    | ₦X      |
-| Base        | Market | 95%      | Target | ₦X      |
-| Pessimistic | -10%   | 90%      | -5%    | ₦X      |
+| Scenario    | Price  | Quantity | Weight | Revenue     |
+| ----------- | ------ | -------- | ------ | ----------- |
+| Optimistic  | +10%   | 100%     | +5%    | [Currency]X |
+| Base        | Market | 95%      | Target | [Currency]X |
+| Pessimistic | -10%   | 90%      | -5%    | [Currency]X |
 
 ## Market Factors
 
@@ -159,12 +159,12 @@ Revenue = Quantity × Projected Weight × Expected Price
 
 ### Current Market Prices (Update regularly)
 
-| Product           | Price Range     |
-| ----------------- | --------------- |
-| Broiler (live)    | ₦2,500-3,500/kg |
-| Broiler (dressed) | ₦3,500-4,500/kg |
-| Catfish (live)    | ₦1,500-2,500/kg |
-| Catfish (smoked)  | ₦3,000-4,000/kg |
+| Product           | Price Range              |
+| ----------------- | ------------------------ |
+| Broiler (live)    | [Currency]2,500-3,500/kg |
+| Broiler (dressed) | [Currency]3,500-4,500/kg |
+| Catfish (live)    | [Currency]1,500-2,500/kg |
+| Catfish (smoked)  | [Currency]3,000-4,000/kg |
 
 ## Output Report
 
@@ -201,32 +201,32 @@ Revenue = Quantity × Projected Weight × Expected Price
 
 ### Optimistic (Best Case)
 
-- **Price**: ₦X/kg (+10%)
+- **Price**: [Currency]X/kg (+10%)
 - **Quantity**: X (100% survival)
 - **Weight**: X.XX kg (+5%)
-- **Revenue**: ₦X
+- **Revenue**: [Currency]X
 
 ### Base Case (Expected)
 
-- **Price**: ₦X/kg (market)
+- **Price**: [Currency]X/kg (market)
 - **Quantity**: X (95% survival)
 - **Weight**: X.XX kg (target)
-- **Revenue**: ₦X
+- **Revenue**: [Currency]X
 
 ### Pessimistic (Worst Case)
 
-- **Price**: ₦X/kg (-10%)
+- **Price**: [Currency]X/kg (-10%)
 - **Quantity**: X (90% survival)
 - **Weight**: X.XX kg (-5%)
-- **Revenue**: ₦X
+- **Revenue**: [Currency]X
 
 ## Profitability Projection
 
-| Scenario    | Revenue | Est. Cost | Profit | Margin |
-| ----------- | ------- | --------- | ------ | ------ |
-| Optimistic  | ₦X      | ₦X        | ₦X     | X%     |
-| Base        | ₦X      | ₦X        | ₦X     | X%     |
-| Pessimistic | ₦X      | ₦X        | ₦X     | X%     |
+| Scenario    | Revenue     | Est. Cost   | Profit      | Margin |
+| ----------- | ----------- | ----------- | ----------- | ------ |
+| Optimistic  | [Currency]X | [Currency]X | [Currency]X | X%     |
+| Base        | [Currency]X | [Currency]X | [Currency]X | X%     |
+| Pessimistic | [Currency]X | [Currency]X | [Currency]X | X%     |
 
 ## Market Recommendations
 

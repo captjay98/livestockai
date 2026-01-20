@@ -10,7 +10,7 @@ _If you haven't deployed yet, use @quickstart for basic deployment._
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Deployment**: Cloudflare Workers (edge computing)
 **Database**: Neon PostgreSQL (serverless)
 

@@ -10,10 +10,10 @@ _If you haven't set up your basic database yet, run `@quickstart` first._
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Database**: Neon PostgreSQL (serverless)
 **ORM**: Kysely (type-safe SQL)
-**Tables**: 24 tables including batches, mortality_records, sales, expenses
+**Tables**: 23 tables including batches, mortality_records, sales, expenses, notifications
 
 ## Prerequisites
 
@@ -26,9 +26,9 @@ _If you haven't set up your basic database yet, run `@quickstart` first._
 **Verify current database state:**
 
 ```
-neon_list_projects
-neon_get_database_tables
-neon_run_sql "SELECT COUNT(*) FROM batches"
+neon__list_projects
+neon__get_database_tables
+neon__run_sql "SELECT COUNT(*) FROM batches"
 ```
 
 ## Advanced Features
@@ -41,10 +41,10 @@ Create separate databases for different environments:
 
 ```
 # Create staging database
-neon_create_database "openlivestock_staging"
+neon__create_database "openlivestock_staging"
 
 # Create test database
-neon_create_database "openlivestock_test"
+neon__create_database "openlivestock_test"
 ```
 
 **Configure environment files:**
@@ -67,8 +67,8 @@ Neon branches allow isolated development without affecting production:
 **Create feature branch:**
 
 ```
-neon_create_branch "feature-reports" --parent main
-neon_create_branch "feature-mobile-optimization" --parent main
+neon__create_branch "feature-reports" --parent main
+neon__create_branch "feature-mobile-optimization" --parent main
 ```
 
 **Use cases:**
@@ -116,7 +116,7 @@ DATABASE_URL=postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/dbname
 **Analyze slow queries via MCP:**
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT query, calls, mean_time, total_time
   FROM pg_stat_statements
   ORDER BY total_time DESC
@@ -131,19 +131,19 @@ neon_run_sql "
 ```sql
 CREATE INDEX idx_batches_farm_status ON batches(farmId, status);
 CREATE INDEX idx_mortality_batch_date ON mortality_records(batchId, recordedAt);
-CREATE INDEX idx_sales_batch_date ON sales(batchId, saleDate);
+CREATE INDEX idx_sales_batch_date ON sales(batchId, date);
 ```
 
 **Run via MCP:**
 
 ```
-neon_run_sql "CREATE INDEX idx_batches_farm_status ON batches(farmId, status)"
+neon__run_sql "CREATE INDEX idx_batches_farm_status ON batches(farmId, status)"
 ```
 
 **Analyze query performance:**
 
 ```
-neon_run_sql "EXPLAIN ANALYZE SELECT * FROM batches WHERE farmId = 'xxx' AND status = 'active'"
+neon__run_sql "EXPLAIN ANALYZE SELECT * FROM batches WHERE farmId = 'xxx' AND status = 'active'"
 ```
 
 ### 5. Backup & Recovery
@@ -157,7 +157,7 @@ neon_run_sql "EXPLAIN ANALYZE SELECT * FROM batches WHERE farmId = 'xxx' AND sta
 **Manual backup via MCP:**
 
 ```
-neon_run_sql "
+neon__run_sql "
   COPY (SELECT * FROM batches) TO STDOUT WITH CSV HEADER
 "
 ```
@@ -173,21 +173,21 @@ neon_run_sql "
 **View current schema:**
 
 ```
-neon_get_database_tables
-neon_describe_table_schema "batches"
-neon_describe_table_schema "mortality_records"
+neon__get_database_tables
+neon__describe_table_schema "batches"
+neon__describe_table_schema "mortality_records"
 ```
 
 **Compare with Kysely types:**
 
 ```bash
-cat app/lib/db/schema.ts
+cat app/lib/db/types.ts
 ```
 
 **Verify schema sync:**
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT column_name, data_type, is_nullable
   FROM information_schema.columns
   WHERE table_name = 'batches'
@@ -201,13 +201,13 @@ neon_run_sql "
 
 ```
 # Connection count
-neon_run_sql "SELECT count(*) FROM pg_stat_activity"
+neon__run_sql "SELECT count(*) FROM pg_stat_activity"
 
 # Database size
-neon_run_sql "SELECT pg_size_pretty(pg_database_size(current_database()))"
+neon__run_sql "SELECT pg_size_pretty(pg_database_size(current_database()))"
 
 # Table sizes
-neon_run_sql "
+neon__run_sql "
   SELECT tablename, pg_size_pretty(pg_total_relation_size(tablename::text))
   FROM pg_tables
   WHERE schemaname = 'public'
@@ -226,7 +226,7 @@ neon_run_sql "
 **Batch performance analysis:**
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     b.batchName,
     b.species,
@@ -242,13 +242,13 @@ neon_run_sql "
 **Revenue summary:**
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    DATE_TRUNC('month', saleDate) as month,
+    DATE_TRUNC('month', date) as month,
     SUM(totalAmount) as revenue,
     COUNT(*) as transactions
   FROM sales
-  GROUP BY DATE_TRUNC('month', saleDate)
+  GROUP BY DATE_TRUNC('month', date)
   ORDER BY month DESC
   LIMIT 12
 "
@@ -257,10 +257,10 @@ neon_run_sql "
 **Feed cost analysis:**
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     b.batchName,
-    SUM(f.costNgn) as total_feed_cost,
+    SUM(f.cost) as total_feed_cost,
     SUM(f.quantityKg) as total_feed_kg
   FROM feed_records f
   JOIN batches b ON f.batchId = b.id
@@ -279,7 +279,7 @@ bun run db:migrate --dry-run
 bun run db:migrate
 
 # Test queries work
-bun test app/lib/db/
+bun test tests/
 ```
 
 ## Success Checklist

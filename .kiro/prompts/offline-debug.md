@@ -8,7 +8,7 @@ Diagnose and fix offline functionality and data synchronization issues.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **State**: TanStack Query + IndexedDB persistence
 **PWA**: Vite PWA plugin with service worker
 
@@ -25,7 +25,7 @@ Diagnose and fix offline functionality and data synchronization issues.
 
 ```typescript
 // Verify TanStack Query persistence is configured
-// app/lib/query-client.ts
+// app/lib/query-client.ts (correct location for shared utilities)
 import { persistQueryClient } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 ```

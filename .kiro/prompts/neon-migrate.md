@@ -8,16 +8,17 @@ Manage Kysely database migrations for OpenLivestock Manager.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Database**: PostgreSQL via Neon (serverless)
 **ORM**: Kysely (type-safe SQL)
+**Deployment**: Cloudflare Workers
 
 ## Pre-Migration: Verify Database Connection
 
-Use MCP to verify database is accessible:
+Use Neon MCP to verify database is accessible:
 
 ```
-neon_get_database_tables
+neon__get_database_tables
 ```
 
 This lists all current tables and confirms connection works.
@@ -33,8 +34,8 @@ bun run db:migrate
 ### Verify Migration Success with MCP
 
 ```
-neon_get_database_tables
-neon_describe_table_schema batches
+neon__get_database_tables
+neon__describe_table_schema batches
 ```
 
 ## Create New Migration
@@ -158,7 +159,7 @@ await db.schema
 ### Verify with MCP
 
 ```
-neon_run_sql "SELECT * FROM kysely_migration ORDER BY timestamp DESC LIMIT 5"
+neon__run_sql "SELECT * FROM kysely_migration ORDER BY timestamp DESC LIMIT 5"
 ```
 
 ## Agent Delegation

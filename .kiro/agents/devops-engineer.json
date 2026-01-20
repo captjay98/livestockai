@@ -68,7 +68,7 @@
   "hooks": {
     "agentSpawn": [
       {
-        "command": "echo '🚀 DevOps Engineer ready.' && wrangler whoami 2>/dev/null | head -3 || echo 'Wrangler not authenticated'",
+        "command": "echo '\ud83d\ude80 DevOps Engineer ready.' && wrangler whoami 2>/dev/null | head -3 || echo 'Wrangler not authenticated'",
         "timeout_ms": 10000
       }
     ]

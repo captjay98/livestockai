@@ -9,9 +9,10 @@ Analyze mortality patterns to identify causes and recommend preventive measures.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
-**Species**: Broilers, Layers, Catfish, Tilapia
-**Currency**: Nigerian Naira (₦)
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Species**: All 6 livestock types with species-specific mortality patterns
+**Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
+**Database**: PostgreSQL (Neon) via Kysely ORM
 
 ## Analysis Scope
 
@@ -23,7 +24,7 @@ Analyze mortality patterns to identify causes and recommend preventive measures.
 
 ```
 # List batches with mortality
-neon_run_sql "SELECT DISTINCT b.id, b.batchName, b.species FROM batches b JOIN mortality_records m ON b.id = m.batchId"
+neon__run_sql "SELECT DISTINCT b.id, b.batchName, b.species FROM batches b JOIN mortality_records m ON b.id = m.batchId"
 ```
 
 ## Data Collection (MCP)
@@ -31,9 +32,9 @@ neon_run_sql "SELECT DISTINCT b.id, b.batchName, b.species FROM batches b JOIN m
 ### 1. Mortality Records
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    m.recordDate,
+    m.date,
     m.quantity,
     m.cause,
     m.notes,
@@ -41,14 +42,14 @@ neon_run_sql "
   FROM mortality_records m
   JOIN batches b ON m.batchId = b.id
   WHERE m.batchId = 'batch-id'
-  ORDER BY m.recordDate
+  ORDER BY m.date
 "
 ```
 
 ### 2. Mortality by Cause
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     cause,
     SUM(quantity) as total_deaths,
@@ -64,14 +65,14 @@ neon_run_sql "
 ### 3. Mortality Trend (Weekly)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    DATE_TRUNC('week', recordDate) as week,
+    DATE_TRUNC('week', date) as week,
     SUM(quantity) as weekly_deaths,
     COUNT(*) as incidents
   FROM mortality_records
   WHERE batchId = 'batch-id'
-  GROUP BY DATE_TRUNC('week', recordDate)
+  GROUP BY DATE_TRUNC('week', date)
   ORDER BY week
 "
 ```
@@ -79,7 +80,7 @@ neon_run_sql "
 ### 4. Farm-Wide Analysis
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     b.batchName,
     b.species,
@@ -163,8 +164,10 @@ neon_run_sql "
 ### Primary Issue: [Cause]
 
 - **Evidence**: [Data supporting this conclusion]
-- **Impact**: ₦X,XXX lost value
+- **Impact**: [Currency]X,XXX lost value
 - **Recommendation**: [Specific action]
+
+**Note**: All financial values use user's currency preference
 
 ## Preventive Recommendations
 
@@ -217,9 +220,11 @@ For specialized analysis:
 
 ## Financial Impact
 
-- **Lost Revenue**: ₦X (X birds × ₦X/bird)
-- **Additional Costs**: ₦X (treatment, disposal)
-- **Total Loss**: ₦X
+- **Lost Revenue**: [Currency]X (X animals × [Currency]X/unit)
+- **Additional Costs**: [Currency]X (treatment, disposal)
+- **Total Loss**: [Currency]X
+
+**Note**: All financial values use user's currency preference
 
 ```
 

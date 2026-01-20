@@ -9,9 +9,9 @@ Deep dive into cost structure and identify savings opportunities.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
-**Species**: Broilers, Layers, Catfish, Tilapia
-**Currency**: Nigerian Naira (₦)
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Species**: All 6 livestock types
+**Currency**: Multi-currency - use user preference
 
 ## Analysis Scope
 
@@ -23,7 +23,7 @@ Deep dive into cost structure and identify savings opportunities.
 
 ```
 # List farms and batches with expenses
-neon_run_sql "SELECT DISTINCT f.id, f.name FROM farms f JOIN expenses e ON f.id = e.farmId"
+neon__run_sql "SELECT DISTINCT f.id, f.name FROM farms f JOIN expenses e ON f.id = e.farmId"
 ```
 
 ## Data Collection (MCP)
@@ -31,13 +31,13 @@ neon_run_sql "SELECT DISTINCT f.id, f.name FROM farms f JOIN expenses e ON f.id 
 ### 1. All Costs by Category
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     category,
     ROUND(SUM(amount)::numeric, 2) as total,
     COUNT(*) as transactions,
-    MIN(recordDate) as first_expense,
-    MAX(recordDate) as last_expense
+    MIN(date) as first_expense,
+    MAX(date) as last_expense
   FROM expenses
   WHERE farmId = 'farm-id'
   GROUP BY category
@@ -48,12 +48,12 @@ neon_run_sql "
 ### 2. Feed Cost Details
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
     feedType,
     ROUND(SUM(quantityKg)::numeric, 2) as total_kg,
-    ROUND(SUM(costNgn)::numeric, 2) as total_cost,
-    ROUND(AVG(costNgn / NULLIF(quantityKg, 0))::numeric, 2) as avg_price_per_kg
+    ROUND(SUM(cost)::numeric, 2) as total_cost,
+    ROUND(AVG(cost / NULLIF(quantityKg, 0))::numeric, 2) as avg_price_per_kg
   FROM feed_records
   WHERE batchId = 'batch-id'
   GROUP BY feedType
@@ -63,15 +63,15 @@ neon_run_sql "
 ### 3. Cost Trends (Monthly)
 
 ```
-neon_run_sql "
+neon__run_sql "
   SELECT
-    DATE_TRUNC('month', recordDate) as month,
+    DATE_TRUNC('month', date) as month,
     category,
     ROUND(SUM(amount)::numeric, 2) as monthly_cost
   FROM expenses
   WHERE farmId = 'farm-id'
-    AND recordDate >= NOW() - INTERVAL '6 months'
-  GROUP BY DATE_TRUNC('month', recordDate), category
+    AND date >= NOW() - INTERVAL '6 months'
+  GROUP BY DATE_TRUNC('month', date), category
   ORDER BY month, category
 "
 ```
@@ -79,9 +79,9 @@ neon_run_sql "
 ### 4. Total Cost Summary
 
 ```
-neon_run_sql "
+neon__run_sql "
   WITH feed_costs AS (
-    SELECT SUM(costNgn) as feed_total FROM feed_records WHERE batchId = 'batch-id'
+    SELECT SUM(cost) as feed_total FROM feed_records WHERE batchId = 'batch-id'
   ),
   other_costs AS (
     SELECT SUM(amount) as other_total FROM expenses WHERE batchId = 'batch-id'
@@ -145,49 +145,49 @@ Labor Cost % = Labor Cost / Total Cost × 100
 
 ## Cost Summary
 
-- **Total Cost**: ₦X
-- **Cost per Bird/Fish**: ₦X
-- **Cost per kg Produced**: ₦X
+- **Total Cost**: [Currency]X
+- **Cost per Bird/Fish**: [Currency]X
+- **Cost per kg Produced**: [Currency]X
 
 ## Cost Breakdown
 
-| Category    | Amount | %   | vs Budget | Trend |
-| ----------- | ------ | --- | --------- | ----- |
-| Feed        | ₦X     | X%  | +X%       | ↑     |
-| Stock       | ₦X     | X%  | -X%       | ↓     |
-| Labor       | ₦X     | X%  | 0%        | →     |
-| Medications | ₦X     | X%  | +X%       | ↑     |
-| Utilities   | ₦X     | X%  | +X%       | ↑     |
-| Other       | ₦X     | X%  | -X%       | ↓     |
+| Category    | Amount      | %   | vs Budget | Trend |
+| ----------- | ----------- | --- | --------- | ----- |
+| Feed        | [Currency]X | X%  | +X%       | ↑     |
+| Stock       | [Currency]X | X%  | -X%       | ↓     |
+| Labor       | [Currency]X | X%  | 0%        | →     |
+| Medications | [Currency]X | X%  | +X%       | ↑     |
+| Utilities   | [Currency]X | X%  | +X%       | ↑     |
+| Other       | [Currency]X | X%  | -X%       | ↓     |
 
 ## Feed Cost Analysis
 
-| Feed Type | Qty (kg) | Cost | ₦/kg | Supplier |
-| --------- | -------- | ---- | ---- | -------- |
-| Starter   | X        | ₦X   | ₦X   | ABC      |
-| Grower    | X        | ₦X   | ₦X   | ABC      |
-| Finisher  | X        | ₦X   | ₦X   | XYZ      |
+| Feed Type | Qty (kg) | Cost        | [Currency]/kg | Supplier |
+| --------- | -------- | ----------- | ------------- | -------- |
+| Starter   | X        | [Currency]X | [Currency]X   | ABC      |
+| Grower    | X        | [Currency]X | [Currency]X   | ABC      |
+| Finisher  | X        | [Currency]X | [Currency]X   | XYZ      |
 
 ## Cost Trends (Monthly)
 
-| Month | Feed | Labor | Other | Total |
-| ----- | ---- | ----- | ----- | ----- |
-| Jan   | ₦X   | ₦X    | ₦X    | ₦X    |
-| Feb   | ₦X   | ₦X    | ₦X    | ₦X    |
+| Month | Feed        | Labor       | Other       | Total       |
+| ----- | ----------- | ----------- | ----------- | ----------- |
+| Jan   | [Currency]X | [Currency]X | [Currency]X | [Currency]X |
+| Feb   | [Currency]X | [Currency]X | [Currency]X | [Currency]X |
 
 ## Optimization Opportunities
 
 ### High Impact
 
 1. **Feed Cost Reduction**
-   - Current: ₦X/kg
-   - Target: ₦X/kg
-   - Potential Savings: ₦X
+   - Current: [Currency]X/kg
+   - Target: [Currency]X/kg
+   - Potential Savings: [Currency]X
 
 2. **[Other opportunity]**
-   - Current: ₦X
-   - Target: ₦X
-   - Potential Savings: ₦X
+   - Current: [Currency]X
+   - Target: [Currency]X
+   - Potential Savings: [Currency]X
 
 ### Medium Impact
 
@@ -200,7 +200,7 @@ Labor Cost % = Labor Cost / Total Cost × 100
 2. [Specific action with expected savings]
 3. [Specific action with expected savings]
 
-## Total Potential Savings: ₦X
+## Total Potential Savings: [Currency]X
 ```
 
 ## Benchmarks

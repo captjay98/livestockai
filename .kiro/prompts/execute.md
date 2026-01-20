@@ -9,15 +9,31 @@ Transform an implementation plan into working code for OpenLivestock Manager.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Livestock management for poultry and aquaculture farms
+**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Tech Stack**: TanStack Start, Kysely ORM, Neon PostgreSQL, Cloudflare Workers
 **Critical Pattern**: All database imports MUST be dynamic for Cloudflare Workers compatibility
 
 ## Plan to Execute
 
-**Plan File**: `$ARGUMENTS`
+**Plan File**: $ARGUMENTS
 
-If no plan file provided, ask: "Which feature plan should I execute? (provide path or describe the feature)"
+### Step 0: Locate Plan File
+
+**If $ARGUMENTS is a path** (contains `/` or `.md`):
+
+- Read file directly: `cat $ARGUMENTS`
+- If file doesn't exist, check: `.agents/plans/$ARGUMENTS`
+
+**If $ARGUMENTS is a feature name**:
+
+- Search for: `ls .agents/plans/*$ARGUMENTS*.md`
+- If multiple matches, ask user to clarify
+- If no matches, list available: `ls .agents/plans/*.md`
+
+**If no $ARGUMENTS provided**:
+
+- List available plans: `ls .agents/plans/*.md`
+- Ask: "Which plan should I execute? (provide path or feature name)"
 
 ## Prerequisites
 
@@ -66,12 +82,12 @@ cat $ARGUMENTS
 **Run pre-flight checks:**
 
 ```bash
-# Verify project state
-bun run lint --quiet || echo "Lint issues exist"
-bun run check || echo "Type issues exist"
+# Verify project state (fail fast)
+bun run lint || exit 1
+bun run check || exit 1
 
 # Verify database connection
-bun run db:migrate --dry-run
+bun run db:migrate --dry-run || echo "Migration check failed"
 ```
 
 **If issues exist:** Fix them before proceeding or ask user for guidance.
@@ -88,6 +104,7 @@ For EACH task in the plan:
 // ✅ CORRECT - Works on Cloudflare Workers
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+import { AppError } from '~/lib/errors'
 
 export const getFeatureData = createServerFn({ method: 'GET' })
   .validator(
@@ -97,20 +114,28 @@ export const getFeatureData = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('../db') // CRITICAL: Dynamic import!
+    try {
+      const { db } = await import('../db') // CRITICAL: Dynamic import!
 
-    return db
-      .selectFrom('batches')
-      .where('farmId', '=', data.farmId)
-      .select(['id', 'batchName', 'status', 'currentQuantity'])
-      .execute()
+      return db
+        .selectFrom('batches')
+        .where('farmId', '=', data.farmId)
+        .select(['id', 'batchName', 'status', 'currentQuantity'])
+        .execute()
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to fetch feature data',
+        cause: error,
+      })
+    }
   })
 
 // ❌ WRONG - Breaks on Cloudflare Workers
 import { db } from '../db' // Static import will fail!
 ```
 
-**File location:** `app/lib/{feature}/server.ts`
+**File location:** `app/features/{feature}/server.ts`
 
 #### 3b. Database Queries (Kysely)
 
@@ -147,12 +172,13 @@ const stats = await db
 **Pattern - TanStack Router integration:**
 
 ```typescript
-// app/routes/_auth.feature.tsx
+// app/routes/_auth/feature/index.tsx
 import { createFileRoute } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { getFeatureData } from '~/lib/feature/server'
+import { useTranslation } from 'react-i18next'
+import { getFeatureData } from '~/features/feature/server'
 
-export const Route = createFileRoute('/_auth/feature')({
+export const Route = createFileRoute('/_auth/feature/')({
   component: FeatureComponent,
   loader: async ({ context }) => {
     // Prefetch data
@@ -164,6 +190,7 @@ export const Route = createFileRoute('/_auth/feature')({
 })
 
 function FeatureComponent() {
+  const { t } = useTranslation(['feature', 'common'])
   const { data } = useSuspenseQuery({
     queryKey: ['feature'],
     queryFn: () => getFeatureData({ farmId: 'xxx' }),
@@ -171,6 +198,7 @@ function FeatureComponent() {
 
   return (
     <div className="p-4">
+      <h1>{t('feature:title')}</h1>
       {/* Component content */}
     </div>
   )
@@ -214,22 +242,22 @@ bun run db:migrate
 **Run after each file change:**
 
 ```bash
-# Quick validation
-bun run lint --fix
-bun run check
+# Quick validation (fail fast)
+bun run lint --fix || exit 1
+bun run check || exit 1
 
 # If tests exist for the feature
-bun test app/lib/{feature}/
+bun test app/features/{feature}/ || exit 1
 ```
 
 **Run before completing:**
 
 ```bash
-# Full validation suite
-bun run lint
-bun run check
-bun test
-bun run build
+# Full validation suite (fail fast)
+bun run lint || exit 1
+bun run check || exit 1
+bun test || exit 1
+bun run build || exit 1
 ```
 
 ### Step 5: Testing (If Required by Plan)
@@ -237,7 +265,7 @@ bun run build
 **Pattern - Property-based tests:**
 
 ```typescript
-// app/lib/feature/feature.property.test.ts
+// tests/features/feature/feature.property.test.ts
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 
@@ -265,12 +293,12 @@ bun test --coverage
 | Table               | Purpose           | Key Columns                                             |
 | ------------------- | ----------------- | ------------------------------------------------------- |
 | `batches`           | Livestock batches | id, farmId, batchName, species, status, currentQuantity |
-| `mortality_records` | Death tracking    | batchId, quantity, cause, recordedAt                    |
-| `feed_records`      | Feed consumption  | batchId, feedType, quantityKg, costNgn                  |
-| `weight_samples`    | Growth tracking   | batchId, avgWeightKg, sampleSize, sampleDate            |
+| `mortality_records` | Death tracking    | batchId, quantity, cause, date                          |
+| `feed_records`      | Feed consumption  | batchId, feedType, quantityKg, cost                     |
+| `weight_samples`    | Growth tracking   | batchId, averageWeightKg, sampleSize, date              |
 | `sales`             | Revenue records   | batchId, quantity, totalAmount, customerId              |
 | `expenses`          | Cost tracking     | farmId, category, amount, description                   |
-| `farms`             | Farm entities     | id, name, ownerId                                       |
+| `farms`             | Farm entities     | id, name, type, location                                |
 | `users`             | User accounts     | id, email, name, role                                   |
 
 ## Error Handling
@@ -309,8 +337,8 @@ bun test --coverage
 ### Files Created
 
 ```
-app/lib/feature/server.ts
-app/routes/_auth.feature.tsx
+app/features/feature/server.ts
+app/routes/_auth/feature/index.tsx
 ```
 
 ### Files Modified
