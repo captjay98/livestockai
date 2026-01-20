@@ -1205,6 +1205,7 @@ export const ig = {
         name: 'Chinedu Okeke',
       },
       errors: {
+        invalid_credentials: 'Email ma ọ bụ okwuntughe adịghị mma',
         default: 'Ndebanye aha kụlẹ',
         unexpected: 'Otu mmejọ a na-atụghị anya ya emeela',
       },

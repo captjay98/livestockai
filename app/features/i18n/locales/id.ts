@@ -1084,6 +1084,7 @@ export const id = {
         name: 'Budi Santoso',
       },
       errors: {
+        invalid_credentials: 'Email atau kata sandi tidak valid',
         default: 'Pendaftaran gagal',
         unexpected: 'Terjadi kesalahan yang tidak terduga',
       },

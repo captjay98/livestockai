@@ -1082,6 +1082,7 @@ export const hi = {
         name: 'राहुल कुमार',
       },
       errors: {
+        invalid_credentials: 'अमान्य ईमेल या पासवर्ड',
         default: 'पंजीकरण विफल रहा',
         unexpected: 'एक अप्रत्याशित त्रुटि हुई',
       },

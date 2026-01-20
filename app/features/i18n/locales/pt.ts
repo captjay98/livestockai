@@ -1085,6 +1085,7 @@ export const pt = {
         name: 'João Silva',
       },
       errors: {
+        invalid_credentials: 'Email ou senha inválidos',
         default: 'Falha no registro',
         unexpected: 'Ocorreu um erro inesperado',
       },

@@ -1093,6 +1093,7 @@ export const fr = {
         name: 'Jean Dupont',
       },
       errors: {
+        invalid_credentials: 'Email ou mot de passe invalide',
         default: "L'inscription a échoué",
         unexpected: 'Une erreur inattendue est survenue',
       },

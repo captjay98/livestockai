@@ -1096,6 +1096,7 @@ export const en = {
         name: 'John Doe',
       },
       errors: {
+        invalid_credentials: 'Invalid email or password',
         default: 'Registration failed',
         unexpected: 'An unexpected error occurred',
       },

@@ -1082,6 +1082,7 @@ export const yo = {
         name: 'Ade Wale',
       },
       errors: {
+        invalid_credentials: 'Imeeli tabi ọrọigbaniwọle ko tọ',
         default: 'Iforukọsilẹ kuna',
         unexpected: 'Aṣiṣe airotẹlẹ ti ṣẹlẹ',
       },

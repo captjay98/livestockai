@@ -1084,6 +1084,7 @@ export const sw = {
         name: 'Juma Juma',
       },
       errors: {
+        invalid_credentials: 'Barua pepe au nenosiri si sahihi',
         default: 'Usajili umeshindwa',
         unexpected: 'Hitilafu isiyotarajiwa imetokea',
       },

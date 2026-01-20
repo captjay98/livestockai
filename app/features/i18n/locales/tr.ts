@@ -1086,6 +1086,7 @@ export const tr = {
         name: 'Ahmet Yılmaz',
       },
       errors: {
+        invalid_credentials: 'Geçersiz e-posta veya şifre',
         default: 'Kayıt başarısız',
         unexpected: 'Beklenmedik bir hata oluştu',
       },

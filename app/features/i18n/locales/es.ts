@@ -1089,6 +1089,7 @@ export const es = {
         name: 'Juan Pérez',
       },
       errors: {
+        invalid_credentials: 'Correo electrónico o contraseña inválidos',
         default: 'El registro falló',
         unexpected: 'Ha ocurrido un error inesperado',
       },
