@@ -2916,6 +2916,7 @@ Major documentation overhaul implementing 4 enhancement plans: Internationalizat
 **Objective**: Add multi-language support for global adoption
 
 **Implementation**:
+
 - Created 15 language locale files (~1,146 keys each)
 - Languages: en, fr, pt, es, sw, ha, yo, ig, hi, tr, am, bn, id, th, vi
 - Integrated `useTranslation` hook into all 14 dialogs and 27 routes
@@ -2929,6 +2930,7 @@ Major documentation overhaul implementing 4 enhancement plans: Internationalizat
 **Objective**: Generate comprehensive API documentation from source code
 
 **Implementation**:
+
 - Added JSDoc comments to all 21 server function modules
 - Documented 179 functions with @param, @returns, @example
 - Documented 102 interfaces with property descriptions
@@ -2940,6 +2942,7 @@ Major documentation overhaul implementing 4 enhancement plans: Internationalizat
 **Objective**: Add architectural diagrams for better understanding
 
 **Implementation**:
+
 - Added 5 Mermaid diagrams to ARCHITECTURE.md (request flow, auth, data, modules, deployment)
 - Added 5 Mermaid diagrams to INTEGRATIONS.md (SMS flow, email flow, provider selection, error handling, testing)
 
@@ -2948,6 +2951,7 @@ Major documentation overhaul implementing 4 enhancement plans: Internationalizat
 **Objective**: Provide runnable code examples for integrations
 
 **Implementation**:
+
 - Created `examples/` directory with provider implementations
 - SMS providers: Termii, Twilio, Africa's Talking, BulkSMS, MSG91, Zenvia
 - Email providers: Resend, AWS SES, Mailgun, SMTP
@@ -2979,17 +2983,17 @@ Major documentation overhaul implementing 4 enhancement plans: Internationalizat
 
 ### Technical Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Files Changed** | 1,161 |
-| **Lines Added** | +293,434 |
-| **Lines Removed** | -2,628 |
-| **Commits** | 14 |
-| **Languages Added** | 15 |
-| **Functions Documented** | 179 |
-| **Interfaces Documented** | 102 |
-| **Diagrams Added** | 10 |
-| **Example Providers** | 12 |
+| Metric                    | Value    |
+| ------------------------- | -------- |
+| **Files Changed**         | 1,161    |
+| **Lines Added**           | +293,434 |
+| **Lines Removed**         | -2,628   |
+| **Commits**               | 14       |
+| **Languages Added**       | 15       |
+| **Functions Documented**  | 179      |
+| **Interfaces Documented** | 102      |
+| **Diagrams Added**        | 10       |
+| **Example Providers**     | 12       |
 
 ### Key Insights
 
@@ -3010,6 +3014,91 @@ Major documentation overhaul implementing 4 enhancement plans: Internationalizat
 - TypeDoc generation: ~1 hour
 - Infrastructure (shims, scripts, prompts): ~1 hour
 - **Total**: ~13 hours over 3 days
+
+---
+
+## Day 13 - January 19 - Marketing Site & Brand Refresh
+
+### Context
+
+Major push to create a professional public-facing presence for OpenLivestock. Built complete marketing site with 8 pages, refreshed brand identity from orange to emerald, and added AI messaging throughout.
+
+### Marketing Site Implementation
+
+**Objective**: Create professional landing pages for hackathon presentation and user acquisition.
+
+**Implementation**:
+
+- Built 27 landing components (Hero, Features, Pricing, CTA, etc.)
+- Created 8 public routes: features, pricing, docs, community, changelog, roadmap, support, register
+- Added parallax effects and entry animations to hero
+- Integrated AI-Powered messaging in hero badge and description
+
+**Key Components**:
+
+- `LandingHero` - Animated hero with parallax, AI-Powered badge
+- `FeaturesSection` - Feature showcase with icons
+- `PricingCards` - Tiered pricing display
+- `AgentReadySection` - Kiro CLI integration showcase
+- `TechStackSection` - Technology stack display
+
+### Brand Refresh
+
+**Changes**:
+
+- Primary color: Orange (#ff9940) → Emerald (#059669)
+- Added logo variants: full, full-dark, icon-dark
+- Updated Logo component for dark mode support
+- New CSS variables for landing page theming
+
+### i18n Updates
+
+- Updated 15 language locale files with new translations
+- Improved language switcher component styling
+
+### Documentation
+
+- Relocated TypeDoc output from `public/docs/` to `public/typedocs/`
+- Added contracts.ts to TypeDoc entry points
+- Updated CONTRIBUTING.md with commit body format
+
+### Commits Created (9)
+
+1. `84b12ad` - feat(landing): add marketing site with 8 public pages
+2. `a7f3699` - feat(auth): add registration page components
+3. `dd0f347` - feat(ui): update brand theme to emerald with new logo variants
+4. `90340bc` - feat(i18n): update locale files with new translations
+5. `65eec97` - docs(api): relocate TypeDoc output to public/typedocs
+6. `d261b7a` - fix(ui): improve layout and component styling
+7. `3a7caa3` - chore: update dependencies and configuration
+8. `4975a3b` - fix(ui): improve language switcher and component styling
+9. `d9f7f46` - feat(settings): support partial updates with regional settings
+
+### Technical Metrics
+
+| Metric             | Value   |
+| ------------------ | ------- |
+| **Files Changed**  | 627     |
+| **Lines Added**    | +12,513 |
+| **Lines Removed**  | -1,109  |
+| **Commits**        | 9       |
+| **New Components** | 27      |
+| **New Routes**     | 8       |
+
+### Key Insights
+
+- Marketing site significantly elevates project presentation for hackathon
+- Emerald green better suits agricultural/livestock theme than orange
+- AI messaging now prominent: hero badge, description, and AgentReadySection
+- TypeDoc relocation cleans up public directory structure
+
+### Time Investment
+
+- Landing components: ~3 hours
+- Brand refresh: ~1 hour
+- i18n updates: ~30 minutes
+- Documentation: ~30 minutes
+- **Total**: ~5 hours
 
 ---
 

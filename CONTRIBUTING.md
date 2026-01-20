@@ -19,6 +19,7 @@ Thank you for your interest in contributing! We love pull requests from everyone
 We follow the **[Conventional Commits](https://www.conventionalcommits.org/)** specification. This helps us generate changelogs and version numbers automatically.
 
 **Format**:
+
 ```
 <type>(<scope>): <short description>
 
