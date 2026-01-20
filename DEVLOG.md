@@ -3062,7 +3062,7 @@ Major push to create a professional public-facing presence for OpenLivestock. Bu
 - Added contracts.ts to TypeDoc entry points
 - Updated CONTRIBUTING.md with commit body format
 
-### Commits Created (9)
+### Commits Created (15)
 
 1. `84b12ad` - feat(landing): add marketing site with 8 public pages
 2. `a7f3699` - feat(auth): add registration page components
@@ -3073,17 +3073,53 @@ Major push to create a professional public-facing presence for OpenLivestock. Bu
 7. `3a7caa3` - chore: update dependencies and configuration
 8. `4975a3b` - fix(ui): improve language switcher and component styling
 9. `d9f7f46` - feat(settings): support partial updates with regional settings
+10. `291c200` - feat(errors): implement centralized error handling system _(committed early Jan 20)_
+11. `8022fe9` - refactor(server): migrate all server functions to AppError _(committed early Jan 20)_
+12. `63d2aaf` - feat(ui): enhance error handling and i18n integration _(committed early Jan 20)_
+13. `38b7f9b` - chore: update dependencies and configuration _(committed early Jan 20)_
+14. `641bbd0` - feat(i18n): updated lang files _(committed early Jan 20)_
+15. `04daa13` - chore: update dependencies and configuration _(committed early Jan 20)_
+
+### Error Handling System & i18n Completion (Evening - Late Night)
+
+**Continued work into early morning, committed Jan 20 01:53-02:02:**
+
+**Error Handling System**:
+
+- Created AppError class with 50+ typed error codes (UNAUTHORIZED, BATCH_NOT_FOUND, etc.)
+- Migrated all 27 server functions to use AppError instead of generic Error
+- Enhanced error handling in 38 UI components with proper error display
+- Added currency core utilities for error-safe operations (multiply, divide, toDbString)
+- Added useErrorMessage hook for client-side localized error messages
+
+**i18n Translation Completion**:
+
+- Fixed missing `auth.register.errors.invalid_credentials` in 10 languages
+- Achieved 100% translation parity: all 15 languages now have exactly 1,005 keys
+- Zero untranslated English strings remaining in non-English locales
+- Verified Unicode rendering for Devanagari (Hindi), Ge'ez (Amharic), Thai, Bengali scripts
+
+**Benefits**:
+
+- Type-safe error handling with autocomplete
+- Consistent error messages across the entire stack
+- i18n-ready error codes with proper translations
+- Better debugging with structured error metadata
+- Reduced error handling boilerplate
 
 ### Technical Metrics
 
 | Metric             | Value   |
 | ------------------ | ------- |
-| **Files Changed**  | 627     |
-| **Lines Added**    | +12,513 |
-| **Lines Removed**  | -1,109  |
-| **Commits**        | 9       |
+| **Files Changed**  | 716     |
+| **Lines Added**    | +25,345 |
+| **Lines Removed**  | -7,960  |
+| **Net Change**     | +17,385 |
+| **Commits**        | 15      |
 | **New Components** | 27      |
 | **New Routes**     | 8       |
+| **Error Codes**    | 50+     |
+| **Languages**      | 15      |
 
 ### Key Insights
 
@@ -3091,6 +3127,10 @@ Major push to create a professional public-facing presence for OpenLivestock. Bu
 - Emerald green better suits agricultural/livestock theme than orange
 - AI messaging now prominent: hero badge, description, and AgentReadySection
 - TypeDoc relocation cleans up public directory structure
+- **Centralized error handling** eliminates inconsistencies and improves maintainability
+- **Type-safe error codes** catch errors at compile time instead of runtime
+- **i18n completion** (1,005 keys × 15 languages = 15,075 translations) provides professional UX for all users
+- **AppError migration** touched 27 server files but improved error handling across entire stack
 
 ### Time Investment
 
@@ -3098,7 +3138,11 @@ Major push to create a professional public-facing presence for OpenLivestock. Bu
 - Brand refresh: ~1 hour
 - i18n updates: ~30 minutes
 - Documentation: ~30 minutes
-- **Total**: ~5 hours
+- Error handling system: ~1 hour
+- Server function migration: ~2 hours
+- UI error integration: ~1.5 hours
+- i18n completion: ~30 minutes
+- **Total**: ~10.5 hours
 
 ---
 

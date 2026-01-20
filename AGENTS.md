@@ -115,7 +115,7 @@ This project supports Model Context Protocol (MCP) for AI agents to interact wit
 
 **Enhanced Agent Capabilities:**
 
-- **4 agents** now have Neon database access via MCP
+- **9 agents** now have Neon database access via MCP
 - **1 agent** has full Cloudflare infrastructure access
 - **All agents** have web search, knowledge bases, and todo lists
 

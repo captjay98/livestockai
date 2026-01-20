@@ -305,22 +305,70 @@ User settings affect the entire application:
 
 ## Error Handling
 
+OpenLivestock uses a centralized `AppError` system with typed error codes:
+
 ```typescript
-// Server functions throw structured errors
+import { AppError } from '~/lib/errors'
+
+// Server functions throw typed errors
 .handler(async ({ data }) => {
   const batch = await getBatchById(userId, batchId)
   if (!batch) {
-    throw new Error('Batch not found')  // 404-like
+    throw new AppError('BATCH_NOT_FOUND', { metadata: { batchId } })
   }
 
   const hasAccess = await checkFarmAccess(userId, batch.farmId)
   if (!hasAccess) {
-    throw new Error('Access denied')  // 403-like
+    throw new AppError('ACCESS_DENIED', { metadata: { farmId: batch.farmId } })
   }
 
   // ... operation
 })
-````
+```
+
+**50+ Typed Error Codes:**
+- `UNAUTHORIZED`, `ACCESS_DENIED`, `FORBIDDEN`
+- `BATCH_NOT_FOUND`, `FARM_NOT_FOUND`, `USER_NOT_FOUND`
+- `VALIDATION_ERROR`, `DATABASE_ERROR`
+- All errors include metadata for debugging
+
+## Multi-Currency Support
+
+All financial displays use the user's currency preference:
+
+```typescript
+import { useFormatCurrency } from '~/features/settings'
+
+const { format: formatCurrency, symbol } = useFormatCurrency()
+
+// Displays: $1,234.56 or €1,234.56 or ₦1,234.56
+<div>{formatCurrency(amount)}</div>
+<Label>Cost ({symbol})</Label>
+```
+
+**Supported Currencies:** USD, EUR, NGN, GBP, ZAR, KES, GHS, and more
+
+**Currency Utilities:**
+- `multiply(a, b)` - Safe decimal multiplication
+- `divide(a, b)` - Safe decimal division
+- `toDbString(value)` - Convert to database format
+
+## Internationalization (i18n)
+
+15 languages with 1,005 translation keys each:
+
+```typescript
+import { useTranslation } from 'react-i18next'
+
+const { t } = useTranslation(['batches', 'common'])
+
+// Displays in user's language
+<h1>{t('title', { defaultValue: 'Livestock Batches' })}</h1>
+```
+
+**Languages:** English, Hausa, Yoruba, Igbo, French, Portuguese, Spanish, Swahili, Hindi, Turkish, Amharic, Bengali, Indonesian, Thai, Vietnamese
+
+**Total Translations:** 15,075 (1,005 keys × 15 languages)
 
 ## Testing Strategy
 
@@ -353,3 +401,4 @@ Environment variables set via `wrangler secret put KEY`.
 | `app/routes/_auth/*/index.tsx` | Protected pages                |
 | `app/components/dialogs/`      | Create/edit modals             |
 | `wrangler.jsonc`               | Cloudflare config              |
+````

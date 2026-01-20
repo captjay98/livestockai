@@ -23,6 +23,7 @@ describe('Development Seeder Property Tests', () => {
 
   it(
     'Property 7: Authentication Success (Dev Seeder) - multiple users can be created with authentication',
+    { timeout: 30000 },
     async () => {
       // Create admin user (like dev seeder does)
       await createUserWithAuth(db, {
@@ -96,6 +97,5 @@ describe('Development Seeder Property Tests', () => {
       // Verify password is NOT in users table
       expect(demoUser).not.toHaveProperty('password')
     },
-    { timeout: 30000 },
   )
 })

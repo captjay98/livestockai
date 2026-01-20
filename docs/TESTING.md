@@ -242,14 +242,14 @@ describe('Currency Formatting', () => {
   it('should format NGN correctly', () => {
     const result = formatCurrency(1234.56, {
       currencyCode: 'NGN',
-      currencySymbol: '₦',
+      currencySymbol: '$',
       currencyDecimals: 2,
       currencySymbolPosition: 'before',
       thousandSeparator: ',',
       decimalSeparator: '.',
     })
 
-    expect(result).toBe('₦1,234.56')
+    expect(result).toBe('$1,234.56')
   })
 })
 ```

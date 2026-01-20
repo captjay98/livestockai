@@ -28,6 +28,7 @@ describe('Seed Helpers - Property Tests', () => {
    */
   it(
     'Property 1: User creation completeness - creates both users and account entries',
+    { timeout: 60000 },
     async () => {
       await fc.assert(
         fc.asyncProperty(
@@ -78,7 +79,6 @@ describe('Seed Helpers - Property Tests', () => {
         { numRuns: 20 },
       )
     },
-    { timeout: 60000 },
   )
 
   /**
@@ -89,6 +89,7 @@ describe('Seed Helpers - Property Tests', () => {
    */
   it(
     'Property 2: Account provider consistency - correct providerId and accountId',
+    { timeout: 60000 },
     async () => {
       await fc.assert(
         fc.asyncProperty(
@@ -128,7 +129,6 @@ describe('Seed Helpers - Property Tests', () => {
         { numRuns: 20 },
       )
     },
-    { timeout: 60000 },
   )
 
   /**
@@ -139,6 +139,7 @@ describe('Seed Helpers - Property Tests', () => {
    */
   it(
     'Property 3: Password storage location - password in account table only',
+    { timeout: 120000 }, // Increased timeout for slow password hashing
     async () => {
       await fc.assert(
         fc.asyncProperty(
@@ -190,7 +191,6 @@ describe('Seed Helpers - Property Tests', () => {
         { numRuns: 10 }, // Reduced from 20 due to slow password hashing
       )
     },
-    { timeout: 120000 }, // Increased timeout for slow password hashing
   )
 
   /**

@@ -23,6 +23,7 @@ describe('Production Seeder Property Tests', () => {
 
   it(
     'Property 6: Seeder Idempotency - running seeder twice should not create duplicates',
+    { timeout: 30000 },
     async () => {
       // Run seeder first time
       await seed()
@@ -58,11 +59,11 @@ describe('Production Seeder Property Tests', () => {
       expect(Number(usersAfterSecond.count)).toBe(1)
       expect(Number(accountsAfterSecond.count)).toBe(1)
     },
-    { timeout: 30000 },
   )
 
   it(
     'Property 7: Authentication Success - users created by seeder can authenticate',
+    { timeout: 30000 },
     async () => {
       // Run seeder
       await seed()
@@ -94,6 +95,5 @@ describe('Production Seeder Property Tests', () => {
       // Verify password is NOT in users table
       expect(user).not.toHaveProperty('password')
     },
-    { timeout: 30000 },
   )
 })
