@@ -1,9 +1,23 @@
+// Mock AWS SDK for example purposes - in real usage, install @aws-sdk/client-ses
 // @ts-ignore - explicitly used
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
 import type {
   EmailProvider,
   ProviderResult,
 } from '../../app/features/integrations/contracts'
+
+const SESClient = class {
+  constructor() {}
+  send() {
+    return Promise.resolve({ MessageId: 'mock-message-id' })
+  }
+}
+
+// @ts-ignore - explicitly used
+const SendEmailCommand = class {
+  constructor(params: any) {
+    return params
+  }
+}
 
 /**
  * AWS SES Email Provider Implementation
