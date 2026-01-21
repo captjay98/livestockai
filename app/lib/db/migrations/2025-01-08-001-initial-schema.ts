@@ -277,6 +277,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('id', 'uuid', (col) =>
       col.primaryKey().defaultTo(sql`uuid_generate_v4()`),
     )
+    .addColumn('farmId', 'uuid', (col) =>
+      col.notNull().references('farms.id').onDelete('cascade'),
+    )
     .addColumn('name', 'varchar(255)', (col) => col.notNull())
     .addColumn('phone', 'varchar(50)', (col) => col.notNull())
     .addColumn('email', 'varchar(255)')
@@ -289,6 +292,13 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`ALTER TABLE customers ADD CONSTRAINT customers_type_check CHECK ("customerType" IS NULL OR "customerType" IN ('individual', 'restaurant', 'retailer', 'wholesaler', 'processor', 'exporter', 'government'))`.execute(
     db,
   )
+
+  // Add index for customers farmId
+  await db.schema
+    .createIndex('idx_customers_farm_id')
+    .on('customers')
+    .column('farmId')
+    .execute()
 
   await db.schema
     .createTable('suppliers')
@@ -584,6 +594,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
     .addColumn('date', 'date', (col) => col.notNull())
     .addColumn('dueDate', 'date')
+    .addColumn('paidDate', 'date')
     .addColumn('notes', 'text')
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
@@ -614,7 +625,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('farmId', 'uuid', (col) =>
       col.notNull().references('farms.id').onDelete('cascade'),
     )
-    .addColumn('batchId', 'uuid', (col) => col.references('batches.id'))
+    .addColumn('batchId', 'uuid', (col) =>
+      col.references('batches.id').onDelete('cascade'),
+    )
     .addColumn('customerId', 'uuid', (col) => col.references('customers.id'))
     .addColumn('livestockType', 'varchar(20)', (col) => col.notNull())
     .addColumn('quantity', 'integer', (col) => col.notNull())

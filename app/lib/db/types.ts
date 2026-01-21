@@ -541,6 +541,7 @@ export interface MedicationInventoryTable {
 // Contacts
 export interface CustomerTable {
   id: Generated<string>
+  farmId: string
   name: string
   phone: string
   email: string | null
@@ -591,6 +592,7 @@ export interface InvoiceTable {
   status: 'unpaid' | 'partial' | 'paid'
   date: Date
   dueDate: Date | null
+  paidDate: Date | null
   notes: string | null
   createdAt: Generated<Date>
 }
