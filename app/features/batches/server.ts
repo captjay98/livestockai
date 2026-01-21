@@ -1,9 +1,31 @@
 import { createServerFn } from '@tanstack/react-start'
 import { MODULE_METADATA } from '../modules/constants'
+import {
+  calculateBatchTotalCost,
+  calculateFCR as calculateFeedConversionRatio,
+  calculateMortalityRate,
+  canDeleteBatch,
+  determineBatchStatus,
+  validateBatchData,
+  validateUpdateData,
+} from './service'
+import {
+  deleteBatch as deleteBatchFromDb,
+  getBatchById as getBatchByIdFromDb,
+  getBatchStats,
+  getBatchesByFarm,
+  getInventorySummary as getInventorySummaryFromDb,
+  getRelatedRecords,
+  getWeightSamples,
+  insertBatch,
+  updateBatch as updateBatchInDb,
+  updateBatchQuantity as updateBatchQuantityInDb,
+} from './repository'
 import type { PaginatedResult } from '~/lib/types'
+import type { BatchUpdate } from './repository'
 import type { LivestockType } from '../modules/types'
-import { multiply, toDbString, toNumber } from '~/features/settings/currency'
 import { AppError } from '~/lib/errors'
+import { toNumber } from '~/features/settings/currency'
 
 export type { PaginatedResult }
 
@@ -12,19 +34,13 @@ export type { PaginatedResult }
  *
  * @param livestockType - The type of livestock (e.g., 'poultry', 'fish')
  * @returns Array of value/label pairs for source size options
- *
- * @example
- * ```typescript
- * const options = getSourceSizeOptions('poultry')
- * // Returns: [{ value: 'day-old', label: 'Day Old' }, ...]
- * ```
  */
 export function getSourceSizeOptions(
   livestockType: LivestockType,
 ): Array<{ value: string; label: string }> {
   // Find the module that handles this livestock type
-  const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
-    metadata.livestockTypes.includes(livestockType),
+  const moduleEntry = Object.entries(MODULE_METADATA).find(
+    ([_, metadata]) => metadata.livestockTypes.includes(livestockType),
   )
 
   if (!moduleEntry) {
@@ -141,31 +157,40 @@ export async function createBatch(
       throw new AppError('ACCESS_DENIED', { metadata: { farmId: data.farmId } })
     }
 
-    const totalCost = multiply(data.initialQuantity, data.costPerUnit)
-
-    const result = await db
-      .insertInto('batches')
-      .values({
-        farmId: data.farmId,
-        livestockType: data.livestockType,
-        species: data.species,
-        initialQuantity: data.initialQuantity,
-        currentQuantity: data.initialQuantity,
-        acquisitionDate: data.acquisitionDate,
-        costPerUnit: toDbString(data.costPerUnit),
-        totalCost: toDbString(totalCost),
-        status: 'active',
-        // Enhanced fields
-        batchName: data.batchName || null,
-        sourceSize: data.sourceSize || null,
-        structureId: data.structureId || null,
-        targetHarvestDate: data.targetHarvestDate || null,
-        target_weight_g: data.target_weight_g || null,
-        supplierId: data.supplierId || null,
-        notes: data.notes || null,
+    // Business logic validation (from service layer)
+    const validationError = validateBatchData(data)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
       })
-      .returning('id')
-      .executeTakeFirstOrThrow()
+    }
+
+    // Calculate total cost (from service layer)
+    const totalCost = calculateBatchTotalCost(
+      data.initialQuantity,
+      data.costPerUnit,
+    )
+
+    // Database operation (from repository layer)
+    const result = await insertBatch(db, {
+      farmId: data.farmId,
+      livestockType: data.livestockType,
+      species: data.species,
+      initialQuantity: data.initialQuantity,
+      currentQuantity: data.initialQuantity,
+      acquisitionDate: data.acquisitionDate,
+      costPerUnit: totalCost,
+      totalCost: totalCost,
+      status: 'active',
+      // Enhanced fields
+      batchName: data.batchName || null,
+      sourceSize: data.sourceSize || null,
+      structureId: data.structureId || null,
+      targetHarvestDate: data.targetHarvestDate || null,
+      target_weight_g: data.target_weight_g || null,
+      supplierId: data.supplierId || null,
+      notes: data.notes || null,
+    })
 
     // Log audit
     const { logAudit } = await import('../logging/audit')
@@ -173,11 +198,11 @@ export async function createBatch(
       userId,
       action: 'create',
       entityType: 'batch',
-      entityId: result.id,
+      entityId: result,
       details: data,
     })
 
-    return result.id
+    return result
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -239,40 +264,8 @@ export async function getBatches(
       }
     }
 
-    let query = db
-      .selectFrom('batches')
-      .leftJoin('farms', 'farms.id', 'batches.farmId')
-      .select([
-        'batches.id',
-        'batches.farmId',
-        'batches.livestockType',
-        'batches.species',
-        'batches.initialQuantity',
-        'batches.currentQuantity',
-        'batches.acquisitionDate',
-        'batches.costPerUnit',
-        'batches.totalCost',
-        'batches.status',
-        'batches.createdAt',
-        'batches.updatedAt',
-        'farms.name as farmName',
-      ])
-      .where('batches.farmId', 'in', targetFarmIds)
-      .orderBy('batches.acquisitionDate', 'desc')
-
-    if (filters?.status) {
-      query = query.where('batches.status', '=', filters.status)
-    }
-
-    if (filters?.livestockType) {
-      query = query.where('batches.livestockType', '=', filters.livestockType)
-    }
-
-    if (filters?.species) {
-      query = query.where('batches.species', '=', filters.species)
-    }
-
-    return await query.execute()
+    // Database operation (from repository layer)
+    return await getBatchesByFarm(db, targetFarmIds, filters)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -300,32 +293,8 @@ export async function getBatchById(userId: string, batchId: string) {
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
-    const batch = await db
-      .selectFrom('batches')
-      .leftJoin('structures', 'structures.id', 'batches.structureId')
-      .leftJoin('suppliers', 'suppliers.id', 'batches.supplierId')
-      .select([
-        'batches.id',
-        'batches.farmId',
-        'batches.batchName',
-        'batches.livestockType',
-        'batches.species',
-        'batches.sourceSize',
-        'batches.initialQuantity',
-        'batches.currentQuantity',
-        'batches.acquisitionDate',
-        'batches.costPerUnit',
-        'batches.totalCost',
-        'batches.status',
-        'batches.targetHarvestDate',
-        'batches.notes',
-        'batches.createdAt',
-        'batches.updatedAt',
-        'structures.name as structureName',
-        'suppliers.name as supplierName',
-      ])
-      .where('batches.id', '=', batchId)
-      .executeTakeFirst()
+    // Database operation (from repository layer)
+    const batch = await getBatchByIdFromDb(db, batchId)
 
     if (!batch) {
       return null
@@ -374,16 +343,15 @@ export async function updateBatch(
       throw new AppError('BATCH_NOT_FOUND', { metadata: { batchId } })
     }
 
-    const updateData: {
-      species?: string
-      status?: 'active' | 'depleted' | 'sold'
-      batchName?: string | null
-      sourceSize?: string | null
-      structureId?: string | null
-      targetHarvestDate?: Date | null
-      target_weight_g?: number | null
-      notes?: string | null
-    } = {}
+    // Business logic validation (from service layer)
+    const validationError = validateUpdateData(data)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
+      })
+    }
+
+    const updateData: BatchUpdate = {}
 
     if (data.species !== undefined) updateData.species = data.species
     if (data.status !== undefined) updateData.status = data.status
@@ -397,11 +365,8 @@ export async function updateBatch(
       updateData.target_weight_g = data.target_weight_g
     if (data.notes !== undefined) updateData.notes = data.notes
 
-    await db
-      .updateTable('batches')
-      .set(updateData)
-      .where('id', '=', batchId)
-      .execute()
+    // Database operation (from repository layer)
+    await updateBatchInDb(db, batchId, updateData)
 
     // Log audit
     const { logAudit } = await import('../logging/audit')
@@ -456,31 +421,12 @@ export async function deleteBatch(userId: string, batchId: string) {
       throw new AppError('BATCH_NOT_FOUND', { metadata: { batchId } })
     }
 
-    // Check for related records
-    const [feedRecords, eggRecords, sales, mortalities] = await Promise.all([
-      db
-        .selectFrom('feed_records')
-        .select('id')
-        .where('batchId', '=', batchId)
-        .executeTakeFirst(),
-      db
-        .selectFrom('egg_records')
-        .select('id')
-        .where('batchId', '=', batchId)
-        .executeTakeFirst(),
-      db
-        .selectFrom('sales')
-        .select('id')
-        .where('batchId', '=', batchId)
-        .executeTakeFirst(),
-      db
-        .selectFrom('mortality_records')
-        .select('id')
-        .where('batchId', '=', batchId)
-        .executeTakeFirst(),
-    ])
+    // Check for related records (from repository layer)
+    const relatedRecords = await getRelatedRecords(db, batchId)
 
-    if (feedRecords || eggRecords || sales || mortalities) {
+    // Business logic check (from service layer)
+    const canDeleteResult = canDeleteBatch(relatedRecords)
+    if (!canDeleteResult) {
       throw new AppError('VALIDATION_ERROR', {
         metadata: {
           reason:
@@ -489,7 +435,8 @@ export async function deleteBatch(userId: string, batchId: string) {
       })
     }
 
-    await db.deleteFrom('batches').where('id', '=', batchId).execute()
+    // Database operation (from repository layer)
+    await deleteBatchFromDb(db, batchId)
 
     // Log audit
     const { logAudit } = await import('../logging/audit')
@@ -532,16 +479,11 @@ export async function updateBatchQuantity(
   const { db } = await import('~/lib/db')
 
   try {
-    const status = newQuantity <= 0 ? 'depleted' : 'active'
+    // Determine status using service layer logic
+    const status = determineBatchStatus(newQuantity)
 
-    await db
-      .updateTable('batches')
-      .set({
-        currentQuantity: newQuantity,
-        status,
-      })
-      .where('id', '=', batchId)
-      .execute()
+    // Database operation (from repository layer)
+    await updateBatchQuantityInDb(db, batchId, newQuantity, status)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to update batch quantity',
@@ -564,7 +506,7 @@ export async function updateBatchQuantity(
  * console.log(stats.mortality.rate)
  * ```
  */
-export async function getBatchStats(userId: string, batchId: string) {
+export async function getBatchStatsWrapper(userId: string, batchId: string) {
   const { db } = await import('~/lib/db')
 
   try {
@@ -573,100 +515,54 @@ export async function getBatchStats(userId: string, batchId: string) {
       throw new AppError('BATCH_NOT_FOUND', { metadata: { batchId } })
     }
 
-    const [mortalityStats, feedStats, salesStats, expenseStats] =
-      await Promise.all([
-        // Mortality statistics
-        db
-          .selectFrom('mortality_records')
-          .select([
-            db.fn.count('id').as('total_deaths'),
-            db.fn.sum('quantity').as('total_mortality'),
-          ])
-          .where('batchId', '=', batchId)
-          .executeTakeFirst(),
+    // Database operations (from repository layer)
+    const stats = await getBatchStats(db, batchId)
+    const weightSamples = await getWeightSamples(db, batchId)
 
-        // Feed statistics
-        db
-          .selectFrom('feed_records')
-          .select([
-            db.fn.count('id').as('total_feedings'),
-            db.fn.sum('quantityKg').as('total_feed_kg'),
-            db.fn.sum('cost').as('total_feed_cost'),
-          ])
-          .where('batchId', '=', batchId)
-          .executeTakeFirst(),
-
-        // Sales statistics
-        db
-          .selectFrom('sales')
-          .select([
-            db.fn.count('id').as('total_sales'),
-            db.fn.sum('quantity').as('total_sold'),
-            db.fn.sum('totalAmount').as('total_revenue'),
-          ])
-          .where('batchId', '=', batchId)
-          .executeTakeFirst(),
-
-        // Other Expenses statistics
-        db
-          .selectFrom('expenses')
-          .select(db.fn.sum('amount').as('total_expenses'))
-          .where('batchId', '=', batchId)
-          .executeTakeFirst(),
-      ])
-
-    const totalMortality = Number(mortalityStats?.total_mortality || 0)
-    const totalSold = Number(salesStats?.total_sold || 0)
-    const totalFeedKg = toNumber(String(feedStats?.total_feed_kg || '0'))
-    const totalFeedCost = toNumber(String(feedStats?.total_feed_cost || '0'))
-
-    // Calculate mortality rate
-    const mortalityRate =
-      batch.initialQuantity > 0
-        ? (totalMortality / batch.initialQuantity) * 100
-        : 0
-
-    // Calculate average weight if we have weight samples
-    const weightSamples = await db
-      .selectFrom('weight_samples')
-      .select(['averageWeightKg', 'date'])
-      .where('batchId', '=', batchId)
-      .orderBy('date', 'desc')
-      .limit(1)
-      .executeTakeFirst()
+    // Business logic calculations (from service layer)
+    const totalMortality = Number(stats.mortality.totalMortality || 0)
+    const mortalityRate = calculateMortalityRate(
+      batch.initialQuantity,
+      batch.currentQuantity,
+      totalMortality,
+    )
 
     // Calculate FCR (Feed Conversion Ratio) if we have weight data
     let fcr = null
-    if (weightSamples && totalFeedKg > 0) {
-      const avgWeight = toNumber(weightSamples.averageWeightKg)
-      const totalWeightGain = avgWeight * batch.currentQuantity
-      fcr = totalFeedKg / totalWeightGain
+    if (weightSamples.length > 0) {
+      const totalFeedKg = toNumber(String(stats.feed.totalFeedKg || '0'))
+      if (totalFeedKg > 0) {
+        const avgWeight = toNumber(weightSamples[0].averageWeightKg)
+        const totalWeightGain = avgWeight * batch.currentQuantity
+        fcr = calculateFeedConversionRatio(totalFeedKg, totalWeightGain)
+      }
     }
 
     return {
       batch,
       mortality: {
-        totalDeaths: Number(mortalityStats?.total_deaths || 0),
+        totalDeaths: stats.mortality.totalDeaths,
         totalQuantity: totalMortality,
         rate: mortalityRate,
       },
       feed: {
-        totalFeedings: Number(feedStats?.total_feedings || 0),
-        totalKg: totalFeedKg,
-        totalCost: totalFeedCost,
+        totalFeedings: stats.feed.totalFeedings,
+        totalKg: toNumber(String(stats.feed.totalFeedKg || '0')),
+        totalCost: toNumber(String(stats.feed.totalFeedCost || '0')),
         fcr,
       },
       sales: {
-        totalSales: Number(salesStats?.total_sales || 0),
-        totalQuantity: totalSold,
-        totalRevenue: toNumber(String(salesStats?.total_revenue || '0')),
+        totalSales: stats.sales.totalSales,
+        totalQuantity: stats.sales.totalSold,
+        totalRevenue: toNumber(String(stats.sales.totalRevenue || '0')),
       },
       expenses: {
-        total: toNumber(String(expenseStats?.total_expenses || '0')),
+        total: toNumber(String(stats.expenses.totalExpenses || '0')),
       },
-      currentWeight: weightSamples
-        ? toNumber(String(weightSamples.averageWeightKg))
-        : null,
+      currentWeight:
+        weightSamples.length > 0
+          ? toNumber(String(weightSamples[0].averageWeightKg))
+          : null,
     }
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -724,145 +620,55 @@ export async function getInventorySummary(userId: string, farmId?: string) {
       }
     }
 
-    const [poultryStats, fishStats, overallStats] = await Promise.all([
-      // Poultry statistics
-      db
-        .selectFrom('batches')
-        .select([
-          db.fn.count('id').as('total_batches'),
-          db.fn.sum('currentQuantity').as('total_quantity'),
-          db.fn.sum('totalCost').as('total_investment'),
-        ])
-        .where('farmId', 'in', targetFarmIds)
-        .where('livestockType', '=', 'poultry')
-        .where('status', '=', 'active')
-        .executeTakeFirst(),
+    // Database operations (from repository layer)
+    const summary = await getInventorySummaryFromDb(db, targetFarmIds)
 
-      // Fish statistics
-      db
-        .selectFrom('batches')
-        .select([
-          db.fn.count('id').as('total_batches'),
-          db.fn.sum('currentQuantity').as('total_quantity'),
-          db.fn.sum('totalCost').as('total_investment'),
-        ])
-        .where('farmId', 'in', targetFarmIds)
-        .where('livestockType', '=', 'fish')
-        .where('status', '=', 'active')
-        .executeTakeFirst(),
-
-      // Overall statistics
-      db
-        .selectFrom('batches')
-        .select([
-          db.fn.count('id').as('total_batches'),
-          db.fn.sum('currentQuantity').as('total_quantity'),
-          db.fn.sum('totalCost').as('total_investment'),
-        ])
-        .where('farmId', 'in', targetFarmIds)
-        .where('status', '=', 'active')
-        .executeTakeFirst(),
-    ])
-
-    // Get depleted batches count
-    const depletedBatches = await db
-      .selectFrom('batches')
-      .select([db.fn.count('id').as('count')])
-      .where('farmId', 'in', targetFarmIds)
-      .where('status', '=', 'depleted')
-      .executeTakeFirst()
-
-    // Get feed stats - join with batches to filter by farmId
-    const feedStats = await db
-      .selectFrom('feed_records')
-      .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-      .select([
-        db.fn.count('feed_records.id').as('total_feedings'),
-        db.fn.sum('feed_records.quantityKg').as('total_kg'),
-        db.fn.sum('feed_records.cost').as('total_cost'),
-      ])
-      .where('batches.farmId', 'in', targetFarmIds)
-      .executeTakeFirst()
-
-    // Get sales stats - join with batches to filter by farmId
-    const salesStats = await db
-      .selectFrom('sales')
-      .innerJoin('batches', 'batches.id', 'sales.batchId')
-      .select([
-        db.fn.count('sales.id').as('total_sales'),
-        db.fn.sum('sales.quantity').as('total_quantity'),
-        db.fn.sum('sales.totalAmount').as('total_revenue'),
-      ])
-      .where('batches.farmId', 'in', targetFarmIds)
-      .executeTakeFirst()
-
-    // Calculate Average Weight (approximation across active batches)
-    // Join with batches to filter by farmId
-    const recentWeights = await db
-      .selectFrom('weight_samples')
-      .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
-      .select(['weight_samples.averageWeightKg'])
-      .where('batches.farmId', 'in', targetFarmIds)
-      .orderBy('weight_samples.date', 'desc')
-      .limit(10) // Last 10 samples
-      .execute()
-
-    const averageWeightKg =
-      recentWeights.length > 0
-        ? recentWeights.reduce(
-            (sum, w) => sum + Number(w.averageWeightKg || 0),
-            0,
-          ) / recentWeights.length
-        : 0
+    const totalQuantityOverall = toNumber(
+      String(summary.overall?.total_quantity || '0'),
+    )
+    const totalInvestmentOverall = Number(summary.overall?.total_investment || 0)
 
     // Helper to safely convert to number
     const safeToNumber = (val: string | number | null | undefined) =>
       Number(val || 0)
 
     // Calculate FCR
-    const totalFeedKg = safeToNumber(String(feedStats?.total_kg || '0'))
-    const totalSold = safeToNumber(String(salesStats?.total_quantity || '0'))
+    const totalFeedKg = safeToNumber(String(summary.feedStats?.total_kg || '0'))
+    const totalSold = safeToNumber(String(summary.salesStats?.total_quantity || '0'))
     const fcr = totalSold > 0 ? Number((totalFeedKg / totalSold).toFixed(2)) : 0
 
-    const totalFeedCost = toNumber(String(feedStats?.total_cost || '0'))
-
-    const totalQuantityOverall = toNumber(
-      String(overallStats?.total_quantity || '0'),
-    )
-    const totalInvestmentOverall = safeToNumber(
-      String(overallStats?.total_investment || '0'),
-    )
+    const totalFeedCost = toNumber(String(summary.feedStats?.total_cost || '0'))
 
     return {
       overall: {
-        totalBatches: Number(overallStats?.total_batches || 0),
-        activeBatches: Number(overallStats?.total_batches || 0),
+        totalBatches: Number(summary.overall?.total_batches || 0),
+        activeBatches: Number(summary.overall?.total_batches || 0),
         totalQuantity: totalQuantityOverall,
         totalInvestment: totalInvestmentOverall,
-        depletedBatches: Number(depletedBatches?.count || 0),
+        depletedBatches: Number(summary.depletedBatches?.count || 0),
       },
       poultry: {
-        batches: Number(poultryStats?.total_batches || 0),
-        quantity: toNumber(String(poultryStats?.total_quantity || '0')),
-        investment: toNumber(String(poultryStats?.total_investment || '0')),
+        batches: Number(summary.poultry?.total_batches || 0),
+        quantity: toNumber(String(summary.poultry?.total_quantity || '0')),
+        investment: toNumber(String(summary.poultry?.total_investment || '0')),
       },
       fish: {
-        batches: Number(fishStats?.total_batches || 0),
-        quantity: toNumber(String(fishStats?.total_quantity || '0')),
-        investment: toNumber(String(fishStats?.total_investment || '0')),
+        batches: Number(summary.fish?.total_batches || 0),
+        quantity: toNumber(String(summary.fish?.total_quantity || '0')),
+        investment: toNumber(String(summary.fish?.total_investment || '0')),
       },
       feed: {
-        totalFeedings: Number(feedStats?.total_feedings || 0),
+        totalFeedings: Number(summary.feedStats?.total_feedings || 0),
         totalKg: totalFeedKg,
         totalCost: totalFeedCost,
         fcr,
       },
       sales: {
-        totalSales: Number(salesStats?.total_sales || 0),
+        totalSales: Number(summary.salesStats?.total_sales || 0),
         totalQuantity: totalSold,
-        totalRevenue: toNumber(String(salesStats?.total_revenue || '0')),
+        totalRevenue: toNumber(String(summary.salesStats?.total_revenue || '0')),
       },
-      currentWeight: averageWeightKg > 0 ? averageWeightKg : null,
+      currentWeight: summary.averageWeightKg > 0 ? summary.averageWeightKg : null,
     }
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -1072,7 +878,7 @@ export const getBatchDetailsFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
-    return getBatchStats(session.user.id, data.batchId)
+    return getBatchStatsWrapper(session.user.id, data.batchId)
   })
 
 // Server function for getting batches
