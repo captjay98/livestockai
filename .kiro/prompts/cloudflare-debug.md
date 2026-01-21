@@ -12,9 +12,26 @@ Systematic approach to debugging Cloudflare Workers deployment problems.
 **Deployment**: Cloudflare Workers (edge computing)
 **Database**: Neon PostgreSQL (serverless)
 
+## Step 0: Issue Diagnosis
+
+**Ask user interactively:**
+
+> What issue are you experiencing?
+>
+> 1. **Build failure** - `bun run build` fails
+> 2. **Deployment failure** - `wrangler deploy` fails
+> 3. **Runtime error** - App crashes after deployment
+> 4. **Database connection** - Connection errors
+> 5. **Performance issue** - Slow response times
+> 6. **Other** - Describe the issue
+
+Wait for response, then route to appropriate troubleshooting section.
+
 ## Quick Diagnosis with MCP
 
 ### Check Deployment Status
+
+**If MCP available:**
 
 ```
 workers_list
@@ -22,19 +39,40 @@ workers_get_worker scriptName="openlivestock"
 workers_builds_list_builds
 ```
 
+**If MCP unavailable (fallback):**
+
+```bash
+wrangler deployments list
+wrangler whoami
+```
+
 ### View Recent Errors
+
+**If MCP available:**
 
 ```
 query_worker_observability (filter by error level)
 observability_keys (find available log fields)
 ```
 
+**If MCP unavailable (fallback):**
+
+```bash
+wrangler tail --format pretty
+```
+
 ### Search Cloudflare Docs for Solutions
+
+**If MCP available:**
 
 ```
 search_cloudflare_documentation query="workers runtime error"
 search_cloudflare_documentation query="nodejs_compat"
 ```
+
+**If MCP unavailable:**
+
+- Visit https://developers.cloudflare.com/workers/
 
 ## Common Issues & Solutions
 
@@ -174,13 +212,51 @@ Ensure `wrangler.jsonc` has:
 
 ## When to Rollback
 
-```bash
-# If production is broken, rollback immediately
-wrangler rollback
+**If production is broken:**
 
-# Then debug in preview environment
+```bash
+wrangler rollback
+```
+
+**Then debug in preview:**
+
+```bash
 wrangler deploy --env preview
 ```
+
+**Ask user:** "Rollback successful. Test the preview deployment and let me know if the issue persists."
+
+## Success Validation
+
+After applying fixes, verify:
+
+1. **Build succeeds:**
+
+   ```bash
+   bun run build
+   ```
+
+2. **Deployment succeeds:**
+
+   ```bash
+   wrangler deploy --dry-run
+   ```
+
+3. **App responds:**
+
+   ```bash
+   curl https://your-worker.workers.dev/api/health
+   ```
+
+4. **Database connects:**
+   - Use Neon MCP: `neon__run_sql "SELECT 1"`
+   - Or check logs: `wrangler tail`
+
+5. **Monitor for errors:**
+   - Watch logs for 5 minutes
+   - Check error rate in dashboard
+
+**Ask user:** "All checks passed. Monitor the deployment for the next hour and let me know if issues recur."
 
 ## Debug Checklist
 
@@ -194,11 +270,25 @@ wrangler deploy --env preview
 
 ## Agent Delegation
 
+Use specialized subagents for complex debugging:
+
 - `@devops-engineer` - Complex deployment and infrastructure issues
-- `@backend-engineer` - Server function and database issues
+- `@backend-engineer` - Server function and database connection issues
+- `@frontend-engineer` - Client-side errors and bundle optimization
+- `@security-engineer` - Authentication, secrets, and security issues
+- `@qa-engineer` - Testing deployment and reproducing issues
+
+### When to Delegate
+
+- **Build failures** - @backend-engineer or @frontend-engineer (depending on error)
+- **Database issues** - @backend-engineer for connection/query problems
+- **Security/secrets** - @security-engineer for auth and environment variables
+- **Performance** - @frontend-engineer for bundle size, @backend-engineer for queries
+- **Testing** - @qa-engineer to create reproduction steps
 
 ## Related Prompts
 
-- `@cloudflare-deploy` - Deployment process
-- `@cloudflare-setup` - Initial configuration
-- `@neon-setup` - Database configuration
+- `@cloudflare-deploy` - Deployment process and best practices
+- `@cloudflare-setup` - Initial configuration and setup
+- `@neon-setup` - Database configuration and troubleshooting
+- `@performance-audit` - Performance optimization after fixing issues

@@ -14,20 +14,54 @@ Generate comprehensive profit and loss analysis for OpenLivestock Manager.
 **Currency**: Multi-currency - use user preference
 **Database**: PostgreSQL (Neon) via Kysely ORM
 
-## Report Scope
+## Step 0: Determine Report Scope
 
-**Scope**: $ARGUMENTS
-**Period**: Specify date range or use batch lifecycle
+**Ask user interactively:**
+
+> What financial report would you like to generate?
+>
+> 1. **Specific batch** - P&L for a single batch
+> 2. **Farm-wide** - All batches for a farm
+> 3. **Time period** - Custom date range (e.g., last month, Q1 2024)
+> 4. **Comparison** - Compare multiple periods or batches
+> 5. **Current conversation** - Continue analyzing what we've been discussing
+
+**Then ask about timeframe (if not specified):**
+
+- Last 7 days
+- Last 30 days
+- Last quarter
+- Custom date range
+
+Wait for response before proceeding.
+
+## Step 1: Verify Data Availability
 
 ## MCP Integration
 
 **Use Neon MCP for all data queries:**
+
+**If MCP available:**
 
 ```
 # List farms and batches
 neon__run_sql "SELECT id, name FROM farms"
 neon__run_sql "SELECT id, batchName, farmId, status FROM batches WHERE status IN ('active', 'sold')"
 ```
+
+**If MCP unavailable (fallback):**
+
+Ask user to:
+
+1. Check database connection manually
+2. Provide data via CSV export
+3. Use app's built-in reports feature
+
+**Error handling:**
+
+- If query fails: "Database connection issue. Check Neon project status."
+- If no data: "No financial data found for this period. Adjust date range?"
+- If incomplete data: "Some records missing. Continue with available data? (y/n)"
 
 ## Data Collection (MCP)
 
@@ -227,6 +261,39 @@ Profit per kg = Revenue per kg - Cost per kg
 1. [Cost reduction opportunity]
 2. [Revenue improvement opportunity]
 3. [Efficiency improvement]
+
+## Validation & Next Steps
+
+**Validate report accuracy:**
+
+1. **Cross-check totals:**
+   - Revenue = Sum of all sales
+   - Expenses = Sum of all costs
+   - Profit = Revenue - Expenses
+
+2. **Verify currency:**
+   - All amounts in user's preferred currency
+   - Exchange rates applied correctly (if applicable)
+
+3. **Check completeness:**
+   - All batches included
+   - All transactions in date range
+   - No missing categories
+
+**Ask user:**
+
+> Report generated. Does this match your expectations?
+>
+> - (y) Yes, looks good
+> - (e) Export to CSV/PDF
+> - (d) Drill down into specific category
+> - (c) Compare with another period
+
+**If issues found:**
+
+- Offer to regenerate with different parameters
+- Suggest checking for missing transactions
+- Recommend reviewing expense categorization
 ```
 
 ## Profitability Benchmarks
@@ -240,8 +307,19 @@ Profit per kg = Revenue per kg - Cost per kg
 
 ## Agent Delegation
 
-- `@data-analyst` - Advanced financial modeling and trend analysis
-- `@livestock-specialist` - Production efficiency recommendations
+For comprehensive financial analysis:
+
+- `@data-analyst` - Advanced financial modeling, trend analysis, and forecasting
+- `@livestock-specialist` - Production efficiency recommendations and cost optimization
+- `@backend-engineer` - Database query optimization for financial data
+- `@qa-engineer` - Validate financial calculations and report accuracy
+
+### When to Delegate
+
+- **Complex forecasting** - @data-analyst for predictive financial modeling
+- **Production issues** - @livestock-specialist for efficiency improvements
+- **Data issues** - @backend-engineer if financial data is incomplete or slow
+- **Validation** - @qa-engineer to verify all financial calculations
 
 ## Related Prompts
 

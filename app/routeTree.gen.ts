@@ -256,25 +256,25 @@ export interface FileRoutesByFullPath {
   '/settings/audit': typeof AuthSettingsAuditRoute
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
-  '/batches': typeof AuthBatchesIndexRoute
-  '/customers': typeof AuthCustomersIndexRoute
-  '/dashboard': typeof AuthDashboardIndexRoute
-  '/eggs': typeof AuthEggsIndexRoute
-  '/expenses': typeof AuthExpensesIndexRoute
-  '/farms': typeof AuthFarmsIndexRoute
-  '/feed': typeof AuthFeedIndexRoute
-  '/inventory': typeof AuthInventoryIndexRoute
-  '/invoices': typeof AuthInvoicesIndexRoute
-  '/mortality': typeof AuthMortalityIndexRoute
-  '/onboarding': typeof AuthOnboardingIndexRoute
-  '/reports': typeof AuthReportsIndexRoute
-  '/sales': typeof AuthSalesIndexRoute
-  '/settings': typeof AuthSettingsIndexRoute
-  '/suppliers': typeof AuthSuppliersIndexRoute
-  '/vaccinations': typeof AuthVaccinationsIndexRoute
-  '/water-quality': typeof AuthWaterQualityIndexRoute
-  '/weight': typeof AuthWeightIndexRoute
-  '/batches/$batchId': typeof AuthBatchesBatchIdIndexRoute
+  '/batches/': typeof AuthBatchesIndexRoute
+  '/customers/': typeof AuthCustomersIndexRoute
+  '/dashboard/': typeof AuthDashboardIndexRoute
+  '/eggs/': typeof AuthEggsIndexRoute
+  '/expenses/': typeof AuthExpensesIndexRoute
+  '/farms/': typeof AuthFarmsIndexRoute
+  '/feed/': typeof AuthFeedIndexRoute
+  '/inventory/': typeof AuthInventoryIndexRoute
+  '/invoices/': typeof AuthInvoicesIndexRoute
+  '/mortality/': typeof AuthMortalityIndexRoute
+  '/onboarding/': typeof AuthOnboardingIndexRoute
+  '/reports/': typeof AuthReportsIndexRoute
+  '/sales/': typeof AuthSalesIndexRoute
+  '/settings/': typeof AuthSettingsIndexRoute
+  '/suppliers/': typeof AuthSuppliersIndexRoute
+  '/vaccinations/': typeof AuthVaccinationsIndexRoute
+  '/water-quality/': typeof AuthWaterQualityIndexRoute
+  '/weight/': typeof AuthWeightIndexRoute
+  '/batches/$batchId/': typeof AuthBatchesBatchIdIndexRoute
   '/farms/$farmId/': typeof AuthFarmsFarmIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -376,25 +376,25 @@ export interface FileRouteTypes {
     | '/settings/audit'
     | '/settings/users'
     | '/suppliers/$supplierId'
-    | '/batches'
-    | '/customers'
-    | '/dashboard'
-    | '/eggs'
-    | '/expenses'
-    | '/farms'
-    | '/feed'
-    | '/inventory'
-    | '/invoices'
-    | '/mortality'
-    | '/onboarding'
-    | '/reports'
-    | '/sales'
-    | '/settings'
-    | '/suppliers'
-    | '/vaccinations'
-    | '/water-quality'
-    | '/weight'
-    | '/batches/$batchId'
+    | '/batches/'
+    | '/customers/'
+    | '/dashboard/'
+    | '/eggs/'
+    | '/expenses/'
+    | '/farms/'
+    | '/feed/'
+    | '/inventory/'
+    | '/invoices/'
+    | '/mortality/'
+    | '/onboarding/'
+    | '/reports/'
+    | '/sales/'
+    | '/settings/'
+    | '/suppliers/'
+    | '/vaccinations/'
+    | '/water-quality/'
+    | '/weight/'
+    | '/batches/$batchId/'
     | '/farms/$farmId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -558,7 +558,7 @@ declare module '@tanstack/react-router' {
     '/_auth': {
       id: '/_auth'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -572,126 +572,126 @@ declare module '@tanstack/react-router' {
     '/_auth/weight/': {
       id: '/_auth/weight/'
       path: '/weight'
-      fullPath: '/weight'
+      fullPath: '/weight/'
       preLoaderRoute: typeof AuthWeightIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/water-quality/': {
       id: '/_auth/water-quality/'
       path: '/water-quality'
-      fullPath: '/water-quality'
+      fullPath: '/water-quality/'
       preLoaderRoute: typeof AuthWaterQualityIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/vaccinations/': {
       id: '/_auth/vaccinations/'
       path: '/vaccinations'
-      fullPath: '/vaccinations'
+      fullPath: '/vaccinations/'
       preLoaderRoute: typeof AuthVaccinationsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/suppliers/': {
       id: '/_auth/suppliers/'
       path: '/suppliers'
-      fullPath: '/suppliers'
+      fullPath: '/suppliers/'
       preLoaderRoute: typeof AuthSuppliersIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/settings/': {
       id: '/_auth/settings/'
       path: '/settings'
-      fullPath: '/settings'
+      fullPath: '/settings/'
       preLoaderRoute: typeof AuthSettingsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/sales/': {
       id: '/_auth/sales/'
       path: '/sales'
-      fullPath: '/sales'
+      fullPath: '/sales/'
       preLoaderRoute: typeof AuthSalesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/reports/': {
       id: '/_auth/reports/'
       path: '/reports'
-      fullPath: '/reports'
+      fullPath: '/reports/'
       preLoaderRoute: typeof AuthReportsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/onboarding/': {
       id: '/_auth/onboarding/'
       path: '/onboarding'
-      fullPath: '/onboarding'
+      fullPath: '/onboarding/'
       preLoaderRoute: typeof AuthOnboardingIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/mortality/': {
       id: '/_auth/mortality/'
       path: '/mortality'
-      fullPath: '/mortality'
+      fullPath: '/mortality/'
       preLoaderRoute: typeof AuthMortalityIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/invoices/': {
       id: '/_auth/invoices/'
       path: '/invoices'
-      fullPath: '/invoices'
+      fullPath: '/invoices/'
       preLoaderRoute: typeof AuthInvoicesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/inventory/': {
       id: '/_auth/inventory/'
       path: '/inventory'
-      fullPath: '/inventory'
+      fullPath: '/inventory/'
       preLoaderRoute: typeof AuthInventoryIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/feed/': {
       id: '/_auth/feed/'
       path: '/feed'
-      fullPath: '/feed'
+      fullPath: '/feed/'
       preLoaderRoute: typeof AuthFeedIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/farms/': {
       id: '/_auth/farms/'
       path: '/farms'
-      fullPath: '/farms'
+      fullPath: '/farms/'
       preLoaderRoute: typeof AuthFarmsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/expenses/': {
       id: '/_auth/expenses/'
       path: '/expenses'
-      fullPath: '/expenses'
+      fullPath: '/expenses/'
       preLoaderRoute: typeof AuthExpensesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/eggs/': {
       id: '/_auth/eggs/'
       path: '/eggs'
-      fullPath: '/eggs'
+      fullPath: '/eggs/'
       preLoaderRoute: typeof AuthEggsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/dashboard/': {
       id: '/_auth/dashboard/'
       path: '/dashboard'
-      fullPath: '/dashboard'
+      fullPath: '/dashboard/'
       preLoaderRoute: typeof AuthDashboardIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/customers/': {
       id: '/_auth/customers/'
       path: '/customers'
-      fullPath: '/customers'
+      fullPath: '/customers/'
       preLoaderRoute: typeof AuthCustomersIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/batches/': {
       id: '/_auth/batches/'
       path: '/batches'
-      fullPath: '/batches'
+      fullPath: '/batches/'
       preLoaderRoute: typeof AuthBatchesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
@@ -754,7 +754,7 @@ declare module '@tanstack/react-router' {
     '/_auth/batches/$batchId/': {
       id: '/_auth/batches/$batchId/'
       path: '/batches/$batchId'
-      fullPath: '/batches/$batchId'
+      fullPath: '/batches/$batchId/'
       preLoaderRoute: typeof AuthBatchesBatchIdIndexRouteImport
       parentRoute: typeof AuthRoute
     }

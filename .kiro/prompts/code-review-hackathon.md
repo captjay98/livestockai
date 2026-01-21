@@ -2,7 +2,32 @@
 description: Comprehensive hackathon submission review based on official judging criteria
 ---
 
+# Hackathon Submission Review
+
 Perform comprehensive review of hackathon submission based on the official Kiro Hackathon judging criteria.
+
+## Step 0: Determine Review Scope
+
+**Ask user interactively:**
+
+> What type of hackathon review would you like?
+>
+> 1. **Full review** - All judging criteria (100 points)
+> 2. **Quick check** - Critical issues only
+> 3. **Specific category** - Application quality, Kiro usage, documentation, etc.
+> 4. **Pre-submission** - Final checks before submitting
+> 5. **Improvement plan** - Prioritized list of enhancements
+
+**Then ask about focus:**
+
+- Maximize score (find all improvement opportunities)
+- Fix critical issues only
+- Specific weakness areas
+- Competitive positioning
+
+Wait for response before proceeding.
+
+## Step 1: Project Discovery
 
 ## Judging Criteria (100 Points Total)
 
@@ -29,9 +54,7 @@ Perform comprehensive review of hackathon submission based on the official Kiro 
    - Demo Video (3 points)
    - README (2 points)
 
-## Review Process
-
-### 1. Project Discovery
+## Step 1: Project Discovery
 
 ```bash
 find . -name "README*" -o -name "*.md" | head -10
@@ -39,7 +62,21 @@ ls -la
 tree -L 2 -I 'node_modules|__pycache__|.git|dist|build' || ls -la
 ```
 
-### 2. Required Documentation Check
+**Error handling:**
+
+- If no README: "❌ CRITICAL: No README.md found. This is required for submission."
+- If no DEVLOG: "⚠️ WARNING: No DEVLOG.md found. This impacts documentation score."
+- If no .kiro/: "❌ CRITICAL: No Kiro configuration found. Is this a Kiro project?"
+
+**Ask if issues found:**
+
+> Found missing critical files. What would you like to do?
+>
+> - (c) Create missing files now
+> - (s) Skip and continue review
+> - (a) Abort review (fix issues first)
+
+## Step 2: Required Documentation Check
 
 Look for:
 
@@ -192,3 +229,84 @@ For each criterion, provide:
 - [Specific improvement suggestions]
 
 **Hackathon Readiness:** [Ready/Needs Work/Major Issues]
+
+## Validation & Next Steps
+
+**Validate review findings:**
+
+1. **Score accuracy:**
+   - All criteria evaluated
+   - Scores justified with evidence
+   - No bias or assumptions
+
+2. **Recommendations feasibility:**
+   - Improvements are actionable
+   - Effort estimates realistic
+   - Prioritization clear
+
+**Ask user:**
+
+> Review complete. Current score: X/100. What would you like to do?
+>
+> - (i) Implement top 3 recommendations
+> - (d) Deep dive into specific category
+> - (c) Compare with winning submissions
+> - (r) Re-review after improvements
+
+**If score < 70:**
+
+> Score is below competitive threshold. Critical improvements needed:
+>
+> 1. [High-impact improvement]
+> 2. [High-impact improvement]
+> 3. [High-impact improvement]
+>
+> Estimated score increase: +X points
+> Proceed with improvements? (y/n)
+
+**If score 70-85:**
+
+> Good submission! These improvements could boost your score:
+>
+> - [Medium-impact improvement] (+X points)
+> - [Medium-impact improvement] (+X points)
+
+**If score > 85:**
+
+> Excellent submission! Minor polish opportunities:
+>
+> - [Low-impact improvement] (+X points)
+
+**Success criteria:**
+
+- Score > 70 (competitive)
+- All required documentation present
+- No critical issues
+- Clear value proposition
+- Working demo
+
+## Agent Delegation
+
+For comprehensive hackathon review:
+
+- `@qa-engineer` - Code quality, testing, and functionality review
+- `@backend-engineer` - Architecture and database implementation review
+- `@frontend-engineer` - UI/UX and component quality review
+- `@devops-engineer` - Deployment and infrastructure review
+- `@security-engineer` - Security and best practices review
+
+### When to Delegate
+
+- **Code quality** - @qa-engineer for testing and quality standards
+- **Architecture** - @backend-engineer for system design review
+- **UI/UX** - @frontend-engineer for user experience review
+- **Deployment** - @devops-engineer for infrastructure review
+- **Security** - @security-engineer for security audit
+
+## Related Prompts
+
+- `@code-review` - Detailed code quality review
+- `@test-coverage` - Test coverage analysis
+- `@accessibility-audit` - Accessibility compliance
+- `@performance-audit` - Performance optimization
+- `@update-devlog` - Ensure DEVLOG is complete

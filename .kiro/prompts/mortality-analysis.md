@@ -14,9 +14,20 @@ Analyze mortality patterns to identify causes and recommend preventive measures.
 **Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
 **Database**: PostgreSQL (Neon) via Kysely ORM
 
-## Analysis Scope
+## Step 1: Determine Analysis Scope
 
-**Scope**: $ARGUMENTS
+First, check if we're continuing a conversation:
+
+> Are we analyzing the mortality data we've been discussing, or would you like a different analysis?
+>
+> Options:
+>
+> - If we've been discussing specific batches/farms, I can analyze those
+> - Provide a specific scope (batch, farm, time period)
+> - `all` for complete mortality analysis
+> - Or describe what you'd like to see
+
+Wait for their response before proceeding.
 
 ## MCP Integration
 
@@ -180,14 +191,24 @@ neon__run_sql "
 
 For specialized analysis:
 
-- `@livestock-specialist` - Species-specific disease identification
-- `@data-analyst` - Statistical trend analysis
+- `@livestock-specialist` - Species-specific disease identification and prevention strategies
+- `@data-analyst` - Statistical trend analysis and mortality forecasting
+- `@backend-engineer` - Database query optimization for mortality data
+- `@qa-engineer` - Validate mortality data accuracy and completeness
+
+### When to Delegate
+
+- **Disease outbreaks** - @livestock-specialist for diagnosis and treatment protocols
+- **Pattern analysis** - @data-analyst for identifying trends and risk factors
+- **Data issues** - @backend-engineer if mortality records are incomplete or inconsistent
+- **Validation** - @qa-engineer to verify mortality calculations and rates
 
 ## Related Prompts
 
 - `@batch-analysis` - Full batch performance review
 - `@growth-forecast` - Impact on harvest projections
 - `@financial-report` - Economic impact of mortality
+- `@feed-optimization` - Nutrition-related mortality factors
   | Environmental | X | X% | ↑/↓/→ |
   | Unknown | X | X% | ↑/↓/→ |
 

@@ -14,11 +14,48 @@ Analyze current test coverage and recommend improvements.
 **Database**: PostgreSQL (Neon) + Kysely ORM
 **Deployment**: Cloudflare Workers
 
-## Run Coverage Report
+## Step 0: Determine Analysis Scope
+
+**Ask user interactively:**
+
+> What test coverage analysis would you like?
+>
+> 1. **Full coverage report** - All files and categories
+> 2. **Specific category** - Financial, business logic, server functions, etc.
+> 3. **Specific feature** - Test coverage for one feature area
+> 4. **Gap analysis** - Find critical untested code
+> 5. **Improvement plan** - Prioritized list of tests to add
+
+**Then ask about priority:**
+
+- Critical paths only (financial, auth, data integrity)
+- All business logic
+- Include UI components
+- Full codebase
+
+Wait for response before proceeding.
+
+## Step 1: Run Coverage Report
 
 ```bash
 bun test --coverage
 ```
+
+**Error handling:**
+
+- If command fails: "Test runner not configured. Run `bun install` first."
+- If no tests found: "No test files found. Check tests/ directory exists."
+- If tests fail: "Some tests failing. Fix failures before analyzing coverage? (y/n)"
+
+**If tests fail, ask:**
+
+> Tests are failing. What would you like to do?
+>
+> - (f) Fix failing tests first
+> - (s) Skip failing tests and analyze coverage
+> - (v) View failing test details
+
+## Step 2: Analyze Coverage Results
 
 ## Coverage Targets
 
@@ -251,13 +288,25 @@ tests/
 
 ## Agent Delegation
 
-- `@qa-engineer` - Test implementation and coverage improvement
-- `@backend-engineer` - Server function testing
+For comprehensive test coverage improvement:
+
+- `@qa-engineer` - Test implementation, coverage improvement, and testing strategies
+- `@backend-engineer` - Server function testing and database integration tests
+- `@frontend-engineer` - Component testing and UI interaction tests
+- `@security-engineer` - Security testing and vulnerability coverage
+
+### When to Delegate
+
+- **Test implementation** - @qa-engineer for writing tests and improving coverage
+- **Server functions** - @backend-engineer for database and API testing
+- **UI components** - @frontend-engineer for React component tests
+- **Security** - @security-engineer for auth and security test coverage
 
 ## Related Prompts
 
-- `@code-review` - Review test quality
+- `@code-review` - Review test quality and effectiveness
 - `@execute` - Implement recommended tests
+- `@plan-feature` - Include test requirements in feature plans
 
 ```markdown
 # Test Coverage Report
@@ -294,3 +343,43 @@ tests/
 - High priority: X hours
 - Medium priority: X hours
 ```
+
+## Validation & Next Steps
+
+**Validate coverage analysis:**
+
+1. **Verify accuracy:**
+   - Coverage percentages match test output
+   - All critical files identified
+   - No false positives (commented code counted as uncovered)
+
+2. **Check priorities:**
+   - Critical paths identified correctly
+   - Effort estimates realistic
+   - Dependencies considered
+
+**Ask user:**
+
+> Coverage analysis complete. What would you like to do?
+>
+> - (i) Implement top 3 recommended tests
+> - (p) Create detailed test plan
+> - (r) Re-run after adding tests
+> - (e) Export coverage report
+
+**If coverage is low (<80%):**
+
+> Coverage is below target. Recommended approach:
+>
+> 1. Start with critical financial calculations (must be 100%)
+> 2. Add business logic tests (target 90%)
+> 3. Cover server functions (target 80%)
+>
+> Proceed with this plan? (y/n)
+
+**Success criteria:**
+
+- All critical paths have 100% coverage
+- Overall coverage meets 80% target
+- No untested financial calculations
+- Integration tests for database operations

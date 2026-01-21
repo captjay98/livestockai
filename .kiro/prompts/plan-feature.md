@@ -8,8 +8,6 @@ description: 'Create comprehensive feature plan with deep codebase analysis and 
 
 Transform a feature request into a **comprehensive implementation plan** through systematic codebase analysis, external research, and strategic planning.
 
-**Feature Request**: $ARGUMENTS
-
 **Project Context**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Tech Stack**: TanStack Start + React 19 + Kysely + Neon PostgreSQL + Cloudflare Workers
 **Architecture**: Server functions with dynamic imports, type-safe queries, multi-currency, i18n
@@ -22,9 +20,15 @@ Transform a feature request into a **comprehensive implementation plan** through
 
 ### Phase 1: Feature Understanding
 
-**Parse the Feature Request ($ARGUMENTS):**
+**Get the Feature Request:**
 
-First, understand what the user is asking for. The feature request is provided as $ARGUMENTS above. Extract:
+First, check if we're continuing a conversation:
+
+> Are we planning the feature we've been discussing, or would you like to plan something new?
+>
+> If we've been discussing a feature, I can use that context. Otherwise, please describe what you'd like me to plan.
+
+Wait for their response, then extract:
 
 - What needs to be built/fixed/changed
 - Why it's needed (if mentioned)

@@ -14,9 +14,19 @@ Analyze feed conversion efficiency and recommend feeding program improvements.
 **Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
 **Database**: PostgreSQL (Neon) via Kysely ORM
 
-## Analysis Scope
+## Step 1: Determine Analysis Scope
 
-**Batch**: $ARGUMENTS
+First, check if we're continuing a conversation:
+
+> Are we optimizing feed for the batch we've been discussing, or a different batch?
+>
+> Options:
+>
+> - If we've been discussing a specific batch, I can optimize that
+> - Provide a batch ID or name
+> - Or I can list available batches
+
+Wait for their response before proceeding.
 
 ## MCP Integration
 
@@ -228,8 +238,19 @@ Generate alerts for:
 
 ## Agent Delegation
 
-- `@livestock-specialist` - Species-specific feeding programs
-- `@data-analyst` - Feed cost trend analysis
+For specialized optimization:
+
+- `@livestock-specialist` - Species-specific feeding programs and nutrition requirements
+- `@data-analyst` - Feed cost trend analysis and optimization modeling
+- `@backend-engineer` - Database query optimization for feed records
+- `@qa-engineer` - Validate feed calculations and inventory accuracy
+
+### When to Delegate
+
+- **Nutrition issues** - @livestock-specialist for feed formulation and species requirements
+- **Cost optimization** - @data-analyst for feed cost analysis and supplier comparison
+- **Data issues** - @backend-engineer if feed records are incomplete or inconsistent
+- **Validation** - @qa-engineer to verify FCR calculations and feed inventory
 
 ## Related Prompts
 

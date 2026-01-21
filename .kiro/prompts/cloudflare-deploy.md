@@ -12,28 +12,83 @@ Execute a production deployment to Cloudflare Workers with comprehensive validat
 **Platform**: Cloudflare Workers (Edge computing)
 **Critical**: All server functions MUST use dynamic imports for Workers compatibility
 
-## Prerequisites
+## Step 0: Pre-Flight Check
 
-- [ ] Wrangler CLI installed and authenticated
-- [ ] All secrets configured in Cloudflare
-- [ ] Tests passing locally
-- [ ] Build succeeds locally
-- [ ] Database accessible from Workers
+First, let me verify your deployment readiness:
 
-## MCP Integration
+> What would you like to deploy?
+>
+> Options:
+>
+> - `preview` - Deploy to preview/staging environment (safe testing)
+> - `production` - Deploy to production (live users)
+> - `check` - Just run pre-deployment checks (no deploy)
+>
+> Choose: (preview/production/check)
 
-**Check current deployment status:**
+Wait for their response.
 
+### If `preview`:
+
+> Deploying to preview environment for testing. This is safe and won't affect production.
+
+Continue to deployment with `--env preview` flag.
+
+### If `production`:
+
+> ⚠️ **PRODUCTION DEPLOYMENT**
+>
+> This will deploy to live production environment. Are you sure?
+>
+> - All tests passing?
+> - Code reviewed?
+> - Ready for users to see changes?
+>
+> Confirm production deployment? (yes/no)
+
+Wait for confirmation. If "no", stop. If "yes", continue.
+
+### If `check`:
+
+> Running pre-deployment checks only. No deployment will occur.
+
+Run all checks and report results, then stop.
+
+---
+
+## Prerequisites Verification
+
+**Check current setup state:**
+
+```bash
+# Verify wrangler authentication
+wrangler whoami
+
+# Check wrangler.jsonc exists and is valid
+cat wrangler.jsonc | grep account_id
+
+# Verify .env exists
+ls .env
 ```
-cloudflare-bindings__workers_list
-cloudflare-builds__workers_builds_list_builds
-```
 
-**View recent logs:**
+**If any fail:**
 
-```
-cloudflare-observability__query_worker_observability
-```
+> ❌ Setup incomplete. Please run one of:
+>
+> - `@quickstart` - Complete automated setup
+> - `@cloudflare-setup` - Manual Cloudflare configuration
+>
+> Cannot proceed with deployment until setup is complete.
+
+Stop here and guide them to setup.
+
+**If all pass:**
+
+> ✅ Setup verified. Proceeding with deployment checks...
+
+---
+
+---
 
 ## Pre-Deployment Checklist
 
@@ -42,14 +97,20 @@ cloudflare-observability__query_worker_observability
 ```bash
 # Check wrangler is authenticated
 wrangler whoami
-
-# Expected output: Your Cloudflare account email
 ```
+
+**Expected:** Your Cloudflare account email
 
 **If not authenticated:**
 
 ```bash
 wrangler login
+```
+
+**Verify with MCP:**
+
+```
+cloudflare-bindings__accounts_list
 ```
 
 ### Step 2: Verify Secrets
@@ -66,7 +127,13 @@ wrangler secret list
 | `BETTER_AUTH_SECRET` | Auth encryption (32+ chars) | `wrangler secret put BETTER_AUTH_SECRET` |
 | `BETTER_AUTH_URL` | Production URL | `wrangler secret put BETTER_AUTH_URL` |
 
-**Set missing secrets:**
+**If secrets missing:**
+
+> ⚠️ Missing required secrets: [list]
+>
+> Set them now? (yes/no)
+
+If yes, guide through setting each secret:
 
 ```bash
 # Database connection
@@ -78,7 +145,7 @@ wrangler secret put BETTER_AUTH_SECRET
 
 # Production URL
 wrangler secret put BETTER_AUTH_URL
-# Enter: https://your-domain.com or https://openlivestock.workers.dev
+# Enter: https://your-domain.com or https://jayfarms.workers.dev
 ```
 
 ### Step 3: Run Full Test Suite
@@ -86,11 +153,30 @@ wrangler secret put BETTER_AUTH_URL
 ```bash
 # Run all tests
 bun test
-
-# Expected: All tests pass
 ```
 
-**If tests fail:** Fix issues before deploying. Do NOT deploy with failing tests.
+**Expected:** All tests pass ✅
+
+**If tests fail:**
+
+> ❌ Tests failing. Cannot deploy with failing tests.
+>
+> Options:
+>
+> - Fix the failing tests first
+> - Skip tests (NOT RECOMMENDED for production)
+>
+> What would you like to do? (fix/skip/abort)
+
+If "skip" and environment is "production":
+
+> ⚠️ **DANGER**: Skipping tests for production deployment is risky!
+>
+> Are you absolutely sure? (type "SKIP TESTS" to confirm)
+
+Only proceed if they type exactly "SKIP TESTS".
+
+If "abort", stop deployment.
 
 ### Step 4: Check TypeScript
 
@@ -152,91 +238,251 @@ const { db } = await import('~/lib/db')
 
 ## Deployment
 
-### Standard Production Deployment
+### Deployment Strategy
+
+**For preview environment:**
+
+```bash
+# Deploy to preview
+wrangler deploy --env preview
+```
+
+Safe for testing - doesn't affect production users.
+
+**For production environment:**
+
+> 🚀 **Ready to deploy to production**
+>
+> Deployment strategy:
+>
+> 1. **Direct** - Deploy immediately to production (fastest)
+> 2. **Preview First** - Deploy to preview, test, then production (safest)
+>
+> Which strategy? (1/2)
+
+**If strategy 2 (Preview First):**
+
+```bash
+# Step 1: Deploy to preview
+wrangler deploy --env preview
+```
+
+> Preview deployed! Test at: [preview-url]
+>
+> Test the preview environment:
+>
+> - [ ] Homepage loads
+> - [ ] Login works
+> - [ ] Database operations work
+>
+> Ready to deploy to production? (yes/no)
+
+Wait for confirmation before proceeding to production.
+
+### Execute Deployment
+
+**Deploy command:**
 
 ```bash
 # Build and deploy
 bun run deploy
 
-# Or step by step:
-bun run build
-wrangler deploy
+# Or with specific environment
+wrangler deploy --env [environment]
+```
+
+**Progress indicators:**
+
+```
+🔄 Building application... (30s)
+✅ Build complete
+
+🔄 Uploading to Cloudflare... (10s)
+✅ Upload complete
+
+🔄 Publishing worker... (5s)
+✅ Published successfully
+
+🎉 Deployment complete!
+   URL: https://jayfarms.workers.dev
 ```
 
 **Expected output:**
 
 ```
-Uploaded openlivestock (X.XX sec)
-Published openlivestock (X.XX sec)
-  https://openlivestock.your-subdomain.workers.dev
+Uploaded jayfarms (X.XX sec)
+Published jayfarms (X.XX sec)
+  https://jayfarms.your-subdomain.workers.dev
 ```
 
-### Preview Deployment (Testing)
+## Post-Deployment Verification & Monitoring
 
-```bash
-# Deploy to preview environment
-wrangler deploy --env preview
-```
-
-Use preview for:
-
-- Testing new features before production
-- Verifying fixes before rollout
-- Stakeholder demos
-
-## Post-Deployment Verification
-
-### Step 1: Check Deployment Status (MCP)
+### Step 1: Immediate Verification (MCP)
 
 ```
-# List recent builds
+# Check deployment status
 cloudflare-builds__workers_builds_list_builds
 
-# Get specific build details
-cloudflare-builds__workers_builds_get_build buildUUID="xxx"
-```
-
-### Step 2: Verify Worker is Running (MCP)
-
-```
-# List workers
+# Verify worker is running
 cloudflare-bindings__workers_list
-
-# Get worker details
-cloudflare-bindings__workers_get_worker scriptName="openlivestock"
+cloudflare-bindings__workers_get_worker scriptName="jayfarms"
 ```
 
-### Step 3: Check Production Logs (MCP)
+**Expected:** Worker listed and active
+
+### Step 2: Functional Testing
+
+**Test critical paths:**
+
+```bash
+# Get deployment URL
+wrangler deployments list
+```
+
+**Manual tests:**
+
+1. ✅ **Homepage loads**: Visit production URL
+2. ✅ **Login works**: Test with admin credentials
+3. ✅ **Database connected**: View batches list
+4. ✅ **Create operation**: Add a test record
+5. ✅ **Offline mode**: Disconnect and verify PWA works
+
+> All critical paths working? (yes/no)
+
+If "no":
+
+> ⚠️ Issues detected. Consider rollback?
+>
+> Options:
+>
+> - `rollback` - Revert to previous version immediately
+> - `investigate` - Check logs and investigate
+> - `continue` - Monitor and fix if needed
+>
+> What would you like to do? (rollback/investigate/continue)
+
+### Step 3: Monitor Logs (5 minutes)
+
+> 🔍 **Monitoring deployment for 5 minutes...**
+>
+> Watching for errors, performance issues, and user activity.
+
+**Start log monitoring:**
+
+```bash
+# Tail live logs
+wrangler tail --format pretty
+```
+
+**Via MCP:**
 
 ```
 # Query recent logs
 cloudflare-observability__query_worker_observability
 
-# Search for errors
+# Check for errors
 cloudflare-observability__observability_keys
 ```
 
-### Step 4: Manual Verification
+**Watch for:**
 
-```bash
-# Tail live logs
-wrangler tail
+- ❌ 500 errors
+- ⚠️ Slow response times (>1s)
+- ⚠️ Database connection errors
+- ⚠️ Authentication failures
+- ✅ Successful requests
 
-# In another terminal, access the app
-curl -I https://openlivestock.your-subdomain.workers.dev
+**After 5 minutes:**
+
+> Monitoring complete. Summary:
+>
+> - Total requests: [count]
+> - Errors: [count]
+> - Average response time: [ms]
+> - Status: [healthy/issues detected]
+
+**If issues detected:**
+
+> ⚠️ Issues found during monitoring:
+> [list of issues]
+>
+> Recommended action: [rollback/investigate/monitor longer]
+>
+> What would you like to do?
+
+## Deployment Summary
+
+### Success Report
+
+**If deployment successful:**
+
+```
+🎉 DEPLOYMENT SUCCESSFUL
+
+Environment: [preview/production]
+Deployed at: [timestamp]
+URL: [deployment-url]
+Build time: [duration]
+Deployment time: [duration]
+
+✅ Pre-deployment checks: Passed
+✅ Deployment: Successful
+✅ Functional tests: Passed
+✅ Monitoring (5min): No issues
+
+Status: HEALTHY ✅
+
+Next steps:
+- Monitor logs for next hour
+- Watch for user reports
+- Document any changes in DEVLOG.md
 ```
 
-### Step 5: Functional Testing
+### Failure Report
 
-**Test critical paths:**
+**If deployment failed:**
 
-1. **Homepage loads**: Visit production URL
-2. **Login works**: Test with admin credentials
-3. **Database connected**: View batches list
-4. **Create operation**: Add a test record
-5. **Offline mode**: Disconnect and verify PWA works
+```
+❌ DEPLOYMENT FAILED
 
-## Rollback Procedures
+Environment: [preview/production]
+Failed at: [timestamp]
+Stage: [which step failed]
+
+Error: [error message]
+
+Recommended actions:
+1. [specific fix for the error]
+2. [alternative approach]
+3. Run @cloudflare-debug for detailed troubleshooting
+
+Status: FAILED ❌
+```
+
+### Rollback Report
+
+**If rollback executed:**
+
+```
+↩️ ROLLBACK EXECUTED
+
+Reason: [why rollback was needed]
+Rolled back at: [timestamp]
+Previous version: [version]
+Current version: [version]
+
+✅ Rollback: Successful
+✅ Verification: Previous version working
+
+Status: ROLLED BACK ✅
+
+Next steps:
+1. Fix the issue locally
+2. Test thoroughly
+3. Attempt redeployment when ready
+```
+
+---
 
 ### Immediate Rollback (Production Issues)
 
@@ -247,6 +493,14 @@ wrangler rollback
 # Confirm rollback
 wrangler deployments list
 ```
+
+## Agent Delegation
+
+Use specialized subagents for deployment issues:
+
+- `@devops-engineer` - Deployment failures, infrastructure issues
+- `@backend-engineer` - Server function errors, database connection issues
+- `@security-engineer` - Secrets management, authentication problems
 
 ### When to Rollback
 
@@ -343,25 +597,66 @@ wrangler dev --remote
 
 ### Workflow
 
-1. **Run pre-deployment checks** - All must pass
-2. **Verify secrets** - All required secrets set
-3. **Execute deployment** - Use `bun run deploy`
-4. **Verify with MCP** - Check build status and logs
-5. **Functional testing** - Test critical paths
-6. **Document results** - Report success or issues
+1. **Check environment** (Step 0) - Ask which environment to deploy
+2. **Verify setup** - Check prerequisites are met
+3. **Run pre-deployment checks** - All must pass (or get explicit skip confirmation)
+4. **Choose deployment strategy** - Direct or preview-first
+5. **Execute deployment** - Deploy to chosen environment
+6. **Verify immediately** - Test critical paths
+7. **Monitor for 5 minutes** - Watch logs for issues
+8. **Generate summary report** - Clear success/failure/rollback report
+
+### Interactive Decision Points
+
+**Always ask, never assume:**
+
+- Which environment? (preview/production/check-only)
+- Production deployment confirmed?
+- Tests failing - fix/skip/abort?
+- Deployment strategy? (direct/preview-first)
+- Preview tested and ready for production?
+- Issues detected - rollback/investigate/continue?
+
+### Safety Checks
+
+**Never skip without confirmation:**
+
+- Production deployment requires explicit "yes"
+- Skipping tests requires typing "SKIP TESTS"
+- Rollback requires understanding impact
+
+**Stop deployment if:**
+
+- Setup incomplete (no wrangler.jsonc or secrets)
+- Tests fail and user chooses "abort"
+- User says "no" to production confirmation
+- Critical errors during deployment
+
+### Monitoring Protocol
+
+**5-minute monitoring period:**
+
+- Start immediately after deployment
+- Watch for errors, slow responses, failures
+- Provide real-time updates
+- Summarize findings at end
+- Recommend action if issues found
 
 ### Key Principles
 
-- **Never deploy with failing tests** - Fix first
-- **Always verify secrets** - Missing secrets = broken app
-- **Check dynamic imports** - Static imports break Workers
-- **Have rollback ready** - Know how to revert quickly
-- **Monitor after deploy** - Watch logs for 5+ minutes
+- **Interactive first** - Ask before critical actions
+- **Safety first** - Confirm production deployments
+- **Never deploy broken code** - Tests must pass
+- **Monitor after deploy** - Watch for 5 minutes minimum
+- **Clear reporting** - Provide detailed summary
+- **Rollback ready** - Know how to revert quickly
+- **Use MCP for verification** - Check deployment status
 
 ### When to Stop and Ask
 
 - Tests failing and fix unclear
 - Secrets missing and values unknown
-- Build errors not related to code
-- Deployment succeeds but app broken
-- Rollback needed but unsure of impact
+- Deployment fails with unclear error
+- Issues detected during monitoring
+- User unsure about proceeding
+- Rollback needed but impact unclear

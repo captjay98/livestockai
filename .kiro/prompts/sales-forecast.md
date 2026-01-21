@@ -13,9 +13,19 @@ Project revenue based on current batch performance and market conditions.
 **Species**: All 6 livestock types
 **Currency**: Multi-currency - use user preference
 
-## Forecast Scope
+## Step 1: Determine Forecast Scope
 
-**Batch**: $ARGUMENTS
+First, check if we're continuing a conversation:
+
+> Are we forecasting sales for the batch we've been discussing, or a different batch?
+>
+> Options:
+>
+> - If we've been discussing a specific batch, I can forecast that
+> - Provide a batch ID or name
+> - Or I can list available active batches
+
+Wait for their response before proceeding.
 
 ## MCP Integration
 
@@ -257,8 +267,19 @@ Rate forecast confidence:
 
 ## Agent Delegation
 
+For specialized forecasting:
+
 - `@data-analyst` - Advanced forecasting models and statistical analysis
-- `@livestock-specialist` - Production factors affecting saleable quantity
+- `@livestock-specialist` - Production factors affecting saleable quantity and market timing
+- `@backend-engineer` - Database query optimization for sales and weight data
+- `@qa-engineer` - Validate forecast calculations and revenue projections
+
+### When to Delegate
+
+- **Market analysis** - @data-analyst for price trends and demand forecasting
+- **Production issues** - @livestock-specialist for factors affecting saleable quantity
+- **Data issues** - @backend-engineer if sales or weight data is incomplete
+- **Validation** - @qa-engineer to verify revenue calculations and forecast accuracy
 
 ## Related Prompts
 

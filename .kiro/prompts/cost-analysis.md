@@ -13,18 +13,54 @@ Deep dive into cost structure and identify savings opportunities.
 **Species**: All 6 livestock types
 **Currency**: Multi-currency - use user preference
 
-## Analysis Scope
+## Step 0: Determine Analysis Scope
 
-**Scope**: $ARGUMENTS
+**Ask user interactively:**
+
+> What cost analysis would you like to perform?
+>
+> 1. **Specific batch** - Cost breakdown for one batch
+> 2. **Farm-wide** - All costs for a farm
+> 3. **Category deep-dive** - Analyze specific cost category (feed, labor, etc.)
+> 4. **Time period** - Costs for custom date range
+> 5. **Comparison** - Compare costs across batches or periods
+> 6. **Current conversation** - Continue analyzing what we've been discussing
+
+**Then ask about focus:**
+
+- Cost reduction opportunities
+- Budget variance analysis
+- Trend analysis
+- Benchmark comparison
+
+Wait for response before proceeding.
+
+## Step 1: Verify Data Availability
 
 ## MCP Integration
 
 **Use Neon MCP for all data queries:**
 
+**If MCP available:**
+
 ```
 # List farms and batches with expenses
 neon__run_sql "SELECT DISTINCT f.id, f.name FROM farms f JOIN expenses e ON f.id = e.farmId"
 ```
+
+**If MCP unavailable (fallback):**
+
+Ask user to:
+
+1. Export expense data from app
+2. Provide CSV file for analysis
+3. Use app's built-in cost reports
+
+**Error handling:**
+
+- If query fails: "Database connection issue. Verify Neon project is active."
+- If no expenses: "No expense records found. Check date range or add expenses first."
+- If incomplete data: "Some expense categories missing. Continue with available data? (y/n)"
 
 ## Data Collection (MCP)
 
@@ -203,6 +239,40 @@ Labor Cost % = Labor Cost / Total Cost × 100
 ## Total Potential Savings: [Currency]X
 ```
 
+## Validation & Next Steps
+
+**Validate analysis accuracy:**
+
+1. **Cross-check totals:**
+   - Sum of categories = Total expenses
+   - Percentages add up to 100%
+   - No duplicate transactions
+
+2. **Verify categorization:**
+   - All expenses properly categorized
+   - No miscategorized items
+   - Consistent category usage
+
+3. **Check benchmarks:**
+   - Comparisons are species-appropriate
+   - Regional differences considered
+   - Realistic targets for farm size
+
+**Ask user:**
+
+> Analysis complete. What would you like to do next?
+>
+> - (i) Implement top 3 recommendations
+> - (d) Deep dive into specific category
+> - (c) Compare with another period
+> - (e) Export analysis report
+
+**If issues found:**
+
+- Offer to recategorize expenses
+- Suggest reviewing outlier transactions
+- Recommend setting up budget tracking
+
 ## Benchmarks
 
 ### Broiler Cost Structure (Nigeria)
@@ -226,8 +296,19 @@ Labor Cost % = Labor Cost / Total Cost × 100
 
 ## Agent Delegation
 
-- `@data-analyst` - Statistical trend analysis and forecasting
-- `@livestock-specialist` - Production efficiency recommendations
+For specialized cost optimization:
+
+- `@data-analyst` - Statistical trend analysis, forecasting, and cost modeling
+- `@livestock-specialist` - Production efficiency recommendations and best practices
+- `@backend-engineer` - Database query optimization for expense data
+- `@qa-engineer` - Validate cost calculations and category allocations
+
+### When to Delegate
+
+- **Cost trends** - @data-analyst for identifying patterns and forecasting
+- **Efficiency issues** - @livestock-specialist for production optimization
+- **Data issues** - @backend-engineer if expense data is incomplete or inconsistent
+- **Validation** - @qa-engineer to verify cost calculations and allocations
 
 ## Related Prompts
 

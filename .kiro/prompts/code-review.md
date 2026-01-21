@@ -1,6 +1,5 @@
 ---
 description: 'Comprehensive code review for OpenLivestock Manager with project-specific patterns'
-argument-hint: "[file-path or 'staged' or 'recent']"
 ---
 
 # Code Review: OpenLivestock Manager
@@ -13,19 +12,45 @@ Perform comprehensive technical code review with OpenLivestock-specific pattern 
 **Tech Stack**: TanStack Start, Kysely ORM, Neon PostgreSQL, Cloudflare Workers, Better Auth
 **Critical**: All server functions MUST use dynamic imports for Cloudflare Workers compatibility
 
-## Review Scope
+## Step 1: Determine Review Scope
 
-**Target**: $ARGUMENTS
+First, check if we're continuing a conversation:
 
-### Determine Review Scope
+> Are we reviewing the code we've been working on, or would you like to review something else?
+>
+> Options:
+>
+> - If we just made changes, I can review those
+> - `staged` - Review git staged files
+> - `recent` - Review last commit
+> - A specific file path
+> - Or describe what you'd like reviewed
 
-**If $ARGUMENTS is:**
+Wait for their response, then:
 
-- `staged` → Review git staged files: `git diff --cached --name-only`
-- `recent` → Review last commit: `git diff HEAD~1 --name-only`
-- `all` or `codebase` → Review entire codebase: `find app -name "*.ts" -o -name "*.tsx"`
-- `[file-path]` → Review specific file(s): Use provided path(s)
-- Empty/not provided → Review all uncommitted changes: `git diff --name-only && git ls-files --others --exclude-standard`
+**If continuing from conversation:**
+
+- Review the files we just modified or discussed
+
+**If they say `staged`:**
+
+- Review git staged files: `git diff --cached --name-only`
+
+**If they say `recent`:**
+
+- Review last commit: `git diff HEAD~1 --name-only`
+
+**If they say `all` or `codebase`:**
+
+- Review entire codebase: `find app -name "*.ts" -o -name "*.tsx"`
+
+**If they provide a file path:**
+
+- Review specific file(s): Use provided path(s)
+
+**If they want uncommitted changes:**
+
+- Review all uncommitted: `git diff --name-only && git ls-files --others --exclude-standard`
 
 **Filter to relevant files:**
 
@@ -448,6 +473,15 @@ Highlight any violations of:
 - **Prioritize correctly** - Security > Logic > Performance > Style
 - **Consider context** - Understand why code was written that way
 - **Be constructive** - Focus on improvement, not criticism
+
+## Agent Delegation
+
+Use specialized subagents for deep reviews:
+
+- `@backend-engineer` - Server functions, database queries, API design
+- `@frontend-engineer` - React components, hooks, state management
+- `@security-engineer` - Security vulnerabilities, auth issues
+- `@qa-engineer` - Test coverage and quality
 
 ### When to Escalate
 - Security vulnerabilities found

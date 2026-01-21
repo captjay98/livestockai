@@ -149,10 +149,25 @@ test -d docs/api/lib && echo "✅ Utilities documented"
 
 ---
 
+## Agent Delegation
+
+For documentation tasks:
+
+- `@backend-engineer` - Review and improve JSDoc for server functions
+- `@frontend-engineer` - Review and improve JSDoc for React components
+- `@qa-engineer` - Validate documentation accuracy and completeness
+
+### When to Delegate
+
+- **Missing JSDoc** - Delegate to relevant engineer to add documentation
+- **Inaccurate docs** - Delegate to code owner for corrections
+- **Complex APIs** - Delegate for detailed examples and explanations
+
 ## Related Prompts
 
 - **@sync-guides** - Update general documentation
 - **@code-review** - Review code quality including JSDoc
+- **@update-devlog** - Document changes in DEVLOG
 
 ---
 

@@ -12,7 +12,51 @@ Diagnose and fix offline functionality and data synchronization issues.
 **State**: TanStack Query + IndexedDB persistence
 **PWA**: Vite PWA plugin with service worker
 
-## Common Issues
+## Step 0: Identify Issue
+
+**Ask user interactively:**
+
+> What offline issue are you experiencing?
+>
+> 1. **Data not persisting** - Changes lost after closing app
+> 2. **Sync conflicts** - Duplicate or overwritten data
+> 3. **Service worker issues** - App not working offline
+> 4. **Cache problems** - Old data showing, not updating
+> 5. **Network detection** - App not detecting online/offline status
+> 6. **Other** - Describe the issue
+
+**Then ask:**
+
+- When does the issue occur?
+- Can you reproduce it consistently?
+- Any error messages in console?
+
+Wait for response before proceeding.
+
+## Step 1: Diagnose Issue
+
+**Check browser console:**
+
+- Open DevTools (F12)
+- Look for errors in Console tab
+
+**Check IndexedDB:**
+
+- DevTools → Application → IndexedDB
+- Verify tanstack-query database exists
+
+**Check Service Worker:**
+
+- DevTools → Application → Service Workers
+- Verify SW is active
+
+**Error handling:**
+
+- If no IndexedDB: "Persistence not configured."
+- If no Service Worker: "PWA not configured."
+- If errors found: "X errors found. Review? (y/n)"
+
+## Step 2: Common Issues & Solutions
 
 ### 1. Data Not Persisting Offline
 
@@ -213,12 +257,72 @@ VitePWA({
 | Conflict resolution    | Edit same record offline/online    | ✅/❌  |
 | Cache invalidation     | Check stale data after sync        | ✅/❌  |
 
+## Validation & Next Steps
+
+**Validate offline functionality:**
+
+1. **Test offline mode:**
+   - Disconnect network
+   - Make changes (add/edit/delete)
+   - Close and reopen app
+   - Verify changes persisted
+
+2. **Test sync:**
+   - Reconnect network
+   - Verify changes sync to server
+   - Check for conflicts
+   - Confirm no data loss
+
+3. **Test edge cases:**
+   - Multiple offline changes
+   - Conflicting edits
+   - Network interruptions during sync
+
+**Ask user:**
+
+> Offline debugging complete. What would you like to do?
+>
+> - (t) Test offline functionality
+> - (s) Test sync after reconnect
+> - (c) Test conflict resolution
+> - (m) Monitor sync behavior
+
+**If issues persist:**
+
+> Issue still occurring. Additional steps:
+>
+> 1. Clear IndexedDB and test fresh
+> 2. Check service worker logs
+> 3. Review mutation queue
+>
+> Proceed with deep debugging? (y/n)
+
+**Success criteria:**
+
+- Data persists offline
+- Changes sync when online
+- No data loss
+- Conflicts resolved correctly
+- Network status detected accurately
+
 ## Agent Delegation
 
-- `@frontend-engineer` - React Query and state management issues
-- `@qa-engineer` - Offline testing scenarios
+For offline debugging:
+
+- `@frontend-engineer` - React Query, state management, and offline logic
+- `@qa-engineer` - Offline testing scenarios and edge cases
+- `@backend-engineer` - Server-side sync logic and conflict resolution
+- `@devops-engineer` - Service worker configuration and caching
+
+### When to Delegate
+
+- **State management** - @frontend-engineer for React Query issues
+- **Testing** - @qa-engineer for comprehensive offline testing
+- **Sync logic** - @backend-engineer for server-side conflicts
+- **Service worker** - @devops-engineer for caching strategies
 
 ## Related Prompts
 
 - `@pwa-optimize` - PWA performance optimization
 - `@test-coverage` - Add offline tests
+- `@performance-audit` - Network performance analysis

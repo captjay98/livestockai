@@ -14,6 +14,34 @@ Automatically analyze uncommitted changes and create a structured commit plan fo
 
 ## Workflow
 
+### Step 0: Pre-Commit Check
+
+**Check git status first:**
+
+```bash
+git status
+```
+
+**Ask user interactively:**
+
+1. **If no changes**: "Working tree clean. Nothing to commit."
+2. **If changes exist**:
+   - "Found X modified files. Run validation first? (y/n)"
+   - "Commit strategy: (a)tomic commits or (g)rouped by feature?"
+   - "Include all changes or (s)elective files?"
+
+**If validation requested:**
+
+```bash
+npx tsc --noEmit  # TypeScript check
+bun run lint      # ESLint check
+```
+
+**Handle validation failures interactively:**
+
+- Show errors clearly
+- Ask: "(f)ix issues, (s)kip validation, or (a)bort?"
+
 ### 1. Analyze Current Changes
 
 ```bash
@@ -143,41 +171,59 @@ git commit -m "<message>"
 
 ## Execution Steps
 
-1. **Run git status analysis**
+1. **Run pre-commit check** (Step 0)
+   - Check git status
+   - Ask about validation and commit strategy
+   - Run validation if requested
+
+2. **Analyze changes**
    ```bash
    git status --short
    git diff --stat
-````
+   ```
 
-2. **Categorize changes** by feature/type
+3. **Categorize changes** by feature/type intelligently
 
-3. **Generate commit messages** for each group
+4. **Generate commit messages** for each group
 
-4. **Create commit plan** markdown file in `.agents/`
+5. **Create commit plan** markdown file in `.agents/`
 
-5. **Show plan** to user for review
+6. **Show plan** to user for review
 
-6. **Ask**: "Execute this plan? (y/n)"
+7. **Ask**: "Execute this plan? (y/n/e)dit"
+   - y: Execute all commits
+   - n: Cancel
+   - e: Let user edit plan first
 
-7. **If yes**: Execute commits one by one
+8. **Execute commits** one by one with progress
 
-8. **Show summary**:
+9. **Show summary**:
    ```
    ✅ X commits created
    📊 Y files changed
    🔍 Run: git log --oneline -X
    ```
 
+10. **Suggest next steps**:
+    - "Run @update-devlog to document these changes?"
+    - "Push to remote? git push origin <branch>"
+
 ## Validation
 
-Before executing:
+**Validation is now part of Step 0** (pre-commit check).
+
+If user requests validation:
 
 ```bash
 npx tsc --noEmit  # Check TypeScript
 bun run lint      # Check ESLint
 ```
 
-After executing:
+**Handle failures interactively:**
+- Show clear error messages
+- Ask: "(f)ix issues, (s)kip validation, or (a)bort?"
+
+After executing commits:
 
 ```bash
 git log --oneline -5  # Verify commits
@@ -206,12 +252,32 @@ git status            # Should be clean
 ## Edge Cases
 
 - **No changes**: Show "Working tree clean, nothing to commit"
-- **Only staged changes**: Use those
+- **Only staged changes**: Use those, ask if user wants to include unstaged
 - **Mix of staged/unstaged**: Ask which to include
-- **Validation fails**: Show errors, don't commit
+- **Validation fails**: Show errors, offer to fix/skip/abort
+- **Merge conflicts**: Detect and warn user to resolve first
+- **Detached HEAD**: Warn about detached HEAD state
+
+## Agent Delegation
+
+Use specialized subagents for validation and review:
+
+- `@qa-engineer` - Test coverage verification before committing
+- `@backend-engineer` - Database migration validation
+- `@frontend-engineer` - UI component validation
+- `@security-engineer` - Security review for sensitive changes
+
+### When to Delegate
+
+- Large changesets (>10 files) - delegate to @code-review first
+- Database migrations - delegate to @backend-engineer for validation
+- New features - ensure tests exist via @qa-engineer
+- Security-sensitive changes - delegate to @security-engineer
 
 ## Related Prompts
 
-- `@update-devlog` - Document commits after creation
-- `@code-review` - Review code before committing
-- `@execute` - Execute implementation plans
+- `@code-review` - Review code quality before committing
+- `@test-coverage` - Verify tests exist for changes
+- `@update-devlog` - Document commits in DEVLOG after creation
+- `@execute` - Execute implementation plans before committing
+````

@@ -1,6 +1,5 @@
 ---
 description: 'Execute implementation plan with OpenLivestock-specific patterns and validation'
-argument-hint: '[path-to-plan or feature-name]'
 ---
 
 # Execute: Implement from Plan
@@ -13,27 +12,39 @@ Transform an implementation plan into working code for OpenLivestock Manager.
 **Tech Stack**: TanStack Start, Kysely ORM, Neon PostgreSQL, Cloudflare Workers
 **Critical Pattern**: All database imports MUST be dynamic for Cloudflare Workers compatibility
 
-## Plan to Execute
+## Step 1: Locate Plan File
 
-**Plan File**: $ARGUMENTS
+First, check if we're continuing a conversation:
 
-### Step 0: Locate Plan File
+> Are we implementing the plan we've been discussing, or would you like to execute a different plan?
+>
+> Options:
+>
+> - If we just created a plan, I can use that
+> - Provide a plan file path or feature name
+> - Or I can list available plans for you
 
-**If $ARGUMENTS is a path** (contains `/` or `.md`):
+Wait for their response, then:
 
-- Read file directly: `cat $ARGUMENTS`
-- If file doesn't exist, check: `.agents/plans/$ARGUMENTS`
+**If continuing from conversation:**
 
-**If $ARGUMENTS is a feature name**:
+- Use the plan we just discussed or created
 
-- Search for: `ls .agents/plans/*$ARGUMENTS*.md`
+**If they provide a path** (contains `/` or `.md`):
+
+- Read file directly
+- If file doesn't exist, check: `.agents/plans/[filename]`
+
+**If they provide a feature name**:
+
+- Search for: `ls .agents/plans/*[name]*.md`
 - If multiple matches, ask user to clarify
 - If no matches, list available: `ls .agents/plans/*.md`
 
-**If no $ARGUMENTS provided**:
+**If they ask to list plans**:
 
 - List available plans: `ls .agents/plans/*.md`
-- Ask: "Which plan should I execute? (provide path or feature name)"
+- Ask them to choose one
 
 ## Prerequisites
 
@@ -63,9 +74,7 @@ cloudflare-builds__workers_builds_list_builds
 
 **Read and understand the plan:**
 
-```bash
-cat $ARGUMENTS
-```
+Read the plan file you located in Step 1.
 
 **Extract key information:**
 
@@ -380,6 +389,15 @@ All changes complete and validated. Ready for `/commit` command.
 - **Type safety first** - ensure Kysely queries are type-safe
 - **Validate continuously** - don't wait until the end
 - **Ask when unclear** - better to clarify than assume
+
+## Agent Delegation
+
+Use specialized subagents for complex tasks:
+
+- `@backend-engineer` - Database migrations, server functions, Kysely queries
+- `@frontend-engineer` - React components, UI implementation, routing
+- `@qa-engineer` - Test implementation and validation
+- `@devops-engineer` - Deployment issues, Cloudflare Workers debugging
 
 ### When to Stop and Ask
 

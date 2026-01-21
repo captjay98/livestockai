@@ -6,6 +6,47 @@ description: 'Comprehensive accessibility audit for rural farmers and users with
 
 🌍 Ensure OpenLivestock Manager works for all farmers, including those with disabilities, limited literacy, or using assistive technologies.
 
+## Step 0: Determine Audit Scope
+
+**Ask user interactively:**
+
+> What accessibility audit would you like to perform?
+>
+> 1. **Full audit** - All accessibility categories
+> 2. **Visual accessibility** - Color, contrast, typography
+> 3. **Motor accessibility** - Touch targets, keyboard navigation
+> 4. **Cognitive accessibility** - Information architecture, language
+> 5. **Assistive technology** - Screen readers, voice control
+> 6. **Specific feature** - Audit one feature area
+
+**Then ask about priority:**
+
+- Critical issues only (WCAG A compliance)
+- Standard compliance (WCAG AA)
+- Enhanced accessibility (WCAG AAA)
+- Rural farmer focus (sunlight, low literacy, field use)
+
+Wait for response before proceeding.
+
+## Step 1: Run Automated Checks
+
+**If tools available:**
+
+```bash
+# Install accessibility testing tools
+bun add -D @axe-core/cli pa11y
+
+# Run automated audit
+npx axe http://localhost:3001
+npx pa11y http://localhost:3001
+```
+
+**Error handling:**
+
+- If dev server not running: "Start dev server first: `bun dev`"
+- If tools not installed: "Install tools or proceed with manual audit? (y/n)"
+- If errors found: "X accessibility issues found. Review details? (y/n)"
+
 ## Audit Categories
 
 ### 1. Visual Accessibility
@@ -255,13 +296,68 @@ bun test:a11y
 
 Remember: Accessibility isn't just compliance - it's about making the app usable for all farmers, regardless of their abilities or circumstances.
 
+## Validation & Next Steps
+
+**Validate audit findings:**
+
+1. **Test with real users:**
+   - Screen reader users
+   - Keyboard-only navigation
+   - Colorblind simulation
+   - Mobile device testing
+
+2. **Verify fixes:**
+   - Re-run automated tools
+   - Manual testing of fixed issues
+   - Cross-browser compatibility
+   - Assistive technology compatibility
+
+**Ask user:**
+
+> Accessibility audit complete. What would you like to do?
+>
+> - (f) Fix critical issues first (blocking users)
+> - (p) Create prioritized fix plan
+> - (t) Test with assistive technology
+> - (r) Generate detailed report
+
+**If critical issues found:**
+
+> Found X critical accessibility issues that block users:
+>
+> 1. [Issue description]
+> 2. [Issue description]
+>
+> These should be fixed immediately. Proceed? (y/n)
+
+**Success criteria:**
+
+- WCAG AA compliance achieved
+- All critical issues resolved
+- Keyboard navigation works throughout
+- Screen reader announces all content correctly
+- Color contrast meets standards
+- Touch targets meet minimum size
+
 ## Agent Delegation
 
-- `@frontend-engineer` - Implement accessibility fixes
-- `@qa-engineer` - Accessibility testing automation
+For accessibility implementation and testing:
+
+- `@frontend-engineer` - Implement accessibility fixes and ARIA attributes
+- `@qa-engineer` - Accessibility testing automation and validation
+- `@backend-engineer` - Server-side accessibility features (alt text generation)
+- `@security-engineer` - Ensure accessibility doesn't compromise security
+
+### When to Delegate
+
+- **Implementation** - @frontend-engineer for fixing accessibility issues
+- **Testing** - @qa-engineer for automated accessibility testing
+- **Content** - @backend-engineer for accessible data formatting
+- **Security** - @security-engineer to review accessibility features
 
 ## Related Prompts
 
 - `@pwa-optimize` - Performance for low-end devices
-- `@performance-audit` - Mobile and rural connectivity
+- `@performance-audit` - Mobile and rural connectivity optimization
 - `@code-review` - Review accessibility in code changes
+- `@test-coverage` - Ensure accessibility tests exist

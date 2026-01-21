@@ -14,9 +14,20 @@ Analyze livestock batch performance and provide actionable insights.
 **Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
 **Database**: PostgreSQL (Neon) via Kysely ORM
 
-## Analysis Scope
+## Step 1: Determine Analysis Scope
 
-**Batch**: $ARGUMENTS (or analyze all active batches if not specified)
+First, check if we're continuing a conversation:
+
+> Are we analyzing the batch we've been discussing, or would you like to analyze a different batch?
+>
+> Options:
+>
+> - If we've been discussing a specific batch, I can analyze that
+> - Provide a batch ID or name
+> - `all` to analyze all active batches
+> - Or I can list available batches
+
+Wait for their response before proceeding.
 
 ## MCP Integration
 
@@ -164,8 +175,17 @@ neon__run_sql "
 
 For comprehensive analysis, delegate to specialized agents:
 
-- `@livestock-specialist` - Domain expertise on species-specific issues
-- `@data-analyst` - Advanced statistical analysis and forecasting
+- `@livestock-specialist` - Domain expertise on species-specific issues and best practices
+- `@data-analyst` - Advanced statistical analysis and forecasting models
+- `@backend-engineer` - Database query optimization for large datasets
+- `@qa-engineer` - Validate analysis accuracy and data integrity
+
+### When to Delegate
+
+- **Species-specific issues** - @livestock-specialist for disease, feeding, or management advice
+- **Complex forecasting** - @data-analyst for predictive modeling and trend analysis
+- **Performance issues** - @backend-engineer if queries are slow or data is incomplete
+- **Data validation** - @qa-engineer to verify analysis accuracy
 
 ## Related Prompts
 

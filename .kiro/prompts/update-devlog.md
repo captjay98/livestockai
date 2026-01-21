@@ -273,11 +273,28 @@ git add DEVLOG.md
 git commit -m "docs: update DEVLOG with Day 8 progress"
 ```
 
+## Agent Delegation
+
+For DEVLOG updates:
+
+- `@backend-engineer` - Technical details for backend changes
+- `@frontend-engineer` - UI/UX changes and component updates
+- `@devops-engineer` - Infrastructure and deployment changes
+- `@qa-engineer` - Testing and quality improvements
+
+### When to Delegate
+
+- **Technical details** - Delegate to feature owner for accurate descriptions
+- **Complex changes** - Delegate to implementing engineer for context
+- **Multiple features** - Delegate to respective engineers for their areas
+
 ## Related Prompts
 
 - `@commit-plan` - Create commits (run this first)
 - `@code-review` - Review code before committing
 - `@plan-feature` - Plan features before implementation
+- `@sync-docs` - Update API documentation
+- `@sync-guides` - Update general documentation
 
 ---
 

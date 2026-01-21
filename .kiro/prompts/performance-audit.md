@@ -6,6 +6,47 @@ description: 'Comprehensive performance analysis for PWA, mobile, and rural conn
 
 ⚡ Optimize OpenLivestock Manager for rural farmers using 3G connections and low-end Android devices.
 
+## Step 0: Determine Audit Scope
+
+**Ask user interactively:**
+
+> What performance audit would you like to perform?
+>
+> 1. **Full audit** - All performance categories
+> 2. **Network performance** - Bundle size, loading speed
+> 3. **Runtime performance** - React rendering, interactions
+> 4. **Offline performance** - Cache, sync, storage
+> 5. **Database performance** - Query optimization
+> 6. **Specific feature** - Audit one feature area
+
+**Then ask about target:**
+
+- Rural 3G connection (primary target)
+- 4G/LTE connection
+- Low-end Android device
+- Desktop/high-speed
+
+Wait for response before proceeding.
+
+## Step 1: Run Performance Tests
+
+**Automated testing:**
+
+```bash
+# Lighthouse audit
+npx lighthouse http://localhost:3001 --view
+
+# Bundle analysis
+bun run build
+npx webpack-bundle-analyzer dist/assets/*.js
+```
+
+**Error handling:**
+
+- If dev server not running: "Start dev server: `bun dev`"
+- If build fails: "Fix build errors first. Run `bun run check`"
+- If tools missing: "Install tools or proceed with manual audit? (y/n)"
+
 ## Performance Targets
 
 ### Core Web Vitals (Rural 3G)
@@ -343,15 +384,73 @@ const CACHE_STRATEGY = {
 
 Remember: Performance directly impacts farmer productivity and app adoption in rural areas.
 
+## Validation & Next Steps
+
+**Validate performance improvements:**
+
+1. **Re-run tests:**
+   - Lighthouse audit after changes
+   - Bundle size comparison
+   - Core Web Vitals measurement
+   - Real device testing
+
+2. **Verify targets met:**
+   - LCP < 2.5s
+   - FID < 100ms
+   - CLS < 0.1
+   - Bundle < 500KB
+
+3. **Test on real conditions:**
+   - 3G network simulation
+   - Low-end Android device
+   - Rural connectivity patterns
+
+**Ask user:**
+
+> Performance audit complete. What would you like to do?
+>
+> - (f) Fix critical issues first (blocking performance)
+> - (p) Create prioritized optimization plan
+> - (t) Test on real device/network
+> - (m) Monitor performance over time
+
+**If critical issues found:**
+
+> Found X critical performance issues:
+>
+> 1. [Issue with impact]
+> 2. [Issue with impact]
+>
+> Estimated improvement: [X]s faster load time
+> Proceed with fixes? (y/n)
+
+**Success criteria:**
+
+- All Core Web Vitals meet targets
+- Bundle size under 500KB
+- App usable on 3G connection
+- Offline mode works smoothly
+- No performance regressions
+
 ## Agent Delegation
 
-- `@frontend-engineer` - React and bundle optimization
-- `@backend-engineer` - Database query optimization
-- `@devops-engineer` - CDN and caching configuration
+For performance optimization:
+
+- `@frontend-engineer` - React optimization, bundle splitting, and code optimization
+- `@backend-engineer` - Database query optimization and server function performance
+- `@devops-engineer` - CDN configuration, caching, and edge optimization
+- `@qa-engineer` - Performance testing and monitoring setup
+
+### When to Delegate
+
+- **Bundle optimization** - @frontend-engineer for code splitting and lazy loading
+- **Database performance** - @backend-engineer for query optimization
+- **Infrastructure** - @devops-engineer for CDN and caching configuration
+- **Testing** - @qa-engineer for performance testing and benchmarks
 
 ## Related Prompts
 
 - `@pwa-optimize` - PWA-specific optimizations
 - `@accessibility-audit` - Ensure performance doesn't break accessibility
-- `@neon-optimize` - Database performance
 - `@cloudflare-setup` - Edge caching configuration
+- `@test-coverage` - Performance testing coverage

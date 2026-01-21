@@ -60,6 +60,28 @@
 
 ---
 
+## Step 0: Determine Update Scope
+
+**Ask user interactively:**
+
+> What documentation would you like to sync?
+>
+> 1. **Full sync** - All documentation files
+> 2. **README.md** - Main project documentation
+> 3. **AGENTS.md** - AI agent guide
+> 4. **Steering files** - Coding standards, structure, tech
+> 5. **docs/ guides** - Architecture, deployment, testing, database
+> 6. **Check only** - Audit without making changes
+
+**Then ask about focus:**
+
+- Fix outdated patterns
+- Add missing features
+- Update statistics
+- All of the above
+
+Wait for response before proceeding.
+
 ## Implementation
 
 You are a documentation specialist. Your task is to ensure all documentation accurately reflects the current codebase.
@@ -284,6 +306,23 @@ export const getData = createServerFn({ method: 'GET' }).handler(async () => {
 **--guides-only**: Update docs/ guides only
 
 ---
+
+## Related Prompts
+
+## Agent Delegation
+
+For documentation updates:
+
+- `@backend-engineer` - Technical documentation for backend features
+- `@frontend-engineer` - UI/UX documentation and component guides
+- `@devops-engineer` - Deployment and infrastructure documentation
+- `@qa-engineer` - Testing documentation and quality standards
+
+### When to Delegate
+
+- **Technical accuracy** - Delegate to feature owner for verification
+- **New features** - Delegate to implementing engineer for documentation
+- **Complex topics** - Delegate to subject matter expert
 
 ## Related Prompts
 

@@ -12,14 +12,46 @@ Optimize Progressive Web App performance for OpenLivestock Manager.
 **PWA**: Vite PWA plugin with Workbox
 **Target**: Rural farmers with limited connectivity
 
-## PWA Audit
+## Step 0: Determine Optimization Scope
+
+**Ask user interactively:**
+
+> What PWA optimization would you like to perform?
+>
+> 1. **Full optimization** - All PWA aspects
+> 2. **Performance** - Core Web Vitals, loading speed
+> 3. **Offline capability** - Service worker, caching
+> 4. **Installation** - App manifest, install prompts
+> 5. **Specific feature** - Optimize one feature area
+
+**Then ask about priority:**
+
+- Critical issues (blocking PWA score)
+- Performance improvements
+- User experience enhancements
+- All optimizations
+
+Wait for response before proceeding.
+
+## Step 1: Run PWA Audit
+
+## Step 1: Run PWA Audit
 
 ### Run Lighthouse Audit
 
-1. Open Chrome DevTools
-2. Go to Lighthouse tab
-3. Select "Progressive Web App" category
-4. Run audit
+```bash
+# Start dev server
+bun dev
+
+# Run Lighthouse (in another terminal)
+npx lighthouse http://localhost:3001 --view --only-categories=pwa,performance
+```
+
+**Error handling:**
+
+- If dev server not running: "Start dev server first: `bun dev`"
+- If Lighthouse not installed: "Install: `npm install -g lighthouse`"
+- If score < 80: "Critical PWA issues found. Review details? (y/n)"
 
 ### Key Metrics
 
@@ -249,13 +281,70 @@ navigator.serviceWorker.ready.then((registration) => {
 | 3G performance | <5s load           | ✅/⚠️/❌ |
 | Offline mode   | Full functionality | ✅/❌    |
 
+## Validation & Next Steps
+
+**Validate PWA optimization:**
+
+1. **Re-run Lighthouse:**
+   - PWA score should be 100
+   - Performance > 90
+   - All checks passing
+
+2. **Test installation:**
+   - Install prompt appears
+   - App installs successfully
+   - Launches from home screen
+
+3. **Test offline:**
+   - Disconnect network
+   - App still works
+   - Data persists
+
+**Ask user:**
+
+> PWA optimization complete. What would you like to do?
+>
+> - (t) Test on real device
+> - (i) Test installation flow
+> - (o) Test offline functionality
+> - (r) Re-run Lighthouse audit
+
+**If PWA score < 100:**
+
+> PWA score: X/100. Issues found:
+>
+> 1. [Issue description]
+> 2. [Issue description]
+>
+> Fix these issues? (y/n)
+
+**Success criteria:**
+
+- Lighthouse PWA score = 100
+- Performance score > 90
+- App installable
+- Offline mode works
+- All icons present
+
 ## Agent Delegation
 
-- `@frontend-engineer` - React optimization and code splitting
-- `@performance-audit` - Comprehensive performance analysis
+For PWA optimization:
+
+- `@frontend-engineer` - React optimization, code splitting, and PWA implementation
+- `@devops-engineer` - Service worker configuration and caching strategies
+- `@qa-engineer` - PWA testing and validation
+- `@backend-engineer` - Offline data sync implementation
+
+### When to Delegate
+
+- **Performance issues** - @frontend-engineer for bundle optimization
+- **Service worker** - @devops-engineer for caching strategies
+- **Testing** - @qa-engineer for PWA compliance testing
+- **Sync logic** - @backend-engineer for offline data handling
 
 ## Related Prompts
 
 - `@offline-debug` - Fix offline issues
 - `@accessibility-audit` - Ensure accessibility compliance
 - `@test-coverage` - Add PWA tests
+- `@performance-audit` - Comprehensive performance analysis

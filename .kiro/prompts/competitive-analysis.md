@@ -6,6 +6,37 @@ description: 'Research and analyze competing livestock management solutions'
 
 🔍 Research competing livestock management solutions to identify opportunities, threats, and differentiation strategies.
 
+## Step 0: Determine Analysis Scope
+
+**Ask user interactively:**
+
+> What type of competitive analysis would you like?
+>
+> 1. **Full analysis** - All competitors and categories
+> 2. **Specific competitor** - Deep dive on one competitor
+> 3. **Feature comparison** - Compare specific features
+> 4. **Pricing analysis** - Compare pricing models
+> 5. **Market positioning** - Identify differentiation opportunities
+> 6. **Regional focus** - Analyze competitors in specific region
+
+**Then ask about focus:**
+
+- Identify feature gaps
+- Find differentiation opportunities
+- Understand pricing strategies
+- Assess market positioning
+
+Wait for response before proceeding.
+
+## Step 1: Research Competitors
+
+**Use web search to gather information:**
+
+- Competitor websites
+- Product reviews
+- Pricing pages
+- Feature documentation
+
 ## Analysis Framework
 
 ### Primary Competitors
@@ -346,12 +377,63 @@ description: 'Research and analyze competing livestock management solutions'
 
 Remember: Focus on actionable insights that directly inform product development and go-to-market strategy.
 
+## Validation & Next Steps
+
+**Validate analysis findings:**
+
+1. **Verify accuracy:**
+   - Cross-check competitor information
+   - Confirm pricing and features
+   - Validate market data
+
+2. **Assess actionability:**
+   - Are recommendations specific?
+   - Can they be implemented?
+   - What's the priority?
+
+**Ask user:**
+
+> Competitive analysis complete. What would you like to do?
+>
+> - (f) Plan features based on gaps identified
+> - (p) Develop positioning strategy
+> - (r) Research additional competitors
+> - (m) Monitor competitors ongoing
+
+**If significant gaps found:**
+
+> Found X feature gaps and Y opportunities:
+>
+> 1. [High-priority opportunity]
+> 2. [High-priority opportunity]
+>
+> Create feature plans for these? (y/n)
+
+**Success criteria:**
+
+- All major competitors analyzed
+- Feature gaps identified
+- Differentiation strategy clear
+- Actionable recommendations provided
+
 ## Agent Delegation
 
-- `@data-analyst` - Market data analysis and trends
-- `@livestock-specialist` - Domain feature comparison
+For competitive analysis:
+
+- `@data-analyst` - Market data analysis, trends, and statistical insights
+- `@livestock-specialist` - Domain feature comparison and technical accuracy
+- `@backend-engineer` - Technical feasibility of competitor features
+- `@frontend-engineer` - UX/UI comparison and design insights
+
+### When to Delegate
+
+- **Market research** - @data-analyst for data-driven insights
+- **Domain expertise** - @livestock-specialist for feature evaluation
+- **Technical feasibility** - @backend-engineer for implementation assessment
+- **UX analysis** - @frontend-engineer for design comparison
 
 ## Related Prompts
 
 - `@plan-feature` - Plan features based on competitive gaps
 - `@prime` - Load project context for analysis
+- `@update-devlog` - Document competitive insights

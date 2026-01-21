@@ -14,9 +14,19 @@ Analyze growth trends and predict harvest timing for livestock batches.
 **Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
 **Database**: PostgreSQL (Neon) via Kysely ORM
 
-## Analysis Scope
+## Step 1: Determine Analysis Scope
 
-**Batch**: $ARGUMENTS
+First, check if we're continuing a conversation:
+
+> Are we forecasting growth for the batch we've been discussing, or a different batch?
+>
+> Options:
+>
+> - If we've been discussing a specific batch, I can forecast that
+> - Provide a batch ID or name
+> - Or I can list available active batches
+
+Wait for their response before proceeding.
 
 ## MCP Integration
 
@@ -200,11 +210,23 @@ Generate alerts for:
 
 ## Agent Delegation
 
-- `@livestock-specialist` - Species-specific growth optimization
-- `@data-analyst` - Advanced forecasting models
+For specialized forecasting:
+
+- `@livestock-specialist` - Species-specific growth optimization and management practices
+- `@data-analyst` - Advanced forecasting models and statistical analysis
+- `@backend-engineer` - Database query optimization for weight sample data
+- `@qa-engineer` - Validate growth calculations and forecast accuracy
+
+### When to Delegate
+
+- **Growth issues** - @livestock-specialist for species-specific growth strategies
+- **Complex forecasting** - @data-analyst for predictive modeling and trend analysis
+- **Data issues** - @backend-engineer if weight samples are incomplete or inconsistent
+- **Validation** - @qa-engineer to verify growth rate calculations and forecasts
 
 ## Related Prompts
 
 - `@batch-analysis` - Full batch performance
 - `@feed-optimization` - Improve FCR for better growth
 - `@sales-forecast` - Revenue projections
+- `@mortality-analysis` - Mortality impact on growth targets
