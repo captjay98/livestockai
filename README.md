@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Open-source, offline-first livestock management supporting 6 livestock types.</strong>
+  <strong>Open-source, offline-first livestock management supporting 6 livestock types in 15 languages.</strong>
 </p>
 
 <p align="center">
@@ -17,13 +17,22 @@
 </p>
 
 <p align="center">
-  🌍 <strong>Languages:</strong>
+  🌍 <strong>Available in 15 Languages:</strong><br/>
   <a href="docs/i18n/README.fr.md">Français</a> •
   <a href="docs/i18n/README.pt.md">Português</a> •
   <a href="docs/i18n/README.sw.md">Kiswahili</a> •
   <a href="docs/i18n/README.es.md">Español</a> •
   <a href="docs/i18n/README.tr.md">Türkçe</a> •
-  <a href="docs/i18n/README.hi.md">हिन्दी</a>
+  <a href="docs/i18n/README.hi.md">हिन्दी</a> •
+  Bahasa Indonesia •
+  Tiếng Việt •
+  ไทย •
+  বাংলা •
+  አማርኛ •
+  Hausa •
+  Yorùbá •
+  Ị̀gbò •
+  English
 </p>
 
 ---
@@ -309,7 +318,7 @@ kiro-cli
 @quickstart  # Interactive setup wizard
 ```
 
-**Available Agents (7):**
+**Available Agents (9):**
 
 ```bash
 kiro-cli --agent livestock-specialist  # Domain expertise
@@ -321,7 +330,7 @@ kiro-cli --agent qa-engineer           # Testing
 kiro-cli --agent security-engineer     # Auth, security
 ```
 
-**Key Prompts (25):**
+**Key Prompts (27):**
 
 ```bash
 @prime              # Load project context

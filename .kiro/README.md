@@ -31,7 +31,7 @@ kiro-cli --agent backend-engineer
 │   ├── data-analyst.json
 │   ├── qa-engineer.json
 │   └── security-engineer.json
-├── prompts/                   # Custom prompts (30 total)
+├── prompts/                   # Custom prompts (27 total)
 ├── steering/                  # Project knowledge
 │   ├── product.md
 │   ├── tech.md
@@ -123,7 +123,7 @@ kiro-cli --agent backend-engineer
 kiro-cli --agent frontend-engineer "Create a new batch card component"
 ```
 
-## Prompts (25)
+## Prompts (27)
 
 ### Core Development (6)
 

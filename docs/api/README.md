@@ -310,7 +310,7 @@ kiro-cli
 @quickstart  # Interactive setup wizard
 ```
 
-**Available Agents (7):**
+**Available Agents (9):**
 
 ```bash
 kiro-cli --agent livestock-specialist  # Domain expertise
@@ -322,7 +322,7 @@ kiro-cli --agent qa-engineer           # Testing
 kiro-cli --agent security-engineer     # Auth, security
 ```
 
-**Key Prompts (25):**
+**Key Prompts (27):**
 
 ```bash
 @prime              # Load project context

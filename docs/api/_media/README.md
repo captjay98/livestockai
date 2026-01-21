@@ -31,7 +31,7 @@ kiro-cli --agent backend-engineer
 │   ├── data-analyst.json
 │   ├── qa-engineer.json
 │   └── security-engineer.json
-├── prompts/                   # Custom prompts (25 total)
+├── prompts/                   # Custom prompts (27 total)
 ├── steering/                  # Project knowledge
 │   ├── product.md
 │   ├── tech.md
@@ -82,7 +82,7 @@ Each agent has specific tools, write permissions, and MCP access:
 
 ### Universal Agent Tools
 
-All 8 agents now have access to:
+All 9 agents now have access to:
 
 - **knowledge**: Access indexed knowledge bases across chat sessions
 - **todo_list**: Create and manage task lists for complex workflows
@@ -123,7 +123,7 @@ kiro-cli --agent backend-engineer
 kiro-cli --agent frontend-engineer "Create a new batch card component"
 ```
 
-## Prompts (25)
+## Prompts (27)
 
 ### Core Development (6)
 

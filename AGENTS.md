@@ -231,8 +231,11 @@ await db
 ## Testing
 
 ```bash
-# Run all tests
+# Run unit/property tests (fast, no database)
 bun test
+
+# Run integration tests (requires DATABASE_URL_TEST)
+bun test:integration
 
 # Run specific test file
 bun test tests/features/batches/batches.property.test.ts
@@ -241,11 +244,79 @@ bun test tests/features/batches/batches.property.test.ts
 bun test --coverage
 ```
 
+### Test Types
+
+| Type | Pattern | Database | Purpose |
+|------|---------|----------|---------|
+| **Property** | `*.property.test.ts` | No | Business logic invariants |
+| **Unit** | `*.test.ts` | No | Utility functions, constants |
+| **Integration** | `*.integration.test.ts` | Yes | Database operations, constraints |
+
+### Integration Test Setup
+
+Integration tests require a separate test database to avoid affecting development data.
+
+#### 1. Create Test Database in Neon
+
+```bash
+# Via Neon Console or CLI
+# Create a new database named: openlivestock_test
+```
+
+#### 2. Set Environment Variable
+
+```bash
+# .env.test or .env
+DATABASE_URL_TEST=postgres://user:pass@ep-xxx.region.neon.tech/openlivestock_test?sslmode=require
+```
+
+#### 3. Run Migrations on Test Database
+
+```bash
+DATABASE_URL=$DATABASE_URL_TEST bun run db:migrate
+```
+
+#### 4. Run Integration Tests
+
+```bash
+bun test:integration
+```
+
+### Integration Test Helpers
+
+Located in `tests/helpers/db-integration.ts`:
+
+```typescript
+import {
+  getTestDb,           // Get test database connection
+  truncateAllTables,   // Clean slate (respects FK order)
+  seedTestUser,        // Create user + account + settings
+  seedTestFarm,        // Create farm + modules + user association
+  seedTestBatch,       // Create batch with defaults
+  closeTestDb,         // Cleanup connection
+} from '../helpers/db-integration'
+
+// Example test
+beforeEach(async () => {
+  await truncateAllTables()
+})
+
+it('should create batch', async () => {
+  const { userId } = await seedTestUser({ email: 'test@example.com' })
+  const { farmId } = await seedTestFarm(userId)
+  const { batchId } = await seedTestBatch(farmId, { species: 'broiler' })
+  
+  const db = getTestDb()
+  const batch = await db.selectFrom('batches').where('id', '=', batchId).executeTakeFirst()
+  expect(batch).toBeDefined()
+})
+```
+
 ### Test Patterns
 
-- **Property tests**: Use `fast-check` for property-based testing
-- **Unit tests**: Use `vitest` for unit tests
-- **Component tests**: Use `@testing-library/react`
+- **Property tests**: Use `fast-check` for mathematical invariants
+- **Unit tests**: Use `vitest` for utility functions
+- **Integration tests**: Test actual database operations and constraints
 
 ---
 
