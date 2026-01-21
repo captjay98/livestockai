@@ -131,6 +131,36 @@ export async function seedDev() {
       .execute()
     console.log('  ✅ User settings (NGN)\n')
 
+    // ============ DEFAULT FARM (for customers/suppliers) ============
+    console.log('🏡 Creating default farm...')
+    const defaultFarm = await db
+      .insertInto('farms')
+      .values({
+        name: 'Demo Farm',
+        location: 'Demo Location',
+        type: 'mixed',
+      })
+      .returningAll()
+      .executeTakeFirstOrThrow()
+
+    await db
+      .insertInto('user_farms')
+      .values({ userId: user.userId, farmId: defaultFarm.id, role: 'owner' })
+      .execute()
+
+    await db
+      .insertInto('farm_modules')
+      .values([
+        { farmId: defaultFarm.id, moduleKey: 'poultry', enabled: true },
+        { farmId: defaultFarm.id, moduleKey: 'aquaculture', enabled: true },
+        { farmId: defaultFarm.id, moduleKey: 'cattle', enabled: true },
+        { farmId: defaultFarm.id, moduleKey: 'goats', enabled: true },
+        { farmId: defaultFarm.id, moduleKey: 'sheep', enabled: true },
+        { farmId: defaultFarm.id, moduleKey: 'bees', enabled: true },
+      ])
+      .execute()
+    console.log('  ✅ Default farm created\n')
+
     // ============ SUPPLIERS ============
     console.log('🏪 Creating suppliers...')
     const suppliers = await db
@@ -187,12 +217,14 @@ export async function seedDev() {
       .values([
         // Poultry customers
         {
+          farmId: defaultFarm.id,
           name: 'Mama Ngozi',
           phone: '+234-802-111-2222',
           location: 'Kaduna Market',
           customerType: 'individual',
         },
         {
+          farmId: defaultFarm.id,
           name: 'Chicken Republic',
           phone: '+234-803-222-3333',
           email: 'procurement@chickenrepublic.ng',
@@ -200,6 +232,7 @@ export async function seedDev() {
           customerType: 'restaurant',
         },
         {
+          farmId: defaultFarm.id,
           name: 'Shoprite Kaduna',
           phone: '+234-804-333-4444',
           email: 'meat@shoprite.ng',
@@ -208,6 +241,7 @@ export async function seedDev() {
         },
         // Fish customers
         {
+          farmId: defaultFarm.id,
           name: 'Yellow Chilli Restaurant',
           phone: '+234-805-444-5555',
           email: 'chef@yellowchilli.ng',
@@ -215,6 +249,7 @@ export async function seedDev() {
           customerType: 'restaurant',
         },
         {
+          farmId: defaultFarm.id,
           name: 'Fish Wholesalers Ltd',
           phone: '+234-806-555-6666',
           location: 'Lagos',
@@ -222,12 +257,14 @@ export async function seedDev() {
         },
         // Livestock customers
         {
+          farmId: defaultFarm.id,
           name: 'Kano Abattoir',
           phone: '+234-807-666-7777',
           location: 'Kano',
           customerType: 'processor',
         },
         {
+          farmId: defaultFarm.id,
           name: 'Federal Ministry of Agriculture',
           phone: '+234-808-777-8888',
           email: 'procurement@fmard.gov.ng',
@@ -236,6 +273,7 @@ export async function seedDev() {
         },
         // Honey customers
         {
+          farmId: defaultFarm.id,
           name: 'Organic Health Store',
           phone: '+234-809-888-9999',
           email: 'orders@organichealth.ng',

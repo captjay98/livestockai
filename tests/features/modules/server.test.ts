@@ -25,8 +25,9 @@ describe('modules/server logic', () => {
             }))
             
             // This is the logic from getEnabledModules
+            // This is the logic from getEnabledModules
             const enabled = modules.filter((m) => m.enabled).map((m) => m.moduleKey)
-            
+
             // All returned modules should be enabled
             enabled.forEach((key) => {
               const original = modules.find((m) => m.moduleKey === key)
@@ -120,12 +121,13 @@ describe('modules/server logic', () => {
           (moduleKey, batches) => {
             const metadata = MODULE_METADATA[moduleKey]
             const livestockTypes = metadata.livestockTypes
-            
+
             // Logic from canDisableModule - check for active batches
+            // All batches have status 'sold' or 'depleted', so none will match 'active'
             const activeBatches = batches.filter(
-              (b) => b.status === 'active' && livestockTypes.includes(b.livestockType as any),
+              (b) => (b as { status: string }).status === 'active' && livestockTypes.includes(b.livestockType as any),
             )
-            
+
             // No active batches with these livestock types = can disable
             const canDisable = activeBatches.length === 0
             expect(canDisable).toBe(true)
@@ -156,10 +158,10 @@ describe('modules/server logic', () => {
         fc.property(
           fc.boolean(), // existing record exists
           fc.boolean(), // new enabled state
-          (exists, enabled) => {
+          (exists, _enabled) => {
             // Logic: if exists, update; else insert
             const action = exists ? 'update' : 'insert'
-            
+
             if (exists) {
               expect(action).toBe('update')
             } else {

@@ -183,12 +183,12 @@ describe('Sales Integration Tests', () => {
       .execute()
 
     sale = await db.selectFrom('sales')
-      .select(['paymentStatus', 'paymentMethod'])
+      .selectAll()
       .where('id', '=', saleId!.id)
       .executeTakeFirst()
 
     expect(sale!.paymentStatus).toBe('paid')
-    expect(sale!.paymentMethod).toBe('transfer')
+    expect((sale as any).paymentMethod).toBe('transfer')
   })
 
   it('should cascade delete sales when batch is deleted', async () => {

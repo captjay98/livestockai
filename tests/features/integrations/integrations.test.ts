@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { EmailProvider, ProviderResult, SMSProvider } from '~/features/integrations/contracts'
 import { INTEGRATIONS, getIntegrationStatus } from '~/features/integrations/config'
 import { emailTemplates } from '~/features/integrations/email/templates'
@@ -28,7 +28,7 @@ describe('integrations/contracts', () => {
         it('should define required properties', () => {
             const mockProvider: SMSProvider = {
                 name: 'TestSMS',
-                send: async (to, message) => ({ success: true, messageId: '123' }),
+                send: () => Promise.resolve({ success: true, messageId: '123' }),
             }
 
             expect(mockProvider.name).toBe('TestSMS')
@@ -40,7 +40,7 @@ describe('integrations/contracts', () => {
         it('should define required properties', () => {
             const mockProvider: EmailProvider = {
                 name: 'TestEmail',
-                send: async (to, subject, html) => ({ success: true, messageId: '456' }),
+                send: () => Promise.resolve({ success: true, messageId: '456' }),
             }
 
             expect(mockProvider.name).toBe('TestEmail')

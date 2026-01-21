@@ -64,8 +64,7 @@ export async function closeTestDb(): Promise<void> {
  * Start a transaction for test isolation
  * Call in beforeEach(), pair with rollbackTransaction() in afterEach()
  */
-export async function startTransaction(): Promise<void> {
-  const db = getRawTestDb()
+export function startTransaction(): void {
   // We can't actually hold a transaction open across async boundaries with Neon HTTP
   // So we'll use the fast truncate approach instead
 }
@@ -163,6 +162,14 @@ export async function seedTestUser(overrides: {
       },
       defaultPaymentTermsDays: 30,
       fiscalYearStartMonth: 1,
+      dashboardCards: {
+        inventory: true,
+        revenue: true,
+        expenses: true,
+        profit: true,
+        mortality: true,
+        feed: true,
+      },
     })
     .execute()
 

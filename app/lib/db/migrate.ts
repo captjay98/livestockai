@@ -10,7 +10,7 @@ import * as path from 'node:path'
 import { FileMigrationProvider, Migrator } from 'kysely'
 import { db } from './index'
 
-async function migrateToLatest() {
+export async function migrate() {
   const migrator = new Migrator({
     db,
     provider: new FileMigrationProvider({
@@ -86,5 +86,5 @@ if (command === 'down' || command === 'rollback') {
   rollbackLast()
 } else {
   console.log('🚀 Running migrations...')
-  migrateToLatest()
+  migrate()
 }

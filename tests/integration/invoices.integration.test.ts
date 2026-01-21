@@ -196,12 +196,12 @@ describe('Invoices Integration Tests', () => {
       .execute()
 
     invoice = await db.selectFrom('invoices')
-      .select(['status', 'paidDate'])
+      .selectAll()
       .where('id', '=', invoiceId!.id)
       .executeTakeFirst()
 
     expect(invoice!.status).toBe('paid')
-    expect(invoice!.paidDate).toBeDefined()
+    expect((invoice as any).paidDate).toBeDefined()
   })
 
   it('should cascade delete invoice items when invoice deleted', async () => {

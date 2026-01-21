@@ -50,6 +50,7 @@ describe('Expenses Integration Tests', () => {
       amount: '5000.00',
       date: new Date(),
       description: 'Electricity bill',
+      isRecurring: false,
     }).returning('id').executeTakeFirst()
 
     const expense = await db
@@ -77,6 +78,7 @@ describe('Expenses Integration Tests', () => {
       amount: '2500.00',
       date: new Date(),
       description: 'Starter feed',
+      isRecurring: false,
     }).returning('id').executeTakeFirst()
 
     const expense = await db
@@ -103,6 +105,7 @@ describe('Expenses Integration Tests', () => {
         amount: '1000.00',
         date: new Date(),
         description: 'Invalid expense',
+        isRecurring: false,
       }).execute()
     ).rejects.toThrow()
   })
@@ -143,6 +146,7 @@ describe('Expenses Integration Tests', () => {
       amount: '1500.00',
       date: new Date(),
       description: 'Vaccination',
+      isRecurring: false,
     }).returning('id').executeTakeFirst()
 
     // Verify expense is linked to batch

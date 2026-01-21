@@ -263,12 +263,14 @@ export async function seedDev() {
       .insertInto('customers')
       .values([
         {
+          farmId: farm.id,
           name: 'Alhaji Garba - Kasuwan Rimi',
           phone: '08041234567',
           location: 'Kasuwan Rimi Market, Kaduna',
           customerType: 'wholesaler',
         },
         {
+          farmId: farm.id,
           name: 'Mama Joy Restaurant',
           phone: '08042345678',
           location: 'Barnawa, Kaduna',
@@ -276,12 +278,14 @@ export async function seedDev() {
           customerType: 'restaurant',
         },
         {
+          farmId: farm.id,
           name: 'Fresh Fish Corner',
           phone: '08043456789',
           location: 'Kakuri Market, Kaduna',
           customerType: 'retailer',
         },
         {
+          farmId: farm.id,
           name: 'Kaduna Frozen Foods',
           phone: '08044567890',
           location: 'Tudun Wada, Kaduna',

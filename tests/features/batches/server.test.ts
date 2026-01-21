@@ -100,10 +100,9 @@ describe('batches/server logic', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 1, max: 10000 }),
-          (initial) => {
-            const current = 0
-            const status = current === 0 ? 'depleted' : 'active'
-            
+          () => {
+            const status: 'depleted' | 'active' | 'sold' = 'depleted'
+
             expect(status).toBe('depleted')
           },
         ),

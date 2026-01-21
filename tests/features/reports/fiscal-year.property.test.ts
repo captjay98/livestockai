@@ -63,7 +63,7 @@ describe('reports/fiscal-year', () => {
         })
 
         it('should be exactly one year after start (minus one day)', () => {
-            const start = getFiscalYearStart(4, new Date('2025-06-15'))
+            getFiscalYearStart(4, new Date('2025-06-15'))
             const end = getFiscalYearEnd(4, new Date('2025-06-15'))
 
             // End should be March 31, 2026 (day before April 1, 2026)

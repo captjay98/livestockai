@@ -6,8 +6,8 @@ import type {
 } from '../../app/features/integrations/contracts'
 
 const SESClient = class {
-  constructor() {}
-  send() {
+  constructor(_config: { region: string; credentials: { accessKeyId: string; secretAccessKey: string } }) {}
+  send(_command: unknown) {
     return Promise.resolve({ MessageId: 'mock-message-id' })
   }
 }

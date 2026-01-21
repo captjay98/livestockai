@@ -36,6 +36,8 @@ export interface CustomerRecord {
  * Data structure for creating a new customer record.
  */
 export interface CreateCustomerInput {
+  /** ID of the farm this customer belongs to */
+  farmId: string
   /** Customer's full name */
   name: string
   /** Contact phone number */
@@ -71,6 +73,7 @@ export async function createCustomer(
     const result = await db
       .insertInto('customers')
       .values({
+        farmId: input.farmId,
         name: input.name,
         phone: input.phone,
         email: input.email || null,

@@ -24,6 +24,7 @@ import {
   updateCustomerFn,
 } from '~/features/customers/server'
 import { useFormatCurrency } from '~/features/settings'
+import { useFarm } from '~/features/farms/context'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -149,6 +150,7 @@ function CustomersPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const { format: formatCurrency } = useFormatCurrency()
+  const { selectedFarmId } = useFarm()
   const customer_types = get_customer_types(t)
 
   const [paginatedCustomers, setPaginatedCustomers] = useState<
@@ -247,6 +249,7 @@ function CustomersPage() {
     try {
       await createCustomerFn({
         data: {
+          farmId: selectedFarmId ?? '',
           ...formData,
           email: formData.email || null,
           location: formData.location || null,

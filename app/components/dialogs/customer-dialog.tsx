@@ -4,6 +4,7 @@ import { useRouter } from '@tanstack/react-router'
 import { User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useErrorMessage } from '~/hooks/useErrorMessage'
+import { useFarm } from '~/features/farms/context'
 import { createCustomerFn } from '~/features/customers/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -40,6 +41,7 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
   const { t } = useTranslation(['customers', 'common'])
   const getErrorMessage = useErrorMessage()
   const router = useRouter()
+  const { selectedFarmId } = useFarm()
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -58,6 +60,7 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
     try {
       await createCustomerFn({
         data: {
+          farmId: selectedFarmId ?? '',
           name: formData.name,
           phone: formData.phone,
           email: formData.email || null,

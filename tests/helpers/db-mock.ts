@@ -47,20 +47,20 @@ export function createMockQueryBuilder(
     innerJoin: vi.fn(chainable),
     returning: vi.fn(chainable),
     execute: vi.fn(() => {
-      const result = tableResults[currentTable]?.execute ?? defaultResult
+      const result = tableResults[currentTable].execute ?? defaultResult
       return Promise.resolve(result)
     }),
     executeTakeFirst: vi.fn(() => {
       const tableData = tableResults[currentTable]
-      if (tableData?.executeTakeFirst !== undefined) {
+      if (tableData.executeTakeFirst !== undefined) {
         return Promise.resolve(tableData.executeTakeFirst)
       }
-      const arr = tableData?.execute ?? defaultResult
+      const arr = tableData.execute ?? defaultResult
       return Promise.resolve(Array.isArray(arr) ? arr[0] ?? null : null)
     }),
     executeTakeFirstOrThrow: vi.fn(() => {
       const tableData = tableResults[currentTable]
-      const arr = tableData?.execute ?? defaultResult
+      const arr = tableData.execute ?? defaultResult
       return Promise.resolve(Array.isArray(arr) ? arr[0] ?? {} : {})
     }),
   }
