@@ -12,7 +12,8 @@
     "web_search",
     "web_fetch",
     "knowledge",
-    "todo_list"
+    "todo_list",
+    "use_subagent"
   ],
   "allowedTools": [
     "fs_read",
@@ -83,5 +84,5 @@
       }
     ]
   },
-  "model": "claude-sonnet-4"
+  "model": "claude-opus-4.5"
 }

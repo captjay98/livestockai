@@ -11,7 +11,8 @@
     "web_search",
     "web_fetch",
     "knowledge",
-    "todo_list"
+    "todo_list",
+    "use_subagent"
   ],
   "allowedTools": [
     "fs_read",
@@ -77,5 +78,6 @@
       "command": "bunx",
       "args": ["mcp-remote", "https://mcp.neon.tech/mcp", "3334"]
     }
-  }
+  },
+  "model": "claude-opus-4.5"
 }

@@ -10,7 +10,8 @@
     "glob",
     "web_search",
     "knowledge",
-    "todo_list"
+    "todo_list",
+    "use_subagent"
   ],
   "allowedTools": [
     "fs_read",
@@ -52,5 +53,6 @@
         "timeout_ms": 3000
       }
     ]
-  }
+  },
+  "model": "claude-opus-4.5"
 }

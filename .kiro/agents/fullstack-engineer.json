@@ -12,7 +12,8 @@
     "web_search",
     "web_fetch",
     "knowledge",
-    "todo_list"
+    "todo_list",
+    "use_subagent"
   ],
   "allowedTools": [
     "fs_read",
@@ -82,12 +83,6 @@
       }
     ]
   },
-  "includeMcpJson": false,
-  "mcpServers": {
-    "neon": {
-      "command": "bunx",
-      "args": ["mcp-remote", "https://mcp.neon.tech/mcp", "3334"]
-    }
-  },
-  "model": "claude-sonnet-4"
+  "includeMcpJson": true,
+  "model": "claude-opus-4.5"
 }
