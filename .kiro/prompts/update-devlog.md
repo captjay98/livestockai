@@ -12,6 +12,30 @@ Automatically update DEVLOG.md with recent commits that haven't been documented 
 **DEVLOG**: `DEVLOG.md` - Development timeline with day-by-day entries  
 **Format**: Day-based entries with context, implementation, metrics, insights
 
+## Step 0: Determine Update Scope
+
+**Ask user interactively:**
+
+> What DEVLOG update would you like?
+> 
+> 1. **All recent commits** - Everything since last documented date
+> 2. **Specific date range** - Custom start/end dates
+> 3. **Today only** - Just today's commits
+> 4. **Last N commits** - Specify number of commits
+> 5. **Review mode** - Show what would be added without updating
+
+**Then ask about detail level:**
+- (f)ull - Include detailed commit bodies and file lists
+- (s)ummary - Brief summaries only
+- (m)etrics - Focus on statistics and metrics
+
+**Then ask about execution:**
+- (a)uto-commit - Update DEVLOG and commit automatically
+- (r)eview - Show changes for review first
+- (d)raft - Create draft without modifying DEVLOG
+
+Wait for response before proceeding.
+
 ## Workflow
 
 ### 1. Find Last Documented Date
@@ -272,6 +296,41 @@ Then commit:
 git add DEVLOG.md
 git commit -m "docs: update DEVLOG with Day 8 progress"
 ```
+
+## Validation & Next Steps
+
+**Validate DEVLOG entry:**
+
+1. **Check accuracy:**
+   - All commits included
+   - Correct day number
+   - Accurate metrics
+   - Proper categorization
+
+2. **Review formatting:**
+   - Markdown syntax correct
+   - Tables formatted properly
+   - Links working
+
+**Ask user:**
+> DEVLOG entry generated. What would you like to do?
+> - (c) Commit the changes
+> - (e) Edit the entry first
+> - (r) Regenerate with different settings
+> - (d) Discard and cancel
+
+**If auto-commit was selected:**
+```bash
+git add DEVLOG.md
+git commit -m "docs: update DEVLOG with Day X progress"
+echo "✅ DEVLOG updated and committed"
+```
+
+**Success criteria:**
+- All recent commits documented
+- Day number correct
+- Metrics accurate
+- Entry follows DEVLOG format
 
 ## Agent Delegation
 
