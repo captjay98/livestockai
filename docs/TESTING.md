@@ -20,16 +20,16 @@ OpenLivestock uses a **multi-layered testing approach**:
 
 ```bash
 # Run all tests
-bun test
+bun run test
 
 # Run with coverage
-bun test --coverage
+bun run test --coverage
 
 # Run specific test file
-bun test tests/features/batches/batches.property.test.ts
+bun run test tests/features/batches/batches.property.test.ts
 
 # Watch mode
-bun test --watch
+bun run test --watch
 ```
 
 ---
@@ -394,7 +394,7 @@ describe('BatchDialog', () => {
 ### Current Coverage
 
 ```bash
-bun test --coverage
+bun run test --coverage
 ```
 
 **Target Coverage:**
@@ -510,7 +510,7 @@ jobs:
         run: bun install
 
       - name: Run tests
-        run: bun test --coverage
+        run: bun run test --coverage
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
@@ -523,7 +523,7 @@ jobs:
 ### Run Single Test
 
 ```bash
-bun test -t "should calculate FCR"
+bun run test -t "should calculate FCR"
 ```
 
 ### Debug Mode

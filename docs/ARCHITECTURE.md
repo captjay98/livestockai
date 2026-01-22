@@ -378,7 +378,7 @@ const { t } = useTranslation(['batches', 'common'])
 - **60,000+ assertions**
 
 ```bash
-bun test                    # Run all tests
+bun run test                    # Run all tests
 bun run check               # TypeScript + ESLint
 ```
 

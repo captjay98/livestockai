@@ -81,7 +81,7 @@ We use `bun` for package management and scripting.
 - **Install Dependencies**: `bun install`
 - **Run Dev Server**: `bun dev`
 - **Lint & Format**: `bun check` (Runs Prettier & ESLint)
-- **Run Tests**: `bun test`
+- **Run Tests**: `bun run test`
 - **Database**:
   - Migrate: `bun run db:migrate`
   - Seed (production): `bun run db:seed` - Admin user + reference data

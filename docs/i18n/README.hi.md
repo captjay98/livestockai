@@ -353,7 +353,7 @@ kiro-cli --agent security-engineer     # Auth, सुरक्षा
 | --------------------- | -------------------------------------- |
 | `bun dev`             | विकास सर्वर शुरू करें                  |
 | `bun build`           | प्रोडक्शन के लिए बिल्ड करें            |
-| `bun test`            | परीक्षण चलाएं                          |
+| `bun run test`        | परीक्षण चलाएं                          |
 | `bun run lint`        | ESLint चलाएं                           |
 | `bun run check`       | फॉर्मेट + लिंट                         |
 | `bun run db:migrate`  | डेटाबेस माइग्रेशन चलाएं                |

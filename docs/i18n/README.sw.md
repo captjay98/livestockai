@@ -353,7 +353,7 @@ Tazama [../.kiro/README.md](../.kiro/README.md) kwa nyaraka kamili.
 | --------------------- | -------------------------------------- |
 | `bun dev`             | Anzisha seva ya maendeleo              |
 | `bun build`           | Jenga kwa uzalishaji                   |
-| `bun test`            | Endesha majaribio                      |
+| `bun run test`        | Endesha majaribio                      |
 | `bun run lint`        | Endesha ESLint                         |
 | `bun run check`       | Fomati + lint                          |
 | `bun run db:migrate`  | Endesha uhamiaji wa hifadhidata        |

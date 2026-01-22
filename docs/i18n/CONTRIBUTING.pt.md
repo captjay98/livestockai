@@ -51,7 +51,7 @@ Usamos `bun` para gerenciamento de pacotes e scripts.
 - **Instalar Dependências**: `bun install`
 - **Rodar Servidor Dev**: `bun dev`
 - **Lint & Format**: `bun check` (Roda Prettier & ESLint)
-- **Rodar Testes**: `bun test`
+- **Rodar Testes**: `bun run test`
 - **Banco de Dados**:
   - Migrar: `bun run db:migrate`
   - Seed (produção): `bun run db:seed` - Usuário Admin + dados de referência

@@ -232,25 +232,31 @@ await db
 
 ```bash
 # Run unit/property tests (fast, no database)
-bun test
+# IMPORTANT: Use "bun run test" not "bun test" - they are different!
+# - "bun run test" uses vitest (respects config)
+# - "bun test" uses Bun's built-in runner (ignores vitest config)
+bun run test
 
 # Run integration tests (requires DATABASE_URL_TEST)
-bun test:integration
+bun run test:integration
+
+# Run all tests (unit + integration)
+bun run test:all
 
 # Run specific test file
-bun test tests/features/batches/batches.property.test.ts
+bun run test tests/features/batches/batches.property.test.ts
 
 # Run with coverage
-bun test --coverage
+bun run test:coverage
 ```
 
 ### Test Types
 
-| Type | Pattern | Database | Purpose |
-|------|---------|----------|---------|
-| **Property** | `*.property.test.ts` | No | Business logic invariants |
-| **Unit** | `*.test.ts` | No | Utility functions, constants |
-| **Integration** | `*.integration.test.ts` | Yes | Database operations, constraints |
+| Type            | Pattern                 | Database | Purpose                          |
+| --------------- | ----------------------- | -------- | -------------------------------- |
+| **Property**    | `*.property.test.ts`    | No       | Business logic invariants        |
+| **Unit**        | `*.test.ts`             | No       | Utility functions, constants     |
+| **Integration** | `*.integration.test.ts` | Yes      | Database operations, constraints |
 
 ### Integration Test Setup
 
@@ -288,12 +294,12 @@ Located in `tests/helpers/db-integration.ts`:
 
 ```typescript
 import {
-  getTestDb,           // Get test database connection
-  truncateAllTables,   // Clean slate (respects FK order)
-  seedTestUser,        // Create user + account + settings
-  seedTestFarm,        // Create farm + modules + user association
-  seedTestBatch,       // Create batch with defaults
-  closeTestDb,         // Cleanup connection
+  getTestDb, // Get test database connection
+  truncateAllTables, // Clean slate (respects FK order)
+  seedTestUser, // Create user + account + settings
+  seedTestFarm, // Create farm + modules + user association
+  seedTestBatch, // Create batch with defaults
+  closeTestDb, // Cleanup connection
 } from '../helpers/db-integration'
 
 // Example test
@@ -305,9 +311,12 @@ it('should create batch', async () => {
   const { userId } = await seedTestUser({ email: 'test@example.com' })
   const { farmId } = await seedTestFarm(userId)
   const { batchId } = await seedTestBatch(farmId, { species: 'broiler' })
-  
+
   const db = getTestDb()
-  const batch = await db.selectFrom('batches').where('id', '=', batchId).executeTakeFirst()
+  const batch = await db
+    .selectFrom('batches')
+    .where('id', '=', batchId)
+    .executeTakeFirst()
   expect(batch).toBeDefined()
 })
 ```
@@ -387,7 +396,7 @@ bun run db:seed            # Seed production data (admin + reference data)
 bun run db:seed:dev        # Seed full demo data (farms, batches, transactions)
 
 # Quality
-bun test                   # Run tests
+bun run test               # Run unit tests (vitest)
 bun run lint               # Lint code
 bun run check              # Format + lint
 

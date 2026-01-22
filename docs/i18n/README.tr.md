@@ -353,7 +353,7 @@ Tam belgeleme için [../.kiro/README.md](../.kiro/README.md) dosyasına bakın.
 | --------------------- | ----------------------------------------------- |
 | `bun dev`             | Geliştirme sunucusunu başlat                    |
 | `bun build`           | Üretim için derle                               |
-| `bun test`            | Testleri çalıştır                               |
+| `bun run test`        | Testleri çalıştır                               |
 | `bun run lint`        | ESLint çalıştır                                 |
 | `bun run check`       | Formatla + lint                                 |
 | `bun run db:migrate`  | Veritabanı göçlerini çalıştır                   |

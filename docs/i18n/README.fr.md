@@ -353,7 +353,7 @@ Voir [../.kiro/README.md](../.kiro/README.md) pour la documentation complète.
 | --------------------- | ----------------------------------------------- |
 | `bun dev`             | Démarrer le serveur de développement            |
 | `bun build`           | Construire pour la production                   |
-| `bun test`            | Exécuter les tests                              |
+| `bun run test`        | Exécuter les tests                              |
 | `bun run lint`        | Exécuter ESLint                                 |
 | `bun run check`       | Formater + lint                                 |
 | `bun run db:migrate`  | Exécuter les migrations de base de données      |

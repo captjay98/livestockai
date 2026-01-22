@@ -396,7 +396,7 @@ See [AGENTS.md](AGENTS.md) for details.
 | --------------------- | ------------------------------------ |
 | `bun dev`             | Start development server             |
 | `bun build`           | Build for production                 |
-| `bun test`            | Run tests                            |
+| `bun run test`        | Run unit tests (vitest)              |
 | `bun run lint`        | Run ESLint                           |
 | `bun run check`       | Format + lint                        |
 | `bun run db:migrate`  | Run database migrations              |

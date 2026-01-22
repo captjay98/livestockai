@@ -51,7 +51,7 @@ Nous utilisons `bun` pour la gestion des paquets et les scripts.
 - **Installer les Dépendances** : `bun install`
 - **Lancer le Serveur Dev** : `bun dev`
 - **Lint & Format** : `bun check` (Exécute Prettier & ESLint)
-- **Lancer les Tests** : `bun test`
+- **Lancer les Tests** : `bun run test`
 - **Base de Données** :
   - Migrer : `bun run db:migrate`
   - Seeder (production) : `bun run db:seed` - Utilisateur Admin + données de référence

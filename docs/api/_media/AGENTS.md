@@ -232,13 +232,13 @@ await db
 
 ```bash
 # Run all tests
-bun test
+bun run test
 
 # Run specific test file
-bun test tests/features/batches/batches.property.test.ts
+bun run test tests/features/batches/batches.property.test.ts
 
 # Run with coverage
-bun test --coverage
+bun run test --coverage
 ```
 
 ### Test Patterns
@@ -316,7 +316,7 @@ bun run db:seed            # Seed production data (admin + reference data)
 bun run db:seed:dev        # Seed full demo data (farms, batches, transactions)
 
 # Quality
-bun test                   # Run tests
+bun run test                   # Run tests
 bun run lint               # Lint code
 bun run check              # Format + lint
 
