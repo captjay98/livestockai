@@ -1,9 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
-import { getRequestHeaders } from '@tanstack/react-start/server'
 import { z } from 'zod'
 import { auth } from './config'
-import { requireAuth } from './server-middleware'
 import { AppError } from '~/lib/errors'
+import { requireAuth } from '~/features/auth/server-middleware'
 
 /**
  * @module Authentication
@@ -27,6 +26,7 @@ const LoginSchema = z.object({
 export const loginFn = createServerFn({ method: 'POST' })
   .inputValidator(LoginSchema)
   .handler(async ({ data }) => {
+    const { getRequestHeaders } = await import('@tanstack/react-start/server')
     const headers = getRequestHeaders()
     try {
       const { email, password } = data
@@ -37,6 +37,10 @@ export const loginFn = createServerFn({ method: 'POST' })
       return { success: true, user: res.user }
     } catch (e: unknown) {
       console.error('Login Error:', e)
+      // Re-throw database/config errors as server error (don't expose DB details)
+      if (e instanceof Error && e.message.includes('neon()')) {
+        throw new AppError('DATABASE_ERROR', { cause: e })
+      }
       throw new AppError('UNAUTHORIZED', {
         message: 'Invalid email or password',
         cause: e,
@@ -63,6 +67,7 @@ const RegisterSchema = z.object({
 export const registerFn = createServerFn({ method: 'POST' })
   .inputValidator(RegisterSchema)
   .handler(async ({ data }) => {
+    const { getRequestHeaders } = await import('@tanstack/react-start/server')
     const headers = getRequestHeaders()
     try {
       const { email, password, name } = data
