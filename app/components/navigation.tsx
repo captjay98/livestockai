@@ -18,6 +18,7 @@ import {
   Warehouse,
   Wheat,
   X,
+  CheckSquare,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -36,44 +37,43 @@ import { useModuleNavigation } from '~/hooks/useModuleNavigation'
 // Navigation structure helper (internal)
 export const getNavigationSections = (t: any) => [
   {
-    title: t('common:overview'),
+    title: t('common:operations', { defaultValue: 'Operations' }),
     items: [
-      { name: t('common:dashboard'), href: '/dashboard', icon: Home },
-      { name: t('common:reports'), href: '/reports', icon: BarChart3 },
+      { name: t('common:batches', { defaultValue: 'Batches' }), href: '/batches', icon: Package },
+      { name: t('common:tasks', { defaultValue: 'Tasks' }), href: '/vaccinations', icon: CheckSquare }, // Using vaccinations as proxy for tasks/health
+      { name: t('common:mortality', { defaultValue: 'Health Alerts' }), href: '/mortality', icon: TrendingDown }, // Using mortality for alerts
     ],
   },
   {
-    title: t('common:dailyOperations'),
+    title: t('common:inventory', { defaultValue: 'Inventory' }),
     items: [
-      { name: t('common:batches'), href: '/batches', icon: Package },
-      { name: t('common:feed'), href: '/feed', icon: Wheat },
-      { name: t('common:mortality'), href: '/mortality', icon: TrendingDown },
-      { name: t('common:weight'), href: '/weight', icon: Scale },
-      { name: t('common:health'), href: '/vaccinations', icon: Syringe },
-      { name: t('common:water'), href: '/water-quality', icon: Droplets },
-      { name: t('common:inventory'), href: '/inventory', icon: Warehouse },
+      { name: t('common:feed', { defaultValue: 'Feed Stock' }), href: '/feed', icon: Wheat },
+      { name: t('common:inventory', { defaultValue: 'General Inventory' }), href: '/inventory', icon: Warehouse },
+      { name: t('common:medicine', { defaultValue: 'Medicine' }), href: '/vaccinations', icon: Syringe }, // Using vaccinations
     ],
   },
   {
-    title: t('common:finance'),
+    title: t('common:analysis', { defaultValue: 'Analysis' }),
     items: [
-      { name: t('common:sales'), href: '/sales', icon: ShoppingCart },
-      { name: t('common:expenses'), href: '/expenses', icon: Receipt },
-      { name: t('common:invoices'), href: '/invoices', icon: FileText },
+      { name: t('common:dashboard', { defaultValue: 'Dashboard' }), href: '/dashboard', icon: Home },
+      { name: t('common:reports', { defaultValue: 'P&L Reports' }), href: '/reports', icon: BarChart3 },
+      { name: t('common:sales', { defaultValue: 'Sales' }), href: '/sales', icon: ShoppingCart },
+      { name: t('common:expenses', { defaultValue: 'Expenses' }), href: '/expenses', icon: Receipt },
     ],
   },
   {
-    title: t('common:contacts'),
+    title: t('common:ecosystem', { defaultValue: 'Ecosystem' }),
     items: [
-      { name: t('common:customers'), href: '/customers', icon: UserCircle },
-      { name: t('common:suppliers'), href: '/suppliers', icon: Truck },
+      { name: t('common:customers', { defaultValue: 'Customers' }), href: '/customers', icon: UserCircle },
+      { name: t('common:suppliers', { defaultValue: 'Suppliers' }), href: '/suppliers', icon: Truck },
+      { name: t('common:invoices', { defaultValue: 'Invoices' }), href: '/invoices', icon: FileText },
     ],
   },
   {
-    title: t('common:setup'),
+    title: t('common:setup', { defaultValue: 'Setup' }),
     items: [
-      { name: t('common:farms'), href: '/farms', icon: Building2 },
-      { name: t('common:settings'), href: '/settings', icon: Settings },
+      { name: t('common:farms', { defaultValue: 'Farms' }), href: '/farms', icon: Building2 },
+      { name: t('common:settings', { defaultValue: 'Settings' }), href: '/settings', icon: Settings },
     ],
   },
 ]
