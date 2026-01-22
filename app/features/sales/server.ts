@@ -80,6 +80,9 @@ export interface CreateSaleInput {
   paymentMethod?: PaymentMethod | null
 }
 
+// Re-export from service for backward compatibility
+export type { SaleUpdate } from './repository'
+
 /**
  * Create a new sales record, update batch quantity if applicable, and log audit
  *
@@ -106,84 +109,83 @@ export async function createSale(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
+  const {
+    calculateSaleTotal,
+    validateSaleData,
+    calculateNewBatchQuantity,
+    determineBatchStatusAfterSale,
+  } = await import('./service')
+  const { insertSale, getBatchById, updateBatchQuantity } =
+    await import('./repository')
 
   try {
     await verifyFarmAccess(userId, input.farmId)
 
-    const totalAmount = input.quantity * input.unitPrice
+    // Business logic: calculate total amount
+    const totalAmount = calculateSaleTotal(input.quantity, input.unitPrice)
 
-    // Use transaction to ensure batch quantity and sale are updated atomically
-    const saleId = await db.transaction().execute(async (trx) => {
-      // If selling from a batch, update the batch quantity
-      if (input.batchId && input.livestockType !== 'eggs') {
-        const batch = await trx
-          .selectFrom('batches')
-          .select(['id', 'currentQuantity', 'farmId'])
-          .where('id', '=', input.batchId)
-          .where('farmId', '=', input.farmId)
-          .executeTakeFirst()
-
-        if (!batch) {
-          throw new AppError('BATCH_NOT_FOUND', {
-            metadata: { batchId: input.batchId, farmId: input.farmId },
-          })
-        }
-
-        if (batch.currentQuantity < input.quantity) {
-          throw new AppError('INSUFFICIENT_STOCK', {
-            metadata: {
-              current: batch.currentQuantity,
-              requested: input.quantity,
-            },
-          })
-        }
-
-        const newQuantity = batch.currentQuantity - input.quantity
-
-        await trx
-          .updateTable('batches')
-          .set({
-            currentQuantity: newQuantity,
-            status: newQuantity === 0 ? 'sold' : 'active',
-            updatedAt: new Date(),
-          })
-          .where('id', '=', input.batchId)
-          .execute()
+    // Get batch for validation if selling from batch
+    let batchQuantity: number | null = null
+    if (input.batchId && input.livestockType !== 'eggs') {
+      const batch = await getBatchById(db, input.batchId)
+      if (!batch) {
+        throw new AppError('BATCH_NOT_FOUND', {
+          metadata: { batchId: input.batchId, farmId: input.farmId },
+        })
       }
 
-      const result = await trx
-        .insertInto('sales')
-        .values({
-          farmId: input.farmId,
-          batchId: input.batchId || null,
-          customerId: input.customerId || null,
-          livestockType: input.livestockType,
-          quantity: input.quantity,
-          unitPrice: input.unitPrice.toString(),
-          totalAmount: totalAmount.toString(),
-          date: input.date,
-          notes: input.notes || null,
-          // Enhanced fields
-          unitType: input.unitType || null,
-          ageWeeks: input.ageWeeks || null,
-          averageWeightKg: input.averageWeightKg?.toString() || null,
-          paymentStatus: input.paymentStatus || 'paid',
-          paymentMethod: input.paymentMethod || null,
+      if (batch.farmId !== input.farmId) {
+        throw new AppError('ACCESS_DENIED', {
+          metadata: { batchId: input.batchId, farmId: input.farmId },
         })
-        .returning('id')
-        .executeTakeFirstOrThrow()
+      }
 
-      return result.id
-    })
+      batchQuantity = batch.currentQuantity
 
-    // Log audit (outside transaction)
-    const { logAudit } = await import('~/features/logging/audit')
-    await logAudit({
-      userId,
-      action: 'create',
-      entityType: 'sale',
-      entityId: saleId,
-      details: input,
+      // Validate sale data including quantity check
+      const validationError = validateSaleData(input, batchQuantity)
+      if (validationError) {
+        throw new AppError('VALIDATION_ERROR', {
+          metadata: { error: validationError },
+        })
+      }
+
+      // Business logic: calculate new batch quantity and status
+      const newQuantity = calculateNewBatchQuantity(
+        batchQuantity,
+        input.quantity,
+      )
+      const newStatus = determineBatchStatusAfterSale(
+        newQuantity,
+        input.quantity,
+      )
+      await updateBatchQuantity(db, input.batchId, newQuantity, newStatus)
+    } else {
+      // Validate without batch quantity check
+      const validationError = validateSaleData(input, null)
+      if (validationError) {
+        throw new AppError('VALIDATION_ERROR', {
+          metadata: { error: validationError },
+        })
+      }
+    }
+
+    // Insert sale
+    const saleId = await insertSale(db, {
+      farmId: input.farmId,
+      batchId: input.batchId || null,
+      customerId: input.customerId || null,
+      livestockType: input.livestockType,
+      quantity: input.quantity,
+      unitPrice: input.unitPrice.toString(),
+      totalAmount,
+      date: input.date,
+      notes: input.notes || null,
+      unitType: input.unitType || null,
+      ageWeeks: input.ageWeeks || null,
+      averageWeightKg: input.averageWeightKg?.toString() || null,
+      paymentStatus: input.paymentStatus || 'paid',
+      paymentMethod: input.paymentMethod || null,
     })
 
     return saleId
@@ -221,17 +223,18 @@ export async function deleteSale(userId: string, saleId: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
+  const {
+    getSaleById,
+    deleteSale: deleteSaleRecord,
+    restoreBatchQuantityOnDelete,
+  } = await import('./repository')
 
   try {
     const userFarms = await getUserFarms(userId)
-    const farmIds = userFarms // userFarms is already an array of farm IDs
+    const farmIds = userFarms
 
-    // Get the sale to check ownership and possibly restore batch quantity
-    const sale = await db
-      .selectFrom('sales')
-      .select(['id', 'farmId', 'batchId', 'quantity', 'livestockType'])
-      .where('id', '=', saleId)
-      .executeTakeFirst()
+    // Get the sale to check ownership
+    const sale = await getSaleById(db, saleId)
 
     if (!sale) {
       throw new AppError('SALE_NOT_FOUND', {
@@ -245,18 +248,10 @@ export async function deleteSale(userId: string, saleId: string) {
 
     // If sale was from a batch (not eggs), restore the quantity
     if (sale.batchId && sale.livestockType !== 'eggs') {
-      await db
-        .updateTable('batches')
-        .set((eb) => ({
-          currentQuantity: eb('currentQuantity', '+', sale.quantity),
-          status: 'active',
-          updatedAt: new Date(),
-        }))
-        .where('id', '=', sale.batchId)
-        .execute()
+      await restoreBatchQuantityOnDelete(db, sale.batchId, sale.quantity)
     }
 
-    await db.deleteFrom('sales').where('id', '=', saleId).execute()
+    await deleteSaleRecord(db, saleId)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -322,23 +317,22 @@ export async function updateSale(
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
+  const {
+    calculateQuantityDifference,
+    calculateNewTotalAmount,
+    validateUpdateData,
+  } = await import('./service')
+  const {
+    getSaleById,
+    updateSale: updateSaleRecord,
+    adjustBatchQuantityOnUpdate,
+  } = await import('./repository')
 
   try {
     // Verify access
-    const farmIds = await getUserFarms(userId) // string[]
+    const farmIds = await getUserFarms(userId)
 
-    const sale = await db
-      .selectFrom('sales')
-      .select([
-        'id',
-        'farmId',
-        'batchId',
-        'quantity',
-        'livestockType',
-        'unitPrice',
-      ])
-      .where('id', '=', saleId)
-      .executeTakeFirst()
+    const sale = await getSaleById(db, saleId)
 
     if (!sale) {
       throw new AppError('SALE_NOT_FOUND', {
@@ -349,6 +343,14 @@ export async function updateSale(
       throw new AppError('ACCESS_DENIED', { metadata: { farmId: sale.farmId } })
     }
 
+    // Validate update data
+    const validationError = validateUpdateData(data)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
+      })
+    }
+
     await db.transaction().execute(async (tx) => {
       // 1. If quantity changed, handle inventory
       if (
@@ -357,17 +359,11 @@ export async function updateSale(
         sale.batchId &&
         sale.livestockType !== 'eggs'
       ) {
-        const quantityDiff = data.quantity - sale.quantity
-
-        // Update batch
-        await tx
-          .updateTable('batches')
-          .set((eb) => ({
-            currentQuantity: eb('currentQuantity', '-', quantityDiff), // If diff is positive (increased sale), we subtract more.
-            updatedAt: new Date(),
-          }))
-          .where('id', '=', sale.batchId)
-          .execute()
+        const quantityDiff = calculateQuantityDifference(
+          sale.quantity,
+          data.quantity,
+        )
+        await adjustBatchQuantityOnUpdate(tx, sale.batchId, quantityDiff)
       }
 
       // 2. Prepare update data
@@ -376,7 +372,7 @@ export async function updateSale(
       // Recalculate total amount if quantity or price changed
       const newQuantity = data.quantity ?? sale.quantity
       const newPrice = data.unitPrice ?? Number(sale.unitPrice)
-      updateData.totalAmount = (newQuantity * newPrice).toString()
+      updateData.totalAmount = calculateNewTotalAmount(newQuantity, newPrice)
 
       // Copy over basic fields
       if (data.quantity !== undefined) updateData.quantity = data.quantity
@@ -396,11 +392,7 @@ export async function updateSale(
         updateData.paymentMethod = data.paymentMethod
 
       // 3. Update sale
-      await tx
-        .updateTable('sales')
-        .set(updateData)
-        .where('id', '=', saleId)
-        .execute()
+      await updateSaleRecord(tx, saleId, updateData as any)
     })
 
     return true
@@ -448,6 +440,7 @@ export async function getSales(
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
+  const { getSalesByFarm } = await import('./repository')
 
   try {
     let targetFarmIds: Array<string> = []
@@ -462,40 +455,7 @@ export async function getSales(
       if (targetFarmIds.length === 0) return []
     }
 
-    let query = db
-      .selectFrom('sales')
-      .leftJoin('customers', 'customers.id', 'sales.customerId')
-      .leftJoin('batches', 'batches.id', 'sales.batchId')
-      .leftJoin('farms', 'farms.id', 'sales.farmId')
-      .select([
-        'sales.id',
-        'sales.farmId',
-        'sales.batchId',
-        'sales.customerId',
-        'sales.livestockType',
-        'sales.quantity',
-        'sales.unitPrice',
-        'sales.totalAmount',
-        'sales.date',
-        'sales.notes',
-        'sales.createdAt',
-        'customers.name as customerName',
-        'batches.species as batchSpecies',
-        'farms.name as farmName',
-      ])
-      .where('sales.farmId', 'in', targetFarmIds)
-
-    if (options?.startDate) {
-      query = query.where('sales.date', '>=', options.startDate)
-    }
-    if (options?.endDate) {
-      query = query.where('sales.date', '<=', options.endDate)
-    }
-    if (options?.livestockType) {
-      query = query.where('sales.livestockType', '=', options.livestockType)
-    }
-
-    return await query.orderBy('sales.date', 'desc').execute()
+    return await getSalesByFarm(db, targetFarmIds, options)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -531,42 +491,12 @@ export async function getSalesForFarm(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
+  const { getSalesByFarm } = await import('./repository')
 
   try {
     await verifyFarmAccess(userId, farmId)
 
-    let query = db
-      .selectFrom('sales')
-      .leftJoin('customers', 'customers.id', 'sales.customerId')
-      .leftJoin('batches', 'batches.id', 'sales.batchId')
-      .select([
-        'sales.id',
-        'sales.farmId',
-        'sales.batchId',
-        'sales.customerId',
-        'sales.livestockType',
-        'sales.quantity',
-        'sales.unitPrice',
-        'sales.totalAmount',
-        'sales.date',
-        'sales.notes',
-        'sales.createdAt',
-        'customers.name as customerName',
-        'batches.species as batchSpecies',
-      ])
-      .where('sales.farmId', '=', farmId)
-
-    if (options?.startDate) {
-      query = query.where('sales.date', '>=', options.startDate)
-    }
-    if (options?.endDate) {
-      query = query.where('sales.date', '<=', options.endDate)
-    }
-    if (options?.livestockType) {
-      query = query.where('sales.livestockType', '=', options.livestockType)
-    }
-
-    return await query.orderBy('sales.date', 'desc').execute()
+    return await getSalesByFarm(db, [farmId], options)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -602,6 +532,8 @@ export async function getSalesSummary(
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
+  const { getSalesSummary: getSalesSummaryRepo } = await import('./repository')
+  const { buildSalesSummary } = await import('./service')
 
   try {
     let targetFarmIds: Array<string> = []
@@ -623,48 +555,8 @@ export async function getSalesSummary(
       }
     }
 
-    let query = db
-      .selectFrom('sales')
-      .select([
-        'livestockType',
-        db.fn.count('id').as('count'),
-        db.fn.sum<string>('quantity').as('totalQuantity'),
-        db.fn.sum<string>('totalAmount').as('totalRevenue'),
-      ])
-      .where('farmId', 'in', targetFarmIds)
-      .groupBy('livestockType')
-
-    if (options?.startDate) {
-      query = query.where('date', '>=', options.startDate)
-    }
-    if (options?.endDate) {
-      query = query.where('date', '<=', options.endDate)
-    }
-
-    const results = await query.execute()
-
-    const summary = {
-      poultry: { count: 0, quantity: 0, revenue: 0 },
-      fish: { count: 0, quantity: 0, revenue: 0 },
-      eggs: { count: 0, quantity: 0, revenue: 0 },
-      total: { count: 0, quantity: 0, revenue: 0 },
-    }
-
-    for (const row of results) {
-      const type = row.livestockType as keyof typeof summary
-      if (type in summary) {
-        summary[type] = {
-          count: Number(row.count),
-          quantity: Number(row.totalQuantity),
-          revenue: parseFloat(row.totalRevenue),
-        }
-        summary.total.count += Number(row.count)
-        summary.total.quantity += Number(row.totalQuantity)
-        summary.total.revenue += parseFloat(row.totalRevenue)
-      }
-    }
-
-    return summary
+    const results = await getSalesSummaryRepo(db, targetFarmIds, options)
+    return buildSalesSummary(results)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -698,24 +590,13 @@ export async function getTotalRevenue(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
+  const { getTotalRevenue: getTotalRevenueRepo } = await import('./repository')
 
   try {
     await verifyFarmAccess(userId, farmId)
 
-    let query = db
-      .selectFrom('sales')
-      .select(db.fn.sum<string>('totalAmount').as('total'))
-      .where('farmId', '=', farmId)
-
-    if (options?.startDate) {
-      query = query.where('date', '>=', options.startDate)
-    }
-    if (options?.endDate) {
-      query = query.where('date', '<=', options.endDate)
-    }
-
-    const result = await query.executeTakeFirst()
-    return parseFloat(result?.total || '0')
+    const result = await getTotalRevenueRepo(db, [farmId], options)
+    return parseFloat(result)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -771,20 +652,14 @@ export async function getSalesPaginated(
   }>
 > {
   const { db } = await import('~/lib/db')
-  const { sql } = await import('kysely')
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
+  const { getSalesPaginated: getSalesPaginatedRepo } =
+    await import('./repository')
+  const { transformPaginatedResults } = await import('./service')
 
   try {
-    const page = query.page || 1
-    const pageSize = query.pageSize || 10
-    const sortBy = query.sortBy || 'date'
-    const sortOrder = query.sortOrder || 'desc'
-    const search = query.search || ''
-    const livestockType = query.livestockType
-    const paymentStatus = query.paymentStatus
-
     // Determine target farms
     let targetFarmIds: Array<string> = []
     if (query.farmId) {
@@ -797,143 +672,20 @@ export async function getSalesPaginated(
     } else {
       targetFarmIds = await getUserFarms(userId)
       if (targetFarmIds.length === 0) {
-        return { data: [], total: 0, page, pageSize, totalPages: 0 }
+        return {
+          data: [],
+          total: 0,
+          page: query.page || 1,
+          pageSize: query.pageSize || 10,
+          totalPages: 0,
+        }
       }
     }
 
-    // Build base query for count
-    let countQuery = db
-      .selectFrom('sales')
-      .leftJoin('customers', 'customers.id', 'sales.customerId')
-      .leftJoin('batches', 'batches.id', 'sales.batchId')
-      .leftJoin('farms', 'farms.id', 'sales.farmId')
-      .where('sales.farmId', 'in', targetFarmIds)
-
-    // Apply search filter
-    if (search) {
-      countQuery = countQuery.where((eb) =>
-        eb.or([
-          eb('customers.name', 'ilike', `%${search}%`),
-          eb('batches.species', 'ilike', `%${search}%`),
-          eb('sales.notes', 'ilike', `%${search}%`),
-        ]),
-      )
-    }
-
-    // Apply type filter
-    if (livestockType) {
-      countQuery = countQuery.where(
-        'sales.livestockType',
-        '=',
-        livestockType as any,
-      )
-    }
-
-    // Apply payment status filter
-    if (paymentStatus) {
-      countQuery = countQuery.where(
-        'sales.paymentStatus',
-        '=',
-        paymentStatus as any,
-      )
-    }
-
-    // Apply batchId filter
-    if (query.batchId) {
-      countQuery = countQuery.where('sales.batchId', '=', query.batchId)
-    }
-
-    // Get total count
-    const countResult = await countQuery
-      .select(sql<number>`count(*)`.as('count'))
-      .executeTakeFirst()
-    const total = Number(countResult?.count || 0)
-    const totalPages = Math.ceil(total / pageSize)
-
-    // Apply sorting
-    const sortColumn =
-      sortBy === 'totalAmount'
-        ? 'sales.totalAmount'
-        : sortBy === 'quantity'
-          ? 'sales.quantity'
-          : sortBy === 'customerName'
-            ? 'customers.name'
-            : sortBy === 'livestockType'
-              ? 'sales.livestockType'
-              : 'sales.date'
-
-    let dataQuery = db
-      .selectFrom('sales')
-      .leftJoin('customers', 'customers.id', 'sales.customerId')
-      .leftJoin('batches', 'batches.id', 'sales.batchId')
-      .leftJoin('farms', 'farms.id', 'sales.farmId')
-      .select([
-        'sales.id',
-        'sales.farmId',
-        'sales.customerId',
-        'sales.livestockType',
-        'sales.quantity',
-        'sales.unitPrice',
-        'sales.totalAmount',
-        'sales.unitType',
-        'sales.ageWeeks',
-        'sales.averageWeightKg',
-        'sales.paymentStatus',
-        'sales.paymentMethod',
-        'sales.date',
-        'sales.notes',
-        'customers.name as customerName',
-        'batches.species as batchSpecies',
-        'farms.name as farmName',
-      ])
-      .where('sales.farmId', 'in', targetFarmIds)
-
-    // Re-apply filters
-    if (search) {
-      dataQuery = dataQuery.where((eb) =>
-        eb.or([
-          eb('customers.name', 'ilike', `%${search}%`),
-          eb('batches.species', 'ilike', `%${search}%`),
-          eb('sales.notes', 'ilike', `%${search}%`),
-        ]),
-      )
-    }
-    if (livestockType) {
-      dataQuery = dataQuery.where(
-        'sales.livestockType',
-        '=',
-        livestockType as any,
-      )
-    }
-    if (paymentStatus) {
-      dataQuery = dataQuery.where(
-        'sales.paymentStatus',
-        '=',
-        paymentStatus as any,
-      )
-    }
-    if (query.batchId) {
-      dataQuery = dataQuery.where('sales.batchId', '=', query.batchId)
-    }
-
-    // Apply sorting and pagination
-    const data = await dataQuery
-      .orderBy(sortColumn as any, sortOrder)
-      .limit(pageSize)
-      .offset((page - 1) * pageSize)
-      .execute()
-
+    const result = await getSalesPaginatedRepo(db, targetFarmIds, query)
     return {
-      data: data.map((d) => ({
-        ...d,
-        farmName: d.farmName || null,
-        customerName: d.customerName || null,
-        batchSpecies: d.batchSpecies || null,
-      })),
-      total,
-      page,
-      pageSize,
-      totalPages,
+      ...result,
+      data: transformPaginatedResults(result.data),
     }
   } catch (error) {
     if (error instanceof AppError) throw error

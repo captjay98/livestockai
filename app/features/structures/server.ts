@@ -1,9 +1,37 @@
 import { createServerFn } from '@tanstack/react-start'
 
+// Import service and repository functions
+import {
+  validateStructureData,
+  validateUpdateData,
+} from './service'
+import {
+  deleteStructure as deleteStructureDb,
+  getStructureById as getStructureByIdDb,
+  getStructuresByFarm as getStructuresByFarmDb,
+  getStructuresWithCounts as getStructuresWithCountsDb,
+  insertStructure as insertStructureDb,
+  updateStructure as updateStructureDb,
+} from './repository'
+
 /**
  * Valid physical structure types for housing livestock.
  */
-export type StructureType = 'house' | 'pond' | 'pen' | 'cage'
+export type StructureType =
+  | 'house'
+  | 'pond'
+  | 'pen'
+  | 'cage'
+  | 'barn'
+  | 'pasture'
+  | 'hive'
+  | 'milking_parlor'
+  | 'shearing_shed'
+  | 'tank'
+  | 'tarpaulin'
+  | 'raceway'
+  | 'feedlot'
+  | 'kraal'
 
 /**
  * Operational status of a farm structure.
@@ -18,6 +46,16 @@ export const STRUCTURE_TYPES: Array<{ value: StructureType; label: string }> = [
   { value: 'pond', label: 'Pond' },
   { value: 'pen', label: 'Pen' },
   { value: 'cage', label: 'Cage' },
+  { value: 'barn', label: 'Barn' },
+  { value: 'pasture', label: 'Pasture' },
+  { value: 'hive', label: 'Hive' },
+  { value: 'milking_parlor', label: 'Milking Parlor' },
+  { value: 'shearing_shed', label: 'Shearing Shed' },
+  { value: 'tank', label: 'Tank' },
+  { value: 'tarpaulin', label: 'Tarpaulin Pond' },
+  { value: 'raceway', label: 'Raceway' },
+  { value: 'feedlot', label: 'Feedlot' },
+  { value: 'kraal', label: 'Kraal' },
 ]
 
 /**
@@ -86,22 +124,7 @@ export async function getStructures(userId: string, farmId: string) {
   try {
     await verifyFarmAccess(userId, farmId)
 
-    return await db
-      .selectFrom('structures')
-      .select([
-        'id',
-        'farmId',
-        'name',
-        'type',
-        'capacity',
-        'areaSqm',
-        'status',
-        'notes',
-        'createdAt',
-      ])
-      .where('farmId', '=', farmId)
-      .orderBy('name', 'asc')
-      .execute()
+    return await getStructuresByFarmDb(db, farmId)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -138,23 +161,7 @@ export async function getStructure(userId: string, structureId: string) {
   try {
     const farmIds = await getUserFarms(userId)
 
-    const structure = await db
-      .selectFrom('structures')
-      .leftJoin('farms', 'farms.id', 'structures.farmId')
-      .select([
-        'structures.id',
-        'structures.farmId',
-        'structures.name',
-        'structures.type',
-        'structures.capacity',
-        'structures.areaSqm',
-        'structures.status',
-        'structures.notes',
-        'structures.createdAt',
-        'farms.name as farmName',
-      ])
-      .where('structures.id', '=', structureId)
-      .executeTakeFirst()
+    const structure = await getStructureByIdDb(db, structureId)
 
     if (!structure) {
       throw new AppError('STRUCTURE_NOT_FOUND', {
@@ -222,21 +229,25 @@ export async function createStructure(
   try {
     await verifyFarmAccess(userId, input.farmId)
 
-    const result = await db
-      .insertInto('structures')
-      .values({
-        farmId: input.farmId,
-        name: input.name,
-        type: input.type,
-        capacity: input.capacity || null,
-        areaSqm: input.areaSqm?.toString() || null,
-        status: input.status,
-        notes: input.notes || null,
+    // Business logic validation from service layer
+    const validationError = validateStructureData(input)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
       })
-      .returning('id')
-      .executeTakeFirstOrThrow()
+    }
 
-    return result.id
+    const id = await insertStructureDb(db, {
+      farmId: input.farmId,
+      name: input.name,
+      type: input.type,
+      capacity: input.capacity || null,
+      areaSqm: input.areaSqm?.toString() || null,
+      status: input.status,
+      notes: input.notes || null,
+    })
+
+    return id
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -277,11 +288,7 @@ export async function updateStructure(
   try {
     const farmIds = await getUserFarms(userId)
 
-    const structure = await db
-      .selectFrom('structures')
-      .select(['id', 'farmId'])
-      .where('id', '=', id)
-      .executeTakeFirst()
+    const structure = await getStructureByIdDb(db, id)
 
     if (!structure) {
       throw new AppError('STRUCTURE_NOT_FOUND', {
@@ -291,6 +298,14 @@ export async function updateStructure(
     if (!farmIds.includes(structure.farmId)) {
       throw new AppError('ACCESS_DENIED', {
         metadata: { farmId: structure.farmId },
+      })
+    }
+
+    // Business logic validation from service layer
+    const validationError = validateUpdateData(input)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
       })
     }
 
@@ -304,11 +319,7 @@ export async function updateStructure(
     if (input.notes !== undefined) updateData.notes = input.notes
 
     if (Object.keys(updateData).length > 0) {
-      await db
-        .updateTable('structures')
-        .set(updateData)
-        .where('id', '=', id)
-        .execute()
+      await updateStructureDb(db, id, updateData)
     }
 
     return true
@@ -349,11 +360,7 @@ export async function deleteStructure(userId: string, id: string) {
   try {
     const farmIds = await getUserFarms(userId)
 
-    const structure = await db
-      .selectFrom('structures')
-      .select(['id', 'farmId'])
-      .where('id', '=', id)
-      .executeTakeFirst()
+    const structure = await getStructureByIdDb(db, id)
 
     if (!structure) {
       throw new AppError('STRUCTURE_NOT_FOUND', {
@@ -366,7 +373,7 @@ export async function deleteStructure(userId: string, id: string) {
       })
     }
 
-    // Check if any active batches are assigned
+    // Check if any active batches are assigned (using repository function)
     const assignedBatches = await db
       .selectFrom('batches')
       .select('id')
@@ -380,7 +387,7 @@ export async function deleteStructure(userId: string, id: string) {
       })
     }
 
-    await db.deleteFrom('structures').where('id', '=', id).execute()
+    await deleteStructureDb(db, id)
     return true
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -412,41 +419,13 @@ export const deleteStructureFn = createServerFn({ method: 'POST' })
  */
 export async function getStructuresWithCounts(userId: string, farmId: string) {
   const { db } = await import('~/lib/db')
-  const { sql } = await import('kysely')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
   try {
     await verifyFarmAccess(userId, farmId)
 
-    const structures = await db
-      .selectFrom('structures')
-      .leftJoin('batches', (join) =>
-        join
-          .onRef('batches.structureId', '=', 'structures.id')
-          .on('batches.status', '=', 'active'),
-      )
-      .select([
-        'structures.id',
-        'structures.farmId',
-        'structures.name',
-        'structures.type',
-        'structures.capacity',
-        'structures.areaSqm',
-        'structures.status',
-        'structures.notes',
-        'structures.createdAt',
-        sql<number>`count(batches.id)`.as('batchCount'),
-        sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
-          'totalAnimals',
-        ),
-      ])
-      .where('structures.farmId', '=', farmId)
-      .groupBy('structures.id')
-      .orderBy('structures.name', 'asc')
-      .execute()
-
-    return structures
+    return await getStructuresWithCountsDb(db, farmId)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
