@@ -219,11 +219,7 @@ export async function updateBatch(
   batchId: string,
   data: BatchUpdate,
 ): Promise<void> {
-  await db
-    .updateTable('batches')
-    .set(data)
-    .where('id', '=', batchId)
-    .execute()
+  await db.updateTable('batches').set(data).where('id', '=', batchId).execute()
 }
 
 /**
@@ -499,8 +495,10 @@ export async function getInventorySummary(
 
   const averageWeightKg =
     recentWeights.length > 0
-      ? recentWeights.reduce((sum, w) => sum + Number(w.averageWeightKg || 0), 0) /
-        recentWeights.length
+      ? recentWeights.reduce(
+          (sum, w) => sum + Number(w.averageWeightKg || 0),
+          0,
+        ) / recentWeights.length
       : 0
 
   return {

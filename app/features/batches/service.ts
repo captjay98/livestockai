@@ -305,8 +305,8 @@ export function getSourceSizeOptions(
     }
   >,
 ): Array<{ value: string; label: string }> {
-  const moduleEntry = Object.entries(moduleMetadata).find(
-    ([_, metadata]) => metadata.livestockTypes.includes(livestockType),
+  const moduleEntry = Object.entries(moduleMetadata).find(([_, metadata]) =>
+    metadata.livestockTypes.includes(livestockType),
   )
 
   if (!moduleEntry) {

@@ -39,8 +39,8 @@ export function getSourceSizeOptions(
   livestockType: LivestockType,
 ): Array<{ value: string; label: string }> {
   // Find the module that handles this livestock type
-  const moduleEntry = Object.entries(MODULE_METADATA).find(
-    ([_, metadata]) => metadata.livestockTypes.includes(livestockType),
+  const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
+    metadata.livestockTypes.includes(livestockType),
   )
 
   if (!moduleEntry) {
@@ -626,7 +626,9 @@ export async function getInventorySummary(userId: string, farmId?: string) {
     const totalQuantityOverall = toNumber(
       String(summary.overall?.total_quantity || '0'),
     )
-    const totalInvestmentOverall = Number(summary.overall?.total_investment || 0)
+    const totalInvestmentOverall = Number(
+      summary.overall?.total_investment || 0,
+    )
 
     // Helper to safely convert to number
     const safeToNumber = (val: string | number | null | undefined) =>
@@ -634,7 +636,9 @@ export async function getInventorySummary(userId: string, farmId?: string) {
 
     // Calculate FCR
     const totalFeedKg = safeToNumber(String(summary.feedStats?.total_kg || '0'))
-    const totalSold = safeToNumber(String(summary.salesStats?.total_quantity || '0'))
+    const totalSold = safeToNumber(
+      String(summary.salesStats?.total_quantity || '0'),
+    )
     const fcr = totalSold > 0 ? Number((totalFeedKg / totalSold).toFixed(2)) : 0
 
     const totalFeedCost = toNumber(String(summary.feedStats?.total_cost || '0'))
@@ -666,9 +670,12 @@ export async function getInventorySummary(userId: string, farmId?: string) {
       sales: {
         totalSales: Number(summary.salesStats?.total_sales || 0),
         totalQuantity: totalSold,
-        totalRevenue: toNumber(String(summary.salesStats?.total_revenue || '0')),
+        totalRevenue: toNumber(
+          String(summary.salesStats?.total_revenue || '0'),
+        ),
       },
-      currentWeight: summary.averageWeightKg > 0 ? summary.averageWeightKg : null,
+      currentWeight:
+        summary.averageWeightKg > 0 ? summary.averageWeightKg : null,
     }
   } catch (error) {
     if (error instanceof AppError) throw error
