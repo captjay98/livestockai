@@ -1,5 +1,4 @@
 import { defineConfig } from 'vitest/config'
-import { loadEnv } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 /**
@@ -7,11 +6,10 @@ import tsconfigPaths from 'vite-tsconfig-paths'
  * Runs ALL tests (unit + property + integration) with coverage
  * Run with: bun test:coverage
  */
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     environment: 'node',
-    // Include ALL test files
     include: [
       '**/*.test.ts',
       '**/*.test.tsx',
@@ -21,26 +19,28 @@ export default defineConfig(({ mode }) => ({
     exclude: ['node_modules', 'dist'],
     globals: true,
     setupFiles: ['./tests/setup.ts'],
-    testTimeout: 30000, // Longer for integration tests
+    testTimeout: 30000,
     hookTimeout: 30000,
-    env: loadEnv(mode, process.cwd(), ''),
-    fileParallelism: false, // Sequential for DB tests
+    fileParallelism: false,
     pool: 'forks',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'text-summary', 'html'],
-      include: [
-        'app/features/**/*.ts',
-        'app/hooks/**/*.ts',
-        'app/lib/**/*.ts',
-      ],
+      reporter: ['text', 'html', 'lcov'],
+      include: ['app/**/*.ts', 'app/**/*.tsx'],
       exclude: [
-        '**/*.test.ts',
-        '**/*.d.ts',
+        'app/routeTree.gen.ts',
+        'app/**/*.test.ts',
+        'app/**/*.property.test.ts',
         'app/lib/db/types.ts',
         'app/lib/db/migrations/**',
         'app/lib/db/seeds/**',
       ],
+      thresholds: {
+        statements: 60,
+        branches: 50,
+        functions: 60,
+        lines: 60,
+      },
     },
   },
-}))
+})

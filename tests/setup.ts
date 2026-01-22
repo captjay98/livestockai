@@ -6,10 +6,8 @@
 import { config } from 'dotenv'
 
 import { afterAll, beforeAll } from 'vitest'
-import { setupTestDb } from './helpers/db-integration'
-import { db } from '~/lib/db'
 
-// Load environment variables from .env file
+// Load environment variables FIRST, before any other imports
 config()
 
 // Verify DATABASE_URL is available
@@ -23,9 +21,13 @@ process.env.DATABASE_MAX_CONNECTIONS = '5'
 process.env.DATABASE_IDLE_TIMEOUT = '1000'
 
 beforeAll(async () => {
+  // Dynamic import to ensure env is loaded first
+  const { setupTestDb } = await import('./helpers/db-integration')
   await setupTestDb()
 })
 
 afterAll(async () => {
+  // Dynamic import to ensure env is loaded first
+  const { db } = await import('~/lib/db')
   await db.destroy()
 })
