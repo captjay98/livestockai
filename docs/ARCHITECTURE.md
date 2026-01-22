@@ -79,9 +79,9 @@ graph TD
 
 ```
 app/
-├── features/              # Business logic (server functions)
+├── features/              # Business logic (three-layer architecture)
 │   ├── auth/              # Authentication
-│   ├── batches/           # Batch management
+│   ├── batches/           # Batch management (server.ts, service.ts, repository.ts)
 │   ├── sales/             # Sales & revenue
 │   ├── feed/              # Feed records
 │   ├── mortality/         # Death tracking
@@ -175,8 +175,10 @@ graph TD
 
 **Critical**: All database operations use dynamic imports for Cloudflare Workers compatibility.
 
+Features follow a three-layer architecture: **Server → Service → Repository**
+
 ```typescript
-// app/features/batches/server.ts
+// app/features/batches/server.ts - Orchestration layer
 export const createBatchFn = createServerFn({ method: 'POST' })
   .inputValidator((data) => data)
   .handler(async ({ data }) => {
@@ -184,23 +186,28 @@ export const createBatchFn = createServerFn({ method: 'POST' })
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
 
-    // 2. Dynamic import (REQUIRED for Cloudflare)
-    const { db } = await import('~/lib/db')
+    // 2. Service layer - business logic validation
+    const { validateBatchData } = await import('./service')
+    const error = validateBatchData(data.batch)
+    if (error) throw new AppError('VALIDATION_ERROR')
 
-    // 3. Database operation
-    const result = await db
-      .insertInto('batches')
-      .values({ ...data.batch, farmId: data.farmId })
-      .returning('id')
-      .executeTakeFirstOrThrow()
+    // 3. Repository layer - database operation
+    const { db } = await import('~/lib/db')
+    const { insertBatch } = await import('./repository')
+    const result = await insertBatch(db, { ...data.batch, farmId: data.farmId })
 
     // 4. Audit log
     const { logAudit } = await import('../logging/audit')
     await logAudit({ userId: session.user.id, action: 'create', ... })
 
-    return result.id
+    return result
   })
 ```
+
+**Layer Responsibilities:**
+- **server.ts**: Auth, validation, orchestration (createServerFn)
+- **service.ts**: Pure business logic (calculations, validations)
+- **repository.ts**: Database operations (CRUD, queries)
 
 ## State Management
 
@@ -393,12 +400,14 @@ Environment variables set via `wrangler secret put KEY`.
 
 ## Key Files Reference
 
-| File                           | Purpose                        |
-| ------------------------------ | ------------------------------ |
-| `app/lib/db/types.ts`          | Database TypeScript interfaces |
-| `app/lib/db/migrations/`       | Schema migrations              |
-| `app/features/*/server.ts`     | Server functions               |
-| `app/routes/_auth/*/index.tsx` | Protected pages                |
-| `app/components/dialogs/`      | Create/edit modals             |
-| `wrangler.jsonc`               | Cloudflare config              |
+| File                           | Purpose                              |
+| ------------------------------ | ------------------------------------ |
+| `app/lib/db/types.ts`          | Database TypeScript interfaces       |
+| `app/lib/db/migrations/`       | Schema migrations                    |
+| `app/features/*/server.ts`     | Server functions (orchestration)     |
+| `app/features/*/service.ts`    | Business logic (pure functions)      |
+| `app/features/*/repository.ts` | Database operations (CRUD, queries)  |
+| `app/routes/_auth/*/index.tsx` | Protected pages                      |
+| `app/components/dialogs/`      | Create/edit modals                   |
+| `wrangler.jsonc`               | Cloudflare config                    |
 ````

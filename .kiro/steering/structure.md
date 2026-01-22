@@ -54,24 +54,32 @@ OpenLivestock Manager/
 
 - **React Components**: `ComponentName.tsx`
 - **Server Functions**: `server.ts` (in feature directories)
+- **Service Layer**: `service.ts` (pure business logic)
+- **Repository Layer**: `repository.ts` (database operations)
 - **Types**: `types.ts` or `schema.ts`
 - **Tests**: `*.test.ts` or `*.spec.ts`
 - **Database Migrations**: `YYYY-MM-DD-NNN-description.ts`
 
 ## Module Organization
 
-### Feature-Based Structure
+### Feature-Based Structure (Three-Layer Architecture)
 
 Each major feature has its own directory in `app/features/`:
 
 ```
 app/features/batches/
-├── server.ts              # Server functions
+├── server.ts              # Server functions (auth, validation, orchestration)
+├── service.ts             # Pure business logic (calculations, validations)
+├── repository.ts          # Database operations (CRUD, queries)
 ├── types.ts               # TypeScript types
-├── utils.ts               # Utility functions
 ├── constants.ts           # Feature constants
-└── __tests__/             # Feature tests
+└── index.ts               # Public exports
 ```
+
+**Layer Responsibilities:**
+- **server.ts**: Auth middleware, input validation, orchestrates service/repository
+- **service.ts**: Pure functions for business logic (testable without DB)
+- **repository.ts**: All database queries and mutations
 
 ### Component Organization
 

@@ -25,39 +25,61 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
 
 ### Key Patterns
 
-1. **Server Functions**: All database operations use TanStack Start's `createServerFn()`:
+1. **Three-Layer Architecture**: Features use Server → Service → Repository pattern:
+
+   ```
+   app/features/batches/
+   ├── server.ts      # Auth, validation, orchestration
+   ├── service.ts     # Pure business logic (calculations, validations)
+   ├── repository.ts  # Database operations (CRUD, queries)
+   └── types.ts       # TypeScript interfaces
+   ```
+
+2. **Server Functions**: Orchestrate auth, validation, and call service/repository:
 
    ```typescript
    // app/features/batches/server.ts
-   export const getBatches = createServerFn({ method: 'GET' })
-     .validator(z.object({ farmId: z.string().uuid() }))
+   export const createBatchFn = createServerFn({ method: 'POST' })
+     .validator(schema)
      .handler(async ({ data }) => {
+       const { requireAuth } = await import('./server-middleware')
+       const session = await requireAuth()
+       
+       // Service layer for business logic
+       const error = validateBatchData(data)
+       if (error) throw new AppError('VALIDATION_ERROR')
+       
+       // Repository layer for database
        const { db } = await import('~/lib/db')
-       return db
-         .selectFrom('batches')
-         .where('farmId', '=', data.farmId)
-         .execute()
+       return insertBatch(db, data)
      })
    ```
 
-2. **Dynamic Imports**: Database imports MUST be dynamic inside server functions to work with Cloudflare Workers:
+3. **Dynamic Imports**: Database imports MUST be dynamic inside server functions for Cloudflare Workers:
 
    ```typescript
    // ✅ Correct
-   const { db } = await import('../db')
+   const { db } = await import('~/lib/db')
 
    // ❌ Wrong - will break on Cloudflare
-   import { db } from '../db'
+   import { db } from '~/lib/db'
    ```
 
-3. **Type-Safe Queries**: Use Kysely's type-safe query builder:
+4. **Service Layer**: Pure functions for business logic (easy to test):
    ```typescript
-   // Types are inferred from app/lib/db/types.ts
-   const batches = await db
-     .selectFrom('batches')
-     .leftJoin('farms', 'farms.id', 'batches.farmId')
-     .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
-     .execute()
+   // service.ts
+   export function calculateFCR(feedKg: number, weightGain: number): number {
+     if (weightGain <= 0) return 0
+     return Number((feedKg / weightGain).toFixed(2))
+   }
+   ```
+
+5. **Repository Layer**: Database operations only:
+   ```typescript
+   // repository.ts
+   export async function insertBatch(db: Kysely<Database>, data: BatchInsert) {
+     return db.insertInto('batches').values(data).returning('id').executeTakeFirstOrThrow()
+   }
    ```
 
 ---
@@ -129,9 +151,11 @@ Cloudflare MCP servers authenticate via OAuth (no API keys needed).
 
 1. **Database changes**: Create migration in `app/lib/db/migrations/`
 2. **Update schema types**: Edit `app/lib/db/types.ts`
-3. **Server functions**: Create in `app/features/{feature}/server.ts`
-4. **UI components**: Add to `app/components/`
-5. **Routes**: Add to `app/routes/_auth/{feature}/`
+3. **Repository layer**: Create `app/features/{feature}/repository.ts` for DB operations
+4. **Service layer**: Create `app/features/{feature}/service.ts` for business logic
+5. **Server functions**: Create `app/features/{feature}/server.ts` to orchestrate
+6. **UI components**: Add to `app/components/`
+7. **Routes**: Add to `app/routes/_auth/{feature}/`
 
 ### Adding a New Server Function
 

@@ -1,23 +1,90 @@
 # OpenLivestock Coding Standards
 
+## Three-Layer Architecture
+
+Features follow a Server → Service → Repository pattern:
+
+```
+app/features/batches/
+├── server.ts      # Auth, validation, orchestration (createServerFn)
+├── service.ts     # Pure business logic (calculations, validations)
+├── repository.ts  # Database operations (CRUD, queries)
+└── types.ts       # TypeScript interfaces
+```
+
+**Layer Responsibilities:**
+
+| Layer | Responsibility | Example |
+|-------|---------------|---------|
+| **Server** | Auth middleware, input validation, orchestration | `createBatchFn` |
+| **Service** | Business logic, calculations, validations | `calculateFCR()`, `validateBatchData()` |
+| **Repository** | Database queries, CRUD operations | `insertBatch()`, `getBatchById()` |
+
 ## Server Functions
 
-All database operations MUST use TanStack Start server functions with dynamic imports:
+All server functions MUST use dynamic imports for Cloudflare Workers:
 
 ```typescript
-// ✅ Correct pattern
-export const getData = createServerFn({ method: 'GET' })
+// ✅ Correct pattern - server.ts
+export const createBatchFn = createServerFn({ method: 'POST' })
   .validator(schema)
   .handler(async ({ data }) => {
-    const { db } = await import('../db')
-    return db.selectFrom('table').execute()
+    const { requireAuth } = await import('./server-middleware')
+    const session = await requireAuth()
+    
+    // Use service for business logic
+    const validationError = validateBatchData(data)
+    if (validationError) throw new AppError('VALIDATION_ERROR')
+    
+    // Use repository for database
+    const { db } = await import('~/lib/db')
+    return insertBatch(db, data)
   })
 
 // ❌ Never do this - breaks Cloudflare Workers
-import { db } from '../db'
-export const getData = createServerFn({ method: 'GET' }).handler(async () => {
-  return db.selectFrom('table').execute()
-})
+import { db } from '~/lib/db'
+```
+
+## Service Layer
+
+Pure functions with no side effects - easy to test:
+
+```typescript
+// service.ts - Pure business logic
+export function calculateFCR(totalFeedKg: number, totalWeightGain: number): number {
+  if (totalWeightGain <= 0) return 0
+  return Number((totalFeedKg / totalWeightGain).toFixed(2))
+}
+
+export function validateBatchData(data: CreateBatchData): string | null {
+  if (data.initialQuantity <= 0) return 'Initial quantity must be positive'
+  if (data.costPerUnit < 0) return 'Cost cannot be negative'
+  return null
+}
+```
+
+## Repository Layer
+
+Database operations only - no business logic:
+
+```typescript
+// repository.ts - Database operations
+export async function insertBatch(db: Kysely<Database>, data: BatchInsert): Promise<string> {
+  const result = await db
+    .insertInto('batches')
+    .values(data)
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
+}
+
+export async function getBatchById(db: Kysely<Database>, id: string) {
+  return db
+    .selectFrom('batches')
+    .selectAll()
+    .where('id', '=', id)
+    .executeTakeFirst()
+}
 ```
 
 ## Database Queries
