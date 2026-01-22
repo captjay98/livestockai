@@ -192,16 +192,6 @@ export async function createBatch(
       notes: data.notes || null,
     })
 
-    // Log audit
-    const { logAudit } = await import('../logging/audit')
-    await logAudit({
-      userId,
-      action: 'create',
-      entityType: 'batch',
-      entityId: result,
-      details: data,
-    })
-
     return result
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -368,19 +358,6 @@ export async function updateBatch(
     // Database operation (from repository layer)
     await updateBatchInDb(db, batchId, updateData)
 
-    // Log audit
-    const { logAudit } = await import('../logging/audit')
-    await logAudit({
-      userId,
-      action: 'update',
-      entityType: 'batch',
-      entityId: batchId,
-      details: {
-        before: batch,
-        updates: updateData,
-      },
-    })
-
     return await getBatchById(userId, batchId)
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -437,16 +414,6 @@ export async function deleteBatch(userId: string, batchId: string) {
 
     // Database operation (from repository layer)
     await deleteBatchFromDb(db, batchId)
-
-    // Log audit
-    const { logAudit } = await import('../logging/audit')
-    await logAudit({
-      userId,
-      action: 'delete',
-      entityType: 'batch',
-      entityId: batchId,
-      details: { message: 'Batch deleted', snapshot: batch },
-    })
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {

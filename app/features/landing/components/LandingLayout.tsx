@@ -1,52 +1,33 @@
-import { useEffect } from 'react'
-import { InteractiveBackground } from './InteractiveBackground'
-import { LandingNavbar } from './LandingNavbar'
-import { LandingFooter } from './LandingFooter'
-import type { ReactNode } from 'react'
+/**
+ * Landing layout wrapper for marketing pages
+ */
 
 interface LandingLayoutProps {
-  children: ReactNode
-  variant?: string
+  children: React.ReactNode
+  variant?: 'default' | 'neon'
 }
 
-export function LandingLayout({ children }: LandingLayoutProps) {
-  useEffect(() => {
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-      threshold: 0.15,
-      rootMargin: '0px 0px -50px 0px',
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible')
-        }
-      })
-    }, observerOptions)
-
-    document
-      .querySelectorAll('section, .reveal-group, .stagger-grid')
-      .forEach((el) => observer.observe(el))
-
-    return () => observer.disconnect()
-  }, []) // Added empty dependency array to run only once
-
+export function LandingLayout({ children, variant = 'default' }: LandingLayoutProps) {
   return (
-    <div
-      className="relative min-h-screen w-full overflow-x-hidden font-inter transition-colors duration-500"
-      style={{
-        backgroundColor: 'var(--bg-landing-page)',
-        color: 'var(--text-landing-secondary)',
-      }}
-    >
-      <InteractiveBackground />
-
-      <LandingNavbar />
-
-      <main className="relative z-10">{children}</main>
-
-      <LandingFooter />
+    <div className="min-h-screen bg-background">
+      <header className="border-b py-4">
+        <div className="container mx-auto px-4">
+          <nav className="flex justify-between items-center">
+            <a href="/" className="text-xl font-bold">OpenLivestock</a>
+            <div className="flex gap-4">
+              <a href="/features" className="hover:underline">Features</a>
+              <a href="/pricing" className="hover:underline">Pricing</a>
+              <a href="/docs" className="hover:underline">Docs</a>
+            </div>
+          </nav>
+        </div>
+      </header>
+      <main>{children}</main>
+      <footer className="border-t py-8 mt-16">
+        <div className="container mx-auto px-4 text-center text-muted-foreground">
+          &copy; 2025 OpenLivestock. All rights reserved.
+        </div>
+      </footer>
     </div>
   )
 }

@@ -205,6 +205,7 @@ export const createBatchFn = createServerFn({ method: 'POST' })
 ```
 
 **Layer Responsibilities:**
+
 - **server.ts**: Auth, validation, orchestration (createServerFn)
 - **service.ts**: Pure business logic (calculations, validations)
 - **repository.ts**: Database operations (CRUD, queries)

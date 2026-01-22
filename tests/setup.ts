@@ -20,14 +20,27 @@ if (!process.env.DATABASE_URL) {
 process.env.DATABASE_MAX_CONNECTIONS = '5'
 process.env.DATABASE_IDLE_TIMEOUT = '1000'
 
+let dbSetupAttempted = false
+
 beforeAll(async () => {
+  // Only attempt to set up database if DATABASE_URL is available
+  // This allows unit tests to run without a database connection
+  if (!process.env.DATABASE_URL) {
+    console.info('No DATABASE_URL - skipping database setup for unit tests')
+    return
+  }
+
   // Dynamic import to ensure env is loaded first
   const { setupTestDb } = await import('./helpers/db-integration')
   await setupTestDb()
+  dbSetupAttempted = true
 })
 
 afterAll(async () => {
-  // Dynamic import to ensure env is loaded first
-  const { db } = await import('~/lib/db')
-  await db.destroy()
+  // Only close database connection if we actually set it up
+  if (dbSetupAttempted) {
+    // Dynamic import to ensure env is loaded first
+    const { db } = await import('~/lib/db')
+    await db.destroy()
+  }
 })

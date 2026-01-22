@@ -191,7 +191,7 @@ function SuppliersPage() {
         },
       })
       setPaginatedSuppliers(
-        result.paginatedSuppliers as PaginatedResult<SupplierRecord>,
+        result.paginatedSuppliers,
       )
     } catch (err) {
       console.error('Failed:', err)

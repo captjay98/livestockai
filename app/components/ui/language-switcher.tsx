@@ -9,7 +9,7 @@ import {
 } from '~/components/ui/dropdown-menu'
 import { Button } from '~/components/ui/button'
 import { useSettings } from '~/features/settings/context'
-import { LANGUAGE_STORAGE_KEY } from '~/features/i18n/config'
+import { LANGUAGE_STORAGE_KEY } from '~/lib/i18n/config'
 
 type Language = UserSettingsTable['language']
 

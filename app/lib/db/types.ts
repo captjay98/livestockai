@@ -69,6 +69,8 @@ export interface Database {
   tasks: TaskTable
   /** Task completion records */
   task_completions: TaskCompletionTable
+  /** Saved report configurations */
+  report_configs: ReportConfigTable
 }
 
 // User & Auth - Better Auth tables use camelCase
@@ -702,4 +704,30 @@ export interface TaskCompletionTable {
   completedAt: Generated<Date>
   /** Period start date (day/week/month start) for deduplication */
   periodStart: Date
+}
+
+// Report Configurations
+export interface ReportConfigTable {
+  /** Unique report configuration identifier */
+  id: Generated<string>
+  /** User who created this config */
+  createdBy: string
+  /** Farm this config belongs to */
+  farmId: string
+  /** Display name for the report */
+  name: string
+  /** Type of report */
+  reportType: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
+  /** Date range preset */
+  dateRangeType: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
+  /** Custom start date for custom range */
+  customStartDate: Date | null
+  /** Custom end date for custom range */
+  customEndDate: Date | null
+  /** Whether to include charts in output */
+  includeCharts: boolean
+  /** Whether to include detailed data */
+  includeDetails: boolean
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }

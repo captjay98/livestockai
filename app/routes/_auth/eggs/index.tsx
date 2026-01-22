@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { PaginatedResult } from '~/features/eggs/server'
+import type { EggCollectionWithDetails } from '~/features/eggs/repository'
 import { useFormatDate } from '~/features/settings'
 import {
   createEggRecordFn,
@@ -47,20 +48,6 @@ import {
 } from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
-
-interface EggRecord {
-  id: string
-  batchId: string
-  date: Date
-  quantityCollected: number
-  quantityBroken: number
-  quantitySold: number
-  species?: string
-  batchSpecies?: string
-  livestockType: string
-  farmId: string
-  farmName?: string
-}
 
 interface Batch {
   id: string
@@ -185,7 +172,7 @@ function EggsPage() {
   const navigate = useNavigate({ from: Route.fullPath })
 
   const [paginatedRecords, setPaginatedRecords] = useState<
-    PaginatedResult<EggRecord>
+    PaginatedResult<Array<EggCollectionWithDetails>>
   >({
     data: [],
     total: 0,
@@ -207,7 +194,7 @@ function EggsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedRecord, setSelectedRecord] = useState<EggRecord | null>(null)
+  const [selectedRecord, setSelectedRecord] = useState<EggCollectionWithDetails | null>(null)
 
   const [formData, setFormData] = useState({
     batchId: '',
@@ -314,7 +301,7 @@ function EggsPage() {
     }
   }
 
-  const handleEditRecord = (record: EggRecord) => {
+  const handleEditRecord = (record: EggCollectionWithDetails) => {
     setSelectedRecord(record)
     setEditFormData({
       date: new Date(record.date).toISOString().split('T')[0],
@@ -380,7 +367,7 @@ function EggsPage() {
     }
   }
 
-  const columns = useMemo<Array<ColumnDef<EggRecord>>>(
+  const columns = useMemo<Array<ColumnDef<EggCollectionWithDetails>>>(
     () => [
       {
         accessorKey: 'date',

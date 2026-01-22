@@ -9,19 +9,35 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { DEFAULT_SETTINGS } from './currency-presets'
+import {
+  formatCurrencyValue,
+  mergeDashboardCardSettings,
+  mergeNotificationSettings,
+  validatePartialSettings,
+} from './service'
+import {
+  deleteUserSettings as deleteUserSettingsFromDb,
+  getAlertThresholds,
+  getCurrencySettings,
+  getDashboardCardSettings,
+  getDefaultFarmId,
+  getNotificationSettings,
+  getOnboardingStatus,
+  getUserSettings as getUserSettingsFromDb,
+  setDefaultFarmId as setDefaultFarmIdInDb,
+  updateAlertThresholds,
+  updateDashboardCardSettings,
+  updateNotificationSettings,
+  updateOnboardingStatus,
+} from './repository'
 import type { UserSettings } from './currency-presets'
 import { AppError } from '~/lib/errors'
 
 /**
  * Zod schema for validating user settings
  */
-/**
- * Zod schema for validating user settings.
- * Defines structure and constraints for preferences, alerts, and business configs.
- */
 export const userSettingsSchema = z.object({
   // Preferences
-  /** Default farm ID to load on login */
   defaultFarmId: z.string().nullable().optional(),
 
   // Regional - Currency
@@ -53,7 +69,6 @@ export const userSettingsSchema = z.object({
       feed: z.boolean(),
     })
     .optional(),
-  /** User interface language code (ISO 639-1) */
   language: z.enum([
     'en',
     'ha',
@@ -71,34 +86,26 @@ export const userSettingsSchema = z.object({
     'vi',
     'am',
   ]),
-  /** User interface theme preference */
   theme: z.enum(['light', 'dark', 'system']),
 
   // Alerts
-  /** Threshold percentage for low stock alerts */
   lowStockThresholdPercent: z
     .number()
     .int()
     .min(1, 'validation.min')
     .max(100, 'validation.max'),
-  /** Threshold percentage for mortality alerts */
   mortalityAlertPercent: z
     .number()
     .int()
     .min(1, 'validation.min')
     .max(100, 'validation.max'),
-  /** Minimum absolute quantity for mortality alerts */
   mortalityAlertQuantity: z.number().int().min(1, 'validation.min'),
-  /** Enabled/disabled status for specific notification types */
   notifications: z
     .object({
-      // Core notifications - all optional for partial updates
-      // Default values used for new records, database schema enforces required
       lowStock: z.boolean().optional(),
       highMortality: z.boolean().optional(),
       invoiceDue: z.boolean().optional(),
       batchHarvest: z.boolean().optional(),
-      // Optional notifications
       vaccinationDue: z.boolean().optional(),
       medicationExpiry: z.boolean().optional(),
       waterQualityAlert: z.boolean().optional(),
@@ -110,9 +117,7 @@ export const userSettingsSchema = z.object({
     .optional(),
 
   // Business
-  /** Default payment term in days for new invoices */
   defaultPaymentTermsDays: z.number().int().min(0, 'validation.min'),
-  /** Starting month of the fiscal year (1-12) */
   fiscalYearStartMonth: z
     .number()
     .int()
@@ -141,11 +146,7 @@ export const getUserSettings = createServerFn({ method: 'GET' }).handler(
       return DEFAULT_SETTINGS
     }
 
-    const settings = await db
-      .selectFrom('user_settings')
-      .selectAll()
-      .where('userId', '=', session.user.id)
-      .executeTakeFirst()
+    const settings = await getUserSettingsFromDb(db, session.user.id)
 
     if (!settings) {
       return DEFAULT_SETTINGS
@@ -178,26 +179,39 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
     const userId = session.user.id
 
     try {
+      // Validate using service layer
+      const validationErrors = validatePartialSettings(data as any)
+      if (validationErrors.length > 0) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: validationErrors.join(', '),
+        })
+      }
+
       // Fetch existing settings to merge nested objects properly
-      const existingSettings = await db
-        .selectFrom('user_settings')
-        .selectAll()
-        .where('userId', '=', userId)
-        .executeTakeFirst()
+      const existingSettings = await getUserSettingsFromDb(db, userId)
 
-      // Merge nested objects (notifications, dashboardCards) to avoid overwriting
-      // Start with defaults, then existing, then new data
-      const baseNotifications = {
-        ...DEFAULT_SETTINGS.notifications,
-        ...(existingSettings?.notifications || {}),
-        ...(data.notifications || {}),
-      }
+      // Merge nested objects using service layer functions
+      const baseNotifications = mergeNotificationSettings(
+        DEFAULT_SETTINGS.notifications,
+        existingSettings?.notifications as
+          | UserSettings['notifications']
+          | null
+          | undefined,
+        data.notifications as
+          | Partial<UserSettings['notifications']>
+          | undefined,
+      )
 
-      const baseDashboardCards = {
-        ...DEFAULT_SETTINGS.dashboardCards,
-        ...(existingSettings?.dashboardCards || {}),
-        ...(data.dashboardCards || {}),
-      }
+      const baseDashboardCards = mergeDashboardCardSettings(
+        DEFAULT_SETTINGS.dashboardCards,
+        existingSettings?.dashboardCards as
+          | UserSettings['dashboardCards']
+          | null
+          | undefined,
+        data.dashboardCards as
+          | Partial<UserSettings['dashboardCards']>
+          | undefined,
+      )
 
       // Build the final merged data for database
       const finalData = {
@@ -218,7 +232,6 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
       }
 
       // For update, we only send the fields that were changed
-      // We use type assertion since we've ensured the data is correctly merged
       await db
         .insertInto('user_settings')
         .values(insertValues as any)
@@ -227,8 +240,9 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
 
       return { success: true }
     } catch (error) {
-      console.error('Failed to update user settings:', error)
-      console.error('Failed to update user settings:', error)
+      if (error instanceof AppError) {
+        throw error
+      }
       console.error('Failed to update user settings:', error)
       throw new AppError('DATABASE_ERROR', {
         message: 'errors.saveFailed',
@@ -253,15 +267,10 @@ export const resetUserSettings = createServerFn({ method: 'POST' }).handler(
 
     try {
       // Delete existing settings - they'll be recreated with defaults on next fetch
-      await db
-        .deleteFrom('user_settings')
-        .where('userId', '=', userId)
-        .execute()
+      await deleteUserSettingsFromDb(db, userId)
 
       return { success: true }
     } catch (error) {
-      console.error('Failed to reset user settings:', error)
-      console.error('Failed to reset user settings:', error)
       console.error('Failed to reset user settings:', error)
       throw new AppError('DATABASE_ERROR', {
         message: 'errors.resetFailed',
@@ -270,3 +279,353 @@ export const resetUserSettings = createServerFn({ method: 'POST' }).handler(
     }
   },
 )
+
+/**
+ * Get the default farm ID for the current user
+ *
+ * @returns Promise resolving to the default farm ID or null
+ */
+export const getDefaultFarm = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    return await getDefaultFarmId(db, userId)
+  },
+)
+
+/**
+ * Set the default farm ID for the current user
+ *
+ * @param farmId - The farm ID to set as default
+ * @returns Promise resolving to a success indicator
+ */
+export const setDefaultFarm = createServerFn({ method: 'POST' })
+  .inputValidator((data: { farmId: string | null }) => data)
+  .handler(async ({ data }) => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    await setDefaultFarmIdInDb(db, userId, data.farmId)
+
+    return { success: true }
+  })
+
+/**
+ * Get onboarding status for the current user
+ *
+ * @returns Promise resolving to onboarding status
+ */
+export const getOnboarding = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    const status = await getOnboardingStatus(db, userId)
+
+    if (!status) {
+      return { completed: false, step: 0 }
+    }
+
+    return status
+  },
+)
+
+/**
+ * Update onboarding status for the current user
+ *
+ * @param completed - Whether onboarding is completed
+ * @param step - Current onboarding step
+ * @returns Promise resolving to a success indicator
+ */
+export const updateOnboarding = createServerFn({ method: 'POST' })
+  .inputValidator((data: { completed?: boolean; step?: number }) =>
+    z
+      .object({
+        completed: z.boolean().optional(),
+        step: z.number().int().min(0).optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    const existing = await getOnboardingStatus(db, userId)
+
+    const completed = data.completed ?? existing?.completed ?? false
+    const step = data.step ?? existing?.step ?? 0
+
+    await updateOnboardingStatus(db, userId, completed, step)
+
+    return { success: true, completed, step }
+  })
+
+/**
+ * Get currency settings for the current user
+ *
+ * @returns Promise resolving to currency settings
+ */
+export const getCurrency = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    const settings = await getCurrencySettings(db, userId)
+
+    if (!settings) {
+      return {
+        code: DEFAULT_SETTINGS.currencyCode,
+        symbol: DEFAULT_SETTINGS.currencySymbol,
+        decimals: DEFAULT_SETTINGS.currencyDecimals,
+        position: DEFAULT_SETTINGS.currencySymbolPosition,
+        thousandSeparator: DEFAULT_SETTINGS.thousandSeparator,
+        decimalSeparator: DEFAULT_SETTINGS.decimalSeparator,
+      }
+    }
+
+    return settings
+  },
+)
+
+/**
+ * Get notification settings for the current user
+ *
+ * @returns Promise resolving to notification settings
+ */
+export const getNotifications = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    const settings = await getNotificationSettings(db, userId)
+
+    if (!settings) {
+      return DEFAULT_SETTINGS.notifications
+    }
+
+    return settings
+  },
+)
+
+/**
+ * Update notification settings for the current user
+ *
+ * @param notifications - Notification settings to update
+ * @returns Promise resolving to a success indicator
+ */
+export const updateNotifications = createServerFn({ method: 'POST' })
+  .inputValidator((data: Partial<UserSettings['notifications']>) =>
+    z
+      .object({
+        lowStock: z.boolean().optional(),
+        highMortality: z.boolean().optional(),
+        invoiceDue: z.boolean().optional(),
+        batchHarvest: z.boolean().optional(),
+        vaccinationDue: z.boolean().optional(),
+        medicationExpiry: z.boolean().optional(),
+        waterQualityAlert: z.boolean().optional(),
+        weeklySummary: z.boolean().optional(),
+        dailySales: z.boolean().optional(),
+        batchPerformance: z.boolean().optional(),
+        paymentReceived: z.boolean().optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    await updateNotificationSettings(db, userId, data)
+
+    return { success: true }
+  })
+
+/**
+ * Get dashboard card settings for the current user
+ *
+ * @returns Promise resolving to dashboard card settings
+ */
+export const getDashboardCards = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    const settings = await getDashboardCardSettings(db, userId)
+
+    if (!settings) {
+      return DEFAULT_SETTINGS.dashboardCards
+    }
+
+    return settings
+  },
+)
+
+/**
+ * Update dashboard card settings for the current user
+ *
+ * @param dashboardCards - Dashboard card settings to update
+ * @returns Promise resolving to a success indicator
+ */
+export const updateDashboardCards = createServerFn({ method: 'POST' })
+  .inputValidator((data: Partial<UserSettings['dashboardCards']>) =>
+    z
+      .object({
+        inventory: z.boolean().optional(),
+        revenue: z.boolean().optional(),
+        expenses: z.boolean().optional(),
+        profit: z.boolean().optional(),
+        mortality: z.boolean().optional(),
+        feed: z.boolean().optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    await updateDashboardCardSettings(db, userId, data)
+
+    return { success: true }
+  })
+
+/**
+ * Get alert thresholds for the current user
+ *
+ * @returns Promise resolving to alert thresholds
+ */
+export const getAlertThresholdsFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    const thresholds = await getAlertThresholds(db, userId)
+
+    if (!thresholds) {
+      return {
+        lowStockThresholdPercent: DEFAULT_SETTINGS.lowStockThresholdPercent,
+        mortalityAlertPercent: DEFAULT_SETTINGS.mortalityAlertPercent,
+        mortalityAlertQuantity: DEFAULT_SETTINGS.mortalityAlertQuantity,
+      }
+    }
+
+    return thresholds
+  },
+)
+
+/**
+ * Update alert thresholds for the current user
+ *
+ * @param lowStockThresholdPercent - Low stock threshold
+ * @param mortalityAlertPercent - Mortality alert threshold
+ * @param mortalityAlertQuantity - Mortality alert quantity
+ * @returns Promise resolving to a success indicator
+ */
+export const updateAlertThresholdsFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: {
+      lowStockThresholdPercent?: number
+      mortalityAlertPercent?: number
+      mortalityAlertQuantity?: number
+    }) =>
+      z
+        .object({
+          lowStockThresholdPercent: z.number().int().min(1).max(100).optional(),
+          mortalityAlertPercent: z.number().int().min(1).max(100).optional(),
+          mortalityAlertQuantity: z.number().int().min(1).optional(),
+        })
+        .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    await updateAlertThresholds(
+      db,
+      userId,
+      data.lowStockThresholdPercent,
+      data.mortalityAlertPercent,
+      data.mortalityAlertQuantity,
+    )
+
+    return { success: true }
+  })
+
+/**
+ * Format a monetary amount using user's currency settings
+ *
+ * @param amount - Amount to format
+ * @returns Formatted currency string
+ */
+export const formatCurrencyFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: { amount: number }) => data)
+  .handler(async ({ data }) => {
+    const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('../auth/server-middleware')
+
+    const session = await requireAuth()
+    const userId = session.user.id
+
+    const currencySettings = await getCurrencySettings(db, userId)
+
+    const currencyCode = currencySettings?.code ?? DEFAULT_SETTINGS.currencyCode
+
+    return formatCurrencyValue(data.amount, currencyCode)
+  })
+
+/**
+ * Export types for use in other modules
+ */
+export type { UserSettings }
+
+// Re-export service functions for use in other modules
+export {
+  validateSettingData,
+  formatCurrencyValue,
+  parseSettingValue,
+  validateCurrencyChange,
+  buildSettingsSummary,
+  shouldTriggerLowStockAlert,
+  shouldTriggerMortalityAlert,
+  formatSettingDate,
+  formatSettingTime,
+  formatSettingDateTime,
+  formatCompactSettingCurrency,
+  getCurrencyPresetByCode,
+  convertWeight,
+  convertArea,
+  convertTemperature,
+} from './service'

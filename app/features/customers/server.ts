@@ -1,4 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
+import * as repository from './repository'
+import * as service from './service'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 import { AppError } from '~/lib/errors'
 
@@ -60,9 +62,6 @@ export interface CustomerQuery extends BasePaginatedQuery {
 
 /**
  * Register a new customer in the system.
- *
- * @param input - Customer details (name, phone, etc.)
- * @returns Promise resolving to the new customer ID
  */
 export async function createCustomer(
   input: CreateCustomerInput,
@@ -70,20 +69,13 @@ export async function createCustomer(
   const { db } = await import('~/lib/db')
 
   try {
-    const result = await db
-      .insertInto('customers')
-      .values({
-        farmId: input.farmId,
-        name: input.name,
-        phone: input.phone,
-        email: input.email || null,
-        location: input.location || null,
-        customerType: input.customerType || null,
-      })
-      .returning('id')
-      .executeTakeFirstOrThrow()
+    // Validate input
+    const validationError = service.validateCustomerData(input)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', { message: validationError })
+    }
 
-    return result.id
+    return await repository.insertCustomer(db, input)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -95,7 +87,6 @@ export async function createCustomer(
 
 /**
  * Server function to create a customer record.
- * Validates input data.
  */
 export const createCustomerFn = createServerFn({ method: 'POST' })
   .inputValidator((data: CreateCustomerInput) => data)
@@ -105,17 +96,12 @@ export const createCustomerFn = createServerFn({ method: 'POST' })
 
 /**
  * Retrieve all customers in alphabetical order.
- *
- * @returns Promise resolving to an array of all customer records
  */
-export async function getCustomers() {
+export async function getCustomers(): Promise<Array<CustomerRecord>> {
   const { db } = await import('~/lib/db')
+
   try {
-    return await db
-      .selectFrom('customers')
-      .selectAll()
-      .orderBy('name', 'asc')
-      .execute()
+    return await repository.selectAllCustomers(db)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch customers',
@@ -125,19 +111,22 @@ export async function getCustomers() {
 }
 
 /**
+ * Server function to retrieve all customers (unpaginated).
+ */
+export const getCustomersFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    return getCustomers()
+  },
+)
+
+/**
  * Retrieve a single customer record by its unique ID.
- *
- * @param customerId - ID of the customer to retrieve
- * @returns Promise resolving to the customer or undefined
  */
 export async function getCustomerById(customerId: string) {
   const { db } = await import('~/lib/db')
+
   try {
-    return await db
-      .selectFrom('customers')
-      .selectAll()
-      .where('id', '=', customerId)
-      .executeTakeFirst()
+    return await repository.selectCustomerById(db, customerId)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch customer',
@@ -148,24 +137,15 @@ export async function getCustomerById(customerId: string) {
 
 /**
  * Update an existing customer's details.
- *
- * @param customerId - ID of the customer to update
- * @param input - Partial customer data to apply
  */
 export async function updateCustomer(
   customerId: string,
   input: Partial<CreateCustomerInput>,
-) {
+): Promise<void> {
   const { db } = await import('~/lib/db')
+
   try {
-    await db
-      .updateTable('customers')
-      .set({
-        ...input,
-        updatedAt: new Date(),
-      })
-      .where('id', '=', customerId)
-      .execute()
+    await repository.updateCustomer(db, customerId, input)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to update customer',
@@ -187,13 +167,12 @@ export const updateCustomerFn = createServerFn({ method: 'POST' })
 
 /**
  * Permanently remove a customer record from the system.
- *
- * @param customerId - ID of the customer to delete
  */
-export async function deleteCustomer(customerId: string) {
+export async function deleteCustomer(customerId: string): Promise<void> {
   const { db } = await import('~/lib/db')
+
   try {
-    await db.deleteFrom('customers').where('id', '=', customerId).execute()
+    await repository.deleteCustomer(db, customerId)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to delete customer',
@@ -213,31 +192,15 @@ export const deleteCustomerFn = createServerFn({ method: 'POST' })
 
 /**
  * Retrieve a customer's full profile including their entire purchase history.
- *
- * @param customerId - ID of the customer
- * @returns Promise resolving to customer details with sales history and total spent
  */
 export async function getCustomerWithSales(customerId: string) {
   const { db } = await import('~/lib/db')
 
   try {
-    const customer = await getCustomerById(customerId)
+    const customer = await repository.selectCustomerById(db, customerId)
     if (!customer) return null
 
-    const sales = await db
-      .selectFrom('sales')
-      .select([
-        'id',
-        'livestockType',
-        'quantity',
-        'unitPrice',
-        'totalAmount',
-        'date',
-      ])
-      .where('customerId', '=', customerId)
-      .orderBy('date', 'desc')
-      .execute()
-
+    const sales = await repository.selectCustomerSales(db, customerId)
     const totalSpent = sales.reduce(
       (sum, s) => sum + parseFloat(s.totalAmount),
       0,
@@ -260,40 +223,12 @@ export async function getCustomerWithSales(customerId: string) {
 
 /**
  * Retrieve a list of customers ranked by their lifetime spending.
- *
- * @param limit - Maximum number of customers to return (default: 10)
- * @returns Promise resolving to the highest spending customers
  */
 export async function getTopCustomers(limit: number = 10) {
   const { db } = await import('~/lib/db')
 
   try {
-    const customers = await db
-      .selectFrom('customers')
-      .leftJoin('sales', 'sales.customerId', 'customers.id')
-      .select([
-        'customers.id',
-        'customers.name',
-        'customers.phone',
-        'customers.location',
-        db.fn.count('sales.id').as('salesCount'),
-        db.fn.sum<string>('sales.totalAmount').as('totalSpent'),
-      ])
-      .groupBy([
-        'customers.id',
-        'customers.name',
-        'customers.phone',
-        'customers.location',
-      ])
-      .orderBy('totalSpent', 'desc')
-      .limit(limit)
-      .execute()
-
-    return customers.map((c) => ({
-      ...c,
-      salesCount: Number(c.salesCount),
-      totalSpent: parseFloat(c.totalSpent || '0'),
-    }))
+    return await repository.selectTopCustomers(db, limit)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch top customers',
@@ -304,110 +239,12 @@ export async function getTopCustomers(limit: number = 10) {
 
 /**
  * Retrieve a paginated list of customers with search and filter capabilities.
- * Includes aggregated sales metrics for each customer.
- *
- * @param query - Query parameters (search, pagination, sorting, customerType)
- * @returns Promise resolving to a paginated set of customer records
  */
 export async function getCustomersPaginated(query: CustomerQuery = {}) {
   const { db } = await import('~/lib/db')
-  const { sql } = await import('kysely')
 
   try {
-    const page = query.page || 1
-    const pageSize = query.pageSize || 10
-    const offset = (page - 1) * pageSize
-
-    let baseQuery = db
-      .selectFrom('customers')
-      .leftJoin('sales', 'sales.customerId', 'customers.id')
-
-    if (query.search) {
-      const searchLower = `%${query.search.toLowerCase()}%`
-      baseQuery = baseQuery.where((eb) =>
-        eb.or([
-          eb('customers.name', 'ilike', searchLower),
-          eb('customers.phone', 'ilike', searchLower),
-          eb('customers.location', 'ilike', searchLower),
-          eb('customers.email', 'ilike', searchLower),
-        ]),
-      )
-    }
-
-    // Apply customerType filter
-    if (query.customerType) {
-      baseQuery = baseQuery.where(
-        'customers.customerType',
-        '=',
-        query.customerType as any,
-      )
-    }
-
-    // Count
-    const countResult = await baseQuery
-      .select(sql<number>`count(distinct customers.id)`.as('count'))
-      .executeTakeFirst()
-
-    const total = Number(countResult?.count || 0)
-    const totalPages = Math.ceil(total / pageSize)
-
-    // Data
-    let dataQuery = baseQuery
-      .select([
-        'customers.id',
-        'customers.name',
-        'customers.phone',
-        'customers.email',
-        'customers.location',
-        'customers.customerType',
-        'customers.createdAt',
-        'customers.updatedAt',
-        sql<number>`count(sales.id)`.as('salesCount'),
-        sql<string>`coalesce(sum(sales."totalAmount"), 0)`.as('totalSpent'),
-      ])
-      .groupBy([
-        'customers.id',
-        'customers.name',
-        'customers.phone',
-        'customers.email',
-        'customers.location',
-        'customers.customerType',
-        'customers.createdAt',
-        'customers.updatedAt',
-      ])
-      .limit(pageSize)
-      .offset(offset)
-
-    if (query.sortBy) {
-      const sortOrder = query.sortOrder || 'desc'
-      const sortCol = query.sortBy
-      if (query.sortBy === 'totalSpent' || query.sortBy === 'salesCount') {
-        dataQuery = dataQuery.orderBy(sql.raw(`"${sortCol}"`), sortOrder)
-      } else {
-        dataQuery = dataQuery.orderBy(
-          sql.raw(`customers."${sortCol}"`),
-          sortOrder,
-        )
-      }
-    } else {
-      dataQuery = dataQuery.orderBy(sql.raw('customers."createdAt"'), 'desc')
-    }
-
-    const rawData = await dataQuery.execute()
-
-    const data = rawData.map((d) => ({
-      ...d,
-      salesCount: Number(d.salesCount),
-      totalSpent: parseFloat(d.totalSpent || '0'),
-    }))
-
-    return {
-      data,
-      total,
-      page,
-      pageSize,
-      totalPages,
-    }
+    return await repository.selectCustomersPaginated(db, query)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch paginated customers',
@@ -424,12 +261,3 @@ export const getCustomersPaginatedFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     return getCustomersPaginated(data)
   })
-
-/**
- * Server function to retrieve all customers (unpaginated).
- */
-export const getCustomersFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    return getCustomers()
-  },
-)

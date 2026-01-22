@@ -1,9 +1,30 @@
+/**
+ * Server functions for module management.
+ * Orchestrates repository and service layers.
+ */
+
 import { createServerFn } from '@tanstack/react-start'
 
-import { DEFAULT_MODULES_BY_FARM_TYPE } from './constants'
-
-import type { FarmModule, ModuleKey } from './types'
+import { DEFAULT_MODULES_BY_FARM_TYPE, MODULE_METADATA } from './constants'
+import {
+  countActiveBatchesByLivestockTypes,
+  insertFarmModules,
+  selectFarmModules,
+  upsertFarmModule,
+} from './repository'
+import {
+  ALL_MODULE_KEYS,
+  validateCanDisable,
+  validateFarmType,
+  validateModuleKey,
+  validateToggleInput,
+} from './service'
+import type { FarmModule, LivestockType, ModuleKey } from './types'
 import { AppError } from '~/lib/errors'
+
+// Repository layer
+
+// Service layer
 
 /**
  * Fetches all module state records for a farm.
@@ -17,16 +38,7 @@ export async function getFarmModules(
   const { db } = await import('~/lib/db')
 
   try {
-    const modules = await db
-      .selectFrom('farm_modules')
-      .selectAll()
-      .where('farmId', '=', farmId)
-      .execute()
-
-    return modules.map((m) => ({
-      ...m,
-      createdAt: new Date(m.createdAt),
-    }))
+    return await selectFarmModules(db, farmId)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -56,6 +68,12 @@ export async function createDefaultModules(
   farmId: string,
   farmType: string,
 ): Promise<void> {
+  // Validate farm type
+  const validationError = validateFarmType(farmType)
+  if (validationError) {
+    throw new AppError('VALIDATION_ERROR', { message: validationError })
+  }
+
   const { db } = await import('~/lib/db')
 
   try {
@@ -68,22 +86,13 @@ export async function createDefaultModules(
     }
 
     // Create all module records (enabled by default)
-    const allModules: Array<ModuleKey> = [
-      'poultry',
-      'aquaculture',
-      'cattle',
-      'goats',
-      'sheep',
-      'bees',
-    ]
-
-    const moduleRecords = allModules.map((moduleKey) => ({
+    const moduleRecords = ALL_MODULE_KEYS.map((moduleKey) => ({
       farmId,
       moduleKey,
       enabled: defaultModules.includes(moduleKey),
     }))
 
-    await db.insertInto('farm_modules').values(moduleRecords).execute()
+    await insertFarmModules(db, moduleRecords)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -106,35 +115,16 @@ export async function toggleModule(
   moduleKey: ModuleKey,
   enabled: boolean,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
-  try {
-    // Check if module record exists
-    const existing = await db
-      .selectFrom('farm_modules')
-      .selectAll()
-      .where('farmId', '=', farmId)
-      .where('moduleKey', '=', moduleKey)
-      .executeTakeFirst()
+  // Validate module key
+  const validationError = validateModuleKey(moduleKey)
+  if (validationError) {
+    throw new AppError('VALIDATION_ERROR', { message: validationError })
+  }
 
-    if (existing) {
-      // Update existing record
-      await db
-        .updateTable('farm_modules')
-        .set({ enabled })
-        .where('farmId', '=', farmId)
-        .where('moduleKey', '=', moduleKey)
-        .execute()
-    } else {
-      // Create new record
-      await db
-        .insertInto('farm_modules')
-        .values({
-          farmId,
-          moduleKey,
-          enabled,
-        })
-        .execute()
-    }
+  const { db } = await import('~/lib/db')
+
+  try {
+    await upsertFarmModule(db, farmId, moduleKey, enabled)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -151,30 +141,32 @@ export async function canDisableModule(
   farmId: string,
   moduleKey: ModuleKey,
 ): Promise<boolean> {
+  // Validate module key
+  const validationError = validateModuleKey(moduleKey)
+  if (validationError) {
+    throw new AppError('VALIDATION_ERROR', { message: validationError })
+  }
+
   const { db } = await import('~/lib/db')
-  const { MODULE_METADATA } = await import('./constants')
 
   try {
     // Get livestock types for this module
     const metadata = MODULE_METADATA[moduleKey]
-    const livestockTypes = metadata.livestockTypes
+    const livestockTypes: ReadonlyArray<LivestockType> = metadata.livestockTypes
 
     // Check for active batches with these livestock types
-    const activeBatches = await db
-      .selectFrom('batches')
-      .select('id')
-      .where('farmId', '=', farmId)
-      .where('status', '=', 'active')
-      .where('livestockType', 'in', livestockTypes)
-      .limit(1)
-      .execute()
+    const count = await countActiveBatchesByLivestockTypes(
+      db,
+      farmId,
+      livestockTypes,
+    )
 
     // Can disable if no active batches found
-    return activeBatches.length === 0
+    return count === 0
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to checking disable status',
+      message: 'Failed to check disable status',
       cause: error,
     })
   }
@@ -183,10 +175,15 @@ export async function canDisableModule(
 // Server functions for client-side calls
 
 /**
+ * Input type for getFarmModulesFn
+ */
+type GetFarmModulesInput = { farmId: string }
+
+/**
  * Server function to get farm modules (with auth).
  */
 export const getFarmModulesFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator((data: GetFarmModulesInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const { checkFarmAccess } = await import('../auth/utils')
@@ -202,12 +199,19 @@ export const getFarmModulesFn = createServerFn({ method: 'GET' })
   })
 
 /**
+ * Input type for toggleModuleFn
+ */
+type ToggleModuleInput = {
+  farmId: string
+  moduleKey: ModuleKey
+  enabled: boolean
+}
+
+/**
  * Server function to toggle a module (with auth and validation).
  */
 export const toggleModuleFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { farmId: string; moduleKey: ModuleKey; enabled: boolean }) => data,
-  )
+  .inputValidator((data: ToggleModuleInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const { checkFarmAccess } = await import('../auth/utils')
@@ -219,21 +223,32 @@ export const toggleModuleFn = createServerFn({ method: 'POST' })
       throw new AppError('ACCESS_DENIED', { metadata: { farmId: data.farmId } })
     }
 
+    // Validate toggle input
+    const validationError = validateToggleInput({
+      farmId: data.farmId,
+      moduleKey: data.moduleKey,
+      enabled: data.enabled,
+    })
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', { message: validationError })
+    }
+
     // If disabling, check for active batches
     if (!data.enabled) {
       const canDisable = await canDisableModule(data.farmId, data.moduleKey)
-      if (!canDisable) {
-        throw new AppError('VALIDATION_ERROR', {
-          message:
-            'Cannot disable module with active batches. Please complete or sell all batches first.',
-        })
+      const disableError = validateCanDisable(
+        !canDisable,
+        data.moduleKey,
+      )
+      if (disableError) {
+        throw new AppError('VALIDATION_ERROR', { message: disableError })
       }
     }
 
     await toggleModule(data.farmId, data.moduleKey, data.enabled)
 
     // Log audit
-    const { logAudit } = await import('../logging/audit')
+    const { logAudit } = await import('~/lib/logging/audit')
     await logAudit({
       userId: session.user.id,
       action: data.enabled ? 'enable_module' : 'disable_module',
@@ -246,10 +261,15 @@ export const toggleModuleFn = createServerFn({ method: 'POST' })
   })
 
 /**
+ * Input type for canDisableModuleFn
+ */
+type CanDisableModuleInput = { farmId: string; moduleKey: ModuleKey }
+
+/**
  * Server function to check if a module can be disabled (with auth).
  */
 export const canDisableModuleFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string; moduleKey: ModuleKey }) => data)
+  .inputValidator((data: CanDisableModuleInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const { checkFarmAccess } = await import('../auth/utils')
@@ -259,6 +279,12 @@ export const canDisableModuleFn = createServerFn({ method: 'GET' })
 
     if (!hasAccess) {
       throw new AppError('ACCESS_DENIED', { metadata: { farmId: data.farmId } })
+    }
+
+    // Validate module key
+    const validationError = validateModuleKey(data.moduleKey)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', { message: validationError })
     }
 
     return canDisableModule(data.farmId, data.moduleKey)

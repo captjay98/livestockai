@@ -1,95 +1,181 @@
+/**
+ * Server functions for medication inventory management.
+ * Handles authentication, authorization, and orchestration.
+ */
+
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
+import {
+  MEDICATION_UNITS,
+  validateMedicationData,
+  validateMedicationUpdateData,
+} from './service'
+import {
+  deleteMedicationInventory,
+  getExpiringMedications,
+  getLowStockMedications,
+  getMedicationInventoryById,
+  insertMedicationInventory,
+  selectMedicationInventory,
+  updateMedicationInventory,
+} from './repository'
+import type {
+  CreateMedicationInput,
+  UpdateMedicationInput,
+} from './service'
+import { checkFarmAccess, getUserFarms, verifyFarmAccess } from '~/features/auth/utils'
+import { AppError } from '~/lib/errors'
 
-export type MedicationUnit =
-  | 'vial'
-  | 'bottle'
-  | 'sachet'
-  | 'ml'
-  | 'g'
-  | 'tablet'
+export { MEDICATION_UNITS }
+export type { CreateMedicationInput, UpdateMedicationInput }
 
-export const MEDICATION_UNITS: Array<{ value: MedicationUnit; label: string }> =
-  [
-    { value: 'vial', label: 'Vial' },
-    { value: 'bottle', label: 'Bottle' },
-    { value: 'sachet', label: 'Sachet' },
-    { value: 'ml', label: 'Milliliters (ml)' },
-    { value: 'g', label: 'Grams (g)' },
-    { value: 'tablet', label: 'Tablet' },
-  ]
+// ============================================================================
+// Query Validators
+// ============================================================================
 
-export interface CreateMedicationInput {
-  farmId: string
-  medicationName: string
-  quantity: number
-  unit: MedicationUnit
-  expiryDate?: Date | null
-  minThreshold: number
-}
+const MedicationQuerySchema = z.object({
+  farmId: z.string().uuid().optional(),
+})
 
-export interface UpdateMedicationInput {
-  medicationName?: string
-  quantity?: number
-  unit?: MedicationUnit
-  expiryDate?: Date | null
-  minThreshold?: number
-}
+const MedicationCreateSchema = z.object({
+  input: z.object({
+    farmId: z.string().uuid(),
+    medicationName: z.string().min(1),
+    quantity: z.number().min(0),
+    unit: z.enum(['vial', 'bottle', 'sachet', 'ml', 'g', 'tablet', 'kg', 'liter']),
+    expiryDate: z.date().nullable().optional(),
+    minThreshold: z.number().min(0),
+  }),
+})
+
+const MedicationUpdateSchema = z.object({
+  id: z.string().uuid(),
+  input: z.object({
+    medicationName: z.string().min(1).optional(),
+    quantity: z.number().min(0).optional(),
+    unit: z.enum(['vial', 'bottle', 'sachet', 'ml', 'g', 'tablet', 'kg', 'liter']).optional(),
+    expiryDate: z.date().nullable().optional(),
+    minThreshold: z.number().min(0).optional(),
+  }),
+})
+
+const MedicationDeleteSchema = z.object({
+  id: z.string().uuid(),
+})
+
+const UseMedicationSchema = z.object({
+  id: z.string().uuid(),
+  quantityUsed: z.number().positive(),
+})
+
+const AddMedicationStockSchema = z.object({
+  id: z.string().uuid(),
+  quantityToAdd: z.number().positive(),
+})
+
+const ExpiringMedicationsSchema = z.object({
+  farmId: z.string().uuid().optional(),
+  days: z.number().positive().default(30),
+})
+
+// ============================================================================
+// Query Functions
+// ============================================================================
 
 /**
  * Get medication inventory for a user - optionally filtered by farm
  */
 export async function getMedicationInventory(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
-  const { checkFarmAccess, getUserFarms } =
-    await import('~/features/auth/utils')
-  const { AppError } = await import('~/lib/errors')
+  let targetFarmIds: Array<string> = []
 
-  try {
-    let targetFarmIds: Array<string> = []
-
-    if (farmId) {
-      const hasAccess = await checkFarmAccess(userId, farmId)
-      if (!hasAccess)
-        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
-      targetFarmIds = [farmId]
-    } else {
-      targetFarmIds = await getUserFarms(userId)
-      if (targetFarmIds.length === 0) return []
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
     }
-
-    return await db
-      .selectFrom('medication_inventory')
-      .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
-      .select([
-        'medication_inventory.id',
-        'medication_inventory.farmId',
-        'medication_inventory.medicationName',
-        'medication_inventory.quantity',
-        'medication_inventory.unit',
-        'medication_inventory.expiryDate',
-        'medication_inventory.minThreshold',
-        'medication_inventory.updatedAt',
-        'farms.name as farmName',
-      ])
-      .where('medication_inventory.farmId', 'in', targetFarmIds)
-      .orderBy('medication_inventory.medicationName', 'asc')
-      .execute()
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to fetch medication inventory',
-      cause: error,
-    })
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
   }
+
+  const { db } = await import('~/lib/db')
+  return selectMedicationInventory(db, targetFarmIds)
 }
 
 export const getMedicationInventoryFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId?: string }) => data)
+  .validator(MedicationQuerySchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     return getMedicationInventory(session.user.id, data.farmId)
   })
+
+/**
+ * Get medications expiring soon (within days)
+ */
+export async function getExpiringMedicationsList(
+  userId: string,
+  farmId?: string,
+  days: number = 30,
+) {
+  let targetFarmIds: Array<string> = []
+
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+    }
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
+  }
+
+  const { db } = await import('~/lib/db')
+  return getExpiringMedications(db, targetFarmIds, days)
+}
+
+export const getExpiringMedicationsFn = createServerFn({ method: 'GET' })
+  .validator(ExpiringMedicationsSchema)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getExpiringMedicationsList(session.user.id, data.farmId, data.days)
+  })
+
+/**
+ * Get low stock medications
+ */
+export async function getLowStockMedicationsList(userId: string, farmId?: string) {
+  let targetFarmIds: Array<string> = []
+
+  if (farmId) {
+    const hasAccess = await checkFarmAccess(userId, farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+    }
+    targetFarmIds = [farmId]
+  } else {
+    targetFarmIds = await getUserFarms(userId)
+    if (targetFarmIds.length === 0) return []
+  }
+
+  const { db } = await import('~/lib/db')
+  return getLowStockMedications(db, targetFarmIds)
+}
+
+export const getLowStockMedicationsFn = createServerFn({ method: 'GET' })
+  .validator(MedicationQuerySchema)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getLowStockMedicationsList(session.user.id, data.farmId)
+  })
+
+// ============================================================================
+// Mutation Functions
+// ============================================================================
 
 /**
  * Create a new medication inventory record
@@ -98,39 +184,34 @@ export async function createMedication(
   userId: string,
   input: CreateMedicationInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
-  const { verifyFarmAccess } = await import('~/features/auth/utils')
-  const { AppError } = await import('~/lib/errors')
-
-  try {
-    await verifyFarmAccess(userId, input.farmId)
-
-    const result = await db
-      .insertInto('medication_inventory')
-      .values({
-        farmId: input.farmId,
-        medicationName: input.medicationName,
-        quantity: input.quantity,
-        unit: input.unit,
-        expiryDate: input.expiryDate || null,
-        minThreshold: input.minThreshold,
-        updatedAt: new Date(),
-      })
-      .returning('id')
-      .executeTakeFirstOrThrow()
-
-    return result.id
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to create medication record',
-      cause: error,
+  // Validate input
+  const validationError = validateMedicationData(input)
+  if (validationError) {
+    throw new AppError('VALIDATION_ERROR', {
+      message: validationError,
+      metadata: { field: 'input' },
     })
   }
+
+  // Verify farm access
+  await verifyFarmAccess(userId, input.farmId)
+
+  const { db } = await import('~/lib/db')
+
+  const id = await insertMedicationInventory(db, {
+    farmId: input.farmId,
+    medicationName: input.medicationName,
+    quantity: input.quantity,
+    unit: input.unit,
+    expiryDate: input.expiryDate ?? null,
+    minThreshold: input.minThreshold,
+  })
+
+  return id
 }
 
 export const createMedicationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { input: CreateMedicationInput }) => data)
+  .validator(MedicationCreateSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -140,340 +221,189 @@ export const createMedicationFn = createServerFn({ method: 'POST' })
 /**
  * Update a medication inventory record
  */
-export async function updateMedication(
+export async function updateMedicationRecord(
   userId: string,
   id: string,
   input: UpdateMedicationInput,
 ) {
-  const { db } = await import('~/lib/db')
-  const { getUserFarms } = await import('~/features/auth/utils')
-  const { AppError } = await import('~/lib/errors')
-
-  try {
-    const farmIds = await getUserFarms(userId)
-
-    const record = await db
-      .selectFrom('medication_inventory')
-      .select(['id', 'farmId'])
-      .where('id', '=', id)
-      .executeTakeFirst()
-
-    if (!record) {
-      throw new AppError('MEDICATION_NOT_FOUND', {
-        metadata: { resource: 'MedicationInventory', id },
-      })
-    }
-    if (!farmIds.includes(record.farmId)) {
-      throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: record.farmId },
-      })
-    }
-
-    const updateData: Record<string, unknown> = { updatedAt: new Date() }
-    if (input.medicationName !== undefined)
-      updateData.medicationName = input.medicationName
-    if (input.quantity !== undefined) updateData.quantity = input.quantity
-    if (input.unit !== undefined) updateData.unit = input.unit
-    if (input.expiryDate !== undefined) updateData.expiryDate = input.expiryDate
-    if (input.minThreshold !== undefined)
-      updateData.minThreshold = input.minThreshold
-
-    await db
-      .updateTable('medication_inventory')
-      .set(updateData)
-      .where('id', '=', id)
-      .execute()
-
-    return true
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to update medication inventory',
-      cause: error,
+  // Validate input
+  const validationError = validateMedicationUpdateData(input)
+  if (validationError) {
+    throw new AppError('VALIDATION_ERROR', {
+      message: validationError,
+      metadata: { field: 'input' },
     })
   }
+
+  const { db } = await import('~/lib/db')
+  const farmIds = await getUserFarms(userId)
+
+  const record = await getMedicationInventoryById(db, id)
+  if (!record) {
+    throw new AppError('MEDICATION_NOT_FOUND', {
+      metadata: { resource: 'MedicationInventory', id },
+    })
+  }
+
+  if (!farmIds.includes(record.farmId)) {
+    throw new AppError('ACCESS_DENIED', {
+      metadata: { farmId: record.farmId },
+    })
+  }
+
+  const updateData: {
+    medicationName?: string
+    quantity?: number
+    unit?: string
+    expiryDate?: Date | null
+    minThreshold?: number
+  } = {}
+
+  if (input.medicationName !== undefined) updateData.medicationName = input.medicationName
+  if (input.quantity !== undefined) updateData.quantity = input.quantity
+  if (input.unit !== undefined) updateData.unit = input.unit
+  if (input.expiryDate !== undefined) updateData.expiryDate = input.expiryDate
+  if (input.minThreshold !== undefined) updateData.minThreshold = input.minThreshold
+
+  await updateMedicationInventory(db, id, updateData)
+
+  return true
 }
 
 export const updateMedicationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string; input: UpdateMedicationInput }) => data)
+  .validator(MedicationUpdateSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return updateMedication(session.user.id, data.id, data.input)
+    return updateMedicationRecord(session.user.id, data.id, data.input)
   })
 
 /**
  * Delete a medication inventory record
  */
-export async function deleteMedication(userId: string, id: string) {
+export async function deleteMedicationRecord(userId: string, id: string) {
   const { db } = await import('~/lib/db')
-  const { getUserFarms } = await import('~/features/auth/utils')
-  const { AppError } = await import('~/lib/errors')
+  const farmIds = await getUserFarms(userId)
 
-  try {
-    const farmIds = await getUserFarms(userId)
-
-    const record = await db
-      .selectFrom('medication_inventory')
-      .select(['id', 'farmId'])
-      .where('id', '=', id)
-      .executeTakeFirst()
-
-    if (!record) {
-      throw new AppError('MEDICATION_NOT_FOUND', {
-        metadata: { resource: 'MedicationInventory', id },
-      })
-    }
-    if (!farmIds.includes(record.farmId)) {
-      throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: record.farmId },
-      })
-    }
-
-    await db.deleteFrom('medication_inventory').where('id', '=', id).execute()
-    return true
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to delete medication inventory',
-      cause: error,
+  const record = await getMedicationInventoryById(db, id)
+  if (!record) {
+    throw new AppError('MEDICATION_NOT_FOUND', {
+      metadata: { resource: 'MedicationInventory', id },
     })
   }
+
+  if (!farmIds.includes(record.farmId)) {
+    throw new AppError('ACCESS_DENIED', {
+      metadata: { farmId: record.farmId },
+    })
+  }
+
+  await deleteMedicationInventory(db, id)
+
+  return true
 }
 
 export const deleteMedicationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string }) => data)
+  .validator(MedicationDeleteSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return deleteMedication(session.user.id, data.id)
+    return deleteMedicationRecord(session.user.id, data.id)
   })
 
 /**
  * Use medication (reduce inventory) - called when recording treatments
  */
-export async function useMedication(
+export async function useMedicationRecord(
   userId: string,
   id: string,
   quantityUsed: number,
 ) {
-  const { db } = await import('~/lib/db')
-  const { getUserFarms } = await import('~/features/auth/utils')
-  const { AppError } = await import('~/lib/errors')
-
-  try {
-    const farmIds = await getUserFarms(userId)
-
-    const record = await db
-      .selectFrom('medication_inventory')
-      .select(['id', 'farmId', 'quantity', 'medicationName'])
-      .where('id', '=', id)
-      .executeTakeFirst()
-
-    if (!record) {
-      throw new AppError('MEDICATION_NOT_FOUND', {
-        metadata: { resource: 'MedicationInventory', id },
-      })
-    }
-    if (!farmIds.includes(record.farmId)) {
-      throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: record.farmId },
-      })
-    }
-
-    if (record.quantity < quantityUsed) {
-      throw new AppError('INSUFFICIENT_STOCK', {
-        message: `Insufficient ${record.medicationName} stock`,
-        metadata: { available: record.quantity, requested: quantityUsed },
-      })
-    }
-
-    const newQuantity = record.quantity - quantityUsed
-    await db
-      .updateTable('medication_inventory')
-      .set({
-        quantity: newQuantity,
-        updatedAt: new Date(),
-      })
-      .where('id', '=', id)
-      .execute()
-
-    return true
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to usage of medication',
-      cause: error,
+  if (quantityUsed <= 0) {
+    throw new AppError('VALIDATION_ERROR', {
+      message: 'Quantity used must be positive',
+      metadata: { field: 'quantityUsed' },
     })
   }
+
+  const { db } = await import('~/lib/db')
+  const farmIds = await getUserFarms(userId)
+
+  const record = await getMedicationInventoryById(db, id)
+  if (!record) {
+    throw new AppError('MEDICATION_NOT_FOUND', {
+      metadata: { resource: 'MedicationInventory', id },
+    })
+  }
+
+  if (!farmIds.includes(record.farmId)) {
+    throw new AppError('ACCESS_DENIED', {
+      metadata: { farmId: record.farmId },
+    })
+  }
+
+  if (record.quantity < quantityUsed) {
+    throw new AppError('INSUFFICIENT_STOCK', {
+      message: `Insufficient ${record.medicationName} stock`,
+      metadata: { available: record.quantity, requested: quantityUsed },
+    })
+  }
+
+  const newQuantity = record.quantity - quantityUsed
+  await updateMedicationInventory(db, id, { quantity: newQuantity })
+
+  return true
 }
 
 export const useMedicationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string; quantityUsed: number }) => data)
+  .validator(UseMedicationSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return useMedication(session.user.id, data.id, data.quantityUsed)
+    return useMedicationRecord(session.user.id, data.id, data.quantityUsed)
   })
 
 /**
  * Add medication stock
  */
-export async function addMedicationStock(
+export async function addMedicationStockRecord(
   userId: string,
   id: string,
   quantityToAdd: number,
 ) {
-  const { db } = await import('~/lib/db')
-  const { getUserFarms } = await import('~/features/auth/utils')
-  const { AppError } = await import('~/lib/errors')
-
-  try {
-    const farmIds = await getUserFarms(userId)
-
-    const record = await db
-      .selectFrom('medication_inventory')
-      .select(['id', 'farmId', 'quantity'])
-      .where('id', '=', id)
-      .executeTakeFirst()
-
-    if (!record) {
-      throw new AppError('MEDICATION_NOT_FOUND', {
-        metadata: { resource: 'MedicationInventory', id },
-      })
-    }
-    if (!farmIds.includes(record.farmId)) {
-      throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: record.farmId },
-      })
-    }
-
-    const newQuantity = record.quantity + quantityToAdd
-    await db
-      .updateTable('medication_inventory')
-      .set({
-        quantity: newQuantity,
-        updatedAt: new Date(),
-      })
-      .where('id', '=', id)
-      .execute()
-
-    return true
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to add medication stock',
-      cause: error,
+  if (quantityToAdd <= 0) {
+    throw new AppError('VALIDATION_ERROR', {
+      message: 'Quantity to add must be positive',
+      metadata: { field: 'quantityToAdd' },
     })
   }
-}
 
-/**
- * Get medications expiring soon (within days)
- */
-export async function getExpiringMedications(
-  userId: string,
-  farmId?: string,
-  days: number = 30,
-) {
   const { db } = await import('~/lib/db')
-  const { checkFarmAccess, getUserFarms } =
-    await import('~/features/auth/utils')
-  const { AppError } = await import('~/lib/errors')
+  const farmIds = await getUserFarms(userId)
 
-  try {
-    let targetFarmIds: Array<string> = []
-
-    if (farmId) {
-      const hasAccess = await checkFarmAccess(userId, farmId)
-      if (!hasAccess)
-        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
-      targetFarmIds = [farmId]
-    } else {
-      targetFarmIds = await getUserFarms(userId)
-      if (targetFarmIds.length === 0) return []
-    }
-
-    const futureDate = new Date()
-    futureDate.setDate(futureDate.getDate() + days)
-
-    return await db
-      .selectFrom('medication_inventory')
-      .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
-      .select([
-        'medication_inventory.id',
-        'medication_inventory.farmId',
-        'medication_inventory.medicationName',
-        'medication_inventory.quantity',
-        'medication_inventory.unit',
-        'medication_inventory.expiryDate',
-        'medication_inventory.minThreshold',
-        'farms.name as farmName',
-      ])
-      .where('medication_inventory.farmId', 'in', targetFarmIds)
-      .where('medication_inventory.expiryDate', 'is not', null)
-      .where('medication_inventory.expiryDate', '<=', futureDate)
-      .orderBy('medication_inventory.expiryDate', 'asc')
-      .execute()
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to fetch expiring medications',
-      cause: error,
+  const record = await getMedicationInventoryById(db, id)
+  if (!record) {
+    throw new AppError('MEDICATION_NOT_FOUND', {
+      metadata: { resource: 'MedicationInventory', id },
     })
   }
-}
 
-/**
- * Get low stock medications
- */
-export async function getLowStockMedications(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
-  const { sql } = await import('kysely')
-  const { checkFarmAccess, getUserFarms } =
-    await import('~/features/auth/utils')
-  const { AppError } = await import('~/lib/errors')
-
-  try {
-    let targetFarmIds: Array<string> = []
-
-    if (farmId) {
-      const hasAccess = await checkFarmAccess(userId, farmId)
-      if (!hasAccess)
-        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
-      targetFarmIds = [farmId]
-    } else {
-      targetFarmIds = await getUserFarms(userId)
-      if (targetFarmIds.length === 0) return []
-    }
-
-    return await db
-      .selectFrom('medication_inventory')
-      .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
-      .select([
-        'medication_inventory.id',
-        'medication_inventory.farmId',
-        'medication_inventory.medicationName',
-        'medication_inventory.quantity',
-        'medication_inventory.unit',
-        'medication_inventory.minThreshold',
-        'farms.name as farmName',
-      ])
-      .where('medication_inventory.farmId', 'in', targetFarmIds)
-      .where((eb) =>
-        eb(
-          sql`medication_inventory.quantity`,
-          '<=',
-          sql`medication_inventory."minThreshold"`,
-        ),
-      )
-      .orderBy('medication_inventory.medicationName', 'asc')
-      .execute()
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to fetch low stock medications',
-      cause: error,
+  if (!farmIds.includes(record.farmId)) {
+    throw new AppError('ACCESS_DENIED', {
+      metadata: { farmId: record.farmId },
     })
   }
+
+  const newQuantity = record.quantity + quantityToAdd
+  await updateMedicationInventory(db, id, { quantity: newQuantity })
+
+  return true
 }
+
+export const addMedicationStockFn = createServerFn({ method: 'POST' })
+  .validator(AddMedicationStockSchema)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return addMedicationStockRecord(session.user.id, data.id, data.quantityToAdd)
+  })
