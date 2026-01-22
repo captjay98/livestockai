@@ -3253,6 +3253,126 @@ This represents a significant improvement in AI-assisted development capabilitie
 
 ---
 
+## Day 16 - January 22, 2026 - Cloudflare Workers Fix & Test Infrastructure
+
+### Context
+
+Production deployment was failing with "No database connection string was provided to `neon()`" error. Root cause: Cloudflare's vite plugin sandboxes the SSR environment, preventing automatic env var access.
+
+### Cloudflare Workers Environment Fix
+
+**Problem**: The `@cloudflare/vite-plugin` creates an isolated SSR environment that doesn't inherit `process.env` from the shell like standard Vite does.
+
+**Solution**: Load dotenv explicitly in `vite.config.ts` before any imports:
+
+```typescript
+import { config } from 'dotenv'
+config() // Load .env BEFORE defineConfig
+
+export default defineConfig({
+  define: {
+    'process.env.DATABASE_URL': JSON.stringify(process.env.DATABASE_URL),
+    // ... other env vars
+  },
+})
+```
+
+**Files Modified**: `vite.config.ts`
+
+### Auth Error Handling Improvements
+
+**Problem**: Login errors showed "Invalid email or password" even for database connection failures - misleading users.
+
+**Solution**: 
+- Distinguish DB errors from auth errors in `loginFn`
+- Check `AppError.reason === 'UNAUTHORIZED'` instead of just message string
+- Dynamic imports for `getRequestHeaders` in server functions
+
+**Files Modified**: `app/features/auth/server.ts`, `config.ts`, `app/routes/_auth.tsx`
+
+### Test Infrastructure Fix
+
+**Problem**: `bun test` vs `bun run test` behave differently:
+- `bun test` = Bun's built-in test runner (ignores vitest.config.ts)
+- `bun run test` = Runs vitest via package.json script
+
+Integration tests were failing with `bun test` because Bun's runner doesn't load vitest's `setupFiles`.
+
+**Solution**:
+1. Use dynamic imports in `tests/setup.ts` to load db after dotenv
+2. Change vitest exclude pattern to `tests/integration/**`
+3. Update all documentation to use `bun run test`
+
+**Files Modified**: `tests/setup.ts`, `vitest.config.ts`, `vitest.*.config.ts`
+
+### Documentation Updates
+
+Updated 28 documentation files to use correct test command:
+- AGENTS.md, README.md, CONTRIBUTING.md
+- All docs/ files including i18n translations
+- .kiro/agents/*.json configurations
+
+Added warning:
+```
+IMPORTANT: Use "bun run test" not "bun test"
+- "bun run test" uses vitest (respects config)
+- "bun test" uses Bun's built-in runner (ignores vitest config)
+```
+
+### Routes Refactoring
+
+Updated 17 route files in `app/routes/_auth/`:
+- Dynamic import for `requireAuth` middleware
+- Fix Select `onValueChange` null handling with `if(value)` guard
+- Ensures Cloudflare Workers compatibility
+
+### Commits Created (8)
+
+1. `a36d8c9` - fix(config): load dotenv and simplify vite config for Cloudflare Workers
+2. `9cbf0bd` - fix(auth): improve error handling and use dynamic imports
+3. `f321838` - fix(auth): check AppError.reason for UNAUTHORIZED redirect
+4. `2443ab6` - fix(tests): load dotenv before imports and fix vitest exclude
+5. `6df94c8` - docs: update test commands to use bun run test
+6. `c44c554` - refactor(routes): use dynamic imports for auth middleware
+7. `e80a94d` - style(batches): format code with prettier
+8. `68b5ee5` - chore: update dependencies, tests, and misc config
+
+### Technical Metrics
+
+| Metric | Value |
+|--------|-------|
+| **Files Changed** | 95 |
+| **Lines Added** | +1,702 |
+| **Lines Removed** | -1,419 |
+| **Commits** | 8 |
+| **Docs Updated** | 28 |
+| **Routes Updated** | 17 |
+
+### Test Results
+
+```
+Unit/Property Tests: 397 passed, 1 skipped
+Integration Tests: 28 passed
+Total: 425 passed ✅
+```
+
+### Key Insights
+
+- Cloudflare's vite plugin requires explicit dotenv loading - it doesn't inherit shell env vars
+- `bun test` and `bun run test` are fundamentally different - always use `bun run test` for vitest
+- Dynamic imports in test setup files prevent module-load-time errors
+- AppError should be checked by `.reason` property, not `.message` (message is human-readable)
+
+### Production Status
+
+- ✅ Local dev working with `bun dev`
+- ✅ Production deployment working on Cloudflare Workers
+- ✅ All tests passing
+- ✅ TypeScript: 0 errors
+- ✅ ESLint: 0 errors
+
+---
+
 ## Day 15 - January 21, 2026 - Prompt System Enhancement & Documentation Sync
 
 ### Context
@@ -3360,6 +3480,62 @@ Comprehensive enhancement of all 27 Kiro CLI prompts to add interactive workflow
 - Documentation sync: ~1 hour
 - Database updates: ~30 minutes
 - Test infrastructure: ~30 minutes
+
+---
+
+## Day 15 (Evening) - Batches Service Layer Refactoring
+
+### Context
+
+Late-night refactoring session to establish a clean three-layer architecture pattern for the batches feature.
+
+### Service Layer Implementation
+
+**Objective**: Establish three-layer architecture pattern (Server → Service → Repository).
+
+**Implementation**:
+- Created `service.ts` with pure business logic (calculations, validations)
+- Created `repository.ts` with database operations (CRUD, queries, aggregations)
+- Refactored `server.ts` to orchestrate service/repository layers
+- Added comprehensive property-based unit tests for service functions
+
+**Files Created**: 
+- `app/features/batches/service.ts`
+- `app/features/batches/repository.ts`
+
+**Files Modified**: 
+- `app/features/batches/server.ts`
+- `tests/features/batches/batches.service.test.ts`
+
+### Architecture Pattern
+
+```
+Server Layer (server.ts)
+├── Auth middleware
+├── Input validation
+└── Orchestration
+    ├── Service Layer (service.ts)
+    │   ├── Business logic
+    │   ├── Calculations (FCR, mortality rate)
+    │   └── Validations
+    └── Repository Layer (repository.ts)
+        ├── Database queries
+        ├── CRUD operations
+        └── Aggregations
+```
+
+### Benefits
+
+- **Testability**: Service functions are pure and easily unit tested
+- **Separation of concerns**: Clear boundaries between layers
+- **Reusability**: Service functions can be used across different server functions
+- **Maintainability**: Changes to DB schema only affect repository layer
+
+### Commits Created (3)
+
+1. `f38e98c` - refactor(batches): implement service and repository layers
+2. `4c7adf4` - refactor(batches): implement service and repository layers
+3. `064ed40` - chore: remove old .agent directory files
 
 ---
 
