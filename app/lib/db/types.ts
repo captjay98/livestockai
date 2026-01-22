@@ -65,6 +65,10 @@ export interface Database {
   market_prices: MarketPriceTable
   /** User notifications */
   notifications: NotificationTable
+  /** Farm tasks (checklists) */
+  tasks: TaskTable
+  /** Task completion records */
+  task_completions: TaskCompletionTable
 }
 
 // User & Auth - Better Auth tables use camelCase
@@ -130,21 +134,21 @@ export interface UserSettingsTable {
   defaultFarmId: string | null
   /** UI language code */
   language:
-    | 'en'
-    | 'ha'
-    | 'yo'
-    | 'ig'
-    | 'fr'
-    | 'pt'
-    | 'sw'
-    | 'es'
-    | 'hi'
-    | 'tr'
-    | 'id'
-    | 'bn'
-    | 'th'
-    | 'vi'
-    | 'am'
+  | 'en'
+  | 'ha'
+  | 'yo'
+  | 'ig'
+  | 'fr'
+  | 'pt'
+  | 'sw'
+  | 'es'
+  | 'hi'
+  | 'tr'
+  | 'id'
+  | 'bn'
+  | 'th'
+  | 'vi'
+  | 'am'
   /** UI theme preference */
   theme: 'light' | 'dark' | 'system'
 
@@ -239,14 +243,14 @@ export interface FarmTable {
   name: string
   location: string
   type:
-    | 'poultry'
-    | 'aquaculture'
-    | 'mixed'
-    | 'cattle'
-    | 'goats'
-    | 'sheep'
-    | 'bees'
-    | 'multi'
+  | 'poultry'
+  | 'aquaculture'
+  | 'mixed'
+  | 'cattle'
+  | 'goats'
+  | 'sheep'
+  | 'bees'
+  | 'multi'
   contactPhone: string | null
   notes: string | null
   createdAt: Generated<Date>
@@ -275,20 +279,20 @@ export interface StructureTable {
   farmId: string
   name: string // "House A", "Pond 1", "Pen 3"
   type:
-    | 'house'
-    | 'pond'
-    | 'pen'
-    | 'cage'
-    | 'barn'
-    | 'pasture'
-    | 'hive'
-    | 'milking_parlor'
-    | 'shearing_shed'
-    | 'tank' // Concrete/plastic tanks
-    | 'tarpaulin' // Tarpaulin ponds (popular in Nigeria)
-    | 'raceway' // Flow-through systems
-    | 'feedlot' // Intensive feeding area
-    | 'kraal' // Traditional African livestock enclosure
+  | 'house'
+  | 'pond'
+  | 'pen'
+  | 'cage'
+  | 'barn'
+  | 'pasture'
+  | 'hive'
+  | 'milking_parlor'
+  | 'shearing_shed'
+  | 'tank' // Concrete/plastic tanks
+  | 'tarpaulin' // Tarpaulin ponds (popular in Nigeria)
+  | 'raceway' // Flow-through systems
+  | 'feedlot' // Intensive feeding area
+  | 'kraal' // Traditional African livestock enclosure
   capacity: number | null // Max animals
   areaSqm: string | null // DECIMAL(10,2) - Size in square meters
   status: 'active' | 'empty' | 'maintenance'
@@ -328,16 +332,16 @@ export interface MortalityTable {
   quantity: number
   date: Date
   cause:
-    | 'disease'
-    | 'predator'
-    | 'weather'
-    | 'unknown'
-    | 'other'
-    | 'starvation'
-    | 'injury'
-    | 'poisoning'
-    | 'suffocation'
-    | 'culling'
+  | 'disease'
+  | 'predator'
+  | 'weather'
+  | 'unknown'
+  | 'other'
+  | 'starvation'
+  | 'injury'
+  | 'poisoning'
+  | 'suffocation'
+  | 'culling'
   notes: string | null
   createdAt: Generated<Date>
 }
@@ -346,17 +350,17 @@ export interface FeedTable {
   id: Generated<string>
   batchId: string
   feedType:
-    | 'starter'
-    | 'grower'
-    | 'finisher'
-    | 'layer_mash'
-    | 'fish_feed'
-    | 'cattle_feed'
-    | 'goat_feed'
-    | 'sheep_feed'
-    | 'hay'
-    | 'silage'
-    | 'bee_feed'
+  | 'starter'
+  | 'grower'
+  | 'finisher'
+  | 'layer_mash'
+  | 'fish_feed'
+  | 'cattle_feed'
+  | 'goat_feed'
+  | 'sheep_feed'
+  | 'hay'
+  | 'silage'
+  | 'bee_feed'
   brandName: string | null // "Aller Aqua", "Ultima Plus", "Blue Crown"
   bagSizeKg: number | null // 15, 25
   numberOfBags: number | null // How many bags used
@@ -434,43 +438,43 @@ export interface SaleTable {
   customerId: string | null
   invoiceId: string | null // Link to invoice if generated
   livestockType:
-    | 'poultry'
-    | 'fish'
-    | 'eggs'
-    | 'cattle'
-    | 'goats'
-    | 'sheep'
-    | 'honey'
-    | 'milk'
-    | 'wool'
-    | 'beeswax'
-    | 'propolis'
-    | 'royal_jelly'
-    | 'manure'
+  | 'poultry'
+  | 'fish'
+  | 'eggs'
+  | 'cattle'
+  | 'goats'
+  | 'sheep'
+  | 'honey'
+  | 'milk'
+  | 'wool'
+  | 'beeswax'
+  | 'propolis'
+  | 'royal_jelly'
+  | 'manure'
   quantity: number
   unitPrice: string // DECIMAL(19,2) - returned as string from pg
   totalAmount: string // DECIMAL(19,2) - returned as string from pg
   unitType:
-    | 'bird'
-    | 'kg'
-    | 'crate'
-    | 'piece'
-    | 'liter'
-    | 'head'
-    | 'colony'
-    | 'fleece'
-    | null // How sold
+  | 'bird'
+  | 'kg'
+  | 'crate'
+  | 'piece'
+  | 'liter'
+  | 'head'
+  | 'colony'
+  | 'fleece'
+  | null // How sold
   ageWeeks: number | null // Age at sale (critical for broilers: 5 or 8 weeks)
   averageWeightKg: string | null // DECIMAL(8,3) - Weight at sale
   paymentStatus: 'paid' | 'pending' | 'partial' | null
   paymentMethod:
-    | 'cash'
-    | 'transfer'
-    | 'credit'
-    | 'mobile_money'
-    | 'check'
-    | 'card'
-    | null
+  | 'cash'
+  | 'transfer'
+  | 'credit'
+  | 'mobile_money'
+  | 'check'
+  | 'card'
+  | null
   date: Date
   notes: string | null
   createdAt: Generated<Date>
@@ -481,24 +485,24 @@ export interface ExpenseTable {
   farmId: string
   batchId: string | null
   category:
-    | 'feed'
-    | 'medicine'
-    | 'equipment'
-    | 'utilities'
-    | 'labor'
-    | 'transport'
-    | 'livestock' // For chick/fingerling purchases
-    | 'livestock_chicken'
-    | 'livestock_fish'
-    | 'livestock_cattle'
-    | 'livestock_goats'
-    | 'livestock_sheep'
-    | 'livestock_bees'
-    | 'maintenance'
-    | 'marketing'
-    | 'insurance'
-    | 'veterinary'
-    | 'other'
+  | 'feed'
+  | 'medicine'
+  | 'equipment'
+  | 'utilities'
+  | 'labor'
+  | 'transport'
+  | 'livestock' // For chick/fingerling purchases
+  | 'livestock_chicken'
+  | 'livestock_fish'
+  | 'livestock_cattle'
+  | 'livestock_goats'
+  | 'livestock_sheep'
+  | 'livestock_bees'
+  | 'maintenance'
+  | 'marketing'
+  | 'insurance'
+  | 'veterinary'
+  | 'other'
   amount: string // DECIMAL(19,2) - returned as string from pg
   date: Date
   description: string
@@ -511,17 +515,17 @@ export interface FeedInventoryTable {
   id: Generated<string>
   farmId: string
   feedType:
-    | 'starter'
-    | 'grower'
-    | 'finisher'
-    | 'layer_mash'
-    | 'fish_feed'
-    | 'cattle_feed'
-    | 'goat_feed'
-    | 'sheep_feed'
-    | 'hay'
-    | 'silage'
-    | 'bee_feed'
+  | 'starter'
+  | 'grower'
+  | 'finisher'
+  | 'layer_mash'
+  | 'fish_feed'
+  | 'cattle_feed'
+  | 'goat_feed'
+  | 'sheep_feed'
+  | 'hay'
+  | 'silage'
+  | 'bee_feed'
   quantityKg: string // DECIMAL(10,2)
   minThresholdKg: string // DECIMAL(10,2)
   updatedAt: Generated<Date>
@@ -547,14 +551,14 @@ export interface CustomerTable {
   email: string | null
   location: string | null
   customerType:
-    | 'individual'
-    | 'restaurant'
-    | 'retailer'
-    | 'wholesaler'
-    | 'processor'
-    | 'exporter'
-    | 'government'
-    | null
+  | 'individual'
+  | 'restaurant'
+  | 'retailer'
+  | 'wholesaler'
+  | 'processor'
+  | 'exporter'
+  | 'government'
+  | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -567,17 +571,17 @@ export interface SupplierTable {
   location: string | null
   products: Array<string> // what they supply
   supplierType:
-    | 'hatchery'
-    | 'feed_mill'
-    | 'pharmacy'
-    | 'equipment'
-    | 'fingerlings'
-    | 'cattle_dealer'
-    | 'goat_dealer'
-    | 'sheep_dealer'
-    | 'bee_supplier'
-    | 'other'
-    | null
+  | 'hatchery'
+  | 'feed_mill'
+  | 'pharmacy'
+  | 'equipment'
+  | 'fingerlings'
+  | 'cattle_dealer'
+  | 'goat_dealer'
+  | 'sheep_dealer'
+  | 'bee_supplier'
+  | 'other'
+  | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }
@@ -662,4 +666,40 @@ export interface NotificationTable {
   /** Additional metadata */
   metadata: Record<string, any> | null
   createdAt: Generated<Date>
+}
+
+// Tasks (Farm Checklists)
+/**
+ * Recurring farm tasks for daily/weekly/monthly check-ins.
+ */
+export interface TaskTable {
+  /** Unique task identifier */
+  id: Generated<string>
+  /** Farm this task belongs to */
+  farmId: string
+  /** Task title (e.g., "Check Water Lines") */
+  title: string
+  /** Optional description */
+  description: string | null
+  /** Task frequency */
+  frequency: 'daily' | 'weekly' | 'monthly'
+  /** Whether this is a system-generated default task */
+  isDefault: Generated<boolean>
+  createdAt: Generated<Date>
+}
+
+/**
+ * Records of task completions by users.
+ */
+export interface TaskCompletionTable {
+  /** Unique completion identifier */
+  id: Generated<string>
+  /** Task that was completed */
+  taskId: string
+  /** User who completed the task */
+  userId: string
+  /** When the task was completed */
+  completedAt: Generated<Date>
+  /** Period start date (day/week/month start) for deduplication */
+  periodStart: Date
 }

@@ -789,14 +789,67 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
   await db.schema
-    .createIndex('idx_batches_farm_id')
-    .on('batches')
-    .column('farmId')
-    .execute()
-  await db.schema
     .createIndex('idx_batches_status')
     .on('batches')
     .column('status')
+    .execute()
+
+  // ============================================
+  // 8. Tasks & Checklists
+  // ============================================
+  await db.schema
+    .createTable('tasks')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`uuid_generate_v4()`),
+    )
+    .addColumn('farmId', 'uuid', (col) =>
+      col.notNull().references('farms.id').onDelete('cascade'),
+    )
+    .addColumn('title', 'varchar(255)', (col) => col.notNull())
+    .addColumn('description', 'text')
+    .addColumn('frequency', 'varchar(10)', (col) => col.notNull())
+    .addColumn('isDefault', 'boolean', (col) => col.notNull().defaultTo(false))
+    .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
+    .execute()
+
+  await sql`ALTER TABLE tasks ADD CONSTRAINT tasks_frequency_check CHECK (frequency IN ('daily', 'weekly', 'monthly'))`.execute(
+    db,
+  )
+
+  await db.schema
+    .createIndex('idx_tasks_farm_id')
+    .on('tasks')
+    .column('farmId')
+    .execute()
+
+  await db.schema
+    .createTable('task_completions')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`uuid_generate_v4()`),
+    )
+    .addColumn('taskId', 'uuid', (col) =>
+      col.notNull().references('tasks.id').onDelete('cascade'),
+    )
+    .addColumn('userId', 'uuid', (col) =>
+      col.notNull().references('users.id').onDelete('cascade'),
+    )
+    .addColumn('completedAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .addColumn('periodStart', 'date', (col) => col.notNull())
+    .execute()
+
+  await db.schema
+    .createIndex('idx_task_completions_unique')
+    .on('task_completions')
+    .columns(['taskId', 'userId', 'periodStart'])
+    .unique()
+    .execute()
+
+  await db.schema
+    .createIndex('idx_task_completions_task_id')
+    .on('task_completions')
+    .column('taskId')
     .execute()
   await db.schema
     .createIndex('idx_batches_structure_id')
@@ -956,6 +1009,8 @@ export async function down(db: Kysely<any>): Promise<void> {
     'suppliers',
     'customers',
     'notifications',
+    'task_completions',
+    'tasks',
     'farms',
     'user_settings',
     'verification',
