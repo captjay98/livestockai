@@ -229,15 +229,20 @@ export function calculateFCR(
 export function buildFeedStats(
   records: Array<{ quantityKg: string; cost: string }>,
 ): FeedStats {
-  const totalQuantityKg = records.reduce(
-    (sum, r) => sum + parseFloat(r.quantityKg),
+  // Use integer arithmetic to avoid floating-point precision issues
+  // Multiply by 100, sum, then divide by 100
+  const totalQuantityCents = records.reduce(
+    (sum, r) => sum + Math.round(parseFloat(r.quantityKg) * 100),
     0,
   )
-  const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
+  const totalCostCents = records.reduce(
+    (sum, r) => sum + Math.round(parseFloat(r.cost) * 100),
+    0,
+  )
 
   return {
-    totalQuantityKg,
-    totalCost,
+    totalQuantityKg: totalQuantityCents / 100,
+    totalCost: totalCostCents / 100,
     recordCount: records.length,
   }
 }

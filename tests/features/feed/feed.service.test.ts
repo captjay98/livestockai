@@ -337,32 +337,25 @@ describe('Feed Service', () => {
             }))
             const result = buildFeedStats(records)
 
-            // Verify totals - handle potential precision issues
-            const expectedTotalQty = data.reduce((sum, [qty]) => sum + qty, 0)
-            const expectedTotalCost = data.reduce(
-              (sum, [, cost]) => sum + cost,
+            // Expected values should be based on the ROUNDED values (toFixed(2))
+            // not the original floating-point values
+            const expectedTotalQty = records.reduce(
+              (sum, r) => sum + parseFloat(r.quantityKg),
+              0,
+            )
+            const expectedTotalCost = records.reduce(
+              (sum, r) => sum + parseFloat(r.cost),
               0,
             )
 
-            // Use relative comparison for floating point precision
-            // Allow for small differences due to parseFloat and string conversion
-            const qtyDiff = Math.abs(result.totalQuantityKg - expectedTotalQty)
-            const costDiff = Math.abs(result.totalCost - expectedTotalCost)
-
-            // For small values (< 1), allow absolute difference of 0.02
-            // For large values, allow relative difference of 0.15% to account for fp precision and toFixed(2)
-            if (expectedTotalQty < 1) {
-              expect(qtyDiff).toBeLessThanOrEqual(0.02)
-            } else {
-              expect(qtyDiff / expectedTotalQty).toBeLessThanOrEqual(0.0015)
-            }
-
-            if (expectedTotalCost < 1) {
-              expect(costDiff).toBeLessThanOrEqual(0.02)
-            } else {
-              expect(costDiff / expectedTotalCost).toBeLessThanOrEqual(0.0015)
-            }
-
+            // With integer arithmetic (cents), we should have exact precision
+            // Allow tiny tolerance for edge cases
+            expect(
+              Math.abs(result.totalQuantityKg - expectedTotalQty),
+            ).toBeLessThanOrEqual(0.01)
+            expect(
+              Math.abs(result.totalCost - expectedTotalCost),
+            ).toBeLessThanOrEqual(0.01)
             expect(result.recordCount).toBe(records.length)
           },
         ),
