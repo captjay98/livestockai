@@ -38,6 +38,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { DataTable } from '~/components/ui/data-table'
 import { ProjectionsCard } from '~/components/batches/projections-card'
+import { BatchCommandCenter } from '~/components/batches/command-center'
 
 // Local interfaces matching server return types
 interface FeedRecord {
@@ -147,7 +148,7 @@ function BatchDetailsPage() {
   } = details
   const ageInDays = Math.floor(
     (new Date().getTime() - new Date(batch.acquisitionDate).getTime()) /
-      (1000 * 60 * 60 * 24),
+    (1000 * 60 * 60 * 24),
   )
 
   const totalInvestment =
@@ -211,6 +212,9 @@ function BatchDetailsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Command Center (Mobile-First Actions) */}
+      <BatchCommandCenter batchId={batchId} />
 
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
@@ -410,8 +414,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
-                onPaginationChange={() => {}}
-                onSortChange={() => {}}
+                onPaginationChange={() => { }}
+                onSortChange={() => { }}
               />
             </CardContent>
           </Card>
@@ -461,8 +465,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
-                onPaginationChange={() => {}}
-                onSortChange={() => {}}
+                onPaginationChange={() => { }}
+                onSortChange={() => { }}
               />
             </CardContent>
           </Card>
@@ -506,8 +510,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
-                onPaginationChange={() => {}}
-                onSortChange={() => {}}
+                onPaginationChange={() => { }}
+                onSortChange={() => { }}
               />
             </CardContent>
           </Card>
@@ -585,13 +589,13 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
-                onPaginationChange={() => {}}
-                onSortChange={() => {}}
+                onPaginationChange={() => { }}
+                onSortChange={() => { }}
               />
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </div >
   )
 }
