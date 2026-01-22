@@ -1,4 +1,33 @@
 import { createServerFn } from '@tanstack/react-start'
+import {
+  buildFeedStats,
+  buildFeedSummary,
+  calculateFCR,
+  validateFeedRecord,
+  validateUpdateData,
+} from './service'
+import {
+  deductFromInventory,
+  deductNewInventory,
+  deleteFeedRecord as deleteFeedRecordFromDb,
+  getBatchById,
+  getBatchQuantity,
+  getFeedInventoryById,
+  getFeedInventoryForFarms,
+  getFeedRecordById,
+  getFeedRecordForValidation,
+  getFeedRecordsByBatch,
+  getFeedRecordsByFarms,
+  getFeedRecordsPaginated,
+  getFeedStatsData,
+  getFeedSummaryByBatch,
+  getNewInventory,
+  getWeightSamples,
+  insertFeedRecord as insertFeedRecordIntoDb,
+  restoreInventoryOnDelete,
+  restoreOldInventory,
+  updateFeedRecord as updateFeedRecordInDb,
+} from './repository'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 import { AppError } from '~/lib/errors'
 
@@ -30,7 +59,18 @@ export interface CreateFeedRecordInput {
   /** ID of the livestock batch being fed */
   batchId: string
   /** The specific category of feed used */
-  feedType: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+  feedType:
+    | 'starter'
+    | 'grower'
+    | 'finisher'
+    | 'layer_mash'
+    | 'fish_feed'
+    | 'cattle_feed'
+    | 'goat_feed'
+    | 'sheep_feed'
+    | 'hay'
+    | 'silage'
+    | 'bee_feed'
   /** Total weight of feed consumed in kilograms */
   quantityKg: number
   /** Total cost of the feed consumed in the system currency */
@@ -90,15 +130,17 @@ export async function createFeedRecord(
   try {
     await verifyFarmAccess(userId, farmId)
 
-    // Verify batch belongs to farm
-    const batch = await db
-      .selectFrom('batches')
-      .select(['id', 'farmId'])
-      .where('id', '=', input.batchId)
-      .where('farmId', '=', farmId)
-      .executeTakeFirst()
+    // Validate input using service layer
+    const validationError = validateFeedRecord(input, input.batchId)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
+      })
+    }
 
-    if (!batch) {
+    // Verify batch belongs to farm using repository
+    const batch = await getBatchById(db, input.batchId)
+    if (!batch || batch.farmId !== farmId) {
       throw new AppError('BATCH_NOT_FOUND', {
         metadata: { batchId: input.batchId, farmId },
       })
@@ -109,14 +151,9 @@ export async function createFeedRecord(
 
       // If inventoryId provided, deduct from that specific inventory
       if (input.inventoryId) {
-        const inventory = await tx
-          .selectFrom('feed_inventory')
-          .select(['id', 'quantityKg', 'feedType'])
-          .where('id', '=', input.inventoryId)
-          .where('farmId', '=', farmId)
-          .executeTakeFirst()
+        const inventory = await getFeedInventoryById(tx, input.inventoryId)
 
-        if (!inventory) {
+        if (!inventory || inventory.farmId !== farmId) {
           throw new AppError('FEED_RECORD_NOT_FOUND', {
             metadata: { inventoryId: input.inventoryId },
           })
@@ -134,52 +171,27 @@ export async function createFeedRecord(
         }
 
         // Deduct from inventory
-        const newQuantity = (
-          parseFloat(inventory.quantityKg) - input.quantityKg
-        ).toString()
-        await tx
-          .updateTable('feed_inventory')
-          .set({
-            quantityKg: newQuantity,
-            updatedAt: new Date(),
-          })
-          .where('id', '=', inventory.id)
-          .execute()
-
+        await deductFromInventory(tx, inventory.id, input.quantityKg.toString())
         inventoryId = inventory.id
       }
 
-      // Record the feed consumption
-      return await tx
-        .insertInto('feed_records')
-        .values({
-          batchId: input.batchId,
-          feedType: input.feedType,
-          quantityKg: input.quantityKg.toString(),
-          cost: input.cost.toString(),
-          date: input.date,
-          supplierId: input.supplierId || null,
-          inventoryId: inventoryId,
-          brandName: input.brandName || null,
-          bagSizeKg: input.bagSizeKg || null,
-          numberOfBags: input.numberOfBags || null,
-          notes: input.notes || null,
-        })
-        .returning('id')
-        .executeTakeFirstOrThrow()
+      // Record the feed consumption using repository
+      return await insertFeedRecordIntoDb(tx, {
+        batchId: input.batchId,
+        feedType: input.feedType,
+        quantityKg: input.quantityKg.toString(),
+        cost: input.cost.toString(),
+        date: input.date,
+        supplierId: input.supplierId || null,
+        inventoryId: inventoryId,
+        brandName: input.brandName || null,
+        bagSizeKg: input.bagSizeKg || null,
+        numberOfBags: input.numberOfBags || null,
+        notes: input.notes || null,
+      })
     })
 
-    // Log audit
-    const { logAudit } = await import('~/features/logging/audit')
-    await logAudit({
-      userId,
-      action: 'create',
-      entityType: 'feed_record',
-      entityId: result.id,
-      details: input,
-    })
-
-    return result.id
+    return result
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -219,18 +231,8 @@ export async function deleteFeedRecord(
   try {
     await verifyFarmAccess(userId, farmId)
 
-    // Get the record to restore inventory
-    const record = await db
-      .selectFrom('feed_records')
-      .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-      .select([
-        'feed_records.id',
-        'feed_records.feedType',
-        'feed_records.quantityKg',
-      ])
-      .where('feed_records.id', '=', recordId)
-      .where('batches.farmId', '=', farmId)
-      .executeTakeFirst()
+    // Get the record to restore inventory using repository
+    const record = await getFeedRecordForValidation(db, recordId)
 
     if (!record) {
       throw new AppError('FEED_RECORD_NOT_FOUND', {
@@ -239,23 +241,16 @@ export async function deleteFeedRecord(
     }
 
     await db.transaction().execute(async (tx) => {
-      // Restore inventory
-      await tx
-        .updateTable('feed_inventory')
-        .set((eb) => ({
-          quantityKg: eb(
-            'quantityKg',
-            '+',
-            parseFloat(record.quantityKg).toString(),
-          ),
-          updatedAt: new Date(),
-        }))
-        .where('farmId', '=', farmId)
-        .where('feedType', '=', record.feedType)
-        .execute()
+      // Restore inventory using repository
+      await restoreInventoryOnDelete(
+        tx,
+        farmId,
+        record.feedType,
+        record.quantityKg,
+      )
 
-      // Delete the record
-      await tx.deleteFrom('feed_records').where('id', '=', recordId).execute()
+      // Delete the record using repository
+      await deleteFeedRecordFromDb(tx, recordId)
     })
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -296,13 +291,17 @@ export async function updateFeedRecord(
   try {
     await verifyFarmAccess(userId, farmId)
 
+    // Validate update data using service layer
+    const validationError = validateUpdateData(data)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
+      })
+    }
+
     await db.transaction().execute(async (tx) => {
-      // 1. Get existing record
-      const existingRecord = await tx
-        .selectFrom('feed_records')
-        .selectAll()
-        .where('id', '=', recordId)
-        .executeTakeFirst()
+      // 1. Get existing record using repository
+      const existingRecord = await getFeedRecordById(tx, recordId)
 
       if (!existingRecord) {
         throw new AppError('FEED_RECORD_NOT_FOUND', {
@@ -316,32 +315,20 @@ export async function updateFeedRecord(
           data.quantityKg !== parseFloat(existingRecord.quantityKg)) ||
         (data.feedType && data.feedType !== existingRecord.feedType)
       ) {
-        // 2. Restore old inventory
-        await tx
-          .updateTable('feed_inventory')
-          .set((eb) => ({
-            quantityKg: eb(
-              'quantityKg',
-              '+',
-              parseFloat(existingRecord.quantityKg).toString(),
-            ),
-            updatedAt: new Date(),
-          }))
-          .where('farmId', '=', farmId)
-          .where('feedType', '=', existingRecord.feedType)
-          .execute()
+        // 2. Restore old inventory using repository
+        await restoreOldInventory(
+          tx,
+          farmId,
+          existingRecord.feedType,
+          existingRecord.quantityKg,
+        )
 
         // 3. Deduct new inventory
         const newQuantity =
           data.quantityKg || parseFloat(existingRecord.quantityKg)
         const newFeedType = data.feedType || existingRecord.feedType
 
-        const inventory = await tx
-          .selectFrom('feed_inventory')
-          .select(['id', 'quantityKg'])
-          .where('farmId', '=', farmId)
-          .where('feedType', '=', newFeedType)
-          .executeTakeFirst()
+        const inventory = await getNewInventory(tx, farmId, newFeedType)
 
         if (!inventory || parseFloat(inventory.quantityKg) < newQuantity) {
           throw new AppError('INSUFFICIENT_STOCK', {
@@ -354,28 +341,17 @@ export async function updateFeedRecord(
           })
         }
 
-        await tx
-          .updateTable('feed_inventory')
-          .set((eb) => ({
-            quantityKg: eb('quantityKg', '-', newQuantity.toString()),
-            updatedAt: new Date(),
-          }))
-          .where('id', '=', inventory.id)
-          .execute()
+        await deductNewInventory(tx, inventory.id, newQuantity.toString())
       }
 
-      // 4. Update the record
-      await tx
-        .updateTable('feed_records')
-        .set({
-          quantityKg: data.quantityKg?.toString(),
-          feedType: data.feedType as any,
-          cost: data.cost?.toString(),
-          date: data.date,
-          batchId: data.batchId,
-        })
-        .where('id', '=', recordId)
-        .execute()
+      // 4. Update the record using repository
+      await updateFeedRecordInDb(tx, recordId, {
+        feedType: data.feedType,
+        quantityKg: data.quantityKg?.toString(),
+        cost: data.cost?.toString(),
+        date: data.date,
+        batchId: data.batchId,
+      })
     })
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -414,22 +390,17 @@ export const updateFeedRecordFn = createServerFn({ method: 'POST' })
  */
 export async function getFeedRecordsForBatch(userId: string, batchId: string) {
   const { db } = await import('~/lib/db')
-  const { getBatchById } = await import('../batches/server')
+  const { getBatchById: fetchBatchById } = await import('../batches/server')
 
   try {
-    const batch = await getBatchById(userId, batchId)
+    const batch = await fetchBatchById(userId, batchId)
     if (!batch) {
       throw new AppError('BATCH_NOT_FOUND', {
         metadata: { batchId },
       })
     }
 
-    return await db
-      .selectFrom('feed_records')
-      .selectAll()
-      .where('batchId', '=', batchId)
-      .orderBy('date', 'desc')
-      .execute()
+    return await getFeedRecordsByBatch(db, batchId)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -458,27 +429,7 @@ export async function getFeedRecords(userId: string, farmId?: string) {
       targetFarmIds = await getUserFarms(userId)
     }
 
-    return await db
-      .selectFrom('feed_records')
-      .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-      .innerJoin('farms', 'farms.id', 'batches.farmId')
-      .select([
-        'feed_records.id',
-        'feed_records.batchId',
-        'feed_records.feedType',
-        'feed_records.quantityKg',
-        'feed_records.cost',
-        'feed_records.date',
-        'feed_records.supplierId',
-        'feed_records.createdAt',
-        'batches.species',
-        'batches.livestockType',
-        'farms.name as farmName',
-        'batches.farmId',
-      ])
-      .where('batches.farmId', 'in', targetFarmIds)
-      .orderBy('feed_records.date', 'desc')
-      .execute()
+    return await getFeedRecordsByFarms(db, targetFarmIds)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -507,46 +458,10 @@ export async function getFeedSummaryForBatch(
   try {
     await verifyFarmAccess(userId, farmId)
 
-    const records = await db
-      .selectFrom('feed_records')
-      .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-      .select([
-        'feed_records.feedType',
-        'feed_records.quantityKg',
-        'feed_records.cost',
-      ])
-      .where('feed_records.batchId', '=', batchId)
-      .where('batches.farmId', '=', farmId)
-      .execute()
+    const records = await getFeedSummaryByBatch(db, farmId, batchId)
 
-    const totalQuantityKg = records.reduce(
-      (sum, r) => sum + parseFloat(r.quantityKg),
-      0,
-    )
-    const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
-
-    const byType: {
-      [key: string]: { quantityKg: number; cost: number } | undefined
-    } = {}
-    for (const r of records) {
-      const existing = byType[r.feedType]
-      if (existing) {
-        existing.quantityKg += parseFloat(r.quantityKg)
-        existing.cost += parseFloat(r.cost)
-      } else {
-        byType[r.feedType] = {
-          quantityKg: parseFloat(r.quantityKg),
-          cost: parseFloat(r.cost),
-        }
-      }
-    }
-
-    return {
-      totalQuantityKg,
-      totalCost,
-      byType,
-      recordCount: records.length,
-    }
+    // Use service layer to build summary
+    return buildFeedSummary(records)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -564,7 +479,7 @@ export async function getFeedSummaryForBatch(
  * @param batchId - ID of the batch
  * @returns Promise resolving to the FCR (number) or null if data is insufficient
  */
-export async function calculateFCR(
+export async function calculateFCRForBatch(
   userId: string,
   farmId: string,
   batchId: string,
@@ -578,15 +493,8 @@ export async function calculateFCR(
     // Get total feed consumed
     const feedSummary = await getFeedSummaryForBatch(userId, farmId, batchId)
 
-    // Get weight samples to calculate weight gain
-    const weightSamples = await db
-      .selectFrom('weight_samples')
-      .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
-      .select(['weight_samples.averageWeightKg', 'weight_samples.date'])
-      .where('weight_samples.batchId', '=', batchId)
-      .where('batches.farmId', '=', farmId)
-      .orderBy('weight_samples.date', 'asc')
-      .execute()
+    // Get weight samples to calculate weight gain using repository
+    const weightSamples = await getWeightSamples(db, batchId)
 
     if (weightSamples.length < 2) {
       return null // Need at least 2 weight samples to calculate gain
@@ -602,21 +510,21 @@ export async function calculateFCR(
       return null // No weight gain
     }
 
-    // Get batch quantity for total weight gain
-    const batch = await db
-      .selectFrom('batches')
-      .select(['currentQuantity'])
-      .where('id', '=', batchId)
-      .executeTakeFirst()
+    // Get batch quantity for total weight gain using repository
+    const batchQuantity = await getBatchQuantity(db, batchId)
 
-    if (!batch) {
+    if (!batchQuantity) {
       return null
     }
 
-    const totalWeightGain = weightGain * batch.currentQuantity
-    const fcr = feedSummary.totalQuantityKg / totalWeightGain
+    const totalWeightGain = weightGain * batchQuantity
 
-    return Math.round(fcr * 100) / 100 // Round to 2 decimal places
+    // Use service layer to calculate FCR
+    return calculateFCR(
+      feedSummary.totalQuantityKg,
+      totalWeightGain,
+      batchQuantity,
+    )
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -632,7 +540,7 @@ export async function calculateFCR(
  * @param userId - ID of the requesting user
  * @param farmId - Optional specific farm to filter by
  */
-export async function getFeedInventory(userId: string, farmId?: string) {
+export async function getFeedInventoryFn(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
 
@@ -644,11 +552,7 @@ export async function getFeedInventory(userId: string, farmId?: string) {
       targetFarmIds = await getUserFarms(userId)
     }
 
-    return await db
-      .selectFrom('feed_inventory')
-      .selectAll()
-      .where('farmId', 'in', targetFarmIds)
-      .execute()
+    return await getFeedInventoryForFarms(db, targetFarmIds)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -665,13 +569,11 @@ export async function getFeedInventory(userId: string, farmId?: string) {
  * @param query - Pagination and filtering parameters
  * @returns Promise resolving to a paginated result set
  */
-export async function getFeedRecordsPaginated(
+export async function getFeedRecordsPaginatedFn(
   userId: string,
   query: FeedQuery = {},
 ) {
-  const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
-  const { sql } = await import('kysely')
 
   try {
     let targetFarmIds: Array<string> = []
@@ -681,91 +583,12 @@ export async function getFeedRecordsPaginated(
       targetFarmIds = await getUserFarms(userId)
     }
 
-    const page = query.page || 1
-    const pageSize = query.pageSize || 10
-    const offset = (page - 1) * pageSize
+    const { db } = await import('~/lib/db')
 
-    let baseQuery = db
-      .selectFrom('feed_records')
-      .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-      .innerJoin('farms', 'farms.id', 'batches.farmId')
-      .where('batches.farmId', 'in', targetFarmIds)
-
-    // Apply filters
-    if (query.search) {
-      const searchLower = `%${query.search.toLowerCase()}%`
-      baseQuery = baseQuery.where((eb) =>
-        eb.or([
-          eb('feed_records.feedType', 'ilike', searchLower as any),
-          eb('batches.species', 'ilike', searchLower),
-        ]),
-      )
-    }
-
-    if (query.batchId) {
-      baseQuery = baseQuery.where('feed_records.batchId', '=', query.batchId)
-    }
-
-    // Get total count
-    const countResult = await baseQuery
-      .select(sql<number>`count(*)`.as('count'))
-      .executeTakeFirst()
-
-    const total = Number(countResult?.count || 0)
-    const totalPages = Math.ceil(total / pageSize)
-
-    // Get data
-    let dataQuery = baseQuery
-      .leftJoin('suppliers', 'suppliers.id', 'feed_records.supplierId')
-      .select([
-        'feed_records.id',
-        'feed_records.batchId',
-        'feed_records.feedType',
-        'feed_records.brandName',
-        'feed_records.bagSizeKg',
-        'feed_records.numberOfBags',
-        'feed_records.quantityKg',
-        'feed_records.cost',
-        'feed_records.date',
-        'feed_records.supplierId',
-        'feed_records.notes',
-        'feed_records.createdAt',
-        'batches.species',
-        'batches.livestockType',
-        'batches.batchName',
-        'farms.name as farmName',
-        'batches.farmId',
-        'suppliers.name as supplierName',
-      ])
-      .limit(pageSize)
-      .offset(offset)
-
-    // Apply sorting
-    if (query.sortBy) {
-      const sortOrder = query.sortOrder || 'desc'
-      // Map helpful aliases
-      const sortMap: Record<string, string> = {
-        date: 'feed_records.date',
-        cost: 'feed_records.cost',
-        quantityKg: 'feed_records.quantityKg',
-        feedType: 'feed_records.feedType',
-      }
-      const sortColumn = sortMap[query.sortBy] || `feed_records.${query.sortBy}`
-      // @ts-ignore - Kysely dynamic column type limitation
-      dataQuery = dataQuery.orderBy(sortColumn, sortOrder)
-    } else {
-      dataQuery = dataQuery.orderBy('feed_records.date', 'desc')
-    }
-
-    const data = await dataQuery.execute()
-
-    return {
-      data,
-      total,
-      page,
-      pageSize,
-      totalPages,
-    }
+    return await getFeedRecordsPaginated(db, {
+      ...query,
+      farmIds: targetFarmIds,
+    })
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -776,12 +599,12 @@ export async function getFeedRecordsPaginated(
 }
 
 // Server function for paginated feed records
-export const getFeedRecordsPaginatedFn = createServerFn({ method: 'GET' })
+export const getFeedRecordsPaginatedServerFn = createServerFn({ method: 'GET' })
   .inputValidator((data: FeedQuery) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return getFeedRecordsPaginated(session.user.id, data)
+    return getFeedRecordsPaginatedFn(session.user.id, data)
   })
 
 /**
@@ -802,24 +625,10 @@ export async function getFeedStats(userId: string, farmId?: string) {
       targetFarmIds = await getUserFarms(userId)
     }
 
-    const records = await db
-      .selectFrom('feed_records')
-      .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-      .select(['feed_records.quantityKg', 'feed_records.cost'])
-      .where('batches.farmId', 'in', targetFarmIds)
-      .execute()
+    const records = await getFeedStatsData(db, targetFarmIds)
 
-    const totalQuantityKg = records.reduce(
-      (sum, r) => sum + parseFloat(r.quantityKg),
-      0,
-    )
-    const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
-
-    return {
-      totalQuantityKg,
-      totalCost,
-      recordCount: records.length,
-    }
+    // Use service layer to build stats
+    return buildFeedStats(records)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -827,4 +636,10 @@ export async function getFeedStats(userId: string, farmId?: string) {
       cause: error,
     })
   }
+}
+
+// Export for backward compatibility
+export {
+  getFeedRecordsPaginatedFn as getFeedRecordsPaginated,
+  getFeedInventoryFn as getFeedInventory,
 }

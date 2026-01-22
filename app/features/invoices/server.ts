@@ -1,4 +1,24 @@
 import { createServerFn } from '@tanstack/react-start'
+import {
+  calculateInvoiceTotal,
+  generateInvoiceNumber as generateInvoiceNumberService,
+  transformInvoiceData,
+  validateInvoiceData,
+  validateUpdateData,
+} from './service'
+import {
+  deleteInvoiceItems as deleteInvoiceItemsRepo,
+  deleteInvoice as deleteInvoiceRepo,
+  getInvoiceById as getInvoiceByIdRepo,
+  getInvoiceItems,
+  getInvoicesByFarm,
+  getInvoicesPaginated as getInvoicesPaginatedRepo,
+  getLastInvoiceNumber,
+  getSaleForInvoice,
+  insertInvoice,
+  insertInvoiceItems,
+  updateInvoiceStatus as updateInvoiceStatusRepo,
+} from './repository'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 import { AppError } from '~/lib/errors'
 
@@ -59,34 +79,20 @@ export interface InvoiceQuery extends BasePaginatedQuery {
  * Generate a unique, sequential invoice number for the current year.
  * Format: INV-YYYY-NNNN
  *
+ * @param farmId - Farm ID to scope invoice numbers to
  * @returns Promise resolving to the next available invoice number
  */
-export async function generateInvoiceNumber(): Promise<string> {
+export async function generateInvoiceNumber(farmId: string): Promise<string> {
   const { db } = await import('~/lib/db')
+
   try {
     const year = new Date().getFullYear()
     const prefix = `INV-${year}-`
 
-    const lastInvoice = await db
-      .selectFrom('invoices')
-      .select('invoiceNumber')
-      .where('invoiceNumber', 'like', `${prefix}%`)
-      .orderBy('invoiceNumber', 'desc')
-      .limit(1)
-      .executeTakeFirst()
+    const lastNumber = await getLastInvoiceNumber(db, prefix, farmId)
 
-    let nextNumber = 1
-    if (lastInvoice) {
-      const lastNumber = parseInt(
-        lastInvoice.invoiceNumber.replace(prefix, ''),
-        10,
-      )
-      nextNumber = lastNumber + 1
-    }
-
-    return `${prefix}${nextNumber.toString().padStart(4, '0')}`
+    return generateInvoiceNumberService(lastNumber)
   } catch (error) {
-    // Fallback or rethrow?
     throw new AppError('INTERNAL_ERROR', {
       message: 'Failed to generate invoice number',
       cause: error,
@@ -107,44 +113,52 @@ export async function createInvoice(
   const { db } = await import('~/lib/db')
 
   try {
-    const invoiceNumber = await generateInvoiceNumber()
-    const totalAmount = input.items.reduce(
-      (sum, item) => sum + item.quantity * item.unitPrice,
-      0,
-    )
-
-    const result = await db
-      .insertInto('invoices')
-      .values({
-        invoiceNumber,
-        customerId: input.customerId,
-        farmId: input.farmId,
-        totalAmount: totalAmount.toString(),
-        status: 'unpaid',
-        date: new Date(),
-        dueDate: input.dueDate || null,
-        notes: input.notes || null,
+    // Validate input data
+    const validationError = validateInvoiceData(input)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        message: validationError,
       })
-      .returning('id')
-      .executeTakeFirstOrThrow()
-
-    // Insert invoice items
-    for (const item of input.items) {
-      await db
-        .insertInto('invoice_items')
-        .values({
-          invoiceId: result.id,
-          description: item.description,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice.toString(),
-          total: (item.quantity * item.unitPrice).toString(),
-        })
-        .execute()
     }
 
-    return result.id
+    // Generate invoice number
+    const invoiceNumber = await generateInvoiceNumber(input.farmId)
+
+    // Calculate total using service function
+    const totalAmount = calculateInvoiceTotal(input.items)
+
+    // Insert invoice
+    const invoiceId = await insertInvoice(db, {
+      invoiceNumber,
+      customerId: input.customerId,
+      farmId: input.farmId,
+      totalAmount,
+      status: 'unpaid',
+      date: new Date(),
+      dueDate: input.dueDate || null,
+      notes: input.notes || null,
+    })
+
+    // Insert invoice items
+    const itemsToInsert = input.items.map((item) => {
+      const itemTotal = calculateInvoiceTotal([
+        { quantity: item.quantity, unitPrice: item.unitPrice },
+      ])
+      return {
+        invoiceId,
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: itemTotal
+          ? (parseFloat(itemTotal) / item.quantity).toFixed(2)
+          : '0.00',
+        total: itemTotal,
+      }
+    })
+
+    await insertInvoiceItems(db, itemsToInsert)
+
+    return invoiceId
   } catch (error) {
-    console.error('Failed to create invoice:', error)
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to create invoice',
@@ -170,27 +184,17 @@ export const createInvoiceFn = createServerFn({ method: 'POST' })
  */
 export async function getInvoices(farmId?: string) {
   const { db } = await import('~/lib/db')
-  try {
-    let query = db
-      .selectFrom('invoices')
-      .innerJoin('customers', 'customers.id', 'invoices.customerId')
-      .select([
-        'invoices.id',
-        'invoices.invoiceNumber',
-        'invoices.totalAmount',
-        'invoices.status',
-        'invoices.date',
-        'invoices.dueDate',
-        'customers.name as customerName',
-      ])
-      .orderBy('invoices.date', 'desc')
 
-    if (farmId) {
-      query = query.where('invoices.farmId', '=', farmId)
+  try {
+    if (!farmId) {
+      throw new AppError('VALIDATION_ERROR', {
+        message: 'Farm ID is required',
+      })
     }
 
-    return await query.execute()
+    return await getInvoicesByFarm(db, farmId)
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }
@@ -203,39 +207,15 @@ export async function getInvoices(farmId?: string) {
  */
 export async function getInvoiceById(invoiceId: string) {
   const { db } = await import('~/lib/db')
+
   try {
-    const invoice = await db
-      .selectFrom('invoices')
-      .innerJoin('customers', 'customers.id', 'invoices.customerId')
-      .innerJoin('farms', 'farms.id', 'invoices.farmId')
-      .select([
-        'invoices.id',
-        'invoices.invoiceNumber',
-        'invoices.totalAmount',
-        'invoices.status',
-        'invoices.date',
-        'invoices.dueDate',
-        'invoices.notes',
-        'customers.id as customerId',
-        'customers.name as customerName',
-        'customers.phone as customerPhone',
-        'customers.email as customerEmail',
-        'customers.location as customerLocation',
-        'farms.name as farmName',
-        'farms.location as farmLocation',
-      ])
-      .where('invoices.id', '=', invoiceId)
-      .executeTakeFirst()
+    const invoice = await getInvoiceByIdRepo(db, invoiceId)
 
     if (!invoice) return null
 
-    const items = await db
-      .selectFrom('invoice_items')
-      .select(['id', 'description', 'quantity', 'unitPrice', 'total'])
-      .where('invoiceId', '=', invoiceId)
-      .execute()
+    const items = await getInvoiceItems(db, invoiceId)
 
-    return {
+    const fullInvoice = {
       ...invoice,
       items: items.map((item) => ({
         ...item,
@@ -243,7 +223,10 @@ export async function getInvoiceById(invoiceId: string) {
         total: parseFloat(item.total),
       })),
     }
+
+    return transformInvoiceData(fullInvoice as any)
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }
@@ -268,13 +251,19 @@ export async function updateInvoiceStatus(
   status: 'unpaid' | 'partial' | 'paid',
 ) {
   const { db } = await import('~/lib/db')
+
   try {
-    await db
-      .updateTable('invoices')
-      .set({ status })
-      .where('id', '=', invoiceId)
-      .execute()
+    // Validate status
+    const validationError = validateUpdateData({ status })
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        message: validationError,
+      })
+    }
+
+    await updateInvoiceStatusRepo(db, invoiceId, status)
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to update invoice status',
       cause: error,
@@ -301,14 +290,12 @@ export const updateInvoiceStatusFn = createServerFn({ method: 'POST' })
  */
 export async function deleteInvoice(invoiceId: string) {
   const { db } = await import('~/lib/db')
-  try {
-    await db
-      .deleteFrom('invoice_items')
-      .where('invoiceId', '=', invoiceId)
-      .execute()
 
-    await db.deleteFrom('invoices').where('id', '=', invoiceId).execute()
+  try {
+    await deleteInvoiceItemsRepo(db, invoiceId)
+    await deleteInvoiceRepo(db, invoiceId)
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to delete invoice',
       cause: error,
@@ -327,20 +314,9 @@ export async function createInvoiceFromSale(
   saleId: string,
 ): Promise<string | null> {
   const { db } = await import('~/lib/db')
+
   try {
-    const sale = await db
-      .selectFrom('sales')
-      .select([
-        'id',
-        'farmId',
-        'customerId',
-        'livestockType',
-        'quantity',
-        'unitPrice',
-        'totalAmount',
-      ])
-      .where('id', '=', saleId)
-      .executeTakeFirst()
+    const sale = await getSaleForInvoice(db, saleId)
 
     if (!sale || !sale.customerId) return null
 
@@ -372,88 +348,19 @@ export async function createInvoiceFromSale(
  */
 export async function getInvoicesPaginated(query: InvoiceQuery = {}) {
   const { db } = await import('~/lib/db')
-  const { sql } = await import('kysely')
 
   try {
-    const page = query.page || 1
-    const pageSize = query.pageSize || 10
-    const offset = (page - 1) * pageSize
-
-    let baseQuery = db
-      .selectFrom('invoices')
-      .innerJoin('customers', 'customers.id', 'invoices.customerId')
-
-    if (query.farmId) {
-      baseQuery = baseQuery.where('invoices.farmId', '=', query.farmId)
-    }
-
-    if (query.status) {
-      baseQuery = baseQuery.where('invoices.status', '=', query.status)
-    }
-
-    if (query.search) {
-      const searchLower = `%${query.search.toLowerCase()}%`
-      baseQuery = baseQuery.where((eb) =>
-        eb.or([
-          eb('invoices.invoiceNumber', 'ilike', searchLower),
-          eb('customers.name', 'ilike', searchLower),
-        ]),
-      )
-    }
-
-    // Count
-    const countResult = await baseQuery
-      .select(sql<number>`count(invoices.id)`.as('count'))
-      .executeTakeFirst()
-
-    const total = Number(countResult?.count || 0)
-    const totalPages = Math.ceil(total / pageSize)
-
-    // Data
-    let dataQuery = baseQuery
-      .select([
-        'invoices.id',
-        'invoices.invoiceNumber',
-        'invoices.totalAmount',
-        'invoices.status',
-        'invoices.date',
-        'invoices.dueDate',
-        'customers.name as customerName',
-      ])
-      .limit(pageSize)
-      .offset(offset)
-
-    if (query.sortBy) {
-      const sortOrder = query.sortOrder || 'desc'
-      const sortCol = query.sortBy
-      if (
-        ['invoiceNumber', 'totalAmount', 'status', 'date', 'dueDate'].includes(
-          sortCol,
-        )
-      ) {
-        dataQuery = dataQuery.orderBy(sql.raw(`invoices.${sortCol}`), sortOrder)
-      } else if (sortCol === 'customerName') {
-        dataQuery = dataQuery.orderBy('customers.name', sortOrder)
-      } else {
-        dataQuery = dataQuery.orderBy('invoices.date', 'desc')
-      }
-    } else {
-      dataQuery = dataQuery.orderBy('invoices.date', 'desc')
-    }
-
-    const rawData = await dataQuery.execute()
+    const result = await getInvoicesPaginatedRepo(db, query)
 
     return {
-      data: rawData.map((d) => ({
+      ...result,
+      data: result.data.map((d) => ({
         ...d,
         totalAmount: parseFloat(d.totalAmount),
       })),
-      total,
-      page,
-      pageSize,
-      totalPages,
     }
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', { cause: error })
   }
 }

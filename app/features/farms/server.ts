@@ -1,50 +1,41 @@
-import { createServerFn } from '@tanstack/react-start'
+import { createServerFn } from '@tanStack/react-start'
 import { z } from 'zod'
-import { toNumber } from '~/features/settings/currency'
+import {
+  canChangeUserRole,
+  canDeleteFarm,
+  canRemoveUserFromFarm,
+  validateFarmData,
+  validateFarmRole,
+  validateUpdateData,
+} from './service'
+import {
+  assignUserToFarm as assignUserToFarmDb,
+  checkFarmDependents,
+  checkFarmExists,
+  checkUserExists,
+  countOtherOwners,
+  deleteFarm as deleteFarmDb,
+  deleteUserFarm,
+  deleteUserFarmAssignments,
+  getAllFarms,
+  getFarmById as getFarmByIdDb,
+  getFarmMembers,
+  getFarmStats as getFarmStatsDb,
+  getFarmsByIds,
+  getIsAdmin,
+  getUserFarmsWithRoles,
+  insertFarm,
+  updateFarm as updateFarmDb,
+  updateUserFarmRole,
+  upsertUserFarm,
+} from './repository'
+import type { CreateFarmData, UpdateFarmData } from './service'
+import type { FarmRecord } from './repository'
 import { AppError } from '~/lib/errors'
+import { toNumber } from '~/features/settings/currency'
 
-/**
- * Data structure for creating a new farm.
- */
-export interface CreateFarmData {
-  /** Display name of the farm */
-  name: string
-  /** Physical or geographical location description */
-  location: string
-  /**
-   * Primary livestock focus of the farm.
-   * Helps determine which modules are enabled by default.
-   */
-  type:
-    | 'poultry'
-    | 'aquaculture'
-    | 'mixed'
-    | 'cattle'
-    | 'goats'
-    | 'sheep'
-    | 'bees'
-    | 'multi'
-}
-
-/**
- * Data structure for updating an existing farm's details.
- */
-export interface UpdateFarmData {
-  /** New display name */
-  name?: string
-  /** New location description */
-  location?: string
-  /** New primary livestock focus */
-  type?:
-    | 'poultry'
-    | 'aquaculture'
-    | 'mixed'
-    | 'cattle'
-    | 'goats'
-    | 'sheep'
-    | 'bees'
-    | 'multi'
-}
+// Re-export types for backwards compatibility
+export type { CreateFarmData, UpdateFarmData }
 
 /**
  * Create a new farm and assign the creator as the owner.
@@ -62,32 +53,26 @@ export async function createFarm(
   const { createDefaultModules } = await import('~/features/modules/server')
 
   try {
-    const result = await db
-      .insertInto('farms')
-      .values({
-        name: data.name,
-        location: data.location,
-        type: data.type,
+    // Validate input
+    const validationError = validateFarmData(data)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        message: validationError,
       })
-      .returning('id')
-      .executeTakeFirstOrThrow()
+    }
+
+    // Insert farm
+    const farmId = await insertFarm(db, data)
 
     // Create default modules based on farm type
-    await createDefaultModules(result.id, data.type)
+    await createDefaultModules(farmId, data.type)
 
     // Assign creator as owner if userId provided
     if (creatorUserId) {
-      await db
-        .insertInto('user_farms')
-        .values({
-          userId: creatorUserId,
-          farmId: result.id,
-          role: 'owner',
-        })
-        .execute()
+      await assignUserToFarmDb(db, creatorUserId, farmId, 'owner')
     }
 
-    return result.id
+    return farmId
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -103,15 +88,11 @@ export async function createFarm(
  *
  * @returns Promise resolving to an array of all farms
  */
-export async function getFarms() {
+export async function getFarms(): Promise<Array<FarmRecord>> {
   const { db } = await import('~/lib/db')
 
   try {
-    return await db
-      .selectFrom('farms')
-      .selectAll()
-      .orderBy('name', 'asc')
-      .execute()
+    return await getAllFarms(db)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -127,23 +108,28 @@ export async function getFarms() {
  * @param userId - ID of the user
  * @returns Promise resolving to an array of farms accessible to the user
  */
-export async function getFarmsForUser(userId: string) {
+export async function getFarmsForUser(
+  userId: string,
+): Promise<Array<FarmRecord>> {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('../auth/utils')
 
   try {
+    const isAdmin = await getIsAdmin(db, userId)
+
+    // Admins see all farms
+    if (isAdmin) {
+      return await getAllFarms(db)
+    }
+
+    // Regular users get their assigned farms
     const farmIds = await getUserFarms(userId)
 
     if (farmIds.length === 0) {
       return []
     }
 
-    return await db
-      .selectFrom('farms')
-      .selectAll()
-      .where('id', 'in', farmIds)
-      .orderBy('name', 'asc')
-      .execute()
+    return await getFarmsByIds(db, farmIds)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -174,7 +160,10 @@ export const getFarmsForUserFn = createServerFn({ method: 'GET' }).handler(
  * @returns Promise resolving to the farm object or undefined if not found/denied
  * @throws {Error} If user does not have access to the farm
  */
-export async function getFarmById(farmId: string, userId: string) {
+export async function getFarmById(
+  farmId: string,
+  userId: string,
+): Promise<FarmRecord | null> {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess } = await import('../auth/utils')
 
@@ -185,11 +174,7 @@ export async function getFarmById(farmId: string, userId: string) {
       throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
     }
 
-    return await db
-      .selectFrom('farms')
-      .selectAll()
-      .where('id', '=', farmId)
-      .executeTakeFirst()
+    return await getFarmByIdDb(db, farmId)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -216,11 +201,11 @@ export const getFarmByIdFn = createServerFn({ method: 'GET' })
 /**
  * Update a farm
  */
-export async function updateFarm(
+export async function updateFarmAction(
   farmId: string,
   userId: string,
   data: UpdateFarmData,
-) {
+): Promise<FarmRecord | null> {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess } = await import('../auth/utils')
 
@@ -231,6 +216,15 @@ export async function updateFarm(
       throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
     }
 
+    // Validate update data
+    const validationError = validateUpdateData(data)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        message: validationError,
+      })
+    }
+
+    // Build update object
     const updateData: {
       name?: string
       location?: string
@@ -249,11 +243,7 @@ export async function updateFarm(
     if (data.location !== undefined) updateData.location = data.location
     if (data.type !== undefined) updateData.type = data.type
 
-    await db
-      .updateTable('farms')
-      .set(updateData)
-      .where('id', '=', farmId)
-      .execute()
+    await updateFarmDb(db, farmId, updateData)
 
     return await getFarmById(farmId, userId)
   } catch (error) {
@@ -283,7 +273,7 @@ export const updateFarmFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
-    return updateFarm(data.farmId, session.user.id, {
+    return updateFarmAction(data.farmId, session.user.id, {
       name: data.name,
       location: data.location,
       type: data.type,
@@ -297,40 +287,25 @@ export const updateFarmFn = createServerFn({ method: 'POST' })
  * @param farmId - ID of the farm to delete
  * @throws {Error} If the farm has dependent records
  */
-export async function deleteFarm(farmId: string) {
+export async function deleteFarm(farmId: string): Promise<void> {
   const { db } = await import('~/lib/db')
 
   try {
-    // First check if farm has any dependent records
-    const [batches, sales, expenses] = await Promise.all([
-      db
-        .selectFrom('batches')
-        .select('id')
-        .where('farmId', '=', farmId)
-        .executeTakeFirst(),
-      db
-        .selectFrom('sales')
-        .select('id')
-        .where('farmId', '=', farmId)
-        .executeTakeFirst(),
-      db
-        .selectFrom('expenses')
-        .select('id')
-        .where('farmId', '=', farmId)
-        .executeTakeFirst(),
-    ])
+    // Check for dependent records
+    const dependents = await checkFarmDependents(db, farmId)
 
-    if (batches || sales || expenses) {
+    // Use service layer to check if deletion is allowed
+    if (!canDeleteFarm(dependents)) {
       throw new AppError('VALIDATION_ERROR', {
         metadata: { reason: 'farmDeleteFailed' },
       })
     }
 
     // Remove user assignments
-    await db.deleteFrom('user_farms').where('farmId', '=', farmId).execute()
+    await deleteUserFarmAssignments(db, farmId)
 
     // Delete the farm
-    await db.deleteFrom('farms').where('id', '=', farmId).execute()
+    await deleteFarmDb(db, farmId)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -349,7 +324,24 @@ export async function deleteFarm(farmId: string) {
  * @returns Promise resolving to a statistics summary object
  * @throws {Error} If access is denied
  */
-export async function getFarmStats(farmId: string, userId: string) {
+export async function getFarmStats(
+  farmId: string,
+  userId: string,
+): Promise<{
+  batches: {
+    total: number
+    active: number
+    totalLivestock: number
+  }
+  sales: {
+    count: number
+    revenue: number
+  }
+  expenses: {
+    count: number
+    amount: number
+  }
+}> {
   const { db } = await import('~/lib/db')
   const { checkFarmAccess } = await import('../auth/utils')
 
@@ -360,57 +352,21 @@ export async function getFarmStats(farmId: string, userId: string) {
       throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
     }
 
-    const [batchStats, salesStats, expenseStats] = await Promise.all([
-      // Batch statistics
-      db
-        .selectFrom('batches')
-        .select([
-          db.fn.count('id').as('total_batches'),
-          db.fn.sum('currentQuantity').as('total_livestock'),
-          db.fn
-            .count('id')
-            .filterWhere('status', '=', 'active')
-            .as('active_batches'),
-        ])
-        .where('farmId', '=', farmId)
-        .executeTakeFirst(),
-
-      // Sales statistics (last 30 days)
-      db
-        .selectFrom('sales')
-        .select([
-          db.fn.count('id').as('total_sales'),
-          db.fn.sum('totalAmount').as('total_revenue'),
-        ])
-        .where('farmId', '=', farmId)
-        .where('date', '>=', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
-        .executeTakeFirst(),
-
-      // Expense statistics (last 30 days)
-      db
-        .selectFrom('expenses')
-        .select([
-          db.fn.count('id').as('total_expenses'),
-          db.fn.sum('amount').as('total_amount'),
-        ])
-        .where('farmId', '=', farmId)
-        .where('date', '>=', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
-        .executeTakeFirst(),
-    ])
+    const stats = await getFarmStatsDb(db, farmId)
 
     return {
       batches: {
-        total: Number(batchStats?.total_batches || 0),
-        active: Number(batchStats?.active_batches || 0),
-        totalLivestock: Number(batchStats?.total_livestock || 0),
+        total: stats.batches.total,
+        active: stats.batches.active,
+        totalLivestock: stats.batches.totalLivestock,
       },
       sales: {
-        count: Number(salesStats?.total_sales || 0),
-        revenue: toNumber(String(salesStats?.total_revenue || '0')), // in Naira
+        count: stats.sales.count,
+        revenue: toNumber(String(stats.sales.revenue)), // in Naira
       },
       expenses: {
-        count: Number(expenseStats?.total_expenses || 0),
-        amount: toNumber(String(expenseStats?.total_amount || '0')), // in Naira
+        count: stats.expenses.count,
+        amount: toNumber(String(stats.expenses.amount)), // in Naira
       },
     }
   } catch (error) {
@@ -469,44 +425,32 @@ export const assignUserToFarmFn = createServerFn({ method: 'POST' })
 
       const { db } = await import('~/lib/db')
 
-      // Check if user exists
-      const user = await db
-        .selectFrom('users')
-        .select(['id'])
-        .where('id', '=', data.userId)
-        .executeTakeFirst()
+      // Validate role
+      const roleError = validateFarmRole(data.role)
+      if (roleError) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: roleError,
+        })
+      }
 
-      if (!user) {
+      // Check if user exists
+      const userExists = await checkUserExists(db, data.userId)
+      if (!userExists) {
         throw new AppError('USER_NOT_FOUND', {
           metadata: { userId: data.userId },
         })
       }
 
       // Check if farm exists
-      const farm = await db
-        .selectFrom('farms')
-        .select(['id'])
-        .where('id', '=', data.farmId)
-        .executeTakeFirst()
-
-      if (!farm) {
+      const farmExists = await checkFarmExists(db, data.farmId)
+      if (!farmExists) {
         throw new AppError('FARM_NOT_FOUND', {
           metadata: { farmId: data.farmId },
         })
       }
 
-      // Insert or update assignment
-      await db
-        .insertInto('user_farms')
-        .values({
-          userId: data.userId,
-          farmId: data.farmId,
-          role: data.role,
-        })
-        .onConflict((oc) =>
-          oc.columns(['userId', 'farmId']).doUpdateSet({ role: data.role }),
-        )
-        .execute()
+      // Upsert assignment
+      await upsertUserFarm(db, data.userId, data.farmId, data.role)
 
       return { success: true }
     } catch (error) {
@@ -548,15 +492,15 @@ export const removeUserFromFarmFn = createServerFn({ method: 'POST' })
 
       // If user is an owner, check if they're the last owner
       if (assignment.role === 'owner') {
-        const otherOwners = await db
-          .selectFrom('user_farms')
-          .select(['userId'])
-          .where('farmId', '=', data.farmId)
-          .where('role', '=', 'owner')
-          .where('userId', '!=', data.userId)
-          .execute()
+        const otherOwnersCount = await countOtherOwners(
+          db,
+          data.farmId,
+          data.userId,
+        )
 
-        if (otherOwners.length === 0) {
+        // Use service layer to check if removal is allowed
+        const result = canRemoveUserFromFarm(true, otherOwnersCount)
+        if (!result.canRemove) {
           throw new AppError('VALIDATION_ERROR', {
             metadata: { reason: 'lastOwnerRemove' },
           })
@@ -564,11 +508,7 @@ export const removeUserFromFarmFn = createServerFn({ method: 'POST' })
       }
 
       // Remove the assignment
-      await db
-        .deleteFrom('user_farms')
-        .where('userId', '=', data.userId)
-        .where('farmId', '=', data.farmId)
-        .execute()
+      await deleteUserFarm(db, data.userId, data.farmId)
 
       return { success: true }
     } catch (error) {
@@ -594,6 +534,14 @@ export const updateUserFarmRoleFn = createServerFn({ method: 'POST' })
 
       const { db } = await import('~/lib/db')
 
+      // Validate role
+      const roleError = validateFarmRole(data.role)
+      if (roleError) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: roleError,
+        })
+      }
+
       // Get the user's current role
       const assignment = await db
         .selectFrom('user_farms')
@@ -610,15 +558,19 @@ export const updateUserFarmRoleFn = createServerFn({ method: 'POST' })
 
       // If demoting from owner, check if they're the last owner
       if (assignment.role === 'owner' && data.role !== 'owner') {
-        const otherOwners = await db
-          .selectFrom('user_farms')
-          .select(['userId'])
-          .where('farmId', '=', data.farmId)
-          .where('role', '=', 'owner')
-          .where('userId', '!=', data.userId)
-          .execute()
+        const otherOwnersCount = await countOtherOwners(
+          db,
+          data.farmId,
+          data.userId,
+        )
 
-        if (otherOwners.length === 0) {
+        // Use service layer to check if role change is allowed
+        const result = canChangeUserRole(
+          assignment.role,
+          data.role,
+          otherOwnersCount,
+        )
+        if (!result.canChange) {
           throw new AppError('VALIDATION_ERROR', {
             metadata: { reason: 'lastOwnerDemote' },
           })
@@ -626,12 +578,7 @@ export const updateUserFarmRoleFn = createServerFn({ method: 'POST' })
       }
 
       // Update the role
-      await db
-        .updateTable('user_farms')
-        .set({ role: data.role })
-        .where('userId', '=', data.userId)
-        .where('farmId', '=', data.farmId)
-        .execute()
+      await updateUserFarmRole(db, data.userId, data.farmId, data.role)
 
       return { success: true }
     } catch (error) {
@@ -657,19 +604,7 @@ export const getFarmMembersFn = createServerFn({ method: 'GET' })
 
       const { db } = await import('~/lib/db')
 
-      return await db
-        .selectFrom('user_farms')
-        .innerJoin('users', 'users.id', 'user_farms.userId')
-        .select([
-          'users.id',
-          'users.name',
-          'users.email',
-          'users.role as globalRole',
-          'user_farms.role as farmRole',
-        ])
-        .where('user_farms.farmId', '=', data.farmId)
-        .orderBy('user_farms.role', 'asc')
-        .execute()
+      return await getFarmMembers(db, data.farmId)
     } catch (error) {
       if (error instanceof AppError) throw error
       throw new AppError('DATABASE_ERROR', {
@@ -692,37 +627,17 @@ export const getUserFarmsWithRolesFn = createServerFn({
     const { db } = await import('~/lib/db')
 
     // Check if user is admin
-    const user = await db
-      .selectFrom('users')
-      .select(['role'])
-      .where('id', '=', session.user.id)
-      .executeTakeFirst()
+    const isAdmin = await getIsAdmin(db, session.user.id)
 
-    if (user?.role === 'admin') {
+    if (isAdmin) {
       // Admin gets all farms as owner
-      const farms = await db
-        .selectFrom('farms')
-        .select(['id', 'name', 'location', 'type'])
-        .orderBy('name', 'asc')
-        .execute()
+      const farms = await getAllFarms(db)
 
       return farms.map((f) => ({ ...f, farmRole: 'owner' as const }))
     }
 
     // Regular user gets their assigned farms
-    return await db
-      .selectFrom('user_farms')
-      .innerJoin('farms', 'farms.id', 'user_farms.farmId')
-      .select([
-        'farms.id',
-        'farms.name',
-        'farms.location',
-        'farms.type',
-        'user_farms.role as farmRole',
-      ])
-      .where('user_farms.userId', '=', session.user.id)
-      .orderBy('farms.name', 'asc')
-      .execute()
+    return await getUserFarmsWithRoles(db, session.user.id)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
