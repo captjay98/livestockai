@@ -47,9 +47,18 @@ export const Route = createFileRoute('/_auth')({
       if (error && typeof error === 'object' && 'to' in error) {
         throw error
       }
-      // Only redirect on auth errors, not other errors
+      // Check for AppError with UNAUTHORIZED reason
+      if (
+        error &&
+        typeof error === 'object' &&
+        'reason' in error &&
+        (error as any).reason === 'UNAUTHORIZED'
+      ) {
+        throw redirect({ to: '/login' })
+      }
+      // Fallback: check message for backward compatibility
       const message = error instanceof Error ? error.message : ''
-      if (message === 'UNAUTHORIZED') {
+      if (message === 'UNAUTHORIZED' || message === 'Not authenticated') {
         throw redirect({ to: '/login' })
       }
       throw error
@@ -65,11 +74,6 @@ function AuthLayout() {
   // Don't show AppShell on onboarding page
   if (location.pathname === '/onboarding') {
     return <Outlet />
-  }
-
-  // Guard against missing user (shouldn't happen but prevents crash)
-  if (!context?.user) {
-    return null
   }
 
   const { user } = context
