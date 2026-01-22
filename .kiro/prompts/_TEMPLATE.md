@@ -112,7 +112,7 @@ export const getData = createServerFn({ method: 'GET' })
 # Verify changes work
 bun run lint
 bun run check
-bun test
+bun run test
 
 # Database validation
 bun run db:migrate --dry-run

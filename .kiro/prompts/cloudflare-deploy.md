@@ -557,7 +557,7 @@ wrangler dev --remote
 
 - [ ] `wrangler whoami` shows correct account
 - [ ] All secrets configured (`wrangler secret list`)
-- [ ] `bun test` passes
+- [ ] `bun run test` passes
 - [ ] `bun run check` passes (no type errors)
 - [ ] `bun run build` succeeds
 - [ ] No static db imports found

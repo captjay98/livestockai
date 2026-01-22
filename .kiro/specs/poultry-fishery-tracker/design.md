@@ -857,14 +857,14 @@ describe('isWaterQualityAlert', () => {
 
 ```bash
 # Run all tests
-bun test
+bun run test
 
 # Run property tests only
-bun test -- --grep "Property"
+bun run test -- --grep "Property"
 
 # Run with coverage
-bun test -- --coverage
+bun run test -- --coverage
 
 # Run specific property test
-bun test -- property/inventory.property.test.ts
+bun run test -- property/inventory.property.test.ts
 ```

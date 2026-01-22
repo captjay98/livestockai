@@ -123,7 +123,7 @@ This plan implements the fix for seeder authentication by removing the `password
     - _Requirements: 7.2_
 
 - [x] 8. Final validation
-  - Run full test suite: `bun test`
+  - Run full test suite: `bun run test`
   - Test on fresh database: `bun run db:reset && bun run db:seed`
   - Test authentication flow: log in as admin
   - Verify no TypeScript errors: `bun run check`

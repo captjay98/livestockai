@@ -364,7 +364,7 @@ Suggestion: Run `git init` to enable version control
 
 1. Continue your current work
 2. Review uncommitted changes if any
-3. Run tests: `bun test`
+3. Run tests: `bun run test`
 4. Or plan next feature: `@plan-feature`
 
 **If `returning`:**

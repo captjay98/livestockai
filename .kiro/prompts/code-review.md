@@ -385,7 +385,7 @@ npx tsc --noEmit || exit 1
 bun run lint || exit 1
 
 # Tests (if applicable)
-bun test --run || exit 1
+bun run test --run || exit 1
 
 # Build verification
 bun run build || exit 1
@@ -394,7 +394,7 @@ bun run build || exit 1
 **Run all validation:**
 
 ```bash
-bun run check && bun test --run && bun run build
+bun run check && bun run test --run && bun run build
 ```
 
 ## Output Format

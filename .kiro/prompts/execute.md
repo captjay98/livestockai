@@ -256,7 +256,7 @@ bun run lint --fix || exit 1
 bun run check || exit 1
 
 # If tests exist for the feature
-bun test app/features/{feature}/ || exit 1
+bun run test app/features/{feature}/ || exit 1
 ```
 
 **Run before completing:**
@@ -265,7 +265,7 @@ bun test app/features/{feature}/ || exit 1
 # Full validation suite (fail fast)
 bun run lint || exit 1
 bun run check || exit 1
-bun test || exit 1
+bun run test || exit 1
 bun run build || exit 1
 ```
 
@@ -294,7 +294,7 @@ describe('calculateFeatureMetric', () => {
 
 ```bash
 bun test
-bun test --coverage
+bun run test --coverage
 ```
 
 ## OpenLivestock Key Tables Reference
@@ -332,7 +332,7 @@ bun test --coverage
 - [ ] All files created/modified as specified
 - [ ] `bun run lint` passes
 - [ ] `bun run check` passes (no type errors)
-- [ ] `bun test` passes (if tests exist)
+- [ ] `bun run test` passes (if tests exist)
 - [ ] `bun run build` succeeds
 - [ ] Feature works in browser (`bun dev`)
 

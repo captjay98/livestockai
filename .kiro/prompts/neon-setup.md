@@ -271,7 +271,7 @@ bun run db:seed:dev
 bun dev
 
 # Run tests
-bun test
+bun run test
 ```
 
 **Manual setup complete!** ✅
@@ -501,7 +501,7 @@ bun run db:migrate --dry-run
 bun run db:migrate
 
 # Test queries work
-bun test tests/
+bun run test tests/
 ```
 
 ## Success Checklist

@@ -38,7 +38,7 @@ Wait for response before proceeding.
 ## Step 1: Run Coverage Report
 
 ```bash
-bun test --coverage
+bun run test --coverage
 ```
 
 **Error handling:**
@@ -73,7 +73,7 @@ bun test --coverage
 
 ```bash
 # List files with low coverage
-bun test --coverage --reporter=text
+bun run test --coverage --reporter=text
 ```
 
 ### 2. Critical Paths to Test

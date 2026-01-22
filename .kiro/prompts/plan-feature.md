@@ -494,7 +494,7 @@ bun run lint || exit 1
 
 ```bash
 # Run all tests (fail fast)
-bun test --run || exit 1
+bun run test --run || exit 1
 ```
 
 ### Level 3: Build Verification
@@ -519,16 +519,16 @@ neon__describe_table_schema {table_name}
 
 ```bash
 # Run all checks
-bun run check && bun test --run && bun run build
+bun run check && bun run test --run && bun run build
 ```
 
 # Run specific test file
 
-bun test path/to/test.ts
+bun run test path/to/test.ts
 
 # Run with coverage
 
-bun test --coverage
+bun run test --coverage
 
 ````
 
@@ -536,10 +536,10 @@ bun test --coverage
 
 ```bash
 # Run integration tests (if separate)
-bun test tests/integration
+bun run test tests/integration
 
 # Run full test suite
-bun test --run
+bun run test --run
 ````
 
 ### Level 4: Manual Validation
@@ -557,7 +557,7 @@ bun test --run
 OpenLivestock feature completion checklist:
 
 - [ ] Feature implements all specified functionality
-- [ ] All validation commands pass: `bun run check && bun test --run && bun run build`
+- [ ] All validation commands pass: `bun run check && bun run test --run && bun run build`
 - [ ] Test coverage meets requirements (80%+ overall, 90%+ business logic, 100% financial)
 - [ ] Integration tests verify end-to-end workflows
 - [ ] Code follows OpenLivestock patterns:
