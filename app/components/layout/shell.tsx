@@ -6,6 +6,8 @@ import type { User } from '~/features/auth/types'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import { Logo } from '~/components/logo'
+import { BottomNav } from './bottom-nav'
+import { GlobalQuickAction } from './fab'
 
 export function AppShell({
   children,
@@ -45,21 +47,6 @@ export function AppShell({
       </div>
 
       <div className="flex-1 flex flex-col min-h-screen transition-all duration-300 overflow-hidden">
-        {/* Mobile header with menu button */}
-        <div className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/95 backdrop-blur-md px-4 md:hidden shadow-sm">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open menu"
-            className="h-10 w-10 rounded-full hover:bg-muted/60 -ml-2"
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
-          <Link to="/" className="flex items-center">
-            <Logo className="h-7" variant="full" />
-          </Link>
-        </div>
 
         <main className="flex-1 px-3 py-4 sm:px-4 sm:py-6 overflow-y-auto overflow-x-hidden">
           <div className="max-w-7xl mx-auto animate-in fade-in-up duration-500">
@@ -67,6 +54,9 @@ export function AppShell({
           </div>
         </main>
       </div>
+
+      <GlobalQuickAction />
+      <BottomNav onMenuClick={() => setMobileMenuOpen(true)} />
     </div>
   )
 }
