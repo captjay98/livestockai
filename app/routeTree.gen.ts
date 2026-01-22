@@ -23,6 +23,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthWeightIndexRouteImport } from './routes/_auth/weight/index'
 import { Route as AuthWaterQualityIndexRouteImport } from './routes/_auth/water-quality/index'
 import { Route as AuthVaccinationsIndexRouteImport } from './routes/_auth/vaccinations/index'
+import { Route as AuthTasksIndexRouteImport } from './routes/_auth/tasks/index'
 import { Route as AuthSuppliersIndexRouteImport } from './routes/_auth/suppliers/index'
 import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/index'
 import { Route as AuthSalesIndexRouteImport } from './routes/_auth/sales/index'
@@ -115,6 +116,11 @@ const AuthWaterQualityIndexRoute = AuthWaterQualityIndexRouteImport.update({
 const AuthVaccinationsIndexRoute = AuthVaccinationsIndexRouteImport.update({
   id: '/vaccinations/',
   path: '/vaccinations/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthTasksIndexRoute = AuthTasksIndexRouteImport.update({
+  id: '/tasks/',
+  path: '/tasks/',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthSuppliersIndexRoute = AuthSuppliersIndexRouteImport.update({
@@ -271,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/sales/': typeof AuthSalesIndexRoute
   '/settings/': typeof AuthSettingsIndexRoute
   '/suppliers/': typeof AuthSuppliersIndexRoute
+  '/tasks/': typeof AuthTasksIndexRoute
   '/vaccinations/': typeof AuthVaccinationsIndexRoute
   '/water-quality/': typeof AuthWaterQualityIndexRoute
   '/weight/': typeof AuthWeightIndexRoute
@@ -309,6 +316,7 @@ export interface FileRoutesByTo {
   '/sales': typeof AuthSalesIndexRoute
   '/settings': typeof AuthSettingsIndexRoute
   '/suppliers': typeof AuthSuppliersIndexRoute
+  '/tasks': typeof AuthTasksIndexRoute
   '/vaccinations': typeof AuthVaccinationsIndexRoute
   '/water-quality': typeof AuthWaterQualityIndexRoute
   '/weight': typeof AuthWeightIndexRoute
@@ -350,6 +358,7 @@ export interface FileRoutesById {
   '/_auth/sales/': typeof AuthSalesIndexRoute
   '/_auth/settings/': typeof AuthSettingsIndexRoute
   '/_auth/suppliers/': typeof AuthSuppliersIndexRoute
+  '/_auth/tasks/': typeof AuthTasksIndexRoute
   '/_auth/vaccinations/': typeof AuthVaccinationsIndexRoute
   '/_auth/water-quality/': typeof AuthWaterQualityIndexRoute
   '/_auth/weight/': typeof AuthWeightIndexRoute
@@ -391,6 +400,7 @@ export interface FileRouteTypes {
     | '/sales/'
     | '/settings/'
     | '/suppliers/'
+    | '/tasks/'
     | '/vaccinations/'
     | '/water-quality/'
     | '/weight/'
@@ -429,6 +439,7 @@ export interface FileRouteTypes {
     | '/sales'
     | '/settings'
     | '/suppliers'
+    | '/tasks'
     | '/vaccinations'
     | '/water-quality'
     | '/weight'
@@ -469,6 +480,7 @@ export interface FileRouteTypes {
     | '/_auth/sales/'
     | '/_auth/settings/'
     | '/_auth/suppliers/'
+    | '/_auth/tasks/'
     | '/_auth/vaccinations/'
     | '/_auth/water-quality/'
     | '/_auth/weight/'
@@ -588,6 +600,13 @@ declare module '@tanstack/react-router' {
       path: '/vaccinations'
       fullPath: '/vaccinations/'
       preLoaderRoute: typeof AuthVaccinationsIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/tasks/': {
+      id: '/_auth/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks/'
+      preLoaderRoute: typeof AuthTasksIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/suppliers/': {
@@ -796,6 +815,7 @@ interface AuthRouteChildren {
   AuthSalesIndexRoute: typeof AuthSalesIndexRoute
   AuthSettingsIndexRoute: typeof AuthSettingsIndexRoute
   AuthSuppliersIndexRoute: typeof AuthSuppliersIndexRoute
+  AuthTasksIndexRoute: typeof AuthTasksIndexRoute
   AuthVaccinationsIndexRoute: typeof AuthVaccinationsIndexRoute
   AuthWaterQualityIndexRoute: typeof AuthWaterQualityIndexRoute
   AuthWeightIndexRoute: typeof AuthWeightIndexRoute
@@ -825,6 +845,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthSalesIndexRoute: AuthSalesIndexRoute,
   AuthSettingsIndexRoute: AuthSettingsIndexRoute,
   AuthSuppliersIndexRoute: AuthSuppliersIndexRoute,
+  AuthTasksIndexRoute: AuthTasksIndexRoute,
   AuthVaccinationsIndexRoute: AuthVaccinationsIndexRoute,
   AuthWaterQualityIndexRoute: AuthWaterQualityIndexRoute,
   AuthWeightIndexRoute: AuthWeightIndexRoute,
