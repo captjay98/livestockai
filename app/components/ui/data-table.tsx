@@ -119,15 +119,19 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4" role="search">
         {onSearchChange && (
           <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
             <Input
               placeholder={searchPlaceholder}
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               className="pl-9 h-10"
+              aria-label={searchPlaceholder}
             />
           </div>
         )}
@@ -141,8 +145,16 @@ export function DataTable<TData, TValue>({
       {/* Table */}
       <div className="rounded-md border">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <div
+            className="flex items-center justify-center py-12"
+            role="status"
+            aria-label="Loading"
+          >
+            <Loader2
+              className="h-8 w-8 animate-spin text-muted-foreground"
+              aria-hidden="true"
+            />
+            <span className="sr-only">Loading...</span>
           </div>
         ) : data.length === 0 ? (
           <div className="py-12 text-center">
@@ -171,6 +183,7 @@ export function DataTable<TData, TValue>({
                                 variant="ghost"
                                 className="-ml-4 h-8 hover:bg-transparent"
                                 onClick={() => handleSort(header.column.id)}
+                                aria-label={`Sort by ${header.column.columnDef.header}`}
                               >
                                 {flexRender(
                                   header.column.columnDef.header,

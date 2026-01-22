@@ -5,7 +5,7 @@ import { Droplets } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   WATER_QUALITY_THRESHOLDS,
-  createWaterQualityRecordFn,
+  insertReadingFn,
 } from '~/features/water-quality/server'
 import { useFormatTemperature } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -84,7 +84,7 @@ export function WaterQualityDialog({
     setError('')
 
     try {
-      await createWaterQualityRecordFn({
+      await insertReadingFn({
         data: {
           farmId,
           data: {
@@ -94,7 +94,7 @@ export function WaterQualityDialog({
             temperatureCelsius: parseFloat(formData.temperatureCelsius),
             dissolvedOxygenMgL: parseFloat(formData.dissolvedOxygenMgL),
             ammoniaMgL: parseFloat(formData.ammoniaMgL),
-            notes: formData.notes || null,
+            notes: formData.notes || undefined,
           },
         },
       })

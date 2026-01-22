@@ -33,7 +33,7 @@ export function LandingLayout({ children }: LandingLayoutProps) {
       <main>{children}</main>
       <footer className="border-t py-8 mt-16">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          &copy; 2025 OpenLivestock. All rights reserved.
+          &copy; 2026 OpenLivestock. All rights reserved.
         </div>
       </footer>
     </div>

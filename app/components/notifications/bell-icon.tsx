@@ -27,8 +27,11 @@ export function NotificationBell() {
         size="icon"
         className="relative"
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
       >
-        <Bell className="h-5 w-5" />
+        <Bell className="h-5 w-5" aria-hidden="true" />
         {unreadCount > 0 && (
           <Badge
             variant="destructive"
@@ -43,8 +46,13 @@ export function NotificationBell() {
           <div
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
+            aria-hidden="true"
           />
-          <div className="absolute right-0 top-full mt-2 w-80 bg-background border rounded-lg shadow-lg z-50">
+          <div
+            className="absolute right-0 top-full mt-2 w-80 bg-background border rounded-lg shadow-lg z-50"
+            role="menu"
+            aria-label="Notifications"
+          >
             <div className="flex items-center justify-between p-4 border-b">
               <h3 className="font-semibold">Notifications</h3>
               {unreadCount > 0 && (
