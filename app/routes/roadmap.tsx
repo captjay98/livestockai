@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { LandingLayout } from '../features/landing/components/LandingLayout'
-import { RoadmapHero } from '../features/landing/components/RoadmapHero'
-import { RoadmapTimeline } from '../features/landing/components/RoadmapTimeline'
-import { CTASection } from '../features/landing/components/CTASection'
+import { LandingLayout } from '~/components/landing/LandingLayout'
+import { RoadmapHero } from '~/components/landing/RoadmapHero'
+import { RoadmapTimeline } from '~/components/landing/RoadmapTimeline'
+import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/roadmap')({
   component: RoadmapPage,

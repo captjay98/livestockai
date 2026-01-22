@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { LandingLayout } from '../features/landing/components/LandingLayout'
-import { CommunityHero } from '../features/landing/components/CommunityHero'
-import { CommunityStats } from '../features/landing/components/CommunityStats'
-import { CTASection } from '../features/landing/components/CTASection'
+import { LandingLayout } from '~/components/landing/LandingLayout'
+import { CommunityHero } from '~/components/landing/CommunityHero'
+import { CommunityStats } from '~/components/landing/CommunityStats'
+import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/community')({
   component: CommunityPage,

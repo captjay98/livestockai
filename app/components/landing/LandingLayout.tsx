@@ -7,17 +7,25 @@ interface LandingLayoutProps {
   variant?: 'default' | 'neon'
 }
 
-export function LandingLayout({ children, variant = 'default' }: LandingLayoutProps) {
+export function LandingLayout({ children }: LandingLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b py-4">
         <div className="container mx-auto px-4">
           <nav className="flex justify-between items-center">
-            <a href="/" className="text-xl font-bold">OpenLivestock</a>
+            <a href="/" className="text-xl font-bold">
+              OpenLivestock
+            </a>
             <div className="flex gap-4">
-              <a href="/features" className="hover:underline">Features</a>
-              <a href="/pricing" className="hover:underline">Pricing</a>
-              <a href="/docs" className="hover:underline">Docs</a>
+              <a href="/features" className="hover:underline">
+                Features
+              </a>
+              <a href="/pricing" className="hover:underline">
+                Pricing
+              </a>
+              <a href="/docs" className="hover:underline">
+                Docs
+              </a>
             </div>
           </nav>
         </div>

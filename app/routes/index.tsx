@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { LandingLayout } from '../features/landing/components/LandingLayout'
-import { LandingHero } from '../features/landing/components/LandingHero'
-import { FeaturesSection } from '../features/landing/components/FeaturesSection'
-import { TechStackSection } from '../features/landing/components/TechStackSection'
-import { AgentReadySection } from '../features/landing/components/AgentReadySection'
-import { CommunitySection } from '../features/landing/components/CommunitySection'
-import { CTASection } from '../features/landing/components/CTASection'
-import { SmartEcosystemSection } from '../features/landing/components/SmartEcosystemSection'
+import { LandingLayout } from '~/components/landing/LandingLayout'
+import { LandingHero } from '~/components/landing/LandingHero'
+import { FeaturesSection } from '~/components/landing/FeaturesSection'
+import { TechStackSection } from '~/components/landing/TechStackSection'
+import { AgentReadySection } from '~/components/landing/AgentReadySection'
+import { CommunitySection } from '~/components/landing/CommunitySection'
+import { CTASection } from '~/components/landing/CTASection'
+import { SmartEcosystemSection } from '~/components/landing/SmartEcosystemSection'
 
 export const Route = createFileRoute('/')({
   component: Index,

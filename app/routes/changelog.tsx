@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { LandingLayout } from '../features/landing/components/LandingLayout'
-import { ChangelogHero } from '../features/landing/components/ChangelogHero'
-import { ChangelogList } from '../features/landing/components/ChangelogList'
-import { CTASection } from '../features/landing/components/CTASection'
+import { LandingLayout } from '~/components/landing/LandingLayout'
+import { ChangelogHero } from '~/components/landing/ChangelogHero'
+import { ChangelogList } from '~/components/landing/ChangelogList'
+import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/changelog')({
   component: ChangelogPage,

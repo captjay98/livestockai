@@ -10,7 +10,8 @@ export function LandingHero() {
           OpenLivestock
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          Modern livestock management for modern farmers. Track health, inventory, sales and more.
+          Modern livestock management for modern farmers. Track health,
+          inventory, sales and more.
         </p>
         <div className="flex justify-center gap-4">
           <a

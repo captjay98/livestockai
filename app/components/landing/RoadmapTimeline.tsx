@@ -25,7 +25,9 @@ export function RoadmapTimeline() {
           </div>
           <div className="border-l-2 border-dashed pl-6">
             <h3 className="text-xl font-bold">Q3+ 2025 - Scale</h3>
-            <p className="mt-2 text-muted-foreground">AI predictions, integrations, and more.</p>
+            <p className="mt-2 text-muted-foreground">
+              AI predictions, integrations, and more.
+            </p>
           </div>
         </div>
       </div>

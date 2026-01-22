@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { LandingLayout } from '../features/landing/components/LandingLayout'
-import { DocsHero } from '../features/landing/components/DocsHero'
-import { DocsGrid } from '../features/landing/components/DocsGrid'
-import { CTASection } from '../features/landing/components/CTASection'
+import { LandingLayout } from '~/components/landing/LandingLayout'
+import { DocsHero } from '~/components/landing/DocsHero'
+import { DocsGrid } from '~/components/landing/DocsGrid'
+import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/docs')({
   component: DocsPage,

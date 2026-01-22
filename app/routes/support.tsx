@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { LandingLayout } from '../features/landing/components/LandingLayout'
-import { SupportHero } from '../features/landing/components/SupportHero'
-import { SupportTiers } from '../features/landing/components/SupportTiers'
-import { CTASection } from '../features/landing/components/CTASection'
+import { LandingLayout } from '~/components/landing/LandingLayout'
+import { SupportHero } from '~/components/landing/SupportHero'
+import { SupportTiers } from '~/components/landing/SupportTiers'
+import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/support')({
   component: SupportPage,

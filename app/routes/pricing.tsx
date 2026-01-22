@@ -14,7 +14,7 @@ function PricingPage() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Pricing</h1>
           <button
-            onClick={() => setCurrency(c => c === 'USD' ? 'NGN' : 'USD')}
+            onClick={() => setCurrency((c) => (c === 'USD' ? 'NGN' : 'USD'))}
             className="px-3 py-1 border rounded"
           >
             {currency === 'USD' ? '$ USD' : '₦ NGN'}
@@ -22,7 +22,9 @@ function PricingPage() {
         </div>
       </header>
       <main className="container mx-auto px-4 py-8">
-        <p className="text-center text-muted-foreground">Pricing page coming soon.</p>
+        <p className="text-center text-muted-foreground">
+          Pricing page coming soon.
+        </p>
       </main>
     </div>
   )
