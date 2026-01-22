@@ -65,6 +65,8 @@ export interface Database {
   market_prices: MarketPriceTable
   /** User notifications */
   notifications: NotificationTable
+  /** Saved report configurations */
+  report_configs: ReportConfigTable
 }
 
 // User & Auth - Better Auth tables use camelCase
@@ -662,4 +664,30 @@ export interface NotificationTable {
   /** Additional metadata */
   metadata: Record<string, any> | null
   createdAt: Generated<Date>
+}
+
+// Report Configurations
+export interface ReportConfigTable {
+  /** Unique report configuration identifier */
+  id: Generated<string>
+  /** User who created this config */
+  createdBy: string
+  /** Farm this config belongs to */
+  farmId: string
+  /** Display name for the report */
+  name: string
+  /** Type of report */
+  reportType: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
+  /** Date range preset */
+  dateRangeType: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
+  /** Custom start date for custom range */
+  customStartDate: Date | null
+  /** Custom end date for custom range */
+  customEndDate: Date | null
+  /** Whether to include charts in output */
+  includeCharts: boolean
+  /** Whether to include detailed data */
+  includeDetails: boolean
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
