@@ -7,6 +7,7 @@ Pay special attention to naming of existing utils, types, and models. Import fro
 ## Feature Description
 
 Refactor all server functions to use a **service layer pattern** that separates:
+
 - **Service layer** (`service.ts`) - Pure business logic functions, easily unit testable
 - **Repository layer** (`repository.ts`) - Database operations only, integration testable
 - **Server functions** (`server.ts`) - Thin orchestration layer, minimal code
@@ -22,6 +23,7 @@ So that I can achieve 80%+ test coverage with fast, reliable unit tests
 ## Problem Statement
 
 Current server functions mix business logic with database operations, making them untestable without a real database connection. This results in:
+
 - **3.91% line coverage** (current)
 - Server functions show 0% coverage because they require HTTP context
 - Integration tests are slow (~10s per test) due to Neon HTTP latency
@@ -30,16 +32,19 @@ Current server functions mix business logic with database operations, making the
 ## Solution Statement
 
 Extract pure business logic into `service.ts` files that:
+
 - Take inputs and return outputs (no side effects)
 - Can be tested with fast unit tests (~1ms per test)
 - Use property-based testing for mathematical operations
 
 Keep database operations in `repository.ts` files that:
+
 - Handle only CRUD operations
 - Are tested via integration tests
 - Have minimal logic (just data access)
 
 Server functions become thin orchestration:
+
 - Call service functions for business logic
 - Call repository functions for data access
 - Handle auth and error wrapping
@@ -58,6 +63,7 @@ Server functions become thin orchestration:
 ### Relevant Codebase Files - MUST READ BEFORE IMPLEMENTING
 
 **Existing Service Pattern Examples (FOLLOW THESE):**
+
 - `app/features/finance/calculations.ts` - Pure business logic, no DB
 - `app/features/settings/currency.ts` - Pure utility functions
 - `app/features/settings/currency-formatter.ts` - Pure formatting functions
@@ -88,6 +94,7 @@ Server functions become thin orchestration:
 | `app/features/onboarding/server.ts` | 258 | LOW |
 
 **Test Pattern Examples:**
+
 - `tests/features/finance/profit.property.test.ts` - Property tests for calculations
 - `tests/features/settings/currency.test.ts` - Unit tests for utilities
 - `tests/integration/batches.integration.test.ts` - Integration tests for DB
@@ -95,6 +102,7 @@ Server functions become thin orchestration:
 ### New Files to Create (per feature)
 
 For each feature in `app/features/{feature}/`:
+
 - `service.ts` - Pure business logic functions
 - `repository.ts` - Database operations only
 - `tests/features/{feature}/{feature}.service.test.ts` - Service unit tests
@@ -114,7 +122,7 @@ import type { CreateBatchData } from './types'
  */
 export function calculateBatchTotalCost(
   initialQuantity: number,
-  costPerUnit: number
+  costPerUnit: number,
 ): string {
   return toDbString(multiply(initialQuantity, costPerUnit))
 }
@@ -137,7 +145,7 @@ export function validateBatchData(data: CreateBatchData): string | null {
  * Determine batch status based on current quantity
  */
 export function determineBatchStatus(
-  currentQuantity: number
+  currentQuantity: number,
 ): 'active' | 'depleted' {
   return currentQuantity <= 0 ? 'depleted' : 'active'
 }
@@ -148,7 +156,7 @@ export function determineBatchStatus(
 export function calculateMortalityRate(
   initialQuantity: number,
   currentQuantity: number,
-  totalMortality: number
+  totalMortality: number,
 ): number {
   if (initialQuantity <= 0) return 0
   return (totalMortality / initialQuantity) * 100
@@ -181,7 +189,7 @@ export interface BatchInsert {
  */
 export async function insertBatch(
   db: Kysely<Database>,
-  data: BatchInsert
+  data: BatchInsert,
 ): Promise<string> {
   const result = await db
     .insertInto('batches')
@@ -194,10 +202,7 @@ export async function insertBatch(
 /**
  * Get batch by ID with optional joins
  */
-export async function getBatchById(
-  db: Kysely<Database>,
-  batchId: string
-) {
+export async function getBatchById(db: Kysely<Database>, batchId: string) {
   return db
     .selectFrom('batches')
     .selectAll()
@@ -212,7 +217,7 @@ export async function updateBatchQuantity(
   db: Kysely<Database>,
   batchId: string,
   newQuantity: number,
-  status: 'active' | 'depleted' | 'sold'
+  status: 'active' | 'depleted' | 'sold',
 ): Promise<void> {
   await db
     .updateTable('batches')
@@ -237,25 +242,29 @@ export const createBatchFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
-    
+
     const { db } = await import('~/lib/db')
     const { checkFarmAccess } = await import('../auth/utils')
 
     // Auth check
     const hasAccess = await checkFarmAccess(session.user.id, data.batch.farmId)
     if (!hasAccess) {
-      throw new AppError('ACCESS_DENIED', { metadata: { farmId: data.batch.farmId } })
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: data.batch.farmId },
+      })
     }
 
     // Business logic (testable via service.ts)
     const validationError = validateBatchData(data.batch)
     if (validationError) {
-      throw new AppError('VALIDATION_ERROR', { metadata: { error: validationError } })
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
+      })
     }
-    
+
     const totalCost = calculateBatchTotalCost(
       data.batch.initialQuantity,
-      data.batch.costPerUnit
+      data.batch.costPerUnit,
     )
 
     // Database operation (testable via repository.ts)
@@ -305,8 +314,8 @@ describe('Batch Service', () => {
             const result = calculateBatchTotalCost(quantity, costPerUnit)
             const expected = (quantity * costPerUnit).toFixed(2)
             expect(result).toBe(expected)
-          }
-        )
+          },
+        ),
       )
     })
   })
@@ -346,7 +355,7 @@ describe('Batch Service', () => {
       fc.assert(
         fc.property(fc.integer({ min: 1, max: 10000 }), (qty) => {
           expect(determineBatchStatus(qty)).toBe('active')
-        })
+        }),
       )
     })
   })
@@ -371,6 +380,7 @@ describe('Batch Service', () => {
 ### Phase 1: Create Service Layer Infrastructure
 
 Create the service layer pattern for HIGH priority features first:
+
 1. batches
 2. sales
 3. expenses
@@ -403,13 +413,12 @@ Apply the same pattern to remaining features.
 
 Extract pure business logic from `app/features/batches/server.ts`:
 
-- **IMPLEMENT**: 
+- **IMPLEMENT**:
   - `calculateBatchTotalCost(quantity, costPerUnit)` - Returns total cost string
   - `validateBatchData(data)` - Returns validation error or null
   - `determineBatchStatus(currentQuantity)` - Returns 'active' | 'depleted'
   - `calculateMortalityRate(initial, current, mortality)` - Returns percentage
   - `calculateFCR(feedKg, weightGainKg)` - Feed conversion ratio
-  
 - **PATTERN**: Follow `app/features/finance/calculations.ts`
 - **IMPORTS**: `~/features/settings/currency` for decimal operations
 - **GOTCHA**: Use `toDbString()` for database-ready decimal strings
@@ -437,7 +446,7 @@ Extract database operations:
 
 Refactor to use service and repository:
 
-- **REFACTOR**: 
+- **REFACTOR**:
   - Import from `./service` and `./repository`
   - Replace inline calculations with service function calls
   - Replace inline DB queries with repository function calls
@@ -462,7 +471,6 @@ Add comprehensive service tests:
   - `calculateSaleTotal(quantity, unitPrice)`
   - `validateSaleData(data)`
   - `calculateRevenueByPeriod(sales, startDate, endDate)`
-  
 - Task 6: CREATE `app/features/sales/repository.ts`
 - Task 7: UPDATE `app/features/sales/server.ts`
 - Task 8: CREATE `tests/features/sales/sales.service.test.ts`
@@ -473,7 +481,6 @@ Add comprehensive service tests:
   - `validateExpenseData(data)`
   - `categorizeExpenses(expenses)`
   - `calculateTotalByCategory(expenses)`
-  
 - Task 10: CREATE `app/features/expenses/repository.ts`
 - Task 11: UPDATE `app/features/expenses/server.ts`
 - Task 12: CREATE `tests/features/expenses/expenses.service.test.ts`
@@ -484,7 +491,6 @@ Add comprehensive service tests:
   - `validateMortalityData(data, batchQuantity)`
   - `calculateNewBatchQuantity(current, mortalityCount)`
   - `analyzeMortalityCauses(records)`
-  
 - Task 14: CREATE `app/features/mortality/repository.ts`
 - Task 15: UPDATE `app/features/mortality/server.ts`
 - Task 16: CREATE `tests/features/mortality/mortality.service.test.ts`
@@ -502,7 +508,6 @@ Add comprehensive service tests:
   - `calculateFeedCost(quantityKg, pricePerKg)`
   - `validateFeedRecord(data)`
   - `calculateDailyFeedRate(records)`
-  
 - Task 22: CREATE `app/features/feed/repository.ts`
 - Task 23: UPDATE `app/features/feed/server.ts`
 - Task 24: CREATE `tests/features/feed/feed.service.test.ts`
@@ -513,7 +518,6 @@ Add comprehensive service tests:
   - `calculateInvoiceTotal(items)`
   - `generateInvoiceNumber(prefix, sequence)`
   - `validateInvoiceData(data)`
-  
 - Task 26: CREATE `app/features/invoices/repository.ts`
 - Task 27: UPDATE `app/features/invoices/server.ts`
 - Task 28: CREATE `tests/features/invoices/invoices.service.test.ts`
@@ -521,6 +525,7 @@ Add comprehensive service tests:
 ### Task 29-44: Medium Priority Features
 
 Apply same pattern to:
+
 - vaccinations (Tasks 29-32)
 - eggs (Tasks 33-36)
 - weight (Tasks 37-40)
@@ -529,6 +534,7 @@ Apply same pattern to:
 ### Task 45-60: Low Priority Features
 
 Apply same pattern to:
+
 - structures (Tasks 45-48)
 - users (Tasks 49-52)
 - dashboard (Tasks 53-56)
@@ -553,6 +559,7 @@ Apply same pattern to:
 **Coverage Target**: 100% of service.ts files
 
 Test patterns:
+
 - Property tests for calculations (mathematical invariants)
 - Edge case tests (zero, negative, boundary values)
 - Validation tests (valid/invalid inputs)
@@ -649,6 +656,7 @@ bun run check && bun test --run && bun test:integration && bun run build
 ### Existing Good Patterns
 
 These files already follow the service pattern:
+
 - `app/features/finance/calculations.ts` - Pure profit/ROI calculations
 - `app/features/settings/currency.ts` - Pure currency utilities
 - `app/features/modules/utils.ts` - Pure module utilities
@@ -669,11 +677,13 @@ These files already follow the service pattern:
 ### Confidence Score
 
 **8/10** - High confidence because:
+
 - Clear patterns to follow
 - Existing tests catch regressions
 - Incremental approach reduces risk
 - No external dependencies
 
 Risk factors:
+
 - Large scope (20+ files)
 - Some complex server functions may need careful extraction

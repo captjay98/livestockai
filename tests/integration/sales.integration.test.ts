@@ -43,27 +43,32 @@ describe('Sales Integration Tests', () => {
     if (!process.env.DATABASE_URL_TEST) return
 
     const db = getTestDb()
-    
+
     // Create sale
-    await db.insertInto('sales').values({
-      farmId,
-      batchId,
-      livestockType: 'poultry',
-      quantity: 20,
-      unitPrice: '500.00',
-      totalAmount: '10000.00',
-      date: new Date(),
-      paymentStatus: 'paid',
-    }).execute()
+    await db
+      .insertInto('sales')
+      .values({
+        farmId,
+        batchId,
+        livestockType: 'poultry',
+        quantity: 20,
+        unitPrice: '500.00',
+        totalAmount: '10000.00',
+        date: new Date(),
+        paymentStatus: 'paid',
+      })
+      .execute()
 
     // Update batch quantity
-    await db.updateTable('batches')
+    await db
+      .updateTable('batches')
       .set({ currentQuantity: 80 })
       .where('id', '=', batchId)
       .execute()
 
     // Verify sale created
-    const sale = await db.selectFrom('sales')
+    const sale = await db
+      .selectFrom('sales')
       .selectAll()
       .where('batchId', '=', batchId)
       .executeTakeFirst()
@@ -73,7 +78,8 @@ describe('Sales Integration Tests', () => {
     expect(sale!.totalAmount).toBe('10000.00')
 
     // Verify batch quantity decreased
-    const batch = await db.selectFrom('batches')
+    const batch = await db
+      .selectFrom('batches')
       .select(['currentQuantity'])
       .where('id', '=', batchId)
       .executeTakeFirst()
@@ -87,27 +93,35 @@ describe('Sales Integration Tests', () => {
     const db = getTestDb()
 
     // Create customer
-    const customerId = await db.insertInto('customers').values({
-      farmId,
-      name: 'John Doe',
-      phone: '1234567890',
-      email: 'john@example.com',
-    }).returning('id').executeTakeFirst()
+    const customerId = await db
+      .insertInto('customers')
+      .values({
+        farmId,
+        name: 'John Doe',
+        phone: '1234567890',
+        email: 'john@example.com',
+      })
+      .returning('id')
+      .executeTakeFirst()
 
     // Create sale with customer
-    await db.insertInto('sales').values({
-      farmId,
-      batchId,
-      customerId: customerId!.id,
-      livestockType: 'poultry',
-      quantity: 15,
-      unitPrice: '600.00',
-      totalAmount: '9000.00',
-      date: new Date(),
-    }).execute()
+    await db
+      .insertInto('sales')
+      .values({
+        farmId,
+        batchId,
+        customerId: customerId!.id,
+        livestockType: 'poultry',
+        quantity: 15,
+        unitPrice: '600.00',
+        totalAmount: '9000.00',
+        date: new Date(),
+      })
+      .execute()
 
     // Verify customer association
-    const sale = await db.selectFrom('sales')
+    const sale = await db
+      .selectFrom('sales')
       .innerJoin('customers', 'customers.id', 'sales.customerId')
       .select(['sales.quantity', 'customers.name'])
       .where('sales.batchId', '=', batchId)
@@ -127,17 +141,21 @@ describe('Sales Integration Tests', () => {
     const unitPrice = '450.00'
     const expectedTotal = (quantity * parseFloat(unitPrice)).toFixed(2)
 
-    await db.insertInto('sales').values({
-      farmId,
-      batchId,
-      livestockType: 'poultry',
-      quantity,
-      unitPrice,
-      totalAmount: expectedTotal,
-      date: new Date(),
-    }).execute()
+    await db
+      .insertInto('sales')
+      .values({
+        farmId,
+        batchId,
+        livestockType: 'poultry',
+        quantity,
+        unitPrice,
+        totalAmount: expectedTotal,
+        date: new Date(),
+      })
+      .execute()
 
-    const sale = await db.selectFrom('sales')
+    const sale = await db
+      .selectFrom('sales')
       .select(['quantity', 'unitPrice', 'totalAmount'])
       .where('batchId', '=', batchId)
       .executeTakeFirst()
@@ -152,24 +170,30 @@ describe('Sales Integration Tests', () => {
     const db = getTestDb()
 
     // Create sale with pending status
-    const saleId = await db.insertInto('sales').values({
-      farmId,
-      batchId,
-      livestockType: 'poultry',
-      quantity: 10,
-      unitPrice: '500.00',
-      totalAmount: '5000.00',
-      date: new Date(),
-      paymentStatus: 'pending',
-    }).returning('id').executeTakeFirst()
+    const saleId = await db
+      .insertInto('sales')
+      .values({
+        farmId,
+        batchId,
+        livestockType: 'poultry',
+        quantity: 10,
+        unitPrice: '500.00',
+        totalAmount: '5000.00',
+        date: new Date(),
+        paymentStatus: 'pending',
+      })
+      .returning('id')
+      .executeTakeFirst()
 
     // Update to partial
-    await db.updateTable('sales')
+    await db
+      .updateTable('sales')
       .set({ paymentStatus: 'partial' })
       .where('id', '=', saleId!.id)
       .execute()
 
-    let sale = await db.selectFrom('sales')
+    let sale = await db
+      .selectFrom('sales')
       .select(['paymentStatus'])
       .where('id', '=', saleId!.id)
       .executeTakeFirst()
@@ -177,12 +201,14 @@ describe('Sales Integration Tests', () => {
     expect(sale!.paymentStatus).toBe('partial')
 
     // Update to paid
-    await db.updateTable('sales')
+    await db
+      .updateTable('sales')
       .set({ paymentStatus: 'paid', paymentMethod: 'transfer' })
       .where('id', '=', saleId!.id)
       .execute()
 
-    sale = await db.selectFrom('sales')
+    sale = await db
+      .selectFrom('sales')
       .selectAll()
       .where('id', '=', saleId!.id)
       .executeTakeFirst()
@@ -197,29 +223,33 @@ describe('Sales Integration Tests', () => {
     const db = getTestDb()
 
     // Create sales linked to batch
-    await db.insertInto('sales').values([
-      {
-        farmId,
-        batchId,
-        livestockType: 'poultry',
-        quantity: 10,
-        unitPrice: '500.00',
-        totalAmount: '5000.00',
-        date: new Date(),
-      },
-      {
-        farmId,
-        batchId,
-        livestockType: 'poultry',
-        quantity: 15,
-        unitPrice: '600.00',
-        totalAmount: '9000.00',
-        date: new Date(),
-      },
-    ]).execute()
+    await db
+      .insertInto('sales')
+      .values([
+        {
+          farmId,
+          batchId,
+          livestockType: 'poultry',
+          quantity: 10,
+          unitPrice: '500.00',
+          totalAmount: '5000.00',
+          date: new Date(),
+        },
+        {
+          farmId,
+          batchId,
+          livestockType: 'poultry',
+          quantity: 15,
+          unitPrice: '600.00',
+          totalAmount: '9000.00',
+          date: new Date(),
+        },
+      ])
+      .execute()
 
     // Verify sales exist
-    let sales = await db.selectFrom('sales')
+    let sales = await db
+      .selectFrom('sales')
       .selectAll()
       .where('batchId', '=', batchId)
       .execute()
@@ -227,12 +257,11 @@ describe('Sales Integration Tests', () => {
     expect(sales.length).toBe(2)
 
     // Delete batch
-    await db.deleteFrom('batches')
-      .where('id', '=', batchId)
-      .execute()
+    await db.deleteFrom('batches').where('id', '=', batchId).execute()
 
     // Verify sales are cascade deleted
-    sales = await db.selectFrom('sales')
+    sales = await db
+      .selectFrom('sales')
       .selectAll()
       .where('batchId', '=', batchId)
       .execute()
@@ -245,17 +274,21 @@ describe('Sales Integration Tests', () => {
 
     const db = getTestDb()
 
-    await db.insertInto('sales').values({
-      farmId,
-      batchId: null,
-      livestockType: 'eggs',
-      quantity: 30,
-      unitPrice: '50.00',
-      totalAmount: '1500.00',
-      date: new Date(),
-    }).execute()
+    await db
+      .insertInto('sales')
+      .values({
+        farmId,
+        batchId: null,
+        livestockType: 'eggs',
+        quantity: 30,
+        unitPrice: '50.00',
+        totalAmount: '1500.00',
+        date: new Date(),
+      })
+      .execute()
 
-    const sale = await db.selectFrom('sales')
+    const sale = await db
+      .selectFrom('sales')
       .selectAll()
       .where('farmId', '=', farmId)
       .where('livestockType', '=', 'eggs')

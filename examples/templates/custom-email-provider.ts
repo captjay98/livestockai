@@ -77,7 +77,12 @@ export class MyCustomEmailProvider implements EmailProvider {
       /**
        * SECTION D: Parse the Response.
        */
-      const data = await response.json()
+      const data = (await response.json()) as {
+        status?: string
+        success?: boolean
+        messageId?: string
+        error_description?: string
+      }
 
       /**
        * SECTION E: Return the Result.

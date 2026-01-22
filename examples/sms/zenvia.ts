@@ -55,14 +55,14 @@ export class ZenviaProvider implements SMSProvider {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData = (await response.json()) as { message?: string }
         return {
           success: false,
           error: `Zenvia API Error (${response.status}): ${errorData.message || response.statusText}`,
         }
       }
 
-      const data = await response.json()
+      const data = (await response.json()) as { id?: string }
 
       // Zenvia returns a success status if the message is accepted
       return {

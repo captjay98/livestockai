@@ -28,7 +28,19 @@ import { OfflineIndicator } from '~/components/offline-indicator'
 export const Route = createRootRoute({
   component: RootComponent,
   notFoundComponent: NotFoundPage,
-  errorComponent: ({ error }) => <ErrorPage error={error} />,
+  errorComponent: ({ error }) => (
+    <html lang="en">
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Error - OpenLivestock</title>
+        <link rel="stylesheet" href={appCss} />
+      </head>
+      <body>
+        <ErrorPage error={error} />
+      </body>
+    </html>
+  ),
   head: () => ({
     links: [
       { rel: 'stylesheet', href: appCss },
@@ -70,7 +82,8 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const router = useRouter()
-  const queryClient = router.options.context.queryClient as QueryClient
+  const queryClient = (router.options.context as { queryClient: QueryClient })
+    .queryClient
   const persister = useMemo(() => createPersister(), [])
 
   // Common content that should be identical on server and client

@@ -1,4 +1,3 @@
-import { getRequestHeaders } from '@tanstack/react-start/server'
 import { auth } from './config'
 import { AppError } from '~/lib/errors'
 
@@ -6,9 +5,10 @@ import { AppError } from '~/lib/errors'
  * Middleware to check authentication and authorization
  * Uses getRequestHeaders() to get headers in server functions
  *
- * NOTE: This file should ONLY be imported in server functions (createServerFn handlers)
+ * NOTE: This file should ONLY be imported dynamically in server functions (createServerFn handlers)
  */
 export async function requireAuth() {
+  const { getRequestHeaders } = await import('@tanstack/react-start/server')
   const headers = getRequestHeaders()
   const session = await auth.api.getSession({ headers })
 

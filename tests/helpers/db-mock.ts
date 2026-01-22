@@ -17,7 +17,7 @@ export function createMockQueryBuilder(
   let currentTable = ''
 
   const chainable = () => mock
-  
+
   const mock: Record<string, unknown> = {
     selectFrom: vi.fn((table: string) => {
       currentTable = table
@@ -56,12 +56,12 @@ export function createMockQueryBuilder(
         return Promise.resolve(tableData.executeTakeFirst)
       }
       const arr = tableData.execute ?? defaultResult
-      return Promise.resolve(Array.isArray(arr) ? arr[0] ?? null : null)
+      return Promise.resolve(Array.isArray(arr) ? (arr[0] ?? null) : null)
     }),
     executeTakeFirstOrThrow: vi.fn(() => {
       const tableData = tableResults[currentTable]
       const arr = tableData.execute ?? defaultResult
-      return Promise.resolve(Array.isArray(arr) ? arr[0] ?? {} : {})
+      return Promise.resolve(Array.isArray(arr) ? (arr[0] ?? {}) : {})
     }),
   }
   return mock
@@ -126,13 +126,15 @@ export function createMockBatch(
 /**
  * Helper to create mock user data
  */
-export function createMockUser(overrides: Partial<{
-  id: string
-  email: string
-  name: string
-  role: 'admin' | 'user'
-  emailVerified: boolean
-}> = {}) {
+export function createMockUser(
+  overrides: Partial<{
+    id: string
+    email: string
+    name: string
+    role: 'admin' | 'user'
+    emailVerified: boolean
+  }> = {},
+) {
   return {
     id: 'test-user-id',
     email: 'test@example.com',
@@ -148,12 +150,14 @@ export function createMockUser(overrides: Partial<{
 /**
  * Helper to create mock farm data
  */
-export function createMockFarm(overrides: Partial<{
-  id: string
-  name: string
-  location: string
-  type: string
-}> = {}) {
+export function createMockFarm(
+  overrides: Partial<{
+    id: string
+    name: string
+    location: string
+    type: string
+  }> = {},
+) {
   return {
     id: 'test-farm-id',
     name: 'Test Farm',
@@ -168,15 +172,17 @@ export function createMockFarm(overrides: Partial<{
 /**
  * Helper to create mock notification data
  */
-export function createMockNotification(overrides: Partial<{
-  id: string
-  userId: string
-  farmId: string | null
-  type: string
-  title: string
-  message: string
-  read: boolean
-}> = {}) {
+export function createMockNotification(
+  overrides: Partial<{
+    id: string
+    userId: string
+    farmId: string | null
+    type: string
+    title: string
+    message: string
+    read: boolean
+  }> = {},
+) {
   return {
     id: 'test-notification-id',
     userId: 'test-user-id',

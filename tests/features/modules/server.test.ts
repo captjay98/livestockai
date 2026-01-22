@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 import type { ModuleKey } from '~/features/modules/types'
-import { DEFAULT_MODULES_BY_FARM_TYPE, MODULE_METADATA } from '~/features/modules/constants'
+import {
+  DEFAULT_MODULES_BY_FARM_TYPE,
+  MODULE_METADATA,
+} from '~/features/modules/constants'
 
 /**
  * Server function logic tests - testing the business logic without database
@@ -13,7 +16,14 @@ describe('modules/server logic', () => {
       fc.assert(
         fc.property(
           fc.uniqueArray(
-            fc.constantFrom('poultry', 'aquaculture', 'cattle', 'goats', 'sheep', 'bees') as fc.Arbitrary<ModuleKey>,
+            fc.constantFrom(
+              'poultry',
+              'aquaculture',
+              'cattle',
+              'goats',
+              'sheep',
+              'bees',
+            ) as fc.Arbitrary<ModuleKey>,
             { minLength: 0, maxLength: 6 },
           ),
           fc.func(fc.boolean()),
@@ -23,17 +33,19 @@ describe('modules/server logic', () => {
               moduleKey,
               enabled: enabledFn(moduleKey),
             }))
-            
+
             // This is the logic from getEnabledModules
             // This is the logic from getEnabledModules
-            const enabled = modules.filter((m) => m.enabled).map((m) => m.moduleKey)
+            const enabled = modules
+              .filter((m) => m.enabled)
+              .map((m) => m.moduleKey)
 
             // All returned modules should be enabled
             enabled.forEach((key) => {
               const original = modules.find((m) => m.moduleKey === key)
               expect(original?.enabled).toBe(true)
             })
-            
+
             // Count should match
             const expectedCount = modules.filter((m) => m.enabled).length
             expect(enabled.length).toBe(expectedCount)
@@ -45,7 +57,16 @@ describe('modules/server logic', () => {
   })
 
   describe('createDefaultModules logic', () => {
-    const farmTypes = ['poultry', 'fishery', 'cattle', 'goats', 'sheep', 'bees', 'mixed', 'multi']
+    const farmTypes = [
+      'poultry',
+      'fishery',
+      'cattle',
+      'goats',
+      'sheep',
+      'bees',
+      'mixed',
+      'multi',
+    ]
 
     it('should have defaults for all farm types', () => {
       farmTypes.forEach((farmType) => {
@@ -74,16 +95,23 @@ describe('modules/server logic', () => {
           fc.constantFrom(...farmTypes.filter((t) => t !== 'multi')),
           (farmType) => {
             const defaultModules = DEFAULT_MODULES_BY_FARM_TYPE[farmType] ?? []
-            const allModules: Array<ModuleKey> = ['poultry', 'aquaculture', 'cattle', 'goats', 'sheep', 'bees']
-            
+            const allModules: Array<ModuleKey> = [
+              'poultry',
+              'aquaculture',
+              'cattle',
+              'goats',
+              'sheep',
+              'bees',
+            ]
+
             // Logic from createDefaultModules
             const moduleRecords = allModules.map((moduleKey) => ({
               moduleKey,
               enabled: defaultModules.includes(moduleKey),
             }))
-            
+
             expect(moduleRecords.length).toBe(6)
-            
+
             // At least one should be enabled (except for unknown types)
             if (defaultModules.length > 0) {
               const enabledCount = moduleRecords.filter((m) => m.enabled).length
@@ -98,8 +126,15 @@ describe('modules/server logic', () => {
 
   describe('canDisableModule logic', () => {
     it('should check livestock types from module metadata', () => {
-      const allModules: Array<ModuleKey> = ['poultry', 'aquaculture', 'cattle', 'goats', 'sheep', 'bees']
-      
+      const allModules: Array<ModuleKey> = [
+        'poultry',
+        'aquaculture',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+      ]
+
       allModules.forEach((moduleKey) => {
         const metadata = MODULE_METADATA[moduleKey]
         expect(metadata).toBeDefined()
@@ -110,11 +145,25 @@ describe('modules/server logic', () => {
     it('should return true when no matching active batches', () => {
       fc.assert(
         fc.property(
-          fc.constantFrom('poultry', 'aquaculture', 'cattle', 'goats', 'sheep', 'bees') as fc.Arbitrary<ModuleKey>,
+          fc.constantFrom(
+            'poultry',
+            'aquaculture',
+            'cattle',
+            'goats',
+            'sheep',
+            'bees',
+          ) as fc.Arbitrary<ModuleKey>,
           fc.array(
             fc.record({
               status: fc.constantFrom('sold', 'depleted'),
-              livestockType: fc.constantFrom('poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'),
+              livestockType: fc.constantFrom(
+                'poultry',
+                'fish',
+                'cattle',
+                'goats',
+                'sheep',
+                'bees',
+              ),
             }),
             { minLength: 0, maxLength: 10 },
           ),
@@ -125,7 +174,9 @@ describe('modules/server logic', () => {
             // Logic from canDisableModule - check for active batches
             // All batches have status 'sold' or 'depleted', so none will match 'active'
             const activeBatches = batches.filter(
-              (b) => (b as { status: string }).status === 'active' && livestockTypes.includes(b.livestockType as any),
+              (b) =>
+                (b as { status: string }).status === 'active' &&
+                livestockTypes.includes(b.livestockType as any),
             )
 
             // No active batches with these livestock types = can disable
@@ -141,13 +192,15 @@ describe('modules/server logic', () => {
       const moduleKey: ModuleKey = 'poultry'
       const metadata = MODULE_METADATA[moduleKey]
       const livestockType = metadata.livestockTypes[0]
-      
+
       const batches = [{ status: 'active', livestockType }]
-      
+
       const activeBatches = batches.filter(
-        (b) => b.status === 'active' && metadata.livestockTypes.includes(b.livestockType as any),
+        (b) =>
+          b.status === 'active' &&
+          metadata.livestockTypes.includes(b.livestockType as any),
       )
-      
+
       expect(activeBatches.length).toBeGreaterThan(0)
     })
   })

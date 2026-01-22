@@ -67,14 +67,14 @@ export class MailgunProvider implements EmailProvider {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData = (await response.json()) as { message?: string }
         return {
           success: false,
           error: `Mailgun API Error (${response.status}): ${errorData.message || response.statusText}`,
         }
       }
 
-      const data = await response.json()
+      const data = (await response.json()) as { id?: string }
 
       return {
         success: true,

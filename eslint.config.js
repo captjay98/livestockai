@@ -10,6 +10,8 @@ export default [
       'prettier.config.js',
       'public/docs/**',
       'public/typedocs/**',
+      'examples/**',
+      'vitest.*.ts',
     ],
   },
 ]

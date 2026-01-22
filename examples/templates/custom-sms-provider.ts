@@ -71,7 +71,11 @@ export class MyCustomSmsProvider implements SMSProvider {
        * Inspect the 'data' returned by your provider to find the Message ID
        * or any provider-specific error status.
        */
-      const data = await response.json()
+      const data = (await response.json()) as {
+        status?: string
+        id?: string
+        errorMessage?: string
+      }
 
       /**
        * SECTION E: Return the Result.

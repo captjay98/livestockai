@@ -59,17 +59,20 @@ describe('Batches Integration Tests', () => {
 
     const db = getTestDb()
     await expect(
-      db.insertInto('batches').values({
-        farmId,
-        livestockType: 'poultry',
-        species: 'broiler',
-        initialQuantity: 0,
-        currentQuantity: 0,
-        acquisitionDate: new Date(),
-        costPerUnit: '10.00',
-        totalCost: '0.00',
-        status: 'active',
-      }).execute(),
+      db
+        .insertInto('batches')
+        .values({
+          farmId,
+          livestockType: 'poultry',
+          species: 'broiler',
+          initialQuantity: 0,
+          currentQuantity: 0,
+          acquisitionDate: new Date(),
+          costPerUnit: '10.00',
+          totalCost: '0.00',
+          status: 'active',
+        })
+        .execute(),
     ).rejects.toThrow()
   })
 
@@ -79,19 +82,24 @@ describe('Batches Integration Tests', () => {
     const { batchId } = await seedTestBatch(farmId, { initialQuantity: 100 })
     const db = getTestDb()
 
-    await db.insertInto('mortality_records').values({
-      batchId,
-      quantity: 5,
-      date: new Date(),
-      cause: 'disease',
-    }).execute()
+    await db
+      .insertInto('mortality_records')
+      .values({
+        batchId,
+        quantity: 5,
+        date: new Date(),
+        cause: 'disease',
+      })
+      .execute()
 
-    await db.updateTable('batches')
+    await db
+      .updateTable('batches')
       .set({ currentQuantity: 95 })
       .where('id', '=', batchId)
       .execute()
 
-    const batch = await db.selectFrom('batches')
+    const batch = await db
+      .selectFrom('batches')
       .select(['currentQuantity'])
       .where('id', '=', batchId)
       .executeTakeFirst()
@@ -105,17 +113,21 @@ describe('Batches Integration Tests', () => {
     const { batchId } = await seedTestBatch(farmId, { initialQuantity: 100 })
     const db = getTestDb()
 
-    await db.insertInto('sales').values({
-      farmId,
-      batchId,
-      livestockType: 'poultry',
-      quantity: 20,
-      unitPrice: '500.00',
-      totalAmount: '10000.00',
-      date: new Date(),
-    }).execute()
+    await db
+      .insertInto('sales')
+      .values({
+        farmId,
+        batchId,
+        livestockType: 'poultry',
+        quantity: 20,
+        unitPrice: '500.00',
+        totalAmount: '10000.00',
+        date: new Date(),
+      })
+      .execute()
 
-    const sales = await db.selectFrom('sales')
+    const sales = await db
+      .selectFrom('sales')
       .selectAll()
       .where('batchId', '=', batchId)
       .execute()
@@ -131,7 +143,8 @@ describe('Batches Integration Tests', () => {
     const db = getTestDb()
 
     await expect(
-      db.updateTable('batches')
+      db
+        .updateTable('batches')
         .set({ status: 'invalid' as any })
         .where('id', '=', batchId)
         .execute(),
@@ -144,18 +157,37 @@ describe('Batches Integration Tests', () => {
     const { batchId } = await seedTestBatch(farmId)
     const db = getTestDb()
 
-    await db.insertInto('mortality_records').values({
-      batchId, quantity: 5, date: new Date(), cause: 'disease',
-    }).execute()
+    await db
+      .insertInto('mortality_records')
+      .values({
+        batchId,
+        quantity: 5,
+        date: new Date(),
+        cause: 'disease',
+      })
+      .execute()
 
-    await db.insertInto('feed_records').values({
-      batchId, feedType: 'starter', quantityKg: '10.00', cost: '500.00', date: new Date(),
-    }).execute()
+    await db
+      .insertInto('feed_records')
+      .values({
+        batchId,
+        feedType: 'starter',
+        quantityKg: '10.00',
+        cost: '500.00',
+        date: new Date(),
+      })
+      .execute()
 
     await db.deleteFrom('batches').where('id', '=', batchId).execute()
 
-    const mortality = await db.selectFrom('mortality_records').where('batchId', '=', batchId).execute()
-    const feed = await db.selectFrom('feed_records').where('batchId', '=', batchId).execute()
+    const mortality = await db
+      .selectFrom('mortality_records')
+      .where('batchId', '=', batchId)
+      .execute()
+    const feed = await db
+      .selectFrom('feed_records')
+      .where('batchId', '=', batchId)
+      .execute()
 
     expect(mortality.length).toBe(0)
     expect(feed.length).toBe(0)

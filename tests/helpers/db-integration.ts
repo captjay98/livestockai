@@ -5,7 +5,7 @@
 import { Kysely } from 'kysely'
 import { NeonDialect } from 'kysely-neon'
 import { neon } from '@neondatabase/serverless'
-import type { Transaction } from 'kysely';
+import type { Transaction } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 let testDb: Kysely<Database> | null = null
@@ -20,7 +20,7 @@ export function getTestDb(): Kysely<Database> {
   if (currentTrx) {
     return currentTrx as unknown as Kysely<Database>
   }
-  
+
   if (!testDb) {
     const connectionString = process.env.DATABASE_URL_TEST
     if (!connectionString) {
@@ -93,12 +93,19 @@ export async function truncateAllTables(): Promise<void> {
  * Create a test user with Better Auth account
  * Returns userId for use in tests
  */
-export async function seedTestUser(overrides: {
-  email?: string
-  name?: string
-  role?: 'admin' | 'user'
-  password?: string
-} = {}): Promise<{ userId: string; email: string; name: string; role: 'admin' | 'user' }> {
+export async function seedTestUser(
+  overrides: {
+    email?: string
+    name?: string
+    role?: 'admin' | 'user'
+    password?: string
+  } = {},
+): Promise<{
+  userId: string
+  email: string
+  name: string
+  role: 'admin' | 'user'
+}> {
   const db = getTestDb()
   const { hashPassword } = await import('~/lib/db/seeds/helpers')
 
@@ -183,8 +190,17 @@ export async function seedTestFarm(
   userId: string,
   overrides: {
     name?: string
-    type?: 'poultry' | 'aquaculture' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees'
-    modules?: Array<'poultry' | 'aquaculture' | 'cattle' | 'goats' | 'sheep' | 'bees'>
+    type?:
+      | 'poultry'
+      | 'aquaculture'
+      | 'mixed'
+      | 'cattle'
+      | 'goats'
+      | 'sheep'
+      | 'bees'
+    modules?: Array<
+      'poultry' | 'aquaculture' | 'cattle' | 'goats' | 'sheep' | 'bees'
+    >
   } = {},
 ): Promise<{ farmId: string }> {
   const db = getTestDb()
@@ -323,7 +339,7 @@ export function clearSharedContext(): void {
 export async function cleanupTestData(): Promise<void> {
   const db = getRawTestDb()
   const { sql } = await import('kysely')
-  
+
   // Only truncate tables that change between tests, not user/farm
   await sql`
     TRUNCATE TABLE 

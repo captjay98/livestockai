@@ -51,10 +51,7 @@ export class TwilioProvider implements SMSProvider {
         }),
       })
 
-      const data = (await response.json()) as {
-        sid?: string
-        message?: string
-      }
+      const data = (await response.json()) as { sid?: string; message?: string }
 
       if (response.ok && data.sid) {
         return {

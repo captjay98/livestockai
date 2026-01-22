@@ -84,7 +84,11 @@ export class AfricasTalkingProvider implements SMSProvider {
 
       // 5. Parse and Validate Response
       // Africa's Talking returns a 'SMSMessageData' object containing recipients.
-      const data = await response.json()
+      const data = (await response.json()) as {
+        SMSMessageData?: {
+          Recipients?: Array<{ status?: string; messageId?: string }>
+        }
+      }
 
       const recipients = data.SMSMessageData?.Recipients
 

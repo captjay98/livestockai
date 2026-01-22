@@ -1,5 +1,10 @@
 import type { ProviderResult, SMSProvider } from '../../contracts'
 
+interface TwilioResponse {
+  sid?: string
+  message?: string
+}
+
 export class TwilioProvider implements SMSProvider {
   readonly name = 'twilio'
 
@@ -29,10 +34,7 @@ export class TwilioProvider implements SMSProvider {
         },
       )
 
-      const data = (await response.json()) as {
-        sid?: string
-        message?: string
-      }
+      const data: TwilioResponse = await response.json()
 
       if (response.ok && data.sid) {
         return { success: true, messageId: data.sid }

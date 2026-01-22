@@ -57,7 +57,11 @@ export class Msg91Provider implements SMSProvider {
         body: JSON.stringify(body),
       })
 
-      const data = await response.json()
+      const data = (await response.json()) as {
+        type?: string
+        request_id?: string
+        message?: string
+      }
 
       if (data.type === 'success') {
         return {

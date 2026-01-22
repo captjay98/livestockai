@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
-import type { CreateBatchData, UpdateBatchData } from '~/features/batches/server'
+import type {
+  CreateBatchData,
+  UpdateBatchData,
+} from '~/features/batches/server'
 import {
   calculateBatchTotalCost,
   calculateDepletionPercentage,

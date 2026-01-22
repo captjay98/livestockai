@@ -62,7 +62,10 @@ export class BulkSmsProvider implements SMSProvider {
       }
 
       // BulkSMS returns an array of message status objects
-      const data = await response.json()
+      const data = (await response.json()) as Array<{
+        status?: { type?: string }
+        id?: string
+      }>
 
       if (data.length > 0 && data[0].status.type === 'ACCEPTED') {
         return {

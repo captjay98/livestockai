@@ -32,5 +32,6 @@
       "@/*": ["./app/*"],
       "~/*": ["./app/*"]
     }
-  }
+  },
+  "exclude": ["examples", "node_modules", "dist", "vitest.*.ts"]
 }

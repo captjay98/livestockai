@@ -17,7 +17,7 @@ Automatically update DEVLOG.md with recent commits that haven't been documented 
 **Ask user interactively:**
 
 > What DEVLOG update would you like?
-> 
+>
 > 1. **All recent commits** - Everything since last documented date
 > 2. **Specific date range** - Custom start/end dates
 > 3. **Today only** - Just today's commits
@@ -25,11 +25,13 @@ Automatically update DEVLOG.md with recent commits that haven't been documented 
 > 5. **Review mode** - Show what would be added without updating
 
 **Then ask about detail level:**
+
 - (f)ull - Include detailed commit bodies and file lists
 - (s)ummary - Brief summaries only
 - (m)etrics - Focus on statistics and metrics
 
 **Then ask about execution:**
+
 - (a)uto-commit - Update DEVLOG and commit automatically
 - (r)eview - Show changes for review first
 - (d)raft - Create draft without modifying DEVLOG
@@ -313,13 +315,16 @@ git commit -m "docs: update DEVLOG with Day 8 progress"
    - Links working
 
 **Ask user:**
+
 > DEVLOG entry generated. What would you like to do?
+>
 > - (c) Commit the changes
 > - (e) Edit the entry first
 > - (r) Regenerate with different settings
 > - (d) Discard and cancel
 
 **If auto-commit was selected:**
+
 ```bash
 git add DEVLOG.md
 git commit -m "docs: update DEVLOG with Day X progress"
@@ -327,6 +332,7 @@ echo "✅ DEVLOG updated and committed"
 ```
 
 **Success criteria:**
+
 - All recent commits documented
 - Day number correct
 - Metrics accurate

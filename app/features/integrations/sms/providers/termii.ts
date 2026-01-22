@@ -1,5 +1,11 @@
 import type { ProviderResult, SMSProvider } from '../../contracts'
 
+interface TermiiResponse {
+  code?: string
+  message_id?: string
+  message?: string
+}
+
 export class TermiiProvider implements SMSProvider {
   readonly name = 'termii'
 
@@ -23,11 +29,7 @@ export class TermiiProvider implements SMSProvider {
         }),
       })
 
-      const data = (await response.json()) as {
-        code?: string
-        message_id?: string
-        message?: string
-      }
+      const data: TermiiResponse = await response.json()
 
       if (data.code === 'ok') {
         return { success: true, messageId: data.message_id }

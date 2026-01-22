@@ -43,15 +43,19 @@ describe('Expenses Integration Tests', () => {
     if (!process.env.DATABASE_URL_TEST) return
 
     const db = getTestDb()
-    
-    const expenseId = await db.insertInto('expenses').values({
-      farmId,
-      category: 'utilities',
-      amount: '5000.00',
-      date: new Date(),
-      description: 'Electricity bill',
-      isRecurring: false,
-    }).returning('id').executeTakeFirst()
+
+    const expenseId = await db
+      .insertInto('expenses')
+      .values({
+        farmId,
+        category: 'utilities',
+        amount: '5000.00',
+        date: new Date(),
+        description: 'Electricity bill',
+        isRecurring: false,
+      })
+      .returning('id')
+      .executeTakeFirst()
 
     const expense = await db
       .selectFrom('expenses')
@@ -70,16 +74,20 @@ describe('Expenses Integration Tests', () => {
     if (!process.env.DATABASE_URL_TEST) return
 
     const db = getTestDb()
-    
-    const expenseId = await db.insertInto('expenses').values({
-      farmId,
-      batchId,
-      category: 'feed',
-      amount: '2500.00',
-      date: new Date(),
-      description: 'Starter feed',
-      isRecurring: false,
-    }).returning('id').executeTakeFirst()
+
+    const expenseId = await db
+      .insertInto('expenses')
+      .values({
+        farmId,
+        batchId,
+        category: 'feed',
+        amount: '2500.00',
+        date: new Date(),
+        description: 'Starter feed',
+        isRecurring: false,
+      })
+      .returning('id')
+      .executeTakeFirst()
 
     const expense = await db
       .selectFrom('expenses')
@@ -97,16 +105,19 @@ describe('Expenses Integration Tests', () => {
     if (!process.env.DATABASE_URL_TEST) return
 
     const db = getTestDb()
-    
+
     await expect(
-      db.insertInto('expenses').values({
-        farmId,
-        category: 'invalid_category' as any,
-        amount: '1000.00',
-        date: new Date(),
-        description: 'Invalid expense',
-        isRecurring: false,
-      }).execute()
+      db
+        .insertInto('expenses')
+        .values({
+          farmId,
+          category: 'invalid_category' as any,
+          amount: '1000.00',
+          date: new Date(),
+          description: 'Invalid expense',
+          isRecurring: false,
+        })
+        .execute(),
     ).rejects.toThrow()
   })
 
@@ -114,15 +125,19 @@ describe('Expenses Integration Tests', () => {
     if (!process.env.DATABASE_URL_TEST) return
 
     const db = getTestDb()
-    
-    const expenseId = await db.insertInto('expenses').values({
-      farmId,
-      category: 'utilities',
-      amount: '3000.00',
-      date: new Date(),
-      description: 'Monthly electricity',
-      isRecurring: true,
-    }).returning('id').executeTakeFirst()
+
+    const expenseId = await db
+      .insertInto('expenses')
+      .values({
+        farmId,
+        category: 'utilities',
+        amount: '3000.00',
+        date: new Date(),
+        description: 'Monthly electricity',
+        isRecurring: true,
+      })
+      .returning('id')
+      .executeTakeFirst()
 
     const expense = await db
       .selectFrom('expenses')
@@ -137,17 +152,21 @@ describe('Expenses Integration Tests', () => {
     if (!process.env.DATABASE_URL_TEST) return
 
     const db = getTestDb()
-    
+
     // Create expense linked to batch
-    const expenseId = await db.insertInto('expenses').values({
-      farmId,
-      batchId,
-      category: 'medicine',
-      amount: '1500.00',
-      date: new Date(),
-      description: 'Vaccination',
-      isRecurring: false,
-    }).returning('id').executeTakeFirst()
+    const expenseId = await db
+      .insertInto('expenses')
+      .values({
+        farmId,
+        batchId,
+        category: 'medicine',
+        amount: '1500.00',
+        date: new Date(),
+        description: 'Vaccination',
+        isRecurring: false,
+      })
+      .returning('id')
+      .executeTakeFirst()
 
     // Verify expense is linked to batch
     let expense = await db

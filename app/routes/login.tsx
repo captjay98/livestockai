@@ -95,13 +95,6 @@ function LoginPage() {
               >
                 {t('login.password')}
               </Label>
-              <Link
-                to="/forgot-password"
-                className="text-xs hover:text-emerald-500 transition-colors"
-                style={{ color: 'var(--text-landing-secondary)' }}
-              >
-                Forgot password?
-              </Link>
             </div>
             <Input
               id="password"

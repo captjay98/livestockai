@@ -9,7 +9,7 @@ import { migrate } from '../app/lib/db/migrate'
 
 async function setupTestDatabase() {
   const testDbUrl = process.env.DATABASE_URL_TEST
-  
+
   if (!testDbUrl) {
     console.error('❌ DATABASE_URL_TEST environment variable not set')
     console.log('Please add DATABASE_URL_TEST to your .env file')
@@ -17,11 +17,11 @@ async function setupTestDatabase() {
   }
 
   console.log('🔧 Setting up test database...')
-  
+
   // Temporarily override DATABASE_URL to point to test database
   const originalDbUrl = process.env.DATABASE_URL
   process.env.DATABASE_URL = testDbUrl
-  
+
   try {
     await migrate()
     console.log('✅ Test database setup complete')
