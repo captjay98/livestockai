@@ -3283,7 +3283,8 @@ export default defineConfig({
 
 **Problem**: Login errors showed "Invalid email or password" even for database connection failures - misleading users.
 
-**Solution**: 
+**Solution**:
+
 - Distinguish DB errors from auth errors in `loginFn`
 - Check `AppError.reason === 'UNAUTHORIZED'` instead of just message string
 - Dynamic imports for `getRequestHeaders` in server functions
@@ -3293,12 +3294,14 @@ export default defineConfig({
 ### Test Infrastructure Fix
 
 **Problem**: `bun test` vs `bun run test` behave differently:
+
 - `bun test` = Bun's built-in test runner (ignores vitest.config.ts)
 - `bun run test` = Runs vitest via package.json script
 
 Integration tests were failing with `bun test` because Bun's runner doesn't load vitest's `setupFiles`.
 
 **Solution**:
+
 1. Use dynamic imports in `tests/setup.ts` to load db after dotenv
 2. Change vitest exclude pattern to `tests/integration/**`
 3. Update all documentation to use `bun run test`
@@ -3308,11 +3311,13 @@ Integration tests were failing with `bun test` because Bun's runner doesn't load
 ### Documentation Updates
 
 Updated 28 documentation files to use correct test command:
+
 - AGENTS.md, README.md, CONTRIBUTING.md
 - All docs/ files including i18n translations
-- .kiro/agents/*.json configurations
+- .kiro/agents/\*.json configurations
 
 Added warning:
+
 ```
 IMPORTANT: Use "bun run test" not "bun test"
 - "bun run test" uses vitest (respects config)
@@ -3322,6 +3327,7 @@ IMPORTANT: Use "bun run test" not "bun test"
 ### Routes Refactoring
 
 Updated 17 route files in `app/routes/_auth/`:
+
 - Dynamic import for `requireAuth` middleware
 - Fix Select `onValueChange` null handling with `if(value)` guard
 - Ensures Cloudflare Workers compatibility
@@ -3339,14 +3345,14 @@ Updated 17 route files in `app/routes/_auth/`:
 
 ### Technical Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Files Changed** | 95 |
-| **Lines Added** | +1,702 |
-| **Lines Removed** | -1,419 |
-| **Commits** | 8 |
-| **Docs Updated** | 28 |
-| **Routes Updated** | 17 |
+| Metric             | Value  |
+| ------------------ | ------ |
+| **Files Changed**  | 95     |
+| **Lines Added**    | +1,702 |
+| **Lines Removed**  | -1,419 |
+| **Commits**        | 8      |
+| **Docs Updated**   | 28     |
+| **Routes Updated** | 17     |
 
 ### Test Results
 
@@ -3494,16 +3500,19 @@ Late-night refactoring session to establish a clean three-layer architecture pat
 **Objective**: Establish three-layer architecture pattern (Server → Service → Repository).
 
 **Implementation**:
+
 - Created `service.ts` with pure business logic (calculations, validations)
 - Created `repository.ts` with database operations (CRUD, queries, aggregations)
 - Refactored `server.ts` to orchestrate service/repository layers
 - Added comprehensive property-based unit tests for service functions
 
-**Files Created**: 
+**Files Created**:
+
 - `app/features/batches/service.ts`
 - `app/features/batches/repository.ts`
 
-**Files Modified**: 
+**Files Modified**:
+
 - `app/features/batches/server.ts`
 - `tests/features/batches/batches.service.test.ts`
 

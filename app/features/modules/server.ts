@@ -236,10 +236,7 @@ export const toggleModuleFn = createServerFn({ method: 'POST' })
     // If disabling, check for active batches
     if (!data.enabled) {
       const canDisable = await canDisableModule(data.farmId, data.moduleKey)
-      const disableError = validateCanDisable(
-        !canDisable,
-        data.moduleKey,
-      )
+      const disableError = validateCanDisable(!canDisable, data.moduleKey)
       if (disableError) {
         throw new AppError('VALIDATION_ERROR', { message: disableError })
       }

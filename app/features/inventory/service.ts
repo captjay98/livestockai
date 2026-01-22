@@ -3,12 +3,6 @@
  * All functions are side-effect-free and easily unit testable.
  */
 
-import type {
-  FeedInventoryInsert,
-  FeedInventoryUpdate,
-  MedicationInventoryInsert,
-  MedicationInventoryUpdate,
-} from './repository'
 import type { Database } from '~/lib/db/types'
 
 // ============================================================================
@@ -37,16 +31,17 @@ export const FEED_TYPES: Array<{ value: FeedType; label: string }> = [
 
 export type MedicationUnit = Database['medication_inventory']['unit']
 
-export const MEDICATION_UNITS: Array<{ value: MedicationUnit; label: string }> = [
-  { value: 'vial', label: 'Vial' },
-  { value: 'bottle', label: 'Bottle' },
-  { value: 'sachet', label: 'Sachet' },
-  { value: 'ml', label: 'Milliliters (ml)' },
-  { value: 'g', label: 'Grams (g)' },
-  { value: 'tablet', label: 'Tablet' },
-  { value: 'kg', label: 'Kilograms (kg)' },
-  { value: 'liter', label: 'Liters (l)' },
-]
+export const MEDICATION_UNITS: Array<{ value: MedicationUnit; label: string }> =
+  [
+    { value: 'vial', label: 'Vial' },
+    { value: 'bottle', label: 'Bottle' },
+    { value: 'sachet', label: 'Sachet' },
+    { value: 'ml', label: 'Milliliters (ml)' },
+    { value: 'g', label: 'Grams (g)' },
+    { value: 'tablet', label: 'Tablet' },
+    { value: 'kg', label: 'Kilograms (kg)' },
+    { value: 'liter', label: 'Liters (l)' },
+  ]
 
 // ============================================================================
 // Input Interfaces (for service validation)
@@ -104,10 +99,7 @@ export function validateFeedData(
     return 'Quantity must be a non-negative number'
   }
 
-  if (
-    typeof data.minThresholdKg !== 'number' ||
-    data.minThresholdKg < 0
-  ) {
+  if (typeof data.minThresholdKg !== 'number' || data.minThresholdKg < 0) {
     return 'Minimum threshold must be a non-negative number'
   }
 
@@ -178,10 +170,7 @@ export function validateMedicationData(
 export function validateMedicationUpdateData(
   data: UpdateMedicationInput,
 ): string | null {
-  if (
-    data.medicationName !== undefined &&
-    data.medicationName.trim() === ''
-  ) {
+  if (data.medicationName !== undefined && data.medicationName.trim() === '') {
     return 'Medication name cannot be empty'
   }
 
@@ -190,7 +179,10 @@ export function validateMedicationUpdateData(
   }
 
   if (data.expiryDate !== undefined && data.expiryDate !== null) {
-    if (!(data.expiryDate instanceof Date) || isNaN(data.expiryDate.getTime())) {
+    if (
+      !(data.expiryDate instanceof Date) ||
+      isNaN(data.expiryDate.getTime())
+    ) {
       return 'Expiry date must be a valid date'
     }
   }

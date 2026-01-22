@@ -50,7 +50,7 @@ interface Supplier {
   location: string | null
   products: Array<string> | null
   supplierType: string | null
-  totalSpent: number
+  totalSpent?: number
 }
 
 interface SupplierSearchParams {
@@ -190,9 +190,7 @@ function SuppliersPage() {
           supplierType: searchParams.supplierType,
         },
       })
-      setPaginatedSuppliers(
-        result.paginatedSuppliers,
-      )
+      setPaginatedSuppliers(result.paginatedSuppliers)
     } catch (err) {
       console.error('Failed:', err)
     } finally {
@@ -346,7 +344,7 @@ function SuppliersPage() {
         header: t('suppliers:table.totalSpent'),
         cell: ({ row }) => (
           <span className="font-medium">
-            {formatCurrency(row.original.totalSpent)}
+            {formatCurrency(row.original.totalSpent || 0)}
           </span>
         ),
       },

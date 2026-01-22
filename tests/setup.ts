@@ -34,7 +34,7 @@ beforeAll(async () => {
   const { setupTestDb } = await import('./helpers/db-integration')
   await setupTestDb()
   dbSetupAttempted = true
-})
+}, 30000) // Increase timeout to 30s for slow connections
 
 afterAll(async () => {
   // Only close database connection if we actually set it up

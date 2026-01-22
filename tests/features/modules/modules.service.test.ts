@@ -144,22 +144,34 @@ describe('Modules Service', () => {
     })
 
     it('should reject invalid module key', () => {
-      const result = validateToggleInput({ ...validInput, moduleKey: 'invalid' as any })
+      const result = validateToggleInput({
+        ...validInput,
+        moduleKey: 'invalid' as any,
+      })
       expect(result).toContain('Invalid module key')
     })
 
     it('should reject non-boolean enabled value', () => {
-      const result = validateToggleInput({ ...validInput, enabled: 'true' as any })
+      const result = validateToggleInput({
+        ...validInput,
+        enabled: 'true' as any,
+      })
       expect(result).toBe('Enabled status must be a boolean')
     })
 
     it('should reject null enabled value', () => {
-      const result = validateToggleInput({ ...validInput, enabled: null as any })
+      const result = validateToggleInput({
+        ...validInput,
+        enabled: null as any,
+      })
       expect(result).toBe('Enabled status must be a boolean')
     })
 
     it('should reject undefined enabled value', () => {
-      const result = validateToggleInput({ ...validInput, enabled: undefined as any })
+      const result = validateToggleInput({
+        ...validInput,
+        enabled: undefined as any,
+      })
       expect(result).toBe('Enabled status must be a boolean')
     })
 
@@ -218,20 +230,19 @@ describe('Modules Service', () => {
     describe('validateModuleKey - property tests', () => {
       it('should accept all valid module keys', () => {
         fc.assert(
-          fc.property(
-            fc.oneof(...validModuleKeys.map(fc.constant)),
-            (key) => {
-              const result = validateModuleKey(key)
-              expect(result).toBeNull()
-            },
-          ),
+          fc.property(fc.oneof(...validModuleKeys.map(fc.constant)), (key) => {
+            const result = validateModuleKey(key)
+            expect(result).toBeNull()
+          }),
         )
       })
 
       it('should reject invalid strings', () => {
         fc.assert(
           fc.property(
-            fc.string({ minLength: 1 }).filter((s) => !validModuleKeys.includes(s as ModuleKey)),
+            fc
+              .string({ minLength: 1 })
+              .filter((s) => !validModuleKeys.includes(s as ModuleKey)),
             (key) => {
               const result = validateModuleKey(key)
               expect(result).not.toBeNull()
@@ -245,23 +256,24 @@ describe('Modules Service', () => {
     describe('validateFarmType - property tests', () => {
       it('should accept all valid farm types case-insensitive', () => {
         fc.assert(
-          fc.property(
-            fc.oneof(...validFarmTypes.map(fc.constant)),
-            (type) => {
-              const upperResult = validateFarmType(type.toUpperCase())
-              expect(upperResult).toBeNull()
+          fc.property(fc.oneof(...validFarmTypes.map(fc.constant)), (type) => {
+            const upperResult = validateFarmType(type.toUpperCase())
+            expect(upperResult).toBeNull()
 
-              const mixedResult = validateFarmType(type.charAt(0).toUpperCase() + type.slice(1))
-              expect(mixedResult).toBeNull()
-            },
-          ),
+            const mixedResult = validateFarmType(
+              type.charAt(0).toUpperCase() + type.slice(1),
+            )
+            expect(mixedResult).toBeNull()
+          }),
         )
       })
 
       it('should reject random invalid strings', () => {
         fc.assert(
           fc.property(
-            fc.string({ minLength: 1 }).filter((s) => !validFarmTypes.includes(s.toLowerCase())),
+            fc
+              .string({ minLength: 1 })
+              .filter((s) => !validFarmTypes.includes(s.toLowerCase())),
             (type) => {
               const result = validateFarmType(type)
               expect(result).not.toBeNull()

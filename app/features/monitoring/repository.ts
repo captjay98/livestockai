@@ -4,7 +4,7 @@
  */
 
 import type { Kysely } from 'kysely'
-import type { BatchTable, Database, FeedTable, GrowthStandardTable, MortalityTable, UserSettingsTable, VaccinationTable, WaterQualityTable, WeightTable  } from '~/lib/db/types'
+import type { Database, UserSettingsTable } from '~/lib/db/types'
 
 /**
  * Batch data for monitoring
@@ -90,7 +90,14 @@ export async function selectBatchesForMonitoring(
 ): Promise<Array<MonitoringBatch>> {
   return await db
     .selectFrom('batches')
-    .select(['id', 'farmId', 'species', 'currentQuantity', 'initialQuantity', 'acquisitionDate'])
+    .select([
+      'id',
+      'farmId',
+      'species',
+      'currentQuantity',
+      'initialQuantity',
+      'acquisitionDate',
+    ])
     .where('farmId', 'in', farmIds)
     .where('status', '=', 'active')
     .execute()
@@ -109,7 +116,14 @@ export async function selectBatchForMonitoring(
 ): Promise<MonitoringBatch | null> {
   const result = await db
     .selectFrom('batches')
-    .select(['id', 'farmId', 'species', 'currentQuantity', 'initialQuantity', 'acquisitionDate'])
+    .select([
+      'id',
+      'farmId',
+      'species',
+      'currentQuantity',
+      'initialQuantity',
+      'acquisitionDate',
+    ])
     .where('id', '=', batchId)
     .executeTakeFirst()
 

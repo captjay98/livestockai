@@ -224,10 +224,7 @@ export function aggregateReportData<
     }
   }
 
-  const groupMap = new Map<
-    string,
-    { value: number; count: number }
-  >()
+  const groupMap = new Map<string, { value: number; count: number }>()
 
   for (const record of records) {
     const group = String(record[groupBy])
@@ -320,7 +317,10 @@ export function formatReportOutput<T extends object>(
  * // Returns: 20 (20% margin)
  * ```
  */
-export function calculateProfitMargin(revenue: number, expenses: number): number {
+export function calculateProfitMargin(
+  revenue: number,
+  expenses: number,
+): number {
   if (revenue <= 0) {
     return 0
   }

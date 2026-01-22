@@ -42,17 +42,19 @@ export async function generateExportData(options: ExportOptions): Promise<{
   mimeType: string
 }> {
   try {
-    const dateRange = {
-      startDate: new Date(options.startDate),
-      endDate: new Date(options.endDate),
-    }
-
     let csvContent = ''
     let filename = ''
 
     switch (options.reportType) {
       case 'profit-loss': {
-        const report = await getProfitLossReport(options.farmId, dateRange)
+        const report = await getProfitLossReport({
+          data: {
+            farmId: options.farmId,
+            startDate: options.startDate,
+            endDate: options.endDate,
+            dateRangeType: 'custom',
+          },
+        })
         filename = `profit-loss-report-${options.startDate}-to-${options.endDate}`
 
         csvContent = 'Profit & Loss Report\n'
@@ -79,7 +81,9 @@ export async function generateExportData(options: ExportOptions): Promise<{
       }
 
       case 'inventory': {
-        const report = await getInventoryReport(options.farmId)
+        const report = await getInventoryReport({
+          data: { farmId: options.farmId },
+        })
         filename = `inventory-report-${new Date().toISOString().split('T')[0]}`
 
         csvContent = 'Inventory Report\n\n'
@@ -99,7 +103,14 @@ export async function generateExportData(options: ExportOptions): Promise<{
       }
 
       case 'sales': {
-        const report = await getSalesReport(options.farmId, dateRange)
+        const report = await getSalesReport({
+          data: {
+            farmId: options.farmId,
+            startDate: options.startDate,
+            endDate: options.endDate,
+            dateRangeType: 'custom',
+          },
+        })
         filename = `sales-report-${options.startDate}-to-${options.endDate}`
 
         csvContent = 'Sales Report\n'
@@ -125,7 +136,14 @@ export async function generateExportData(options: ExportOptions): Promise<{
       }
 
       case 'feed': {
-        const report = await getFeedReport(options.farmId, dateRange)
+        const report = await getFeedReport({
+          data: {
+            farmId: options.farmId,
+            startDate: options.startDate,
+            endDate: options.endDate,
+            dateRangeType: 'custom',
+          },
+        })
         filename = `feed-report-${options.startDate}-to-${options.endDate}`
 
         csvContent = 'Feed Report\n'
@@ -151,7 +169,14 @@ export async function generateExportData(options: ExportOptions): Promise<{
       }
 
       case 'eggs': {
-        const report = await getEggReport(options.farmId, dateRange)
+        const report = await getEggReport({
+          data: {
+            farmId: options.farmId,
+            startDate: options.startDate,
+            endDate: options.endDate,
+            dateRangeType: 'custom',
+          },
+        })
         filename = `egg-production-report-${options.startDate}-to-${options.endDate}`
 
         csvContent = 'Egg Production Report\n'

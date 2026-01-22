@@ -76,9 +76,11 @@ export function validateFarmType(farmType: string): string | null {
  * Validate that module toggle input is valid.
  * Returns validation error message or null if valid.
  */
-export function validateToggleInput(
-  data: { farmId: string; moduleKey: string; enabled: boolean },
-): string | null {
+export function validateToggleInput(data: {
+  farmId: string
+  moduleKey: string
+  enabled: boolean
+}): string | null {
   if (!data.farmId || data.farmId.trim() === '') {
     return 'Farm ID is required'
   }

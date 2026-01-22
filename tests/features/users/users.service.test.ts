@@ -41,19 +41,22 @@ describe('Users Service', () => {
     it('should reject empty email', () => {
       const result = validateCreateUserInput({ ...validInput, email: '' })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Email is required')
+      expect((result as any).message).toBe('Email is required')
     })
 
     it('should reject whitespace-only email', () => {
       const result = validateCreateUserInput({ ...validInput, email: '   ' })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Email is required')
+      expect((result as any).message).toBe('Email is required')
     })
 
     it('should reject invalid email format', () => {
-      const result = validateCreateUserInput({ ...validInput, email: 'invalid' })
+      const result = validateCreateUserInput({
+        ...validInput,
+        email: 'invalid',
+      })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid email format')
+      expect((result as any).message).toBe('Invalid email format')
     })
 
     it('should reject email without @', () => {
@@ -62,19 +65,24 @@ describe('Users Service', () => {
         email: 'invalidemail.com',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid email format')
+      expect((result as any).message).toBe('Invalid email format')
     })
 
     it('should reject email without domain', () => {
       const result = validateCreateUserInput({ ...validInput, email: 'test@' })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid email format')
+      expect((result as any).message).toBe('Invalid email format')
     })
 
     it('should reject short password', () => {
-      const result = validateCreateUserInput({ ...validInput, password: 'short' })
+      const result = validateCreateUserInput({
+        ...validInput,
+        password: 'short',
+      })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Password must be at least 8 characters')
+      expect((result as any).message).toBe(
+        'Password must be at least 8 characters',
+      )
     })
 
     it('should reject 7 character password', () => {
@@ -83,7 +91,9 @@ describe('Users Service', () => {
         password: '7chars!',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Password must be at least 8 characters')
+      expect((result as any).message).toBe(
+        'Password must be at least 8 characters',
+      )
     })
 
     it('should accept 8 character password', () => {
@@ -97,13 +107,13 @@ describe('Users Service', () => {
     it('should reject empty name', () => {
       const result = validateCreateUserInput({ ...validInput, name: '' })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Name is required')
+      expect((result as any).message).toBe('Name is required')
     })
 
     it('should reject whitespace-only name', () => {
       const result = validateCreateUserInput({ ...validInput, name: '   ' })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Name is required')
+      expect((result as any).message).toBe('Name is required')
     })
 
     it('should reject name exceeding 255 characters', () => {
@@ -112,7 +122,9 @@ describe('Users Service', () => {
         name: 'a'.repeat(256),
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Name must be less than 255 characters')
+      expect((result as any).message).toBe(
+        'Name must be less than 255 characters',
+      )
     })
 
     it('should accept name at 255 characters', () => {
@@ -153,13 +165,13 @@ describe('Users Service', () => {
     it('should reject empty userId', () => {
       const result = validateBanUserInput({ userId: '' })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('User ID is required')
+      expect((result as any).message).toBe('User ID is required')
     })
 
     it('should reject invalid UUID format', () => {
       const result = validateBanUserInput({ userId: 'not-a-uuid' })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid user ID format')
+      expect((result as any).message).toBe('Invalid user ID format')
     })
 
     it('should reject UUID v1 format (future version)', () => {
@@ -167,7 +179,7 @@ describe('Users Service', () => {
         userId: '123e4567-e89b-01d3-a456-426614174000',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid user ID format')
+      expect((result as any).message).toBe('Invalid user ID format')
     })
 
     it('should reject malformed UUID', () => {
@@ -175,7 +187,7 @@ describe('Users Service', () => {
         userId: '123e4567-e89b-12d3-a456',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid user ID format')
+      expect((result as any).message).toBe('Invalid user ID format')
     })
 
     it('should reject invalid date format', () => {
@@ -184,7 +196,7 @@ describe('Users Service', () => {
         expiresAt: 'not-a-date',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid expiration date format')
+      expect((result as any).message).toBe('Invalid expiration date format')
     })
 
     it('should accept optional reason', () => {
@@ -213,7 +225,7 @@ describe('Users Service', () => {
         newPassword: 'securePass123',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('User ID is required')
+      expect((result as any).message).toBe('User ID is required')
     })
 
     it('should reject invalid UUID', () => {
@@ -222,7 +234,7 @@ describe('Users Service', () => {
         newPassword: 'securePass123',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid user ID format')
+      expect((result as any).message).toBe('Invalid user ID format')
     })
 
     it('should reject short password', () => {
@@ -231,7 +243,9 @@ describe('Users Service', () => {
         newPassword: 'short',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Password must be at least 8 characters')
+      expect((result as any).message).toBe(
+        'Password must be at least 8 characters',
+      )
     })
 
     it('should accept 8 character password', () => {
@@ -265,13 +279,16 @@ describe('Users Service', () => {
       // Current buggy behavior returns error for 'user' role
       // Bug: service checks `role !== 'admin'` instead of `role !== 'admin' && role !== 'user'`
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Role must be admin or user')
+      expect((result as any).message).toBe('Role must be admin or user')
     })
 
     it('should reject empty userId', () => {
-      const result = validateUpdateRoleInput({ userId: '', role: 'admin' as const })
+      const result = validateUpdateRoleInput({
+        userId: '',
+        role: 'admin' as const,
+      })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('User ID is required')
+      expect((result as any).message).toBe('User ID is required')
     })
 
     it('should reject invalid UUID', () => {
@@ -280,7 +297,7 @@ describe('Users Service', () => {
         role: 'admin',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid user ID format')
+      expect((result as any).message).toBe('Invalid user ID format')
     })
 
     it('should reject invalid role', () => {
@@ -289,7 +306,7 @@ describe('Users Service', () => {
         role: 'superuser' as 'admin' | 'user',
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Role must be admin or user')
+      expect((result as any).message).toBe('Role must be admin or user')
     })
   })
 
@@ -304,20 +321,22 @@ describe('Users Service', () => {
     it('should reject empty userId', () => {
       const result = validateRemoveUserInput({ userId: '' })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('User ID is required')
+      expect((result as any).message).toBe('User ID is required')
     })
 
     it('should reject invalid UUID', () => {
       const result = validateRemoveUserInput({ userId: 'invalid-uuid' })
       expect(result.valid).toBe(false)
-      expect(result.message).toBe('Invalid user ID format')
+      expect((result as any).message).toBe('Invalid user ID format')
     })
   })
 
   describe('canBanUser', () => {
     it('should allow banning another user', () => {
       const adminId = '123e4567-e89b-12d3-a456-426614174000'
-      const targetUser = createMockUser({ id: '223e4567-e89b-12d3-a456-426614174001' })
+      const targetUser = createMockUser({
+        id: '223e4567-e89b-12d3-a456-426614174001',
+      })
       const result = canBanUser(adminId, targetUser)
       expect(result).toEqual({ allowed: true })
     })
@@ -336,12 +355,18 @@ describe('Users Service', () => {
         role: 'admin',
       })
       const result = canBanUser(adminId, targetUser)
-      expect(result).toEqual({ allowed: false, reason: 'Cannot ban admin users' })
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Cannot ban admin users',
+      })
     })
 
     it('should allow banning regular users', () => {
       const adminId = '123e4567-e89b-12d3-a456-426614174000'
-      const targetUser = createMockUser({ id: '223e4567-e89b-12d3-a456-426614174001', role: 'user' })
+      const targetUser = createMockUser({
+        id: '223e4567-e89b-12d3-a456-426614174001',
+        role: 'user',
+      })
       const result = canBanUser(adminId, targetUser)
       expect(result).toEqual({ allowed: true })
     })
@@ -350,7 +375,9 @@ describe('Users Service', () => {
   describe('canDeleteUser', () => {
     it('should allow deleting another user with no farms', () => {
       const adminId = '123e4567-e89b-12d3-a456-426614174000'
-      const targetUser = createMockUser({ id: '223e4567-e89b-12d3-a456-426614174001' })
+      const targetUser = createMockUser({
+        id: '223e4567-e89b-12d3-a456-426614174001',
+      })
       const result = canDeleteUser(adminId, targetUser, 0)
       expect(result).toEqual({ allowed: true })
     })
@@ -359,7 +386,10 @@ describe('Users Service', () => {
       const userId = '123e4567-e89b-12d3-a456-426614174000'
       const targetUser = createMockUser({ id: userId })
       const result = canDeleteUser(userId, targetUser, 0)
-      expect(result).toEqual({ allowed: false, reason: 'Cannot delete yourself' })
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Cannot delete yourself',
+      })
     })
 
     it('should prevent deleting admin users', () => {
@@ -369,7 +399,10 @@ describe('Users Service', () => {
         role: 'admin',
       })
       const result = canDeleteUser(adminId, targetUser, 0)
-      expect(result).toEqual({ allowed: false, reason: 'Cannot delete admin users' })
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Cannot delete admin users',
+      })
     })
 
     it('should prevent deleting user who owns farms', () => {
@@ -380,7 +413,9 @@ describe('Users Service', () => {
       })
       const result = canDeleteUser(adminId, targetUser, 2)
       expect(result.allowed).toBe(false)
-      expect(result.reason).toContain('Cannot delete user who is the last owner')
+      expect((result as any).reason).toContain(
+        'Cannot delete user who is the last owner',
+      )
     })
 
     it('should allow deleting user with 0 owned farms', () => {
@@ -405,7 +440,10 @@ describe('Users Service', () => {
     it('should prevent changing your own role', () => {
       const userId = '123e4567-e89b-12d3-a456-426614174000'
       const result = canChangeRole(userId, userId)
-      expect(result).toEqual({ allowed: false, reason: 'Cannot change your own role' })
+      expect(result).toEqual({
+        allowed: false,
+        reason: 'Cannot change your own role',
+      })
     })
   })
 
@@ -439,7 +477,9 @@ describe('Users Service', () => {
               role: 'user',
             })
             expect(result.valid).toBe(false)
-            expect(result.message).toBe('Password must be at least 8 characters')
+            expect((result as any).message).toBe(
+              'Password must be at least 8 characters',
+            )
           }),
         )
       })
@@ -457,7 +497,10 @@ describe('Users Service', () => {
             (adminId, targetUser) => {
               const result = canBanUser(adminId, targetUser as UserRecord)
               if (adminId === targetUser.id) {
-                expect(result).toEqual({ allowed: false, reason: 'Cannot ban yourself' })
+                expect(result).toEqual({
+                  allowed: false,
+                  reason: 'Cannot ban yourself',
+                })
               }
             },
           ),

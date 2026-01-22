@@ -54,10 +54,6 @@ const fetchReportData = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     const farms = await getFarms()
-    const dateRange = {
-      startDate: new Date(data.startDate),
-      endDate: new Date(data.endDate),
-    }
 
     let report:
       | ProfitLossReport
@@ -69,19 +65,47 @@ const fetchReportData = createServerFn({ method: 'GET' })
 
     switch (data.reportType) {
       case 'profit-loss':
-        report = await getProfitLossReport(data.farmId, dateRange)
+        report = await getProfitLossReport({
+          data: {
+            farmId: data.farmId,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            dateRangeType: 'custom',
+          },
+        })
         break
       case 'inventory':
-        report = await getInventoryReport(data.farmId)
+        report = await getInventoryReport({ data: { farmId: data.farmId } })
         break
       case 'sales':
-        report = await getSalesReport(data.farmId, dateRange)
+        report = await getSalesReport({
+          data: {
+            farmId: data.farmId,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            dateRangeType: 'custom',
+          },
+        })
         break
       case 'feed':
-        report = await getFeedReport(data.farmId, dateRange)
+        report = await getFeedReport({
+          data: {
+            farmId: data.farmId,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            dateRangeType: 'custom',
+          },
+        })
         break
       case 'eggs':
-        report = await getEggReport(data.farmId, dateRange)
+        report = await getEggReport({
+          data: {
+            farmId: data.farmId,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            dateRangeType: 'custom',
+          },
+        })
         break
     }
 

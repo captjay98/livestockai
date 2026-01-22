@@ -11,7 +11,7 @@ describe('Notifications Service', () => {
     overrides?: Partial<CreateNotificationData>,
   ): CreateNotificationData => ({
     userId: '123e4567-e89b-12d3-a456-426614174000',
-    type: 'info',
+    type: 'lowStock',
     title: 'Test Notification',
     message: 'This is a test notification message.',
     actionUrl: '/notifications',
@@ -40,14 +40,14 @@ describe('Notifications Service', () => {
 
     it('should reject empty type', () => {
       const result = validateNotificationData(
-        createValidNotification({ type: '' }),
+        createValidNotification({ type: '' as any }),
       )
       expect(result).toBe('Notification type is required')
     })
 
     it('should reject whitespace-only type', () => {
       const result = validateNotificationData(
-        createValidNotification({ type: '   ' }),
+        createValidNotification({ type: '   ' as any }),
       )
       expect(result).toBe('Notification type is required')
     })
@@ -213,9 +213,7 @@ describe('Notifications Service', () => {
     })
 
     it('should reject UUID without dashes', () => {
-      const result = validateNotificationId(
-        '123e4567e89b12d3a456426614174000',
-      )
+      const result = validateNotificationId('123e4567e89b12d3a456426614174000')
       expect(result).toBe('Invalid notification ID format')
     })
 

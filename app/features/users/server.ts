@@ -321,7 +321,11 @@ export const removeUser = createServerFn({ method: 'POST' })
 
       const ownedFarms = await selectUserOwnedFarms(db, data.userId)
 
-      const deleteCheck = canDeleteUser(session.user.id, user, ownedFarms.length)
+      const deleteCheck = canDeleteUser(
+        session.user.id,
+        user,
+        ownedFarms.length,
+      )
       if (!deleteCheck.allowed) {
         throw new AppError('VALIDATION_ERROR', {
           message: deleteCheck.reason,

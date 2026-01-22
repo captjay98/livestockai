@@ -41,15 +41,19 @@ export function validateStructureData(
     return 'Structure name is required'
   }
 
-  if (data.type === '') {
+  if ((data.type as string) === '') {
     return 'Structure type is required'
   }
 
-  if (data.status === '') {
+  if ((data.status as string) === '') {
     return 'Structure status is required'
   }
 
-  if (data.capacity !== undefined && data.capacity !== null && data.capacity < 0) {
+  if (
+    data.capacity !== undefined &&
+    data.capacity !== null &&
+    data.capacity < 0
+  ) {
     return 'Capacity cannot be negative'
   }
 
@@ -159,11 +163,13 @@ export function determineStructureStatus(
  * // Returns: { total: 3, byType: { house: 2, pond: 1 }, byStatus: { active: 2, inactive: 1 } }
  * ```
  */
-export function buildStructuresSummary(structures: Array<{
-  type: string
-  status: string
-  capacity: number | null
-}>): {
+export function buildStructuresSummary(
+  structures: Array<{
+    type: string
+    status: string
+    capacity: number | null
+  }>,
+): {
   total: number
   byType: Record<string, number>
   byStatus: Record<string, number>
@@ -216,22 +222,24 @@ export function buildStructuresSummary(structures: Array<{
  * // Returns: 'Structure name cannot be empty'
  * ```
  */
-export function validateUpdateData(
-  data: UpdateStructureInput,
-): string | null {
+export function validateUpdateData(data: UpdateStructureInput): string | null {
   if (data.name !== undefined && data.name.trim() === '') {
     return 'Structure name cannot be empty'
   }
 
-  if (data.type !== undefined && data.type === '') {
+  if (data.type !== undefined && (data.type as string) === '') {
     return 'Structure type cannot be empty'
   }
 
-  if (data.status !== undefined && data.status === '') {
+  if (data.status !== undefined && (data.status as string) === '') {
     return 'Structure status cannot be empty'
   }
 
-  if (data.capacity !== undefined && data.capacity !== null && data.capacity < 0) {
+  if (
+    data.capacity !== undefined &&
+    data.capacity !== null &&
+    data.capacity < 0
+  ) {
     return 'Capacity cannot be negative'
   }
 

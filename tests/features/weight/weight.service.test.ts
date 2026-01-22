@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
-import type {
-  CreateWeightSampleInput,
-  UpdateWeightSampleInput,
-} from '~/features/weight/server'
+import type { CreateWeightSampleInput } from '~/features/weight/server'
 import {
   EXPECTED_ADG_BY_SPECIES,
   buildWeightStats,
@@ -93,7 +90,9 @@ describe('Weight Service', () => {
         minWeightKg: 3.0,
         maxWeightKg: 2.0,
       })
-      expect(result).toBe('Minimum weight cannot be greater than maximum weight')
+      expect(result).toBe(
+        'Minimum weight cannot be greater than maximum weight',
+      )
     })
 
     it('should accept null min and max weights', () => {
@@ -160,7 +159,9 @@ describe('Weight Service', () => {
         minWeightKg: 3.0,
         maxWeightKg: 2.0,
       })
-      expect(result).toBe('Minimum weight cannot be greater than maximum weight')
+      expect(result).toBe(
+        'Minimum weight cannot be greater than maximum weight',
+      )
     })
   })
 
@@ -184,10 +185,7 @@ describe('Weight Service', () => {
     })
 
     it('should handle decimal values', () => {
-      const records = [
-        { averageWeightKg: '1.5' },
-        { averageWeightKg: '2.5' },
-      ]
+      const records = [{ averageWeightKg: '1.5' }, { averageWeightKg: '2.5' }]
       expect(calculateAverageWeight(records)).toBe(2.0)
     })
   })
@@ -382,15 +380,13 @@ describe('Weight Service', () => {
       it('should return average of all values', () => {
         fc.assert(
           fc.property(
-            fc.array(
-              fc.nat({ max: 10000 }),
-              { minLength: 1, maxLength: 100 },
-            ),
+            fc.array(fc.nat({ max: 10000 }), { minLength: 1, maxLength: 100 }),
             (values) => {
               const records = values.map((v) => ({
                 averageWeightKg: (v / 100).toString(),
               }))
-              const expected = values.reduce((sum, v) => sum + v / 100, 0) / values.length
+              const expected =
+                values.reduce((sum, v) => sum + v / 100, 0) / values.length
               expect(calculateAverageWeight(records)).toBe(expected)
             },
           ),
@@ -406,7 +402,9 @@ describe('Weight Service', () => {
             fc.nat({ max: 10000 }),
             fc.nat({ max: 10000 }),
             (current, initial) => {
-              expect(calculateWeightGain(current, initial)).toBe(current - initial)
+              expect(calculateWeightGain(current, initial)).toBe(
+                current - initial,
+              )
             },
           ),
           { numRuns: 100 },
@@ -422,7 +420,11 @@ describe('Weight Service', () => {
             fc.nat({ max: 1000 }),
             fc.nat({ max: 365 }),
             (current, growthRate, days) => {
-              const projected = calculateProjectedWeight(current, growthRate / 1000, days)
+              const projected = calculateProjectedWeight(
+                current,
+                growthRate / 1000,
+                days,
+              )
               expect(projected).toBe(current + (growthRate / 1000) * days)
             },
           ),
@@ -434,7 +436,7 @@ describe('Weight Service', () => {
 })
 
 // Custom matcher for approximate equality
-function extendExpect(exp: typeof expect) {
+function extendExpect() {
   return {
     toBeApproximately(received: number, expected: number, tolerance: number) {
       const pass = Math.abs(received - expected) <= tolerance
@@ -450,7 +452,7 @@ function extendExpect(exp: typeof expect) {
 }
 
 // Apply custom matcher
-expect.extend(extendExpect(expect))
+expect.extend(extendExpect())
 
 declare module 'vitest' {
   interface Assertion {

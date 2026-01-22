@@ -97,7 +97,7 @@ export async function insertStructure(
 ): Promise<string> {
   const result = await db
     .insertInto('structures')
-    .values(data)
+    .values(data as any)
     .returning('id')
     .executeTakeFirstOrThrow()
   return result.id
@@ -195,7 +195,7 @@ export async function getStructuresByType(
       'farms.name as farmName',
     ])
     .where('structures.farmId', '=', farmId)
-    .where('structures.type', '=', type)
+    .where('structures.type', '=', type as any)
     .orderBy('structures.name', 'asc')
     .execute()
 }
@@ -227,7 +227,9 @@ export async function getStructureCapacity(
       'structures.id as structureId',
       'structures.capacity',
       sql<number>`count(batches.id)`.as('batchCount'),
-      sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as('totalAnimals'),
+      sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
+        'totalAnimals',
+      ),
     ])
     .where('structures.id', '=', structureId)
     .groupBy('structures.id')
@@ -259,7 +261,7 @@ export async function updateStructure(
 ): Promise<void> {
   await db
     .updateTable('structures')
-    .set(data)
+    .set(data as any)
     .where('id', '=', structureId)
     .execute()
 }
@@ -318,18 +320,18 @@ export async function getStructuresPaginated(
     .where('structures.farmId', '=', farmId)
 
   if (filters?.status) {
-    baseQuery = baseQuery.where('structures.status', '=', filters.status)
+    baseQuery = baseQuery.where('structures.status', '=', filters.status as any)
   }
 
   if (filters?.type) {
-    baseQuery = baseQuery.where('structures.type', '=', filters.type)
+    baseQuery = baseQuery.where('structures.type', '=', filters.type as any)
   }
 
   // Get total count
   const totalResult = await baseQuery
     .select(sql<number>`count(*)`.as('count'))
     .executeTakeFirst()
-  const total = Number(totalResult.count)
+  const total = Number(totalResult?.count ?? 0)
 
   // Get paginated data
   const data = await baseQuery
@@ -376,7 +378,9 @@ export async function getStructuresWithCounts(
       'structures.notes',
       'structures.createdAt',
       sql<number>`count(batches.id)`.as('batchCount'),
-      sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as('totalAnimals'),
+      sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
+        'totalAnimals',
+      ),
     ])
     .where('structures.farmId', '=', farmId)
     .groupBy('structures.id')
@@ -408,5 +412,5 @@ export async function countActiveBatches(
     .where('status', '=', 'active')
     .executeTakeFirst()
 
-  return Number(result.count)
+  return Number(result?.count ?? 0)
 }

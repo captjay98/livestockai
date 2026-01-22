@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '~/lib/utils'
 import { getBatchDetailsFn } from '~/features/batches/server'
-import { getFeedRecordsPaginatedFn } from '~/features/feed/server'
+import { getFeedRecordsPaginatedServerFn } from '~/features/feed/server'
 import { getMortalityRecordsPaginatedFn } from '~/features/mortality/server'
 import { getExpensesPaginatedFn } from '~/features/expenses/server'
 import { getSalesPaginatedFn } from '~/features/sales/server'
@@ -112,7 +112,7 @@ function BatchDetailsPage() {
 
         // Load Tab Data (Parallel)
         const [feed, mortality, exp, sale] = await Promise.all([
-          getFeedRecordsPaginatedFn({
+          getFeedRecordsPaginatedServerFn({
             data: { batchId, page: 1, pageSize: 20 },
           }),
           getMortalityRecordsPaginatedFn({
@@ -148,7 +148,7 @@ function BatchDetailsPage() {
   } = details
   const ageInDays = Math.floor(
     (new Date().getTime() - new Date(batch.acquisitionDate).getTime()) /
-    (1000 * 60 * 60 * 24),
+      (1000 * 60 * 60 * 24),
   )
 
   const totalInvestment =
@@ -414,8 +414,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
-                onPaginationChange={() => { }}
-                onSortChange={() => { }}
+                onPaginationChange={() => {}}
+                onSortChange={() => {}}
               />
             </CardContent>
           </Card>
@@ -465,8 +465,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
-                onPaginationChange={() => { }}
-                onSortChange={() => { }}
+                onPaginationChange={() => {}}
+                onSortChange={() => {}}
               />
             </CardContent>
           </Card>
@@ -510,8 +510,8 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
-                onPaginationChange={() => { }}
-                onSortChange={() => { }}
+                onPaginationChange={() => {}}
+                onSortChange={() => {}}
               />
             </CardContent>
           </Card>
@@ -589,13 +589,13 @@ function BatchDetailsPage() {
                 totalPages={1}
                 filters={null}
                 isLoading={isLoading}
-                onPaginationChange={() => { }}
-                onSortChange={() => { }}
+                onPaginationChange={() => {}}
+                onSortChange={() => {}}
               />
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div >
+    </div>
   )
 }

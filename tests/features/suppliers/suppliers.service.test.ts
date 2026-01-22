@@ -20,7 +20,9 @@ describe('Suppliers Service', () => {
     'other',
   ]
 
-  const createValidSupplier = (overrides?: Partial<CreateSupplierInput>): CreateSupplierInput => ({
+  const createValidSupplier = (
+    overrides?: Partial<CreateSupplierInput>,
+  ): CreateSupplierInput => ({
     name: 'Test Supplier',
     phone: '+1234567890',
     email: 'test@supplier.com',
@@ -86,17 +88,23 @@ describe('Suppliers Service', () => {
 
     it('should reject email exceeding 255 characters', () => {
       const longEmail = 'a'.repeat(250) + '@test.com'
-      const result = validateSupplierData(createValidSupplier({ email: longEmail }))
+      const result = validateSupplierData(
+        createValidSupplier({ email: longEmail }),
+      )
       expect(result).toBe('Email must be less than 255 characters')
     })
 
     it('should reject invalid email format', () => {
-      const result = validateSupplierData(createValidSupplier({ email: 'invalid' }))
+      const result = validateSupplierData(
+        createValidSupplier({ email: 'invalid' }),
+      )
       expect(result).toBe('Invalid email format')
     })
 
     it('should reject invalid email without @', () => {
-      const result = validateSupplierData(createValidSupplier({ email: 'invalidemail.com' }))
+      const result = validateSupplierData(
+        createValidSupplier({ email: 'invalidemail.com' }),
+      )
       expect(result).toBe('Invalid email format')
     })
 
@@ -108,7 +116,9 @@ describe('Suppliers Service', () => {
     })
 
     it('should accept email as undefined', () => {
-      const result = validateSupplierData(createValidSupplier({ email: undefined }))
+      const result = validateSupplierData(
+        createValidSupplier({ email: undefined }),
+      )
       expect(result).toBeNull()
     })
 
@@ -161,7 +171,9 @@ describe('Suppliers Service', () => {
 
     it('should accept all valid supplier types', () => {
       for (const type of validSupplierTypes) {
-        const result = validateSupplierData(createValidSupplier({ supplierType: type }))
+        const result = validateSupplierData(
+          createValidSupplier({ supplierType: type }),
+        )
         expect(result).toBeNull()
       }
     })
@@ -174,7 +186,9 @@ describe('Suppliers Service', () => {
     })
 
     it('should accept supplierType as null', () => {
-      const result = validateSupplierData(createValidSupplier({ supplierType: null }))
+      const result = validateSupplierData(
+        createValidSupplier({ supplierType: null }),
+      )
       expect(result).toBeNull()
     })
 

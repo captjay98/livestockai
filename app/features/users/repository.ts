@@ -91,11 +91,7 @@ export async function selectUserFarmAssignments(
   return await db
     .selectFrom('user_farms')
     .innerJoin('farms', 'farms.id', 'user_farms.farmId')
-    .select([
-      'user_farms.farmId',
-      'user_farms.role',
-      'farms.name as farmName',
-    ])
+    .select(['user_farms.farmId', 'user_farms.role', 'farms.name as farmName'])
     .where('user_farms.userId', '=', userId)
     .execute()
 }
@@ -143,11 +139,7 @@ export async function updateUserRoleById(
   userId: string,
   role: 'admin' | 'user',
 ): Promise<void> {
-  await db
-    .updateTable('users')
-    .set({ role })
-    .where('id', '=', userId)
-    .execute()
+  await db.updateTable('users').set({ role }).where('id', '=', userId).execute()
 }
 
 /**

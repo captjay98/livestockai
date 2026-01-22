@@ -1,8 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import {
-  validateEggCollectionData,
-  validateUpdateData,
-} from './service'
+import { validateEggCollectionData, validateUpdateData } from './service'
 import {
   deleteEggCollection,
   getBatchCurrentQuantity,
@@ -421,11 +418,7 @@ export async function calculateLayingPercentage(
     await verifyFarmAccess(userId, farmId)
 
     // Get batch current quantity
-    const currentQuantity = await getBatchCurrentQuantity(
-      db,
-      batchId,
-      farmId,
-    )
+    const currentQuantity = await getBatchCurrentQuantity(db, batchId, farmId)
 
     if (currentQuantity === null || currentQuantity === 0) {
       return null
@@ -449,8 +442,7 @@ export async function calculateLayingPercentage(
       return null
     }
 
-    const layingPercentage =
-      (record.quantityCollected / currentQuantity) * 100
+    const layingPercentage = (record.quantityCollected / currentQuantity) * 100
     return Math.round(layingPercentage * 100) / 100
   } catch (error) {
     if (error instanceof AppError) throw error

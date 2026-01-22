@@ -468,8 +468,7 @@ export async function getFeedRecordsPaginated(
   if (sortBy) {
     const order = sortOrder || 'desc'
     const sortColumn = mapSortColumnToDbColumn(sortBy)
-    // @ts-ignore - Kysely dynamic column type limitation
-    dataQuery = dataQuery.orderBy(sortColumn, order)
+    dataQuery = dataQuery.orderBy(sql.raw(sortColumn), order)
   } else {
     dataQuery = dataQuery.orderBy('feed_records.date', 'desc')
   }

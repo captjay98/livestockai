@@ -43,27 +43,6 @@ interface UpdateCustomerData {
   customerType: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
 }
 
-interface CustomerSale {
-  id: string
-  livestockType: string
-  quantity: number
-  unitPrice: string
-  totalAmount: string
-  date: Date
-}
-
-interface CustomerWithSales {
-  id: string
-  name: string
-  phone: string
-  email: string | null
-  location: string | null
-  customerType: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
-  sales: Array<CustomerSale>
-  totalSpent: number
-  salesCount: number
-}
-
 const fetchCustomer = createServerFn({ method: 'GET' })
   .inputValidator((data: { customerId: string }) => data)
   .handler(async ({ data }) => {
@@ -92,8 +71,7 @@ export const Route = createFileRoute('/_auth/customers/$customerId')({
 
 function CustomerDetailPage() {
   const { t } = useTranslation(['customers', 'common'])
-  const customer = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    Route.useLoaderData() as CustomerWithSales | null
+  const customer = Route.useLoaderData()
   const navigate = useNavigate()
   const router = useRouter()
   const { format: formatCurrency } = useFormatCurrency()

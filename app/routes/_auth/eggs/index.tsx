@@ -172,7 +172,7 @@ function EggsPage() {
   const navigate = useNavigate({ from: Route.fullPath })
 
   const [paginatedRecords, setPaginatedRecords] = useState<
-    PaginatedResult<Array<EggCollectionWithDetails>>
+    PaginatedResult<EggCollectionWithDetails>
   >({
     data: [],
     total: 0,
@@ -194,7 +194,8 @@ function EggsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedRecord, setSelectedRecord] = useState<EggCollectionWithDetails | null>(null)
+  const [selectedRecord, setSelectedRecord] =
+    useState<EggCollectionWithDetails | null>(null)
 
   const [formData, setFormData] = useState({
     batchId: '',

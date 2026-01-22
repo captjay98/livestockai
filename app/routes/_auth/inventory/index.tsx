@@ -12,8 +12,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { FeedType } from '~/features/inventory/feed-server'
-import type { MedicationUnit } from '~/features/inventory/medication-server'
+import type { FeedType, MedicationUnit } from '~/features/inventory/service'
 import { useFormatDate, useFormatWeight } from '~/features/settings'
 
 import {
@@ -67,7 +66,7 @@ interface FeedInventoryItem {
   quantityKg: string
   minThresholdKg: string
   updatedAt: Date
-  farmName: string | null
+  farmName?: string | null
 }
 
 interface MedicationItem {
@@ -79,7 +78,7 @@ interface MedicationItem {
   expiryDate: Date | null
   minThreshold: number
   updatedAt: Date
-  farmName: string | null
+  farmName?: string | null
 }
 
 const getInventoryData = createServerFn({ method: 'GET' })
@@ -575,8 +574,7 @@ function InventoryPage() {
                     <Select
                       value={feedForm.feedType}
                       onValueChange={(v) =>
-                        v &&
-                        setFeedForm((p) => ({ ...p, feedType: v as FeedType }))
+                        v && setFeedForm((p) => ({ ...p, feedType: v }))
                       }
                     >
                       <SelectTrigger>
@@ -859,7 +857,7 @@ function InventoryPage() {
                           v &&
                           setMedForm((p) => ({
                             ...p,
-                            unit: v as MedicationUnit,
+                            unit: v,
                           }))
                         }
                       >
@@ -1266,8 +1264,7 @@ function InventoryPage() {
                 <Select
                   value={medForm.unit}
                   onValueChange={(v) =>
-                    v &&
-                    setMedForm((p) => ({ ...p, unit: v as MedicationUnit }))
+                    v && setMedForm((p) => ({ ...p, unit: v }))
                   }
                 >
                   <SelectTrigger>

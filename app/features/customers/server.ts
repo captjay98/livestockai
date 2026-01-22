@@ -97,11 +97,17 @@ export const createCustomerFn = createServerFn({ method: 'POST' })
 /**
  * Retrieve all customers in alphabetical order.
  */
-export async function getCustomers(): Promise<Array<CustomerRecord>> {
+export async function getCustomers() {
   const { db } = await import('~/lib/db')
 
   try {
-    return await repository.selectAllCustomers(db)
+    const customers = await repository.selectAllCustomers(db)
+    // Add default aggregates for simple list
+    return customers.map((c) => ({
+      ...c,
+      salesCount: 0,
+      totalSpent: 0,
+    }))
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch customers',

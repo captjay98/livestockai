@@ -1,37 +1,23 @@
 import { createServerFn } from '@tanstack/react-start'
+import { getWaterQualityIssues, isWaterQualityAlert } from './service'
 import {
-  getWaterQualityIssues,
-  isWaterQualityAlert,
-  validateReadingData,
-  validateUpdateData,
-} from './service'
-import {
-  
-  
   deleteReading,
-  getLatestReading,
   getLatestReadingsByFarms,
-  getReadingById,
-  getReadingsByBatch,
   getReadingsByFarm,
   getRecordFarmId,
   getWaterQualityPaginated,
-  getWaterQualitySummary,
   insertReading,
   updateReading,
-  verifyFishBatch
+  verifyFishBatch,
 } from './repository'
-import type {WaterQualityReadingInsert, WaterQualityReadingUpdate} from './repository';
+import type {
+  WaterQualityReadingInsert,
+  WaterQualityReadingUpdate,
+} from './repository'
 import type { BasePaginatedQuery } from '~/lib/types'
 import { AppError } from '~/lib/errors'
 
-// Import from service and repository
-
-// Re-export constants for backward compatibility
 export { WATER_QUALITY_THRESHOLDS } from './constants'
-
-// Types
-export type { WaterQualityRecord } from './server'
 
 /**
  * Represents a single water quality measurement record.
@@ -401,11 +387,7 @@ export const updateWaterQualityRecordFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return updateWaterQualityRecord(
-      session.user.id,
-      data.recordId,
-      data.data,
-    )
+    return updateWaterQualityRecord(session.user.id, data.recordId, data.data)
   })
 
 /**

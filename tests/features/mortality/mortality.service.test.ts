@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
-import type {
-  CreateMortalityData,
-  UpdateMortalityInput,
-} from '~/features/mortality/server'
+import type { CreateMortalityData } from '~/features/mortality/server'
 import {
   buildMortalityTrends,
   calculateCauseDistribution,
@@ -191,7 +188,10 @@ describe('Mortality Service', () => {
     it('should add quantity back to batch', () => {
       const currentQuantity = 90
       const deletedQuantity = 5
-      const result = restoreBatchQuantityOnDelete(currentQuantity, deletedQuantity)
+      const result = restoreBatchQuantityOnDelete(
+        currentQuantity,
+        deletedQuantity,
+      )
       expect(result).toBe(95)
     })
   })
@@ -267,8 +267,10 @@ describe('Mortality Service - Property Tests', () => {
     it('should return 100 when all animals in the batch died', () => {
       // Test with a positive initial quantity
       fc.assert(
-        fc.property(fc.nat({ max: 10000, min: 1 }), (initialQuantity) => {
-          expect(calculateMortalityRate(initialQuantity, initialQuantity)).toBe(100)
+        fc.property(fc.integer({ min: 1, max: 10000 }), (initialQuantity) => {
+          expect(calculateMortalityRate(initialQuantity, initialQuantity)).toBe(
+            100,
+          )
         }),
       )
     })

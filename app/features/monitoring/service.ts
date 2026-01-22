@@ -43,7 +43,7 @@ export interface BatchAlert {
   message: string
   timestamp: Date
   value?: number
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, any>
 }
 
 /**
@@ -68,15 +68,29 @@ interface BatchAnalysisInput {
  * @param input - All data needed for batch analysis
  * @returns Array of alerts generated from the analysis
  */
-export function analyzeBatchHealth(input: BatchAnalysisInput): Array<BatchAlert> {
+export function analyzeBatchHealth(
+  input: BatchAnalysisInput,
+): Array<BatchAlert> {
   const alerts: Array<BatchAlert> = []
-  const { batch, recentMortality, totalMortality, waterQuality, vaccinations, feed, latestWeight, growthStandards, thresholds } = input
+  const {
+    batch,
+    recentMortality,
+    totalMortality,
+    waterQuality,
+    vaccinations,
+    feed,
+    latestWeight,
+    growthStandards,
+    thresholds,
+  } = input
 
   // Skip if batch is empty
   if (batch.currentQuantity === 0) return alerts
 
   // Run all alert checks
-  alerts.push(...checkMortalityAlerts(batch, recentMortality, totalMortality, thresholds))
+  alerts.push(
+    ...checkMortalityAlerts(batch, recentMortality, totalMortality, thresholds),
+  )
   alerts.push(...checkWaterQualityAlerts(batch, waterQuality))
   alerts.push(...checkVaccinationAlerts(batch, vaccinations))
   alerts.push(...checkInventoryAlerts(batch))
@@ -103,8 +117,10 @@ export function checkMortalityAlerts(
 ): Array<BatchAlert> {
   const alerts: Array<BatchAlert> = []
   const deadInLast24h = Number(recentMortality.runTotal ?? 0)
-  const dailyMortalityRate = batch.currentQuantity > 0 ? deadInLast24h / batch.currentQuantity : 0
-  const totalRate = batch.initialQuantity > 0 ? totalMortality / batch.initialQuantity : 0
+  const dailyMortalityRate =
+    batch.currentQuantity > 0 ? deadInLast24h / batch.currentQuantity : 0
+  const totalRate =
+    batch.initialQuantity > 0 ? totalMortality / batch.initialQuantity : 0
 
   // Check sudden death (24h threshold)
   if (
@@ -286,7 +302,9 @@ export function checkFeedAlerts(
   const alerts: Array<BatchAlert> = []
 
   const totalFeedKg = parseFloat(feed.totalKg ?? '0')
-  const avgWeightKg = latestWeight ? parseFloat(latestWeight.averageWeightKg) : 0
+  const avgWeightKg = latestWeight
+    ? parseFloat(latestWeight.averageWeightKg)
+    : 0
 
   if (totalFeedKg > 0 && avgWeightKg > 0 && batch.currentQuantity > 0) {
     const totalWeightGainKg = avgWeightKg * batch.currentQuantity
@@ -425,7 +443,9 @@ export function sortAlertsBySeverity(
     info: 2,
   }
 
-  return [...alerts].sort((a, b) => severityOrder[a.type] - severityOrder[b.type])
+  return [...alerts].sort(
+    (a, b) => severityOrder[a.type] - severityOrder[b.type],
+  )
 }
 
 /**

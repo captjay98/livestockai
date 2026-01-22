@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
-import type {
-  CreateWaterQualityInput,
-} from '~/features/water-quality/server'
+import type { CreateWaterQualityInput } from '~/features/water-quality/server'
 import {
   buildWaterQualitySummary,
   calculateAverageParameter,
@@ -41,7 +39,10 @@ describe('Water Quality Service', () => {
     })
 
     it('should reject invalid date', () => {
-      const result = validateReadingData({ ...validData, date: new Date('invalid') as any })
+      const result = validateReadingData({
+        ...validData,
+        date: new Date('invalid') as any,
+      })
       expect(result).toBe('Valid measurement date is required')
     })
 
@@ -66,32 +67,50 @@ describe('Water Quality Service', () => {
     })
 
     it('should reject temperature below -10', () => {
-      const result = validateReadingData({ ...validData, temperatureCelsius: -15 })
+      const result = validateReadingData({
+        ...validData,
+        temperatureCelsius: -15,
+      })
       expect(result).toBe('Temperature must be between -10°C and 50°C')
     })
 
     it('should reject temperature above 50', () => {
-      const result = validateReadingData({ ...validData, temperatureCelsius: 55 })
+      const result = validateReadingData({
+        ...validData,
+        temperatureCelsius: 55,
+      })
       expect(result).toBe('Temperature must be between -10°C and 50°C')
     })
 
     it('should reject temperature below minimum threshold', () => {
-      const result = validateReadingData({ ...validData, temperatureCelsius: 20 })
+      const result = validateReadingData({
+        ...validData,
+        temperatureCelsius: 20,
+      })
       expect(result).toBe('Temperature must be between 25°C and 30°C')
     })
 
     it('should reject temperature above maximum threshold', () => {
-      const result = validateReadingData({ ...validData, temperatureCelsius: 35 })
+      const result = validateReadingData({
+        ...validData,
+        temperatureCelsius: 35,
+      })
       expect(result).toBe('Temperature must be between 25°C and 30°C')
     })
 
     it('should reject negative dissolved oxygen', () => {
-      const result = validateReadingData({ ...validData, dissolvedOxygenMgL: -1 })
+      const result = validateReadingData({
+        ...validData,
+        dissolvedOxygenMgL: -1,
+      })
       expect(result).toBe('Dissolved oxygen cannot be negative')
     })
 
     it('should reject dissolved oxygen below minimum threshold', () => {
-      const result = validateReadingData({ ...validData, dissolvedOxygenMgL: 3 })
+      const result = validateReadingData({
+        ...validData,
+        dissolvedOxygenMgL: 3,
+      })
       expect(result).toBe('Dissolved oxygen must be at least 5 mg/L')
     })
 
@@ -111,13 +130,21 @@ describe('Water Quality Service', () => {
     })
 
     it('should accept edge case temperature values', () => {
-      expect(validateReadingData({ ...validData, temperatureCelsius: 25 })).toBeNull()
-      expect(validateReadingData({ ...validData, temperatureCelsius: 30 })).toBeNull()
+      expect(
+        validateReadingData({ ...validData, temperatureCelsius: 25 }),
+      ).toBeNull()
+      expect(
+        validateReadingData({ ...validData, temperatureCelsius: 30 }),
+      ).toBeNull()
     })
 
     it('should accept edge case dissolved oxygen values', () => {
-      expect(validateReadingData({ ...validData, dissolvedOxygenMgL: 5 })).toBeNull()
-      expect(validateReadingData({ ...validData, dissolvedOxygenMgL: 10 })).toBeNull()
+      expect(
+        validateReadingData({ ...validData, dissolvedOxygenMgL: 5 }),
+      ).toBeNull()
+      expect(
+        validateReadingData({ ...validData, dissolvedOxygenMgL: 10 }),
+      ).toBeNull()
     })
 
     it('should accept edge case ammonia values', () => {
@@ -176,9 +203,24 @@ describe('Water Quality Service', () => {
 
   describe('calculateAverageParameter', () => {
     const readings = [
-      { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
-      { ph: '7.5', temperatureCelsius: '28.0', dissolvedOxygenMgL: '5.5', ammoniaMgL: '0.02' },
-      { ph: '8.0', temperatureCelsius: '26.0', dissolvedOxygenMgL: '6.5', ammoniaMgL: '0.015' },
+      {
+        ph: '7.0',
+        temperatureCelsius: '27.0',
+        dissolvedOxygenMgL: '6.0',
+        ammoniaMgL: '0.01',
+      },
+      {
+        ph: '7.5',
+        temperatureCelsius: '28.0',
+        dissolvedOxygenMgL: '5.5',
+        ammoniaMgL: '0.02',
+      },
+      {
+        ph: '8.0',
+        temperatureCelsius: '26.0',
+        dissolvedOxygenMgL: '6.5',
+        ammoniaMgL: '0.015',
+      },
     ]
 
     it('should calculate average pH correctly', () => {
@@ -208,8 +250,18 @@ describe('Water Quality Service', () => {
 
     it('should handle invalid string values', () => {
       const invalidReadings = [
-        { ph: 'invalid', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
-        { ph: '7.0', temperatureCelsius: '28.0', dissolvedOxygenMgL: '5.5', ammoniaMgL: '0.02' },
+        {
+          ph: 'invalid',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
+        {
+          ph: '7.0',
+          temperatureCelsius: '28.0',
+          dissolvedOxygenMgL: '5.5',
+          ammoniaMgL: '0.02',
+        },
       ]
       const result = calculateAverageParameter(invalidReadings, 'ph')
       expect(result).toBeCloseTo(3.5, 2)
@@ -241,42 +293,68 @@ describe('Water Quality Service', () => {
 
     describe('temperature status', () => {
       it('should return optimal for ideal temperature range', () => {
-        expect(determineParameterStatus('temperatureCelsius', 27)).toBe('optimal')
-        expect(determineParameterStatus('temperatureCelsius', 28)).toBe('optimal')
+        expect(determineParameterStatus('temperatureCelsius', 27)).toBe(
+          'optimal',
+        )
+        expect(determineParameterStatus('temperatureCelsius', 28)).toBe(
+          'optimal',
+        )
       })
 
       it('should return acceptable for threshold values', () => {
-        expect(determineParameterStatus('temperatureCelsius', 25)).toBe('acceptable')
-        expect(determineParameterStatus('temperatureCelsius', 30)).toBe('acceptable')
+        expect(determineParameterStatus('temperatureCelsius', 25)).toBe(
+          'acceptable',
+        )
+        expect(determineParameterStatus('temperatureCelsius', 30)).toBe(
+          'acceptable',
+        )
       })
 
       it('should return warning for slightly out of range', () => {
-        expect(determineParameterStatus('temperatureCelsius', 22)).toBe('warning')
-        expect(determineParameterStatus('temperatureCelsius', 33)).toBe('warning')
+        expect(determineParameterStatus('temperatureCelsius', 22)).toBe(
+          'warning',
+        )
+        expect(determineParameterStatus('temperatureCelsius', 33)).toBe(
+          'warning',
+        )
       })
 
       it('should return critical for far out of range', () => {
-        expect(determineParameterStatus('temperatureCelsius', 15)).toBe('critical')
-        expect(determineParameterStatus('temperatureCelsius', 40)).toBe('critical')
+        expect(determineParameterStatus('temperatureCelsius', 15)).toBe(
+          'critical',
+        )
+        expect(determineParameterStatus('temperatureCelsius', 40)).toBe(
+          'critical',
+        )
       })
     })
 
     describe('dissolved oxygen status', () => {
       it('should return optimal for high DO', () => {
-        expect(determineParameterStatus('dissolvedOxygenMgL', 8)).toBe('optimal')
-        expect(determineParameterStatus('dissolvedOxygenMgL', 10)).toBe('optimal')
+        expect(determineParameterStatus('dissolvedOxygenMgL', 8)).toBe(
+          'optimal',
+        )
+        expect(determineParameterStatus('dissolvedOxygenMgL', 10)).toBe(
+          'optimal',
+        )
       })
 
       it('should return acceptable for minimum DO', () => {
-        expect(determineParameterStatus('dissolvedOxygenMgL', 5)).toBe('acceptable')
+        expect(determineParameterStatus('dissolvedOxygenMgL', 5)).toBe(
+          'acceptable',
+        )
       })
 
       it('should return warning for slightly below minimum', () => {
-        expect(determineParameterStatus('dissolvedOxygenMgL', 3.5)).toBe('warning')
+        expect(determineParameterStatus('dissolvedOxygenMgL', 3.5)).toBe(
+          'warning',
+        )
       })
 
       it('should return critical for very low DO', () => {
-        expect(determineParameterStatus('dissolvedOxygenMgL', 1)).toBe('critical')
+        expect(determineParameterStatus('dissolvedOxygenMgL', 1)).toBe(
+          'critical',
+        )
       })
     })
 
@@ -472,9 +550,24 @@ describe('Water Quality Service', () => {
 
   describe('buildWaterQualitySummary', () => {
     const readings = [
-      { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
-      { ph: '7.5', temperatureCelsius: '28.0', dissolvedOxygenMgL: '5.5', ammoniaMgL: '0.02' },
-      { ph: '8.0', temperatureCelsius: '26.0', dissolvedOxygenMgL: '6.5', ammoniaMgL: '0.015' },
+      {
+        ph: '7.0',
+        temperatureCelsius: '27.0',
+        dissolvedOxygenMgL: '6.0',
+        ammoniaMgL: '0.01',
+      },
+      {
+        ph: '7.5',
+        temperatureCelsius: '28.0',
+        dissolvedOxygenMgL: '5.5',
+        ammoniaMgL: '0.02',
+      },
+      {
+        ph: '8.0',
+        temperatureCelsius: '26.0',
+        dissolvedOxygenMgL: '6.5',
+        ammoniaMgL: '0.015',
+      },
     ]
 
     it('should calculate averages', () => {
@@ -514,7 +607,12 @@ describe('Water Quality Service', () => {
 
     it('should count alerts when readings have issues', () => {
       const badReadings = [
-        { ph: '5.0', temperatureCelsius: '35.0', dissolvedOxygenMgL: '2.0', ammoniaMgL: '0.1' },
+        {
+          ph: '5.0',
+          temperatureCelsius: '35.0',
+          dissolvedOxygenMgL: '2.0',
+          ammoniaMgL: '0.1',
+        },
       ]
       const summary = buildWaterQualitySummary(badReadings)
       expect(summary.alertCount).toBe(1)
@@ -525,7 +623,12 @@ describe('Water Quality Service', () => {
   describe('calculateParameterTrend', () => {
     it('should return stable for single reading', () => {
       const readings = [
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
       ]
       const result = calculateParameterTrend(readings, 'ph')
       expect(result).toBe('stable')
@@ -533,8 +636,18 @@ describe('Water Quality Service', () => {
 
     it('should return stable for similar values', () => {
       const readings = [
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
-        { ph: '7.1', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
+        {
+          ph: '7.1',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
       ]
       const result = calculateParameterTrend(readings, 'ph')
       expect(result).toBe('stable')
@@ -542,8 +655,18 @@ describe('Water Quality Service', () => {
 
     it('should detect improving dissolved oxygen', () => {
       const readings = [
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '5.0', ammoniaMgL: '0.01' },
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '5.0',
+          ammoniaMgL: '0.01',
+        },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
       ]
       const result = calculateParameterTrend(readings, 'dissolvedOxygenMgL')
       expect(result).toBe('improving')
@@ -551,8 +674,18 @@ describe('Water Quality Service', () => {
 
     it('should detect declining dissolved oxygen', () => {
       const readings = [
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '5.0', ammoniaMgL: '0.01' },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '5.0',
+          ammoniaMgL: '0.01',
+        },
       ]
       const result = calculateParameterTrend(readings, 'dissolvedOxygenMgL')
       expect(result).toBe('declining')
@@ -560,8 +693,18 @@ describe('Water Quality Service', () => {
 
     it('should detect improving (decreasing) ammonia', () => {
       const readings = [
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.02' },
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.02',
+        },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
       ]
       const result = calculateParameterTrend(readings, 'ammoniaMgL')
       expect(result).toBe('improving')
@@ -569,8 +712,18 @@ describe('Water Quality Service', () => {
 
     it('should detect declining (increasing) ammonia', () => {
       const readings = [
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.02' },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.02',
+        },
       ]
       const result = calculateParameterTrend(readings, 'ammoniaMgL')
       expect(result).toBe('declining')
@@ -583,8 +736,18 @@ describe('Water Quality Service', () => {
 
     it('should handle invalid values gracefully', () => {
       const readings = [
-        { ph: 'invalid', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
-        { ph: '7.0', temperatureCelsius: '27.0', dissolvedOxygenMgL: '6.0', ammoniaMgL: '0.01' },
+        {
+          ph: 'invalid',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
+        {
+          ph: '7.0',
+          temperatureCelsius: '27.0',
+          dissolvedOxygenMgL: '6.0',
+          ammoniaMgL: '0.01',
+        },
       ]
       const result = calculateParameterTrend(readings, 'ph')
       expect(result).toBe('stable')
@@ -595,60 +758,51 @@ describe('Water Quality Service', () => {
     describe('validateReadingData', () => {
       it('should accept valid pH values between 6.5 and 9.0', () => {
         fc.assert(
-          fc.property(
-            fc.float({ min: 6.5, max: 9 }),
-            (ph) => {
-              const validData: CreateWaterQualityInput = {
-                batchId: 'batch-1',
-                date: new Date(),
-                ph,
-                temperatureCelsius: 27,
-                dissolvedOxygenMgL: 6,
-                ammoniaMgL: 0.01,
-              }
-              expect(validateReadingData(validData)).toBeNull()
-            },
-          ),
+          fc.property(fc.float({ min: 6.5, max: 9 }), (ph) => {
+            const validData: CreateWaterQualityInput = {
+              batchId: 'batch-1',
+              date: new Date(),
+              ph,
+              temperatureCelsius: 27,
+              dissolvedOxygenMgL: 6,
+              ammoniaMgL: 0.01,
+            }
+            expect(validateReadingData(validData)).toBeNull()
+          }),
           { numRuns: 50 },
         )
       })
 
       it('should accept valid temperature between 25 and 30', () => {
         fc.assert(
-          fc.property(
-            fc.float({ min: 25, max: 30 }),
-            (temp) => {
-              const validData: CreateWaterQualityInput = {
-                batchId: 'batch-1',
-                date: new Date(),
-                ph: 7.5,
-                temperatureCelsius: temp,
-                dissolvedOxygenMgL: 6,
-                ammoniaMgL: 0.01,
-              }
-              expect(validateReadingData(validData)).toBeNull()
-            },
-          ),
+          fc.property(fc.float({ min: 25, max: 30 }), (temp) => {
+            const validData: CreateWaterQualityInput = {
+              batchId: 'batch-1',
+              date: new Date(),
+              ph: 7.5,
+              temperatureCelsius: temp,
+              dissolvedOxygenMgL: 6,
+              ammoniaMgL: 0.01,
+            }
+            expect(validateReadingData(validData)).toBeNull()
+          }),
           { numRuns: 50 },
         )
       })
 
       it('should accept valid DO >= 5', () => {
         fc.assert(
-          fc.property(
-            fc.float({ min: 5, max: 15 }),
-            (doVal) => {
-              const validData: CreateWaterQualityInput = {
-                batchId: 'batch-1',
-                date: new Date(),
-                ph: 7.5,
-                temperatureCelsius: 27,
-                dissolvedOxygenMgL: doVal,
-                ammoniaMgL: 0.01,
-              }
-              expect(validateReadingData(validData)).toBeNull()
-            },
-          ),
+          fc.property(fc.float({ min: 5, max: 15 }), (doVal) => {
+            const validData: CreateWaterQualityInput = {
+              batchId: 'batch-1',
+              date: new Date(),
+              ph: 7.5,
+              temperatureCelsius: 27,
+              dissolvedOxygenMgL: doVal,
+              ammoniaMgL: 0.01,
+            }
+            expect(validateReadingData(validData)).toBeNull()
+          }),
           { numRuns: 50 },
         )
       })
@@ -656,21 +810,18 @@ describe('Water Quality Service', () => {
       it('should accept valid ammonia <= 0.02', () => {
         // Use integer values from 0 to 20 and divide by 1000 to get valid 32-bit floats
         fc.assert(
-          fc.property(
-            fc.nat({ max: 20 }),
-            (scaled) => {
-              const ammonia = scaled / 1000 // Values from 0 to 0.02
-              const validData: CreateWaterQualityInput = {
-                batchId: 'batch-1',
-                date: new Date(),
-                ph: 7.5,
-                temperatureCelsius: 27,
-                dissolvedOxygenMgL: 6,
-                ammoniaMgL: ammonia,
-              }
-              expect(validateReadingData(validData)).toBeNull()
-            },
-          ),
+          fc.property(fc.nat({ max: 20 }), (scaled) => {
+            const ammonia = scaled / 1000 // Values from 0 to 0.02
+            const validData: CreateWaterQualityInput = {
+              batchId: 'batch-1',
+              date: new Date(),
+              ph: 7.5,
+              temperatureCelsius: 27,
+              dissolvedOxygenMgL: 6,
+              ammoniaMgL: ammonia,
+            }
+            expect(validateReadingData(validData)).toBeNull()
+          }),
           { numRuns: 50 },
         )
       })

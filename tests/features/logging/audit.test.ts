@@ -3,7 +3,7 @@ import type {
   AuditAction,
   AuditEntityType,
   AuditLogParams,
-} from '~/features/logging/audit'
+} from '~/lib/logging/audit'
 
 describe('logging/audit interface', () => {
   it('should define valid audit actions', () => {

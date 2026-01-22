@@ -77,6 +77,7 @@ app/features/batches/
 ```
 
 **Layer Responsibilities:**
+
 - **server.ts**: Auth middleware, input validation, orchestrates service/repository
 - **service.ts**: Pure functions for business logic (testable without DB)
 - **repository.ts**: All database queries and mutations

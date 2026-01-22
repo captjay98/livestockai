@@ -72,10 +72,8 @@ export async function createWeightSample(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
-  const {
-    getBatchForWeightRecord,
-    insertWeightSample,
-  } = await import('./repository')
+  const { getBatchForWeightRecord, insertWeightSample } =
+    await import('./repository')
 
   await verifyFarmAccess(userId, farmId)
 
@@ -233,10 +231,7 @@ export async function getGrowthAlerts(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
-  const { AppError } = await import('~/lib/errors')
-  const {
-    getActiveBatchesForAlerts,
-  } = await import('./repository')
+  const { getActiveBatchesForAlerts } = await import('./repository')
 
   let targetFarmIds: Array<string> = []
   if (farmId) {
@@ -372,10 +367,8 @@ export async function updateWeightSample(
   const { db } = await import('~/lib/db')
   const { checkFarmAccess } = await import('../auth/utils')
   const { AppError } = await import('~/lib/errors')
-  const {
-    getWeightSampleById,
-    updateWeightSample: updateRepo,
-  } = await import('./repository')
+  const { getWeightSampleById, updateWeightSample: updateRepo } =
+    await import('./repository')
 
   const existing = await getWeightSampleById(db, recordId)
 
@@ -444,10 +437,8 @@ export async function deleteWeightSample(
   const { db } = await import('~/lib/db')
   const { checkFarmAccess } = await import('../auth/utils')
   const { AppError } = await import('~/lib/errors')
-  const {
-    getWeightSampleById,
-    deleteWeightSample: deleteRepo,
-  } = await import('./repository')
+  const { getWeightSampleById, deleteWeightSample: deleteRepo } =
+    await import('./repository')
 
   const existing = await getWeightSampleById(db, recordId)
 

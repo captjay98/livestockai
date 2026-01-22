@@ -81,10 +81,10 @@ interface VaccinationAlert {
   id: string
   batchId: string
   vaccineName: string
-  species: string
-  livestockType: string
+  species: string | null
+  livestockType: string | null
   nextDueDate: Date | null
-  farmName: string
+  farmName: string | null
 }
 
 interface Alert {

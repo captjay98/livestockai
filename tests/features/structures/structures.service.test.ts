@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import * as fc from 'fast-check'
 import type {
   CreateStructureInput,
   UpdateStructureInput,
@@ -115,19 +114,31 @@ describe('Structure Service', () => {
     })
 
     it('should return null for zero or negative dimensions', () => {
-      expect(calculateStructureCapacity('house', { length: 0, width: 10 })).toBeNull()
-      expect(calculateStructureCapacity('house', { length: -5, width: 10 })).toBeNull()
-      expect(calculateStructureCapacity('house', { length: 10, width: 0 })).toBeNull()
+      expect(
+        calculateStructureCapacity('house', { length: 0, width: 10 }),
+      ).toBeNull()
+      expect(
+        calculateStructureCapacity('house', { length: -5, width: 10 }),
+      ).toBeNull()
+      expect(
+        calculateStructureCapacity('house', { length: 10, width: 0 }),
+      ).toBeNull()
     })
 
     it('should calculate capacity for house type', () => {
-      const result = calculateStructureCapacity('house', { length: 20, width: 10 })
+      const result = calculateStructureCapacity('house', {
+        length: 20,
+        width: 10,
+      })
       // 20 * 10 = 200 sqm, * 10 density = 2000 capacity
       expect(result).toBe(2000)
     })
 
     it('should calculate capacity for pond type', () => {
-      const result = calculateStructureCapacity('pond', { length: 10, width: 10 })
+      const result = calculateStructureCapacity('pond', {
+        length: 10,
+        width: 10,
+      })
       // 10 * 10 = 100 sqm, * 0.5 density = 50 capacity
       expect(result).toBe(50)
     })
@@ -139,7 +150,10 @@ describe('Structure Service', () => {
     })
 
     it('should use default density for unknown types', () => {
-      const result = calculateStructureCapacity('unknown_type', { length: 10, width: 10 })
+      const result = calculateStructureCapacity('unknown_type', {
+        length: 10,
+        width: 10,
+      })
       // 10 * 10 = 100 sqm, * 2 default density = 200 capacity
       expect(result).toBe(200)
     })

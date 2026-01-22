@@ -185,26 +185,17 @@ export function determineEggGrade(size: string, weight?: number): EggGrade {
   }
 
   // Small
-  if (
-    normalizedSize.includes('small') ||
-    normalizedSize.includes('s')
-  ) {
+  if (normalizedSize.includes('small') || normalizedSize.includes('s')) {
     return 'small'
   }
 
   // Medium
-  if (
-    normalizedSize.includes('medium') ||
-    normalizedSize.includes('m')
-  ) {
+  if (normalizedSize.includes('medium') || normalizedSize.includes('m')) {
     return 'medium'
   }
 
   // Large - check after extra large and others
-  if (
-    normalizedSize.includes('large') ||
-    normalizedSize.includes('l')
-  ) {
+  if (normalizedSize.includes('large') || normalizedSize.includes('l')) {
     return 'large'
   }
 

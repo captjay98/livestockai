@@ -44,11 +44,11 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
      .handler(async ({ data }) => {
        const { requireAuth } = await import('./server-middleware')
        const session = await requireAuth()
-       
+
        // Service layer for business logic
        const error = validateBatchData(data)
        if (error) throw new AppError('VALIDATION_ERROR')
-       
+
        // Repository layer for database
        const { db } = await import('~/lib/db')
        return insertBatch(db, data)
@@ -66,6 +66,7 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
    ```
 
 4. **Service Layer**: Pure functions for business logic (easy to test):
+
    ```typescript
    // service.ts
    export function calculateFCR(feedKg: number, weightGain: number): number {
@@ -78,7 +79,11 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
    ```typescript
    // repository.ts
    export async function insertBatch(db: Kysely<Database>, data: BatchInsert) {
-     return db.insertInto('batches').values(data).returning('id').executeTakeFirstOrThrow()
+     return db
+       .insertInto('batches')
+       .values(data)
+       .returning('id')
+       .executeTakeFirstOrThrow()
    }
    ```
 

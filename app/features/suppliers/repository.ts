@@ -5,7 +5,7 @@
 
 import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
-import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import type { PaginatedResult } from '~/lib/types'
 import type {
   CreateSupplierInput,
   SupplierQuery,

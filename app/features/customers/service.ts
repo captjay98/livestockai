@@ -9,9 +9,7 @@ import type { CreateCustomerInput, CustomerQuery } from './server'
  * Validate customer input data
  * Returns validation error message or null if valid
  */
-export function validateCustomerData(
-  data: CreateCustomerInput,
-): string | null {
+export function validateCustomerData(data: CreateCustomerInput): string | null {
   if (!data.farmId || data.farmId.trim() === '') {
     return 'Farm ID is required'
   }

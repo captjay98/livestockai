@@ -78,64 +78,6 @@ interface Structure {
   totalAnimals: number
 }
 
-interface FarmBatch {
-  id: string
-  species: string
-  livestockType: string
-  currentQuantity: number
-  acquisitionDate: Date
-}
-
-interface FarmSale {
-  id: string
-  customerName: string | null
-  quantity: number
-  batchSpecies: string | null
-  livestockType: string
-  totalAmount: string
-  date: Date
-}
-
-interface FarmExpense {
-  id: string
-  category: string
-  description: string
-  amount: string
-  date: Date
-}
-
-interface Farm {
-  id: string
-  name: string
-  location: string
-  type: string
-  createdAt: Date
-}
-
-interface FarmStats {
-  batches: {
-    totalLivestock: number
-    active: number
-  }
-  sales: {
-    revenue: number
-    count: number
-  }
-  expenses: {
-    total: number
-    count: number
-  }
-}
-
-interface LoaderData {
-  farm: Farm | null
-  stats: FarmStats
-  activeBatches: Array<FarmBatch>
-  recentSales: Array<FarmSale>
-  recentExpenses: Array<FarmExpense>
-  structures: Array<Structure>
-}
-
 const getFarmDetails = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
@@ -186,8 +128,7 @@ export const Route = createFileRoute('/_auth/farms/$farmId/')({
 
 function FarmDetailsPage() {
   const { t } = useTranslation(['farms', 'common', 'batches', 'expenses'])
-  const loaderData = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    Route.useLoaderData() as LoaderData
+  const loaderData = Route.useLoaderData()
   const { farmId } = Route.useParams()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
@@ -985,7 +926,7 @@ function FarmDetailsPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatCurrency(stats.expenses.total)}
+                {formatCurrency(stats.expenses.amount)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {t('farms:dashboard.expenseRecords', {

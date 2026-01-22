@@ -1,5 +1,5 @@
 import { sql } from 'kysely'
-import type { BatchAlert } from '~/features/monitoring/alerts'
+import type { BatchAlert } from '~/features/monitoring/server'
 
 /**
  * @module Dashboard
@@ -315,8 +315,8 @@ export async function getDashboardStats(
     const fcr = totalQuantity > 0 ? feedTotalKg / totalQuantity : 0
 
     // Get centralized alerts
-    const { getAllBatchAlerts } = await import('~/features/monitoring/alerts')
-    const alerts = await getAllBatchAlerts(userId, farmId)
+    const { getAllBatchAlerts } = await import('~/features/monitoring/server')
+    const alerts = await getAllBatchAlerts({ data: { farmId } })
 
     // Top customers - join with sales to filter by farmId
     const topCustomers = await db

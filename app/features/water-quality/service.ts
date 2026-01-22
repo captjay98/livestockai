@@ -51,10 +51,7 @@ export function validateReadingData(
     return `pH must be between ${WATER_QUALITY_THRESHOLDS.ph.min} and ${WATER_QUALITY_THRESHOLDS.ph.max}`
   }
 
-  if (
-    data.temperatureCelsius < -10 ||
-    data.temperatureCelsius > 50
-  ) {
+  if (data.temperatureCelsius < -10 || data.temperatureCelsius > 50) {
     return 'Temperature must be between -10°C and 50°C'
   }
 
@@ -69,9 +66,7 @@ export function validateReadingData(
     return 'Dissolved oxygen cannot be negative'
   }
 
-  if (
-    data.dissolvedOxygenMgL < WATER_QUALITY_THRESHOLDS.dissolvedOxygen.min
-  ) {
+  if (data.dissolvedOxygenMgL < WATER_QUALITY_THRESHOLDS.dissolvedOxygen.min) {
     return `Dissolved oxygen must be at least ${WATER_QUALITY_THRESHOLDS.dissolvedOxygen.min} mg/L`
   }
 
@@ -131,8 +126,7 @@ export function validateUpdateData(
       return 'Dissolved oxygen cannot be negative'
     }
     if (
-      data.dissolvedOxygenMgL <
-      WATER_QUALITY_THRESHOLDS.dissolvedOxygen.min
+      data.dissolvedOxygenMgL < WATER_QUALITY_THRESHOLDS.dissolvedOxygen.min
     ) {
       return `Dissolved oxygen must be at least ${WATER_QUALITY_THRESHOLDS.dissolvedOxygen.min} mg/L`
     }
@@ -164,7 +158,12 @@ export function validateUpdateData(
  * ```
  */
 export function calculateAverageParameter(
-  readings: Array<{ ph: string; temperatureCelsius: string; dissolvedOxygenMgL: string; ammoniaMgL: string }>,
+  readings: Array<{
+    ph: string
+    temperatureCelsius: string
+    dissolvedOxygenMgL: string
+    ammoniaMgL: string
+  }>,
   param: 'ph' | 'temperatureCelsius' | 'dissolvedOxygenMgL' | 'ammoniaMgL',
 ): number | null {
   if (readings.length === 0) {
@@ -209,17 +208,11 @@ export function determineParameterStatus(
       return 'critical'
 
     case 'temperatureCelsius':
-      if (
-        value >= t.temperature.min + 1 &&
-        value <= t.temperature.max - 1
-      )
+      if (value >= t.temperature.min + 1 && value <= t.temperature.max - 1)
         return 'optimal'
       if (value >= t.temperature.min && value <= t.temperature.max)
         return 'acceptable'
-      if (
-        value >= t.temperature.min - 3 &&
-        value <= t.temperature.max + 3
-      )
+      if (value >= t.temperature.min - 3 && value <= t.temperature.max + 3)
         return 'warning'
       return 'critical'
 
@@ -413,7 +406,12 @@ export type ParameterTrend = 'improving' | 'stable' | 'declining'
  * ```
  */
 export function calculateParameterTrend(
-  readings: Array<{ ph: string; temperatureCelsius: string; dissolvedOxygenMgL: string; ammoniaMgL: string }>,
+  readings: Array<{
+    ph: string
+    temperatureCelsius: string
+    dissolvedOxygenMgL: string
+    ammoniaMgL: string
+  }>,
   param: 'ph' | 'temperatureCelsius' | 'dissolvedOxygenMgL' | 'ammoniaMgL',
 ): ParameterTrend {
   if (readings.length < 2) {
@@ -434,9 +432,7 @@ export function calculateParameterTrend(
   // For ammonia, decreasing is improving
   if (param === 'ammoniaMgL') {
     const changePercent =
-      oldestValue !== 0
-        ? ((newestValue - oldestValue) / oldestValue) * 100
-        : 0
+      oldestValue !== 0 ? ((newestValue - oldestValue) / oldestValue) * 100 : 0
     if (changePercent < -10) return 'improving'
     if (changePercent > 10) return 'declining'
     return 'stable'
@@ -445,16 +441,13 @@ export function calculateParameterTrend(
   // For dissolved oxygen, increasing is improving
   if (param === 'dissolvedOxygenMgL') {
     const changePercent =
-      oldestValue !== 0
-        ? ((newestValue - oldestValue) / oldestValue) * 100
-        : 0
+      oldestValue !== 0 ? ((newestValue - oldestValue) / oldestValue) * 100 : 0
     if (changePercent > 10) return 'improving'
     if (changePercent < -10) return 'declining'
     return 'stable'
   }
 
   // For pH and temperature, stability is best (check if within acceptable range)
-  const average = (oldestValue + newestValue) / 2
   const changePercent =
     oldestValue !== 0 ? ((newestValue - oldestValue) / oldestValue) * 100 : 0
 

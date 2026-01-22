@@ -4,7 +4,6 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 import { getUserFarms } from '../auth/utils'
 import {
   selectBatchForMonitoring,
@@ -20,10 +19,7 @@ import {
   selectUserSettingsFull,
   selectWeightSamples,
 } from './repository'
-import {
-  analyzeBatchHealth,
-  getTwentyFourHoursAgo,
-} from './service'
+import { analyzeBatchHealth, getTwentyFourHoursAgo } from './service'
 import type { BatchAlert } from './service'
 
 export { type BatchAlert }
@@ -37,19 +33,18 @@ export type AlertSource =
   | 'inventory'
   | 'growth'
 
-/**
- * Get all health alerts for a user (optionally filtered by farm)
- * Server function with dynamic imports for Cloudflare Workers compatibility
- */
+type FarmIdInput = { farmId?: string }
+type BatchIdInput = { batchId: string }
+
 export const getAllBatchAlerts = createServerFn({ method: 'GET' })
-  .validator(z.object({ farmId: z.string().uuid().optional() }))
+  .inputValidator((data: FarmIdInput) => data)
   .handler(async ({ data }) => {
     const { db } = await import('~/lib/db')
-    const { getUserId } = await import('../auth/utils')
+    const { requireAuth } = await import('../auth/server-middleware')
 
-    const userId = await getUserId()
+    const session = await requireAuth()
+    const userId = session.user.id
 
-    // Determine target farms
     let targetFarmIds: Array<string> = []
     if (data.farmId) {
       targetFarmIds = [data.farmId]
@@ -58,20 +53,24 @@ export const getAllBatchAlerts = createServerFn({ method: 'GET' })
       if (targetFarmIds.length === 0) return []
     }
 
-    // Get active batches
     const batches = await selectBatchesForMonitoring(db, targetFarmIds)
 
     if (batches.length === 0) return []
 
-    // Get user thresholds once
     const thresholds = await selectUserSettings(db, userId)
     const twentyFourHoursAgo = getTwentyFourHoursAgo()
 
-    // Run analysis for each batch
     const alerts = await Promise.all(
       batches.map(async (batch) => {
-        // Fetch all data needed for this batch
-        const [recentMortality, totalMortality, waterQuality, vaccinations, feed, latestWeight, growthStandards] = await Promise.all([
+        const [
+          recentMortality,
+          totalMortality,
+          waterQuality,
+          vaccinations,
+          feed,
+          latestWeight,
+          growthStandards,
+        ] = await Promise.all([
           selectRecentMortality(db, batch.id, twentyFourHoursAgo),
           selectTotalMortality(db, batch.id),
           selectRecentWaterQuality(db, batch.id),
@@ -81,7 +80,6 @@ export const getAllBatchAlerts = createServerFn({ method: 'GET' })
           selectGrowthStandards(db, batch.species),
         ])
 
-        // Run business logic analysis
         return analyzeBatchHealth({
           batch,
           recentMortality,
@@ -98,7 +96,6 @@ export const getAllBatchAlerts = createServerFn({ method: 'GET' })
 
     const flatAlerts = alerts.flat()
 
-    // Create notifications for critical alerts based on user preferences
     const settings = await selectUserSettingsFull(db, userId)
 
     if (settings && flatAlerts.length > 0) {
@@ -106,10 +103,8 @@ export const getAllBatchAlerts = createServerFn({ method: 'GET' })
       const notifPrefs = settings.notifications
 
       for (const alert of flatAlerts) {
-        // Only create notifications for critical alerts
         if (alert.type !== 'critical') continue
 
-        // Check if user wants this type of notification
         if (alert.source === 'mortality' && notifPrefs.highMortality) {
           const batch = batches.find((b) => b.id === alert.batchId)
           await createNotification({
@@ -122,7 +117,6 @@ export const getAllBatchAlerts = createServerFn({ method: 'GET' })
             metadata: { batchId: alert.batchId, species: batch?.species },
           })
 
-          // Send external notification if configured (fire-and-forget)
           try {
             const { INTEGRATIONS } = await import('../integrations/config')
             if (INTEGRATIONS.email) {
@@ -147,16 +141,14 @@ export const getAllBatchAlerts = createServerFn({ method: 'GET' })
     return flatAlerts
   })
 
-/**
- * Check a single batch for critical health anomalies
- */
 export const checkBatchAlerts = createServerFn({ method: 'GET' })
-  .validator(z.object({ batchId: z.string().uuid() }))
+  .inputValidator((data: BatchIdInput) => data)
   .handler(async ({ data }) => {
     const { db } = await import('~/lib/db')
-    const { getUserId } = await import('../auth/utils')
+    const { requireAuth } = await import('../auth/server-middleware')
 
-    const userId = await getUserId()
+    const session = await requireAuth()
+    const userId = session.user.id
     const batch = await selectBatchForMonitoring(db, data.batchId)
 
     if (!batch || batch.currentQuantity === 0) return []
@@ -164,8 +156,15 @@ export const checkBatchAlerts = createServerFn({ method: 'GET' })
     const thresholds = await selectUserSettings(db, userId)
     const twentyFourHoursAgo = getTwentyFourHoursAgo()
 
-    // Fetch all data needed for this batch
-    const [recentMortality, totalMortality, waterQuality, vaccinations, feed, latestWeight, growthStandards] = await Promise.all([
+    const [
+      recentMortality,
+      totalMortality,
+      waterQuality,
+      vaccinations,
+      feed,
+      latestWeight,
+      growthStandards,
+    ] = await Promise.all([
       selectRecentMortality(db, batch.id, twentyFourHoursAgo),
       selectTotalMortality(db, batch.id),
       selectRecentWaterQuality(db, batch.id),
@@ -188,28 +187,32 @@ export const checkBatchAlerts = createServerFn({ method: 'GET' })
     })
   })
 
-/**
- * Get alerts for a specific farm
- */
 export const getFarmAlerts = createServerFn({ method: 'GET' })
-  .validator(z.object({ farmId: z.string().uuid() }))
+  .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     const { db } = await import('~/lib/db')
-    const { getUserId } = await import('../auth/utils')
+    const { requireAuth } = await import('../auth/server-middleware')
 
-    const userId = await getUserId()
+    const session = await requireAuth()
+    const userId = session.user.id
     const thresholds = await selectUserSettings(db, userId)
     const twentyFourHoursAgo = getTwentyFourHoursAgo()
 
-    // Get active batches for this farm
     const batches = await selectBatchesForMonitoring(db, [data.farmId])
 
     if (batches.length === 0) return []
 
-    // Run analysis for each batch
     const alerts = await Promise.all(
       batches.map(async (batch) => {
-        const [recentMortality, totalMortality, waterQuality, vaccinations, feed, latestWeight, growthStandards] = await Promise.all([
+        const [
+          recentMortality,
+          totalMortality,
+          waterQuality,
+          vaccinations,
+          feed,
+          latestWeight,
+          growthStandards,
+        ] = await Promise.all([
           selectRecentMortality(db, batch.id, twentyFourHoursAgo),
           selectTotalMortality(db, batch.id),
           selectRecentWaterQuality(db, batch.id),

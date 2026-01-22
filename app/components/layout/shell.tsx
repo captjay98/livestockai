@@ -1,13 +1,9 @@
 import { useState } from 'react'
-import { Menu } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
 import { Sidebar } from './sidebar'
-import type { User } from '~/features/auth/types'
-import { cn } from '~/lib/utils'
-import { Button } from '~/components/ui/button'
-import { Logo } from '~/components/logo'
 import { BottomNav } from './bottom-nav'
 import { GlobalQuickAction } from './fab'
+import type { User } from '~/features/auth/types'
+import { cn } from '~/lib/utils'
 
 export function AppShell({
   children,
@@ -47,7 +43,6 @@ export function AppShell({
       </div>
 
       <div className="flex-1 flex flex-col min-h-screen transition-all duration-300 overflow-hidden">
-
         <main className="flex-1 px-3 py-4 sm:px-4 sm:py-6 overflow-y-auto overflow-x-hidden">
           <div className="max-w-7xl mx-auto animate-in fade-in-up duration-500">
             {children}

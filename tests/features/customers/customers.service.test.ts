@@ -14,7 +14,7 @@ describe('Customers Service', () => {
     phone: '+1234567890',
     email: 'test@customer.com',
     location: '123 Test Street',
-    customerType: 'wholesale',
+    customerType: 'wholesaler',
     ...overrides,
   })
 
@@ -30,7 +30,9 @@ describe('Customers Service', () => {
     })
 
     it('should reject whitespace-only farmId', () => {
-      const result = validateCustomerData(createValidCustomer({ farmId: '   ' }))
+      const result = validateCustomerData(
+        createValidCustomer({ farmId: '   ' }),
+      )
       expect(result).toBe('Farm ID is required')
     })
 
@@ -76,7 +78,9 @@ describe('Customers Service', () => {
     })
 
     it('should accept email as null', () => {
-      const result = validateCustomerData(createValidCustomer({ email: null as any }))
+      const result = validateCustomerData(
+        createValidCustomer({ email: null as any }),
+      )
       expect(result).toBeNull()
     })
 
@@ -97,7 +101,9 @@ describe('Customers Service', () => {
     })
 
     it('should accept location as null', () => {
-      const result = validateCustomerData(createValidCustomer({ location: null as any }))
+      const result = validateCustomerData(
+        createValidCustomer({ location: null as any }),
+      )
       expect(result).toBeNull()
     })
 
@@ -123,10 +129,10 @@ describe('Customers Service', () => {
     })
 
     it('should accept various customer types', () => {
-      const types = ['retail', 'wholesale', 'restaurant', 'individual', 'other']
+      const types = ['retailer', 'wholesaler', 'restaurant', 'individual']
       for (const type of types) {
         const result = validateCustomerData(
-          createValidCustomer({ customerType: type }),
+          createValidCustomer({ customerType: type as any }),
         )
         expect(result).toBeNull()
       }
@@ -198,7 +204,11 @@ describe('Customers Service', () => {
     })
 
     it('should accept query with search term', () => {
-      const result = validateCustomerQuery({ search: 'test', page: 1, pageSize: 10 })
+      const result = validateCustomerQuery({
+        search: 'test',
+        page: 1,
+        pageSize: 10,
+      })
       expect(result).toEqual({ page: 1, pageSize: 10 })
     })
 

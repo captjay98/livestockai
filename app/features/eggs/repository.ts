@@ -3,6 +3,7 @@
  * All functions are pure data access - no business logic.
  */
 
+import { sql } from 'kysely'
 import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
@@ -257,7 +258,7 @@ export async function getEggPaginated(
   db: Kysely<Database>,
   farmIds: Array<string>,
   filters: EggCollectionFilters = {},
-): Promise<PaginatedResult<Array<EggCollectionWithDetails>>> {
+): Promise<PaginatedResult<EggCollectionWithDetails>> {
   const page = filters.page || 1
   const pageSize = filters.pageSize || 10
   const offset = (page - 1) * pageSize
@@ -316,8 +317,7 @@ export async function getEggPaginated(
       dataQuery = dataQuery.orderBy('egg_records.date', sortOrder)
     } else {
       dataQuery = dataQuery.orderBy(
-        // @ts-ignore - Dynamic column for egg_records fields
-        `egg_records.${filters.sortBy}`,
+        sql.raw(`"egg_records"."${filters.sortBy}"`),
         sortOrder,
       )
     }
@@ -448,7 +448,10 @@ export async function getBatchForEggRecord(
     .where('farmId', '=', farmId)
     .executeTakeFirst()
 
-  return (batch as { id: string; farmId: string; livestockType: string } | null) ?? null
+  return (
+    (batch as { id: string; farmId: string; livestockType: string } | null) ??
+    null
+  )
 }
 
 /**

@@ -27,27 +27,6 @@ import {
 } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
 
-interface SupplierExpense {
-  id: string
-  date: Date
-  category: string
-  description: string
-  amount: string
-}
-
-interface SupplierWithExpenses {
-  id: string
-  name: string
-  phone: string
-  email: string | null
-  location: string | null
-  supplierType: string | null
-  products: Array<string>
-  expenses: Array<SupplierExpense>
-  totalSpent: number
-  expenseCount: number
-}
-
 const fetchSupplier = createServerFn({ method: 'GET' })
   .inputValidator((data: { supplierId: string }) => data)
   .handler(async ({ data }) => {
@@ -68,8 +47,7 @@ export const Route = createFileRoute('/_auth/suppliers/$supplierId')({
 
 function SupplierDetailPage() {
   const { t } = useTranslation(['suppliers', 'common'])
-  const supplier = // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    Route.useLoaderData() as SupplierWithExpenses | null
+  const supplier = Route.useLoaderData()
   const navigate = useNavigate()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()

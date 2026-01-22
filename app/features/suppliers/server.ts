@@ -27,7 +27,8 @@ export interface SupplierRecord {
   /** Timestamp when the supplier was registered */
   createdAt: Date
   /** Aggregate total amount spent with this supplier in system currency */
-  totalSpent: number
+  totalSpent?: number
+  expenseCount?: number
 }
 
 /**

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(npm audit:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(bun run test)",
+      "Bash(wc:*)",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Skill(lint)",
+      "Bash(npm run lint:*)",
+      "Bash(npx tsc:*)"
+    ]
+  },
+  "disabledMcpjsonServers": ["laravel-boost"]
+}

@@ -14,11 +14,11 @@ app/features/batches/
 
 **Layer Responsibilities:**
 
-| Layer | Responsibility | Example |
-|-------|---------------|---------|
-| **Server** | Auth middleware, input validation, orchestration | `createBatchFn` |
-| **Service** | Business logic, calculations, validations | `calculateFCR()`, `validateBatchData()` |
-| **Repository** | Database queries, CRUD operations | `insertBatch()`, `getBatchById()` |
+| Layer          | Responsibility                                   | Example                                 |
+| -------------- | ------------------------------------------------ | --------------------------------------- |
+| **Server**     | Auth middleware, input validation, orchestration | `createBatchFn`                         |
+| **Service**    | Business logic, calculations, validations        | `calculateFCR()`, `validateBatchData()` |
+| **Repository** | Database queries, CRUD operations                | `insertBatch()`, `getBatchById()`       |
 
 ## Server Functions
 
@@ -31,11 +31,11 @@ export const createBatchFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('./server-middleware')
     const session = await requireAuth()
-    
+
     // Use service for business logic
     const validationError = validateBatchData(data)
     if (validationError) throw new AppError('VALIDATION_ERROR')
-    
+
     // Use repository for database
     const { db } = await import('~/lib/db')
     return insertBatch(db, data)
@@ -51,7 +51,10 @@ Pure functions with no side effects - easy to test:
 
 ```typescript
 // service.ts - Pure business logic
-export function calculateFCR(totalFeedKg: number, totalWeightGain: number): number {
+export function calculateFCR(
+  totalFeedKg: number,
+  totalWeightGain: number,
+): number {
   if (totalWeightGain <= 0) return 0
   return Number((totalFeedKg / totalWeightGain).toFixed(2))
 }
@@ -69,7 +72,10 @@ Database operations only - no business logic:
 
 ```typescript
 // repository.ts - Database operations
-export async function insertBatch(db: Kysely<Database>, data: BatchInsert): Promise<string> {
+export async function insertBatch(
+  db: Kysely<Database>,
+  data: BatchInsert,
+): Promise<string> {
   const result = await db
     .insertInto('batches')
     .values(data)

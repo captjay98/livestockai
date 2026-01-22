@@ -2,6 +2,7 @@ import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { Check, ClipboardList, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TaskWithStatus } from '~/features/tasks/server'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -13,17 +14,16 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { cn } from '~/lib/utils'
 import {
-  getTasksFn,
   completeTaskFn,
+  getTasksFn,
   uncompleteTaskFn,
-  type TaskWithStatus,
 } from '~/features/tasks/server'
 import { useSettings } from '~/features/settings'
 
 export const Route = createFileRoute('/_auth/tasks/')({
   component: TasksPage,
   loader: async ({ context }) => {
-    const farmId = context.user?.settings?.defaultFarmId
+    const farmId = (context.user as any)?.settings?.defaultFarmId
     if (!farmId) return { tasks: [] }
     const tasks = await getTasksFn({ data: { farmId } })
     return { tasks }
@@ -35,13 +35,19 @@ function TasksPage() {
   const router = useRouter()
   const { tasks } = Route.useLoaderData()
   const { settings } = useSettings()
-  const farmId = settings?.defaultFarmId
+  const farmId = settings.defaultFarmId
 
   const [loading, setLoading] = useState<string | null>(null)
 
-  const dailyTasks = tasks.filter((t: TaskWithStatus) => t.frequency === 'daily')
-  const weeklyTasks = tasks.filter((t: TaskWithStatus) => t.frequency === 'weekly')
-  const monthlyTasks = tasks.filter((t: TaskWithStatus) => t.frequency === 'monthly')
+  const dailyTasks = tasks.filter(
+    (task: TaskWithStatus) => task.frequency === 'daily',
+  )
+  const weeklyTasks = tasks.filter(
+    (task: TaskWithStatus) => task.frequency === 'weekly',
+  )
+  const monthlyTasks = tasks.filter(
+    (task: TaskWithStatus) => task.frequency === 'monthly',
+  )
 
   const handleToggle = async (task: TaskWithStatus) => {
     if (!farmId) return
@@ -85,13 +91,25 @@ function TasksPage() {
       <Tabs defaultValue="daily" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="daily">
-            Daily ({dailyTasks.filter((t: TaskWithStatus) => t.completed).length}/{dailyTasks.length})
+            Daily (
+            {dailyTasks.filter((task: TaskWithStatus) => task.completed).length}
+            /{dailyTasks.length})
           </TabsTrigger>
           <TabsTrigger value="weekly">
-            Weekly ({weeklyTasks.filter((t: TaskWithStatus) => t.completed).length}/{weeklyTasks.length})
+            Weekly (
+            {
+              weeklyTasks.filter((task: TaskWithStatus) => task.completed)
+                .length
+            }
+            /{weeklyTasks.length})
           </TabsTrigger>
           <TabsTrigger value="monthly">
-            Monthly ({monthlyTasks.filter((t: TaskWithStatus) => t.completed).length}/{monthlyTasks.length})
+            Monthly (
+            {
+              monthlyTasks.filter((task: TaskWithStatus) => task.completed)
+                .length
+            }
+            /{monthlyTasks.length})
           </TabsTrigger>
         </TabsList>
 
@@ -133,7 +151,7 @@ function TaskList({
   loading,
 }: {
   title: string
-  tasks: TaskWithStatus[]
+  tasks: Array<TaskWithStatus>
   onToggle: (task: TaskWithStatus) => void
   loading: string | null
 }) {

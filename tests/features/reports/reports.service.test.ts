@@ -234,8 +234,7 @@ describe('Reports Service', () => {
           fc.integer({ min: 0, max: 15000 }),
           (initial, current) => {
             const mortality = initial - current
-            const expected =
-              initial > 0 ? (mortality / initial) * 100 : 0
+            const expected = initial > 0 ? (mortality / initial) * 100 : 0
             expect(calculateMortalityRate(initial, current)).toBeCloseTo(
               Math.round(expected * 10) / 10,
             )
@@ -328,15 +327,15 @@ describe('Reports Service', () => {
     })
 
     it('should reject invalid report type', () => {
-      expect(
-        validateUpdateData({ reportType: 'invalid' as any }),
-      ).toBe('Invalid report type')
+      expect(validateUpdateData({ reportType: 'invalid' as any })).toBe(
+        'Invalid report type',
+      )
     })
 
     it('should reject invalid date range type', () => {
-      expect(
-        validateUpdateData({ dateRangeType: 'invalid' as any }),
-      ).toBe('Invalid date range type')
+      expect(validateUpdateData({ dateRangeType: 'invalid' as any })).toBe(
+        'Invalid date range type',
+      )
     })
 
     it('should reject custom date range without both dates', () => {

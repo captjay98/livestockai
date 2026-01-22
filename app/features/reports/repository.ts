@@ -211,10 +211,12 @@ export async function getSalesByType(
     .select([
       'livestockType',
       (eb) =>
-        eb.fn.coalesce(
-          eb.fn.sum<number>(eb.cast(eb.ref('totalAmount'), 'decimal')),
-          0,
-        ).as('total'),
+        eb.fn
+          .coalesce(
+            eb.fn.sum<number>(eb.cast(eb.ref('totalAmount'), 'decimal')),
+            eb.val(0),
+          )
+          .as('total'),
     ])
     .where('date', '>=', dateRange.startDate)
     .where('date', '<=', dateRange.endDate)
@@ -246,7 +248,7 @@ export async function getExpensesByCategory(
       'category',
       (eb) =>
         eb.fn
-          .coalesce(eb.fn.sum<number>(eb.ref('amount')), 0)
+          .coalesce(eb.fn.sum<number>(eb.ref('amount')), eb.val(0))
           .as('total'),
     ])
     .where('date', '>=', dateRange.startDate)
@@ -283,7 +285,10 @@ export async function getBatchData(
       'batches.status',
       (eb) =>
         eb.fn
-          .coalesce(eb.fn.sum<number>(eb.ref('mortality_records.quantity')), 0)
+          .coalesce(
+            eb.fn.sum<number>(eb.ref('mortality_records.quantity')),
+            eb.val(0),
+          )
           .as('mortalityCount'),
     ])
     .groupBy([
@@ -316,7 +321,9 @@ export async function getLayerBirdCount(
   let query = db
     .selectFrom('batches')
     .select((eb) =>
-      eb.fn.coalesce(eb.fn.sum<number>(eb.ref('currentQuantity')), 0).as('total'),
+      eb.fn
+        .coalesce(eb.fn.sum<number>(eb.ref('currentQuantity')), eb.val(0))
+        .as('total'),
     )
     .where('species', 'ilike', '%layer%')
     .where('status', '=', 'active')
@@ -348,11 +355,12 @@ export async function getEggRecords(
     .select([
       'egg_records.date',
       (eb) =>
-        eb.fn.sum<number>(eb.ref('egg_records.quantityCollected')).as('collected'),
+        eb.fn
+          .sum<number>(eb.ref('egg_records.quantityCollected'))
+          .as('collected'),
       (eb) =>
         eb.fn.sum<number>(eb.ref('egg_records.quantityBroken')).as('broken'),
-      (eb) =>
-        eb.fn.sum<number>(eb.ref('egg_records.quantitySold')).as('sold'),
+      (eb) => eb.fn.sum<number>(eb.ref('egg_records.quantitySold')).as('sold'),
     ])
     .where('egg_records.date', '>=', dateRange.startDate)
     .where('egg_records.date', '<=', dateRange.endDate)

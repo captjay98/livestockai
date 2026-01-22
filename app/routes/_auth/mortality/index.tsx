@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { BatchAlert } from '~/features/monitoring/alerts'
+import type { BatchAlert } from '~/features/monitoring/server'
 import type {
   PaginatedResult,
   UpdateMortalityInput,
@@ -32,7 +32,7 @@ import {
   updateMortalityRecordFn,
 } from '~/features/mortality/server'
 import { useFormatDate } from '~/features/settings'
-import { getAllBatchAlerts } from '~/features/monitoring/alerts'
+import { getAllBatchAlerts } from '~/features/monitoring/server'
 import { getBatchesFn } from '~/features/batches/server'
 
 import { Button } from '~/components/ui/button'
@@ -152,7 +152,7 @@ const getMortalityDataForFarm = createServerFn({ method: 'GET' })
               // batchId: data.batchId, // batchId is not in the inputValidator for getMortalityDataForFarm
             },
           }),
-          getAllBatchAlerts(session.user.id, farmId),
+          getAllBatchAlerts({ data: { farmId } }),
           getMortalitySummary(session.user.id, farmId),
           getBatchesFn({ data: { farmId } }),
         ],

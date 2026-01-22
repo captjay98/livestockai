@@ -3,10 +3,7 @@
  * All functions are side-effect-free and easily unit testable.
  */
 
-import type {
-  CreateWeightSampleInput,
-  UpdateWeightSampleInput,
-} from './server'
+import type { CreateWeightSampleInput, UpdateWeightSampleInput } from './server'
 
 /**
  * Expected ADG targets by species (kg/day)
@@ -62,18 +59,18 @@ export function validateWeightRecord(
     return 'Average weight must be greater than 0'
   }
 
-  if (data.minWeightKg !== null && data.minWeightKg <= 0) {
+  if (data.minWeightKg != null && data.minWeightKg <= 0) {
     return 'Minimum weight must be greater than 0'
   }
 
-  if (data.maxWeightKg !== null && data.maxWeightKg <= 0) {
+  if (data.maxWeightKg != null && data.maxWeightKg <= 0) {
     return 'Maximum weight must be greater than 0'
   }
 
   // Validate min/max relationship
   if (
-    data.minWeightKg !== null &&
-    data.maxWeightKg !== null &&
+    data.minWeightKg != null &&
+    data.maxWeightKg != null &&
     data.minWeightKg > data.maxWeightKg
   ) {
     return 'Minimum weight cannot be greater than maximum weight'
@@ -239,17 +236,19 @@ export function calculateProjectedWeight(
  * // Returns: { averageWeight: 1.5, totalGain: 1.0, dailyGain: ~0.067, ... }
  * ```
  */
-export function buildWeightStats(records: Array<{
-  averageWeightKg: string
-  date: Date
-  sampleSize?: number
-}>): {
+export function buildWeightStats(
+  records: Array<{
+    averageWeightKg: string
+    date: Date
+    sampleSize?: number
+  }>,
+): {
   averageWeight: number
   totalGain: number
   dailyGain: number | null
   recordCount: number
-  latestRecord: typeof records[0] | null
-  firstRecord: typeof records[0] | null
+  latestRecord: (typeof records)[0] | null
+  firstRecord: (typeof records)[0] | null
   daysBetween: number | null
 } {
   if (records.length === 0) {
@@ -316,19 +315,19 @@ export function validateUpdateData(
   }
 
   // Validate min weight if provided
-  if (data.minWeightKg !== null && data.minWeightKg <= 0) {
+  if (data.minWeightKg != null && data.minWeightKg <= 0) {
     return 'Minimum weight must be greater than 0'
   }
 
   // Validate max weight if provided
-  if (data.maxWeightKg !== null && data.maxWeightKg <= 0) {
+  if (data.maxWeightKg != null && data.maxWeightKg <= 0) {
     return 'Maximum weight must be greater than 0'
   }
 
   // Validate min/max relationship if both provided
   if (
-    data.minWeightKg !== null &&
-    data.maxWeightKg !== null &&
+    data.minWeightKg != null &&
+    data.maxWeightKg != null &&
     data.minWeightKg > data.maxWeightKg
   ) {
     return 'Minimum weight cannot be greater than maximum weight'

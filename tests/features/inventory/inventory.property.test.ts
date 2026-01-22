@@ -5,13 +5,19 @@ import { FEED_TYPES } from '~/features/inventory/feed-server'
 describe('inventory/feed-server logic', () => {
   describe('FEED_TYPES', () => {
     it('should have all feed types', () => {
-      expect(FEED_TYPES.length).toBe(5)
+      expect(FEED_TYPES.length).toBe(11)
       const values = FEED_TYPES.map((t) => t.value)
       expect(values).toContain('starter')
       expect(values).toContain('grower')
       expect(values).toContain('finisher')
       expect(values).toContain('layer_mash')
       expect(values).toContain('fish_feed')
+      expect(values).toContain('cattle_feed')
+      expect(values).toContain('goat_feed')
+      expect(values).toContain('sheep_feed')
+      expect(values).toContain('hay')
+      expect(values).toContain('silage')
+      expect(values).toContain('bee_feed')
     })
 
     it('should have value and label for each type', () => {

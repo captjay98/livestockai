@@ -70,8 +70,7 @@ export interface WeightSampleFilters extends BasePaginatedQuery {
 /**
  * Paginated weight records result
  */
-export interface WeightPaginatedResult
-  extends PaginatedResult<Array<WeightSampleWithDetails>> {}
+export interface WeightPaginatedResult extends PaginatedResult<WeightSampleWithDetails> {}
 
 /**
  * Insert a new weight sample record
@@ -159,10 +158,7 @@ export async function deleteWeightSample(
   db: Kysely<Database>,
   recordId: string,
 ): Promise<void> {
-  await db
-    .deleteFrom('weight_samples')
-    .where('id', '=', recordId)
-    .execute()
+  await db.deleteFrom('weight_samples').where('id', '=', recordId).execute()
 }
 
 /**
@@ -308,8 +304,7 @@ export async function getWeightSamplesPaginated(
     const sortOrder = filters.sortOrder || 'desc'
     let sortCol = `weight_samples.${filters.sortBy}`
     if (filters.sortBy === 'species') sortCol = 'batches.species'
-    // @ts-ignore - Kysely dynamic column type limitation
-    dataQuery = dataQuery.orderBy(sortCol, sortOrder)
+    dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
   } else {
     dataQuery = dataQuery.orderBy('weight_samples.date', 'desc')
   }

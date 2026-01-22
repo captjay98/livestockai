@@ -1,3 +1,5 @@
+import { AppError } from '~/lib/errors'
+
 /**
  * Check if user has access to a specific farm
  */
@@ -88,7 +90,9 @@ export async function assignUserToFarm(
       .executeTakeFirst()
 
     if (!adminUser || adminUser.role !== 'admin') {
-      throw new Error('Only admins can assign users to farms')
+      throw new AppError('ACCESS_DENIED', {
+        message: 'Only admins can assign users to farms',
+      })
     }
 
     // Check if staff user exists
@@ -99,7 +103,10 @@ export async function assignUserToFarm(
       .executeTakeFirst()
 
     if (!staffUser) {
-      throw new Error('User not found')
+      throw new AppError('NOT_FOUND', {
+        message: 'User not found',
+        metadata: { userId: staffUserId },
+      })
     }
 
     // Insert assignment (update role if already exists)
@@ -140,7 +147,9 @@ export async function removeUserFromFarm(
       .executeTakeFirst()
 
     if (!adminUser || adminUser.role !== 'admin') {
-      throw new Error('Only admins can remove users from farms')
+      throw new AppError('ACCESS_DENIED', {
+        message: 'Only admins can remove users from farms',
+      })
     }
 
     // Remove assignment

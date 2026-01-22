@@ -3,6 +3,7 @@
  * All functions are pure data access - no business logic.
  */
 
+import { sql } from 'kysely'
 import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
@@ -305,7 +306,10 @@ export async function getLatestReadingsByFarms(
   const latestByBatch = new Map<string, WaterQualityReadingWithDetails>()
   for (const record of records) {
     if (!latestByBatch.has(record.batchId)) {
-      latestByBatch.set(record.batchId, record as WaterQualityReadingWithDetails)
+      latestByBatch.set(
+        record.batchId,
+        record as WaterQualityReadingWithDetails,
+      )
     }
   }
 
@@ -393,8 +397,7 @@ export async function getWaterQualityPaginated(
     const sortOrder = filters.sortOrder || 'desc'
     let sortCol = `water_quality.${filters.sortBy}`
     if (filters.sortBy === 'species') sortCol = 'batches.species'
-    // @ts-ignore - Kysely dynamic column type limitation
-    dataQuery = dataQuery.orderBy(sortCol, sortOrder)
+    dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
   } else {
     dataQuery = dataQuery.orderBy('water_quality.date', 'desc')
   }
@@ -486,12 +489,7 @@ export async function getWaterQualitySummary(
     const doVal = parseFloat(reading.dissolvedOxygenMgL)
     const ammonia = parseFloat(reading.ammoniaMgL)
 
-    if (
-      isNaN(ph) ||
-      isNaN(temp) ||
-      isNaN(doVal) ||
-      isNaN(ammonia)
-    ) {
+    if (isNaN(ph) || isNaN(temp) || isNaN(doVal) || isNaN(ammonia)) {
       continue
     }
 

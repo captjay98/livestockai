@@ -479,8 +479,7 @@ export async function getMortalityRecordsPaginated(
       if (query.sortBy === 'date') sortColumn = 'mortality_records.date'
       if (query.sortBy === 'cause') sortColumn = 'mortality_records.cause'
 
-      // @ts-ignore - Kysely dynamic column type limitation
-      dataQuery = dataQuery.orderBy(sortColumn, sortOrder)
+      dataQuery = dataQuery.orderBy(sql.raw(sortColumn), sortOrder)
     } else {
       dataQuery = dataQuery.orderBy('mortality_records.date', 'desc')
     }
@@ -541,8 +540,8 @@ export async function getMortalitySummary(userId: string, farmId?: string) {
     const totalDeaths = records.reduce((sum, r) => sum + r.quantity, 0)
 
     // Count alerts (this might be expensive if called frequently, but manageable)
-    const { getAllBatchAlerts } = await import('~/features/monitoring/alerts')
-    const alerts = await getAllBatchAlerts(userId, farmId)
+    const { getAllBatchAlerts } = await import('~/features/monitoring/server')
+    const alerts = await getAllBatchAlerts({ data: { farmId } })
     // Filter for ONLY mortality logic alerts to keep summary consistent?
     // Actually the UI just says "Critical Alerts", so using all is probably fine/better.
     const criticalAlerts = alerts.filter((a) => a.type === 'critical').length

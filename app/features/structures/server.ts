@@ -1,10 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 
 // Import service and repository functions
-import {
-  validateStructureData,
-  validateUpdateData,
-} from './service'
+import { validateStructureData, validateUpdateData } from './service'
 import {
   deleteStructure as deleteStructureDb,
   getStructureById as getStructureByIdDb,

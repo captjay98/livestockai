@@ -9,21 +9,21 @@
  * 5. Whitespace usage
  */
 
-import { en } from '../app/features/i18n/locales/en'
-import { fr } from '../app/features/i18n/locales/fr'
-import { pt } from '../app/features/i18n/locales/pt'
-import { sw } from '../app/features/i18n/locales/sw'
-import { es } from '../app/features/i18n/locales/es'
-import { tr } from '../app/features/i18n/locales/tr'
-import { hi } from '../app/features/i18n/locales/hi'
-import { ha } from '../app/features/i18n/locales/ha'
-import { yo } from '../app/features/i18n/locales/yo'
-import { ig } from '../app/features/i18n/locales/ig'
-import { id } from '../app/features/i18n/locales/id'
-import { bn } from '../app/features/i18n/locales/bn'
-import { th } from '../app/features/i18n/locales/th'
-import { vi } from '../app/features/i18n/locales/vi'
-import { am } from '../app/features/i18n/locales/am'
+import { en } from '../app/lib/i18n/locales/en'
+import { fr } from '../app/lib/i18n/locales/fr'
+import { pt } from '../app/lib/i18n/locales/pt'
+import { sw } from '../app/lib/i18n/locales/sw'
+import { es } from '../app/lib/i18n/locales/es'
+import { tr } from '../app/lib/i18n/locales/tr'
+import { hi } from '../app/lib/i18n/locales/hi'
+import { ha } from '../app/lib/i18n/locales/ha'
+import { yo } from '../app/lib/i18n/locales/yo'
+import { ig } from '../app/lib/i18n/locales/ig'
+import { id } from '../app/lib/i18n/locales/id'
+import { bn } from '../app/lib/i18n/locales/bn'
+import { th } from '../app/lib/i18n/locales/th'
+import { vi } from '../app/lib/i18n/locales/vi'
+import { am } from '../app/lib/i18n/locales/am'
 
 const locales = { fr, pt, sw, es, tr, hi, ha, yo, ig, id, bn, th, vi, am }
 

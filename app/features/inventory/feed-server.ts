@@ -4,7 +4,6 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 import {
   FEED_TYPES,
   quantityToDbString,
@@ -24,61 +23,37 @@ import type {
   CreateFeedInventoryInput,
   UpdateFeedInventoryInput,
 } from './service'
-import { checkFarmAccess, getUserFarms, verifyFarmAccess } from '~/features/auth/utils'
+import type { FeedInventoryUpdate } from './repository'
+import {
+  checkFarmAccess,
+  getUserFarms,
+  verifyFarmAccess,
+} from '~/features/auth/utils'
 import { AppError } from '~/lib/errors'
 
 export { FEED_TYPES }
 export type { CreateFeedInventoryInput, UpdateFeedInventoryInput }
 
-// ============================================================================
-// Query Validators
-// ============================================================================
+type FeedQueryInput = { farmId?: string }
+type FeedCreateInput = {
+  input: {
+    farmId: string
+    feedType: string
+    quantityKg: number
+    minThresholdKg: number
+  }
+}
+type FeedUpdateInput = {
+  id: string
+  input: {
+    feedType?: string
+    quantityKg?: number
+    minThresholdKg?: number
+  }
+}
+type FeedDeleteInput = { id: string }
+type FeedStockInput = { farmId: string; feedType: string; quantityKg: number }
 
-const FeedQuerySchema = z.object({
-  farmId: z.string().uuid().optional(),
-})
-
-const FeedCreateSchema = z.object({
-  input: z.object({
-    farmId: z.string().uuid(),
-    feedType: z.string(),
-    quantityKg: z.number().min(0),
-    minThresholdKg: z.number().min(0),
-  }),
-})
-
-const FeedUpdateSchema = z.object({
-  id: z.string().uuid(),
-  input: z.object({
-    feedType: z.string().optional(),
-    quantityKg: z.number().min(0).optional(),
-    minThresholdKg: z.number().min(0).optional(),
-  }),
-})
-
-const FeedDeleteSchema = z.object({
-  id: z.string().uuid(),
-})
-
-const AddFeedStockSchema = z.object({
-  farmId: z.string().uuid(),
-  feedType: z.string(),
-  quantityKg: z.number().positive(),
-})
-
-const ReduceFeedStockSchema = z.object({
-  farmId: z.string().uuid(),
-  feedType: z.string(),
-  quantityKg: z.number().positive(),
-})
-
-// ============================================================================
-// Query Functions
-// ============================================================================
-
-/**
- * Get feed inventory for a user - optionally filtered by farm
- */
 export async function getFeedInventory(userId: string, farmId?: string) {
   let targetFarmIds: Array<string> = []
 
@@ -98,17 +73,17 @@ export async function getFeedInventory(userId: string, farmId?: string) {
 }
 
 export const getFeedInventoryFn = createServerFn({ method: 'GET' })
-  .validator(FeedQuerySchema)
+  .inputValidator((data: FeedQueryInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     return getFeedInventory(session.user.id, data.farmId)
   })
 
-/**
- * Get low stock feed items
- */
-export async function getLowStockFeedInventory(userId: string, farmId?: string) {
+export async function getLowStockFeedInventory(
+  userId: string,
+  farmId?: string,
+) {
   let targetFarmIds: Array<string> = []
 
   if (farmId) {
@@ -127,25 +102,17 @@ export async function getLowStockFeedInventory(userId: string, farmId?: string) 
 }
 
 export const getLowStockFeedFn = createServerFn({ method: 'GET' })
-  .validator(FeedQuerySchema)
+  .inputValidator((data: FeedQueryInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     return getLowStockFeedInventory(session.user.id, data.farmId)
   })
 
-// ============================================================================
-// Mutation Functions
-// ============================================================================
-
-/**
- * Create a new feed inventory record
- */
 export async function createFeedInventory(
   userId: string,
   input: CreateFeedInventoryInput,
 ): Promise<string> {
-  // Validate input
   const validationError = validateFeedData(input)
   if (validationError) {
     throw new AppError('VALIDATION_ERROR', {
@@ -154,13 +121,15 @@ export async function createFeedInventory(
     })
   }
 
-  // Verify farm access
   await verifyFarmAccess(userId, input.farmId)
 
   const { db } = await import('~/lib/db')
 
-  // Check if record already exists for this farm + feedType
-  const existing = await getFeedInventoryByFarmAndType(db, input.farmId, input.feedType)
+  const existing = await getFeedInventoryByFarmAndType(
+    db,
+    input.farmId,
+    input.feedType,
+  )
   if (existing) {
     throw new AppError('VALIDATION_ERROR', {
       message: `Feed inventory for ${input.feedType} already exists`,
@@ -168,7 +137,6 @@ export async function createFeedInventory(
     })
   }
 
-  // Insert the record
   const id = await insertFeedInventory(db, {
     farmId: input.farmId,
     feedType: input.feedType,
@@ -180,22 +148,21 @@ export async function createFeedInventory(
 }
 
 export const createFeedInventoryFn = createServerFn({ method: 'POST' })
-  .validator(FeedCreateSchema)
+  .inputValidator((data: FeedCreateInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return createFeedInventory(session.user.id, data.input)
+    return createFeedInventory(
+      session.user.id,
+      data.input as CreateFeedInventoryInput,
+    )
   })
 
-/**
- * Update a feed inventory record
- */
 export async function updateFeedInventoryRecord(
   userId: string,
   id: string,
   input: UpdateFeedInventoryInput,
 ) {
-  // Validate input
   const validationError = validateFeedUpdateData(input)
   if (validationError) {
     throw new AppError('VALIDATION_ERROR', {
@@ -220,15 +187,14 @@ export async function updateFeedInventoryRecord(
     })
   }
 
-  const updateData: {
-    feedType?: string
-    quantityKg?: string
-    minThresholdKg?: string
-  } = {}
+  const updateData: FeedInventoryUpdate = {}
 
-  if (input.feedType !== undefined) updateData.feedType = input.feedType
-  if (input.quantityKg !== undefined) updateData.quantityKg = quantityToDbString(input.quantityKg)
-  if (input.minThresholdKg !== undefined) updateData.minThresholdKg = quantityToDbString(input.minThresholdKg)
+  if (input.feedType !== undefined)
+    updateData.feedType = input.feedType as FeedInventoryUpdate['feedType']
+  if (input.quantityKg !== undefined)
+    updateData.quantityKg = quantityToDbString(input.quantityKg)
+  if (input.minThresholdKg !== undefined)
+    updateData.minThresholdKg = quantityToDbString(input.minThresholdKg)
 
   await updateFeedInventory(db, id, updateData)
 
@@ -236,16 +202,17 @@ export async function updateFeedInventoryRecord(
 }
 
 export const updateFeedInventoryFn = createServerFn({ method: 'POST' })
-  .validator(FeedUpdateSchema)
+  .inputValidator((data: FeedUpdateInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return updateFeedInventoryRecord(session.user.id, data.id, data.input)
+    return updateFeedInventoryRecord(
+      session.user.id,
+      data.id,
+      data.input as UpdateFeedInventoryInput,
+    )
   })
 
-/**
- * Delete a feed inventory record
- */
 export async function deleteFeedInventoryRecord(userId: string, id: string) {
   const { db } = await import('~/lib/db')
   const farmIds = await getUserFarms(userId)
@@ -269,16 +236,13 @@ export async function deleteFeedInventoryRecord(userId: string, id: string) {
 }
 
 export const deleteFeedInventoryFn = createServerFn({ method: 'POST' })
-  .validator(FeedDeleteSchema)
+  .inputValidator((data: FeedDeleteInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     return deleteFeedInventoryRecord(session.user.id, data.id)
   })
 
-/**
- * Add stock to feed inventory (used when recording feed expenses)
- */
 export async function addFeedStock(
   userId: string,
   farmId: string,
@@ -296,7 +260,11 @@ export async function addFeedStock(
 
   const { db } = await import('~/lib/db')
 
-  const existing = await getFeedInventoryByFarmAndType(db, farmId, feedType as any)
+  const existing = await getFeedInventoryByFarmAndType(
+    db,
+    farmId,
+    feedType as NonNullable<FeedInventoryUpdate['feedType']>,
+  )
 
   if (existing) {
     const currentQty = parseFloat(existing.quantityKg) || 0
@@ -307,7 +275,7 @@ export async function addFeedStock(
   } else {
     await insertFeedInventory(db, {
       farmId,
-      feedType: feedType as any,
+      feedType: feedType as CreateFeedInventoryInput['feedType'],
       quantityKg: quantityKg.toFixed(2),
       minThresholdKg: '10.00',
     })
@@ -317,16 +285,18 @@ export async function addFeedStock(
 }
 
 export const addFeedStockFn = createServerFn({ method: 'POST' })
-  .validator(AddFeedStockSchema)
+  .inputValidator((data: FeedStockInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return addFeedStock(session.user.id, data.farmId, data.feedType, data.quantityKg)
+    return addFeedStock(
+      session.user.id,
+      data.farmId,
+      data.feedType,
+      data.quantityKg,
+    )
   })
 
-/**
- * Reduce feed stock (used when recording feed given to batches)
- */
 export async function reduceFeedStock(
   userId: string,
   farmId: string,
@@ -344,7 +314,11 @@ export async function reduceFeedStock(
 
   const { db } = await import('~/lib/db')
 
-  const existing = await getFeedInventoryByFarmAndType(db, farmId, feedType as any)
+  const existing = await getFeedInventoryByFarmAndType(
+    db,
+    farmId,
+    feedType as NonNullable<FeedInventoryUpdate['feedType']>,
+  )
 
   if (!existing) {
     throw new AppError('FEED_INVENTORY_NOT_FOUND', {
@@ -370,9 +344,14 @@ export async function reduceFeedStock(
 }
 
 export const reduceFeedStockFn = createServerFn({ method: 'POST' })
-  .validator(ReduceFeedStockSchema)
+  .inputValidator((data: FeedStockInput) => data)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return reduceFeedStock(session.user.id, data.farmId, data.feedType, data.quantityKg)
+    return reduceFeedStock(
+      session.user.id,
+      data.farmId,
+      data.feedType,
+      data.quantityKg,
+    )
   })

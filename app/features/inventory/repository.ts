@@ -20,7 +20,7 @@ export interface FeedInventoryRecord {
   quantityKg: string
   minThresholdKg: string
   updatedAt: Date
-  farmName?: string
+  farmName?: string | null
 }
 
 /**
@@ -65,7 +65,7 @@ export interface MedicationInventoryRecord {
   expiryDate: Date | null
   minThreshold: number
   updatedAt: Date
-  farmName?: string
+  farmName?: string | null
 }
 
 /**
@@ -269,11 +269,7 @@ export async function getLowStockFeed(
     ])
     .where('feed_inventory.farmId', 'in', farmIds)
     .where((eb) =>
-      eb(
-        'feed_inventory.quantityKg',
-        '<=',
-        'feed_inventory."minThresholdKg"',
-      ),
+      eb('feed_inventory.quantityKg', '<=', 'feed_inventory."minThresholdKg"'),
     )
     .orderBy('feed_inventory.feedType', 'asc')
     .execute()
@@ -462,6 +458,8 @@ export async function getLowStockMedications(
       'medication_inventory.quantity',
       'medication_inventory.unit',
       'medication_inventory.minThreshold',
+      'medication_inventory.expiryDate',
+      'medication_inventory.updatedAt',
       'farms.name as farmName',
     ])
     .where('medication_inventory.farmId', 'in', farmIds)
@@ -469,7 +467,7 @@ export async function getLowStockMedications(
       eb(
         'medication_inventory.quantity',
         '<=',
-        'medication_inventory."minThreshold"',
+        eb.ref('medication_inventory.minThreshold'),
       ),
     )
     .orderBy('medication_inventory.medicationName', 'asc')

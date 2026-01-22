@@ -24,9 +24,7 @@ export type ValidSupplierType = (typeof VALID_SUPPLIER_TYPES)[number]
  * Validate supplier input data
  * Returns validation error message or null if valid
  */
-export function validateSupplierData(
-  data: CreateSupplierInput,
-): string | null {
+export function validateSupplierData(data: CreateSupplierInput): string | null {
   if (!data.name || data.name.trim() === '') {
     return 'Supplier name is required'
   }
@@ -63,10 +61,7 @@ export function validateSupplierData(
     return 'Products must be non-empty strings'
   }
 
-  if (
-    data.supplierType &&
-    !VALID_SUPPLIER_TYPES.includes(data.supplierType)
-  ) {
+  if (data.supplierType && !VALID_SUPPLIER_TYPES.includes(data.supplierType)) {
     return `Invalid supplier type. Must be one of: ${VALID_SUPPLIER_TYPES.join(', ')}`
   }
 

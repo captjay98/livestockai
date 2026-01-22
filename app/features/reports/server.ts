@@ -186,7 +186,11 @@ export const getProfitLossReport = createServerFn({ method: 'GET' })
 
     const dateRange =
       data.dateRangeType === 'custom' && data.startDate && data.endDate
-        ? calculateDateRange('custom', new Date(data.startDate), new Date(data.endDate))
+        ? calculateDateRange(
+            'custom',
+            new Date(data.startDate),
+            new Date(data.endDate),
+          )
         : calculateDateRange(data.dateRangeType)
 
     try {
@@ -315,7 +319,11 @@ export const getSalesReport = createServerFn({ method: 'GET' })
 
     const dateRange =
       data.dateRangeType === 'custom' && data.startDate && data.endDate
-        ? calculateDateRange('custom', new Date(data.startDate), new Date(data.endDate))
+        ? calculateDateRange(
+            'custom',
+            new Date(data.startDate),
+            new Date(data.endDate),
+          )
         : calculateDateRange(data.dateRangeType)
 
     try {
@@ -350,10 +358,10 @@ export const getSalesReport = createServerFn({ method: 'GET' })
         summary: {
           totalSales: salesData.length,
           totalRevenue: salesData.reduce((sum, s) => sum + s.totalAmount, 0),
-          byType: Array.from(byTypeMap.entries()).map(([feedType, feedData]) => ({
+          byType: Array.from(byTypeMap.entries()).map(([type, typeData]) => ({
             type,
-            quantity: d.quantity,
-            revenue: d.revenue,
+            quantity: typeData.quantity,
+            revenue: typeData.revenue,
           })),
         },
       }
@@ -382,7 +390,11 @@ export const getFeedReport = createServerFn({ method: 'GET' })
 
     const dateRange =
       data.dateRangeType === 'custom' && data.startDate && data.endDate
-        ? calculateDateRange('custom', new Date(data.startDate), new Date(data.endDate))
+        ? calculateDateRange(
+            'custom',
+            new Date(data.startDate),
+            new Date(data.endDate),
+          )
         : calculateDateRange(data.dateRangeType)
 
     try {
@@ -397,7 +409,10 @@ export const getFeedReport = createServerFn({ method: 'GET' })
       }))
 
       // Summary by feed type
-      const byFeedTypeMap = new Map<string, { quantityKg: number; cost: number }>()
+      const byFeedTypeMap = new Map<
+        string,
+        { quantityKg: number; cost: number }
+      >()
       for (const record of recordsData) {
         const existing = byFeedTypeMap.get(record.feedType) || {
           quantityKg: 0,
@@ -413,13 +428,18 @@ export const getFeedReport = createServerFn({ method: 'GET' })
         period: dateRange,
         records: recordsData,
         summary: {
-          totalFeedKg: recordsData.reduce((sum, r) => sum + r.totalQuantityKg, 0),
+          totalFeedKg: recordsData.reduce(
+            (sum, r) => sum + r.totalQuantityKg,
+            0,
+          ),
           totalCost: recordsData.reduce((sum, r) => sum + r.totalCost, 0),
-          byFeedType: Array.from(byFeedTypeMap.entries()).map(([feedType, feedData]) => ({
-            type,
-            quantityKg: feedData.quantityKg,
-            cost: feedData.cost,
-          })),
+          byFeedType: Array.from(byFeedTypeMap.entries()).map(
+            ([feedType, feedData]) => ({
+              type: feedType,
+              quantityKg: feedData.quantityKg,
+              cost: feedData.cost,
+            }),
+          ),
         },
       }
     } catch (error) {
@@ -447,7 +467,11 @@ export const getEggReport = createServerFn({ method: 'GET' })
 
     const dateRange =
       data.dateRangeType === 'custom' && data.startDate && data.endDate
-        ? calculateDateRange('custom', new Date(data.startDate), new Date(data.endDate))
+        ? calculateDateRange(
+            'custom',
+            new Date(data.startDate),
+            new Date(data.endDate),
+          )
         : calculateDateRange(data.dateRangeType)
 
     try {
@@ -475,10 +499,7 @@ export const getEggReport = createServerFn({ method: 'GET' })
         (sum, r) => sum + r.broken,
         0,
       )
-      const totalSold = recordsWithInventory.reduce(
-        (sum, r) => sum + r.sold,
-        0,
-      )
+      const totalSold = recordsWithInventory.reduce((sum, r) => sum + r.sold, 0)
 
       const layerBirds = await getLayerBirdCount(db, data.farmId)
       const days = recordsWithInventory.length || 1

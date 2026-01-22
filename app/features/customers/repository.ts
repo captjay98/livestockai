@@ -5,8 +5,20 @@
 
 import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
-import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
-import type { CreateCustomerInput, CustomerQuery, CustomerRecord } from './server'
+import type { CreateCustomerInput, CustomerQuery } from './server'
+
+/** Raw customer record from database */
+export interface CustomerDbRecord {
+  id: string
+  farmId: string
+  name: string
+  phone: string
+  email: string | null
+  location: string | null
+  customerType: string | null
+  createdAt: Date
+  updatedAt: Date
+}
 
 /**
  * Insert a new customer record
@@ -36,7 +48,7 @@ export async function insertCustomer(
  */
 export async function selectAllCustomers(
   db: Kysely<Database>,
-): Promise<Array<CustomerRecord>> {
+): Promise<Array<CustomerDbRecord>> {
   return await db
     .selectFrom('customers')
     .selectAll()
@@ -50,7 +62,7 @@ export async function selectAllCustomers(
 export async function selectCustomerById(
   db: Kysely<Database>,
   customerId: string,
-): Promise<CustomerRecord | undefined> {
+): Promise<CustomerDbRecord | undefined> {
   return await db
     .selectFrom('customers')
     .selectAll()
@@ -92,7 +104,7 @@ export async function deleteCustomer(
 export async function selectCustomersPaginated(
   db: Kysely<Database>,
   query: CustomerQuery,
-): Promise<PaginatedResult<CustomerRecord>> {
+) {
   const { sql } = await import('kysely')
   const page = query.page || 1
   const pageSize = query.pageSize || 10
@@ -195,14 +207,7 @@ export async function selectCustomersPaginated(
 export async function selectCustomerSales(
   db: Kysely<Database>,
   customerId: string,
-): Promise<Array<{
-  id: string
-  livestockType: string
-  quantity: number
-  unitPrice: number
-  totalAmount: string
-  date: Date
-}>> {
+) {
   return await db
     .selectFrom('sales')
     .select([
@@ -224,14 +229,16 @@ export async function selectCustomerSales(
 export async function selectTopCustomers(
   db: Kysely<Database>,
   limit: number = 10,
-): Promise<Array<{
-  id: string
-  name: string
-  phone: string
-  location: string | null
-  salesCount: number
-  totalSpent: number
-}>> {
+): Promise<
+  Array<{
+    id: string
+    name: string
+    phone: string
+    location: string | null
+    salesCount: number
+    totalSpent: number
+  }>
+> {
   const customers = await db
     .selectFrom('customers')
     .leftJoin('sales', 'sales.customerId', 'customers.id')

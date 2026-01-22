@@ -44,8 +44,8 @@ interface WeightSample {
   date: Date
   sampleSize: number
   averageWeightKg: string
-  species: string
-  livestockType: string
+  batchSpecies?: string
+  livestockType?: string
   farmName?: string
 }
 
@@ -266,10 +266,10 @@ function WeightPage() {
         cell: ({ row }) => formatDate(row.original.date),
       },
       {
-        accessorKey: 'species',
+        accessorKey: 'batchSpecies',
         header: t('batches:batch', { defaultValue: 'Batch' }),
         cell: ({ row }) => (
-          <span className="font-medium">{row.original.species}</span>
+          <span className="font-medium">{row.original.batchSpecies}</span>
         ),
       },
       {
@@ -598,7 +598,7 @@ function WeightPage() {
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>{t('batches:batch', { defaultValue: 'Batch' })}</Label>
-              <Input value={selectedRecord?.species || ''} disabled />
+              <Input value={selectedRecord?.batchSpecies || ''} disabled />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
