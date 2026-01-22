@@ -7,6 +7,15 @@ export type { PaginatedResult }
 // Re-export constants for backward compatibility
 export { EXPENSE_CATEGORIES, type ExpenseCategory } from './constants'
 
+// Re-export types for backward compatibility
+export type {
+  ExpenseInsert,
+  ExpenseUpdate,
+  ExpenseFilters,
+  ExpenseWithJoins,
+  FeedInventory,
+} from './repository'
+
 /**
  * Data structure for recording a new financial expense.
  * Supports linking to specific batches, suppliers, and feed inventory.
@@ -47,6 +56,26 @@ export interface CreateExpenseInput {
 }
 
 /**
+ * Data structure for updating an existing expense.
+ */
+export interface UpdateExpenseInput {
+  /** Updated category */
+  category?: string
+  /** Updated amount */
+  amount?: number
+  /** Updated date */
+  date?: Date
+  /** Updated description */
+  description?: string
+  /** Updated batch association */
+  batchId?: string | null
+  /** Updated supplier association */
+  supplierId?: string | null
+  /** Updated recurring flag */
+  isRecurring?: boolean
+}
+
+/**
  * Record a new expense in a transaction.
  * If the expense is for livestock feed and includes quantity, the feed inventory is automatically updated.
  *
@@ -62,78 +91,81 @@ export async function createExpense(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
+  // Import service functions for business logic
+  const {
+    validateExpenseData,
+    calculateNewFeedInventory,
+    shouldUpdateFeedInventory,
+  } = await import('./service')
+
+  // Import repository functions for database operations
+  const {
+    insertExpense,
+    getFeedInventory,
+    updateFeedInventory,
+    insertFeedInventory,
+  } = await import('./repository')
+
   try {
     await verifyFarmAccess(userId, input.farmId)
 
+    // Business logic: validate expense data
+    const validationError = validateExpenseData(input)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
+      })
+    }
+
     const result = await db.transaction().execute(async (tx) => {
       // 1. Record the expense
-      const expense = await tx
-        .insertInto('expenses')
-        .values({
-          farmId: input.farmId,
-          batchId: input.batchId || null,
-          category: input.category,
-          amount: input.amount.toString(),
-          date: input.date,
-          description: input.description,
-          supplierId: input.supplierId || null,
-          isRecurring: input.isRecurring || false,
-        })
-        .returning('id')
-        .executeTakeFirstOrThrow()
+      const expenseId = await insertExpense(tx, {
+        farmId: input.farmId,
+        batchId: input.batchId || null,
+        category: input.category,
+        amount: input.amount.toString(),
+        date: input.date,
+        description: input.description,
+        supplierId: input.supplierId || null,
+        isRecurring: input.isRecurring || false,
+      })
 
       // 2. If it's a feed expense with quantity, update inventory
-      if (input.category === 'feed' && input.feedType && input.feedQuantityKg) {
-        // Check if inventory record exists
-        const existing = await tx
-          .selectFrom('feed_inventory')
-          .select(['id', 'quantityKg'])
-          .where('farmId', '=', input.farmId)
-          .where('feedType', '=', input.feedType)
-          .executeTakeFirst()
+      if (
+        shouldUpdateFeedInventory(
+          input.category,
+          input.feedType,
+          input.feedQuantityKg,
+        )
+      ) {
+        const existing = await getFeedInventory(
+          tx,
+          input.farmId,
+          input.feedType!,
+        )
 
         if (existing) {
-          // Update existing stock
-          const newQuantity = (
-            parseFloat(existing.quantityKg) + input.feedQuantityKg
-          ).toString()
-          await tx
-            .updateTable('feed_inventory')
-            .set({
-              quantityKg: newQuantity,
-              updatedAt: new Date(),
-            })
-            .where('id', '=', existing.id)
-            .execute()
+          // Business logic: calculate new quantity
+          const newQuantity = calculateNewFeedInventory(
+            existing.quantityKg,
+            input.feedQuantityKg!,
+          )
+          await updateFeedInventory(tx, existing.id, newQuantity.toString())
         } else {
           // Create new inventory record
-          await tx
-            .insertInto('feed_inventory')
-            .values({
-              farmId: input.farmId,
-              feedType: input.feedType,
-              quantityKg: input.feedQuantityKg.toString(),
-              minThresholdKg: '10.00', // Default threshold
-              updatedAt: new Date(),
-            })
-            .execute()
+          await insertFeedInventory(tx, {
+            farmId: input.farmId,
+            feedType: input.feedType!,
+            quantityKg: input.feedQuantityKg!,
+            minThresholdKg: '10.00', // Default threshold
+          })
         }
       }
 
-      return expense
+      return expenseId
     })
 
-    // Log audit
-    const { logAudit } = await import('~/features/logging/audit')
-    await logAudit({
-      userId,
-      action: 'create',
-      entityType: 'expense',
-      entityId: result.id,
-      details: input,
-    })
-
-    return result.id
+    return result
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -155,9 +187,6 @@ export const createExpenseFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Delete an expense record
- */
-/**
  * Permanently remove an expense record.
  *
  * @param userId - ID of the user requesting deletion
@@ -167,40 +196,30 @@ export const createExpenseFn = createServerFn({ method: 'POST' })
 export async function deleteExpense(userId: string, expenseId: string) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
+  const { deleteExpense: deleteExpenseRecord, getExpenseFarmId } =
+    await import('./repository')
 
   try {
-    // getUserFarms returns string[] of accessible farm IDs
     const userFarms = await getUserFarms(userId)
     const farmIds = userFarms
 
-    const expense = await db
-      .selectFrom('expenses')
-      .select(['id', 'farmId'])
-      .where('id', '=', expenseId)
-      .executeTakeFirst()
+    const expenseFarmId = await getExpenseFarmId(db, expenseId)
 
-    if (!expense) {
+    if (!expenseFarmId) {
       throw new AppError('EXPENSE_NOT_FOUND', {
         metadata: { resource: 'Expense', id: expenseId },
       })
     }
 
-    if (!farmIds.includes(expense.farmId)) {
+    if (!farmIds.includes(expenseFarmId)) {
       throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: expense.farmId },
+        metadata: { farmId: expenseFarmId },
       })
     }
 
-    await db.deleteFrom('expenses').where('id', '=', expenseId).execute()
+    await deleteExpenseRecord(db, expenseId)
 
-    const { logAudit } = await import('~/features/logging/audit')
-    await logAudit({
-      userId,
-      action: 'delete',
-      entityType: 'expense',
-      entityId: expenseId,
-      details: { message: 'Expense deleted', snapshot: expense },
-    })
+    return true
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -222,26 +241,6 @@ export const deleteExpenseFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Data structure for updating an existing expense.
- */
-export interface UpdateExpenseInput {
-  /** Updated category */
-  category?: string
-  /** Updated amount */
-  amount?: number
-  /** Updated date */
-  date?: Date
-  /** Updated description */
-  description?: string
-  /** Updated batch association */
-  batchId?: string | null
-  /** Updated supplier association */
-  supplierId?: string | null
-  /** Updated recurring flag */
-  isRecurring?: boolean
-}
-
-/**
  * Update an existing expense record.
  *
  * @param userId - ID of the user performing the update
@@ -257,28 +256,36 @@ export async function updateExpense(
 ) {
   const { db } = await import('~/lib/db')
   const { getUserFarms } = await import('~/features/auth/utils')
+  const { validateUpdateData } = await import('./service')
+  const { updateExpense: updateExpenseRecord, getExpenseFarmId } =
+    await import('./repository')
 
   try {
     const farmIds = await getUserFarms(userId)
+    const expenseFarmId = await getExpenseFarmId(db, expenseId)
 
-    const expense = await db
-      .selectFrom('expenses')
-      .select(['id', 'farmId'])
-      .where('id', '=', expenseId)
-      .executeTakeFirst()
-
-    if (!expense)
+    if (!expenseFarmId) {
       throw new AppError('EXPENSE_NOT_FOUND', {
         metadata: { resource: 'Expense', id: expenseId },
       })
-    if (!farmIds.includes(expense.farmId))
+    }
+
+    if (!farmIds.includes(expenseFarmId)) {
       throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: expense.farmId },
+        metadata: { farmId: expenseFarmId },
       })
+    }
+
+    // Business logic: validate update data
+    const validationError = validateUpdateData(data)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', {
+        metadata: { error: validationError },
+      })
+    }
 
     // We are not handling complex feed inventory restoration on update for now
     // Assumes simple field updates.
-
     const updateData: Record<string, unknown> = {}
     if (data.category !== undefined) updateData.category = data.category
     if (data.amount !== undefined) updateData.amount = data.amount.toString()
@@ -290,20 +297,7 @@ export async function updateExpense(
     if (data.isRecurring !== undefined)
       updateData.isRecurring = data.isRecurring
 
-    await db
-      .updateTable('expenses')
-      .set(updateData)
-      .where('id', '=', expenseId)
-      .execute()
-
-    const { logAudit } = await import('~/features/logging/audit')
-    await logAudit({
-      userId,
-      action: 'update',
-      entityType: 'expense',
-      entityId: expenseId,
-      details: data,
-    })
+    await updateExpenseRecord(db, expenseId, updateData)
 
     return true
   } catch (error) {
@@ -329,14 +323,11 @@ export const updateExpenseFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Get expenses for a user - optionally filtered by farm (All Farms Support)
- */
-/**
  * Retrieve a list of expenses for a user.
  * Supports filtering by a single farm or retrieving all expenses across all accessible farms.
  *
  * @param userId - ID of the user requesting data
- * @param farmId - Optional farm filter (returns allaccessible if omitted)
+ * @param farmId - Optional farm filter (returns all accessible if omitted)
  * @param options - Additional filters (date range, category)
  * @returns Promise resolving to an array of expense records with joined entity names
  * @throws {Error} If user does not have access to the specified farm
@@ -350,9 +341,9 @@ export async function getExpenses(
     category?: string
   },
 ) {
-  const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
+  const { getExpensesByFarm } = await import('./repository')
 
   try {
     let targetFarmIds: Array<string> = []
@@ -367,37 +358,18 @@ export async function getExpenses(
       if (targetFarmIds.length === 0) return []
     }
 
-    let query = db
-      .selectFrom('expenses')
-      .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-      .leftJoin('batches', 'batches.id', 'expenses.batchId')
-      .leftJoin('farms', 'farms.id', 'expenses.farmId')
-      .select([
-        'expenses.id',
-        'expenses.farmId',
-        'expenses.category',
-        'expenses.amount',
-        'expenses.date',
-        'expenses.description',
-        'expenses.supplierId',
-        'expenses.batchId',
-        'expenses.isRecurring',
-        'expenses.createdAt',
-        'suppliers.name as supplierName',
-        'batches.species as batchSpecies',
-        'batches.livestockType as batchType',
-        'farms.name as farmName',
-      ])
-      .where('expenses.farmId', 'in', targetFarmIds)
-
-    if (options?.startDate) {
-      query = query.where('expenses.date', '>=', options.startDate)
-    }
-    if (options?.category) {
-      query = query.where('expenses.category', '=', options.category as any)
-    }
-
-    return await query.orderBy('expenses.date', 'desc').execute()
+    const { db } = await import('~/lib/db')
+    return await getExpensesByFarm(
+      db,
+      targetFarmIds,
+      options
+        ? {
+            startDate: options.startDate,
+            endDate: options.endDate,
+            category: options.category,
+          }
+        : undefined,
+    )
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -426,48 +398,25 @@ export async function getExpensesForFarm(
     limit?: number
   },
 ) {
-  const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { getExpensesByFarm } = await import('./repository')
 
   try {
     await verifyFarmAccess(userId, farmId)
 
-    let query = db
-      .selectFrom('expenses')
-      .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-      .leftJoin('batches', 'batches.id', 'expenses.batchId')
-      .select([
-        'expenses.id',
-        'expenses.farmId',
-        'expenses.batchId',
-        'expenses.category',
-        'expenses.amount',
-        'expenses.date',
-        'expenses.description',
-        'expenses.supplierId',
-        'expenses.isRecurring',
-        'expenses.createdAt',
-        'suppliers.name as supplierName',
-        'batches.species as batchSpecies',
-        'batches.livestockType as batchType',
-      ])
-      .where('expenses.farmId', '=', farmId)
+    const { db } = await import('~/lib/db')
+    const expenses = await getExpensesByFarm(db, [farmId], {
+      startDate: options?.startDate,
+      endDate: options?.endDate,
+      category: options?.category,
+    })
 
-    if (options?.startDate) {
-      query = query.where('expenses.date', '>=', options.startDate)
-    }
-    if (options?.endDate) {
-      query = query.where('expenses.date', '<=', options.endDate)
-    }
-    if (options?.category) {
-      query = query.where('expenses.category', '=', options.category as any)
-    }
-
+    // Apply limit if provided
     if (options?.limit) {
-      query = query.limit(options.limit)
+      return expenses.slice(0, options.limit)
     }
 
-    return await query.orderBy('expenses.date', 'desc').execute()
+    return expenses
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -494,9 +443,11 @@ export async function getExpensesSummary(
     endDate?: Date
   },
 ) {
-  const { db } = await import('~/lib/db')
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
+  const { getExpensesSummary: getExpensesSummaryFromDb } =
+    await import('./repository')
+  const { buildExpensesSummary } = await import('./service')
 
   try {
     let targetFarmIds: Array<string> = []
@@ -516,41 +467,14 @@ export async function getExpensesSummary(
       }
     }
 
-    let query = db
-      .selectFrom('expenses')
-      .select([
-        'category',
-        db.fn.count('id').as('count'),
-        db.fn.sum<string>('amount').as('totalAmount'),
-      ])
-      .where('farmId', 'in', targetFarmIds)
-      .groupBy('category')
+    const { db } = await import('~/lib/db')
+    const results = await getExpensesSummaryFromDb(db, targetFarmIds, {
+      startDate: options?.startDate,
+      endDate: options?.endDate,
+    })
 
-    if (options?.startDate) {
-      query = query.where('date', '>=', options.startDate)
-    }
-    if (options?.endDate) {
-      query = query.where('date', '<=', options.endDate)
-    }
-
-    const results = await query.execute()
-
-    const summary: Record<string, { count: number; amount: number }> = {}
-    let totalCount = 0
-    let totalAmount = 0
-
-    for (const row of results) {
-      const count = Number(row.count)
-      const amount = parseFloat(row.totalAmount)
-      summary[row.category] = { count, amount }
-      totalCount += count
-      totalAmount += amount
-    }
-
-    return {
-      byCategory: summary,
-      total: { count: totalCount, amount: totalAmount },
-    }
+    // Business logic: build summary from raw results
+    return buildExpensesSummary(results)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -577,26 +501,20 @@ export async function getTotalExpenses(
     endDate?: Date
   },
 ): Promise<number> {
-  const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
+  const { getTotalExpenses: getTotalExpensesFromDb } =
+    await import('./repository')
 
   try {
     await verifyFarmAccess(userId, farmId)
 
-    let query = db
-      .selectFrom('expenses')
-      .select(db.fn.sum<string>('amount').as('total'))
-      .where('farmId', '=', farmId)
+    const { db } = await import('~/lib/db')
+    const total = await getTotalExpensesFromDb(db, [farmId], {
+      startDate: options?.startDate,
+      endDate: options?.endDate,
+    })
 
-    if (options?.startDate) {
-      query = query.where('date', '>=', options.startDate)
-    }
-    if (options?.endDate) {
-      query = query.where('date', '<=', options.endDate)
-    }
-
-    const result = await query.executeTakeFirst()
-    return parseFloat(result?.total || '0')
+    return parseFloat(total)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -641,19 +559,12 @@ export async function getExpensesPaginated(
     isRecurring: boolean
   }>
 > {
-  const { db } = await import('~/lib/db')
-  const { sql } = await import('kysely')
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
+  const { getExpensesPaginated: getExpensesPaginatedFromDb } =
+    await import('./repository')
 
   try {
-    const page = query.page || 1
-    const pageSize = query.pageSize || 10
-    const sortBy = query.sortBy || 'date'
-    const sortOrder = query.sortOrder || 'desc'
-    const search = query.search || ''
-    const category = query.category
-
     // Determine target farms
     let targetFarmIds: Array<string> = []
     if (query.farmId) {
@@ -666,115 +577,26 @@ export async function getExpensesPaginated(
     } else {
       targetFarmIds = await getUserFarms(userId)
       if (targetFarmIds.length === 0) {
-        return { data: [], total: 0, page, pageSize, totalPages: 0 }
+        return {
+          data: [],
+          total: 0,
+          page: query.page || 1,
+          pageSize: query.pageSize || 10,
+          totalPages: 0,
+        }
       }
     }
 
-    // Build base query
-    let baseQuery = db
-      .selectFrom('expenses')
-      .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-      .leftJoin('batches', 'batches.id', 'expenses.batchId')
-      .leftJoin('farms', 'farms.id', 'expenses.farmId')
-      .where('expenses.farmId', 'in', targetFarmIds)
-
-    // Apply search filter
-    if (search) {
-      baseQuery = baseQuery.where((eb) =>
-        eb.or([
-          eb('expenses.description', 'ilike', `%${search}%`),
-          eb('suppliers.name', 'ilike', `%${search}%`),
-          eb('batches.species', 'ilike', `%${search}%`),
-        ]),
-      )
-    }
-
-    // Apply category filter
-    if (category) {
-      baseQuery = baseQuery.where('expenses.category', '=', category as any)
-    }
-
-    // Apply batchId filter
-    if (query.batchId) {
-      baseQuery = baseQuery.where('expenses.batchId', '=', query.batchId)
-    }
-
-    // Get total count
-    const countResult = await baseQuery
-      .select(sql<number>`count(*)`.as('count'))
-      .executeTakeFirst()
-    const total = Number(countResult?.count || 0)
-    const totalPages = Math.ceil(total / pageSize)
-
-    // Apply sorting
-    const sortColumn =
-      sortBy === 'amount'
-        ? 'expenses.amount'
-        : sortBy === 'category'
-          ? 'expenses.category'
-          : sortBy === 'description'
-            ? 'expenses.description'
-            : sortBy === 'supplierName'
-              ? 'suppliers.name'
-              : 'expenses.date'
-
-    let dataQuery = db
-      .selectFrom('expenses')
-      .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-      .leftJoin('batches', 'batches.id', 'expenses.batchId')
-      .leftJoin('farms', 'farms.id', 'expenses.farmId')
-      .select([
-        'expenses.id',
-        'expenses.farmId',
-        'expenses.category',
-        'expenses.amount',
-        'expenses.date',
-        'expenses.description',
-        'expenses.isRecurring',
-        'suppliers.name as supplierName',
-        'batches.species as batchSpecies',
-        'batches.livestockType as batchType',
-        'farms.name as farmName',
-      ])
-      .where('expenses.farmId', 'in', targetFarmIds)
-
-    // Re-apply filters
-    if (search) {
-      dataQuery = dataQuery.where((eb) =>
-        eb.or([
-          eb('expenses.description', 'ilike', `%${search}%`),
-          eb('suppliers.name', 'ilike', `%${search}%`),
-          eb('batches.species', 'ilike', `%${search}%`),
-        ]),
-      )
-    }
-    if (category) {
-      dataQuery = dataQuery.where('expenses.category', '=', category as any)
-    }
-    if (query.batchId) {
-      dataQuery = dataQuery.where('expenses.batchId', '=', query.batchId)
-    }
-
-    // Apply sorting and pagination
-    const data = await dataQuery
-      .orderBy(sortColumn as any, sortOrder)
-      .limit(pageSize)
-      .offset((page - 1) * pageSize)
-      .execute()
-
-    return {
-      data: data.map((d) => ({
-        ...d,
-        farmName: d.farmName || null,
-        supplierName: d.supplierName || null,
-        batchSpecies: d.batchSpecies || null,
-        batchType: d.batchType || null,
-      })),
-      total,
-      page,
-      pageSize,
-      totalPages,
-    }
+    const { db } = await import('~/lib/db')
+    return await getExpensesPaginatedFromDb(db, targetFarmIds, {
+      page: query.page,
+      pageSize: query.pageSize,
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
+      search: query.search,
+      category: query.category,
+      batchId: query.batchId,
+    })
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
