@@ -243,7 +243,7 @@ function InvoiceDetailPage() {
                     {t('invoices.detail.items.total')}:
                   </td>
                   <td className="py-4 text-right text-xl font-bold">
-                    {formatCurrency(parseFloat(invoice.totalAmount))}
+                    {formatCurrency(invoice.totalAmount)}
                   </td>
                 </tr>
               </tfoot>
