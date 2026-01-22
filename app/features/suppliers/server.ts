@@ -1,4 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
+import * as repository from './repository'
+import * as service from './service'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 import { AppError } from '~/lib/errors'
 
@@ -49,6 +51,10 @@ export interface CreateSupplierInput {
     | 'pharmacy'
     | 'equipment'
     | 'fingerlings'
+    | 'cattle_dealer'
+    | 'goat_dealer'
+    | 'sheep_dealer'
+    | 'bee_supplier'
     | 'other'
     | null
 }
@@ -63,29 +69,21 @@ export interface SupplierQuery extends BasePaginatedQuery {
 
 /**
  * Register a new supplier in the system.
- *
- * @param input - Supplier details and product list
- * @returns Promise resolving to the new supplier ID
  */
 export async function createSupplier(
   input: CreateSupplierInput,
 ): Promise<string> {
   const { db } = await import('~/lib/db')
+
   try {
-    const result = await db
-      .insertInto('suppliers')
-      .values({
-        name: input.name,
-        phone: input.phone,
-        email: input.email || null,
-        location: input.location || null,
-        products: input.products,
-      })
-      .returning('id')
-      .executeTakeFirstOrThrow()
-    return result.id
+    // Validate input
+    const validationError = service.validateSupplierData(input)
+    if (validationError) {
+      throw new AppError('VALIDATION_ERROR', { message: validationError })
+    }
+
+    return await repository.insertSupplier(db, input)
   } catch (error) {
-    console.error('Failed to create supplier:', error)
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to create supplier',
@@ -96,7 +94,6 @@ export async function createSupplier(
 
 /**
  * Server function to create a supplier record.
- * Validates input data.
  */
 export const createSupplierFn = createServerFn({ method: 'POST' })
   .inputValidator((data: CreateSupplierInput) => data)
@@ -106,24 +103,22 @@ export const createSupplierFn = createServerFn({ method: 'POST' })
 
 /**
  * Retrieve all suppliers in alphabetical order.
- *
- * @returns Promise resolving to an array of all supplier records
  */
-export async function getSuppliers() {
+export async function getSuppliers(): Promise<Array<SupplierRecord>> {
   const { db } = await import('~/lib/db')
+
   try {
-    return await db
-      .selectFrom('suppliers')
-      .selectAll()
-      .orderBy('name', 'asc')
-      .execute()
+    return await repository.selectAllSuppliers(db)
   } catch (error) {
-    throw new AppError('DATABASE_ERROR', { cause: error })
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch suppliers',
+      cause: error,
+    })
   }
 }
 
 /**
- * Server function to retrieve all suppliers.
+ * Server function to retrieve all suppliers (unpaginated).
  */
 export const getSuppliersFn = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -132,44 +127,42 @@ export const getSuppliersFn = createServerFn({ method: 'GET' }).handler(
 )
 
 /**
- * Retrieve a specific supplier record by its unique ID.
- *
- * @param supplierId - ID of the supplier to retrieve
- * @returns Promise resolving to the supplier or undefined
+ * Retrieve a single supplier record by its unique ID.
  */
 export async function getSupplierById(supplierId: string) {
   const { db } = await import('~/lib/db')
+
   try {
-    return await db
-      .selectFrom('suppliers')
-      .selectAll()
-      .where('id', '=', supplierId)
-      .executeTakeFirst()
+    return await repository.selectSupplierById(db, supplierId)
   } catch (error) {
-    throw new AppError('DATABASE_ERROR', { cause: error })
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch supplier',
+      cause: error,
+    })
   }
 }
 
 /**
  * Update an existing supplier's details.
- *
- * @param supplierId - ID of the supplier to update
- * @param input - Partial supplier data to apply
  */
 export async function updateSupplier(
   supplierId: string,
   input: Partial<CreateSupplierInput>,
-) {
+): Promise<void> {
   const { db } = await import('~/lib/db')
+
   try {
-    await db
-      .updateTable('suppliers')
-      .set({
-        ...input,
-        updatedAt: new Date(),
-      })
-      .where('id', '=', supplierId)
-      .execute()
+    // Validate input if provided
+    if (Object.keys(input).length > 0) {
+      const validationError = service.validateSupplierData(
+        input as CreateSupplierInput,
+      )
+      if (validationError) {
+        throw new AppError('VALIDATION_ERROR', { message: validationError })
+      }
+    }
+
+    await repository.updateSupplier(db, supplierId, input)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to update supplier',
@@ -190,14 +183,13 @@ export const updateSupplierFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Permanently delete a supplier record from the system.
- *
- * @param supplierId - ID of the supplier to delete
+ * Permanently remove a supplier record from the system.
  */
-export async function deleteSupplier(supplierId: string) {
+export async function deleteSupplier(supplierId: string): Promise<void> {
   const { db } = await import('~/lib/db')
+
   try {
-    await db.deleteFrom('suppliers').where('id', '=', supplierId).execute()
+    await repository.deleteSupplier(db, supplierId)
   } catch (error) {
     console.error('Failed to delete supplier:', error)
     if (String(error).includes('foreign key constraint')) {
@@ -224,26 +216,20 @@ export const deleteSupplierFn = createServerFn({ method: 'POST' })
 
 /**
  * Retrieve a supplier's profile along with a history of all tracked expenses (sourcing).
- *
- * @param supplierId - ID of the supplier
- * @returns Promise resolving to supplier details with expense history and total spent
  */
 export async function getSupplierWithExpenses(supplierId: string) {
   const { db } = await import('~/lib/db')
 
   try {
-    const supplier = await getSupplierById(supplierId)
+    const supplier = await repository.selectSupplierById(db, supplierId)
     if (!supplier) return null
-    const expenses = await db
-      .selectFrom('expenses')
-      .select(['id', 'category', 'amount', 'date', 'description'])
-      .where('supplierId', '=', supplierId)
-      .orderBy('date', 'desc')
-      .execute()
+
+    const expenses = await repository.selectSupplierExpenses(db, supplierId)
     const totalSpent = expenses.reduce(
       (sum, e) => sum + parseFloat(e.amount),
       0,
     )
+
     return {
       ...supplier,
       expenses,
@@ -252,117 +238,26 @@ export async function getSupplierWithExpenses(supplierId: string) {
     }
   } catch (error) {
     if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', { cause: error })
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch supplier details',
+      cause: error,
+    })
   }
 }
 
 /**
  * Retrieve a paginated list of suppliers with search and classification filtering.
- *
- * @param query - Query parameters (search, pagination, sorting, supplierType)
- * @returns Promise resolving to a paginated set of supplier records
  */
 export async function getSuppliersPaginated(query: SupplierQuery = {}) {
   const { db } = await import('~/lib/db')
-  const { sql } = await import('kysely')
 
   try {
-    const page = query.page || 1
-    const pageSize = query.pageSize || 10
-    const offset = (page - 1) * pageSize
-
-    let baseQuery = db
-      .selectFrom('suppliers')
-      .leftJoin('expenses', 'expenses.supplierId', 'suppliers.id')
-
-    if (query.search) {
-      const searchLower = `%${query.search.toLowerCase()}%`
-      baseQuery = baseQuery.where((eb) =>
-        eb.or([
-          eb('suppliers.name', 'ilike', searchLower),
-          eb('suppliers.phone', 'ilike', searchLower),
-          eb('suppliers.location', 'ilike', searchLower),
-          eb('suppliers.email', 'ilike', searchLower),
-        ]),
-      )
-    }
-
-    // Apply supplierType filter
-    if (query.supplierType) {
-      baseQuery = baseQuery.where(
-        'suppliers.supplierType',
-        '=',
-        query.supplierType as any,
-      )
-    }
-
-    // Count
-    const countResult = await baseQuery
-      .select(sql<number>`count(distinct suppliers.id)`.as('count'))
-      .executeTakeFirst()
-
-    const total = Number(countResult?.count || 0)
-    const totalPages = Math.ceil(total / pageSize)
-
-    // Data
-    let dataQuery = baseQuery
-      .select([
-        'suppliers.id',
-        'suppliers.name',
-        'suppliers.phone',
-        'suppliers.email',
-        'suppliers.location',
-        'suppliers.products',
-        'suppliers.supplierType',
-        'suppliers.createdAt',
-        sql<number>`count(expenses.id)`.as('expenseCount'),
-        sql<string>`coalesce(sum(expenses.amount), 0)`.as('totalSpent'),
-      ])
-      .groupBy([
-        'suppliers.id',
-        'suppliers.name',
-        'suppliers.phone',
-        'suppliers.email',
-        'suppliers.location',
-        'suppliers.products',
-        'suppliers.supplierType',
-        'suppliers.createdAt',
-      ])
-      .limit(pageSize)
-      .offset(offset)
-
-    if (query.sortBy) {
-      const sortOrder = query.sortOrder || 'desc'
-      const sortCol = query.sortBy
-      if (query.sortBy === 'totalSpent' || query.sortBy === 'expenseCount') {
-        dataQuery = dataQuery.orderBy(sql.raw(`"${sortCol}"`), sortOrder)
-      } else {
-        dataQuery = dataQuery.orderBy(
-          sql.raw(`suppliers."${sortCol}"`),
-          sortOrder,
-        )
-      }
-    } else {
-      dataQuery = dataQuery.orderBy(sql.raw('suppliers."createdAt"'), 'desc')
-    }
-
-    const rawData = await dataQuery.execute()
-
-    const data = rawData.map((d) => ({
-      ...d,
-      expenseCount: Number(d.expenseCount),
-      totalSpent: parseFloat(d.totalSpent || '0'),
-    }))
-
-    return {
-      data,
-      total,
-      page,
-      pageSize,
-      totalPages,
-    }
+    return await repository.selectSuppliersPaginated(db, query)
   } catch (error) {
-    throw new AppError('DATABASE_ERROR', { cause: error })
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch paginated suppliers',
+      cause: error,
+    })
   }
 }
 

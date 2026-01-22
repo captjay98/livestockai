@@ -1,8 +1,28 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+import {
+  deleteUser,
+  selectAllUsers,
+  selectUserByEmail,
+  selectUserById,
+  selectUserFarmAssignments,
+  selectUserOwnedFarms,
+  updateUserBan,
+  updateUserRoleById,
+} from './repository'
+import {
+  canBanUser,
+  canChangeRole,
+  canDeleteUser,
+  validateBanUserInput,
+  validateCreateUserInput,
+  validateRemoveUserInput,
+  validateSetPasswordInput,
+  validateUpdateRoleInput,
+} from './service'
 import { AppError } from '~/lib/errors'
 
-// Schema definitions
+// Zod schemas for input validation
 const createUserSchema = z.object({
   email: z.string().email('validation.email'),
   password: z.string().min(8, 'validation.min'),
@@ -25,6 +45,11 @@ const userIdSchema = z.object({
   userId: z.string().uuid(),
 })
 
+const updateRoleSchema = z.object({
+  userId: z.string().uuid(),
+  role: z.enum(['user', 'admin']),
+})
+
 /**
  * List all users (admin only).
  *
@@ -37,21 +62,7 @@ export const listUsers = createServerFn({ method: 'GET' }).handler(async () => {
 
   try {
     await requireAdmin()
-
-    return await db
-      .selectFrom('users')
-      .select([
-        'id',
-        'name',
-        'email',
-        'role',
-        'banned',
-        'banReason',
-        'banExpires',
-        'createdAt',
-      ])
-      .orderBy('createdAt', 'desc')
-      .execute()
+    return await selectAllUsers(db)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -77,20 +88,7 @@ export const getUser = createServerFn({ method: 'GET' })
     try {
       await requireAdmin()
 
-      const user = await db
-        .selectFrom('users')
-        .select([
-          'id',
-          'name',
-          'email',
-          'role',
-          'banned',
-          'banReason',
-          'banExpires',
-          'createdAt',
-        ])
-        .where('id', '=', data.userId)
-        .executeTakeFirst()
+      const user = await selectUserById(db, data.userId)
 
       if (!user) {
         throw new AppError('USER_NOT_FOUND', {
@@ -98,17 +96,7 @@ export const getUser = createServerFn({ method: 'GET' })
         })
       }
 
-      // Get user's farm assignments
-      const farmAssignments = await db
-        .selectFrom('user_farms')
-        .innerJoin('farms', 'farms.id', 'user_farms.farmId')
-        .select([
-          'user_farms.farmId',
-          'user_farms.role',
-          'farms.name as farmName',
-        ])
-        .where('user_farms.userId', '=', data.userId)
-        .execute()
+      const farmAssignments = await selectUserFarmAssignments(db, data.userId)
 
       return { ...user, farmAssignments }
     } catch (error) {
@@ -139,12 +127,14 @@ export const createUser = createServerFn({ method: 'POST' })
     try {
       await requireAdmin()
 
-      // Check if email already exists
-      const existing = await db
-        .selectFrom('users')
-        .select(['id'])
-        .where('email', '=', data.email)
-        .executeTakeFirst()
+      const validation = validateCreateUserInput(data)
+      if (!validation.valid) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: validation.message,
+        })
+      }
+
+      const existing = await selectUserByEmail(db, data.email)
 
       if (existing) {
         throw new AppError('ALREADY_EXISTS', {
@@ -153,7 +143,6 @@ export const createUser = createServerFn({ method: 'POST' })
         })
       }
 
-      // Create user via Better Auth admin API
       const result = await auth.api.createUser({
         body: {
           email: data.email,
@@ -190,6 +179,13 @@ export const setUserPassword = createServerFn({ method: 'POST' })
     try {
       await requireAdmin()
 
+      const validation = validateSetPasswordInput(data)
+      if (!validation.valid) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: validation.message,
+        })
+      }
+
       await auth.api.setUserPassword({
         body: {
           userId: data.userId,
@@ -225,19 +221,14 @@ export const banUser = createServerFn({ method: 'POST' })
     try {
       const { session } = await requireAdmin()
 
-      // Prevent self-ban
-      if (data.userId === session.user.id) {
+      const validation = validateBanUserInput(data)
+      if (!validation.valid) {
         throw new AppError('VALIDATION_ERROR', {
-          message: 'Cannot ban yourself',
+          message: validation.message,
         })
       }
 
-      // Check if user exists
-      const user = await db
-        .selectFrom('users')
-        .select(['id', 'role'])
-        .where('id', '=', data.userId)
-        .executeTakeFirst()
+      const user = await selectUserById(db, data.userId)
 
       if (!user) {
         throw new AppError('USER_NOT_FOUND', {
@@ -245,22 +236,20 @@ export const banUser = createServerFn({ method: 'POST' })
         })
       }
 
-      // Prevent banning other admins
-      if (user.role === 'admin') {
-        throw new AppError('ACCESS_DENIED', {
-          message: 'Cannot ban admin users',
+      const banCheck = canBanUser(session.user.id, user)
+      if (!banCheck.allowed) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: banCheck.reason,
         })
       }
 
-      await db
-        .updateTable('users')
-        .set({
-          banned: true,
-          banReason: data.reason || null,
-          banExpires: data.expiresAt ? new Date(data.expiresAt) : null,
-        })
-        .where('id', '=', data.userId)
-        .execute()
+      await updateUserBan(
+        db,
+        data.userId,
+        true,
+        data.reason || null,
+        data.expiresAt ? new Date(data.expiresAt) : null,
+      )
 
       return { success: true }
     } catch (error) {
@@ -287,15 +276,7 @@ export const unbanUser = createServerFn({ method: 'POST' })
     try {
       await requireAdmin()
 
-      await db
-        .updateTable('users')
-        .set({
-          banned: false,
-          banReason: null,
-          banExpires: null,
-        })
-        .where('id', '=', data.userId)
-        .execute()
+      await updateUserBan(db, data.userId, false, null, null)
 
       return { success: true }
     } catch (error) {
@@ -323,19 +304,14 @@ export const removeUser = createServerFn({ method: 'POST' })
     try {
       const { session } = await requireAdmin()
 
-      // Prevent self-deletion
-      if (data.userId === session.user.id) {
+      const validation = validateRemoveUserInput(data)
+      if (!validation.valid) {
         throw new AppError('VALIDATION_ERROR', {
-          message: 'Cannot delete yourself',
+          message: validation.message,
         })
       }
 
-      // Check if user exists
-      const user = await db
-        .selectFrom('users')
-        .select(['id', 'role'])
-        .where('id', '=', data.userId)
-        .executeTakeFirst()
+      const user = await selectUserById(db, data.userId)
 
       if (!user) {
         throw new AppError('USER_NOT_FOUND', {
@@ -343,40 +319,16 @@ export const removeUser = createServerFn({ method: 'POST' })
         })
       }
 
-      // Prevent deleting other admins
-      if (user.role === 'admin') {
-        throw new AppError('ACCESS_DENIED', {
-          message: 'Cannot delete admin users',
+      const ownedFarms = await selectUserOwnedFarms(db, data.userId)
+
+      const deleteCheck = canDeleteUser(session.user.id, user, ownedFarms.length)
+      if (!deleteCheck.allowed) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: deleteCheck.reason,
         })
       }
 
-      // Check if user is the last owner of any farm
-      const ownedFarms = await db
-        .selectFrom('user_farms')
-        .select(['farmId'])
-        .where('userId', '=', data.userId)
-        .where('role', '=', 'owner')
-        .execute()
-
-      for (const { farmId } of ownedFarms) {
-        const otherOwners = await db
-          .selectFrom('user_farms')
-          .select(['userId'])
-          .where('farmId', '=', farmId)
-          .where('role', '=', 'owner')
-          .where('userId', '!=', data.userId)
-          .execute()
-
-        if (otherOwners.length === 0) {
-          throw new AppError('VALIDATION_ERROR', {
-            message:
-              'Cannot delete user who is the last owner of a farm. Transfer ownership first.',
-          })
-        }
-      }
-
-      // Delete user (cascades to user_farms, sessions, etc.)
-      await db.deleteFrom('users').where('id', '=', data.userId).execute()
+      await deleteUser(db, data.userId)
 
       return { success: true }
     } catch (error) {
@@ -396,13 +348,8 @@ export const removeUser = createServerFn({ method: 'POST' })
  * @throws {Error} If attempting to change own role.
  */
 export const updateUserRole = createServerFn({ method: 'POST' })
-  .inputValidator((data: { userId: string; role: 'user' | 'admin' }) =>
-    z
-      .object({
-        userId: z.string().uuid(),
-        role: z.enum(['user', 'admin']),
-      })
-      .parse(data),
+  .inputValidator((data: z.infer<typeof updateRoleSchema>) =>
+    updateRoleSchema.parse(data),
   )
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
@@ -411,18 +358,21 @@ export const updateUserRole = createServerFn({ method: 'POST' })
     try {
       const { session } = await requireAdmin()
 
-      // Prevent changing own role
-      if (data.userId === session.user.id) {
+      const validation = validateUpdateRoleInput(data)
+      if (!validation.valid) {
         throw new AppError('VALIDATION_ERROR', {
-          message: 'Cannot change your own role',
+          message: validation.message,
         })
       }
 
-      await db
-        .updateTable('users')
-        .set({ role: data.role })
-        .where('id', '=', data.userId)
-        .execute()
+      const roleCheck = canChangeRole(session.user.id, data.userId)
+      if (!roleCheck.allowed) {
+        throw new AppError('VALIDATION_ERROR', {
+          message: roleCheck.reason,
+        })
+      }
+
+      await updateUserRoleById(db, data.userId, data.role)
 
       return { success: true }
     } catch (error) {
