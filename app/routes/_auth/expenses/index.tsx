@@ -37,7 +37,7 @@ import {
 } from '~/features/expenses/server'
 import { getBatchesFn } from '~/features/batches/server'
 import { getSuppliersFn } from '~/features/suppliers/server'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -120,6 +120,7 @@ const getExpensesDataForFarm = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 
@@ -204,7 +205,7 @@ function ExpensesPage() {
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
-  const navigate = useNavigate({ from: '/expenses' })
+  const navigate = useNavigate({ from: '/expenses/' })
   const searchParams = Route.useSearch()
 
   const [paginatedExpenses, setPaginatedExpenses] = useState<
@@ -883,11 +884,13 @@ function ExpensesPage() {
         filters={
           <Select
             value={searchParams.category || 'all'}
-            onValueChange={(value: string) => {
-              updateSearch({
-                category: value === 'all' || !value ? undefined : value,
-                page: 1,
-              })
+            onValueChange={(value) => {
+              if (value) {
+                updateSearch({
+                  category: value === 'all' || !value ? undefined : value,
+                  page: 1,
+                })
+              }
             }}
           >
             <SelectTrigger className="w-[180px] h-10">

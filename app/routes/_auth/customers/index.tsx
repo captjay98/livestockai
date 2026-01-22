@@ -495,11 +495,13 @@ function CustomersPage() {
         filters={
           <Select
             value={searchParams.customerType || 'all'}
-            onValueChange={(value: string) => {
-              updateSearch({
-                customerType: value === 'all' || !value ? undefined : value,
-                page: 1,
-              })
+            onValueChange={(value) => {
+              if (value) {
+                updateSearch({
+                  customerType: value === 'all' || !value ? undefined : value,
+                  page: 1,
+                })
+              }
             }}
           >
             <SelectTrigger className="w-[150px] h-10">

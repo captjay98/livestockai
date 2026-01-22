@@ -36,7 +36,6 @@ import {
   updateVaccinationFn,
 } from '~/features/vaccinations/server'
 import { getBatches } from '~/features/batches/server'
-import { requireAuth } from '~/features/auth/server-middleware'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -125,6 +124,7 @@ const getHealthDataForFarm = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 
@@ -166,7 +166,7 @@ export const Route = createFileRoute('/_auth/vaccinations/')({
       search.sortOrder === 'asc' || search.sortOrder === 'desc'
         ? search.sortOrder
         : 'desc',
-    search: typeof search.q === 'string' ? search.q : '',
+    search: typeof search.search === 'string' ? search.search : '',
     type: search.type ? (search.type as any) : 'all',
   }),
   component: VaccinationsPage,
@@ -233,7 +233,7 @@ function VaccinationsPage() {
           pageSize: searchParams.pageSize,
           sortBy: searchParams.sortBy,
           sortOrder: searchParams.sortOrder,
-          search: searchParams.q,
+          search: searchParams.search,
           type: searchParams.type,
         },
       })
@@ -257,13 +257,13 @@ function VaccinationsPage() {
     searchParams.pageSize,
     searchParams.sortBy,
     searchParams.sortOrder,
-    searchParams.q,
+    searchParams.search,
     searchParams.type,
   ])
 
   const updateSearch = (updates: Partial<HealthSearchParams>) => {
     navigate({
-      search: (prev: HealthSearchParams) => ({
+      search: (prev) => ({
         ...prev,
         ...updates,
       }),
@@ -642,7 +642,7 @@ function VaccinationsPage() {
         totalPages={paginatedRecords.totalPages}
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
-        searchValue={searchParams.q}
+        searchValue={searchParams.search}
         searchPlaceholder={t('vaccinations:placeholders.search')}
         isLoading={isLoading}
         filters={

@@ -4,7 +4,6 @@ import { Bird, Building2, Edit, Fish, MapPin, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getFarmsForUser } from '~/features/farms/server'
-import { requireAuth } from '~/features/auth/server-middleware'
 import { Button, buttonVariants } from '~/components/ui/button'
 import {
   Card,
@@ -30,6 +29,7 @@ interface FarmWithStats {
 const getFarmsWithStats = createServerFn({ method: 'GET' }).handler(
   async () => {
     const { db } = await import('~/lib/db')
+    const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
 
     const farms = await getFarmsForUser(session.user.id)

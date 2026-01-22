@@ -31,7 +31,6 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getDashboardStats } from '~/features/dashboard/server'
-import { requireAuth } from '~/features/auth/server-middleware'
 import { getUserFarms } from '~/features/auth/utils'
 import {
   useDashboardPreferences,
@@ -99,6 +98,7 @@ const getDashboardData = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId?: string | null } | undefined) => data)
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const farmId = data?.farmId || undefined
 

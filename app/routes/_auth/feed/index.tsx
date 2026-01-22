@@ -25,7 +25,7 @@ import {
 } from '~/features/feed/server'
 import { FEED_TYPES } from '~/features/feed/constants'
 import { getBatchesFn } from '~/features/batches/server'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import {
   useFormatCurrency,
   useFormatDate,
@@ -117,6 +117,7 @@ const getFeedDataForFarm = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 
@@ -164,6 +165,7 @@ const createFeedRecordAction = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const id = await createFeedRecord(session.user.id, data.farmId, {
         batchId: data.batchId,

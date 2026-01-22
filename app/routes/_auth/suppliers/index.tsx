@@ -18,7 +18,7 @@ import {
   createSupplierFn,
   getSuppliersPaginatedFn,
 } from '~/features/suppliers/server'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import { Button } from '~/components/ui/button'
 import {
   Dialog,
@@ -102,6 +102,7 @@ const getSupplierData = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       await requireAuth()
       const paginatedSuppliers = await getSuppliersPaginatedFn({
         data: {

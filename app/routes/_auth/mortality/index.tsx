@@ -34,7 +34,7 @@ import {
 import { useFormatDate } from '~/features/settings'
 import { getAllBatchAlerts } from '~/features/monitoring/alerts'
 import { getBatchesFn } from '~/features/batches/server'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -135,6 +135,7 @@ const getMortalityDataForFarm = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 

@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { InvoiceRecord, PaginatedResult } from '~/features/invoices/server'
 import { getInvoicesPaginatedFn } from '~/features/invoices/server'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
@@ -67,6 +67,7 @@ const getInvoiceData = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       await requireAuth()
       const paginatedInvoices = await getInvoicesPaginatedFn({
         data: {
@@ -391,7 +392,7 @@ function InvoicesPage() {
                   {t('common.close')}
                 </Button>
                 <Button asChild>
-                  <Link to={`/invoices/${viewInvoice.id}`}>
+                  <Link to={`/invoices/${viewInvoice.id}` as any}>
                     {t('viewFull')}
                   </Link>
                 </Button>

@@ -34,7 +34,6 @@ import {
   useOnboarding,
 } from '~/features/onboarding/context'
 import { createFarm } from '~/features/farms/server'
-import { requireAuth } from '~/features/auth/server-middleware'
 import { getSpeciesOptions } from '~/features/batches/constants'
 import { createBatch } from '~/features/batches/server'
 import {
@@ -77,6 +76,7 @@ interface CreateFarmInput {
 const createFarmAction = createServerFn({ method: 'POST' })
   .inputValidator((data: CreateFarmInput) => data)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     const farmId = await createFarm(data, session.user.id)
     return { success: true, farmId }
@@ -95,6 +95,7 @@ interface CreateBatchInput {
 const createBatchAction = createServerFn({ method: 'POST' })
   .inputValidator((data: CreateBatchInput) => data)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     const batchId = await createBatch(session.user.id, {
       farmId: data.farmId,

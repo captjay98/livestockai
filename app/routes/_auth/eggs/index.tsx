@@ -24,7 +24,7 @@ import {
   updateEggRecordFn,
 } from '~/features/eggs/server'
 import { getBatches } from '~/features/batches/server'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -92,6 +92,7 @@ const getEggDataForFarm = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 
@@ -138,6 +139,7 @@ const createEggRecordAction = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       await requireAuth()
       const result = await createEggRecordFn({
         data: {

@@ -28,7 +28,7 @@ import {
   getInventorySummary,
   updateBatchFn,
 } from '~/features/batches/server'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -108,6 +108,7 @@ const getBatchesForFarmFn = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 
@@ -550,14 +551,16 @@ function BatchesPage() {
           <>
             <Select
               value={searchParams.status || 'all'}
-              onValueChange={(value: string) => {
-                updateSearch({
-                  status:
-                    value === 'all'
-                      ? undefined
-                      : (value as 'active' | 'depleted' | 'sold'),
-                  page: 1,
-                })
+              onValueChange={(value) => {
+                if (value) {
+                  updateSearch({
+                    status:
+                      value === 'all'
+                        ? undefined
+                        : (value as 'active' | 'depleted' | 'sold'),
+                    page: 1,
+                  })
+                }
               }}
             >
               <SelectTrigger className="w-[150px] h-10">
@@ -591,12 +594,16 @@ function BatchesPage() {
 
             <Select
               value={searchParams.livestockType || 'all'}
-              onValueChange={(value: string) => {
-                updateSearch({
-                  livestockType:
-                    value === 'all' ? undefined : (value as 'poultry' | 'fish'),
-                  page: 1,
-                })
+              onValueChange={(value) => {
+                if (value) {
+                  updateSearch({
+                    livestockType:
+                      value === 'all'
+                        ? undefined
+                        : (value as 'poultry' | 'fish'),
+                    page: 1,
+                  })
+                }
               }}
             >
               <SelectTrigger className="w-[150px] h-10">

@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next'
 import type { FeedType } from '~/features/inventory/feed-server'
 import type { MedicationUnit } from '~/features/inventory/medication-server'
 import { useFormatDate, useFormatWeight } from '~/features/settings'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import {
   FEED_TYPES,
   createFeedInventoryFn,
@@ -86,6 +86,7 @@ const getInventoryData = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId?: string | null }) => data)
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const farmId = data.farmId || undefined
       const [feedInventory, medicationInventory] = await Promise.all([

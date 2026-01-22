@@ -15,7 +15,7 @@ import {
   updateWeightSampleFn,
 } from '~/features/weight/server'
 import { getBatches } from '~/features/batches/server'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
@@ -87,6 +87,7 @@ const getWeightDataForFarm = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
       const farmId = data.farmId || undefined
 

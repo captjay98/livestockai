@@ -29,7 +29,7 @@ import {
 } from '~/features/sales/server'
 import { getBatchesFn } from '~/features/batches/server'
 import { getCustomersFn } from '~/features/customers/server'
-import { requireAuth } from '~/features/auth/server-middleware'
+
 import {
   useFormatCurrency,
   useFormatDate,
@@ -126,6 +126,7 @@ const getSalesDataForFarm = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       await requireAuth()
       const farmId = data.farmId || undefined
 
@@ -173,6 +174,7 @@ const createSaleAction = createServerFn({ method: 'POST' })
     }) => data,
   )
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     const id = await createSale(session.user.id, {
       farmId: data.farmId,
@@ -216,7 +218,7 @@ function SalesPage() {
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
   const { format: formatWeight } = useFormatWeight()
-  const navigate = useNavigate({ from: '/sales' })
+  const navigate = useNavigate({ from: '/sales/' })
   const searchParams = Route.useSearch()
 
   const [paginatedSales, setPaginatedSales] = useState<PaginatedResult<Sale>>({
@@ -845,11 +847,13 @@ function SalesPage() {
           <div className="flex gap-2">
             <Select
               value={searchParams.livestockType || 'all'}
-              onValueChange={(value: string) => {
-                updateSearch({
-                  livestockType: value === 'all' ? undefined : value,
-                  page: 1,
-                })
+              onValueChange={(value) => {
+                if (value) {
+                  updateSearch({
+                    livestockType: value === 'all' ? undefined : value,
+                    page: 1,
+                  })
+                }
               }}
             >
               <SelectTrigger className="w-[140px] h-10">
@@ -888,11 +892,13 @@ function SalesPage() {
             </Select>
             <Select
               value={searchParams.paymentStatus || 'all'}
-              onValueChange={(value: string) => {
-                updateSearch({
-                  paymentStatus: value === 'all' ? undefined : value,
-                  page: 1,
-                })
+              onValueChange={(value) => {
+                if (value) {
+                  updateSearch({
+                    paymentStatus: value === 'all' ? undefined : value,
+                    page: 1,
+                  })
+                }
               }}
             >
               <SelectTrigger className="w-[140px] h-10">

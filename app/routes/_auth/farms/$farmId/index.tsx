@@ -28,7 +28,6 @@ import {
   getStructuresWithCounts,
   updateStructureFn,
 } from '~/features/structures/server'
-import { requireAuth } from '~/features/auth/server-middleware'
 import {
   useFormatArea,
   useFormatCurrency,
@@ -141,6 +140,7 @@ const getFarmDetails = createServerFn({ method: 'GET' })
   .inputValidator((data: { farmId: string }) => data)
   .handler(async ({ data }) => {
     try {
+      const { requireAuth } = await import('~/features/auth/server-middleware')
       const session = await requireAuth()
 
       // Dynamically import backend functions to avoid server-code leakage
