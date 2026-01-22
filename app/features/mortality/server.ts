@@ -141,7 +141,7 @@ export async function recordMortality(
     })
 
     // Log audit (outside transaction)
-    const { logAudit } = await import('~/features/logging/audit')
+    const { logAudit } = await import('~/lib/logging/audit')
     await logAudit({
       userId,
       action: 'create',
