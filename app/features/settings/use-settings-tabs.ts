@@ -1,0 +1,83 @@
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
+import { DEFAULT_SETTINGS, useSettings } from './index'
+import type { UserSettings } from '~/features/settings/currency-presets'
+
+export function useSettingsTabs() {
+  const { t } = useTranslation(['settings'])
+  const { settings, updateSettings, isLoading, error } = useSettings()
+  const [localSettings, setLocalSettings] = useState<UserSettings>(settings)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+
+  useEffect(() => {
+    setLocalSettings(settings)
+  }, [settings])
+
+  const saveSettings = async (partialSettings: Partial<UserSettings>) => {
+    setIsSaving(true)
+    setSaveError(null)
+    setSaveSuccess(false)
+
+    try {
+      await updateSettings(partialSettings)
+      setSaveSuccess(true)
+      toast.success(t('saved'))
+      setTimeout(() => setSaveSuccess(false), 3000)
+    } catch {
+      setSaveError(t('saveError'))
+      toast.error(t('saveError'))
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleReset = (section: 'currency' | 'datetime' | 'units') => {
+    setLocalSettings((prev) => {
+      switch (section) {
+        case 'currency':
+          return {
+            ...prev,
+            currencyCode: DEFAULT_SETTINGS.currencyCode,
+            currencySymbol: DEFAULT_SETTINGS.currencySymbol,
+            currencyDecimals: DEFAULT_SETTINGS.currencyDecimals,
+            currencySymbolPosition: DEFAULT_SETTINGS.currencySymbolPosition,
+            thousandSeparator: DEFAULT_SETTINGS.thousandSeparator,
+            decimalSeparator: DEFAULT_SETTINGS.decimalSeparator,
+          }
+        case 'datetime':
+          return {
+            ...prev,
+            dateFormat: DEFAULT_SETTINGS.dateFormat,
+            timeFormat: DEFAULT_SETTINGS.timeFormat,
+            firstDayOfWeek: DEFAULT_SETTINGS.firstDayOfWeek,
+          }
+        case 'units':
+          return {
+            ...prev,
+            weightUnit: DEFAULT_SETTINGS.weightUnit,
+            areaUnit: DEFAULT_SETTINGS.areaUnit,
+            temperatureUnit: DEFAULT_SETTINGS.temperatureUnit,
+          }
+      }
+    })
+  }
+
+  const updateLocalSettings = (updates: Partial<UserSettings>) => {
+    setLocalSettings((prev) => ({ ...prev, ...updates }))
+  }
+
+  return {
+    localSettings,
+    isLoading,
+    error,
+    saveError,
+    saveSuccess,
+    isSaving,
+    saveSettings,
+    handleReset,
+    updateLocalSettings,
+  }
+}
