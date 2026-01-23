@@ -1,547 +1,101 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { toast } from 'sonner'
-import {
-  Banknote,
-  Bird,
-  Edit,
-  Eye,
-  Fish,
-  Hammer,
-  Megaphone,
-  Package,
-  Pill,
-  Plus,
-  Receipt,
-  Settings,
-  Trash2,
-  Truck,
-  Users,
-  Wrench,
-  Zap,
-} from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import { Plus, Receipt, Users } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { ColumnDef } from '@tanstack/react-table'
-import type {
-  ExpenseCategory,
-  PaginatedResult,
-} from '~/features/expenses/server'
-import {
-  EXPENSE_CATEGORIES,
-  createExpenseFn,
-  deleteExpenseFn,
-  getExpensesPaginated,
-  getExpensesSummary,
-  updateExpenseFn,
-} from '~/features/expenses/server'
-import { getBatchesFn } from '~/features/batches/server'
-import { getSuppliersFn } from '~/features/suppliers/server'
-
+import type { Expense } from '~/components/expenses/expense-columns'
+import { getExpenseColumns } from '~/components/expenses/expense-columns'
+import { validateExpenseSearch } from '~/features/expenses/validation'
+import { useExpensePage } from '~/features/expenses/use-expense-page'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { Badge } from '~/components/ui/badge'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog'
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
 import { PageHeader } from '~/components/page-header'
-
-interface Expense {
-  id: string
-  farmId: string
-  farmName: string | null
-  category: string
-  amount: string
-  date: Date
-  description: string
-  supplierName: string | null
-  batchSpecies: string | null
-  batchType: string | null
-  isRecurring: boolean
-}
-
-interface Batch {
-  id: string
-  species: string
-  livestockType: string
-  currentQuantity: number
-  status: string
-}
-
-interface Supplier {
-  id: string
-  name: string
-}
-
-interface ExpensesSummary {
-  byCategory: Record<string, { count: number; amount: number }>
-  total: { count: number; amount: number }
-}
-
-// Search params type
-interface ExpenseSearchParams {
-  page?: number
-  pageSize?: number
-  sortBy?: string
-  sortOrder?: 'asc' | 'desc'
-  q?: string
-  category?: string
-  farmId?: string
-}
-
-const getExpensesDataForFarm = createServerFn({ method: 'GET' })
-  .inputValidator(
-    (data: {
-      farmId?: string | null
-      page?: number
-      pageSize?: number
-      sortBy?: string
-      sortOrder?: 'asc' | 'desc'
-      search?: string
-      category?: string
-    }) => data,
-  )
-  .handler(async ({ data }) => {
-    try {
-      const { requireAuth } = await import('~/features/auth/server-middleware')
-      const session = await requireAuth()
-      const farmId = data.farmId || undefined
-
-      const [paginatedExpenses, summary, batches, suppliers] =
-        await Promise.all([
-          getExpensesPaginated(session.user.id, {
-            farmId,
-            page: data.page || 1,
-            pageSize: data.pageSize || 25,
-            sortBy: data.sortBy || 'date',
-            sortOrder: data.sortOrder || 'desc',
-            search: data.search,
-            category: data.category,
-          }),
-          getExpensesSummary(session.user.id, farmId),
-          farmId ? getBatchesFn({ data: { farmId } }) : Promise.resolve([]),
-          getSuppliersFn(),
-        ])
-      return {
-        paginatedExpenses,
-        summary,
-        batches: batches.filter((b) => b.status === 'active'),
-        suppliers,
-      }
-    } catch (err) {
-      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
-        throw redirect({ to: '/login' })
-      }
-      throw err
-    }
-  })
+import {
+  ExpenseDetailsDialog,
+  ExpenseFormDialog,
+  ExpensesSummary,
+} from '~/components/expenses'
+import { ExpenseFilters } from '~/components/expenses/expense-filters'
+import { DeleteExpenseDialog } from '~/components/expenses/delete-dialog'
 
 export const Route = createFileRoute('/_auth/expenses/')({
-  validateSearch: (search: Record<string, unknown>): ExpenseSearchParams => ({
-    page: Number(search.page) || 1,
-    pageSize: Number(search.pageSize) || 10,
-    sortBy: typeof search.sortBy === 'string' ? search.sortBy : 'date',
-    sortOrder:
-      typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
-        ? search.sortOrder
-        : 'desc',
-    q: typeof search.q === 'string' ? search.q : '',
-    category: typeof search.category === 'string' ? search.category : undefined,
-    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
-  }),
   component: ExpensesPage,
+  validateSearch: validateExpenseSearch,
 })
-
-const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  feed: <Package className="h-4 w-4" />,
-  medicine: <Pill className="h-4 w-4" />,
-  equipment: <Wrench className="h-4 w-4" />,
-  utilities: <Zap className="h-4 w-4" />,
-  labor: <Users className="h-4 w-4" />,
-  transport: <Truck className="h-4 w-4" />,
-  livestock: <Bird className="h-4 w-4" />,
-  livestock_chicken: <Bird className="h-4 w-4" />,
-  livestock_fish: <Fish className="h-4 w-4" />,
-  maintenance: <Hammer className="h-4 w-4" />,
-  marketing: <Megaphone className="h-4 w-4" />,
-  other: <Settings className="h-4 w-4" />,
-}
-
-const CATEGORY_COLORS: Record<string, string> = {
-  feed: 'text-primary bg-primary/10',
-  medicine: 'text-destructive bg-destructive/10',
-  equipment: 'text-info bg-info/10',
-  utilities: 'text-warning bg-warning/10',
-  labor: 'text-purple bg-purple/10',
-  transport: 'text-success bg-success/10',
-  livestock: 'text-warning bg-warning/10',
-  livestock_chicken: 'text-primary bg-primary/10',
-  livestock_fish: 'text-info bg-info/10',
-  maintenance: 'text-slate bg-slate/10',
-  marketing: 'text-purple bg-purple/10',
-  other: 'text-muted-foreground bg-muted',
-}
 
 function ExpensesPage() {
   const { t } = useTranslation(['expenses', 'common'])
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
-  const navigate = useNavigate({ from: '/expenses/' })
   const searchParams = Route.useSearch()
 
-  const [paginatedExpenses, setPaginatedExpenses] = useState<
-    PaginatedResult<Expense>
-  >({
-    data: [],
-    total: 0,
-    page: 1,
-    pageSize: 10,
-    totalPages: 0,
-  })
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [viewDialogOpen, setViewDialogOpen] = useState(false)
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null)
-  const [formData, setFormData] = useState<{
-    category: string
-    amount: string
-    date: string
-    description: string
-    batchId: string
-    supplierId: string
-    isRecurring: boolean
-  }>({
-    category: '',
-    amount: '',
-    date: new Date().toISOString().split('T')[0],
-    description: '',
-    batchId: '',
-    supplierId: '',
-    isRecurring: false,
-  })
-  const [batches, setBatches] = useState<Array<Batch>>([])
-  const [suppliers, setSuppliers] = useState<Array<Supplier>>([])
-  const [error, setError] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [summary, setSummary] = useState<ExpensesSummary | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [editFormData, setEditFormData] = useState<{
-    category: string
-    amount: string
-    description: string
-  }>({
-    category: '',
-    amount: '',
-    description: '',
+  const {
+    paginatedExpenses,
+    summary,
+    isLoading,
+    selectedExpense,
+    setSelectedExpense,
+    batches,
+    suppliers,
+    isSubmitting,
+    updateSearch,
+    handleCreateSubmit,
+    handleEditSubmit,
+    handleDeleteConfirm,
+  } = useExpensePage({
+    selectedFarmId,
+    searchParams,
+    routePath: Route.fullPath,
   })
 
-  // Load data on mount and when search params change
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true)
-      try {
-        const result = await getExpensesDataForFarm({
-          data: {
-            farmId: selectedFarmId,
-            page: searchParams.page,
-            pageSize: searchParams.pageSize,
-            sortBy: searchParams.sortBy,
-            sortOrder: searchParams.sortOrder,
-            search: searchParams.q,
-            category: searchParams.category,
-          },
-        })
-        setPaginatedExpenses(result.paginatedExpenses)
-        setSummary(result.summary)
-        setBatches(result.batches)
-        setSuppliers(result.suppliers)
-      } catch (err) {
-        console.error('Failed to load expenses data:', err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadData()
-  }, [selectedFarmId, searchParams])
+  // Dialog states
+  const [formOpen, setFormOpen] = useState(false)
+  const [viewOpen, setViewOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
-  const updateSearch = (updates: Partial<ExpenseSearchParams>) => {
-    navigate({
-      search: (prev: ExpenseSearchParams) => ({ ...prev, ...updates }),
-    })
-  }
-
-  const handleViewExpense = (expense: Expense) => {
+  const handleView = (expense: Expense) => {
     setSelectedExpense(expense)
-    setViewDialogOpen(true)
+    setViewOpen(true)
   }
 
-  const handleEditExpense = (expense: Expense) => {
+  const handleEdit = (expense: Expense) => {
     setSelectedExpense(expense)
-    setEditFormData({
-      category: expense.category,
-      amount: expense.amount,
-      description: expense.description,
-    })
-    setEditDialogOpen(true)
+    setFormOpen(true)
   }
 
-  const handleDeleteExpense = (expense: Expense) => {
+  const handleDelete = (expense: Expense) => {
     setSelectedExpense(expense)
-    setDeleteDialogOpen(true)
+    setDeleteOpen(true)
   }
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedExpense) return
-
-    setIsSubmitting(true)
-    setError('')
-
-    try {
-      await updateExpenseFn({
-        data: {
-          expenseId: selectedExpense.id,
-          data: {
-            category: editFormData.category as ExpenseCategory,
-            amount: parseFloat(editFormData.amount),
-            description: editFormData.description,
-          },
-        },
-      })
-      setEditDialogOpen(false)
-      toast.success(t('messages.updated'))
-      // Reload data
-      const result = await getExpensesDataForFarm({
-        data: {
-          farmId: selectedFarmId,
-          page: searchParams.page,
-          pageSize: searchParams.pageSize,
-          sortBy: searchParams.sortBy,
-          sortOrder: searchParams.sortOrder,
-          search: searchParams.q,
-          category: searchParams.category,
-        },
-      })
-      setPaginatedExpenses(result.paginatedExpenses)
-      setSummary(result.summary)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update expense')
-    } finally {
-      setIsSubmitting(false)
+  const handleFormSubmit = async (data: any) => {
+    if (selectedExpense) {
+      await handleEditSubmit(data)
+    } else {
+      await handleCreateSubmit(data)
     }
+    setFormOpen(false)
   }
 
-  const handleDeleteConfirm = async () => {
-    if (!selectedExpense) return
-
-    setIsSubmitting(true)
-
-    try {
-      await deleteExpenseFn({ data: { expenseId: selectedExpense.id } })
-      setDeleteDialogOpen(false)
-      toast.success(t('messages.deleted'))
-      // Reload data
-      const result = await getExpensesDataForFarm({
-        data: {
-          farmId: selectedFarmId,
-          page: searchParams.page,
-          pageSize: searchParams.pageSize,
-          sortBy: searchParams.sortBy,
-          sortOrder: searchParams.sortOrder,
-          search: searchParams.q,
-          category: searchParams.category,
-        },
-      })
-      setPaginatedExpenses(result.paginatedExpenses)
-      setSummary(result.summary)
-    } catch (err) {
-      console.error('Failed to delete expense:', err)
-    } finally {
-      setIsSubmitting(false)
-    }
+  const handleDeleteSubmit = async () => {
+    await handleDeleteConfirm()
+    setDeleteOpen(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedFarmId) return
-
-    setIsSubmitting(true)
-    setError('')
-
-    try {
-      await createExpenseFn({
-        data: {
-          expense: {
-            farmId: selectedFarmId,
-            category: formData.category as ExpenseCategory,
-            amount: parseFloat(formData.amount),
-            date: new Date(formData.date),
-            description: formData.description,
-            batchId: formData.batchId || null,
-            supplierId: formData.supplierId || undefined,
-            isRecurring: formData.isRecurring,
-          },
-        },
-      })
-      setDialogOpen(false)
-      toast.success(t('messages.recorded'))
-      setFormData({
-        category: '',
-        amount: '',
-        date: new Date().toISOString().split('T')[0],
-        description: '',
-        batchId: '',
-        supplierId: '',
-        isRecurring: false,
-      })
-      // Reload data
-      const result = await getExpensesDataForFarm({
-        data: {
-          farmId: selectedFarmId,
-          page: searchParams.page,
-          pageSize: searchParams.pageSize,
-          sortBy: searchParams.sortBy,
-          sortOrder: searchParams.sortOrder,
-          search: searchParams.q,
-          category: searchParams.category,
-        },
-      })
-      setPaginatedExpenses(result.paginatedExpenses)
-      setSummary(result.summary)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create expense')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const getCategoryIcon = (category: string) => {
-    const iconMap: Record<string, React.ReactNode> = {
-      feed: <Package className="h-4 w-4" />,
-      medicine: <Pill className="h-4 w-4" />,
-      equipment: <Wrench className="h-4 w-4" />,
-      labor: <Users className="h-4 w-4" />,
-      utilities: <Zap className="h-4 w-4" />,
-      transport: <Truck className="h-4 w-4" />,
-      maintenance: <Hammer className="h-4 w-4" />,
-      marketing: <Megaphone className="h-4 w-4" />,
-      other: <Settings className="h-4 w-4" />,
-    }
-    return iconMap[category] || <Settings className="h-4 w-4" />
-  }
-  /* ... context omitted ... */
-  // Table columns
-  const columns: Array<ColumnDef<Expense>> = [
-    {
-      accessorKey: 'category',
-      header: t('labels.category'),
-      enableSorting: true,
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <div
-            className={`h-8 w-8 rounded-full flex items-center justify-center ${CATEGORY_COLORS[row.original.category] || 'bg-muted'}`}
-          >
-            {getCategoryIcon(row.original.category)}
-          </div>
-          <span className="capitalize font-medium">
-            {t('categories.' + row.original.category, {
-              defaultValue: row.original.category,
-            })}
-          </span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'description',
-      header: t('labels.description'),
-      enableSorting: true,
-      cell: ({ row }) => (
-        <span className="text-muted-foreground">
-          {row.original.description}
-        </span>
-      ),
-    },
-    {
-      accessorKey: 'amount',
-      header: t('labels.amount'),
-      enableSorting: true,
-      cell: ({ row }) => (
-        <span className="font-medium text-destructive">
-          -{formatCurrency(parseFloat(row.original.amount))}
-        </span>
-      ),
-    },
-    {
-      accessorKey: 'date',
-      header: t('labels.date'),
-      enableSorting: true,
-      cell: ({ row }) => (
-        <Badge variant="outline">{formatDate(row.original.date)}</Badge>
-      ),
-    },
-    {
-      accessorKey: 'supplierName',
-      header: t('labels.supplier'),
-      enableSorting: true,
-      cell: ({ row }) => (
-        <span className="text-muted-foreground">
-          {row.original.supplierName || '-'}
-        </span>
-      ),
-    },
-    {
-      id: 'actions',
-      header: '',
-      cell: ({ row }) => (
-        <div className="flex gap-1 justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => handleViewExpense(row.original)}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => handleEditExpense(row.original)}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            onClick={() => handleDeleteExpense(row.original)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-    },
-  ]
+  const columns = useMemo(
+    () =>
+      getExpenseColumns({
+        t,
+        formatCurrency,
+        formatDate,
+        onView: handleView,
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+      }),
+    [t, formatCurrency, formatDate],
+  )
 
   return (
     <div className="space-y-6">
@@ -550,325 +104,22 @@ function ExpensesPage() {
         description={t('description')}
         icon={Receipt}
         actions={
-          <Button onClick={() => setDialogOpen(true)}>
+          <Button
+            onClick={() => {
+              setSelectedExpense(null)
+              setFormOpen(true)
+            }}
+          >
             <Plus className="h-4 w-4 mr-2" />
             {t('record')}
           </Button>
         }
       />
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t('dialog.recordTitle')}</DialogTitle>
-            <DialogDescription>{t('dialog.recordDesc')}</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">{t('labels.category')}</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value: string | null) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    category: value || '',
-                  }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue>
-                    {formData.category
-                      ? EXPENSE_CATEGORIES.find(
-                          (c) => c.value === formData.category,
-                        )?.label
-                      : t('placeholders.selectCategory')}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {EXPENSE_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      <span className="flex items-center gap-2">
-                        {getCategoryIcon(cat.value)}
-                        {t('categories.' + cat.value, {
-                          defaultValue: cat.label,
-                        })}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {batches.length > 0 && (
-              <div className="space-y-2">
-                <Label htmlFor="batchId">
-                  {t('labels.batch')} ({t('common.optional')})
-                </Label>
-                <Select
-                  value={formData.batchId || undefined}
-                  onValueChange={(value: string | null) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      batchId: value || '',
-                    }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue>
-                      {formData.batchId
-                        ? batches.find((b) => b.id === formData.batchId)
-                            ?.species
-                        : t('placeholders.selectBatch')}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {batches.map((batch) => (
-                      <SelectItem key={batch.id} value={batch.id}>
-                        {batch.species} ({batch.currentQuantity} available)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {suppliers.length > 0 && (
-              <div className="space-y-2">
-                <Label htmlFor="supplierId">
-                  {t('labels.supplier')} ({t('common.optional')})
-                </Label>
-                <Select
-                  value={formData.supplierId || undefined}
-                  onValueChange={(value: string | null) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      supplierId: value || '',
-                    }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue>
-                      {formData.supplierId
-                        ? suppliers.find((s) => s.id === formData.supplierId)
-                            ?.name
-                        : t('placeholders.selectSupplier')}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {suppliers.map((supplier) => (
-                      <SelectItem key={supplier.id} value={supplier.id}>
-                        {supplier.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="amount">
-                  {t('labels.amount')} ({currencySymbol})
-                </Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.amount}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      amount: e.target.value,
-                    }))
-                  }
-                  placeholder="0.00"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date">{t('labels.date')}</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      date: e.target.value,
-                    }))
-                  }
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">{t('labels.description')}</Label>
-              <Input
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-                placeholder={t('placeholders.description')}
-                required
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="isRecurring"
-                checked={formData.isRecurring}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    isRecurring: e.target.checked,
-                  }))
-                }
-                className="h-4 w-4"
-              />
-              <Label htmlFor="isRecurring" className="text-sm">
-                {t('labels.isRecurring')}
-              </Label>
-            </div>
-
-            {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-                {error}
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setDialogOpen(false)}
-                disabled={isSubmitting}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                type="submit"
-                disabled={
-                  isSubmitting || !formData.amount || !formData.description
-                }
-              >
-                {isSubmitting ? t('dialog.recording') : t('record')}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Summary Cards */}
       {summary && (
-        <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4 mb-6 md:mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
-              <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {t('labels.totalExpenses')}
-              </CardTitle>
-              <Banknote className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="p-2 pt-0">
-              <div className="text-lg sm:text-2xl font-bold text-destructive">
-                {formatCurrency(summary.total.amount)}
-              </div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {summary.total.count} {t('labels.records')}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
-              <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {t('labels.feed')}
-              </CardTitle>
-              <Package className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
-            </CardHeader>
-            <CardContent className="p-2 pt-0">
-              <div className="text-lg sm:text-2xl font-bold">
-                {formatCurrency(
-                  'feed' in summary.byCategory
-                    ? summary.byCategory.feed.amount
-                    : 0,
-                )}
-              </div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {'feed' in summary.byCategory
-                  ? summary.byCategory.feed.count
-                  : 0}{' '}
-                {t('expenses.labels.purchases')}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
-              <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {t('expenses.labels.livestock')}
-              </CardTitle>
-              <div className="flex -space-x-1">
-                <Bird className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
-                <Fish className="h-3 w-3 sm:h-4 sm:w-4 text-info" />
-              </div>
-            </CardHeader>
-            <CardContent className="p-2 pt-0">
-              <div className="text-lg sm:text-2xl font-bold">
-                {formatCurrency(
-                  ('livestock_chicken' in summary.byCategory
-                    ? summary.byCategory.livestock_chicken.amount
-                    : 0) +
-                    ('livestock_fish' in summary.byCategory
-                      ? summary.byCategory.livestock_fish.amount
-                      : 0),
-                )}
-              </div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {('livestock_chicken' in summary.byCategory
-                  ? summary.byCategory.livestock_chicken.count
-                  : 0) +
-                  ('livestock_fish' in summary.byCategory
-                    ? summary.byCategory.livestock_fish.count
-                    : 0)}{' '}
-                {t('expenses.labels.purchases')}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
-              <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {t('expenses.labels.labor')}
-              </CardTitle>
-              <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple" />
-            </CardHeader>
-            <CardContent className="p-2 pt-0">
-              <div className="text-lg sm:text-2xl font-bold">
-                {formatCurrency(
-                  'labor' in summary.byCategory
-                    ? summary.byCategory.labor.amount
-                    : 0,
-                )}
-              </div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {'labor' in summary.byCategory
-                  ? summary.byCategory.labor.count
-                  : 0}{' '}
-                {t('expenses.labels.payments')}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <ExpensesSummary summary={summary} formatCurrency={formatCurrency} />
       )}
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={paginatedExpenses.data}
@@ -879,303 +130,60 @@ function ExpensesPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        searchPlaceholder={t('expenses.placeholders.search')}
         isLoading={isLoading}
-        filters={
-          <Select
-            value={searchParams.category || 'all'}
-            onValueChange={(value) => {
-              if (value) {
-                updateSearch({
-                  category: value === 'all' || !value ? undefined : value,
-                  page: 1,
-                })
-              }
-            }}
-          >
-            <SelectTrigger className="w-[180px] h-10">
-              <SelectValue>
-                {searchParams.category
-                  ? t('expenses.categories.' + searchParams.category, {
-                      defaultValue: searchParams.category,
-                    })
-                  : t('expenses.categories.all')}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                {t('expenses.categories.all')}
-              </SelectItem>
-              {Object.keys(CATEGORY_ICONS).map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  <div className="flex items-center gap-2 capitalize">
-                    {CATEGORY_ICONS[cat]}
-                    {t('expenses.categories.' + cat, { defaultValue: cat })}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        }
-        emptyIcon={<Banknote className="h-12 w-12" />}
-        emptyTitle={t('expenses.placeholders.noExpenses')}
-        emptyDescription={t('expenses.placeholders.noExpensesDesc')}
-        onPaginationChange={(page, pageSize) => {
+        onPaginationChange={(page, pageSize) =>
           updateSearch({ page, pageSize })
-        }}
-        onSortChange={(sortBy, sortOrder) => {
+        }
+        onSortChange={(sortBy, sortOrder) =>
           updateSearch({ sortBy, sortOrder, page: 1 })
-        }}
-        onSearchChange={(q) => {
-          updateSearch({ q, page: 1 })
-        }}
+        }
+        onSearchChange={(q) => updateSearch({ q, page: 1 })}
+        filters={
+          <ExpenseFilters
+            category={searchParams.category}
+            onCategoryChange={(category) =>
+              updateSearch({
+                category,
+                page: 1,
+              })
+            }
+          />
+        }
+        emptyIcon={<Users className="h-12 w-12 text-muted-foreground" />}
+        emptyTitle={t('empty.title', { defaultValue: 'No expenses found' })}
+        emptyDescription={t('empty.description', {
+          defaultValue: 'Get started by recording your first expense.',
+        })}
       />
 
-      {/* View Expense Dialog */}
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t('expenses.dialog.viewTitle')}</DialogTitle>
-          </DialogHeader>
-          {selectedExpense && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`h-10 w-10 rounded-full flex items-center justify-center ${CATEGORY_COLORS[selectedExpense.category] || 'bg-muted'}`}
-                >
-                  {getCategoryIcon(selectedExpense.category)}
-                </div>
-                <div>
-                  <p className="font-semibold text-lg capitalize">
-                    {t('expenses.categories.' + selectedExpense.category, {
-                      defaultValue: selectedExpense.category,
-                    })}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedExpense.description}
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {t('expenses.labels.amount')}:
-                  </span>
-                  <span className="font-bold text-lg text-destructive">
-                    -{formatCurrency(parseFloat(selectedExpense.amount))}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {t('expenses.labels.supplier')}:
-                  </span>
-                  <span className="font-medium">
-                    {selectedExpense.supplierName ||
-                      t('common.none', { defaultValue: 'None' })}
-                  </span>
-                </div>
-                {selectedExpense.batchSpecies && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {t('expenses.labels.batch')}:
-                    </span>
-                    <span>{selectedExpense.batchSpecies}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {t('expenses.labels.date')}:
-                  </span>
-                  <span>{formatDate(selectedExpense.date)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {t('expenses.labels.recurring')}:
-                  </span>
-                  <span>
-                    {selectedExpense.isRecurring
-                      ? t('common.yes', { defaultValue: 'Yes' })
-                      : t('common.no', { defaultValue: 'No' })}
-                  </span>
-                </div>
-              </div>
-              <div className="flex gap-2 justify-end">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setViewDialogOpen(false)
-                    handleEditExpense(selectedExpense)
-                  }}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  {t('common.edit')}
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    setViewDialogOpen(false)
-                    handleDeleteExpense(selectedExpense)
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  {t('common.delete')}
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <ExpenseFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        onSubmit={handleFormSubmit}
+        batches={batches}
+        suppliers={suppliers}
+        currencySymbol={currencySymbol}
+        isSubmitting={isSubmitting}
+        initialData={selectedExpense}
+      />
 
-      {/* Edit Expense Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t('expenses.dialog.editTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('expenses.dialog.editDesc')}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleEditSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="editCategory">
-                {t('expenses.labels.category')}
-              </Label>
-              <Select
-                value={editFormData.category}
-                onValueChange={(value: string | null) =>
-                  setEditFormData((prev) => ({
-                    ...prev,
-                    category: value || '',
-                  }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue>
-                    {editFormData.category
-                      ? EXPENSE_CATEGORIES.find(
-                          (c) => c.value === editFormData.category,
-                        )?.label
-                      : t('expenses.placeholders.selectCategory')}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {EXPENSE_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      <span className="flex items-center gap-2">
-                        {getCategoryIcon(cat.value)}
-                        {t('expenses.categories.' + cat.value, {
-                          defaultValue: cat.label,
-                        })}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="editAmount">
-                {t('expenses.labels.amount')} ({currencySymbol})
-              </Label>
-              <Input
-                id="editAmount"
-                type="number"
-                min="0"
-                step="0.01"
-                value={editFormData.amount}
-                onChange={(e) =>
-                  setEditFormData((prev) => ({
-                    ...prev,
-                    amount: e.target.value,
-                  }))
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="editDescription">
-                {t('expenses.labels.description')}
-              </Label>
-              <Input
-                id="editDescription"
-                value={editFormData.description}
-                onChange={(e) =>
-                  setEditFormData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-                required
-              />
-            </div>
-            {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-                {error}
-              </div>
-            )}
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setEditDialogOpen(false)}
-                disabled={isSubmitting}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? t('common.saving') : t('common.save')}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <ExpenseDetailsDialog
+        open={viewOpen}
+        onOpenChange={setViewOpen}
+        expense={selectedExpense}
+        formatCurrency={formatCurrency}
+        formatDate={formatDate}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t('expenses.dialog.deleteTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('expenses.dialog.deleteDesc')}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedExpense && (
-            <div className="py-4">
-              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                <div
-                  className={`h-10 w-10 rounded-full flex items-center justify-center ${CATEGORY_COLORS[selectedExpense.category] || 'bg-gray-100'}`}
-                >
-                  {getCategoryIcon(selectedExpense.category)}
-                </div>
-                <div>
-                  <p className="font-medium capitalize">
-                    {selectedExpense.category}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {formatCurrency(parseFloat(selectedExpense.amount))} -{' '}
-                    {selectedExpense.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              disabled={isSubmitting}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? t('common.deleting') : t('common.delete')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteExpenseDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        expense={selectedExpense}
+        onConfirm={handleDeleteSubmit}
+        isSubmitting={isSubmitting}
+      />
     </div>
   )
 }
