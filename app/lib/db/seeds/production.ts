@@ -20,7 +20,6 @@ import { DEFAULT_SETTINGS } from '~/features/settings/currency-presets'
 
 // ============ CONFIG ============
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@openlivestock.local'
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'password123'
 const ADMIN_NAME = process.env.ADMIN_NAME || 'Farm Administrator'
 
 // ============ GROWTH STANDARDS DATA ============
@@ -147,6 +146,115 @@ function generateTilapiaGrowthStandards(): Array<{
   return data
 }
 
+function generateCattleGrowthStandards(): Array<{
+  species: string
+  day: number
+  expected_weight_g: number
+}> {
+  // Beef cattle growth curve (Angus/Hereford type)
+  // Birth ~35kg, weaning (7mo) ~250kg, yearling ~400kg, finish (18mo) ~550kg
+  const data: Array<{
+    species: string
+    day: number
+    expected_weight_g: number
+  }> = []
+  const points = [
+    { day: 0, weight: 35000 },
+    { day: 210, weight: 250000 }, // 7 months weaning
+    { day: 365, weight: 400000 }, // 12 months
+    { day: 540, weight: 550000 }, // 18 months finish
+  ]
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const start = points[i]
+    const end = points[i + 1]
+    const days = end.day - start.day
+    for (let d = 0; d < days; d += 7) {
+      // Weekly intervals for cattle
+      const day = start.day + d
+      const weight = Math.round(
+        start.weight + ((end.weight - start.weight) / days) * d,
+      )
+      data.push({ species: 'Cattle', day, expected_weight_g: weight })
+    }
+  }
+  data.push({ species: 'Cattle', day: 540, expected_weight_g: 550000 })
+  return data
+}
+
+function generateGoatGrowthStandards(): Array<{
+  species: string
+  day: number
+  expected_weight_g: number
+}> {
+  // Meat goat growth curve (Boer type)
+  // Birth ~3.5kg, weaning (3mo) ~20kg, 6mo ~30kg, 12mo ~45kg
+  const data: Array<{
+    species: string
+    day: number
+    expected_weight_g: number
+  }> = []
+  const points = [
+    { day: 0, weight: 3500 },
+    { day: 90, weight: 20000 }, // 3 months weaning
+    { day: 180, weight: 30000 }, // 6 months
+    { day: 365, weight: 45000 }, // 12 months market
+  ]
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const start = points[i]
+    const end = points[i + 1]
+    const days = end.day - start.day
+    for (let d = 0; d < days; d += 7) {
+      const day = start.day + d
+      const weight = Math.round(
+        start.weight + ((end.weight - start.weight) / days) * d,
+      )
+      data.push({ species: 'Goat', day, expected_weight_g: weight })
+    }
+  }
+  data.push({ species: 'Goat', day: 365, expected_weight_g: 45000 })
+  return data
+}
+
+function generateSheepGrowthStandards(): Array<{
+  species: string
+  day: number
+  expected_weight_g: number
+}> {
+  // Meat sheep growth curve (Dorper/Suffolk type)
+  // Birth ~4kg, weaning (3mo) ~25kg, 6mo ~40kg, 12mo ~55kg
+  const data: Array<{
+    species: string
+    day: number
+    expected_weight_g: number
+  }> = []
+  const points = [
+    { day: 0, weight: 4000 },
+    { day: 90, weight: 25000 }, // 3 months weaning
+    { day: 180, weight: 40000 }, // 6 months
+    { day: 365, weight: 55000 }, // 12 months market
+  ]
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const start = points[i]
+    const end = points[i + 1]
+    const days = end.day - start.day
+    for (let d = 0; d < days; d += 7) {
+      const day = start.day + d
+      const weight = Math.round(
+        start.weight + ((end.weight - start.weight) / days) * d,
+      )
+      data.push({ species: 'Sheep', day, expected_weight_g: weight })
+    }
+  }
+  data.push({ species: 'Sheep', day: 365, expected_weight_g: 55000 })
+  return data
+}
+
+// Note: Bees don't have weight-based growth standards
+// Colony strength is measured by frame count, not weight
+
 // NOTE: Market prices removed - users enter their own target prices per batch
 // This makes the app international (not Nigeria-specific)
 // Regional market data packages can be added as a future enhancement
@@ -155,6 +263,15 @@ function generateTilapiaGrowthStandards(): Array<{
 // ============ MAIN SEED ============
 export async function seed() {
   console.log('🌱 Seeding OpenLivestock Production Data\n')
+
+  // SECURITY: Require explicit admin password
+  if (!process.env.ADMIN_PASSWORD) {
+    console.error('❌ ADMIN_PASSWORD environment variable is required')
+    console.error('   Set ADMIN_PASSWORD before running production seed')
+    process.exit(1)
+  }
+
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 
   try {
     // Check if admin user already exists
@@ -206,12 +323,18 @@ export async function seed() {
     const layerStandards = generateLayerGrowthStandards()
     const catfishStandards = generateCatfishGrowthStandards()
     const tilapiaStandards = generateTilapiaGrowthStandards()
+    const cattleStandards = generateCattleGrowthStandards()
+    const goatStandards = generateGoatGrowthStandards()
+    const sheepStandards = generateSheepGrowthStandards()
 
     const allStandards = [
       ...broilerStandards,
       ...layerStandards,
       ...catfishStandards,
       ...tilapiaStandards,
+      ...cattleStandards,
+      ...goatStandards,
+      ...sheepStandards,
     ]
 
     await db.insertInto('growth_standards').values(allStandards).execute()
@@ -219,7 +342,10 @@ export async function seed() {
     console.log(`      • Broiler: ${broilerStandards.length} days`)
     console.log(`      • Layer: ${layerStandards.length} days`)
     console.log(`      • Catfish: ${catfishStandards.length} days`)
-    console.log(`      • Tilapia: ${tilapiaStandards.length} days\n`)
+    console.log(`      • Tilapia: ${tilapiaStandards.length} days`)
+    console.log(`      • Cattle: ${cattleStandards.length} weeks`)
+    console.log(`      • Goat: ${goatStandards.length} weeks`)
+    console.log(`      • Sheep: ${sheepStandards.length} weeks\n`)
 
     // NOTE: Market prices removed - users enter their own target prices per batch
     // This makes the app international (not Nigeria-specific)
@@ -234,9 +360,7 @@ export async function seed() {
     console.log('   • Growth standards: Broiler, Layer, Catfish, Tilapia')
     console.log('\n🔐 Login credentials:')
     console.log(`   Email: ${ADMIN_EMAIL}`)
-    console.log(
-      `   Password: ${ADMIN_PASSWORD === 'password123' ? 'password123 (default)' : '(from ADMIN_PASSWORD env var)'}`,
-    )
+    console.log('   Password: (from ADMIN_PASSWORD env var)')
     console.log('\n💡 For demo data with farms, batches, and transactions:')
     console.log('   bun run db:seed:dev\n')
   } catch (error) {

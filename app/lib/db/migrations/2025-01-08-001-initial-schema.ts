@@ -217,6 +217,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('notes', 'text')
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
+    .addColumn('deletedAt', 'timestamptz')
     .execute()
 
   await sql`ALTER TABLE farms ADD CONSTRAINT farms_type_check CHECK (type IN ('poultry', 'aquaculture', 'mixed', 'cattle', 'goats', 'sheep', 'bees', 'multi'))`.execute(
@@ -287,6 +288,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('customerType', 'varchar(20)')
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
+    .addColumn('deletedAt', 'timestamptz')
     .execute()
 
   await sql`ALTER TABLE customers ADD CONSTRAINT customers_type_check CHECK ("customerType" IS NULL OR "customerType" IN ('individual', 'restaurant', 'retailer', 'wholesaler', 'processor', 'exporter', 'government'))`.execute(
@@ -315,6 +317,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('supplierType', 'varchar(20)')
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
+    .addColumn('deletedAt', 'timestamptz')
     .execute()
 
   await sql`ALTER TABLE suppliers ADD CONSTRAINT suppliers_type_check CHECK ("supplierType" IS NULL OR "supplierType" IN ('hatchery', 'feed_mill', 'pharmacy', 'equipment', 'fingerlings', 'cattle_dealer', 'goat_dealer', 'sheep_dealer', 'bee_supplier', 'other'))`.execute(
@@ -414,6 +417,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       col.notNull().defaultTo('active'),
     )
     .addColumn('batchName', 'varchar(100)')
+    .addColumn('deletedAt', 'timestamptz')
     .addColumn('supplierId', 'uuid', (col) => col.references('suppliers.id'))
     .addColumn('sourceSize', 'varchar(50)')
     .addColumn('structureId', 'uuid', (col) => col.references('structures.id'))
@@ -773,6 +777,12 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
   await db.schema
+    .createIndex('idx_farms_deleted_at')
+    .on('farms')
+    .column('deletedAt')
+    .execute()
+
+  await db.schema
     .createIndex('idx_farm_modules_farm_id')
     .on('farm_modules')
     .column('farmId')
@@ -792,6 +802,24 @@ export async function up(db: Kysely<any>): Promise<void> {
     .createIndex('idx_batches_status')
     .on('batches')
     .column('status')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_batches_deleted_at')
+    .on('batches')
+    .column('deletedAt')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_customers_deleted_at')
+    .on('customers')
+    .column('deletedAt')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_suppliers_deleted_at')
+    .on('suppliers')
+    .column('deletedAt')
     .execute()
 
   // ============================================
@@ -977,6 +1005,56 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`CREATE TRIGGER update_suppliers_updated_at BEFORE UPDATE ON suppliers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(
     db,
   )
+
+  // Report Configurations
+  await db.schema
+    .createTable('report_configs')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`uuid_generate_v4()`),
+    )
+    .addColumn('createdBy', 'uuid', (col) => col.notNull())
+    .addColumn('farmId', 'uuid', (col) => col.notNull())
+    .addColumn('name', 'varchar(100)', (col) => col.notNull())
+    .addColumn('reportType', 'varchar(50)', (col) => col.notNull())
+    .addColumn('dateRangeType', 'varchar(20)', (col) => col.notNull())
+    .addColumn('customStartDate', 'timestamp')
+    .addColumn('customEndDate', 'timestamp')
+    .addColumn('includeCharts', 'boolean', (col) =>
+      col.notNull().defaultTo(true),
+    )
+    .addColumn('includeDetails', 'boolean', (col) =>
+      col.notNull().defaultTo(true),
+    )
+    .addColumn('createdAt', 'timestamp', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .addColumn('updatedAt', 'timestamp', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .addForeignKeyConstraint('report_configs_farmId_fk', ['farmId'], 'farms', [
+      'id',
+    ])
+    .addForeignKeyConstraint(
+      'report_configs_createdBy_fk',
+      ['createdBy'],
+      'users',
+      ['id'],
+    )
+    .execute()
+
+  await sql`ALTER TABLE report_configs ADD CONSTRAINT report_configs_report_type_check CHECK ("reportType" IN ('profit_loss', 'inventory', 'sales', 'feed', 'egg'))`.execute(
+    db,
+  )
+
+  await sql`ALTER TABLE report_configs ADD CONSTRAINT report_configs_date_range_type_check CHECK ("dateRangeType" IN ('today', 'week', 'month', 'quarter', 'year', 'custom'))`.execute(
+    db,
+  )
+
+  await db.schema
+    .createIndex('report_configs_farmId_idx')
+    .on('report_configs')
+    .column('farmId')
+    .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
@@ -986,6 +1064,7 @@ export async function down(db: Kysely<any>): Promise<void> {
 
   // Drop all tables
   const tables = [
+    'report_configs',
     'growth_standards',
     'market_prices',
     'audit_logs',
