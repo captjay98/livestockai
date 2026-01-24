@@ -1,3 +1,4 @@
+ 
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 import type { CreateSaleInput, UpdateSaleInput } from '~/features/sales/server'

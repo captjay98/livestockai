@@ -7,7 +7,7 @@ import {
   truncateAllTables,
 } from '../helpers/db-integration'
 
-describe('Authentication Integration Tests', () => {
+describe.skipIf(!process.env.DATABASE_URL_TEST)('Authentication Integration Tests', () => {
   beforeAll(async () => {
     // Skip if no test database configured
     if (!process.env.DATABASE_URL_TEST) {

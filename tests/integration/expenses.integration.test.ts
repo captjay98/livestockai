@@ -8,7 +8,7 @@ import {
   truncateAllTables,
 } from '../helpers/db-integration'
 
-describe('Expenses Integration Tests', () => {
+describe.skipIf(!process.env.DATABASE_URL_TEST)('Expenses Integration Tests', () => {
   let userId: string
   let farmId: string
   let batchId: string

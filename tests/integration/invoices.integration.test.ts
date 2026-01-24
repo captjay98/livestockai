@@ -7,7 +7,7 @@ import {
   truncateAllTables,
 } from '../helpers/db-integration'
 
-describe('Invoices Integration Tests', () => {
+describe.skipIf(!process.env.DATABASE_URL_TEST)('Invoices Integration Tests', () => {
   let userId: string
   let farmId: string
   let customerId: string

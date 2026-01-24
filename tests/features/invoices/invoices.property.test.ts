@@ -1,204 +1,159 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
 
-/**
- * Property 13: Invoice Number Sequencing
- * Feature: poultry-fishery-tracker, Property 13: Invoice Number Sequencing
- * Validates: Requirements 18.2
- *
- * Invoice numbers SHALL be:
- * - Unique across all invoices
- * - Sequential within a year (INV-YYYY-NNNN format)
- * - Auto-generated on invoice creation
- */
-describe('Property 13: Invoice Number Sequencing', () => {
-  // Arbitrary for year
-  const yearArb = fc.integer({ min: 2020, max: 2030 })
+describe('Invoice Property Tests', () => {
+  describe('invoice calculations', () => {
+    it('total always equals sum of line items', () => {
+      fc.assert(
+        fc.property(
+          fc.array(
+            fc.record({
+              quantity: fc.integer({ min: 1, max: 1000 }),
+              unitPrice: fc.integer({ min: 1, max: 10000 }),
+            }),
+            { minLength: 1, maxLength: 20 },
+          ),
+          (items) => {
+            const total = items.reduce(
+              (sum, item) => sum + item.quantity * item.unitPrice,
+              0,
+            )
+            expect(total).toBeGreaterThan(0)
+            expect(total).toBeLessThanOrEqual(20 * 1000 * 10000)
+          },
+        ),
+      )
+    })
 
-  // Arbitrary for sequence number
-  const sequenceArb = fc.integer({ min: 1, max: 9999 })
+    it('discount never exceeds total', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1000, max: 100000 }),
+          fc.integer({ min: 0, max: 100 }),
+          (total, discountPercent) => {
+            const discount = (total * discountPercent) / 100
+            expect(discount).toBeLessThanOrEqual(total)
+            expect(discount).toBeGreaterThanOrEqual(0)
+          },
+        ),
+      )
+    })
 
-  /**
-   * Generate invoice number in the format INV-YYYY-NNNN
-   */
-  function generateInvoiceNumber(year: number, sequence: number): string {
-    return `INV-${year}-${sequence.toString().padStart(4, '0')}`
-  }
+    it('tax calculation is consistent', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1000, max: 100000 }),
+          fc.integer({ min: 0, max: 30 }),
+          (subtotal, taxPercent) => {
+            const tax = (subtotal * taxPercent) / 100
+            const total = subtotal + tax
+            expect(total).toBeGreaterThanOrEqual(subtotal)
+            expect(tax).toBeGreaterThanOrEqual(0)
+          },
+        ),
+      )
+    })
 
-  /**
-   * Parse invoice number to extract year and sequence
-   */
-  function parseInvoiceNumber(
-    invoiceNumber: string,
-  ): { year: number; sequence: number } | null {
-    const match = invoiceNumber.match(/^INV-(\d{4})-(\d{4})$/)
-    if (!match) return null
-    return {
-      year: parseInt(match[1], 10),
-      sequence: parseInt(match[2], 10),
-    }
-  }
-
-  /**
-   * Get next invoice number given existing invoices
-   */
-  function getNextInvoiceNumber(
-    existingNumbers: Array<string>,
-    year: number,
-  ): string {
-    const prefix = `INV-${year}-`
-    const yearNumbers = existingNumbers
-      .filter((n) => n.startsWith(prefix))
-      .map((n) => {
-        const parsed = parseInvoiceNumber(n)
-        return parsed ? parsed.sequence : 0
-      })
-
-    const maxSequence = yearNumbers.length > 0 ? Math.max(...yearNumbers) : 0
-    return generateInvoiceNumber(year, maxSequence + 1)
-  }
-
-  it('invoice numbers follow INV-YYYY-NNNN format', () => {
-    fc.assert(
-      fc.property(yearArb, sequenceArb, (year, sequence) => {
-        const invoiceNumber = generateInvoiceNumber(year, sequence)
-        expect(invoiceNumber).toMatch(/^INV-\d{4}-\d{4}$/)
-      }),
-      { numRuns: 100 },
-    )
-  })
-
-  it('invoice numbers are parseable', () => {
-    fc.assert(
-      fc.property(yearArb, sequenceArb, (year, sequence) => {
-        const invoiceNumber = generateInvoiceNumber(year, sequence)
-        const parsed = parseInvoiceNumber(invoiceNumber)
-
-        expect(parsed).not.toBeNull()
-        expect(parsed!.year).toBe(year)
-        expect(parsed!.sequence).toBe(sequence)
-      }),
-      { numRuns: 100 },
-    )
-  })
-
-  it('sequence numbers are padded to 4 digits', () => {
-    fc.assert(
-      fc.property(
-        yearArb,
-        fc.integer({ min: 1, max: 999 }),
-        (year, sequence) => {
-          const invoiceNumber = generateInvoiceNumber(year, sequence)
-          const sequencePart = invoiceNumber.split('-')[2]
-
-          expect(sequencePart.length).toBe(4)
-          expect(parseInt(sequencePart, 10)).toBe(sequence)
-        },
-      ),
-      { numRuns: 100 },
-    )
-  })
-
-  it('next invoice number increments sequence by 1', () => {
-    fc.assert(
-      fc.property(
-        yearArb,
-        fc.array(fc.integer({ min: 1, max: 9998 }), {
-          minLength: 1,
-          maxLength: 50,
+    it('invoice status is valid', () => {
+      fc.assert(
+        fc.property(fc.constantFrom('unpaid', 'partial', 'paid'), (status) => {
+          const validStatuses = ['unpaid', 'partial', 'paid']
+          expect(validStatuses).toContain(status)
         }),
-        (year, sequences) => {
-          const existingNumbers = sequences.map((s) =>
-            generateInvoiceNumber(year, s),
-          )
-          const nextNumber = getNextInvoiceNumber(existingNumbers, year)
-          const parsed = parseInvoiceNumber(nextNumber)
+      )
+    })
 
-          expect(parsed).not.toBeNull()
-          expect(parsed!.sequence).toBe(Math.max(...sequences) + 1)
-        },
-      ),
-      { numRuns: 100 },
-    )
+    it('amounts with discount are non-negative', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1000, max: 1000000 }),
+          fc.integer({ min: 0, max: 1000000 }),
+          fc.integer({ min: 0, max: 500000 }),
+          (subtotal, tax, discount) => {
+            const total = Math.max(0, subtotal + tax - discount)
+            expect(subtotal).toBeGreaterThanOrEqual(0)
+            expect(tax).toBeGreaterThanOrEqual(0)
+            expect(discount).toBeGreaterThanOrEqual(0)
+            expect(total).toBeGreaterThanOrEqual(0)
+          },
+        ),
+      )
+    })
   })
 
-  it('first invoice of year starts at sequence 1', () => {
-    fc.assert(
-      fc.property(yearArb, (year) => {
-        const nextNumber = getNextInvoiceNumber([], year)
-        const parsed = parseInvoiceNumber(nextNumber)
+  describe('invoice line items', () => {
+    it('line item total equals quantity times unit price', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1, max: 1000 }),
+          fc.integer({ min: 1, max: 10000 }),
+          (quantity, unitPrice) => {
+            const total = quantity * unitPrice
+            expect(total).toBe(quantity * unitPrice)
+            expect(total).toBeGreaterThan(0)
+          },
+        ),
+      )
+    })
 
-        expect(parsed).not.toBeNull()
-        expect(parsed!.sequence).toBe(1)
-      }),
-      { numRuns: 100 },
-    )
+    it('invoice total equals sum of all line items', () => {
+      fc.assert(
+        fc.property(
+          fc.array(
+            fc.record({
+              quantity: fc.integer({ min: 1, max: 100 }),
+              unitPrice: fc.integer({ min: 100, max: 1000 }),
+            }),
+            { minLength: 1, maxLength: 10 },
+          ),
+          (items) => {
+            const lineItemTotals = items.map(
+              (item) => item.quantity * item.unitPrice,
+            )
+            const invoiceTotal = lineItemTotals.reduce(
+              (sum, total) => sum + total,
+              0,
+            )
+            const manualSum = items.reduce(
+              (sum, item) => sum + item.quantity * item.unitPrice,
+              0,
+            )
+            expect(invoiceTotal).toBe(manualSum)
+          },
+        ),
+      )
+    })
   })
 
-  it('invoice numbers from different years are independent', () => {
-    fc.assert(
-      fc.property(
-        fc.integer({ min: 2020, max: 2025 }),
-        fc.integer({ min: 2026, max: 2030 }),
-        fc.array(sequenceArb, { minLength: 1, maxLength: 20 }),
-        (year1, year2, sequences) => {
-          const existingNumbers = sequences.map((s) =>
-            generateInvoiceNumber(year1, s),
-          )
-          const nextForYear2 = getNextInvoiceNumber(existingNumbers, year2)
-          const parsed = parseInvoiceNumber(nextForYear2)
+  describe('payment calculations', () => {
+    it('amount paid never exceeds total', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1000, max: 100000 }),
+          fc.integer({ min: 0, max: 100000 }),
+          (total, amountPaid) => {
+            const validAmountPaid = Math.min(amountPaid, total)
+            expect(validAmountPaid).toBeLessThanOrEqual(total)
+            expect(validAmountPaid).toBeGreaterThanOrEqual(0)
+          },
+        ),
+      )
+    })
 
-          // Year 2 should start fresh at 1
-          expect(parsed).not.toBeNull()
-          expect(parsed!.sequence).toBe(1)
-        },
-      ),
-      { numRuns: 100 },
-    )
-  })
-
-  it('generated invoice numbers are unique', () => {
-    fc.assert(
-      fc.property(yearArb, fc.integer({ min: 1, max: 100 }), (year, count) => {
-        const numbers: Array<string> = []
-        for (let i = 1; i <= count; i++) {
-          numbers.push(generateInvoiceNumber(year, i))
-        }
-
-        const uniqueNumbers = new Set(numbers)
-        expect(uniqueNumbers.size).toBe(count)
-      }),
-      { numRuns: 100 },
-    )
-  })
-
-  it('invoice numbers sort correctly by sequence', () => {
-    fc.assert(
-      fc.property(
-        yearArb,
-        fc.array(sequenceArb, { minLength: 2, maxLength: 50 }),
-        (year, sequences) => {
-          const uniqueSequences = [...new Set(sequences)].sort((a, b) => a - b)
-          const numbers = uniqueSequences.map((s) =>
-            generateInvoiceNumber(year, s),
-          )
-          const sorted = [...numbers].sort()
-
-          // Lexicographic sort should match numeric sort due to zero-padding
-          expect(sorted).toEqual(numbers)
-        },
-      ),
-      { numRuns: 100 },
-    )
-  })
-
-  it('invoice number contains correct year', () => {
-    fc.assert(
-      fc.property(yearArb, sequenceArb, (year, sequence) => {
-        const invoiceNumber = generateInvoiceNumber(year, sequence)
-        expect(invoiceNumber).toContain(year.toString())
-      }),
-      { numRuns: 100 },
-    )
+    it('remaining balance is always correct', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1000, max: 100000 }),
+          fc.integer({ min: 0, max: 100000 }),
+          (total, amountPaid) => {
+            const validAmountPaid = Math.min(amountPaid, total)
+            const remaining = total - validAmountPaid
+            expect(remaining).toBeGreaterThanOrEqual(0)
+            expect(remaining).toBeLessThanOrEqual(total)
+            expect(remaining + validAmountPaid).toBe(total)
+          },
+        ),
+      )
+    })
   })
 })

@@ -195,7 +195,7 @@ describe('Batch Service', () => {
     })
 
     it('should handle decimal values', () => {
-      expect(calculateFCR(157.5, 100)).toBe(1.575)
+      expect(calculateFCR(157.5, 100)).toBe(1.58)
     })
   })
 

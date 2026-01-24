@@ -1,6 +1,7 @@
+ 
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
-import type { CreateWaterQualityInput } from '~/features/water-quality/server'
+import type { CreateWaterQualityData } from '~/features/water-quality/server'
 import {
   buildWaterQualitySummary,
   calculateAverageParameter,
@@ -14,7 +15,7 @@ import {
 
 describe('Water Quality Service', () => {
   describe('validateReadingData', () => {
-    const validData: CreateWaterQualityInput = {
+    const validData: CreateWaterQualityData = {
       batchId: 'batch-1',
       date: new Date(),
       ph: 7.0,
@@ -759,7 +760,7 @@ describe('Water Quality Service', () => {
       it('should accept valid pH values between 6.5 and 9.0', () => {
         fc.assert(
           fc.property(fc.float({ min: 6.5, max: 9 }), (ph) => {
-            const validData: CreateWaterQualityInput = {
+            const validData: CreateWaterQualityData = {
               batchId: 'batch-1',
               date: new Date(),
               ph,
@@ -776,7 +777,7 @@ describe('Water Quality Service', () => {
       it('should accept valid temperature between 25 and 30', () => {
         fc.assert(
           fc.property(fc.float({ min: 25, max: 30 }), (temp) => {
-            const validData: CreateWaterQualityInput = {
+            const validData: CreateWaterQualityData = {
               batchId: 'batch-1',
               date: new Date(),
               ph: 7.5,
@@ -793,7 +794,7 @@ describe('Water Quality Service', () => {
       it('should accept valid DO >= 5', () => {
         fc.assert(
           fc.property(fc.float({ min: 5, max: 15 }), (doVal) => {
-            const validData: CreateWaterQualityInput = {
+            const validData: CreateWaterQualityData = {
               batchId: 'batch-1',
               date: new Date(),
               ph: 7.5,
@@ -812,7 +813,7 @@ describe('Water Quality Service', () => {
         fc.assert(
           fc.property(fc.nat({ max: 20 }), (scaled) => {
             const ammonia = scaled / 1000 // Values from 0 to 0.02
-            const validData: CreateWaterQualityInput = {
+            const validData: CreateWaterQualityData = {
               batchId: 'batch-1',
               date: new Date(),
               ph: 7.5,
