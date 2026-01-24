@@ -73,7 +73,7 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
     password: {
       hash: hashPassword,
       verify: async ({ hash, password }) => verifyPassword(hash, password),
@@ -90,7 +90,7 @@ export const auth = betterAuth({
   },
   advanced: {
     cookiePrefix: 'openlivestock',
-    useSecureCookies: process.env.NODE_ENV === 'production',
+    useSecureCookies: true,
   },
   user: {
     modelName: 'users',
