@@ -1,4 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
+import { redirect } from '@tanstack/react-router'
+import { z } from 'zod'
 import { MODULE_METADATA } from '../modules/constants'
 import {
   calculateBatchTotalCost,
@@ -27,7 +29,56 @@ import type { LivestockType } from '../modules/types'
 import { AppError } from '~/lib/errors'
 import { toNumber } from '~/features/settings/currency'
 
+// Zod validation schemas
+const createBatchSchema = z.object({
+  farmId: z.string().uuid(),
+  livestockType: z.enum([
+    'poultry',
+    'fish',
+    'cattle',
+    'goats',
+    'sheep',
+    'bees',
+  ]),
+  species: z.string().min(1).max(100),
+  initialQuantity: z.number().int().positive(),
+  acquisitionDate: z.coerce.date(),
+  costPerUnit: z.number().nonnegative(),
+  batchName: z.string().max(100).nullish(),
+  sourceSize: z.string().max(50).nullish(),
+  structureId: z.string().uuid().nullish(),
+  targetHarvestDate: z.coerce.date().nullish(),
+  target_weight_g: z.number().positive().nullish(),
+  supplierId: z.string().uuid().nullish(),
+  notes: z.string().max(500).nullish(),
+})
+
+const updateBatchSchema = z.object({
+  species: z.string().min(1).max(100).optional(),
+  status: z.enum(['active', 'depleted', 'sold']).optional(),
+  batchName: z.string().max(100).nullish(),
+  sourceSize: z.string().max(50).nullish(),
+  structureId: z.string().uuid().nullish(),
+  targetHarvestDate: z.coerce.date().nullish(),
+  target_weight_g: z.number().positive().nullish(),
+  notes: z.string().max(500).nullish(),
+})
+
+const paginatedQuerySchema = z.object({
+  page: z.number().int().positive().optional().default(1),
+  pageSize: z.number().int().positive().max(100).optional().default(10),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  search: z.string().optional(),
+  farmId: z.string().uuid().optional(),
+  status: z.enum(['active', 'depleted', 'sold']).optional(),
+  livestockType: z
+    .enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'])
+    .optional(),
+})
+
 export type { PaginatedResult }
+export type { InventorySummary } from './types'
 
 /**
  * Get source size options for a livestock type based on module metadata
@@ -204,11 +255,12 @@ export async function createBatch(
 
 // Server function for client-side calls
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { batch: CreateBatchData }) => data)
+  .inputValidator(z.object({ batch: createBatchSchema }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
-    return createBatch(session.user.id, data.batch)
+    // Type assertion to ensure compatibility with CreateBatchData interface
+    return createBatch(session.user.id, data.batch as CreateBatchData)
   })
 
 /**
@@ -370,11 +422,20 @@ export async function updateBatch(
 
 // Server function for client-side calls
 export const updateBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { batchId: string; batch: UpdateBatchData }) => data)
+  .inputValidator(
+    z.object({
+      batchId: z.string().uuid(),
+      batch: updateBatchSchema,
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
-    return updateBatch(session.user.id, data.batchId, data.batch)
+    return updateBatch(
+      session.user.id,
+      data.batchId,
+      data.batch as UpdateBatchData,
+    )
   })
 
 /**
@@ -425,7 +486,7 @@ export async function deleteBatch(userId: string, batchId: string) {
 
 // Server function for client-side calls
 export const deleteBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { batchId: string }) => data)
+  .inputValidator(z.object({ batchId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
@@ -839,7 +900,7 @@ export async function getBatchesPaginated(
 
 // Server function for paginated batches
 export const getBatchesPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: PaginatedQuery) => data)
+  .inputValidator(paginatedQuerySchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
@@ -848,7 +909,7 @@ export const getBatchesPaginatedFn = createServerFn({ method: 'GET' })
 
 // Server function for batch details
 export const getBatchDetailsFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { batchId: string }) => data)
+  .inputValidator(z.object({ batchId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
@@ -857,9 +918,55 @@ export const getBatchDetailsFn = createServerFn({ method: 'GET' })
 
 // Server function for getting batches
 export const getBatchesFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId?: string }) => data)
+  .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
     return getBatches(session.user.id, data.farmId)
+  })
+
+/**
+ * Server function for getting batches with pagination and summary
+ * Used by batches index route
+ */
+export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid().optional(),
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      status: z.string().optional(),
+      livestockType: z.string().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      const session = await requireAuth()
+      const farmId = data.farmId || undefined
+
+      const [paginatedBatches, summary] = await Promise.all([
+        getBatchesPaginated(session.user.id, {
+          farmId,
+          page: data.page,
+          pageSize: data.pageSize,
+          sortBy: data.sortBy,
+          sortOrder: data.sortOrder,
+          search: data.search,
+          status: data.status,
+          livestockType: data.livestockType,
+        }),
+        getInventorySummary(session.user.id, farmId),
+      ])
+
+      return { paginatedBatches, summary }
+    } catch (err) {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
+        throw redirect({ to: '/login' })
+      }
+      throw err
+    }
   })

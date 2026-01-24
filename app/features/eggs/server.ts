@@ -516,3 +516,80 @@ export const getEggRecordsPaginatedFn = createServerFn({ method: 'GET' })
     const session = await requireAuth()
     return getEggRecordsPaginated(session.user.id, data)
   })
+
+/**
+ * Server function to get all egg data for a farm (paginated records, summary, and batches)
+ */
+export const getEggDataForFarm = createServerFn({ method: 'GET' })
+  .inputValidator(
+    (data: {
+      farmId?: string | null
+      page?: number
+      pageSize?: number
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+      search?: string
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const { getBatches } = await import('~/features/batches/server')
+
+    const session = await requireAuth()
+    const farmId = data.farmId || undefined
+
+    const [paginatedRecords, summary, allBatches] = await Promise.all([
+      getEggRecordsPaginated(session.user.id, {
+        farmId,
+        page: data.page,
+        pageSize: data.pageSize,
+        sortBy: data.sortBy,
+        sortOrder: data.sortOrder,
+        search: data.search,
+      }),
+      getEggRecordsSummary(session.user.id, farmId),
+      farmId ? getBatches(session.user.id, farmId) : Promise.resolve([]),
+    ])
+
+    const batches = allBatches.filter(
+      (b: any) => b.status === 'active' && b.livestockType === 'poultry',
+    )
+
+    return {
+      paginatedRecords,
+      summary,
+      batches,
+    }
+  })
+
+/**
+ * Server function to create an egg record
+ */
+export const createEggRecordAction = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      date: string
+      quantityCollected: number
+      quantityBroken: number
+      quantitySold: number
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
+    const result = await createEggRecordFn({
+      data: {
+        farmId: data.farmId,
+        record: {
+          batchId: data.batchId,
+          date: new Date(data.date),
+          quantityCollected: data.quantityCollected,
+          quantityBroken: data.quantityBroken,
+          quantitySold: data.quantitySold,
+        },
+      },
+    })
+    return { success: true, id: result }
+  })

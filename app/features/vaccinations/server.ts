@@ -694,3 +694,46 @@ export const deleteTreatmentFn = createServerFn({ method: 'POST' })
     const session = await requireAuth()
     return deleteTreatment(session.user.id, data.recordId)
   })
+
+/**
+ * Server function to get health data for a farm including records, alerts, and batches.
+ */
+export const getHealthDataForFarm = createServerFn({ method: 'GET' })
+  .inputValidator(
+    (data: {
+      farmId?: string | null
+      page?: number
+      pageSize?: number
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+      search?: string
+      type?: 'all' | 'vaccination' | 'treatment'
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const { getBatches } = await import('~/features/batches/server')
+
+    const session = await requireAuth()
+    const farmId = data.farmId || undefined
+
+    const [paginatedRecords, alerts, allBatches] = await Promise.all([
+      getHealthRecordsPaginated(session.user.id, {
+        farmId,
+        page: data.page,
+        pageSize: data.pageSize,
+        sortBy: data.sortBy,
+        sortOrder: data.sortOrder,
+        search: data.search,
+        type: data.type,
+      }),
+      getVaccinationAlerts(session.user.id, farmId),
+      getBatches(session.user.id, farmId),
+    ])
+
+    return {
+      paginatedRecords,
+      alerts,
+      batches: allBatches.filter((b) => b.status === 'active'),
+    }
+  })

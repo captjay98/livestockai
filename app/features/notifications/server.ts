@@ -56,7 +56,18 @@ export async function getNotifications(
   try {
     let query = db
       .selectFrom('notifications')
-      .selectAll()
+      .select([
+        'id',
+        'userId',
+        'farmId',
+        'type',
+        'title',
+        'message',
+        'read',
+        'actionUrl',
+        'metadata',
+        'createdAt',
+      ])
       .where('userId', '=', userId)
       .orderBy('createdAt', 'desc')
 

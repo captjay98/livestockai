@@ -474,3 +474,49 @@ export const deleteWeightSampleFn = createServerFn({ method: 'POST' })
     const session = await requireAuth()
     return deleteWeightSample(session.user.id, data.recordId)
   })
+
+/**
+ * Get comprehensive weight data for a farm including records, alerts, and batches
+ */
+export const getWeightDataForFarm = createServerFn({ method: 'GET' })
+  .inputValidator(
+    (data: {
+      farmId?: string | null
+      page?: number
+      pageSize?: number
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+      search?: string
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    const farmId = data.farmId || undefined
+
+    const [paginatedRecords, alerts, allBatches] = await Promise.all([
+      getWeightRecordsPaginatedFn({
+        data: {
+          farmId,
+          page: data.page,
+          pageSize: data.pageSize,
+          sortBy: data.sortBy,
+          sortOrder: data.sortOrder,
+          search: data.search,
+        },
+      }),
+      getGrowthAlerts(session.user.id, farmId),
+      (async () => {
+        const { getBatches } = await import('~/features/batches/server')
+        return getBatches(session.user.id, farmId)
+      })(),
+    ])
+
+    const batches = allBatches.filter((b) => b.status === 'active')
+
+    return {
+      paginatedRecords,
+      alerts,
+      batches,
+    }
+  })

@@ -1,64 +1,43 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import * as repository from './repository'
 import * as service from './service'
-import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import type {
+  CreateCustomerInput,
+  CustomerQuery,
+  PaginatedResult,
+} from './types'
 import { AppError } from '~/lib/errors'
 
+// Zod validation schemas
+const createCustomerSchema = z.object({
+  farmId: z.string().min(1, 'Farm ID is required'),
+  name: z.string().min(1, 'Name is required').max(255, 'Name too long'),
+  phone: z.string().min(1, 'Phone is required').max(20, 'Phone too long'),
+  email: z.string().email('Invalid email').optional().nullable(),
+  location: z.string().max(500, 'Location too long').optional().nullable(),
+  customerType: z
+    .enum(['individual', 'restaurant', 'retailer', 'wholesaler'])
+    .optional()
+    .nullable(),
+})
+
+const updateCustomerSchema = createCustomerSchema
+  .partial()
+  .omit({ farmId: true })
+
+const customerQuerySchema = z.object({
+  farmId: z.string().optional(),
+  page: z.number().int().min(1).optional(),
+  pageSize: z.number().int().min(1).max(100).optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  search: z.string().optional(),
+  q: z.string().optional(),
+  customerType: z.string().optional(),
+})
+
 export type { PaginatedResult }
-
-/**
- * Represents a customer record with aggregated sales metrics.
- * Used for CRM and reporting.
- */
-export interface CustomerRecord {
-  /** Unique identifier for the customer */
-  id: string
-  /** Full name of the customer or business */
-  name: string
-  /** Contact phone number */
-  phone: string
-  /** Optional email address */
-  email: string | null
-  /** Optional physical or delivery address */
-  location: string | null
-  /**
-   * Categorization of the customer.
-   * Helps in targeted marketing and pricing.
-   */
-  customerType: string | null
-  /** Timestamp when the customer was first recorded */
-  createdAt: Date
-  /** Aggregate count of sales made to this customer */
-  salesCount: number
-  /** Aggregate total amount spent by this customer in system currency */
-  totalSpent: number
-}
-
-/**
- * Data structure for creating a new customer record.
- */
-export interface CreateCustomerInput {
-  /** ID of the farm this customer belongs to */
-  farmId: string
-  /** Customer's full name */
-  name: string
-  /** Contact phone number */
-  phone: string
-  /** Optional contact email */
-  email?: string | null
-  /** Optional delivery or business address */
-  location?: string | null
-  /** Optional classification of the customer */
-  customerType?: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
-}
-
-/**
- * Filter and pagination parameters for querying customers.
- */
-export interface CustomerQuery extends BasePaginatedQuery {
-  /** Filter by a specific customer classification */
-  customerType?: string
-}
 
 /**
  * Register a new customer in the system.
@@ -89,19 +68,45 @@ export async function createCustomer(
  * Server function to create a customer record.
  */
 export const createCustomerFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateCustomerInput) => data)
+  .inputValidator(createCustomerSchema.parse)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const { checkFarmAccess } = await import('~/features/auth/utils')
+    const session = await requireAuth()
+
+    const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: data.farmId },
+      })
+    }
+
     return createCustomer(data)
   })
 
 /**
  * Retrieve all customers in alphabetical order.
  */
-export async function getCustomers() {
+export async function getCustomers(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } =
+    await import('~/features/auth/utils')
 
   try {
-    const customers = await repository.selectAllCustomers(db)
+    let targetFarmIds: Array<string> = []
+
+    if (farmId) {
+      const hasAccess = await checkFarmAccess(userId, farmId)
+      if (!hasAccess) {
+        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+      }
+      targetFarmIds = [farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) return []
+    }
+
+    const customers = await repository.selectCustomersByFarms(db, targetFarmIds)
     // Add default aggregates for simple list
     return customers.map((c) => ({
       ...c,
@@ -109,6 +114,7 @@ export async function getCustomers() {
       totalSpent: 0,
     }))
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch customers',
       cause: error,
@@ -119,21 +125,36 @@ export async function getCustomers() {
 /**
  * Server function to retrieve all customers (unpaginated).
  */
-export const getCustomersFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    return getCustomers()
-  },
-)
+export const getCustomersFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ farmId: z.string().optional() }).parse)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getCustomers(session.user.id, data.farmId)
+  })
 
 /**
  * Retrieve a single customer record by its unique ID.
  */
-export async function getCustomerById(customerId: string) {
+export async function getCustomerById(userId: string, customerId: string) {
   const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
-    return await repository.selectCustomerById(db, customerId)
+    const userFarms = await getUserFarms(userId)
+    const customer = await repository.selectCustomerById(db, customerId)
+
+    if (!customer) return null
+
+    if (!userFarms.includes(customer.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: customer.farmId },
+      })
+    }
+
+    return customer
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch customer',
       cause: error,
@@ -145,14 +166,30 @@ export async function getCustomerById(customerId: string) {
  * Update an existing customer's details.
  */
 export async function updateCustomer(
+  userId: string,
   customerId: string,
   input: Partial<CreateCustomerInput>,
 ): Promise<void> {
   const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
+    const userFarms = await getUserFarms(userId)
+    const customer = await repository.selectCustomerById(db, customerId)
+
+    if (!customer) {
+      throw new AppError('NOT_FOUND', { metadata: { customerId } })
+    }
+
+    if (!userFarms.includes(customer.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: customer.farmId },
+      })
+    }
+
     await repository.updateCustomer(db, customerId, input)
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to update customer',
       cause: error,
@@ -165,21 +202,44 @@ export async function updateCustomer(
  */
 export const updateCustomerFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { id: string; data: Partial<CreateCustomerInput> }) => data,
+    z.object({
+      id: z.string().min(1, 'Customer ID is required'),
+      data: updateCustomerSchema,
+    }).parse,
   )
   .handler(async ({ data }) => {
-    return updateCustomer(data.id, data.data)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return updateCustomer(session.user.id, data.id, data.data)
   })
 
 /**
  * Permanently remove a customer record from the system.
  */
-export async function deleteCustomer(customerId: string): Promise<void> {
+export async function deleteCustomer(
+  userId: string,
+  customerId: string,
+): Promise<void> {
   const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
+    const userFarms = await getUserFarms(userId)
+    const customer = await repository.selectCustomerById(db, customerId)
+
+    if (!customer) {
+      throw new AppError('NOT_FOUND', { metadata: { customerId } })
+    }
+
+    if (!userFarms.includes(customer.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: customer.farmId },
+      })
+    }
+
     await repository.deleteCustomer(db, customerId)
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to delete customer',
       cause: error,
@@ -191,20 +251,32 @@ export async function deleteCustomer(customerId: string): Promise<void> {
  * Server function to delete a customer record.
  */
 export const deleteCustomerFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string }) => data)
+  .inputValidator(
+    z.object({ id: z.string().min(1, 'Customer ID is required') }).parse,
+  )
   .handler(async ({ data }) => {
-    return deleteCustomer(data.id)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteCustomer(session.user.id, data.id)
   })
 
 /**
  * Retrieve a customer's full profile including their entire purchase history.
  */
-export async function getCustomerWithSales(customerId: string) {
+export async function getCustomerWithSales(userId: string, customerId: string) {
   const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
+    const userFarms = await getUserFarms(userId)
     const customer = await repository.selectCustomerById(db, customerId)
     if (!customer) return null
+
+    if (!userFarms.includes(customer.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: customer.farmId },
+      })
+    }
 
     const sales = await repository.selectCustomerSales(db, customerId)
     const totalSpent = sales.reduce(
@@ -230,12 +302,32 @@ export async function getCustomerWithSales(customerId: string) {
 /**
  * Retrieve a list of customers ranked by their lifetime spending.
  */
-export async function getTopCustomers(limit: number = 10) {
+export async function getTopCustomers(
+  userId: string,
+  farmId?: string,
+  limit: number = 10,
+) {
   const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } =
+    await import('~/features/auth/utils')
 
   try {
-    return await repository.selectTopCustomers(db, limit)
+    let targetFarmIds: Array<string> = []
+
+    if (farmId) {
+      const hasAccess = await checkFarmAccess(userId, farmId)
+      if (!hasAccess) {
+        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+      }
+      targetFarmIds = [farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) return []
+    }
+
+    return await repository.selectTopCustomersByFarms(db, targetFarmIds, limit)
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch top customers',
       cause: error,
@@ -246,12 +338,45 @@ export async function getTopCustomers(limit: number = 10) {
 /**
  * Retrieve a paginated list of customers with search and filter capabilities.
  */
-export async function getCustomersPaginated(query: CustomerQuery = {}) {
+export async function getCustomersPaginated(
+  userId: string,
+  query: CustomerQuery = {},
+) {
   const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } =
+    await import('~/features/auth/utils')
 
   try {
-    return await repository.selectCustomersPaginated(db, query)
+    let targetFarmIds: Array<string> = []
+
+    if (query.farmId) {
+      const hasAccess = await checkFarmAccess(userId, query.farmId)
+      if (!hasAccess) {
+        throw new AppError('ACCESS_DENIED', {
+          metadata: { farmId: query.farmId },
+        })
+      }
+      targetFarmIds = [query.farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) {
+        return {
+          data: [],
+          total: 0,
+          page: query.page || 1,
+          pageSize: query.pageSize || 10,
+          totalPages: 0,
+        }
+      }
+    }
+
+    return await repository.selectCustomersPaginatedByFarms(
+      db,
+      targetFarmIds,
+      query,
+    )
   } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch paginated customers',
       cause: error,
@@ -263,7 +388,28 @@ export async function getCustomersPaginated(query: CustomerQuery = {}) {
  * Server function to retrieve paginated customer records.
  */
 export const getCustomersPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: CustomerQuery) => data)
+  .inputValidator(customerQuerySchema.parse)
   .handler(async ({ data }) => {
-    return getCustomersPaginated(data)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getCustomersPaginated(session.user.id, data)
   })
+
+/**
+ * Server function to retrieve top customers by spending.
+ */
+export const getTopCustomersFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      farmId: z.string().optional(),
+      limit: z.number().int().min(1).max(100).optional(),
+    }).parse,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getTopCustomers(session.user.id, data.farmId, data.limit)
+  })
+
+// Export types for use in other files
+export type { CreateCustomerInput, CustomerQuery } from './types'

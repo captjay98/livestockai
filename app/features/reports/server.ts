@@ -668,3 +668,77 @@ export const deleteReportConfigFn = createServerFn({ method: 'POST' })
       throw new AppError('DATABASE_ERROR', { cause: error })
     }
   })
+
+/**
+ * Fetch report data based on type and parameters
+ */
+export const fetchReportData = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      reportType: z.string(),
+      farmId: z.string().optional(),
+      startDate: z.string(),
+      endDate: z.string(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { getFarms } = await import('../farms/server')
+
+    const farms = await getFarms()
+
+    let report:
+      | ProfitLossReport
+      | InventoryReport
+      | SalesReport
+      | FeedReport
+      | EggReport
+      | null = null
+
+    switch (data.reportType) {
+      case 'profit-loss':
+        report = await getProfitLossReport({
+          data: {
+            farmId: data.farmId,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            dateRangeType: 'custom',
+          },
+        })
+        break
+      case 'inventory':
+        report = await getInventoryReport({ data: { farmId: data.farmId } })
+        break
+      case 'sales':
+        report = await getSalesReport({
+          data: {
+            farmId: data.farmId,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            dateRangeType: 'custom',
+          },
+        })
+        break
+      case 'feed':
+        report = await getFeedReport({
+          data: {
+            farmId: data.farmId,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            dateRangeType: 'custom',
+          },
+        })
+        break
+      case 'eggs':
+        report = await getEggReport({
+          data: {
+            farmId: data.farmId,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            dateRangeType: 'custom',
+          },
+        })
+        break
+    }
+
+    return { farms, report, reportType: data.reportType }
+  })

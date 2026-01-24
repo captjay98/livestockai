@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import {
   calculateInvoiceTotal,
   generateInvoiceNumber as generateInvoiceNumberService,
@@ -19,61 +20,46 @@ import {
   insertInvoiceItems,
   updateInvoiceStatus as updateInvoiceStatusRepo,
 } from './repository'
-import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import type { CreateInvoiceInput, InvoiceQuery, PaginatedResult } from './types'
 import { AppError } from '~/lib/errors'
 
+// Zod validation schemas
+const createInvoiceSchema = z.object({
+  customerId: z.string().min(1, 'Customer ID is required'),
+  farmId: z.string().min(1, 'Farm ID is required'),
+  items: z
+    .array(
+      z.object({
+        description: z.string().min(1, 'Description is required'),
+        quantity: z.number().positive('Quantity must be positive'),
+        unitPrice: z.number().nonnegative('Unit price cannot be negative'),
+      }),
+    )
+    .min(1, 'At least one item is required'),
+  dueDate: z.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+})
+
+const getInvoiceByIdSchema = z.object({
+  invoiceId: z.string().min(1, 'Invoice ID is required'),
+})
+
+const updateInvoiceStatusSchema = z.object({
+  invoiceId: z.string().min(1, 'Invoice ID is required'),
+  status: z.enum(['unpaid', 'partial', 'paid']),
+})
+
+const invoiceQuerySchema = z.object({
+  page: z.number().positive().optional(),
+  pageSize: z.number().positive().max(100).optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  q: z.string().optional(),
+  status: z.enum(['unpaid', 'partial', 'paid']).optional(),
+  farmId: z.string().optional(),
+})
+
 export type { PaginatedResult }
-
-/**
- * Represents a summarized invoice record for listing and reporting.
- */
-export interface InvoiceRecord {
-  /** Unique identifier for the invoice */
-  id: string
-  /** Human-readable invoice number (e.g., INV-2024-0001) */
-  invoiceNumber: string
-  /** Total value of all items in the invoice */
-  totalAmount: number
-  /** Payment status of the invoice */
-  status: 'unpaid' | 'partial' | 'paid'
-  /** Date the invoice was issued */
-  date: Date
-  /** Optional date by which payment is expected */
-  dueDate: Date | null
-  /** Name of the customer associated with this invoice */
-  customerName: string
-}
-
-/**
- * Data structure for creating a new invoice.
- */
-export interface CreateInvoiceInput {
-  /** ID of the customer being billed */
-  customerId: string
-  /** ID of the farm issuing the invoice */
-  farmId: string
-  /** List of line items to include */
-  items: Array<{
-    /** Description of the product or service */
-    description: string
-    /** Quantity sold */
-    quantity: number
-    /** Price per unit */
-    unitPrice: number
-  }>
-  /** Optional payment deadline */
-  dueDate?: Date | null
-  /** Optional internal or external notes */
-  notes?: string | null
-}
-
-/**
- * Filter and pagination parameters for querying invoices.
- */
-export interface InvoiceQuery extends BasePaginatedQuery {
-  /** Filter by payment status */
-  status?: 'unpaid' | 'partial' | 'paid'
-}
 
 /**
  * Generate a unique, sequential invoice number for the current year.
@@ -104,15 +90,25 @@ export async function generateInvoiceNumber(farmId: string): Promise<string> {
  * Create a new invoice and its individual line items.
  * Automatically generates a unique invoice number and calculates the total amount.
  *
+ * @param userId - ID of the user creating the invoice
  * @param input - Billing details, customer, and items
  * @returns Promise resolving to the new invoice ID
  */
 export async function createInvoice(
+  userId: string,
   input: CreateInvoiceInput,
 ): Promise<string> {
   const { db } = await import('~/lib/db')
+  const { checkFarmAccess } = await import('~/features/auth/utils')
 
   try {
+    const hasAccess = await checkFarmAccess(userId, input.farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: input.farmId },
+      })
+    }
+
     // Validate input data
     const validationError = validateInvoiceData(input)
     if (validationError) {
@@ -171,28 +167,40 @@ export async function createInvoice(
  * Server function to create an invoice.
  */
 export const createInvoiceFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateInvoiceInput) => data)
+  .inputValidator(createInvoiceSchema)
   .handler(async ({ data }) => {
-    return createInvoice(data)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return createInvoice(session.user.id, data)
   })
 
 /**
  * Retrieve all invoices, optionally filtered by farm.
  *
+ * @param userId - ID of the user requesting invoices
  * @param farmId - Optional ID of the farm to filter by
  * @returns Promise resolving to an array of invoices with customer names
  */
-export async function getInvoices(farmId?: string) {
+export async function getInvoices(userId: string, farmId?: string) {
   const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } =
+    await import('~/features/auth/utils')
 
   try {
-    if (!farmId) {
-      throw new AppError('VALIDATION_ERROR', {
-        message: 'Farm ID is required',
-      })
+    let targetFarmIds: Array<string> = []
+
+    if (farmId) {
+      const hasAccess = await checkFarmAccess(userId, farmId)
+      if (!hasAccess) {
+        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+      }
+      targetFarmIds = [farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) return []
     }
 
-    return await getInvoicesByFarm(db, farmId)
+    return await getInvoicesByFarm(db, targetFarmIds[0])
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', { cause: error })
@@ -202,16 +210,25 @@ export async function getInvoices(farmId?: string) {
 /**
  * Retrieve full details for a single invoice including its line items and associated customer profile.
  *
+ * @param userId - ID of the user requesting the invoice
  * @param invoiceId - ID of the invoice to retrieve
  * @returns Promise resolving to the complete invoice profile or null if not found
  */
-export async function getInvoiceById(invoiceId: string) {
+export async function getInvoiceById(userId: string, invoiceId: string) {
   const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
+    const userFarms = await getUserFarms(userId)
     const invoice = await getInvoiceByIdRepo(db, invoiceId)
 
     if (!invoice) return null
+
+    if (!userFarms.includes(invoice.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: invoice.farmId },
+      })
+    }
 
     const items = await getInvoiceItems(db, invoiceId)
 
@@ -235,24 +252,42 @@ export async function getInvoiceById(invoiceId: string) {
  * Server function to retrieve an invoice by ID.
  */
 export const getInvoiceByIdFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { invoiceId: string }) => data)
+  .inputValidator(getInvoiceByIdSchema)
   .handler(async ({ data }) => {
-    return getInvoiceById(data.invoiceId)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getInvoiceById(session.user.id, data.invoiceId)
   })
 
 /**
  * Update the payment status of an invoice.
  *
+ * @param userId - ID of the user performing the update
  * @param invoiceId - ID of the invoice
  * @param status - New payment status (unpaid, partial, paid)
  */
 export async function updateInvoiceStatus(
+  userId: string,
   invoiceId: string,
   status: 'unpaid' | 'partial' | 'paid',
 ) {
   const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
+    const userFarms = await getUserFarms(userId)
+    const invoice = await getInvoiceByIdRepo(db, invoiceId)
+
+    if (!invoice) {
+      throw new AppError('NOT_FOUND', { metadata: { invoiceId } })
+    }
+
+    if (!userFarms.includes(invoice.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: invoice.farmId },
+      })
+    }
+
     // Validate status
     const validationError = validateUpdateData({ status })
     if (validationError) {
@@ -275,23 +310,37 @@ export async function updateInvoiceStatus(
  * Server function to update invoice status.
  */
 export const updateInvoiceStatusFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { invoiceId: string; status: 'unpaid' | 'partial' | 'paid' }) =>
-      data,
-  )
+  .inputValidator(updateInvoiceStatusSchema)
   .handler(async ({ data }) => {
-    return updateInvoiceStatus(data.invoiceId, data.status)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return updateInvoiceStatus(session.user.id, data.invoiceId, data.status)
   })
 
 /**
  * Permanently delete an invoice and its associated line items.
  *
+ * @param userId - ID of the user performing the deletion
  * @param invoiceId - ID of the invoice to delete
  */
-export async function deleteInvoice(invoiceId: string) {
+export async function deleteInvoice(userId: string, invoiceId: string) {
   const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
+    const userFarms = await getUserFarms(userId)
+    const invoice = await getInvoiceByIdRepo(db, invoiceId)
+
+    if (!invoice) {
+      throw new AppError('NOT_FOUND', { metadata: { invoiceId } })
+    }
+
+    if (!userFarms.includes(invoice.farmId)) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: invoice.farmId },
+      })
+    }
+
     await deleteInvoiceItemsRepo(db, invoiceId)
     await deleteInvoiceRepo(db, invoiceId)
   } catch (error) {
@@ -307,20 +356,28 @@ export async function deleteInvoice(invoiceId: string) {
  * Utility function to convert a sales transaction into a professional invoice.
  * Automatically maps livestock type and quantity to an invoice line item.
  *
+ * @param userId - ID of the user creating the invoice
  * @param saleId - ID of the sale to bill for
  * @returns Promise resolving to the new invoice ID or null if sale/customer invalid
  */
 export async function createInvoiceFromSale(
+  userId: string,
   saleId: string,
 ): Promise<string | null> {
   const { db } = await import('~/lib/db')
+  const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
+    const userFarms = await getUserFarms(userId)
     const sale = await getSaleForInvoice(db, saleId)
 
     if (!sale || !sale.customerId) return null
 
-    return await createInvoice({
+    if (!userFarms.includes(sale.farmId)) {
+      throw new AppError('ACCESS_DENIED', { metadata: { farmId: sale.farmId } })
+    }
+
+    return await createInvoice(userId, {
       customerId: sale.customerId,
       farmId: sale.farmId,
       items: [
@@ -343,14 +400,48 @@ export async function createInvoiceFromSale(
 /**
  * Retrieve a paginated list of invoices with advanced searching, status filtering, and sorting.
  *
+ * @param userId - ID of the user requesting invoices
  * @param query - Query and pagination parameters
  * @returns Promise resolving to a paginated set of invoice records
  */
-export async function getInvoicesPaginated(query: InvoiceQuery = {}) {
+export async function getInvoicesPaginated(
+  userId: string,
+  query: InvoiceQuery = {},
+) {
   const { db } = await import('~/lib/db')
+  const { checkFarmAccess, getUserFarms } =
+    await import('~/features/auth/utils')
 
   try {
-    const result = await getInvoicesPaginatedRepo(db, query)
+    let targetFarmIds: Array<string> = []
+
+    if (query.farmId) {
+      const hasAccess = await checkFarmAccess(userId, query.farmId)
+      if (!hasAccess) {
+        throw new AppError('ACCESS_DENIED', {
+          metadata: { farmId: query.farmId },
+        })
+      }
+      targetFarmIds = [query.farmId]
+    } else {
+      targetFarmIds = await getUserFarms(userId)
+      if (targetFarmIds.length === 0) {
+        return {
+          data: [],
+          total: 0,
+          page: query.page || 1,
+          pageSize: query.pageSize || 10,
+          totalPages: 0,
+        }
+      }
+    }
+
+    // For now, use the first farm ID since the repository function expects a single farmId
+    // TODO: Update repository to support multiple farm IDs
+    const result = await getInvoicesPaginatedRepo(db, {
+      ...query,
+      farmId: targetFarmIds[0],
+    })
 
     return {
       ...result,
@@ -369,7 +460,10 @@ export async function getInvoicesPaginated(query: InvoiceQuery = {}) {
  * Server function to retrieve paginated invoices.
  */
 export const getInvoicesPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: InvoiceQuery) => data)
+  .inputValidator(invoiceQuerySchema)
   .handler(async ({ data }) => {
-    return getInvoicesPaginated(data)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getInvoicesPaginated(session.user.id, data)
   })
+export type { CreateInvoiceInput } from './types'

@@ -13,7 +13,13 @@ export interface MortalityRecord {
   /** ID of the batch affected */
   batchId: string
   /** Species of the batch (joined) */
-  batchSpecies: string | null
+  species: string
+  /** Livestock type (joined from batch) */
+  livestockType: string
+  /** Farm name (joined) */
+  farmName: string
+  /** Farm ID (joined from batch) */
+  farmId: string
   /** Number of animals deceased */
   quantity: number
   /** Date of the mortality event */
@@ -22,6 +28,8 @@ export interface MortalityRecord {
   cause: string
   /** Optional notes */
   notes: string | null
+  /** Record creation timestamp */
+  createdAt: Date
 }
 
 /**
@@ -56,6 +64,8 @@ export interface CreateMortalityData {
 export interface MortalityQuery extends BasePaginatedQuery {
   /** Optional filter for a specific livestock batch */
   batchId?: string
+  /** Optional filter by cause of death */
+  cause?: string
 }
 
 /**
@@ -126,14 +136,15 @@ export async function recordMortality(
         .returning('id')
         .executeTakeFirstOrThrow()
 
-      // Update batch quantity
-      const newQuantity = batch.currentQuantity - data.quantity
+      // Update batch quantity atomically
+      const { sql } = await import('kysely')
       await trx
         .updateTable('batches')
-        .set({
-          currentQuantity: newQuantity,
-          status: newQuantity <= 0 ? 'depleted' : 'active',
-        })
+        .set((eb) => ({
+          currentQuantity: eb('currentQuantity', '-', data.quantity),
+          status: sql`CASE WHEN "currentQuantity" - ${data.quantity} <= 0 THEN 'depleted' ELSE 'active' END`,
+          updatedAt: new Date(),
+        }))
         .where('id', '=', data.batchId)
         .execute()
 
@@ -196,7 +207,15 @@ export async function getMortalityRecords(userId: string, batchId: string) {
 
     return await db
       .selectFrom('mortality_records')
-      .selectAll()
+      .select([
+        'id',
+        'batchId',
+        'quantity',
+        'date',
+        'cause',
+        'notes',
+        'createdAt',
+      ])
       .where('batchId', '=', batchId)
       .orderBy('date', 'desc')
       .execute()
@@ -471,14 +490,17 @@ export async function getMortalityRecordsPaginated(
       .limit(pageSize)
       .offset(offset)
 
-    // Apply sorting
+    // Apply sorting - validate columns to prevent SQL injection
     if (query.sortBy) {
       const sortOrder = query.sortOrder || 'desc'
-      let sortColumn = `mortality_records.${query.sortBy}`
-      if (query.sortBy === 'species') sortColumn = 'batches.species'
-      if (query.sortBy === 'date') sortColumn = 'mortality_records.date'
-      if (query.sortBy === 'cause') sortColumn = 'mortality_records.cause'
-
+      const allowedCols: Record<string, string> = {
+        date: 'mortality_records.date',
+        quantity: 'mortality_records.quantity',
+        cause: 'mortality_records.cause',
+        createdAt: 'mortality_records.createdAt',
+        species: 'batches.species',
+      }
+      const sortColumn = allowedCols[query.sortBy] || 'mortality_records.date'
       dataQuery = dataQuery.orderBy(sql.raw(sortColumn), sortOrder)
     } else {
       dataQuery = dataQuery.orderBy('mortality_records.date', 'desc')
@@ -636,19 +658,14 @@ export async function updateMortalityRecord(
         input.quantity !== existing.quantity
       ) {
         const diff = existing.quantity - input.quantity
-        const newBatchQty = existing.currentQuantity + diff
-
-        if (newBatchQty < 0)
-          throw new AppError('VALIDATION_ERROR', {
-            message: 'Cannot increase mortality beyond batch quantity',
-          })
-
+        const { sql } = await import('kysely')
         await trx
           .updateTable('batches')
-          .set({
-            currentQuantity: newBatchQty,
-            status: newBatchQty <= 0 ? 'depleted' : 'active',
-          })
+          .set((eb) => ({
+            currentQuantity: eb('currentQuantity', '+', diff),
+            status: sql`CASE WHEN "currentQuantity" + ${diff} <= 0 THEN 'depleted' ELSE 'active' END`,
+            updatedAt: new Date(),
+          }))
           .where('id', '=', existing.batchId)
           .execute()
       }
@@ -725,13 +742,14 @@ export async function deleteMortalityRecord(
     }
 
     await db.transaction().execute(async (trx) => {
-      // Restore batch quantity
+      // Restore batch quantity atomically
       await trx
         .updateTable('batches')
-        .set({
-          currentQuantity: existing.currentQuantity + existing.quantity,
+        .set((eb) => ({
+          currentQuantity: eb('currentQuantity', '+', existing.quantity),
           status: 'active',
-        })
+          updatedAt: new Date(),
+        }))
         .where('id', '=', existing.batchId)
         .execute()
 
@@ -755,4 +773,84 @@ export const deleteMortalityRecordFn = createServerFn({ method: 'POST' })
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     return deleteMortalityRecord(session.user.id, data.recordId)
+  })
+
+/**
+ * Get comprehensive mortality data for a farm including records, alerts, summary, and batches
+ */
+export const getMortalityDataForFarmFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    (data: {
+      farmId?: string | null
+      page?: number
+      pageSize?: number
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+      search?: string
+      cause?: string
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    const farmId = data.farmId || undefined
+
+    const [paginatedRecords, alerts, summary, allBatches] = await Promise.all([
+      getMortalityRecordsPaginated(session.user.id, {
+        farmId,
+        page: data.page,
+        pageSize: data.pageSize,
+        sortBy: data.sortBy,
+        sortOrder: data.sortOrder,
+        search: data.search,
+        cause: data.cause,
+      }),
+      (async () => {
+        const { getAllBatchAlerts } =
+          await import('~/features/monitoring/server')
+        return getAllBatchAlerts({ data: { farmId } })
+      })(),
+      getMortalitySummary(session.user.id, farmId),
+      (async () => {
+        const { getBatchesFn } = await import('~/features/batches/server')
+        return getBatchesFn({ data: { farmId } })
+      })(),
+    ])
+
+    const batches = allBatches.filter((b) => b.status === 'active')
+
+    return {
+      paginatedRecords,
+      alerts,
+      summary,
+      batches,
+    }
+  })
+
+/**
+ * Record a new mortality event
+ */
+export const recordMortalityActionFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: {
+      farmId: string
+      batchId: string
+      quantity: number
+      date: string
+      cause: string
+      notes?: string
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+
+    const id = await recordMortality(session.user.id, {
+      batchId: data.batchId,
+      quantity: data.quantity,
+      date: new Date(data.date),
+      cause: data.cause as any,
+      notes: data.notes,
+    })
+    return { success: true, id }
   })

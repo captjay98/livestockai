@@ -1,71 +1,100 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import * as repository from './repository'
 import * as service from './service'
-import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import type {
+  CreateSupplierInput,
+  PaginatedResult,
+  SupplierQuery,
+  SupplierRecord,
+  SupplierSearchParams,
+} from './types'
 import { AppError } from '~/lib/errors'
 
-export type { PaginatedResult }
+// Zod validation schemas
+const createSupplierSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255),
+  phone: z.string().min(1, 'Phone is required').max(20),
+  email: z.string().email().nullable().optional(),
+  location: z.string().max(500).nullable().optional(),
+  products: z.array(z.string()).min(1, 'At least one product is required'),
+  supplierType: z
+    .enum([
+      'hatchery',
+      'feed_mill',
+      'pharmacy',
+      'equipment',
+      'fingerlings',
+      'cattle_dealer',
+      'goat_dealer',
+      'sheep_dealer',
+      'bee_supplier',
+      'other',
+    ])
+    .nullable()
+    .optional(),
+})
 
-/**
- * Represents a supplier record with aggregated spending metrics.
- */
-export interface SupplierRecord {
-  /** Unique identifier for the supplier */
-  id: string
-  /** Name of the supplier or business entity */
-  name: string
-  /** Primary contact phone number */
-  phone: string
-  /** Optional contact email address */
-  email: string | null
-  /** Optional physical address or headquarters */
-  location: string | null
-  /** List of products or services provided by this supplier */
-  products: Array<string>
-  /** Specific classification (e.g., hatchery, feed mill) */
-  supplierType: string | null
-  /** Timestamp when the supplier was registered */
-  createdAt: Date
-  /** Aggregate total amount spent with this supplier in system currency */
-  totalSpent?: number
-  expenseCount?: number
+const updateSupplierSchema = z.object({
+  id: z.string().uuid(),
+  data: createSupplierSchema.partial(),
+})
+
+const deleteSupplierSchema = z.object({
+  id: z.string().uuid(),
+})
+
+const supplierQuerySchema = z.object({
+  page: z.number().int().min(1).optional(),
+  pageSize: z.number().int().min(1).max(100).optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  q: z.string().optional(),
+  supplierType: z.string().optional(),
+  farmId: z.string().uuid().optional(),
+})
+
+export type {
+  PaginatedResult,
+  SupplierSearchParams,
+  CreateSupplierInput,
+  SupplierQuery,
+  SupplierRecord,
 }
 
 /**
- * Data structure for creating a new supplier record.
+ * Validate supplier search parameters
  */
-export interface CreateSupplierInput {
-  /** Supplier's full name */
-  name: string
-  /** Contact phone number */
-  phone: string
-  /** Optional contact email */
-  email?: string | null
-  /** Optional location description */
-  location?: string | null
-  /** List of products supplied */
-  products: Array<string>
-  /** Category of supply provided */
-  supplierType?:
-    | 'hatchery'
-    | 'feed_mill'
-    | 'pharmacy'
-    | 'equipment'
-    | 'fingerlings'
-    | 'cattle_dealer'
-    | 'goat_dealer'
-    | 'sheep_dealer'
-    | 'bee_supplier'
-    | 'other'
-    | null
-}
-
-/**
- * Filter and pagination parameters for querying suppliers.
- */
-export interface SupplierQuery extends BasePaginatedQuery {
-  /** Filter by a specific supplier classification */
-  supplierType?: string
+export function validateSupplierSearch(
+  search: Record<string, unknown>,
+): SupplierSearchParams {
+  const validSortBy = [
+    'name',
+    'phone',
+    'email',
+    'location',
+    'supplierType',
+    'createdAt',
+    'totalSpent',
+    'orderCount',
+  ] as const
+  return {
+    page: Number(search.page) || 1,
+    pageSize: Number(search.pageSize) || 10,
+    sortBy:
+      typeof search.sortBy === 'string' &&
+      (validSortBy as ReadonlyArray<string>).includes(search.sortBy)
+        ? search.sortBy
+        : 'totalSpent',
+    sortOrder:
+      typeof search.sortOrder === 'string' &&
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+        ? search.sortOrder
+        : 'desc',
+    q: typeof search.q === 'string' ? search.q : '',
+    supplierType:
+      typeof search.supplierType === 'string' ? search.supplierType : undefined,
+  }
 }
 
 /**
@@ -97,8 +126,10 @@ export async function createSupplier(
  * Server function to create a supplier record.
  */
 export const createSupplierFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateSupplierInput) => data)
+  .inputValidator(createSupplierSchema)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
     return createSupplier(data)
   })
 
@@ -123,6 +154,8 @@ export async function getSuppliers(): Promise<Array<SupplierRecord>> {
  */
 export const getSuppliersFn = createServerFn({ method: 'GET' }).handler(
   async () => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
     return getSuppliers()
   },
 )
@@ -176,10 +209,10 @@ export async function updateSupplier(
  * Server function to update a supplier record.
  */
 export const updateSupplierFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { id: string; data: Partial<CreateSupplierInput> }) => data,
-  )
+  .inputValidator(updateSupplierSchema)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
     return updateSupplier(data.id, data.data)
   })
 
@@ -210,8 +243,10 @@ export async function deleteSupplier(supplierId: string): Promise<void> {
  * Server function to delete a supplier record.
  */
 export const deleteSupplierFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string }) => data)
+  .inputValidator(deleteSupplierSchema)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
     return deleteSupplier(data.id)
   })
 
@@ -266,7 +301,9 @@ export async function getSuppliersPaginated(query: SupplierQuery = {}) {
  * Server function to retrieve paginated supplier records.
  */
 export const getSuppliersPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: SupplierQuery) => data)
+  .inputValidator(supplierQuerySchema)
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
     return getSuppliersPaginated(data)
   })

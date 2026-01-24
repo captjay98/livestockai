@@ -1,4 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
+import { redirect } from '@tanstack/react-router'
+import { getBatchesFn } from '../batches/server'
 import {
   buildFeedStats,
   buildFeedSummary,
@@ -29,6 +31,7 @@ import {
   updateFeedRecord as updateFeedRecordInDb,
 } from './repository'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import type { GetFeedDataForFarmInput } from './types'
 import { AppError } from '~/lib/errors'
 
 export type { PaginatedResult }
@@ -643,3 +646,48 @@ export {
   getFeedRecordsPaginatedFn as getFeedRecordsPaginated,
   getFeedInventoryFn as getFeedInventory,
 }
+
+/**
+ * Server function for getting feed data with pagination and summary
+ * Used by feed index route
+ */
+export const getFeedDataForFarm = createServerFn({ method: 'GET' })
+  .inputValidator((data: GetFeedDataForFarmInput) => data)
+  .handler(async ({ data }) => {
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      const session = await requireAuth()
+      const farmId = data.farmId || undefined
+
+      const [paginatedRecords, allBatches, inventory, summary] =
+        await Promise.all([
+          getFeedRecordsPaginatedFn(session.user.id, {
+            farmId,
+            page: data.page,
+            pageSize: data.pageSize,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            search: data.feedType ? data.feedType : data.search,
+          }),
+          getBatchesFn({ data: { farmId } }),
+          getFeedInventoryFn(session.user.id, farmId),
+          getFeedStats(session.user.id, farmId),
+        ])
+
+      const batches = allBatches.filter(
+        (b: { status: string }) => b.status === 'active',
+      )
+
+      return {
+        paginatedRecords,
+        batches,
+        inventory,
+        summary,
+      }
+    } catch (err) {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
+        throw redirect({ to: '/login' })
+      }
+      throw err
+    }
+  })

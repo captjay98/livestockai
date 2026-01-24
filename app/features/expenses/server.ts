@@ -1,5 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
-import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import type {
+  CreateExpenseInput,
+  ExpenseQuery,
+  PaginatedResult,
+  UpdateExpenseInput,
+} from './types'
 import { AppError } from '~/lib/errors'
 
 export type { PaginatedResult }
@@ -15,65 +20,6 @@ export type {
   ExpenseWithJoins,
   FeedInventory,
 } from './repository'
-
-/**
- * Data structure for recording a new financial expense.
- * Supports linking to specific batches, suppliers, and feed inventory.
- */
-export interface CreateExpenseInput {
-  /** ID of the farm incurred the expense */
-  farmId: string
-  /** Optional ID of a specific livestock batch for cost attribution */
-  batchId?: string | null
-  /** Specific expense classification */
-  category:
-    | 'feed'
-    | 'medicine'
-    | 'equipment'
-    | 'utilities'
-    | 'labor'
-    | 'transport'
-    | 'livestock'
-    | 'livestock_chicken'
-    | 'livestock_fish'
-    | 'maintenance'
-    | 'marketing'
-    | 'other'
-  /** Monetary amount in system currency */
-  amount: number
-  /** Date the expense occurred */
-  date: Date
-  /** Brief description or item name */
-  description: string
-  /** Optional ID of the supplier for sourcing history */
-  supplierId?: string | null
-  /** Whether this is a recurring monthly/weekly cost */
-  isRecurring?: boolean
-  /** Specific feed category when category is 'feed' */
-  feedType?: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
-  /** Feed weight in kilograms for inventory tracking */
-  feedQuantityKg?: number
-}
-
-/**
- * Data structure for updating an existing expense.
- */
-export interface UpdateExpenseInput {
-  /** Updated category */
-  category?: string
-  /** Updated amount */
-  amount?: number
-  /** Updated date */
-  date?: Date
-  /** Updated description */
-  description?: string
-  /** Updated batch association */
-  batchId?: string | null
-  /** Updated supplier association */
-  supplierId?: string | null
-  /** Updated recurring flag */
-  isRecurring?: boolean
-}
 
 /**
  * Record a new expense in a transaction.
@@ -121,7 +67,7 @@ export async function createExpense(
       // 1. Record the expense
       const expenseId = await insertExpense(tx, {
         farmId: input.farmId,
-        batchId: input.batchId || null,
+        batchId: input.batchId ?? null,
         category: input.category,
         amount: input.amount.toString(),
         date: input.date,
@@ -525,16 +471,6 @@ export async function getTotalExpenses(
 }
 
 /**
- * Filter and pagination parameters for querying expenses.
- */
-export interface ExpenseQuery extends BasePaginatedQuery {
-  /** Filter by a specific livestock batch */
-  batchId?: string
-  /** Filter by an expense category */
-  category?: string
-}
-
-/**
  * Retrieve a paginated list of expenses with full text search and advanced filters.
  *
  * @param userId - ID of the user requesting data
@@ -616,3 +552,4 @@ export const getExpensesPaginatedFn = createServerFn({ method: 'GET' })
     const session = await requireAuth()
     return getExpensesPaginated(session.user.id, data)
   })
+export type { CreateExpenseInput, UpdateExpenseInput } from './types'

@@ -1,11 +1,15 @@
 import { createServerFn } from '@tanstack/react-start'
-import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
+import type {
+  CreateSaleInput,
+  PaginatedResult,
+  PaymentMethod,
+  PaymentStatus,
+  SalesQuery,
+  UnitType,
+  UpdateSaleInput,
+} from './types'
 
-export type { PaginatedResult }
-
-export type UnitType = 'bird' | 'kg' | 'crate' | 'piece'
-export type PaymentStatus = 'paid' | 'pending' | 'partial'
-export type PaymentMethod = 'cash' | 'transfer' | 'credit'
+export type { PaginatedResult, UnitType, PaymentStatus, PaymentMethod }
 
 /**
  * Available units of measurement for sales transactions.
@@ -48,42 +52,6 @@ export const PAYMENT_METHODS: Array<{ value: PaymentMethod; label: string }> = [
 ]
 
 /**
- * Input data for creating a new sales record
- */
-export interface CreateSaleInput {
-  /** ID of the farm the sale belongs to */
-  farmId: string
-  /** Optional ID of the specific batch being sold from */
-  batchId?: string | null
-  /** Optional ID of the customer who made the purchase */
-  customerId?: string | null
-  /** The type of item sold (poultry, fish, or eggs) */
-  livestockType: 'poultry' | 'fish' | 'eggs'
-  /** Quantity of items sold */
-  quantity: number
-  /** Unit price for the item sold */
-  unitPrice: number
-  /** Date of the transaction */
-  date: Date
-  /** Optional transaction notes */
-  notes?: string | null
-  // Enhanced fields
-  /** The unit of measurement for quantity (bird, kg, crate, piece) */
-  unitType?: UnitType | null
-  /** Optional age of the livestock in weeks at time of sale */
-  ageWeeks?: number | null
-  /** Optional average weight in kilograms at time of sale */
-  averageWeightKg?: number | null
-  /** Status of the payment (paid, pending, partial) */
-  paymentStatus?: PaymentStatus | null
-  /** Method of payment used (cash, transfer, credit) */
-  paymentMethod?: PaymentMethod | null
-}
-
-// Re-export from service for backward compatibility
-export type { SaleUpdate } from './repository'
-
-/**
  * Create a new sales record, update batch quantity if applicable, and log audit
  *
  * @param userId - ID of the user creating the sale
@@ -109,13 +77,8 @@ export async function createSale(
   const { db } = await import('~/lib/db')
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
-  const {
-    calculateSaleTotal,
-    validateSaleData,
-    calculateNewBatchQuantity,
-    determineBatchStatusAfterSale,
-  } = await import('./service')
-  const { insertSale, getBatchById, updateBatchQuantity } =
+  const { calculateSaleTotal, validateSaleData } = await import('./service')
+  const { insertSale, getBatchById, atomicDecrementBatchQuantity } =
     await import('./repository')
 
   try {
@@ -125,7 +88,6 @@ export async function createSale(
     const totalAmount = calculateSaleTotal(input.quantity, input.unitPrice)
 
     // Get batch for validation if selling from batch
-    let batchQuantity: number | null = null
     if (input.batchId && input.livestockType !== 'eggs') {
       const batch = await getBatchById(db, input.batchId)
       if (!batch) {
@@ -140,26 +102,48 @@ export async function createSale(
         })
       }
 
-      batchQuantity = batch.currentQuantity
+      // Check if enough quantity exists (non-atomic check for UX, transaction will handle safety)
+      if (batch.currentQuantity < input.quantity) {
+        throw new AppError('INSUFFICIENT_STOCK', {
+          message: 'Insufficient batch quantity for sale',
+          metadata: {
+            current: batch.currentQuantity,
+            requested: input.quantity,
+          },
+        })
+      }
 
-      // Validate sale data including quantity check
-      const validationError = validateSaleData(input, batchQuantity)
+      // Validate sale data
+      const validationError = validateSaleData(input, batch.currentQuantity)
       if (validationError) {
         throw new AppError('VALIDATION_ERROR', {
           metadata: { error: validationError },
         })
       }
 
-      // Business logic: calculate new batch quantity and status
-      const newQuantity = calculateNewBatchQuantity(
-        batchQuantity,
-        input.quantity,
-      )
-      const newStatus = determineBatchStatusAfterSale(
-        newQuantity,
-        input.quantity,
-      )
-      await updateBatchQuantity(db, input.batchId, newQuantity, newStatus)
+      // Perform updates in transaction
+      return await db.transaction().execute(async (tx) => {
+        // Update batch quantity atomically
+        await atomicDecrementBatchQuantity(tx, input.batchId!, input.quantity)
+
+        // Insert sale
+        return await insertSale(tx, {
+          farmId: input.farmId,
+          batchId: input.batchId ?? null,
+          customerId: input.customerId ?? null,
+          livestockType: input.livestockType,
+          quantity: input.quantity,
+          unitPrice: input.unitPrice.toString(),
+          totalAmount,
+          date: input.date,
+          notes: input.notes || null,
+          unitType: input.unitType || null,
+          ageWeeks: input.ageWeeks || null,
+          averageWeightKg: input.averageWeightKg?.toString() || null,
+          paymentStatus: input.paymentStatus || 'paid',
+          paymentMethod: input.paymentMethod || null,
+        })
+      })
     } else {
       // Validate without batch quantity check
       const validationError = validateSaleData(input, null)
@@ -168,27 +152,25 @@ export async function createSale(
           metadata: { error: validationError },
         })
       }
+
+      // Insert sale (no transaction needed for single operation)
+      return await insertSale(db, {
+        farmId: input.farmId,
+        batchId: input.batchId ?? null,
+        customerId: input.customerId ?? null,
+        livestockType: input.livestockType,
+        quantity: input.quantity,
+        unitPrice: input.unitPrice.toString(),
+        totalAmount,
+        date: input.date,
+        notes: input.notes || null,
+        unitType: input.unitType || null,
+        ageWeeks: input.ageWeeks || null,
+        averageWeightKg: input.averageWeightKg?.toString() || null,
+        paymentStatus: input.paymentStatus || 'paid',
+        paymentMethod: input.paymentMethod || null,
+      })
     }
-
-    // Insert sale
-    const saleId = await insertSale(db, {
-      farmId: input.farmId,
-      batchId: input.batchId || null,
-      customerId: input.customerId || null,
-      livestockType: input.livestockType,
-      quantity: input.quantity,
-      unitPrice: input.unitPrice.toString(),
-      totalAmount,
-      date: input.date,
-      notes: input.notes || null,
-      unitType: input.unitType || null,
-      ageWeeks: input.ageWeeks || null,
-      averageWeightKg: input.averageWeightKg?.toString() || null,
-      paymentStatus: input.paymentStatus || 'paid',
-      paymentMethod: input.paymentMethod || null,
-    })
-
-    return saleId
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -269,31 +251,6 @@ export const deleteSaleFn = createServerFn({ method: 'POST' })
     const session = await requireAuth()
     return deleteSale(session.user.id, data.saleId)
   })
-
-/**
- * Input data for updating an existing sales record
- */
-export type UpdateSaleInput = {
-  /** Updated quantity sold */
-  quantity?: number
-  /** Updated unit price */
-  unitPrice?: number
-  /** Updated transaction date */
-  date?: Date
-  /** Updated transaction notes */
-  notes?: string | null
-  // Enhanced fields
-  /** Updated unit type */
-  unitType?: UnitType | null
-  /** Updated age in weeks */
-  ageWeeks?: number | null
-  /** Updated average weight in kg */
-  averageWeightKg?: number | null
-  /** Updated payment status */
-  paymentStatus?: PaymentStatus | null
-  /** Updated payment method */
-  paymentMethod?: PaymentMethod | null
-}
 
 /**
  * Update an existing sales record
@@ -607,15 +564,6 @@ export async function getTotalRevenue(
 }
 
 /**
- * Paginated sales query with sorting and search
- */
-export interface SalesQuery extends BasePaginatedQuery {
-  batchId?: string
-  livestockType?: string
-  paymentStatus?: string
-}
-
-/**
  * Perform a paginated query for sales with support for searching, sorting, and filtering
  *
  * @param userId - ID of the user performing the query
@@ -718,3 +666,4 @@ export const getSalesSummaryFn = createServerFn({ method: 'GET' })
       endDate: data.endDate,
     })
   })
+export type { CreateSaleInput, UpdateSaleInput } from './types'
