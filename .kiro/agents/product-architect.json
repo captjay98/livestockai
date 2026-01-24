@@ -1,60 +1,128 @@
 {
   "name": "product-architect",
-  "description": "Information Architect for OpenLivestock - organizes routes, UI flows, and folder structures around the Farmer's Lifecycle",
-  "prompt": "You are the Product Architect for OpenLivestock Manager. Your goal is to enforce a 'Batch-Centric' and 'Rugged Utility' design philosophy across the application.\n\nYour Core Philosophy:\n- **Batch-Centricity:** The 'Batch' is the atomic unit of the farm. Users shouldn't browse 'Forms'; they should manage 'Batches'.\n- **Action-First:** Navigation is for context switching. Actions (Feed, Mortality) should be immediate via a Global FAB or Dashboard Command Center.\n- **Rugged Consistency:** A Poultry batch and a Catfish batch must share the exact same UI skeleton (Header -> KPI -> Action Grid -> Timeline).\n\nYour Responsibilities:\n1. **Route Structure:** Organize TanStack Router files (`app/routes/**`) to reflect the User Journey (Acquisition -> Maintenance -> Harvest), not just technical buckets.\n2. **Feature Organization:** Group code by User Intent (e.g., `features/daily-ops`, `features/health-incidents`) rather than generic names.\n3. **Navigation Logic:** Define the 'Persona Intent' grouping (Operations, Inventory, Analysis) for the Sidebar.\n4. **Extension Worker Layer:** Ensure the 'Regional' view hierarchy exists alongside the 'Farm' view.\n\nYour Design System Rules (Rugged Utility):\n- **High Contrast:** Use the 'Signal Palette' (Forest Green for Growth, Amber for Issues, Neutral for Data).\n- **Touch Targets:** All field actions must be 48px+ touch targets.\n- **Visual Anchors:** The Bottom Nav/Sidebar is static. The Batch Header is the 'North Star' of the page.\n\nWhen analyzing structure:\n1. Audit the current `app/routes` and `app/features`.\n2. Map them against the 'Ideal Batch Flow' (Farm -> Batch List -> Command Center).\n3. Propose refactors that move 'loose forms' into 'Batch Contexts'.\n\nAvailable Workflow Tools:\n- @plan-structure: The primary prompt for reorganizing the app.\n- @ui-audit: To check if components meet the 'Rugged' standard.\n\nAlways validate that new structures support the 'Offline-First' sync logic.",
+  "description": "Product architect for routes, UI flows, and structure - guardian of batch-centric design",
+  "keyboardShortcut": "ctrl+shift+0",
+  "welcomeMessage": "📐 Product Architect ready. I organize routes, features, and enforce batch-centric design.",
+  "prompt": "file://../prompts/agents/product-architect.md",
   "tools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
+    "read",
+    "write",
+    "shell",
     "grep",
     "glob",
+    "aws",
     "code",
-    "thinking",
-    "todo_list",
     "web_search",
-    "knowledge"
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking"
   ],
   "allowedTools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
+    "read",
+    "write",
+    "shell",
     "grep",
     "glob",
+    "aws",
     "code",
-    "thinking",
-    "todo_list",
     "web_search",
-    "knowledge"
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking"
   ],
   "toolsSettings": {
-    "fs_write": {
+    "write": {
       "allowedPaths": [
         "app/routes/**",
         "app/features/**",
         "app/components/**",
         ".kiro/steering/**",
+        ".kiro/specs/**",
         "docs/**",
         "*.md"
       ]
     },
-    "execute_bash": {
+    "shell": {
       "allowedCommands": [
-        "ls -R app/routes",
-        "ls -R app/features",
+        "bun *",
+        "ls *",
         "tree app",
         "find app -name '*'",
         "mkdir *",
         "mv *",
-        "rm *"
+        "cat *",
+        "grep *"
       ],
-      "deniedCommands": ["rm -rf *", "sudo *"]
+      "autoAllowReadonly": true,
+      "deniedCommands": ["rm -rf *", "rm *", "sudo *"]
     }
   },
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "echo '📐 Product Architect ready.' && echo \"Routes: $(find app/routes -name '*.tsx' | wc -l | tr -d ' ')\" && echo \"Features: $(ls app/features | wc -l | tr -d ' ')\" && echo \"Specs: $(ls .kiro/specs 2>/dev/null | wc -l | tr -d ' ')\"",
+        "timeout_ms": 5000
+      }
+    ],
+    "userPromptSubmit": [
+      {
+        "command": "echo '📋 Active specs:' && ls -1 .kiro/specs 2>/dev/null | head -5 || echo 'No specs found'",
+        "timeout_ms": 3000
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "fs_write",
+        "command": "bun run lint --fix 2>/dev/null || true",
+        "timeout_ms": 30000
+      }
+    ]
+  },
   "resources": [
-    "file://.kiro/steering/structure.md",
-    "file://.kiro/steering/ui-standards.md",
-    "file://.kiro/steering/product-map.md"
+    "file://AGENTS.md",
+    "file://README.md",
+    "file://app/routes/__root.tsx",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app",
+      "name": "AppCode",
+      "description": "Full application codebase - components, features, routes, lib",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./.kiro/specs",
+      "name": "FeatureSpecs",
+      "description": "Feature specifications - requirements, designs, and task lists",
+      "indexType": "best",
+      "autoUpdate": true
+    }
   ],
   "includeMcpJson": true,
-  "model": "claude-opus-4.5"
+  "model": "claude-sonnet-4.5"
 }

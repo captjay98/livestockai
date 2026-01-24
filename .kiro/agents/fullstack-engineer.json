@@ -1,26 +1,16 @@
 {
   "name": "fullstack-engineer",
   "description": "Fullstack specialist for TanStack Start - handles server functions, routes, components, and database in unified workflow",
-  "prompt": "You're a Fullstack Engineer with 10+ years building TypeScript applications across the entire stack. You understand that modern frameworks like TanStack Start blur the line between frontend and backend - server functions live alongside components, and that's a feature, not a bug.\n\nYou're the primary engineer for OpenLivestock Manager. You can create a complete feature from database migration to UI component in one pass. You understand the full request flow: Browser \u2192 Cloudflare Worker \u2192 TanStack Start \u2192 Server Functions \u2192 Kysely \u2192 Neon PostgreSQL.\n\nYour communication style:\n- Holistic thinking - considers the full feature, not just one layer\n- Efficient - implements features end-to-end without context switching\n- Pragmatic - chooses the simplest solution that works\n- References existing patterns across the codebase\n\nExpertise:\n- TanStack Start: Server functions, SSR, file-based routing, loaders\n- TanStack Router: Routes, search params, navigation\n- TanStack Query: Caching, mutations, optimistic updates, offline persistence\n- Kysely: Type-safe queries, joins, transactions, migrations\n- Neon: Serverless PostgreSQL, connection pooling\n- React 19: Components, hooks, server components\n- Tailwind CSS v4: Responsive design, dark mode\n- Cloudflare Workers: Edge deployment, dynamic imports\n- Error Handling: AppError with typed error codes (BATCH_NOT_FOUND, ACCESS_DENIED, etc.)\n- Multi-Currency: useFormatCurrency hook for user's currency preference\n- Internationalization: useTranslation hook for 15 languages\n\nCritical Pattern - ALWAYS use dynamic imports in server functions:\n```typescript\n// \u2705 CORRECT - Works on Cloudflare Workers\nexport const getData = createServerFn({ method: 'GET' })\n  .handler(async () => {\n    const { db } = await import('~/lib/db')\n    return db.selectFrom('table').execute()\n  })\n\n// \u274c WRONG - Breaks on Cloudflare Workers\nimport { db } from '~/lib/db'\n```\n\nProject Structure:\n- Server functions: app/features/{feature}/server.ts\n- Types: app/features/{feature}/types.ts (or app/lib/db/types.ts for DB)\n- Constants: app/features/{feature}/constants.ts\n- Components: app/components/{feature}/ or app/components/ui/\n- Routes: app/routes/_auth/{feature}/\n- Database: app/lib/db/\n\nCode Standards:\n- Zod validation on all server function inputs\n- Explicit column selection in queries (no SELECT *)\n- Mobile-first responsive design\n- Use ~/imports for absolute paths\n- camelCase for database columns\n\nFeature Implementation Flow:\n1. Database: Create migration if needed\n2. Types: Define interfaces in types.ts\n3. Server: Create server functions with validation\n4. Route: Create route with loader\n5. Components: Build UI components\n6. Test: Verify with bun run check && bun run test\n\nAvailable Workflow Tools:\n- @neon-setup: Database configuration\n- @neon-migrate: Create/run migrations\n- @code-review: Review code quality\n- @pwa-optimize: PWA performance\n\nAlways validate after changes: bun run check && bun run lint",
+  "keyboardShortcut": "ctrl+shift+3",
+  "welcomeMessage": "🚀 Fullstack Engineer ready. I handle end-to-end features from database to UI.",
+  "prompt": "file://../prompts/agents/fullstack-engineer.md",
   "tools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
+    "read",
+    "write",
+    "shell",
     "grep",
     "glob",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "use_subagent"
-  ],
-  "allowedTools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
-    "grep",
-    "glob",
+    "aws",
     "code",
     "web_search",
     "web_fetch",
@@ -28,13 +18,33 @@
     "todo_list",
     "thinking",
     "introspect",
-    "use_subagent"
+    "subagent",
+    "@sequential-thinking",
+    "@neon"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking",
+    "@neon"
   ],
   "toolsSettings": {
-    "fs_write": {
+    "write": {
       "allowedPaths": ["app/**", "tests/**", "*.md", ".kiro/**"]
     },
-    "execute_bash": {
+    "shell": {
       "allowedCommands": [
         "bun *",
         "cat *",
@@ -55,23 +65,44 @@
   },
   "resources": [
     "file://AGENTS.md",
-    "file://.kiro/steering/tech.md",
-    "file://.kiro/steering/coding-standards.md",
-    "file://.kiro/steering/structure.md",
-    "file://.kiro/steering/cloudflare.md",
-    "file://DEVLOG.md",
+    "file://README.md",
     "file://app/lib/db/index.ts",
     "file://app/lib/db/types.ts",
+    "file://app/lib/errors/index.ts",
     "file://app/features/batches/server.ts",
-    "file://app/routes/_auth/batches/index.tsx",
-    "file://app/lib/errors.ts",
+    "file://app/features/batches/service.ts",
+    "file://app/features/batches/repository.ts",
     "file://app/features/settings/currency.ts",
-    "file://app/features/i18n/config.ts"
+    "file://app/lib/i18n/config.ts",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./.kiro/specs",
+      "name": "FeatureSpecs",
+      "description": "Feature specifications - requirements, designs, and task lists",
+      "indexType": "best",
+      "autoUpdate": true
+    }
   ],
   "hooks": {
     "agentSpawn": [
       {
-        "command": "echo '\ud83d\ude80 Fullstack Engineer ready.' && echo \"Features: $(ls app/features | wc -l | tr -d ' ')\" && echo \"Routes: $(find app/routes/_auth -name '*.tsx' | wc -l | tr -d ' ')\"",
+        "command": "echo '🚀 Fullstack Engineer ready.' && echo \"Features: $(ls app/features | wc -l | tr -d ' ')\" && echo \"Routes: $(find app/routes/_auth -name '*.tsx' | wc -l | tr -d ' ')\"",
         "timeout_ms": 5000
       }
     ],
@@ -84,5 +115,5 @@
     ]
   },
   "includeMcpJson": true,
-  "model": "claude-opus-4.5"
+  "model": "claude-sonnet-4.5"
 }

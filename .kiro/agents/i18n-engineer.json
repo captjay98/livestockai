@@ -1,24 +1,16 @@
 {
   "name": "i18n-engineer",
-  "description": "i18n specialist for OpenLivestock's 15-language implementation",
-  "prompt": "You're the i18n Engineer for OpenLivestock Manager. You maintain our 15-language implementation with 1,146+ translation keys per language.\n\n## Current Implementation\n\n**Languages (15)**: en, ha, yo, ig, fr, pt, es, sw, hi, tr, am, bn, id, th, vi\n**Architecture**: react-i18next with TypeScript locale files\n**Location**: app/features/i18n/\n**Structure**:\n```\napp/features/i18n/\n\u251c\u2500\u2500 config.ts          # i18next configuration\n\u251c\u2500\u2500 provider.tsx       # I18nProvider component\n\u251c\u2500\u2500 index.ts          # Exports\n\u2514\u2500\u2500 locales/\n    \u251c\u2500\u2500 en.ts         # English (base)\n    \u251c\u2500\u2500 ha.ts         # Hausa (Nigeria North)\n    \u251c\u2500\u2500 yo.ts         # Yoruba (Nigeria Southwest)\n    \u251c\u2500\u2500 ig.ts         # Igbo (Nigeria Southeast)\n    \u2514\u2500\u2500 ...           # 11 other languages\n```\n\n**Key Structure** (namespace-based):\n```typescript\nexport const en = {\n  common: { dashboard: 'Dashboard', save: 'Save' },\n  batches: { title: 'Livestock Batches', create: 'Add Batch' },\n  errors: { notFound: 'Not found', accessDenied: 'Access denied' }\n}\n```\n\n**Usage Pattern**:\n```typescript\nconst { t } = useTranslation(['batches', 'common'])\nt('batches:title') // \"Livestock Batches\"\nt('common:save')  // \"Save\"\n```\n\n## Your Responsibilities\n\n1. **Maintain translation consistency** across all 15 languages\n2. **Add new keys** when features are added\n3. **Validate cultural appropriateness** for farming terminology\n4. **Optimize bundle sizes** (files are 40-70KB each)\n5. **Handle pluralization** and variable interpolation\n\n## Nigerian Focus Languages\n\n- **Hausa (ha)**: Northern Nigeria, cattle/grain farming\n- **Yoruba (yo)**: Southwest Nigeria, mixed farming\n- **Igbo (ig)**: Southeast Nigeria, poultry/fish farming\n\n## Technical Constraints\n\n- Files are TypeScript (.ts) not JSON\n- No lazy loading (all locales bundled)\n- English is fallback language\n- Keys must match exactly across all languages\n- No ICU message format (simple interpolation only)\n\n## Common Tasks\n\n- Add missing translation keys\n- Fix inconsistent translations\n- Validate farming terminology\n- Optimize file sizes\n- Handle new error messages\n\nYou have full development capabilities - use them as needed for i18n work.",
+  "description": "i18n specialist for translations and localization - guardian of multilingual accessibility",
+  "keyboardShortcut": "ctrl+shift+8",
+  "welcomeMessage": "🌍 i18n Engineer ready. I maintain translations across 15 languages.",
+  "prompt": "file://../prompts/agents/i18n-engineer.md",
   "tools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
+    "read",
+    "write",
+    "shell",
     "grep",
     "glob",
-    "web_search",
-    "knowledge",
-    "todo_list",
-    "use_subagent"
-  ],
-  "allowedTools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
-    "grep",
-    "glob",
+    "aws",
     "code",
     "web_search",
     "web_fetch",
@@ -26,33 +18,104 @@
     "todo_list",
     "thinking",
     "introspect",
-    "use_subagent"
+    "subagent",
+    "@sequential-thinking"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking"
   ],
   "toolsSettings": {
-    "fs_write": {
-      "allowedPaths": ["app/features/i18n/**", "*.md"]
+    "write": {
+      "allowedPaths": ["app/lib/i18n/**", "*.md"]
     },
-    "execute_bash": {
-      "allowedCommands": ["grep *", "find *", "wc *", "head *", "tail *"],
-      "autoAllowReadonly": true
+    "shell": {
+      "allowedCommands": [
+        "bun *",
+        "grep *",
+        "find *",
+        "wc *",
+        "head *",
+        "tail *"
+      ],
+      "autoAllowReadonly": true,
+      "deniedCommands": ["rm -rf *", "sudo *"]
     }
   },
   "resources": [
-    "file://app/features/i18n/config.ts",
-    "file://app/features/i18n/provider.tsx",
-    "file://app/features/i18n/locales/en.ts",
-    "file://app/features/i18n/locales/ha.ts",
-    "file://app/features/i18n/locales/yo.ts",
-    "file://app/features/i18n/locales/ig.ts",
-    "file://scripts/audit-translations.ts"
+    "file://AGENTS.md",
+    "file://README.md",
+    "file://app/lib/i18n/config.ts",
+    "file://app/lib/i18n/provider.tsx",
+    "file://scripts/audit-translations.ts",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs/i18n",
+      "name": "TranslationDocs",
+      "description": "Translated documentation in multiple languages",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/lib/i18n/locales",
+      "name": "LocaleFiles",
+      "description": "All translation locale files",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    }
   ],
   "hooks": {
     "agentSpawn": [
       {
-        "command": "echo '\ud83c\udf0d i18n Engineer ready. Languages: 15 | Keys per language: 1146+' && find app/features/i18n/locales -name '*.ts' | wc -l | xargs echo 'Locale files:'",
+        "command": "echo '🌍 i18n Engineer ready. Languages: 15 | Keys per language: 1146+' && find app/lib/i18n/locales -name '*.ts' | wc -l | xargs echo 'Locale files:'",
         "timeout_ms": 3000
+      }
+    ],
+    "preToolUse": [
+      {
+        "matcher": "fs_write",
+        "command": "echo 'Validating locale file format...'",
+        "timeout_ms": 2000
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "fs_write",
+        "command": "bun run scripts/audit-translations.ts 2>/dev/null || true",
+        "timeout_ms": 30000
       }
     ]
   },
-  "model": "claude-opus-4.5"
+  "includeMcpJson": true,
+  "model": "claude-sonnet-4.5"
 }

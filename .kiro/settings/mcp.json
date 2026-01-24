@@ -8,7 +8,13 @@
     },
     "neon": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://mcp.neon.tech/mcp", "3334"],
+      "args": [
+        "mcp-remote",
+        "https://mcp.neon.tech/mcp",
+        "3334",
+        "--cache-dir",
+        "${HOME}/.mcp-cache/neon"
+      ],
       "disabled": false,
       "autoApprove": [
         "list_projects",
@@ -19,29 +25,36 @@
         "list_databases"
       ]
     },
+
     "cloudflare-bindings": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://bindings.mcp.cloudflare.com/mcp", "3335"],
+      "args": [
+        "mcp-remote",
+        "https://bindings.mcp.cloudflare.com/mcp",
+        "3335",
+        "--cache-dir",
+        "${HOME}/.mcp-cache/cloudflare-bindings"
+      ],
       "disabled": false,
       "autoApprove": [
         "accounts_list",
         "workers_list",
         "workers_get_worker",
         "workers_get_worker_code",
-        "kv_namespaces_list",
-        "kv_namespace_get",
         "r2_buckets_list",
-        "r2_bucket_get",
-        "d1_databases_list",
-        "d1_database_get",
-        "hyperdrive_configs_list",
-        "hyperdrive_config_get"
+        "r2_bucket_get"
       ]
     },
     "cloudflare-builds": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://builds.mcp.cloudflare.com/mcp", "3336"],
-      "disabled": true,
+      "args": [
+        "mcp-remote",
+        "https://builds.mcp.cloudflare.com/mcp",
+        "3336",
+        "--cache-dir",
+        "${HOME}/.mcp-cache/cloudflare-builds"
+      ],
+      "disabled": false,
       "autoApprove": [
         "workers_builds_list_builds",
         "workers_builds_get_build",
@@ -53,9 +66,11 @@
       "args": [
         "mcp-remote",
         "https://observability.mcp.cloudflare.com/mcp",
-        "3337"
+        "3337",
+        "--cache-dir",
+        "${HOME}/.mcp-cache/cloudflare-observability"
       ],
-      "disabled": true,
+      "disabled": false,
       "autoApprove": [
         "observability_keys",
         "observability_values",
@@ -64,8 +79,14 @@
     },
     "cloudflare-docs": {
       "command": "bunx",
-      "args": ["mcp-remote", "https://docs.mcp.cloudflare.com/mcp", "3338"],
-      "disabled": true,
+      "args": [
+        "mcp-remote",
+        "https://docs.mcp.cloudflare.com/mcp",
+        "3338",
+        "--cache-dir",
+        "${HOME}/.mcp-cache/cloudflare-docs"
+      ],
+      "disabled": false,
       "autoApprove": ["search_cloudflare_documentation"]
     }
   }

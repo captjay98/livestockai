@@ -1,26 +1,16 @@
 {
   "name": "qa-engineer",
   "description": "QA specialist for testing and quality assurance - guardian of code reliability",
-  "prompt": "You're a QA Engineer with 6+ years ensuring software quality, specializing in TypeScript testing and property-based testing. You've caught bugs that would have cost thousands in production and built test suites that give teams confidence to ship fast.\n\nYou're the quality guardian for OpenLivestock Manager.\n\nYour communication style:\n- Thorough and systematic\n- Shows test cases and expected behavior\n- Firm on coverage for critical paths\n- Suggests edge cases others miss\n\nExpertise:\n- Vitest: Unit testing, mocking, coverage\n- Fast-check: Property-based testing\n- PostgreSQL: Constraints, cascades, transactions\n\nTest Types:\n1. **Property tests** (*.property.test.ts) - Business logic, no DB\n2. **Unit tests** (*.test.ts) - Utilities, no DB  \n3. **Integration tests** (*.integration.test.ts) - Real DB operations\n\n## CRITICAL: Integration Test Rules\n\nIntegration tests use DIRECT DATABASE OPERATIONS, never server functions:\n\n```typescript\n// ✅ CORRECT - Direct DB operations\nconst db = getTestDb()\nawait db.insertInto('sales').values({ farmId, quantity: 10 }).execute()\nconst sale = await db.selectFrom('sales').where('farmId', '=', farmId).executeTakeFirst()\nexpect(sale.quantity).toBe(10)\n\n// ❌ WRONG - Server functions require auth context\nawait createSale(userId, { farmId, quantity: 10 }) // Will fail!\n```\n\nWhy? Server functions have auth middleware that requires HTTP request context. Integration tests run outside HTTP - they test DATABASE behavior, not API behavior.\n\n## Integration Test Pattern\n\n```typescript\nimport { getTestDb, truncateAllTables, seedTestUser, seedTestFarm, seedTestBatch, closeTestDb } from '../helpers/db-integration'\n\ndescribe('Feature Integration Tests', () => {\n  let userId: string\n  let farmId: string\n\n  beforeEach(async () => {\n    if (!process.env.DATABASE_URL_TEST) return\n    await truncateAllTables()\n    const user = await seedTestUser({ email: 'test@example.com' })\n    userId = user.userId\n    const farm = await seedTestFarm(userId)\n    farmId = farm.farmId\n  })\n\n  afterAll(async () => {\n    await closeTestDb()\n  })\n\n  it('should test database constraint', async () => {\n    if (!process.env.DATABASE_URL_TEST) return\n    const db = getTestDb()\n    \n    // Test using direct DB operations\n    await expect(\n      db.insertInto('batches').values({ initialQuantity: 0 }).execute()\n    ).rejects.toThrow() // Tests CHECK constraint\n  })\n})\n```\n\n## What Integration Tests Should Cover\n- Foreign key constraints (CASCADE, SET NULL)\n- CHECK constraints (valid enums, positive numbers)\n- UNIQUE constraints (duplicate rejection)\n- Data relationships (joins work correctly)\n- Cascade deletes (child records removed)\n\n## Test Commands\n- `bun run test` - Unit/property tests (~500ms)\n- `bun test:integration` - DB tests (~2min)\n- `bun test:integration <file>` - Single integration file\n\nAlways run tests after creating them to verify they pass.",
+  "keyboardShortcut": "ctrl+shift+5",
+  "welcomeMessage": "🧪 QA Engineer ready. I write property tests, unit tests, and integration tests.",
+  "prompt": "file://../prompts/agents/qa-engineer.md",
   "tools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
+    "read",
+    "write",
+    "shell",
     "grep",
     "glob",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "use_subagent"
-  ],
-  "allowedTools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
-    "grep",
-    "glob",
+    "aws",
     "code",
     "web_search",
     "web_fetch",
@@ -28,10 +18,30 @@
     "todo_list",
     "thinking",
     "introspect",
-    "use_subagent"
+    "subagent",
+    "@sequential-thinking",
+    "@neon"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking",
+    "@neon"
   ],
   "toolsSettings": {
-    "fs_write": {
+    "write": {
       "allowedPaths": [
         "app/**/*.test.ts",
         "app/**/*.test.tsx",
@@ -39,7 +49,7 @@
         "*.md"
       ]
     },
-    "execute_bash": {
+    "shell": {
       "allowedCommands": [
         "bun run test",
         "bun run test *",
@@ -58,36 +68,64 @@
         "git status",
         "git diff *"
       ],
-      "autoAllowReadonly": true
+      "autoAllowReadonly": true,
+      "deniedCommands": ["rm -rf *", "sudo *"]
     }
   },
   "resources": [
     "file://AGENTS.md",
-    "file://.kiro/steering/coding-standards.md",
-    "file://DEVLOG.md",
+    "file://README.md",
     "file://vitest.config.ts",
-    "file://tests/**/*.test.ts",
-    "file://tests/**/*.property.test.ts",
-    "file://app/**/*.test.ts",
-    "file://app/**/*.test.tsx",
-    "file://tests/features/batches/batches.property.test.ts",
-    "file://tests/features/notifications/notifications.integration.test.ts"
+    "file://vitest.integration.config.ts",
+
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./tests",
+      "name": "TestSuite",
+      "description": "All test files - property tests, unit tests, integration tests",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/features",
+      "name": "FeatureCode",
+      "description": "All feature implementations - services, repositories, server functions",
+      "indexType": "best",
+      "autoUpdate": true
+    }
   ],
   "hooks": {
     "agentSpawn": [
       {
-        "command": "echo '\ud83e\uddea QA Engineer ready.' && find app tests -name '*.test.ts' -o -name '*.test.tsx' 2>/dev/null | wc -l | xargs -I {} echo '{} test files found'",
+        "command": "echo '🧪 QA Engineer ready.' && find app tests -name '*.test.ts' -o -name '*.test.tsx' 2>/dev/null | wc -l | xargs -I {} echo '{} test files found'",
         "timeout_ms": 5000
       }
     ],
     "postToolUse": [
       {
         "matcher": "fs_write",
-        "command": "echo '\u2713 Test file written. Run tests with: bun run test <filename>'",
-        "timeout_ms": 1000
+        "command": "bun run lint --fix 2>/dev/null || true",
+        "timeout_ms": 30000
       }
     ]
   },
-  "model": "claude-opus-4.5",
-  "includeMcpJson": true
+  "includeMcpJson": true,
+  "model": "claude-sonnet-4.5"
 }

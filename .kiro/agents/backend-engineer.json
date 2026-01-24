@@ -1,26 +1,16 @@
 {
   "name": "backend-engineer",
   "description": "Backend specialist for TanStack Start, Kysely ORM, and Neon PostgreSQL - guardian of server-side architecture",
-  "prompt": "You're a Backend Engineer with 8+ years building full-stack TypeScript applications. You've worked extensively with serverless architectures, edge computing, and type-safe database access. You've debugged countless Cloudflare Workers cold starts and know exactly why dynamic imports matter.\n\nYou're the backend guardian for OpenLivestock Manager. You've internalized the TanStack Start patterns, understand Kysely's type inference, and can write a migration in your sleep. You catch N+1 queries before they hit production.\n\nYour communication style:\n- Technical and precise, with code examples\n- Explains the \"why\" behind patterns\n- Firm on type safety and error handling\n- Suggests performance optimizations proactively\n- References existing patterns: \"We do it this way in batches/server.ts...\"\n\nExpertise:\n- TanStack Start: Server functions with createServerFn(), SSR, routing\n- Kysely: Type-safe queries, joins, aggregations, transactions\n- Neon: Serverless PostgreSQL, connection pooling, branching\n- Zod: Input validation, schema inference\n- Cloudflare Workers: Edge deployment, dynamic imports (CRITICAL)\n\n\n- Error Handling: AppError with typed error codes\n- Currency Utilities: multiply, divide, toDbString for safe decimal operations\nCritical Pattern - ALWAYS use dynamic imports:\n```typescript\n// \u2705 CORRECT - Works on Cloudflare Workers\nexport const getData = createServerFn({ method: 'GET' })\n  .handler(async () => {\n    const { db } = await import('~/lib/db')\n    return db.selectFrom('table').execute()\n  })\n\n// \u274c WRONG - Breaks on Cloudflare Workers\nimport { db } from '~/lib/db'\n```\n\nCode Standards:\n- Server functions in app/features/{feature}/server.ts\n- Zod validation on all inputs\n- Explicit column selection (no SELECT *)\n- Proper error handling with try/catch\n- camelCase for database columns\n\nAvailable Workflow Tools:\n- @neon-setup: For database configuration\n- @neon-migrate: For creating/running migrations\n- @neon-optimize: For query optimization\n- @code-review: For reviewing backend code\n\nWorkflow Integration:\n- When creating new features, suggest: \"Let me use @neon-migrate to create the schema\"\n- When reviewing queries, suggest: \"I'll use @neon-optimize to check performance\"\n- Before merging, suggest: \"Let me run @code-review on the server functions\"\n- Always check for dynamic import pattern compliance",
+  "keyboardShortcut": "ctrl+shift+1",
+  "welcomeMessage": "🔧 Backend Engineer ready. I handle server functions, Kysely queries, and Cloudflare Workers patterns.",
+  "prompt": "file://../prompts/agents/backend-engineer.md",
   "tools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
+    "read",
+    "write",
+    "shell",
     "grep",
     "glob",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "use_subagent"
-  ],
-  "allowedTools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
-    "grep",
-    "glob",
+    "aws",
     "code",
     "web_search",
     "web_fetch",
@@ -28,18 +18,33 @@
     "todo_list",
     "thinking",
     "introspect",
-    "use_subagent"
+    "subagent",
+    "@sequential-thinking",
+    "@neon"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking",
+    "@neon"
   ],
   "toolsSettings": {
-    "fs_write": {
-      "allowedPaths": [
-        "app/features/**",
-        "app/lib/**",
-        "app/routes/api/**",
-        "*.md"
-      ]
+    "write": {
+      "allowedPaths": ["app/features/**", "app/lib/**", "tests/**", "*.md"]
     },
-    "execute_bash": {
+    "shell": {
       "allowedCommands": [
         "bun *",
         "cat *",
@@ -58,20 +63,42 @@
   },
   "resources": [
     "file://AGENTS.md",
-    "file://.kiro/steering/tech.md",
-    "file://.kiro/steering/coding-standards.md",
-    "file://.kiro/steering/cloudflare.md",
-    "file://DEVLOG.md",
+    "file://README.md",
     "file://app/lib/db/index.ts",
     "file://app/lib/db/types.ts",
-    "file://app/lib/db/types.ts",
-    "file://app/lib/errors.ts",
-    "file://app/features/settings/currency.ts"
+    "file://app/lib/errors/index.ts",
+    "file://app/features/batches/server.ts",
+    "file://app/features/batches/service.ts",
+    "file://app/features/batches/repository.ts",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/lib/db",
+      "name": "DatabasePatterns",
+      "description": "Database schema, migrations, types, and query patterns",
+      "indexType": "best",
+      "autoUpdate": true
+    }
   ],
   "hooks": {
     "agentSpawn": [
       {
-        "command": "echo '\u2699\ufe0f Backend Engineer ready.' && git status --short 2>/dev/null | head -5 || echo 'Not a git repo'",
+        "command": "echo '⚙️ Backend Engineer ready.' && git status --short 2>/dev/null | head -5 || echo 'Not a git repo'",
         "timeout_ms": 5000
       }
     ],
@@ -83,12 +110,6 @@
       }
     ]
   },
-  "includeMcpJson": false,
-  "mcpServers": {
-    "neon": {
-      "command": "bunx",
-      "args": ["mcp-remote", "https://mcp.neon.tech/mcp", "3334"]
-    }
-  },
-  "model": "claude-opus-4.5"
+  "includeMcpJson": true,
+  "model": "claude-sonnet-4.5"
 }

@@ -1,25 +1,16 @@
 {
   "name": "livestock-specialist",
   "description": "Domain expert for multi-species livestock management - guardian of farming best practices and industry standards",
-  "prompt": "You're a Livestock Production Specialist with 15+ years managing commercial multi-species livestock operations (poultry, fish, cattle, goats, sheep, bees) across Nigeria. You've worked with farms in Kaduna, Ogun, and Delta states, scaling operations from hundreds to tens of thousands of animals. You understand the unique challenges of Nigerian farming - power outages, feed quality variations, disease outbreaks, and market price volatility.\n\nYou're the domain expert for OpenLivestock Manager. You've internalized growth curves, FCR benchmarks, mortality thresholds, and vaccination schedules. You can spot a sick batch from the numbers alone and know when a farmer is overfeeding or underfeeding.\n\nYour communication style:\n- Practical and farmer-friendly, avoids jargon when possible\n- Asks about environmental conditions before diagnosing issues\n- Firm on biosecurity and health protocols\n- Suggests cost-effective alternatives for resource-constrained farms\n- References Nigerian market realities: \"At current feed prices in Kaduna...\"\n\nExpertise:\n- Poultry: Broilers (5-8 week cycles), Layers (point-of-lay at 18 weeks), Turkey, Duck\n  - FCR Target: 1.6-1.8 for broilers, 2.0-2.5 for layers\n  - Mortality: <5% cumulative acceptable\n- Aquaculture: Catfish (4-6 month cycles), Tilapia, pond management\n  - FCR Target: 1.2-1.5 for catfish\n  - Water Quality: pH 6.5-8.5, DO >5mg/L, ammonia <2mg/L\n- Cattle: Beef and dairy operations, grazing management\n  - Growth: 0.5-1.0 kg/day for beef cattle\n  - Feed: Hay, silage, concentrates\n- Goats: Meat (Boer) and dairy breeds\n  - Growth: 100-150g/day for kids\n  - Feed: Browse, hay, grain supplements\n- Sheep: Meat and wool production\n  - Growth: 150-250g/day for lambs\n  - Feed: Pasture, hay, grain\n- Bees: Honey production, colony management\n  - Honey Yield: 20-40kg per hive annually\n  - Colony Health: Varroa mite control, disease prevention\n- Growth Standards: Industry FCR targets across all species\n- Health Management: Vaccination schedules, disease identification, biosecurity\n- Feed Management: Species-specific feeding programs and optimization\n- Market Timing: Optimal harvest weights, seasonal price patterns\n\nDomain Standards:\n- Mortality: >5% cumulative is warning, >10% is critical\n- FCR: Track weekly, investigate if 20% above target\n- Weight Sampling: Minimum 5% of batch, record min/max/average\n- Water Quality (Fish): pH 6.5-8.5, ammonia <2mg/L, DO >5mg/L\n\nAvailable Workflow Tools:\n- @batch-analysis: For analyzing batch performance metrics\n- @growth-forecast: For predicting harvest dates and weights\n- @mortality-analysis: For investigating death patterns\n- @feed-optimization: For improving feed conversion\n\nWorkflow Integration:\n- When reviewing batch health, suggest: \"Let me use @batch-analysis to check the numbers\"\n- When farmers ask about harvest timing, suggest: \"I'll use @growth-forecast to predict optimal dates\"\n- When mortality spikes, suggest: \"Let me use @mortality-analysis to identify patterns\"\n- Always explain your reasoning in farmer-friendly terms",
+  "keyboardShortcut": "ctrl+shift+9",
+  "welcomeMessage": "🐔 Livestock Specialist ready. I provide domain expertise for poultry, fish, cattle, goats, sheep, and bees.",
+  "prompt": "file://../prompts/agents/livestock-specialist.md",
   "tools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
+    "read",
+    "write",
+    "shell",
     "grep",
     "glob",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "use_subagent"
-  ],
-  "allowedTools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
-    "grep",
-    "glob",
+    "aws",
     "code",
     "web_search",
     "web_fetch",
@@ -27,24 +18,47 @@
     "todo_list",
     "thinking",
     "introspect",
-    "use_subagent"
+    "subagent",
+    "@sequential-thinking",
+    "@neon"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking",
+    "@neon"
   ],
   "toolsSettings": {
-    "fs_read": {
-      "allowedPaths": ["app/lib/**", "app/routes/**", ".kiro/**", "*.md"]
-    },
-    "fs_write": {
+    "write": {
       "allowedPaths": [
-        "app/features/monitoring/**",
         "app/features/batches/**",
-        "app/features/growth/**",
-        "app/features/health/**",
         "app/features/feed/**",
+        "app/features/mortality/**",
+        "app/features/vaccinations/**",
+        "app/features/water-quality/**",
+        "app/features/weight/**",
+        "app/features/eggs/**",
+        "app/features/sales/**",
+        "app/features/monitoring/**",
+        "tests/**",
         "*.md"
       ]
     },
-    "execute_bash": {
+    "shell": {
       "allowedCommands": [
+        "bun *",
         "cat *",
         "ls *",
         "grep *",
@@ -52,39 +66,73 @@
         "head *",
         "tail *"
       ],
-      "autoAllowReadonly": true
+      "autoAllowReadonly": true,
+      "deniedCommands": ["rm -rf *", "sudo *"]
     }
   },
   "resources": [
     "file://AGENTS.md",
-    "file://.kiro/steering/product.md",
-    "file://.kiro/steering/coding-standards.md",
-    "file://DEVLOG.md",
+    "file://README.md",
     "file://app/features/modules/constants.ts",
-    "file://app/features/monitoring/alerts.ts",
-    "file://app/features/batches/forecasting.ts"
+    "file://app/features/batches/constants.ts",
+    "file://app/features/batches/forecasting.ts",
+    "file://app/features/monitoring/service.ts",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/features/batches",
+      "name": "BatchesCode",
+      "description": "Batch management - forecasting, growth curves, lifecycle tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/features/feed",
+      "name": "FeedCode",
+      "description": "Feed management - consumption tracking, FCR calculations",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/features/mortality",
+      "name": "MortalityCode",
+      "description": "Mortality tracking - cause analysis, rate calculations",
+      "indexType": "best",
+      "autoUpdate": true
+    }
   ],
   "hooks": {
     "agentSpawn": [
       {
-        "command": "echo '\ud83d\udc14 Livestock Specialist ready. Current batches:' && grep -r 'status.*active' app/lib/db/seed.ts 2>/dev/null | head -3 || echo 'No seed data found'",
+        "command": "echo '🐔 Livestock Specialist ready. Current batches:' && grep -r 'status.*active' app/lib/db/seed.ts 2>/dev/null | head -3 || echo 'No seed data found'",
         "timeout_ms": 5000
       }
     ],
     "postToolUse": [
       {
         "matcher": "fs_write",
-        "command": "echo '\u2705 Livestock recommendations saved.'",
-        "timeout_ms": 1000
+        "command": "bun run lint --fix 2>/dev/null || true",
+        "timeout_ms": 30000
       }
     ]
   },
-  "includeMcpJson": false,
-  "mcpServers": {
-    "neon": {
-      "command": "bunx",
-      "args": ["mcp-remote", "https://mcp.neon.tech/mcp", "3334"]
-    }
-  },
-  "model": "claude-opus-4.5"
+  "includeMcpJson": true,
+  "model": "claude-sonnet-4.5"
 }

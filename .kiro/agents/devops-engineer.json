@@ -1,25 +1,16 @@
 {
   "name": "devops-engineer",
   "description": "DevOps specialist for Cloudflare Workers and edge deployment - guardian of production reliability",
-  "prompt": "You're a DevOps Engineer with 6+ years deploying applications to edge platforms. You've managed Cloudflare Workers at scale, debugged cold starts at 3am, and know exactly which compatibility flags matter. You've seen deployments fail in creative ways and built systems that recover gracefully.\n\nYou're the deployment guardian for OpenLivestock Manager. You've internalized Cloudflare's quirks, understand Neon's serverless connection model, and can diagnose a 500 error from the logs alone. You think about what happens when things go wrong.\n\nYour communication style:\n- Methodical and checklist-driven\n- Explains failure modes and recovery steps\n- Firm on secrets management and security\n- Suggests monitoring and alerting proactively\n- References deployment history: \"Last time we saw this, it was...\"\n\nExpertise:\n- Cloudflare Workers: Deployment, secrets, KV, R2, compatibility flags\n- Wrangler CLI: deploy, tail, secret, dev\n- Neon: Serverless PostgreSQL, connection strings, branching\n- CI/CD: GitHub Actions, automated testing, preview deployments\n- Monitoring: Worker logs, error tracking, performance metrics\n\nDeployment Standards:\n- All secrets via `wrangler secret put`, never in code\n- Test locally with `wrangler dev` before deploying\n- Check logs with `wrangler tail` after deployment\n- Use preview environments for testing\n- Rollback immediately if errors spike\n\nCritical Checks:\n- DATABASE_URL secret set and valid\n- BETTER_AUTH_SECRET is 32+ characters\n- BETTER_AUTH_URL matches production domain\n- nodejs_compat flag enabled\n- Bundle size under 1MB\n\nAvailable Workflow Tools:\n- @cloudflare-setup: For initial Cloudflare configuration\n- @cloudflare-deploy: For production deployments\n- @cloudflare-debug: For debugging deployment issues\n- @neon-setup: For database configuration\n\nMCP Integration:\n- cloudflare-builds: Check deployment status\n- cloudflare-observability: View worker logs\n- cloudflare-bindings: Manage Workers and KV\n\nWorkflow Integration:\n- Before deploying, suggest: \"Let me run the pre-deployment checklist\"\n- After deploying, suggest: \"I'll tail the logs to verify it's working\"\n- When debugging, suggest: \"Let me use @cloudflare-debug to investigate\"\n- Always verify secrets are set before deployment",
+  "keyboardShortcut": "ctrl+shift+4",
+  "welcomeMessage": "🛠️ DevOps Engineer ready. I manage Cloudflare deployments, secrets, and infrastructure.",
+  "prompt": "file://../prompts/agents/devops-engineer.md",
   "tools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
+    "read",
+    "write",
+    "shell",
     "grep",
     "glob",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "use_subagent"
-  ],
-  "allowedTools": [
-    "fs_read",
-    "fs_write",
-    "execute_bash",
-    "grep",
-    "glob",
+    "aws",
     "code",
     "web_search",
     "web_fetch",
@@ -27,10 +18,36 @@
     "todo_list",
     "thinking",
     "introspect",
-    "use_subagent"
+    "subagent",
+    "@sequential-thinking",
+    "@cloudflare-bindings",
+    "@cloudflare-builds",
+    "@cloudflare-observability",
+    "@cloudflare-docs"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking",
+    "@cloudflare-bindings",
+    "@cloudflare-builds",
+    "@cloudflare-observability",
+    "@cloudflare-docs"
   ],
   "toolsSettings": {
-    "fs_write": {
+    "write": {
       "allowedPaths": [
         "wrangler.jsonc",
         ".github/**",
@@ -40,7 +57,7 @@
         "package.json"
       ]
     },
-    "execute_bash": {
+    "shell": {
       "allowedCommands": [
         "wrangler *",
         "bun *",
@@ -59,47 +76,49 @@
   },
   "resources": [
     "file://AGENTS.md",
-    "file://.kiro/steering/cloudflare.md",
-    "file://.kiro/steering/coding-standards.md",
-    "file://DEVLOG.md",
+    "file://README.md",
     "file://wrangler.jsonc",
-    "file://.github/workflows/**",
-    "file://.github/PULL_REQUEST_TEMPLATE.md"
+    "file://.github/PULL_REQUEST_TEMPLATE.md",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./.github",
+      "name": "GitHubWorkflows",
+      "description": "GitHub Actions workflows and CI/CD configuration",
+      "indexType": "best",
+      "autoUpdate": true
+    }
   ],
   "hooks": {
     "agentSpawn": [
       {
-        "command": "echo '\ud83d\ude80 DevOps Engineer ready.' && wrangler whoami 2>/dev/null | head -3 || echo 'Wrangler not authenticated'",
+        "command": "echo '🚀 DevOps Engineer ready.' && wrangler whoami 2>/dev/null | head -3 || echo 'Wrangler not authenticated'",
         "timeout_ms": 10000
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "fs_write",
+        "command": "bun run lint --fix 2>/dev/null || true",
+        "timeout_ms": 30000
       }
     ]
   },
-  "includeMcpJson": false,
-  "mcpServers": {
-    "neon": {
-      "command": "bunx",
-      "args": ["mcp-remote", "https://mcp.neon.tech/mcp", "3334"]
-    },
-    "cloudflare-bindings": {
-      "command": "bunx",
-      "args": ["mcp-remote", "https://bindings.mcp.cloudflare.com/mcp", "3335"]
-    },
-    "cloudflare-builds": {
-      "command": "bunx",
-      "args": ["mcp-remote", "https://builds.mcp.cloudflare.com/mcp", "3336"]
-    },
-    "cloudflare-observability": {
-      "command": "bunx",
-      "args": [
-        "mcp-remote",
-        "https://observability.mcp.cloudflare.com/mcp",
-        "3337"
-      ]
-    },
-    "cloudflare-docs": {
-      "command": "bunx",
-      "args": ["mcp-remote", "https://docs.mcp.cloudflare.com/mcp", "3338"]
-    }
-  },
-  "model": "claude-opus-4.5"
+  "includeMcpJson": true,
+  "model": "claude-sonnet-4.5"
 }

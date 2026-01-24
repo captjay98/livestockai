@@ -10,7 +10,9 @@
       "mcp__sequential-thinking__sequentialthinking",
       "Skill(lint)",
       "Bash(npm run lint:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(for f in /Users/captjay98/projects/jayfarms/app/routes/_auth/**/*.tsx)",
+      "Bash(do [ -f \"$f\" ])"
     ]
   },
   "disabledMcpjsonServers": ["laravel-boost"]
