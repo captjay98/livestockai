@@ -3,7 +3,7 @@
  * All functions are side-effect-free and easily unit testable.
  */
 
-import type { CreateInvoiceInput } from './server'
+import type { CreateInvoiceInput } from './types'
 import { multiply, toDbString } from '~/features/settings/currency'
 
 /**

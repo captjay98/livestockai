@@ -4,7 +4,7 @@
  */
 
 import { WATER_QUALITY_THRESHOLDS } from './constants'
-import type { CreateWaterQualityInput, UpdateWaterQualityInput } from './server'
+import type { CreateWaterQualityData, UpdateWaterQualityData } from "./types"
 
 /**
  * Validates water quality reading data before creation.
@@ -30,7 +30,7 @@ import type { CreateWaterQualityInput, UpdateWaterQualityInput } from './server'
  * ```
  */
 export function validateReadingData(
-  data: CreateWaterQualityInput,
+  data: CreateWaterQualityData,
 ): string | null {
   if (!data.batchId || data.batchId.trim() === '') {
     return 'Batch ID is required'
@@ -89,7 +89,7 @@ export function validateReadingData(
  * @returns Validation error message, or null if data is valid
  */
 export function validateUpdateData(
-  data: UpdateWaterQualityInput,
+  data: UpdateWaterQualityData,
 ): string | null {
   if (data.date !== undefined) {
     if (isNaN(data.date.getTime())) {

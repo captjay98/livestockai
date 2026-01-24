@@ -3,7 +3,7 @@
  * All functions are side-effect-free and easily unit testable.
  */
 
-import type { CreateExpenseInput, UpdateExpenseInput } from './server'
+import type { CreateExpenseInput, UpdateExpenseInput } from './types'
 
 /**
  * Calculate new feed inventory quantity when adding stock.

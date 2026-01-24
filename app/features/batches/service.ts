@@ -157,8 +157,8 @@ export function calculateMortalityRate(
  * Lower FCR is better (more efficient feed conversion)
  *
  * @param totalFeedKg - Total feed consumed in kilograms
- * @param currentQuantityKg - Total current weight in kilograms
- * @returns FCR as a number, or null if calculation is not possible
+ * @param weightGainKg - Total weight gain in kilograms
+ * @returns FCR as a number rounded to 2 decimals, or null if calculation is not possible
  *
  * @example
  * ```ts
@@ -168,12 +168,13 @@ export function calculateMortalityRate(
  */
 export function calculateFCR(
   totalFeedKg: number,
-  currentQuantityKg: number,
+  weightGainKg: number,
 ): number | null {
-  if (totalFeedKg <= 0 || currentQuantityKg <= 0) {
+  if (totalFeedKg <= 0 || weightGainKg <= 0) {
     return null
   }
-  return totalFeedKg / currentQuantityKg
+  const fcr = totalFeedKg / weightGainKg
+  return Math.round(fcr * 100) / 100
 }
 
 /**

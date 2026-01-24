@@ -3,7 +3,7 @@
  * All functions are side-effect-free and easily unit testable.
  */
 
-import type { CreateSaleInput, UpdateSaleInput } from './server'
+import type { CreateSaleInput, UpdateSaleInput } from './types'
 import type { SaleWithJoins } from './repository'
 import { multiply, toDbString } from '~/features/settings/currency'
 

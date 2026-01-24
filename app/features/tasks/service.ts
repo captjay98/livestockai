@@ -108,50 +108,50 @@ export const DEFAULT_TASKS: Array<{
 }> = [
   // Daily
   {
-    title: 'Check Water Lines',
+    title: 'tasks:defaults.checkWater',
     frequency: 'daily',
-    description: 'Ensure water is flowing properly',
+    description: 'tasks:defaults.checkWaterDesc',
   },
   {
-    title: 'Feed Morning',
+    title: 'tasks:defaults.feedMorning',
     frequency: 'daily',
-    description: 'Distribute morning feed ration',
+    description: 'tasks:defaults.feedMorningDesc',
   },
   {
-    title: 'Collect Eggs',
+    title: 'tasks:defaults.collectEggs',
     frequency: 'daily',
-    description: 'Collect and count eggs from layers',
+    description: 'tasks:defaults.collectEggsDesc',
   },
   {
-    title: 'Check for Sick Birds',
+    title: 'tasks:defaults.checkSick',
     frequency: 'daily',
-    description: 'Visual inspection for symptoms',
+    description: 'tasks:defaults.checkSickDesc',
   },
   // Weekly
   {
-    title: 'Weigh Sample Birds',
+    title: 'tasks:defaults.weighBirds',
     frequency: 'weekly',
-    description: 'Record weight samples for FCR tracking',
+    description: 'tasks:defaults.weighBirdsDesc',
   },
   {
-    title: 'Check Medicine Inventory',
+    title: 'tasks:defaults.checkMedication',
     frequency: 'weekly',
-    description: 'Verify stock levels and expiry dates',
+    description: 'tasks:defaults.checkMedicationDesc',
   },
   {
-    title: 'Clean Feeders',
+    title: 'tasks:defaults.cleanFeeders',
     frequency: 'weekly',
-    description: 'Remove old feed and clean equipment',
+    description: 'tasks:defaults.cleanFeedersDesc',
   },
   // Monthly
   {
-    title: 'Vaccination Review',
+    title: 'tasks:defaults.vaccinationReview',
     frequency: 'monthly',
-    description: 'Review upcoming vaccination schedule',
+    description: 'tasks:defaults.vaccinationReviewDesc',
   },
   {
-    title: 'Deep Clean Coop',
+    title: 'tasks:defaults.deepClean',
     frequency: 'monthly',
-    description: 'Full disinfection and cleaning',
+    description: 'tasks:defaults.deepCleanDesc',
   },
 ]
