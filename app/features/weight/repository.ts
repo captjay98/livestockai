@@ -302,8 +302,15 @@ export async function getWeightSamplesPaginated(
 
   if (filters.sortBy) {
     const sortOrder = filters.sortOrder || 'desc'
-    let sortCol = `weight_samples.${filters.sortBy}`
-    if (filters.sortBy === 'species') sortCol = 'batches.species'
+    // Validate sort column to prevent SQL injection
+    const allowedCols: Record<string, string> = {
+      date: 'weight_samples.date',
+      averageWeightKg: 'weight_samples.averageWeightKg',
+      sampleSize: 'weight_samples.sampleSize',
+      createdAt: 'weight_samples.createdAt',
+      species: 'batches.species',
+    }
+    const sortCol = allowedCols[filters.sortBy] || 'weight_samples.date'
     dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
   } else {
     dataQuery = dataQuery.orderBy('weight_samples.date', 'desc')

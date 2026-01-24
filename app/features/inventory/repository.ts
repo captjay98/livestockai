@@ -473,3 +473,49 @@ export async function getLowStockMedications(
     .orderBy('medication_inventory.medicationName', 'asc')
     .execute()
 }
+
+/**
+ * Atomically add to feed inventory quantity
+ *
+ * @param db - Kysely database instance
+ * @param id - Feed inventory ID
+ * @param quantityKg - Quantity to add
+ */
+export async function atomicAddFeedQuantity(
+  db: Kysely<Database>,
+  id: string,
+  quantityKg: number,
+): Promise<void> {
+  const { sql } = await import('kysely')
+  await db
+    .updateTable('feed_inventory')
+    .set({
+      quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) + ${quantityKg} AS TEXT)`,
+      updatedAt: new Date(),
+    })
+    .where('id', '=', id)
+    .execute()
+}
+
+/**
+ * Atomically subtract from feed inventory quantity
+ *
+ * @param db - Kysely database instance
+ * @param id - Feed inventory ID
+ * @param quantityKg - Quantity to subtract
+ */
+export async function atomicSubtractFeedQuantity(
+  db: Kysely<Database>,
+  id: string,
+  quantityKg: number,
+): Promise<void> {
+  const { sql } = await import('kysely')
+  await db
+    .updateTable('feed_inventory')
+    .set({
+      quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) - ${quantityKg} AS TEXT)`,
+      updatedAt: new Date(),
+    })
+    .where('id', '=', id)
+    .execute()
+}

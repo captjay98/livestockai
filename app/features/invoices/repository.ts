@@ -63,6 +63,7 @@ export interface InvoiceWithDetails {
   customerPhone: string | null
   customerEmail: string | null
   customerLocation: string | null
+  farmId: string
   farmName: string
   farmLocation: string | null
 }
@@ -215,6 +216,7 @@ export async function getInvoiceById(
       'customers.phone as customerPhone',
       'customers.email as customerEmail',
       'customers.location as customerLocation',
+      'invoices.farmId',
       'farms.name as farmName',
       'farms.location as farmLocation',
     ])
@@ -421,19 +423,21 @@ export async function getInvoicesPaginated(
     .limit(pageSize)
     .offset(offset)
 
-  // Apply sorting
+  // Apply sorting - validate columns to prevent SQL injection
   const sortBy = filters.sortBy
   const sortOrder = filters.sortOrder || 'desc'
-
-  if (sortBy === 'customerName') {
-    dataQuery = dataQuery.orderBy('customers.name', sortOrder)
-  } else if (
-    sortBy &&
-    ['invoiceNumber', 'totalAmount', 'status', 'date', 'dueDate'].includes(
-      sortBy,
-    )
-  ) {
-    dataQuery = dataQuery.orderBy(sql.raw(`invoices.${sortBy}`), sortOrder)
+  const allowedCols: Record<string, string> = {
+    invoiceNumber: 'invoices."invoiceNumber"',
+    totalAmount: 'invoices."totalAmount"',
+    status: 'invoices.status',
+    date: 'invoices.date',
+    dueDate: 'invoices."dueDate"',
+    createdAt: 'invoices."createdAt"',
+    customerName: 'customers.name',
+  }
+  const sortCol = sortBy ? allowedCols[sortBy] : null
+  if (sortCol) {
+    dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
   } else {
     dataQuery = dataQuery.orderBy('invoices.date', 'desc')
   }

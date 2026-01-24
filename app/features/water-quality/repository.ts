@@ -395,8 +395,17 @@ export async function getWaterQualityPaginated(
 
   if (filters.sortBy) {
     const sortOrder = filters.sortOrder || 'desc'
-    let sortCol = `water_quality.${filters.sortBy}`
-    if (filters.sortBy === 'species') sortCol = 'batches.species'
+    // Validate sort column to prevent SQL injection
+    const allowedCols: Record<string, string> = {
+      date: 'water_quality.date',
+      ph: 'water_quality.ph',
+      temperatureCelsius: 'water_quality.temperatureCelsius',
+      dissolvedOxygenMgL: 'water_quality.dissolvedOxygenMgL',
+      ammoniaMgL: 'water_quality.ammoniaMgL',
+      createdAt: 'water_quality.createdAt',
+      species: 'batches.species',
+    }
+    const sortCol = allowedCols[filters.sortBy] || 'water_quality.date'
     dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
   } else {
     dataQuery = dataQuery.orderBy('water_quality.date', 'desc')

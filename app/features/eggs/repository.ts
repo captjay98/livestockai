@@ -307,19 +307,25 @@ export async function getEggPaginated(
     .limit(pageSize)
     .offset(offset)
 
-  // Apply sorting with proper column references
+  // Apply sorting with validated column references to prevent SQL injection
   if (filters.sortBy) {
     const sortOrder = filters.sortOrder || 'desc'
-
-    if (filters.sortBy === 'species') {
-      dataQuery = dataQuery.orderBy('batches.species', sortOrder)
-    } else if (filters.sortBy === 'date') {
-      dataQuery = dataQuery.orderBy('egg_records.date', sortOrder)
-    } else {
+    const allowedCols: Record<string, string> = {
+      date: 'egg_records.date',
+      quantityCollected: 'egg_records.quantityCollected',
+      quantityBroken: 'egg_records.quantityBroken',
+      quantitySold: 'egg_records.quantitySold',
+      createdAt: 'egg_records.createdAt',
+      species: 'batches.species',
+    }
+    const sortCol = allowedCols[filters.sortBy]
+    if (sortCol) {
       dataQuery = dataQuery.orderBy(
-        sql.raw(`"egg_records"."${filters.sortBy}"`),
+        sql.raw(`"${sortCol.replace('.', '"."')}"`),
         sortOrder,
       )
+    } else {
+      dataQuery = dataQuery.orderBy('egg_records.date', 'desc')
     }
   } else {
     dataQuery = dataQuery.orderBy('egg_records.date', 'desc')

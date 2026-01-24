@@ -99,7 +99,20 @@ export async function getReportConfigById(
 ): Promise<ReportConfig | null> {
   const config = await db
     .selectFrom('report_configs')
-    .selectAll()
+    .select([
+      'id',
+      'name',
+      'farmId',
+      'reportType',
+      'dateRangeType',
+      'customStartDate',
+      'customEndDate',
+      'includeCharts',
+      'includeDetails',
+      'createdBy',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('id', '=', id)
     .executeTakeFirst()
 
@@ -151,7 +164,20 @@ export async function getReportConfigsByFarm(
 ): Promise<Array<ReportConfig>> {
   return await db
     .selectFrom('report_configs')
-    .selectAll()
+    .select([
+      'id',
+      'name',
+      'farmId',
+      'reportType',
+      'dateRangeType',
+      'customStartDate',
+      'customEndDate',
+      'includeCharts',
+      'includeDetails',
+      'createdBy',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('farmId', '=', farmId)
     .orderBy('createdAt', 'desc')
     .execute()

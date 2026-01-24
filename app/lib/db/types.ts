@@ -257,6 +257,7 @@ export interface FarmTable {
   notes: string | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
+  deletedAt: Date | null
 }
 
 export interface FarmModuleTable {
@@ -326,6 +327,7 @@ export interface BatchTable {
   notes: string | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
+  deletedAt: Date | null
 }
 
 export interface MortalityTable {
@@ -563,6 +565,7 @@ export interface CustomerTable {
     | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
+  deletedAt: Date | null
 }
 
 export interface SupplierTable {
@@ -586,6 +589,7 @@ export interface SupplierTable {
     | null
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
+  deletedAt: Date | null
 }
 
 // Invoices

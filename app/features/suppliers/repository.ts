@@ -43,7 +43,18 @@ export async function selectAllSuppliers(
 ): Promise<Array<SupplierRecord>> {
   return await db
     .selectFrom('suppliers')
-    .selectAll()
+    .select([
+      'id',
+      'name',
+      'phone',
+      'email',
+      'location',
+      'products',
+      'supplierType',
+      'createdAt',
+      'updatedAt',
+    ])
+    .where('deletedAt', 'is', null)
     .orderBy('name', 'asc')
     .execute()
 }
@@ -57,8 +68,19 @@ export async function selectSupplierById(
 ): Promise<SupplierRecord | undefined> {
   return await db
     .selectFrom('suppliers')
-    .selectAll()
+    .select([
+      'id',
+      'name',
+      'phone',
+      'email',
+      'location',
+      'products',
+      'supplierType',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('id', '=', supplierId)
+    .where('deletedAt', 'is', null)
     .executeTakeFirst()
 }
 
@@ -87,7 +109,25 @@ export async function deleteSupplier(
   db: Kysely<Database>,
   supplierId: string,
 ): Promise<void> {
-  await db.deleteFrom('suppliers').where('id', '=', supplierId).execute()
+  await db
+    .updateTable('suppliers')
+    .set({ deletedAt: new Date() })
+    .where('id', '=', supplierId)
+    .execute()
+}
+
+/**
+ * Restore a deleted supplier
+ */
+export async function restoreSupplier(
+  db: Kysely<Database>,
+  supplierId: string,
+): Promise<void> {
+  await db
+    .updateTable('suppliers')
+    .set({ deletedAt: null })
+    .where('id', '=', supplierId)
+    .execute()
 }
 
 /**
@@ -163,15 +203,19 @@ export async function selectSuppliersPaginated(
 
   if (query.sortBy) {
     const sortOrder = query.sortOrder || 'desc'
-    const sortCol = query.sortBy
-    if (query.sortBy === 'totalSpent' || query.sortBy === 'expenseCount') {
-      dataQuery = dataQuery.orderBy(sql.raw(`"${sortCol}"`), sortOrder)
-    } else {
-      dataQuery = dataQuery.orderBy(
-        sql.raw(`suppliers."${sortCol}"`),
-        sortOrder,
-      )
+    // Validate sort column to prevent SQL injection
+    const allowedCols: Record<string, string> = {
+      name: 'suppliers."name"',
+      phone: 'suppliers."phone"',
+      email: 'suppliers."email"',
+      location: 'suppliers."location"',
+      supplierType: 'suppliers."supplierType"',
+      createdAt: 'suppliers."createdAt"',
+      totalSpent: '"totalSpent"',
+      expenseCount: '"expenseCount"',
     }
+    const sortCol = allowedCols[query.sortBy] || 'suppliers."createdAt"'
+    dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
   } else {
     dataQuery = dataQuery.orderBy(sql.raw('suppliers."createdAt"'), 'desc')
   }

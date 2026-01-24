@@ -363,14 +363,41 @@ export async function getHealthRecordsPaginated(
   const totalPages = Math.ceil(total / pageSize)
   const offset = (page - 1) * pageSize
 
-  // Get paginated data
+  // Get paginated data - validate sort column to prevent SQL injection
+  const allowedSortCols = [
+    'dateAdministered',
+    'vaccineName',
+    'nextDueDate',
+    'createdAt',
+    'date',
+    'medicationName',
+  ]
+  const safeSortBy = allowedSortCols.includes(sortBy)
+    ? sortBy
+    : 'dateAdministered'
+
   const dataQuery = db
     .with('union_table', () => finalQuery)
     .selectFrom('union_table')
-    .selectAll()
+    .select([
+      'id',
+      'batchId',
+      'type',
+      'name',
+      'date',
+      'dosage',
+      'notes',
+      'reason',
+      'withdrawalDays',
+      'nextDueDate',
+      'species',
+      'livestockType',
+      'farmName',
+      'farmId',
+    ])
     .limit(pageSize)
     .offset(offset)
-    .orderBy(sql.raw(sortBy), sortOrder)
+    .orderBy(sql.raw(`"${safeSortBy}"`), sortOrder)
 
   const data = await dataQuery.execute()
 

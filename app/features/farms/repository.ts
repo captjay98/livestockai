@@ -157,6 +157,7 @@ export async function getAllFarms(
   return await db
     .selectFrom('farms')
     .select(['id', 'name', 'location', 'type', 'createdAt', 'updatedAt'])
+    .where('deletedAt', 'is', null)
     .orderBy('name', 'asc')
     .execute()
 }
@@ -180,6 +181,7 @@ export async function getFarmsByIds(
     .selectFrom('farms')
     .select(['id', 'name', 'location', 'type', 'createdAt', 'updatedAt'])
     .where('id', 'in', farmIds)
+    .where('deletedAt', 'is', null)
     .orderBy('name', 'asc')
     .execute()
 }
@@ -199,6 +201,7 @@ export async function getFarmById(
     .selectFrom('farms')
     .select(['id', 'name', 'location', 'type', 'createdAt', 'updatedAt'])
     .where('id', '=', farmId)
+    .where('deletedAt', 'is', null)
     .executeTakeFirst()
 
   return farm ?? null
@@ -224,6 +227,7 @@ export async function findFarmByName(
     .selectFrom('farms')
     .select(['id', 'name', 'location', 'type', 'createdAt', 'updatedAt'])
     .where('name', '=', name)
+    .where('deletedAt', 'is', null)
     .executeTakeFirst()
 
   return farm ?? null
@@ -251,6 +255,7 @@ export async function findFarmsByOrganizationUserId(
     .select(['id', 'name', 'location', 'type', 'createdAt', 'updatedAt'])
     .innerJoin('user_farms', 'user_farms.farmId', 'farms.id')
     .where('user_farms.userId', '=', userId)
+    .where('farms.deletedAt', 'is', null)
     .orderBy('farms.name', 'asc')
     .execute()
 }
@@ -267,11 +272,16 @@ export async function updateFarm(
   farmId: string,
   data: FarmUpdate,
 ): Promise<void> {
-  await db.updateTable('farms').set(data).where('id', '=', farmId).execute()
+  await db
+    .updateTable('farms')
+    .set(data)
+    .where('id', '=', farmId)
+    .where('deletedAt', 'is', null)
+    .execute()
 }
 
 /**
- * Delete a farm
+ * Delete a farm (Soft Delete)
  *
  * @param db - Kysely database instance
  * @param farmId - ID of the farm to delete
@@ -280,7 +290,28 @@ export async function deleteFarm(
   db: Kysely<Database>,
   farmId: string,
 ): Promise<void> {
-  await db.deleteFrom('farms').where('id', '=', farmId).execute()
+  await db
+    .updateTable('farms')
+    .set({ deletedAt: new Date() })
+    .where('id', '=', farmId)
+    .execute()
+}
+
+/**
+ * Restore a soft-deleted farm
+ *
+ * @param db - Kysely database instance
+ * @param farmId - ID of the farm to restore
+ */
+export async function restoreFarm(
+  db: Kysely<Database>,
+  farmId: string,
+): Promise<void> {
+  await db
+    .updateTable('farms')
+    .set({ deletedAt: null })
+    .where('id', '=', farmId)
+    .execute()
 }
 
 /**
@@ -316,6 +347,7 @@ export async function checkFarmDependents(
       .selectFrom('batches')
       .select('id')
       .where('farmId', '=', farmId)
+      .where('deletedAt', 'is', null)
       .executeTakeFirst(),
     db
       .selectFrom('sales')
@@ -360,7 +392,9 @@ export async function getFarmStats(
           .as('active_batches'),
       ])
       .where('farmId', '=', farmId)
+      .where('deletedAt', 'is', null)
       .executeTakeFirst(),
+    // ... existing sales and expenses code ...
 
     // Sales statistics (last 30 days)
     db
@@ -437,6 +471,7 @@ export async function checkFarmExists(
     .selectFrom('farms')
     .select('id')
     .where('id', '=', farmId)
+    .where('deletedAt', 'is', null)
     .executeTakeFirst()
 
   return !!farm
@@ -623,6 +658,7 @@ export async function getUserFarmsWithRoles(
       'user_farms.role as farmRole',
     ])
     .where('user_farms.userId', '=', userId)
+    .where('farms.deletedAt', 'is', null)
     .orderBy('farms.name', 'asc')
     .execute()
 }

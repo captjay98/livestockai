@@ -16,7 +16,7 @@ export async function selectFarmModules(
 ): Promise<Array<FarmModule>> {
   const modules = await db
     .selectFrom('farm_modules')
-    .selectAll()
+    .select(['id', 'farmId', 'moduleKey', 'enabled', 'createdAt'])
     .where('farmId', '=', farmId)
     .execute()
 
@@ -36,7 +36,7 @@ export async function selectFarmModule(
 ): Promise<FarmModule | undefined> {
   return await db
     .selectFrom('farm_modules')
-    .selectAll()
+    .select(['id', 'farmId', 'moduleKey', 'enabled', 'createdAt'])
     .where('farmId', '=', farmId)
     .where('moduleKey', '=', moduleKey)
     .executeTakeFirst()

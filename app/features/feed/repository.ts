@@ -145,7 +145,21 @@ export async function getFeedRecordById(
 ): Promise<FeedRecordWithBatch | null> {
   const record = await db
     .selectFrom('feed_records')
-    .selectAll()
+    .select([
+      'id',
+      'batchId',
+      'feedType',
+      'brandName',
+      'bagSizeKg',
+      'numberOfBags',
+      'quantityKg',
+      'cost',
+      'date',
+      'supplierId',
+      'inventoryId',
+      'notes',
+      'createdAt',
+    ])
     .where('id', '=', recordId)
     .executeTakeFirst()
 
@@ -185,7 +199,14 @@ export async function getFeedInventoryById(
 ): Promise<FeedInventoryRecord | null> {
   const inventory = await db
     .selectFrom('feed_inventory')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'feedType',
+      'quantityKg',
+      'minThresholdKg',
+      'updatedAt',
+    ])
     .where('id', '=', inventoryId)
     .executeTakeFirst()
 
@@ -207,7 +228,14 @@ export async function getFeedInventoryByFarmAndType(
 ): Promise<FeedInventoryRecord | null> {
   const inventory = await db
     .selectFrom('feed_inventory')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'feedType',
+      'quantityKg',
+      'minThresholdKg',
+      'updatedAt',
+    ])
     .where('farmId', '=', farmId)
     .where('feedType', '=', feedType as any)
     .executeTakeFirst()
@@ -334,7 +362,14 @@ export async function getNewInventory(
 ): Promise<FeedInventoryRecord | null> {
   const inventory = await db
     .selectFrom('feed_inventory')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'feedType',
+      'quantityKg',
+      'minThresholdKg',
+      'updatedAt',
+    ])
     .where('farmId', '=', farmId)
     .where('feedType', '=', feedType as any)
     .executeTakeFirst()
@@ -377,7 +412,21 @@ export async function getFeedRecordsByBatch(
 ): Promise<Array<FeedRecordWithBatch>> {
   const records = await db
     .selectFrom('feed_records')
-    .selectAll()
+    .select([
+      'id',
+      'batchId',
+      'feedType',
+      'brandName',
+      'bagSizeKg',
+      'numberOfBags',
+      'quantityKg',
+      'cost',
+      'date',
+      'supplierId',
+      'inventoryId',
+      'notes',
+      'createdAt',
+    ])
     .where('batchId', '=', batchId)
     .orderBy('date', 'desc')
     .execute()
@@ -564,7 +613,14 @@ export async function getFeedInventoryForFarms(
 ): Promise<Array<FeedInventoryRecord>> {
   const inventory = await db
     .selectFrom('feed_inventory')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'feedType',
+      'quantityKg',
+      'minThresholdKg',
+      'updatedAt',
+    ])
     .where('farmId', 'in', farmIds)
     .execute()
 
@@ -676,13 +732,14 @@ export async function getFeedRecordsByFarms(
   return records
 }
 
-// Helper function from service layer
+// Helper function - validates and maps sort columns to prevent SQL injection
 function mapSortColumnToDbColumn(sortBy: string): string {
   const sortMap: Record<string, string> = {
     date: 'feed_records.date',
     cost: 'feed_records.cost',
     quantityKg: 'feed_records.quantityKg',
     feedType: 'feed_records.feedType',
+    createdAt: 'feed_records.createdAt',
   }
-  return sortMap[sortBy] || `feed_records.${sortBy}`
+  return sortMap[sortBy] || 'feed_records.date' // Safe default instead of interpolating user input
 }

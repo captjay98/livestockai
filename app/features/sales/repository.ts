@@ -189,26 +189,25 @@ export async function getBatchById(
 }
 
 /**
- * Update batch quantity and status
+ * Update batch quantity and status atomically
  *
  * @param db - Kysely database instance
  * @param batchId - ID of the batch to update
- * @param quantity - New quantity value
- * @param status - New status
+ * @param subtractQuantity - Quantity to subtract
  */
-export async function updateBatchQuantity(
+export async function atomicDecrementBatchQuantity(
   db: Kysely<Database>,
   batchId: string,
-  quantity: number,
-  status: 'active' | 'sold',
+  subtractQuantity: number,
 ): Promise<void> {
+  const { sql } = await import('kysely')
   await db
     .updateTable('batches')
-    .set({
-      currentQuantity: quantity,
-      status,
+    .set((eb) => ({
+      currentQuantity: eb('currentQuantity', '-', subtractQuantity),
+      status: sql`CASE WHEN "currentQuantity" - ${subtractQuantity} <= 0 THEN 'sold' ELSE 'active' END`,
       updatedAt: new Date(),
-    })
+    }))
     .where('id', '=', batchId)
     .execute()
 }

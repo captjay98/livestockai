@@ -64,6 +64,7 @@ export interface BatchWithFarmName {
   notes: string | null
   createdAt: Date
   updatedAt: Date
+  deletedAt?: Date | null
   structureName?: string | null
   supplierName?: string | null
 }
@@ -148,6 +149,7 @@ export async function getBatchById(
       'suppliers.name as supplierName',
     ])
     .where('batches.id', '=', batchId)
+    .where('batches.deletedAt', 'is', null)
     .executeTakeFirst()
 
   return (batch as BatchWithFarmName | null) ?? null
@@ -190,6 +192,7 @@ export async function getBatchesByFarm(
       'farms.name as farmName',
     ])
     .where('batches.farmId', 'in', farmIds)
+    .where('batches.deletedAt', 'is', null)
     .orderBy('batches.acquisitionDate', 'desc')
 
   if (filters?.status) {
@@ -223,7 +226,7 @@ export async function updateBatch(
 }
 
 /**
- * Update batch quantity and status
+ * Update batch quantity and status (Sets absolute value)
  *
  * @param db - Kysely database instance
  * @param batchId - ID of the batch to update
@@ -241,7 +244,55 @@ export async function updateBatchQuantity(
     .set({
       currentQuantity: newQuantity,
       status,
+      updatedAt: new Date(),
     })
+    .where('id', '=', batchId)
+    .execute()
+}
+
+/**
+ * Atomically subtract quantity from a batch and update status
+ *
+ * @param db - Kysely database instance
+ * @param batchId - ID of the batch
+ * @param quantity - Quantity to subtract
+ */
+export async function atomicSubtractBatchQuantity(
+  db: Kysely<Database>,
+  batchId: string,
+  quantity: number,
+): Promise<void> {
+  const { sql } = await import('kysely')
+  await db
+    .updateTable('batches')
+    .set((eb) => ({
+      currentQuantity: eb('currentQuantity', '-', quantity),
+      status: sql`CASE WHEN "currentQuantity" - ${quantity} <= 0 THEN 'depleted' ELSE 'active' END`,
+      updatedAt: new Date(),
+    }))
+    .where('id', '=', batchId)
+    .execute()
+}
+
+/**
+ * Atomically add quantity to a batch
+ *
+ * @param db - Kysely database instance
+ * @param batchId - ID of the batch
+ * @param quantity - Quantity to add
+ */
+export async function atomicAddBatchQuantity(
+  db: Kysely<Database>,
+  batchId: string,
+  quantity: number,
+): Promise<void> {
+  await db
+    .updateTable('batches')
+    .set((eb) => ({
+      currentQuantity: eb('currentQuantity', '+', quantity),
+      status: 'active',
+      updatedAt: new Date(),
+    }))
     .where('id', '=', batchId)
     .execute()
 }
@@ -256,7 +307,28 @@ export async function deleteBatch(
   db: Kysely<Database>,
   batchId: string,
 ): Promise<void> {
-  await db.deleteFrom('batches').where('id', '=', batchId).execute()
+  await db
+    .updateTable('batches')
+    .set({ deletedAt: new Date() })
+    .where('id', '=', batchId)
+    .execute()
+}
+
+/**
+ * Restore a deleted batch
+ *
+ * @param db - Kysely database instance
+ * @param batchId - ID of the batch to restore
+ */
+export async function restoreBatch(
+  db: Kysely<Database>,
+  batchId: string,
+): Promise<void> {
+  await db
+    .updateTable('batches')
+    .set({ deletedAt: null })
+    .where('id', '=', batchId)
+    .execute()
 }
 
 /**

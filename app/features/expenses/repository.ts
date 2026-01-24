@@ -490,7 +490,14 @@ export async function getFeedInventory(
 ): Promise<FeedInventory | null> {
   const inventory = await db
     .selectFrom('feed_inventory')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'feedType',
+      'quantityKg',
+      'minThresholdKg',
+      'updatedAt',
+    ])
     .where('farmId', '=', farmId)
     .where('feedType', '=', feedType)
     .executeTakeFirst()
