@@ -125,6 +125,7 @@
    - Change to `useSecureCookies: true`
 
 5. **No Email Verification**
+
    ```typescript
    requireEmailVerification: false
    ```
