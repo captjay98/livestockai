@@ -39,3 +39,6 @@ public/backup/
 
 # MCP settings with secrets (use mcp.json.example as template)
 # .kiro/settings/mcp.json  # Uncomment if you have secrets in mcp.json
+
+# Cloudflare local dev secrets
+.dev.vars
