@@ -302,7 +302,9 @@ function UsersSettingsPage() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {t('users.status.joined')}{' '}
-                        {format(new Date(user.createdAt), 'MMM d, yyyy')}
+                        {
+                          format(new Date(user.createdAt), 'MMM d, yyyy')  
+                        }
                       </p>
                     </div>
                   </div>

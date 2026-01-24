@@ -23,7 +23,9 @@ import { Button } from '~/components/ui/button'
 const fetchInvoice = createServerFn({ method: 'GET' })
   .inputValidator((data: { invoiceId: string }) => data)
   .handler(async ({ data }) => {
-    return getInvoiceById(data.invoiceId)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getInvoiceById(session.user.id, data.invoiceId)
   })
 
 const changeStatus = createServerFn({ method: 'POST' })
@@ -32,13 +34,17 @@ const changeStatus = createServerFn({ method: 'POST' })
       data,
   )
   .handler(async ({ data }) => {
-    await updateInvoiceStatus(data.invoiceId, data.status)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    await updateInvoiceStatus(session.user.id, data.invoiceId, data.status)
   })
 
 const removeInvoice = createServerFn({ method: 'POST' })
   .inputValidator((data: { invoiceId: string }) => data)
   .handler(async ({ data }) => {
-    await deleteInvoice(data.invoiceId)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    await deleteInvoice(session.user.id, data.invoiceId)
   })
 
 export const Route = createFileRoute('/_auth/invoices/$invoiceId')({

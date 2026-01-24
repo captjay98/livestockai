@@ -46,13 +46,17 @@ interface UpdateCustomerData {
 const fetchCustomer = createServerFn({ method: 'GET' })
   .inputValidator((data: { customerId: string }) => data)
   .handler(async ({ data }) => {
-    return getCustomerWithSales(data.customerId)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getCustomerWithSales(session.user.id, data.customerId)
   })
 
 const removeCustomer = createServerFn({ method: 'POST' })
   .inputValidator((data: { customerId: string }) => data)
   .handler(async ({ data }) => {
-    await deleteCustomer(data.customerId)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    await deleteCustomer(session.user.id, data.customerId)
   })
 
 const updateCustomerFn = createServerFn({ method: 'POST' })
@@ -60,7 +64,9 @@ const updateCustomerFn = createServerFn({ method: 'POST' })
     (data: { customerId: string; data: UpdateCustomerData }) => data,
   )
   .handler(async ({ data }) => {
-    await updateCustomer(data.customerId, data.data)
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    await updateCustomer(session.user.id, data.customerId, data.data)
   })
 
 export const Route = createFileRoute('/_auth/customers/$customerId')({
