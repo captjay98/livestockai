@@ -95,25 +95,38 @@ export async function checkLowStockNotifications(
   // Check feed inventory
   const lowFeedItems = await db
     .selectFrom('feed_inventory')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'feedType',
+      'quantityKg',
+      'minThresholdKg',
+      'updatedAt',
+    ])
     .where('farmId', 'in', targetFarmIds)
     .where((eb) => eb('quantityKg', '<', eb.ref('minThresholdKg')))
     .execute()
 
-  for (const item of lowFeedItems) {
-    // Check if notification already exists (avoid duplicates)
-    const existing = await db
-      .selectFrom('notifications')
-      .select('id')
-      .where('userId', '=', userId)
-      .where('type', '=', 'lowStock')
-      .where('read', '=', false)
-      .where((eb) =>
-        eb('metadata', '@>', { feedType: item.feedType, farmId: item.farmId }),
-      )
-      .executeTakeFirst()
+  // Batch query existing notifications for all feed items
+  const existingFeedNotifications = await db
+    .selectFrom('notifications')
+    .select(['metadata'])
+    .where('userId', '=', userId)
+    .where('type', '=', 'lowStock')
+    .where('read', '=', false)
+    .execute()
 
-    if (!existing) {
+  const existingFeedMap = new Map<string, boolean>()
+  for (const notif of existingFeedNotifications) {
+    const meta = notif.metadata as { feedType?: string; farmId?: string }
+    if (meta.feedType && meta.farmId) {
+      existingFeedMap.set(`${meta.feedType}-${meta.farmId}`, true)
+    }
+  }
+
+  for (const item of lowFeedItems) {
+    const key = `${item.feedType}-${item.farmId}`
+    if (!existingFeedMap.has(key)) {
       await createNotification({
         userId,
         farmId: item.farmId,
@@ -135,27 +148,40 @@ export async function checkLowStockNotifications(
   // Check medication inventory
   const lowMedItems = await db
     .selectFrom('medication_inventory')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'medicationName',
+      'quantity',
+      'unit',
+      'expiryDate',
+      'minThreshold',
+      'updatedAt',
+    ])
     .where('farmId', 'in', targetFarmIds)
     .where((eb) => eb('quantity', '<', eb.ref('minThreshold')))
     .execute()
 
-  for (const item of lowMedItems) {
-    const existing = await db
-      .selectFrom('notifications')
-      .select('id')
-      .where('userId', '=', userId)
-      .where('type', '=', 'lowStock')
-      .where('read', '=', false)
-      .where((eb) =>
-        eb('metadata', '@>', {
-          medicationName: item.medicationName,
-          farmId: item.farmId,
-        }),
-      )
-      .executeTakeFirst()
+  // Batch query existing notifications for all medication items
+  const existingMedNotifications = await db
+    .selectFrom('notifications')
+    .select(['metadata'])
+    .where('userId', '=', userId)
+    .where('type', '=', 'lowStock')
+    .where('read', '=', false)
+    .execute()
 
-    if (!existing) {
+  const existingMedMap = new Map<string, boolean>()
+  for (const notif of existingMedNotifications) {
+    const meta = notif.metadata as { medicationName?: string; farmId?: string }
+    if (meta.medicationName && meta.farmId) {
+      existingMedMap.set(`${meta.medicationName}-${meta.farmId}`, true)
+    }
+  }
+
+  for (const item of lowMedItems) {
+    const key = `${item.medicationName}-${item.farmId}`
+    if (!existingMedMap.has(key)) {
       await createNotification({
         userId,
         farmId: item.farmId,
@@ -232,20 +258,27 @@ export async function checkInvoiceDueNotifications(
 
   let notificationCount = 0
 
+  // Batch query existing notifications for all invoices
+  const existingInvoiceNotifications = await db
+    .selectFrom('notifications')
+    .select(['metadata'])
+    .where('userId', '=', userId)
+    .where('type', '=', 'invoiceDue')
+    .where('read', '=', false)
+    .execute()
+
+  const existingInvoiceMap = new Map<string, boolean>()
+  for (const notif of existingInvoiceNotifications) {
+    const meta = notif.metadata as { invoiceId?: string }
+    if (meta.invoiceId) {
+      existingInvoiceMap.set(meta.invoiceId, true)
+    }
+  }
+
   for (const invoice of dueInvoices) {
     if (!invoice.dueDate) continue
 
-    // Check if notification already exists
-    const existing = await db
-      .selectFrom('notifications')
-      .select('id')
-      .where('userId', '=', userId)
-      .where('type', '=', 'invoiceDue')
-      .where('read', '=', false)
-      .where((eb) => eb('metadata', '@>', { invoiceId: invoice.id }))
-      .executeTakeFirst()
-
-    if (!existing) {
+    if (!existingInvoiceMap.has(invoice.id)) {
       const daysUntilDue = Math.ceil(
         (new Date(invoice.dueDate).getTime() - Date.now()) /
           (1000 * 60 * 60 * 24),
@@ -331,20 +364,27 @@ export async function checkBatchHarvestNotifications(
 
   let notificationCount = 0
 
+  // Batch query existing notifications for all batches
+  const existingBatchNotifications = await db
+    .selectFrom('notifications')
+    .select(['metadata'])
+    .where('userId', '=', userId)
+    .where('type', '=', 'batchHarvest')
+    .where('read', '=', false)
+    .execute()
+
+  const existingBatchMap = new Map<string, boolean>()
+  for (const notif of existingBatchNotifications) {
+    const meta = notif.metadata as { batchId?: string }
+    if (meta.batchId) {
+      existingBatchMap.set(meta.batchId, true)
+    }
+  }
+
   for (const batch of harvestBatches) {
     if (!batch.targetHarvestDate) continue
 
-    // Check if notification already exists
-    const existing = await db
-      .selectFrom('notifications')
-      .select('id')
-      .where('userId', '=', userId)
-      .where('type', '=', 'batchHarvest')
-      .where('read', '=', false)
-      .where((eb) => eb('metadata', '@>', { batchId: batch.id }))
-      .executeTakeFirst()
-
-    if (!existing) {
+    if (!existingBatchMap.has(batch.id)) {
       const daysUntilHarvest = Math.ceil(
         (new Date(batch.targetHarvestDate).getTime() - Date.now()) /
           (1000 * 60 * 60 * 24),

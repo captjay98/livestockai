@@ -267,11 +267,8 @@ export async function addFeedStock(
   )
 
   if (existing) {
-    const currentQty = parseFloat(existing.quantityKg) || 0
-    const newQuantity = currentQty + quantityKg
-    await updateFeedInventory(db, existing.id, {
-      quantityKg: newQuantity.toFixed(2),
-    })
+    const { atomicAddFeedQuantity } = await import('./repository')
+    await atomicAddFeedQuantity(db, existing.id, quantityKg)
   } else {
     await insertFeedInventory(db, {
       farmId,
@@ -327,6 +324,7 @@ export async function reduceFeedStock(
     })
   }
 
+  // VALIDATION READ ONLY: Check currentQty against quantityKg
   const currentQty = parseFloat(existing.quantityKg) || 0
   if (currentQty < quantityKg) {
     throw new AppError('INSUFFICIENT_STOCK', {
@@ -335,10 +333,9 @@ export async function reduceFeedStock(
     })
   }
 
-  const newQuantity = currentQty - quantityKg
-  await updateFeedInventory(db, existing.id, {
-    quantityKg: newQuantity.toFixed(2),
-  })
+  // ATOMIC UPDATE: Use atomic subtract helper
+  const { atomicSubtractFeedQuantity } = await import('./repository')
+  await atomicSubtractFeedQuantity(db, existing.id, quantityKg)
 
   return true
 }

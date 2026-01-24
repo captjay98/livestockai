@@ -18,7 +18,28 @@ export async function calculateBatchProjection(
   const { db } = await import('~/lib/db')
   const batch = await db
     .selectFrom('batches')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'batchName',
+      'livestockType',
+      'species',
+      'sourceSize',
+      'initialQuantity',
+      'currentQuantity',
+      'acquisitionDate',
+      'costPerUnit',
+      'totalCost',
+      'status',
+      'supplierId',
+      'structureId',
+      'targetHarvestDate',
+      'target_weight_g',
+      'targetPricePerUnit',
+      'notes',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('id', '=', batchId)
     .executeTakeFirst()
 
@@ -38,7 +59,7 @@ export async function calculateBatchProjection(
   // 2. Get Growth Standard
   const growthStandard = await db
     .selectFrom('growth_standards')
-    .selectAll()
+    .select(['id', 'species', 'day', 'expected_weight_g'])
     .where('species', '=', batch.species)
     .orderBy('day', 'asc')
     .execute()
