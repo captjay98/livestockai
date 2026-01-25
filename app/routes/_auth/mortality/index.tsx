@@ -1,14 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Plus, Skull, TrendingDown } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { validateMortalitySearch } from '~/features/mortality/validation'
+import { getMortalityDataForFarmFn } from '~/features/mortality/server'
 import { useMortalityPage } from '~/features/mortality/use-mortality-page'
 import { useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { DataTable } from '~/components/ui/data-table'
-import { useFarm } from '~/features/farms/context'
 import { PageHeader } from '~/components/page-header'
 import {
   BatchAlerts,
@@ -18,34 +18,49 @@ import {
 import { DeleteMortalityDialog } from '~/components/mortality/delete-dialog'
 import { getMortalityColumns } from '~/components/mortality/mortality-columns'
 import { MortalityFilters } from '~/components/mortality/mortality-filters'
+import { MortalitySkeleton } from '~/components/mortality/mortality-skeleton'
 
 export const Route = createFileRoute('/_auth/mortality/')({
-  component: MortalityPage,
   validateSearch: validateMortalitySearch,
+  loaderDeps: ({ search }) => ({
+    page: search.page,
+    pageSize: search.pageSize,
+    sortBy: search.sortBy,
+    sortOrder: search.sortOrder,
+    search: search.q,
+    cause: search.cause,
+  }),
+  loader: async ({ deps }) => {
+    return getMortalityDataForFarmFn({ data: deps })
+  },
+  pendingComponent: MortalitySkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading mortality data: {error.message}
+    </div>
+  ),
+  component: MortalityPage,
 })
 
 function MortalityPage() {
   const { t } = useTranslation(['mortality', 'common'])
   const { format: formatDate } = useFormatDate()
-  const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
 
+  // Get data from loader
+  const { paginatedRecords, batches, alerts, summary } = Route.useLoaderData()
+
+  // Use mortality page hook for handlers
   const {
-    paginatedRecords,
-    batches,
-    alerts,
-    summary,
-    isLoading,
     selectedRecord,
     setSelectedRecord,
     isSubmitting,
-    updateSearch,
     handleRecordSubmit,
     handleEditSubmit,
     handleDeleteConfirm,
   } = useMortalityPage({
-    selectedFarmId,
-    searchParams,
+    selectedFarmId: undefined, // Mortality route doesn't filter by farm
     routePath: Route.fullPath,
   })
 
@@ -53,6 +68,13 @@ function MortalityPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+  // Navigation helper for search params
+  const updateSearch = (updates: Partial<typeof searchParams>) => {
+    navigate({
+      search: { ...searchParams, ...updates },
+    })
+  }
 
   const handleEdit = (record: any) => {
     setSelectedRecord(record)
@@ -104,13 +126,13 @@ function MortalityPage() {
         }
       />
 
-      {summary && <MortalitySummary summary={summary} />}
+      <MortalitySummary summary={summary} />
 
       <BatchAlerts alerts={alerts} />
 
       <DataTable
         columns={columns}
-        data={paginatedRecords.data}
+        data={paginatedRecords.data as any}
         total={paginatedRecords.total}
         page={paginatedRecords.page}
         pageSize={paginatedRecords.pageSize}
@@ -119,7 +141,6 @@ function MortalityPage() {
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
         searchPlaceholder={t('common:searchPlaceholder')}
-        isLoading={isLoading}
         filters={
           <MortalityFilters
             cause={searchParams.cause}

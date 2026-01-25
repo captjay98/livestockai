@@ -1,8 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Droplets, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { validateWaterQualitySearch } from '~/features/water-quality/validation'
+import { getWaterQualityDataForFarmFn } from '~/features/water-quality/server'
 import { useWaterQualityPage } from '~/features/water-quality/use-water-quality-page'
 import { useWaterQualityColumns } from '~/components/water-quality/water-quality-columns'
 import { useFormatTemperature } from '~/features/settings'
@@ -18,14 +19,30 @@ import {
 import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
 import { PageHeader } from '~/components/page-header'
-import {
-  WaterQualityFormDialog,
-} from '~/components/water-quality'
+import { WaterQualityFormDialog } from '~/components/water-quality'
 import { WaterQualityFilters } from '~/components/water-quality/water-quality-filters'
+import { WaterQualitySkeleton } from '~/components/water-quality/water-quality-skeleton'
 
 export const Route = createFileRoute('/_auth/water-quality/')({
-  component: WaterQualityPage,
   validateSearch: validateWaterQualitySearch,
+  loaderDeps: ({ search }) => ({
+    farmId: null, // Will be handled by server function
+    page: search.page,
+    pageSize: search.pageSize,
+    sortBy: search.sortBy,
+    sortOrder: search.sortOrder,
+    search: search.q,
+  }),
+  loader: async ({ deps }) => {
+    return getWaterQualityDataForFarmFn({ data: deps })
+  },
+  pendingComponent: WaterQualitySkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading water quality data: {error.message}
+    </div>
+  ),
+  component: WaterQualityPage,
 })
 
 function WaterQualityPage() {
@@ -33,15 +50,15 @@ function WaterQualityPage() {
   const { selectedFarmId } = useFarm()
   const { label: tempLabel } = useFormatTemperature()
   const searchParams = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
+
+  // Get data from loader
+  const { paginatedRecords, batches } = Route.useLoaderData()
 
   const {
-    paginatedRecords,
-    batches,
     selectedRecord,
     setSelectedRecord,
-    isLoading,
     isSubmitting,
-    updateSearch,
     handleAddSubmit,
     handleEditSubmit,
     handleDeleteConfirm,
@@ -55,6 +72,13 @@ function WaterQualityPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+  // Navigation helper for search params
+  const updateSearch = (updates: Partial<typeof searchParams>) => {
+    navigate({
+      search: { ...searchParams, ...updates },
+    })
+  }
 
   const columns = useWaterQualityColumns({
     onEdit: (record) => {
@@ -84,10 +108,9 @@ function WaterQualityPage() {
         }
       />
 
-
       <DataTable
         columns={columns}
-        data={paginatedRecords.data}
+        data={paginatedRecords.data as any}
         total={paginatedRecords.total}
         page={paginatedRecords.page}
         pageSize={paginatedRecords.pageSize}
@@ -96,7 +119,6 @@ function WaterQualityPage() {
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
         searchPlaceholder={t('common:search', { defaultValue: 'Search...' })}
-        isLoading={isLoading}
         filters={<WaterQualityFilters />}
         onPaginationChange={(page, pageSize) => {
           updateSearch({ page, pageSize })

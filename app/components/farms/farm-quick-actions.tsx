@@ -31,7 +31,7 @@ export function FarmQuickActions({
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Link to="/batches" className="w-full">
+          <Link to="/batches" preload="intent" className="w-full">
             <Button
               variant="outline"
               className="h-auto p-4 w-full glass flex flex-col items-center justify-center gap-2 hover:bg-accent"

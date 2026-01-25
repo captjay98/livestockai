@@ -4,15 +4,16 @@ import {
   ClipboardList,
   DollarSign,
   Layers,
-  Loader2,
   PlayCircle,
   Plug,
   Settings,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
+import { getSettingsPageDataFn } from '~/features/settings/server'
 import { useSettingsTabs } from '~/features/settings/use-settings-tabs'
 import { ModulesTab } from '~/components/settings/modules-tab'
 import { RegionalTab } from '~/components/settings/regional-tab'
@@ -20,32 +21,36 @@ import { PreferencesTab } from '~/components/settings/preferences-tab'
 import { NotificationsTab } from '~/components/settings/notifications-tab'
 import { BusinessTab } from '~/components/settings/business-tab'
 import { IntegrationsTab } from '~/components/settings/integrations-tab'
+import { SettingsSkeleton } from '~/components/settings/settings-skeleton'
 
 export const Route = createFileRoute('/_auth/settings/')({
+  loader: async () => {
+    return getSettingsPageDataFn({ data: {} })
+  },
+  pendingComponent: SettingsSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading settings: {error.message}
+    </div>
+  ),
   component: SettingsPage,
 })
 
 function SettingsPage() {
   const { t } = useTranslation(['settings'])
+
+  // Get data from loader
+  const initialSettings = Route.useLoaderData()
+
   const {
     localSettings,
-    isLoading,
-    error,
     saveError,
     saveSuccess,
     isSaving,
     saveSettings,
     handleReset,
     updateLocalSettings,
-  } = useSettingsTabs()
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
+  } = useSettingsTabs(initialSettings)
 
   return (
     <div className="container max-w-4xl py-6 space-y-6">
@@ -57,9 +62,9 @@ function SettingsPage() {
         </div>
       </div>
 
-      {(error || saveError) && (
+      {saveError && (
         <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md">
-          {error || saveError}
+          {saveError}
         </div>
       )}
 
@@ -157,11 +162,11 @@ function SettingsPage() {
               try {
                 const { resetOnboardingFn } =
                   await import('~/features/onboarding/server')
-                await resetOnboardingFn()
+                await resetOnboardingFn({ data: {} })
                 localStorage.removeItem('openlivestock_onboarding')
                 window.location.href = '/onboarding'
               } catch (err) {
-                console.error('Failed to reset onboarding:', err)
+                toast.error('Failed to reset onboarding')
               }
             }}
           >

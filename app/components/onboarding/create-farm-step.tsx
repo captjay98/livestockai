@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Home } from 'lucide-react'
 import { toast } from 'sonner'
-import { createServerFn } from '@tanstack/react-start'
+import type { CreateFarmData } from '~/features/farms/service'
 import { useOnboarding } from '~/features/onboarding/context'
-import { createFarm as createFarmActionFn } from '~/features/farms/server'
+import { createFarmFn } from '~/features/farms/server'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
@@ -27,25 +27,10 @@ type FarmType =
   | 'bees'
   | 'multi'
 
-interface CreateFarmInput {
-  name: string
-  location: string
-  type: FarmType
-}
-
-const createFarmAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateFarmInput) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    const farmId = await createFarmActionFn(data, session.user.id)
-    return { success: true, farmId }
-  })
-
 export function CreateFarmStep() {
   const { t } = useTranslation(['onboarding', 'common', 'farms'])
   const { completeStep, setFarmId, skipStep } = useOnboarding()
-  const [formData, setFormData] = useState<CreateFarmInput>({
+  const [formData, setFormData] = useState<CreateFarmData>({
     name: '',
     location: '',
     type: 'poultry',
@@ -58,8 +43,8 @@ export function CreateFarmStep() {
     setIsSubmitting(true)
     setError('')
     try {
-      const result = await createFarmAction({ data: formData })
-      if (result.farmId) setFarmId(result.farmId)
+      const farmId = await createFarmFn({ data: formData })
+      if (farmId) setFarmId(farmId)
       toast.success(t('createFarm.success', { defaultValue: 'Farm created' }))
       completeStep('create-farm')
     } catch (err) {
@@ -102,7 +87,7 @@ export function CreateFarmStep() {
                 id="name"
                 value={formData.name}
                 onChange={(e) =>
-                  setFormData((p) => ({ ...p, name: e.target.value }))
+                  setFormData((p: CreateFarmData) => ({ ...p, name: e.target.value }))
                 }
                 placeholder={t('createFarm.form.namePlaceholder', {
                   defaultValue: 'e.g., Sunshine Poultry Farm',
@@ -118,7 +103,7 @@ export function CreateFarmStep() {
                 id="location"
                 value={formData.location}
                 onChange={(e) =>
-                  setFormData((p) => ({ ...p, location: e.target.value }))
+                  setFormData((p: CreateFarmData) => ({ ...p, location: e.target.value }))
                 }
                 placeholder={t(
                   'onboarding.createFarm.form.locationPlaceholder',
@@ -134,7 +119,7 @@ export function CreateFarmStep() {
               <Select
                 value={formData.type}
                 onValueChange={(v) => {
-                  if (v) setFormData((p) => ({ ...p, type: v as FarmType }))
+                  if (v) setFormData((p: CreateFarmData) => ({ ...p, type: v as FarmType }))
                 }}
               >
                 <SelectTrigger>

@@ -27,6 +27,7 @@ import {
   ReportFilters,
   SalesReportView,
 } from '~/components/reports'
+import { ReportsSkeleton } from '~/components/reports/reports-skeleton'
 
 function getDefaultStartDate() {
   const date = new Date()
@@ -66,6 +67,12 @@ export const Route = createFileRoute('/_auth/reports/')({
         endDate: deps.endDate,
       },
     }),
+  pendingComponent: ReportsSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading reports: {error.message}
+    </div>
+  ),
 })
 
 const reportTypes = [

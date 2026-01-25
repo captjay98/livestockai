@@ -18,13 +18,20 @@ import {
   TourStep,
   WelcomeStep,
 } from '~/components/onboarding'
+import { OnboardingSkeleton } from '~/components/onboarding/onboarding-skeleton'
 
 export const Route = createFileRoute('/_auth/onboarding/')({
   loader: async () => {
-    const result = await getOnboardingProgressFn()
+    const result = await getOnboardingProgressFn({ data: {} })
     return result
   },
   component: OnboardingPage,
+  pendingComponent: OnboardingSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading onboarding: {error.message}
+    </div>
+  ),
 })
 
 function OnboardingPage() {

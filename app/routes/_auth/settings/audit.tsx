@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { Button } from '~/components/ui/button'
+import { AuditSkeleton } from '~/components/settings/audit-skeleton'
 
 interface AuditSearchParams {
   page?: number
@@ -48,6 +49,12 @@ export const Route = createFileRoute('/_auth/settings/audit')({
       },
     })
   },
+  pendingComponent: AuditSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading audit logs: {error.message}
+    </div>
+  ),
 })
 
 function AuditLogPage() {

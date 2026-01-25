@@ -1,5 +1,4 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,8 +7,7 @@ import type {
   RecentExpense,
   RecentSale,
 } from '~/components/farms/farm-recent-activity-card'
-import { getFarmById, getFarmStats } from '~/features/farms/server'
-import { getStructuresWithCounts } from '~/features/structures/server'
+import { getFarmDetailsFn } from '~/features/farms/server'
 import { Button } from '~/components/ui/button'
 import { SaleDialog } from '~/components/dialogs/sale-dialog'
 import { ExpenseDialog } from '~/components/dialogs/expense-dialog'
@@ -21,53 +19,17 @@ import { FarmRecentActivityCard } from '~/components/farms/farm-recent-activity-
 import { FarmQuickActions } from '~/components/farms/farm-quick-actions'
 import { FarmInfoCard } from '~/components/farms/farm-info-card'
 import { FarmStatsSidebar } from '~/components/farms/farm-stats-sidebar'
-
-const getFarmDetails = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
-  .handler(async ({ data }) => {
-    try {
-      const { requireAuth } = await import('~/features/auth/server-middleware')
-      const session = await requireAuth()
-
-      // Dynamically import backend functions to avoid server-code leakage
-      const { getBatches } = await import('~/features/batches/server')
-      const { getSalesForFarm } = await import('~/features/sales/server')
-      const { getExpensesForFarm } = await import('~/features/expenses/server')
-
-      const [
-        farm,
-        stats,
-        activeBatches,
-        recentSales,
-        recentExpenses,
-        structures,
-      ] = await Promise.all([
-        getFarmById(data.farmId, session.user.id),
-        getFarmStats(data.farmId, session.user.id),
-        getBatches(session.user.id, data.farmId, { status: 'active' }),
-        getSalesForFarm(session.user.id, data.farmId),
-        getExpensesForFarm(session.user.id, data.farmId),
-        getStructuresWithCounts(session.user.id, data.farmId),
-      ])
-      return {
-        farm,
-        stats,
-        activeBatches,
-        recentSales,
-        recentExpenses,
-        structures,
-      }
-    } catch (error) {
-      if (error instanceof Error && error.message === 'UNAUTHORIZED') {
-        throw redirect({ to: '/login' })
-      }
-      throw error
-    }
-  })
+import { FarmDetailSkeleton } from '~/components/farms/farm-detail-skeleton'
 
 export const Route = createFileRoute('/_auth/farms/$farmId/')({
   component: FarmDetailsPage,
-  loader: ({ params }) => getFarmDetails({ data: { farmId: params.farmId } }),
+  loader: ({ params }) => getFarmDetailsFn({ data: { farmId: params.farmId } }),
+  pendingComponent: FarmDetailSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading farm details: {error.message}
+    </div>
+  ),
 })
 
 function FarmDetailsPage() {

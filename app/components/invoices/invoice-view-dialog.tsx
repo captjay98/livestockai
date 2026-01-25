@@ -86,7 +86,7 @@ export function InvoiceViewDialog({
                 {t('common.close')}
               </Button>
               <Button asChild>
-                <Link to={`/invoices/${invoice.id}` as any}>
+                <Link to={`/invoices/${invoice.id}` as any} preload="intent">
                   {t('viewFull')}
                 </Link>
               </Button>

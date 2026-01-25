@@ -1,5 +1,4 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import {
@@ -13,7 +12,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
-  deleteSupplier,
+  deleteSupplierFn,
   getSupplierWithExpenses,
 } from '~/features/suppliers/server'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
@@ -27,22 +26,11 @@ import {
 } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
 
-const fetchSupplier = createServerFn({ method: 'GET' })
-  .inputValidator((data: { supplierId: string }) => data)
-  .handler(async ({ data }) => {
-    return getSupplierWithExpenses(data.supplierId)
-  })
-
-const removeSupplier = createServerFn({ method: 'POST' })
-  .inputValidator((data: { supplierId: string }) => data)
-  .handler(async ({ data }) => {
-    await deleteSupplier(data.supplierId)
-  })
-
 export const Route = createFileRoute('/_auth/suppliers/$supplierId')({
   component: SupplierDetailPage,
-  loader: ({ params }) =>
-    fetchSupplier({ data: { supplierId: params.supplierId } }),
+  loader: async ({ params }) => {
+    return getSupplierWithExpenses(params.supplierId)
+  },
 })
 
 function SupplierDetailPage() {
@@ -67,7 +55,7 @@ function SupplierDetailPage() {
 
   const handleDeleteConfirm = async () => {
     try {
-      await removeSupplier({ data: { supplierId: supplier.id } })
+      await deleteSupplierFn({ data: { id: supplier.id } })
       toast.success(
         t('suppliers:messages.deleted', { defaultValue: 'Supplier deleted' }),
       )

@@ -4,15 +4,14 @@ import {
   useNavigate,
   useRouter,
 } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ArrowLeft, Edit, Mail, MapPin, Phone, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
-  deleteCustomer,
-  getCustomerWithSales,
-  updateCustomer,
+  deleteCustomerFn,
+  getCustomerWithSalesFn,
+  updateCustomerFn,
 } from '~/features/customers/server'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -34,45 +33,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-
-interface UpdateCustomerData {
-  name: string
-  phone: string
-  email: string | null
-  location: string | null
-  customerType: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
-}
-
-const fetchCustomer = createServerFn({ method: 'GET' })
-  .inputValidator((data: { customerId: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return getCustomerWithSales(session.user.id, data.customerId)
-  })
-
-const removeCustomer = createServerFn({ method: 'POST' })
-  .inputValidator((data: { customerId: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    await deleteCustomer(session.user.id, data.customerId)
-  })
-
-const updateCustomerFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { customerId: string; data: UpdateCustomerData }) => data,
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    await updateCustomer(session.user.id, data.customerId, data.data)
-  })
+import { CustomerDetailSkeleton } from '~/components/customers/customer-detail-skeleton'
 
 export const Route = createFileRoute('/_auth/customers/$customerId')({
-  component: CustomerDetailPage,
   loader: ({ params }) =>
-    fetchCustomer({ data: { customerId: params.customerId } }),
+    getCustomerWithSalesFn({ data: { customerId: params.customerId } }),
+  pendingComponent: CustomerDetailSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading customer: {error.message}
+    </div>
+  ),
+  component: CustomerDetailPage,
 })
 
 function CustomerDetailPage() {
@@ -133,7 +105,7 @@ function CustomerDetailPage() {
   const handleDelete = async () => {
     setIsSubmitting(true)
     try {
-      await removeCustomer({ data: { customerId: customer.id } })
+      await deleteCustomerFn({ data: { id: customer.id } })
       toast.success(
         t('customers:messages.deleted', { defaultValue: 'Customer deleted' }),
       )
@@ -158,7 +130,7 @@ function CustomerDetailPage() {
     try {
       await updateCustomerFn({
         data: {
-          customerId: customer.id,
+          id: customer.id,
           data: {
             name: editFormData.name,
             phone: editFormData.phone,
@@ -174,7 +146,11 @@ function CustomerDetailPage() {
       setEditDialogOpen(false)
       router.invalidate()
     } catch (err) {
-      console.error(err)
+      toast.error(
+        t('customers:messages.updateFailed', {
+          defaultValue: 'Failed to update customer',
+        }),
+      )
     } finally {
       setIsSubmitting(false)
     }

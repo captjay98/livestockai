@@ -13,17 +13,17 @@ import { ModuleProvider } from '~/features/modules/context'
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async ({ location }) => {
     try {
-      const { user: authUser } = await checkAuthFn()
+      const { user: authUser } = await checkAuthFn({ data: {} })
 
-      // Map to our User type
+      // Map to our User type (cast to any to access custom fields)
       const user = {
         id: authUser.id,
         email: authUser.email,
         name: authUser.name,
-        role: authUser.role as 'admin' | 'user',
-        banned: authUser.banned || false,
-        banReason: authUser.banReason || null,
-        banExpires: authUser.banExpires || null,
+        role: (authUser as any).role as 'admin' | 'user',
+        banned: (authUser as any).banned || false,
+        banReason: (authUser as any).banReason || null,
+        banExpires: (authUser as any).banExpires || null,
         createdAt: authUser.createdAt,
         updatedAt: authUser.updatedAt,
       }
@@ -34,7 +34,7 @@ export const Route = createFileRoute('/_auth')({
       }
 
       // Check if user needs onboarding
-      const { needsOnboarding } = await checkNeedsOnboardingFn()
+      const { needsOnboarding } = await checkNeedsOnboardingFn({ data: {} })
 
       // Redirect new users to onboarding
       if (needsOnboarding) {

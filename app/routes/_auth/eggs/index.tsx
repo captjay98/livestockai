@@ -3,6 +3,7 @@ import { Bird, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { validateEggSearch } from '~/features/eggs/validation'
+import { getEggDataForFarm } from '~/features/eggs/server'
 import { useEggPage } from '~/features/eggs/use-egg-page'
 import { useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -24,10 +25,27 @@ import {
   useEggColumns,
 } from '~/components/eggs'
 import { EggFilters } from '~/components/eggs/egg-filters'
+import { EggsSkeleton } from '~/components/eggs/eggs-skeleton'
 
 export const Route = createFileRoute('/_auth/eggs/')({
-  component: EggsPage,
   validateSearch: validateEggSearch,
+  loaderDeps: ({ search }) => ({
+    page: search.page,
+    pageSize: search.pageSize,
+    sortBy: search.sortBy,
+    sortOrder: search.sortOrder,
+    search: search.search,
+  }),
+  loader: async ({ deps }) => {
+    return getEggDataForFarm({ data: deps })
+  },
+  pendingComponent: EggsSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading egg records: {error.message}
+    </div>
+  ),
+  component: EggsPage,
 })
 
 function EggsPage() {
@@ -36,11 +54,10 @@ function EggsPage() {
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
 
+  // Get data from loader
+  const { paginatedRecords, batches, summary } = Route.useLoaderData()
+
   const {
-    paginatedRecords,
-    batches,
-    summary,
-    isLoading,
     selectedRecord,
     setSelectedRecord,
     isSubmitting,
@@ -50,7 +67,6 @@ function EggsPage() {
     handleDeleteConfirm,
   } = useEggPage({
     selectedFarmId,
-    searchParams,
     routePath: Route.fullPath,
   })
 
@@ -140,7 +156,6 @@ function EggsPage() {
             totalPages={paginatedRecords.totalPages}
             sortBy={searchParams.sortBy}
             sortOrder={searchParams.sortOrder}
-            isLoading={isLoading}
             onPaginationChange={(page, pageSize) =>
               updateSearch({ page, pageSize })
             }
@@ -189,7 +204,10 @@ function EggsPage() {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         record={selectedRecord}
-        onConfirm={async () => { await handleDeleteConfirm(); return true; }}
+        onConfirm={async () => {
+          await handleDeleteConfirm()
+          return true
+        }}
         isSubmitting={isSubmitting}
       />
     </div>

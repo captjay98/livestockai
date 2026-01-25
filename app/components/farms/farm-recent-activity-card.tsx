@@ -103,7 +103,7 @@ export function FarmRecentActivityCard({
                 </div>
               ))}
               <div className="pt-2 text-center">
-                <Link to="/sales">
+                <Link to="/sales" preload="intent">
                   <Button variant="ghost" size="sm" className="w-full">
                     {t('farms:recentActivity.viewAllSales')}
                   </Button>
@@ -141,7 +141,7 @@ export function FarmRecentActivityCard({
               </div>
             ))}
             <div className="pt-2 text-center">
-              <Link to="/expenses">
+              <Link to="/expenses" preload="intent">
                 <Button variant="ghost" size="sm" className="w-full">
                   {t('farms:recentActivity.viewAllExpenses')}
                 </Button>

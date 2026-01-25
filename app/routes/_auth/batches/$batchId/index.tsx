@@ -9,9 +9,18 @@ import { FeedRecordsTab } from '~/components/batches/batch-details/feed-records-
 import { MortalityRecordsTab } from '~/components/batches/batch-details/mortality-records-tab'
 import { ExpensesTab } from '~/components/batches/batch-details/expenses-tab'
 import { SalesTab } from '~/components/batches/batch-details/sales-tab'
-import { useBatchDetails } from '~/features/batches/use-batch-details'
+import { getBatchDetailsFn } from '~/features/batches/server'
+import { BatchDetailSkeleton } from '~/components/batches/batch-detail-skeleton'
 
 export const Route = createFileRoute('/_auth/batches/$batchId/')({
+  loader: async ({ params }) =>
+    getBatchDetailsFn({ data: { batchId: params.batchId } }),
+  pendingComponent: BatchDetailSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading batch details: {error.message}
+    </div>
+  ),
   component: BatchDetailsPage,
 })
 
@@ -25,25 +34,39 @@ function BatchDetailsPage() {
     'mortality',
   ])
   const { batchId } = Route.useParams()
-  const {
-    details,
-    feedRecords,
-    mortalityRecords,
-    expenses,
-    sales,
-    metrics,
-    isLoading,
-  } = useBatchDetails(batchId)
+  const data = Route.useLoaderData()
 
-  if (isLoading || !details || !metrics) {
-    return (
-      <div className="p-8 text-center">
-        {t('common:loading.details', { defaultValue: 'Loading details...' })}
-      </div>
-    )
+  const { batch, mortality, feed, sales, expenses } = data
+
+  // Create metrics object from the data structure
+  const metrics = {
+    currentQuantity: batch.currentQuantity,
+    initialQuantity: batch.initialQuantity,
+    mortalityCount: mortality.totalQuantity,
+    mortalityRate: mortality.rate,
+    feedTotalKg: feed.totalKg,
+    feedFcr: feed.fcr,
+    totalInvestment: Number(batch.totalCost),
+    costPerUnit: Number(batch.costPerUnit),
+    totalRevenue: sales.totalRevenue,
+    totalSold: sales.totalQuantity,
+    avgSalesPrice:
+      sales.totalQuantity > 0 ? sales.totalRevenue / sales.totalQuantity : 0,
+    netProfit:
+      sales.totalRevenue -
+      Number(batch.totalCost) -
+      feed.totalCost -
+      expenses.total,
+    roi:
+      Number(batch.totalCost) > 0
+        ? ((sales.totalRevenue -
+            Number(batch.totalCost) -
+            feed.totalCost -
+            expenses.total) /
+            Number(batch.totalCost)) *
+          100
+        : 0,
   }
-
-  const { batch } = details
 
   return (
     <div className="space-y-6">
@@ -73,7 +96,7 @@ function BatchDetailsPage() {
         </TabsList>
 
         <TabsContent value="feed" className="mt-4">
-          <FeedRecordsTab records={feedRecords} isLoading={isLoading} />
+          <FeedRecordsTab records={[]} isLoading={false} />
         </TabsContent>
 
         <TabsContent value="projections" className="mt-4">
@@ -81,18 +104,15 @@ function BatchDetailsPage() {
         </TabsContent>
 
         <TabsContent value="health" className="mt-4">
-          <MortalityRecordsTab
-            records={mortalityRecords}
-            isLoading={isLoading}
-          />
+          <MortalityRecordsTab records={[]} isLoading={false} />
         </TabsContent>
 
         <TabsContent value="expenses" className="mt-4">
-          <ExpensesTab records={expenses} isLoading={isLoading} />
+          <ExpensesTab records={[]} isLoading={false} />
         </TabsContent>
 
         <TabsContent value="sales" className="mt-4">
-          <SalesTab records={sales} isLoading={isLoading} />
+          <SalesTab records={[]} isLoading={false} />
         </TabsContent>
       </Tabs>
     </div>

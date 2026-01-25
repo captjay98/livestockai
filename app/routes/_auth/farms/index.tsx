@@ -8,6 +8,7 @@ import { FarmDialog } from '~/components/dialogs/farm-dialog'
 import { PageHeader } from '~/components/page-header'
 import { FarmList } from '~/components/farms/farm-list'
 import { FarmEmptyState } from '~/components/farms/farm-empty-state'
+import { FarmsSkeleton } from '~/components/farms/farms-skeleton'
 
 export const Route = createFileRoute('/_auth/farms/')({
   component: FarmsIndexPage,
@@ -22,6 +23,10 @@ export const Route = createFileRoute('/_auth/farms/')({
       throw err
     }
   },
+  pendingComponent: FarmsSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">Error loading farms: {error.message}</div>
+  ),
 })
 
 function FarmsIndexPage() {

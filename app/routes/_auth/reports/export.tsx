@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { useTranslation } from 'react-i18next'
 import type { ExportOptions } from '~/lib/export/server'
 import { generateExportData } from '~/lib/export/server'
+import { ReportsSkeleton } from '~/components/reports/reports-skeleton'
 
 const exportReport = createServerFn({ method: 'GET' })
   .inputValidator((data: ExportOptions) => data)
@@ -30,6 +31,12 @@ export const Route = createFileRoute('/_auth/reports/export')({
   loader: async ({ deps }) => {
     return exportReport({ data: deps.search })
   },
+  pendingComponent: ReportsSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error generating export: {error.message}
+    </div>
+  ),
 })
 
 function getDefaultStartDate() {

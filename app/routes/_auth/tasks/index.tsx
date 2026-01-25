@@ -4,6 +4,7 @@ import { TaskPageHeader } from '~/components/tasks/task-page-header'
 import { TaskTabs } from '~/components/tasks/task-tabs'
 import { useTaskPage } from '~/features/tasks/use-task-page'
 import { getTasksFn } from '~/features/tasks/server'
+import { TasksSkeleton } from '~/components/tasks/tasks-skeleton'
 
 export const Route = createFileRoute('/_auth/tasks/')({
   component: TasksPage,
@@ -13,6 +14,10 @@ export const Route = createFileRoute('/_auth/tasks/')({
     const tasks = await getTasksFn({ data: { farmId } })
     return { tasks }
   },
+  pendingComponent: TasksSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">Error loading tasks: {error.message}</div>
+  ),
 })
 
 function TasksPage() {

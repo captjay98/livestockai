@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import type { Sale } from '~/components/sales/sale-columns'
 import { getSaleColumns } from '~/components/sales/sale-columns'
 import { validateSalesSearch } from '~/features/sales/types'
+import { getSalesPageDataFn } from '~/features/sales/server'
 import { useSalesPage } from '~/features/sales/use-sales-page'
 import {
   useFormatCurrency,
@@ -22,10 +23,36 @@ import {
 } from '~/components/sales'
 import { SaleFilters } from '~/components/sales/sale-filters'
 import { DeleteSaleDialog } from '~/components/sales/delete-dialog'
+import { SalesSkeleton } from '~/components/sales/sales-skeleton'
 
 export const Route = createFileRoute('/_auth/sales/')({
-  component: SalesPage,
   validateSearch: validateSalesSearch,
+  loaderDeps: ({ search }) => ({
+    farmId: search.farmId,
+    page: search.page,
+    pageSize: search.pageSize,
+    sortBy: search.sortBy,
+    sortOrder: search.sortOrder,
+    search: search.q,
+    livestockType: search.livestockType as
+      | 'poultry'
+      | 'fish'
+      | 'eggs'
+      | undefined,
+    paymentStatus: search.paymentStatus as
+      | 'paid'
+      | 'pending'
+      | 'partial'
+      | undefined,
+  }),
+  loader: async ({ deps }) => {
+    return getSalesPageDataFn({ data: deps })
+  },
+  pendingComponent: SalesSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">Error loading sales: {error.message}</div>
+  ),
+  component: SalesPage,
 })
 
 function SalesPage() {
@@ -36,12 +63,10 @@ function SalesPage() {
   const { format: formatWeight } = useFormatWeight()
   const searchParams = Route.useSearch()
 
+  // Get data from loader
+  const { paginatedSales, summary, batches, customers } = Route.useLoaderData()
+
   const {
-    paginatedSales,
-    summary,
-    batches,
-    customers,
-    isLoading,
     selectedSale,
     setSelectedSale,
     isSubmitting,
@@ -51,7 +76,6 @@ function SalesPage() {
     handleDeleteConfirm,
   } = useSalesPage({
     selectedFarmId,
-    searchParams,
     routePath: Route.fullPath,
   })
 
@@ -121,9 +145,7 @@ function SalesPage() {
         }
       />
 
-      {summary && (
-        <SalesSummary summary={summary} formatCurrency={formatCurrency} />
-      )}
+      <SalesSummary summary={summary} formatCurrency={formatCurrency} />
 
       <DataTable
         columns={columns}
@@ -135,7 +157,6 @@ function SalesPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
-        isLoading={isLoading}
         onPaginationChange={(page, pageSize) =>
           updateSearch({ page, pageSize })
         }

@@ -80,7 +80,7 @@ export function BatchHeader({
       <div className="flex items-center gap-3">
         {/* Back button */}
         <Button variant="ghost" size="icon" asChild>
-          <Link to={backHref as any}>
+          <Link to={backHref as any} preload="intent">
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>

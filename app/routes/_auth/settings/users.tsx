@@ -70,6 +70,7 @@ import {
   removeUserFromFarmFn,
   updateUserFarmRoleFn,
 } from '~/features/farms/server'
+import { UsersSkeleton } from '~/components/settings/users-skeleton'
 
 // Type definitions
 interface UserData {
@@ -102,17 +103,21 @@ export const Route = createFileRoute('/_auth/settings/users')({
     // Check if user is admin
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    if (session.user.role !== 'admin') {
+    if ((session.user as any).role !== 'admin') {
       throw redirect({ to: '/settings' })
     }
 
     const [users, farms] = await Promise.all([
-      listUsersFn(),
-      getUserFarmsWithRolesFn(),
+      listUsersFn({ data: {} }),
+      getUserFarmsWithRolesFn({ data: {} }),
     ])
     return { users, farms, session }
   },
   component: UsersSettingsPage,
+  pendingComponent: UsersSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">Error loading users: {error.message}</div>
+  ),
 })
 
 function UsersSettingsPage() {
@@ -145,7 +150,7 @@ function UsersSettingsPage() {
 
   const refreshUsers = async () => {
     try {
-      const updated = await listUsersFn()
+      const updated = await listUsersFn({ data: {} })
       setUsers(updated as Array<UserData>)
     } catch {
       setError(t('users.errors.refresh'))
@@ -302,9 +307,7 @@ function UsersSettingsPage() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {t('users.status.joined')}{' '}
-                        {
-                          format(new Date(user.createdAt), 'MMM d, yyyy')  
-                        }
+                        {format(new Date(user.createdAt), 'MMM d, yyyy')}
                       </p>
                     </div>
                   </div>

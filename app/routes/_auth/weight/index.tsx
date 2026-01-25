@@ -15,10 +15,38 @@ import { WeightFormDialog } from '~/components/weight/weight-form-dialog'
 import { WeightDeleteDialog } from '~/components/weight/weight-delete-dialog'
 import { WeightFilters } from '~/components/weight/weight-filters'
 import { getWeightColumns } from '~/components/weight/weight-columns'
+import { WeightSkeleton } from '~/components/weight/weight-skeleton'
+import { getWeightDataForFarm } from '~/features/weight/server'
 
 export const Route = createFileRoute('/_auth/weight/')({
-  component: WeightPage,
   validateSearch: validateWeightSearch,
+  loaderDeps: ({ search }) => ({
+    farmId: search.farmId || undefined,
+    page: search.page,
+    pageSize: search.pageSize,
+    sortBy: search.sortBy,
+    sortOrder: search.sortOrder,
+    search: search.q,
+  }),
+  loader: async ({ deps }) => {
+    return getWeightDataForFarm({
+      data: {
+        farmId: deps.farmId,
+        page: deps.page,
+        pageSize: deps.pageSize,
+        sortBy: deps.sortBy,
+        sortOrder: deps.sortOrder,
+        search: deps.search,
+      },
+    })
+  },
+  pendingComponent: WeightSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading weight data: {error.message}
+    </div>
+  ),
+  component: WeightPage,
 })
 
 function WeightPage() {
@@ -27,19 +55,16 @@ function WeightPage() {
   const { format: formatWeight } = useFormatWeight()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
+  const { paginatedRecords, batches, alerts } = Route.useLoaderData()
 
   const {
-    paginatedRecords,
-    batches,
-    alerts,
-    isLoading,
     selectedRecord,
     setSelectedRecord,
     isSubmitting,
     updateSearch,
     handleFormSubmit,
     handleDeleteConfirm,
-  } = useWeightPage({ selectedFarmId, searchParams, routePath: Route.fullPath })
+  } = useWeightPage({ selectedFarmId, routePath: Route.fullPath })
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
@@ -102,7 +127,7 @@ function WeightPage() {
         searchPlaceholder={t('batches:searchPlaceholder', {
           defaultValue: 'Search batches...',
         })}
-        isLoading={isLoading}
+        isLoading={false}
         filters={
           <WeightFilters
             batchId={searchParams.batchId}

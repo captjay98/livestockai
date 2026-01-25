@@ -42,6 +42,7 @@ export function BottomNav({ onMenuClick }: BottomNavProps) {
             <Link
               key={item.name}
               to={item.href}
+              preload="intent"
               className={cn(
                 'flex flex-col items-center justify-center w-full h-full gap-1 transition-colors active:scale-95',
                 isActive

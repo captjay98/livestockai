@@ -25,7 +25,7 @@ export function ActiveBatchesCard({ batches }: ActiveBatchesCardProps) {
     <Card className="glass">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle>{t('farms:activeBatches.title')}</CardTitle>
-        <Link to="/batches">
+        <Link to="/batches" preload="intent">
           <Button variant="link" size="sm" className="h-8">
             View All
           </Button>
@@ -36,7 +36,7 @@ export function ActiveBatchesCard({ batches }: ActiveBatchesCardProps) {
           <div className="text-center py-6 text-muted-foreground">
             {t('farms:activeBatches.noBatches')}
             <div className="mt-2">
-              <Link to="/batches">
+              <Link to="/batches" preload="intent">
                 <Button variant="outline" size="sm">
                   {t('farms:activeBatches.create')}
                 </Button>
