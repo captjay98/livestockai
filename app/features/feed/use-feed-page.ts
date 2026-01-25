@@ -1,107 +1,58 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import {
   createFeedRecordFn,
   deleteFeedRecordFn,
-  getFeedDataForFarm,
   updateFeedRecordFn,
 } from './server'
-import type { PaginatedResult } from '~/lib/types'
+import type { CreateFeedRecordInput } from './server'
 import type { FeedRecord } from '~/components/feed/feed-columns'
-import type { Batch, FeedInventory, FeedSearchParams } from './types'
+import type { FeedSearchParams } from './types'
 
 interface UseFeedPageProps {
   selectedFarmId: string | null
-  searchParams: FeedSearchParams
   routePath: string
 }
 
-export function useFeedPage({
-  selectedFarmId,
-  searchParams,
-  routePath,
-}: UseFeedPageProps) {
+export function useFeedPage({ selectedFarmId, routePath }: UseFeedPageProps) {
   const { t } = useTranslation(['feed', 'common'])
   const navigate = useNavigate({ from: routePath as any })
 
-  const [paginatedRecords, setPaginatedRecords] = useState<
-    PaginatedResult<FeedRecord>
-  >({
-    data: [],
-    total: 0,
-    page: 1,
-    pageSize: 10,
-    totalPages: 0,
-  })
-  const [batches, setBatches] = useState<Array<Batch>>([])
-  const [inventory, setInventory] = useState<Array<FeedInventory>>([])
-  const [summary, setSummary] = useState<{
-    totalQuantityKg: number
-    totalCost: number
-    recordCount: number
-  } | null>(null)
-
-  const [isLoading, setIsLoading] = useState(true)
   const [selectedRecord, setSelectedRecord] = useState<FeedRecord | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const loadData = async () => {
-    setIsLoading(true)
-    try {
-      const result = await getFeedDataForFarm({
-        data: {
-          farmId: selectedFarmId,
-          page: searchParams.page,
-          pageSize: searchParams.pageSize,
-          sortBy: searchParams.sortBy,
-          sortOrder: searchParams.sortOrder,
-          search: searchParams.q,
-          feedType: searchParams.feedType,
-        },
-      })
-      setPaginatedRecords(
-        result.paginatedRecords as PaginatedResult<FeedRecord>,
-      )
-      setBatches(result.batches)
-      setInventory(result.inventory as Array<FeedInventory>)
-      setSummary(result.summary)
-    } catch (err) {
-      console.error('Failed:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadData()
-  }, [selectedFarmId, searchParams])
 
   const updateSearch = (updates: Partial<FeedSearchParams>) => {
     navigate({
       // @ts-ignore - Type limitation
-      search: (prev: any) => ({
+      search: (prev: FeedSearchParams) => ({
         ...prev,
         ...updates,
       }),
     })
   }
 
-  const handleCreateSubmit = async (data: any) => {
+  const handleCreateSubmit = async (
+    data: Omit<CreateFeedRecordInput, 'quantityKg' | 'cost'> & {
+      quantityKg: string | number
+      cost: string | number
+    },
+  ) => {
     if (!selectedFarmId) return
     setIsSubmitting(true)
     try {
       await createFeedRecordFn({
         data: {
           farmId: selectedFarmId,
-          ...data,
-          quantityKg: parseFloat(data.quantityKg),
-          cost: parseFloat(data.cost),
+          record: {
+            ...data,
+            quantityKg: parseFloat(data.quantityKg as string),
+            cost: parseFloat(data.cost as string),
+          },
         },
       })
       toast.success(t('feed:messages.recorded'))
-      loadData()
     } catch (err) {
       toast.error(t('common:error.save'))
     } finally {
@@ -109,7 +60,12 @@ export function useFeedPage({
     }
   }
 
-  const handleEditSubmit = async (data: any) => {
+  const handleEditSubmit = async (
+    data: Partial<CreateFeedRecordInput> & {
+      quantityKg?: string | number
+      cost?: string | number
+    },
+  ) => {
     if (!selectedRecord || !selectedFarmId) return
     setIsSubmitting(true)
     try {
@@ -119,14 +75,15 @@ export function useFeedPage({
           recordId: selectedRecord.id,
           data: {
             ...data,
-            quantityKg: parseFloat(data.quantityKg),
-            cost: parseFloat(data.cost),
-            date: new Date(data.date),
+            quantityKg: data.quantityKg
+              ? parseFloat(String(data.quantityKg))
+              : undefined,
+            cost: data.cost ? parseFloat(String(data.cost)) : undefined,
+            date: data.date ? new Date(data.date as string | Date) : undefined,
           },
         },
       })
       toast.success(t('feed:messages.updated'))
-      loadData()
     } catch (err) {
       toast.error(t('common:error.update'))
     } finally {
@@ -145,7 +102,6 @@ export function useFeedPage({
         },
       })
       toast.success(t('feed:messages.deleted'))
-      loadData()
     } catch (err) {
       toast.error(t('common:error.delete'))
     } finally {
@@ -154,11 +110,6 @@ export function useFeedPage({
   }
 
   return {
-    paginatedRecords,
-    batches,
-    inventory,
-    summary,
-    isLoading,
     selectedRecord,
     setSelectedRecord,
     isSubmitting,

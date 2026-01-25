@@ -347,34 +347,29 @@ export async function getRelatedRecords(
   hasSales: boolean
   hasMortality: boolean
 }> {
-  const [feedRecords, eggRecords, sales, mortalities] = await Promise.all([
-    db
-      .selectFrom('feed_records')
-      .select('id')
-      .where('batchId', '=', batchId)
-      .executeTakeFirst(),
-    db
-      .selectFrom('egg_records')
-      .select('id')
-      .where('batchId', '=', batchId)
-      .executeTakeFirst(),
-    db
-      .selectFrom('sales')
-      .select('id')
-      .where('batchId', '=', batchId)
-      .executeTakeFirst(),
-    db
-      .selectFrom('mortality_records')
-      .select('id')
-      .where('batchId', '=', batchId)
-      .executeTakeFirst(),
-  ])
+  const { sql } = await import('kysely')
+
+  const result = await db
+    .selectFrom('batches as b')
+    .leftJoin('feed_records as fr', 'fr.batchId', 'b.id')
+    .leftJoin('egg_records as er', 'er.batchId', 'b.id')
+    .leftJoin('sales as s', 's.batchId', 'b.id')
+    .leftJoin('mortality_records as mr', 'mr.batchId', 'b.id')
+    .select([
+      sql<boolean>`COUNT(DISTINCT fr.id) > 0`.as('hasFeedRecords'),
+      sql<boolean>`COUNT(DISTINCT er.id) > 0`.as('hasEggRecords'),
+      sql<boolean>`COUNT(DISTINCT s.id) > 0`.as('hasSales'),
+      sql<boolean>`COUNT(DISTINCT mr.id) > 0`.as('hasMortality'),
+    ])
+    .where('b.id', '=', batchId)
+    .groupBy('b.id')
+    .executeTakeFirst()
 
   return {
-    hasFeedRecords: !!feedRecords,
-    hasEggRecords: !!eggRecords,
-    hasSales: !!sales,
-    hasMortality: !!mortalities,
+    hasFeedRecords: result?.hasFeedRecords ?? false,
+    hasEggRecords: result?.hasEggRecords ?? false,
+    hasSales: result?.hasSales ?? false,
+    hasMortality: result?.hasMortality ?? false,
   }
 }
 
@@ -469,6 +464,163 @@ export async function getWeightSamples(
     .orderBy('date', 'desc')
     .limit(limit)
     .execute()
+}
+
+/**
+ * Get paginated batches with filters
+ *
+ * @param db - Kysely database instance
+ * @param farmIds - Array of farm IDs
+ * @param filters - Pagination and filter parameters
+ * @returns Paginated result
+ */
+export async function getBatchesByFarmPaginated(
+  db: Kysely<Database>,
+  farmIds: Array<string>,
+  filters: {
+    page?: number
+    pageSize?: number
+    sortBy?: string
+    sortOrder?: 'asc' | 'desc'
+    search?: string
+    status?: 'active' | 'depleted' | 'sold'
+    livestockType?: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  },
+): Promise<{
+  data: Array<BatchWithFarmName>
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}> {
+  const { sql } = await import('kysely')
+
+  const page = filters.page || 1
+  const pageSize = filters.pageSize || 20
+  const sortBy = filters.sortBy || 'acquisitionDate'
+  const sortOrder = filters.sortOrder || 'desc'
+  const search = filters.search || ''
+
+  // Build base query for count
+  let countQuery = db
+    .selectFrom('batches')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .leftJoin('structures', 'structures.id', 'batches.structureId')
+    .leftJoin('suppliers', 'suppliers.id', 'batches.supplierId')
+    .where('batches.farmId', 'in', farmIds)
+    .where('batches.deletedAt', 'is', null)
+
+  // Apply search filter
+  if (search) {
+    countQuery = countQuery.where((eb) =>
+      eb.or([
+        eb('batches.batchName', 'ilike', `%${search}%`),
+        eb('batches.species', 'ilike', `%${search}%`),
+        eb('batches.notes', 'ilike', `%${search}%`),
+        eb('farms.name', 'ilike', `%${search}%`),
+      ]),
+    )
+  }
+
+  // Apply status filter
+  if (filters.status) {
+    countQuery = countQuery.where('batches.status', '=', filters.status)
+  }
+
+  // Apply livestock type filter
+  if (filters.livestockType) {
+    countQuery = countQuery.where(
+      'batches.livestockType',
+      '=',
+      filters.livestockType,
+    )
+  }
+
+  // Get total count
+  const countResult = await countQuery
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+  const total = Number(countResult?.count || 0)
+  const totalPages = Math.ceil(total / pageSize)
+
+  // Build data query
+  let dataQuery = db
+    .selectFrom('batches')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .leftJoin('structures', 'structures.id', 'batches.structureId')
+    .leftJoin('suppliers', 'suppliers.id', 'batches.supplierId')
+    .select([
+      'batches.id',
+      'batches.farmId',
+      'batches.batchName',
+      'batches.livestockType',
+      'batches.species',
+      'batches.sourceSize',
+      'batches.initialQuantity',
+      'batches.currentQuantity',
+      'batches.acquisitionDate',
+      'batches.costPerUnit',
+      'batches.totalCost',
+      'batches.status',
+      'batches.targetHarvestDate',
+      'batches.target_weight_g',
+      'batches.notes',
+      'batches.createdAt',
+      'batches.updatedAt',
+      'farms.name as farmName',
+      'structures.name as structureName',
+      'suppliers.name as supplierName',
+    ])
+    .where('batches.farmId', 'in', farmIds)
+    .where('batches.deletedAt', 'is', null)
+
+  // Re-apply filters
+  if (search) {
+    dataQuery = dataQuery.where((eb) =>
+      eb.or([
+        eb('batches.batchName', 'ilike', `%${search}%`),
+        eb('batches.species', 'ilike', `%${search}%`),
+        eb('batches.notes', 'ilike', `%${search}%`),
+        eb('farms.name', 'ilike', `%${search}%`),
+      ]),
+    )
+  }
+  if (filters.status) {
+    dataQuery = dataQuery.where('batches.status', '=', filters.status)
+  }
+  if (filters.livestockType) {
+    dataQuery = dataQuery.where(
+      'batches.livestockType',
+      '=',
+      filters.livestockType,
+    )
+  }
+
+  // Apply sorting
+  const sortColumn =
+    sortBy === 'species'
+      ? 'batches.species'
+      : sortBy === 'currentQuantity'
+        ? 'batches.currentQuantity'
+        : sortBy === 'status'
+          ? 'batches.status'
+          : sortBy === 'farmName'
+            ? 'farms.name'
+            : 'batches.acquisitionDate'
+
+  const data = await dataQuery
+    .orderBy(sortColumn as any, sortOrder)
+    .limit(pageSize)
+    .offset((page - 1) * pageSize)
+    .execute()
+
+  return {
+    data: data as Array<BatchWithFarmName>,
+    total,
+    page,
+    pageSize,
+    totalPages,
+  }
 }
 
 /**

@@ -84,6 +84,7 @@ export interface SalesSearchParams {
   q?: string
   livestockType?: string
   paymentStatus?: string
+  farmId?: string
 }
 
 /**
@@ -152,5 +153,6 @@ export function validateSalesSearch(
       typeof search.paymentStatus === 'string'
         ? search.paymentStatus
         : undefined,
+    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
   }
 }

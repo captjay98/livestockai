@@ -26,5 +26,6 @@ export function validateFeedSearch(
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
     feedType: typeof search.feedType === 'string' ? search.feedType : undefined,
+    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
   }
 }

@@ -3,6 +3,7 @@
  */
 
 export interface BatchSearchParams {
+  farmId?: string
   page?: number
   pageSize?: number
   sortBy?: string

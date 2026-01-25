@@ -9,6 +9,7 @@ export interface WeightSearchParams {
   sortOrder?: 'asc' | 'desc'
   q?: string
   batchId?: string
+  farmId?: string
 }
 
 export interface WeightSample {

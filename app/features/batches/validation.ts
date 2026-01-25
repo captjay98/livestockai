@@ -18,6 +18,7 @@ export function validateBatchSearch(
   ] as const
 
   return {
+    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
     page: Number(search.page) || 1,
     pageSize: Number(search.pageSize) || 10,
     sortBy:

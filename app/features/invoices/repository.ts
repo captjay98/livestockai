@@ -95,7 +95,8 @@ export interface SaleForInvoice {
 /**
  * Filters for invoice queries
  */
-export interface InvoiceFilters extends BasePaginatedQuery {
+export interface InvoiceFilters extends Omit<BasePaginatedQuery, 'farmId'> {
+  farmId?: string | Array<string>
   status?: 'unpaid' | 'partial' | 'paid'
 }
 
@@ -384,7 +385,12 @@ export async function getInvoicesPaginated(
     .innerJoin('customers', 'customers.id', 'invoices.customerId')
 
   if (filters.farmId) {
-    baseQuery = baseQuery.where('invoices.farmId', '=', filters.farmId)
+    // Support both single farmId (string) and multiple farmIds (array)
+    if (Array.isArray(filters.farmId)) {
+      baseQuery = baseQuery.where('invoices.farmId', 'in', filters.farmId)
+    } else {
+      baseQuery = baseQuery.where('invoices.farmId', '=', filters.farmId)
+    }
   }
 
   if (filters.status) {

@@ -1,14 +1,12 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Plus, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type {
-  CustomerRecord,
-  CustomerSearchParams,
-  PaginatedResult,
-} from '~/features/customers/types'
-import type { TopCustomer } from '~/components/customers/top-customers-card'
+import type { CustomerSearchParams } from '~/features/customers/types'
 import { validateCustomerSearch } from '~/features/customers/validation'
+import {
+  getCustomersPaginatedFn,
+  getTopCustomersFn,
+} from '~/features/customers/server'
 import { useCustomerActions } from '~/features/customers/hooks'
 import { Button } from '~/components/ui/button'
 import { DataTable } from '~/components/ui/data-table'
@@ -17,10 +15,32 @@ import { TopCustomersCard } from '~/components/customers/top-customers-card'
 import { CustomerFormDialog } from '~/components/customers/customer-form-dialog'
 import { CustomerFilters } from '~/components/customers/customer-filters'
 import { getCustomerColumns } from '~/components/customers/customer-columns'
+import { CustomersSkeleton } from '~/components/customers/customers-skeleton'
 
 export const Route = createFileRoute('/_auth/customers/')({
-  component: CustomersPage,
   validateSearch: validateCustomerSearch,
+  loaderDeps: ({ search }) => ({
+    page: search.page,
+    pageSize: search.pageSize,
+    sortBy: search.sortBy,
+    sortOrder: search.sortOrder,
+    search: search.q,
+    customerType: search.customerType,
+  }),
+  loader: async ({ deps }) => {
+    const [paginatedCustomers, topCustomers] = await Promise.all([
+      getCustomersPaginatedFn({ data: deps }),
+      getTopCustomersFn({ data: { limit: 5 } }),
+    ])
+    return { paginatedCustomers, topCustomers }
+  },
+  pendingComponent: CustomersSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading customers: {error.message}
+    </div>
+  ),
+  component: CustomersPage,
 })
 
 function CustomersPage() {
@@ -28,17 +48,8 @@ function CustomersPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  const [paginatedCustomers, setPaginatedCustomers] = useState<
-    PaginatedResult<CustomerRecord>
-  >({
-    data: [],
-    total: 0,
-    page: 1,
-    pageSize: 10,
-    totalPages: 0,
-  })
-  const [topCustomers, setTopCustomers] = useState<Array<TopCustomer>>([])
-  const [isLoading, setIsLoading] = useState(true)
+  // Get data from loader
+  const { paginatedCustomers, topCustomers } = Route.useLoaderData()
 
   const {
     dialogOpen,
@@ -49,19 +60,7 @@ function CustomersPage() {
     handleCreateOpen,
     handleEditOpen,
     handleFormSubmit,
-    loadData,
-  } = useCustomerActions(setPaginatedCustomers, setTopCustomers, setIsLoading)
-
-  useEffect(() => {
-    loadData(searchParams)
-  }, [
-    searchParams.page,
-    searchParams.pageSize,
-    searchParams.sortBy,
-    searchParams.sortOrder,
-    searchParams.q,
-    searchParams.customerType,
-  ])
+  } = useCustomerActions()
 
   const updateSearch = (updates: Partial<CustomerSearchParams>) => {
     navigate({
@@ -103,7 +102,6 @@ function CustomersPage() {
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q || ''}
         searchPlaceholder={t('customers:search')}
-        isLoading={isLoading}
         filters={
           <CustomerFilters
             customerType={searchParams.customerType}

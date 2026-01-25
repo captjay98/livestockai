@@ -25,5 +25,6 @@ export function validateWeightSearch(
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
     batchId: typeof search.batchId === 'string' ? search.batchId : undefined,
+    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
   }
 }

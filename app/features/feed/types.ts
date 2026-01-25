@@ -9,6 +9,7 @@ export interface FeedSearchParams {
   sortOrder?: 'asc' | 'desc'
   q?: string
   feedType?: string
+  farmId?: string
 }
 
 export interface FeedInventory {
