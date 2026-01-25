@@ -94,8 +94,7 @@ export function useTreatmentMode() {
         toast.success(t('saved'))
         onSuccess()
       } catch (err) {
-        console.error('Failed to save record:', err)
-        toast.error(t('error'))
+        toast.error(err instanceof Error ? err.message : t('error'))
       } finally {
         setIsSubmitting(false)
       }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
@@ -14,30 +14,16 @@ import { Card } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Button } from '~/components/ui/button'
 
-export function IntegrationsTab() {
+interface IntegrationsTabProps {
+  integrations?: Array<IntegrationStatus>
+}
+
+export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
   const { t } = useTranslation(['settings', 'common'])
-  const [integrations, setIntegrations] = useState<Array<IntegrationStatus>>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [testEmail, setTestEmail] = useState('')
   const [testPhone, setTestPhone] = useState('')
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [isSendingSMS, setIsSendingSMS] = useState(false)
-
-  useEffect(() => {
-    loadIntegrations()
-  }, [])
-
-  const loadIntegrations = async () => {
-    try {
-      const { getIntegrationStatusFn } = await import('~/features/integrations')
-      const status = await getIntegrationStatusFn()
-      setIntegrations(status)
-    } catch (error) {
-      console.error('Failed to load integrations:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleTestEmail = async () => {
     if (!testEmail) {
@@ -83,16 +69,6 @@ export function IntegrationsTab() {
 
   const emailIntegration = integrations.find((i) => i.type === 'email')
   const smsIntegration = integrations.find((i) => i.type === 'sms')
-
-  if (isLoading) {
-    return (
-      <Card className="p-6">
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      </Card>
-    )
-  }
 
   return (
     <div className="space-y-4">

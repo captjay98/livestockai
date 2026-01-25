@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import { DEFAULT_SETTINGS, useSettings } from './index'
+import { updateUserSettings } from './server'
+import { DEFAULT_SETTINGS } from './index'
 import type { UserSettings } from '~/features/settings/currency-presets'
 
-export function useSettingsTabs() {
+export function useSettingsTabs(
+  initialSettings: UserSettings = DEFAULT_SETTINGS,
+) {
   const { t } = useTranslation(['settings'])
-  const { settings, updateSettings, isLoading, error } = useSettings()
-  const [localSettings, setLocalSettings] = useState<UserSettings>(settings)
+  const [localSettings, setLocalSettings] =
+    useState<UserSettings>(initialSettings)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
-
-  useEffect(() => {
-    setLocalSettings(settings)
-  }, [settings])
 
   const saveSettings = async (partialSettings: Partial<UserSettings>) => {
     setIsSaving(true)
@@ -22,7 +21,7 @@ export function useSettingsTabs() {
     setSaveSuccess(false)
 
     try {
-      await updateSettings(partialSettings)
+      await updateUserSettings({ data: partialSettings })
       setSaveSuccess(true)
       toast.success(t('saved'))
       setTimeout(() => setSaveSuccess(false), 3000)
@@ -71,8 +70,6 @@ export function useSettingsTabs() {
 
   return {
     localSettings,
-    isLoading,
-    error,
     saveError,
     saveSuccess,
     isSaving,

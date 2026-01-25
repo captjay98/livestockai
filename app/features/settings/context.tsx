@@ -12,6 +12,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { toast } from 'sonner'
 import { DEFAULT_SETTINGS } from './currency-presets'
 import { getUserSettings, updateUserSettings } from './server'
 import type { ReactNode } from 'react'
@@ -55,11 +56,11 @@ export function SettingsProvider({
       try {
         setIsLoading(true)
         setError(null)
-        const loadedSettings = await getUserSettings()
+        const loadedSettings = await getUserSettings({ data: {} })
         setSettings(loadedSettings)
       } catch (err) {
-        console.error('Failed to load settings:', err)
         setError('Failed to load settings')
+        toast.error('Failed to load settings')
         // Keep default settings on error
       } finally {
         setIsLoading(false)
@@ -81,13 +82,10 @@ export function SettingsProvider({
 
       try {
         await updateUserSettings({ data: newSettings })
-      } catch (err: any) {
-        // Log the full error to understand its structure
-        console.warn('[SettingsContext] Update failed:', err)
-
+      } catch (err) {
         // If unauthorized (e.g. login page), don't rollback - keep local state
         const errString = String(err).toLowerCase()
-        const msg = err?.message?.toLowerCase() || ''
+        const msg = err instanceof Error ? err.message.toLowerCase() : ''
 
         if (
           errString.includes('unauthorized') ||
@@ -96,21 +94,23 @@ export function SettingsProvider({
           errString.includes('403') ||
           msg.includes('unauthorized') ||
           msg.includes('access denied') ||
-          err?.status === 401 ||
-          err?.status === 403 ||
-          err?.statusCode === 401 ||
-          err?.statusCode === 403
+          (err &&
+            typeof err === 'object' &&
+            'status' in err &&
+            (err.status === 401 || err.status === 403)) ||
+          (err &&
+            typeof err === 'object' &&
+            'statusCode' in err &&
+            (err.statusCode === 401 || err.statusCode === 403))
         ) {
-          console.warn(
-            'Failed to persist settings (unauthorized) - keeping local state',
-          )
+          // Keep local state for unauthorized errors
           return
         }
 
-        console.error('Failed to save settings:', err)
         // Rollback on other errors
         setSettings(previousSettings)
         setError('Failed to save settings')
+        toast.error('Failed to save settings')
         throw err
       }
     },

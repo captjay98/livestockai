@@ -4,7 +4,7 @@
  */
 
 import { WATER_QUALITY_THRESHOLDS } from './constants'
-import type { CreateWaterQualityData, UpdateWaterQualityData } from "./types"
+import type { CreateWaterQualityData, UpdateWaterQualityData } from './types'
 
 /**
  * Validates water quality reading data before creation.

@@ -71,7 +71,7 @@ export function NotificationsProvider({
 
   // Mark all as read mutation
   const markAllAsReadMutation = useMutation({
-    mutationFn: () => markAllAsReadFn(),
+    mutationFn: () => markAllAsReadFn({ data: {} }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },

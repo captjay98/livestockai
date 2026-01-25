@@ -11,6 +11,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { toast } from 'sonner'
 import { ABBREVIATED_STEPS, DEFAULT_PROGRESS, ONBOARDING_STEPS } from './types'
 import type { OnboardingProgress, OnboardingStep } from './types'
 
@@ -154,9 +155,9 @@ export function OnboardingProvider({
     // Persist to database FIRST before updating local state
     try {
       const { markOnboardingCompleteFn } = await import('./server')
-      await markOnboardingCompleteFn()
+      await markOnboardingCompleteFn({ data: {} })
     } catch (err) {
-      console.error('Failed to mark onboarding complete:', err)
+      toast.error('Failed to mark onboarding complete')
     }
 
     // Only update local state after database is updated

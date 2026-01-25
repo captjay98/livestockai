@@ -2,10 +2,14 @@ import { toast } from 'sonner'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { Wheat } from 'lucide-react'
 import type { CreateFeedRecordInput } from '~/features/feed/server'
-import { FEED_TYPES, createFeedRecordFn } from '~/features/feed/server'
+import {
+  FEED_TYPES,
+  createFeedRecordFn,
+  getActiveBatchesForFeedFn,
+  getFeedInventoryForFarmFn,
+} from '~/features/feed/server'
 import { useFormatCurrency, useFormatWeight } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -25,37 +29,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
-
-// Server function to get batches for the farm
-const getBatchesForFeedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
-  .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    await requireAuth()
-
-    return db
-      .selectFrom('batches')
-      .select(['id', 'species', 'livestockType', 'currentQuantity'])
-      .where('farmId', '=', data.farmId)
-      .where('status', '=', 'active')
-      .execute()
-  })
-
-// Server function to get feed inventory
-const getFeedInventoryFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
-  .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    await requireAuth()
-
-    return db
-      .selectFrom('feed_inventory')
-      .select(['feedType', 'quantityKg'])
-      .where('farmId', '=', data.farmId)
-      .execute()
-  })
 
 interface Batch {
   id: string
@@ -98,8 +71,8 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
     if (isOpen) {
       try {
         const [batchesData, inventoryData] = await Promise.all([
-          getBatchesForFeedFn({ data: { farmId } }),
-          getFeedInventoryFn({ data: { farmId } }),
+          getActiveBatchesForFeedFn({ data: { farmId } }),
+          getFeedInventoryForFarmFn({ data: { farmId } }),
         ])
         setBatches(batchesData)
         setInventory(inventoryData)

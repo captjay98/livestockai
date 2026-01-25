@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { createServerFn } from '@tanstack/react-start'
 import { useTranslation } from 'react-i18next'
 import type { MortalityTable } from '~/lib/db/types'
+import { recordMortalityFn } from '~/features/mortality/server'
+import { getBatchesFn } from '~/features/batches/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -42,29 +43,6 @@ const MORTALITY_CAUSES: ReadonlyArray<{
   { value: 'other', label: 'Other' },
 ]
 
-const recordMortalityFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: {
-      batchId: string
-      quantity: number
-      date: string
-      cause: MortalityCause
-      notes?: string
-    }) => data,
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    const { recordMortality } = await import('~/features/mortality/server')
-    return recordMortality(session.user.id, {
-      batchId: data.batchId,
-      quantity: data.quantity,
-      date: new Date(data.date),
-      cause: data.cause,
-      notes: data.notes,
-    })
-  })
-
 interface MortalityDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -92,13 +70,10 @@ export function MortalityDialog({
     const loadBatches = async () => {
       if (selectedFarmId && open) {
         try {
-          const { getBatchesPaginated } =
-            await import('~/features/batches/server')
-          const result = await getBatchesPaginated(selectedFarmId, {
-            page: 1,
-            pageSize: 100,
+          const allBatches = await getBatchesFn({
+            data: { farmId: selectedFarmId },
           })
-          setBatches(result.data.filter((b: any) => b.status === 'active'))
+          setBatches(allBatches.filter((b: any) => b.status === 'active'))
         } catch (err) {
           console.error('Failed to load batches:', err)
         }
@@ -134,11 +109,14 @@ export function MortalityDialog({
     try {
       await recordMortalityFn({
         data: {
-          batchId: formData.batchId,
-          quantity: parseInt(formData.quantity),
-          date: formData.date,
-          cause: formData.cause,
-          notes: formData.notes || undefined,
+          farmId: selectedFarmId!,
+          data: {
+            batchId: formData.batchId,
+            quantity: parseInt(formData.quantity),
+            date: new Date(formData.date),
+            cause: formData.cause,
+            notes: formData.notes || undefined,
+          },
         },
       })
       toast.success(t('recorded', { defaultValue: 'Mortality recorded' }))

@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react'
 import { Building2 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { useFarm } from '~/features/farms/context'
 import {
   Select,
@@ -9,51 +7,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { getFarmsForUserFn } from '~/features/farms/server'
 import { cn } from '~/lib/utils'
 
 interface FarmSelectorProps {
   className?: string
+  farms?: Array<{ id: string; name: string; type: string }>
 }
 
-export function FarmSelector({ className }: FarmSelectorProps) {
-  const { t } = useTranslation(['common'])
+export function FarmSelector({ className, farms = [] }: FarmSelectorProps) {
   const { selectedFarmId, setSelectedFarmId } = useFarm()
-  const [farms, setFarms] = useState<
-    Array<{ id: string; name: string; type: string }>
-  >([])
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const loadFarms = async () => {
-      try {
-        const farmData = await getFarmsForUserFn()
-        setFarms(farmData)
-
-        // Auto-select logic removed to default to "All Farms" (null)
-        // if (!selectedFarmId && farmData.length > 0) {
-        //   setSelectedFarmId(farmData[0].id)
-        // }
-      } catch (error) {
-        console.error('Failed to load farms:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadFarms()
-  }, [selectedFarmId, setSelectedFarmId])
-
-  if (isLoading) {
-    return (
-      <div className={cn('flex items-center gap-2', className)}>
-        <Building2 className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">
-          {t('common:loading')}
-        </span>
-      </div>
-    )
-  }
 
   if (farms.length === 0) {
     return (

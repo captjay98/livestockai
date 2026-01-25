@@ -1,10 +1,12 @@
 import { toast } from 'sonner'
 import React, { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { Egg } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { createEggRecordFn } from '~/features/eggs/server'
+import {
+  createEggRecordFn,
+  getPoultryBatchesForEggsFn,
+} from '~/features/eggs/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -23,22 +25,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
-
-const getPoultryBatchesFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
-  .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    await requireAuth()
-
-    return db
-      .selectFrom('batches')
-      .select(['id', 'species', 'currentQuantity'])
-      .where('farmId', '=', data.farmId)
-      .where('livestockType', '=', 'poultry')
-      .where('status', '=', 'active')
-      .execute()
-  })
 
 interface Batch {
   id: string
@@ -70,7 +56,9 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
     onOpenChange(isOpen)
     if (isOpen) {
       try {
-        const batchesData = await getPoultryBatchesFn({ data: { farmId } })
+        const batchesData = await getPoultryBatchesForEggsFn({
+          data: { farmId },
+        })
         setBatches(batchesData)
       } catch (err) {
         console.error('Failed to load batches:', err)

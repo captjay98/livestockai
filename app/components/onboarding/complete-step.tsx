@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { ArrowRight, Check } from 'lucide-react'
 import { useOnboarding } from '~/features/onboarding/context'
 import { Button } from '~/components/ui/button'
@@ -9,6 +9,7 @@ import { Card, CardContent } from '~/components/ui/card'
 export function CompleteStep() {
   const { t } = useTranslation(['onboarding', 'common'])
   const navigate = useNavigate()
+  const router = useRouter()
   const { progress } = useOnboarding()
   const [isCompleting, setIsCompleting] = useState(false)
 
@@ -26,10 +27,13 @@ export function CompleteStep() {
     try {
       const { markOnboardingCompleteFn } =
         await import('~/features/onboarding/server')
-      await markOnboardingCompleteFn()
+      await markOnboardingCompleteFn({ data: {} })
+      // Invalidate router to refresh auth state and providers
+      await router.invalidate()
       navigate({ to: '/dashboard' })
     } catch (err) {
       console.error('Failed to mark onboarding complete:', err)
+      await router.invalidate()
       navigate({ to: '/dashboard' })
     }
   }

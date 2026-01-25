@@ -26,7 +26,7 @@ export interface CreateMortalityData {
   quantity: number
   date: Date
   cause: MortalityCause
-  notes?: string
+  notes?: string | null
 }
 
 /**

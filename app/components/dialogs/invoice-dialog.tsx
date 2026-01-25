@@ -1,10 +1,10 @@
 import { toast } from 'sonner'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { FileText, Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { createInvoiceFn } from '~/features/invoices/server'
+import { getCustomersFn } from '~/features/customers/server'
 import { useBusinessSettings, useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -24,15 +24,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
-
-const getCustomersForInvoiceFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const { db } = await import('~/lib/db')
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    await requireAuth()
-    return db.selectFrom('customers').select(['id', 'name', 'phone']).execute()
-  },
-)
 
 interface Customer {
   id: string
@@ -82,8 +73,10 @@ export function InvoiceDialog({
     onOpenChange(isOpen)
     if (isOpen) {
       try {
-        const data = await getCustomersForInvoiceFn()
-        setCustomers(data)
+        const data = await getCustomersFn({ data: { farmId } })
+        setCustomers(
+          data.map((c) => ({ id: c.id, name: c.name, phone: c.phone })),
+        )
       } catch (err) {
         console.error('Failed to load customers:', err)
         toast.error(

@@ -48,7 +48,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   // Load suppliers (global, not farm-specific currently)
   const { data: suppliers = [], isLoading: isLoadingSuppliers } = useQuery({
     queryKey: ['suppliers'],
-    queryFn: () => getSuppliersFn(),
+    queryFn: () => getSuppliersFn({ data: { farmId: undefined } }),
     enabled: !!selectedFarmId,
   })
 

@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Package } from 'lucide-react'
 import { toast } from 'sonner'
-import { createServerFn } from '@tanstack/react-start'
 import { useOnboarding } from '~/features/onboarding/context'
 import { getSpeciesOptions } from '~/features/batches/constants'
-import { createBatch as createBatchActionFn } from '~/features/batches/server'
+import { createBatchFn } from '~/features/batches/server'
 import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
@@ -29,38 +28,6 @@ const availableTypes = [
 ] as const
 
 type LivestockType = (typeof availableTypes)[number]['value']
-
-interface CreateBatchInput {
-  farmId: string
-  livestockType: LivestockType
-  species: string
-  initialQuantity: number
-  acquisitionDate: string
-  costPerUnit: number
-  batchName?: string | null
-}
-
-const createBatchAction = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateBatchInput) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    const batchId = await createBatchActionFn(session.user.id, {
-      farmId: data.farmId,
-      livestockType: data.livestockType,
-      species: data.species,
-      initialQuantity: data.initialQuantity,
-      acquisitionDate: new Date(data.acquisitionDate),
-      costPerUnit: data.costPerUnit,
-      batchName: data.batchName || null,
-      sourceSize: null,
-      structureId: null,
-      targetHarvestDate: null,
-      supplierId: null,
-      notes: null,
-    })
-    return { success: true, batchId }
-  })
 
 export function CreateBatchStep() {
   const { t } = useTranslation(['onboarding', 'common', 'batches'])
@@ -107,17 +74,19 @@ export function CreateBatchStep() {
     setIsSubmitting(true)
     setError('')
     try {
-      const result = await createBatchAction({
+      const batchId = await createBatchFn({
         data: {
-          farmId: progress.farmId!,
-          livestockType: formData.livestockType,
-          species: formData.species,
-          initialQuantity: parseInt(formData.initialQuantity),
-          acquisitionDate: formData.acquisitionDate,
-          costPerUnit: parseFloat(formData.costPerUnit),
+          batch: {
+            farmId: progress.farmId!,
+            livestockType: formData.livestockType,
+            species: formData.species,
+            initialQuantity: parseInt(formData.initialQuantity),
+            acquisitionDate: new Date(formData.acquisitionDate),
+            costPerUnit: parseFloat(formData.costPerUnit),
+          },
         },
       })
-      if (result.batchId) setBatchId(result.batchId)
+      if (batchId) setBatchId(batchId)
       toast.success(t('createBatch.success', { defaultValue: 'Batch created' }))
       completeStep('create-batch')
     } catch (err) {

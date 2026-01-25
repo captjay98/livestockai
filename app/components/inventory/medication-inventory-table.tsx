@@ -301,7 +301,15 @@ export function MedicationInventoryTable({
                             setMedForm({
                               medicationName: item.medicationName,
                               quantity: item.quantity.toString(),
-                              unit: item.unit as 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet' | 'kg' | 'liter',
+                              unit: item.unit as
+                                | 'vial'
+                                | 'bottle'
+                                | 'sachet'
+                                | 'ml'
+                                | 'g'
+                                | 'tablet'
+                                | 'kg'
+                                | 'liter',
                               expiryDate: item.expiryDate
                                 ? new Date(item.expiryDate)
                                     .toISOString()

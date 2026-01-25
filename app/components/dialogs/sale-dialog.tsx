@@ -2,13 +2,13 @@ import { toast } from 'sonner'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { ChevronDown, ChevronUp, ShoppingCart } from 'lucide-react'
 import type { PaymentMethod, PaymentStatus } from '~/features/sales/server'
 import {
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
   createSaleFn,
+  getSaleFormDataFn,
 } from '~/features/sales/server'
 import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -30,27 +30,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
-
-// Server function to get batches and customers for the farm
-const getSaleFormDataFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
-  .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    await requireAuth()
-
-    const [batches, customers] = await Promise.all([
-      db
-        .selectFrom('batches')
-        .select(['id', 'species', 'livestockType', 'currentQuantity'])
-        .where('farmId', '=', data.farmId)
-        .where('status', '=', 'active')
-        .where('currentQuantity', '>', 0)
-        .execute(),
-      db.selectFrom('customers').select(['id', 'name', 'phone']).execute(),
-    ])
-    return { batches, customers }
-  })
 
 interface Batch {
   id: string

@@ -63,7 +63,9 @@ export function ExpenseDialog({
     onOpenChange(isOpen)
     if (isOpen) {
       try {
-        const suppliersData = await getSuppliersFn()
+        const suppliersData = await getSuppliersFn({
+          data: { farmId: undefined },
+        })
         setSuppliers(suppliersData)
       } catch (err) {
         console.error('Failed to load suppliers:', err)
@@ -90,8 +92,7 @@ export function ExpenseDialog({
             amount: parseFloat(formData.amount),
             date: new Date(formData.date),
             description: formData.description,
-            supplierId: formData.supplierId || null,
-            isRecurring: formData.isRecurring,
+            supplierId: formData.supplierId || undefined,
           },
         },
       })
