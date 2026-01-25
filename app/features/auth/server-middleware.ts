@@ -1,4 +1,4 @@
-import { auth } from './config'
+import { getAuth } from './config'
 import { AppError } from '~/lib/errors'
 
 /**
@@ -10,6 +10,7 @@ import { AppError } from '~/lib/errors'
 export async function requireAuth() {
   const { getRequestHeaders } = await import('@tanstack/react-start/server')
   const headers = getRequestHeaders()
+  const auth = await getAuth()
   const session = await auth.api.getSession({ headers })
 
   if (!session) {
@@ -18,7 +19,8 @@ export async function requireAuth() {
   }
 
   // Check if user is banned
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const user = await db
     .selectFrom('users')
     .select(['banned', 'banExpires'])
@@ -49,7 +51,8 @@ export async function requireAdmin() {
   const session = await requireAuth()
 
   // Dynamic import to avoid bundling db in client code
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   const user = await db
     .selectFrom('users')
