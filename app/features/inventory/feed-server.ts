@@ -4,6 +4,7 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import {
   FEED_TYPES,
   quantityToDbString,
@@ -34,25 +35,37 @@ import { AppError } from '~/lib/errors'
 export { FEED_TYPES }
 export type { CreateFeedInventoryInput, UpdateFeedInventoryInput }
 
-type FeedQueryInput = { farmId?: string }
-type FeedCreateInput = {
-  input: {
-    farmId: string
-    feedType: string
-    quantityKg: number
-    minThresholdKg: number
-  }
-}
-type FeedUpdateInput = {
-  id: string
-  input: {
-    feedType?: string
-    quantityKg?: number
-    minThresholdKg?: number
-  }
-}
-type FeedDeleteInput = { id: string }
-type FeedStockInput = { farmId: string; feedType: string; quantityKg: number }
+const feedQuerySchema = z.object({
+  farmId: z.string().uuid().optional(),
+})
+
+const feedCreateSchema = z.object({
+  input: z.object({
+    farmId: z.string().uuid(),
+    feedType: z.string().min(1),
+    quantityKg: z.number().nonnegative(),
+    minThresholdKg: z.number().nonnegative(),
+  }),
+})
+
+const feedUpdateSchema = z.object({
+  id: z.string().uuid(),
+  input: z.object({
+    feedType: z.string().min(1).optional(),
+    quantityKg: z.number().nonnegative().optional(),
+    minThresholdKg: z.number().nonnegative().optional(),
+  }),
+})
+
+const feedDeleteSchema = z.object({
+  id: z.string().uuid(),
+})
+
+const feedStockSchema = z.object({
+  farmId: z.string().uuid(),
+  feedType: z.string().min(1),
+  quantityKg: z.number().nonnegative(),
+})
 
 export async function getFeedInventory(userId: string, farmId?: string) {
   let targetFarmIds: Array<string> = []
@@ -68,12 +81,12 @@ export async function getFeedInventory(userId: string, farmId?: string) {
     if (targetFarmIds.length === 0) return []
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   return selectFeedInventory(db, targetFarmIds)
 }
 
 export const getFeedInventoryFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: FeedQueryInput) => data)
+  .inputValidator(feedQuerySchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -97,12 +110,12 @@ export async function getLowStockFeedInventory(
     if (targetFarmIds.length === 0) return []
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   return getLowStockFeed(db, targetFarmIds)
 }
 
 export const getLowStockFeedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: FeedQueryInput) => data)
+  .inputValidator(feedQuerySchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -123,7 +136,7 @@ export async function createFeedInventory(
 
   await verifyFarmAccess(userId, input.farmId)
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   const existing = await getFeedInventoryByFarmAndType(
     db,
@@ -148,7 +161,7 @@ export async function createFeedInventory(
 }
 
 export const createFeedInventoryFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: FeedCreateInput) => data)
+  .inputValidator(feedCreateSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -171,7 +184,7 @@ export async function updateFeedInventoryRecord(
     })
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getFeedInventoryById(db, id)
@@ -202,7 +215,7 @@ export async function updateFeedInventoryRecord(
 }
 
 export const updateFeedInventoryFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: FeedUpdateInput) => data)
+  .inputValidator(feedUpdateSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -214,7 +227,7 @@ export const updateFeedInventoryFn = createServerFn({ method: 'POST' })
   })
 
 export async function deleteFeedInventoryRecord(userId: string, id: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getFeedInventoryById(db, id)
@@ -236,7 +249,7 @@ export async function deleteFeedInventoryRecord(userId: string, id: string) {
 }
 
 export const deleteFeedInventoryFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: FeedDeleteInput) => data)
+  .inputValidator(feedDeleteSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -258,7 +271,7 @@ export async function addFeedStock(
     })
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   const existing = await getFeedInventoryByFarmAndType(
     db,
@@ -282,7 +295,7 @@ export async function addFeedStock(
 }
 
 export const addFeedStockFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: FeedStockInput) => data)
+  .inputValidator(feedStockSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -309,7 +322,7 @@ export async function reduceFeedStock(
     })
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   const existing = await getFeedInventoryByFarmAndType(
     db,
@@ -341,7 +354,7 @@ export async function reduceFeedStock(
 }
 
 export const reduceFeedStockFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: FeedStockInput) => data)
+  .inputValidator(feedStockSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()

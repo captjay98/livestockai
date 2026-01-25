@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import type { CreateNotificationData, Notification } from './types'
 import { AppError } from '~/lib/errors'
 
@@ -11,7 +12,7 @@ import { AppError } from '~/lib/errors'
 export async function createNotification(
   data: CreateNotificationData,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     const result = await db
@@ -51,7 +52,7 @@ export async function getNotifications(
   userId: string,
   options?: { unreadOnly?: boolean; limit?: number },
 ): Promise<Array<Notification>> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     let query = db
@@ -96,7 +97,7 @@ export async function getNotifications(
  * @param notificationId - The ID of the notification.
  */
 export async function markAsRead(notificationId: string): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     await db
@@ -119,7 +120,7 @@ export async function markAsRead(notificationId: string): Promise<void> {
  * @param userId - The ID of the user.
  */
 export async function markAllAsRead(userId: string): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     await db
@@ -145,7 +146,7 @@ export async function markAllAsRead(userId: string): Promise<void> {
 export async function deleteNotification(
   notificationId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     await db
@@ -167,7 +168,12 @@ export async function deleteNotification(
  * Server function to get notifications.
  */
 export const getNotificationsFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { unreadOnly?: boolean; limit?: number }) => data)
+  .inputValidator(
+    z.object({
+      unreadOnly: z.boolean().optional(),
+      limit: z.number().int().positive().optional(),
+    }),
+  )
   .handler(async ({ data }) => {
     try {
       const { requireAuth } = await import('../auth/server-middleware')
@@ -183,7 +189,7 @@ export const getNotificationsFn = createServerFn({ method: 'GET' })
  * Server function to mark a notification as read.
  */
 export const markAsReadFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { notificationId: string }) => data)
+  .inputValidator(z.object({ notificationId: z.string().uuid() }))
   .handler(async ({ data }) => {
     try {
       const { requireAuth } = await import('../auth/server-middleware')
@@ -198,8 +204,9 @@ export const markAsReadFn = createServerFn({ method: 'POST' })
 /**
  * Server function to mark all notifications as read.
  */
-export const markAllAsReadFn = createServerFn({ method: 'POST' }).handler(
-  async () => {
+export const markAllAsReadFn = createServerFn({ method: 'POST' })
+  .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
+  .handler(async () => {
     try {
       const { requireAuth } = await import('../auth/server-middleware')
       const session = await requireAuth()
@@ -208,14 +215,13 @@ export const markAllAsReadFn = createServerFn({ method: 'POST' }).handler(
       if (error instanceof AppError) throw error
       throw new AppError('INTERNAL_ERROR', { cause: error })
     }
-  },
-)
+  })
 
 /**
  * Server function to delete a notification.
  */
 export const deleteNotificationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { notificationId: string }) => data)
+  .inputValidator(z.object({ notificationId: z.string().uuid() }))
   .handler(async ({ data }) => {
     try {
       const { requireAuth } = await import('../auth/server-middleware')

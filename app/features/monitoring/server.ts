@@ -4,6 +4,7 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import { getUserFarms } from '../auth/utils'
 import {
   selectBatchForMonitoring,
@@ -33,13 +34,10 @@ export type AlertSource =
   | 'inventory'
   | 'growth'
 
-type FarmIdInput = { farmId?: string }
-type BatchIdInput = { batchId: string }
-
 export const getAllBatchAlerts = createServerFn({ method: 'GET' })
-  .inputValidator((data: FarmIdInput) => data)
+  .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -132,7 +130,7 @@ export const getAllBatchAlerts = createServerFn({ method: 'GET' })
               }
             }
           } catch (error) {
-            console.error('External notification failed:', error)
+            // External notification failure is non-critical, continue
           }
         }
       }
@@ -142,9 +140,9 @@ export const getAllBatchAlerts = createServerFn({ method: 'GET' })
   })
 
 export const checkBatchAlerts = createServerFn({ method: 'GET' })
-  .inputValidator((data: BatchIdInput) => data)
+  .inputValidator(z.object({ batchId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -188,9 +186,9 @@ export const checkBatchAlerts = createServerFn({ method: 'GET' })
   })
 
 export const getFarmAlerts = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()

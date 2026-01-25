@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { redirect } from '@tanstack/react-router'
+import { z } from 'zod'
 import { getBatchesFn } from '../batches/server'
 import {
   buildFeedStats,
@@ -31,7 +32,6 @@ import {
   updateFeedRecord as updateFeedRecordInDb,
 } from './repository'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
-import type { GetFeedDataForFarmInput } from './types'
 import { AppError } from '~/lib/errors'
 
 export type { PaginatedResult }
@@ -127,7 +127,7 @@ export async function createFeedRecord(
   farmId: string,
   input: CreateFeedRecordInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -205,10 +205,37 @@ export async function createFeedRecord(
 }
 
 // Server function for client-side calls
+const createFeedRecordSchema = z.object({
+  farmId: z.string().uuid(),
+  record: z.object({
+    batchId: z.string().uuid(),
+    feedType: z.enum([
+      'starter',
+      'grower',
+      'finisher',
+      'layer_mash',
+      'fish_feed',
+      'cattle_feed',
+      'goat_feed',
+      'sheep_feed',
+      'hay',
+      'silage',
+      'bee_feed',
+    ]),
+    quantityKg: z.number().positive(),
+    cost: z.number().nonnegative(),
+    date: z.coerce.date(),
+    supplierId: z.string().uuid().nullish(),
+    inventoryId: z.string().uuid().nullish(),
+    brandName: z.string().max(100).nullish(),
+    bagSizeKg: z.number().positive().nullish(),
+    numberOfBags: z.number().int().positive().nullish(),
+    notes: z.string().max(500).nullish(),
+  }),
+})
+
 export const createFeedRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { farmId: string; record: CreateFeedRecordInput }) => data,
-  )
+  .inputValidator(createFeedRecordSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -228,7 +255,7 @@ export async function deleteFeedRecord(
   farmId: string,
   recordId: string,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -266,7 +293,9 @@ export async function deleteFeedRecord(
 
 // Server function for client-side calls
 export const deleteFeedRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; recordId: string }) => data)
+  .inputValidator(
+    z.object({ farmId: z.string().uuid(), recordId: z.string().uuid() }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -288,7 +317,7 @@ export async function updateFeedRecord(
   recordId: string,
   data: Partial<CreateFeedRecordInput>,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -365,14 +394,40 @@ export async function updateFeedRecord(
   }
 }
 
+const updateFeedRecordSchema = z.object({
+  farmId: z.string().uuid(),
+  recordId: z.string().uuid(),
+  data: z.object({
+    batchId: z.string().uuid().optional(),
+    feedType: z
+      .enum([
+        'starter',
+        'grower',
+        'finisher',
+        'layer_mash',
+        'fish_feed',
+        'cattle_feed',
+        'goat_feed',
+        'sheep_feed',
+        'hay',
+        'silage',
+        'bee_feed',
+      ])
+      .optional(),
+    quantityKg: z.number().positive().optional(),
+    cost: z.number().nonnegative().optional(),
+    date: z.coerce.date().optional(),
+    supplierId: z.string().uuid().nullish(),
+    inventoryId: z.string().uuid().nullish(),
+    brandName: z.string().max(100).nullish(),
+    bagSizeKg: z.number().positive().nullish(),
+    numberOfBags: z.number().int().positive().nullish(),
+    notes: z.string().max(500).nullish(),
+  }),
+})
+
 export const updateFeedRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: {
-      farmId: string
-      recordId: string
-      data: Partial<CreateFeedRecordInput>
-    }) => data,
-  )
+  .inputValidator(updateFeedRecordSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -392,7 +447,7 @@ export const updateFeedRecordFn = createServerFn({ method: 'POST' })
  * @returns Promise resolving to an array of feed records
  */
 export async function getFeedRecordsForBatch(userId: string, batchId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getBatchById: fetchBatchById } = await import('../batches/server')
 
   try {
@@ -421,7 +476,7 @@ export async function getFeedRecordsForBatch(userId: string, batchId: string) {
  * @param farmId - Optional specific farm to filter by
  */
 export async function getFeedRecords(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -455,7 +510,7 @@ export async function getFeedSummaryForBatch(
   farmId: string,
   batchId: string,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -487,7 +542,7 @@ export async function calculateFCRForBatch(
   farmId: string,
   batchId: string,
 ): Promise<number | null> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -544,7 +599,7 @@ export async function calculateFCRForBatch(
  * @param farmId - Optional specific farm to filter by
  */
 export async function getFeedInventoryFn(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -586,7 +641,7 @@ export async function getFeedRecordsPaginatedFn(
       targetFarmIds = await getUserFarms(userId)
     }
 
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     return await getFeedRecordsPaginated(db, {
       ...query,
@@ -602,8 +657,18 @@ export async function getFeedRecordsPaginatedFn(
 }
 
 // Server function for paginated feed records
+const feedQuerySchema = z.object({
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  search: z.string().optional(),
+  farmId: z.string().uuid().optional(),
+  batchId: z.string().uuid().optional(),
+})
+
 export const getFeedRecordsPaginatedServerFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: FeedQuery) => data)
+  .inputValidator(feedQuerySchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -617,7 +682,7 @@ export const getFeedRecordsPaginatedServerFn = createServerFn({ method: 'GET' })
  * @param farmId - Optional specific farm to filter by
  */
 export async function getFeedStats(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -651,8 +716,18 @@ export {
  * Server function for getting feed data with pagination and summary
  * Used by feed index route
  */
+const getFeedDataForFarmSchema = z.object({
+  farmId: z.string().uuid().optional(),
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  search: z.string().optional(),
+  feedType: z.string().optional(),
+})
+
 export const getFeedDataForFarm = createServerFn({ method: 'GET' })
-  .inputValidator((data: GetFeedDataForFarmInput) => data)
+  .inputValidator(getFeedDataForFarmSchema)
   .handler(async ({ data }) => {
     try {
       const { requireAuth } = await import('../auth/server-middleware')
@@ -690,4 +765,39 @@ export const getFeedDataForFarm = createServerFn({ method: 'GET' })
       }
       throw err
     }
+  })
+
+/**
+ * Server function to get active batches for a farm (for feed dialog)
+ */
+export const getActiveBatchesForFeedFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
+
+    return db
+      .selectFrom('batches')
+      .select(['id', 'species', 'livestockType', 'currentQuantity'])
+      .where('farmId', '=', data.farmId)
+      .where('status', '=', 'active')
+      .execute()
+  })
+
+/**
+ * Server function to get feed inventory for a farm (for feed dialog)
+ */
+export const getFeedInventoryForFarmFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
+
+    return db
+      .selectFrom('feed_inventory')
+      .select(['feedType', 'quantityKg'])
+      .where('farmId', '=', data.farmId)
+      .execute()
   })

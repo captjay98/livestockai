@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 
 // Import service and repository functions
 import { validateStructureData, validateUpdateData } from './service'
@@ -114,7 +115,7 @@ export interface UpdateStructureInput {
  * @throws {Error} If user does not have access to the farm
  */
 export async function getStructures(userId: string, farmId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -135,7 +136,7 @@ export async function getStructures(userId: string, farmId: string) {
  * Server function to retrieve all structures for a farm.
  */
 export const getStructuresFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -151,7 +152,7 @@ export const getStructuresFn = createServerFn({ method: 'GET' })
  * @throws {Error} If structure is not found or access is denied
  */
 export async function getStructure(userId: string, structureId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -200,7 +201,7 @@ export async function getStructure(userId: string, structureId: string) {
  * Server function to retrieve a specific structure's details.
  */
 export const getStructureFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { structureId: string }) => data)
+  .inputValidator(z.object({ structureId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -219,7 +220,7 @@ export async function createStructure(
   userId: string,
   input: CreateStructureInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -258,7 +259,34 @@ export async function createStructure(
  * Server function to create a new farm structure.
  */
 export const createStructureFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { input: CreateStructureInput }) => data)
+  .inputValidator(
+    z.object({
+      input: z.object({
+        farmId: z.string().uuid(),
+        name: z.string().min(1),
+        type: z.enum([
+          'house',
+          'pond',
+          'pen',
+          'cage',
+          'barn',
+          'pasture',
+          'hive',
+          'milking_parlor',
+          'shearing_shed',
+          'tank',
+          'tarpaulin',
+          'raceway',
+          'feedlot',
+          'kraal',
+        ]),
+        capacity: z.number().int().positive().optional().nullable(),
+        areaSqm: z.number().positive().optional().nullable(),
+        status: z.enum(['active', 'empty', 'maintenance']),
+        notes: z.string().optional().nullable(),
+      }),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -278,7 +306,7 @@ export async function updateStructure(
   id: string,
   input: UpdateStructureInput,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -333,7 +361,36 @@ export async function updateStructure(
  * Server function to update a farm structure.
  */
 export const updateStructureFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string; input: UpdateStructureInput }) => data)
+  .inputValidator(
+    z.object({
+      id: z.string().uuid(),
+      input: z.object({
+        name: z.string().min(1).optional(),
+        type: z
+          .enum([
+            'house',
+            'pond',
+            'pen',
+            'cage',
+            'barn',
+            'pasture',
+            'hive',
+            'milking_parlor',
+            'shearing_shed',
+            'tank',
+            'tarpaulin',
+            'raceway',
+            'feedlot',
+            'kraal',
+          ])
+          .optional(),
+        capacity: z.number().int().positive().optional().nullable(),
+        areaSqm: z.number().positive().optional().nullable(),
+        status: z.enum(['active', 'empty', 'maintenance']).optional(),
+        notes: z.string().optional().nullable(),
+      }),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -350,7 +407,7 @@ export const updateStructureFn = createServerFn({ method: 'POST' })
  * @throws {Error} If structure is not found, user is unauthorized, or structure has active batches
  */
 export async function deleteStructure(userId: string, id: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -399,7 +456,7 @@ export async function deleteStructure(userId: string, id: string) {
  * Server function to delete a farm structure.
  */
 export const deleteStructureFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: string }) => data)
+  .inputValidator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -415,7 +472,7 @@ export const deleteStructureFn = createServerFn({ method: 'POST' })
  * @returns Promise resolving to an array of structures with batch and animal totals
  */
 export async function getStructuresWithCounts(userId: string, farmId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -436,7 +493,7 @@ export async function getStructuresWithCounts(userId: string, farmId: string) {
  * Server function to retrieve structures with summary counts.
  */
 export const getStructuresWithCountsFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()

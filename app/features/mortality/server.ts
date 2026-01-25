@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 import { AppError } from '~/lib/errors'
 
@@ -55,7 +56,7 @@ export interface CreateMortalityData {
     | 'suffocation'
     | 'culling'
   /** Optional descriptive notes */
-  notes?: string
+  notes?: string | null
 }
 
 /**
@@ -95,7 +96,7 @@ export async function recordMortality(
   userId: string,
   data: CreateMortalityData,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getBatchById } = await import('../batches/server')
 
   try {
@@ -172,8 +173,30 @@ export async function recordMortality(
 }
 
 // Server function for client-side calls
+const createMortalitySchema = z.object({
+  farmId: z.string().uuid(),
+  data: z.object({
+    batchId: z.string().uuid(),
+    quantity: z.number().int().positive(),
+    date: z.coerce.date(),
+    cause: z.enum([
+      'disease',
+      'predator',
+      'weather',
+      'unknown',
+      'other',
+      'starvation',
+      'injury',
+      'poisoning',
+      'suffocation',
+      'culling',
+    ]),
+    notes: z.string().max(500).nullish(),
+  }),
+})
+
 export const recordMortalityFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; data: CreateMortalityData }) => data)
+  .inputValidator(createMortalitySchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -195,7 +218,7 @@ export const recordMortalityFn = createServerFn({ method: 'POST' })
  * ```
  */
 export async function getMortalityRecords(userId: string, batchId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getBatchById } = await import('../batches/server')
 
   try {
@@ -245,7 +268,7 @@ export async function getMortalityRecords(userId: string, batchId: string) {
  * ```
  */
 export async function getMortalityStats(userId: string, batchId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getBatchById } = await import('../batches/server')
 
   try {
@@ -356,7 +379,7 @@ export async function getMortalityTrends(
   period: 'daily' | 'weekly' | 'monthly' = 'daily',
   days: number = 30,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getBatchById } = await import('../batches/server')
 
   try {
@@ -422,7 +445,7 @@ export async function getMortalityRecordsPaginated(
   userId: string,
   query: MortalityQuery = {},
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { sql } = await import('kysely')
 
@@ -525,8 +548,18 @@ export async function getMortalityRecordsPaginated(
 }
 
 // Server function for paginated mortality records
+const mortalityQuerySchema = z.object({
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  search: z.string().optional(),
+  farmId: z.string().uuid().optional(),
+  batchId: z.string().uuid().optional(),
+})
+
 export const getMortalityRecordsPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: MortalityQuery) => data)
+  .inputValidator(mortalityQuerySchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -541,7 +574,7 @@ export const getMortalityRecordsPaginatedFn = createServerFn({ method: 'GET' })
  * @returns Promise resolving to a mortality summary object
  */
 export async function getMortalitySummary(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -621,7 +654,7 @@ export async function updateMortalityRecord(
   recordId: string,
   input: UpdateMortalityInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -711,7 +744,7 @@ export async function deleteMortalityRecord(
   userId: string,
   recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -768,7 +801,7 @@ export async function deleteMortalityRecord(
 }
 
 export const deleteMortalityRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string }) => data)
+  .inputValidator(z.object({ recordId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()

@@ -17,6 +17,8 @@ const createRecordSchema = z.object({
   }),
 })
 
+export type CreateWaterQualityInput = z.infer<typeof createRecordSchema>['data']
+
 const updateRecordSchema = z.object({
   recordId: z.string(),
   data: z.object({
@@ -28,6 +30,8 @@ const updateRecordSchema = z.object({
     notes: z.string().nullable().optional(),
   }),
 })
+
+export type UpdateWaterQualityInput = z.infer<typeof updateRecordSchema>['data']
 
 const getRecordsSchema = z.object({
   farmId: z.string().optional().nullable(),
@@ -44,14 +48,13 @@ export const getWaterQualityDataForFarmFn = createServerFn({ method: 'GET' })
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     const { getBatches } = await import('~/features/batches/server')
-    const { getWaterQualityPaginated } =
-      await import('./repository')
+    const { getWaterQualityPaginated } = await import('./repository')
 
     try {
       const farmId = input.farmId || undefined
       const { getUserFarms } = await import('~/features/auth/utils')
-      const { db } = await import('~/lib/db')
-      
+      const { getDb } = await import('~/lib/db'); const db = await getDb()
+
       // Get farm IDs
       const farmIds = farmId ? [farmId] : await getUserFarms(session.user.id)
 
@@ -67,7 +70,7 @@ export const getWaterQualityDataForFarmFn = createServerFn({ method: 'GET' })
       ])
 
       const batches = allBatches.filter(
-        (b: any) => b.status === 'active' && b.livestockType === 'fish',
+        (b) => b.status === 'active' && b.livestockType === 'fish',
       )
 
       return {
@@ -88,7 +91,7 @@ export const insertReadingFn = createServerFn({ method: 'POST' })
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
     const { insertReading } = await import('./repository')
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       return await insertReading(db, {
@@ -113,17 +116,28 @@ export const updateReadingFn = createServerFn({ method: 'POST' })
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
     const { updateReading } = await import('./repository')
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
-      const updateData: any = {}
+      const updateData: {
+        date?: Date
+        ph?: string
+        temperatureCelsius?: string
+        dissolvedOxygenMgL?: string
+        ammoniaMgL?: string
+        notes?: string | null
+      } = {}
       if (input.data.date !== undefined) updateData.date = input.data.date
       if (input.data.ph !== undefined) updateData.ph = input.data.ph.toString()
-      if (input.data.temperatureCelsius !== undefined) updateData.temperatureCelsius = input.data.temperatureCelsius.toString()
-      if (input.data.dissolvedOxygenMgL !== undefined) updateData.dissolvedOxygenMgL = input.data.dissolvedOxygenMgL.toString()
-      if (input.data.ammoniaMgL !== undefined) updateData.ammoniaMgL = input.data.ammoniaMgL.toString()
-      if (input.data.notes !== undefined) updateData.notes = input.data.notes ?? null
-      
+      if (input.data.temperatureCelsius !== undefined)
+        updateData.temperatureCelsius = input.data.temperatureCelsius.toString()
+      if (input.data.dissolvedOxygenMgL !== undefined)
+        updateData.dissolvedOxygenMgL = input.data.dissolvedOxygenMgL.toString()
+      if (input.data.ammoniaMgL !== undefined)
+        updateData.ammoniaMgL = input.data.ammoniaMgL.toString()
+      if (input.data.notes !== undefined)
+        updateData.notes = input.data.notes ?? null
+
       return await updateReading(db, input.recordId, updateData)
     } catch (error) {
       throw new AppError('DATABASE_ERROR', {
@@ -139,7 +153,7 @@ export const deleteReadingFn = createServerFn({ method: 'POST' })
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
     const { deleteReading } = await import('./repository')
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       return await deleteReading(db, input.recordId)

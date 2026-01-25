@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { redirect } from '@tanstack/react-router'
 import { sql } from 'kysely'
-import type { BatchAlert } from '~/features/monitoring/server'
-import type { DashboardData } from './types'
+import { z } from 'zod'
+import type { DashboardData, DashboardStats } from './types'
 
 /**
  * @module Dashboard
@@ -10,77 +10,6 @@ import type { DashboardData } from './types'
  * Aggregates high-level farm statistics for the main dashboard view.
  * Combines data from inventory, finance, production, and monitoring modules.
  */
-
-/**
- * High-level business and production metrics for the farm dashboard.
- */
-export interface DashboardStats {
-  /** Aggregated active livestock counts across all species */
-  inventory: {
-    /** Combined poultry count (layers, broilers, etc.) */
-    totalPoultry: number
-    /** Total fish count */
-    totalFish: number
-    /** Total cattle count */
-    totalCattle: number
-    /** Total goats count */
-    totalGoats: number
-    /** Total sheep count */
-    totalSheep: number
-    /** Total bee colonies count */
-    totalBees: number
-    /** Number of currently active livestock batches */
-    activeBatches: number
-  }
-  /** Monthly financial performance summary */
-  financial: {
-    /** Total revenue for the current month */
-    monthlyRevenue: number
-    /** Total expenses for the current month */
-    monthlyExpenses: number
-    /** Net profit (Revenue - Expenses) */
-    monthlyProfit: number
-    /** Percentage change in revenue compared to the previous month */
-    revenueChange: number
-    /** Percentage change in expenses compared to the previous month */
-    expensesChange: number
-  }
-  /** Production metrics for egg-laying species */
-  production: {
-    /** Total eggs collected during the current month */
-    eggsThisMonth: number
-    /** Average laying rate percentage (eggs / possible eggs) */
-    layingPercentage: number
-  }
-  /** Livestock health monitoring summary */
-  mortality: {
-    /** Total combined deaths in the current month */
-    totalDeaths: number
-    /** Mortality rate percentage (deaths / initial population) */
-    mortalityRate: number
-  }
-  /** Feed management summary */
-  feed: {
-    /** Total spent on feed in the current month */
-    totalCost: number
-    /** Total feed quantity in kilograms */
-    totalKg: number
-    /** Average Feed Conversion Ratio */
-    fcr: number
-  }
-  /** Prioritized health, stock, or water quality alerts */
-  alerts: Array<BatchAlert>
-  /** Highest spend/revenue customers for the farm */
-  topCustomers: Array<{ id: string; name: string; totalSpent: number }>
-  /** Combined chronological list of recent income and expenditures */
-  recentTransactions: Array<{
-    id: string
-    type: 'sale' | 'expense'
-    description: string
-    amount: number
-    date: Date
-  }>
-}
 
 /**
  * Computes comprehensive dashboard statistics for a user or a specific farm.
@@ -94,7 +23,7 @@ export async function getDashboardStats(
   userId: string,
   farmId?: string,
 ): Promise<DashboardStats> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('../auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -456,7 +385,6 @@ export async function getDashboardStats(
       recentTransactions,
     }
   } catch (error) {
-    console.error('Failed to get dashboard stats:', error)
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to load dashboard statistics',
@@ -469,7 +397,13 @@ export async function getDashboardStats(
  * Server function to load dashboard data including stats and farms
  */
 export const getDashboardDataFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId?: string | null } | undefined) => data)
+  .inputValidator(
+    z
+      .object({
+        farmId: z.string().uuid().nullish(),
+      })
+      .optional(),
+  )
   .handler(async ({ data }): Promise<DashboardData> => {
     try {
       const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -482,7 +416,7 @@ export const getDashboardDataFn = createServerFn({ method: 'GET' })
         getUserFarms(session.user.id),
       ])
 
-      const { db } = await import('~/lib/db')
+      const { getDb } = await import('~/lib/db'); const db = await getDb()
       const farms =
         farmIds.length > 0
           ? await db

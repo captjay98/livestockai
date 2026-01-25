@@ -131,9 +131,10 @@ export const userSettingsSchema = z.object({
  *
  * @returns Promise resolving to the user's settings object
  */
-export const getUserSettings = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const { db } = await import('~/lib/db')
+export const getUserSettings = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({}))
+  .handler(async () => {
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     let session
@@ -157,8 +158,7 @@ export const getUserSettings = createServerFn({ method: 'GET' }).handler(
       ...DEFAULT_SETTINGS,
       ...settings,
     } as UserSettings
-  },
-)
+  })
 
 /**
  * Update the current user's settings. Performs an upsert operation.
@@ -168,11 +168,9 @@ export const getUserSettings = createServerFn({ method: 'GET' }).handler(
  * @throws {Error} If update fails
  */
 export const updateUserSettings = createServerFn({ method: 'POST' })
-  .inputValidator((data: Partial<z.infer<typeof userSettingsSchema>>) =>
-    userSettingsSchema.partial().parse(data),
-  )
+  .inputValidator(userSettingsSchema.partial())
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -243,7 +241,6 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
       if (error instanceof AppError) {
         throw error
       }
-      console.error('Failed to update user settings:', error)
       throw new AppError('DATABASE_ERROR', {
         message: 'errors.saveFailed',
         cause: error,
@@ -257,9 +254,10 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
  * @returns Promise resolving to a success indicator
  * @throws {Error} If reset fails
  */
-export const resetUserSettings = createServerFn({ method: 'POST' }).handler(
-  async () => {
-    const { db } = await import('~/lib/db')
+export const resetUserSettings = createServerFn({ method: 'POST' })
+  .inputValidator(z.object({}))
+  .handler(async () => {
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -271,31 +269,29 @@ export const resetUserSettings = createServerFn({ method: 'POST' }).handler(
 
       return { success: true }
     } catch (error) {
-      console.error('Failed to reset user settings:', error)
       throw new AppError('DATABASE_ERROR', {
         message: 'errors.resetFailed',
         cause: error,
       })
     }
-  },
-)
+  })
 
 /**
  * Get the default farm ID for the current user
  *
  * @returns Promise resolving to the default farm ID or null
  */
-export const getDefaultFarm = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const { db } = await import('~/lib/db')
+export const getDefaultFarm = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({}))
+  .handler(async () => {
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
     const userId = session.user.id
 
     return await getDefaultFarmId(db, userId)
-  },
-)
+  })
 
 /**
  * Set the default farm ID for the current user
@@ -304,9 +300,9 @@ export const getDefaultFarm = createServerFn({ method: 'GET' }).handler(
  * @returns Promise resolving to a success indicator
  */
 export const setDefaultFarm = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string | null }) => data)
+  .inputValidator(z.object({ farmId: z.string().uuid().nullable() }))
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -324,7 +320,7 @@ export const setDefaultFarm = createServerFn({ method: 'POST' })
  */
 export const getOnboarding = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -348,16 +344,14 @@ export const getOnboarding = createServerFn({ method: 'GET' }).handler(
  * @returns Promise resolving to a success indicator
  */
 export const updateOnboarding = createServerFn({ method: 'POST' })
-  .inputValidator((data: { completed?: boolean; step?: number }) =>
-    z
-      .object({
-        completed: z.boolean().optional(),
-        step: z.number().int().min(0).optional(),
-      })
-      .parse(data),
+  .inputValidator(
+    z.object({
+      completed: z.boolean().optional(),
+      step: z.number().int().min(0).optional(),
+    }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -380,7 +374,7 @@ export const updateOnboarding = createServerFn({ method: 'POST' })
  */
 export const getCurrency = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -410,7 +404,7 @@ export const getCurrency = createServerFn({ method: 'GET' }).handler(
  */
 export const getNotifications = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -433,25 +427,23 @@ export const getNotifications = createServerFn({ method: 'GET' }).handler(
  * @returns Promise resolving to a success indicator
  */
 export const updateNotifications = createServerFn({ method: 'POST' })
-  .inputValidator((data: Partial<UserSettings['notifications']>) =>
-    z
-      .object({
-        lowStock: z.boolean().optional(),
-        highMortality: z.boolean().optional(),
-        invoiceDue: z.boolean().optional(),
-        batchHarvest: z.boolean().optional(),
-        vaccinationDue: z.boolean().optional(),
-        medicationExpiry: z.boolean().optional(),
-        waterQualityAlert: z.boolean().optional(),
-        weeklySummary: z.boolean().optional(),
-        dailySales: z.boolean().optional(),
-        batchPerformance: z.boolean().optional(),
-        paymentReceived: z.boolean().optional(),
-      })
-      .parse(data),
+  .inputValidator(
+    z.object({
+      lowStock: z.boolean().optional(),
+      highMortality: z.boolean().optional(),
+      invoiceDue: z.boolean().optional(),
+      batchHarvest: z.boolean().optional(),
+      vaccinationDue: z.boolean().optional(),
+      medicationExpiry: z.boolean().optional(),
+      waterQualityAlert: z.boolean().optional(),
+      weeklySummary: z.boolean().optional(),
+      dailySales: z.boolean().optional(),
+      batchPerformance: z.boolean().optional(),
+      paymentReceived: z.boolean().optional(),
+    }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -469,7 +461,7 @@ export const updateNotifications = createServerFn({ method: 'POST' })
  */
 export const getDashboardCards = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -492,20 +484,18 @@ export const getDashboardCards = createServerFn({ method: 'GET' }).handler(
  * @returns Promise resolving to a success indicator
  */
 export const updateDashboardCards = createServerFn({ method: 'POST' })
-  .inputValidator((data: Partial<UserSettings['dashboardCards']>) =>
-    z
-      .object({
-        inventory: z.boolean().optional(),
-        revenue: z.boolean().optional(),
-        expenses: z.boolean().optional(),
-        profit: z.boolean().optional(),
-        mortality: z.boolean().optional(),
-        feed: z.boolean().optional(),
-      })
-      .parse(data),
+  .inputValidator(
+    z.object({
+      inventory: z.boolean().optional(),
+      revenue: z.boolean().optional(),
+      expenses: z.boolean().optional(),
+      profit: z.boolean().optional(),
+      mortality: z.boolean().optional(),
+      feed: z.boolean().optional(),
+    }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -523,7 +513,7 @@ export const updateDashboardCards = createServerFn({ method: 'POST' })
  */
 export const getAlertThresholdsFn = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -567,7 +557,7 @@ export const updateAlertThresholdsFn = createServerFn({ method: 'POST' })
         .parse(data),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -591,9 +581,9 @@ export const updateAlertThresholdsFn = createServerFn({ method: 'POST' })
  * @returns Formatted currency string
  */
 export const formatCurrencyFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { amount: number }) => data)
+  .inputValidator(z.object({ amount: z.number() }))
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -604,6 +594,17 @@ export const formatCurrencyFn = createServerFn({ method: 'POST' })
     const currencyCode = currencySettings?.code ?? DEFAULT_SETTINGS.currencyCode
 
     return formatCurrencyValue(data.amount, currencyCode)
+  })
+
+/**
+ * Get settings page data (for loader pattern)
+ *
+ * @returns Promise resolving to settings data
+ */
+export const getSettingsPageDataFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({}))
+  .handler(async () => {
+    return getUserSettings({ data: {} })
   })
 
 /**

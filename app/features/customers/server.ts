@@ -45,7 +45,7 @@ export type { PaginatedResult }
 export async function createCustomer(
   input: CreateCustomerInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     // Validate input
@@ -88,7 +88,7 @@ export const createCustomerFn = createServerFn({ method: 'POST' })
  * Retrieve all customers in alphabetical order.
  */
 export async function getCustomers(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
@@ -137,7 +137,7 @@ export const getCustomersFn = createServerFn({ method: 'GET' })
  * Retrieve a single customer record by its unique ID.
  */
 export async function getCustomerById(userId: string, customerId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -170,7 +170,7 @@ export async function updateCustomer(
   customerId: string,
   input: Partial<CreateCustomerInput>,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -220,7 +220,7 @@ export async function deleteCustomer(
   userId: string,
   customerId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -264,7 +264,7 @@ export const deleteCustomerFn = createServerFn({ method: 'POST' })
  * Retrieve a customer's full profile including their entire purchase history.
  */
 export async function getCustomerWithSales(userId: string, customerId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -307,7 +307,7 @@ export async function getTopCustomers(
   farmId?: string,
   limit: number = 10,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
@@ -342,7 +342,7 @@ export async function getCustomersPaginated(
   userId: string,
   query: CustomerQuery = {},
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
@@ -411,5 +411,32 @@ export const getTopCustomersFn = createServerFn({ method: 'GET' })
     return getTopCustomers(session.user.id, data.farmId, data.limit)
   })
 
+/**
+ * Server function to retrieve a customer with their sales history.
+ */
+export const getCustomerWithSalesFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      customerId: z.string().min(1, 'Customer ID is required'),
+    }).parse,
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getCustomerWithSales(session.user.id, data.customerId)
+  })
+
 // Export types for use in other files
 export type { CreateCustomerInput, CustomerQuery } from './types'
+
+/**
+ * Server function to get all customers (for invoice dialog)
+ */
+export const getAllCustomersFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({}).parse)
+  .handler(async () => {
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
+    return db.selectFrom('customers').select(['id', 'name', 'phone']).execute()
+  })

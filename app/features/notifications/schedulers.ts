@@ -10,7 +10,7 @@ async function sendExternalNotification(
   templateData: Record<string, unknown>,
 ): Promise<void> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { INTEGRATIONS } = await import('../integrations/config')
 
     if (!INTEGRATIONS.email) return
@@ -55,7 +55,7 @@ async function sendExternalNotification(
 
     await sendEmail({ to: user.email, ...template })
   } catch (error) {
-    console.error('External notification failed:', error)
+    // External notification failure is non-critical
   }
 }
 
@@ -66,7 +66,7 @@ export async function checkLowStockNotifications(
   userId: string,
   farmId?: string,
 ): Promise<number> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('../auth/utils')
 
   // Get user settings
@@ -210,7 +210,7 @@ export async function checkInvoiceDueNotifications(
   userId: string,
   farmId?: string,
 ): Promise<number> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('../auth/utils')
 
   // Get user settings
@@ -317,7 +317,7 @@ export async function checkBatchHarvestNotifications(
   userId: string,
   farmId?: string,
 ): Promise<number> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('../auth/utils')
 
   // Get user settings

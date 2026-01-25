@@ -198,7 +198,7 @@ export async function createBatch(
   userId: string,
   data: CreateBatchData,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -286,7 +286,7 @@ export async function getBatches(
     species?: string
   },
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
 
   try {
@@ -331,7 +331,7 @@ export async function getBatches(
  * ```
  */
 export async function getBatchById(userId: string, batchId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -377,7 +377,7 @@ export async function updateBatch(
   batchId: string,
   data: UpdateBatchData,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     const batch = await getBatchById(userId, batchId)
@@ -451,7 +451,7 @@ export const updateBatchFn = createServerFn({ method: 'POST' })
  * ```
  */
 export async function deleteBatch(userId: string, batchId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     const batch = await getBatchById(userId, batchId)
@@ -504,7 +504,7 @@ export async function updateBatchQuantity(
   batchId: string,
   newQuantity: number,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     // Determine status using service layer logic
@@ -535,7 +535,7 @@ export async function updateBatchQuantity(
  * ```
  */
 export async function getBatchStatsWrapper(userId: string, batchId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     const batch = await getBatchById(userId, batchId)
@@ -614,7 +614,7 @@ export async function getBatchStatsWrapper(userId: string, batchId: string) {
  * ```
  */
 export async function getInventorySummary(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
 
   try {
@@ -758,7 +758,7 @@ export async function getBatchesPaginated(
     status: string
   }>
 > {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { sql } = await import('kysely')
   const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
 

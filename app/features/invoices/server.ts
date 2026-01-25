@@ -69,7 +69,7 @@ export type { PaginatedResult }
  * @returns Promise resolving to the next available invoice number
  */
 export async function generateInvoiceNumber(farmId: string): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     const year = new Date().getFullYear()
@@ -98,7 +98,7 @@ export async function createInvoice(
   userId: string,
   input: CreateInvoiceInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -182,7 +182,7 @@ export const createInvoiceFn = createServerFn({ method: 'POST' })
  * @returns Promise resolving to an array of invoices with customer names
  */
 export async function getInvoices(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
@@ -215,7 +215,7 @@ export async function getInvoices(userId: string, farmId?: string) {
  * @returns Promise resolving to the complete invoice profile or null if not found
  */
 export async function getInvoiceById(userId: string, invoiceId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -271,7 +271,7 @@ export async function updateInvoiceStatus(
   invoiceId: string,
   status: 'unpaid' | 'partial' | 'paid',
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -324,7 +324,7 @@ export const updateInvoiceStatusFn = createServerFn({ method: 'POST' })
  * @param invoiceId - ID of the invoice to delete
  */
 export async function deleteInvoice(userId: string, invoiceId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -364,7 +364,7 @@ export async function createInvoiceFromSale(
   userId: string,
   saleId: string,
 ): Promise<string | null> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -408,7 +408,7 @@ export async function getInvoicesPaginated(
   userId: string,
   query: InvoiceQuery = {},
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
@@ -436,11 +436,10 @@ export async function getInvoicesPaginated(
       }
     }
 
-    // For now, use the first farm ID since the repository function expects a single farmId
-    // TODO: Update repository to support multiple farm IDs
+    // Pass all farm IDs to repository (now supports arrays)
     const result = await getInvoicesPaginatedRepo(db, {
       ...query,
-      farmId: targetFarmIds[0],
+      farmId: targetFarmIds,
     })
 
     return {
@@ -467,3 +466,14 @@ export const getInvoicesPaginatedFn = createServerFn({ method: 'GET' })
     return getInvoicesPaginated(session.user.id, data)
   })
 export type { CreateInvoiceInput } from './types'
+
+/**
+ * Server function to delete an invoice.
+ */
+export const deleteInvoiceFn = createServerFn({ method: 'POST' })
+  .inputValidator(z.object({ invoiceId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return deleteInvoice(session.user.id, data.invoiceId)
+  })

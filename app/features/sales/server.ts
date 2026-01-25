@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import type {
   CreateSaleInput,
   PaginatedResult,
@@ -74,7 +75,7 @@ export async function createSale(
   userId: string,
   input: CreateSaleInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { calculateSaleTotal, validateSaleData } = await import('./service')
@@ -182,7 +183,34 @@ export async function createSale(
 
 // Server function for client-side calls
 export const createSaleFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { sale: CreateSaleInput }) => data)
+  .inputValidator(
+    z.object({
+      sale: z.object({
+        farmId: z.string().uuid(),
+        batchId: z.string().uuid().optional().nullable(),
+        customerId: z.string().uuid().optional().nullable(),
+        livestockType: z.enum(['poultry', 'fish', 'eggs']),
+        quantity: z.number().int().positive(),
+        unitPrice: z.number().nonnegative(),
+        date: z.coerce.date(),
+        notes: z.string().optional().nullable(),
+        unitType: z
+          .enum(['bird', 'kg', 'crate', 'piece'])
+          .optional()
+          .nullable(),
+        ageWeeks: z.number().int().positive().optional().nullable(),
+        averageWeightKg: z.number().positive().optional().nullable(),
+        paymentStatus: z
+          .enum(['paid', 'pending', 'partial'])
+          .optional()
+          .nullable(),
+        paymentMethod: z
+          .enum(['cash', 'transfer', 'credit'])
+          .optional()
+          .nullable(),
+      }),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -202,7 +230,7 @@ export const createSaleFn = createServerFn({ method: 'POST' })
  * ```
  */
 export async function deleteSale(userId: string, saleId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const {
@@ -245,7 +273,7 @@ export async function deleteSale(userId: string, saleId: string) {
 
 // Server function for client-side calls
 export const deleteSaleFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { saleId: string }) => data)
+  .inputValidator(z.object({ saleId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -271,7 +299,7 @@ export async function updateSale(
   saleId: string,
   data: UpdateSaleInput,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const {
@@ -363,7 +391,31 @@ export async function updateSale(
 }
 
 export const updateSaleFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { saleId: string; data: UpdateSaleInput }) => data)
+  .inputValidator(
+    z.object({
+      saleId: z.string().uuid(),
+      data: z.object({
+        quantity: z.number().int().positive().optional(),
+        unitPrice: z.number().nonnegative().optional(),
+        date: z.coerce.date().optional(),
+        notes: z.string().optional().nullable(),
+        unitType: z
+          .enum(['bird', 'kg', 'crate', 'piece'])
+          .optional()
+          .nullable(),
+        ageWeeks: z.number().int().positive().optional().nullable(),
+        averageWeightKg: z.number().positive().optional().nullable(),
+        paymentStatus: z
+          .enum(['paid', 'pending', 'partial'])
+          .optional()
+          .nullable(),
+        paymentMethod: z
+          .enum(['cash', 'transfer', 'credit'])
+          .optional()
+          .nullable(),
+      }),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -393,7 +445,7 @@ export async function getSales(
     livestockType?: 'poultry' | 'fish' | 'eggs'
   },
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
@@ -445,7 +497,7 @@ export async function getSalesForFarm(
     livestockType?: 'poultry' | 'fish' | 'eggs'
   },
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getSalesByFarm } = await import('./repository')
@@ -485,7 +537,7 @@ export async function getSalesSummary(
     endDate?: Date
   },
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
@@ -544,7 +596,7 @@ export async function getTotalRevenue(
     endDate?: Date
   },
 ): Promise<number> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getTotalRevenue: getTotalRevenueRepo } = await import('./repository')
@@ -599,7 +651,7 @@ export async function getSalesPaginated(
     paymentMethod: string | null
   }>
 > {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
@@ -646,7 +698,20 @@ export async function getSalesPaginated(
 
 // Server function for paginated sales
 export const getSalesPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: SalesQuery) => data)
+  .inputValidator(
+    z.object({
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().max(100).optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      farmId: z.string().uuid().optional(),
+      livestockType: z.enum(['poultry', 'fish', 'eggs']).optional(),
+      startDate: z.coerce.date().optional(),
+      endDate: z.coerce.date().optional(),
+      paymentStatus: z.enum(['paid', 'pending', 'partial']).optional(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -666,4 +731,72 @@ export const getSalesSummaryFn = createServerFn({ method: 'GET' })
       endDate: data.endDate,
     })
   })
+// Server function for sales page loader (combines all data)
+export const getSalesPageDataFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid().optional(),
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().max(100).optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      livestockType: z.enum(['poultry', 'fish', 'eggs']).optional(),
+      paymentStatus: z.enum(['paid', 'pending', 'partial']).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+
+    const [paginatedSales, summary, batches, customers] = await Promise.all([
+      getSalesPaginated(session.user.id, data),
+      getSalesSummary(session.user.id, data.farmId),
+      data.farmId
+        ? (async () => {
+            const { getBatches } = await import('~/features/batches/server')
+            const allBatches = await getBatches(session.user.id, data.farmId)
+            return allBatches.filter((b) => b.status === 'active')
+          })()
+        : Promise.resolve([]),
+      (async () => {
+        const { getCustomers } = await import('~/features/customers/server')
+        return getCustomers(session.user.id)
+      })(),
+    ])
+
+    return {
+      paginatedSales,
+      summary,
+      batches,
+      customers,
+    }
+  })
+
 export type { CreateSaleInput, UpdateSaleInput } from './types'
+
+/**
+ * Server function to get batches and customers for sale dialog
+ */
+export const getSaleFormDataFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const { verifyFarmAccess } = await import('~/features/auth/utils')
+
+    const session = await requireAuth()
+    await verifyFarmAccess(session.user.id, data.farmId)
+
+    const [batches, customers] = await Promise.all([
+      db
+        .selectFrom('batches')
+        .select(['id', 'species', 'livestockType', 'currentQuantity'])
+        .where('farmId', '=', data.farmId)
+        .where('status', '=', 'active')
+        .where('currentQuantity', '>', 0)
+        .execute(),
+      db.selectFrom('customers').select(['id', 'name', 'phone']).execute(),
+    ])
+    return { batches, customers }
+  })

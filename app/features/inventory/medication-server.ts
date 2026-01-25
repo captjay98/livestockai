@@ -4,6 +4,7 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import {
   MEDICATION_UNITS,
   validateMedicationData,
@@ -30,31 +31,61 @@ import { AppError } from '~/lib/errors'
 export { MEDICATION_UNITS }
 export type { CreateMedicationInput, UpdateMedicationInput }
 
-type MedicationQueryInput = { farmId?: string }
-type ExpiringMedicationsInput = { farmId?: string; days?: number }
-type MedicationCreateInput = {
-  input: {
-    farmId: string
-    medicationName: string
-    quantity: number
-    unit: 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet' | 'kg' | 'liter'
-    expiryDate?: Date | null
-    minThreshold: number
-  }
-}
-type MedicationUpdateInput = {
-  id: string
-  input: {
-    medicationName?: string
-    quantity?: number
-    unit?: 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet' | 'kg' | 'liter'
-    expiryDate?: Date | null
-    minThreshold?: number
-  }
-}
-type MedicationDeleteInput = { id: string }
-type UseMedicationInput = { id: string; quantityUsed: number }
-type AddMedicationStockInput = { id: string; quantityToAdd: number }
+const medicationQuerySchema = z.object({
+  farmId: z.string().uuid().optional(),
+})
+
+const expiringMedicationsSchema = z.object({
+  farmId: z.string().uuid().optional(),
+  days: z.number().int().positive().optional(),
+})
+
+const medicationUnitEnum = z.enum([
+  'vial',
+  'bottle',
+  'sachet',
+  'ml',
+  'g',
+  'tablet',
+  'kg',
+  'liter',
+])
+
+const medicationCreateSchema = z.object({
+  input: z.object({
+    farmId: z.string().uuid(),
+    medicationName: z.string().min(1),
+    quantity: z.number().int().nonnegative(),
+    unit: medicationUnitEnum,
+    expiryDate: z.coerce.date().optional().nullable(),
+    minThreshold: z.number().int().nonnegative(),
+  }),
+})
+
+const medicationUpdateSchema = z.object({
+  id: z.string().uuid(),
+  input: z.object({
+    medicationName: z.string().min(1).optional(),
+    quantity: z.number().int().nonnegative().optional(),
+    unit: medicationUnitEnum.optional(),
+    expiryDate: z.coerce.date().optional().nullable(),
+    minThreshold: z.number().int().nonnegative().optional(),
+  }),
+})
+
+const medicationDeleteSchema = z.object({
+  id: z.string().uuid(),
+})
+
+const useMedicationSchema = z.object({
+  id: z.string().uuid(),
+  quantityUsed: z.number().int().positive(),
+})
+
+const addMedicationStockSchema = z.object({
+  id: z.string().uuid(),
+  quantityToAdd: z.number().int().positive(),
+})
 
 export async function getMedicationInventory(userId: string, farmId?: string) {
   let targetFarmIds: Array<string> = []
@@ -70,12 +101,12 @@ export async function getMedicationInventory(userId: string, farmId?: string) {
     if (targetFarmIds.length === 0) return []
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   return selectMedicationInventory(db, targetFarmIds)
 }
 
 export const getMedicationInventoryFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: MedicationQueryInput) => data)
+  .inputValidator(medicationQuerySchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -100,12 +131,12 @@ export async function getExpiringMedicationsList(
     if (targetFarmIds.length === 0) return []
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   return getExpiringMedications(db, targetFarmIds, days)
 }
 
 export const getExpiringMedicationsFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: ExpiringMedicationsInput) => data)
+  .inputValidator(expiringMedicationsSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -133,12 +164,12 @@ export async function getLowStockMedicationsList(
     if (targetFarmIds.length === 0) return []
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   return getLowStockMedications(db, targetFarmIds)
 }
 
 export const getLowStockMedicationsFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: MedicationQueryInput) => data)
+  .inputValidator(medicationQuerySchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -159,7 +190,7 @@ export async function createMedication(
 
   await verifyFarmAccess(userId, input.farmId)
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   const id = await insertMedicationInventory(db, {
     farmId: input.farmId,
@@ -174,7 +205,7 @@ export async function createMedication(
 }
 
 export const createMedicationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: MedicationCreateInput) => data)
+  .inputValidator(medicationCreateSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -197,7 +228,7 @@ export async function updateMedicationRecord(
     })
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getMedicationInventoryById(db, id)
@@ -230,7 +261,7 @@ export async function updateMedicationRecord(
 }
 
 export const updateMedicationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: MedicationUpdateInput) => data)
+  .inputValidator(medicationUpdateSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -242,7 +273,7 @@ export const updateMedicationFn = createServerFn({ method: 'POST' })
   })
 
 export async function deleteMedicationRecord(userId: string, id: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getMedicationInventoryById(db, id)
@@ -264,7 +295,7 @@ export async function deleteMedicationRecord(userId: string, id: string) {
 }
 
 export const deleteMedicationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: MedicationDeleteInput) => data)
+  .inputValidator(medicationDeleteSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -283,7 +314,7 @@ export async function useMedicationRecord(
     })
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getMedicationInventoryById(db, id)
@@ -313,7 +344,7 @@ export async function useMedicationRecord(
 }
 
 export const useMedicationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: UseMedicationInput) => data)
+  .inputValidator(useMedicationSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -332,7 +363,7 @@ export async function addMedicationStockRecord(
     })
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getMedicationInventoryById(db, id)
@@ -355,7 +386,7 @@ export async function addMedicationStockRecord(
 }
 
 export const addMedicationStockFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: AddMedicationStockInput) => data)
+  .inputValidator(addMedicationStockSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()

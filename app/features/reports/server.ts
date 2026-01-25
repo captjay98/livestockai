@@ -182,7 +182,7 @@ export const getProfitLossReport = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     const dateRange =
       data.dateRangeType === 'custom' && data.startDate && data.endDate
@@ -245,7 +245,7 @@ export const getInventoryReport = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       const batchData = await getBatchData(db, data.farmId)
@@ -315,7 +315,7 @@ export const getSalesReport = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     const dateRange =
       data.dateRangeType === 'custom' && data.startDate && data.endDate
@@ -386,7 +386,7 @@ export const getFeedReport = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     const dateRange =
       data.dateRangeType === 'custom' && data.startDate && data.endDate
@@ -463,7 +463,7 @@ export const getEggReport = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     const dateRange =
       data.dateRangeType === 'custom' && data.startDate && data.endDate
@@ -550,7 +550,7 @@ export const saveReportConfig = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
 
@@ -582,7 +582,7 @@ export const saveReportConfig = createServerFn({ method: 'POST' })
 export const getReportConfig = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       const config = await getReportConfigById(db, data.id)
@@ -602,7 +602,7 @@ export const getReportConfig = createServerFn({ method: 'GET' })
 export const getReportConfigs = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       return await getReportConfigsByFarm(db, data.farmId)
@@ -633,7 +633,7 @@ export const updateReportConfigFn = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       await updateReportConfig(db, data.id, {
@@ -659,7 +659,7 @@ export const updateReportConfigFn = createServerFn({ method: 'POST' })
 export const deleteReportConfigFn = createServerFn({ method: 'POST' })
   .inputValidator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       await deleteReportConfig(db, data.id)

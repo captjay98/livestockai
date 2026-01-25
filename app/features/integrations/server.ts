@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import { AppError } from '~/lib/errors'
 
 /**
@@ -15,7 +16,7 @@ import { AppError } from '~/lib/errors'
  * @returns A promise that resolves to the result of sending the email.
  */
 export const testEmailFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { to: string }) => data)
+  .inputValidator(z.object({ to: z.string().email() }))
   .handler(async ({ data }) => {
     try {
       const { requireAuth } = await import('../auth/server-middleware')
@@ -39,7 +40,7 @@ export const testEmailFn = createServerFn({ method: 'POST' })
  * @returns A promise that resolves to the result of sending the SMS.
  */
 export const testSMSFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { to: string }) => data)
+  .inputValidator(z.object({ to: z.string().min(1) }))
   .handler(async ({ data }) => {
     try {
       const { requireAuth } = await import('../auth/server-middleware')
@@ -63,8 +64,9 @@ export const testSMSFn = createServerFn({ method: 'POST' })
  *
  * @returns A promise that resolves to the integration status configuration.
  */
-export const getIntegrationStatusFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
+export const getIntegrationStatusFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({}))
+  .handler(async () => {
     try {
       const { requireAuth } = await import('../auth/server-middleware')
       await requireAuth()
@@ -77,5 +79,4 @@ export const getIntegrationStatusFn = createServerFn({ method: 'GET' }).handler(
         cause: error,
       })
     }
-  },
-)
+  })

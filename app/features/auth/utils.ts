@@ -1,4 +1,5 @@
 import { AppError } from '~/lib/errors'
+import { logAndThrow } from '~/lib/logger'
 
 /**
  * Check if user has access to a specific farm
@@ -8,7 +9,7 @@ export async function checkFarmAccess(
   farmId: string,
 ): Promise<boolean> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     // Get user role
     const user = await db
       .selectFrom('users')
@@ -31,8 +32,7 @@ export async function checkFarmAccess(
 
     return !!assignment
   } catch (error) {
-    console.error('Error checking farm access:', error)
-    return false
+    logAndThrow('checkFarmAccess', error, 'DATABASE_ERROR')
   }
 }
 
@@ -41,7 +41,7 @@ export async function checkFarmAccess(
  */
 export async function getUserFarms(userId: string): Promise<Array<string>> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     // Get user role
     const user = await db
       .selectFrom('users')
@@ -66,8 +66,7 @@ export async function getUserFarms(userId: string): Promise<Array<string>> {
 
     return assignments.map((a) => a.farmId)
   } catch (error) {
-    console.error('Error getting user farms:', error)
-    return []
+    logAndThrow('getUserFarms', error, 'DATABASE_ERROR')
   }
 }
 
@@ -81,7 +80,7 @@ export async function assignUserToFarm(
   role: 'owner' | 'manager' | 'viewer' = 'viewer',
 ): Promise<boolean> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     // Check if admin user is actually an admin
     const adminUser = await db
       .selectFrom('users')
@@ -124,8 +123,8 @@ export async function assignUserToFarm(
 
     return true
   } catch (error) {
-    console.error('Error assigning user to farm:', error)
-    return false
+    if (error instanceof AppError) throw error
+    logAndThrow('assignUserToFarm', error, 'DATABASE_ERROR')
   }
 }
 
@@ -138,7 +137,7 @@ export async function removeUserFromFarm(
   farmId: string,
 ): Promise<boolean> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     // Check if admin user is actually an admin
     const adminUser = await db
       .selectFrom('users')
@@ -161,8 +160,8 @@ export async function removeUserFromFarm(
 
     return true
   } catch (error) {
-    console.error('Error removing user from farm:', error)
-    return false
+    if (error instanceof AppError) throw error
+    logAndThrow('removeUserFromFarm', error, 'DATABASE_ERROR')
   }
 }
 
@@ -174,7 +173,7 @@ export const verifyFarmAccess = checkFarmAccess
  */
 export async function isAdmin(userId: string): Promise<boolean> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const user = await db
       .selectFrom('users')
       .select(['role'])
@@ -183,8 +182,7 @@ export async function isAdmin(userId: string): Promise<boolean> {
 
     return user?.role === 'admin'
   } catch (error) {
-    console.error('Error checking admin status:', error)
-    return false
+    logAndThrow('isAdmin', error, 'DATABASE_ERROR')
   }
 }
 
@@ -196,7 +194,7 @@ export async function getUserFarmRole(
   farmId: string,
 ): Promise<'owner' | 'manager' | 'viewer' | null> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const assignment = await db
       .selectFrom('user_farms')
       .select(['role'])
@@ -208,8 +206,7 @@ export async function getUserFarmRole(
       (assignment?.role as 'owner' | 'manager' | 'viewer' | undefined) ?? null
     )
   } catch (error) {
-    console.error('Error getting user farm role:', error)
-    return null
+    logAndThrow('getUserFarmRole', error, 'DATABASE_ERROR')
   }
 }
 
@@ -220,7 +217,7 @@ export async function getUserFarmsWithRoles(
   userId: string,
 ): Promise<Array<{ farmId: string; role: 'owner' | 'manager' | 'viewer' }>> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const user = await db
       .selectFrom('users')
       .select(['role'])
@@ -247,8 +244,7 @@ export async function getUserFarmsWithRoles(
       role: a.role as 'owner' | 'manager' | 'viewer',
     }))
   } catch (error) {
-    console.error('Error getting user farms with roles:', error)
-    return []
+    logAndThrow('getUserFarmsWithRoles', error, 'DATABASE_ERROR')
   }
 }
 
@@ -332,7 +328,7 @@ export async function hasPermission(
   permission: Permission,
 ): Promise<boolean> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     // Check if user is admin (admins have all permissions)
     const user = await db
       .selectFrom('users')
@@ -349,8 +345,7 @@ export async function hasPermission(
 
     return roleHasPermission(farmRole, permission)
   } catch (error) {
-    console.error('Error checking permission:', error)
-    return false
+    logAndThrow('hasPermission', error, 'DATABASE_ERROR')
   }
 }
 
@@ -392,7 +387,7 @@ export async function getUserPermissions(
   farmId: string,
 ): Promise<Array<Permission>> {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     // Check if user is admin
     const user = await db
       .selectFrom('users')
@@ -409,7 +404,6 @@ export async function getUserPermissions(
 
     return ROLE_PERMISSIONS[farmRole]
   } catch (error) {
-    console.error('Error getting user permissions:', error)
-    return []
+    logAndThrow('getUserPermissions', error, 'DATABASE_ERROR')
   }
 }

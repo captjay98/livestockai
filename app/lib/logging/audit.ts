@@ -43,7 +43,8 @@ export async function logAudit({
   ipAddress,
 }: AuditLogParams) {
   try {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     // If userName not provided, fetch it from the database
     let resolvedUserName = userName
@@ -111,7 +112,8 @@ export async function getAuditLogs(
   _userId: string, // Admin checking
   query: AuditLogQuery = {},
 ): Promise<AuditLogResult> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { sql } = await import('kysely')
   // Ideally verify admin access here, but usually page loader handles permissions.
 

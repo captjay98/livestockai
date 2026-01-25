@@ -56,21 +56,23 @@ const updateRoleSchema = z.object({
  * @internal Restricted to administrative context.
  * @returns A promise resolving to a list of users with their details and ban status.
  */
-export const listUsers = createServerFn({ method: 'GET' }).handler(async () => {
-  const { requireAdmin } = await import('../auth/server-middleware')
-  const { db } = await import('~/lib/db')
+export const listUsers = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({}))
+  .handler(async () => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
-  try {
-    await requireAdmin()
-    return await selectAllUsers(db)
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to list users',
-      cause: error,
-    })
-  }
-})
+    try {
+      await requireAdmin()
+      return await selectAllUsers(db)
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to list users',
+        cause: error,
+      })
+    }
+  })
 
 /**
  * Get a single user by ID (admin only).
@@ -80,10 +82,10 @@ export const listUsers = createServerFn({ method: 'GET' }).handler(async () => {
  * @throws {Error} If the user is not found.
  */
 export const getUser = createServerFn({ method: 'GET' })
-  .inputValidator((data: { userId: string }) => userIdSchema.parse(data))
+  .inputValidator(userIdSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       await requireAdmin()
@@ -116,13 +118,10 @@ export const getUser = createServerFn({ method: 'GET' })
  * @throws {Error} If the email already exists.
  */
 export const createUser = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof createUserSchema>) =>
-    createUserSchema.parse(data),
-  )
+  .inputValidator(createUserSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { auth } = await import('../auth/config')
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       await requireAdmin()
@@ -143,13 +142,13 @@ export const createUser = createServerFn({ method: 'POST' })
         })
       }
 
-      const result = await auth.api.createUser({
-        body: {
-          email: data.email,
-          password: data.password,
-          name: data.name,
-          role: data.role,
-        },
+      // Use database helper to create user with auth
+      const { createUserWithAuth } = await import('~/lib/db/seeds/helpers')
+      const result = await createUserWithAuth(db, {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        role: data.role,
       })
 
       return result
@@ -169,12 +168,9 @@ export const createUser = createServerFn({ method: 'POST' })
  * @returns A promise resolving to a success indicator.
  */
 export const setUserPassword = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof setPasswordSchema>) =>
-    setPasswordSchema.parse(data),
-  )
+  .inputValidator(setPasswordSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { auth } = await import('../auth/config')
 
     try {
       await requireAdmin()
@@ -186,12 +182,17 @@ export const setUserPassword = createServerFn({ method: 'POST' })
         })
       }
 
-      await auth.api.setUserPassword({
-        body: {
-          userId: data.userId,
-          newPassword: data.newPassword,
-        },
-      })
+      // Update password in account table
+      const { hashPassword } = await import('~/lib/db/seeds/helpers')
+      const { getDb } = await import('~/lib/db'); const db = await getDb()
+      const passwordHash = await hashPassword(data.newPassword)
+
+      await db
+        .updateTable('account')
+        .set({ password: passwordHash })
+        .where('userId', '=', data.userId)
+        .where('providerId', '=', 'credential')
+        .execute()
 
       return { success: true }
     } catch (error) {
@@ -211,12 +212,10 @@ export const setUserPassword = createServerFn({ method: 'POST' })
  * @throws {Error} If attempting to ban self or another admin.
  */
 export const banUser = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof banUserSchema>) =>
-    banUserSchema.parse(data),
-  )
+  .inputValidator(banUserSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       const { session } = await requireAdmin()
@@ -268,10 +267,10 @@ export const banUser = createServerFn({ method: 'POST' })
  * @returns A promise resolving to a success indicator.
  */
 export const unbanUser = createServerFn({ method: 'POST' })
-  .inputValidator((data: { userId: string }) => userIdSchema.parse(data))
+  .inputValidator(userIdSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       await requireAdmin()
@@ -296,10 +295,10 @@ export const unbanUser = createServerFn({ method: 'POST' })
  * @throws {Error} If attempting to delete self, another admin, or a sole farm owner.
  */
 export const removeUser = createServerFn({ method: 'POST' })
-  .inputValidator((data: { userId: string }) => userIdSchema.parse(data))
+  .inputValidator(userIdSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       const { session } = await requireAdmin()
@@ -352,12 +351,10 @@ export const removeUser = createServerFn({ method: 'POST' })
  * @throws {Error} If attempting to change own role.
  */
 export const updateUserRole = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof updateRoleSchema>) =>
-    updateRoleSchema.parse(data),
-  )
+  .inputValidator(updateRoleSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
 
     try {
       const { session } = await requireAdmin()

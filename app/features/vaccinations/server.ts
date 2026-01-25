@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import { mapSortColumnToDbColumn } from './service'
 import type { PaginatedResult } from '~/lib/types'
 import type {
@@ -134,7 +135,7 @@ export async function createVaccination(
   farmId: string,
   input: CreateVaccinationInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { validateVaccinationData } =
     await import('~/features/vaccinations/service')
@@ -206,7 +207,7 @@ export async function createTreatment(
   farmId: string,
   input: CreateTreatmentInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { validateTreatmentData } =
     await import('~/features/vaccinations/service')
@@ -322,7 +323,18 @@ export async function getHealthRecordsPaginated(
  * Server function to get paginated health records.
  */
 export const getHealthRecordsPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: PaginatedQuery) => data)
+  .inputValidator(
+    z.object({
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().max(100).optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      farmId: z.string().uuid().optional(),
+      batchId: z.string().uuid().optional(),
+      type: z.enum(['vaccination', 'treatment']).optional(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -357,7 +369,7 @@ export async function getUpcomingVaccinations(
       if (targetFarmIds.length === 0) return []
     }
 
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     return await getUpcoming(db, targetFarmIds, daysAhead)
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -391,7 +403,7 @@ export async function getOverdueVaccinations(userId: string, farmId?: string) {
       if (targetFarmIds.length === 0) return []
     }
 
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     return await getOverdue(db, targetFarmIds)
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -434,7 +446,7 @@ export async function updateVaccination(
   recordId: string,
   input: UpdateVaccinationInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { validateVaccinationUpdateData } =
     await import('~/features/vaccinations/service')
@@ -515,7 +527,7 @@ export async function deleteVaccination(
   userId: string,
   recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { getVaccinationById, deleteVaccination: deleteRecord } =
     await import('~/features/vaccinations/repository')
@@ -550,7 +562,7 @@ export async function deleteVaccination(
  * Server function to delete a vaccination record.
  */
 export const deleteVaccinationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string }) => data)
+  .inputValidator(z.object({ recordId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -569,7 +581,7 @@ export async function updateTreatment(
   recordId: string,
   input: UpdateTreatmentInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { validateTreatmentUpdateData } =
     await import('~/features/vaccinations/service')
@@ -653,7 +665,7 @@ export async function deleteTreatment(
   userId: string,
   recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { getTreatmentById, deleteTreatment: deleteRecord } =
     await import('~/features/vaccinations/repository')
@@ -688,7 +700,7 @@ export async function deleteTreatment(
  * Server function to delete a treatment record.
  */
 export const deleteTreatmentFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string }) => data)
+  .inputValidator(z.object({ recordId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()

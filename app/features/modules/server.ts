@@ -4,6 +4,7 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 
 import { DEFAULT_MODULES_BY_FARM_TYPE, MODULE_METADATA } from './constants'
 import {
@@ -22,6 +23,36 @@ import {
 import type { FarmModule, LivestockType, ModuleKey } from './types'
 import { AppError } from '~/lib/errors'
 
+// Zod validation schemas
+const getFarmModulesSchema = z.object({
+  farmId: z.string().uuid(),
+})
+
+const toggleModuleSchema = z.object({
+  farmId: z.string().uuid(),
+  moduleKey: z.enum([
+    'poultry',
+    'aquaculture',
+    'cattle',
+    'goats',
+    'sheep',
+    'bees',
+  ]),
+  enabled: z.boolean(),
+})
+
+const canDisableModuleSchema = z.object({
+  farmId: z.string().uuid(),
+  moduleKey: z.enum([
+    'poultry',
+    'aquaculture',
+    'cattle',
+    'goats',
+    'sheep',
+    'bees',
+  ]),
+})
+
 // Repository layer
 
 // Service layer
@@ -35,7 +66,7 @@ import { AppError } from '~/lib/errors'
 export async function getFarmModules(
   farmId: string,
 ): Promise<Array<FarmModule>> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     return await selectFarmModules(db, farmId)
@@ -74,7 +105,7 @@ export async function createDefaultModules(
     throw new AppError('VALIDATION_ERROR', { message: validationError })
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     // Get default modules for this farm type (empty array for unknown types)
@@ -121,7 +152,7 @@ export async function toggleModule(
     throw new AppError('VALIDATION_ERROR', { message: validationError })
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     await upsertFarmModule(db, farmId, moduleKey, enabled)
@@ -147,7 +178,7 @@ export async function canDisableModule(
     throw new AppError('VALIDATION_ERROR', { message: validationError })
   }
 
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     // Get livestock types for this module
@@ -175,15 +206,10 @@ export async function canDisableModule(
 // Server functions for client-side calls
 
 /**
- * Input type for getFarmModulesFn
- */
-type GetFarmModulesInput = { farmId: string }
-
-/**
  * Server function to get farm modules (with auth).
  */
 export const getFarmModulesFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: GetFarmModulesInput) => data)
+  .inputValidator(getFarmModulesSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const { checkFarmAccess } = await import('../auth/utils')
@@ -199,19 +225,10 @@ export const getFarmModulesFn = createServerFn({ method: 'GET' })
   })
 
 /**
- * Input type for toggleModuleFn
- */
-type ToggleModuleInput = {
-  farmId: string
-  moduleKey: ModuleKey
-  enabled: boolean
-}
-
-/**
  * Server function to toggle a module (with auth and validation).
  */
 export const toggleModuleFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: ToggleModuleInput) => data)
+  .inputValidator(toggleModuleSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const { checkFarmAccess } = await import('../auth/utils')
@@ -258,15 +275,10 @@ export const toggleModuleFn = createServerFn({ method: 'POST' })
   })
 
 /**
- * Input type for canDisableModuleFn
- */
-type CanDisableModuleInput = { farmId: string; moduleKey: ModuleKey }
-
-/**
  * Server function to check if a module can be disabled (with auth).
  */
 export const canDisableModuleFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: CanDisableModuleInput) => data)
+  .inputValidator(canDisableModuleSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const { checkFarmAccess } = await import('../auth/utils')

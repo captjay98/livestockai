@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import { validateEggCollectionData, validateUpdateData } from './service'
 import {
   deleteEggCollection,
@@ -58,7 +59,7 @@ export async function createEggRecord(
   farmId: string,
   input: CreateEggRecordInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -109,7 +110,16 @@ export async function createEggRecord(
 // Server function for client-side calls
 export const createEggRecordFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { farmId: string; record: CreateEggRecordInput }) => data,
+    z.object({
+      farmId: z.string().uuid(),
+      record: z.object({
+        batchId: z.string().uuid(),
+        date: z.coerce.date(),
+        quantityCollected: z.number().int().nonnegative(),
+        quantityBroken: z.number().int().nonnegative(),
+        quantitySold: z.number().int().nonnegative(),
+      }),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -125,7 +135,7 @@ export async function deleteEggRecord(
   farmId: string,
   recordId: string,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -153,7 +163,9 @@ export async function deleteEggRecord(
 
 // Server function for client-side calls
 export const deleteEggRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; recordId: string }) => data)
+  .inputValidator(
+    z.object({ farmId: z.string().uuid(), recordId: z.string().uuid() }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -187,7 +199,7 @@ export async function updateEggRecord(
   recordId: string,
   data: UpdateEggRecordInput,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -231,7 +243,14 @@ export async function updateEggRecord(
 
 export const updateEggRecordFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { recordId: string; data: UpdateEggRecordInput }) => data,
+    z.object({
+      recordId: z.string().uuid(),
+      data: z.object({
+        quantityCollected: z.number().int().nonnegative().optional(),
+        quantityBroken: z.number().int().nonnegative().optional(),
+        quantitySold: z.number().int().nonnegative().optional(),
+      }),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -256,7 +275,7 @@ export async function getEggRecords(
     endDate?: Date
   },
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
@@ -298,7 +317,7 @@ export async function getEggRecordsForBatch(
   farmId: string,
   batchId: string,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -315,7 +334,7 @@ export async function getEggRecordsForBatch(
 }
 
 export async function getEggRecordsForFarm(userId: string, farmId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -339,7 +358,7 @@ export async function getEggRecordsForFarm(userId: string, farmId: string) {
  * @returns Summary metrics including total collected and current stock
  */
 export async function getEggRecordsSummary(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
@@ -411,7 +430,7 @@ export async function calculateLayingPercentage(
   batchId: string,
   date?: Date,
 ): Promise<number | null> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -458,7 +477,7 @@ export async function getEggInventory(
   farmId: string,
   batchId?: string,
 ): Promise<number> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -485,7 +504,7 @@ export async function getEggRecordsPaginated(
   userId: string,
   query: EggQuery = {},
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -510,7 +529,16 @@ export async function getEggRecordsPaginated(
  * Server function to retrieve paginated egg production records.
  */
 export const getEggRecordsPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: EggQuery) => data)
+  .inputValidator(
+    z.object({
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().max(100).optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      batchId: z.string().uuid().optional(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -522,14 +550,14 @@ export const getEggRecordsPaginatedFn = createServerFn({ method: 'GET' })
  */
 export const getEggDataForFarm = createServerFn({ method: 'GET' })
   .inputValidator(
-    (data: {
-      farmId?: string | null
-      page?: number
-      pageSize?: number
-      sortBy?: string
-      sortOrder?: 'asc' | 'desc'
-      search?: string
-    }) => data,
+    z.object({
+      farmId: z.string().uuid().nullish(),
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().max(100).optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -552,7 +580,7 @@ export const getEggDataForFarm = createServerFn({ method: 'GET' })
     ])
 
     const batches = allBatches.filter(
-      (b: any) => b.status === 'active' && b.livestockType === 'poultry',
+      (b) => b.status === 'active' && b.livestockType === 'poultry',
     )
 
     return {
@@ -567,14 +595,14 @@ export const getEggDataForFarm = createServerFn({ method: 'GET' })
  */
 export const createEggRecordAction = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: {
-      farmId: string
-      batchId: string
-      date: string
-      quantityCollected: number
-      quantityBroken: number
-      quantitySold: number
-    }) => data,
+    z.object({
+      farmId: z.string().uuid(),
+      batchId: z.string().uuid(),
+      date: z.string(),
+      quantityCollected: z.number().int().nonnegative(),
+      quantityBroken: z.number().int().nonnegative(),
+      quantitySold: z.number().int().nonnegative(),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -592,4 +620,26 @@ export const createEggRecordAction = createServerFn({ method: 'POST' })
       },
     })
     return { success: true, id: result }
+  })
+
+/**
+ * Server function to get active poultry batches for egg collection dialog
+ */
+export const getPoultryBatchesForEggsFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const { verifyFarmAccess } = await import('~/features/auth/utils')
+
+    const session = await requireAuth()
+    await verifyFarmAccess(session.user.id, data.farmId)
+
+    return db
+      .selectFrom('batches')
+      .select(['id', 'species', 'currentQuantity'])
+      .where('farmId', '=', data.farmId)
+      .where('livestockType', '=', 'poultry')
+      .where('status', '=', 'active')
+      .execute()
   })

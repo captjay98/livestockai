@@ -3,6 +3,7 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import {
   deleteTaskCompletion,
   deleteTask as deleteTaskFromDb,
@@ -30,7 +31,7 @@ export async function getTasks(
   farmId: string,
   frequency?: 'daily' | 'weekly' | 'monthly',
 ): Promise<Array<TaskWithStatus>> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -71,7 +72,7 @@ export async function completeTask(
   userId: string,
   taskId: string,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -100,7 +101,7 @@ export async function completeTask(
  * Server function to complete a task.
  */
 export const completeTaskFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { taskId: string }) => data)
+  .inputValidator(z.object({ taskId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -114,7 +115,7 @@ export async function uncompleteTask(
   userId: string,
   taskId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -143,7 +144,7 @@ export async function uncompleteTask(
  * Server function to uncomplete a task.
  */
 export const uncompleteTaskFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { taskId: string }) => data)
+  .inputValidator(z.object({ taskId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -158,7 +159,7 @@ export async function createTask(
   farmId: string,
   input: CreateTaskInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -190,7 +191,16 @@ export async function createTask(
  * Server function to create a task.
  */
 export const createTaskFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { farmId: string; data: CreateTaskInput }) => data)
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid(),
+      data: z.object({
+        title: z.string().min(3),
+        description: z.string().optional().nullable(),
+        frequency: z.enum(['daily', 'weekly', 'monthly']),
+      }),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -204,7 +214,7 @@ export async function deleteTask(
   userId: string,
   taskId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -230,7 +240,7 @@ export async function deleteTask(
  * Server function to delete a task.
  */
 export const deleteTaskFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { taskId: string }) => data)
+  .inputValidator(z.object({ taskId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -241,7 +251,7 @@ export const deleteTaskFn = createServerFn({ method: 'POST' })
  * Seed default tasks for a farm.
  */
 export async function seedDefaultTasks(farmId: string): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     for (const task of DEFAULT_TASKS) {

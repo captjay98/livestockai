@@ -1,6 +1,6 @@
 import { sql } from 'kysely'
 import { addDays, differenceInDays } from 'date-fns'
-
+import { z } from 'zod'
 import { createServerFn } from '@tanstack/react-start'
 
 interface ProjectionResult {
@@ -15,7 +15,7 @@ interface ProjectionResult {
 export async function calculateBatchProjection(
   batchId: string,
 ): Promise<ProjectionResult | null> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const batch = await db
     .selectFrom('batches')
     .select([
@@ -173,7 +173,7 @@ export async function calculateBatchProjection(
 }
 
 export const getBatchProjectionFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { batchId: string }) => data)
+  .inputValidator(z.object({ batchId: z.string().uuid() }))
   .handler(async ({ data }) => {
     return calculateBatchProjection(data.batchId)
   })

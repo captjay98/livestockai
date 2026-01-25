@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import type {
   CreateExpenseInput,
   ExpenseQuery,
@@ -34,7 +35,7 @@ export async function createExpense(
   userId: string,
   input: CreateExpenseInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   // Import service functions for business logic
@@ -125,7 +126,32 @@ export async function createExpense(
  * Server function to create an expense record.
  */
 export const createExpenseFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { expense: CreateExpenseInput }) => data)
+  .inputValidator(
+    z.object({
+      expense: z.object({
+        farmId: z.string().uuid(),
+        category: z.enum([
+          'feed',
+          'medicine',
+          'equipment',
+          'utilities',
+          'labor',
+          'transport',
+          'livestock',
+          'livestock_chicken',
+          'livestock_fish',
+          'maintenance',
+          'marketing',
+          'other',
+        ]),
+        description: z.string(),
+        amount: z.number().nonnegative(),
+        date: z.coerce.date(),
+        supplierId: z.string().uuid().optional(),
+        notes: z.string().optional(),
+      }),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -140,7 +166,7 @@ export const createExpenseFn = createServerFn({ method: 'POST' })
  * @throws {Error} If expense not found or user lacks permission
  */
 export async function deleteExpense(userId: string, expenseId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { deleteExpense: deleteExpenseRecord, getExpenseFarmId } =
     await import('./repository')
@@ -179,7 +205,7 @@ export async function deleteExpense(userId: string, expenseId: string) {
  * Server function to delete an expense record.
  */
 export const deleteExpenseFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { expenseId: string }) => data)
+  .inputValidator(z.object({ expenseId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -200,7 +226,7 @@ export async function updateExpense(
   expenseId: string,
   data: UpdateExpenseInput,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { validateUpdateData } = await import('./service')
   const { updateExpense: updateExpenseRecord, getExpenseFarmId } =
@@ -260,7 +286,32 @@ export async function updateExpense(
  */
 export const updateExpenseFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { expenseId: string; data: UpdateExpenseInput }) => data,
+    z.object({
+      expenseId: z.string().uuid(),
+      data: z.object({
+        category: z
+          .enum([
+            'feed',
+            'medicine',
+            'equipment',
+            'utilities',
+            'labor',
+            'transport',
+            'livestock',
+            'livestock_chicken',
+            'livestock_fish',
+            'maintenance',
+            'marketing',
+            'other',
+          ])
+          .optional(),
+        description: z.string().optional(),
+        amount: z.number().nonnegative().optional(),
+        date: z.coerce.date().optional(),
+        supplierId: z.string().uuid().optional(),
+        notes: z.string().optional(),
+      }),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -304,7 +355,7 @@ export async function getExpenses(
       if (targetFarmIds.length === 0) return []
     }
 
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     return await getExpensesByFarm(
       db,
       targetFarmIds,
@@ -350,7 +401,7 @@ export async function getExpensesForFarm(
   try {
     await verifyFarmAccess(userId, farmId)
 
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const expenses = await getExpensesByFarm(db, [farmId], {
       startDate: options?.startDate,
       endDate: options?.endDate,
@@ -413,7 +464,7 @@ export async function getExpensesSummary(
       }
     }
 
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const results = await getExpensesSummaryFromDb(db, targetFarmIds, {
       startDate: options?.startDate,
       endDate: options?.endDate,
@@ -454,7 +505,7 @@ export async function getTotalExpenses(
   try {
     await verifyFarmAccess(userId, farmId)
 
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     const total = await getTotalExpensesFromDb(db, [farmId], {
       startDate: options?.startDate,
       endDate: options?.endDate,
@@ -523,7 +574,7 @@ export async function getExpensesPaginated(
       }
     }
 
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db'); const db = await getDb()
     return await getExpensesPaginatedFromDb(db, targetFarmIds, {
       page: query.page,
       pageSize: query.pageSize,
@@ -546,10 +597,43 @@ export async function getExpensesPaginated(
  * Server function to retrieve paginated expense records.
  */
 export const getExpensesPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: ExpenseQuery) => data)
+  .inputValidator(
+    z.object({
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().max(100).optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      farmId: z.string().uuid().optional(),
+      category: z.string().optional(),
+      startDate: z.coerce.date().optional(),
+      endDate: z.coerce.date().optional(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
     return getExpensesPaginated(session.user.id, data)
   })
+
+/**
+ * Server function to retrieve expenses summary by category.
+ */
+export const getExpensesSummaryFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid().optional(),
+      startDate: z.coerce.date().optional(),
+      endDate: z.coerce.date().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getExpensesSummary(session.user.id, data.farmId, {
+      startDate: data.startDate,
+      endDate: data.endDate,
+    })
+  })
+
 export type { CreateExpenseInput, UpdateExpenseInput } from './types'

@@ -103,7 +103,7 @@ export function validateSupplierSearch(
 export async function createSupplier(
   input: CreateSupplierInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     // Validate input
@@ -137,7 +137,7 @@ export const createSupplierFn = createServerFn({ method: 'POST' })
  * Retrieve all suppliers in alphabetical order.
  */
 export async function getSuppliers(): Promise<Array<SupplierRecord>> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     return await repository.selectAllSuppliers(db)
@@ -152,19 +152,19 @@ export async function getSuppliers(): Promise<Array<SupplierRecord>> {
 /**
  * Server function to retrieve all suppliers (unpaginated).
  */
-export const getSuppliersFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
+export const getSuppliersFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
+  .handler(async () => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
     return getSuppliers()
-  },
-)
+  })
 
 /**
  * Retrieve a single supplier record by its unique ID.
  */
 export async function getSupplierById(supplierId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     return await repository.selectSupplierById(db, supplierId)
@@ -183,7 +183,7 @@ export async function updateSupplier(
   supplierId: string,
   input: Partial<CreateSupplierInput>,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     // Validate input if provided
@@ -220,12 +220,11 @@ export const updateSupplierFn = createServerFn({ method: 'POST' })
  * Permanently remove a supplier record from the system.
  */
 export async function deleteSupplier(supplierId: string): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     await repository.deleteSupplier(db, supplierId)
   } catch (error) {
-    console.error('Failed to delete supplier:', error)
     if (String(error).includes('foreign key constraint')) {
       throw new AppError('VALIDATION_ERROR', {
         message: 'Cannot delete supplier with existing expenses',
@@ -254,7 +253,7 @@ export const deleteSupplierFn = createServerFn({ method: 'POST' })
  * Retrieve a supplier's profile along with a history of all tracked expenses (sourcing).
  */
 export async function getSupplierWithExpenses(supplierId: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     const supplier = await repository.selectSupplierById(db, supplierId)
@@ -285,7 +284,7 @@ export async function getSupplierWithExpenses(supplierId: string) {
  * Retrieve a paginated list of suppliers with search and classification filtering.
  */
 export async function getSuppliersPaginated(query: SupplierQuery = {}) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
 
   try {
     return await repository.selectSuppliersPaginated(db, query)

@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 
 export type { PaginatedResult }
@@ -69,7 +70,7 @@ export async function createWeightSample(
   farmId: string,
   input: CreateWeightSampleInput,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getBatchForWeightRecord, insertWeightSample } =
@@ -126,7 +127,7 @@ export async function getWeightSamplesForBatch(
   farmId: string,
   batchId: string,
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { getWeightSamplesByBatch } = await import('./repository')
 
@@ -143,7 +144,7 @@ export async function getWeightSamplesForBatch(
  * @returns Promise resolving to an array of weight records with batch and farm details
  */
 export async function getWeightSamplesForFarm(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { getWeightSamplesByFarm } = await import('./repository')
@@ -228,7 +229,7 @@ export async function calculateADG(
  * @returns Promise resolving to an array of growth alerts
  */
 export async function getGrowthAlerts(userId: string, farmId?: string) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { verifyFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { getActiveBatchesForAlerts } = await import('./repository')
@@ -297,7 +298,7 @@ export async function getWeightRecordsPaginated(
   userId: string,
   query: WeightQuery = {},
 ) {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { getWeightSamplesPaginated } = await import('./repository')
 
@@ -325,7 +326,17 @@ export async function getWeightRecordsPaginated(
  * Server function to retrieve paginated weight records.
  */
 export const getWeightRecordsPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: WeightQuery) => data)
+  .inputValidator(
+    z.object({
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().max(100).optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      farmId: z.string().uuid().optional(),
+      batchId: z.string().uuid().optional(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
@@ -364,7 +375,7 @@ export async function updateWeightSample(
   recordId: string,
   input: UpdateWeightSampleInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getWeightSampleById, updateWeightSample: updateRepo } =
@@ -434,7 +445,7 @@ export async function deleteWeightSample(
   userId: string,
   recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db'); const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getWeightSampleById, deleteWeightSample: deleteRepo } =
@@ -468,7 +479,7 @@ export async function deleteWeightSample(
  * Server function to delete a weight record.
  */
 export const deleteWeightSampleFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string }) => data)
+  .inputValidator(z.object({ recordId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()

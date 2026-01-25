@@ -49,7 +49,8 @@ export async function createFarm(
   data: CreateFarmData,
   creatorUserId?: string,
 ): Promise<string> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { createDefaultModules } = await import('~/features/modules/server')
 
   try {
@@ -89,7 +90,8 @@ export async function createFarm(
  * @returns Promise resolving to an array of all farms
  */
 export async function getFarms(): Promise<Array<FarmRecord>> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     return await getAllFarms(db)
@@ -111,7 +113,8 @@ export async function getFarms(): Promise<Array<FarmRecord>> {
 export async function getFarmsForUser(
   userId: string,
 ): Promise<Array<FarmRecord>> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('../auth/utils')
 
   try {
@@ -144,13 +147,13 @@ export async function getFarmsForUser(
  *
  * @returns Promise resolving to an array of farms
  */
-export const getFarmsForUserFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
+export const getFarmsForUserFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({}))
+  .handler(async () => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
     return getFarmsForUser(session.user.id)
-  },
-)
+  })
 
 /**
  * Retrieve a single farm by its ID, with a security check to ensure the user has access.
@@ -164,7 +167,8 @@ export async function getFarmById(
   farmId: string,
   userId: string,
 ): Promise<FarmRecord | null> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -191,7 +195,7 @@ export async function getFarmById(
  * @returns Promise resolving to the farm object
  */
 export const getFarmByIdFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) => data)
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
@@ -206,7 +210,8 @@ export async function updateFarmAction(
   userId: string,
   data: UpdateFarmData,
 ): Promise<FarmRecord | null> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -261,15 +266,24 @@ export async function updateFarmAction(
  * @param data - Farm ID and updated details
  * @returns Promise resolving to the updated farm object
  */
+const updateFarmSchema = z.object({
+  farmId: z.string().uuid(),
+  name: z.string().min(1).max(100),
+  location: z.string().min(1).max(200),
+  type: z.enum([
+    'poultry',
+    'aquaculture',
+    'mixed',
+    'cattle',
+    'goats',
+    'sheep',
+    'bees',
+    'multi',
+  ]),
+})
+
 export const updateFarmFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: {
-      farmId: string
-      name: string
-      location: string
-      type: 'poultry' | 'aquaculture' | 'mixed'
-    }) => data,
-  )
+  .inputValidator(updateFarmSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
@@ -288,7 +302,8 @@ export const updateFarmFn = createServerFn({ method: 'POST' })
  * @throws {Error} If the farm has dependent records
  */
 export async function deleteFarm(farmId: string): Promise<void> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     // Check for dependent records
@@ -342,7 +357,8 @@ export async function getFarmStats(
     amount: number
   }
 }> {
-  const { db } = await import('~/lib/db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -385,8 +401,25 @@ export async function getFarmStats(
  * @param data - Farm creation details
  * @returns Promise resolving to the new farm ID
  */
+const createFarmSchema = z.object({
+  name: z.string().min(1).max(100),
+  location: z.string().min(1).max(200),
+  type: z.enum([
+    'poultry',
+    'aquaculture',
+    'mixed',
+    'cattle',
+    'goats',
+    'sheep',
+    'bees',
+    'multi',
+  ]),
+  contactPhone: z.string().max(20).nullish(),
+  notes: z.string().max(500).nullish(),
+})
+
 export const createFarmFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: CreateFarmData) => data)
+  .inputValidator(createFarmSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
@@ -415,15 +448,14 @@ const updateRoleSchema = z.object({
  * Assign a user to a farm with a role (admin only)
  */
 export const assignUserToFarmFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof assignUserSchema>) =>
-    assignUserSchema.parse(data),
-  )
+  .inputValidator(assignUserSchema)
   .handler(async ({ data }) => {
     try {
       const { requireAdmin } = await import('../auth/server-middleware')
       await requireAdmin()
 
-      const { db } = await import('~/lib/db')
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
       // Validate role
       const roleError = validateFarmRole(data.role)
@@ -466,15 +498,14 @@ export const assignUserToFarmFn = createServerFn({ method: 'POST' })
  * Remove a user from a farm (admin only, with last owner protection)
  */
 export const removeUserFromFarmFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof removeUserSchema>) =>
-    removeUserSchema.parse(data),
-  )
+  .inputValidator(removeUserSchema)
   .handler(async ({ data }) => {
     try {
       const { requireAdmin } = await import('../auth/server-middleware')
       await requireAdmin()
 
-      const { db } = await import('~/lib/db')
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
       // Get the user's current role in this farm
       const assignment = await db
@@ -524,15 +555,14 @@ export const removeUserFromFarmFn = createServerFn({ method: 'POST' })
  * Update a user's role in a farm (admin only, with last owner protection)
  */
 export const updateUserFarmRoleFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof updateRoleSchema>) =>
-    updateRoleSchema.parse(data),
-  )
+  .inputValidator(updateRoleSchema)
   .handler(async ({ data }) => {
     try {
       const { requireAdmin } = await import('../auth/server-middleware')
       await requireAdmin()
 
-      const { db } = await import('~/lib/db')
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
       // Validate role
       const roleError = validateFarmRole(data.role)
@@ -594,15 +624,14 @@ export const updateUserFarmRoleFn = createServerFn({ method: 'POST' })
  * Get all users assigned to a farm (admin only)
  */
 export const getFarmMembersFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: { farmId: string }) =>
-    z.object({ farmId: z.string().uuid() }).parse(data),
-  )
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
     try {
       const { requireAdmin } = await import('../auth/server-middleware')
       await requireAdmin()
 
-      const { db } = await import('~/lib/db')
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
       return await getFarmMembers(db, data.farmId)
     } catch (error) {
@@ -619,30 +648,74 @@ export const getFarmMembersFn = createServerFn({ method: 'GET' })
  */
 export const getUserFarmsWithRolesFn = createServerFn({
   method: 'GET',
-}).handler(async () => {
-  try {
+})
+  .inputValidator(z.object({}))
+  .handler(async () => {
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      const session = await requireAuth()
+
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
+
+      // Check if user is admin
+      const isAdmin = await getIsAdmin(db, session.user.id)
+
+      if (isAdmin) {
+        // Admin gets all farms as owner
+        const farms = await getAllFarms(db)
+
+        return farms.map((f) => ({ ...f, farmRole: 'owner' as const }))
+      }
+
+      // Regular user gets their assigned farms
+      return await getUserFarmsWithRoles(db, session.user.id)
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to fetch user farms with roles',
+        cause: error,
+      })
+    }
+  })
+
+/**
+ * Server function to get all farm details for the farm detail page
+ */
+export const getFarmDetailsFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
+  .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
+    const { getBatches } = await import('~/features/batches/server')
+    const { getSalesForFarm } = await import('~/features/sales/server')
+    const { getExpensesForFarm } = await import('~/features/expenses/server')
+    const { getStructuresWithCounts } =
+      await import('~/features/structures/server')
+
     const session = await requireAuth()
 
-    const { db } = await import('~/lib/db')
+    const [
+      farm,
+      stats,
+      activeBatches,
+      recentSales,
+      recentExpenses,
+      structures,
+    ] = await Promise.all([
+      getFarmById(data.farmId, session.user.id),
+      getFarmStats(data.farmId, session.user.id),
+      getBatches(session.user.id, data.farmId, { status: 'active' }),
+      getSalesForFarm(session.user.id, data.farmId),
+      getExpensesForFarm(session.user.id, data.farmId),
+      getStructuresWithCounts(session.user.id, data.farmId),
+    ])
 
-    // Check if user is admin
-    const isAdmin = await getIsAdmin(db, session.user.id)
-
-    if (isAdmin) {
-      // Admin gets all farms as owner
-      const farms = await getAllFarms(db)
-
-      return farms.map((f) => ({ ...f, farmRole: 'owner' as const }))
+    return {
+      farm,
+      stats,
+      activeBatches,
+      recentSales,
+      recentExpenses,
+      structures,
     }
-
-    // Regular user gets their assigned farms
-    return await getUserFarmsWithRoles(db, session.user.id)
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to fetch user farms with roles',
-      cause: error,
-    })
-  }
-})
+  })
