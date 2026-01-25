@@ -1,17 +1,18 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import { Syringe } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { PaginatedQuery } from '~/features/vaccinations/types'
+import { getHealthDataForFarm } from '~/features/vaccinations/server'
 import { useFormatDate } from '~/features/settings'
 import { useTreatmentMode } from '~/features/vaccinations/use-treatment-mode'
-import { useHealthData } from '~/features/vaccinations/use-health-data'
 import { useFarm } from '~/features/farms/context'
 import { PageHeader } from '~/components/page-header'
 import { HealthAlerts, HealthFormDialog } from '~/components/vaccinations'
 import { DeleteHealthDialog } from '~/components/vaccinations/delete-dialog'
 import { VaccinationTabs } from '~/components/vaccinations/vaccination-tabs'
 import { HealthDataTable } from '~/components/vaccinations/health-data-table'
+import { VaccinationsSkeleton } from '~/components/vaccinations/vaccinations-skeleton'
 
 export const Route = createFileRoute('/_auth/vaccinations/')({
   validateSearch: (search: Record<string, unknown>): PaginatedQuery => {
@@ -39,21 +40,41 @@ export const Route = createFileRoute('/_auth/vaccinations/')({
       type: search.type ? (search.type as any) : 'all',
     }
   },
+  loaderDeps: ({ search }) => ({
+    farmId: null, // Will be handled by server function
+    page: search.page,
+    pageSize: search.pageSize,
+    sortBy: search.sortBy,
+    sortOrder: search.sortOrder,
+    search: search.search,
+    type: search.type,
+  }),
+  loader: async ({ deps }) => {
+    return getHealthDataForFarm({ data: deps })
+  },
+  pendingComponent: VaccinationsSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading vaccinations: {error.message}
+    </div>
+  ),
   component: VaccinationsPage,
 })
 
 function VaccinationsPage() {
+  const router = useRouter()
   const { t } = useTranslation(['vaccinations'])
   const { format: formatDate } = useFormatDate()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
+  // Get data from loader
+  const { paginatedRecords, batches, alerts } = Route.useLoaderData()
+
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
-  const { paginatedRecords, batches, alerts, isLoading, refetch } =
-    useHealthData(selectedFarmId || '', searchParams)
   const {
     dialogType,
     selectedRecord,
@@ -70,10 +91,10 @@ function VaccinationsPage() {
     navigate({ search: (prev) => ({ ...prev, ...updates }) })
   }
 
-  const handleSuccess = () => {
+  const handleSuccess = async () => {
     setDialogOpen(false)
     setDeleteOpen(false)
-    refetch()
+    await router.invalidate()
   }
 
   return (
@@ -96,12 +117,12 @@ function VaccinationsPage() {
         }
       />
 
-      {alerts && <HealthAlerts alerts={alerts} formatDate={formatDate} />}
+      <HealthAlerts alerts={alerts} formatDate={formatDate} />
 
       <HealthDataTable
         paginatedRecords={paginatedRecords}
         searchParams={searchParams}
-        isLoading={isLoading}
+        isLoading={false}
         onEdit={(record) => {
           openEditDialog(record)
           setDialogOpen(true)

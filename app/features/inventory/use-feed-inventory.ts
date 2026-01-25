@@ -1,53 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import {
   createFeedInventoryFn,
   deleteFeedInventoryFn,
-  getFeedInventoryFn,
   updateFeedInventoryFn,
 } from './feed-server'
-import type { FeedInventoryItem, FeedType } from './index'
+import type { FeedType } from './index'
 
 export function useFeedInventory(selectedFarmId: string | null) {
   const { t } = useTranslation(['inventory'])
-  const [feedInventory, setFeedInventory] = useState<Array<FeedInventoryItem>>(
-    [],
-  )
-  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const loadFeedData = async () => {
-    setIsLoading(true)
-    try {
-      const result = await getFeedInventoryFn({
-        data: { farmId: selectedFarmId || undefined },
-      })
-      setFeedInventory(result as Array<FeedInventoryItem>)
-    } catch (err) {
-      console.error('Failed to load feed inventory', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadFeedData()
-  }, [selectedFarmId])
 
   const createFeed = async (data: {
     feedType: FeedType
     quantityKg: number
     minThresholdKg: number
   }) => {
-    if (!selectedFarmId) throw new Error('No farm selected')
+    if (!selectedFarmId) {
+      toast.error('No farm selected')
+      return
+    }
     setIsSubmitting(true)
     try {
       await createFeedInventoryFn({
         data: { input: { farmId: selectedFarmId, ...data } },
       })
       toast.success(t('feed.recorded'))
-      await loadFeedData()
+      await router.invalidate() // Reload to refresh loader data
     } finally {
       setIsSubmitting(false)
     }
@@ -63,7 +45,7 @@ export function useFeedInventory(selectedFarmId: string | null) {
     setIsSubmitting(true)
     try {
       await updateFeedInventoryFn({ data: { id, input: data } })
-      await loadFeedData()
+      await router.invalidate() // Reload to refresh loader data
     } finally {
       setIsSubmitting(false)
     }
@@ -74,22 +56,14 @@ export function useFeedInventory(selectedFarmId: string | null) {
     try {
       await deleteFeedInventoryFn({ data: { id } })
       toast.success(t('feed.deleted'))
-      await loadFeedData()
+      await router.invalidate() // Reload to refresh loader data
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const lowStockCount = feedInventory.filter(
-    (f) => parseFloat(f.quantityKg) <= parseFloat(f.minThresholdKg),
-  ).length
-
   return {
-    feedInventory,
-    isLoading,
     isSubmitting,
-    lowStockCount,
-    refetch: loadFeedData,
     createFeed,
     updateFeed,
     deleteFeed,

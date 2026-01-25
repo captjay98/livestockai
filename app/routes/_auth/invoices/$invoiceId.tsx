@@ -1,13 +1,17 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
+import {
+  Link,
+  createFileRoute,
+  useNavigate,
+  useRouter,
+} from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ArrowLeft, Edit, Printer, Trash2 } from 'lucide-react'
 import {
-  deleteInvoice,
-  getInvoiceById,
-  updateInvoiceStatus,
+  deleteInvoiceFn,
+  getInvoiceByIdFn,
+  updateInvoiceStatusFn,
 } from '~/features/invoices/server'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import {
@@ -20,41 +24,15 @@ import {
 } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
 
-const fetchInvoice = createServerFn({ method: 'GET' })
-  .inputValidator((data: { invoiceId: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return getInvoiceById(session.user.id, data.invoiceId)
-  })
-
-const changeStatus = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { invoiceId: string; status: 'unpaid' | 'partial' | 'paid' }) =>
-      data,
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    await updateInvoiceStatus(session.user.id, data.invoiceId, data.status)
-  })
-
-const removeInvoice = createServerFn({ method: 'POST' })
-  .inputValidator((data: { invoiceId: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    await deleteInvoice(session.user.id, data.invoiceId)
-  })
-
 export const Route = createFileRoute('/_auth/invoices/$invoiceId')({
   component: InvoiceDetailPage,
   loader: async ({ params }) => {
-    return fetchInvoice({ data: { invoiceId: params.invoiceId } })
+    return getInvoiceByIdFn({ data: { invoiceId: params.invoiceId } })
   },
 })
 
 function InvoiceDetailPage() {
+  const router = useRouter()
   const { t } = useTranslation()
   const invoice = Route.useLoaderData()
   const navigate = useNavigate()
@@ -75,9 +53,11 @@ function InvoiceDetailPage() {
 
   const handleStatusChange = async (status: 'unpaid' | 'partial' | 'paid') => {
     try {
-      await changeStatus({ data: { invoiceId: params.invoiceId, status } })
+      await updateInvoiceStatusFn({
+        data: { invoiceId: params.invoiceId, status },
+      })
       toast.success(t('invoices.messages.statusUpdated'))
-      window.location.reload()
+      await router.invalidate()
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : t('invoices.messages.statusError'),
@@ -87,7 +67,7 @@ function InvoiceDetailPage() {
 
   const handleDeleteConfirm = async () => {
     try {
-      await removeInvoice({ data: { invoiceId: params.invoiceId } })
+      await deleteInvoiceFn({ data: { invoiceId: params.invoiceId } })
       toast.success(t('invoices.messages.deleted'))
       navigate({ to: '/invoices' })
     } catch (err) {

@@ -1,59 +1,22 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import {
-  createCustomerFn,
-  getCustomersPaginatedFn,
-  getTopCustomersFn,
-  updateCustomerFn,
-} from './server'
-import type {
-  CustomerRecord,
-  CustomerSearchParams,
-  PaginatedResult,
-} from './types'
-import type { TopCustomer } from '~/components/customers/top-customers-card'
+import { useRouter } from '@tanstack/react-router'
+import { createCustomerFn, updateCustomerFn } from './server'
+import type { CustomerRecord } from './types'
 import type { CustomerFormData } from '~/components/customers/customer-form-dialog'
 import { useFarm } from '~/features/farms/context'
 
-export function useCustomerActions(
-  setPaginatedCustomers: (data: PaginatedResult<CustomerRecord>) => void,
-  setTopCustomers: (data: Array<TopCustomer>) => void,
-  setIsLoading: (loading: boolean) => void,
-) {
+export function useCustomerActions() {
   const { t } = useTranslation(['customers'])
   const { selectedFarmId } = useFarm()
+  const router = useRouter()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
   const [selectedCustomer, setSelectedCustomer] =
     useState<CustomerRecord | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const loadData = async (searchParams: CustomerSearchParams) => {
-    setIsLoading(true)
-    try {
-      const [paginatedResult, topCustomersResult] = await Promise.all([
-        getCustomersPaginatedFn({
-          data: {
-            page: searchParams.page,
-            pageSize: searchParams.pageSize,
-            sortBy: searchParams.sortBy,
-            sortOrder: searchParams.sortOrder,
-            search: searchParams.q,
-            customerType: searchParams.customerType,
-          },
-        }),
-        getTopCustomersFn({ data: { limit: 5 } }),
-      ])
-      setPaginatedCustomers(paginatedResult)
-      setTopCustomers(topCustomersResult as Array<TopCustomer>)
-    } catch (err) {
-      console.error('Failed:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleCreateOpen = () => {
     setDialogMode('create')
@@ -102,7 +65,8 @@ export function useCustomerActions(
         )
       }
       setDialogOpen(false)
-      loadData({} as CustomerSearchParams) // Will be called with proper params from effect
+      // Invalidate router to trigger loader refetch
+      await router.invalidate()
     } finally {
       setIsSubmitting(false)
     }
@@ -117,6 +81,5 @@ export function useCustomerActions(
     handleCreateOpen,
     handleEditOpen,
     handleFormSubmit,
-    loadData,
   }
 }

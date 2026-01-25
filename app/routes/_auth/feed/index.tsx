@@ -1,10 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Plus, Wheat } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import type { FeedRecord } from '~/components/feed/feed-columns'
 import { validateFeedSearch } from '~/features/feed/validation'
-import { useFeedPage } from '~/features/feed/use-feed-page'
+import {
+  createFeedRecordFn,
+  deleteFeedRecordFn,
+  getFeedDataForFarm,
+  updateFeedRecordFn,
+} from '~/features/feed/server'
 import {
   useFormatCurrency,
   useFormatDate,
@@ -18,43 +24,58 @@ import { FeedFormDialog, FeedSummary } from '~/components/feed'
 import { DeleteFeedDialog } from '~/components/feed/delete-dialog'
 import { getFeedColumns } from '~/components/feed/feed-columns'
 import { FeedFilters } from '~/components/feed/feed-filters'
+import { FeedSkeleton } from '~/components/feed/feed-skeleton'
 
 export const Route = createFileRoute('/_auth/feed/')({
-  component: FeedPage,
   validateSearch: validateFeedSearch,
+  loaderDeps: ({ search }) => ({
+    farmId: search.farmId || undefined,
+    page: search.page,
+    pageSize: search.pageSize,
+    sortBy: search.sortBy,
+    sortOrder: search.sortOrder,
+    search: search.q,
+    feedType: search.feedType,
+  }),
+  loader: async ({ deps }) => {
+    return getFeedDataForFarm({ data: deps })
+  },
+  pendingComponent: FeedSkeleton,
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading feed records: {error.message}
+    </div>
+  ),
+  component: FeedPage,
 })
 
 function FeedPage() {
+  const router = useRouter()
   const { t } = useTranslation(['feed', 'common'])
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
   const { format: formatWeight } = useFormatWeight()
   const searchParams = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
 
-  const {
-    paginatedRecords,
-    batches,
-    inventory,
-    summary,
-    isLoading,
-    selectedRecord,
-    setSelectedRecord,
-    isSubmitting,
-    updateSearch,
-    handleCreateSubmit,
-    handleEditSubmit,
-    handleDeleteConfirm,
-  } = useFeedPage({
-    selectedFarmId,
-    searchParams,
-    routePath: Route.fullPath,
-  })
+  // Get data from loader
+  const { paginatedRecords, batches, inventory, summary } =
+    Route.useLoaderData()
 
   // Dialog states
+  const [selectedRecord, setSelectedRecord] = useState<FeedRecord | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Navigation helper for search params
+  const updateSearch = (updates: Partial<typeof searchParams>) => {
+    navigate({
+      search: { ...searchParams, ...updates },
+    })
+  }
 
   const handleEdit = (record: FeedRecord) => {
     setSelectedRecord(record)
@@ -64,6 +85,73 @@ function FeedPage() {
   const handleDelete = (record: FeedRecord) => {
     setSelectedRecord(record)
     setDeleteDialogOpen(true)
+  }
+
+  const handleCreateSubmit = async (data: any) => {
+    if (!selectedFarmId) return
+    setIsSubmitting(true)
+    try {
+      await createFeedRecordFn({
+        data: {
+          farmId: selectedFarmId,
+          record: {
+            ...data,
+            quantityKg: parseFloat(data.quantityKg),
+            cost: parseFloat(data.cost),
+          },
+        },
+      })
+      toast.success(t('feed:messages.recorded'))
+      await router.invalidate()
+    } catch (err) {
+      toast.error(t('common:error.save'))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleEditSubmit = async (data: any) => {
+    if (!selectedRecord || !selectedFarmId) return
+    setIsSubmitting(true)
+    try {
+      await updateFeedRecordFn({
+        data: {
+          farmId: selectedFarmId,
+          recordId: selectedRecord.id,
+          data: {
+            ...data,
+            quantityKg: parseFloat(data.quantityKg),
+            cost: parseFloat(data.cost),
+            date: new Date(data.date),
+          },
+        },
+      })
+      toast.success(t('feed:messages.updated'))
+      await router.invalidate()
+    } catch (err) {
+      toast.error(t('common:error.update'))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedRecord || !selectedFarmId) return
+    setIsSubmitting(true)
+    try {
+      await deleteFeedRecordFn({
+        data: {
+          farmId: selectedFarmId,
+          recordId: selectedRecord.id,
+        },
+      })
+      toast.success(t('feed:messages.deleted'))
+      await router.invalidate()
+    } catch (err) {
+      toast.error(t('common:error.delete'))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const columns = useMemo(
@@ -93,9 +181,7 @@ function FeedPage() {
         }
       />
 
-      {summary && (
-        <FeedSummary summary={summary} inventoryCount={inventory.length} />
-      )}
+      <FeedSummary summary={summary} inventoryCount={inventory.length} />
 
       <DataTable
         columns={columns}
@@ -108,7 +194,6 @@ function FeedPage() {
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
         searchPlaceholder={t('feed:placeholders.search')}
-        isLoading={isLoading}
         filters={
           <FeedFilters
             feedType={searchParams.feedType}
