@@ -1,4 +1,3 @@
- 
 import { describe, expect, it } from 'vitest'
 
 describe('Tasks Service', () => {
@@ -28,7 +27,7 @@ describe('Tasks Service', () => {
 
     it('validates _frequency values', () => {
       const validFrequencies = ['daily', 'weekly', 'monthly']
-      validFrequencies.forEach(freq => {
+      validFrequencies.forEach((freq) => {
         expect(['daily', 'weekly', 'monthly']).toContain(freq)
       })
     })
@@ -38,7 +37,8 @@ describe('Tasks Service', () => {
     it('checks if task completed today', () => {
       const lastCompleted = new Date()
       const today = new Date()
-      const isCompletedToday = lastCompleted.toDateString() === today.toDateString()
+      const isCompletedToday =
+        lastCompleted.toDateString() === today.toDateString()
       expect(isCompletedToday).toBe(true)
     })
 
@@ -47,7 +47,7 @@ describe('Tasks Service', () => {
       lastCompleted.setDate(lastCompleted.getDate() - 2) // 2 days ago
       const today = new Date()
       const daysSinceCompletion = Math.floor(
-        (today.getTime() - lastCompleted.getTime()) / (1000 * 60 * 60 * 24)
+        (today.getTime() - lastCompleted.getTime()) / (1000 * 60 * 60 * 24),
       )
       expect(daysSinceCompletion).toBe(2)
     })
@@ -70,7 +70,6 @@ describe('Tasks Service', () => {
       expect(isValid).toBe(true)
     })
 
-    it('validates _frequency', () => {
-    })
+    it('validates _frequency', () => {})
   })
 })

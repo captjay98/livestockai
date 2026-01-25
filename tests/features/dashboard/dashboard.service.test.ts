@@ -34,10 +34,13 @@ describe('Dashboard Service', () => {
         { type: 'poultry', quantity: 50 },
         { type: 'fish', quantity: 200 },
       ]
-      const byType = batches.reduce((acc, batch) => {
-        acc[batch.type] = (acc[batch.type] || 0) + batch.quantity
-        return acc
-      }, {} as Record<string, number>)
+      const byType = batches.reduce(
+        (acc, batch) => {
+          acc[batch.type] = (acc[batch.type] || 0) + batch.quantity
+          return acc
+        },
+        {} as Record<string, number>,
+      )
       expect(byType.poultry).toBe(150)
       expect(byType.fish).toBe(200)
     })
@@ -56,15 +59,12 @@ describe('Dashboard Service', () => {
         { status: 'active' },
         { status: 'depleted' },
       ]
-      const active = batches.filter(b => b.status === 'active').length
+      const active = batches.filter((b) => b.status === 'active').length
       expect(active).toBe(2)
     })
 
     it('calculates total investment', () => {
-      const batches = [
-        { cost: 5000 },
-        { cost: 3000 },
-      ]
+      const batches = [{ cost: 5000 }, { cost: 3000 }]
       const total = batches.reduce((sum, b) => sum + b.cost, 0)
       expect(total).toBe(8000)
     })

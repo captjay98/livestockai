@@ -507,12 +507,18 @@ describe('Eggs Service', () => {
         fc.assert(
           fc.property(
             fc.uuid(),
-            fc.date(),
+            fc.date({
+              min: new Date('2020-01-01'),
+              max: new Date('2030-12-31'),
+            }),
             fc.nat({ max: 10000 }),
             fc.nat({ max: 1000 }),
             fc.nat({ max: 10000 }),
             (batchId, date, collected, broken, sold) => {
               // Ensure broken + sold <= collected for valid data
+              // Skip invalid dates (NaN)
+              if (isNaN(date.getTime())) return
+
               if (broken + sold <= collected) {
                 const data: CreateEggRecordInput = {
                   batchId,

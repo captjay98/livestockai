@@ -92,7 +92,9 @@ describe('Report Property Tests', () => {
     it('date ranges are valid', () => {
       fc.assert(
         fc.property(
-          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }).filter(d => !isNaN(d.getTime())),
+          fc
+            .date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') })
+            .filter((d) => !isNaN(d.getTime())),
           fc.integer({ min: 1, max: 365 }),
           (startDate, daysToAdd) => {
             const endDate = new Date(startDate)

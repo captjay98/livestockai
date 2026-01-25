@@ -14,7 +14,7 @@ describe('Integrations Service', () => {
 
     it('validates provider configuration', () => {
       const providers = ['console', 'termii', 'twilio', 'resend', 'smtp']
-      providers.forEach(provider => {
+      providers.forEach((provider) => {
         expect(provider).toBeTruthy()
         expect(provider.length).toBeGreaterThan(0)
       })

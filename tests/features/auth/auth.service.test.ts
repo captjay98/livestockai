@@ -10,7 +10,7 @@ describe('Auth Service', () => {
 
     it('rejects invalid email format', () => {
       const emails = ['invalid', 'no@domain', '@example.com', 'user@']
-      emails.forEach(email => {
+      emails.forEach((email) => {
         const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
         expect(isValid).toBe(false)
       })

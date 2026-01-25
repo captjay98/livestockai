@@ -7,7 +7,10 @@ describe('Inventory Service', () => {
         { quantity: 100, unitPrice: 50 },
         { quantity: 50, unitPrice: 100 },
       ]
-      const total = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
+      const total = items.reduce(
+        (sum, item) => sum + item.quantity * item.unitPrice,
+        0,
+      )
       expect(total).toBe(10000)
     })
 
@@ -16,7 +19,7 @@ describe('Inventory Service', () => {
         { name: 'Feed A', quantity: 10, threshold: 20 },
         { name: 'Feed B', quantity: 50, threshold: 20 },
       ]
-      const lowStock = items.filter(item => item.quantity < item.threshold)
+      const lowStock = items.filter((item) => item.quantity < item.threshold)
       expect(lowStock).toHaveLength(1)
       expect(lowStock[0].name).toBe('Feed A')
     })
@@ -42,10 +45,13 @@ describe('Inventory Service', () => {
         { type: 'feed', quantity: 50 },
         { type: 'medication', quantity: 20 },
       ]
-      const byType = inventory.reduce((acc, item) => {
-        acc[item.type] = (acc[item.type] || 0) + item.quantity
-        return acc
-      }, {} as Record<string, number>)
+      const byType = inventory.reduce(
+        (acc, item) => {
+          acc[item.type] = (acc[item.type] || 0) + item.quantity
+          return acc
+        },
+        {} as Record<string, number>,
+      )
       expect(byType.feed).toBe(150)
       expect(byType.medication).toBe(20)
     })
@@ -64,7 +70,9 @@ describe('Inventory Service', () => {
         { name: 'Item A', quantity: 5, threshold: 20 }, // 25%
         { name: 'Item B', quantity: 15, threshold: 20 }, // 75%
       ]
-      const critical = items.filter(item => (item.quantity / item.threshold) * 100 < 50)
+      const critical = items.filter(
+        (item) => (item.quantity / item.threshold) * 100 < 50,
+      )
       expect(critical).toHaveLength(1)
       expect(critical[0].name).toBe('Item A')
     })

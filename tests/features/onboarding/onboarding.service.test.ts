@@ -55,8 +55,7 @@ describe('Onboarding Service', () => {
       expect(newStep).toBe(3)
     })
 
-    it('allows backward navigation', () => {
-    })
+    it('allows backward navigation', () => {})
 
     it('prevents going below step 1', () => {
       const currentStep = 1
