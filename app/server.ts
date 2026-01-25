@@ -2,7 +2,7 @@ import {
   createStartHandler,
   defaultStreamHandler,
 } from '@tanstack/react-start/server'
-import { auth } from '~/features/auth/config'
+import { getAuth } from '~/features/auth/config'
 
 const handler = createStartHandler(defaultStreamHandler)
 
@@ -12,6 +12,7 @@ export default {
 
     // Handle Better Auth API routes
     if (url.pathname.startsWith('/api/auth')) {
+      const auth = await getAuth()
       return auth.handler(request)
     }
 

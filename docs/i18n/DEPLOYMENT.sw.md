@@ -344,7 +344,8 @@ psql $DATABASE_URL < backup.sql
 **Suluhisho**: Hakikisha uingizaji wa nguvu katika vitendaji vya seva:
 
 ```typescript
-const { db } = await import('../db') // ✅
+const { getDb } = await import('~/lib/db')
+const db = await getDb() // ✅
 ```
 
 ### Makosa ya Uunganisho wa Hifadhidata

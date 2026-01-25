@@ -80,8 +80,8 @@ export async function seedDev() {
     const tables = [
       'notifications',
       'invoice_items',
+      'sales', // Must be before invoices (sales.invoiceId references invoices)
       'invoices',
-      'sales',
       'water_quality',
       'weight_samples',
       'treatments',

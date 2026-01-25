@@ -40,7 +40,10 @@ afterAll(async () => {
   // Only close database connection if we actually set it up
   if (dbSetupAttempted) {
     // Dynamic import to ensure env is loaded first
+    // Note: In test environment (Node.js), we can use the static db export
     const { db } = await import('~/lib/db')
-    await db.destroy()
+    if (db && typeof db.destroy === 'function') {
+      await db.destroy()
+    }
   }
 })

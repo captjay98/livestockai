@@ -25,21 +25,33 @@ function LoginPage() {
     setIsLoading(true)
     setError('')
 
+    console.log('[LOGIN DEBUG] Attempting login for:', email)
+    console.log('[LOGIN DEBUG] Password length:', password.length)
+
     try {
-      await loginFn({
+      const result = await loginFn({
         data: {
           email,
           password,
         },
       })
 
+      console.log('[LOGIN DEBUG] Login result:', result)
+
       await router.invalidate()
       window.location.href = '/dashboard'
     } catch (err: any) {
-      console.error('Login error:', err)
+      console.error('[LOGIN DEBUG] Login error:', err)
+      console.error('[LOGIN DEBUG] Error type:', typeof err)
+      console.error('[LOGIN DEBUG] Error keys:', Object.keys(err || {}))
+      console.error('[LOGIN DEBUG] Full error object:', JSON.stringify(err, null, 2))
+
       // Attempt to extract meaningful error message
       const message = err.message || err.region || 'login.errors.default'
       const errorMessage = message.includes('.') ? t(message) : message
+
+      console.error('[LOGIN DEBUG] Extracted message:', message)
+      console.error('[LOGIN DEBUG] Final error message:', errorMessage)
 
       setError(
         message === 'Invalid email or password'

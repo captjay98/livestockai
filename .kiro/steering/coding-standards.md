@@ -22,12 +22,12 @@ app/features/batches/
 
 ## Server Functions
 
-All server functions MUST use dynamic imports for Cloudflare Workers:
+All server functions MUST use `getDb()` with dynamic imports for Cloudflare Workers compatibility:
 
 ```typescript
 // ✅ Correct pattern - server.ts
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .validator(schema)
+  .inputValidator(schema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('./server-middleware')
     const session = await requireAuth()
@@ -36,14 +36,20 @@ export const createBatchFn = createServerFn({ method: 'POST' })
     const validationError = validateBatchData(data)
     if (validationError) throw new AppError('VALIDATION_ERROR')
 
-    // Use repository for database
-    const { db } = await import('~/lib/db')
+    // Use repository for database - MUST use getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     return insertBatch(db, data)
   })
 
 // ❌ Never do this - breaks Cloudflare Workers
 import { db } from '~/lib/db'
+
+// ❌ Also wrong - old pattern
+const { db } = await import('~/lib/db')
 ```
+
+**Why `getDb()`?** Cloudflare Workers doesn't support `process.env`. The `getDb()` function handles environment detection and uses the appropriate env source.
 
 ## Service Layer
 

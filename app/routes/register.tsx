@@ -38,7 +38,6 @@ function RegisterPage() {
       await router.invalidate()
       window.location.href = '/dashboard'
     } catch (err: any) {
-      console.error('Registration error:', err)
       const message = err.message || 'register.errors.default'
       const errorMessage = message.includes('.') ? t(message) : message
       setError(errorMessage)

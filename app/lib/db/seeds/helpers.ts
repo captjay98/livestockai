@@ -11,9 +11,12 @@
  * Reference: https://www.better-auth.com/docs/authentication/email-password
  */
 
-import crypto from 'node:crypto'
+import { randomUUID } from 'node:crypto'
 import type { Kysely } from 'kysely'
 import type { Database } from '../types'
+
+// Use global Web Crypto API (same as Better Auth uses in config.ts)
+const webCrypto = globalThis.crypto
 
 /**
  * Parameters for creating a user with authentication
@@ -50,10 +53,10 @@ export interface CreatedUser {
  */
 export async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder()
-  const salt = crypto.getRandomValues(new Uint8Array(16))
+  const salt = webCrypto.getRandomValues(new Uint8Array(16))
 
-  // Import password as key material
-  const keyMaterial = await crypto.subtle.importKey(
+  // Import password as key material (using Web Crypto API)
+  const keyMaterial = await webCrypto.subtle.importKey(
     'raw',
     encoder.encode(password),
     'PBKDF2',
@@ -62,7 +65,7 @@ export async function hashPassword(password: string): Promise<string> {
   )
 
   // Derive hash using PBKDF2
-  const hash = await crypto.subtle.deriveBits(
+  const hash = await webCrypto.subtle.deriveBits(
     {
       name: 'PBKDF2',
       salt,
@@ -123,7 +126,7 @@ export async function createUserWithAuth(
   await db
     .insertInto('account')
     .values({
-      id: crypto.randomUUID(), // Generate unique ID for account
+      id: randomUUID(), // Generate unique ID for account
       userId: user.id,
       accountId: email, // For credential provider, accountId = email
       providerId: 'credential', // Better Auth credential provider

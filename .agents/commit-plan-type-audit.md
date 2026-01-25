@@ -10,12 +10,15 @@
 ## Commits
 
 ### Commit 1: Fix null/undefined conversions
+
 **Type:** fix(types)
 **Files:** 2
+
 - app/features/sales/use-sales-page.ts
 - app/features/inventory/use-medication-inventory.ts
 
 **Message:**
+
 ```
 fix(types): eliminate null/undefined type suppressions
 
@@ -25,12 +28,15 @@ fix(types): eliminate null/undefined type suppressions
 ```
 
 ### Commit 2: Fix water quality type mismatch
+
 **Type:** fix(types)
 **Files:** 2
+
 - app/features/water-quality/use-water-quality-page.ts
-- app/routes/_auth/water-quality/index.tsx
+- app/routes/\_auth/water-quality/index.tsx
 
 **Message:**
+
 ```
 fix(types): accept null farmId in water quality hook
 
@@ -40,12 +46,15 @@ fix(types): accept null farmId in water quality hook
 ```
 
 ### Commit 3: Fix mortality record interface
+
 **Type:** fix(types)
 **Files:** 2
+
 - app/features/mortality/server.ts
 - app/features/mortality/use-mortality-page.ts
 
 **Message:**
+
 ```
 fix(types): complete MortalityRecord interface
 
@@ -55,11 +64,14 @@ fix(types): complete MortalityRecord interface
 ```
 
 ### Commit 4: Document type suppressions
+
 **Type:** docs
 **Files:** 1
+
 - .agents/type-suppression-audit-2026-01-24.md
 
 **Message:**
+
 ```
 docs: add comprehensive type suppression audit
 

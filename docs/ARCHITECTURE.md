@@ -180,7 +180,14 @@ Features follow a three-layer architecture: **Server → Service → Repository*
 ```typescript
 // app/features/batches/server.ts - Orchestration layer
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator((data) => data)
+  .inputValidator(z.object({
+    farmId: z.string().uuid(),
+    batch: z.object({
+      batchName: z.string().min(1),
+      species: z.enum(['broiler', 'layer', 'catfish', 'tilapia', 'cattle', 'goat', 'sheep', 'bee']),
+      initialQuantity: z.number().int().positive(),
+    }),
+  }))
   .handler(async ({ data }) => {
     // 1. Auth check
     const { requireAuth } = await import('../auth/server-middleware')
@@ -191,8 +198,9 @@ export const createBatchFn = createServerFn({ method: 'POST' })
     const error = validateBatchData(data.batch)
     if (error) throw new AppError('VALIDATION_ERROR')
 
-    // 3. Repository layer - database operation
-    const { db } = await import('~/lib/db')
+    // 3. Repository layer - database operation (use getDb for Cloudflare Workers)
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { insertBatch } = await import('./repository')
     const result = await insertBatch(db, { ...data.batch, farmId: data.farmId })
 

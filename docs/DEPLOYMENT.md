@@ -339,12 +339,18 @@ psql $DATABASE_URL < backup.sql
 
 ### Build Errors
 
-**Error**: `Cannot find module '../db'`
+**Error**: `Cannot find module '../db'` or `DATABASE_URL not set`
 
-**Solution**: Ensure dynamic imports in server functions:
+**Solution**: Use the async `getDb()` pattern in server functions:
 
 ```typescript
-const { db } = await import('../db') // ✅
+// ✅ Correct - works on Cloudflare Workers
+const { getDb } = await import('~/lib/db')
+const db = await getDb()
+
+// ❌ Wrong - old pattern
+const { getDb } = await import('~/lib/db')
+const db = await getDb()
 ```
 
 ### Database Connection Errors

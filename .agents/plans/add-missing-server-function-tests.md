@@ -22,6 +22,7 @@ So that security vulnerabilities and financial calculation errors are caught bef
 ## Solution Statement
 
 Add 69 property-based and integration tests across 7 features to validate:
+
 - Server function authentication and authorization
 - Farm access control enforcement
 - CRUD operations and error handling
@@ -32,7 +33,8 @@ Add 69 property-based and integration tests across 7 features to validate:
 
 **Feature Type**: Test Enhancement / Quality Improvement
 **Estimated Complexity**: Medium
-**Primary Systems Affected**: 
+**Primary Systems Affected**:
+
 - `app/features/customers/server.ts`
 - `app/features/suppliers/server.ts`
 - `app/features/invoices/server.ts`
@@ -40,7 +42,7 @@ Add 69 property-based and integration tests across 7 features to validate:
 - `app/features/dashboard/server.ts`
 - `app/features/reports/server.ts`
 - `app/features/tasks/server.ts`
-**Dependencies**: Vitest, fast-check, existing test patterns
+  **Dependencies**: Vitest, fast-check, existing test patterns
 
 ---
 
@@ -84,8 +86,19 @@ Add 69 property-based and integration tests across 7 features to validate:
 ```typescript
 // tests/features/{feature}/server.test.ts
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { getTestDb, seedTestUser, seedTestFarm, truncateAllTables, closeTestDb } from '../../helpers/db-integration'
-import { createCustomerFn, getCustomersFn, updateCustomerFn, deleteCustomerFn } from '~/features/customers/server'
+import {
+  getTestDb,
+  seedTestUser,
+  seedTestFarm,
+  truncateAllTables,
+  closeTestDb,
+} from '../../helpers/db-integration'
+import {
+  createCustomerFn,
+  getCustomersFn,
+  updateCustomerFn,
+  deleteCustomerFn,
+} from '~/features/customers/server'
 
 describe('customers server functions', () => {
   let db: any
@@ -161,12 +174,18 @@ describe('invoice calculations', () => {
   it('total always equals sum of line items', () => {
     fc.assert(
       fc.property(
-        fc.array(fc.record({
-          quantity: fc.nat({ min: 1 }),
-          unitPrice: fc.nat({ min: 1 }),
-        }), { minLength: 1 }),
+        fc.array(
+          fc.record({
+            quantity: fc.nat({ min: 1 }),
+            unitPrice: fc.nat({ min: 1 }),
+          }),
+          { minLength: 1 },
+        ),
         (items) => {
-          const total = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0)
+          const total = items.reduce(
+            (sum, item) => sum + item.quantity * item.unitPrice,
+            0,
+          )
           expect(total).toBeGreaterThan(0)
         },
       ),
@@ -182,10 +201,14 @@ describe('invoice calculations', () => {
 describe('getCustomersFn integration', () => {
   it('returns only customers from authorized farm', async () => {
     // Create customer in farm1
-    await createCustomerFn({ data: { farmId: farm1Id, name: 'Customer 1', phone: '123' } })
-    
+    await createCustomerFn({
+      data: { farmId: farm1Id, name: 'Customer 1', phone: '123' },
+    })
+
     // Create customer in farm2
-    await createCustomerFn({ data: { farmId: farm2Id, name: 'Customer 2', phone: '456' } })
+    await createCustomerFn({
+      data: { farmId: farm2Id, name: 'Customer 2', phone: '456' },
+    })
 
     // Query farm1 - should only get Customer 1
     const result = await getCustomersFn({ data: { farmId: farm1Id } })
@@ -224,6 +247,7 @@ Verify all tests pass and coverage targets met.
 **File**: `tests/features/customers/server.test.ts`
 
 **IMPLEMENT**: 15 tests covering:
+
 - createCustomerFn: 4 tests (success, access denied, validation, duplicate)
 - getCustomersFn: 3 tests (success, access denied, empty list)
 - updateCustomerFn: 4 tests (success, access denied, validation, not found)
@@ -232,7 +256,8 @@ Verify all tests pass and coverage targets met.
 
 **PATTERN**: Mirror from `tests/features/sales/sales.service.test.ts`
 
-**IMPORTS**: 
+**IMPORTS**:
+
 - `describe, it, expect, beforeEach, afterEach` from vitest
 - Test helpers from `../../helpers/db-integration`
 - Server functions from `~/features/customers/server`
@@ -248,6 +273,7 @@ Verify all tests pass and coverage targets met.
 **File**: `tests/features/invoices/server.test.ts`
 
 **IMPLEMENT**: 12 tests covering:
+
 - createInvoiceFn: 4 tests (success, access denied, validation, financial calculation)
 - getInvoiceByIdFn: 3 tests (success, access denied, not found)
 - updateInvoiceStatusFn: 3 tests (success, access denied, invalid status)
@@ -268,6 +294,7 @@ Verify all tests pass and coverage targets met.
 **File**: `tests/features/reports/server.test.ts`
 
 **IMPLEMENT**: 10 tests covering:
+
 - getReportDataFn: 4 tests (success, access denied, date range, financial calculations)
 - generateReportFn: 3 tests (success, access denied, format validation)
 - getReportsPaginatedFn: 3 tests (pagination, filtering, sorting)
@@ -287,6 +314,7 @@ Verify all tests pass and coverage targets met.
 **File**: `tests/features/suppliers/server.test.ts`
 
 **IMPLEMENT**: 8 tests covering:
+
 - createSupplierFn: 2 tests (success, validation)
 - getSuppliersFn: 2 tests (success, empty list)
 - updateSupplierFn: 2 tests (success, not found)
@@ -307,6 +335,7 @@ Verify all tests pass and coverage targets met.
 **File**: `tests/features/notifications/server.test.ts`
 
 **IMPLEMENT**: 10 tests covering:
+
 - createNotificationFn: 3 tests (success, validation, duplicate prevention)
 - getNotificationsFn: 2 tests (success, filtering)
 - markAsReadFn: 2 tests (success, not found)
@@ -328,6 +357,7 @@ Verify all tests pass and coverage targets met.
 **File**: `tests/features/dashboard/server.test.ts`
 
 **IMPLEMENT**: 8 tests covering:
+
 - getDashboardDataFn: 4 tests (success, access denied, multi-farm aggregation, calculations)
 - getDashboardStatsFn: 2 tests (success, empty data)
 - getDashboardSummaryFn: 2 tests (success, filtering)
@@ -347,6 +377,7 @@ Verify all tests pass and coverage targets met.
 **File**: `tests/features/tasks/server.test.ts`
 
 **IMPLEMENT**: 6 tests covering:
+
 - createTaskFn: 2 tests (success, validation)
 - completeTaskFn: 2 tests (success, not found)
 - getTasksFn: 2 tests (success, filtering by frequency)
@@ -366,6 +397,7 @@ Verify all tests pass and coverage targets met.
 **File**: `tests/features/invoices/invoices.property.test.ts` (if not exists)
 
 **IMPLEMENT**: 5 property tests for invoice calculations:
+
 - Total always equals sum of line items
 - Discount never exceeds total
 - Tax calculation is consistent
@@ -374,7 +406,8 @@ Verify all tests pass and coverage targets met.
 
 **PATTERN**: Mirror from `tests/features/finance/profit.property.test.ts`
 
-**IMPORTS**: 
+**IMPORTS**:
+
 - `describe, it, expect` from vitest
 - `* as fc` from fast-check
 
@@ -389,6 +422,7 @@ Verify all tests pass and coverage targets met.
 **File**: `tests/features/reports/reports.property.test.ts` (if not exists)
 
 **IMPLEMENT**: 5 property tests for report calculations:
+
 - Revenue always >= 0
 - Expenses always >= 0
 - Profit = Revenue - Expenses
@@ -408,12 +442,14 @@ Verify all tests pass and coverage targets met.
 ### Task 10: RUN full test suite and verify coverage
 
 **VALIDATE**:
+
 ```bash
 bun run test --run
 bun run test --coverage
 ```
 
 **EXPECTED RESULTS**:
+
 - All 1,256+ tests passing
 - New tests: 69 tests added
 - Coverage improved for server functions
@@ -430,6 +466,7 @@ bun run test --coverage
 **Coverage Target**: 80%+ for server functions
 
 Test patterns:
+
 - Happy path (success case)
 - Error cases (access denied, validation, not found)
 - Edge cases (empty data, duplicates, boundary values)
@@ -441,6 +478,7 @@ Test patterns:
 **Coverage Target**: 90%+ for financial calculations
 
 Test patterns:
+
 - Mathematical invariants (totals, percentages)
 - Constraint validation (non-negative, ranges)
 - Consistency checks (calculations match formulas)
@@ -451,6 +489,7 @@ Test patterns:
 **Pattern**: Use `seedTestUser`, `seedTestFarm`, `truncateAllTables` helpers
 
 Test patterns:
+
 - Multi-farm isolation (farm access control)
 - CRUD operations with database
 - Error handling with AppError codes
@@ -554,6 +593,7 @@ bun run check && bun run test --run && bun run build
 ## NOTES
 
 **Priority Order**: Implement in phases to catch critical issues early
+
 - Phase 1 (Critical): Customers, Invoices, Reports (37 tests)
 - Phase 2 (High): Suppliers, Notifications, Dashboard (26 tests)
 - Phase 3 (Medium): Tasks (6 tests)
@@ -567,6 +607,7 @@ bun run check && bun run test --run && bun run build
 **Error Handling**: Test all AppError codes (ACCESS_DENIED, VALIDATION_ERROR, NOT_FOUND, DATABASE_ERROR)
 
 **Estimated Effort**: 8-10 hours total
+
 - Phase 1: 4-5 hours
 - Phase 2: 3-4 hours
 - Phase 3: 1 hour

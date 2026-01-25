@@ -40,7 +40,7 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
    ```typescript
    // app/features/batches/server.ts
    export const createBatchFn = createServerFn({ method: 'POST' })
-     .validator(schema)
+     .inputValidator(schema)
      .handler(async ({ data }) => {
        const { requireAuth } = await import('./server-middleware')
        const session = await requireAuth()
@@ -49,21 +49,28 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
        const error = validateBatchData(data)
        if (error) throw new AppError('VALIDATION_ERROR')
 
-       // Repository layer for database
-       const { db } = await import('~/lib/db')
+       // Repository layer for database (use getDb() for Cloudflare Workers)
+       const { getDb } = await import('~/lib/db')
+       const db = await getDb()
        return insertBatch(db, data)
      })
    ```
 
-3. **Dynamic Imports**: Database imports MUST be dynamic inside server functions for Cloudflare Workers:
+3. **Dynamic Imports & Async DB**: Database access MUST use `getDb()` inside server functions for Cloudflare Workers compatibility:
 
    ```typescript
-   // ✅ Correct
-   const { db } = await import('~/lib/db')
+   // ✅ Correct - works on Cloudflare Workers
+   const { getDb } = await import('~/lib/db')
+   const db = await getDb()
 
-   // ❌ Wrong - will break on Cloudflare
+   // ❌ Wrong - will break on Cloudflare Workers
    import { db } from '~/lib/db'
+   
+   // ❌ Also wrong - old pattern, doesn't work
+   const { db } = await import('~/lib/db')
    ```
+   
+   **Why?** Cloudflare Workers doesn't support `process.env`. Environment variables are only available through the `env` binding from `cloudflare:workers`, and that binding is only accessible during request handling, not at module load time. The `getDb()` function handles this by trying `process.env` first (for Node.js/Bun), then falling back to `cloudflare:workers`.
 
 4. **Service Layer**: Pure functions for business logic (easy to test):
 
@@ -170,13 +177,15 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 export const myFunction = createServerFn({ method: 'POST' })
-  .validator(
+  .inputValidator(
     z.object({
       // Define input schema
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    // Get database connection (works on both Node.js and Cloudflare Workers)
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     // Database operations
   })
 ```
@@ -198,6 +207,246 @@ function MyPageComponent() {
   return <div>My Page</div>
 }
 ```
+
+---
+
+## TanStack Router Patterns (Updated Jan 2026)
+
+### Route Loader Pattern
+
+All routes should use **loaders** for data fetching instead of `useEffect` in components. This enables SSR, prefetching, and better loading states.
+
+#### ✅ Correct Pattern - Using Loaders
+
+```typescript
+// app/routes/_auth/batches/index.tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { getBatchesForFarmFn } from '~/features/batches/server'
+import { BatchesSkeleton } from '~/components/batches/batches-skeleton'
+import { validateBatchSearch } from '~/features/batches/validation'
+
+export const Route = createFileRoute('/_auth/batches/')({
+  // 1. Validate search params
+  validateSearch: validateBatchSearch,
+
+  // 2. Define loader dependencies (search params)
+  loaderDeps: ({ search }) => ({
+    farmId: search.farmId,
+    page: search.page,
+    pageSize: search.pageSize,
+    sortBy: search.sortBy,
+    sortOrder: search.sortOrder,
+    search: search.search,
+    status: search.status,
+    livestockType: search.livestockType,
+  }),
+
+  // 3. Loader function - fetches data on server
+  loader: async ({ deps }) => {
+    return getBatchesForFarmFn({ data: deps })
+  },
+
+  // 4. Loading state component
+  pendingComponent: BatchesSkeleton,
+
+  // 5. Error state component
+  errorComponent: ({ error }) => (
+    <div className="p-4 text-red-600">
+      Error loading batches: {error.message}
+    </div>
+  ),
+
+  // 6. Main component
+  component: BatchesPage,
+})
+
+function BatchesPage() {
+  // Access loader data with full type safety
+  const { paginatedBatches, summary } = Route.useLoaderData()
+
+  return (
+    <div>
+      <h1>Batches</h1>
+      {/* Render data */}
+    </div>
+  )
+}
+```
+
+#### ❌ Wrong Pattern - Using useEffect
+
+```typescript
+// DON'T DO THIS - Old pattern
+function BatchesPage() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Client-side data fetching - no SSR, no prefetching
+    getBatchesForFarmFn({ data: {} }).then(setData)
+  }, [])
+
+  if (loading) return <div>Loading...</div>
+  return <div>{/* render */}</div>
+}
+```
+
+### Server Function Validator Pattern
+
+All server functions MUST use **Zod validators**, not identity functions.
+
+#### ✅ Correct Pattern - Zod Validators
+
+```typescript
+// app/features/batches/server.ts
+import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
+
+export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid().optional(),
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      status: z.string().optional(),
+      livestockType: z.string().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
+```
+
+#### ❌ Wrong Pattern - Identity Validators
+
+```typescript
+// DON'T DO THIS - No runtime validation
+export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: { farmId?: string }) => data)
+  .handler(async ({ data }) => {
+    // ... implementation
+  })
+```
+
+### Common Zod Patterns
+
+```typescript
+// UUID validation
+farmId: z.string().uuid()
+
+// Optional UUID
+farmId: z.string().uuid().optional()
+
+// Enum validation
+status: z.enum(['active', 'depleted', 'sold'])
+
+// Number validation
+page: z.number().int().positive()
+quantity: z.number().int().positive()
+amount: z.number().nonnegative()
+
+// Date validation
+date: z.coerce.date()
+
+// String validation
+email: z.string().email()
+name: z.string().min(1).max(100)
+
+// Nullable/optional fields
+notes: z.string().max(500).nullish()
+supplierId: z.string().uuid().optional()
+```
+
+### Skeleton Component Pattern
+
+Create skeleton components for `pendingComponent` to show loading states:
+
+```typescript
+// app/components/batches/batches-skeleton.tsx
+import { Skeleton } from '~/components/ui/skeleton'
+
+export function BatchesSkeleton() {
+  return (
+    <div className="space-y-4">
+      {/* Summary cards skeleton */}
+      <div className="grid gap-4 md:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-32 w-full" />
+        ))}
+      </div>
+
+      {/* Table skeleton */}
+      <Skeleton className="h-64 w-full" />
+    </div>
+  )
+}
+```
+
+### Router Cache Configuration
+
+Configure router cache for prefetching:
+
+```typescript
+// app/router.tsx
+export const router = createRouter({
+  routeTree,
+  defaultPreloadStaleTime: 30_000, // Cache prefetched data for 30 seconds
+})
+```
+
+### Custom Hooks Pattern
+
+After refactoring to loaders, custom hooks should only handle:
+
+- **Mutations** (create, update, delete)
+- **Local UI state** (dialogs, filters)
+- **NOT data fetching** (use loaders instead)
+
+#### ✅ Correct - Mutations Only
+
+```typescript
+// app/features/batches/use-batch-page.ts
+export function useBatchPage() {
+  const queryClient = useQueryClient()
+
+  // Mutation for creating batch
+  const createBatch = useMutation({
+    mutationFn: (data: CreateBatchData) =>
+      createBatchFn({ data: { batch: data } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['batches'] })
+    },
+  })
+
+  // Local UI state
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  return { createBatch, isDialogOpen, setIsDialogOpen }
+}
+```
+
+#### ❌ Wrong - Data Fetching in Hook
+
+```typescript
+// DON'T DO THIS
+export function useBatchPage() {
+  const [data, setData] = useState(null)
+
+  useEffect(() => {
+    // Data fetching should be in loader
+    getBatchesForFarmFn({ data: {} }).then(setData)
+  }, [])
+
+  return { data }
+}
+```
+
+---
 
 ### Creating Users Programmatically
 
@@ -394,10 +643,11 @@ import type { Batch } from '~/lib/db/types'
 
 ### "Cannot find module" errors
 
-Ensure you're using dynamic imports for database in server functions:
+Ensure you're using the async `getDb()` pattern for database in server functions:
 
 ```typescript
-const { db } = await import('../db')
+const { getDb } = await import('~/lib/db')
+const db = await getDb()
 ```
 
 ### Database connection issues

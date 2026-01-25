@@ -15,36 +15,40 @@ OpenLivestock Manager is deployed on Cloudflare Workers. This guide covers Worke
 
 ## Workers Patterns
 
-### Dynamic Imports (CRITICAL)
+### Database Access (CRITICAL)
 
-All database and heavy imports MUST be dynamic inside server functions:
+Cloudflare Workers does NOT support `process.env`. You MUST use the async `getDb()` function:
 
 ```typescript
-// ✅ Correct - works on Cloudflare
+// ✅ Correct - works on Cloudflare Workers
 export const getData = createServerFn({ method: 'GET' }).handler(async () => {
-  const { db } = await import('../db')
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   return db.selectFrom('table').execute()
 })
 
-// ❌ Wrong - breaks on Cloudflare
-import { db } from '../db'
-export const getData = createServerFn({ method: 'GET' }).handler(async () => {
-  return db.selectFrom('table').execute()
-})
+// ❌ Wrong - breaks on Cloudflare (process.env not available)
+import { db } from '~/lib/db'
+
+// ❌ Also wrong - old pattern
+const { db } = await import('~/lib/db')
 ```
+
+**Why?** Cloudflare Workers uses `env` bindings from `cloudflare:workers` instead of `process.env`. The `getDb()` function handles this automatically.
 
 ### Environment Variables
 
-Access via `process.env` in server functions:
-
-```typescript
-const apiKey = process.env.API_KEY
-```
-
-Set secrets via wrangler:
+In Cloudflare Workers, env vars come from `.dev.vars` (local) or wrangler secrets (production):
 
 ```bash
-wrangler secret put API_KEY
+# Local development - create .dev.vars file
+DATABASE_URL=postgres://...
+BETTER_AUTH_SECRET=...
+BETTER_AUTH_URL=http://localhost:3001
+
+# Production - set via wrangler
+wrangler secret put DATABASE_URL
+wrangler secret put BETTER_AUTH_SECRET
 ```
 
 ## Deployment

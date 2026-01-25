@@ -344,7 +344,8 @@ psql $DATABASE_URL < backup.sql
 **Çözüm**: Sunucu fonksiyonlarında dinamik içe aktarmaların olduğundan emin olun:
 
 ```typescript
-const { db } = await import('../db') // ✅
+const { getDb } = await import('~/lib/db')
+const db = await getDb() // ✅
 ```
 
 ### Veritabanı Bağlantı Hataları

@@ -1055,9 +1055,40 @@ export async function up(db: Kysely<any>): Promise<void> {
     .on('report_configs')
     .column('farmId')
     .execute()
+
+  // Additional indexes for improved query performance
+  await db.schema
+    .createIndex('idx_batches_livestock_type')
+    .on('batches')
+    .column('livestockType')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_sales_livestock_type')
+    .on('sales')
+    .column('livestockType')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_expenses_category')
+    .on('expenses')
+    .column('category')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_batches_acquisition_date')
+    .on('batches')
+    .column('acquisitionDate')
+    .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
+  // Drop indexes first
+  await db.schema.dropIndex('idx_batches_acquisition_date').ifExists().execute()
+  await db.schema.dropIndex('idx_expenses_category').ifExists().execute()
+  await db.schema.dropIndex('idx_sales_livestock_type').ifExists().execute()
+  await db.schema.dropIndex('idx_batches_livestock_type').ifExists().execute()
+
   await sql`DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE`.execute(
     db,
   )

@@ -30,9 +30,10 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
    ```typescript
    // app/features/batches/server.ts
    export const getBatches = createServerFn({ method: 'GET' })
-     .validator(z.object({ farmId: z.string().uuid() }))
+     .inputValidator(z.object({ farmId: z.string().uuid() }))
      .handler(async ({ data }) => {
-       const { db } = await import('~/lib/db')
+       const { getDb } = await import('~/lib/db')
+       const db = await getDb()
        return db
          .selectFrom('batches')
          .where('farmId', '=', data.farmId)
@@ -40,14 +41,19 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
      })
    ```
 
-2. **Dynamic Imports**: Database imports MUST be dynamic inside server functions to work with Cloudflare Workers:
+2. **Async Database Access**: Database access MUST use `getDb()` inside server functions for Cloudflare Workers compatibility:
 
    ```typescript
-   // ✅ Correct
-   const { db } = await import('../db')
+   // ✅ Correct - works on Cloudflare Workers
+   const { getDb } = await import('~/lib/db')
+   const db = await getDb()
+
+   // ❌ Wrong - old pattern
+   const { getDb } = await import('~/lib/db')
+   const db = await getDb()
 
    // ❌ Wrong - will break on Cloudflare
-   import { db } from '../db'
+   import { db } from '~/lib/db'
    ```
 
 3. **Type-Safe Queries**: Use Kysely's type-safe query builder:
@@ -141,13 +147,14 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 export const myFunction = createServerFn({ method: 'POST' })
-  .validator(
+  .inputValidator(
     z.object({
       // Define input schema
     }),
   )
   .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     // Database operations
   })
 ```
@@ -285,10 +292,11 @@ import type { Batch } from '~/lib/db/types'
 
 ### "Cannot find module" errors
 
-Ensure you're using dynamic imports for database in server functions:
+Ensure you're using the async `getDb()` pattern in server functions:
 
 ```typescript
-const { db } = await import('../db')
+const { getDb } = await import('~/lib/db')
+const db = await getDb()
 ```
 
 ### Database connection issues

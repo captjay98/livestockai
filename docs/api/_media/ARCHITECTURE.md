@@ -184,8 +184,9 @@ export const createBatchFn = createServerFn({ method: 'POST' })
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
 
-    // 2. Dynamic import (REQUIRED for Cloudflare)
-    const { db } = await import('~/lib/db')
+    // 2. Dynamic import (REQUIRED for Cloudflare Workers)
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     // 3. Database operation
     const result = await db

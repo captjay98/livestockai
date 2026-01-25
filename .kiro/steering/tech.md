@@ -35,7 +35,7 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
 
 ### Key Patterns
 
-- **Dynamic Imports**: Database imports use `await import('../db')` for Cloudflare compatibility
+- **Async Database Access**: Use `getDb()` for Cloudflare Workers compatibility
 - **Server Functions**: All database operations isolated in server functions
 - **Type Safety**: End-to-end TypeScript from database to UI
 - **Progressive Enhancement**: Works offline, syncs when online
@@ -88,7 +88,7 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
 
 ### Server Function Patterns
 
-- **Dynamic imports**: Always use `const { db } = await import('../db')`
+- **Async database access**: Use `const { getDb } = await import('~/lib/db'); const db = await getDb()`
 - **Validation**: Use Zod schemas for input validation
 - **Error handling**: Structured error responses
 - **Type safety**: Leverage Kysely's type inference

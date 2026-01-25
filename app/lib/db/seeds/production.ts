@@ -19,7 +19,6 @@ import { createUserWithAuth } from './helpers'
 import { DEFAULT_SETTINGS } from '~/features/settings/currency-presets'
 
 // ============ CONFIG ============
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@openlivestock.local'
 const ADMIN_NAME = process.env.ADMIN_NAME || 'Farm Administrator'
 
 // ============ GROWTH STANDARDS DATA ============
@@ -264,13 +263,20 @@ function generateSheepGrowthStandards(): Array<{
 export async function seed() {
   console.log('🌱 Seeding OpenLivestock Production Data\n')
 
-  // SECURITY: Require explicit admin password
+  // SECURITY: Require explicit admin credentials
+  if (!process.env.ADMIN_EMAIL) {
+    console.error('❌ ADMIN_EMAIL environment variable is required')
+    console.error('   Set ADMIN_EMAIL before running production seed')
+    process.exit(1)
+  }
+
   if (!process.env.ADMIN_PASSWORD) {
     console.error('❌ ADMIN_PASSWORD environment variable is required')
     console.error('   Set ADMIN_PASSWORD before running production seed')
     process.exit(1)
   }
 
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 
   try {

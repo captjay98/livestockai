@@ -344,7 +344,8 @@ psql $DATABASE_URL < backup.sql
 **समाधान**: सर्वर फ़ंक्शंस में डायनामिक आयात सुनिश्चित करें:
 
 ```typescript
-const { db } = await import('../db') // ✅
+const { getDb } = await import('~/lib/db')
+const db = await getDb() // ✅
 ```
 
 ### डेटाबेस कनेक्शन त्रुटियाँ
