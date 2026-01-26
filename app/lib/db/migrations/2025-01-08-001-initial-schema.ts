@@ -1137,6 +1137,191 @@ export async function up(db: Kysely<any>): Promise<void> {
     .on('batches')
     .column('acquisitionDate')
     .execute()
+
+  // Feed Formulation Tables
+  // Feed ingredients master data
+  await db.schema
+    .createTable('feed_ingredients')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('name', 'text', (col) => col.notNull())
+    .addColumn('category', 'text', (col) => col.notNull())
+    .addColumn('proteinPercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('energyKcalKg', 'integer', (col) => col.notNull())
+    .addColumn('fatPercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('fiberPercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('calciumPercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('phosphorusPercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('lysinePercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('methioninePercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('maxInclusionPercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('isActive', 'boolean', (col) => col.notNull().defaultTo(true))
+    .addColumn('createdAt', 'timestamp', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .execute()
+
+  await sql`ALTER TABLE feed_ingredients ADD CONSTRAINT feed_ingredients_category_check CHECK (category IN ('cereal', 'protein', 'fat', 'mineral', 'vitamin', 'additive'))`.execute(
+    db,
+  )
+
+  // Nutritional requirements by species and production stage
+  await db.schema
+    .createTable('nutritional_requirements')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('species', 'text', (col) => col.notNull())
+    .addColumn('productionStage', 'text', (col) => col.notNull())
+    .addColumn('minProteinPercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('minEnergyKcalKg', 'integer', (col) => col.notNull())
+    .addColumn('maxFiberPercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('minCalciumPercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('minPhosphorusPercent', sql`decimal(5,2)`, (col) =>
+      col.notNull(),
+    )
+    .addColumn('minLysinePercent', sql`decimal(5,2)`, (col) => col.notNull())
+    .addColumn('minMethioninePercent', sql`decimal(5,2)`, (col) =>
+      col.notNull(),
+    )
+    .addColumn('createdAt', 'timestamp', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .execute()
+
+  await db.schema
+    .createIndex('nutritional_requirements_species_stage_unique')
+    .on('nutritional_requirements')
+    .columns(['species', 'productionStage'])
+    .unique()
+    .execute()
+
+  // User-specific ingredient prices with history
+  await db.schema
+    .createTable('user_ingredient_prices')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('userId', 'uuid', (col) =>
+      col.notNull().references('users.id').onDelete('cascade'),
+    )
+    .addColumn('ingredientId', 'uuid', (col) =>
+      col.notNull().references('feed_ingredients.id').onDelete('cascade'),
+    )
+    .addColumn('pricePerKg', sql`decimal(19,2)`, (col) => col.notNull())
+    .addColumn('isAvailable', 'boolean', (col) => col.notNull().defaultTo(true))
+    .addColumn('lastUpdated', 'timestamp', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .addColumn('priceHistory', 'jsonb', (col) => col.notNull().defaultTo('[]'))
+    .execute()
+
+  await db.schema
+    .createIndex('user_ingredient_prices_user_ingredient_unique')
+    .on('user_ingredient_prices')
+    .columns(['userId', 'ingredientId'])
+    .unique()
+    .execute()
+
+  // Saved feed formulations
+  await db.schema
+    .createTable('saved_formulations')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('userId', 'uuid', (col) =>
+      col.notNull().references('users.id').onDelete('cascade'),
+    )
+    .addColumn('name', 'text', (col) => col.notNull())
+    .addColumn('species', 'text', (col) => col.notNull())
+    .addColumn('productionStage', 'text', (col) => col.notNull())
+    .addColumn('batchSizeKg', sql`decimal(10,2)`, (col) => col.notNull())
+    .addColumn('ingredients', 'jsonb', (col) => col.notNull())
+    .addColumn('totalCostPerKg', sql`decimal(19,2)`, (col) => col.notNull())
+    .addColumn('nutritionalValues', 'jsonb', (col) => col.notNull())
+    .addColumn('shareCode', 'text')
+    .addColumn('usageCount', 'integer', (col) => col.notNull().defaultTo(0))
+    .addColumn('mixingInstructions', 'text')
+    .addColumn('createdAt', 'timestamp', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .addColumn('updatedAt', 'timestamp', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .execute()
+
+  // Formulation usage tracking
+  await sql`
+    CREATE TABLE formulation_usage (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      formulation_id UUID NOT NULL REFERENCES saved_formulations(id) ON DELETE CASCADE,
+      batch_id UUID REFERENCES batches(id) ON DELETE SET NULL,
+      user_id UUID NOT NULL,
+      used_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      batch_size_kg DECIMAL(10,2) NOT NULL,
+      total_cost DECIMAL(19,2) NOT NULL,
+      notes TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `.execute(db)
+
+  // Indexes for feed formulation tables
+  await db.schema
+    .createIndex('idx_feed_ingredients_category')
+    .on('feed_ingredients')
+    .column('category')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_feed_ingredients_active')
+    .on('feed_ingredients')
+    .column('isActive')
+    .where('isActive', '=', true)
+    .execute()
+
+  await db.schema
+    .createIndex('idx_user_ingredient_prices_user')
+    .on('user_ingredient_prices')
+    .column('userId')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_saved_formulations_user')
+    .on('saved_formulations')
+    .column('userId')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_saved_formulations_species_stage')
+    .on('saved_formulations')
+    .columns(['species', 'productionStage'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_saved_formulations_share_code')
+    .on('saved_formulations')
+    .column('shareCode')
+    .where('shareCode', 'is not', null)
+    .execute()
+
+  await sql`CREATE INDEX idx_formulation_usage_formulation_id ON formulation_usage(formulation_id)`.execute(
+    db,
+  )
+  await sql`CREATE INDEX idx_formulation_usage_batch_id ON formulation_usage(batch_id)`.execute(
+    db,
+  )
+  await sql`CREATE INDEX idx_formulation_usage_user_id ON formulation_usage(user_id)`.execute(
+    db,
+  )
+  await sql`CREATE INDEX idx_formulation_usage_used_at ON formulation_usage(used_at DESC)`.execute(
+    db,
+  )
+
+  // Update trigger for saved_formulations
+  await sql`CREATE TRIGGER update_saved_formulations_updated_at BEFORE UPDATE ON saved_formulations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(
+    db,
+  )
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
@@ -1152,6 +1337,11 @@ export async function down(db: Kysely<any>): Promise<void> {
 
   // Drop all tables
   const tables = [
+    'formulation_usage',
+    'saved_formulations',
+    'user_ingredient_prices',
+    'nutritional_requirements',
+    'feed_ingredients',
     'report_configs',
     'growth_standards',
     'market_prices',
