@@ -834,87 +834,87 @@ export async function getBatchesPaginated(
       countQuery = countQuery.where('batches.breedId', '=', query.breedId)
     }
 
-  // Get total count
-  const countResult = await countQuery
-    .select(sql<number>`count(*)`.as('count'))
-    .executeTakeFirst()
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
+    // Get total count
+    const countResult = await countQuery
+      .select(sql<number>`count(*)`.as('count'))
+      .executeTakeFirst()
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
 
-  // Apply sorting
-  const sortColumn =
-    sortBy === 'species'
-      ? 'batches.species'
-      : sortBy === 'currentQuantity'
-        ? 'batches.currentQuantity'
-        : sortBy === 'status'
-          ? 'batches.status'
-          : sortBy === 'livestockType'
-            ? 'batches.livestockType'
-            : 'batches.acquisitionDate'
+    // Apply sorting
+    const sortColumn =
+      sortBy === 'species'
+        ? 'batches.species'
+        : sortBy === 'currentQuantity'
+          ? 'batches.currentQuantity'
+          : sortBy === 'status'
+            ? 'batches.status'
+            : sortBy === 'livestockType'
+              ? 'batches.livestockType'
+              : 'batches.acquisitionDate'
 
-  // Build data query
-  let dataQuery = db
-    .selectFrom('batches')
-    .leftJoin('farms', 'farms.id', 'batches.farmId')
-    .leftJoin('breeds', 'breeds.id', 'batches.breedId')
-    .select([
-      'batches.id',
-      'batches.farmId',
-      'batches.livestockType',
-      'batches.species',
-      'batches.breedId',
-      'breeds.displayName as breedName',
-      'batches.initialQuantity',
-      'batches.currentQuantity',
-      'batches.acquisitionDate',
-      'batches.costPerUnit',
-      'batches.totalCost',
-      'batches.status',
-      'farms.name as farmName',
-    ])
-    .where('batches.farmId', 'in', targetFarmIds)
+    // Build data query
+    let dataQuery = db
+      .selectFrom('batches')
+      .leftJoin('farms', 'farms.id', 'batches.farmId')
+      .leftJoin('breeds', 'breeds.id', 'batches.breedId')
+      .select([
+        'batches.id',
+        'batches.farmId',
+        'batches.livestockType',
+        'batches.species',
+        'batches.breedId',
+        'breeds.displayName as breedName',
+        'batches.initialQuantity',
+        'batches.currentQuantity',
+        'batches.acquisitionDate',
+        'batches.costPerUnit',
+        'batches.totalCost',
+        'batches.status',
+        'farms.name as farmName',
+      ])
+      .where('batches.farmId', 'in', targetFarmIds)
 
-  // Re-apply filters
-  if (search) {
-    dataQuery = dataQuery.where((eb) =>
-      eb.or([
-        eb('batches.species', 'ilike', `%${search}%`),
-        eb('farms.name', 'ilike', `%${search}%`),
-      ]),
-    )
-  }
-  if (query.status) {
-    dataQuery = dataQuery.where('batches.status', '=', query.status as any)
-  }
-  if (query.breedId) {
-    dataQuery = dataQuery.where('batches.breedId', '=', query.breedId)
-  }
+    // Re-apply filters
+    if (search) {
+      dataQuery = dataQuery.where((eb) =>
+        eb.or([
+          eb('batches.species', 'ilike', `%${search}%`),
+          eb('farms.name', 'ilike', `%${search}%`),
+        ]),
+      )
+    }
+    if (query.status) {
+      dataQuery = dataQuery.where('batches.status', '=', query.status as any)
+    }
+    if (query.breedId) {
+      dataQuery = dataQuery.where('batches.breedId', '=', query.breedId)
+    }
 
-  // Apply sorting and pagination
-  const data = await dataQuery
-    .orderBy(sortColumn as any, sortOrder)
-    .limit(pageSize)
-    .offset((page - 1) * pageSize)
-    .execute()
+    // Apply sorting and pagination
+    const data = await dataQuery
+      .orderBy(sortColumn as any, sortOrder)
+      .limit(pageSize)
+      .offset((page - 1) * pageSize)
+      .execute()
 
-  return {
-    data: data.map((d: any) => ({
-    ...d,
-    farmName: d.farmName || null,
-  })),
-  total,
-  page,
-  pageSize,
-  totalPages,
-}
+    return {
+      data: data.map((d: any) => ({
+        ...d,
+        farmName: d.farmName || null,
+      })),
+      total,
+      page,
+      pageSize,
+      totalPages,
+    }
   } catch (error) {
-  if (error instanceof AppError) throw error
-  throw new AppError('DATABASE_ERROR', {
-    message: 'Failed to fetch paginated batches',
-    cause: error,
-  })
-}
+    if (error instanceof AppError) throw error
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to fetch paginated batches',
+      cause: error,
+    })
+  }
 }
 
 // Server function for paginated batches
@@ -1004,9 +1004,9 @@ export const getBatchesNeedingAttentionFn = createServerFn({ method: 'GET' })
     const session = await requireAuth()
     const { getDb } = await import('~/lib/db')
     const { getUserFarms, checkFarmAccess } = await import('../auth/utils')
-    
+
     const db = await getDb()
-    
+
     // Determine target farms
     let targetFarmIds: Array<string> = []
     if (data.farmId) {
@@ -1035,19 +1035,19 @@ export const getBatchesNeedingAttentionFn = createServerFn({ method: 'GET' })
       .execute()
 
     const batchesWithPI = []
-    
+
     for (const batch of batches) {
       // Calculate Performance Index
       const mortalityRate = calculateMortalityRate(
         batch.initialQuantity,
         batch.currentQuantity,
-        batch.initialQuantity - batch.currentQuantity
+        batch.initialQuantity - batch.currentQuantity,
       )
-      
+
       // Simple PI calculation: 100 - (mortality_rate * 2)
       // Normal mortality is 5-10%, so PI should be 80-90 for normal batches
-      const performanceIndex = Math.max(0, 100 - (mortalityRate * 2))
-      
+      const performanceIndex = Math.max(0, 100 - mortalityRate * 2)
+
       // Check if needs attention (PI < 90 or > 110)
       if (performanceIndex < 90 || performanceIndex > 110) {
         const deviation = Math.abs(100 - performanceIndex)
@@ -1060,9 +1060,7 @@ export const getBatchesNeedingAttentionFn = createServerFn({ method: 'GET' })
         })
       }
     }
-    
+
     // Sort by deviation (highest first) and limit to 5
-    return batchesWithPI
-      .sort((a, b) => b.deviation - a.deviation)
-      .slice(0, 5)
+    return batchesWithPI.sort((a, b) => b.deviation - a.deviation).slice(0, 5)
   })

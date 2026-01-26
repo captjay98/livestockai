@@ -71,6 +71,12 @@ export interface BatchWithFarmName {
   deletedAt?: Date | null
   structureName?: string | null
   supplierName?: string | null
+  formulation?: {
+    name: string
+    species: string
+    stage: string
+    costPerKg: string
+  } | null
 }
 
 /**
@@ -396,7 +402,7 @@ export async function getRelatedRecords(
  * @returns Object containing mortality, feed, sales, and expense statistics
  */
 export async function getBatchStats(db: Kysely<Database>, batchId: string) {
-  const [mortalityStats, feedStats, salesStats, expenseStats] =
+  const [mortalityStats, feedStats, salesStats, expenseStats, formulationData] =
     await Promise.all([
       // Mortality statistics
       db
@@ -436,6 +442,25 @@ export async function getBatchStats(db: Kysely<Database>, batchId: string) {
         .select(db.fn.sum('amount').as('total_expenses'))
         .where('batchId', '=', batchId)
         .executeTakeFirst(),
+
+      // Formulation data (most recent)
+      db
+        .selectFrom('formulation_usage')
+        .leftJoin(
+          'saved_formulations',
+          'formulation_usage.formulationId',
+          'saved_formulations.id',
+        )
+        .select([
+          'saved_formulations.name',
+          'saved_formulations.species',
+          'saved_formulations.productionStage',
+          'saved_formulations.totalCostPerKg',
+        ])
+        .where('formulation_usage.batchId', '=', batchId)
+        .orderBy('formulation_usage.createdAt', 'desc')
+        .limit(1)
+        .executeTakeFirst(),
     ])
 
   return {
@@ -456,6 +481,14 @@ export async function getBatchStats(db: Kysely<Database>, batchId: string) {
     expenses: {
       totalExpenses: expenseStats?.total_expenses || null,
     },
+    formulation: formulationData
+      ? {
+          name: formulationData.name,
+          species: formulationData.species,
+          stage: formulationData.productionStage,
+          costPerKg: formulationData.totalCostPerKg,
+        }
+      : null,
   }
 }
 
@@ -747,9 +780,9 @@ export async function getInventorySummary(
   const averageWeightKg =
     recentWeights.length > 0
       ? recentWeights.reduce(
-        (sum, w) => sum + Number(w.averageWeightKg || 0),
-        0,
-      ) / recentWeights.length
+          (sum, w) => sum + Number(w.averageWeightKg || 0),
+          0,
+        ) / recentWeights.length
       : 0
 
   return {

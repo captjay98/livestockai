@@ -154,6 +154,30 @@ export const ErrorMap = {
     category: 'NOT_FOUND',
     message: 'Breed not found',
   },
+  INGREDIENT_NOT_FOUND: {
+    code: 40420,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Feed ingredient not found',
+  },
+  FORMULATION_NOT_FOUND: {
+    code: 40421,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Feed formulation not found',
+  },
+  REQUIREMENT_NOT_FOUND: {
+    code: 40422,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Nutritional requirement not found',
+  },
+  REQUIREMENTS_NOT_FOUND: {
+    code: 40423,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Nutritional requirements not found for species and stage',
+  },
 
   // Validation (400xx)
   VALIDATION_ERROR: {
@@ -173,6 +197,18 @@ export const ErrorMap = {
     httpStatus: 400,
     category: 'VALIDATION',
     message: 'Insufficient stock',
+  },
+  INFEASIBLE_FORMULATION: {
+    code: 40003,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'No feasible formulation found with current constraints',
+  },
+  NO_PRICED_INGREDIENTS: {
+    code: 40004,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'No ingredients with prices available',
   },
   ALREADY_EXISTS: {
     code: 40900,
@@ -198,7 +234,31 @@ export const ErrorMap = {
     code: 50001,
     httpStatus: 500,
     category: 'SERVER',
-    message: 'Database error',
+    message: 'Database operation failed',
+  },
+  SOLVER_ERROR: {
+    code: 50002,
+    httpStatus: 500,
+    category: 'SERVER',
+    message: 'Optimization solver error',
+  },
+  SOLVER_TIMEOUT: {
+    code: 50003,
+    httpStatus: 500,
+    category: 'SERVER',
+    message: 'Solver timeout - optimization took too long',
+  },
+  SOLVER_UNAVAILABLE: {
+    code: 50004,
+    httpStatus: 500,
+    category: 'SERVER',
+    message: 'Solver service unavailable',
+  },
+  EXTERNAL_SERVICE_ERROR: {
+    code: 50005,
+    httpStatus: 500,
+    category: 'SERVER',
+    message: 'External service error',
   },
 } as const
 
