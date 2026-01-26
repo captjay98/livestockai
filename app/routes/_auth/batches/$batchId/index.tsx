@@ -1,10 +1,11 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { Target, X } from 'lucide-react'
+import { ExternalLink, Target, X } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { Button } from '~/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { ProjectionsCard } from '~/components/batches/projections-card'
 import { GrowthChart } from '~/components/batches/growth-chart'
 import { BatchCommandCenter } from '~/components/batches/command-center'
@@ -16,6 +17,39 @@ import { ExpensesTab } from '~/components/batches/batch-details/expenses-tab'
 import { SalesTab } from '~/components/batches/batch-details/sales-tab'
 import { getBatchDetailsFn } from '~/features/batches/server'
 import { BatchDetailSkeleton } from '~/components/batches/batch-detail-skeleton'
+
+function FormulationCard({ formulation }: { formulation: any }) {
+  const { t } = useTranslation(['batches'])
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {t('formulation.title', { defaultValue: 'Feed Formulation' })}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <div>
+          <span className="font-medium">{formulation.name}</span>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {formulation.species} • {formulation.stage}
+        </div>
+        <div className="text-sm">
+          <span className="font-medium">Cost: </span>
+          {formulation.costPerKg}/kg
+        </div>
+        <Link
+          to="/feed-formulation"
+          search={{ highlight: formulation.id }}
+          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+        >
+          View Details <ExternalLink className="h-3 w-3" />
+        </Link>
+      </CardContent>
+    </Card>
+  )
+}
 
 export const Route = createFileRoute('/_auth/batches/$batchId/')({
   loader: async ({ params }) =>
@@ -40,7 +74,8 @@ function BatchDetailsPage() {
   ])
   const { batchId } = Route.useParams()
   const data = Route.useLoaderData()
-  const [targetWeightPromptDismissed, setTargetWeightPromptDismissed] = useState(false)
+  const [targetWeightPromptDismissed, setTargetWeightPromptDismissed] =
+    useState(false)
 
   const { batch, mortality, feed, sales, expenses } = data
 
@@ -82,6 +117,8 @@ function BatchDetailsPage() {
 
       <BatchKPIs metrics={metrics} batchId={batchId} />
 
+      {batch.formulation && <FormulationCard formulation={batch.formulation} />}
+
       <Tabs defaultValue="feed" className="w-full">
         <TabsList>
           <TabsTrigger value="feed">
@@ -109,7 +146,10 @@ function BatchDetailsPage() {
         </TabsContent>
 
         <TabsContent value="growth" className="mt-4">
-          <GrowthChart batchId={batch.id} acquisitionDate={batch.acquisitionDate} />
+          <GrowthChart
+            batchId={batch.id}
+            acquisitionDate={batch.acquisitionDate}
+          />
         </TabsContent>
 
         <TabsContent value="projections" className="mt-4">
@@ -120,13 +160,16 @@ function BatchDetailsPage() {
                 <div className="flex-1">
                   <AlertTitle>Set Target Weight</AlertTitle>
                   <AlertDescription>
-                    Add a target weight to enable growth projections and harvest date predictions.
+                    Add a target weight to enable growth projections and harvest
+                    date predictions.
                   </AlertDescription>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="mt-2"
-                    onClick={() => {/* TODO: Implement edit dialog */}}
+                    onClick={() => {
+                      /* TODO: Implement edit dialog */
+                    }}
                   >
                     Edit Batch
                   </Button>
