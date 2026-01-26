@@ -87,7 +87,10 @@ export function CreateFarmStep() {
                 id="name"
                 value={formData.name}
                 onChange={(e) =>
-                  setFormData((p: CreateFarmData) => ({ ...p, name: e.target.value }))
+                  setFormData((p: CreateFarmData) => ({
+                    ...p,
+                    name: e.target.value,
+                  }))
                 }
                 placeholder={t('createFarm.form.namePlaceholder', {
                   defaultValue: 'e.g., Sunshine Poultry Farm',
@@ -103,7 +106,10 @@ export function CreateFarmStep() {
                 id="location"
                 value={formData.location}
                 onChange={(e) =>
-                  setFormData((p: CreateFarmData) => ({ ...p, location: e.target.value }))
+                  setFormData((p: CreateFarmData) => ({
+                    ...p,
+                    location: e.target.value,
+                  }))
                 }
                 placeholder={t(
                   'onboarding.createFarm.form.locationPlaceholder',
@@ -119,7 +125,11 @@ export function CreateFarmStep() {
               <Select
                 value={formData.type}
                 onValueChange={(v) => {
-                  if (v) setFormData((p: CreateFarmData) => ({ ...p, type: v as FarmType }))
+                  if (v)
+                    setFormData((p: CreateFarmData) => ({
+                      ...p,
+                      type: v as FarmType,
+                    }))
                 }}
               >
                 <SelectTrigger>

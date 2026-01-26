@@ -115,7 +115,8 @@ export interface UpdateStructureInput {
  * @throws {Error} If user does not have access to the farm
  */
 export async function getStructures(userId: string, farmId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -152,7 +153,8 @@ export const getStructuresFn = createServerFn({ method: 'GET' })
  * @throws {Error} If structure is not found or access is denied
  */
 export async function getStructure(userId: string, structureId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -220,7 +222,8 @@ export async function createStructure(
   userId: string,
   input: CreateStructureInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -306,7 +309,8 @@ export async function updateStructure(
   id: string,
   input: UpdateStructureInput,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -407,7 +411,8 @@ export const updateStructureFn = createServerFn({ method: 'POST' })
  * @throws {Error} If structure is not found, user is unauthorized, or structure has active batches
  */
 export async function deleteStructure(userId: string, id: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -472,7 +477,8 @@ export const deleteStructureFn = createServerFn({ method: 'POST' })
  * @returns Promise resolving to an array of structures with batch and animal totals
  */
 export async function getStructuresWithCounts(userId: string, farmId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
 

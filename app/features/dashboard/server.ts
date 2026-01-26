@@ -23,7 +23,8 @@ export async function getDashboardStats(
   userId: string,
   farmId?: string,
 ): Promise<DashboardStats> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('../auth/utils')
   const { AppError } = await import('~/lib/errors')
 
@@ -416,7 +417,8 @@ export const getDashboardDataFn = createServerFn({ method: 'GET' })
         getUserFarms(session.user.id),
       ])
 
-      const { getDb } = await import('~/lib/db'); const db = await getDb()
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
       const farms =
         farmIds.length > 0
           ? await db

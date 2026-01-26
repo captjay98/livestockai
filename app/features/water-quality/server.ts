@@ -53,7 +53,8 @@ export const getWaterQualityDataForFarmFn = createServerFn({ method: 'GET' })
     try {
       const farmId = input.farmId || undefined
       const { getUserFarms } = await import('~/features/auth/utils')
-      const { getDb } = await import('~/lib/db'); const db = await getDb()
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
       // Get farm IDs
       const farmIds = farmId ? [farmId] : await getUserFarms(session.user.id)
@@ -91,7 +92,8 @@ export const insertReadingFn = createServerFn({ method: 'POST' })
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
     const { insertReading } = await import('./repository')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       return await insertReading(db, {
@@ -116,7 +118,8 @@ export const updateReadingFn = createServerFn({ method: 'POST' })
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
     const { updateReading } = await import('./repository')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       const updateData: {
@@ -153,7 +156,8 @@ export const deleteReadingFn = createServerFn({ method: 'POST' })
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
     const { deleteReading } = await import('./repository')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       return await deleteReading(db, input.recordId)

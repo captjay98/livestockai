@@ -81,7 +81,8 @@ export async function getFeedInventory(userId: string, farmId?: string) {
     if (targetFarmIds.length === 0) return []
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   return selectFeedInventory(db, targetFarmIds)
 }
 
@@ -110,7 +111,8 @@ export async function getLowStockFeedInventory(
     if (targetFarmIds.length === 0) return []
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   return getLowStockFeed(db, targetFarmIds)
 }
 
@@ -136,7 +138,8 @@ export async function createFeedInventory(
 
   await verifyFarmAccess(userId, input.farmId)
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   const existing = await getFeedInventoryByFarmAndType(
     db,
@@ -184,7 +187,8 @@ export async function updateFeedInventoryRecord(
     })
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getFeedInventoryById(db, id)
@@ -227,7 +231,8 @@ export const updateFeedInventoryFn = createServerFn({ method: 'POST' })
   })
 
 export async function deleteFeedInventoryRecord(userId: string, id: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getFeedInventoryById(db, id)
@@ -271,7 +276,8 @@ export async function addFeedStock(
     })
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   const existing = await getFeedInventoryByFarmAndType(
     db,
@@ -322,7 +328,8 @@ export async function reduceFeedStock(
     })
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   const existing = await getFeedInventoryByFarmAndType(
     db,

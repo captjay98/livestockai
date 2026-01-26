@@ -33,6 +33,7 @@ export const Route = createFileRoute('/_auth/batches/')({
     search: search.q,
     status: search.status,
     livestockType: search.livestockType,
+    breedId: search.breedId,
   }),
   loader: async ({ deps }) => {
     return getBatchesForFarmFn({ data: deps })
@@ -68,6 +69,10 @@ function BatchesPage() {
     navigate({
       search: { ...searchParams, ...updates },
     })
+  }
+
+  const handleBreedChange = (breedId: string | undefined) => {
+    updateSearch({ breedId, page: 1 })
   }
 
   // Edit batch handler
@@ -165,12 +170,13 @@ function BatchesPage() {
         searchPlaceholder={t('common:search', { defaultValue: 'Search...' })}
         filters={
           <BatchFilters
-            status={searchParams.status}
             livestockType={searchParams.livestockType}
+            breedId={searchParams.breedId}
             onStatusChange={(status) => updateSearch({ status, page: 1 })}
             onLivestockTypeChange={(livestockType) =>
-              updateSearch({ livestockType, page: 1 })
+              updateSearch({ livestockType, breedId: undefined, page: 1 })
             }
+            onBreedChange={handleBreedChange}
           />
         }
         onPaginationChange={(page, pageSize) => {

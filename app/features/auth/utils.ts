@@ -9,7 +9,8 @@ export async function checkFarmAccess(
   farmId: string,
 ): Promise<boolean> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     // Get user role
     const user = await db
       .selectFrom('users')
@@ -41,7 +42,8 @@ export async function checkFarmAccess(
  */
 export async function getUserFarms(userId: string): Promise<Array<string>> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     // Get user role
     const user = await db
       .selectFrom('users')
@@ -80,7 +82,8 @@ export async function assignUserToFarm(
   role: 'owner' | 'manager' | 'viewer' = 'viewer',
 ): Promise<boolean> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     // Check if admin user is actually an admin
     const adminUser = await db
       .selectFrom('users')
@@ -137,7 +140,8 @@ export async function removeUserFromFarm(
   farmId: string,
 ): Promise<boolean> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     // Check if admin user is actually an admin
     const adminUser = await db
       .selectFrom('users')
@@ -173,7 +177,8 @@ export const verifyFarmAccess = checkFarmAccess
  */
 export async function isAdmin(userId: string): Promise<boolean> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const user = await db
       .selectFrom('users')
       .select(['role'])
@@ -194,7 +199,8 @@ export async function getUserFarmRole(
   farmId: string,
 ): Promise<'owner' | 'manager' | 'viewer' | null> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const assignment = await db
       .selectFrom('user_farms')
       .select(['role'])
@@ -217,7 +223,8 @@ export async function getUserFarmsWithRoles(
   userId: string,
 ): Promise<Array<{ farmId: string; role: 'owner' | 'manager' | 'viewer' }>> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const user = await db
       .selectFrom('users')
       .select(['role'])
@@ -328,7 +335,8 @@ export async function hasPermission(
   permission: Permission,
 ): Promise<boolean> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     // Check if user is admin (admins have all permissions)
     const user = await db
       .selectFrom('users')
@@ -387,7 +395,8 @@ export async function getUserPermissions(
   farmId: string,
 ): Promise<Array<Permission>> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     // Check if user is admin
     const user = await db
       .selectFrom('users')

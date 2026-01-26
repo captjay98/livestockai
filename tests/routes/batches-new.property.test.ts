@@ -16,23 +16,6 @@ export function getAvailableLivestockTypes(
   )
 }
 
-/**
- * Helper function to get species options for a livestock type
- */
-export function getSpeciesForLivestockType(
-  livestockType: LivestockType,
-): Array<string> {
-  // Find the module key that corresponds to this livestock type
-  const moduleKey = Object.keys(MODULE_METADATA).find((key) =>
-    MODULE_METADATA[key as ModuleKey].livestockTypes.includes(livestockType),
-  ) as ModuleKey | undefined
-
-  if (!moduleKey) return []
-
-  // Extract the label values from species options
-  return MODULE_METADATA[moduleKey].speciesOptions.map((option) => option.label)
-}
-
 describe('Batch Form - Property Tests', () => {
   const allModuleKeys: Array<ModuleKey> = [
     'poultry',
@@ -120,33 +103,6 @@ describe('Batch Form - Property Tests', () => {
   })
 
   /**
-   * Property: Species Options Match Livestock Type
-   * For any livestock type, the species options should be non-empty and
-   * appropriate for that type.
-   */
-  it('Property: Species options are appropriate for livestock type', () => {
-    fc.assert(
-      fc.property(moduleSetArb, (enabledModules) => {
-        const availableTypes = getAvailableLivestockTypes(enabledModules)
-
-        availableTypes.forEach((type) => {
-          const species = getSpeciesForLivestockType(type)
-
-          // Species options should be non-empty
-          expect(species.length).toBeGreaterThan(0)
-
-          // Species should be strings
-          species.forEach((s) => {
-            expect(typeof s).toBe('string')
-            expect(s.length).toBeGreaterThan(0)
-          })
-        })
-      }),
-      { numRuns: 100 },
-    )
-  })
-
-  /**
    * Property: Subset Modules Show Subset Types
    * If moduleSet1 is a subset of moduleSet2, then the livestock types for
    * moduleSet1 should be a subset of the livestock types for moduleSet2.
@@ -211,24 +167,6 @@ describe('Batch Form - Property Tests', () => {
 
         // Available types should match expected order
         expect(availableTypes).toEqual(expectedOrder)
-      }),
-      { numRuns: 100 },
-    )
-  })
-
-  /**
-   * Property: No Empty Species Lists
-   * Every livestock type should have at least one species option.
-   */
-  it('Property: All livestock types have species options', () => {
-    fc.assert(
-      fc.property(moduleSetArb, (enabledModules) => {
-        const availableTypes = getAvailableLivestockTypes(enabledModules)
-
-        availableTypes.forEach((type) => {
-          const species = getSpeciesForLivestockType(type)
-          expect(species.length).toBeGreaterThan(0)
-        })
       }),
       { numRuns: 100 },
     )

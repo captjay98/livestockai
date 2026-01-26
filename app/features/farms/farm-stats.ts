@@ -4,7 +4,8 @@ import { getFarmsForUser } from '~/features/farms/server'
 
 export const getFarmsWithStats = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
 

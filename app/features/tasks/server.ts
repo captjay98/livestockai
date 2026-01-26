@@ -31,7 +31,8 @@ export async function getTasks(
   farmId: string,
   frequency?: 'daily' | 'weekly' | 'monthly',
 ): Promise<Array<TaskWithStatus>> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -72,7 +73,8 @@ export async function completeTask(
   userId: string,
   taskId: string,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -115,7 +117,8 @@ export async function uncompleteTask(
   userId: string,
   taskId: string,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -159,7 +162,8 @@ export async function createTask(
   farmId: string,
   input: CreateTaskInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -214,7 +218,8 @@ export async function deleteTask(
   userId: string,
   taskId: string,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -251,7 +256,8 @@ export const deleteTaskFn = createServerFn({ method: 'POST' })
  * Seed default tasks for a farm.
  */
 export async function seedDefaultTasks(farmId: string): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     for (const task of DEFAULT_TASKS) {

@@ -58,7 +58,6 @@ export interface ModuleMetadata {
   icon: string
   livestockTypes: Array<LivestockType>
   productTypes: Array<ProductType>
-  speciesOptions: Array<{ value: string; label: string }>
   sourceSizeOptions: Array<{ value: string; label: string }>
   feedTypes: Array<FeedType>
   structureTypes: Array<StructureType>

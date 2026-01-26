@@ -59,7 +59,8 @@ export async function createEggRecord(
   farmId: string,
   input: CreateEggRecordInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -135,7 +136,8 @@ export async function deleteEggRecord(
   farmId: string,
   recordId: string,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -199,7 +201,8 @@ export async function updateEggRecord(
   recordId: string,
   data: UpdateEggRecordInput,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -275,7 +278,8 @@ export async function getEggRecords(
     endDate?: Date
   },
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
@@ -317,7 +321,8 @@ export async function getEggRecordsForBatch(
   farmId: string,
   batchId: string,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -334,7 +339,8 @@ export async function getEggRecordsForBatch(
 }
 
 export async function getEggRecordsForFarm(userId: string, farmId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -358,7 +364,8 @@ export async function getEggRecordsForFarm(userId: string, farmId: string) {
  * @returns Summary metrics including total collected and current stock
  */
 export async function getEggRecordsSummary(userId: string, farmId?: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
 
@@ -430,7 +437,8 @@ export async function calculateLayingPercentage(
   batchId: string,
   date?: Date,
 ): Promise<number | null> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -477,7 +485,8 @@ export async function getEggInventory(
   farmId: string,
   batchId?: string,
 ): Promise<number> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -504,7 +513,8 @@ export async function getEggRecordsPaginated(
   userId: string,
   query: EggQuery = {},
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -628,7 +638,8 @@ export const createEggRecordAction = createServerFn({ method: 'POST' })
 export const getPoultryBatchesForEggsFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const { verifyFarmAccess } = await import('~/features/auth/utils')
 

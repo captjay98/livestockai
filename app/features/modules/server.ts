@@ -66,7 +66,8 @@ const canDisableModuleSchema = z.object({
 export async function getFarmModules(
   farmId: string,
 ): Promise<Array<FarmModule>> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     return await selectFarmModules(db, farmId)
@@ -105,7 +106,8 @@ export async function createDefaultModules(
     throw new AppError('VALIDATION_ERROR', { message: validationError })
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     // Get default modules for this farm type (empty array for unknown types)
@@ -152,7 +154,8 @@ export async function toggleModule(
     throw new AppError('VALIDATION_ERROR', { message: validationError })
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     await upsertFarmModule(db, farmId, moduleKey, enabled)
@@ -178,7 +181,8 @@ export async function canDisableModule(
     throw new AppError('VALIDATION_ERROR', { message: validationError })
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     // Get livestock types for this module

@@ -41,6 +41,7 @@ const createBatchSchema = z.object({
     'bees',
   ]),
   species: z.string().min(1).max(100),
+  breedId: z.string().uuid().nullish(),
   initialQuantity: z.number().int().positive(),
   acquisitionDate: z.coerce.date(),
   costPerUnit: z.number().nonnegative(),
@@ -49,6 +50,7 @@ const createBatchSchema = z.object({
   structureId: z.string().uuid().nullish(),
   targetHarvestDate: z.coerce.date().nullish(),
   target_weight_g: z.number().positive().nullish(),
+  targetPricePerUnit: z.number().nonnegative().nullish(),
   supplierId: z.string().uuid().nullish(),
   notes: z.string().max(500).nullish(),
 })
@@ -75,6 +77,7 @@ const paginatedQuerySchema = z.object({
   livestockType: z
     .enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'])
     .optional(),
+  breedId: z.string().uuid().optional(),
 })
 
 export type { PaginatedResult }
@@ -124,6 +127,8 @@ export interface CreateBatchData {
   livestockType: LivestockType
   /** The specific species or breed (e.g., 'Broiler', 'Catfish') */
   species: string
+  /** Optional breed ID for breed-specific forecasting */
+  breedId?: string | null
   /** Initial number of units in the batch */
   initialQuantity: number
   /** Date when the batch was acquired or started */
@@ -140,6 +145,8 @@ export interface CreateBatchData {
   targetHarvestDate?: Date | null
   /** Optional target weight in grams for harvest */
   target_weight_g?: number | null
+  /** Optional expected sale price per unit for revenue forecasting */
+  targetPricePerUnit?: number | null
   /** Optional ID of the supplier */
   supplierId?: string | null
   /** Optional additional notes */
@@ -198,7 +205,8 @@ export async function createBatch(
   userId: string,
   data: CreateBatchData,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -227,6 +235,7 @@ export async function createBatch(
       farmId: data.farmId,
       livestockType: data.livestockType,
       species: data.species,
+      breedId: data.breedId || null,
       initialQuantity: data.initialQuantity,
       currentQuantity: data.initialQuantity,
       acquisitionDate: data.acquisitionDate,
@@ -239,6 +248,9 @@ export async function createBatch(
       structureId: data.structureId || null,
       targetHarvestDate: data.targetHarvestDate || null,
       target_weight_g: data.target_weight_g || null,
+      targetPricePerUnit: data.targetPricePerUnit
+        ? data.targetPricePerUnit.toString()
+        : null,
       supplierId: data.supplierId || null,
       notes: data.notes || null,
     })
@@ -286,7 +298,8 @@ export async function getBatches(
     species?: string
   },
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
 
   try {
@@ -331,7 +344,8 @@ export async function getBatches(
  * ```
  */
 export async function getBatchById(userId: string, batchId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -377,7 +391,8 @@ export async function updateBatch(
   batchId: string,
   data: UpdateBatchData,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     const batch = await getBatchById(userId, batchId)
@@ -451,7 +466,8 @@ export const updateBatchFn = createServerFn({ method: 'POST' })
  * ```
  */
 export async function deleteBatch(userId: string, batchId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     const batch = await getBatchById(userId, batchId)
@@ -504,7 +520,8 @@ export async function updateBatchQuantity(
   batchId: string,
   newQuantity: number,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     // Determine status using service layer logic
@@ -535,7 +552,8 @@ export async function updateBatchQuantity(
  * ```
  */
 export async function getBatchStatsWrapper(userId: string, batchId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     const batch = await getBatchById(userId, batchId)
@@ -614,7 +632,8 @@ export async function getBatchStatsWrapper(userId: string, batchId: string) {
  * ```
  */
 export async function getInventorySummary(userId: string, farmId?: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
 
   try {
@@ -726,6 +745,7 @@ export interface PaginatedQuery {
   farmId?: string
   status?: string
   livestockType?: string
+  breedId?: string
 }
 
 /**
@@ -750,6 +770,8 @@ export async function getBatchesPaginated(
     farmName: string | null
     livestockType: string
     species: string
+    breedId?: string | null
+    breedName?: string | null
     initialQuantity: number
     currentQuantity: number
     acquisitionDate: Date
@@ -758,7 +780,8 @@ export async function getBatchesPaginated(
     status: string
   }>
 > {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { sql } = await import('kysely')
   const { checkFarmAccess, getUserFarms } = await import('../auth/utils')
 
@@ -806,96 +829,92 @@ export async function getBatchesPaginated(
       countQuery = countQuery.where('batches.status', '=', query.status as any)
     }
 
-    // Apply type filter
-    if (query.livestockType) {
-      countQuery = countQuery.where(
-        'batches.livestockType',
-        '=',
-        query.livestockType as any,
-      )
+    // Apply breed filter
+    if (query.breedId) {
+      countQuery = countQuery.where('batches.breedId', '=', query.breedId)
     }
 
-    // Get total count
-    const countResult = await countQuery
-      .select(sql<number>`count(*)`.as('count'))
-      .executeTakeFirst()
-    const total = Number(countResult?.count || 0)
-    const totalPages = Math.ceil(total / pageSize)
+  // Get total count
+  const countResult = await countQuery
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+  const total = Number(countResult?.count || 0)
+  const totalPages = Math.ceil(total / pageSize)
 
-    // Apply sorting
-    const sortColumn =
-      sortBy === 'species'
-        ? 'batches.species'
-        : sortBy === 'currentQuantity'
-          ? 'batches.currentQuantity'
-          : sortBy === 'status'
-            ? 'batches.status'
-            : sortBy === 'livestockType'
-              ? 'batches.livestockType'
-              : 'batches.acquisitionDate'
+  // Apply sorting
+  const sortColumn =
+    sortBy === 'species'
+      ? 'batches.species'
+      : sortBy === 'currentQuantity'
+        ? 'batches.currentQuantity'
+        : sortBy === 'status'
+          ? 'batches.status'
+          : sortBy === 'livestockType'
+            ? 'batches.livestockType'
+            : 'batches.acquisitionDate'
 
-    let dataQuery = db
-      .selectFrom('batches')
-      .leftJoin('farms', 'farms.id', 'batches.farmId')
-      .select([
-        'batches.id',
-        'batches.farmId',
-        'batches.livestockType',
-        'batches.species',
-        'batches.initialQuantity',
-        'batches.currentQuantity',
-        'batches.acquisitionDate',
-        'batches.costPerUnit',
-        'batches.totalCost',
-        'batches.status',
-        'farms.name as farmName',
-      ])
-      .where('batches.farmId', 'in', targetFarmIds)
+  // Build data query
+  let dataQuery = db
+    .selectFrom('batches')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .leftJoin('breeds', 'breeds.id', 'batches.breedId')
+    .select([
+      'batches.id',
+      'batches.farmId',
+      'batches.livestockType',
+      'batches.species',
+      'batches.breedId',
+      'breeds.displayName as breedName',
+      'batches.initialQuantity',
+      'batches.currentQuantity',
+      'batches.acquisitionDate',
+      'batches.costPerUnit',
+      'batches.totalCost',
+      'batches.status',
+      'farms.name as farmName',
+    ])
+    .where('batches.farmId', 'in', targetFarmIds)
 
-    // Re-apply filters
-    if (search) {
-      dataQuery = dataQuery.where((eb) =>
-        eb.or([
-          eb('batches.species', 'ilike', `%${search}%`),
-          eb('farms.name', 'ilike', `%${search}%`),
-        ]),
-      )
-    }
-    if (query.status) {
-      dataQuery = dataQuery.where('batches.status', '=', query.status as any)
-    }
-    if (query.livestockType) {
-      dataQuery = dataQuery.where(
-        'batches.livestockType',
-        '=',
-        query.livestockType as any,
-      )
-    }
-
-    // Apply sorting and pagination
-    const data = await dataQuery
-      .orderBy(sortColumn as any, sortOrder)
-      .limit(pageSize)
-      .offset((page - 1) * pageSize)
-      .execute()
-
-    return {
-      data: data.map((d) => ({
-        ...d,
-        farmName: d.farmName || null,
-      })),
-      total,
-      page,
-      pageSize,
-      totalPages,
-    }
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to fetch paginated batches',
-      cause: error,
-    })
+  // Re-apply filters
+  if (search) {
+    dataQuery = dataQuery.where((eb) =>
+      eb.or([
+        eb('batches.species', 'ilike', `%${search}%`),
+        eb('farms.name', 'ilike', `%${search}%`),
+      ]),
+    )
   }
+  if (query.status) {
+    dataQuery = dataQuery.where('batches.status', '=', query.status as any)
+  }
+  if (query.breedId) {
+    dataQuery = dataQuery.where('batches.breedId', '=', query.breedId)
+  }
+
+  // Apply sorting and pagination
+  const data = await dataQuery
+    .orderBy(sortColumn as any, sortOrder)
+    .limit(pageSize)
+    .offset((page - 1) * pageSize)
+    .execute()
+
+  return {
+    data: data.map((d: any) => ({
+    ...d,
+    farmName: d.farmName || null,
+  })),
+  total,
+  page,
+  pageSize,
+  totalPages,
+}
+  } catch (error) {
+  if (error instanceof AppError) throw error
+  throw new AppError('DATABASE_ERROR', {
+    message: 'Failed to fetch paginated batches',
+    cause: error,
+  })
+}
 }
 
 // Server function for paginated batches
@@ -940,6 +959,7 @@ export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
       search: z.string().optional(),
       status: z.string().optional(),
       livestockType: z.string().optional(),
+      breedId: z.string().optional(),
     }),
   )
   .handler(async ({ data }) => {
@@ -958,6 +978,7 @@ export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
           search: data.search,
           status: data.status,
           livestockType: data.livestockType,
+          breedId: data.breedId,
         }),
         getInventorySummary(session.user.id, farmId),
       ])

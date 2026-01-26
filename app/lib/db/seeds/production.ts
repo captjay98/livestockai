@@ -319,6 +319,28 @@ export async function seed() {
       console.log('   ✅ User settings created\n')
     }
 
+    // BREEDS
+    console.log('🐄 Seeding breeds...')
+
+    // Clear existing breeds
+    await db.deleteFrom('breeds').execute()
+
+    const { ALL_BREEDS } = await import('./breeds-data')
+    // Convert arrays to JSON strings for JSONB columns
+    const breedsWithJsonb = ALL_BREEDS.map((breed) => ({
+      ...breed,
+      sourceSizes: JSON.stringify(breed.sourceSizes) as any,
+      regions: JSON.stringify(breed.regions) as any,
+    }))
+    await db.insertInto('breeds').values(breedsWithJsonb).execute()
+    console.log(`   ✅ ${ALL_BREEDS.length} breeds seeded`)
+    console.log(`      • Poultry: 5 breeds`)
+    console.log(`      • Aquaculture: 4 breeds`)
+    console.log(`      • Cattle: 5 breeds`)
+    console.log(`      • Goats: 4 breeds`)
+    console.log(`      • Sheep: 4 breeds`)
+    console.log(`      • Bees: 2 breeds\n`)
+
     // GROWTH STANDARDS
     console.log('📈 Seeding growth standards...')
 
@@ -344,7 +366,7 @@ export async function seed() {
     ]
 
     await db.insertInto('growth_standards').values(allStandards).execute()
-    console.log(`   ✅ ${allStandards.length} growth standard entries`)
+    console.log(`   ✅ ${allStandards.length} species-level growth standards`)
     console.log(`      • Broiler: ${broilerStandards.length} days`)
     console.log(`      • Layer: ${layerStandards.length} days`)
     console.log(`      • Catfish: ${catfishStandards.length} days`)
@@ -352,6 +374,43 @@ export async function seed() {
     console.log(`      • Cattle: ${cattleStandards.length} weeks`)
     console.log(`      • Goat: ${goatStandards.length} weeks`)
     console.log(`      • Sheep: ${sheepStandards.length} weeks\n`)
+
+    // BREED-SPECIFIC GROWTH CURVES
+    console.log('📊 Seeding breed-specific growth curves...')
+
+    const { BREED_GROWTH_CURVES } = await import('./breed-growth-curves')
+
+    // Get breed IDs
+    const breeds = await db
+      .selectFrom('breeds')
+      .select(['id', 'breedName'])
+      .execute()
+
+    const breedMap = Object.fromEntries(breeds.map((b) => [b.breedName, b.id]))
+
+    let breedCurveCount = 0
+    for (const curve of BREED_GROWTH_CURVES) {
+      const breedId = breedMap[curve.breedName]
+      if (!breedId) {
+        console.log(`   ⚠️  Breed not found: ${curve.breedName}`)
+        continue
+      }
+
+      const curveData = curve.data.map((point) => ({
+        species: curve.species,
+        breedId: breedId,
+        day: point.day,
+        expected_weight_g: point.expected_weight_g,
+      }))
+
+      await db.insertInto('growth_standards').values(curveData).execute()
+      breedCurveCount += curveData.length
+      console.log(
+        `   ✅ ${curve.breedName}: ${curveData.length} data points`,
+      )
+    }
+
+    console.log(`   ✅ Total: ${breedCurveCount} breed-specific data points\n`)
 
     // NOTE: Market prices removed - users enter their own target prices per batch
     // This makes the app international (not Nigeria-specific)
@@ -363,7 +422,13 @@ export async function seed() {
     console.log('═'.repeat(50))
     console.log('\n📋 What was seeded:')
     console.log(`   • Admin user: ${ADMIN_EMAIL}`)
-    console.log('   • Growth standards: Broiler, Layer, Catfish, Tilapia')
+    console.log('   • Breeds: 24 breeds across 6 modules')
+    console.log(
+      '   • Species-level growth standards: Broiler, Layer, Catfish, Tilapia, Cattle, Goat, Sheep',
+    )
+    console.log(
+      `   • Breed-specific growth curves: ${BREED_GROWTH_CURVES.length} breeds`,
+    )
     console.log('\n🔐 Login credentials:')
     console.log(`   Email: ${ADMIN_EMAIL}`)
     console.log('   Password: (from ADMIN_PASSWORD env var)')

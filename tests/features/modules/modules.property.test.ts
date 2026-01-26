@@ -11,8 +11,6 @@ import {
   getFeedTypesForModules,
   getLivestockTypesForModules,
   getSourceSizeForLivestockType,
-  getSpeciesForLivestockType,
-  getSpeciesForModules,
   getStructureTypesForModules,
 } from '~/features/modules/utils'
 
@@ -59,35 +57,15 @@ describe('Module Constants Property Tests', () => {
           // Arrays are non-empty
           expect(metadata.livestockTypes.length).toBeGreaterThan(0)
           expect(metadata.productTypes.length).toBeGreaterThan(0)
-          expect(metadata.speciesOptions.length).toBeGreaterThan(0)
           expect(metadata.sourceSizeOptions.length).toBeGreaterThan(0)
           expect(metadata.feedTypes.length).toBeGreaterThan(0)
           expect(metadata.structureTypes.length).toBeGreaterThan(0)
-
-          // Species options have value and label
-          metadata.speciesOptions.forEach((option) => {
-            expect(option.value).toBeTruthy()
-            expect(option.label).toBeTruthy()
-          })
 
           // Source size options have value and label
           metadata.sourceSizeOptions.forEach((option) => {
             expect(option.value).toBeTruthy()
             expect(option.label).toBeTruthy()
           })
-        }),
-        { numRuns: 100 },
-      )
-    })
-
-    it('should have unique species option values within each module', () => {
-      fc.assert(
-        fc.property(moduleKeyArb, (moduleKey) => {
-          const metadata = MODULE_METADATA[moduleKey]
-          const values = metadata.speciesOptions.map((o) => o.value)
-          const uniqueValues = new Set(values)
-
-          expect(uniqueValues.size).toBe(values.length)
         }),
         { numRuns: 100 },
       )
@@ -101,37 +79,6 @@ describe('Module Constants Property Tests', () => {
           const uniqueValues = new Set(values)
 
           expect(uniqueValues.size).toBe(values.length)
-        }),
-        { numRuns: 100 },
-      )
-    })
-  })
-
-  describe('Property 8: Species Options Appropriate Per Livestock Type', () => {
-    it('should return species options that match the livestock type', () => {
-      fc.assert(
-        fc.property(livestockTypeArb, (livestockType) => {
-          const species = getSpeciesForLivestockType(livestockType)
-
-          // Should have at least one species option
-          expect(species.length).toBeGreaterThan(0)
-
-          // All species should have value and label
-          species.forEach((option) => {
-            expect(option.value).toBeTruthy()
-            expect(option.label).toBeTruthy()
-          })
-
-          // Verify the species come from the correct module
-          const moduleEntry = Object.entries(MODULE_METADATA).find(
-            ([_, metadata]) => metadata.livestockTypes.includes(livestockType),
-          )
-          expect(moduleEntry).toBeDefined()
-
-          if (moduleEntry) {
-            const [_, metadata] = moduleEntry
-            expect(species).toEqual(metadata.speciesOptions)
-          }
         }),
         { numRuns: 100 },
       )
@@ -253,33 +200,6 @@ describe('Module Constants Property Tests', () => {
           metadata.forEach((m, index) => {
             expect(m.key).toBe(enabledModules[index])
           })
-        }),
-        { numRuns: 100 },
-      )
-    })
-
-    it('should return species only from enabled modules', () => {
-      fc.assert(
-        fc.property(moduleKeysArb, (enabledModules) => {
-          const species = getSpeciesForModules(enabledModules)
-
-          // Should have at least one species
-          expect(species.length).toBeGreaterThan(0)
-
-          // All species should come from enabled modules
-          const expectedSpecies = new Set(
-            enabledModules.flatMap((key) =>
-              MODULE_METADATA[key].speciesOptions.map((s) => s.value),
-            ),
-          )
-
-          species.forEach((s) => {
-            expect(expectedSpecies.has(s.value)).toBe(true)
-          })
-
-          // No duplicates
-          const uniqueValues = new Set(species.map((s) => s.value))
-          expect(uniqueValues.size).toBe(species.length)
         }),
         { numRuns: 100 },
       )

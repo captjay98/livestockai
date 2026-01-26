@@ -17,6 +17,13 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
     queryKey: ['batch', batchId, 'projection'],
     queryFn: () => getBatchProjectionFn({ data: { batchId } }),
   })
+  const { data: batchData } = useQuery({
+    queryKey: ['batch', batchId],
+    queryFn: async () => {
+      const { getBatchDetailsFn } = await import('~/features/batches/server')
+      return getBatchDetailsFn({ data: { batchId } })
+    },
+  })
 
   if (isLoading) {
     return (
@@ -51,9 +58,20 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          Growth & Financial Projections
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Growth & Financial Projections
+          </div>
+          {batchData?.batch.breedName ? (
+            <span className="text-[10px] font-normal px-2 py-0.5 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300 rounded-full border border-green-200 dark:border-green-800">
+              ✓ {batchData.batch.breedName} data
+            </span>
+          ) : (
+            <span className="text-[10px] font-normal px-2 py-0.5 bg-muted text-muted-foreground rounded-full border">
+              Generic {batchData?.batch.species} data
+            </span>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -80,23 +98,21 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
               0,
               Math.min(100, 100 - (projection.daysRemaining / 60) * 100),
             )} // Rough progress visualization
-            className={`h-2 ${
-              projection.currentStatus === 'ahead'
+            className={`h-2 ${projection.currentStatus === 'ahead'
                 ? 'bg-success'
                 : projection.currentStatus === 'behind'
                   ? 'bg-destructive'
                   : 'bg-secondary'
-            }`}
+              }`}
           />
           <div className="flex justify-end">
             <span
-              className={`text-xs px-2 py-0.5 rounded-full ${
-                projection.currentStatus === 'ahead'
+              className={`text-xs px-2 py-0.5 rounded-full ${projection.currentStatus === 'ahead'
                   ? 'bg-success/10 text-success'
                   : projection.currentStatus === 'behind'
                     ? 'bg-destructive/10 text-destructive'
                     : 'bg-info/10 text-info'
-              }`}
+                }`}
             >
               {projection.currentStatus === 'ahead'
                 ? 'Ahead of Schedule'
@@ -133,6 +149,6 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
           </div>
         </div>
       </CardContent>
-    </Card>
+    </Card >
   )
 }

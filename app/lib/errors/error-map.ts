@@ -148,6 +148,12 @@ export const ErrorMap = {
     category: 'NOT_FOUND',
     message: 'Feed inventory not found',
   },
+  BREED_NOT_FOUND: {
+    code: 40419,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Breed not found',
+  },
 
   // Validation (400xx)
   VALIDATION_ERROR: {
@@ -173,6 +179,12 @@ export const ErrorMap = {
     httpStatus: 409,
     category: 'VALIDATION',
     message: 'Resource already exists',
+  },
+  DUPLICATE_BREED: {
+    code: 40901,
+    httpStatus: 409,
+    category: 'VALIDATION',
+    message: 'A breed with this name already exists for this species',
   },
 
   // Server (500xx)

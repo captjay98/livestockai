@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Bird, Fish } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -11,17 +12,50 @@ import {
 interface BatchFiltersProps {
   status?: string
   livestockType?: string
+  breedId?: string
   onStatusChange: (status: 'active' | 'depleted' | 'sold' | undefined) => void
   onLivestockTypeChange: (type: 'poultry' | 'fish' | undefined) => void
+  onBreedChange: (breedId: string | undefined) => void
+  species?: string
 }
 
 export function BatchFilters({
   status,
   livestockType,
+  breedId,
   onStatusChange,
   onLivestockTypeChange,
+  onBreedChange,
+  species,
 }: BatchFiltersProps) {
   const { t } = useTranslation(['batches', 'common'])
+  const [breeds, setBreeds] = useState<Array<any>>([])
+  const [isLoadingBreeds, setIsLoadingBreeds] = useState(false)
+
+  // Fetch breeds when livestock type or species changes
+  useEffect(() => {
+    const fetchBreeds = async () => {
+      if (!livestockType) {
+        setBreeds([])
+        return
+      }
+
+      setIsLoadingBreeds(true)
+      try {
+        const { getBreedsForModuleFn } = await import('~/features/breeds/server')
+        const result = await getBreedsForModuleFn({
+          data: { moduleKey: livestockType as any },
+        })
+        setBreeds(result)
+      } catch (err) {
+        console.error('Failed to fetch breeds for filter:', err)
+      } finally {
+        setIsLoadingBreeds(false)
+      }
+    }
+
+    fetchBreeds()
+  }, [livestockType])
 
   return (
     <>
@@ -41,12 +75,12 @@ export function BatchFilters({
           <SelectValue>
             {status
               ? t(`statuses.${status}`, {
-                  defaultValue:
-                    status.charAt(0).toUpperCase() + status.slice(1),
-                })
+                defaultValue:
+                  status.charAt(0).toUpperCase() + status.slice(1),
+              })
               : t('filters.allStatus', {
-                  defaultValue: 'All Status',
-                })}
+                defaultValue: 'All Status',
+              })}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -79,13 +113,13 @@ export function BatchFilters({
           <SelectValue>
             {livestockType
               ? t(`livestockTypes.${livestockType}`, {
-                  defaultValue:
-                    livestockType.charAt(0).toUpperCase() +
-                    livestockType.slice(1),
-                })
+                defaultValue:
+                  livestockType.charAt(0).toUpperCase() +
+                  livestockType.slice(1),
+              })
               : t('filters.allTypes', {
-                  defaultValue: 'All Types',
-                })}
+                defaultValue: 'All Types',
+              })}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -108,6 +142,35 @@ export function BatchFilters({
           </SelectItem>
         </SelectContent>
       </Select>
+
+      {livestockType && breeds.length > 0 && (
+        <Select
+          value={breedId || 'all'}
+          onValueChange={(value) => {
+            onBreedChange(value === 'all' ? undefined : (value || undefined))
+          }}
+        >
+          <SelectTrigger className="w-[180px] h-10">
+            <SelectValue>
+              {breedId
+                ? breeds.find((b: any) => b.id === breedId)?.displayName
+                : t('placeholders.allBreeds', {
+                  defaultValue: 'All Breeds',
+                })}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">
+              {t('placeholders.allBreeds', { defaultValue: 'All Breeds' })}
+            </SelectItem>
+            {breeds.map((breed: any) => (
+              <SelectItem key={breed.id} value={breed.id}>
+                {breed.displayName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </>
   )
 }

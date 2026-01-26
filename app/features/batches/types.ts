@@ -11,6 +11,7 @@ export interface BatchSearchParams {
   q?: string
   status?: 'active' | 'depleted' | 'sold'
   livestockType?: 'poultry' | 'fish'
+  breedId?: string
 }
 
 export interface InventorySummary {
@@ -34,6 +35,7 @@ export interface GetBatchesForFarmInput {
   search?: string
   status?: 'active' | 'depleted' | 'sold'
   livestockType?: 'poultry' | 'fish'
+  breedId?: string
 }
 
 // Batch detail page types

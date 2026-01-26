@@ -75,7 +75,8 @@ export async function createSale(
   userId: string,
   input: CreateSaleInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { calculateSaleTotal, validateSaleData } = await import('./service')
@@ -230,7 +231,8 @@ export const createSaleFn = createServerFn({ method: 'POST' })
  * ```
  */
 export async function deleteSale(userId: string, saleId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const {
@@ -299,7 +301,8 @@ export async function updateSale(
   saleId: string,
   data: UpdateSaleInput,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const {
@@ -445,7 +448,8 @@ export async function getSales(
     livestockType?: 'poultry' | 'fish' | 'eggs'
   },
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
@@ -497,7 +501,8 @@ export async function getSalesForFarm(
     livestockType?: 'poultry' | 'fish' | 'eggs'
   },
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getSalesByFarm } = await import('./repository')
@@ -537,7 +542,8 @@ export async function getSalesSummary(
     endDate?: Date
   },
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
@@ -596,7 +602,8 @@ export async function getTotalRevenue(
     endDate?: Date
   },
 ): Promise<number> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getTotalRevenue: getTotalRevenueRepo } = await import('./repository')
@@ -651,7 +658,8 @@ export async function getSalesPaginated(
     paymentMethod: string | null
   }>
 > {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
@@ -781,7 +789,8 @@ export type { CreateSaleInput, UpdateSaleInput } from './types'
 export const getSaleFormDataFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const { verifyFarmAccess } = await import('~/features/auth/utils')
 

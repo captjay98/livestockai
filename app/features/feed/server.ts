@@ -127,7 +127,8 @@ export async function createFeedRecord(
   farmId: string,
   input: CreateFeedRecordInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -255,7 +256,8 @@ export async function deleteFeedRecord(
   farmId: string,
   recordId: string,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -317,7 +319,8 @@ export async function updateFeedRecord(
   recordId: string,
   data: Partial<CreateFeedRecordInput>,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -447,7 +450,8 @@ export const updateFeedRecordFn = createServerFn({ method: 'POST' })
  * @returns Promise resolving to an array of feed records
  */
 export async function getFeedRecordsForBatch(userId: string, batchId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getBatchById: fetchBatchById } = await import('../batches/server')
 
   try {
@@ -476,7 +480,8 @@ export async function getFeedRecordsForBatch(userId: string, batchId: string) {
  * @param farmId - Optional specific farm to filter by
  */
 export async function getFeedRecords(userId: string, farmId?: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -510,7 +515,8 @@ export async function getFeedSummaryForBatch(
   farmId: string,
   batchId: string,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -542,7 +548,8 @@ export async function calculateFCRForBatch(
   farmId: string,
   batchId: string,
 ): Promise<number | null> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   try {
@@ -599,7 +606,8 @@ export async function calculateFCRForBatch(
  * @param farmId - Optional specific farm to filter by
  */
 export async function getFeedInventoryFn(userId: string, farmId?: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -641,7 +649,8 @@ export async function getFeedRecordsPaginatedFn(
       targetFarmIds = await getUserFarms(userId)
     }
 
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     return await getFeedRecordsPaginated(db, {
       ...query,
@@ -682,7 +691,8 @@ export const getFeedRecordsPaginatedServerFn = createServerFn({ method: 'GET' })
  * @param farmId - Optional specific farm to filter by
  */
 export async function getFeedStats(userId: string, farmId?: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -773,7 +783,8 @@ export const getFeedDataForFarm = createServerFn({ method: 'GET' })
 export const getActiveBatchesForFeedFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
 
@@ -791,7 +802,8 @@ export const getActiveBatchesForFeedFn = createServerFn({ method: 'GET' })
 export const getFeedInventoryForFarmFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
 

@@ -96,7 +96,8 @@ export async function recordMortality(
   userId: string,
   data: CreateMortalityData,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getBatchById } = await import('../batches/server')
 
   try {
@@ -218,7 +219,8 @@ export const recordMortalityFn = createServerFn({ method: 'POST' })
  * ```
  */
 export async function getMortalityRecords(userId: string, batchId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getBatchById } = await import('../batches/server')
 
   try {
@@ -268,7 +270,8 @@ export async function getMortalityRecords(userId: string, batchId: string) {
  * ```
  */
 export async function getMortalityStats(userId: string, batchId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getBatchById } = await import('../batches/server')
 
   try {
@@ -379,7 +382,8 @@ export async function getMortalityTrends(
   period: 'daily' | 'weekly' | 'monthly' = 'daily',
   days: number = 30,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getBatchById } = await import('../batches/server')
 
   try {
@@ -445,7 +449,8 @@ export async function getMortalityRecordsPaginated(
   userId: string,
   query: MortalityQuery = {},
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { sql } = await import('kysely')
 
@@ -574,7 +579,8 @@ export const getMortalityRecordsPaginatedFn = createServerFn({ method: 'GET' })
  * @returns Promise resolving to a mortality summary object
  */
 export async function getMortalitySummary(userId: string, farmId?: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
 
   try {
@@ -654,7 +660,8 @@ export async function updateMortalityRecord(
   recordId: string,
   input: UpdateMortalityInput,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
@@ -744,7 +751,8 @@ export async function deleteMortalityRecord(
   userId: string,
   recordId: string,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {

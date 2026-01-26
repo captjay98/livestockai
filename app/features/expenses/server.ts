@@ -35,7 +35,8 @@ export async function createExpense(
   userId: string,
   input: CreateExpenseInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
 
   // Import service functions for business logic
@@ -166,7 +167,8 @@ export const createExpenseFn = createServerFn({ method: 'POST' })
  * @throws {Error} If expense not found or user lacks permission
  */
 export async function deleteExpense(userId: string, expenseId: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { deleteExpense: deleteExpenseRecord, getExpenseFarmId } =
     await import('./repository')
@@ -226,7 +228,8 @@ export async function updateExpense(
   expenseId: string,
   data: UpdateExpenseInput,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { validateUpdateData } = await import('./service')
   const { updateExpense: updateExpenseRecord, getExpenseFarmId } =
@@ -355,7 +358,8 @@ export async function getExpenses(
       if (targetFarmIds.length === 0) return []
     }
 
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     return await getExpensesByFarm(
       db,
       targetFarmIds,
@@ -401,7 +405,8 @@ export async function getExpensesForFarm(
   try {
     await verifyFarmAccess(userId, farmId)
 
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const expenses = await getExpensesByFarm(db, [farmId], {
       startDate: options?.startDate,
       endDate: options?.endDate,
@@ -464,7 +469,8 @@ export async function getExpensesSummary(
       }
     }
 
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const results = await getExpensesSummaryFromDb(db, targetFarmIds, {
       startDate: options?.startDate,
       endDate: options?.endDate,
@@ -505,7 +511,8 @@ export async function getTotalExpenses(
   try {
     await verifyFarmAccess(userId, farmId)
 
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const total = await getTotalExpensesFromDb(db, [farmId], {
       startDate: options?.startDate,
       endDate: options?.endDate,
@@ -574,7 +581,8 @@ export async function getExpensesPaginated(
       }
     }
 
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     return await getExpensesPaginatedFromDb(db, targetFarmIds, {
       page: query.page,
       pageSize: query.pageSize,

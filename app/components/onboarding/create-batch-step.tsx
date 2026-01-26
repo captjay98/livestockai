@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Package } from 'lucide-react'
 import { toast } from 'sonner'
 import { useOnboarding } from '~/features/onboarding/context'
-import { getSpeciesOptions } from '~/features/batches/constants'
+import { getSpeciesForLivestockTypeFn } from '~/features/breeds/server'
 import { createBatchFn } from '~/features/batches/server'
 import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -43,8 +43,35 @@ export function CreateBatchStep() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [speciesOptions, setSpeciesOptions] = useState<Array<{ value: string; label: string }>>([])
+  const [isLoadingSpecies, setIsLoadingSpecies] = useState(false)
 
-  const speciesOptions = getSpeciesOptions(formData.livestockType)
+  // Fetch species when livestock type changes
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      if (!formData.livestockType) {
+        setSpeciesOptions([])
+        return
+      }
+
+      setIsLoadingSpecies(true)
+      try {
+        const result = await getSpeciesForLivestockTypeFn({
+          data: { livestockType: formData.livestockType },
+        })
+        setSpeciesOptions(result)
+      } catch (err) {
+        console.error('Failed to fetch species:', err)
+        setSpeciesOptions([])
+      } finally {
+        setIsLoadingSpecies(false)
+      }
+    }
+
+    fetchSpecies()
+    // Reset species when livestock type changes
+    setFormData((p) => ({ ...p, species: '' }))
+  }, [formData.livestockType])
 
   if (!progress.farmId) {
     return (

@@ -10,7 +10,8 @@ async function sendExternalNotification(
   templateData: Record<string, unknown>,
 ): Promise<void> {
   try {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { INTEGRATIONS } = await import('../integrations/config')
 
     if (!INTEGRATIONS.email) return
@@ -66,7 +67,8 @@ export async function checkLowStockNotifications(
   userId: string,
   farmId?: string,
 ): Promise<number> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('../auth/utils')
 
   // Get user settings
@@ -210,7 +212,8 @@ export async function checkInvoiceDueNotifications(
   userId: string,
   farmId?: string,
 ): Promise<number> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('../auth/utils')
 
   // Get user settings
@@ -317,7 +320,8 @@ export async function checkBatchHarvestNotifications(
   userId: string,
   farmId?: string,
 ): Promise<number> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('../auth/utils')
 
   // Get user settings

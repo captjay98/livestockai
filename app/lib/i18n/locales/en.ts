@@ -397,6 +397,9 @@ export const en = {
       'Track groups of animals from acquisition to sale. Each batch represents a cohort you manage together.',
     livestockType: 'Livestock Type',
     species: 'Species',
+    breed: 'Breed',
+    targetPrice: 'Target Price',
+    targetPriceHelp: 'Expected price per unit at harvest (for revenue forecasting)',
     quantity: 'Quantity',
     poultry: 'Poultry',
     fish: 'Fish',
@@ -430,6 +433,7 @@ export const en = {
     supplier: 'Supplier',
     selectSupplier: 'Select supplier',
     targetHarvestDate: 'Target Harvest Date',
+    breedSpecificStandards: 'Using breed-specific standards',
     notesPlaceholder: 'Any additional notes about this batch...',
     columns: {
       species: 'Species',
@@ -526,6 +530,8 @@ export const en = {
     placeholders: {
       selectType: 'Select type',
       selectSpecies: 'Select species',
+      selectBreed: 'Select breed',
+      allBreeds: 'All Breeds',
     },
   },
   inventory: {

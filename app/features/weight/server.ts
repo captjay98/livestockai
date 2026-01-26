@@ -70,7 +70,8 @@ export async function createWeightSample(
   farmId: string,
   input: CreateWeightSampleInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getBatchForWeightRecord, insertWeightSample } =
@@ -127,7 +128,8 @@ export async function getWeightSamplesForBatch(
   farmId: string,
   batchId: string,
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { getWeightSamplesByBatch } = await import('./repository')
 
@@ -144,7 +146,8 @@ export async function getWeightSamplesForBatch(
  * @returns Promise resolving to an array of weight records with batch and farm details
  */
 export async function getWeightSamplesForFarm(userId: string, farmId?: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { getWeightSamplesByFarm } = await import('./repository')
@@ -229,7 +232,8 @@ export async function calculateADG(
  * @returns Promise resolving to an array of growth alerts
  */
 export async function getGrowthAlerts(userId: string, farmId?: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess, getUserFarms } =
     await import('~/features/auth/utils')
   const { getActiveBatchesForAlerts } = await import('./repository')
@@ -298,7 +302,8 @@ export async function getWeightRecordsPaginated(
   userId: string,
   query: WeightQuery = {},
 ) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { getUserFarms } = await import('~/features/auth/utils')
   const { getWeightSamplesPaginated } = await import('./repository')
 
@@ -375,7 +380,8 @@ export async function updateWeightSample(
   recordId: string,
   input: UpdateWeightSampleInput,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getWeightSampleById, updateWeightSample: updateRepo } =
@@ -445,7 +451,8 @@ export async function deleteWeightSample(
   userId: string,
   recordId: string,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { AppError } = await import('~/lib/errors')
   const { getWeightSampleById, deleteWeightSample: deleteRepo } =

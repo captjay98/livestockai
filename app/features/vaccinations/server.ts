@@ -135,7 +135,8 @@ export async function createVaccination(
   farmId: string,
   input: CreateVaccinationInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { validateVaccinationData } =
     await import('~/features/vaccinations/service')
@@ -207,7 +208,8 @@ export async function createTreatment(
   farmId: string,
   input: CreateTreatmentInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { verifyFarmAccess } = await import('~/features/auth/utils')
   const { validateTreatmentData } =
     await import('~/features/vaccinations/service')
@@ -369,7 +371,8 @@ export async function getUpcomingVaccinations(
       if (targetFarmIds.length === 0) return []
     }
 
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     return await getUpcoming(db, targetFarmIds, daysAhead)
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -403,7 +406,8 @@ export async function getOverdueVaccinations(userId: string, farmId?: string) {
       if (targetFarmIds.length === 0) return []
     }
 
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     return await getOverdue(db, targetFarmIds)
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -446,7 +450,8 @@ export async function updateVaccination(
   recordId: string,
   input: UpdateVaccinationInput,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { validateVaccinationUpdateData } =
     await import('~/features/vaccinations/service')
@@ -527,7 +532,8 @@ export async function deleteVaccination(
   userId: string,
   recordId: string,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { getVaccinationById, deleteVaccination: deleteRecord } =
     await import('~/features/vaccinations/repository')
@@ -581,7 +587,8 @@ export async function updateTreatment(
   recordId: string,
   input: UpdateTreatmentInput,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { validateTreatmentUpdateData } =
     await import('~/features/vaccinations/service')
@@ -665,7 +672,8 @@ export async function deleteTreatment(
   userId: string,
   recordId: string,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const { checkFarmAccess } = await import('../auth/utils')
   const { getTreatmentById, deleteTreatment: deleteRecord } =
     await import('~/features/vaccinations/repository')

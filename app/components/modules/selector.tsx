@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import type { ModuleKey } from '~/features/modules/types'
 import { useModules } from '~/features/modules/context'
 import { MODULE_METADATA } from '~/features/modules/constants'
+import { getSpeciesForModuleFn } from '~/features/breeds/server'
 import { Alert, AlertDescription } from '~/components/ui/alert'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -14,6 +15,8 @@ export function ModuleSelector() {
   const { enabledModules, toggleModule, canDisableModule } = useModules()
   const [localEnabled, setLocalEnabled] = useState<Array<ModuleKey>>([])
   const [expandedModule, setExpandedModule] = useState<ModuleKey | null>(null)
+  const [moduleSpecies, setModuleSpecies] = useState<Record<ModuleKey, Array<{ value: string; label: string }>>>({} as Record<ModuleKey, Array<{ value: string; label: string }>>)
+  const [isLoadingSpecies, setIsLoadingSpecies] = useState(false)
 
   // Unused state commented out for future use
   // const [pendingDisable, setPendingDisable] = useState<ModuleKey | null>(null)
@@ -27,6 +30,27 @@ export function ModuleSelector() {
       setLocalEnabled(enabledModules)
     }
   }, [enabledModules, localEnabled.length])
+
+  // Fetch species when a module is expanded
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      if (!expandedModule || moduleSpecies[expandedModule]) return
+
+      setIsLoadingSpecies(true)
+      try {
+        const result = await getSpeciesForModuleFn({
+          data: { moduleKey: expandedModule },
+        })
+        setModuleSpecies((prev) => ({ ...prev, [expandedModule]: result }))
+      } catch (err) {
+        console.error('Failed to fetch species:', err)
+      } finally {
+        setIsLoadingSpecies(false)
+      }
+    }
+
+    fetchSpecies()
+  }, [expandedModule, moduleSpecies])
 
   const hasChanges =
     JSON.stringify([...localEnabled].sort()) !==
@@ -152,14 +176,20 @@ export function ModuleSelector() {
                   <div className="mt-3 pt-3 border-t space-y-2">
                     <p className="text-xs font-medium">Species:</p>
                     <div className="flex flex-wrap gap-1">
-                      {module.speciesOptions.map((species) => (
-                        <span
-                          key={species.value}
-                          className="text-xs px-2 py-0.5 bg-muted rounded"
-                        >
-                          {species.label}
-                        </span>
-                      ))}
+                      {isLoadingSpecies && expandedModule === moduleKey ? (
+                        <span className="text-xs text-muted-foreground animate-pulse">Loading...</span>
+                      ) : moduleSpecies[moduleKey]?.length > 0 ? (
+                        moduleSpecies[moduleKey].map((species) => (
+                          <span
+                            key={species.value}
+                            className="text-xs px-2 py-0.5 bg-muted rounded"
+                          >
+                            {species.label}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs text-muted-foreground">No species configured</span>
+                      )}
                     </div>
                   </div>
                 )}

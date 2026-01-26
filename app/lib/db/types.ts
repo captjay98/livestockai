@@ -25,6 +25,10 @@ export interface Database {
   user_farms: UserFarmTable
   /** Farm structures (houses, ponds, etc.) */
   structures: StructureTable
+  /** Livestock breeds reference data */
+  breeds: BreedTable
+  /** User requests for missing breeds */
+  breed_requests: BreedRequestTable
   /** Livestock batch definitions */
   batches: BatchTable
   /** Records of livestock mortality events */
@@ -303,6 +307,40 @@ export interface StructureTable {
   createdAt: Generated<Date>
 }
 
+// Livestock Breeds
+export interface BreedTable {
+  id: Generated<string>
+  moduleKey: 'poultry' | 'aquaculture' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  speciesKey: string
+  breedName: string
+  displayName: string
+  typicalMarketWeightG: number
+  typicalDaysToMarket: number
+  typicalFcr: string // DECIMAL(4,2)
+  sourceSizes: Array<string> // JSONB
+  regions: Array<string> // JSONB
+  isDefault: Generated<boolean>
+  isActive: Generated<boolean>
+  createdAt: Generated<Date>
+}
+
+// Breed Requests
+export interface BreedRequestTable {
+  id: Generated<string>
+  userId: string
+  moduleKey: string
+  speciesKey: string
+  breedName: string
+  typicalMarketWeightG: number | null
+  typicalDaysToMarket: number | null
+  typicalFcr: string | null // DECIMAL(4,2)
+  source: string | null
+  userEmail: string | null
+  notes: string | null
+  status: string // 'pending' | 'approved' | 'rejected'
+  createdAt: Generated<Date>
+}
+
 // Livestock
 // Note: PostgreSQL DECIMAL columns are returned as strings by the pg driver
 // to preserve precision. Use toDecimal() from currency.ts to work with them.
@@ -312,6 +350,7 @@ export interface BatchTable {
   batchName: string | null // "Batch A", "NOV-2024-BR-01"
   livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   species: string // broiler, layer, catfish, tilapia, angus, boer, merino, etc.
+  breedId: string | null // NEW: Reference to breeds table for breed-specific forecasting
   sourceSize: string | null // "day-old", "point-of-lay", "fingerling", "jumbo", "calf", "kid", "lamb", "nuc"
   initialQuantity: number
   currentQuantity: number
@@ -636,6 +675,7 @@ export interface GrowthStandardTable {
   species: string // e.g., 'Broiler', 'Catfish', 'Angus', etc.
   day: number // Day of growth (0, 1, 2, ... 56 for broilers, 0-180 for catfish)
   expected_weight_g: number // Expected weight in grams at this day
+  breedId: string | null // NEW: Optional breed-specific growth curve (null = species-level fallback)
 }
 
 // Market Prices

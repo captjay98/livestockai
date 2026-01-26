@@ -1,6 +1,14 @@
 import type { ModuleKey, ModuleMetadata } from './types'
 
-// Module metadata for all supported livestock types
+/**
+ * Module metadata for all supported livestock types
+ *
+ * NOTE: Species data is fetched from the database (breeds table).
+ * Use getBreedsForModuleFn() or getSpeciesForModuleFn() to get species.
+ *
+ * sourceSizeOptions are kept here as they are static configuration
+ * that doesn't change per breed (breeds can filter these options).
+ */
 export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
   poultry: {
     key: 'poultry',
@@ -9,14 +17,6 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
     icon: '🐔',
     livestockTypes: ['poultry'],
     productTypes: ['poultry', 'eggs'],
-    speciesOptions: [
-      { value: 'broiler', label: 'Broiler' },
-      { value: 'layer', label: 'Layer' },
-      { value: 'cockerel', label: 'Cockerel' },
-      { value: 'turkey', label: 'Turkey' },
-      { value: 'duck', label: 'Duck' },
-      { value: 'guinea_fowl', label: 'Guinea Fowl' },
-    ],
     sourceSizeOptions: [
       { value: 'day-old', label: 'Day-old chicks' },
       { value: 'grower', label: 'Grower (4-8 weeks)' },
@@ -33,13 +33,6 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
     icon: '🐟',
     livestockTypes: ['fish'],
     productTypes: ['fish'],
-    speciesOptions: [
-      { value: 'catfish', label: 'Catfish' },
-      { value: 'tilapia', label: 'Tilapia' },
-      { value: 'carp', label: 'Carp' },
-      { value: 'salmon', label: 'Salmon' },
-      { value: 'trout', label: 'Trout' },
-    ],
     sourceSizeOptions: [
       { value: 'fingerling', label: 'Fingerling (2-4 inches)' },
       { value: 'juvenile', label: 'Juvenile (4-6 inches)' },
@@ -56,16 +49,6 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
     icon: '🐄',
     livestockTypes: ['cattle'],
     productTypes: ['cattle', 'milk'],
-    speciesOptions: [
-      { value: 'angus', label: 'Angus' },
-      { value: 'hereford', label: 'Hereford' },
-      { value: 'holstein', label: 'Holstein (Dairy)' },
-      { value: 'jersey', label: 'Jersey (Dairy)' },
-      { value: 'brahman', label: 'Brahman' },
-      { value: 'simmental', label: 'Simmental' },
-      { value: 'white_fulani', label: 'White Fulani' },
-      { value: 'red_bororo', label: 'Red Bororo' },
-    ],
     sourceSizeOptions: [
       { value: 'calf', label: 'Calf (0-6 months)' },
       { value: 'weaner', label: 'Weaner (6-12 months)' },
@@ -83,15 +66,6 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
     icon: '🐐',
     livestockTypes: ['goats'],
     productTypes: ['goats', 'milk'],
-    speciesOptions: [
-      { value: 'boer', label: 'Boer (Meat)' },
-      { value: 'kalahari_red', label: 'Kalahari Red (Meat)' },
-      { value: 'saanen', label: 'Saanen (Dairy)' },
-      { value: 'alpine', label: 'Alpine (Dairy)' },
-      { value: 'nubian', label: 'Nubian (Dual Purpose)' },
-      { value: 'west_african_dwarf', label: 'West African Dwarf' },
-      { value: 'red_sokoto', label: 'Red Sokoto' },
-    ],
     sourceSizeOptions: [
       { value: 'kid', label: 'Kid (0-6 months)' },
       { value: 'weaner', label: 'Weaner (6-12 months)' },
@@ -109,16 +83,6 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
     icon: '🐑',
     livestockTypes: ['sheep'],
     productTypes: ['sheep', 'wool'],
-    speciesOptions: [
-      { value: 'merino', label: 'Merino (Wool)' },
-      { value: 'dorper', label: 'Dorper (Meat)' },
-      { value: 'suffolk', label: 'Suffolk (Meat)' },
-      { value: 'hampshire', label: 'Hampshire (Meat)' },
-      { value: 'rambouillet', label: 'Rambouillet (Wool)' },
-      { value: 'west_african_dwarf', label: 'West African Dwarf' },
-      { value: 'yankasa', label: 'Yankasa' },
-      { value: 'uda', label: 'Uda' },
-    ],
     sourceSizeOptions: [
       { value: 'lamb', label: 'Lamb (0-6 months)' },
       { value: 'weaner', label: 'Weaner (6-12 months)' },
@@ -136,13 +100,6 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
     icon: '🐝',
     livestockTypes: ['bees'],
     productTypes: ['honey'],
-    speciesOptions: [
-      { value: 'apis_mellifera', label: 'Western Honey Bee (Apis mellifera)' },
-      { value: 'apis_cerana', label: 'Asian Honey Bee (Apis cerana)' },
-      { value: 'african_bee', label: 'African Honey Bee' },
-      { value: 'italian_bee', label: 'Italian Bee' },
-      { value: 'carniolan_bee', label: 'Carniolan Bee' },
-    ],
     sourceSizeOptions: [
       { value: 'nuc', label: 'Nucleus Colony (Nuc)' },
       { value: 'package', label: 'Package Bees' },

@@ -44,7 +44,10 @@ function LoginPage() {
       console.error('[LOGIN DEBUG] Login error:', err)
       console.error('[LOGIN DEBUG] Error type:', typeof err)
       console.error('[LOGIN DEBUG] Error keys:', Object.keys(err || {}))
-      console.error('[LOGIN DEBUG] Full error object:', JSON.stringify(err, null, 2))
+      console.error(
+        '[LOGIN DEBUG] Full error object:',
+        JSON.stringify(err, null, 2),
+      )
 
       // Attempt to extract meaningful error message
       const message = err.message || err.region || 'login.errors.default'

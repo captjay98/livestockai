@@ -15,7 +15,8 @@ interface ProjectionResult {
 export async function calculateBatchProjection(
   batchId: string,
 ): Promise<ProjectionResult | null> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const batch = await db
     .selectFrom('batches')
     .select([
@@ -24,6 +25,7 @@ export async function calculateBatchProjection(
       'batchName',
       'livestockType',
       'species',
+      'breedId', // NEW: Include breedId for breed-specific forecasting
       'sourceSize',
       'initialQuantity',
       'currentQuantity',
@@ -56,13 +58,13 @@ export async function calculateBatchProjection(
     .orderBy('date', 'desc')
     .executeTakeFirst()
 
-  // 2. Get Growth Standard
-  const growthStandard = await db
-    .selectFrom('growth_standards')
-    .select(['id', 'species', 'day', 'expected_weight_g'])
-    .where('species', '=', batch.species)
-    .orderBy('day', 'asc')
-    .execute()
+  // 2. Get Growth Standard (breed-specific or species fallback)
+  const { getGrowthStandards } = await import('./repository')
+  const growthStandard = await getGrowthStandards(
+    db,
+    batch.species,
+    batch.breedId,
+  )
 
   if (growthStandard.length === 0) return null
 
@@ -74,7 +76,7 @@ export async function calculateBatchProjection(
     // Estimate based on age using growth standards
     const ageInDays = Math.floor(
       (Date.now() - new Date(batch.acquisitionDate).getTime()) /
-        (1000 * 60 * 60 * 24),
+      (1000 * 60 * 60 * 24),
     )
     const ageRecord =
       growthStandard.find((s) => s.day >= ageInDays) ||
@@ -136,11 +138,20 @@ export async function calculateBatchProjection(
   const projectedRevenue = batch.currentQuantity * estPricePerUnit
 
   // Feed Cost Remaining
-  // Need standard feed consumption per day? We don't have that in growth_standards yet.
-  // Approximation: FCR of 1.5. Gain needed * 1.5 * FeedCost
+  // Use breed-specific FCR if available, otherwise default to 1.6
+  let fcr = 1.6 // Default FCR
+
+  if (batch.breedId) {
+    const { getBreedById } = await import('~/features/breeds/repository')
+    const breed = await getBreedById(db, batch.breedId)
+    if (breed && breed.typicalFcr) {
+      fcr = parseFloat(breed.typicalFcr)
+    }
+  }
+
   const weightToGainKg = ((batch.target_weight_g || 0) - currentWeightG) / 1000
   const totalWeightToGain = weightToGainKg * batch.currentQuantity
-  const feedNeededKg = totalWeightToGain * 1.6 // FCR 1.6 conserv
+  const feedNeededKg = totalWeightToGain * fcr
   const estFeedCostPerKg = 1000 // approx N1000/kg
   const projectedFeedCost = feedNeededKg * estFeedCostPerKg
 

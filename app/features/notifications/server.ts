@@ -12,7 +12,8 @@ import { AppError } from '~/lib/errors'
 export async function createNotification(
   data: CreateNotificationData,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     const result = await db
@@ -52,7 +53,8 @@ export async function getNotifications(
   userId: string,
   options?: { unreadOnly?: boolean; limit?: number },
 ): Promise<Array<Notification>> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     let query = db
@@ -97,7 +99,8 @@ export async function getNotifications(
  * @param notificationId - The ID of the notification.
  */
 export async function markAsRead(notificationId: string): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     await db
@@ -120,7 +123,8 @@ export async function markAsRead(notificationId: string): Promise<void> {
  * @param userId - The ID of the user.
  */
 export async function markAllAsRead(userId: string): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     await db
@@ -146,7 +150,8 @@ export async function markAllAsRead(userId: string): Promise<void> {
 export async function deleteNotification(
   notificationId: string,
 ): Promise<void> {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   try {
     await db

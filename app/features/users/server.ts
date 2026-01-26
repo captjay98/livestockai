@@ -60,7 +60,8 @@ export const listUsers = createServerFn({ method: 'GET' })
   .inputValidator(z.object({}))
   .handler(async () => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       await requireAdmin()
@@ -85,7 +86,8 @@ export const getUser = createServerFn({ method: 'GET' })
   .inputValidator(userIdSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       await requireAdmin()
@@ -121,7 +123,8 @@ export const createUser = createServerFn({ method: 'POST' })
   .inputValidator(createUserSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       await requireAdmin()
@@ -184,7 +187,8 @@ export const setUserPassword = createServerFn({ method: 'POST' })
 
       // Update password in account table
       const { hashPassword } = await import('~/lib/db/seeds/helpers')
-      const { getDb } = await import('~/lib/db'); const db = await getDb()
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
       const passwordHash = await hashPassword(data.newPassword)
 
       await db
@@ -215,7 +219,8 @@ export const banUser = createServerFn({ method: 'POST' })
   .inputValidator(banUserSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       const { session } = await requireAdmin()
@@ -270,7 +275,8 @@ export const unbanUser = createServerFn({ method: 'POST' })
   .inputValidator(userIdSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       await requireAdmin()
@@ -298,7 +304,8 @@ export const removeUser = createServerFn({ method: 'POST' })
   .inputValidator(userIdSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       const { session } = await requireAdmin()
@@ -354,7 +361,8 @@ export const updateUserRole = createServerFn({ method: 'POST' })
   .inputValidator(updateRoleSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
     try {
       const { session } = await requireAdmin()

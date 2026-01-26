@@ -103,10 +103,13 @@ let authInitPromise: Promise<ReturnType<typeof betterAuth>> | undefined
 
 async function createAuth() {
   const env = await getEnv()
-  
+
   console.log('[AUTH CONFIG] Creating auth instance...')
   console.log('[AUTH CONFIG] env.DATABASE_URL exists:', !!env.DATABASE_URL)
-  console.log('[AUTH CONFIG] env.BETTER_AUTH_SECRET exists:', !!env.BETTER_AUTH_SECRET)
+  console.log(
+    '[AUTH CONFIG] env.BETTER_AUTH_SECRET exists:',
+    !!env.BETTER_AUTH_SECRET,
+  )
   console.log('[AUTH CONFIG] env.BETTER_AUTH_URL:', env.BETTER_AUTH_URL)
 
   if (!env.DATABASE_URL) {
@@ -193,14 +196,14 @@ async function createAuth() {
  */
 export async function getAuth(): Promise<ReturnType<typeof betterAuth>> {
   if (authInstance) return authInstance
-  
+
   if (!authInitPromise) {
     authInitPromise = createAuth().then((instance) => {
       authInstance = instance
       return instance
     })
   }
-  
+
   return authInitPromise
 }
 

@@ -13,6 +13,7 @@ export interface BatchInsert {
   farmId: string
   livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   species: string
+  breedId?: string | null
   initialQuantity: number
   currentQuantity: number
   acquisitionDate: Date
@@ -24,6 +25,7 @@ export interface BatchInsert {
   structureId?: string | null
   targetHarvestDate?: Date | null
   target_weight_g?: number | null
+  targetPricePerUnit?: string | null
   supplierId?: string | null
   notes?: string | null
 }
@@ -52,6 +54,8 @@ export interface BatchWithFarmName {
   batchName: string | null
   livestockType: string
   species: string
+  breedId?: string | null
+  breedName?: string | null
   sourceSize: string | null
   initialQuantity: number
   currentQuantity: number
@@ -76,6 +80,7 @@ export interface BatchFilters {
   status?: 'active' | 'depleted' | 'sold'
   livestockType?: 'poultry' | 'fish'
   species?: string
+  breedId?: string
   farmId?: string
 }
 
@@ -128,12 +133,15 @@ export async function getBatchById(
     .selectFrom('batches')
     .leftJoin('structures', 'structures.id', 'batches.structureId')
     .leftJoin('suppliers', 'suppliers.id', 'batches.supplierId')
+    .leftJoin('breeds', 'breeds.id', 'batches.breedId')
     .select([
       'batches.id',
       'batches.farmId',
       'batches.batchName',
       'batches.livestockType',
       'batches.species',
+      'batches.breedId',
+      'breeds.displayName as breedName',
       'batches.sourceSize',
       'batches.initialQuantity',
       'batches.currentQuantity',
@@ -152,7 +160,7 @@ export async function getBatchById(
     .where('batches.deletedAt', 'is', null)
     .executeTakeFirst()
 
-  return (batch as BatchWithFarmName | null) ?? null
+  return batch as BatchWithFarmName | null
 }
 
 /**
@@ -171,12 +179,15 @@ export async function getBatchesByFarm(
   let query = db
     .selectFrom('batches')
     .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .leftJoin('breeds', 'breeds.id', 'batches.breedId')
     .select([
       'batches.id',
       'batches.farmId',
       'batches.batchName',
       'batches.livestockType',
       'batches.species',
+      'batches.breedId',
+      'breeds.displayName as breedName',
       'batches.sourceSize',
       'batches.initialQuantity',
       'batches.currentQuantity',
@@ -205,6 +216,10 @@ export async function getBatchesByFarm(
 
   if (filters?.species) {
     query = query.where('batches.species', '=', filters.species)
+  }
+
+  if (filters?.breedId) {
+    query = query.where('batches.breedId', '=', filters.breedId)
   }
 
   return await query.execute()
@@ -485,6 +500,7 @@ export async function getBatchesByFarmPaginated(
     search?: string
     status?: 'active' | 'depleted' | 'sold'
     livestockType?: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+    breedId?: string
   },
 ): Promise<{
   data: Array<BatchWithFarmName>
@@ -536,6 +552,11 @@ export async function getBatchesByFarmPaginated(
     )
   }
 
+  // Apply breed filter
+  if (filters.breedId) {
+    countQuery = countQuery.where('batches.breedId', '=', filters.breedId)
+  }
+
   // Get total count
   const countResult = await countQuery
     .select(sql<number>`count(*)`.as('count'))
@@ -549,12 +570,15 @@ export async function getBatchesByFarmPaginated(
     .leftJoin('farms', 'farms.id', 'batches.farmId')
     .leftJoin('structures', 'structures.id', 'batches.structureId')
     .leftJoin('suppliers', 'suppliers.id', 'batches.supplierId')
+    .leftJoin('breeds', 'breeds.id', 'batches.breedId')
     .select([
       'batches.id',
       'batches.farmId',
       'batches.batchName',
       'batches.livestockType',
       'batches.species',
+      'batches.breedId',
+      'breeds.displayName as breedName',
       'batches.sourceSize',
       'batches.initialQuantity',
       'batches.currentQuantity',
@@ -576,7 +600,7 @@ export async function getBatchesByFarmPaginated(
 
   // Re-apply filters
   if (search) {
-    dataQuery = dataQuery.where((eb) =>
+    dataQuery = dataQuery.where((eb: any) =>
       eb.or([
         eb('batches.batchName', 'ilike', `%${search}%`),
         eb('batches.species', 'ilike', `%${search}%`),
@@ -594,6 +618,9 @@ export async function getBatchesByFarmPaginated(
       '=',
       filters.livestockType,
     )
+  }
+  if (filters.breedId) {
+    dataQuery = dataQuery.where('batches.breedId', '=', filters.breedId)
   }
 
   // Apply sorting
@@ -720,9 +747,9 @@ export async function getInventorySummary(
   const averageWeightKg =
     recentWeights.length > 0
       ? recentWeights.reduce(
-          (sum, w) => sum + Number(w.averageWeightKg || 0),
-          0,
-        ) / recentWeights.length
+        (sum, w) => sum + Number(w.averageWeightKg || 0),
+        0,
+      ) / recentWeights.length
       : 0
 
   return {
@@ -734,4 +761,54 @@ export async function getInventorySummary(
     salesStats,
     averageWeightKg,
   }
+}
+
+/**
+ * Get growth standards for a species, with optional breed-specific filtering
+ *
+ * @param db - Kysely database instance
+ * @param species - Species name (e.g., 'Broiler', 'Catfish')
+ * @param breedId - Optional breed ID for breed-specific standards
+ * @returns Array of growth standards ordered by day
+ *
+ * Priority: If breedId provided, returns breed-specific standards.
+ * If no breed-specific standards found, falls back to species-level (breedId IS NULL).
+ */
+export async function getGrowthStandards(
+  db: Kysely<Database>,
+  species: string,
+  breedId?: string | null,
+): Promise<
+  Array<{
+    id: string
+    species: string
+    day: number
+    expected_weight_g: number
+    breedId: string | null
+  }>
+> {
+  // If breedId provided, try breed-specific standards first
+  if (breedId) {
+    const breedStandards = await db
+      .selectFrom('growth_standards')
+      .selectAll()
+      .where('species', '=', species)
+      .where('breedId', '=', breedId)
+      .orderBy('day', 'asc')
+      .execute()
+
+    // If breed-specific standards exist, return them
+    if (breedStandards.length > 0) {
+      return breedStandards
+    }
+  }
+
+  // Fall back to species-level standards (breedId IS NULL)
+  return db
+    .selectFrom('growth_standards')
+    .selectAll()
+    .where('species', '=', species)
+    .where('breedId', 'is', null)
+    .orderBy('day', 'asc')
+    .execute()
 }

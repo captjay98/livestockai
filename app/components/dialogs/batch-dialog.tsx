@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { AlertCircle, ChevronDown, ChevronUp, Users } from 'lucide-react'
+import type { Breed } from '~/features/breeds/types'
 import { useErrorMessage } from '~/hooks/useErrorMessage'
 import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/features/batches/server'
 import { useFarm } from '~/features/farms/context'
 import { useFormatCurrency } from '~/features/settings'
+import { getBreedsForSpeciesFn, getSpeciesForLivestockTypeFn, submitBreedRequestFn } from '~/features/breeds/server'
+import { BreedRequestDialog } from '~/components/dialogs/breed-request-dialog'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -47,37 +50,6 @@ const getLivestockTypes = (t: any) => [
   { value: 'fish', label: t('batches:fish', { defaultValue: 'Fish' }) },
 ]
 
-const getSpeciesOptions = (t: any) => ({
-  poultry: [
-    {
-      value: 'broiler',
-      label: t('batches:species_broiler', { defaultValue: 'Broiler' }),
-    },
-    {
-      value: 'layer',
-      label: t('batches:species_layer', { defaultValue: 'Layer' }),
-    },
-    {
-      value: 'cockerel',
-      label: t('batches:species_cockerel', { defaultValue: 'Cockerel' }),
-    },
-    {
-      value: 'turkey',
-      label: t('batches:species_turkey', { defaultValue: 'Turkey' }),
-    },
-  ],
-  fish: [
-    {
-      value: 'catfish',
-      label: t('batches:species_catfish', { defaultValue: 'Catfish' }),
-    },
-    {
-      value: 'tilapia',
-      label: t('batches:species_tilapia', { defaultValue: 'Tilapia' }),
-    },
-  ],
-})
-
 export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
   const { t } = useTranslation(['batches', 'common'])
   const getErrorMessage = useErrorMessage()
@@ -97,17 +69,84 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
     structureId: '',
     targetHarvestDate: '',
     target_weight_g: '',
+    targetPricePerUnit: '',
     supplierId: '',
+    breedId: '',
     notes: '',
   })
+  const [breeds, setBreeds] = useState<Array<Breed>>([])
+  const [speciesOptions, setSpeciesOptions] = useState<Array<{ value: string; label: string }>>([])
+  const [isLoadingSpecies, setIsLoadingSpecies] = useState(false)
+  const [isLoadingBreeds, setIsLoadingBreeds] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [showAdditional, setShowAdditional] = useState(false)
+  const [showBreedRequestDialog, setShowBreedRequestDialog] = useState(false)
 
-  // Reset species and sourceSize when livestock type changes
+  // Fetch species when livestock type changes
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, species: '', sourceSize: '' }))
+    const fetchSpecies = async () => {
+      if (!formData.livestockType) {
+        setSpeciesOptions([])
+        return
+      }
+
+      setIsLoadingSpecies(true)
+      try {
+        const result = await getSpeciesForLivestockTypeFn({
+          data: { livestockType: formData.livestockType },
+        })
+        setSpeciesOptions(result)
+      } catch (err) {
+        console.error('Failed to fetch species:', err)
+        setSpeciesOptions([])
+      } finally {
+        setIsLoadingSpecies(false)
+      }
+    }
+
+    fetchSpecies()
+    // Reset species, breed, and sourceSize when livestock type changes
+    setFormData((prev) => ({
+      ...prev,
+      species: '',
+      breedId: '',
+      sourceSize: '',
+    }))
+    setBreeds([])
   }, [formData.livestockType])
+
+  // Fetch breeds when species changes
+  useEffect(() => {
+    const fetchBreeds = async () => {
+      if (!formData.species) {
+        setBreeds([])
+        return
+      }
+
+      setIsLoadingBreeds(true)
+      try {
+        const result = await getBreedsForSpeciesFn({
+          data: { speciesKey: formData.species },
+        })
+        setBreeds(result)
+
+        // Pre-select default breed if available
+        const defaultBreed = result.find((b) => b.isDefault)
+        if (defaultBreed) {
+          setFormData((prev) => ({ ...prev, breedId: defaultBreed.id }))
+        } else {
+          setFormData((prev) => ({ ...prev, breedId: '' }))
+        }
+      } catch (err) {
+        console.error('Failed to fetch breeds:', err)
+      } finally {
+        setIsLoadingBreeds(false)
+      }
+    }
+
+    fetchBreeds()
+  }, [formData.species])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -146,7 +185,11 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
             target_weight_g: formData.target_weight_g
               ? parseInt(formData.target_weight_g)
               : null,
+            targetPricePerUnit: formData.targetPricePerUnit
+              ? parseFloat(formData.targetPricePerUnit)
+              : null,
             supplierId: formData.supplierId || null,
+            breedId: formData.breedId || null,
             notes: formData.notes || null,
           },
         },
@@ -167,7 +210,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
         structureId: '',
         targetHarvestDate: '',
         target_weight_g: '',
+        targetPricePerUnit: '',
         supplierId: '',
+        breedId: '',
         notes: '',
       })
       setShowAdditional(false)
@@ -179,17 +224,26 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
     }
   }
 
-  const speciesOptions = formData.livestockType
-    ? getSpeciesOptions(t)[formData.livestockType]
-    : []
+  const sourceSizeOptions = useMemo(() => {
+    if (!formData.livestockType) return []
 
-  const sourceSizeOptions = formData.livestockType
-    ? SOURCE_SIZE_OPTIONS[formData.livestockType]
-    : []
+    const baseOptions = SOURCE_SIZE_OPTIONS[formData.livestockType]
+
+    // If a breed is selected and has specific source sizes, filter the base options
+    const selectedBreed = breeds.find((b) => b.id === formData.breedId)
+    if (selectedBreed && selectedBreed.sourceSizes.length > 0) {
+      return baseOptions.filter((opt) =>
+        selectedBreed.sourceSizes.includes(opt.value),
+      )
+    }
+
+    return baseOptions
+  }, [formData.livestockType, formData.breedId, breeds])
 
   const livestockTypes = getLivestockTypes(t)
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
@@ -233,11 +287,11 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                 <SelectValue>
                   {formData.livestockType
                     ? livestockTypes.find(
-                        (lt) => lt.value === formData.livestockType,
-                      )?.label
+                      (lt) => lt.value === formData.livestockType,
+                    )?.label
                     : t('placeholders.selectType', {
-                        defaultValue: 'Select type',
-                      })}
+                      defaultValue: 'Select type',
+                    })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -263,10 +317,10 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                   <SelectValue>
                     {formData.species
                       ? speciesOptions.find((s) => s.value === formData.species)
-                          ?.label
+                        ?.label
                       : t('placeholders.selectSpecies', {
-                          defaultValue: 'Select species',
-                        })}
+                        defaultValue: 'Select species',
+                      })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -277,6 +331,55 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {formData.species && breeds.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="breedId">{t('breed')}</Label>
+                {isLoadingBreeds && (
+                  <span className="text-[10px] text-muted-foreground animate-pulse">
+                    Loading...
+                  </span>
+                )}
+              </div>
+              <Select
+                value={formData.breedId || ''}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, breedId: value || '' }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue>
+                    {formData.breedId
+                      ? breeds.find((b) => b.id === formData.breedId)
+                        ?.displayName
+                      : t('placeholders.selectBreed', {
+                        defaultValue: 'Select breed',
+                      })}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {breeds.map((breed) => (
+                    <SelectItem key={breed.id} value={breed.id}>
+                      {breed.displayName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.species && (
+                <p className="text-xs text-muted-foreground">
+                  Don't see your breed?{' '}
+                  <button
+                    type="button"
+                    onClick={() => setShowBreedRequestDialog(true)}
+                    className="text-primary underline hover:no-underline"
+                  >
+                    Request it here
+                  </button>
+                </p>
+              )}
             </div>
           )}
 
@@ -396,11 +499,11 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                       <SelectValue>
                         {formData.sourceSize
                           ? sourceSizeOptions.find(
-                              (s) => s.value === formData.sourceSize,
-                            )?.label
+                            (s) => s.value === formData.sourceSize,
+                          )?.label
                           : t('selectSourceSize', {
-                              defaultValue: 'Select source size',
-                            })}
+                            defaultValue: 'Select source size',
+                          })}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -433,11 +536,11 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                       <SelectValue>
                         {formData.structureId
                           ? structures.find(
-                              (s) => s.id === formData.structureId,
-                            )?.name
+                            (s) => s.id === formData.structureId,
+                          )?.name
                           : t('selectStructure', {
-                              defaultValue: 'Select structure',
-                            })}
+                            defaultValue: 'Select structure',
+                          })}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -470,10 +573,10 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                       <SelectValue>
                         {formData.supplierId
                           ? suppliers.find((s) => s.id === formData.supplierId)
-                              ?.name
+                            ?.name
                           : t('selectSupplier', {
-                              defaultValue: 'Select supplier',
-                            })}
+                            defaultValue: 'Select supplier',
+                          })}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -505,6 +608,33 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                     }))
                   }
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="targetPricePerUnit">
+                  {t('targetPrice', { defaultValue: 'Target Price' })} (
+                  {currencySymbol})
+                </Label>
+                <Input
+                  id="targetPricePerUnit"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.targetPricePerUnit}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      targetPricePerUnit: e.target.value,
+                    }))
+                  }
+                  placeholder="1500"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t('targetPriceHelp', {
+                    defaultValue:
+                      'Expected price per unit at harvest (for revenue forecasting)',
+                  })}
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -563,5 +693,22 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
         </form>
       </DialogContent>
     </Dialog>
+
+    <BreedRequestDialog
+      open={showBreedRequestDialog}
+      onOpenChange={setShowBreedRequestDialog}
+      moduleKey={formData.livestockType}
+      speciesKey={formData.species}
+      onSubmit={async (data) => {
+        await submitBreedRequestFn({
+          data: {
+            moduleKey: formData.livestockType,
+            speciesKey: formData.species,
+            ...data,
+          },
+        })
+      }}
+    />
+    </>
   )
 }

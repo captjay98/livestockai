@@ -101,7 +101,8 @@ export async function getMedicationInventory(userId: string, farmId?: string) {
     if (targetFarmIds.length === 0) return []
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   return selectMedicationInventory(db, targetFarmIds)
 }
 
@@ -131,7 +132,8 @@ export async function getExpiringMedicationsList(
     if (targetFarmIds.length === 0) return []
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   return getExpiringMedications(db, targetFarmIds, days)
 }
 
@@ -164,7 +166,8 @@ export async function getLowStockMedicationsList(
     if (targetFarmIds.length === 0) return []
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   return getLowStockMedications(db, targetFarmIds)
 }
 
@@ -190,7 +193,8 @@ export async function createMedication(
 
   await verifyFarmAccess(userId, input.farmId)
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
   const id = await insertMedicationInventory(db, {
     farmId: input.farmId,
@@ -228,7 +232,8 @@ export async function updateMedicationRecord(
     })
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getMedicationInventoryById(db, id)
@@ -273,7 +278,8 @@ export const updateMedicationFn = createServerFn({ method: 'POST' })
   })
 
 export async function deleteMedicationRecord(userId: string, id: string) {
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getMedicationInventoryById(db, id)
@@ -314,7 +320,8 @@ export async function useMedicationRecord(
     })
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getMedicationInventoryById(db, id)
@@ -363,7 +370,8 @@ export async function addMedicationStockRecord(
     })
   }
 
-  const { getDb } = await import('~/lib/db'); const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
   const farmIds = await getUserFarms(userId)
 
   const record = await getMedicationInventoryById(db, id)

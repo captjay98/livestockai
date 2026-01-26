@@ -37,7 +37,8 @@ export type AlertSource =
 export const getAllBatchAlerts = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
   .handler(async ({ data }) => {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -142,7 +143,8 @@ export const getAllBatchAlerts = createServerFn({ method: 'GET' })
 export const checkBatchAlerts = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ batchId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()
@@ -188,7 +190,8 @@ export const checkBatchAlerts = createServerFn({ method: 'GET' })
 export const getFarmAlerts = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ farmId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const { getDb } = await import('~/lib/db'); const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
     const session = await requireAuth()

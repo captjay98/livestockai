@@ -353,6 +353,56 @@ export async function up(db: Kysely<any>): Promise<void> {
     db,
   )
 
+  // Breeds (Reference Data)
+  await db.schema
+    .createTable('breeds')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`uuid_generate_v4()`),
+    )
+    .addColumn('moduleKey', 'varchar(20)', (col) => col.notNull())
+    .addColumn('speciesKey', 'varchar(50)', (col) => col.notNull())
+    .addColumn('breedName', 'varchar(100)', (col) => col.notNull())
+    .addColumn('displayName', 'varchar(100)', (col) => col.notNull())
+    .addColumn('typicalMarketWeightG', 'integer', (col) => col.notNull())
+    .addColumn('typicalDaysToMarket', 'integer', (col) => col.notNull())
+    .addColumn('typicalFcr', sql`decimal(4,2)`, (col) => col.notNull())
+    .addColumn('sourceSizes', 'jsonb', (col) =>
+      col.notNull().defaultTo(sql`'[]'`),
+    )
+    .addColumn('regions', 'jsonb', (col) => col.notNull().defaultTo(sql`'[]'`))
+    .addColumn('isDefault', 'boolean', (col) => col.notNull().defaultTo(false))
+    .addColumn('isActive', 'boolean', (col) => col.notNull().defaultTo(true))
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .execute()
+
+  await db.schema
+    .createIndex('breeds_module_species_name_unique')
+    .on('breeds')
+    .columns(['moduleKey', 'speciesKey', 'breedName'])
+    .unique()
+    .execute()
+
+  await db.schema
+    .createIndex('idx_breeds_module')
+    .on('breeds')
+    .column('moduleKey')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_breeds_species')
+    .on('breeds')
+    .column('speciesKey')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_breeds_active')
+    .on('breeds')
+    .column('isActive')
+    .where('isActive', '=', true)
+    .execute()
+
   await db.schema
     .createTable('medication_inventory')
     .addColumn('id', 'uuid', (col) =>
@@ -408,6 +458,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
     .addColumn('livestockType', 'varchar(20)', (col) => col.notNull())
     .addColumn('species', 'varchar(100)', (col) => col.notNull())
+    .addColumn('breedId', 'uuid', (col) =>
+      col.references('breeds.id').onDelete('set null'),
+    )
     .addColumn('initialQuantity', 'integer', (col) => col.notNull())
     .addColumn('currentQuantity', 'integer', (col) => col.notNull())
     .addColumn('acquisitionDate', 'date', (col) => col.notNull())
@@ -730,9 +783,13 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('species', 'varchar', (col) => col.notNull())
     .addColumn('day', 'integer', (col) => col.notNull())
     .addColumn('expected_weight_g', 'integer', (col) => col.notNull())
-    .addUniqueConstraint('growth_standards_species_day_unique', [
+    .addColumn('breedId', 'uuid', (col) =>
+      col.references('breeds.id').onDelete('set null'),
+    )
+    .addUniqueConstraint('growth_standards_species_day_breed_unique', [
       'species',
       'day',
+      'breedId',
     ])
     .execute()
 

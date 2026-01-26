@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { Breed } from '~/features/breeds/types'
+import { getBreedsForSpeciesFn } from '~/features/breeds/server'
 import { Button } from '~/components/ui/button'
 import {
   Dialog,
@@ -22,9 +24,9 @@ import {
 interface Batch {
   id: string
   species: string
+  breedId?: string | null
   currentQuantity: number
   status: string
-  // Add other fields if necessary
 }
 
 interface BatchEditDialogProps {
@@ -34,6 +36,7 @@ interface BatchEditDialogProps {
   onSubmit: (data: {
     currentQuantity: string
     status: 'active' | 'depleted' | 'sold'
+    breedId: string | null
   }) => Promise<void>
   isSubmitting: boolean
 }
@@ -49,7 +52,10 @@ export function BatchEditDialog({
   const [formData, setFormData] = useState({
     currentQuantity: '',
     status: 'active' as 'active' | 'depleted' | 'sold',
+    breedId: '' as string | null,
   })
+  const [breeds, setBreeds] = useState<Array<Breed>>([])
+  const [isLoadingBreeds, setIsLoadingBreeds] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -57,7 +63,24 @@ export function BatchEditDialog({
       setFormData({
         currentQuantity: batch.currentQuantity.toString(),
         status: batch.status as 'active' | 'depleted' | 'sold',
+        breedId: batch.breedId || '',
       })
+
+      // Fetch breeds for this species
+      const fetchBreeds = async () => {
+        setIsLoadingBreeds(true)
+        try {
+          const result = await getBreedsForSpeciesFn({
+            data: { speciesKey: batch.species },
+          })
+          setBreeds(result)
+        } catch (err) {
+          console.error('Failed to fetch breeds:', err)
+        } finally {
+          setIsLoadingBreeds(false)
+        }
+      }
+      fetchBreeds()
     }
   }, [batch])
 
@@ -108,6 +131,7 @@ export function BatchEditDialog({
                 required
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="edit-status">
                 {t('columns.status', { defaultValue: 'Status' })}
@@ -124,7 +148,7 @@ export function BatchEditDialog({
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger id="edit-status">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -142,6 +166,49 @@ export function BatchEditDialog({
                 </SelectContent>
               </Select>
             </div>
+
+            {breeds.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="edit-breed">{t('breed')}</Label>
+                  {isLoadingBreeds && (
+                    <span className="text-[10px] text-muted-foreground animate-pulse">
+                      Loading...
+                    </span>
+                  )}
+                </div>
+                <Select
+                  value={formData.breedId || 'none'}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      breedId: value === 'none' ? null : value,
+                    }))
+                  }
+                >
+                  <SelectTrigger id="edit-breed">
+                    <SelectValue>
+                      {formData.breedId
+                        ? breeds.find((b) => b.id === formData.breedId)
+                          ?.displayName
+                        : t('placeholders.selectBreed', {
+                          defaultValue: 'Select breed',
+                        })}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">
+                      {t('common:none', { defaultValue: 'None' })}
+                    </SelectItem>
+                    {breeds.map((breed) => (
+                      <SelectItem key={breed.id} value={breed.id}>
+                        {breed.displayName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {error && (
               <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
