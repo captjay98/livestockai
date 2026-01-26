@@ -135,9 +135,10 @@ export function BatchKPIs({ metrics, batchId }: BatchKPIsProps) {
             <div className="text-lg font-bold text-muted-foreground">--</div>
           ) : (
             <div className="text-lg font-bold">
-              {projection?.currentWeightG 
-                ? (projection.currentWeightG / 1000).toFixed(2) 
-                : '--'} kg
+              {projection?.currentWeightG
+                ? (projection.currentWeightG / 1000).toFixed(2)
+                : '--'}{' '}
+              kg
             </div>
           )}
           <p className="text-xs text-muted-foreground">
@@ -159,9 +160,10 @@ export function BatchKPIs({ metrics, batchId }: BatchKPIsProps) {
             <div className="text-lg font-bold text-muted-foreground">--</div>
           ) : (
             <div className="text-lg font-bold">
-              {projection?.expectedWeightG 
-                ? (projection.expectedWeightG / 1000).toFixed(2) 
-                : '--'} kg
+              {projection?.expectedWeightG
+                ? (projection.expectedWeightG / 1000).toFixed(2)
+                : '--'}{' '}
+              kg
             </div>
           )}
           <p className="text-xs text-muted-foreground">
@@ -182,12 +184,14 @@ export function BatchKPIs({ metrics, batchId }: BatchKPIsProps) {
           {isLoadingProjection ? (
             <div className="text-lg font-bold text-muted-foreground">--</div>
           ) : (
-            <div className={cn(
-              'text-lg font-bold',
-              getPerformanceColor(projection?.performanceIndex ?? null)
-            )}>
-              {projection?.performanceIndex 
-                ? projection.performanceIndex.toFixed(0) 
+            <div
+              className={cn(
+                'text-lg font-bold',
+                getPerformanceColor(projection?.performanceIndex ?? null),
+              )}
+            >
+              {projection?.performanceIndex
+                ? projection.performanceIndex.toFixed(0)
                 : '--'}
             </div>
           )}

@@ -23,25 +23,25 @@ export function validateBatchSearch(
     pageSize: Number(search.pageSize) || 10,
     sortBy:
       typeof search.sortBy === 'string' &&
-        (validSortBy as ReadonlyArray<string>).includes(search.sortBy)
+      (validSortBy as ReadonlyArray<string>).includes(search.sortBy)
         ? search.sortBy
         : 'createdAt',
     sortOrder:
       typeof search.sortOrder === 'string' &&
-        (search.sortOrder === 'asc' || search.sortOrder === 'desc')
+      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
         ? search.sortOrder
         : 'desc',
     q: typeof search.q === 'string' ? search.q : '',
     status:
       typeof search.status === 'string' &&
-        (validStatuses as ReadonlyArray<string>).includes(search.status)
+      (validStatuses as ReadonlyArray<string>).includes(search.status)
         ? (search.status as 'active' | 'depleted' | 'sold')
         : undefined,
     livestockType:
       typeof search.livestockType === 'string' &&
-        (validLivestockTypes as ReadonlyArray<string>).includes(
-          search.livestockType,
-        )
+      (validLivestockTypes as ReadonlyArray<string>).includes(
+        search.livestockType,
+      )
         ? (search.livestockType as 'poultry' | 'fish')
         : undefined,
     breedId: typeof search.breedId === 'string' ? search.breedId : undefined,

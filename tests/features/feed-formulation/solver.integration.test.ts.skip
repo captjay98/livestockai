@@ -1,0 +1,169 @@
+/**
+ * Integration tests for feed formulation with HiGHS solver
+ * Tests solver integration without database dependencies
+ */
+
+import { describe, expect, it } from 'vitest'
+import type { IngredientWithPrice } from '~/features/feed-formulation/repository'
+import { runOptimization } from '~/features/feed-formulation/service'
+
+describe('Feed Formulation - Integration Tests', () => {
+  const createIngredient = (overrides: Partial<IngredientWithPrice> = {}): IngredientWithPrice => ({
+    id: crypto.randomUUID(),
+    name: 'Test Ingredient',
+    category: 'cereal',
+    proteinPercent: '10.0',
+    energyKcalKg: 3000,
+    fatPercent: '3.0',
+    fiberPercent: '2.0',
+    calciumPercent: '0.5',
+    phosphorusPercent: '0.3',
+    lysinePercent: '0.5',
+    methioninePercent: '0.2',
+    maxInclusionPercent: '50.0',
+    ...overrides,
+  })
+
+  const basicRequirements = {
+    minProteinPercent: 18,
+    minEnergyKcalKg: 2800,
+    maxFiberPercent: 5,
+    minCalciumPercent: 0.8,
+    minPhosphorusPercent: 0.4,
+    minLysinePercent: 1.0,
+    minMethioninePercent: 0.4,
+  }
+
+  it('should solve feasible formulation with basic ingredients', async () => {
+    const corn = createIngredient({
+      name: 'Corn',
+      proteinPercent: '8.5',
+      energyKcalKg: 3350,
+      maxInclusionPercent: '70.0',
+    })
+
+    const soybean = createIngredient({
+      name: 'Soybean Meal',
+      category: 'protein',
+      proteinPercent: '44.0',
+      energyKcalKg: 2230,
+      lysinePercent: '2.69',
+      methioninePercent: '0.62',
+      maxInclusionPercent: '40.0',
+    })
+
+    const limestone = createIngredient({
+      name: 'Limestone',
+      category: 'mineral',
+      proteinPercent: '0.0',
+      energyKcalKg: 0,
+      calciumPercent: '38.0',
+      maxInclusionPercent: '2.0',
+    })
+
+    const ingredients = [corn, soybean, limestone]
+    const prices = ingredients.map(ing => ({
+      ingredientId: ing.id,
+      pricePerKg: '0.50',
+      isAvailable: true,
+    }))
+
+    const result = await runOptimization(
+      ingredients,
+      prices,
+      basicRequirements,
+      100,
+      0
+    )
+
+    expect(result.feasible).toBe(true)
+    expect(result.ingredients.length).toBeGreaterThan(0)
+    expect(result.totalCostPerKg).toBeGreaterThan(0)
+    expect(result.nutritionalValues.protein).toBeGreaterThanOrEqual(18)
+    expect(result.nutritionalValues.energy).toBeGreaterThanOrEqual(2800)
+  })
+
+  it('should return infeasible when requirements cannot be met', async () => {
+    const corn = createIngredient({
+      name: 'Corn',
+      proteinPercent: '8.5',
+      energyKcalKg: 3350,
+      maxInclusionPercent: '100.0',
+    })
+
+    const ingredients = [corn]
+    const prices = [{
+      ingredientId: corn.id,
+      pricePerKg: '0.30',
+      isAvailable: true,
+    }]
+
+    const impossibleRequirements = {
+      ...basicRequirements,
+      minProteinPercent: 30,
+    }
+
+    const result = await runOptimization(
+      ingredients,
+      prices,
+      impossibleRequirements,
+      100,
+      0
+    )
+
+    expect(result.feasible).toBe(false)
+    expect(result.infeasibilityReport).toBeDefined()
+  })
+
+  it('should handle unavailable ingredients', async () => {
+    const corn = createIngredient({
+      name: 'Corn',
+      proteinPercent: '8.5',
+      energyKcalKg: 3350,
+    })
+
+    const ingredients = [corn]
+    const prices = [{
+      ingredientId: corn.id,
+      pricePerKg: '0.30',
+      isAvailable: false,
+    }]
+
+    const result = await runOptimization(
+      ingredients,
+      prices,
+      basicRequirements,
+      100,
+      0
+    )
+
+    expect(result.feasible).toBe(false)
+  })
+
+  it('should scale batch size correctly', async () => {
+    const corn = createIngredient({
+      name: 'Corn',
+      proteinPercent: '18.0',
+      energyKcalKg: 3350,
+      calciumPercent: '1.0',
+      phosphorusPercent: '0.5',
+      lysinePercent: '1.2',
+      methioninePercent: '0.5',
+      maxInclusionPercent: '100.0',
+    })
+
+    const ingredients = [corn]
+    const prices = [{
+      ingredientId: corn.id,
+      pricePerKg: '0.30',
+      isAvailable: true,
+    }]
+
+    const result100 = await runOptimization(ingredients, prices, basicRequirements, 100, 0)
+    const result500 = await runOptimization(ingredients, prices, basicRequirements, 500, 0)
+
+    expect(result100.feasible).toBe(true)
+    expect(result500.feasible).toBe(true)
+    expect(result100.totalCostPerKg).toBeCloseTo(result500.totalCostPerKg, 2)
+  })
+})

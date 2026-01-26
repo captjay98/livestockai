@@ -19,20 +19,22 @@ describe('Forecasting Service - Property Tests', () => {
           fc.integer({ min: 1, max: 100 }), // days diff
           (weight1, weight2, daysDiff) => {
             const date1 = new Date('2024-01-01')
-            const date2 = new Date(date1.getTime() + daysDiff * 24 * 60 * 60 * 1000)
-            
+            const date2 = new Date(
+              date1.getTime() + daysDiff * 24 * 60 * 60 * 1000,
+            )
+
             const samples = [
               { averageWeightKg: weight2, date: date2 },
               { averageWeightKg: weight1, date: date1 },
             ]
-            
+
             const result = calculateADG(samples, date1, daysDiff, [])
-            
+
             const expectedADG = ((weight2 - weight1) * 1000) / daysDiff
             expect(result.adgGramsPerDay).toBeCloseTo(expectedADG, 2)
             expect(result.method).toBe('two_samples')
-          }
-        )
+          },
+        ),
       )
     })
 
@@ -43,17 +45,19 @@ describe('Forecasting Service - Property Tests', () => {
           fc.integer({ min: 1, max: 100 }), // days since acquisition
           (weight, days) => {
             const acquisitionDate = new Date('2024-01-01')
-            const sampleDate = new Date(acquisitionDate.getTime() + days * 24 * 60 * 60 * 1000)
-            
+            const sampleDate = new Date(
+              acquisitionDate.getTime() + days * 24 * 60 * 60 * 1000,
+            )
+
             const samples = [{ averageWeightKg: weight, date: sampleDate }]
-            
+
             const result = calculateADG(samples, acquisitionDate, days, [])
-            
+
             const expectedADG = (weight * 1000) / days
             expect(result.adgGramsPerDay).toBeCloseTo(expectedADG, 2)
             expect(result.method).toBe('single_sample')
-          }
-        )
+          },
+        ),
       )
     })
 
@@ -67,13 +71,18 @@ describe('Forecasting Service - Property Tests', () => {
               { day: 28, expected_weight_g: 1000 },
               { day: 56, expected_weight_g: 2500 },
             ]
-            
-            const result = calculateADG([], new Date(), currentAge, growthStandards)
-            
+
+            const result = calculateADG(
+              [],
+              new Date(),
+              currentAge,
+              growthStandards,
+            )
+
             expect(result.adgGramsPerDay).toBeGreaterThan(0)
             expect(result.method).toBe('growth_curve_estimate')
-          }
-        )
+          },
+        ),
       )
     })
 
@@ -86,34 +95,34 @@ describe('Forecasting Service - Property Tests', () => {
           (weight1, weight2, days) => {
             const date1 = new Date('2024-01-01')
             const date2 = new Date(date1.getTime() + days * 24 * 60 * 60 * 1000)
-            
+
             const samples = [
               { averageWeightKg: weight2, date: date2 },
               { averageWeightKg: weight1, date: date1 },
             ]
-            
+
             const result = calculateADG(samples, date1, days, [])
-            
+
             // ADG should be in grams (weight diff in kg * 1000 / days)
             expect(typeof result.adgGramsPerDay).toBe('number')
             expect(isNaN(result.adgGramsPerDay)).toBe(false)
-          }
-        )
+          },
+        ),
       )
     })
 
     it('Property 9: Negative ADG detection', () => {
       const date1 = new Date('2024-01-01')
       const date2 = new Date('2024-01-10')
-      
+
       // Weight decreased
       const samples = [
         { averageWeightKg: 1.0, date: date2 },
         { averageWeightKg: 2.0, date: date1 },
       ]
-      
+
       const result = calculateADG(samples, date1, 10, [])
-      
+
       expect(result.adgGramsPerDay).toBeLessThan(0)
       expect(result.method).toBe('two_samples')
     })
@@ -129,8 +138,8 @@ describe('Forecasting Service - Property Tests', () => {
             const result = calculatePerformanceIndex(actual, expected)
             const expectedPI = (actual / expected) * 100
             expect(result).toBeCloseTo(expectedPI, 2)
-          }
-        )
+          },
+        ),
       )
     })
 
@@ -140,7 +149,7 @@ describe('Forecasting Service - Property Tests', () => {
           fc.double({ min: 50, max: 150, noNaN: true }), // performance index
           (pi) => {
             const status = classifyStatus(pi)
-            
+
             if (pi < 95) {
               expect(status).toBe('behind')
             } else if (pi > 105) {
@@ -148,8 +157,8 @@ describe('Forecasting Service - Property Tests', () => {
             } else {
               expect(status).toBe('on_track')
             }
-          }
-        )
+          },
+        ),
       )
     })
   })
@@ -163,29 +172,29 @@ describe('Forecasting Service - Property Tests', () => {
           fc.double({ min: 10, max: 100, noNaN: true }), // ADG
           (current, target, adg) => {
             const result = projectHarvestDate(current, target, adg)
-            
+
             if (current >= target) {
               expect(result?.daysRemaining).toBe(0)
             } else {
               const expectedDays = Math.ceil((target - current) / adg)
               expect(result?.daysRemaining).toBe(expectedDays)
             }
-          }
-        )
+          },
+        ),
       )
     })
 
     it('should return null for zero or negative ADG', () => {
       const result1 = projectHarvestDate(1000, 2000, 0)
       const result2 = projectHarvestDate(1000, 2000, -10)
-      
+
       expect(result1).toBeNull()
       expect(result2).toBeNull()
     })
 
     it('should return 0 days when current >= target', () => {
       const result = projectHarvestDate(2500, 2000, 50)
-      
+
       expect(result?.daysRemaining).toBe(0)
       expect(result?.harvestDate).toBeDefined()
     })
@@ -199,17 +208,17 @@ describe('Forecasting Service - Property Tests', () => {
           fc.double({ min: 100, max: 5000, noNaN: true }),
           (actual, expected) => {
             fc.pre(expected > 0) // Ensure expected is not zero
-            
+
             const result = calculateDeviationPercent(actual, expected)
             const expectedDeviation = ((actual - expected) / expected) * 100
-            
+
             if (isNaN(expectedDeviation)) {
               expect(result).toBe(0)
             } else {
               expect(result).toBeCloseTo(expectedDeviation, 2)
             }
-          }
-        )
+          },
+        ),
       )
     })
 
@@ -227,16 +236,20 @@ describe('Forecasting Service - Property Tests', () => {
         { day: 7, expected_weight_g: 200 },
         { day: 14, expected_weight_g: 500 },
       ]
-      const samples = [
-        { averageWeightKg: 0.21, date: new Date('2024-01-08') },
-      ]
-      
-      const result = generateChartData(acquisitionDate, 14, growthStandards, samples, 7)
-      
+      const samples = [{ averageWeightKg: 0.21, date: new Date('2024-01-08') }]
+
+      const result = generateChartData(
+        acquisitionDate,
+        14,
+        growthStandards,
+        samples,
+        7,
+      )
+
       expect(Array.isArray(result)).toBe(true)
       expect(result.length).toBeGreaterThan(0)
-      
-      result.forEach(point => {
+
+      result.forEach((point) => {
         expect(point).toHaveProperty('day')
         expect(point).toHaveProperty('expectedWeightG')
         expect(point).toHaveProperty('actualWeightG')
@@ -248,16 +261,20 @@ describe('Forecasting Service - Property Tests', () => {
 
     it('Property 7: Weight unit conversion in chart (kg to grams)', () => {
       const acquisitionDate = new Date('2024-01-01')
-      const growthStandards = [
-        { day: 7, expected_weight_g: 200 },
-      ]
+      const growthStandards = [{ day: 7, expected_weight_g: 200 }]
       const samples = [
         { averageWeightKg: 0.25, date: new Date('2024-01-08') }, // 0.25 kg = 250 g
       ]
-      
-      const result = generateChartData(acquisitionDate, 7, growthStandards, samples, 0)
-      
-      const pointWithSample = result.find(p => p.actualWeightG !== null)
+
+      const result = generateChartData(
+        acquisitionDate,
+        7,
+        growthStandards,
+        samples,
+        0,
+      )
+
+      const pointWithSample = result.find((p) => p.actualWeightG !== null)
       expect(pointWithSample?.actualWeightG).toBeCloseTo(250, 0)
     })
   })

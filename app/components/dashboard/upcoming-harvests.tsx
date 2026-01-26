@@ -9,10 +9,13 @@ import { Skeleton } from '~/components/ui/skeleton'
 
 export function UpcomingHarvests() {
   const { selectedFarmId } = useFarm()
-  
+
   const { data: harvests, isLoading } = useQuery({
     queryKey: ['upcoming-harvests', selectedFarmId],
-    queryFn: () => getUpcomingHarvestsFn({ data: { farmId: selectedFarmId ?? undefined, daysAhead: 14 } }),
+    queryFn: () =>
+      getUpcomingHarvestsFn({
+        data: { farmId: selectedFarmId ?? undefined, daysAhead: 14 },
+      }),
     enabled: !!selectedFarmId,
   })
 
@@ -27,7 +30,10 @@ export function UpcomingHarvests() {
         </CardHeader>
         <CardContent className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+            <div
+              key={i}
+              className="flex items-center justify-between p-3 border rounded-lg"
+            >
               <div className="space-y-1">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-3 w-20" />
@@ -83,18 +89,18 @@ export function UpcomingHarvests() {
               </div>
               <div className="text-right">
                 <div className="text-sm font-medium">
-                  {batch.projectedHarvestDate 
+                  {batch.projectedHarvestDate
                     ? format(new Date(batch.projectedHarvestDate), 'MMM d')
                     : '--'}
                 </div>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   <span>
-                    {batch.daysRemaining === 0 
-                      ? 'Today' 
-                      : batch.daysRemaining === 1 
-                      ? '1 day' 
-                      : `${batch.daysRemaining} days`}
+                    {batch.daysRemaining === 0
+                      ? 'Today'
+                      : batch.daysRemaining === 1
+                        ? '1 day'
+                        : `${batch.daysRemaining} days`}
                   </span>
                 </div>
               </div>

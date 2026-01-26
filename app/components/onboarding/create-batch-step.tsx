@@ -43,7 +43,9 @@ export function CreateBatchStep() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [speciesOptions, setSpeciesOptions] = useState<Array<{ value: string; label: string }>>([])
+  const [speciesOptions, setSpeciesOptions] = useState<
+    Array<{ value: string; label: string }>
+  >([])
   const [isLoadingSpecies, setIsLoadingSpecies] = useState(false)
 
   // Fetch species when livestock type changes

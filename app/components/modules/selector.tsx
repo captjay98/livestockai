@@ -15,7 +15,9 @@ export function ModuleSelector() {
   const { enabledModules, toggleModule, canDisableModule } = useModules()
   const [localEnabled, setLocalEnabled] = useState<Array<ModuleKey>>([])
   const [expandedModule, setExpandedModule] = useState<ModuleKey | null>(null)
-  const [moduleSpecies, setModuleSpecies] = useState<Record<ModuleKey, Array<{ value: string; label: string }>>>({} as Record<ModuleKey, Array<{ value: string; label: string }>>)
+  const [moduleSpecies, setModuleSpecies] = useState<
+    Record<ModuleKey, Array<{ value: string; label: string }>>
+  >({} as Record<ModuleKey, Array<{ value: string; label: string }>>)
   const [isLoadingSpecies, setIsLoadingSpecies] = useState(false)
 
   // Unused state commented out for future use
@@ -177,7 +179,9 @@ export function ModuleSelector() {
                     <p className="text-xs font-medium">Species:</p>
                     <div className="flex flex-wrap gap-1">
                       {isLoadingSpecies && expandedModule === moduleKey ? (
-                        <span className="text-xs text-muted-foreground animate-pulse">Loading...</span>
+                        <span className="text-xs text-muted-foreground animate-pulse">
+                          Loading...
+                        </span>
                       ) : moduleSpecies[moduleKey]?.length > 0 ? (
                         moduleSpecies[moduleKey].map((species) => (
                           <span
@@ -188,7 +192,9 @@ export function ModuleSelector() {
                           </span>
                         ))
                       ) : (
-                        <span className="text-xs text-muted-foreground">No species configured</span>
+                        <span className="text-xs text-muted-foreground">
+                          No species configured
+                        </span>
                       )}
                     </div>
                   </div>

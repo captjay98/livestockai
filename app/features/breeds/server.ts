@@ -133,7 +133,6 @@ export const getSpeciesForLivestockTypeFn = createServerFn({ method: 'GET' })
     }
   })
 
-
 export const submitBreedRequestFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({

@@ -20,7 +20,7 @@ describe('Alert Service - Integration Tests', () => {
       const { userId } = await seedTestUser({ email: 'test@example.com' })
       const { farmId } = await seedTestFarm(userId)
       const { batchId } = await seedTestBatch(farmId, { species: 'broiler' })
-      
+
       // Create first alert
       await db
         .insertInto('notifications')
@@ -34,10 +34,14 @@ describe('Alert Service - Integration Tests', () => {
           read: false,
         })
         .execute()
-      
+
       // Check if should create another alert (should be false)
-      const shouldCreate = await shouldCreateAlert(db, batchId, 'growthDeviation')
-      
+      const shouldCreate = await shouldCreateAlert(
+        db,
+        batchId,
+        'growthDeviation',
+      )
+
       expect(shouldCreate).toBe(false)
     })
 
@@ -46,11 +50,11 @@ describe('Alert Service - Integration Tests', () => {
       const { userId } = await seedTestUser({ email: 'test@example.com' })
       const { farmId } = await seedTestFarm(userId)
       const { batchId } = await seedTestBatch(farmId, { species: 'broiler' })
-      
+
       // Create old alert (25 hours ago)
       const oldDate = new Date()
       oldDate.setHours(oldDate.getHours() - 25)
-      
+
       await db
         .insertInto('notifications')
         .values({
@@ -64,10 +68,14 @@ describe('Alert Service - Integration Tests', () => {
           createdAt: oldDate,
         })
         .execute()
-      
+
       // Check if should create new alert (should be true)
-      const shouldCreate = await shouldCreateAlert(db, batchId, 'growthDeviation')
-      
+      const shouldCreate = await shouldCreateAlert(
+        db,
+        batchId,
+        'growthDeviation',
+      )
+
       expect(shouldCreate).toBe(true)
     })
 
@@ -76,7 +84,7 @@ describe('Alert Service - Integration Tests', () => {
       const { userId } = await seedTestUser({ email: 'test@example.com' })
       const { farmId } = await seedTestFarm(userId)
       const { batchId } = await seedTestBatch(farmId, { species: 'broiler' })
-      
+
       // Create growthDeviation alert
       await db
         .insertInto('notifications')
@@ -90,10 +98,10 @@ describe('Alert Service - Integration Tests', () => {
           read: false,
         })
         .execute()
-      
+
       // Check if should create earlyHarvest alert (should be true - different type)
       const shouldCreate = await shouldCreateAlert(db, batchId, 'earlyHarvest')
-      
+
       expect(shouldCreate).toBe(true)
     })
 
@@ -101,9 +109,13 @@ describe('Alert Service - Integration Tests', () => {
       const db = getTestDb()
       const { userId } = await seedTestUser({ email: 'test@example.com' })
       const { farmId } = await seedTestFarm(userId)
-      const { batchId: batchId1 } = await seedTestBatch(farmId, { species: 'broiler' })
-      const { batchId: batchId2 } = await seedTestBatch(farmId, { species: 'layer' })
-      
+      const { batchId: batchId1 } = await seedTestBatch(farmId, {
+        species: 'broiler',
+      })
+      const { batchId: batchId2 } = await seedTestBatch(farmId, {
+        species: 'layer',
+      })
+
       // Create alert for batch 1
       await db
         .insertInto('notifications')
@@ -117,10 +129,14 @@ describe('Alert Service - Integration Tests', () => {
           read: false,
         })
         .execute()
-      
+
       // Check if should create alert for batch 2 (should be true - different batch)
-      const shouldCreate = await shouldCreateAlert(db, batchId2, 'growthDeviation')
-      
+      const shouldCreate = await shouldCreateAlert(
+        db,
+        batchId2,
+        'growthDeviation',
+      )
+
       expect(shouldCreate).toBe(true)
     })
   })

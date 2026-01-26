@@ -20,6 +20,7 @@ import { Route as CommunityRouteImport } from './routes/community'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SharedShareCodeRouteImport } from './routes/shared/$shareCode'
 import { Route as AuthWeightIndexRouteImport } from './routes/_auth/weight/index'
 import { Route as AuthWaterQualityIndexRouteImport } from './routes/_auth/water-quality/index'
 import { Route as AuthVaccinationsIndexRouteImport } from './routes/_auth/vaccinations/index'
@@ -33,6 +34,7 @@ import { Route as AuthMortalityIndexRouteImport } from './routes/_auth/mortality
 import { Route as AuthInvoicesIndexRouteImport } from './routes/_auth/invoices/index'
 import { Route as AuthInventoryIndexRouteImport } from './routes/_auth/inventory/index'
 import { Route as AuthFeedIndexRouteImport } from './routes/_auth/feed/index'
+import { Route as AuthFeedFormulationIndexRouteImport } from './routes/_auth/feed-formulation/index'
 import { Route as AuthFarmsIndexRouteImport } from './routes/_auth/farms/index'
 import { Route as AuthExpensesIndexRouteImport } from './routes/_auth/expenses/index'
 import { Route as AuthEggsIndexRouteImport } from './routes/_auth/eggs/index'
@@ -44,6 +46,7 @@ import { Route as AuthSettingsUsersRouteImport } from './routes/_auth/settings/u
 import { Route as AuthSettingsAuditRouteImport } from './routes/_auth/settings/audit'
 import { Route as AuthReportsExportRouteImport } from './routes/_auth/reports/export'
 import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth/invoices/$invoiceId'
+import { Route as AuthFeedFormulationPricesRouteImport } from './routes/_auth/feed-formulation/prices'
 import { Route as AuthFarmsFarmIdRouteImport } from './routes/_auth/farms/$farmId'
 import { Route as AuthCustomersCustomerIdRouteImport } from './routes/_auth/customers/$customerId'
 import { Route as AuthFarmsFarmIdIndexRouteImport } from './routes/_auth/farms/$farmId/index'
@@ -101,6 +104,11 @@ const AuthRoute = AuthRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SharedShareCodeRoute = SharedShareCodeRouteImport.update({
+  id: '/shared/$shareCode',
+  path: '/shared/$shareCode',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthWeightIndexRoute = AuthWeightIndexRouteImport.update({
@@ -168,6 +176,12 @@ const AuthFeedIndexRoute = AuthFeedIndexRouteImport.update({
   path: '/feed/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthFeedFormulationIndexRoute =
+  AuthFeedFormulationIndexRouteImport.update({
+    id: '/feed-formulation/',
+    path: '/feed-formulation/',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthFarmsIndexRoute = AuthFarmsIndexRouteImport.update({
   id: '/farms/',
   path: '/farms/',
@@ -223,6 +237,12 @@ const AuthInvoicesInvoiceIdRoute = AuthInvoicesInvoiceIdRouteImport.update({
   path: '/invoices/$invoiceId',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthFeedFormulationPricesRoute =
+  AuthFeedFormulationPricesRouteImport.update({
+    id: '/feed-formulation/prices',
+    path: '/feed-formulation/prices',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthFarmsFarmIdRoute = AuthFarmsFarmIdRouteImport.update({
   id: '/farms/$farmId',
   path: '/farms/$farmId',
@@ -255,8 +275,10 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/roadmap': typeof RoadmapRoute
   '/support': typeof SupportRoute
+  '/shared/$shareCode': typeof SharedShareCodeRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/farms/$farmId': typeof AuthFarmsFarmIdRouteWithChildren
+  '/feed-formulation/prices': typeof AuthFeedFormulationPricesRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
   '/reports/export': typeof AuthReportsExportRoute
   '/settings/audit': typeof AuthSettingsAuditRoute
@@ -268,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/eggs/': typeof AuthEggsIndexRoute
   '/expenses/': typeof AuthExpensesIndexRoute
   '/farms/': typeof AuthFarmsIndexRoute
+  '/feed-formulation/': typeof AuthFeedFormulationIndexRoute
   '/feed/': typeof AuthFeedIndexRoute
   '/inventory/': typeof AuthInventoryIndexRoute
   '/invoices/': typeof AuthInvoicesIndexRoute
@@ -295,7 +318,9 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/roadmap': typeof RoadmapRoute
   '/support': typeof SupportRoute
+  '/shared/$shareCode': typeof SharedShareCodeRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
+  '/feed-formulation/prices': typeof AuthFeedFormulationPricesRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
   '/reports/export': typeof AuthReportsExportRoute
   '/settings/audit': typeof AuthSettingsAuditRoute
@@ -307,6 +332,7 @@ export interface FileRoutesByTo {
   '/eggs': typeof AuthEggsIndexRoute
   '/expenses': typeof AuthExpensesIndexRoute
   '/farms': typeof AuthFarmsIndexRoute
+  '/feed-formulation': typeof AuthFeedFormulationIndexRoute
   '/feed': typeof AuthFeedIndexRoute
   '/inventory': typeof AuthInventoryIndexRoute
   '/invoices': typeof AuthInvoicesIndexRoute
@@ -336,8 +362,10 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/roadmap': typeof RoadmapRoute
   '/support': typeof SupportRoute
+  '/shared/$shareCode': typeof SharedShareCodeRoute
   '/_auth/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/_auth/farms/$farmId': typeof AuthFarmsFarmIdRouteWithChildren
+  '/_auth/feed-formulation/prices': typeof AuthFeedFormulationPricesRoute
   '/_auth/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
   '/_auth/reports/export': typeof AuthReportsExportRoute
   '/_auth/settings/audit': typeof AuthSettingsAuditRoute
@@ -349,6 +377,7 @@ export interface FileRoutesById {
   '/_auth/eggs/': typeof AuthEggsIndexRoute
   '/_auth/expenses/': typeof AuthExpensesIndexRoute
   '/_auth/farms/': typeof AuthFarmsIndexRoute
+  '/_auth/feed-formulation/': typeof AuthFeedFormulationIndexRoute
   '/_auth/feed/': typeof AuthFeedIndexRoute
   '/_auth/inventory/': typeof AuthInventoryIndexRoute
   '/_auth/invoices/': typeof AuthInvoicesIndexRoute
@@ -378,8 +407,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/roadmap'
     | '/support'
+    | '/shared/$shareCode'
     | '/customers/$customerId'
     | '/farms/$farmId'
+    | '/feed-formulation/prices'
     | '/invoices/$invoiceId'
     | '/reports/export'
     | '/settings/audit'
@@ -391,6 +422,7 @@ export interface FileRouteTypes {
     | '/eggs/'
     | '/expenses/'
     | '/farms/'
+    | '/feed-formulation/'
     | '/feed/'
     | '/inventory/'
     | '/invoices/'
@@ -418,7 +450,9 @@ export interface FileRouteTypes {
     | '/register'
     | '/roadmap'
     | '/support'
+    | '/shared/$shareCode'
     | '/customers/$customerId'
+    | '/feed-formulation/prices'
     | '/invoices/$invoiceId'
     | '/reports/export'
     | '/settings/audit'
@@ -430,6 +464,7 @@ export interface FileRouteTypes {
     | '/eggs'
     | '/expenses'
     | '/farms'
+    | '/feed-formulation'
     | '/feed'
     | '/inventory'
     | '/invoices'
@@ -458,8 +493,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/roadmap'
     | '/support'
+    | '/shared/$shareCode'
     | '/_auth/customers/$customerId'
     | '/_auth/farms/$farmId'
+    | '/_auth/feed-formulation/prices'
     | '/_auth/invoices/$invoiceId'
     | '/_auth/reports/export'
     | '/_auth/settings/audit'
@@ -471,6 +508,7 @@ export interface FileRouteTypes {
     | '/_auth/eggs/'
     | '/_auth/expenses/'
     | '/_auth/farms/'
+    | '/_auth/feed-formulation/'
     | '/_auth/feed/'
     | '/_auth/inventory/'
     | '/_auth/invoices/'
@@ -500,6 +538,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   RoadmapRoute: typeof RoadmapRoute
   SupportRoute: typeof SupportRoute
+  SharedShareCodeRoute: typeof SharedShareCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -579,6 +618,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shared/$shareCode': {
+      id: '/shared/$shareCode'
+      path: '/shared/$shareCode'
+      fullPath: '/shared/$shareCode'
+      preLoaderRoute: typeof SharedShareCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/weight/': {
@@ -672,6 +718,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthFeedIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/feed-formulation/': {
+      id: '/_auth/feed-formulation/'
+      path: '/feed-formulation'
+      fullPath: '/feed-formulation/'
+      preLoaderRoute: typeof AuthFeedFormulationIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/farms/': {
       id: '/_auth/farms/'
       path: '/farms'
@@ -749,6 +802,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthInvoicesInvoiceIdRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/feed-formulation/prices': {
+      id: '/_auth/feed-formulation/prices'
+      path: '/feed-formulation/prices'
+      fullPath: '/feed-formulation/prices'
+      preLoaderRoute: typeof AuthFeedFormulationPricesRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/farms/$farmId': {
       id: '/_auth/farms/$farmId'
       path: '/farms/$farmId'
@@ -795,6 +855,7 @@ const AuthFarmsFarmIdRouteWithChildren = AuthFarmsFarmIdRoute._addFileChildren(
 interface AuthRouteChildren {
   AuthCustomersCustomerIdRoute: typeof AuthCustomersCustomerIdRoute
   AuthFarmsFarmIdRoute: typeof AuthFarmsFarmIdRouteWithChildren
+  AuthFeedFormulationPricesRoute: typeof AuthFeedFormulationPricesRoute
   AuthInvoicesInvoiceIdRoute: typeof AuthInvoicesInvoiceIdRoute
   AuthReportsExportRoute: typeof AuthReportsExportRoute
   AuthSettingsAuditRoute: typeof AuthSettingsAuditRoute
@@ -806,6 +867,7 @@ interface AuthRouteChildren {
   AuthEggsIndexRoute: typeof AuthEggsIndexRoute
   AuthExpensesIndexRoute: typeof AuthExpensesIndexRoute
   AuthFarmsIndexRoute: typeof AuthFarmsIndexRoute
+  AuthFeedFormulationIndexRoute: typeof AuthFeedFormulationIndexRoute
   AuthFeedIndexRoute: typeof AuthFeedIndexRoute
   AuthInventoryIndexRoute: typeof AuthInventoryIndexRoute
   AuthInvoicesIndexRoute: typeof AuthInvoicesIndexRoute
@@ -825,6 +887,7 @@ interface AuthRouteChildren {
 const AuthRouteChildren: AuthRouteChildren = {
   AuthCustomersCustomerIdRoute: AuthCustomersCustomerIdRoute,
   AuthFarmsFarmIdRoute: AuthFarmsFarmIdRouteWithChildren,
+  AuthFeedFormulationPricesRoute: AuthFeedFormulationPricesRoute,
   AuthInvoicesInvoiceIdRoute: AuthInvoicesInvoiceIdRoute,
   AuthReportsExportRoute: AuthReportsExportRoute,
   AuthSettingsAuditRoute: AuthSettingsAuditRoute,
@@ -836,6 +899,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthEggsIndexRoute: AuthEggsIndexRoute,
   AuthExpensesIndexRoute: AuthExpensesIndexRoute,
   AuthFarmsIndexRoute: AuthFarmsIndexRoute,
+  AuthFeedFormulationIndexRoute: AuthFeedFormulationIndexRoute,
   AuthFeedIndexRoute: AuthFeedIndexRoute,
   AuthInventoryIndexRoute: AuthInventoryIndexRoute,
   AuthInvoicesIndexRoute: AuthInvoicesIndexRoute,
@@ -866,6 +930,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   RoadmapRoute: RoadmapRoute,
   SupportRoute: SupportRoute,
+  SharedShareCodeRoute: SharedShareCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

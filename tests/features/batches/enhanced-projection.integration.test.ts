@@ -23,7 +23,7 @@ describe('Enhanced Projection - Integration Tests', () => {
         species: 'broiler',
         target_weight_g: 2000,
       })
-      
+
       // Add weight sample
       await db
         .insertInto('weight_samples')
@@ -34,9 +34,9 @@ describe('Enhanced Projection - Integration Tests', () => {
           averageWeightKg: '1.5',
         })
         .execute()
-      
+
       const result = await calculateEnhancedProjection(batchId)
-      
+
       if (result) {
         // Check all required fields exist
         expect(result).toHaveProperty('currentWeightG')
@@ -48,14 +48,18 @@ describe('Enhanced Projection - Integration Tests', () => {
         expect(result).toHaveProperty('projectedHarvestDate')
         expect(result).toHaveProperty('daysRemaining')
         expect(result).toHaveProperty('currentStatus')
-        
+
         // Check types
         expect(typeof result.currentWeightG).toBe('number')
         expect(typeof result.expectedWeightG).toBe('number')
         expect(typeof result.performanceIndex).toBe('number')
         expect(typeof result.adgGramsPerDay).toBe('number')
         expect(typeof result.expectedAdgGramsPerDay).toBe('number')
-        expect(['two_samples', 'single_sample', 'growth_curve_estimate']).toContain(result.adgMethod)
+        expect([
+          'two_samples',
+          'single_sample',
+          'growth_curve_estimate',
+        ]).toContain(result.adgMethod)
       }
     })
 
@@ -66,9 +70,9 @@ describe('Enhanced Projection - Integration Tests', () => {
         species: 'unknown_species', // No growth standards for this
         target_weight_g: 2000,
       })
-      
+
       const result = await calculateEnhancedProjection(batchId)
-      
+
       // Should return null gracefully
       expect(result).toBeNull()
     })
@@ -80,9 +84,9 @@ describe('Enhanced Projection - Integration Tests', () => {
         species: 'broiler',
         target_weight_g: null, // No target weight
       })
-      
+
       const result = await calculateEnhancedProjection(batchId)
-      
+
       // Should return null when no target weight
       expect(result).toBeNull()
     })
@@ -93,20 +97,20 @@ describe('Enhanced Projection - Integration Tests', () => {
       const db = getTestDb()
       const { userId } = await seedTestUser({ email: 'test@example.com' })
       const { farmId } = await seedTestFarm(userId)
-      
+
       // Create batches with different performance levels
       const { batchId: batch1 } = await seedTestBatch(farmId, {
         species: 'broiler',
         target_weight_g: 2000,
         batchName: 'Batch 1',
       })
-      
+
       const { batchId: batch2 } = await seedTestBatch(farmId, {
         species: 'broiler',
         target_weight_g: 2000,
         batchName: 'Batch 2',
       })
-      
+
       // Add weight samples to simulate different performance
       // Batch 1: Behind (PI < 90)
       await db
@@ -118,7 +122,7 @@ describe('Enhanced Projection - Integration Tests', () => {
           averageWeightKg: '0.8', // Low weight
         })
         .execute()
-      
+
       // Batch 2: On track (PI 95-105)
       await db
         .insertInto('weight_samples')
@@ -129,7 +133,7 @@ describe('Enhanced Projection - Integration Tests', () => {
           averageWeightKg: '1.5', // Normal weight
         })
         .execute()
-      
+
       // Query batches needing attention
       const batches = await db
         .selectFrom('batches')
@@ -137,7 +141,7 @@ describe('Enhanced Projection - Integration Tests', () => {
         .where('farmId', '=', farmId)
         .where('status', '=', 'active')
         .execute()
-      
+
       expect(batches.length).toBe(2)
     })
   })

@@ -399,7 +399,8 @@ export const en = {
     species: 'Species',
     breed: 'Breed',
     targetPrice: 'Target Price',
-    targetPriceHelp: 'Expected price per unit at harvest (for revenue forecasting)',
+    targetPriceHelp:
+      'Expected price per unit at harvest (for revenue forecasting)',
     quantity: 'Quantity',
     poultry: 'Poultry',
     fish: 'Fish',

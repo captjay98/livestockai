@@ -9,7 +9,11 @@ import { useErrorMessage } from '~/hooks/useErrorMessage'
 import { SOURCE_SIZE_OPTIONS, createBatchFn } from '~/features/batches/server'
 import { useFarm } from '~/features/farms/context'
 import { useFormatCurrency } from '~/features/settings'
-import { getBreedsForSpeciesFn, getSpeciesForLivestockTypeFn, submitBreedRequestFn } from '~/features/breeds/server'
+import {
+  getBreedsForSpeciesFn,
+  getSpeciesForLivestockTypeFn,
+  submitBreedRequestFn,
+} from '~/features/breeds/server'
 import { BreedRequestDialog } from '~/components/dialogs/breed-request-dialog'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -75,7 +79,9 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
     notes: '',
   })
   const [breeds, setBreeds] = useState<Array<Breed>>([])
-  const [speciesOptions, setSpeciesOptions] = useState<Array<{ value: string; label: string }>>([])
+  const [speciesOptions, setSpeciesOptions] = useState<
+    Array<{ value: string; label: string }>
+  >([])
   const [isLoadingBreeds, setIsLoadingBreeds] = useState(false)
   const [isLoadingSpecies, setIsLoadingSpecies] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -244,472 +250,475 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
 
   return (
     <>
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            {t('create')}
-          </DialogTitle>
-          <DialogDescription>
-            {t('description', {
-              defaultValue: 'Create a new livestock batch',
-            })}
-          </DialogDescription>
-        </DialogHeader>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              {t('create')}
+            </DialogTitle>
+            <DialogDescription>
+              {t('description', {
+                defaultValue: 'Create a new livestock batch',
+              })}
+            </DialogDescription>
+          </DialogHeader>
 
-        {!selectedFarmId && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Please select a farm from the header before adding a batch.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="livestockType">
-              {t('livestockType', { defaultValue: 'Livestock Type' })}
-            </Label>
-            <Select
-              value={formData.livestockType}
-              onValueChange={(value) =>
-                value &&
-                setFormData((prev) => ({
-                  ...prev,
-                  livestockType: value,
-                }))
-              }
-              disabled={!selectedFarmId}
-            >
-              <SelectTrigger>
-                <SelectValue>
-                  {formData.livestockType
-                    ? livestockTypes.find(
-                      (lt) => lt.value === formData.livestockType,
-                    )?.label
-                    : t('placeholders.selectType', {
-                      defaultValue: 'Select type',
-                    })}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {livestockTypes.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {formData.livestockType && (
-            <div className="space-y-2">
-              <Label htmlFor="species">{t('species')}</Label>
-              <Select
-                value={formData.species}
-                onValueChange={(value) =>
-                  value && setFormData((prev) => ({ ...prev, species: value }))
-                }
-                disabled={isLoadingSpecies}
-              >
-                <SelectTrigger>
-                  <SelectValue>
-                    {isLoadingSpecies
-                      ? 'Loading...'
-                      : formData.species
-                      ? speciesOptions.find((s) => s.value === formData.species)
-                        ?.label
-                      : t('placeholders.selectSpecies', {
-                        defaultValue: 'Select species',
-                      })}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {speciesOptions.map((species) => (
-                    <SelectItem key={species.value} value={species.value}>
-                      {species.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {!selectedFarmId && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Please select a farm from the header before adding a batch.
+              </AlertDescription>
+            </Alert>
           )}
 
-          {formData.species && breeds.length > 0 && (
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="breedId">{t('breed')}</Label>
-                {isLoadingBreeds && (
-                  <span className="text-[10px] text-muted-foreground animate-pulse">
-                    Loading...
-                  </span>
-                )}
-              </div>
-              <Select
-                value={formData.breedId || ''}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, breedId: value || '' }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue>
-                    {formData.breedId
-                      ? breeds.find((b) => b.id === formData.breedId)
-                        ?.displayName
-                      : t('placeholders.selectBreed', {
-                        defaultValue: 'Select breed',
-                      })}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {breeds.map((breed) => (
-                    <SelectItem key={breed.id} value={breed.id}>
-                      {breed.displayName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.species && (
-                <p className="text-xs text-muted-foreground">
-                  Don't see your breed?{' '}
-                  <button
-                    type="button"
-                    onClick={() => setShowBreedRequestDialog(true)}
-                    className="text-primary underline hover:no-underline"
-                  >
-                    Request it here
-                  </button>
-                </p>
-              )}
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="initialQuantity">{t('common:quantity')}</Label>
-              <Input
-                id="initialQuantity"
-                type="number"
-                min="1"
-                value={formData.initialQuantity}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    initialQuantity: e.target.value,
-                  }))
-                }
-                placeholder="100"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="costPerUnit">
-                {t('common:price')} ({currencySymbol})
+              <Label htmlFor="livestockType">
+                {t('livestockType', { defaultValue: 'Livestock Type' })}
               </Label>
+              <Select
+                value={formData.livestockType}
+                onValueChange={(value) =>
+                  value &&
+                  setFormData((prev) => ({
+                    ...prev,
+                    livestockType: value,
+                  }))
+                }
+                disabled={!selectedFarmId}
+              >
+                <SelectTrigger>
+                  <SelectValue>
+                    {formData.livestockType
+                      ? livestockTypes.find(
+                          (lt) => lt.value === formData.livestockType,
+                        )?.label
+                      : t('placeholders.selectType', {
+                          defaultValue: 'Select type',
+                        })}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {livestockTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {formData.livestockType && (
+              <div className="space-y-2">
+                <Label htmlFor="species">{t('species')}</Label>
+                <Select
+                  value={formData.species}
+                  onValueChange={(value) =>
+                    value &&
+                    setFormData((prev) => ({ ...prev, species: value }))
+                  }
+                  disabled={isLoadingSpecies}
+                >
+                  <SelectTrigger>
+                    <SelectValue>
+                      {isLoadingSpecies
+                        ? 'Loading...'
+                        : formData.species
+                          ? speciesOptions.find(
+                              (s) => s.value === formData.species,
+                            )?.label
+                          : t('placeholders.selectSpecies', {
+                              defaultValue: 'Select species',
+                            })}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {speciesOptions.map((species) => (
+                      <SelectItem key={species.value} value={species.value}>
+                        {species.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {formData.species && breeds.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="breedId">{t('breed')}</Label>
+                  {isLoadingBreeds && (
+                    <span className="text-[10px] text-muted-foreground animate-pulse">
+                      Loading...
+                    </span>
+                  )}
+                </div>
+                <Select
+                  value={formData.breedId || ''}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, breedId: value || '' }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue>
+                      {formData.breedId
+                        ? breeds.find((b) => b.id === formData.breedId)
+                            ?.displayName
+                        : t('placeholders.selectBreed', {
+                            defaultValue: 'Select breed',
+                          })}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {breeds.map((breed) => (
+                      <SelectItem key={breed.id} value={breed.id}>
+                        {breed.displayName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formData.species && (
+                  <p className="text-xs text-muted-foreground">
+                    Don't see your breed?{' '}
+                    <button
+                      type="button"
+                      onClick={() => setShowBreedRequestDialog(true)}
+                      className="text-primary underline hover:no-underline"
+                    >
+                      Request it here
+                    </button>
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="initialQuantity">{t('common:quantity')}</Label>
+                <Input
+                  id="initialQuantity"
+                  type="number"
+                  min="1"
+                  value={formData.initialQuantity}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      initialQuantity: e.target.value,
+                    }))
+                  }
+                  placeholder="100"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="costPerUnit">
+                  {t('common:price')} ({currencySymbol})
+                </Label>
+                <Input
+                  id="costPerUnit"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.costPerUnit}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      costPerUnit: e.target.value,
+                    }))
+                  }
+                  placeholder="500"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="acquisitionDate">{t('common:date')}</Label>
               <Input
-                id="costPerUnit"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.costPerUnit}
+                id="acquisitionDate"
+                type="date"
+                value={formData.acquisitionDate}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    costPerUnit: e.target.value,
+                    acquisitionDate: e.target.value,
                   }))
                 }
-                placeholder="500"
                 required
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="acquisitionDate">{t('common:date')}</Label>
-            <Input
-              id="acquisitionDate"
-              type="date"
-              value={formData.acquisitionDate}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  acquisitionDate: e.target.value,
-                }))
-              }
-              required
-            />
-          </div>
+            {/* Additional Details Section */}
+            <Collapsible open={showAdditional} onOpenChange={setShowAdditional}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground"
+                >
+                  <span>
+                    {t('additionalDetails', {
+                      defaultValue: 'Additional Details',
+                    })}
+                  </span>
+                  {showAdditional ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="batchName">
+                    {t('batchName', { defaultValue: 'Batch Name' })} (
+                    {t('common:optional', { defaultValue: 'Optional' })})
+                  </Label>
+                  <Input
+                    id="batchName"
+                    value={formData.batchName}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        batchName: e.target.value,
+                      }))
+                    }
+                    placeholder={t('batchNamePlaceholder', {
+                      defaultValue: 'e.g., JAN-2026-BR-01',
+                    })}
+                  />
+                </div>
 
-          {/* Additional Details Section */}
-          <Collapsible open={showAdditional} onOpenChange={setShowAdditional}>
-            <CollapsibleTrigger asChild>
-              <Button
-                variant="ghost"
-                type="button"
-                className="w-full justify-between p-0 h-auto font-normal text-muted-foreground hover:text-foreground"
-              >
-                <span>
-                  {t('additionalDetails', {
-                    defaultValue: 'Additional Details',
-                  })}
-                </span>
-                {showAdditional ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
+                {formData.livestockType && (
+                  <div className="space-y-2">
+                    <Label htmlFor="sourceSize">
+                      {t('sourceSize', { defaultValue: 'Source Size' })} (
+                      {t('common:optional', { defaultValue: 'Optional' })})
+                    </Label>
+                    <Select
+                      value={formData.sourceSize || undefined}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          sourceSize: value || '',
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue>
+                          {formData.sourceSize
+                            ? sourceSizeOptions.find(
+                                (s) => s.value === formData.sourceSize,
+                              )?.label
+                            : t('selectSourceSize', {
+                                defaultValue: 'Select source size',
+                              })}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sourceSizeOptions.map((size) => (
+                          <SelectItem key={size.value} value={size.value}>
+                            {size.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 )}
+
+                {structures.length > 0 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="structureId">
+                      {t('structure', { defaultValue: 'Structure' })} (
+                      {t('common:optional', { defaultValue: 'Optional' })})
+                    </Label>
+                    <Select
+                      value={formData.structureId || undefined}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          structureId: value || '',
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue>
+                          {formData.structureId
+                            ? structures.find(
+                                (s) => s.id === formData.structureId,
+                              )?.name
+                            : t('selectStructure', {
+                                defaultValue: 'Select structure',
+                              })}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {structures.map((structure) => (
+                          <SelectItem key={structure.id} value={structure.id}>
+                            {structure.name} ({structure.type})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {suppliers.length > 0 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="supplierId">
+                      {t('supplier', { defaultValue: 'Supplier' })} (
+                      {t('common:optional', { defaultValue: 'Optional' })})
+                    </Label>
+                    <Select
+                      value={formData.supplierId || undefined}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          supplierId: value || '',
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue>
+                          {formData.supplierId
+                            ? suppliers.find(
+                                (s) => s.id === formData.supplierId,
+                              )?.name
+                            : t('selectSupplier', {
+                                defaultValue: 'Select supplier',
+                              })}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {suppliers.map((supplier) => (
+                          <SelectItem key={supplier.id} value={supplier.id}>
+                            {supplier.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="targetHarvestDate">
+                    {t('targetHarvestDate', {
+                      defaultValue: 'Target Harvest Date',
+                    })}{' '}
+                    ({t('common:optional', { defaultValue: 'Optional' })})
+                  </Label>
+                  <Input
+                    id="targetHarvestDate"
+                    type="date"
+                    value={formData.targetHarvestDate}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        targetHarvestDate: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="targetPricePerUnit">
+                    {t('targetPrice', { defaultValue: 'Target Price' })} (
+                    {currencySymbol})
+                  </Label>
+                  <Input
+                    id="targetPricePerUnit"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.targetPricePerUnit}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        targetPricePerUnit: e.target.value,
+                      }))
+                    }
+                    placeholder="1500"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t('targetPriceHelp', {
+                      defaultValue:
+                        'Expected price per unit at harvest (for revenue forecasting)',
+                    })}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes">
+                    {t('common:notes', { defaultValue: 'Notes' })} (
+                    {t('common.optional', { defaultValue: 'Optional' })})
+                  </Label>
+                  <Textarea
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
+                    placeholder={t('notesPlaceholder', {
+                      defaultValue: 'Any additional notes about this batch...',
+                    })}
+                    rows={3}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                {error}
+              </div>
+            )}
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="batchName">
-                  {t('batchName', { defaultValue: 'Batch Name' })} (
-                  {t('common:optional', { defaultValue: 'Optional' })})
-                </Label>
-                <Input
-                  id="batchName"
-                  value={formData.batchName}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      batchName: e.target.value,
-                    }))
-                  }
-                  placeholder={t('batchNamePlaceholder', {
-                    defaultValue: 'e.g., JAN-2026-BR-01',
-                  })}
-                />
-              </div>
+              <Button
+                type="submit"
+                disabled={
+                  isSubmitting ||
+                  !formData.livestockType ||
+                  !formData.species ||
+                  !formData.initialQuantity ||
+                  !formData.costPerUnit
+                }
+              >
+                {isSubmitting
+                  ? t('common:saving', { defaultValue: 'Creating...' })
+                  : t('create')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-              {formData.livestockType && (
-                <div className="space-y-2">
-                  <Label htmlFor="sourceSize">
-                    {t('sourceSize', { defaultValue: 'Source Size' })} (
-                    {t('common:optional', { defaultValue: 'Optional' })})
-                  </Label>
-                  <Select
-                    value={formData.sourceSize || undefined}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        sourceSize: value || '',
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue>
-                        {formData.sourceSize
-                          ? sourceSizeOptions.find(
-                            (s) => s.value === formData.sourceSize,
-                          )?.label
-                          : t('selectSourceSize', {
-                            defaultValue: 'Select source size',
-                          })}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sourceSizeOptions.map((size) => (
-                        <SelectItem key={size.value} value={size.value}>
-                          {size.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {structures.length > 0 && (
-                <div className="space-y-2">
-                  <Label htmlFor="structureId">
-                    {t('structure', { defaultValue: 'Structure' })} (
-                    {t('common:optional', { defaultValue: 'Optional' })})
-                  </Label>
-                  <Select
-                    value={formData.structureId || undefined}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        structureId: value || '',
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue>
-                        {formData.structureId
-                          ? structures.find(
-                            (s) => s.id === formData.structureId,
-                          )?.name
-                          : t('selectStructure', {
-                            defaultValue: 'Select structure',
-                          })}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {structures.map((structure) => (
-                        <SelectItem key={structure.id} value={structure.id}>
-                          {structure.name} ({structure.type})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {suppliers.length > 0 && (
-                <div className="space-y-2">
-                  <Label htmlFor="supplierId">
-                    {t('supplier', { defaultValue: 'Supplier' })} (
-                    {t('common:optional', { defaultValue: 'Optional' })})
-                  </Label>
-                  <Select
-                    value={formData.supplierId || undefined}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        supplierId: value || '',
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue>
-                        {formData.supplierId
-                          ? suppliers.find((s) => s.id === formData.supplierId)
-                            ?.name
-                          : t('selectSupplier', {
-                            defaultValue: 'Select supplier',
-                          })}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {suppliers.map((supplier) => (
-                        <SelectItem key={supplier.id} value={supplier.id}>
-                          {supplier.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="targetHarvestDate">
-                  {t('targetHarvestDate', {
-                    defaultValue: 'Target Harvest Date',
-                  })}{' '}
-                  ({t('common:optional', { defaultValue: 'Optional' })})
-                </Label>
-                <Input
-                  id="targetHarvestDate"
-                  type="date"
-                  value={formData.targetHarvestDate}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      targetHarvestDate: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="targetPricePerUnit">
-                  {t('targetPrice', { defaultValue: 'Target Price' })} (
-                  {currencySymbol})
-                </Label>
-                <Input
-                  id="targetPricePerUnit"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.targetPricePerUnit}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      targetPricePerUnit: e.target.value,
-                    }))
-                  }
-                  placeholder="1500"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {t('targetPriceHelp', {
-                    defaultValue:
-                      'Expected price per unit at harvest (for revenue forecasting)',
-                  })}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">
-                  {t('common:notes', { defaultValue: 'Notes' })} (
-                  {t('common.optional', { defaultValue: 'Optional' })})
-                </Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      notes: e.target.value,
-                    }))
-                  }
-                  placeholder={t('notesPlaceholder', {
-                    defaultValue: 'Any additional notes about this batch...',
-                  })}
-                  rows={3}
-                />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-
-          {error && (
-            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-              {error}
-            </div>
-          )}
-
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              {t('common:cancel', { defaultValue: 'Cancel' })}
-            </Button>
-            <Button
-              type="submit"
-              disabled={
-                isSubmitting ||
-                !formData.livestockType ||
-                !formData.species ||
-                !formData.initialQuantity ||
-                !formData.costPerUnit
-              }
-            >
-              {isSubmitting
-                ? t('common:saving', { defaultValue: 'Creating...' })
-                : t('create')}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-
-    <BreedRequestDialog
-      open={showBreedRequestDialog}
-      onOpenChange={setShowBreedRequestDialog}
-      onSubmit={async (data) => {
-        await submitBreedRequestFn({
-          data: {
-            moduleKey: formData.livestockType,
-            speciesKey: formData.species,
-            ...data,
-          },
-        })
-      }}
-    />
+      <BreedRequestDialog
+        open={showBreedRequestDialog}
+        onOpenChange={setShowBreedRequestDialog}
+        onSubmit={async (data) => {
+          await submitBreedRequestFn({
+            data: {
+              moduleKey: formData.livestockType,
+              speciesKey: formData.species,
+              ...data,
+            },
+          })
+        }}
+      />
     </>
   )
 }

@@ -8,10 +8,13 @@ import { Skeleton } from '~/components/ui/skeleton'
 
 export function BatchesAttention() {
   const { selectedFarmId } = useFarm()
-  
+
   const { data: batches, isLoading } = useQuery({
     queryKey: ['batches-attention', selectedFarmId],
-    queryFn: () => getBatchesNeedingAttentionFn({ data: { farmId: selectedFarmId ?? undefined } }),
+    queryFn: () =>
+      getBatchesNeedingAttentionFn({
+        data: { farmId: selectedFarmId ?? undefined },
+      }),
     enabled: !!selectedFarmId,
   })
 
@@ -26,7 +29,10 @@ export function BatchesAttention() {
         </CardHeader>
         <CardContent className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+            <div
+              key={i}
+              className="flex items-center justify-between p-3 border rounded-lg"
+            >
               <div className="space-y-1">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-3 w-20" />
@@ -76,11 +82,15 @@ export function BatchesAttention() {
             <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
               <div className="space-y-1">
                 <div className="font-medium text-sm">{batch.batchName}</div>
-                <div className="text-xs text-muted-foreground">{batch.species}</div>
+                <div className="text-xs text-muted-foreground">
+                  {batch.species}
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="text-right">
-                  <div className="text-sm font-medium">PI: {batch.performanceIndex}</div>
+                  <div className="text-sm font-medium">
+                    PI: {batch.performanceIndex}
+                  </div>
                   <div className="flex items-center gap-1 text-xs">
                     {batch.performanceIndex < 90 ? (
                       <TrendingDown className="h-3 w-3 text-red-500" />

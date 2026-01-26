@@ -405,9 +405,7 @@ export async function seed() {
 
       await db.insertInto('growth_standards').values(curveData).execute()
       breedCurveCount += curveData.length
-      console.log(
-        `   ✅ ${curve.breedName}: ${curveData.length} data points`,
-      )
+      console.log(`   ✅ ${curve.breedName}: ${curveData.length} data points`)
     }
 
     console.log(`   ✅ Total: ${breedCurveCount} breed-specific data points\n`)

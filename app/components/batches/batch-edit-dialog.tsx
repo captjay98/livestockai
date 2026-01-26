@@ -190,10 +190,10 @@ export function BatchEditDialog({
                     <SelectValue>
                       {formData.breedId
                         ? breeds.find((b) => b.id === formData.breedId)
-                          ?.displayName
+                            ?.displayName
                         : t('placeholders.selectBreed', {
-                          defaultValue: 'Select breed',
-                        })}
+                            defaultValue: 'Select breed',
+                          })}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>

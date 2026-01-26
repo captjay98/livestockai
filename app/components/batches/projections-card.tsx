@@ -93,11 +93,12 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
             <p className="text-xs text-muted-foreground">Performance Index</p>
             <p
               className={`text-lg font-bold ${
-                projection.performanceIndex >= 95 && projection.performanceIndex <= 105
+                projection.performanceIndex >= 95 &&
+                projection.performanceIndex <= 105
                   ? 'text-success'
                   : projection.performanceIndex < 95
-                  ? 'text-destructive'
-                  : 'text-info'
+                    ? 'text-destructive'
+                    : 'text-info'
               }`}
             >
               {projection.performanceIndex.toFixed(1)}%
@@ -115,9 +116,11 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
               {projection.adgGramsPerDay.toFixed(1)} g/day
             </p>
             <p className="text-[10px] text-muted-foreground">
-              {projection.adgMethod === 'two_samples' ? 'From weight samples' : 
-               projection.adgMethod === 'single_sample' ? 'From single sample' : 
-               'Estimated from curve'}
+              {projection.adgMethod === 'two_samples'
+                ? 'From weight samples'
+                : projection.adgMethod === 'single_sample'
+                  ? 'From single sample'
+                  : 'Estimated from curve'}
             </p>
           </div>
           <div>
@@ -151,21 +154,23 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
               0,
               Math.min(100, 100 - (projection.daysRemaining / 60) * 100),
             )} // Rough progress visualization
-            className={`h-2 ${projection.currentStatus === 'ahead'
+            className={`h-2 ${
+              projection.currentStatus === 'ahead'
                 ? 'bg-success'
                 : projection.currentStatus === 'behind'
                   ? 'bg-destructive'
                   : 'bg-secondary'
-              }`}
+            }`}
           />
           <div className="flex justify-end">
             <span
-              className={`text-xs px-2 py-0.5 rounded-full ${projection.currentStatus === 'ahead'
+              className={`text-xs px-2 py-0.5 rounded-full ${
+                projection.currentStatus === 'ahead'
                   ? 'bg-success/10 text-success'
                   : projection.currentStatus === 'behind'
                     ? 'bg-destructive/10 text-destructive'
                     : 'bg-info/10 text-info'
-                }`}
+              }`}
             >
               {projection.currentStatus === 'ahead'
                 ? 'Ahead of Schedule'
@@ -202,6 +207,6 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
           </div>
         </div>
       </CardContent>
-    </Card >
+    </Card>
   )
 }

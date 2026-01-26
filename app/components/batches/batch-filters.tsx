@@ -40,7 +40,8 @@ export function BatchFilters({
 
       setIsLoadingBreeds(true)
       try {
-        const { getBreedsForModuleFn } = await import('~/features/breeds/server')
+        const { getBreedsForModuleFn } =
+          await import('~/features/breeds/server')
         const result = await getBreedsForModuleFn({
           data: { moduleKey: livestockType as any },
         })
@@ -73,12 +74,12 @@ export function BatchFilters({
           <SelectValue>
             {status
               ? t(`statuses.${status}`, {
-                defaultValue:
-                  status.charAt(0).toUpperCase() + status.slice(1),
-              })
+                  defaultValue:
+                    status.charAt(0).toUpperCase() + status.slice(1),
+                })
               : t('filters.allStatus', {
-                defaultValue: 'All Status',
-              })}
+                  defaultValue: 'All Status',
+                })}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -111,13 +112,13 @@ export function BatchFilters({
           <SelectValue>
             {livestockType
               ? t(`livestockTypes.${livestockType}`, {
-                defaultValue:
-                  livestockType.charAt(0).toUpperCase() +
-                  livestockType.slice(1),
-              })
+                  defaultValue:
+                    livestockType.charAt(0).toUpperCase() +
+                    livestockType.slice(1),
+                })
               : t('filters.allTypes', {
-                defaultValue: 'All Types',
-              })}
+                  defaultValue: 'All Types',
+                })}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -145,7 +146,7 @@ export function BatchFilters({
         <Select
           value={breedId || 'all'}
           onValueChange={(value) => {
-            onBreedChange(value === 'all' ? undefined : (value || undefined))
+            onBreedChange(value === 'all' ? undefined : value || undefined)
           }}
           disabled={isLoadingBreeds}
         >
@@ -154,10 +155,10 @@ export function BatchFilters({
               {isLoadingBreeds
                 ? t('common.loading', { defaultValue: 'Loading...' })
                 : breedId
-                ? breeds.find((b: any) => b.id === breedId)?.displayName
-                : t('placeholders.allBreeds', {
-                  defaultValue: 'All Breeds',
-                })}
+                  ? breeds.find((b: any) => b.id === breedId)?.displayName
+                  : t('placeholders.allBreeds', {
+                      defaultValue: 'All Breeds',
+                    })}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
