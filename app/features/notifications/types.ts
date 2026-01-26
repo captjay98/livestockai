@@ -3,6 +3,8 @@ export type NotificationType =
   | 'highMortality'
   | 'invoiceDue'
   | 'batchHarvest'
+  | 'growthDeviation'
+  | 'earlyHarvest'
 
 export interface Notification {
   id: string

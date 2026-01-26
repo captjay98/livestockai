@@ -188,3 +188,333 @@ export const getBatchProjectionFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     return calculateBatchProjection(data.batchId)
   })
+
+/**
+ * Enhanced projection result with ADG and Performance Index
+ */
+export interface EnhancedProjectionResult extends ProjectionResult {
+  currentWeightG: number
+  expectedWeightG: number
+  performanceIndex: number
+  adgGramsPerDay: number
+  expectedAdgGramsPerDay: number
+  adgMethod: 'two_samples' | 'single_sample' | 'growth_curve_estimate'
+}
+
+/**
+ * Calculate enhanced batch projection with ADG and Performance Index
+ */
+export async function calculateEnhancedProjection(
+  batchId: string,
+): Promise<EnhancedProjectionResult | null> {
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
+  
+  // Get basic projection first
+  const basicProjection = await calculateBatchProjection(batchId)
+  if (!basicProjection) return null
+  
+  // Get batch data
+  const batch = await db
+    .selectFrom('batches')
+    .select([
+      'id',
+      'species',
+      'breedId',
+      'acquisitionDate',
+      'target_weight_g',
+    ])
+    .where('id', '=', batchId)
+    .executeTakeFirst()
+  
+  if (!batch) return null
+  
+  // Get weight samples
+  const samples = await db
+    .selectFrom('weight_samples')
+    .select(['averageWeightKg', 'date'])
+    .where('batchId', '=', batchId)
+    .orderBy('date', 'desc')
+    .execute()
+  
+  // Get growth standards
+  const { getGrowthStandards } = await import('./repository')
+  const growthStandards = await getGrowthStandards(
+    db,
+    batch.species,
+    batch.breedId,
+  )
+  
+  if (growthStandards.length === 0) return null
+  
+  // Calculate current age
+  const { differenceInDays } = await import('date-fns')
+  const currentAgeDays = differenceInDays(new Date(), batch.acquisitionDate)
+  
+  // Import service functions
+  const {
+    calculateADG,
+    calculateExpectedADG,
+    calculatePerformanceIndex,
+  } = await import('./forecasting-service')
+  
+  // Calculate ADG
+  const adgResult = calculateADG(
+    samples.map(s => ({
+      averageWeightKg: Number(s.averageWeightKg),
+      date: new Date(s.date),
+    })),
+    batch.acquisitionDate,
+    currentAgeDays,
+    growthStandards,
+  )
+  
+  // Get current and expected weight
+  let currentWeightG = 0
+  if (samples.length > 0) {
+    currentWeightG = Number(samples[0].averageWeightKg) * 1000
+  } else {
+    // Estimate from growth curve
+    const ageRecord = growthStandards.find(s => s.day >= currentAgeDays) ||
+      growthStandards[growthStandards.length - 1]
+    currentWeightG = ageRecord.expected_weight_g
+  }
+  
+  const expectedRecord = growthStandards.find(s => s.day >= currentAgeDays) ||
+    growthStandards[growthStandards.length - 1]
+  const expectedWeightG = expectedRecord.expected_weight_g
+  
+  // Calculate Performance Index
+  const performanceIndex = calculatePerformanceIndex(currentWeightG, expectedWeightG)
+  
+  // Calculate expected ADG
+  const expectedAdgGramsPerDay = calculateExpectedADG(currentAgeDays, growthStandards)
+  
+  return {
+    ...basicProjection,
+    currentWeightG,
+    expectedWeightG,
+    performanceIndex,
+    adgGramsPerDay: adgResult.adgGramsPerDay,
+    expectedAdgGramsPerDay,
+    adgMethod: adgResult.method,
+  }
+}
+
+/**
+ * Server function for enhanced projection
+ */
+export const getEnhancedProjectionFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ batchId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    return calculateEnhancedProjection(data.batchId)
+  })
+
+/**
+ * Server function for growth chart data
+ */
+export const getGrowthChartDataFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ batchId: z.string().uuid(), projectionDays: z.number().optional() }))
+  .handler(async ({ data }) => {
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    
+    const batch = await db
+      .selectFrom('batches')
+      .select(['species', 'breedId', 'acquisitionDate'])
+      .where('id', '=', data.batchId)
+      .executeTakeFirst()
+    
+    if (!batch) return null
+    
+    const samples = await db
+      .selectFrom('weight_samples')
+      .select(['averageWeightKg', 'date'])
+      .where('batchId', '=', data.batchId)
+      .orderBy('date', 'asc')
+      .execute()
+    
+    const { getGrowthStandards } = await import('./repository')
+    const growthStandards = await getGrowthStandards(
+      db,
+      batch.species,
+      batch.breedId,
+    )
+    
+    if (growthStandards.length === 0) return null
+    
+    const { differenceInDays } = await import('date-fns')
+    const currentAgeDays = differenceInDays(new Date(), batch.acquisitionDate)
+    
+    const { generateChartData } = await import('./forecasting-service')
+    
+    return generateChartData(
+      batch.acquisitionDate,
+      currentAgeDays,
+      growthStandards,
+      samples.map(s => ({
+        averageWeightKg: Number(s.averageWeightKg),
+        date: new Date(s.date),
+      })),
+      data.projectionDays || 14,
+    )
+  })
+
+/**
+ * Server function to check for deviation alerts
+ */
+export const checkDeviationAlertsFn = createServerFn({ method: 'POST' })
+  .inputValidator(z.object({ userId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    
+    // Get all active batches for user
+    const { getUserFarms } = await import('../auth/utils')
+    const farmIds = await getUserFarms(data.userId)
+    
+    const batches = await db
+      .selectFrom('batches')
+      .select(['id', 'farmId'])
+      .where('farmId', 'in', farmIds)
+      .where('status', '=', 'active')
+      .execute()
+    
+    const { determineAlertSeverity, shouldCreateAlert } = await import('./alert-service')
+    const { createNotification } = await import('../notifications/server')
+    
+    let alertsCreated = 0
+    
+    for (const batch of batches) {
+      const projection = await calculateEnhancedProjection(batch.id)
+      if (!projection) continue
+      
+      const alertResult = determineAlertSeverity(projection.performanceIndex)
+      if (!alertResult) continue
+      
+      const should = await shouldCreateAlert(db, batch.id, alertResult.type)
+      if (!should) continue
+      
+      await createNotification({
+        userId: data.userId,
+        farmId: batch.farmId,
+        type: alertResult.type,
+        title: alertResult.severity === 'critical' 
+          ? 'Critical: Batch Growth Severely Behind'
+          : alertResult.severity === 'warning'
+          ? 'Warning: Batch Growth Behind Schedule'
+          : 'Info: Early Harvest Opportunity',
+        message: alertResult.recommendation,
+        actionUrl: `/batches/${batch.id}`,
+        metadata: { batchId: batch.id, performanceIndex: projection.performanceIndex },
+      })
+      
+      alertsCreated++
+    }
+    
+    return { alertsCreated }
+  })
+
+/**
+ * Server function to get batches needing attention
+ */
+export const getBatchesNeedingAttentionFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ userId: z.string().uuid(), limit: z.number().optional() }))
+  .handler(async ({ data }) => {
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    
+    const { getUserFarms } = await import('../auth/utils')
+    const farmIds = await getUserFarms(data.userId)
+    
+    const batches = await db
+      .selectFrom('batches')
+      .leftJoin('farms', 'farms.id', 'batches.farmId')
+      .select([
+        'batches.id',
+        'batches.batchName',
+        'batches.species',
+        'batches.currentQuantity',
+        'farms.name as farmName',
+      ])
+      .where('batches.farmId', 'in', farmIds)
+      .where('batches.status', '=', 'active')
+      .execute()
+    
+    // Calculate performance index for each batch
+    const batchesWithPerformance = await Promise.all(
+      batches.map(async (batch) => {
+        const projection = await calculateEnhancedProjection(batch.id)
+        return {
+          ...batch,
+          performanceIndex: projection?.performanceIndex || 100,
+          deviation: projection ? Math.abs(100 - projection.performanceIndex) : 0,
+        }
+      })
+    )
+    
+    // Filter batches needing attention (< 90 or > 110)
+    const needingAttention = batchesWithPerformance
+      .filter(b => b.performanceIndex < 90 || b.performanceIndex > 110)
+      .sort((a, b) => b.deviation - a.deviation)
+      .slice(0, data.limit || 5)
+    
+    return needingAttention
+  })
+
+
+/**
+ * Server function to get batches with upcoming harvests
+ */
+export const getUpcomingHarvestsFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ 
+    farmId: z.string().uuid().optional(),
+    daysAhead: z.number().optional() 
+  }))
+  .handler(async ({ data }) => {
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    
+    // Get active batches with target weight set
+    let query = db
+      .selectFrom('batches')
+      .leftJoin('farms', 'farms.id', 'batches.farmId')
+      .select([
+        'batches.id',
+        'batches.batchName',
+        'batches.species',
+        'batches.currentQuantity',
+        'batches.target_weight_g',
+        'farms.name as farmName',
+      ])
+      .where('batches.status', '=', 'active')
+      .where('batches.target_weight_g', 'is not', null)
+    
+    if (data.farmId) {
+      query = query.where('batches.farmId', '=', data.farmId)
+    }
+    
+    const batches = await query.execute()
+    
+    const daysAhead = data.daysAhead || 14
+    
+    // Calculate projections and filter by days remaining
+    const batchesWithProjections = await Promise.all(
+      batches.map(async (batch) => {
+        const projection = await calculateEnhancedProjection(batch.id)
+        return {
+          ...batch,
+          projectedHarvestDate: projection?.projectedHarvestDate || null,
+          daysRemaining: projection?.daysRemaining ?? null,
+        }
+      })
+    )
+    
+    // Filter batches with harvest within daysAhead and sort by days remaining
+    const upcomingHarvests = batchesWithProjections
+      .filter(b => b.daysRemaining !== null && b.daysRemaining >= 0 && b.daysRemaining <= daysAhead)
+      .sort((a, b) => (a.daysRemaining ?? 0) - (b.daysRemaining ?? 0))
+      .slice(0, 5)
+    
+    return upcomingHarvests
+  })

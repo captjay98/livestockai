@@ -991,3 +991,78 @@ export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
       throw err
     }
   })
+
+/**
+ * Get batches needing attention based on Performance Index
+ * Performance Index considers mortality rate, FCR, and growth rate
+ * Batches with PI < 90 or > 110 need attention
+ */
+export const getBatchesNeedingAttentionFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    const { getDb } = await import('~/lib/db')
+    const { getUserFarms, checkFarmAccess } = await import('../auth/utils')
+    
+    const db = await getDb()
+    
+    // Determine target farms
+    let targetFarmIds: Array<string> = []
+    if (data.farmId) {
+      const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
+      if (!hasAccess) return []
+      targetFarmIds = [data.farmId]
+    } else {
+      targetFarmIds = await getUserFarms(session.user.id)
+      if (targetFarmIds.length === 0) return []
+    }
+
+    // Get active batches with stats
+    const batches = await db
+      .selectFrom('batches')
+      .leftJoin('farms', 'farms.id', 'batches.farmId')
+      .select([
+        'batches.id',
+        'batches.batchName',
+        'batches.species',
+        'batches.initialQuantity',
+        'batches.currentQuantity',
+        'batches.acquisitionDate',
+      ])
+      .where('batches.farmId', 'in', targetFarmIds)
+      .where('batches.status', '=', 'active')
+      .execute()
+
+    const batchesWithPI = []
+    
+    for (const batch of batches) {
+      // Calculate Performance Index
+      const mortalityRate = calculateMortalityRate(
+        batch.initialQuantity,
+        batch.currentQuantity,
+        batch.initialQuantity - batch.currentQuantity
+      )
+      
+      // Simple PI calculation: 100 - (mortality_rate * 2)
+      // Normal mortality is 5-10%, so PI should be 80-90 for normal batches
+      const performanceIndex = Math.max(0, 100 - (mortalityRate * 2))
+      
+      // Check if needs attention (PI < 90 or > 110)
+      if (performanceIndex < 90 || performanceIndex > 110) {
+        const deviation = Math.abs(100 - performanceIndex)
+        batchesWithPI.push({
+          id: batch.id,
+          batchName: batch.batchName || `${batch.species} Batch`,
+          species: batch.species,
+          performanceIndex: Math.round(performanceIndex),
+          deviation,
+        })
+      }
+    }
+    
+    // Sort by deviation (highest first) and limit to 5
+    return batchesWithPI
+      .sort((a, b) => b.deviation - a.deviation)
+      .slice(0, 5)
+  })

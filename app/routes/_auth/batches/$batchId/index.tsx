@@ -1,7 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
+import { Target, X } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
+import { Button } from '~/components/ui/button'
 import { ProjectionsCard } from '~/components/batches/projections-card'
+import { GrowthChart } from '~/components/batches/growth-chart'
 import { BatchCommandCenter } from '~/components/batches/command-center'
 import { BatchHeader } from '~/components/batches/batch-details/batch-header'
 import { BatchKPIs } from '~/components/batches/batch-details/batch-kpis'
@@ -35,6 +40,7 @@ function BatchDetailsPage() {
   ])
   const { batchId } = Route.useParams()
   const data = Route.useLoaderData()
+  const [targetWeightPromptDismissed, setTargetWeightPromptDismissed] = useState(false)
 
   const { batch, mortality, feed, sales, expenses } = data
 
@@ -74,12 +80,15 @@ function BatchDetailsPage() {
 
       <BatchCommandCenter batchId={batchId} />
 
-      <BatchKPIs metrics={metrics} />
+      <BatchKPIs metrics={metrics} batchId={batchId} />
 
       <Tabs defaultValue="feed" className="w-full">
         <TabsList>
           <TabsTrigger value="feed">
             {t('tabs.feed', { defaultValue: 'Feed Logs' })}
+          </TabsTrigger>
+          <TabsTrigger value="growth">
+            {t('tabs.growth', { defaultValue: 'Growth' })}
           </TabsTrigger>
           <TabsTrigger value="projections">
             {t('tabs.projections', { defaultValue: 'Projections' })}
@@ -99,7 +108,40 @@ function BatchDetailsPage() {
           <FeedRecordsTab records={[]} isLoading={false} />
         </TabsContent>
 
+        <TabsContent value="growth" className="mt-4">
+          <GrowthChart batchId={batch.id} acquisitionDate={batch.acquisitionDate} />
+        </TabsContent>
+
         <TabsContent value="projections" className="mt-4">
+          {!batch.target_weight_g && !targetWeightPromptDismissed && (
+            <Alert className="mb-4">
+              <Target className="h-4 w-4" />
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <AlertTitle>Set Target Weight</AlertTitle>
+                  <AlertDescription>
+                    Add a target weight to enable growth projections and harvest date predictions.
+                  </AlertDescription>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2"
+                    onClick={() => {/* TODO: Implement edit dialog */}}
+                  >
+                    Edit Batch
+                  </Button>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setTargetWeightPromptDismissed(true)}
+                  className="ml-2 h-6 w-6 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </Alert>
+          )}
           <ProjectionsCard batchId={batch.id} />
         </TabsContent>
 

@@ -2,13 +2,18 @@ import {
   DollarSign,
   HeartPulse,
   Package,
+  TrendingUp as Performance,
+  Scale,
+  Target,
   TrendingDown,
   TrendingUp,
   Utensils,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { useFormatCurrency, useFormatWeight } from '~/features/settings'
+import { getEnhancedProjectionFn } from '~/features/batches/forecasting'
 import { cn } from '~/lib/utils'
 
 export interface BatchMetrics {
@@ -29,12 +34,27 @@ export interface BatchMetrics {
 
 interface BatchKPIsProps {
   metrics: BatchMetrics
+  batchId: string
 }
 
-export function BatchKPIs({ metrics }: BatchKPIsProps) {
+export function BatchKPIs({ metrics, batchId }: BatchKPIsProps) {
   const { t } = useTranslation(['batches', 'common', 'dashboard'])
   const { format: formatCurrency } = useFormatCurrency()
   const { label: weightLabel } = useFormatWeight()
+
+  // Fetch enhanced projection data
+  const { data: projection, isLoading: isLoadingProjection } = useQuery({
+    queryKey: ['enhanced-projection', batchId],
+    queryFn: () => getEnhancedProjectionFn({ data: { batchId } }),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+
+  const getPerformanceColor = (index: number | null) => {
+    if (!index) return 'text-muted-foreground'
+    if (index >= 95 && index <= 105) return 'text-green-600'
+    if (index >= 90 && index < 95) return 'text-amber-600'
+    return 'text-red-600'
+  }
 
   return (
     <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
@@ -98,6 +118,81 @@ export function BatchKPIs({ metrics }: BatchKPIsProps) {
           <p className="text-xs text-muted-foreground">
             {t('batches:fcr', { defaultValue: 'FCR' })}:{' '}
             {metrics.feedFcr ? metrics.feedFcr.toFixed(2) : '--'}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Current Weight */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
+          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
+            {t('batches:currentWeight', { defaultValue: 'Current Weight' })}
+          </CardTitle>
+          <Scale className="h-4 w-4 text-blue-600" />
+        </CardHeader>
+        <CardContent className="p-3 pt-0">
+          {isLoadingProjection ? (
+            <div className="text-lg font-bold text-muted-foreground">--</div>
+          ) : (
+            <div className="text-lg font-bold">
+              {projection?.currentWeightG 
+                ? (projection.currentWeightG / 1000).toFixed(2) 
+                : '--'} kg
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {t('batches:avgWeight', { defaultValue: 'avg weight' })}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Expected Weight */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
+          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
+            {t('batches:expectedWeight', { defaultValue: 'Expected Weight' })}
+          </CardTitle>
+          <Target className="h-4 w-4 text-purple-600" />
+        </CardHeader>
+        <CardContent className="p-3 pt-0">
+          {isLoadingProjection ? (
+            <div className="text-lg font-bold text-muted-foreground">--</div>
+          ) : (
+            <div className="text-lg font-bold">
+              {projection?.expectedWeightG 
+                ? (projection.expectedWeightG / 1000).toFixed(2) 
+                : '--'} kg
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {t('batches:standard', { defaultValue: 'standard' })}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Performance Index */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
+          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
+            {t('batches:performanceIndex', { defaultValue: 'Performance' })}
+          </CardTitle>
+          <Performance className="h-4 w-4 text-indigo-600" />
+        </CardHeader>
+        <CardContent className="p-3 pt-0">
+          {isLoadingProjection ? (
+            <div className="text-lg font-bold text-muted-foreground">--</div>
+          ) : (
+            <div className={cn(
+              'text-lg font-bold',
+              getPerformanceColor(projection?.performanceIndex ?? null)
+            )}>
+              {projection?.performanceIndex 
+                ? projection.performanceIndex.toFixed(0) 
+                : '--'}
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {t('batches:index', { defaultValue: 'index' })}
           </p>
         </CardContent>
       </Card>

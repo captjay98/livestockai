@@ -76,8 +76,8 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
   })
   const [breeds, setBreeds] = useState<Array<Breed>>([])
   const [speciesOptions, setSpeciesOptions] = useState<Array<{ value: string; label: string }>>([])
-  const [isLoadingSpecies, setIsLoadingSpecies] = useState(false)
   const [isLoadingBreeds, setIsLoadingBreeds] = useState(false)
+  const [isLoadingSpecies, setIsLoadingSpecies] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [showAdditional, setShowAdditional] = useState(false)
@@ -312,10 +312,13 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
                 onValueChange={(value) =>
                   value && setFormData((prev) => ({ ...prev, species: value }))
                 }
+                disabled={isLoadingSpecies}
               >
                 <SelectTrigger>
                   <SelectValue>
-                    {formData.species
+                    {isLoadingSpecies
+                      ? 'Loading...'
+                      : formData.species
                       ? speciesOptions.find((s) => s.value === formData.species)
                         ?.label
                       : t('placeholders.selectSpecies', {
@@ -697,8 +700,6 @@ export function BatchDialog({ open, onOpenChange }: BatchDialogProps) {
     <BreedRequestDialog
       open={showBreedRequestDialog}
       onOpenChange={setShowBreedRequestDialog}
-      moduleKey={formData.livestockType}
-      speciesKey={formData.species}
       onSubmit={async (data) => {
         await submitBreedRequestFn({
           data: {

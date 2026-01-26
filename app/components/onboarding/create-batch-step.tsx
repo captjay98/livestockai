@@ -177,13 +177,16 @@ export function CreateBatchStep() {
                 onValueChange={(v) =>
                   v && setFormData((p) => ({ ...p, species: v }))
                 }
+                disabled={isLoadingSpecies}
               >
                 <SelectTrigger>
                   <SelectValue>
-                    {formData.species ||
-                      t('batches:form.selectSpecies', {
-                        defaultValue: 'Select species',
-                      })}
+                    {isLoadingSpecies
+                      ? 'Loading...'
+                      : formData.species ||
+                        t('batches:form.selectSpecies', {
+                          defaultValue: 'Select species',
+                        })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>

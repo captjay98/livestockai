@@ -16,7 +16,6 @@ interface BatchFiltersProps {
   onStatusChange: (status: 'active' | 'depleted' | 'sold' | undefined) => void
   onLivestockTypeChange: (type: 'poultry' | 'fish' | undefined) => void
   onBreedChange: (breedId: string | undefined) => void
-  species?: string
 }
 
 export function BatchFilters({
@@ -26,7 +25,6 @@ export function BatchFilters({
   onStatusChange,
   onLivestockTypeChange,
   onBreedChange,
-  species,
 }: BatchFiltersProps) {
   const { t } = useTranslation(['batches', 'common'])
   const [breeds, setBreeds] = useState<Array<any>>([])
@@ -143,16 +141,19 @@ export function BatchFilters({
         </SelectContent>
       </Select>
 
-      {livestockType && breeds.length > 0 && (
+      {livestockType && (
         <Select
           value={breedId || 'all'}
           onValueChange={(value) => {
             onBreedChange(value === 'all' ? undefined : (value || undefined))
           }}
+          disabled={isLoadingBreeds}
         >
           <SelectTrigger className="w-[180px] h-10">
             <SelectValue>
-              {breedId
+              {isLoadingBreeds
+                ? t('common.loading', { defaultValue: 'Loading...' })
+                : breedId
                 ? breeds.find((b: any) => b.id === breedId)?.displayName
                 : t('placeholders.allBreeds', {
                   defaultValue: 'All Breeds',

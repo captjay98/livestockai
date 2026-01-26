@@ -7,6 +7,7 @@ import { useDashboardPreferences, useFormatCurrency } from '~/features/settings'
 import { useModules } from '~/features/modules/context'
 import { Card, CardContent } from '~/components/ui/card'
 import { useFarm } from '~/features/farms/context'
+import { useSession } from '~/features/auth/client'
 import {
   AlertsSection,
   DashboardDialogs,
@@ -15,6 +16,8 @@ import {
   QuickActions,
   StatsCards,
 } from '~/components/dashboard'
+import { BatchesAttention } from '~/components/dashboard/batches-attention'
+import { UpcomingHarvests } from '~/components/dashboard/upcoming-harvests'
 import { DashboardWelcome } from '~/components/dashboard/welcome'
 import { RecentTransactionsCard } from '~/components/dashboard/recent-transactions-card'
 import { DashboardTopCustomers } from '~/components/dashboard/dashboard-top-customers'
@@ -43,6 +46,7 @@ function DashboardPage() {
   const { enabledModules } = useModules()
   const { cards } = useDashboardPreferences()
   const { stats, hasFarms, farms } = Route.useLoaderData()
+  const { data: session } = useSession()
 
   // Dialog states
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false)
@@ -107,6 +111,13 @@ function DashboardPage() {
             currencySymbol={currencySymbol}
             formatCurrency={formatCurrency}
           />
+
+          {session?.user?.id && (
+            <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+              <BatchesAttention />
+              <UpcomingHarvests />
+            </div>
+          )}
 
           {!cards.revenue &&
             !cards.expenses &&

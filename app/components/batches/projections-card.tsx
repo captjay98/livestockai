@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { Calendar, TrendingUp } from 'lucide-react'
+import { Activity, Calendar, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Progress } from '~/components/ui/progress'
-import { getBatchProjectionFn } from '~/features/batches/forecasting'
+import { getEnhancedProjectionFn } from '~/features/batches/forecasting'
 import { Skeleton } from '~/components/ui/skeleton'
 import { useFormatCurrency } from '~/features/settings'
 
@@ -14,8 +14,8 @@ interface ProjectionsCardProps {
 export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
   const { symbol: currency } = useFormatCurrency()
   const { data: projection, isLoading } = useQuery({
-    queryKey: ['batch', batchId, 'projection'],
-    queryFn: () => getBatchProjectionFn({ data: { batchId } }),
+    queryKey: ['batch', batchId, 'enhanced-projection'],
+    queryFn: () => getEnhancedProjectionFn({ data: { batchId } }),
   })
   const { data: batchData } = useQuery({
     queryKey: ['batch', batchId],
@@ -75,6 +75,59 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Performance Metrics */}
+        <div className="grid grid-cols-3 gap-4 pb-4 border-b">
+          <div>
+            <p className="text-xs text-muted-foreground">Current Weight</p>
+            <p className="text-lg font-bold">
+              {(projection.currentWeightG / 1000).toFixed(2)} kg
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Expected Weight</p>
+            <p className="text-lg font-bold text-muted-foreground">
+              {(projection.expectedWeightG / 1000).toFixed(2)} kg
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Performance Index</p>
+            <p
+              className={`text-lg font-bold ${
+                projection.performanceIndex >= 95 && projection.performanceIndex <= 105
+                  ? 'text-success'
+                  : projection.performanceIndex < 95
+                  ? 'text-destructive'
+                  : 'text-info'
+              }`}
+            >
+              {projection.performanceIndex.toFixed(1)}%
+            </p>
+          </div>
+        </div>
+
+        {/* ADG Comparison */}
+        <div className="grid grid-cols-2 gap-4 pb-4 border-b">
+          <div>
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <Activity className="h-3 w-3" /> Current ADG
+            </p>
+            <p className="text-sm font-medium">
+              {projection.adgGramsPerDay.toFixed(1)} g/day
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {projection.adgMethod === 'two_samples' ? 'From weight samples' : 
+               projection.adgMethod === 'single_sample' ? 'From single sample' : 
+               'Estimated from curve'}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Expected ADG</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              {projection.expectedAdgGramsPerDay.toFixed(1)} g/day
+            </p>
+          </div>
+        </div>
+
         {/* Timeline */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">

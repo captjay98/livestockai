@@ -256,6 +256,9 @@ export async function seedTestBatch(
     initialQuantity?: number
     currentQuantity?: number
     status?: 'active' | 'depleted' | 'sold'
+    batchName?: string
+    target_weight_g?: number | null
+    targetHarvestDate?: Date | null
   } = {},
 ): Promise<{ batchId: string }> {
   const db = getTestDb()
@@ -265,11 +268,13 @@ export async function seedTestBatch(
   const initialQuantity = overrides.initialQuantity ?? 100
   const currentQuantity = overrides.currentQuantity ?? initialQuantity
   const status = overrides.status ?? 'active'
+  const batchName = overrides.batchName ?? `Test Batch ${Date.now()}`
 
   const batch = await db
     .insertInto('batches')
     .values({
       farmId,
+      batchName,
       livestockType,
       species,
       initialQuantity,
@@ -278,6 +283,8 @@ export async function seedTestBatch(
       costPerUnit: '10.00',
       totalCost: (initialQuantity * 10).toFixed(2),
       status,
+      target_weight_g: overrides.target_weight_g ?? null,
+      targetHarvestDate: overrides.targetHarvestDate ?? null,
     })
     .returning('id')
     .executeTakeFirstOrThrow()

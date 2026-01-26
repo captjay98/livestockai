@@ -15,8 +15,6 @@ import { Textarea } from '~/components/ui/textarea'
 interface BreedRequestDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  moduleKey: string
-  speciesKey: string
   onSubmit: (data: {
     breedName: string
     typicalMarketWeightG?: number
@@ -31,8 +29,6 @@ interface BreedRequestDialogProps {
 export function BreedRequestDialog({
   open,
   onOpenChange,
-  moduleKey,
-  speciesKey,
   onSubmit,
 }: BreedRequestDialogProps) {
   const [formData, setFormData] = useState({
