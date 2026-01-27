@@ -19,8 +19,7 @@
     "thinking",
     "introspect",
     "subagent",
-    "@sequential-thinking",
-    "@neon"
+    "@sequential-thinking"
   ],
   "allowedTools": [
     "read",
@@ -37,8 +36,7 @@
     "thinking",
     "introspect",
     "subagent",
-    "@sequential-thinking",
-    "@neon"
+    "@sequential-thinking"
   ],
   "toolsSettings": {
     "write": {
@@ -77,7 +75,6 @@
     "file://README.md",
     "file://vitest.config.ts",
     "file://vitest.integration.config.ts",
-
     {
       "type": "knowledgeBase",
       "source": "file://./docs",
@@ -109,7 +106,12 @@
       "description": "All feature implementations - services, repositories, server functions",
       "indexType": "best",
       "autoUpdate": true
-    }
+    },
+    "skill://.kiro/skills/property-testing/SKILL.md",
+    "skill://.kiro/skills/vitest-patterns/SKILL.md",
+    "skill://.kiro/skills/integration-testing/SKILL.md",
+    "skill://.kiro/skills/three-layer-architecture/SKILL.md",
+    "skill://.kiro/skills/financial-integrity/SKILL.md"
   ],
   "hooks": {
     "agentSpawn": [

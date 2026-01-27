@@ -93,7 +93,17 @@
       "description": "Database schema, migrations, types, and query patterns",
       "indexType": "best",
       "autoUpdate": true
-    }
+    },
+    "skill://.kiro/skills/neon-database/SKILL.md",
+    "skill://.kiro/skills/dynamic-imports/SKILL.md",
+    "skill://.kiro/skills/kysely-orm/SKILL.md",
+    "skill://.kiro/skills/three-layer-architecture/SKILL.md",
+    "skill://.kiro/skills/tanstack-start/SKILL.md",
+    "skill://.kiro/skills/zod-validation/SKILL.md",
+    "skill://.kiro/skills/error-handling/SKILL.md",
+    "skill://.kiro/skills/financial-integrity/SKILL.md",
+    "skill://.kiro/skills/agentic-feature-design/SKILL.md",
+    "skill://.kiro/skills/observability-patterns/SKILL.md"
   ],
   "hooks": {
     "agentSpawn": [
@@ -111,5 +121,26 @@
     ]
   },
   "includeMcpJson": true,
-  "model": "claude-sonnet-4.5"
+  "model": "claude-sonnet-4.5",
+  "mcpServers": {
+    "neon": {
+      "command": "bunx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.neon.tech/mcp",
+        "3334",
+        "--cache-dir",
+        "${HOME}/.mcp-cache/neon"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "list_projects",
+        "get_project",
+        "get_database_tables",
+        "describe_table_schema",
+        "get_database_schema",
+        "list_databases"
+      ]
+    }
+  }
 }

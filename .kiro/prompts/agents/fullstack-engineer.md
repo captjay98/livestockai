@@ -73,3 +73,14 @@ import { db } from '~/lib/db'
 - @pwa-optimize: PWA performance
 
 Always validate after changes: `bun run check && bun run lint`
+
+{{include:shared/delegation-pattern.md}}
+
+### Your Delegation Priorities
+
+As a fullstack engineer, delegate when:
+
+- **Database work is complex**: migrations, multi-table joins → `backend-engineer`
+- **UI needs deep optimization**: animations, PWA features → `frontend-engineer`
+- **Deployment/infrastructure issues**: logs, performance → `devops-engineer`
+- **Domain-specific logic**: species behavior, forecasting → `livestock-specialist`

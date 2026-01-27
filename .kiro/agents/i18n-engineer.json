@@ -92,7 +92,9 @@
       "description": "Development history, decisions, and progress tracking",
       "indexType": "best",
       "autoUpdate": true
-    }
+    },
+    "skill://.kiro/skills/i18n-patterns/SKILL.md",
+    "skill://.kiro/skills/multi-currency/SKILL.md"
   ],
   "hooks": {
     "agentSpawn": [

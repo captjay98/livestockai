@@ -80,6 +80,25 @@ Each agent has specific tools, write permissions, and MCP access:
 - **Deployment/infra**: Use `devops-engineer`
 - **Specialized work**: Use the specific agent (backend, frontend, qa, etc.)
 
+### Agent Delegation Pattern
+
+**All agents are delegation-aware** - they recognize when work is better suited to another specialist and delegate accordingly.
+
+**Two delegation patterns:**
+
+1. **Information Gathering**: Quick questions to another domain
+2. **Task Delegation**: Complex work delegated to specialist, then integrated
+
+**See**: [Agent Delegation Pattern](.kiro/docs/agent-delegation-pattern.md) | [Quick Reference](.kiro/docs/agent-delegation-quick-ref.md)
+
+**Example:**
+
+```
+Frontend Agent: "This needs DB migrations - delegating to backend-engineer"
+Backend Agent: [Creates migration and repository functions]
+Frontend Agent: [Integrates new API into components]
+```
+
 ### Universal Agent Tools
 
 All 9 agents now have access to:

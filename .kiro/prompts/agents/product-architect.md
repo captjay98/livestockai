@@ -46,3 +46,15 @@ Farm Selection → Batch List → Command Center
 ## Key Validation
 
 Always validate that new structures support the 'Offline-First' sync logic.
+
+{{include:shared/delegation-pattern.md}}
+
+### Your Delegation Priorities
+
+As a product architect, delegate when:
+
+- **Database schema design**: Table structure, migrations → `backend-engineer`
+- **Implementation work**: Feature code → `fullstack-engineer`
+- **Infrastructure planning**: Deployment architecture → `devops-engineer`
+- **Domain validation**: Species-specific requirements → `livestock-specialist`
+- **Analytics design**: Reporting structure → `data-analyst`

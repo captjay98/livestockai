@@ -96,7 +96,14 @@
       "description": "UI components - dialogs, forms, layouts, and reusable elements",
       "indexType": "best",
       "autoUpdate": true
-    }
+    },
+    "skill://.kiro/skills/tanstack-router/SKILL.md",
+    "skill://.kiro/skills/tanstack-query/SKILL.md",
+    "skill://.kiro/skills/rugged-utility/SKILL.md",
+    "skill://.kiro/skills/batch-centric-design/SKILL.md",
+    "skill://.kiro/skills/offline-first/SKILL.md",
+    "skill://.kiro/skills/i18n-patterns/SKILL.md",
+    "skill://.kiro/skills/multi-currency/SKILL.md"
   ],
   "hooks": {
     "agentSpawn": [

@@ -19,8 +19,7 @@
     "thinking",
     "introspect",
     "subagent",
-    "@sequential-thinking",
-    "@neon"
+    "@sequential-thinking"
   ],
   "allowedTools": [
     "read",
@@ -37,8 +36,7 @@
     "thinking",
     "introspect",
     "subagent",
-    "@sequential-thinking",
-    "@neon"
+    "@sequential-thinking"
   ],
   "toolsSettings": {
     "write": {
@@ -105,7 +103,11 @@
       "description": "Input validation schemas and patterns",
       "indexType": "best",
       "autoUpdate": true
-    }
+    },
+    "skill://.kiro/skills/better-auth/SKILL.md",
+    "skill://.kiro/skills/zod-validation/SKILL.md",
+    "skill://.kiro/skills/error-handling/SKILL.md",
+    "skill://.kiro/skills/three-layer-architecture/SKILL.md"
   ],
   "hooks": {
     "agentSpawn": [

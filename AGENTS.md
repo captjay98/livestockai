@@ -135,23 +135,42 @@ bun run db:rollback
 
 ## MCP Server Configuration
 
-This project supports Model Context Protocol (MCP) for AI agents to interact with the database and Cloudflare infrastructure directly. MCP config is in `.kiro/settings/mcp.json`.
+This project supports Model Context Protocol (MCP) for AI agents to interact with the database and Cloudflare infrastructure. MCP access is delegated to specialist agents.
 
-### Available MCP Servers
+### MCP Access Model (Delegation Pattern)
 
-| Server                     | Purpose                                           | Agent Access                                                          |
-| -------------------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
-| `neon`                     | PostgreSQL database queries and schema inspection | backend-engineer, devops-engineer, data-analyst, livestock-specialist |
-| `cloudflare-bindings`      | Manage Workers, KV, R2, D1, Hyperdrive            | devops-engineer                                                       |
-| `cloudflare-builds`        | Deployment status and build logs                  | devops-engineer                                                       |
-| `cloudflare-observability` | Worker logs and debugging                         | devops-engineer                                                       |
-| `cloudflare-docs`          | Cloudflare documentation search                   | devops-engineer                                                       |
+| Server                     | Purpose                                           | Direct Access         |
+| -------------------------- | ------------------------------------------------- | --------------------- |
+| `sequential-thinking`      | Reasoning and problem-solving                     | All agents            |
+| `neon`                     | PostgreSQL database queries and schema inspection | backend-engineer only |
+| `cloudflare-bindings`      | Manage Workers, KV, R2, D1, Hyperdrive            | devops-engineer only  |
+| `cloudflare-builds`        | Deployment status and build logs                  | devops-engineer only  |
+| `cloudflare-observability` | Worker logs and debugging                         | devops-engineer only  |
+| `cloudflare-docs`          | Cloudflare documentation search                   | devops-engineer only  |
 
-**Enhanced Agent Capabilities:**
+### Delegation Pattern
 
-- **9 agents** now have Neon database access via MCP
-- **1 agent** has full Cloudflare infrastructure access
-- **All agents** have web search, knowledge bases, and todo lists
+Most agents don't have direct MCP access. Instead, they invoke specialist subagents:
+
+- **Need database access?** → Invoke `backend-engineer` subagent
+- **Need infrastructure access?** → Invoke `devops-engineer` subagent
+
+This keeps credentials minimal while all agents can still access DB/infra through delegation.
+
+### Agent Directory
+
+| Agent                | Role                | Delegates To                      |
+| -------------------- | ------------------- | --------------------------------- |
+| backend-engineer     | DB specialist       | - (has direct Neon access)        |
+| devops-engineer      | Infra specialist    | - (has direct Cloudflare access)  |
+| fullstack-engineer   | End-to-end features | backend-engineer, devops-engineer |
+| frontend-engineer    | UI/UX, PWA          | backend-engineer, devops-engineer |
+| qa-engineer          | Testing, quality    | backend-engineer, devops-engineer |
+| data-analyst         | Analytics, reports  | backend-engineer, devops-engineer |
+| security-engineer    | Auth, validation    | backend-engineer, devops-engineer |
+| livestock-specialist | Domain expertise    | backend-engineer, devops-engineer |
+| product-architect    | Product structure   | backend-engineer, devops-engineer |
+| i18n-engineer        | Translations        | backend-engineer, devops-engineer |
 
 Cloudflare MCP servers authenticate via OAuth (no API keys needed).
 

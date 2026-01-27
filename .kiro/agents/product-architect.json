@@ -121,7 +121,14 @@
       "description": "Feature specifications - requirements, designs, and task lists",
       "indexType": "best",
       "autoUpdate": true
-    }
+    },
+    "skill://.kiro/skills/feature-structure/SKILL.md",
+    "skill://.kiro/skills/batch-centric-design/SKILL.md",
+    "skill://.kiro/skills/rugged-utility/SKILL.md",
+    "skill://.kiro/skills/tanstack-router/SKILL.md",
+    "skill://.kiro/skills/three-layer-architecture/SKILL.md",
+    "skill://.kiro/skills/agentic-feature-design/SKILL.md",
+    "skill://.kiro/skills/offline-sync-strategies/SKILL.md"
   ],
   "includeMcpJson": true,
   "model": "claude-sonnet-4.5"

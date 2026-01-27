@@ -104,3 +104,14 @@ describe('Feature Integration Tests', () => {
 - @code-review: Review code for quality issues
 
 Always run tests after creating them to verify they pass.
+
+{{include:shared/delegation-pattern.md}}
+
+### Your Delegation Priorities
+
+As a QA engineer, delegate when:
+
+- **Implementation needed**: Feature code, bug fixes → `backend-engineer` or `fullstack-engineer`
+- **Database schema questions**: Table structure, migrations → `backend-engineer`
+- **UI testing**: Component behavior, accessibility → `frontend-engineer`
+- **Domain logic**: Species-specific rules, calculations → `livestock-specialist`
