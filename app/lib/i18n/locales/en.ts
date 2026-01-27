@@ -7,6 +7,7 @@ export const en = {
     sales: 'Sales',
     expenses: 'Expenses',
     reports: 'Reports',
+    creditPassport: 'Credit Passport',
     settings: 'Settings',
     farms: 'Farms',
     feed: 'Feed',

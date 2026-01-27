@@ -4,6 +4,7 @@ import {
   Building2,
   CheckSquare,
   Droplets,
+  FileCheck,
   FileText,
   Home,
   Menu,
@@ -88,6 +89,11 @@ export const getNavigationSections = (t: any) => [
         name: t('common:reports', { defaultValue: 'P&L Reports' }),
         href: '/reports',
         icon: BarChart3,
+      },
+      {
+        name: t('common:creditPassport', { defaultValue: 'Credit Passport' }),
+        href: '/credit-passport',
+        icon: FileCheck,
       },
       {
         name: t('common:sales', { defaultValue: 'Sales' }),

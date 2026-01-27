@@ -20,6 +20,7 @@ import { Route as CommunityRouteImport } from './routes/community'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VerifyReportIdRouteImport } from './routes/verify.$reportId'
 import { Route as SharedShareCodeRouteImport } from './routes/shared/$shareCode'
 import { Route as AuthWeightIndexRouteImport } from './routes/_auth/weight/index'
 import { Route as AuthWaterQualityIndexRouteImport } from './routes/_auth/water-quality/index'
@@ -40,6 +41,7 @@ import { Route as AuthExpensesIndexRouteImport } from './routes/_auth/expenses/i
 import { Route as AuthEggsIndexRouteImport } from './routes/_auth/eggs/index'
 import { Route as AuthDashboardIndexRouteImport } from './routes/_auth/dashboard/index'
 import { Route as AuthCustomersIndexRouteImport } from './routes/_auth/customers/index'
+import { Route as AuthCreditPassportIndexRouteImport } from './routes/_auth/credit-passport/index'
 import { Route as AuthBatchesIndexRouteImport } from './routes/_auth/batches/index'
 import { Route as AuthSuppliersSupplierIdRouteImport } from './routes/_auth/suppliers/$supplierId'
 import { Route as AuthSettingsUsersRouteImport } from './routes/_auth/settings/users'
@@ -49,6 +51,8 @@ import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth/invoic
 import { Route as AuthFeedFormulationPricesRouteImport } from './routes/_auth/feed-formulation/prices'
 import { Route as AuthFarmsFarmIdRouteImport } from './routes/_auth/farms/$farmId'
 import { Route as AuthCustomersCustomerIdRouteImport } from './routes/_auth/customers/$customerId'
+import { Route as AuthCreditPassportRequestsRouteImport } from './routes/_auth/credit-passport/requests'
+import { Route as AuthCreditPassportHistoryRouteImport } from './routes/_auth/credit-passport/history'
 import { Route as AuthFarmsFarmIdIndexRouteImport } from './routes/_auth/farms/$farmId/index'
 import { Route as AuthBatchesBatchIdIndexRouteImport } from './routes/_auth/batches/$batchId/index'
 
@@ -104,6 +108,11 @@ const AuthRoute = AuthRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyReportIdRoute = VerifyReportIdRouteImport.update({
+  id: '/verify/$reportId',
+  path: '/verify/$reportId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SharedShareCodeRoute = SharedShareCodeRouteImport.update({
@@ -207,6 +216,11 @@ const AuthCustomersIndexRoute = AuthCustomersIndexRouteImport.update({
   path: '/customers/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthCreditPassportIndexRoute = AuthCreditPassportIndexRouteImport.update({
+  id: '/credit-passport/',
+  path: '/credit-passport/',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthBatchesIndexRoute = AuthBatchesIndexRouteImport.update({
   id: '/batches/',
   path: '/batches/',
@@ -253,6 +267,18 @@ const AuthCustomersCustomerIdRoute = AuthCustomersCustomerIdRouteImport.update({
   path: '/customers/$customerId',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthCreditPassportRequestsRoute =
+  AuthCreditPassportRequestsRouteImport.update({
+    id: '/credit-passport/requests',
+    path: '/credit-passport/requests',
+    getParentRoute: () => AuthRoute,
+  } as any)
+const AuthCreditPassportHistoryRoute =
+  AuthCreditPassportHistoryRouteImport.update({
+    id: '/credit-passport/history',
+    path: '/credit-passport/history',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthFarmsFarmIdIndexRoute = AuthFarmsFarmIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -276,6 +302,9 @@ export interface FileRoutesByFullPath {
   '/roadmap': typeof RoadmapRoute
   '/support': typeof SupportRoute
   '/shared/$shareCode': typeof SharedShareCodeRoute
+  '/verify/$reportId': typeof VerifyReportIdRoute
+  '/credit-passport/history': typeof AuthCreditPassportHistoryRoute
+  '/credit-passport/requests': typeof AuthCreditPassportRequestsRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/farms/$farmId': typeof AuthFarmsFarmIdRouteWithChildren
   '/feed-formulation/prices': typeof AuthFeedFormulationPricesRoute
@@ -285,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/batches/': typeof AuthBatchesIndexRoute
+  '/credit-passport/': typeof AuthCreditPassportIndexRoute
   '/customers/': typeof AuthCustomersIndexRoute
   '/dashboard/': typeof AuthDashboardIndexRoute
   '/eggs/': typeof AuthEggsIndexRoute
@@ -319,6 +349,9 @@ export interface FileRoutesByTo {
   '/roadmap': typeof RoadmapRoute
   '/support': typeof SupportRoute
   '/shared/$shareCode': typeof SharedShareCodeRoute
+  '/verify/$reportId': typeof VerifyReportIdRoute
+  '/credit-passport/history': typeof AuthCreditPassportHistoryRoute
+  '/credit-passport/requests': typeof AuthCreditPassportRequestsRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/feed-formulation/prices': typeof AuthFeedFormulationPricesRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
@@ -327,6 +360,7 @@ export interface FileRoutesByTo {
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/batches': typeof AuthBatchesIndexRoute
+  '/credit-passport': typeof AuthCreditPassportIndexRoute
   '/customers': typeof AuthCustomersIndexRoute
   '/dashboard': typeof AuthDashboardIndexRoute
   '/eggs': typeof AuthEggsIndexRoute
@@ -363,6 +397,9 @@ export interface FileRoutesById {
   '/roadmap': typeof RoadmapRoute
   '/support': typeof SupportRoute
   '/shared/$shareCode': typeof SharedShareCodeRoute
+  '/verify/$reportId': typeof VerifyReportIdRoute
+  '/_auth/credit-passport/history': typeof AuthCreditPassportHistoryRoute
+  '/_auth/credit-passport/requests': typeof AuthCreditPassportRequestsRoute
   '/_auth/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/_auth/farms/$farmId': typeof AuthFarmsFarmIdRouteWithChildren
   '/_auth/feed-formulation/prices': typeof AuthFeedFormulationPricesRoute
@@ -372,6 +409,7 @@ export interface FileRoutesById {
   '/_auth/settings/users': typeof AuthSettingsUsersRoute
   '/_auth/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/_auth/batches/': typeof AuthBatchesIndexRoute
+  '/_auth/credit-passport/': typeof AuthCreditPassportIndexRoute
   '/_auth/customers/': typeof AuthCustomersIndexRoute
   '/_auth/dashboard/': typeof AuthDashboardIndexRoute
   '/_auth/eggs/': typeof AuthEggsIndexRoute
@@ -408,6 +446,9 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/support'
     | '/shared/$shareCode'
+    | '/verify/$reportId'
+    | '/credit-passport/history'
+    | '/credit-passport/requests'
     | '/customers/$customerId'
     | '/farms/$farmId'
     | '/feed-formulation/prices'
@@ -417,6 +458,7 @@ export interface FileRouteTypes {
     | '/settings/users'
     | '/suppliers/$supplierId'
     | '/batches/'
+    | '/credit-passport/'
     | '/customers/'
     | '/dashboard/'
     | '/eggs/'
@@ -451,6 +493,9 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/support'
     | '/shared/$shareCode'
+    | '/verify/$reportId'
+    | '/credit-passport/history'
+    | '/credit-passport/requests'
     | '/customers/$customerId'
     | '/feed-formulation/prices'
     | '/invoices/$invoiceId'
@@ -459,6 +504,7 @@ export interface FileRouteTypes {
     | '/settings/users'
     | '/suppliers/$supplierId'
     | '/batches'
+    | '/credit-passport'
     | '/customers'
     | '/dashboard'
     | '/eggs'
@@ -494,6 +540,9 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/support'
     | '/shared/$shareCode'
+    | '/verify/$reportId'
+    | '/_auth/credit-passport/history'
+    | '/_auth/credit-passport/requests'
     | '/_auth/customers/$customerId'
     | '/_auth/farms/$farmId'
     | '/_auth/feed-formulation/prices'
@@ -503,6 +552,7 @@ export interface FileRouteTypes {
     | '/_auth/settings/users'
     | '/_auth/suppliers/$supplierId'
     | '/_auth/batches/'
+    | '/_auth/credit-passport/'
     | '/_auth/customers/'
     | '/_auth/dashboard/'
     | '/_auth/eggs/'
@@ -539,6 +589,7 @@ export interface RootRouteChildren {
   RoadmapRoute: typeof RoadmapRoute
   SupportRoute: typeof SupportRoute
   SharedShareCodeRoute: typeof SharedShareCodeRoute
+  VerifyReportIdRoute: typeof VerifyReportIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -618,6 +669,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify/$reportId': {
+      id: '/verify/$reportId'
+      path: '/verify/$reportId'
+      fullPath: '/verify/$reportId'
+      preLoaderRoute: typeof VerifyReportIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shared/$shareCode': {
@@ -760,6 +818,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCustomersIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/credit-passport/': {
+      id: '/_auth/credit-passport/'
+      path: '/credit-passport'
+      fullPath: '/credit-passport/'
+      preLoaderRoute: typeof AuthCreditPassportIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/batches/': {
       id: '/_auth/batches/'
       path: '/batches'
@@ -823,6 +888,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCustomersCustomerIdRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/credit-passport/requests': {
+      id: '/_auth/credit-passport/requests'
+      path: '/credit-passport/requests'
+      fullPath: '/credit-passport/requests'
+      preLoaderRoute: typeof AuthCreditPassportRequestsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/credit-passport/history': {
+      id: '/_auth/credit-passport/history'
+      path: '/credit-passport/history'
+      fullPath: '/credit-passport/history'
+      preLoaderRoute: typeof AuthCreditPassportHistoryRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/farms/$farmId/': {
       id: '/_auth/farms/$farmId/'
       path: '/'
@@ -853,6 +932,8 @@ const AuthFarmsFarmIdRouteWithChildren = AuthFarmsFarmIdRoute._addFileChildren(
 )
 
 interface AuthRouteChildren {
+  AuthCreditPassportHistoryRoute: typeof AuthCreditPassportHistoryRoute
+  AuthCreditPassportRequestsRoute: typeof AuthCreditPassportRequestsRoute
   AuthCustomersCustomerIdRoute: typeof AuthCustomersCustomerIdRoute
   AuthFarmsFarmIdRoute: typeof AuthFarmsFarmIdRouteWithChildren
   AuthFeedFormulationPricesRoute: typeof AuthFeedFormulationPricesRoute
@@ -862,6 +943,7 @@ interface AuthRouteChildren {
   AuthSettingsUsersRoute: typeof AuthSettingsUsersRoute
   AuthSuppliersSupplierIdRoute: typeof AuthSuppliersSupplierIdRoute
   AuthBatchesIndexRoute: typeof AuthBatchesIndexRoute
+  AuthCreditPassportIndexRoute: typeof AuthCreditPassportIndexRoute
   AuthCustomersIndexRoute: typeof AuthCustomersIndexRoute
   AuthDashboardIndexRoute: typeof AuthDashboardIndexRoute
   AuthEggsIndexRoute: typeof AuthEggsIndexRoute
@@ -885,6 +967,8 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthCreditPassportHistoryRoute: AuthCreditPassportHistoryRoute,
+  AuthCreditPassportRequestsRoute: AuthCreditPassportRequestsRoute,
   AuthCustomersCustomerIdRoute: AuthCustomersCustomerIdRoute,
   AuthFarmsFarmIdRoute: AuthFarmsFarmIdRouteWithChildren,
   AuthFeedFormulationPricesRoute: AuthFeedFormulationPricesRoute,
@@ -894,6 +978,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthSettingsUsersRoute: AuthSettingsUsersRoute,
   AuthSuppliersSupplierIdRoute: AuthSuppliersSupplierIdRoute,
   AuthBatchesIndexRoute: AuthBatchesIndexRoute,
+  AuthCreditPassportIndexRoute: AuthCreditPassportIndexRoute,
   AuthCustomersIndexRoute: AuthCustomersIndexRoute,
   AuthDashboardIndexRoute: AuthDashboardIndexRoute,
   AuthEggsIndexRoute: AuthEggsIndexRoute,
@@ -931,6 +1016,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoadmapRoute: RoadmapRoute,
   SupportRoute: SupportRoute,
   SharedShareCodeRoute: SharedShareCodeRoute,
+  VerifyReportIdRoute: VerifyReportIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
