@@ -96,7 +96,7 @@ export interface UserTable {
   name: string
   role: 'admin' | 'user'
   emailVerified: Generated<boolean>
-  image: string | null
+  image: string | null // PRIVATE storage - user avatar URL
   // Admin plugin fields
   banned: Generated<boolean>
   banReason: string | null
@@ -314,6 +314,7 @@ export interface StructureTable {
   areaSqm: string | null // DECIMAL(10,2) - Size in square meters
   status: 'active' | 'empty' | 'maintenance'
   notes: string | null
+  photos: Array<string> | null // PUBLIC storage - array of photo URLs
   createdAt: Generated<Date>
 }
 
@@ -347,6 +348,7 @@ export interface BreedRequestTable {
   source: string | null
   userEmail: string | null
   notes: string | null
+  photoUrl: string | null // PUBLIC storage - reference photo
   status: string // 'pending' | 'approved' | 'rejected'
   createdAt: Generated<Date>
 }
@@ -374,6 +376,7 @@ export interface BatchTable {
   target_weight_g: number | null // Forecasting
   targetPricePerUnit: string | null // DECIMAL(19,2) - User's expected sale price
   notes: string | null
+  photos: Array<{ url: string; capturedAt: string; notes?: string }> | null // PUBLIC storage - growth tracking photos
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
   deletedAt: Date | null
@@ -456,6 +459,7 @@ export interface VaccinationTable {
   dosage: string
   nextDueDate: Date | null
   notes: string | null
+  certificateUrl: string | null // PRIVATE storage - vaccination certificate PDF
   createdAt: Generated<Date>
 }
 
@@ -468,6 +472,7 @@ export interface TreatmentTable {
   dosage: string
   withdrawalDays: number
   notes: string | null
+  prescriptionUrl: string | null // PRIVATE storage - prescription/vet report PDF
   createdAt: Generated<Date>
 }
 
@@ -561,6 +566,7 @@ export interface ExpenseTable {
   description: string
   supplierId: string | null
   isRecurring: boolean
+  receiptUrl: string | null // PRIVATE storage - receipt photo/PDF
   createdAt: Generated<Date>
 }
 
@@ -653,6 +659,7 @@ export interface InvoiceTable {
   dueDate: Date | null
   paidDate: Date | null
   notes: string | null
+  attachments: Array<string> | null // PRIVATE storage - receipts, proofs
   createdAt: Generated<Date>
 }
 

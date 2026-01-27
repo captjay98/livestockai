@@ -18,7 +18,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('name', 'varchar(255)', (col) => col.notNull())
     .addColumn('role', 'varchar(10)', (col) => col.notNull().defaultTo('user'))
     .addColumn('emailVerified', 'boolean', (col) => col.defaultTo(false))
-    .addColumn('image', 'text')
+    .addColumn('image', 'text') // PRIVATE storage - avatar URL
     // Admin plugin fields
     .addColumn('banned', 'boolean', (col) => col.defaultTo(false))
     .addColumn('banReason', 'text')
@@ -343,6 +343,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       col.notNull().defaultTo('active'),
     )
     .addColumn('notes', 'text')
+    .addColumn('photos', sql`text[]`) // PUBLIC storage - array of photo URLs
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
@@ -401,6 +402,43 @@ export async function up(db: Kysely<any>): Promise<void> {
     .on('breeds')
     .column('isActive')
     .where('isActive', '=', true)
+    .execute()
+
+  // Breed Requests (User-submitted breeds)
+  await db.schema
+    .createTable('breed_requests')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('userId', 'uuid', (col) =>
+      col.references('users.id').onDelete('cascade').notNull(),
+    )
+    .addColumn('moduleKey', 'text', (col) => col.notNull())
+    .addColumn('speciesKey', 'text', (col) => col.notNull())
+    .addColumn('breedName', 'text', (col) => col.notNull())
+    .addColumn('typicalMarketWeightG', 'integer')
+    .addColumn('typicalDaysToMarket', 'integer')
+    .addColumn('typicalFcr', sql`decimal(4,2)`)
+    .addColumn('source', 'text')
+    .addColumn('userEmail', 'text')
+    .addColumn('notes', 'text')
+    .addColumn('photoUrl', 'text') // PUBLIC storage - reference photo
+    .addColumn('status', 'text', (col) => col.notNull().defaultTo('pending'))
+    .addColumn('createdAt', 'timestamp', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .execute()
+
+  await db.schema
+    .createIndex('breed_requests_user_id_idx')
+    .on('breed_requests')
+    .column('userId')
+    .execute()
+
+  await db.schema
+    .createIndex('breed_requests_status_idx')
+    .on('breed_requests')
+    .column('status')
     .execute()
 
   await db.schema
@@ -478,6 +516,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('target_weight_g', 'integer') // Forecasting
     .addColumn('targetPricePerUnit', sql`decimal(19,2)`) // User's expected sale price
     .addColumn('notes', 'text')
+    .addColumn('photos', 'jsonb', (col) => col.defaultTo(sql`'[]'`)) // PUBLIC storage - array of {url, capturedAt, notes}
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .addColumn('updatedAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
@@ -610,6 +649,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('dosage', 'varchar(100)', (col) => col.notNull())
     .addColumn('nextDueDate', 'date')
     .addColumn('notes', 'text')
+    .addColumn('certificateUrl', 'text') // PRIVATE storage - vaccination certificate PDF
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
@@ -627,6 +667,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('dosage', 'varchar(100)', (col) => col.notNull())
     .addColumn('withdrawalDays', 'integer', (col) => col.notNull().defaultTo(0))
     .addColumn('notes', 'text')
+    .addColumn('prescriptionUrl', 'text') // PRIVATE storage - prescription/vet report PDF
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
@@ -653,6 +694,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('dueDate', 'date')
     .addColumn('paidDate', 'date')
     .addColumn('notes', 'text')
+    .addColumn('attachments', sql`text[]`) // PRIVATE storage - receipts, proofs
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
@@ -733,6 +775,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('isRecurring', 'boolean', (col) =>
       col.notNull().defaultTo(false),
     )
+    .addColumn('receiptUrl', 'text') // PRIVATE storage - receipt photo/PDF
     .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
     .execute()
 
