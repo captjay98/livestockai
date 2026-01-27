@@ -65,11 +65,11 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
 
    // ❌ Wrong - will break on Cloudflare Workers
    import { db } from '~/lib/db'
-   
+
    // ❌ Also wrong - old pattern, doesn't work
    const { db } = await import('~/lib/db')
    ```
-   
+
    **Why?** Cloudflare Workers doesn't support `process.env`. Environment variables are only available through the `env` binding from `cloudflare:workers`, and that binding is only accessible during request handling, not at module load time. The `getDb()` function handles this by trying `process.env` first (for Node.js/Bun), then falling back to `cloudflare:workers`.
 
 4. **Service Layer**: Pure functions for business logic (easy to test):

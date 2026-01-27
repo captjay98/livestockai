@@ -17,7 +17,12 @@ export default defineConfig({
 
   build: {
     rollupOptions: {
-      external: ['node:stream', 'node:stream/web', 'node:async_hooks'],
+      external: [
+        'node:stream',
+        'node:stream/web',
+        'node:async_hooks',
+        'cloudflare:workers',
+      ],
     },
   },
   plugins: [

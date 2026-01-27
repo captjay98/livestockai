@@ -73,12 +73,14 @@ Implemented 132 property-based tests using fast-check to ensure correctness:
 **Actual**: ~6 hours (vs traditional 40-50 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro IDE in spec mode** to generate comprehensive spec (17KB)
 - Spec included: requirements, database schema, 26 implementation tasks
 - Single commit implemented entire system from spec
 - **Time saved**: ~44 hours (88% reduction)
 
 **Key Success Factors**:
+
 1. **Spec-Driven Development**: Comprehensive planning before coding
 2. **Single Implementation**: All features built cohesively from spec
 3. **Property-Based Testing**: 132 tests generated with spec guidance
@@ -116,12 +118,14 @@ Discovered and fixed antipatterns in TanStack Start server functions:
 **Actual**: ~3 hours (vs traditional 10-12 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro IDE** for mobile optimization and bug fixes
 - Implemented view/edit/delete functionality with mobile-first design
 - Fixed TanStack Start antipatterns and hydration issues
 - **Time saved**: ~8 hours (73% reduction)
 
 **Key Success Factors**:
+
 1. **Mobile-First Focus**: Optimized for farmer's primary device
 2. **Pattern Correction**: Fixed server function antipatterns early
 3. **UI Consistency**: Resolved styling and hydration issues
@@ -176,6 +180,7 @@ Created a comprehensive database seeder with realistic Nigerian farm data:
 **Actual**: ~8 hours (vs traditional 30-40 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro IDE** for 14 commits across multiple features
 - Implemented Cloudflare Workers deployment architecture
 - Built Better Auth integration with protected routes
@@ -184,6 +189,7 @@ Created a comprehensive database seeder with realistic Nigerian farm data:
 - **Time saved**: ~32 hours (80% reduction)
 
 **Key Success Factors**:
+
 1. **Edge Deployment**: Cloudflare Workers for global performance
 2. **Auth Foundation**: Better Auth established security patterns
 3. **Component Library**: Reusable components accelerated future development
@@ -532,12 +538,14 @@ kiro-cli --agent data-analyst
 **Actual**: ~35 hours total (vs traditional 170-202 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro IDE in spec mode** throughout Days 2-5
 - Generated 8 comprehensive specs (7 on Day 5 alone!)
 - Implemented 60+ commits from specs
 - **Time saved**: ~150 hours (81% reduction)
 
 **Breakdown by Day**:
+
 - Day 1: 1 hour (initialization)
 - Day 2: 6 hours (core system from spec)
 - Day 3: 3 hours (mobile optimization)
@@ -546,6 +554,7 @@ kiro-cli --agent data-analyst
 - Day 6: 5 hours (2 specs, 28 commits)
 
 **Key Success Factors**:
+
 1. **Spec-Driven Development**: Clear requirements prevented rewrites
 2. **Kiro IDE**: Interactive spec generation accelerated planning
 3. **Pattern Establishment**: Early patterns replicated across features
@@ -968,6 +977,7 @@ Verified all documentation uses OAuth authentication (no API keys):
 **Actual**: ~2.75 hours (vs traditional 8-10 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro IDE in spec mode** to create 2 specs (admin-data-management, fix-seeder-auth)
 - Used **Kiro CLI** for prompt engineering and production polish
 - Sequential Thinking MCP for complex prompt analysis
@@ -975,6 +985,7 @@ Verified all documentation uses OAuth authentication (no API keys):
 - **Time saved**: ~7 hours (72% reduction)
 
 **Breakdown**:
+
 - Prompt upgrades: ~2 hours (25 prompts to 5/5 quality)
 - Documentation verification: ~30 minutes
 - DEVLOG updates: ~15 minutes
@@ -1133,17 +1144,20 @@ onValueChange={(v) => v && setState(v)}
 **Actual**: ~3 hours (vs traditional 12-15 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro CLI** with 4 parallel frontend engineer subagents
 - 6 rounds of systematic TypeScript error fixes (15 min each)
 - Pattern-based fixes replicated across codebase
 - **Time saved**: ~12 hours (80% reduction)
 
 **Breakdown**:
+
 - Parallel agent rounds: 90 minutes (6 rounds, 4 agents simultaneously)
 - Manual fixes: 60 minutes
 - Verification & testing: 30 minutes
 
 **Key Success Factors**:
+
 1. **Parallel Execution**: 4 subagents working simultaneously
 2. **Pattern Consistency**: Established fix patterns replicated across files
 3. **Context Preservation**: Agents maintained context across rounds
@@ -1203,6 +1217,7 @@ Resolved persistent OAuth re-authentication issue when switching between agents.
 **Actual**: ~1.5 hours (vs traditional 5-6 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro CLI** to configure 9 agents with MCP access
 - Set up Neon database access for 4 agents
 - Configured Cloudflare MCP for devops-engineer
@@ -1210,6 +1225,7 @@ Resolved persistent OAuth re-authentication issue when switching between agents.
 - **Time saved**: ~4 hours (73% reduction)
 
 **Key Success Factors**:
+
 1. **MCP Integration**: Direct database and infrastructure access for agents
 2. **OAuth Persistence**: Tokens persist across agent switches
 3. **Selective Access**: Only relevant agents get MCP tools
@@ -1350,12 +1366,14 @@ TanStack Router's type inference works for simple loaders but complex loaders ne
 **Actual**: ~3.5 hours (vs traditional 12-15 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro CLI** with @plan-feature to generate 4 comprehensive plans (79KB)
 - Used @execute with fullstack-engineer subagent for end-to-end changes
 - Todo Lists tracked 14-task implementation
 - **Time saved**: ~11 hours (76% reduction)
 
 **Breakdown**:
+
 - Codebase restructure: ~1.5 hours
 - Type safety fixes: ~1.5 hours
 - Commit organization: ~30 minutes
@@ -1427,12 +1445,14 @@ Deleted all `/new` routes:
 **Actual**: ~2 hours (vs traditional 8-10 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro CLI** with @execute and plans from Morning session
 - Consolidated 12 creation routes into dialog modals
 - Fullstack-engineer subagent for end-to-end changes
 - **Time saved**: ~8 hours (80% reduction)
 
 **Key Success Factors**:
+
 1. **Pattern Consistency**: Single creation pattern across all features
 2. **Code Reduction**: 12 route files deleted
 3. **UX Improvement**: Users stay in context
@@ -1521,12 +1541,14 @@ Changed default from NGN to USD as international default. Users select their pre
 **Actual**: ~2.5 hours (vs traditional 10-12 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro CLI** with @execute and plans from Morning
 - Grep tool found all 25+ hardcoded currency references
 - Batch file operations for efficient multi-file updates
 - **Time saved**: ~9 hours (78% reduction)
 
 **Key Success Factors**:
+
 1. **Pattern Search**: Grep tool found all hardcoded references
 2. **Batch Updates**: Multi-file operations accelerated changes
 3. **International Default**: USD default for global adoption
@@ -1590,12 +1612,14 @@ Replaced `window.confirm()` with proper `AlertDialog` components:
 **Actual**: ~1.5 hours (vs traditional 6-8 hours)
 
 **AI-Accelerated Workflow**:
+
 - Used **Kiro CLI** with @execute for toast implementation
 - Added toast.success() to all CRUD operations across codebase
 - Replaced window.confirm() with proper dialogs
 - **Time saved**: ~6 hours (80% reduction)
 
 **Key Success Factors**:
+
 1. **Pattern Replication**: Single toast pattern applied everywhere
 2. **UX Consistency**: Visual feedback for all operations
 3. **Batch Operations**: 32 files updated efficiently

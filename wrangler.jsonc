@@ -20,4 +20,18 @@
   // Development-only: Load environment variables from .dev.vars file
   // These are NOT used in production - set secrets via wrangler secret put
   "vars": {},
+
+  // R2 Storage Buckets
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_STORAGE_BUCKET",
+      "bucket_name": "openlivestock-public",
+      "preview_bucket_name": "openlivestock-public-preview",
+    },
+    {
+      "binding": "PRIVATE_STORAGE_BUCKET",
+      "bucket_name": "openlivestock-private",
+      "preview_bucket_name": "openlivestock-private-preview",
+    },
+  ],
 }
