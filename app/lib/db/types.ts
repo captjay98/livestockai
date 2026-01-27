@@ -85,6 +85,12 @@ export interface Database {
   task_completions: TaskCompletionTable
   /** Saved report configurations */
   report_configs: ReportConfigTable
+  /** Credit reports for farmers */
+  credit_reports: CreditReportTable
+  /** Report access requests */
+  report_requests: ReportRequestTable
+  /** Report access audit logs */
+  report_access_logs: ReportAccessLogTable
 }
 
 // User & Auth - Better Auth tables use camelCase
@@ -936,4 +942,95 @@ export interface FormulationUsageTable {
   /** Optional notes */
   notes: string | null
   createdAt: Generated<Date>
+}
+
+/**
+ * Credit reports for farmers
+ */
+export interface CreditReportTable {
+  /** Unique report identifier */
+  id: Generated<string>
+  /** User ID */
+  userId: string
+  /** Farm IDs included in report */
+  farmIds: Array<string>
+  /** Batch IDs included in report */
+  batchIds: Array<string>
+  /** Type of report */
+  reportType: 'credit_assessment' | 'production_certificate' | 'impact_report'
+  /** Report period start date */
+  startDate: Date
+  /** Report period end date */
+  endDate: Date
+  /** Validity period in days */
+  validityDays: 30 | 60 | 90
+  /** Report expiration date */
+  expiresAt: Date
+  /** Report hash for verification */
+  reportHash: string
+  /** Digital signature */
+  signature: string
+  /** Public key for verification */
+  publicKey: string
+  /** PDF URL */
+  pdfUrl: string | null
+  /** Metrics snapshot */
+  metricsSnapshot: Record<string, any>
+  /** Report status */
+  status: 'active' | 'expired' | 'revoked'
+  /** Custom notes */
+  customNotes: string | null
+  /** White label branding */
+  whiteLabel: boolean
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
+  deletedAt: Date | null
+}
+
+/**
+ * Report access requests
+ */
+export interface ReportRequestTable {
+  /** Unique request identifier */
+  id: Generated<string>
+  /** Farmer user ID */
+  farmerId: string
+  /** Type of report requested */
+  reportType: string
+  /** Requester name */
+  requesterName: string
+  /** Requester email */
+  requesterEmail: string
+  /** Requester organization */
+  requesterOrganization: string | null
+  /** Purpose of request */
+  purpose: string
+  /** Request status */
+  status: 'pending' | 'approved' | 'denied'
+  /** When request was made */
+  requestedAt: Generated<Date>
+  /** When request was responded to */
+  respondedAt: Date | null
+  /** Response notes */
+  responseNotes: string | null
+}
+
+/**
+ * Report access audit logs
+ */
+export interface ReportAccessLogTable {
+  /** Unique log identifier */
+  id: Generated<string>
+  /** Report ID that was accessed */
+  reportId: string
+  /** Type of access */
+  accessType: 'view' | 'download' | 'verify'
+  /** Accessor IP address */
+  accessorIp: string | null
+  /** Accessor user agent */
+  accessorUserAgent: string | null
+  /** Verification result */
+  verificationResult: Record<string, any> | null
+  /** When access occurred */
+  accessedAt: Generated<Date>
 }

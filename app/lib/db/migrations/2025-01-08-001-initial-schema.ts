@@ -1365,6 +1365,160 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`CREATE TRIGGER update_saved_formulations_updated_at BEFORE UPDATE ON saved_formulations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(
     db,
   )
+
+  // ============================================
+  // 9. Credit Passport
+  // ============================================
+
+  // Credit Reports table
+  await db.schema
+    .createTable('credit_reports')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('userId', 'uuid', (col) =>
+      col.references('users.id').onDelete('cascade').notNull(),
+    )
+    .addColumn('farmIds', 'jsonb', (col) => col.notNull()) // Array of farm UUIDs
+    .addColumn('batchIds', 'jsonb', (col) => col.notNull()) // Array of batch UUIDs
+    .addColumn('reportType', 'text', (col) => col.notNull()) // credit_assessment, production_certificate, impact_report
+    .addColumn('startDate', 'date', (col) => col.notNull())
+    .addColumn('endDate', 'date', (col) => col.notNull())
+    .addColumn('validityDays', 'integer', (col) => col.notNull()) // 30, 60, or 90
+    .addColumn('expiresAt', 'timestamptz', (col) => col.notNull())
+    .addColumn('reportHash', 'text', (col) => col.notNull()) // SHA-256 hash
+    .addColumn('signature', 'text', (col) => col.notNull()) // Ed25519 signature
+    .addColumn('publicKey', 'text', (col) => col.notNull()) // Ed25519 public key
+    .addColumn('pdfUrl', 'text') // PRIVATE storage - R2 URL
+    .addColumn('metricsSnapshot', 'jsonb', (col) => col.notNull()) // Cached metrics
+    .addColumn('status', 'text', (col) => col.notNull().defaultTo('active')) // active, expired, revoked
+    .addColumn('customNotes', 'text')
+    .addColumn('whiteLabel', 'boolean', (col) => col.notNull().defaultTo(false))
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .addColumn('updatedAt', 'timestamptz', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .addColumn('deletedAt', 'timestamptz')
+    .execute()
+
+  // Credit Reports indexes
+  await db.schema
+    .createIndex('credit_reports_user_id_idx')
+    .on('credit_reports')
+    .column('userId')
+    .execute()
+
+  await db.schema
+    .createIndex('credit_reports_status_idx')
+    .on('credit_reports')
+    .column('status')
+    .execute()
+
+  await db.schema
+    .createIndex('credit_reports_expires_at_idx')
+    .on('credit_reports')
+    .column('expiresAt')
+    .execute()
+
+  // Credit Reports constraints
+  await sql`ALTER TABLE credit_reports ADD CONSTRAINT credit_reports_report_type_check CHECK ("reportType" IN ('credit_assessment', 'production_certificate', 'impact_report'))`.execute(
+    db,
+  )
+
+  await sql`ALTER TABLE credit_reports ADD CONSTRAINT credit_reports_status_check CHECK (status IN ('active', 'expired', 'revoked'))`.execute(
+    db,
+  )
+
+  await sql`ALTER TABLE credit_reports ADD CONSTRAINT credit_reports_validity_days_check CHECK ("validityDays" IN (30, 60, 90))`.execute(
+    db,
+  )
+
+  // Report Requests table
+  await db.schema
+    .createTable('report_requests')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('farmerId', 'uuid', (col) =>
+      col.references('users.id').onDelete('cascade').notNull(),
+    )
+    .addColumn('reportType', 'text', (col) => col.notNull())
+    .addColumn('requesterName', 'text', (col) => col.notNull())
+    .addColumn('requesterEmail', 'text', (col) => col.notNull())
+    .addColumn('requesterOrganization', 'text')
+    .addColumn('purpose', 'text', (col) => col.notNull())
+    .addColumn('status', 'text', (col) => col.notNull().defaultTo('pending'))
+    .addColumn('requestedAt', 'timestamptz', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .addColumn('respondedAt', 'timestamptz')
+    .addColumn('responseNotes', 'text')
+    .execute()
+
+  // Report Requests indexes
+  await db.schema
+    .createIndex('report_requests_farmer_id_idx')
+    .on('report_requests')
+    .column('farmerId')
+    .execute()
+
+  await db.schema
+    .createIndex('report_requests_status_idx')
+    .on('report_requests')
+    .column('status')
+    .execute()
+
+  // Report Requests constraints
+  await sql`ALTER TABLE report_requests ADD CONSTRAINT report_requests_status_check CHECK (status IN ('pending', 'approved', 'denied'))`.execute(
+    db,
+  )
+
+  await sql`ALTER TABLE report_requests ADD CONSTRAINT report_requests_report_type_check CHECK ("reportType" IN ('credit_assessment', 'production_certificate', 'impact_report'))`.execute(
+    db,
+  )
+
+  // Report Access Logs table
+  await db.schema
+    .createTable('report_access_logs')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('reportId', 'uuid', (col) =>
+      col.references('credit_reports.id').onDelete('cascade').notNull(),
+    )
+    .addColumn('accessType', 'text', (col) => col.notNull())
+    .addColumn('accessorIp', 'text')
+    .addColumn('accessorUserAgent', 'text')
+    .addColumn('verificationResult', 'jsonb')
+    .addColumn('accessedAt', 'timestamptz', (col) =>
+      col.defaultTo(sql`now()`).notNull(),
+    )
+    .execute()
+
+  // Report Access Logs indexes
+  await db.schema
+    .createIndex('report_access_logs_report_id_idx')
+    .on('report_access_logs')
+    .column('reportId')
+    .execute()
+
+  await db.schema
+    .createIndex('report_access_logs_accessed_at_idx')
+    .on('report_access_logs')
+    .column('accessedAt')
+    .execute()
+
+  // Report Access Logs constraints
+  await sql`ALTER TABLE report_access_logs ADD CONSTRAINT report_access_logs_access_type_check CHECK ("accessType" IN ('view', 'download', 'verify'))`.execute(
+    db,
+  )
+
+  // Update trigger for credit_reports
+  await sql`CREATE TRIGGER update_credit_reports_updated_at BEFORE UPDATE ON credit_reports FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(
+    db,
+  )
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
@@ -1380,6 +1534,11 @@ export async function down(db: Kysely<any>): Promise<void> {
 
   // Drop all tables
   const tables = [
+    // Credit Passport tables (drop first due to FK dependencies)
+    'report_access_logs',
+    'report_requests',
+    'credit_reports',
+    // Feed Formulation tables
     'formulation_usage',
     'saved_formulations',
     'user_ingredient_prices',
@@ -1404,6 +1563,8 @@ export async function down(db: Kysely<any>): Promise<void> {
     'medication_inventory',
     'feed_inventory',
     'structures',
+    'breed_requests',
+    'breeds',
     'farm_modules',
     'user_farms',
     'suppliers',

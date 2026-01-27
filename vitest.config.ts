@@ -24,4 +24,9 @@ export default defineConfig({
       ],
     },
   },
+  resolve: {
+    alias: {
+      '@noble/hashes/sha2': '@noble/hashes/sha256',
+    },
+  },
 })
