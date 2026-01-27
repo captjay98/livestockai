@@ -178,6 +178,18 @@ export const ErrorMap = {
     category: 'NOT_FOUND',
     message: 'Nutritional requirements not found for species and stage',
   },
+  REPORT_NOT_FOUND: {
+    code: 40424,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Credit report not found',
+  },
+  REPORT_REQUEST_NOT_FOUND: {
+    code: 40425,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Report request not found',
+  },
 
   // Validation (400xx)
   VALIDATION_ERROR: {
@@ -222,6 +234,12 @@ export const ErrorMap = {
     category: 'VALIDATION',
     message: 'A breed with this name already exists for this species',
   },
+  RATE_LIMIT_EXCEEDED: {
+    code: 42900,
+    httpStatus: 429,
+    category: 'VALIDATION',
+    message: 'Rate limit exceeded',
+  },
 
   // Server (500xx)
   INTERNAL_ERROR: {
@@ -259,6 +277,12 @@ export const ErrorMap = {
     httpStatus: 500,
     category: 'SERVER',
     message: 'External service error',
+  },
+  REPORT_GENERATION_FAILED: {
+    code: 50006,
+    httpStatus: 500,
+    category: 'SERVER',
+    message: 'Failed to generate credit report',
   },
 } as const
 

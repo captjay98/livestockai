@@ -5,6 +5,8 @@ export type NotificationType =
   | 'batchHarvest'
   | 'growthDeviation'
   | 'earlyHarvest'
+  | 'reportRequest'
+  | 'reportExpiring'
 
 export interface Notification {
   id: string

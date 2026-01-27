@@ -38,6 +38,49 @@ export async function checkFarmAccess(
 }
 
 /**
+ * Check if user has access to multiple farms (batch operation)
+ * Returns map of farmId -> hasAccess
+ */
+export async function checkMultipleFarmAccess(
+  userId: string,
+  farmIds: Array<string>,
+): Promise<Record<string, boolean>> {
+  try {
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+
+    // Get user role
+    const user = await db
+      .selectFrom('users')
+      .select(['role'])
+      .where('id', '=', userId)
+      .executeTakeFirst()
+
+    if (!user) {
+      return Object.fromEntries(farmIds.map((id) => [id, false]))
+    }
+
+    // Admin has access to all farms
+    if (user.role === 'admin') {
+      return Object.fromEntries(farmIds.map((id) => [id, true]))
+    }
+
+    // Staff - check assignments in single query
+    const assignments = await db
+      .selectFrom('user_farms')
+      .select(['farmId'])
+      .where('userId', '=', userId)
+      .where('farmId', 'in', farmIds)
+      .execute()
+
+    const accessibleSet = new Set(assignments.map((a) => a.farmId))
+    return Object.fromEntries(farmIds.map((id) => [id, accessibleSet.has(id)]))
+  } catch (error) {
+    logAndThrow('checkMultipleFarmAccess', error, 'DATABASE_ERROR')
+  }
+}
+
+/**
  * Get all farms accessible to a user
  */
 export async function getUserFarms(userId: string): Promise<Array<string>> {
