@@ -28,6 +28,7 @@ export const en = {
     search: 'Search',
     filter: 'Filter',
     export: 'Export',
+    uploadImage: 'Upload Image',
 
     // Common labels
     date: 'Date',
