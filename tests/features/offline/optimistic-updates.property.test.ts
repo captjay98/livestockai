@@ -1,21 +1,21 @@
 import * as fc from 'fast-check'
-import { describe, expect, it, beforeEach, afterEach } from 'vitest'
-import { QueryClient } from '@tanstack/react-query'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import type { QueryClient } from '@tanstack/react-query'
 
 import {
-  generateTempId,
-  generateEntityTempId,
-  isTempId,
+  TEMP_ID_PREFIX,
+  addOptimisticRecord,
   createOptimisticContext,
+  createRollback,
+  generateEntityTempId,
+  generateTempId,
+  getQueryData,
+  isTempId,
+  removeById,
   replaceTempId,
   replaceTempIdWithRecord,
-  removeById,
-  updateById,
-  addOptimisticRecord,
-  createRollback,
-  getQueryData,
   setQueryData,
-  TEMP_ID_PREFIX,
+  updateById,
 } from '~/lib/optimistic-utils'
 import { createQueryClient } from '~/lib/query-client'
 
@@ -62,7 +62,6 @@ describe('Optimistic Update Utilities - Property Tests', () => {
     'invoice',
   )
 
-
   // Record arbitrary for testing array operations
   const recordArb: fc.Arbitrary<TestRecord> = fc.record({
     id: uuidArb,
@@ -99,17 +98,14 @@ describe('Optimistic Update Utilities - Property Tests', () => {
 
       it('should generate unique IDs across multiple calls', () => {
         fc.assert(
-          fc.property(
-            fc.integer({ min: 2, max: 100 }),
-            (count) => {
-              const ids = new Set<string>()
-              for (let i = 0; i < count; i++) {
-                ids.add(generateTempId())
-              }
-              // All generated IDs should be unique
-              expect(ids.size).toBe(count)
-            },
-          ),
+          fc.property(fc.integer({ min: 2, max: 100 }), (count) => {
+            const ids = new Set<string>()
+            for (let i = 0; i < count; i++) {
+              ids.add(generateTempId())
+            }
+            // All generated IDs should be unique
+            expect(ids.size).toBe(count)
+          }),
           { numRuns: 100 },
         )
       })
@@ -120,7 +116,8 @@ describe('Optimistic Update Utilities - Property Tests', () => {
             const tempId = generateTempId()
             const uuidPart = tempId.slice(TEMP_ID_PREFIX.length)
             // UUID v4 format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+            const uuidRegex =
+              /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
             expect(uuidRegex.test(uuidPart)).toBe(true)
           }),
           { numRuns: 100 },
@@ -128,13 +125,14 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       })
     })
 
-
     describe('generateEntityTempId', () => {
       it('should include entity type in the generated ID', () => {
         fc.assert(
           fc.property(entityTypeArb, (entityType) => {
             const tempId = generateEntityTempId(entityType)
-            expect(tempId.startsWith(`${TEMP_ID_PREFIX}${entityType}-`)).toBe(true)
+            expect(tempId.startsWith(`${TEMP_ID_PREFIX}${entityType}-`)).toBe(
+              true,
+            )
           }),
           { numRuns: 100 },
         )
@@ -192,7 +190,9 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       it('should return false for arbitrary strings not starting with prefix', () => {
         fc.assert(
           fc.property(
-            fc.string({ minLength: 1, maxLength: 100 }).filter(s => !s.startsWith(TEMP_ID_PREFIX)),
+            fc
+              .string({ minLength: 1, maxLength: 100 })
+              .filter((s) => !s.startsWith(TEMP_ID_PREFIX)),
             (str) => {
               expect(isTempId(str)).toBe(false)
             },
@@ -201,7 +201,6 @@ describe('Optimistic Update Utilities - Property Tests', () => {
         )
       })
     })
-
 
     describe('addOptimisticRecord (Create)', () => {
       it('should add record with temp ID to empty array', () => {
@@ -214,7 +213,11 @@ describe('Optimistic Update Utilities - Property Tests', () => {
             }),
             (newRecord) => {
               const tempId = generateTempId()
-              const result = addOptimisticRecord<TestRecord>(undefined, newRecord, tempId)
+              const result = addOptimisticRecord<TestRecord>(
+                undefined,
+                newRecord,
+                tempId,
+              )
 
               expect(result).toHaveLength(1)
               expect(result[0].id).toBe(tempId)
@@ -238,7 +241,11 @@ describe('Optimistic Update Utilities - Property Tests', () => {
             }),
             (existingRecords, newRecord) => {
               const tempId = generateTempId()
-              const result = addOptimisticRecord<TestRecord>(existingRecords, newRecord, tempId)
+              const result = addOptimisticRecord<TestRecord>(
+                existingRecords,
+                newRecord,
+                tempId,
+              )
 
               // Should have one more record
               expect(result).toHaveLength(existingRecords.length + 1)
@@ -261,7 +268,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       it('should not mutate the original array', () => {
         fc.assert(
           fc.property(
-            recordsArb.filter(arr => arr.length > 0),
+            recordsArb.filter((arr) => arr.length > 0),
             fc.record({
               name: fc.string({ minLength: 1, maxLength: 100 }),
               quantity: fc.integer({ min: 0, max: 10000 }),
@@ -271,7 +278,11 @@ describe('Optimistic Update Utilities - Property Tests', () => {
               const originalLength = existingRecords.length
               const tempId = generateTempId()
 
-              addOptimisticRecord<TestRecord>(existingRecords, newRecord, tempId)
+              addOptimisticRecord<TestRecord>(
+                existingRecords,
+                newRecord,
+                tempId,
+              )
 
               // Original array should not be modified
               expect(existingRecords).toHaveLength(originalLength)
@@ -282,22 +293,23 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       })
     })
 
-
     describe('updateById (Update)', () => {
       it('should update the correct record by ID', () => {
         fc.assert(
           fc.property(
-            recordsArb.filter(arr => arr.length > 0),
+            recordsArb.filter((arr) => arr.length > 0),
             fc.string({ minLength: 1, maxLength: 100 }),
             (records, newName) => {
               // Pick a random record to update
               const targetIndex = Math.floor(Math.random() * records.length)
               const targetId = records[targetIndex].id
 
-              const result = updateById<TestRecord>(records, targetId, { name: newName })
+              const result = updateById<TestRecord>(records, targetId, {
+                name: newName,
+              })
 
               // Find the updated record
-              const updatedRecord = result.find(r => r.id === targetId)
+              const updatedRecord = result.find((r) => r.id === targetId)
               expect(updatedRecord).toBeDefined()
               expect(updatedRecord?.name).toBe(newName)
               expect(updatedRecord?._isOptimistic).toBe(true)
@@ -305,7 +317,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
               // Other records should be unchanged
               for (const record of result) {
                 if (record.id !== targetId) {
-                  const original = records.find(r => r.id === record.id)
+                  const original = records.find((r) => r.id === record.id)
                   expect(record.name).toBe(original?.name)
                 }
               }
@@ -318,7 +330,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       it('should preserve array length after update', () => {
         fc.assert(
           fc.property(
-            recordsArb.filter(arr => arr.length > 0),
+            recordsArb.filter((arr) => arr.length > 0),
             fc.record({ name: fc.string({ minLength: 1, maxLength: 50 }) }),
             (records, updates) => {
               const targetId = records[0].id
@@ -339,7 +351,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
             fc.record({ name: fc.string({ minLength: 1, maxLength: 50 }) }),
             (records, nonExistentId, updates) => {
               // Ensure the ID doesn't exist in records
-              const existingIds = new Set(records.map(r => r.id))
+              const existingIds = new Set(records.map((r) => r.id))
               if (existingIds.has(nonExistentId)) return // Skip this case
 
               const result = updateById(records, nonExistentId, updates)
@@ -371,12 +383,11 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       })
     })
 
-
     describe('removeById (Delete)', () => {
       it('should remove the correct record by ID', () => {
         fc.assert(
           fc.property(
-            recordsArb.filter(arr => arr.length > 0),
+            recordsArb.filter((arr) => arr.length > 0),
             (records) => {
               // Pick a random record to remove
               const targetIndex = Math.floor(Math.random() * records.length)
@@ -388,12 +399,12 @@ describe('Optimistic Update Utilities - Property Tests', () => {
               expect(result).toHaveLength(records.length - 1)
 
               // Target record should not exist
-              expect(result.find(r => r.id === targetId)).toBeUndefined()
+              expect(result.find((r) => r.id === targetId)).toBeUndefined()
 
               // All other records should still exist
               for (const record of records) {
                 if (record.id !== targetId) {
-                  expect(result.find(r => r.id === record.id)).toBeDefined()
+                  expect(result.find((r) => r.id === record.id)).toBeDefined()
                 }
               }
             },
@@ -404,19 +415,15 @@ describe('Optimistic Update Utilities - Property Tests', () => {
 
       it('should return unchanged array if ID not found', () => {
         fc.assert(
-          fc.property(
-            recordsArb,
-            uuidArb,
-            (records, nonExistentId) => {
-              // Ensure the ID doesn't exist in records
-              const existingIds = new Set(records.map(r => r.id))
-              if (existingIds.has(nonExistentId)) return // Skip this case
+          fc.property(recordsArb, uuidArb, (records, nonExistentId) => {
+            // Ensure the ID doesn't exist in records
+            const existingIds = new Set(records.map((r) => r.id))
+            if (existingIds.has(nonExistentId)) return // Skip this case
 
-              const result = removeById(records, nonExistentId)
+            const result = removeById(records, nonExistentId)
 
-              expect(result).toHaveLength(records.length)
-            },
-          ),
+            expect(result).toHaveLength(records.length)
+          }),
           { numRuns: 100 },
         )
       })
@@ -434,7 +441,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       it('should not mutate the original array', () => {
         fc.assert(
           fc.property(
-            recordsArb.filter(arr => arr.length > 0),
+            recordsArb.filter((arr) => arr.length > 0),
             (records) => {
               const originalLength = records.length
               const targetId = records[0].id
@@ -443,7 +450,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
 
               // Original array should not be modified
               expect(records).toHaveLength(originalLength)
-              expect(records.find(r => r.id === targetId)).toBeDefined()
+              expect(records.find((r) => r.id === targetId)).toBeDefined()
             },
           ),
           { numRuns: 100 },
@@ -451,7 +458,6 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       })
     })
   })
-
 
   /**
    * Property 5: Rollback on Failure
@@ -492,7 +498,8 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       it('should handle undefined previous data', () => {
         fc.assert(
           fc.property(fc.constant(null), () => {
-            const context = createOptimisticContext<typeof recordArb[]>(undefined)
+            const context =
+              createOptimisticContext<Array<typeof recordArb>>(undefined)
 
             expect(context.previousData).toBeUndefined()
           }),
@@ -520,20 +527,23 @@ describe('Optimistic Update Utilities - Property Tests', () => {
               queryClient.setQueryData(queryKey, modifiedRecords)
 
               // Verify data was modified
-              expect(queryClient.getQueryData(queryKey)).toEqual(modifiedRecords)
+              expect(queryClient.getQueryData(queryKey)).toEqual(
+                modifiedRecords,
+              )
 
               // Create and execute rollback
               const rollback = createRollback(queryClient, queryKey)
               rollback(context)
 
               // Verify data was restored
-              expect(queryClient.getQueryData(queryKey)).toEqual(originalRecords)
+              expect(queryClient.getQueryData(queryKey)).toEqual(
+                originalRecords,
+              )
             },
           ),
           { numRuns: 100 },
         )
       })
-
 
       it('should handle undefined context gracefully', () => {
         fc.assert(
@@ -587,7 +597,10 @@ describe('Optimistic Update Utilities - Property Tests', () => {
             setQueryData(queryClient, queryKey, records)
 
             // Get data
-            const retrieved = getQueryData<typeof records>(queryClient, queryKey)
+            const retrieved = getQueryData<typeof records>(
+              queryClient,
+              queryKey,
+            )
 
             expect(retrieved).toEqual(records)
           }),
@@ -610,7 +623,6 @@ describe('Optimistic Update Utilities - Property Tests', () => {
     })
   })
 
-
   /**
    * Property 6: Temporary ID Replacement
    *
@@ -625,7 +637,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       it('should replace temp ID with server ID', () => {
         fc.assert(
           fc.property(
-            recordsArb.filter(arr => arr.length > 0),
+            recordsArb.filter((arr) => arr.length > 0),
             uuidArb,
             (records, serverId) => {
               // Create a record with temp ID
@@ -640,10 +652,10 @@ describe('Optimistic Update Utilities - Property Tests', () => {
               const result = replaceTempId(recordsWithTemp, tempId, serverId)
 
               // Temp ID should no longer exist
-              expect(result.find(r => r.id === tempId)).toBeUndefined()
+              expect(result.find((r) => r.id === tempId)).toBeUndefined()
 
               // Server ID should exist
-              const serverRecord = result.find(r => r.id === serverId)
+              const serverRecord = result.find((r) => r.id === serverId)
               expect(serverRecord).toBeDefined()
               expect(serverRecord?._isOptimistic).toBe(false)
               expect(serverRecord?._tempId).toBeUndefined()
@@ -656,7 +668,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       it('should preserve other records when replacing temp ID', () => {
         fc.assert(
           fc.property(
-            recordsArb.filter(arr => arr.length > 0),
+            recordsArb.filter((arr) => arr.length > 0),
             uuidArb,
             (records, serverId) => {
               const tempId = generateTempId()
@@ -670,7 +682,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
 
               // All original records should still exist
               for (const original of records) {
-                const found = result.find(r => r.id === original.id)
+                const found = result.find((r) => r.id === original.id)
                 expect(found).toBeDefined()
                 expect(found?.name).toBe(original.name)
               }
@@ -693,9 +705,11 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                 tempId,
               )
 
-              const result = replaceTempId(records, tempId, serverId, { name: updatedName })
+              const result = replaceTempId(records, tempId, serverId, {
+                name: updatedName,
+              })
 
-              const serverRecord = result.find(r => r.id === serverId)
+              const serverRecord = result.find((r) => r.id === serverId)
               expect(serverRecord?.name).toBe(updatedName)
             },
           ),
@@ -703,24 +717,19 @@ describe('Optimistic Update Utilities - Property Tests', () => {
         )
       })
 
-
       it('should return unchanged array if temp ID not found', () => {
         fc.assert(
-          fc.property(
-            recordsArb,
-            uuidArb,
-            (records, serverId) => {
-              const nonExistentTempId = generateTempId()
+          fc.property(recordsArb, uuidArb, (records, serverId) => {
+            const nonExistentTempId = generateTempId()
 
-              const result = replaceTempId(records, nonExistentTempId, serverId)
+            const result = replaceTempId(records, nonExistentTempId, serverId)
 
-              // Array should be unchanged
-              expect(result).toHaveLength(records.length)
-              for (let i = 0; i < records.length; i++) {
-                expect(result[i].id).toBe(records[i].id)
-              }
-            },
-          ),
+            // Array should be unchanged
+            expect(result).toHaveLength(records.length)
+            for (let i = 0; i < records.length; i++) {
+              expect(result[i].id).toBe(records[i].id)
+            }
+          }),
           { numRuns: 100 },
         )
       })
@@ -752,13 +761,17 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                 tempId,
               )
 
-              const result = replaceTempIdWithRecord(recordsWithTemp, tempId, serverRecord)
+              const result = replaceTempIdWithRecord(
+                recordsWithTemp,
+                tempId,
+                serverRecord,
+              )
 
               // Temp ID should no longer exist
-              expect(result.find(r => r.id === tempId)).toBeUndefined()
+              expect(result.find((r) => r.id === tempId)).toBeUndefined()
 
               // Server record should exist with all its data
-              const found = result.find(r => r.id === serverRecord.id)
+              const found = result.find((r) => r.id === serverRecord.id)
               expect(found).toBeDefined()
               expect(found?.name).toBe(serverRecord.name)
               expect(found?.quantity).toBe(serverRecord.quantity)
@@ -777,13 +790,17 @@ describe('Optimistic Update Utilities - Property Tests', () => {
             (existingRecords, serverRecord) => {
               const nonExistentTempId = generateTempId()
 
-              const result = replaceTempIdWithRecord(existingRecords, nonExistentTempId, serverRecord)
+              const result = replaceTempIdWithRecord(
+                existingRecords,
+                nonExistentTempId,
+                serverRecord,
+              )
 
               // Should have one more record
               expect(result).toHaveLength(existingRecords.length + 1)
 
               // Server record should be appended
-              expect(result.find(r => r.id === serverRecord.id)).toBeDefined()
+              expect(result.find((r) => r.id === serverRecord.id)).toBeDefined()
             },
           ),
           { numRuns: 100 },
@@ -794,7 +811,11 @@ describe('Optimistic Update Utilities - Property Tests', () => {
         fc.assert(
           fc.property(recordArb, (serverRecord) => {
             const tempId = generateTempId()
-            const result = replaceTempIdWithRecord(undefined, tempId, serverRecord)
+            const result = replaceTempIdWithRecord(
+              undefined,
+              tempId,
+              serverRecord,
+            )
 
             expect(result).toHaveLength(1)
             expect(result[0].id).toBe(serverRecord.id)

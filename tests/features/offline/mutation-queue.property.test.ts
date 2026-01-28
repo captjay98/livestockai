@@ -1,6 +1,7 @@
 import * as fc from 'fast-check'
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
-import { QueryClient, MutationCache } from '@tanstack/react-query'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { MutationCache } from '@tanstack/react-query'
+import type { QueryClient } from '@tanstack/react-query'
 
 import { createQueryClient } from '~/lib/query-client'
 
@@ -55,7 +56,10 @@ describe('Offline Mutation Queuing - Property Tests', () => {
       name: fc.string({ minLength: 1, maxLength: 100 }),
       quantity: fc.integer({ min: 0, max: 10000 }),
       amount: fc.float({ min: 0, max: 1000000 }),
-      timestamp: fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }),
+      timestamp: fc.date({
+        min: new Date('2020-01-01'),
+        max: new Date('2030-12-31'),
+      }),
     })
 
     it('should configure query client with offlineFirst network mode', () => {
@@ -90,53 +94,50 @@ describe('Offline Mutation Queuing - Property Tests', () => {
 
     it('should configure exponential backoff for retry delay', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 0, max: 10 }),
-          (attemptIndex) => {
-            const client = createQueryClient()
-            const defaultOptions = client.getDefaultOptions()
-            const retryDelay = defaultOptions.mutations?.retryDelay
+        fc.property(fc.integer({ min: 0, max: 10 }), (attemptIndex) => {
+          const client = createQueryClient()
+          const defaultOptions = client.getDefaultOptions()
+          const retryDelay = defaultOptions.mutations?.retryDelay
 
-            // Verify retryDelay is a function
-            expect(typeof retryDelay).toBe('function')
+          // Verify retryDelay is a function
+          expect(typeof retryDelay).toBe('function')
 
-            if (typeof retryDelay === 'function') {
-              const delay = retryDelay(attemptIndex, new Error('test'))
+          if (typeof retryDelay === 'function') {
+            const delay = retryDelay(attemptIndex, new Error('test'))
 
-              // Verify exponential backoff: min(1000 * 2^attempt, 30000)
-              const expectedDelay = Math.min(1000 * Math.pow(2, attemptIndex), 30000)
-              expect(delay).toBe(expectedDelay)
-            }
+            // Verify exponential backoff: min(1000 * 2^attempt, 30000)
+            const expectedDelay = Math.min(
+              1000 * Math.pow(2, attemptIndex),
+              30000,
+            )
+            expect(delay).toBe(expectedDelay)
+          }
 
-            client.clear()
-          },
-        ),
+          client.clear()
+        }),
         { numRuns: 100 },
       )
     })
 
     it('should cap retry delay at 30 seconds maximum', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 0, max: 20 }),
-          (attemptIndex) => {
-            const client = createQueryClient()
-            const defaultOptions = client.getDefaultOptions()
-            const retryDelay = defaultOptions.mutations?.retryDelay
+        fc.property(fc.integer({ min: 0, max: 20 }), (attemptIndex) => {
+          const client = createQueryClient()
+          const defaultOptions = client.getDefaultOptions()
+          const retryDelay = defaultOptions.mutations?.retryDelay
 
-            if (typeof retryDelay === 'function') {
-              const delay = retryDelay(attemptIndex, new Error('test'))
+          if (typeof retryDelay === 'function') {
+            const delay = retryDelay(attemptIndex, new Error('test'))
 
-              // Delay should never exceed 30 seconds
-              expect(delay).toBeLessThanOrEqual(30000)
+            // Delay should never exceed 30 seconds
+            expect(delay).toBeLessThanOrEqual(30000)
 
-              // Delay should always be positive
-              expect(delay).toBeGreaterThan(0)
-            }
+            // Delay should always be positive
+            expect(delay).toBeGreaterThan(0)
+          }
 
-            client.clear()
-          },
-        ),
+          client.clear()
+        }),
         { numRuns: 100 },
       )
     })
