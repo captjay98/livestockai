@@ -1,16 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
-import type {
-  BatchRecord,
-  ExpenseRecord,
-  FeedRecord,
-  MarketPriceRecord,
-  MetricsInput,
-  OperationalMetricsInput,
-  SaleRecord,
-  StructureRecord,
-  WeightRecord,
-} from '~/features/credit-passport/metrics-service'
 import {
   calculateAssetSummary,
   calculateCreditScore,
@@ -25,9 +14,6 @@ describe('Credit Passport Metrics Property Tests', () => {
     min: new Date('2020-01-01'),
     max: new Date('2024-12-31'),
   })
-  const positiveNumberArb = fc
-    .float({ min: Math.fround(0.01), max: Math.fround(100000) })
-    .map(Math.fround)
   const decimalStringArb = fc
     .float({ min: Math.fround(0), max: Math.fround(10000), noNaN: true })
     .map(Math.fround)
@@ -64,13 +50,23 @@ describe('Credit Passport Metrics Property Tests', () => {
 
   const batchRecordArb = fc.record({
     id: fc.uuid(),
-    acquisitionDate: dateArb,
-    status: statusArb,
     initialQuantity: fc.integer({ min: 1, max: 10000 }),
     currentQuantity: fc.integer({ min: 0, max: 10000 }),
     target_weight_g: fc.option(fc.integer({ min: 100, max: 5000 })),
+  })
+
+  const assetBatchRecordArb = fc.record({
     livestockType: livestockTypeArb,
+    currentQuantity: fc.integer({ min: 0, max: 10000 }),
     targetPricePerUnit: fc.option(decimalStringArb),
+    status: statusArb,
+  })
+
+  const trackRecordBatchRecordArb = fc.record({
+    acquisitionDate: dateArb,
+    status: statusArb,
+    initialQuantity: fc.integer({ min: 1, max: 10000 }),
+    target_weight_g: fc.option(fc.integer({ min: 100, max: 5000 })),
   })
 
   const feedRecordArb = fc.record({
@@ -184,13 +180,6 @@ describe('Credit Passport Metrics Property Tests', () => {
       fc.property(
         fc.array(saleRecordArb, { minLength: 1, maxLength: 10 }),
         (sales) => {
-          // Filter to only sales within the date range
-          const filteredSales = sales.filter(
-            (s) =>
-              s.date >= new Date('2024-01-01') &&
-              s.date <= new Date('2024-12-31'),
-          )
-
           const metrics = calculateFinancialMetrics({
             sales,
             expenses: [],
@@ -348,7 +337,7 @@ describe('Credit Passport Metrics Property Tests', () => {
   it('Property 9: Asset summary aggregates correctly', () => {
     fc.assert(
       fc.property(
-        fc.array(batchRecordArb, { minLength: 0, maxLength: 15 }),
+        fc.array(assetBatchRecordArb, { minLength: 0, maxLength: 15 }),
         fc.array(fc.record({ id: fc.uuid() }), { minLength: 0, maxLength: 10 }),
         (batches, structures) => {
           const activeBatches = batches.filter((b) => b.status === 'active')
@@ -375,7 +364,7 @@ describe('Credit Passport Metrics Property Tests', () => {
   it('Property 10: Inventory value calculation is non-negative', () => {
     fc.assert(
       fc.property(
-        fc.array(batchRecordArb, { minLength: 0, maxLength: 10 }),
+        fc.array(assetBatchRecordArb, { minLength: 0, maxLength: 10 }),
         fc.array(
           fc.record({
             livestockType: livestockTypeArb,
@@ -404,7 +393,7 @@ describe('Credit Passport Metrics Property Tests', () => {
   it('Property 11: Track record metrics are logically consistent', () => {
     fc.assert(
       fc.property(
-        fc.array(batchRecordArb, { minLength: 1, maxLength: 5 }),
+        fc.array(trackRecordBatchRecordArb, { minLength: 1, maxLength: 5 }),
         fc.array(saleRecordArb, { minLength: 0, maxLength: 10 }),
         (batches, sales) => {
           // Use a fixed report date in the future relative to batch dates
@@ -436,7 +425,7 @@ describe('Credit Passport Metrics Property Tests', () => {
   it('Property 12: Success rate is percentage of sold batches', () => {
     fc.assert(
       fc.property(
-        fc.array(batchRecordArb, { minLength: 1, maxLength: 10 }),
+        fc.array(trackRecordBatchRecordArb, { minLength: 1, maxLength: 10 }),
         (batches) => {
           // Filter out batches with invalid dates
           const validBatches = batches.filter(

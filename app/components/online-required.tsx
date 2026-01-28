@@ -238,7 +238,7 @@ export function OfflineFeatureMessage({
  * const canGeneratePassport = useFeatureAvailable('credit-passport')
  * ```
  */
-export function useFeatureAvailable(feature: OnlineRequiredFeature): boolean {
+export function useFeatureAvailable(_feature: OnlineRequiredFeature): boolean {
   const isOnline = useOnlineStatus()
   // All features in FEATURE_CONFIG require online connectivity
   return isOnline

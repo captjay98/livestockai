@@ -43,9 +43,9 @@ function MarketplacePage() {
   const search = Route.useSearch()
   const [filters, setFilters] = useState<MarketplaceFilters>(search)
 
-  const listings = result?.data ?? []
-  const totalPages = result?.totalPages ?? 1
-  const currentPage = result?.currentPage ?? 1
+  const listings = result.data
+  const totalPages = result.totalPages
+  const currentPage = result.currentPage
 
   // Transform search params to ListingFilters format
   const listingFilters = {
@@ -53,7 +53,7 @@ function MarketplacePage() {
     species: search.species || '',
     minPrice: search.minPrice?.toString() || '',
     maxPrice: search.maxPrice?.toString() || '',
-    distanceRadius: search.radiusKm?.toString() || '',
+    distanceRadius: search.radiusKm.toString(),
   }
 
   const handleFiltersChange = (newFilters: typeof listingFilters) => {

@@ -75,15 +75,15 @@ export async function getStorageQuota(): Promise<StorageQuota | null> {
   }
 
   try {
-    // Use optional chaining with type assertion to handle environments where storage may not exist
-    const storageManager = (navigator as { storage?: StorageManager }).storage
-    if (!storageManager) {
+    // Check if navigator.storage.estimate exists (may not in older browsers)
+    const storage = navigator.storage as StorageManager | undefined
+    if (!storage?.estimate) {
       return null
     }
 
-    const estimate = await storageManager.estimate()
-    const usage = estimate.usage
-    const quota = estimate.quota
+    const estimate = await storage.estimate()
+    const usage = estimate.usage ?? 0
+    const quota = estimate.quota ?? 0
     const percentage = quota > 0 ? (usage / quota) * 100 : 0
     const available = quota - usage
 

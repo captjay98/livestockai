@@ -17,7 +17,7 @@ export const Route = createFileRoute('/verify/$reportId')({
     return verifyReportFn({ data: { reportId: params.reportId } })
   },
   component: VerificationPage,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: any }) => (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
@@ -192,7 +192,7 @@ function VerificationPage() {
                 <Progress value={freshness.value} className="w-full" />
                 <div className="text-xs text-muted-foreground">
                   Data reflects farm operations as of{' '}
-                  {formatDate(report.createdAt)}
+                  {formatDate(report.createdAt.toString())}
                 </div>
               </CardContent>
             </Card>
@@ -215,13 +215,13 @@ function VerificationPage() {
               <div>
                 <span className="text-sm font-medium">Generated:</span>
                 <p className="text-sm text-muted-foreground">
-                  {formatDate(report.createdAt)}
+                  {formatDate(report.createdAt.toString())}
                 </p>
               </div>
               <div>
                 <span className="text-sm font-medium">Expires:</span>
                 <p className="text-sm text-muted-foreground">
-                  {formatDate(report.expiresAt)}
+                  {formatDate(report.expiresAt.toString())}
                 </p>
               </div>
               <div>

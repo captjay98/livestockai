@@ -22,9 +22,6 @@ import type { Database } from '~/lib/db/types'
 /** Default retention period for raw readings (days) */
 const DEFAULT_RAW_RETENTION_DAYS = 7
 
-/** Default retention period for hourly aggregates (days) */
-const DEFAULT_HOURLY_RETENTION_DAYS = 30
-
 interface CronResult {
   success: boolean
   hourlyAggregation: { processed: number; aggregated: number }

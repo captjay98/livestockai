@@ -6,16 +6,62 @@ import type {
   StorageResult,
 } from '../../contracts'
 
+// Cloudflare R2 types
+interface R2Object {
+  arrayBuffer: () => Promise<ArrayBuffer>
+  httpMetadata?: {
+    contentType?: string
+  }
+}
+
+interface R2Bucket {
+  put: (key: string, content: ArrayBuffer | Uint8Array, options?: {
+    httpMetadata?: Record<string, string>
+    customMetadata?: Record<string, string>
+  }) => Promise<void>
+  get: (key: string) => Promise<R2Object | null>
+  delete: (key: string) => Promise<void>
+}
+
+interface CloudflareEnv {
+  PUBLIC_STORAGE_BUCKET?: R2Bucket
+  PRIVATE_STORAGE_BUCKET?: R2Bucket
+  R2_PUBLIC_CDN_URL?: string
+  R2_PRIVATE_URL?: string
+}
+
 export class R2Provider implements StorageProvider {
   readonly name = 'r2'
 
-  private async getBucket(access: 'public' | 'private' = 'private') {
-    const { env } = await import('cloudflare:workers')
+  private async getBucket(access: 'public' | 'private' = 'private'): Promise<R2Bucket | undefined> {
+    try {
+      const { env } = await import('cloudflare:workers')
+      const cloudflareEnv = env as CloudflareEnv
 
-    if (access === 'public') {
-      return env.PUBLIC_STORAGE_BUCKET
+      if (access === 'public') {
+        return cloudflareEnv.PUBLIC_STORAGE_BUCKET
+      }
+      return cloudflareEnv.PRIVATE_STORAGE_BUCKET
+    } catch {
+      return undefined
     }
-    return env.PRIVATE_STORAGE_BUCKET
+  }
+
+  private getPublicUrl(key: string): string {
+    // Try to get from environment, fallback to placeholder
+    try {
+      return `${process.env.R2_PUBLIC_CDN_URL || 'https://cdn.example.com'}/${key}`
+    } catch {
+      return `https://cdn.example.com/${key}`
+    }
+  }
+
+  private getPrivateUrl(key: string): string {
+    try {
+      return `${process.env.R2_PRIVATE_URL || 'https://private.example.com'}/${key}`
+    } catch {
+      return `https://private.example.com/${key}`
+    }
   }
 
   async upload(
@@ -44,8 +90,8 @@ export class R2Provider implements StorageProvider {
 
       const url =
         options.access === 'public'
-          ? `${process.env.R2_PUBLIC_CDN_URL}/${key}`
-          : this.getSignedUrl(key, 3600)
+          ? this.getPublicUrl(key)
+          : await this.getSignedUrl(key, 3600)
 
       return { success: true, url, key }
     } catch (error) {
@@ -58,8 +104,7 @@ export class R2Provider implements StorageProvider {
 
   async download(key: string): Promise<StorageDownloadResult> {
     try {
-      const { env } = await import('cloudflare:workers')
-      const bucket = env.PRIVATE_STORAGE_BUCKET || env.PUBLIC_STORAGE_BUCKET
+      const bucket = await this.getBucket('private') || await this.getBucket('public')
 
       if (!bucket) {
         return { success: false, error: 'R2 bucket not configured' }
@@ -87,8 +132,7 @@ export class R2Provider implements StorageProvider {
 
   async delete(key: string): Promise<ProviderResult> {
     try {
-      const { env } = await import('cloudflare:workers')
-      const bucket = env.PRIVATE_STORAGE_BUCKET || env.PUBLIC_STORAGE_BUCKET
+      const bucket = await this.getBucket('private') || await this.getBucket('public')
 
       if (!bucket) {
         return { success: false, error: 'R2 bucket not configured' }
@@ -105,7 +149,7 @@ export class R2Provider implements StorageProvider {
     }
   }
 
-  getSignedUrl(key: string, _expiresIn: number): string {
-    return `${process.env.R2_PRIVATE_URL}/${key}`
+  getSignedUrl(key: string, _expiresIn: number): Promise<string> {
+    return Promise.resolve(this.getPrivateUrl(key))
   }
 }

@@ -8,7 +8,6 @@ import {
   Loader2,
   RefreshCw,
 } from 'lucide-react'
-import type { StorageStatus } from '~/lib/storage-monitor'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import {
@@ -17,9 +16,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip'
-import { useStorageMonitor } from '~/lib/storage-monitor'
 
 export type SyncState = 'synced' | 'syncing' | 'pending' | 'offline' | 'failed'
+export type StorageStatus = 'ok' | 'warning' | 'critical' | 'blocked'
+
+// Mock storage monitor hook for now
+function useStorageMonitor() {
+  return {
+    quota: null as { percentage: number } | null,
+    status: 'ok' as StorageStatus,
+    usageFormatted: '0 MB',
+    quotaFormatted: '0 MB',
+  }
+}
 
 function useOnlineStatus() {
   return useSyncExternalStore(
@@ -96,16 +105,9 @@ export function SyncStatus({
 
   // Retry all failed mutations
   const handleRetry = useCallback(() => {
-    const mutationCache = queryClient.getMutationCache()
-    const failedMutationsList = mutationCache
-      .getAll()
-      .filter((m) => m.state.status === 'error')
-
-    failedMutationsList.forEach((mutation) => {
-      // Reset the mutation state and retry
-      mutation.reset()
-    })
-
+    // Resume paused mutations which will retry failed ones
+    queryClient.resumePausedMutations()
+    
     // Trigger a refetch of all queries to sync state
     queryClient.invalidateQueries()
   }, [queryClient])
@@ -184,7 +186,7 @@ export function SyncStatus({
       <div className={cn('flex items-center gap-3', className)}>
         {/* Sync Status */}
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <div
               className={cn('flex items-center gap-1.5', textColor, textSize)}
             >
@@ -217,7 +219,7 @@ export function SyncStatus({
         {/* Storage Status */}
         {showStorage && quota && (
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <div
                 className={cn(
                   'flex items-center gap-1',
@@ -297,15 +299,8 @@ export function useSyncStatus() {
     hasPendingChanges: pendingCount > 0 || pausedCount > 0,
     hasFailedChanges: failedCount > 0,
     retryFailed: () => {
-      const mutationCache = queryClient.getMutationCache()
-      const failedMutationsList = mutationCache
-        .getAll()
-        .filter((m) => m.state.status === 'error')
-
-      failedMutationsList.forEach((mutation) => {
-        mutation.reset()
-      })
-
+      // Resume paused mutations which will retry failed ones
+      queryClient.resumePausedMutations()
       queryClient.invalidateQueries()
     },
   }

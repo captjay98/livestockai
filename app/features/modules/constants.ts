@@ -139,6 +139,12 @@ export const CORE_NAVIGATION = [
   'Settings',
 ]
 
+// Extension worker navigation items (only visible if user has user_districts entries)
+export const EXTENSION_NAVIGATION = [
+  'District Dashboard',
+  'My Grants',
+]
+
 // Module-specific navigation items
 export const MODULE_NAVIGATION: Record<ModuleKey, Array<string>> = {
   poultry: [

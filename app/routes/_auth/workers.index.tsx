@@ -16,7 +16,7 @@ function WorkersListPage() {
   const farmId = settings.defaultFarmId
   const { data: workers = [], isLoading } = useQuery({
     queryKey: ['workers', farmId],
-    queryFn: () => getWorkersByFarmFn({ data: { farmId } }),
+    queryFn: () => farmId ? getWorkersByFarmFn({ data: { farmId } }) : Promise.resolve([]),
     enabled: !!farmId,
   })
 
@@ -42,7 +42,7 @@ function WorkersListPage() {
           <TableBody>
             {workers.map((worker) => (
               <TableRow key={worker.id}>
-                <TableCell>{worker.userName}</TableCell>
+                <TableCell>{worker.userName || 'Unknown'}</TableCell>
                 <TableCell>{worker.phone}</TableCell>
                 <TableCell>
                   <Badge variant={worker.employmentStatus === 'active' ? 'default' : 'secondary'}>

@@ -93,22 +93,24 @@ function CreditPassportWizard() {
 
     setIsSubmitting(true)
     try {
-      const dateRange =
-        formData.dateRange === 'custom'
+      const reportData = {
+        farmIds: [selectedFarmId],
+        reportType: formData.reportType as any,
+        batchIds: formData.selectedBatches,
+        customNotes: formData.notes || undefined,
+        ...(formData.dateRange === 'custom'
           ? {
               startDate: new Date(formData.startDate),
               endDate: new Date(formData.endDate),
             }
-          : { days: parseInt(formData.dateRange) }
+          : {
+              startDate: new Date(Date.now() - parseInt(formData.dateRange) * 24 * 60 * 60 * 1000),
+              endDate: new Date(),
+            }),
+      }
 
       await generateReportFn({
-        data: {
-          farmIds: [selectedFarmId],
-          reportType: formData.reportType as any,
-          ...dateRange,
-          batchIds: formData.selectedBatches,
-          customNotes: formData.notes || undefined,
-        },
+        data: reportData,
       })
 
       toast.success('Report generated successfully')

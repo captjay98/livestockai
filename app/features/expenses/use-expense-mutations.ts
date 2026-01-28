@@ -129,7 +129,16 @@ export function useExpenseMutations(): UseExpenseMutationsResult {
     OptimisticContext<Array<ExpenseRecord>>
   >({
     mutationFn: async ({ expense }) => {
-      return createExpenseFn({ data: { expense } })
+      // Transform to match server function schema
+      const serverExpense = {
+        farmId: expense.farmId,
+        category: expense.category as any,
+        description: expense.description,
+        amount: expense.amount,
+        date: expense.date,
+        supplierId: expense.supplierId,
+      }
+      return createExpenseFn({ data: { expense: serverExpense as any } })
     },
 
     onMutate: async ({ expense }) => {
@@ -141,7 +150,8 @@ export function useExpenseMutations(): UseExpenseMutationsResult {
       )
       const tempId = generateEntityTempId('expense')
 
-      const optimisticExpense: Omit<ExpenseRecord, 'id'> = {
+      const optimisticExpense: ExpenseRecord = {
+        id: tempId,
         farmId: expense.farmId,
         batchId: expense.batchId || null,
         category: expense.category,
@@ -150,6 +160,8 @@ export function useExpenseMutations(): UseExpenseMutationsResult {
         description: expense.description,
         supplierId: expense.supplierId || null,
         isRecurring: expense.isRecurring || false,
+        _isOptimistic: true,
+        _tempId: tempId,
       }
 
       const updatedExpenses = addOptimisticRecord(
@@ -229,7 +241,15 @@ export function useExpenseMutations(): UseExpenseMutationsResult {
     OptimisticContext<Array<ExpenseRecord>>
   >({
     mutationFn: async ({ expenseId, data }) => {
-      return updateExpenseFn({ data: { expenseId, data } })
+      // Transform to match server function schema
+      const serverData = {
+        category: data.category as any,
+        description: data.description,
+        amount: data.amount,
+        date: data.date,
+        supplierId: data.supplierId,
+      }
+      return updateExpenseFn({ data: { expenseId, data: serverData as any } })
     },
 
     onMutate: async ({ expenseId, data }) => {

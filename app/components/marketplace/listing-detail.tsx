@@ -47,14 +47,14 @@ export function ListingDetail({ listing, isOwner, onContactClick }: ListingDetai
             </div>
             <div>
               <p className="text-sm text-muted-foreground">{t('priceRange')}</p>
-              <p className="font-medium">{listing.priceRange}</p>
+              <p className="font-medium">{listing.currency} {listing.minPrice} - {listing.maxPrice}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <MapPin className="h-4 w-4" />
-              {listing.location}
+              {listing.formattedAddress}
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />

@@ -52,7 +52,7 @@ export async function insertIngredient(
   db: Kysely<Database>,
   data: {
     name: string
-    category: string
+    category: 'cereal' | 'protein' | 'fat' | 'mineral' | 'vitamin' | 'additive'
     proteinPercent: string
     energyKcalKg: number
     fatPercent: string
@@ -67,7 +67,7 @@ export async function insertIngredient(
 ): Promise<string> {
   const result = await db
     .insertInto('feed_ingredients')
-    .values(data as any)
+    .values(data)
     .returning('id')
     .executeTakeFirstOrThrow()
   return result.id
@@ -92,7 +92,7 @@ export async function insertNutritionalRequirement(
 ): Promise<string> {
   const result = await db
     .insertInto('nutritional_requirements')
-    .values(data as any)
+    .values(data)
     .returning('id')
     .executeTakeFirstOrThrow()
   return result.id
@@ -433,10 +433,7 @@ export async function updatePriceHistory(
 /**
  * Get formulation usage statistics
  */
-export function getFormulationUsage(
-  db: Kysely<Database>,
-  formulationId: string,
-): {
+export function getFormulationUsage(): {
   timesUsed: number
   lastUsed: Date | null
   totalBatchesProduced: number

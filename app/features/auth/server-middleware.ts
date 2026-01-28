@@ -45,6 +45,21 @@ export async function requireAuth() {
 }
 
 /**
+ * Optional authentication - returns session if available, null otherwise
+ */
+export async function getOptionalSession() {
+  try {
+    const { getRequestHeaders } = await import('@tanstack/react-start/server')
+    const headers = getRequestHeaders()
+    const auth = await getAuth()
+    const session = await auth.api.getSession({ headers })
+    return session
+  } catch {
+    return null
+  }
+}
+
+/**
  * Middleware to check admin role
  */
 export async function requireAdmin() {

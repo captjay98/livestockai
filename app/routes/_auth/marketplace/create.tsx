@@ -3,12 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { createListingFn } from '~/features/marketplace/server'
-import { getBatchesForFarmFn } from '~/features/batches/server'
 import { CreateListingForm } from '~/components/marketplace/create-listing-form'
-import { useFarm } from '~/features/farms/context'
 
 export const Route = createFileRoute('/_auth/marketplace/create')({
-  loader: async () => {
+  loader: () => {
     // Return empty batches array for now - will be loaded in component
     return { batches: [] }
   },
@@ -18,14 +16,13 @@ export const Route = createFileRoute('/_auth/marketplace/create')({
 function CreateListingPage() {
   const { t } = useTranslation('marketplace')
   const router = useRouter()
-  const { selectedFarmId } = useFarm()
   const loaderData = Route.useLoaderData()
 
   const createListingMutation = useMutation({
     mutationFn: createListingFn,
     onSuccess: () => {
       toast.success('Listing created successfully')
-      router.navigate({ to: '/_auth/marketplace/my-listings' })
+      router.navigate({ to: '/marketplace/my-listings' })
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to create listing')

@@ -29,7 +29,7 @@ function FeedFormulationPage() {
     Array<string>
   >([])
 
-  const handleSaveFormulation = (formulation: any) => {
+  const handleSaveFormulation = () => {
     // Switch to saved formulations tab after saving
     setActiveTab('saved')
   }

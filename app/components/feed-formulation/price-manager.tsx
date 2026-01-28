@@ -5,9 +5,6 @@ import {
   Check,
   DollarSign,
   Edit2,
-  Minus,
-  TrendingDown,
-  TrendingUp,
   Upload,
   X,
 } from 'lucide-react'
@@ -152,28 +149,6 @@ export function PriceManager() {
   const handleEditCancel = () => {
     setEditingPrice(null)
     setEditValue('')
-  }
-
-  const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
-    switch (trend) {
-      case 'up':
-        return <TrendingUp className="h-4 w-4 text-red-500" />
-      case 'down':
-        return <TrendingDown className="h-4 w-4 text-green-500" />
-      default:
-        return <Minus className="h-4 w-4 text-gray-500" />
-    }
-  }
-
-  const getTrendColor = (trend: 'up' | 'down' | 'stable') => {
-    switch (trend) {
-      case 'up':
-        return 'text-red-600'
-      case 'down':
-        return 'text-green-600'
-      default:
-        return 'text-gray-600'
-    }
   }
 
   if (isLoading) {

@@ -7,7 +7,7 @@ import {
   deleteFeedRecordFn,
   updateFeedRecordFn,
 } from './server'
-import type { CreateFeedRecordInput, FeedRecord } from './server'
+import type { CreateFeedRecordInput } from './server'
 import type {
   OptimisticContext,
   OptimisticRecord,

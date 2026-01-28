@@ -10,7 +10,7 @@ import {
 } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
 import { Progress } from '~/components/ui/progress'
-import { formatBytes, useStorageMonitor } from '~/lib/storage-monitor'
+import { useStorageMonitor } from '~/lib/storage-monitor'
 import { useDeduplicatedSync } from '~/lib/use-deduplicated-sync'
 
 interface StorageFullModalProps {

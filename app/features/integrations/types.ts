@@ -1,4 +1,4 @@
-export type IntegrationType = 'email' | 'sms'
+export type IntegrationType = 'email' | 'sms' | 'storage'
 
 export interface IntegrationStatus {
   type: IntegrationType

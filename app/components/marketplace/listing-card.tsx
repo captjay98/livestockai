@@ -57,12 +57,12 @@ export function ListingCard({
           
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground">Price:</span>
-            <span className="font-medium">{listing.priceRange}</span>
+            <span className="font-medium">{listing.currency} {listing.minPrice} - {listing.maxPrice}</span>
           </div>
           
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3 w-3" />
-            <span>{listing.location}</span>
+            <span>{listing.formattedAddress}</span>
             {distanceKm && (
               <span className="ml-1">({distanceKm}km away)</span>
             )}

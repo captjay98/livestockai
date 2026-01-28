@@ -29,7 +29,6 @@ export const Route = createFileRoute('/_auth/marketplace/inbox' as const)({
 function InboxPage() {
   const { t } = useTranslation('marketplace')
   const queryClient = useQueryClient()
-  const { status, page } = Route.useSearch()
   const data = Route.useLoaderData()
 
   const respondMutation = useMutation({
@@ -63,11 +62,8 @@ function InboxPage() {
       </div>
 
       <ContactInbox
-        data={data}
-        currentStatus={status}
-        currentPage={page}
+        requests={data.data}
         onRespond={handleRespond}
-        isLoading={respondMutation.isPending}
       />
     </div>
   )

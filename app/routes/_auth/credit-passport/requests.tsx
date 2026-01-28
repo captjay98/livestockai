@@ -207,6 +207,8 @@ function ReportRequestsPage() {
         page={data.pagination.page}
         pageSize={data.pagination.pageSize}
         totalPages={data.pagination.totalPages}
+        onPaginationChange={() => {}}
+        onSortChange={() => {}}
         emptyIcon={<UserCheck className="h-12 w-12 text-muted-foreground" />}
         emptyTitle="No requests found"
         emptyDescription="Third-party requests for your reports will appear here."

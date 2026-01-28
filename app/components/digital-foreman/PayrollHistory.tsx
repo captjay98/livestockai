@@ -2,9 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { Calendar, DollarSign, Users } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { getPayrollHistoryFn } from '~/features/digital-foreman/server-payroll'
-import { useFormatCurrency } from '~/features/settings'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
@@ -16,7 +15,6 @@ interface PayrollHistoryProps {
 }
 
 export function PayrollHistory({ farmId, onSelectPeriod, selectedPeriodId }: PayrollHistoryProps) {
-  const { format: formatCurrency } = useFormatCurrency()
 
   const { data: periods = [], isLoading } = useQuery({
     queryKey: ['payroll-history', farmId],
@@ -46,6 +44,7 @@ export function PayrollHistory({ farmId, onSelectPeriod, selectedPeriodId }: Pay
     draft: 'secondary',
     active: 'default',
     closed: 'outline',
+    open: 'default',
   } as const
 
   return (
@@ -63,8 +62,6 @@ export function PayrollHistory({ farmId, onSelectPeriod, selectedPeriodId }: Pay
               <TableHead>Period</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Total Wages</TableHead>
-              <TableHead className="text-right">Total Paid</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -85,15 +82,9 @@ export function PayrollHistory({ farmId, onSelectPeriod, selectedPeriodId }: Pay
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={statusColors[period.status] ?? 'secondary'}>
+                  <Badge variant={statusColors[period.status]}>
                     {period.status}
                   </Badge>
-                </TableCell>
-                <TableCell className="text-right font-medium">
-                  {formatCurrency(period.totalWages || 0)}
-                </TableCell>
-                <TableCell className="text-right">
-                  {formatCurrency(period.totalPaid || 0)}
                 </TableCell>
               </TableRow>
             ))}

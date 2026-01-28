@@ -10,6 +10,9 @@ import type {
 import type { IngredientWithPrice } from './repository'
 import { toNumber } from '~/features/settings/currency'
 
+// Re-export from optimization service
+export { buildOptimizationModel } from './optimization-service'
+
 export interface FormulationIngredient {
   id: string
   name: string
@@ -39,18 +42,15 @@ export interface MixingInstruction {
 }
 
 /**
- * Build optimization model from database ingredients and user prices
+ * Build optimization ingredients from database ingredients and user prices
  */
-export function buildOptimizationModel(
+export function buildOptimizationIngredients(
   ingredients: Array<IngredientWithPrice>,
   userPrices: Array<{
     ingredientId: string
     pricePerKg: string
     isAvailable: boolean
   }>,
-  requirements: NutritionalRequirement,
-  batchSize: number,
-  safetyMargin: number = 0,
 ): Array<OptimizationIngredient> {
   const mapped = ingredients.map((ing) => {
     const userPrice = userPrices.find((p) => p.ingredientId === ing.id)
@@ -76,7 +76,8 @@ export function buildOptimizationModel(
     }
   })
 
-  return mapped.filter((ing): ing is NonNullable<typeof ing> => ing !== null)
+  const filtered = mapped.filter((ing) => ing !== null) as Array<OptimizationIngredient>
+  return filtered
 }
 
 /**
@@ -226,22 +227,6 @@ export function generateMixingInstructions(
     percentage: ing.percentage,
     notes: getMixingNotes(ing.name, ing.percentage),
   }))
-}
-
-/**
- * Get maximum inclusion limit based on ingredient category
- */
-function getMaxInclusionLimit(category: string): number {
-  const limits: Record<string, number> = {
-    cereal: 70, // Corn, wheat can be up to 70%
-    protein: 40, // Soybean meal, fish meal up to 40%
-    fat: 10, // Oils up to 10%
-    mineral: 5, // Mineral premixes up to 5%
-    vitamin: 1, // Vitamin premixes up to 1%
-    additive: 0.5, // Additives very limited
-  }
-
-  return limits[category] || 50 // Default 50% if category unknown
 }
 
 /**

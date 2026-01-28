@@ -34,7 +34,7 @@ export interface ConflictResponse<T> {
  * @returns True if the error is a conflict error
  */
 export function isConflictError(error: unknown): error is AppError {
-  if (AppError.isAppError(error)) {
+  if (error instanceof AppError) {
     return error.httpStatus === 409 && error.reason === 'CONFLICT'
   }
   return false
@@ -48,7 +48,7 @@ export function isConflictError(error: unknown): error is AppError {
  * @returns True if the error is a not found error
  */
 export function isNotFoundError(error: unknown): error is AppError {
-  if (AppError.isAppError(error)) {
+  if (error instanceof AppError) {
     return error.httpStatus === 404
   }
   return false

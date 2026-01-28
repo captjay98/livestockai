@@ -29,7 +29,6 @@ export const Route = createFileRoute('/_auth/marketplace/my-listings' as const)(
 function MyListingsPage() {
   const { t } = useTranslation('marketplace')
   const queryClient = useQueryClient()
-  const { status, page } = Route.useSearch()
   const listingsData = Route.useLoaderData()
 
   const updateListingMutation = useMutation({
@@ -87,11 +86,8 @@ function MyListingsPage() {
       </div>
 
       <MyListingsTable
-        data={listingsData}
-        currentStatus={status}
-        currentPage={page}
-        onAction={handleAction}
-        isLoading={updateListingMutation.isPending || deleteListingMutation.isPending}
+        listings={listingsData.data}
+        onAction={(listingId, action) => handleAction(action, listingId)}
       />
     </div>
   )

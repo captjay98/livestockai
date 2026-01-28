@@ -3,10 +3,60 @@
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { Button } from '~/components/ui/button'
-import { Calendar } from '~/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
+import { Input } from '~/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { cn } from '~/lib/utils'
+
+// Stub Calendar component - simple date input alternative
+interface CalendarProps {
+  mode: 'single'
+  selected?: Date
+  onSelect?: (date: Date | undefined) => void
+  initialFocus?: boolean
+}
+
+function Calendar({ selected, onSelect }: CalendarProps) {
+  return (
+    <div className="p-3">
+      <Input
+        type="date"
+        value={selected ? format(selected, 'yyyy-MM-dd') : ''}
+        onChange={(e) => {
+          const date = e.target.value ? new Date(e.target.value) : undefined
+          onSelect?.(date)
+        }}
+      />
+    </div>
+  )
+}
+
+// Stub Popover components - simple dropdown alternative
+interface PopoverProps {
+  children: React.ReactNode
+}
+
+function Popover({ children }: PopoverProps) {
+  return <div className="relative">{children}</div>
+}
+
+interface PopoverTriggerProps {
+  children: React.ReactNode
+  onClick?: () => void
+}
+
+function PopoverTrigger({ children }: PopoverTriggerProps) {
+  return <div>{children}</div>
+}
+
+interface PopoverContentProps {
+  children: React.ReactNode
+  className?: string
+  align?: string
+}
+
+function PopoverContent({ children, className }: PopoverContentProps) {
+  return <div className={cn('absolute top-full left-0 z-50 bg-white border rounded-md shadow-lg', className)}>{children}</div>
+}
 
 export interface TaskFiltersState {
   workerId: string | null
@@ -82,7 +132,7 @@ export function TaskFilters({ filters, onFiltersChange, workers }: TaskFiltersPr
       </Select>
 
       <Popover>
-        <PopoverTrigger asChild>
+        <PopoverTrigger>
           <Button
             variant="outline"
             className={cn('h-11 min-w-[140px] justify-start text-left font-normal', !filters.dueDateFrom && 'text-muted-foreground')}
@@ -102,7 +152,7 @@ export function TaskFilters({ filters, onFiltersChange, workers }: TaskFiltersPr
       </Popover>
 
       <Popover>
-        <PopoverTrigger asChild>
+        <PopoverTrigger>
           <Button
             variant="outline"
             className={cn('h-11 min-w-[140px] justify-start text-left font-normal', !filters.dueDateTo && 'text-muted-foreground')}

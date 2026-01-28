@@ -42,7 +42,7 @@ export class S3Provider implements StorageProvider {
         new PutObjectCommand({
           Bucket: bucket,
           Key: key,
-          Body: content,
+          Body: new Uint8Array(content),
           ContentType: contentType,
           CacheControl: cacheControl,
           ACL: options.access === 'public' ? 'public-read' : 'private',
@@ -81,7 +81,7 @@ export class S3Provider implements StorageProvider {
 
       return {
         success: true,
-        content: content?.buffer,
+        content: content?.buffer as ArrayBuffer | undefined,
         contentType: response.ContentType,
       }
     } catch (error) {
@@ -119,6 +119,10 @@ export class S3Provider implements StorageProvider {
   async getSignedUrl(key: string, expiresIn: number): Promise<string> {
     const bucket = process.env.S3_PRIVATE_BUCKET || process.env.S3_PUBLIC_BUCKET
     const region = process.env.AWS_REGION
+
+    if (!bucket || !region) {
+      throw new Error('S3 bucket or region not configured')
+    }
 
     const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner')
     const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3')

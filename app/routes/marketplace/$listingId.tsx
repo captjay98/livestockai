@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { ArrowLeft, MessageCircle } from 'lucide-react'
-import type { FuzzedListing } from '~/features/marketplace/privacy-fuzzer'
 import { getListingDetailFn, recordListingViewFn } from '~/features/marketplace/server'
 import { ListingDetail } from '~/components/marketplace/listing-detail'
 import { ContactSellerDialog } from '~/components/marketplace/contact-seller-dialog'
@@ -57,14 +56,6 @@ function ListingDetailPage() {
     router.navigate({ to: '/login', search: { redirect: `/marketplace/${listingId}` } })
   }
 
-  if (!listing) {
-    return (
-      <div className="container mx-auto px-4 py-6">
-        <p>{t('listingNotFound')}</p>
-      </div>
-    )
-  }
-
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
@@ -76,7 +67,11 @@ function ListingDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <ListingDetail listing={listing} />
+          <ListingDetail 
+            listing={listing} 
+            isOwner={listing.isOwner}
+            onContactClick={handleContactSeller}
+          />
         </div>
 
         <div className="lg:col-span-1">
@@ -92,7 +87,7 @@ function ListingDetailPage() {
               </Button>
             )}
 
-            {listing.sellerVerification && (
+            {'sellerVerification' in listing && (
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <h3 className="font-medium text-green-900 mb-2">{t('listing.verifiedSeller')}</h3>
                 <p className="text-sm text-green-700">
@@ -142,7 +137,12 @@ function ListingDetailPage() {
       <ContactSellerDialog
         open={showContactDialog}
         onOpenChange={setShowContactDialog}
-        listing={listing}
+        listingId={listingId}
+        onSubmit={(data) => {
+          // Handle contact submission
+          console.log('Contact data:', data)
+          setShowContactDialog(false)
+        }}
       />
     </div>
   )

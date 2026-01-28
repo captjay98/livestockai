@@ -72,9 +72,9 @@ describe('Temp ID Resolver - Property Tests', () => {
       )
     })
 
-    it('should not modify non-temp IDs during resolution', async () => {
-      await fc.assert(
-        fc.asyncProperty(serverIdArb, (regularId) => {
+    it('should not modify non-temp IDs during resolution', () => {
+      fc.assert(
+        fc.property(serverIdArb, (regularId) => {
           // Regular UUIDs should pass through unchanged
           expect(tempIdResolver.resolve(regularId)).toBe(regularId)
         }),

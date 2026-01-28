@@ -20,8 +20,10 @@ import { Route as CommunityRouteImport } from './routes/community'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MarketplaceIndexRouteImport } from './routes/marketplace/index'
 import { Route as VerifyReportIdRouteImport } from './routes/verify.$reportId'
 import { Route as SharedShareCodeRouteImport } from './routes/shared/$shareCode'
+import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace/$listingId'
 import { Route as AuthWorkerRouteImport } from './routes/_auth/worker'
 import { Route as AuthTaskAssignmentsRouteImport } from './routes/_auth/task-assignments'
 import { Route as AuthPayrollRouteImport } from './routes/_auth/payroll'
@@ -33,6 +35,7 @@ import { Route as AuthVaccinationsIndexRouteImport } from './routes/_auth/vaccin
 import { Route as AuthTasksIndexRouteImport } from './routes/_auth/tasks/index'
 import { Route as AuthSuppliersIndexRouteImport } from './routes/_auth/suppliers/index'
 import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/index'
+import { Route as AuthSensorsIndexRouteImport } from './routes/_auth/sensors/index'
 import { Route as AuthSalesIndexRouteImport } from './routes/_auth/sales/index'
 import { Route as AuthReportsIndexRouteImport } from './routes/_auth/reports/index'
 import { Route as AuthOnboardingIndexRouteImport } from './routes/_auth/onboarding/index'
@@ -51,8 +54,13 @@ import { Route as AuthBatchesIndexRouteImport } from './routes/_auth/batches/ind
 import { Route as AuthWorkersWorkerIdRouteImport } from './routes/_auth/workers.$workerId'
 import { Route as AuthSuppliersSupplierIdRouteImport } from './routes/_auth/suppliers/$supplierId'
 import { Route as AuthSettingsUsersRouteImport } from './routes/_auth/settings/users'
+import { Route as AuthSettingsSensorsRouteImport } from './routes/_auth/settings/sensors'
 import { Route as AuthSettingsAuditRouteImport } from './routes/_auth/settings/audit'
+import { Route as AuthSensorsSensorIdRouteImport } from './routes/_auth/sensors/$sensorId'
 import { Route as AuthReportsExportRouteImport } from './routes/_auth/reports/export'
+import { Route as AuthMarketplaceMyListingsRouteImport } from './routes/_auth/marketplace/my-listings'
+import { Route as AuthMarketplaceInboxRouteImport } from './routes/_auth/marketplace/inbox'
+import { Route as AuthMarketplaceCreateRouteImport } from './routes/_auth/marketplace/create'
 import { Route as AuthInvoicesInvoiceIdRouteImport } from './routes/_auth/invoices/$invoiceId'
 import { Route as AuthFeedFormulationPricesRouteImport } from './routes/_auth/feed-formulation/prices'
 import { Route as AuthFarmsFarmIdRouteImport } from './routes/_auth/farms/$farmId'
@@ -117,6 +125,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
+  id: '/marketplace/',
+  path: '/marketplace/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyReportIdRoute = VerifyReportIdRouteImport.update({
   id: '/verify/$reportId',
   path: '/verify/$reportId',
@@ -125,6 +138,11 @@ const VerifyReportIdRoute = VerifyReportIdRouteImport.update({
 const SharedShareCodeRoute = SharedShareCodeRouteImport.update({
   id: '/shared/$shareCode',
   path: '/shared/$shareCode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
+  id: '/marketplace/$listingId',
+  path: '/marketplace/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthWorkerRoute = AuthWorkerRouteImport.update({
@@ -180,6 +198,11 @@ const AuthSuppliersIndexRoute = AuthSuppliersIndexRouteImport.update({
 const AuthSettingsIndexRoute = AuthSettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthSensorsIndexRoute = AuthSensorsIndexRouteImport.update({
+  id: '/sensors/',
+  path: '/sensors/',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthSalesIndexRoute = AuthSalesIndexRouteImport.update({
@@ -273,14 +296,40 @@ const AuthSettingsUsersRoute = AuthSettingsUsersRouteImport.update({
   path: '/settings/users',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthSettingsSensorsRoute = AuthSettingsSensorsRouteImport.update({
+  id: '/settings/sensors',
+  path: '/settings/sensors',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthSettingsAuditRoute = AuthSettingsAuditRouteImport.update({
   id: '/settings/audit',
   path: '/settings/audit',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthSensorsSensorIdRoute = AuthSensorsSensorIdRouteImport.update({
+  id: '/sensors/$sensorId',
+  path: '/sensors/$sensorId',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthReportsExportRoute = AuthReportsExportRouteImport.update({
   id: '/reports/export',
   path: '/reports/export',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthMarketplaceMyListingsRoute =
+  AuthMarketplaceMyListingsRouteImport.update({
+    id: '/marketplace/my-listings',
+    path: '/marketplace/my-listings',
+    getParentRoute: () => AuthRoute,
+  } as any)
+const AuthMarketplaceInboxRoute = AuthMarketplaceInboxRouteImport.update({
+  id: '/marketplace/inbox',
+  path: '/marketplace/inbox',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthMarketplaceCreateRoute = AuthMarketplaceCreateRouteImport.update({
+  id: '/marketplace/create',
+  path: '/marketplace/create',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthInvoicesInvoiceIdRoute = AuthInvoicesInvoiceIdRouteImport.update({
@@ -347,16 +396,23 @@ export interface FileRoutesByFullPath {
   '/payroll': typeof AuthPayrollRoute
   '/task-assignments': typeof AuthTaskAssignmentsRoute
   '/worker': typeof AuthWorkerRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/shared/$shareCode': typeof SharedShareCodeRoute
   '/verify/$reportId': typeof VerifyReportIdRoute
+  '/marketplace/': typeof MarketplaceIndexRoute
   '/credit-passport/history': typeof AuthCreditPassportHistoryRoute
   '/credit-passport/requests': typeof AuthCreditPassportRequestsRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/farms/$farmId': typeof AuthFarmsFarmIdRouteWithChildren
   '/feed-formulation/prices': typeof AuthFeedFormulationPricesRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
+  '/marketplace/create': typeof AuthMarketplaceCreateRoute
+  '/marketplace/inbox': typeof AuthMarketplaceInboxRoute
+  '/marketplace/my-listings': typeof AuthMarketplaceMyListingsRoute
   '/reports/export': typeof AuthReportsExportRoute
+  '/sensors/$sensorId': typeof AuthSensorsSensorIdRoute
   '/settings/audit': typeof AuthSettingsAuditRoute
+  '/settings/sensors': typeof AuthSettingsSensorsRoute
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/workers/$workerId': typeof AuthWorkersWorkerIdRoute
@@ -375,6 +431,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof AuthOnboardingIndexRoute
   '/reports/': typeof AuthReportsIndexRoute
   '/sales/': typeof AuthSalesIndexRoute
+  '/sensors/': typeof AuthSensorsIndexRoute
   '/settings/': typeof AuthSettingsIndexRoute
   '/suppliers/': typeof AuthSuppliersIndexRoute
   '/tasks/': typeof AuthTasksIndexRoute
@@ -401,15 +458,22 @@ export interface FileRoutesByTo {
   '/payroll': typeof AuthPayrollRoute
   '/task-assignments': typeof AuthTaskAssignmentsRoute
   '/worker': typeof AuthWorkerRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/shared/$shareCode': typeof SharedShareCodeRoute
   '/verify/$reportId': typeof VerifyReportIdRoute
+  '/marketplace': typeof MarketplaceIndexRoute
   '/credit-passport/history': typeof AuthCreditPassportHistoryRoute
   '/credit-passport/requests': typeof AuthCreditPassportRequestsRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/feed-formulation/prices': typeof AuthFeedFormulationPricesRoute
   '/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
+  '/marketplace/create': typeof AuthMarketplaceCreateRoute
+  '/marketplace/inbox': typeof AuthMarketplaceInboxRoute
+  '/marketplace/my-listings': typeof AuthMarketplaceMyListingsRoute
   '/reports/export': typeof AuthReportsExportRoute
+  '/sensors/$sensorId': typeof AuthSensorsSensorIdRoute
   '/settings/audit': typeof AuthSettingsAuditRoute
+  '/settings/sensors': typeof AuthSettingsSensorsRoute
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/workers/$workerId': typeof AuthWorkersWorkerIdRoute
@@ -428,6 +492,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthOnboardingIndexRoute
   '/reports': typeof AuthReportsIndexRoute
   '/sales': typeof AuthSalesIndexRoute
+  '/sensors': typeof AuthSensorsIndexRoute
   '/settings': typeof AuthSettingsIndexRoute
   '/suppliers': typeof AuthSuppliersIndexRoute
   '/tasks': typeof AuthTasksIndexRoute
@@ -456,16 +521,23 @@ export interface FileRoutesById {
   '/_auth/payroll': typeof AuthPayrollRoute
   '/_auth/task-assignments': typeof AuthTaskAssignmentsRoute
   '/_auth/worker': typeof AuthWorkerRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/shared/$shareCode': typeof SharedShareCodeRoute
   '/verify/$reportId': typeof VerifyReportIdRoute
+  '/marketplace/': typeof MarketplaceIndexRoute
   '/_auth/credit-passport/history': typeof AuthCreditPassportHistoryRoute
   '/_auth/credit-passport/requests': typeof AuthCreditPassportRequestsRoute
   '/_auth/customers/$customerId': typeof AuthCustomersCustomerIdRoute
   '/_auth/farms/$farmId': typeof AuthFarmsFarmIdRouteWithChildren
   '/_auth/feed-formulation/prices': typeof AuthFeedFormulationPricesRoute
   '/_auth/invoices/$invoiceId': typeof AuthInvoicesInvoiceIdRoute
+  '/_auth/marketplace/create': typeof AuthMarketplaceCreateRoute
+  '/_auth/marketplace/inbox': typeof AuthMarketplaceInboxRoute
+  '/_auth/marketplace/my-listings': typeof AuthMarketplaceMyListingsRoute
   '/_auth/reports/export': typeof AuthReportsExportRoute
+  '/_auth/sensors/$sensorId': typeof AuthSensorsSensorIdRoute
   '/_auth/settings/audit': typeof AuthSettingsAuditRoute
+  '/_auth/settings/sensors': typeof AuthSettingsSensorsRoute
   '/_auth/settings/users': typeof AuthSettingsUsersRoute
   '/_auth/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
   '/_auth/workers/$workerId': typeof AuthWorkersWorkerIdRoute
@@ -484,6 +556,7 @@ export interface FileRoutesById {
   '/_auth/onboarding/': typeof AuthOnboardingIndexRoute
   '/_auth/reports/': typeof AuthReportsIndexRoute
   '/_auth/sales/': typeof AuthSalesIndexRoute
+  '/_auth/sensors/': typeof AuthSensorsIndexRoute
   '/_auth/settings/': typeof AuthSettingsIndexRoute
   '/_auth/suppliers/': typeof AuthSuppliersIndexRoute
   '/_auth/tasks/': typeof AuthTasksIndexRoute
@@ -512,16 +585,23 @@ export interface FileRouteTypes {
     | '/payroll'
     | '/task-assignments'
     | '/worker'
+    | '/marketplace/$listingId'
     | '/shared/$shareCode'
     | '/verify/$reportId'
+    | '/marketplace/'
     | '/credit-passport/history'
     | '/credit-passport/requests'
     | '/customers/$customerId'
     | '/farms/$farmId'
     | '/feed-formulation/prices'
     | '/invoices/$invoiceId'
+    | '/marketplace/create'
+    | '/marketplace/inbox'
+    | '/marketplace/my-listings'
     | '/reports/export'
+    | '/sensors/$sensorId'
     | '/settings/audit'
+    | '/settings/sensors'
     | '/settings/users'
     | '/suppliers/$supplierId'
     | '/workers/$workerId'
@@ -540,6 +620,7 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/reports/'
     | '/sales/'
+    | '/sensors/'
     | '/settings/'
     | '/suppliers/'
     | '/tasks/'
@@ -566,15 +647,22 @@ export interface FileRouteTypes {
     | '/payroll'
     | '/task-assignments'
     | '/worker'
+    | '/marketplace/$listingId'
     | '/shared/$shareCode'
     | '/verify/$reportId'
+    | '/marketplace'
     | '/credit-passport/history'
     | '/credit-passport/requests'
     | '/customers/$customerId'
     | '/feed-formulation/prices'
     | '/invoices/$invoiceId'
+    | '/marketplace/create'
+    | '/marketplace/inbox'
+    | '/marketplace/my-listings'
     | '/reports/export'
+    | '/sensors/$sensorId'
     | '/settings/audit'
+    | '/settings/sensors'
     | '/settings/users'
     | '/suppliers/$supplierId'
     | '/workers/$workerId'
@@ -593,6 +681,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/reports'
     | '/sales'
+    | '/sensors'
     | '/settings'
     | '/suppliers'
     | '/tasks'
@@ -620,16 +709,23 @@ export interface FileRouteTypes {
     | '/_auth/payroll'
     | '/_auth/task-assignments'
     | '/_auth/worker'
+    | '/marketplace/$listingId'
     | '/shared/$shareCode'
     | '/verify/$reportId'
+    | '/marketplace/'
     | '/_auth/credit-passport/history'
     | '/_auth/credit-passport/requests'
     | '/_auth/customers/$customerId'
     | '/_auth/farms/$farmId'
     | '/_auth/feed-formulation/prices'
     | '/_auth/invoices/$invoiceId'
+    | '/_auth/marketplace/create'
+    | '/_auth/marketplace/inbox'
+    | '/_auth/marketplace/my-listings'
     | '/_auth/reports/export'
+    | '/_auth/sensors/$sensorId'
     | '/_auth/settings/audit'
+    | '/_auth/settings/sensors'
     | '/_auth/settings/users'
     | '/_auth/suppliers/$supplierId'
     | '/_auth/workers/$workerId'
@@ -648,6 +744,7 @@ export interface FileRouteTypes {
     | '/_auth/onboarding/'
     | '/_auth/reports/'
     | '/_auth/sales/'
+    | '/_auth/sensors/'
     | '/_auth/settings/'
     | '/_auth/suppliers/'
     | '/_auth/tasks/'
@@ -672,8 +769,10 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   RoadmapRoute: typeof RoadmapRoute
   SupportRoute: typeof SupportRoute
+  MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
   SharedShareCodeRoute: typeof SharedShareCodeRoute
   VerifyReportIdRoute: typeof VerifyReportIdRoute
+  MarketplaceIndexRoute: typeof MarketplaceIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -755,6 +854,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketplace/': {
+      id: '/marketplace/'
+      path: '/marketplace'
+      fullPath: '/marketplace/'
+      preLoaderRoute: typeof MarketplaceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify/$reportId': {
       id: '/verify/$reportId'
       path: '/verify/$reportId'
@@ -767,6 +873,13 @@ declare module '@tanstack/react-router' {
       path: '/shared/$shareCode'
       fullPath: '/shared/$shareCode'
       preLoaderRoute: typeof SharedShareCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace/$listingId': {
+      id: '/marketplace/$listingId'
+      path: '/marketplace/$listingId'
+      fullPath: '/marketplace/$listingId'
+      preLoaderRoute: typeof MarketplaceListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/worker': {
@@ -844,6 +957,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings/'
       preLoaderRoute: typeof AuthSettingsIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/sensors/': {
+      id: '/_auth/sensors/'
+      path: '/sensors'
+      fullPath: '/sensors/'
+      preLoaderRoute: typeof AuthSensorsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/sales/': {
@@ -972,6 +1092,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSettingsUsersRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/settings/sensors': {
+      id: '/_auth/settings/sensors'
+      path: '/settings/sensors'
+      fullPath: '/settings/sensors'
+      preLoaderRoute: typeof AuthSettingsSensorsRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/settings/audit': {
       id: '/_auth/settings/audit'
       path: '/settings/audit'
@@ -979,11 +1106,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSettingsAuditRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/sensors/$sensorId': {
+      id: '/_auth/sensors/$sensorId'
+      path: '/sensors/$sensorId'
+      fullPath: '/sensors/$sensorId'
+      preLoaderRoute: typeof AuthSensorsSensorIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/reports/export': {
       id: '/_auth/reports/export'
       path: '/reports/export'
       fullPath: '/reports/export'
       preLoaderRoute: typeof AuthReportsExportRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/marketplace/my-listings': {
+      id: '/_auth/marketplace/my-listings'
+      path: '/marketplace/my-listings'
+      fullPath: '/marketplace/my-listings'
+      preLoaderRoute: typeof AuthMarketplaceMyListingsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/marketplace/inbox': {
+      id: '/_auth/marketplace/inbox'
+      path: '/marketplace/inbox'
+      fullPath: '/marketplace/inbox'
+      preLoaderRoute: typeof AuthMarketplaceInboxRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/marketplace/create': {
+      id: '/_auth/marketplace/create'
+      path: '/marketplace/create'
+      fullPath: '/marketplace/create'
+      preLoaderRoute: typeof AuthMarketplaceCreateRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/invoices/$invoiceId': {
@@ -1077,8 +1232,13 @@ interface AuthRouteChildren {
   AuthFarmsFarmIdRoute: typeof AuthFarmsFarmIdRouteWithChildren
   AuthFeedFormulationPricesRoute: typeof AuthFeedFormulationPricesRoute
   AuthInvoicesInvoiceIdRoute: typeof AuthInvoicesInvoiceIdRoute
+  AuthMarketplaceCreateRoute: typeof AuthMarketplaceCreateRoute
+  AuthMarketplaceInboxRoute: typeof AuthMarketplaceInboxRoute
+  AuthMarketplaceMyListingsRoute: typeof AuthMarketplaceMyListingsRoute
   AuthReportsExportRoute: typeof AuthReportsExportRoute
+  AuthSensorsSensorIdRoute: typeof AuthSensorsSensorIdRoute
   AuthSettingsAuditRoute: typeof AuthSettingsAuditRoute
+  AuthSettingsSensorsRoute: typeof AuthSettingsSensorsRoute
   AuthSettingsUsersRoute: typeof AuthSettingsUsersRoute
   AuthSuppliersSupplierIdRoute: typeof AuthSuppliersSupplierIdRoute
   AuthWorkersWorkerIdRoute: typeof AuthWorkersWorkerIdRoute
@@ -1097,6 +1257,7 @@ interface AuthRouteChildren {
   AuthOnboardingIndexRoute: typeof AuthOnboardingIndexRoute
   AuthReportsIndexRoute: typeof AuthReportsIndexRoute
   AuthSalesIndexRoute: typeof AuthSalesIndexRoute
+  AuthSensorsIndexRoute: typeof AuthSensorsIndexRoute
   AuthSettingsIndexRoute: typeof AuthSettingsIndexRoute
   AuthSuppliersIndexRoute: typeof AuthSuppliersIndexRoute
   AuthTasksIndexRoute: typeof AuthTasksIndexRoute
@@ -1118,8 +1279,13 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthFarmsFarmIdRoute: AuthFarmsFarmIdRouteWithChildren,
   AuthFeedFormulationPricesRoute: AuthFeedFormulationPricesRoute,
   AuthInvoicesInvoiceIdRoute: AuthInvoicesInvoiceIdRoute,
+  AuthMarketplaceCreateRoute: AuthMarketplaceCreateRoute,
+  AuthMarketplaceInboxRoute: AuthMarketplaceInboxRoute,
+  AuthMarketplaceMyListingsRoute: AuthMarketplaceMyListingsRoute,
   AuthReportsExportRoute: AuthReportsExportRoute,
+  AuthSensorsSensorIdRoute: AuthSensorsSensorIdRoute,
   AuthSettingsAuditRoute: AuthSettingsAuditRoute,
+  AuthSettingsSensorsRoute: AuthSettingsSensorsRoute,
   AuthSettingsUsersRoute: AuthSettingsUsersRoute,
   AuthSuppliersSupplierIdRoute: AuthSuppliersSupplierIdRoute,
   AuthWorkersWorkerIdRoute: AuthWorkersWorkerIdRoute,
@@ -1138,6 +1304,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthOnboardingIndexRoute: AuthOnboardingIndexRoute,
   AuthReportsIndexRoute: AuthReportsIndexRoute,
   AuthSalesIndexRoute: AuthSalesIndexRoute,
+  AuthSensorsIndexRoute: AuthSensorsIndexRoute,
   AuthSettingsIndexRoute: AuthSettingsIndexRoute,
   AuthSuppliersIndexRoute: AuthSuppliersIndexRoute,
   AuthTasksIndexRoute: AuthTasksIndexRoute,
@@ -1162,8 +1329,10 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   RoadmapRoute: RoadmapRoute,
   SupportRoute: SupportRoute,
+  MarketplaceListingIdRoute: MarketplaceListingIdRoute,
   SharedShareCodeRoute: SharedShareCodeRoute,
   VerifyReportIdRoute: VerifyReportIdRoute,
+  MarketplaceIndexRoute: MarketplaceIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

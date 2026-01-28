@@ -354,7 +354,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
               const existingIds = new Set(records.map((r) => r.id))
               if (existingIds.has(nonExistentId)) return // Skip this case
 
-              const result = updateById(records, nonExistentId, updates)
+              const result = updateById<TestRecord>(records, nonExistentId, updates)
 
               // All records should be unchanged
               expect(result).toHaveLength(records.length)
@@ -374,7 +374,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
             uuidArb,
             fc.record({ name: fc.string({ minLength: 1, maxLength: 50 }) }),
             (id, updates) => {
-              const result = updateById(undefined, id, updates)
+              const result = updateById<TestRecord>(undefined, id, updates)
               expect(result).toEqual([])
             },
           ),
@@ -420,7 +420,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
             const existingIds = new Set(records.map((r) => r.id))
             if (existingIds.has(nonExistentId)) return // Skip this case
 
-            const result = removeById(records, nonExistentId)
+            const result = removeById<TestRecord>(records, nonExistentId)
 
             expect(result).toHaveLength(records.length)
           }),
@@ -431,7 +431,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       it('should handle empty array', () => {
         fc.assert(
           fc.property(uuidArb, (id) => {
-            const result = removeById(undefined, id)
+            const result = removeById<TestRecord>(undefined, id)
             expect(result).toEqual([])
           }),
           { numRuns: 100 },
@@ -446,7 +446,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
               const originalLength = records.length
               const targetId = records[0].id
 
-              removeById(records, targetId)
+              removeById<TestRecord>(records, targetId)
 
               // Original array should not be modified
               expect(records).toHaveLength(originalLength)
@@ -498,8 +498,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
       it('should handle undefined previous data', () => {
         fc.assert(
           fc.property(fc.constant(null), () => {
-            const context =
-              createOptimisticContext<Array<typeof recordArb>>(undefined)
+            const context = createOptimisticContext<Array<TestRecord>>(undefined)
 
             expect(context.previousData).toBeUndefined()
           }),
@@ -699,13 +698,13 @@ describe('Optimistic Update Utilities - Property Tests', () => {
             fc.string({ minLength: 1, maxLength: 100 }),
             (serverId, updatedName) => {
               const tempId = generateTempId()
-              const records = addOptimisticRecord(
+              const records = addOptimisticRecord<TestRecord>(
                 [],
                 { name: 'Original', quantity: 100, amount: 50 },
                 tempId,
               )
 
-              const result = replaceTempId(records, tempId, serverId, {
+              const result = replaceTempId<TestRecord>(records, tempId, serverId, {
                 name: updatedName,
               })
 
@@ -722,7 +721,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
           fc.property(recordsArb, uuidArb, (records, serverId) => {
             const nonExistentTempId = generateTempId()
 
-            const result = replaceTempId(records, nonExistentTempId, serverId)
+            const result = replaceTempId<TestRecord>(records, nonExistentTempId, serverId)
 
             // Array should be unchanged
             expect(result).toHaveLength(records.length)
@@ -738,7 +737,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
         fc.assert(
           fc.property(uuidArb, (serverId) => {
             const tempId = generateTempId()
-            const result = replaceTempId(undefined, tempId, serverId)
+            const result = replaceTempId<TestRecord>(undefined, tempId, serverId)
 
             expect(result).toEqual([])
           }),

@@ -14,6 +14,15 @@ interface FormulationComparisonProps {
   onSelectionChange?: (formulations: Array<string>) => void
 }
 
+interface Formulation {
+  id: string
+  name: string
+  species: string
+  productionStage: string
+  batchSizeKg: string
+  totalCostPerKg: string
+}
+
 export function FormulationComparison({
   selectedFormulations = [],
   onSelectionChange,
@@ -25,23 +34,23 @@ export function FormulationComparison({
     useState<Array<string>>(selectedFormulations)
 
   // Fetch saved formulations for selection
-  const { data: formulations, isLoading } = useQuery({
+  const { data: formulations, isLoading } = useQuery<Array<Formulation>>({
     queryKey: ['saved-formulations'],
     queryFn: async () => {
       const { getFormulationsFn } =
         await import('~/features/feed-formulation/server')
-      return getFormulationsFn()
+      return (getFormulationsFn as any)()
     },
   })
 
   // Fetch comparison data for selected formulations
-  const { data: comparisonData, isLoading: loadingComparison } = useQuery({
+  const { data: comparisonData } = useQuery<Array<Formulation> | null>({
     queryKey: ['formulation-comparison', localSelection],
     queryFn: async () => {
       if (localSelection.length < 2) return null
       const { compareFormulationsFn } =
         await import('~/features/feed-formulation/server')
-      return compareFormulationsFn({ data: { formulationIds: localSelection } })
+      return (compareFormulationsFn as any)({ data: { formulationIds: localSelection } })
     },
     enabled: localSelection.length >= 2,
   })
@@ -58,31 +67,29 @@ export function FormulationComparison({
   const handleExportPdf = async () => {
     if (!comparisonData) return
 
-    const { exportComparisonPdfFn } =
-      await import('~/features/feed-formulation/server')
-    const pdfBlob = await exportComparisonPdfFn({ data: { comparisonData } })
-
-    // Create download link
-    const url = URL.createObjectURL(pdfBlob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `formulation-comparison-${new Date().toISOString().split('T')[0]}.pdf`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    try {
+      const { exportComparisonPdfFn } =
+        await import('~/features/feed-formulation/server')
+      await (exportComparisonPdfFn as any)({ data: { comparisonData } })
+    } catch (error) {
+      console.error('Failed to export PDF:', error)
+    }
   }
 
   const handleShare = async () => {
-    if (!comparisonData) return
+    if (!comparisonData || comparisonData.length === 0) return
 
-    const { generateShareCodeFn } =
-      await import('~/features/feed-formulation/server')
-    const shareCode = await generateShareCodeFn({ data: { comparisonData } })
+    try {
+      const { generateShareCodeFn } =
+        await import('~/features/feed-formulation/server')
+      const result = await (generateShareCodeFn as any)({ data: { formulationId: comparisonData[0].id } })
 
-    // Copy to clipboard
-    await navigator.clipboard.writeText(shareCode)
-    // Could show toast notification here
+      // Copy to clipboard
+      await navigator.clipboard.writeText(result.shareCode)
+      // Could show toast notification here
+    } catch (error) {
+      console.error('Failed to share:', error)
+    }
   }
 
   if (isLoading) {
@@ -131,7 +138,7 @@ export function FormulationComparison({
                   <Checkbox
                     checked={localSelection.includes(formulation.id)}
                     onCheckedChange={(checked) =>
-                      handleSelectionChange(formulation.id, checked as boolean)
+                      handleSelectionChange(formulation.id, Boolean(checked))
                     }
                     disabled={
                       !localSelection.includes(formulation.id) &&
@@ -142,7 +149,7 @@ export function FormulationComparison({
                     <div className="font-medium">{formulation.name}</div>
                     <div className="text-sm text-muted-foreground">
                       {formulation.species} • {formulation.productionStage} •{' '}
-                      {format(formulation.totalCostPerKg)}/kg
+                      {format(parseFloat(formulation.totalCostPerKg))}/kg
                     </div>
                   </div>
                   <Badge variant="outline">{formulation.batchSizeKg}kg</Badge>
@@ -186,66 +193,67 @@ export function FormulationComparison({
                   <TrendingDown className="h-4 w-4 text-green-600" />
                 </h4>
                 <div className="grid gap-4">
-                  {comparisonData.map((formulation: any, index: number) => (
-                    <div
-                      key={formulation.id}
-                      className={`p-4 rounded-lg border-2 ${
-                        formulation.isMostCostEffective
-                          ? 'border-green-500 bg-green-50'
-                          : 'border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">
-                            {formulation.name}
-                          </span>
-                          {formulation.isMostCostEffective && (
-                            <Badge className="bg-green-600">
-                              <Crown className="h-3 w-3 mr-1" />
-                              {t('comparison.mostCostEffective', {
-                                defaultValue: 'Most Cost-Effective',
-                              })}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold">
-                            {format(formulation.totalCostPerKg)}/kg
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {format(formulation.totalCost)} total
-                          </div>
-                        </div>
-                      </div>
+                  {comparisonData.map((formulation: Formulation) => {
+                    const costPerKg = parseFloat(formulation.totalCostPerKg)
+                    const batchSize = parseFloat(formulation.batchSizeKg)
+                    const totalCost = costPerKg * batchSize
+                    const minCost = Math.min(...comparisonData.map(f => parseFloat(f.totalCostPerKg)))
+                    const isMostCostEffective = costPerKg === minCost
+                    const costDifference = costPerKg - minCost
+                    const costDifferencePercent = minCost > 0 ? (costDifference / minCost) * 100 : 0
 
-                      {formulation.costDifference && (
-                        <div className="mt-2 text-sm">
-                          <span
-                            className={
-                              formulation.costDifference > 0
-                                ? 'text-red-600'
-                                : 'text-green-600'
-                            }
-                          >
-                            {formulation.costDifference > 0 ? '+' : ''}
-                            {format(formulation.costDifference)}(
-                            {formulation.costDifferencePercent > 0 ? '+' : ''}
-                            {formulation.costDifferencePercent.toFixed(1)}%) vs
-                            most cost-effective
-                          </span>
+                    return (
+                      <div
+                        key={formulation.id}
+                        className={`p-4 rounded-lg border-2 ${
+                          isMostCostEffective
+                            ? 'border-green-500 bg-green-50'
+                            : 'border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {formulation.name}
+                            </span>
+                            {isMostCostEffective && (
+                              <Badge className="bg-green-600">
+                                <Crown className="h-3 w-3 mr-1" />
+                                {t('comparison.mostCostEffective', {
+                                  defaultValue: 'Most Cost-Effective',
+                                })}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <div className="text-lg font-bold">
+                              {format(costPerKg)}/kg
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {format(totalCost)} total
+                            </div>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
+
+                        {costDifference > 0 && (
+                          <div className="mt-2 text-sm">
+                            <span className="text-red-600">
+                              +{format(costDifference)} (+{costDifferencePercent.toFixed(1)}%) vs
+                              most cost-effective
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
 
-              {/* Nutritional Comparison */}
+              {/* Basic Information */}
               <div>
                 <h4 className="font-medium mb-3">
-                  {t('comparison.nutritionalComparison', {
-                    defaultValue: 'Nutritional Comparison',
+                  {t('comparison.basicInformation', {
+                    defaultValue: 'Basic Information',
                   })}
                 </h4>
                 <div className="overflow-x-auto">
@@ -253,36 +261,34 @@ export function FormulationComparison({
                     <thead>
                       <tr className="border-b">
                         <th className="text-left p-2">
-                          {t('comparison.nutrient', {
-                            defaultValue: 'Nutrient',
+                          {t('comparison.formulation', {
+                            defaultValue: 'Formulation',
                           })}
                         </th>
-                        {comparisonData.map((f: any) => (
-                          <th key={f.id} className="text-center p-2">
-                            {f.name}
-                          </th>
-                        ))}
+                        <th className="text-center p-2">
+                          {t('comparison.species', {
+                            defaultValue: 'Species',
+                          })}
+                        </th>
+                        <th className="text-center p-2">
+                          {t('comparison.stage', {
+                            defaultValue: 'Stage',
+                          })}
+                        </th>
+                        <th className="text-center p-2">
+                          {t('comparison.batchSize', {
+                            defaultValue: 'Batch Size',
+                          })}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {[
-                        'protein',
-                        'energy',
-                        'fiber',
-                        'fat',
-                        'calcium',
-                        'phosphorus',
-                      ].map((nutrient) => (
-                        <tr key={nutrient} className="border-b">
-                          <td className="p-2 font-medium capitalize">
-                            {nutrient}
-                          </td>
-                          {comparisonData.map((f: any) => (
-                            <td key={f.id} className="text-center p-2">
-                              {f.nutrition[nutrient]?.toFixed(1)}
-                              {nutrient === 'energy' ? ' kcal/kg' : '%'}
-                            </td>
-                          ))}
+                      {comparisonData.map((f: Formulation) => (
+                        <tr key={f.id} className="border-b">
+                          <td className="p-2 font-medium">{f.name}</td>
+                          <td className="text-center p-2">{f.species}</td>
+                          <td className="text-center p-2">{f.productionStage}</td>
+                          <td className="text-center p-2">{f.batchSizeKg}kg</td>
                         </tr>
                       ))}
                     </tbody>
@@ -290,37 +296,19 @@ export function FormulationComparison({
                 </div>
               </div>
 
-              {/* Ingredient Differences */}
+              {/* Note about detailed nutritional comparison */}
               <div>
                 <h4 className="font-medium mb-3">
-                  {t('comparison.ingredientDifferences', {
-                    defaultValue: 'Key Ingredient Differences',
+                  {t('comparison.nutritionalComparison', {
+                    defaultValue: 'Nutritional Comparison',
                   })}
                 </h4>
-                <div className="space-y-3">
-                  {[].map((diff: any) => (
-                    <div
-                      key={diff.ingredientName}
-                      className="p-3 bg-muted rounded-lg"
-                    >
-                      <div className="font-medium mb-2">
-                        {diff.ingredientName}
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-                        {diff.formulations.map((f: any) => (
-                          <div
-                            key={f.formulationId}
-                            className="flex justify-between"
-                          >
-                            <span>{f.formulationName}:</span>
-                            <span className="font-medium">
-                              {f.percentage.toFixed(1)}%
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    {t('comparison.nutritionalDataPlaceholder', {
+                      defaultValue: 'Detailed nutritional comparison will be available when formulations include nutritional data.',
+                    })}
+                  </p>
                 </div>
               </div>
             </div>

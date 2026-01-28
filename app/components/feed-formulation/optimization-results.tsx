@@ -1,5 +1,3 @@
-import { CheckCircle } from 'lucide-react'
-
 interface OptimizationResultsProps {
   result: {
     totalCostPerKg: number

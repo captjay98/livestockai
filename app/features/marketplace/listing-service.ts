@@ -92,7 +92,7 @@ export function validateStatusTransition(
     expired: ['active'], // Can reactivate expired listings
   }
 
-  return validTransitions[currentStatus]?.includes(newStatus) ?? false
+  return validTransitions[currentStatus].includes(newStatus)
 }
 
 /**

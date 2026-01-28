@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest'
 import fc from 'fast-check'
 import type { IngredientWithPrice } from '~/features/feed-formulation/repository'
-import { buildOptimizationModel } from '~/features/feed-formulation/service'
+import { buildOptimizationIngredients } from '~/features/feed-formulation/service'
 
 describe('Feed Formulation - Property Tests', () => {
   // Helper to create valid ingredient
@@ -34,16 +34,6 @@ describe('Feed Formulation - Property Tests', () => {
       .map((n) => n.toFixed(2)),
   })
 
-  const requirementsArb = fc.record({
-    minProteinPercent: fc.double({ min: 10, max: 30 }),
-    minEnergyKcalKg: fc.integer({ min: 2000, max: 3500 }),
-    maxFiberPercent: fc.double({ min: 3, max: 8 }),
-    minCalciumPercent: fc.double({ min: 0.5, max: 2 }),
-    minPhosphorusPercent: fc.double({ min: 0.3, max: 1 }),
-    minLysinePercent: fc.double({ min: 0.5, max: 2 }),
-    minMethioninePercent: fc.double({ min: 0.2, max: 1 }),
-  })
-
   it('should filter out unavailable ingredients', () => {
     fc.assert(
       fc.property(
@@ -57,14 +47,10 @@ describe('Feed Formulation - Property Tests', () => {
             isAvailable: fc.boolean(),
           }),
         ),
-        requirementsArb,
-        (ingredients, prices, requirements) => {
-          const result = buildOptimizationModel(
+        (ingredients, prices) => {
+          const result = buildOptimizationIngredients(
             ingredients as Array<IngredientWithPrice>,
             prices,
-            requirements as any,
-            100,
-            0,
           )
 
           // All unavailable ingredients should be filtered out
@@ -88,20 +74,16 @@ describe('Feed Formulation - Property Tests', () => {
     fc.assert(
       fc.property(
         fc.array(ingredientArb, { minLength: 1, maxLength: 10 }),
-        requirementsArb,
-        (ingredients, requirements) => {
+        (ingredients) => {
           const prices = ingredients.map((ing) => ({
             ingredientId: ing.id,
             pricePerKg: '10.00',
             isAvailable: true,
           }))
 
-          const result = buildOptimizationModel(
+          const result = buildOptimizationIngredients(
             ingredients as Array<IngredientWithPrice>,
             prices,
-            requirements as any,
-            100,
-            0,
           )
 
           // All numeric fields should be numbers, not strings
@@ -126,8 +108,7 @@ describe('Feed Formulation - Property Tests', () => {
     fc.assert(
       fc.property(
         fc.array(ingredientArb, { minLength: 2, maxLength: 5 }),
-        requirementsArb,
-        (ingredients, requirements) => {
+        (ingredients) => {
           // Only provide prices for half the ingredients
           const prices = ingredients
             .slice(0, Math.floor(ingredients.length / 2))
@@ -137,12 +118,9 @@ describe('Feed Formulation - Property Tests', () => {
               isAvailable: true,
             }))
 
-          const result = buildOptimizationModel(
+          const result = buildOptimizationIngredients(
             ingredients as Array<IngredientWithPrice>,
             prices,
-            requirements as any,
-            100,
-            0,
           )
 
           result.forEach((ing) => {
@@ -163,20 +141,16 @@ describe('Feed Formulation - Property Tests', () => {
     fc.assert(
       fc.property(
         fc.array(ingredientArb, { minLength: 1, maxLength: 10 }),
-        requirementsArb,
-        (ingredients, requirements) => {
+        (ingredients) => {
           const prices = ingredients.map((ing) => ({
             ingredientId: ing.id,
             pricePerKg: '10.00',
             isAvailable: true,
           }))
 
-          const result = buildOptimizationModel(
+          const result = buildOptimizationIngredients(
             ingredients as Array<IngredientWithPrice>,
             prices,
-            requirements as any,
-            100,
-            0,
           )
 
           // All result IDs should exist in input
@@ -192,22 +166,7 @@ describe('Feed Formulation - Property Tests', () => {
   })
 
   it('should handle empty ingredient list', () => {
-    const result = buildOptimizationModel(
-      [],
-      [],
-      {
-        minProteinPercent: 20,
-        minEnergyKcalKg: 3000,
-        maxFiberPercent: 5,
-        minCalciumPercent: 1,
-        minPhosphorusPercent: 0.5,
-        minLysinePercent: 1,
-        minMethioninePercent: 0.4,
-      } as any,
-      100,
-      0,
-    )
-
+    const result = buildOptimizationIngredients([], [])
     expect(result).toEqual([])
   })
 
@@ -215,20 +174,16 @@ describe('Feed Formulation - Property Tests', () => {
     fc.assert(
       fc.property(
         fc.array(ingredientArb, { minLength: 1, maxLength: 5 }),
-        requirementsArb,
-        (ingredients, requirements) => {
+        (ingredients) => {
           const prices = ingredients.map((ing) => ({
             ingredientId: ing.id,
             pricePerKg: '10.00',
             isAvailable: false, // All unavailable
           }))
 
-          const result = buildOptimizationModel(
+          const result = buildOptimizationIngredients(
             ingredients as Array<IngredientWithPrice>,
             prices,
-            requirements as any,
-            100,
-            0,
           )
 
           expect(result).toEqual([])
