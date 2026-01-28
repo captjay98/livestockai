@@ -10,7 +10,48 @@ Automatically update DEVLOG.md with recent commits that haven't been documented 
 
 **Project**: OpenLivestock Manager  
 **DEVLOG**: `DEVLOG.md` - Development timeline with day-by-day entries  
-**Format**: Day-based entries with context, implementation, metrics, insights
+**Format**: Day-based entries following canonical structure
+
+## Canonical DEVLOG Entry Format
+
+Every entry MUST have these sections (in order):
+
+1. **Context** - Brief description of what was being worked on and why
+2. **Implementation sections** - Named by feature/task (varies per entry)
+3. **Technical Metrics** - Table with files, lines, tests, etc.
+4. **Key Insights** - Numbered list of learnings
+5. **Time Investment** - With AI-Accelerated Workflow subsection
+
+Optional sections (include only when relevant):
+
+- **Challenges & Solutions** - Only for complex multi-day work with significant obstacles
+- **Next Steps** - Only for incomplete features that continue in next session
+
+### Time Investment Format (REQUIRED)
+
+The Time Investment section MUST include Kiro/AI usage details:
+
+```markdown
+### Time Investment
+
+**Actual**: ~X hours (vs traditional Y hours)
+
+**AI-Accelerated Workflow**:
+
+**[Phase Name]** (~X minutes/hours):
+- Used `@prompt-name` in Kiro CLI to [action]
+- Used Kiro IDE in spec mode for [action]
+- [Specific tools/agents used]
+
+**[Phase Name]** (~X minutes/hours):
+- [Implementation details]
+
+**Breakdown**:
+- [Task 1]: ~X min
+- [Task 2]: ~X hour
+
+**Time Saved**: ~X hours (X% reduction)
+```
 
 ## Step 0: Determine Update Scope
 
