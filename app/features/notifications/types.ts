@@ -1,4 +1,5 @@
 export type NotificationType =
+  // Core notifications
   | 'lowStock'
   | 'highMortality'
   | 'invoiceDue'
@@ -7,7 +8,24 @@ export type NotificationType =
   | 'earlyHarvest'
   | 'reportRequest'
   | 'reportExpiring'
+  // IoT Sensor Hub
   | 'sensorAlert'
+  // Digital Foreman
+  | 'taskAssigned'
+  | 'taskCompleted'
+  | 'taskApproved'
+  | 'taskRejected'
+  | 'flaggedCheckIn'
+  // Offline Marketplace
+  | 'contactRequest'
+  | 'contactApproved'
+  | 'contactDenied'
+  | 'listingExpiring'
+  | 'listingSold'
+  // Extension Worker Mode
+  | 'epidemicWarning'
+  | 'farmHealthCritical'
+  | 'extensionAccessGranted'
 
 export interface Notification {
   id: string

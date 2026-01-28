@@ -248,7 +248,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addPrimaryKeyConstraint('user_farms_pkey', ['userId', 'farmId'])
     .execute()
 
-  await sql`ALTER TABLE user_farms ADD CONSTRAINT user_farms_role_check CHECK (role IN ('owner', 'manager', 'viewer'))`.execute(
+  await sql`ALTER TABLE user_farms ADD CONSTRAINT user_farms_role_check CHECK (role IN ('owner', 'manager', 'viewer', 'worker'))`.execute(
     db,
   )
 
@@ -1367,7 +1367,347 @@ export async function up(db: Kysely<any>): Promise<void> {
   )
 
   // ============================================
-  // 9. Credit Passport
+  // 9. Digital Foreman (Worker Management)
+  // ============================================
+
+  // Worker Profiles
+  await sql`
+    CREATE TABLE worker_profiles (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      "farmId" UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE,
+      phone VARCHAR(20) NOT NULL,
+      "emergencyContactName" VARCHAR(100),
+      "emergencyContactPhone" VARCHAR(20),
+      "employmentStatus" VARCHAR(20) NOT NULL DEFAULT 'active' CHECK ("employmentStatus" IN ('active', 'inactive', 'terminated')),
+      "employmentStartDate" DATE NOT NULL DEFAULT CURRENT_DATE,
+      "employmentEndDate" DATE,
+      "wageRateAmount" DECIMAL(19,2) NOT NULL,
+      "wageRateType" VARCHAR(10) NOT NULL CHECK ("wageRateType" IN ('hourly', 'daily', 'monthly')),
+      "wageCurrency" VARCHAR(3) NOT NULL DEFAULT 'USD',
+      permissions JSONB NOT NULL DEFAULT '[]'::jsonb,
+      "structureIds" JSONB NOT NULL DEFAULT '[]'::jsonb,
+      "profilePhotoUrl" TEXT,
+      "createdAt" TIMESTAMPTZ DEFAULT now(),
+      "updatedAt" TIMESTAMPTZ DEFAULT now(),
+      UNIQUE ("userId", "farmId")
+    )
+  `.execute(db)
+  await sql`CREATE INDEX idx_worker_profiles_user_id ON worker_profiles ("userId")`.execute(db)
+  await sql`CREATE INDEX idx_worker_profiles_farm_id ON worker_profiles ("farmId")`.execute(db)
+  await sql`CREATE INDEX idx_worker_profiles_employment_status ON worker_profiles ("employmentStatus")`.execute(db)
+
+  // Farm Geofences
+  await sql`
+    CREATE TABLE farm_geofences (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      "farmId" UUID NOT NULL UNIQUE REFERENCES farms(id) ON DELETE CASCADE,
+      "geofenceType" VARCHAR(10) NOT NULL CHECK ("geofenceType" IN ('circle', 'polygon')),
+      "centerLat" DECIMAL(10,7),
+      "centerLng" DECIMAL(10,7),
+      "radiusMeters" DECIMAL(10,2),
+      vertices JSONB,
+      "toleranceMeters" DECIMAL(10,2) NOT NULL DEFAULT 100,
+      "createdAt" TIMESTAMPTZ DEFAULT now(),
+      "updatedAt" TIMESTAMPTZ DEFAULT now()
+    )
+  `.execute(db)
+
+  // Worker Check-ins
+  await sql`
+    CREATE TABLE worker_check_ins (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      "workerId" UUID NOT NULL REFERENCES worker_profiles(id) ON DELETE CASCADE,
+      "farmId" UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE,
+      "checkInTime" TIMESTAMPTZ NOT NULL,
+      "checkInLat" DECIMAL(10,7) NOT NULL,
+      "checkInLng" DECIMAL(10,7) NOT NULL,
+      "checkInAccuracy" DECIMAL(10,2),
+      "verificationStatus" VARCHAR(20) NOT NULL DEFAULT 'pending_sync' CHECK ("verificationStatus" IN ('verified', 'outside_geofence', 'manual', 'pending_sync')),
+      "checkOutTime" TIMESTAMPTZ,
+      "checkOutLat" DECIMAL(10,7),
+      "checkOutLng" DECIMAL(10,7),
+      "checkOutAccuracy" DECIMAL(10,2),
+      "hoursWorked" DECIMAL(5,2),
+      "syncStatus" VARCHAR(20) NOT NULL DEFAULT 'synced' CHECK ("syncStatus" IN ('synced', 'pending_sync', 'sync_failed')),
+      "createdAt" TIMESTAMPTZ DEFAULT now()
+    )
+  `.execute(db)
+  await sql`CREATE INDEX idx_worker_check_ins_worker_id ON worker_check_ins ("workerId")`.execute(db)
+  await sql`CREATE INDEX idx_worker_check_ins_farm_id ON worker_check_ins ("farmId")`.execute(db)
+  await sql`CREATE INDEX idx_worker_check_ins_check_in_time ON worker_check_ins ("checkInTime")`.execute(db)
+  await sql`CREATE INDEX idx_worker_check_ins_open ON worker_check_ins ("workerId", "farmId") WHERE "checkOutTime" IS NULL`.execute(db)
+
+  // Task Assignments
+  await sql`
+    CREATE TABLE task_assignments (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      "taskId" UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+      "workerId" UUID NOT NULL REFERENCES worker_profiles(id) ON DELETE CASCADE,
+      "assignedBy" UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+      "farmId" UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE,
+      "dueDate" TIMESTAMPTZ,
+      priority VARCHAR(10) NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
+      status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'pending_approval', 'verified', 'rejected')),
+      "requiresPhoto" BOOLEAN NOT NULL DEFAULT false,
+      "requiresApproval" BOOLEAN NOT NULL DEFAULT false,
+      notes TEXT,
+      "completedAt" TIMESTAMPTZ,
+      "completionNotes" TEXT,
+      "approvedBy" UUID REFERENCES users(id),
+      "approvedAt" TIMESTAMPTZ,
+      "rejectionReason" TEXT,
+      "createdAt" TIMESTAMPTZ DEFAULT now(),
+      "updatedAt" TIMESTAMPTZ DEFAULT now()
+    )
+  `.execute(db)
+  await sql`CREATE INDEX idx_task_assignments_worker_id ON task_assignments ("workerId")`.execute(db)
+  await sql`CREATE INDEX idx_task_assignments_farm_id ON task_assignments ("farmId")`.execute(db)
+  await sql`CREATE INDEX idx_task_assignments_status ON task_assignments (status)`.execute(db)
+  await sql`CREATE INDEX idx_task_assignments_due_date ON task_assignments ("dueDate")`.execute(db)
+  await sql`CREATE INDEX idx_task_assignments_pending_approval ON task_assignments ("farmId") WHERE status = 'pending_approval'`.execute(db)
+
+  // Task Photos
+  await sql`
+    CREATE TABLE task_photos (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      "assignmentId" UUID NOT NULL REFERENCES task_assignments(id) ON DELETE CASCADE,
+      "photoUrl" TEXT NOT NULL,
+      "capturedLat" DECIMAL(10,7),
+      "capturedLng" DECIMAL(10,7),
+      "capturedAt" TIMESTAMPTZ NOT NULL,
+      "uploadedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `.execute(db)
+  await sql`CREATE INDEX idx_task_photos_assignment_id ON task_photos ("assignmentId")`.execute(db)
+
+  // Payroll Periods
+  await sql`CREATE EXTENSION IF NOT EXISTS btree_gist`.execute(db)
+  await sql`
+    CREATE TABLE payroll_periods (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      "farmId" UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE,
+      "periodType" VARCHAR(15) NOT NULL CHECK ("periodType" IN ('weekly', 'bi-weekly', 'monthly')),
+      "startDate" DATE NOT NULL,
+      "endDate" DATE NOT NULL,
+      status VARCHAR(10) NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'closed')),
+      "createdAt" TIMESTAMPTZ DEFAULT now(),
+      "updatedAt" TIMESTAMPTZ DEFAULT now(),
+      CHECK ("startDate" < "endDate"),
+      EXCLUDE USING gist ("farmId" WITH =, daterange("startDate", "endDate", '[]') WITH &&)
+    )
+  `.execute(db)
+
+  // Wage Payments
+  await sql`
+    CREATE TABLE wage_payments (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      "workerId" UUID NOT NULL REFERENCES worker_profiles(id) ON DELETE CASCADE,
+      "payrollPeriodId" UUID NOT NULL REFERENCES payroll_periods(id) ON DELETE CASCADE,
+      "farmId" UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE,
+      amount DECIMAL(19,2) NOT NULL,
+      "paymentDate" DATE NOT NULL,
+      "paymentMethod" VARCHAR(20) NOT NULL CHECK ("paymentMethod" IN ('cash', 'bank_transfer', 'mobile_money')),
+      notes TEXT,
+      "createdAt" TIMESTAMPTZ DEFAULT now()
+    )
+  `.execute(db)
+  await sql`CREATE INDEX idx_wage_payments_worker_id ON wage_payments ("workerId")`.execute(db)
+  await sql`CREATE INDEX idx_wage_payments_period_id ON wage_payments ("payrollPeriodId")`.execute(db)
+  await sql`CREATE INDEX idx_wage_payments_farm_id ON wage_payments ("farmId")`.execute(db)
+
+  // ============================================
+  // 10. IoT Sensor Hub
+  // ============================================
+
+  // Sensors table
+  await db.schema
+    .createTable('sensors')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('farmId', 'uuid', (col) =>
+      col.references('farms.id').onDelete('cascade').notNull(),
+    )
+    .addColumn('structureId', 'uuid', (col) =>
+      col.references('structures.id').onDelete('set null'),
+    )
+    .addColumn('name', 'varchar(100)', (col) => col.notNull())
+    .addColumn('sensorType', 'varchar(50)', (col) => col.notNull())
+    .addColumn('apiKeyHash', 'varchar(255)', (col) => col.notNull())
+    .addColumn('pollingIntervalMinutes', 'integer', (col) =>
+      col.notNull().defaultTo(15),
+    )
+    .addColumn('isActive', 'boolean', (col) => col.notNull().defaultTo(true))
+    .addColumn('lastReadingAt', 'timestamptz')
+    .addColumn('thresholds', 'jsonb')
+    .addColumn('trendConfig', 'jsonb')
+    .addColumn('lastUsedAt', 'timestamptz')
+    .addColumn('requestCount', 'integer', (col) => col.defaultTo(0).notNull())
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .addColumn('deletedAt', 'timestamptz')
+    .execute()
+
+  // Indexes for sensors
+  await db.schema
+    .createIndex('idx_sensors_farm_id')
+    .on('sensors')
+    .column('farmId')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_sensors_structure_id')
+    .on('sensors')
+    .column('structureId')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_sensors_api_key_hash')
+    .on('sensors')
+    .column('apiKeyHash')
+    .execute()
+
+  // Sensor readings table (time-series optimized)
+  await db.schema
+    .createTable('sensor_readings')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('sensorId', 'uuid', (col) =>
+      col.references('sensors.id').onDelete('cascade').notNull(),
+    )
+    .addColumn('value', sql`decimal(12,4)`, (col) => col.notNull())
+    .addColumn('recordedAt', 'timestamptz', (col) => col.notNull())
+    .addColumn('isAnomaly', 'boolean', (col) => col.notNull().defaultTo(false))
+    .addColumn('metadata', 'jsonb')
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .execute()
+
+  // Time-series indexes for readings
+  await db.schema
+    .createIndex('idx_sensor_readings_sensor_time')
+    .on('sensor_readings')
+    .columns(['sensorId', 'recordedAt'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_sensor_readings_recorded_at')
+    .on('sensor_readings')
+    .column('recordedAt')
+    .execute()
+
+  // Unique constraint for deduplication
+  await db.schema
+    .createIndex('idx_sensor_readings_unique')
+    .on('sensor_readings')
+    .columns(['sensorId', 'recordedAt'])
+    .unique()
+    .execute()
+
+  // Sensor aggregates table (for hourly/daily rollups)
+  await db.schema
+    .createTable('sensor_aggregates')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('sensorId', 'uuid', (col) =>
+      col.references('sensors.id').onDelete('cascade').notNull(),
+    )
+    .addColumn('periodType', 'varchar(10)', (col) => col.notNull())
+    .addColumn('periodStart', 'timestamptz', (col) => col.notNull())
+    .addColumn('avgValue', sql`decimal(12,4)`, (col) => col.notNull())
+    .addColumn('minValue', sql`decimal(12,4)`, (col) => col.notNull())
+    .addColumn('maxValue', sql`decimal(12,4)`, (col) => col.notNull())
+    .addColumn('readingCount', 'integer', (col) => col.notNull())
+    .execute()
+
+  // Indexes for aggregates
+  await db.schema
+    .createIndex('idx_sensor_aggregates_sensor_period')
+    .on('sensor_aggregates')
+    .columns(['sensorId', 'periodType', 'periodStart'])
+    .execute()
+
+  await db.schema
+    .createIndex('idx_sensor_aggregates_unique')
+    .on('sensor_aggregates')
+    .columns(['sensorId', 'periodType', 'periodStart'])
+    .unique()
+    .execute()
+
+  // Sensor alerts table
+  await db.schema
+    .createTable('sensor_alerts')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('sensorId', 'uuid', (col) =>
+      col.references('sensors.id').onDelete('cascade').notNull(),
+    )
+    .addColumn('alertType', 'varchar(50)', (col) => col.notNull())
+    .addColumn('severity', 'varchar(20)', (col) => col.notNull())
+    .addColumn('triggerValue', sql`decimal(12,4)`, (col) => col.notNull())
+    .addColumn('thresholdValue', sql`decimal(12,4)`, (col) => col.notNull())
+    .addColumn('message', 'text', (col) => col.notNull())
+    .addColumn('acknowledged', 'boolean', (col) =>
+      col.notNull().defaultTo(false),
+    )
+    .addColumn('acknowledgedAt', 'timestamptz')
+    .addColumn('acknowledgedBy', 'uuid', (col) =>
+      col.references('users.id').onDelete('set null'),
+    )
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .execute()
+
+  // Indexes for alerts
+  await db.schema
+    .createIndex('idx_sensor_alerts_sensor_id')
+    .on('sensor_alerts')
+    .column('sensorId')
+    .execute()
+
+  await db.schema
+    .createIndex('idx_sensor_alerts_created_at')
+    .on('sensor_alerts')
+    .column('createdAt')
+    .execute()
+
+  // Sensor alert config table
+  await db.schema
+    .createTable('sensor_alert_config')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('sensorId', 'uuid', (col) =>
+      col.references('sensors.id').onDelete('cascade').notNull().unique(),
+    )
+    .addColumn('minThreshold', sql`decimal(12,4)`)
+    .addColumn('maxThreshold', sql`decimal(12,4)`)
+    .addColumn('warningMinThreshold', sql`decimal(12,4)`)
+    .addColumn('warningMaxThreshold', sql`decimal(12,4)`)
+    .addColumn('rateThreshold', sql`decimal(12,4)`)
+    .addColumn('rateWindowMinutes', 'integer', (col) => col.defaultTo(60))
+    .addColumn('cooldownMinutes', 'integer', (col) => col.defaultTo(30))
+    .addColumn('smsEnabled', 'boolean', (col) => col.notNull().defaultTo(false))
+    .addColumn('emailEnabled', 'boolean', (col) =>
+      col.notNull().defaultTo(true),
+    )
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .addColumn('updatedAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .execute()
+
+  // ============================================
+  // 11. Credit Passport
   // ============================================
 
   // Credit Reports table
@@ -1538,6 +1878,20 @@ export async function down(db: Kysely<any>): Promise<void> {
     'report_access_logs',
     'report_requests',
     'credit_reports',
+    // IoT Sensor tables
+    'sensor_alert_config',
+    'sensor_alerts',
+    'sensor_aggregates',
+    'sensor_readings',
+    'sensors',
+    // Digital Foreman tables
+    'wage_payments',
+    'payroll_periods',
+    'task_photos',
+    'task_assignments',
+    'worker_check_ins',
+    'farm_geofences',
+    'worker_profiles',
     // Feed Formulation tables
     'formulation_usage',
     'saved_formulations',
