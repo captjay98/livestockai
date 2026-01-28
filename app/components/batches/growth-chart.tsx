@@ -57,12 +57,20 @@ export function GrowthChart({ batchId, acquisitionDate }: GrowthChartProps) {
   }
 
   // Convert data for Recharts
-  const formattedData = chartData.map((point) => ({
+  interface ChartPoint {
+    day: number
+    expected: string
+    actual: string | null
+    deviation: number | null
+  }
+  
+  const formattedData: Array<ChartPoint> = chartData.map((point) => ({
     day: point.day,
     expected: (point.expectedWeightG / 1000).toFixed(2),
-    actual: point.actualWeightG
-      ? (point.actualWeightG / 1000).toFixed(2)
-      : null,
+    actual:
+      point.actualWeightG != null
+        ? (point.actualWeightG / 1000).toFixed(2)
+        : null,
     deviation: point.deviationPercent,
   }))
 
@@ -95,46 +103,50 @@ export function GrowthChart({ batchId, acquisitionDate }: GrowthChartProps) {
             />
             <Tooltip
               content={({ active, payload }) => {
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 if (!active || !payload || payload.length === 0) return null
 
-                const data = payload[0].payload
+                const rawData = payload[0].payload
+                const day = rawData.day as number
+                const expected = rawData.expected as string
+                const actual = rawData.actual as string | null
+                const deviation = rawData.deviation as number | null
+                
                 const date = new Date(acquisitionDate)
-                date.setDate(date.getDate() + data.day)
+                date.setDate(date.getDate() + day)
 
                 return (
                   <div className="bg-background border rounded-lg p-3 shadow-lg">
                     <p className="font-medium text-sm mb-2">
-                      Day {data.day} ({format(date, 'MMM d, yyyy')})
+                      Day {day} ({format(date, 'MMM d, yyyy')})
                     </p>
                     <div className="space-y-1 text-xs">
                       <p className="text-muted-foreground">
                         Expected:{' '}
-                        <span className="font-medium">{data.expected} kg</span>
+                        <span className="font-medium">{expected} kg</span>
                       </p>
-                      {data.actual && (
+                      {actual != null && (
                         <>
                           <p className="text-primary">
                             Actual:{' '}
                             <span className="font-medium">
-                              {data.actual} kg
+                              {actual} kg
                             </span>
                           </p>
-                          {data.deviation !== null && (
-                            <p
-                              className={
-                                data.deviation > 0
-                                  ? 'text-success'
-                                  : data.deviation < 0
-                                    ? 'text-destructive'
-                                    : 'text-muted-foreground'
-                              }
-                            >
-                              Deviation:{' '}
-                              <span className="font-medium">
-                                {data.deviation.toFixed(1)}%
-                              </span>
-                            </p>
-                          )}
+                          <p
+                            className={
+                              (deviation ?? 0) > 0
+                                ? 'text-success'
+                                : (deviation ?? 0) < 0
+                                  ? 'text-destructive'
+                                  : 'text-muted-foreground'
+                            }
+                          >
+                            Deviation:{' '}
+                            <span className="font-medium">
+                              {deviation?.toFixed(1) ?? '0.0'}%
+                            </span>
+                          </p>
                         </>
                       )}
                     </div>

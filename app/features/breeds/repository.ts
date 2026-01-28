@@ -114,7 +114,7 @@ export async function getSpeciesForLivestockType(
   livestockType: string,
 ): Promise<Array<{ value: string; label: string }>> {
   // Map livestock type to module key
-  const moduleKeyMap: Record<string, ModuleKey> = {
+  const moduleKeyMap: Partial<Record<string, ModuleKey>> = {
     poultry: 'poultry',
     fish: 'aquaculture',
     cattle: 'cattle',
@@ -124,7 +124,9 @@ export async function getSpeciesForLivestockType(
   }
 
   const moduleKey = moduleKeyMap[livestockType]
-  if (!moduleKey) return []
+  if (!moduleKey) {
+    return []
+  }
 
   return getSpeciesForModule(db, moduleKey)
 }

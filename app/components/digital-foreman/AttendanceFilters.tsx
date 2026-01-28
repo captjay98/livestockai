@@ -32,10 +32,10 @@ export function AttendanceFilters({ filters, onFiltersChange, workers }: Attenda
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={cn('h-11 min-w-[180px] justify-start text-left font-normal', !filters.date && 'text-muted-foreground')}
+            className={cn('h-11 min-w-[180px] justify-start text-left font-normal')}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {filters.date ? format(filters.date, 'PPP') : 'Pick a date'}
+            {format(filters.date, 'PPP')}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">

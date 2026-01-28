@@ -51,11 +51,6 @@ export function CreateBatchStep() {
   // Fetch species when livestock type changes
   useEffect(() => {
     const fetchSpecies = async () => {
-      if (!formData.livestockType) {
-        setSpeciesOptions([])
-        return
-      }
-
       setIsLoadingSpecies(true)
       try {
         const result = await getSpeciesForLivestockTypeFn({

@@ -242,7 +242,6 @@ export async function calculateEnhancedProjection(
   if (growthStandards.length === 0) return null
 
   // Calculate current age
-  const { differenceInDays } = await import('date-fns')
   const currentAgeDays = differenceInDays(new Date(), batch.acquisitionDate)
 
   // Import service functions
@@ -347,7 +346,6 @@ export const getGrowthChartDataFn = createServerFn({ method: 'GET' })
 
     if (growthStandards.length === 0) return null
 
-    const { differenceInDays } = await import('date-fns')
     const currentAgeDays = differenceInDays(new Date(), batch.acquisitionDate)
 
     const { generateChartData } = await import('./forecasting-service')

@@ -117,26 +117,29 @@ export function calculateExpectedADG(
   if (growthStandards.length === 0) return 0
 
   // Find the two points surrounding current age
-  const before = growthStandards
+  const beforeArr = growthStandards
     .filter((s) => s.day <= ageDays)
-    .sort((a, b) => b.day - a.day)[0]
+    .sort((a, b) => b.day - a.day)
+  const before = beforeArr.length > 0 ? beforeArr[0] : undefined
 
-  const after = growthStandards
+  const afterArr = growthStandards
     .filter((s) => s.day > ageDays)
-    .sort((a, b) => a.day - b.day)[0]
+    .sort((a, b) => a.day - b.day)
+  const after = afterArr.length > 0 ? afterArr[0] : undefined
 
-  // If we have both points, calculate slope
+  // Case 1: We have both points - calculate slope between them
   if (before && after) {
     const weightDiff = after.expected_weight_g - before.expected_weight_g
     const daysDiff = after.day - before.day
     return weightDiff / daysDiff
   }
 
-  // If only before point, use slope from previous point
+  // Case 2: Only before point - use slope from previous point
   if (before) {
-    const beforeBefore = growthStandards
+    const beforeBeforeArr = growthStandards
       .filter((s) => s.day < before.day)
-      .sort((a, b) => b.day - a.day)[0]
+      .sort((a, b) => b.day - a.day)
+    const beforeBefore = beforeBeforeArr.length > 0 ? beforeBeforeArr[0] : undefined
 
     if (beforeBefore) {
       const weightDiff =
@@ -146,11 +149,12 @@ export function calculateExpectedADG(
     }
   }
 
-  // If only after point, use slope to next point
+  // Case 3: Only after point - use slope to next point
   if (after) {
-    const afterAfter = growthStandards
+    const afterAfterArr = growthStandards
       .filter((s) => s.day > after.day)
-      .sort((a, b) => a.day - b.day)[0]
+      .sort((a, b) => a.day - b.day)
+    const afterAfter = afterAfterArr.length > 0 ? afterAfterArr[0] : undefined
 
     if (afterAfter) {
       const weightDiff = afterAfter.expected_weight_g - after.expected_weight_g

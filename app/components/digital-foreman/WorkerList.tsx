@@ -95,7 +95,7 @@ export function WorkerList({ farmId, onAddWorker, onEditWorker }: WorkerListProp
                     <TableCell className="font-medium">{worker.userName || 'Unknown'}</TableCell>
                     <TableCell>{worker.phone || '-'}</TableCell>
                     <TableCell>
-                      <Badge variant={statusColors[worker.employmentStatus] || 'secondary'}>
+                      <Badge variant={statusColors[worker.employmentStatus]}>
                         {worker.employmentStatus}
                       </Badge>
                     </TableCell>

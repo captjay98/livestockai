@@ -42,7 +42,7 @@ afterAll(async () => {
     // Dynamic import to ensure env is loaded first
     // Note: In test environment (Node.js), we can use the static db export
     const { db } = await import('~/lib/db')
-    if (db && typeof db.destroy === 'function') {
+    if (typeof db.destroy === 'function') {
       await db.destroy()
     }
   }

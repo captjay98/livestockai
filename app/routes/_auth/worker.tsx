@@ -27,8 +27,8 @@ function WorkerPage() {
     <WorkerDashboard 
       farmId={farmId} 
       checkInId={checkInStatus?.id}
-      isCheckedIn={!!checkInStatus?.id && !checkInStatus?.checkOutTime}
-      hoursToday={checkInStatus?.hoursWorked ? Number(checkInStatus.hoursWorked) : 0}
+      isCheckedIn={checkInStatus != null && !!checkInStatus.id && !checkInStatus.checkOutTime}
+      hoursToday={checkInStatus ? Number(checkInStatus.hoursWorked) : 0}
     />
   )
 }

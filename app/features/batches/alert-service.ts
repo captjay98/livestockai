@@ -84,22 +84,20 @@ export function generateRecommendation(
   performanceIndex: number,
   severity: AlertSeverity,
 ): string {
-  if (severity === 'critical') {
-    const deviation = Math.abs(100 - performanceIndex).toFixed(1)
-    return `Batch is ${deviation}% behind expected growth. Immediate action required: Check for disease, increase protein feed, verify water quality, and consult veterinarian.`
+  const severityRecommendations: Record<AlertSeverity, (deviation: string) => string> = {
+    critical: (deviation) =>
+      `Batch is ${deviation}% behind expected growth. Immediate action required: Check for disease, increase protein feed, verify water quality, and consult veterinarian.`,
+    warning: (deviation) =>
+      `Batch is ${deviation}% behind expected growth. Recommended actions: Increase feed quality, check for signs of disease, verify environmental conditions.`,
+    info: (deviation) =>
+      `Batch is ${deviation}% ahead of expected growth. Consider early harvest opportunity to optimize market timing and reduce feed costs.`,
   }
 
-  if (severity === 'warning') {
-    const deviation = Math.abs(100 - performanceIndex).toFixed(1)
-    return `Batch is ${deviation}% behind expected growth. Recommended actions: Increase feed quality, check for signs of disease, verify environmental conditions.`
-  }
+  const deviation = severity === 'info'
+    ? (performanceIndex - 100).toFixed(1)
+    : Math.abs(100 - performanceIndex).toFixed(1)
 
-  if (severity === 'info') {
-    const deviation = (performanceIndex - 100).toFixed(1)
-    return `Batch is ${deviation}% ahead of expected growth. Consider early harvest opportunity to optimize market timing and reduce feed costs.`
-  }
-
-  return ''
+  return severityRecommendations[severity](deviation)
 }
 
 /**

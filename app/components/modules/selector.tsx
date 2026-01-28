@@ -16,8 +16,8 @@ export function ModuleSelector() {
   const [localEnabled, setLocalEnabled] = useState<Array<ModuleKey>>([])
   const [expandedModule, setExpandedModule] = useState<ModuleKey | null>(null)
   const [moduleSpecies, setModuleSpecies] = useState<
-    Record<ModuleKey, Array<{ value: string; label: string }>>
-  >({} as Record<ModuleKey, Array<{ value: string; label: string }>>)
+    Partial<Record<ModuleKey, Array<{ value: string; label: string }>>>
+  >({})
   const [isLoadingSpecies, setIsLoadingSpecies] = useState(false)
 
   // Unused state commented out for future use
@@ -36,7 +36,7 @@ export function ModuleSelector() {
   // Fetch species when a module is expanded
   useEffect(() => {
     const fetchSpecies = async () => {
-      if (!expandedModule || moduleSpecies[expandedModule]) return
+      if (!expandedModule || expandedModule in moduleSpecies) return
 
       setIsLoadingSpecies(true)
       try {
@@ -178,12 +178,12 @@ export function ModuleSelector() {
                   <div className="mt-3 pt-3 border-t space-y-2">
                     <p className="text-xs font-medium">Species:</p>
                     <div className="flex flex-wrap gap-1">
-                      {isLoadingSpecies && expandedModule === moduleKey ? (
+                      {isLoadingSpecies ? (
                         <span className="text-xs text-muted-foreground animate-pulse">
                           Loading...
                         </span>
-                      ) : moduleSpecies[moduleKey]?.length > 0 ? (
-                        moduleSpecies[moduleKey].map((species) => (
+                      ) : (moduleSpecies[moduleKey]?.length ?? 0) > 0 ? (
+                        moduleSpecies[moduleKey]!.map((species) => (
                           <span
                             key={species.value}
                             className="text-xs px-2 py-0.5 bg-muted rounded"

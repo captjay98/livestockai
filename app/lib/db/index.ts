@@ -31,7 +31,7 @@ let dbInstance: Kysely<Database> | undefined
  */
 async function getDatabaseUrl(): Promise<string | undefined> {
   // Try process.env first (works in Node.js, Bun, and when Vite injects it)
-  if (typeof process !== 'undefined' && process.env?.DATABASE_URL) {
+  if (typeof process !== 'undefined' && process.env.DATABASE_URL) {
     return process.env.DATABASE_URL
   }
 
@@ -96,7 +96,7 @@ export async function getDb(): Promise<Kysely<Database>> {
  * ```
  */
 export const db: Kysely<Database> = (() => {
-  if (typeof process !== 'undefined' && process.env?.DATABASE_URL) {
+  if (typeof process !== 'undefined' && process.env.DATABASE_URL) {
     return new Kysely<Database>({
       dialect: new NeonDialect({
         neon: neon(process.env.DATABASE_URL),

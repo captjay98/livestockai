@@ -85,7 +85,7 @@ export function PayrollHistory({ farmId, onSelectPeriod, selectedPeriodId }: Pay
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={statusColors[period.status as keyof typeof statusColors] || 'secondary'}>
+                  <Badge variant={statusColors[period.status] ?? 'secondary'}>
                     {period.status}
                   </Badge>
                 </TableCell>
