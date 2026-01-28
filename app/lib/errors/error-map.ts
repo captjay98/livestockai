@@ -50,6 +50,12 @@ export const ErrorMap = {
     category: 'FORBIDDEN',
     message: 'Sensor is deactivated',
   },
+  NOT_LISTING_OWNER: {
+    code: 40304,
+    httpStatus: 403,
+    category: 'FORBIDDEN',
+    message: 'Only the listing owner can perform this action',
+  },
 
   // Not Found (404xx)
   NOT_FOUND: {
@@ -246,6 +252,18 @@ export const ErrorMap = {
     category: 'NOT_FOUND',
     message: 'Sensor not found',
   },
+  LISTING_NOT_FOUND: {
+    code: 40432,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Listing not found',
+  },
+  CONTACT_REQUEST_NOT_FOUND: {
+    code: 40433,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Contact request not found',
+  },
 
   // Validation (400xx)
   VALIDATION_ERROR: {
@@ -304,6 +322,24 @@ export const ErrorMap = {
     category: 'VALIDATION',
     message: 'Reading timestamp too old to accept',
   },
+  LISTING_EXPIRED: {
+    code: 40009,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'Listing has expired',
+  },
+  INVALID_PRICE_RANGE: {
+    code: 40010,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'Minimum price cannot exceed maximum price',
+  },
+  CONTACT_OWN_LISTING: {
+    code: 40011,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'Cannot contact yourself about your own listing',
+  },
   ALREADY_EXISTS: {
     code: 40900,
     httpStatus: 409,
@@ -327,6 +363,18 @@ export const ErrorMap = {
     httpStatus: 409,
     category: 'VALIDATION',
     message: 'Payroll period overlaps with existing period',
+  },
+  DUPLICATE_CONTACT_REQUEST: {
+    code: 40904,
+    httpStatus: 409,
+    category: 'VALIDATION',
+    message: 'Contact request already submitted for this listing',
+  },
+  REQUEST_ALREADY_RESPONDED: {
+    code: 40905,
+    httpStatus: 409,
+    category: 'VALIDATION',
+    message: 'Contact request has already been responded to',
   },
   RATE_LIMIT_EXCEEDED: {
     code: 42900,

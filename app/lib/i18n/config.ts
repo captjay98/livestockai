@@ -72,6 +72,7 @@ i18n.use(initReactI18next).init({
     'validation',
     'errors',
     'onboarding',
+    'marketplace',
   ],
   defaultNS: 'common',
   interpolation: {
