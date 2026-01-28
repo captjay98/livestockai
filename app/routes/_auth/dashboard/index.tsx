@@ -23,6 +23,7 @@ import { RecentTransactionsCard } from '~/components/dashboard/recent-transactio
 import { DashboardTopCustomers } from '~/components/dashboard/dashboard-top-customers'
 import { ActivityTimelineCard } from '~/components/dashboard/activity-timeline-card'
 import { DashboardSkeleton } from '~/components/dashboard/dashboard-skeleton'
+import { SensorStatusCard } from '~/components/sensors/sensor-status-card'
 
 export const Route = createFileRoute('/_auth/dashboard/')({
   component: DashboardPage,
@@ -45,7 +46,7 @@ function DashboardPage() {
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
   const { enabledModules } = useModules()
   const { cards } = useDashboardPreferences()
-  const { stats, hasFarms, farms } = Route.useLoaderData()
+  const { stats, hasFarms, farms, sensorSummary } = Route.useLoaderData()
   const { data: session } = useSession()
 
   // Dialog states
@@ -112,11 +113,21 @@ function DashboardPage() {
             formatCurrency={formatCurrency}
           />
 
-          {session?.user?.id && (
+          {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */}
+          {session?.user?.id ? (
             <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
               <BatchesAttention />
               <UpcomingHarvests />
             </div>
+          ) : null}
+
+          {sensorSummary && sensorSummary.totalSensors > 0 && (
+            <SensorStatusCard
+              totalSensors={sensorSummary.totalSensors}
+              activeSensors={sensorSummary.activeSensors}
+              inactiveSensors={sensorSummary.inactiveSensors}
+              alertCount={sensorSummary.alertCount}
+            />
           )}
 
           {!cards.revenue &&

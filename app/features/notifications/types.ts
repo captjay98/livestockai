@@ -7,6 +7,7 @@ export type NotificationType =
   | 'earlyHarvest'
   | 'reportRequest'
   | 'reportExpiring'
+  | 'sensorAlert'
 
 export interface Notification {
   id: string

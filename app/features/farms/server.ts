@@ -691,8 +691,12 @@ export const getFarmDetailsFn = createServerFn({ method: 'GET' })
     const { getExpensesForFarm } = await import('~/features/expenses/server')
     const { getStructuresWithCounts } =
       await import('~/features/structures/server')
+    const { getSensorSummaryByFarm } = await import('~/features/sensors/repository')
+    const { getSensorStatus } = await import('~/features/sensors/service')
+    const { getDb } = await import('~/lib/db')
 
     const session = await requireAuth()
+    const db = await getDb()
 
     const [
       farm,
@@ -701,6 +705,7 @@ export const getFarmDetailsFn = createServerFn({ method: 'GET' })
       recentSales,
       recentExpenses,
       structures,
+      sensorData,
     ] = await Promise.all([
       getFarmById(data.farmId, session.user.id),
       getFarmStats(data.farmId, session.user.id),
@@ -708,7 +713,13 @@ export const getFarmDetailsFn = createServerFn({ method: 'GET' })
       getSalesForFarm(session.user.id, data.farmId),
       getExpensesForFarm(session.user.id, data.farmId),
       getStructuresWithCounts(session.user.id, data.farmId),
+      getSensorSummaryByFarm(db, data.farmId),
     ])
+
+    const sensorsWithStatus = sensorData.sensors.map(s => ({
+      ...s,
+      status: getSensorStatus(s.lastReadingAt, s.pollingIntervalMinutes),
+    }))
 
     return {
       farm,
@@ -717,5 +728,11 @@ export const getFarmDetailsFn = createServerFn({ method: 'GET' })
       recentSales,
       recentExpenses,
       structures,
+      sensorSummary: {
+        totalSensors: sensorData.sensors.length,
+        activeSensors: sensorsWithStatus.filter(s => s.status === 'online').length,
+        inactiveSensors: sensorsWithStatus.filter(s => s.status === 'offline').length,
+        alertCount: sensorData.alertCount,
+      },
     }
   })

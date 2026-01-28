@@ -20,6 +20,7 @@ import { FarmQuickActions } from '~/components/farms/farm-quick-actions'
 import { FarmInfoCard } from '~/components/farms/farm-info-card'
 import { FarmStatsSidebar } from '~/components/farms/farm-stats-sidebar'
 import { FarmDetailSkeleton } from '~/components/farms/farm-detail-skeleton'
+import { SensorStatusCard } from '~/components/sensors/sensor-status-card'
 
 export const Route = createFileRoute('/_auth/farms/$farmId/')({
   component: FarmDetailsPage,
@@ -47,6 +48,7 @@ function FarmDetailsPage() {
     recentSales,
     recentExpenses,
     structures,
+    sensorSummary,
   } = loaderData
 
   if (!farm) {
@@ -93,6 +95,8 @@ function FarmDetailsPage() {
           />
 
           <StructuresCard farmId={farmId} initialStructures={structures} />
+
+          <SensorStatusCard {...sensorSummary} />
 
           <FarmRecentActivityCard
             recentSales={recentSales as unknown as Array<RecentSale>}

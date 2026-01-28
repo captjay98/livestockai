@@ -428,7 +428,38 @@ export const getDashboardDataFn = createServerFn({ method: 'GET' })
               .execute()
           : []
 
-      return { stats, hasFarms: farms.length > 0, farms }
+      // Get sensor summary across all farms
+      let sensorSummary = { totalSensors: 0, activeSensors: 0, inactiveSensors: 0, alertCount: 0 }
+      if (farmIds.length > 0) {
+        const { getSensorStatus } = await import('~/features/sensors/service')
+        const sensors = await db
+          .selectFrom('sensors')
+          .select(['id', 'lastReadingAt', 'pollingIntervalMinutes'])
+          .where('farmId', 'in', farmIds)
+          .where('deletedAt', 'is', null)
+          .execute()
+        
+        const alertResult = await db
+          .selectFrom('sensor_alerts')
+          .innerJoin('sensors', 'sensors.id', 'sensor_alerts.sensorId')
+          .select(db.fn.count('sensor_alerts.id').as('count'))
+          .where('sensors.farmId', 'in', farmIds)
+          .where('sensor_alerts.acknowledgedAt', 'is', null)
+          .executeTakeFirst()
+
+        const sensorsWithStatus = sensors.map(s => ({
+          status: getSensorStatus(s.lastReadingAt, s.pollingIntervalMinutes),
+        }))
+
+        sensorSummary = {
+          totalSensors: sensors.length,
+          activeSensors: sensorsWithStatus.filter(s => s.status === 'online').length,
+          inactiveSensors: sensorsWithStatus.filter(s => s.status === 'offline').length,
+          alertCount: Number(alertResult?.count ?? 0),
+        }
+      }
+
+      return { stats, hasFarms: farms.length > 0, farms, sensorSummary }
     } catch (error) {
       if (error instanceof Error && error.message === 'UNAUTHORIZED') {
         throw redirect({ to: '/login' })

@@ -18,6 +18,12 @@ export const ErrorMap = {
     category: 'AUTH',
     message: 'Invalid credentials',
   },
+  INVALID_API_KEY: {
+    code: 40103,
+    httpStatus: 401,
+    category: 'AUTH',
+    message: 'Invalid sensor API key',
+  },
 
   // Forbidden (403xx)
   ACCESS_DENIED: {
@@ -37,6 +43,12 @@ export const ErrorMap = {
     httpStatus: 403,
     category: 'FORBIDDEN',
     message: 'Not assigned to this task',
+  },
+  SENSOR_INACTIVE: {
+    code: 40303,
+    httpStatus: 403,
+    category: 'FORBIDDEN',
+    message: 'Sensor is deactivated',
   },
 
   // Not Found (404xx)
@@ -196,6 +208,7 @@ export const ErrorMap = {
     category: 'NOT_FOUND',
     message: 'Report request not found',
   },
+  // Digital Foreman NOT_FOUND errors
   WORKER_PROFILE_NOT_FOUND: {
     code: 40426,
     httpStatus: 404,
@@ -225,6 +238,13 @@ export const ErrorMap = {
     httpStatus: 404,
     category: 'NOT_FOUND',
     message: 'Check-in record not found',
+  },
+  // IoT Sensor NOT_FOUND errors
+  SENSOR_NOT_FOUND: {
+    code: 40431,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Sensor not found',
   },
 
   // Validation (400xx)
@@ -258,6 +278,7 @@ export const ErrorMap = {
     category: 'VALIDATION',
     message: 'No ingredients with prices available',
   },
+  // Digital Foreman validation errors
   NO_OPEN_CHECK_IN: {
     code: 40005,
     httpStatus: 400,
@@ -275,6 +296,13 @@ export const ErrorMap = {
     httpStatus: 400,
     category: 'VALIDATION',
     message: 'Photo is required for this action',
+  },
+  // IoT Sensor validation errors
+  READING_TOO_OLD: {
+    code: 40008,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'Reading timestamp too old to accept',
   },
   ALREADY_EXISTS: {
     code: 40900,

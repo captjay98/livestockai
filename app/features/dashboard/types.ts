@@ -77,6 +77,12 @@ export interface DashboardData {
   stats: DashboardStats
   hasFarms: boolean
   farms: Array<DashboardFarm>
+  sensorSummary?: {
+    totalSensors: number
+    activeSensors: number
+    inactiveSensors: number
+    alertCount: number
+  }
 }
 
 /**
