@@ -110,6 +110,9 @@ describe('Notification Property Tests', () => {
         'highMortality',
         'invoiceDue',
         'batchHarvest',
+        'reportRequest',
+        'reportExpiring',
+        'sensorAlert',
       ]
 
       fc.assert(

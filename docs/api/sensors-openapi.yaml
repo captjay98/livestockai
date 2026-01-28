@@ -1,0 +1,566 @@
+openapi: 3.0.3
+info:
+  title: OpenLivestock IoT Sensor Hub API
+  description: |
+    REST API for IoT sensor data ingestion and retrieval.
+    
+    ## Authentication
+    Sensors authenticate using API keys passed in the `X-Sensor-API-Key` header.
+    API keys are generated when registering a sensor and should be stored securely.
+    
+    ## Rate Limiting
+    - Ingestion endpoint: 60 requests/minute per sensor
+    - Query endpoints: 100 requests/minute per user
+    
+    ## Data Retention
+    - Raw readings: 7 days (configurable)
+    - Hourly aggregates: 30 days
+    - Daily aggregates: 1 year
+  version: 1.0.0
+  contact:
+    name: OpenLivestock Support
+    url: https://github.com/openlivestock/manager
+
+servers:
+  - url: https://your-domain.workers.dev
+    description: Production server
+
+tags:
+  - name: Sensors
+    description: Sensor management operations
+  - name: Readings
+    description: Sensor data ingestion and retrieval
+  - name: Alerts
+    description: Alert configuration and history
+
+paths:
+  /api/sensors:
+    get:
+      tags: [Sensors]
+      summary: List sensors for a farm
+      description: Returns all sensors registered to the specified farm
+      parameters:
+        - name: farmId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of sensors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sensor'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    
+    post:
+      tags: [Sensors]
+      summary: Register a new sensor
+      description: Creates a new sensor and returns the API key (shown only once)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSensorRequest'
+      responses:
+        '201':
+          description: Sensor created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSensorResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/sensors/{sensorId}:
+    get:
+      tags: [Sensors]
+      summary: Get sensor details
+      parameters:
+        - $ref: '#/components/parameters/SensorId'
+      responses:
+        '200':
+          description: Sensor details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorWithReadings'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    patch:
+      tags: [Sensors]
+      summary: Update sensor configuration
+      parameters:
+        - $ref: '#/components/parameters/SensorId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSensorRequest'
+      responses:
+        '200':
+          description: Sensor updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sensor'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    delete:
+      tags: [Sensors]
+      summary: Delete a sensor (soft delete)
+      parameters:
+        - $ref: '#/components/parameters/SensorId'
+      responses:
+        '204':
+          description: Sensor deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/sensors/ingest:
+    post:
+      tags: [Readings]
+      summary: Ingest sensor reading
+      description: |
+        Submit a sensor reading. Authenticates via API key in header.
+        
+        **Rate limit**: 60 requests/minute per sensor
+      security:
+        - SensorApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestReadingRequest'
+      responses:
+        '201':
+          description: Reading ingested successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestReadingResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Sensor is deactivated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/sensors/{sensorId}/readings:
+    get:
+      tags: [Readings]
+      summary: Get sensor readings
+      description: Retrieve historical readings for a sensor
+      parameters:
+        - $ref: '#/components/parameters/SensorId'
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+            maximum: 1000
+      responses:
+        '200':
+          description: List of readings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reading'
+
+  /api/sensors/{sensorId}/aggregates:
+    get:
+      tags: [Readings]
+      summary: Get aggregated sensor data
+      description: Retrieve hourly or daily aggregated data for efficient historical queries
+      parameters:
+        - $ref: '#/components/parameters/SensorId'
+        - name: periodType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [hourly, daily]
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Aggregated data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Aggregate'
+
+  /api/sensors/{sensorId}/alerts:
+    get:
+      tags: [Alerts]
+      summary: Get sensor alert history
+      parameters:
+        - $ref: '#/components/parameters/SensorId'
+        - name: acknowledged
+          in: query
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+
+  /api/sensors/{sensorId}/alerts/{alertId}/acknowledge:
+    post:
+      tags: [Alerts]
+      summary: Acknowledge an alert
+      parameters:
+        - $ref: '#/components/parameters/SensorId'
+        - name: alertId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Alert acknowledged
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    SensorApiKey:
+      type: apiKey
+      in: header
+      name: X-Sensor-API-Key
+      description: Sensor-specific API key for data ingestion
+
+  parameters:
+    SensorId:
+      name: sensorId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        category:
+          type: string
+      required: [code, message]
+
+    SensorType:
+      type: string
+      enum:
+        - temperature
+        - humidity
+        - ammonia
+        - dissolved_oxygen
+        - ph
+        - water_level
+        - water_temperature
+        - hive_weight
+        - hive_temperature
+        - hive_humidity
+
+    Sensor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        farmId:
+          type: string
+          format: uuid
+        structureId:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+        sensorType:
+          $ref: '#/components/schemas/SensorType'
+        pollingIntervalMinutes:
+          type: integer
+        isActive:
+          type: boolean
+        lastReadingAt:
+          type: string
+          format: date-time
+          nullable: true
+        thresholds:
+          $ref: '#/components/schemas/Thresholds'
+        createdAt:
+          type: string
+          format: date-time
+
+    SensorWithReadings:
+      allOf:
+        - $ref: '#/components/schemas/Sensor'
+        - type: object
+          properties:
+            latestReading:
+              $ref: '#/components/schemas/Reading'
+            recentReadings:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reading'
+
+    Thresholds:
+      type: object
+      properties:
+        minValue:
+          type: number
+          nullable: true
+        maxValue:
+          type: number
+          nullable: true
+        warningMinValue:
+          type: number
+          nullable: true
+        warningMaxValue:
+          type: number
+          nullable: true
+
+    CreateSensorRequest:
+      type: object
+      properties:
+        farmId:
+          type: string
+          format: uuid
+        structureId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        sensorType:
+          $ref: '#/components/schemas/SensorType'
+        pollingIntervalMinutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+          default: 5
+        thresholds:
+          $ref: '#/components/schemas/Thresholds'
+      required: [farmId, name, sensorType]
+
+    CreateSensorResponse:
+      type: object
+      properties:
+        sensor:
+          $ref: '#/components/schemas/Sensor'
+        apiKey:
+          type: string
+          description: API key for sensor authentication (shown only once)
+      required: [sensor, apiKey]
+
+    UpdateSensorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        structureId:
+          type: string
+          format: uuid
+          nullable: true
+        pollingIntervalMinutes:
+          type: integer
+        isActive:
+          type: boolean
+        thresholds:
+          $ref: '#/components/schemas/Thresholds'
+
+    IngestReadingRequest:
+      type: object
+      properties:
+        value:
+          type: number
+          description: Sensor reading value
+        recordedAt:
+          type: string
+          format: date-time
+          description: When the reading was taken (defaults to now)
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Optional metadata (battery level, signal strength, etc.)
+      required: [value]
+
+    IngestReadingResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sensorId:
+          type: string
+          format: uuid
+        value:
+          type: number
+        recordedAt:
+          type: string
+          format: date-time
+        alert:
+          $ref: '#/components/schemas/Alert'
+          nullable: true
+          description: Alert triggered by this reading (if any)
+
+    Reading:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sensorId:
+          type: string
+          format: uuid
+        value:
+          type: number
+        recordedAt:
+          type: string
+          format: date-time
+        isAnomaly:
+          type: boolean
+        metadata:
+          type: object
+          additionalProperties: true
+
+    Aggregate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sensorId:
+          type: string
+          format: uuid
+        periodType:
+          type: string
+          enum: [hourly, daily]
+        periodStart:
+          type: string
+          format: date-time
+        avgValue:
+          type: number
+        minValue:
+          type: number
+        maxValue:
+          type: number
+        readingCount:
+          type: integer
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sensorId:
+          type: string
+          format: uuid
+        alertType:
+          type: string
+          enum: [threshold_high, threshold_low, trend_rising, trend_falling]
+        severity:
+          type: string
+          enum: [warning, critical]
+        triggerValue:
+          type: number
+        thresholdValue:
+          type: number
+        message:
+          type: string
+        acknowledged:
+          type: boolean
+        acknowledgedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
