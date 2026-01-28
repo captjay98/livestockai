@@ -3,6 +3,8 @@ import {
   BarChart3,
   Building2,
   CheckSquare,
+  Clock,
+  DollarSign,
   Droplets,
   FileCheck,
   FileText,
@@ -17,6 +19,7 @@ import {
   TrendingDown,
   Truck,
   UserCircle,
+  Users,
   Warehouse,
   Wheat,
   X,
@@ -55,6 +58,26 @@ export const getNavigationSections = (t: any) => [
         href: '/mortality',
         icon: TrendingDown,
       }, // Using mortality for alerts
+    ],
+  },
+  {
+    title: t('common:digitalForeman', { defaultValue: 'Digital Foreman' }),
+    items: [
+      {
+        name: t('common:workers', { defaultValue: 'Workers' }),
+        href: '/workers',
+        icon: Users,
+      },
+      {
+        name: t('common:attendance', { defaultValue: 'Attendance' }),
+        href: '/attendance',
+        icon: Clock,
+      },
+      {
+        name: t('common:payroll', { defaultValue: 'Payroll' }),
+        href: '/payroll',
+        icon: DollarSign,
+      },
     ],
   },
   {

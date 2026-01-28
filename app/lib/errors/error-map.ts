@@ -32,6 +32,12 @@ export const ErrorMap = {
     category: 'FORBIDDEN',
     message: 'User is banned',
   },
+  NOT_TASK_ASSIGNEE: {
+    code: 40302,
+    httpStatus: 403,
+    category: 'FORBIDDEN',
+    message: 'Not assigned to this task',
+  },
 
   // Not Found (404xx)
   NOT_FOUND: {
@@ -190,6 +196,36 @@ export const ErrorMap = {
     category: 'NOT_FOUND',
     message: 'Report request not found',
   },
+  WORKER_PROFILE_NOT_FOUND: {
+    code: 40426,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Worker profile not found',
+  },
+  GEOFENCE_NOT_FOUND: {
+    code: 40427,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Geofence not found',
+  },
+  TASK_ASSIGNMENT_NOT_FOUND: {
+    code: 40428,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Task assignment not found',
+  },
+  PAYROLL_PERIOD_NOT_FOUND: {
+    code: 40429,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Payroll period not found',
+  },
+  CHECK_IN_NOT_FOUND: {
+    code: 40430,
+    httpStatus: 404,
+    category: 'NOT_FOUND',
+    message: 'Check-in record not found',
+  },
 
   // Validation (400xx)
   VALIDATION_ERROR: {
@@ -222,6 +258,24 @@ export const ErrorMap = {
     category: 'VALIDATION',
     message: 'No ingredients with prices available',
   },
+  NO_OPEN_CHECK_IN: {
+    code: 40005,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'No open check-in found',
+  },
+  OUTSIDE_GEOFENCE: {
+    code: 40006,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'Location is outside geofence',
+  },
+  PHOTO_REQUIRED: {
+    code: 40007,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'Photo is required for this action',
+  },
   ALREADY_EXISTS: {
     code: 40900,
     httpStatus: 409,
@@ -233,6 +287,18 @@ export const ErrorMap = {
     httpStatus: 409,
     category: 'VALIDATION',
     message: 'A breed with this name already exists for this species',
+  },
+  DUPLICATE_CHECK_IN: {
+    code: 40902,
+    httpStatus: 409,
+    category: 'VALIDATION',
+    message: 'Check-in already exists for this time period',
+  },
+  OVERLAPPING_PAYROLL_PERIOD: {
+    code: 40903,
+    httpStatus: 409,
+    category: 'VALIDATION',
+    message: 'Payroll period overlaps with existing period',
   },
   RATE_LIMIT_EXCEEDED: {
     code: 42900,

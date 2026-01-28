@@ -127,6 +127,9 @@ export const DEFAULT_MODULES_BY_FARM_TYPE: Record<string, Array<ModuleKey>> = {
 export const CORE_NAVIGATION = [
   'Dashboard',
   'Reports',
+  'Workers',
+  'Attendance',
+  'Payroll',
   'Sales',
   'Expenses',
   'Invoices',

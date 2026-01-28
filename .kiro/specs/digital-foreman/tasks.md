@@ -1,0 +1,629 @@
+# Implementation Plan: Digital Foreman
+
+## Overview
+
+This implementation plan breaks down the Digital Foreman feature into incremental coding tasks. The feature enables workforce management for farm workers with GPS-verified attendance, granular permissions, task assignments with photo proof, and payroll tracking. Implementation follows the three-layer architecture (Server → Service → Repository) and prioritizes testable business logic in the service layer.
+
+## Tasks
+
+- [ ] 1. Database schema and types
+  - [ ] 1.1 Create database migration for worker_profiles table
+    - Add all columns: id, user_id, farm_id, phone, emergency contacts, employment status, wage config, permissions
+    - Add indexes for user_id, farm_id, employment_status
+    - Add unique constraint on (user_id, farm_id)
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
+  - [ ] 1.2 Create database migration for worker_check_ins table
+    - Add all columns: id, worker_id, farm_id, check-in/out data, verification status, sync status
+    - Add indexes for worker_id, farm_id, check_in_time
+    - Add partial index for open check-ins
+    - _Requirements: 5.6, 6.5_
+  - [ ] 1.3 Create database migration for farm_geofences table
+    - Add all columns: id, farm_id, geofence_type, circle/polygon data, tolerance
+    - Add unique constraint on farm_id
+    - _Requirements: 4.1, 4.2, 4.3_
+  - [ ] 1.4 Create database migration for task_assignments table
+    - Add all columns: id, task_id, worker_id, assigned_by, farm_id, due_date, priority, status, requirements, completion/approval data
+    - Add indexes for worker_id, farm_id, status, due_date
+    - Add partial index for pending_approval status
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 9.1, 11.1_
+  - [ ] 1.5 Create database migration for task_photos table
+    - Add all columns: id, assignment_id, photo_url, capture metadata
+    - Add index for assignment_id
+    - _Requirements: 10.2, 10.3_
+  - [ ] 1.6 Create database migration for payroll_periods table
+    - Add all columns: id, farm_id, period_type, dates, status
+    - Add exclusion constraint for non-overlapping periods
+    - _Requirements: 12.1, 12.2, 12.3_
+  - [ ] 1.7 Create database migration for wage_payments table
+    - Add all columns: id, worker_id, payroll_period_id, farm_id, amount, payment details
+    - Add indexes for worker_id, period_id, farm_id
+    - _Requirements: 13.1, 13.2, 13.3_
+  - [ ] 1.8 Update FarmRole type to include 'worker'
+    - Modify app/lib/db/types.ts to add 'worker' to FarmRole union
+    - _Requirements: 1.1_
+  - [ ] 1.9 Add TypeScript interfaces for all new tables
+    - Add WorkerProfileTable, WorkerCheckInTable, FarmGeofenceTable, TaskAssignmentTable, TaskPhotoTable, PayrollPeriodTable, WagePaymentTable
+    - Add to Database interface
+    - _Requirements: All_
+
+- [ ] 2. Checkpoint - Database Schema Complete
+  - Run migrations and verify tables are created
+  - Ask the user if questions arise
+
+- [ ] 3. Geofence Service - Service Layer
+  - [ ] 3.1 Create geofence-service.ts with Haversine distance calculation
+    - Implement calculateHaversineDistance function
+    - Use Earth radius of 6371km for calculations
+    - Return distance in meters
+    - _Requirements: 5.2_
+  - [ ]\* 3.2 Write property tests for Haversine distance
+    - **Property 3: Haversine Distance Calculation**
+    - Test symmetry, non-negativity, zero for identical points
+    - **Validates: Requirements 5.2**
+  - [ ] 3.3 Implement point-in-circle verification
+    - Implement verifyPointInCircle function
+    - Compare distance to radius + tolerance
+    - Return verification result with status and distance
+    - _Requirements: 5.2, 5.3, 5.4_
+  - [ ]\* 3.4 Write property tests for point-in-circle
+    - **Property 1: Geofence Point-in-Circle Verification**
+    - Test boundary cases, tolerance handling
+    - **Validates: Requirements 5.2, 5.3, 5.4**
+  - [ ] 3.5 Implement point-in-polygon verification
+    - Implement isPointInPolygon using ray-casting algorithm
+    - Implement calculateDistanceToPolygon for tolerance check
+    - Return verification result with status
+    - _Requirements: 4.2, 5.2, 5.3, 5.4_
+  - [ ]\* 3.6 Write property tests for point-in-polygon
+    - **Property 2: Geofence Point-in-Polygon Verification**
+    - Test convex and concave polygons, edge cases
+    - **Validates: Requirements 4.2, 5.2, 5.3, 5.4**
+  - [ ] 3.7 Implement coordinate validation
+    - Implement validateCoordinates function
+    - Validate latitude [-90, 90] and longitude [-180, 180]
+    - _Requirements: 4.4_
+  - [ ]\* 3.8 Write property tests for coordinate validation
+    - **Property 20: Coordinate Validation**
+    - Test boundary values, invalid ranges
+    - **Validates: Requirements 4.4**
+  - [ ] 3.9 Implement unified verifyLocationInGeofence function
+    - Dispatch to circle or polygon verification based on geofence type
+    - Handle missing geofence gracefully
+    - _Requirements: 5.2, 5.3, 5.4_
+
+- [ ] 4. Attendance Service - Service Layer
+  - [ ] 4.1 Create attendance-service.ts with hours calculation
+    - Implement calculateHoursWorked function
+    - Return hours as decimal rounded to 2 places
+    - Handle invalid inputs (checkout before checkin)
+    - _Requirements: 6.3_
+  - [ ]\* 4.2 Write property tests for hours calculation
+    - **Property 4: Hours Worked Calculation**
+    - Test various time differences, edge cases
+    - **Validates: Requirements 6.3**
+  - [ ] 4.3 Implement duplicate check-in detection
+    - Implement isDuplicateCheckIn function
+    - Check for check-ins within 5 minutes
+    - _Requirements: 5.7_
+  - [ ]\* 4.4 Write property tests for duplicate detection
+    - **Property 6: Duplicate Check-In Prevention**
+    - Test boundary at exactly 5 minutes
+    - **Validates: Requirements 5.7**
+  - [ ] 4.5 Implement attendance summary calculation
+    - Implement calculateAttendanceSummary function
+    - Calculate totalHours, totalDays, flaggedCheckIns
+    - _Requirements: 12.4, 15.5_
+  - [ ]\* 4.6 Write property tests for attendance summary
+    - **Property 21: Attendance Summary Aggregation**
+    - Test aggregation correctness
+    - **Validates: Requirements 12.4, 15.5**
+  - [ ] 4.7 Implement auto-checkout detection
+    - Implement shouldAutoCheckOut function
+    - Check if check-in spans midnight
+    - _Requirements: 6.6_
+
+- [ ] 5. Checkpoint - Geofence and Attendance Services Complete
+  - Ensure all service layer tests pass
+  - Ask the user if questions arise
+
+- [ ] 6. Task Assignment Service - Service Layer
+  - [ ] 6.1 Create task-service.ts with completion validation
+    - Implement validateTaskCompletion function
+    - Check assignee, photo requirement, current status
+    - _Requirements: 9.3, 9.4_
+  - [ ]\* 6.2 Write property tests for completion validation
+    - **Property 13: Task Photo Requirement Enforcement**
+    - **Property 14: Task Assignee Authorization**
+    - **Validates: Requirements 9.3, 9.4**
+  - [ ] 6.3 Implement completion status determination
+    - Implement determineCompletionStatus function
+    - Return 'completed' or 'pending_approval' based on requires_approval
+    - _Requirements: 9.1, 11.2_
+  - [ ]\* 6.4 Write property tests for status determination
+    - **Property 12: Task Completion Status Transition**
+    - **Validates: Requirements 9.1, 11.2**
+  - [ ] 6.5 Implement overdue detection
+    - Implement isTaskOverdue function
+    - Compare due_date to current time, check status
+    - _Requirements: 16.2_
+  - [ ]\* 6.6 Write property tests for overdue detection
+    - **Property 16: Task Overdue Detection**
+    - Test boundary at exact due time
+    - **Validates: Requirements 16.2**
+  - [ ] 6.7 Implement task metrics calculation
+    - Implement calculateTaskMetrics function
+    - Calculate total, completed, pending, overdue, completionRate
+    - _Requirements: 16.3, 18.1_
+  - [ ]\* 6.8 Write property tests for task metrics
+    - **Property 17: Task Completion Rate Calculation**
+    - Test with various status distributions
+    - **Validates: Requirements 16.3, 18.1**
+  - [ ] 6.9 Implement photo count validation
+    - Implement validatePhotoCount function
+    - Enforce maximum 3 photos per assignment
+    - _Requirements: 10.6_
+  - [ ]\* 6.10 Write property tests for photo count
+    - **Property 23: Photo Count Limit**
+    - **Validates: Requirements 10.6**
+
+- [ ] 7. Payroll Service - Service Layer
+  - [ ] 7.1 Create payroll-service.ts with hourly wage calculation
+    - Implement calculateHourlyWages function
+    - Calculate rate × hours
+    - _Requirements: 12.5_
+  - [ ] 7.2 Implement daily wage calculation
+    - Implement calculateDailyWages function
+    - Calculate rate × days
+    - _Requirements: 12.5_
+  - [ ] 7.3 Implement monthly wage calculation
+    - Implement calculateMonthlyWages function
+    - Handle full and partial months
+    - _Requirements: 12.5_
+  - [ ]\* 7.4 Write property tests for wage calculations
+    - **Property 7: Gross Wage Calculation - Hourly Rate**
+    - **Property 8: Gross Wage Calculation - Daily Rate**
+    - **Property 9: Gross Wage Calculation - Monthly Rate**
+    - **Validates: Requirements 12.5**
+  - [ ] 7.5 Implement outstanding balance calculation
+    - Implement calculateOutstandingBalance function
+    - Calculate gross - payments
+    - _Requirements: 13.4, 13.5_
+  - [ ]\* 7.6 Write property tests for balance calculation
+    - **Property 10: Outstanding Balance Calculation**
+    - Test partial payments, full payments
+    - **Validates: Requirements 13.4, 13.5**
+  - [ ] 7.7 Implement payroll period validation
+    - Implement validatePayrollPeriod function
+    - Check for overlapping periods
+    - _Requirements: 12.3_
+  - [ ]\* 7.8 Write property tests for period validation
+    - **Property 11: Payroll Period Non-Overlap**
+    - Test adjacent, overlapping, contained periods
+    - **Validates: Requirements 12.3**
+  - [ ] 7.9 Implement payroll summary generation
+    - Implement generatePayrollSummary function
+    - Aggregate hours, wages, payments, balances per worker
+    - _Requirements: 12.6, 17.2_
+  - [ ]\* 7.10 Write property tests for payroll summary
+    - **Property 22: Payroll Summary Completeness**
+    - Test with multiple workers, various scenarios
+    - **Validates: Requirements 12.6, 17.2**
+  - [ ] 7.11 Implement days worked calculation
+    - Implement calculateDaysWorked function
+    - Count distinct dates with check-ins
+    - _Requirements: 12.4_
+
+- [ ] 8. Permission Service - Service Layer
+  - [ ] 8.1 Create permission-service.ts with permission check
+    - Implement hasPermission function
+    - Check if permission is in worker's permissions array
+    - _Requirements: 3.3, 3.4_
+  - [ ]\* 8.2 Write property tests for permission check
+    - **Property 19: Worker Permission Check**
+    - Test various permission combinations
+    - **Validates: Requirements 3.3, 3.4**
+  - [ ] 8.3 Implement permission templates
+    - Define PERMISSION_TEMPLATES constant
+    - Implement getPermissionsFromTemplate function
+    - _Requirements: 3.6_
+  - [ ] 8.4 Implement permission validation
+    - Implement validatePermissions function
+    - Check all permissions are valid enum values
+    - _Requirements: 3.2_
+
+- [ ] 9. Checkpoint - All Services Complete
+  - Ensure all service layer tests pass
+  - Ask the user if questions arise
+
+- [ ] 10. Repository Layer
+  - [ ] 10.1 Create repository.ts with worker profile operations
+    - Implement insertWorkerProfile, getWorkerProfileById, getWorkerProfileByUserId
+    - Implement getWorkersByFarm, updateWorkerProfile
+    - _Requirements: 1.4, 2.1-2.7_
+  - [ ] 10.2 Implement check-in operations
+    - Implement insertCheckIn, getCheckInById, getOpenCheckIn
+    - Implement updateCheckOut, getCheckInsByWorker, getCheckInsByFarm
+    - _Requirements: 5.1-5.7, 6.1-6.6_
+  - [ ] 10.3 Implement geofence operations
+    - Implement upsertGeofence, getGeofenceByFarm
+    - _Requirements: 4.1-4.5_
+  - [ ] 10.4 Implement task assignment operations
+    - Implement insertTaskAssignment, getTaskAssignmentById
+    - Implement getAssignmentsByWorker, getAssignmentsByFarm
+    - Implement updateTaskAssignment, getPendingApprovals
+    - _Requirements: 8.1-8.7, 9.1-9.6, 11.1-11.7_
+  - [ ] 10.5 Implement task photo operations
+    - Implement insertTaskPhoto, getPhotosByAssignment
+    - _Requirements: 10.1-10.6_
+  - [ ] 10.6 Implement payroll period operations
+    - Implement insertPayrollPeriod, getPayrollPeriodById
+    - Implement getPayrollPeriodsByFarm, getOverlappingPeriods
+    - _Requirements: 12.1-12.3_
+  - [ ] 10.7 Implement wage payment operations
+    - Implement insertWagePayment, getPaymentsByPeriod
+    - Implement getPaymentsByWorker, getTotalPaymentsByWorkerAndPeriod
+    - _Requirements: 13.1-13.6_
+  - [ ] 10.8 Implement worker permission operations
+    - Implement upsertWorkerPermissions, getWorkerPermissions
+    - _Requirements: 3.2, 3.5_
+
+- [ ] 11. Server Functions - Worker Management
+  - [ ] 11.1 Create server.ts with createWorkerProfileFn
+    - Validate input with Zod schema
+    - Create user_farms record with 'worker' role
+    - Create worker_profile record
+    - Log in audit_logs
+    - _Requirements: 1.1, 2.1-2.7_
+  - [ ] 11.2 Implement updateWorkerProfileFn
+    - Validate ownership/manager permission
+    - Update profile fields
+    - Log changes in audit_logs
+    - _Requirements: 2.6_
+  - [ ] 11.3 Implement getWorkersByFarmFn
+    - Validate farm access
+    - Return workers with profiles
+    - _Requirements: 1.4_
+  - [ ] 11.4 Implement removeWorkerFromFarmFn
+    - Soft delete user_farms record
+    - Preserve historical data
+    - _Requirements: 1.5_
+
+- [ ] 12. Server Functions - Attendance
+  - [ ] 12.1 Implement checkInFn
+    - Validate coordinates
+    - Get farm geofence
+    - Verify location using geofence service
+    - Check for duplicate check-ins
+    - Insert check-in record
+    - _Requirements: 5.1-5.7_
+  - [ ] 12.2 Implement checkOutFn
+    - Find open check-in
+    - Calculate hours worked
+    - Update check-in record with check-out data
+    - _Requirements: 6.1-6.5_
+  - [ ] 12.3 Implement getAttendanceByFarmFn
+    - Validate farm access
+    - Return check-ins for date range
+    - Include worker details
+    - _Requirements: 15.1-15.5_
+  - [ ] 12.4 Implement syncOfflineCheckInsFn
+    - Accept batch of offline check-ins
+    - Process each with verification
+    - Return sync results
+    - _Requirements: 7.1-7.6_
+
+- [ ] 13. Server Functions - Geofence
+  - [ ] 13.1 Implement saveGeofenceFn
+    - Validate geofence configuration
+    - Upsert geofence record
+    - _Requirements: 4.1-4.5_
+  - [ ] 13.2 Implement getGeofenceFn
+    - Validate farm access
+    - Return geofence configuration
+    - _Requirements: 4.6_
+
+- [ ] 14. Checkpoint - Worker and Attendance Server Functions Complete
+  - Ensure server functions work correctly
+  - Ask the user if questions arise
+
+- [ ] 15. Server Functions - Task Assignment
+  - [ ] 15.1 Implement assignTaskFn
+    - Validate worker is assigned to farm
+    - Create task assignment record
+    - Send notification to worker
+    - _Requirements: 8.1-8.7_
+  - [ ] 15.2 Implement completeTaskFn
+    - Validate assignee
+    - Check photo requirement
+    - Upload photo to R2 if provided
+    - Update assignment status
+    - Send notification to manager
+    - _Requirements: 9.1-9.6, 10.1-10.6_
+  - [ ] 15.3 Implement approveTaskFn
+    - Validate supervisor permission
+    - Update status to 'verified' or 'rejected'
+    - Record approver and timestamp/reason
+    - Send notification to worker
+    - _Requirements: 11.1-11.7_
+  - [ ] 15.4 Implement getAssignmentsByWorkerFn
+    - Return assignments for authenticated worker
+    - Filter by status if provided
+    - _Requirements: 14.2_
+  - [ ] 15.5 Implement getAssignmentsByFarmFn
+    - Validate farm access
+    - Return assignments with filters
+    - Include overdue detection
+    - _Requirements: 16.1-16.6_
+  - [ ] 15.6 Implement bulkAssignTaskFn
+    - Create multiple assignments for same task
+    - Send notifications to all workers
+    - _Requirements: 16.5_
+
+- [ ] 16. Server Functions - Payroll
+  - [ ] 16.1 Implement createPayrollPeriodFn
+    - Validate no overlapping periods
+    - Create payroll period record
+    - _Requirements: 12.1-12.3_
+  - [ ] 16.2 Implement getPayrollSummaryFn
+    - Get attendance data for period
+    - Calculate wages per worker
+    - Get payments made
+    - Return complete summary
+    - _Requirements: 12.4-12.6, 17.1-17.3_
+  - [ ] 16.3 Implement recordPaymentFn
+    - Validate payment amount
+    - Create wage payment record
+    - Create expense record
+    - Log in audit_logs
+    - _Requirements: 13.1-13.6_
+  - [ ] 16.4 Implement getPayrollHistoryFn
+    - Return past payroll periods with totals
+    - _Requirements: 17.5_
+
+- [ ] 17. Checkpoint - All Server Functions Complete
+  - Ensure all server functions work correctly
+  - Ask the user if questions arise
+
+- [ ] 18. R2 Storage Integration
+  - [ ] 18.1 Create photo-storage.ts for task photos
+    - Implement uploadTaskPhoto function
+    - Implement compressImage function (client-side)
+    - Implement deleteTaskPhoto function
+    - _Requirements: 10.3, 10.4_
+
+- [ ] 19. UI Components - Worker Dashboard
+  - [ ] 19.1 Create WorkerDashboard component
+    - Large check-in/check-out button (48px+ touch target)
+    - Current status display
+    - Hours worked today
+    - Follow "Rugged Utility" design
+    - _Requirements: 14.1, 14.3, 14.4_
+  - [ ] 19.2 Create TodaysTasks component
+    - List assigned tasks with priority indicators
+    - Quick complete action
+    - Overdue highlighting
+    - _Requirements: 14.2_
+  - [ ] 19.3 Create CheckInButton component
+    - Request GPS permission
+    - Show loading state during verification
+    - Display verification result
+    - _Requirements: 5.1-5.4_
+  - [ ] 19.4 Create TaskCompletionDialog component
+    - Notes input
+    - Photo capture (if required)
+    - GPS capture with photo
+    - Submit button
+    - _Requirements: 9.1-9.3, 10.1-10.2_
+  - [ ] 19.5 Implement offline support for worker dashboard
+    - Cache tasks in IndexedDB
+    - Store pending check-ins offline
+    - Show sync status indicator
+    - _Requirements: 14.5, 14.6, 7.1-7.4_
+
+- [ ] 20. UI Components - Manager Attendance Overview
+  - [ ] 20.1 Create AttendanceOverview component
+    - Worker list with status indicators
+    - Check-in time and hours display
+    - Flagged check-in highlighting
+    - _Requirements: 15.1-15.3_
+  - [ ] 20.2 Create AttendanceFilters component
+    - Date picker
+    - Worker filter
+    - Status filter
+    - _Requirements: 15.4_
+  - [ ] 20.3 Create AttendanceSummaryCard component
+    - Present/absent/late counts
+    - Daily totals
+    - _Requirements: 15.5_
+  - [ ] 20.4 Implement attendance CSV export
+    - Export filtered data
+    - Include all relevant columns
+    - _Requirements: 15.6_
+
+- [ ] 21. UI Components - Manager Task Overview
+  - [ ] 21.1 Create TaskOverview component
+    - Assignment list with status, worker, due date
+    - Overdue highlighting
+    - Completion rate metrics
+    - _Requirements: 16.1-16.3_
+  - [ ] 21.2 Create TaskFilters component
+    - Worker filter
+    - Status filter
+    - Priority filter
+    - Date range filter
+    - _Requirements: 16.4_
+  - [ ] 21.3 Create BulkAssignDialog component
+    - Task selection
+    - Multiple worker selection
+    - Priority and due date
+    - _Requirements: 16.5_
+  - [ ] 21.4 Create PendingApprovalsCard component
+    - List pending tasks
+    - Quick approve/reject buttons
+    - Photo preview
+    - _Requirements: 16.6, 11.7_
+  - [ ] 21.5 Create TaskApprovalDialog component
+    - View completion details
+    - View attached photos
+    - Approve or reject with reason
+    - _Requirements: 11.4-11.6_
+
+- [ ] 22. UI Components - Payroll Dashboard
+  - [ ] 22.1 Create PayrollDashboard component
+    - Current period summary
+    - Per-worker breakdown table
+    - Outstanding balance highlighting
+    - _Requirements: 17.1-17.3_
+  - [ ] 22.2 Create RecordPaymentDialog component
+    - Worker selection
+    - Amount input
+    - Payment method selection
+    - Notes input
+    - _Requirements: 17.4, 13.1-13.2_
+  - [ ] 22.3 Create PayrollHistory component
+    - List past periods
+    - Period totals
+    - _Requirements: 17.5_
+  - [ ] 22.4 Implement payroll export
+    - CSV export
+    - PDF export (optional)
+    - _Requirements: 17.6_
+
+- [ ] 23. UI Components - Worker Profile Management
+  - [ ] 23.1 Create WorkerProfileForm component
+    - Phone input
+    - Wage configuration
+    - Emergency contact
+    - Structure assignment
+    - Permission selection
+    - _Requirements: 2.1-2.5, 3.2_
+  - [ ] 23.2 Create WorkerList component
+    - List workers with status
+    - Quick actions (edit, remove)
+    - _Requirements: 1.4_
+  - [ ] 23.3 Create PermissionTemplateSelector component
+    - Template dropdown
+    - Custom permission checkboxes
+    - _Requirements: 3.6_
+
+- [ ] 24. UI Components - Geofence Configuration
+  - [ ] 24.1 Create GeofenceConfig component
+    - Map display with current geofence
+    - Circle/polygon toggle
+    - Radius/vertex editing
+    - Tolerance setting
+    - _Requirements: 4.1-4.3, 4.6_
+  - [ ] 24.2 Integrate map library (Leaflet or Mapbox)
+    - Display farm location
+    - Draw geofence overlay
+    - Interactive editing
+    - _Requirements: 4.6_
+
+- [ ] 25. UI Components - Performance Metrics
+  - [ ] 25.1 Create WorkerPerformanceCard component
+    - Task completion rate
+    - Attendance reliability
+    - Approval/rejection ratio
+    - _Requirements: 18.1-18.4_
+  - [ ] 25.2 Create PerformanceTrends component
+    - Weekly/monthly trend charts
+    - Comparison across workers
+    - _Requirements: 18.5, 18.6_
+
+- [ ] 26. Routes and Navigation
+  - [ ] 26.1 Create worker dashboard route
+    - /worker - Worker's main dashboard
+    - Protected route for workers only
+  - [ ] 26.2 Create manager routes
+    - /workers - Worker management
+    - /workers/[id] - Worker profile detail
+    - /attendance - Attendance overview
+    - /task-assignments - Task assignment management
+    - /payroll - Payroll dashboard
+  - [ ] 26.3 Create geofence configuration route
+    - /farms/[id]/geofence - Geofence setup
+  - [ ] 26.4 Add navigation links
+    - Add "Workers" to sidebar for owners/managers
+    - Add "My Tasks" to sidebar for workers
+    - Add "Attendance" to sidebar for managers
+    - Add "Payroll" to sidebar for owners
+
+- [ ] 27. Notifications Integration
+  - [ ] 27.1 Add notification types for Digital Foreman
+    - Add 'taskAssigned' notification type
+    - Add 'taskCompleted' notification type
+    - Add 'taskApproved' notification type
+    - Add 'taskRejected' notification type
+    - Add 'flaggedCheckIn' notification type
+    - _Requirements: 8.5, 9.5, 11.3, 11.6_
+  - [ ] 27.2 Implement notification triggers
+    - Send on task assignment
+    - Send on task completion
+    - Send on approval/rejection
+    - Send on flagged check-in
+    - _Requirements: 8.5, 9.5, 11.3, 11.6_
+
+- [ ] 28. Audit Logging Integration
+  - [ ] 28.1 Implement audit logging for worker actions
+    - Log worker profile creation/update
+    - Log check-in/check-out
+    - Log task completion
+    - Log approval/rejection
+    - Log payment recording
+    - _Requirements: 2.6, 13.6_
+
+- [ ] 29. Permission System Integration
+  - [ ] 29.1 Update ROLE_PERMISSIONS for worker role
+    - Add worker role to permission matrix
+    - Define base worker permissions
+    - _Requirements: 1.6, 3.1_
+  - [ ] 29.2 Implement module permission middleware
+    - Create requireModulePermission helper
+    - Integrate with existing server functions
+    - _Requirements: 3.3, 3.4_
+  - [ ] 29.3 Update existing server functions to check worker permissions
+    - Add permission checks to feed logging
+    - Add permission checks to mortality logging
+    - Add permission checks to weight sampling
+    - Add permission checks to other module actions
+    - _Requirements: 3.3_
+
+- [ ] 30. Final Checkpoint
+  - Ensure all tests pass
+  - Verify end-to-end flows work
+  - Test offline functionality
+  - Ask the user if questions arise
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for faster MVP
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases
+- The implementation follows the three-layer architecture (Server → Service → Repository)
+- All server functions use dynamic imports and `getDb()` for Cloudflare Workers compatibility
+- UI components follow "Rugged Utility" design with 48px+ touch targets
+- Offline support uses IndexedDB for local storage and automatic sync
+
+## Codebase Integration Checklist
+
+Before starting implementation, ensure familiarity with these existing patterns:
+
+- [ ] Review `app/features/settings/hooks.ts` for `useFormatCurrency()` usage (for wage/payment displays)
+- [ ] Review `app/lib/errors/error-map.ts` for error code patterns
+- [ ] Review `app/features/auth/server-middleware.ts` for `requireAuth()` pattern
+- [ ] Review `app/features/tasks/server.ts` for existing task system patterns
+- [ ] Review `app/lib/db/types.ts` for database type patterns (use `Generated<string>` for UUIDs, `string` for DECIMAL)
+- [ ] Add new error codes to `app/lib/errors/error-map.ts`:
+  - `WORKER_PROFILE_NOT_FOUND` (40422)
+  - `GEOFENCE_NOT_FOUND` (40423)
+  - `TASK_ASSIGNMENT_NOT_FOUND` (40424)
+  - `PAYROLL_PERIOD_NOT_FOUND` (40425)
+  - `CHECK_IN_NOT_FOUND` (40426)
+  - `DUPLICATE_CHECK_IN` (40902)
+  - `NO_OPEN_CHECK_IN` (40007)
+  - `OUTSIDE_GEOFENCE` (40008)
+  - `PHOTO_REQUIRED` (40009)
+  - `NOT_TASK_ASSIGNEE` (40302)
+  - `OVERLAPPING_PAYROLL_PERIOD` (40903)

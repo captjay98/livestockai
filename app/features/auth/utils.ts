@@ -302,7 +302,7 @@ export async function getUserFarmsWithRoles(
 // Permission Types and Constants
 // ============================================
 
-export type FarmRole = 'owner' | 'manager' | 'viewer'
+export type FarmRole = 'owner' | 'manager' | 'viewer' | 'worker'
 
 export type Permission =
   | 'farm:read'
@@ -357,6 +357,7 @@ const ROLE_PERMISSIONS: Record<FarmRole, Array<Permission>> = {
     'finance:update',
   ],
   viewer: ['farm:read', 'batch:read', 'member:read', 'finance:read'],
+  worker: ['batch:read', 'finance:read'],
 }
 
 /**

@@ -16,6 +16,10 @@ export type AuditEntityType =
   | 'customer'
   | 'supplier'
   | 'farm_module'
+  | 'worker_profile'
+  | 'worker_check_in'
+  | 'task_assignment'
+  | 'wage_payment'
 
 export interface AuditLogParams {
   userId: string

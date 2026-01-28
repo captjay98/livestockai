@@ -22,6 +22,11 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyReportIdRouteImport } from './routes/verify.$reportId'
 import { Route as SharedShareCodeRouteImport } from './routes/shared/$shareCode'
+import { Route as AuthWorkerRouteImport } from './routes/_auth/worker'
+import { Route as AuthTaskAssignmentsRouteImport } from './routes/_auth/task-assignments'
+import { Route as AuthPayrollRouteImport } from './routes/_auth/payroll'
+import { Route as AuthAttendanceRouteImport } from './routes/_auth/attendance'
+import { Route as AuthWorkersIndexRouteImport } from './routes/_auth/workers.index'
 import { Route as AuthWeightIndexRouteImport } from './routes/_auth/weight/index'
 import { Route as AuthWaterQualityIndexRouteImport } from './routes/_auth/water-quality/index'
 import { Route as AuthVaccinationsIndexRouteImport } from './routes/_auth/vaccinations/index'
@@ -43,6 +48,7 @@ import { Route as AuthDashboardIndexRouteImport } from './routes/_auth/dashboard
 import { Route as AuthCustomersIndexRouteImport } from './routes/_auth/customers/index'
 import { Route as AuthCreditPassportIndexRouteImport } from './routes/_auth/credit-passport/index'
 import { Route as AuthBatchesIndexRouteImport } from './routes/_auth/batches/index'
+import { Route as AuthWorkersWorkerIdRouteImport } from './routes/_auth/workers.$workerId'
 import { Route as AuthSuppliersSupplierIdRouteImport } from './routes/_auth/suppliers/$supplierId'
 import { Route as AuthSettingsUsersRouteImport } from './routes/_auth/settings/users'
 import { Route as AuthSettingsAuditRouteImport } from './routes/_auth/settings/audit'
@@ -55,6 +61,7 @@ import { Route as AuthCreditPassportRequestsRouteImport } from './routes/_auth/c
 import { Route as AuthCreditPassportHistoryRouteImport } from './routes/_auth/credit-passport/history'
 import { Route as AuthFarmsFarmIdIndexRouteImport } from './routes/_auth/farms/$farmId/index'
 import { Route as AuthBatchesBatchIdIndexRouteImport } from './routes/_auth/batches/$batchId/index'
+import { Route as AuthFarmsFarmIdGeofenceRouteImport } from './routes/_auth/farms/$farmId/geofence'
 
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
@@ -119,6 +126,31 @@ const SharedShareCodeRoute = SharedShareCodeRouteImport.update({
   id: '/shared/$shareCode',
   path: '/shared/$shareCode',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthWorkerRoute = AuthWorkerRouteImport.update({
+  id: '/worker',
+  path: '/worker',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthTaskAssignmentsRoute = AuthTaskAssignmentsRouteImport.update({
+  id: '/task-assignments',
+  path: '/task-assignments',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthPayrollRoute = AuthPayrollRouteImport.update({
+  id: '/payroll',
+  path: '/payroll',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAttendanceRoute = AuthAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthWorkersIndexRoute = AuthWorkersIndexRouteImport.update({
+  id: '/workers/',
+  path: '/workers/',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthWeightIndexRoute = AuthWeightIndexRouteImport.update({
   id: '/weight/',
@@ -226,6 +258,11 @@ const AuthBatchesIndexRoute = AuthBatchesIndexRouteImport.update({
   path: '/batches/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthWorkersWorkerIdRoute = AuthWorkersWorkerIdRouteImport.update({
+  id: '/workers/$workerId',
+  path: '/workers/$workerId',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthSuppliersSupplierIdRoute = AuthSuppliersSupplierIdRouteImport.update({
   id: '/suppliers/$supplierId',
   path: '/suppliers/$supplierId',
@@ -289,6 +326,11 @@ const AuthBatchesBatchIdIndexRoute = AuthBatchesBatchIdIndexRouteImport.update({
   path: '/batches/$batchId/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthFarmsFarmIdGeofenceRoute = AuthFarmsFarmIdGeofenceRouteImport.update({
+  id: '/geofence',
+  path: '/geofence',
+  getParentRoute: () => AuthFarmsFarmIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -301,6 +343,10 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/roadmap': typeof RoadmapRoute
   '/support': typeof SupportRoute
+  '/attendance': typeof AuthAttendanceRoute
+  '/payroll': typeof AuthPayrollRoute
+  '/task-assignments': typeof AuthTaskAssignmentsRoute
+  '/worker': typeof AuthWorkerRoute
   '/shared/$shareCode': typeof SharedShareCodeRoute
   '/verify/$reportId': typeof VerifyReportIdRoute
   '/credit-passport/history': typeof AuthCreditPassportHistoryRoute
@@ -313,6 +359,7 @@ export interface FileRoutesByFullPath {
   '/settings/audit': typeof AuthSettingsAuditRoute
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
+  '/workers/$workerId': typeof AuthWorkersWorkerIdRoute
   '/batches/': typeof AuthBatchesIndexRoute
   '/credit-passport/': typeof AuthCreditPassportIndexRoute
   '/customers/': typeof AuthCustomersIndexRoute
@@ -334,6 +381,8 @@ export interface FileRoutesByFullPath {
   '/vaccinations/': typeof AuthVaccinationsIndexRoute
   '/water-quality/': typeof AuthWaterQualityIndexRoute
   '/weight/': typeof AuthWeightIndexRoute
+  '/workers/': typeof AuthWorkersIndexRoute
+  '/farms/$farmId/geofence': typeof AuthFarmsFarmIdGeofenceRoute
   '/batches/$batchId/': typeof AuthBatchesBatchIdIndexRoute
   '/farms/$farmId/': typeof AuthFarmsFarmIdIndexRoute
 }
@@ -348,6 +397,10 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/roadmap': typeof RoadmapRoute
   '/support': typeof SupportRoute
+  '/attendance': typeof AuthAttendanceRoute
+  '/payroll': typeof AuthPayrollRoute
+  '/task-assignments': typeof AuthTaskAssignmentsRoute
+  '/worker': typeof AuthWorkerRoute
   '/shared/$shareCode': typeof SharedShareCodeRoute
   '/verify/$reportId': typeof VerifyReportIdRoute
   '/credit-passport/history': typeof AuthCreditPassportHistoryRoute
@@ -359,6 +412,7 @@ export interface FileRoutesByTo {
   '/settings/audit': typeof AuthSettingsAuditRoute
   '/settings/users': typeof AuthSettingsUsersRoute
   '/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
+  '/workers/$workerId': typeof AuthWorkersWorkerIdRoute
   '/batches': typeof AuthBatchesIndexRoute
   '/credit-passport': typeof AuthCreditPassportIndexRoute
   '/customers': typeof AuthCustomersIndexRoute
@@ -380,6 +434,8 @@ export interface FileRoutesByTo {
   '/vaccinations': typeof AuthVaccinationsIndexRoute
   '/water-quality': typeof AuthWaterQualityIndexRoute
   '/weight': typeof AuthWeightIndexRoute
+  '/workers': typeof AuthWorkersIndexRoute
+  '/farms/$farmId/geofence': typeof AuthFarmsFarmIdGeofenceRoute
   '/batches/$batchId': typeof AuthBatchesBatchIdIndexRoute
   '/farms/$farmId': typeof AuthFarmsFarmIdIndexRoute
 }
@@ -396,6 +452,10 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/roadmap': typeof RoadmapRoute
   '/support': typeof SupportRoute
+  '/_auth/attendance': typeof AuthAttendanceRoute
+  '/_auth/payroll': typeof AuthPayrollRoute
+  '/_auth/task-assignments': typeof AuthTaskAssignmentsRoute
+  '/_auth/worker': typeof AuthWorkerRoute
   '/shared/$shareCode': typeof SharedShareCodeRoute
   '/verify/$reportId': typeof VerifyReportIdRoute
   '/_auth/credit-passport/history': typeof AuthCreditPassportHistoryRoute
@@ -408,6 +468,7 @@ export interface FileRoutesById {
   '/_auth/settings/audit': typeof AuthSettingsAuditRoute
   '/_auth/settings/users': typeof AuthSettingsUsersRoute
   '/_auth/suppliers/$supplierId': typeof AuthSuppliersSupplierIdRoute
+  '/_auth/workers/$workerId': typeof AuthWorkersWorkerIdRoute
   '/_auth/batches/': typeof AuthBatchesIndexRoute
   '/_auth/credit-passport/': typeof AuthCreditPassportIndexRoute
   '/_auth/customers/': typeof AuthCustomersIndexRoute
@@ -429,6 +490,8 @@ export interface FileRoutesById {
   '/_auth/vaccinations/': typeof AuthVaccinationsIndexRoute
   '/_auth/water-quality/': typeof AuthWaterQualityIndexRoute
   '/_auth/weight/': typeof AuthWeightIndexRoute
+  '/_auth/workers/': typeof AuthWorkersIndexRoute
+  '/_auth/farms/$farmId/geofence': typeof AuthFarmsFarmIdGeofenceRoute
   '/_auth/batches/$batchId/': typeof AuthBatchesBatchIdIndexRoute
   '/_auth/farms/$farmId/': typeof AuthFarmsFarmIdIndexRoute
 }
@@ -445,6 +508,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/roadmap'
     | '/support'
+    | '/attendance'
+    | '/payroll'
+    | '/task-assignments'
+    | '/worker'
     | '/shared/$shareCode'
     | '/verify/$reportId'
     | '/credit-passport/history'
@@ -457,6 +524,7 @@ export interface FileRouteTypes {
     | '/settings/audit'
     | '/settings/users'
     | '/suppliers/$supplierId'
+    | '/workers/$workerId'
     | '/batches/'
     | '/credit-passport/'
     | '/customers/'
@@ -478,6 +546,8 @@ export interface FileRouteTypes {
     | '/vaccinations/'
     | '/water-quality/'
     | '/weight/'
+    | '/workers/'
+    | '/farms/$farmId/geofence'
     | '/batches/$batchId/'
     | '/farms/$farmId/'
   fileRoutesByTo: FileRoutesByTo
@@ -492,6 +562,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/roadmap'
     | '/support'
+    | '/attendance'
+    | '/payroll'
+    | '/task-assignments'
+    | '/worker'
     | '/shared/$shareCode'
     | '/verify/$reportId'
     | '/credit-passport/history'
@@ -503,6 +577,7 @@ export interface FileRouteTypes {
     | '/settings/audit'
     | '/settings/users'
     | '/suppliers/$supplierId'
+    | '/workers/$workerId'
     | '/batches'
     | '/credit-passport'
     | '/customers'
@@ -524,6 +599,8 @@ export interface FileRouteTypes {
     | '/vaccinations'
     | '/water-quality'
     | '/weight'
+    | '/workers'
+    | '/farms/$farmId/geofence'
     | '/batches/$batchId'
     | '/farms/$farmId'
   id:
@@ -539,6 +616,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/roadmap'
     | '/support'
+    | '/_auth/attendance'
+    | '/_auth/payroll'
+    | '/_auth/task-assignments'
+    | '/_auth/worker'
     | '/shared/$shareCode'
     | '/verify/$reportId'
     | '/_auth/credit-passport/history'
@@ -551,6 +632,7 @@ export interface FileRouteTypes {
     | '/_auth/settings/audit'
     | '/_auth/settings/users'
     | '/_auth/suppliers/$supplierId'
+    | '/_auth/workers/$workerId'
     | '/_auth/batches/'
     | '/_auth/credit-passport/'
     | '/_auth/customers/'
@@ -572,6 +654,8 @@ export interface FileRouteTypes {
     | '/_auth/vaccinations/'
     | '/_auth/water-quality/'
     | '/_auth/weight/'
+    | '/_auth/workers/'
+    | '/_auth/farms/$farmId/geofence'
     | '/_auth/batches/$batchId/'
     | '/_auth/farms/$farmId/'
   fileRoutesById: FileRoutesById
@@ -684,6 +768,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/shared/$shareCode'
       preLoaderRoute: typeof SharedShareCodeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_auth/worker': {
+      id: '/_auth/worker'
+      path: '/worker'
+      fullPath: '/worker'
+      preLoaderRoute: typeof AuthWorkerRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/task-assignments': {
+      id: '/_auth/task-assignments'
+      path: '/task-assignments'
+      fullPath: '/task-assignments'
+      preLoaderRoute: typeof AuthTaskAssignmentsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/payroll': {
+      id: '/_auth/payroll'
+      path: '/payroll'
+      fullPath: '/payroll'
+      preLoaderRoute: typeof AuthPayrollRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/attendance': {
+      id: '/_auth/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AuthAttendanceRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/workers/': {
+      id: '/_auth/workers/'
+      path: '/workers'
+      fullPath: '/workers/'
+      preLoaderRoute: typeof AuthWorkersIndexRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/weight/': {
       id: '/_auth/weight/'
@@ -832,6 +951,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthBatchesIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/workers/$workerId': {
+      id: '/_auth/workers/$workerId'
+      path: '/workers/$workerId'
+      fullPath: '/workers/$workerId'
+      preLoaderRoute: typeof AuthWorkersWorkerIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/suppliers/$supplierId': {
       id: '/_auth/suppliers/$supplierId'
       path: '/suppliers/$supplierId'
@@ -916,14 +1042,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthBatchesBatchIdIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/farms/$farmId/geofence': {
+      id: '/_auth/farms/$farmId/geofence'
+      path: '/geofence'
+      fullPath: '/farms/$farmId/geofence'
+      preLoaderRoute: typeof AuthFarmsFarmIdGeofenceRouteImport
+      parentRoute: typeof AuthFarmsFarmIdRoute
+    }
   }
 }
 
 interface AuthFarmsFarmIdRouteChildren {
+  AuthFarmsFarmIdGeofenceRoute: typeof AuthFarmsFarmIdGeofenceRoute
   AuthFarmsFarmIdIndexRoute: typeof AuthFarmsFarmIdIndexRoute
 }
 
 const AuthFarmsFarmIdRouteChildren: AuthFarmsFarmIdRouteChildren = {
+  AuthFarmsFarmIdGeofenceRoute: AuthFarmsFarmIdGeofenceRoute,
   AuthFarmsFarmIdIndexRoute: AuthFarmsFarmIdIndexRoute,
 }
 
@@ -932,6 +1067,10 @@ const AuthFarmsFarmIdRouteWithChildren = AuthFarmsFarmIdRoute._addFileChildren(
 )
 
 interface AuthRouteChildren {
+  AuthAttendanceRoute: typeof AuthAttendanceRoute
+  AuthPayrollRoute: typeof AuthPayrollRoute
+  AuthTaskAssignmentsRoute: typeof AuthTaskAssignmentsRoute
+  AuthWorkerRoute: typeof AuthWorkerRoute
   AuthCreditPassportHistoryRoute: typeof AuthCreditPassportHistoryRoute
   AuthCreditPassportRequestsRoute: typeof AuthCreditPassportRequestsRoute
   AuthCustomersCustomerIdRoute: typeof AuthCustomersCustomerIdRoute
@@ -942,6 +1081,7 @@ interface AuthRouteChildren {
   AuthSettingsAuditRoute: typeof AuthSettingsAuditRoute
   AuthSettingsUsersRoute: typeof AuthSettingsUsersRoute
   AuthSuppliersSupplierIdRoute: typeof AuthSuppliersSupplierIdRoute
+  AuthWorkersWorkerIdRoute: typeof AuthWorkersWorkerIdRoute
   AuthBatchesIndexRoute: typeof AuthBatchesIndexRoute
   AuthCreditPassportIndexRoute: typeof AuthCreditPassportIndexRoute
   AuthCustomersIndexRoute: typeof AuthCustomersIndexRoute
@@ -963,10 +1103,15 @@ interface AuthRouteChildren {
   AuthVaccinationsIndexRoute: typeof AuthVaccinationsIndexRoute
   AuthWaterQualityIndexRoute: typeof AuthWaterQualityIndexRoute
   AuthWeightIndexRoute: typeof AuthWeightIndexRoute
+  AuthWorkersIndexRoute: typeof AuthWorkersIndexRoute
   AuthBatchesBatchIdIndexRoute: typeof AuthBatchesBatchIdIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthAttendanceRoute: AuthAttendanceRoute,
+  AuthPayrollRoute: AuthPayrollRoute,
+  AuthTaskAssignmentsRoute: AuthTaskAssignmentsRoute,
+  AuthWorkerRoute: AuthWorkerRoute,
   AuthCreditPassportHistoryRoute: AuthCreditPassportHistoryRoute,
   AuthCreditPassportRequestsRoute: AuthCreditPassportRequestsRoute,
   AuthCustomersCustomerIdRoute: AuthCustomersCustomerIdRoute,
@@ -977,6 +1122,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthSettingsAuditRoute: AuthSettingsAuditRoute,
   AuthSettingsUsersRoute: AuthSettingsUsersRoute,
   AuthSuppliersSupplierIdRoute: AuthSuppliersSupplierIdRoute,
+  AuthWorkersWorkerIdRoute: AuthWorkersWorkerIdRoute,
   AuthBatchesIndexRoute: AuthBatchesIndexRoute,
   AuthCreditPassportIndexRoute: AuthCreditPassportIndexRoute,
   AuthCustomersIndexRoute: AuthCustomersIndexRoute,
@@ -998,6 +1144,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthVaccinationsIndexRoute: AuthVaccinationsIndexRoute,
   AuthWaterQualityIndexRoute: AuthWaterQualityIndexRoute,
   AuthWeightIndexRoute: AuthWeightIndexRoute,
+  AuthWorkersIndexRoute: AuthWorkersIndexRoute,
   AuthBatchesBatchIdIndexRoute: AuthBatchesBatchIdIndexRoute,
 }
 

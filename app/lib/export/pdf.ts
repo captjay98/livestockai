@@ -272,3 +272,117 @@ export function generateReportPDF(options: ReportPDFOptions): jsPDF {
 export function downloadPDF(doc: jsPDF, filename: string): void {
   doc.save(`${filename}.pdf`)
 }
+
+interface PaymentReceiptData {
+  receiptNumber: string
+  paymentDate: Date
+  farmName: string
+  workerName: string
+  periodStart: Date
+  periodEnd: Date
+  totalHours: number
+  wageRate: number
+  wageRateType: 'hourly' | 'daily' | 'monthly'
+  grossWages: number
+  amountPaid: number
+  paymentMethod: 'cash' | 'bank_transfer' | 'mobile_money'
+}
+
+/**
+ * Generate PDF payment receipt
+ */
+export function generatePaymentReceiptPDF(
+  receipt: PaymentReceiptData,
+  settings: UserSettings,
+): jsPDF {
+  const formatPdfCurrency = (amount: number): string =>
+    formatWithSettings(amount, settings)
+  const doc = new jsPDF()
+  const pageWidth = doc.internal.pageSize.getWidth()
+  let y = 20
+
+  // Header
+  doc.setFontSize(20)
+  doc.setFont('helvetica', 'bold')
+  doc.text('PAYMENT RECEIPT', pageWidth / 2, y, { align: 'center' })
+  y += 15
+
+  // Receipt details
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`Receipt #: ${receipt.receiptNumber}`, 20, y)
+  doc.text(`Date: ${new Date(receipt.paymentDate).toLocaleDateString()}`, pageWidth - 20, y, { align: 'right' })
+  y += 15
+
+  // Farm
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'bold')
+  doc.text('From:', 20, y)
+  y += 6
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.text(receipt.farmName, 20, y)
+  y += 15
+
+  // Worker
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Paid To:', 20, y)
+  y += 6
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.text(receipt.workerName, 20, y)
+  y += 15
+
+  // Pay period box
+  doc.setFillColor(240, 240, 240)
+  doc.rect(20, y, pageWidth - 40, 30, 'F')
+  y += 8
+  doc.setFont('helvetica', 'bold')
+  doc.text('Pay Period', 25, y)
+  y += 7
+  doc.setFont('helvetica', 'normal')
+  doc.text(`${new Date(receipt.periodStart).toLocaleDateString()} - ${new Date(receipt.periodEnd).toLocaleDateString()}`, 25, y)
+  y += 7
+  doc.text(`Total Hours: ${receipt.totalHours.toFixed(1)}`, 25, y)
+  y += 18
+
+  // Wage details
+  doc.setFont('helvetica', 'bold')
+  doc.text('Wage Details', 20, y)
+  y += 8
+  doc.setFont('helvetica', 'normal')
+  const rateLabel = receipt.wageRateType === 'hourly' ? '/hour' : receipt.wageRateType === 'daily' ? '/day' : '/month'
+  doc.text(`Rate: ${formatPdfCurrency(receipt.wageRate)}${rateLabel}`, 25, y)
+  y += 6
+  doc.text(`Gross Wages: ${formatPdfCurrency(receipt.grossWages)}`, 25, y)
+  y += 15
+
+  // Payment info
+  doc.line(20, y, pageWidth - 20, y)
+  y += 10
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(12)
+  doc.text('Amount Paid:', 25, y)
+  doc.text(formatPdfCurrency(receipt.amountPaid), pageWidth - 25, y, { align: 'right' })
+  y += 8
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  const methodLabel = receipt.paymentMethod === 'bank_transfer' ? 'Bank Transfer' : receipt.paymentMethod === 'mobile_money' ? 'Mobile Money' : 'Cash'
+  doc.text(`Payment Method: ${methodLabel}`, 25, y)
+  y += 20
+
+  // Signature lines
+  doc.line(20, y + 15, 80, y + 15)
+  doc.line(pageWidth - 80, y + 15, pageWidth - 20, y + 15)
+  doc.setFontSize(8)
+  doc.text('Worker Signature', 50, y + 20, { align: 'center' })
+  doc.text('Authorized Signature', pageWidth - 50, y + 20, { align: 'center' })
+
+  // Footer
+  doc.setFontSize(8)
+  doc.setFont('helvetica', 'italic')
+  doc.text('This receipt confirms payment for services rendered.', pageWidth / 2, 280, { align: 'center' })
+
+  return doc
+}

@@ -34,7 +34,7 @@ export interface UserWithFarms extends UserRecord {
 /**
  * Farm role type
  */
-type FarmRole = 'owner' | 'manager' | 'viewer'
+type FarmRole = 'owner' | 'manager' | 'viewer' | 'worker'
 
 /**
  * Retrieve all users (admin listing)
