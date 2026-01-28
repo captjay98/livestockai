@@ -84,7 +84,10 @@ export function generateRecommendation(
   performanceIndex: number,
   severity: AlertSeverity,
 ): string {
-  const severityRecommendations: Record<AlertSeverity, (deviation: string) => string> = {
+  const severityRecommendations: Record<
+    AlertSeverity,
+    (deviation: string) => string
+  > = {
     critical: (deviation) =>
       `Batch is ${deviation}% behind expected growth. Immediate action required: Check for disease, increase protein feed, verify water quality, and consult veterinarian.`,
     warning: (deviation) =>
@@ -93,9 +96,10 @@ export function generateRecommendation(
       `Batch is ${deviation}% ahead of expected growth. Consider early harvest opportunity to optimize market timing and reduce feed costs.`,
   }
 
-  const deviation = severity === 'info'
-    ? (performanceIndex - 100).toFixed(1)
-    : Math.abs(100 - performanceIndex).toFixed(1)
+  const deviation =
+    severity === 'info'
+      ? (performanceIndex - 100).toFixed(1)
+      : Math.abs(100 - performanceIndex).toFixed(1)
 
   return severityRecommendations[severity](deviation)
 }

@@ -139,7 +139,8 @@ export function calculateExpectedADG(
     const beforeBeforeArr = growthStandards
       .filter((s) => s.day < before.day)
       .sort((a, b) => b.day - a.day)
-    const beforeBefore = beforeBeforeArr.length > 0 ? beforeBeforeArr[0] : undefined
+    const beforeBefore =
+      beforeBeforeArr.length > 0 ? beforeBeforeArr[0] : undefined
 
     if (beforeBefore) {
       const weightDiff =

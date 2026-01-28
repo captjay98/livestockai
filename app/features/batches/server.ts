@@ -64,6 +64,8 @@ const updateBatchSchema = z.object({
   targetHarvestDate: z.coerce.date().nullish(),
   target_weight_g: z.number().positive().nullish(),
   notes: z.string().max(500).nullish(),
+  /** Expected updatedAt timestamp for conflict detection (offline sync) */
+  expectedUpdatedAt: z.coerce.date().optional(),
 })
 
 const paginatedQuerySchema = z.object({
@@ -179,6 +181,8 @@ export interface UpdateBatchData {
   target_weight_g?: number | null
   /** Updated additional notes or observations */
   notes?: string | null
+  /** Expected updatedAt timestamp for conflict detection (offline sync) */
+  expectedUpdatedAt?: Date
 }
 
 /**
@@ -380,6 +384,7 @@ export async function getBatchById(userId: string, batchId: string) {
  * @param data - Updated batch fields
  * @returns Promise resolving to the updated batch data
  * @throws {Error} If the batch is not found or access is denied
+ * @throws {AppError} CONFLICT if server version is newer than expected (409)
  *
  * @example
  * ```typescript
@@ -393,6 +398,7 @@ export async function updateBatch(
 ) {
   const { getDb } = await import('~/lib/db')
   const db = await getDb()
+  const { createConflictError } = await import('~/lib/conflict-resolution')
 
   try {
     const batch = await getBatchById(userId, batchId)
@@ -406,6 +412,20 @@ export async function updateBatch(
       throw new AppError('VALIDATION_ERROR', {
         metadata: { error: validationError },
       })
+    }
+
+    // Conflict detection: if expectedUpdatedAt is provided, check for conflicts
+    if (data.expectedUpdatedAt) {
+      const serverUpdatedAt = new Date(batch.updatedAt).getTime()
+      const clientExpectedAt = new Date(data.expectedUpdatedAt).getTime()
+
+      if (serverUpdatedAt > clientExpectedAt) {
+        // Server version is newer - conflict detected
+        throw createConflictError({ ...batch, updatedAt: batch.updatedAt }, {
+          ...data,
+          updatedAt: data.expectedUpdatedAt,
+        } as any)
+      }
     }
 
     const updateData: BatchUpdate = {}

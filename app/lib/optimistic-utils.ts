@@ -151,11 +151,11 @@ export function createOptimisticContext<T>(
  * ```
  */
 export function replaceTempId<T extends { id: string }>(
-  records: T[] | undefined,
+  records: Array<T> | undefined,
   tempId: string,
   serverId: string,
   additionalUpdates?: Partial<Omit<T, 'id'>>,
-): T[] {
+): Array<T> {
   if (!records) return []
 
   return records.map((record) => {
@@ -192,10 +192,10 @@ export function replaceTempId<T extends { id: string }>(
  * ```
  */
 export function replaceTempIdWithRecord<T extends { id: string }>(
-  records: T[] | undefined,
+  records: Array<T> | undefined,
   tempId: string,
   serverRecord: T,
-): T[] {
+): Array<T> {
   if (!records) return [serverRecord]
 
   const index = records.findIndex((record) => record.id === tempId)
@@ -230,9 +230,9 @@ export function replaceTempIdWithRecord<T extends { id: string }>(
  * ```
  */
 export function removeById<T extends { id: string }>(
-  records: T[] | undefined,
+  records: Array<T> | undefined,
   id: string,
-): T[] {
+): Array<T> {
   if (!records) return []
   return records.filter((record) => record.id !== id)
 }
@@ -253,10 +253,10 @@ export function removeById<T extends { id: string }>(
  * ```
  */
 export function updateById<T extends { id: string }>(
-  records: T[] | undefined,
+  records: Array<T> | undefined,
   id: string,
   updates: Partial<T>,
-): T[] {
+): Array<T> {
   if (!records) return []
 
   return records.map((record) => {
@@ -288,16 +288,16 @@ export function updateById<T extends { id: string }>(
  * ```
  */
 export function addOptimisticRecord<T extends { id: string }>(
-  records: T[] | undefined,
+  records: Array<T> | undefined,
   newRecord: Omit<T, 'id'>,
   tempId: string,
-): T[] {
+): Array<T> {
   const optimisticRecord = {
     ...newRecord,
     id: tempId,
     _isOptimistic: true,
     _tempId: tempId,
-  } as T
+  } as unknown as T
 
   if (!records) return [optimisticRecord]
   return [...records, optimisticRecord]
@@ -395,4 +395,99 @@ export function setQueryData<T>(
   data: T,
 ): void {
   queryClient.setQueryData(queryKey, data)
+}
+
+/**
+ * Conflict handling utilities for mutation hooks
+ */
+
+/**
+ * Checks if an error is a conflict error (409 status).
+ * Used in onError handlers to detect conflicts.
+ *
+ * @param error - The error to check
+ * @returns True if the error is a conflict error
+ */
+export function isConflictError(error: unknown): boolean {
+  if (error instanceof Error) {
+    // Check for AppError with CONFLICT reason
+    const appError = error as { reason?: string; httpStatus?: number }
+    if (appError.reason === 'CONFLICT' || appError.httpStatus === 409) {
+      return true
+    }
+    // Check error message for conflict indicators
+    if (error.message.includes('409') || error.message.includes('conflict')) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Checks if an error is a not found error (404 status).
+ * Used for orphaned mutation handling.
+ *
+ * @param error - The error to check
+ * @returns True if the error is a not found error
+ */
+export function isNotFoundError(error: unknown): boolean {
+  if (error instanceof Error) {
+    // Check for AppError with NOT_FOUND category
+    const appError = error as { httpStatus?: number; category?: string }
+    if (appError.httpStatus === 404 || appError.category === 'NOT_FOUND') {
+      return true
+    }
+    // Check error message for not found indicators
+    if (error.message.includes('404') || error.message.includes('not found')) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Extracts conflict metadata from an error.
+ *
+ * @param error - The error to extract conflict data from
+ * @returns The conflict metadata or null if not a conflict error
+ */
+export function extractConflictMetadata<T>(error: unknown): {
+  serverVersion: T
+  clientVersion: T
+  resolution: 'server-wins' | 'client-wins'
+} | null {
+  if (error instanceof Error) {
+    const appError = error as {
+      metadata?: {
+        serverVersion?: T
+        clientVersion?: T
+        resolution?: 'server-wins' | 'client-wins'
+      }
+    }
+    const metadata = appError.metadata
+    if (metadata?.serverVersion && metadata.clientVersion) {
+      return {
+        serverVersion: metadata.serverVersion,
+        clientVersion: metadata.clientVersion,
+        resolution: metadata.resolution || 'server-wins',
+      }
+    }
+  }
+  return null
+}
+
+/**
+ * Determines if the client version should win based on timestamps.
+ *
+ * @param serverUpdatedAt - Server's updatedAt timestamp
+ * @param clientUpdatedAt - Client's updatedAt timestamp
+ * @returns True if client version is newer and should win
+ */
+export function shouldClientWin(
+  serverUpdatedAt: Date | string,
+  clientUpdatedAt: Date | string,
+): boolean {
+  const serverTime = new Date(serverUpdatedAt).getTime()
+  const clientTime = new Date(clientUpdatedAt).getTime()
+  return clientTime > serverTime
 }

@@ -247,6 +247,81 @@ export async function updateBatch(
 }
 
 /**
+ * Update batch fields with conflict detection.
+ * Returns the updated batch if successful, or null if there's a conflict.
+ *
+ * @param db - Kysely database instance
+ * @param batchId - ID of the batch to update
+ * @param data - Fields to update
+ * @param expectedUpdatedAt - The updatedAt timestamp the client expects
+ * @returns The updated batch or null if conflict detected
+ */
+export async function updateBatchWithConflictCheck(
+  db: Kysely<Database>,
+  batchId: string,
+  data: BatchUpdate,
+  expectedUpdatedAt: Date,
+): Promise<BatchWithFarmName | null> {
+  // Use a transaction to ensure atomicity
+  return await db.transaction().execute(async (trx) => {
+    // Get current batch state
+    const currentBatch = await trx
+      .selectFrom('batches')
+      .selectAll()
+      .where('id', '=', batchId)
+      .where('deletedAt', 'is', null)
+      .executeTakeFirst()
+
+    if (!currentBatch) {
+      return null
+    }
+
+    // Check for conflict - if server version is newer than expected
+    const serverTime = new Date(currentBatch.updatedAt).getTime()
+    const expectedTime = new Date(expectedUpdatedAt).getTime()
+
+    if (serverTime > expectedTime) {
+      // Conflict detected - return null to signal conflict
+      return null
+    }
+
+    // No conflict - perform the update
+    await trx
+      .updateTable('batches')
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where('id', '=', batchId)
+      .execute()
+
+    // Return the updated batch
+    return await getBatchById(db, batchId)
+  })
+}
+
+/**
+ * Get batch with updatedAt for conflict detection
+ *
+ * @param db - Kysely database instance
+ * @param batchId - ID of the batch
+ * @returns The batch with updatedAt timestamp
+ */
+export async function getBatchForConflictCheck(
+  db: Kysely<Database>,
+  batchId: string,
+): Promise<{ id: string; updatedAt: Date } | null> {
+  const batch = await db
+    .selectFrom('batches')
+    .select(['id', 'updatedAt'])
+    .where('id', '=', batchId)
+    .where('deletedAt', 'is', null)
+    .executeTakeFirst()
+
+  return batch || null
+}
+
+/**
  * Update batch quantity and status (Sets absolute value)
  *
  * @param db - Kysely database instance
