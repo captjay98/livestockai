@@ -59,7 +59,9 @@ export const createQueryClient = () => {
         },
       },
       mutations: {
-        networkMode: 'online',
+        networkMode: 'offlineFirst',
+        retry: 3,
+        retryDelay: (attemptIndex) => Math.min(1000 * Math.pow(2, attemptIndex), 30000),
       },
     },
   })
