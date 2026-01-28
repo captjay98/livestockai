@@ -32,9 +32,9 @@ Integration tests use DIRECT DATABASE OPERATIONS, never server functions:
 const db = getTestDb()
 await db.insertInto('sales').values({ farmId, quantity: 10 }).execute()
 const sale = await db
-  .selectFrom('sales')
-  .where('farmId', '=', farmId)
-  .executeTakeFirst()
+    .selectFrom('sales')
+    .where('farmId', '=', farmId)
+    .executeTakeFirst()
 expect(sale.quantity).toBe(10)
 
 // ❌ WRONG - Server functions require auth context
@@ -47,40 +47,40 @@ Why? Server functions have auth middleware that requires HTTP request context. I
 
 ```typescript
 import {
-  getTestDb,
-  truncateAllTables,
-  seedTestUser,
-  seedTestFarm,
-  seedTestBatch,
-  closeTestDb,
+    getTestDb,
+    truncateAllTables,
+    seedTestUser,
+    seedTestFarm,
+    seedTestBatch,
+    closeTestDb,
 } from '../helpers/db-integration'
 
 describe('Feature Integration Tests', () => {
-  let userId: string
-  let farmId: string
+    let userId: string
+    let farmId: string
 
-  beforeEach(async () => {
-    if (!process.env.DATABASE_URL_TEST) return
-    await truncateAllTables()
-    const user = await seedTestUser({ email: 'test@example.com' })
-    userId = user.userId
-    const farm = await seedTestFarm(userId)
-    farmId = farm.farmId
-  })
+    beforeEach(async () => {
+        if (!process.env.DATABASE_URL_TEST) return
+        await truncateAllTables()
+        const user = await seedTestUser({ email: 'test@example.com' })
+        userId = user.userId
+        const farm = await seedTestFarm(userId)
+        farmId = farm.farmId
+    })
 
-  afterAll(async () => {
-    await closeTestDb()
-  })
+    afterAll(async () => {
+        await closeTestDb()
+    })
 
-  it('should test database constraint', async () => {
-    if (!process.env.DATABASE_URL_TEST) return
-    const db = getTestDb()
+    it('should test database constraint', async () => {
+        if (!process.env.DATABASE_URL_TEST) return
+        const db = getTestDb()
 
-    // Test using direct DB operations
-    await expect(
-      db.insertInto('batches').values({ initialQuantity: 0 }).execute(),
-    ).rejects.toThrow() // Tests CHECK constraint
-  })
+        // Test using direct DB operations
+        await expect(
+            db.insertInto('batches').values({ initialQuantity: 0 }).execute(),
+        ).rejects.toThrow() // Tests CHECK constraint
+    })
 })
 ```
 

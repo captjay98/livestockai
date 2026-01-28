@@ -1,130 +1,130 @@
 {
-  "name": "fullstack-engineer",
-  "description": "Fullstack specialist for TanStack Start - handles server functions, routes, components, and database in unified workflow",
-  "keyboardShortcut": "ctrl+shift+3",
-  "welcomeMessage": "🚀 Fullstack Engineer ready. I handle end-to-end features from database to UI.",
-  "prompt": "file://../prompts/agents/fullstack-engineer.md",
-  "tools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking"
-  ],
-  "allowedTools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking"
-  ],
-  "toolsSettings": {
-    "write": {
-      "allowedPaths": ["app/**", "tests/**", "*.md", ".kiro/**"]
-    },
-    "shell": {
-      "allowedCommands": [
-        "bun *",
-        "cat *",
-        "ls *",
-        "grep *",
-        "find *",
-        "head *",
-        "tail *",
-        "git status",
-        "git diff *",
-        "git log *",
-        "mkdir *",
-        "mv *"
-      ],
-      "autoAllowReadonly": true,
-      "deniedCommands": ["rm -rf *", "sudo *"]
-    }
-  },
-  "resources": [
-    "file://AGENTS.md",
-    "file://README.md",
-    "file://app/lib/db/index.ts",
-    "file://app/lib/db/types.ts",
-    "file://app/lib/errors/index.ts",
-    "file://app/features/batches/server.ts",
-    "file://app/features/batches/service.ts",
-    "file://app/features/batches/repository.ts",
-    "file://app/features/settings/currency.ts",
-    "file://app/lib/i18n/config.ts",
-    {
-      "type": "knowledgeBase",
-      "source": "file://./docs",
-      "name": "ProjectDocs",
-      "description": "Architecture, database, deployment, testing, and API documentation",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./DEVLOG.md",
-      "name": "DevLog",
-      "description": "Development history, decisions, and progress tracking",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./.kiro/specs",
-      "name": "FeatureSpecs",
-      "description": "Feature specifications - requirements, designs, and task lists",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    "skill://.kiro/skills/three-layer-architecture/SKILL.md",
-    "skill://.kiro/skills/tanstack-start/SKILL.md",
-    "skill://.kiro/skills/tanstack-router/SKILL.md",
-    "skill://.kiro/skills/tanstack-query/SKILL.md",
-    "skill://.kiro/skills/kysely-orm/SKILL.md",
-    "skill://.kiro/skills/dynamic-imports/SKILL.md",
-    "skill://.kiro/skills/zod-validation/SKILL.md",
-    "skill://.kiro/skills/error-handling/SKILL.md",
-    "skill://.kiro/skills/feature-structure/SKILL.md",
-    "skill://.kiro/skills/rugged-utility/SKILL.md",
-    "skill://.kiro/skills/batch-centric-design/SKILL.md",
-    "skill://.kiro/skills/offline-sync-strategies/SKILL.md",
-    "skill://.kiro/skills/agentic-feature-design/SKILL.md"
-  ],
-  "hooks": {
-    "agentSpawn": [
-      {
-        "command": "echo '🚀 Fullstack Engineer ready.' && echo \"Features: $(ls app/features | wc -l | tr -d ' ')\" && echo \"Routes: $(find app/routes/_auth -name '*.tsx' | wc -l | tr -d ' ')\"",
-        "timeout_ms": 5000
-      }
+    "name": "fullstack-engineer",
+    "description": "Fullstack specialist for TanStack Start - handles server functions, routes, components, and database in unified workflow",
+    "keyboardShortcut": "ctrl+shift+3",
+    "welcomeMessage": "🚀 Fullstack Engineer ready. I handle end-to-end features from database to UI.",
+    "prompt": "file://../prompts/agents/fullstack-engineer.md",
+    "tools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking"
     ],
-    "postToolUse": [
-      {
-        "matcher": "fs_write",
-        "command": "bun run lint --fix 2>/dev/null || true",
-        "timeout_ms": 30000
-      }
-    ]
-  },
-  "includeMcpJson": true,
-  "model": "claude-sonnet-4.5"
+    "allowedTools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking"
+    ],
+    "toolsSettings": {
+        "write": {
+            "allowedPaths": ["app/**", "tests/**", "*.md", ".kiro/**"]
+        },
+        "shell": {
+            "allowedCommands": [
+                "bun *",
+                "cat *",
+                "ls *",
+                "grep *",
+                "find *",
+                "head *",
+                "tail *",
+                "git status",
+                "git diff *",
+                "git log *",
+                "mkdir *",
+                "mv *"
+            ],
+            "autoAllowReadonly": true,
+            "deniedCommands": ["rm -rf *", "sudo *"]
+        }
+    },
+    "resources": [
+        "file://AGENTS.md",
+        "file://README.md",
+        "file://app/lib/db/index.ts",
+        "file://app/lib/db/types.ts",
+        "file://app/lib/errors/index.ts",
+        "file://app/features/batches/server.ts",
+        "file://app/features/batches/service.ts",
+        "file://app/features/batches/repository.ts",
+        "file://app/features/settings/currency.ts",
+        "file://app/lib/i18n/config.ts",
+        {
+            "type": "knowledgeBase",
+            "source": "file://./docs",
+            "name": "ProjectDocs",
+            "description": "Architecture, database, deployment, testing, and API documentation",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./DEVLOG.md",
+            "name": "DevLog",
+            "description": "Development history, decisions, and progress tracking",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./.kiro/specs",
+            "name": "FeatureSpecs",
+            "description": "Feature specifications - requirements, designs, and task lists",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        "skill://.kiro/skills/three-layer-architecture/SKILL.md",
+        "skill://.kiro/skills/tanstack-start/SKILL.md",
+        "skill://.kiro/skills/tanstack-router/SKILL.md",
+        "skill://.kiro/skills/tanstack-query/SKILL.md",
+        "skill://.kiro/skills/kysely-orm/SKILL.md",
+        "skill://.kiro/skills/dynamic-imports/SKILL.md",
+        "skill://.kiro/skills/zod-validation/SKILL.md",
+        "skill://.kiro/skills/error-handling/SKILL.md",
+        "skill://.kiro/skills/feature-structure/SKILL.md",
+        "skill://.kiro/skills/rugged-utility/SKILL.md",
+        "skill://.kiro/skills/batch-centric-design/SKILL.md",
+        "skill://.kiro/skills/offline-sync-strategies/SKILL.md",
+        "skill://.kiro/skills/agentic-feature-design/SKILL.md"
+    ],
+    "hooks": {
+        "agentSpawn": [
+            {
+                "command": "echo '🚀 Fullstack Engineer ready.' && echo \"Features: $(ls app/features | wc -l | tr -d ' ')\" && echo \"Routes: $(find app/routes/_auth -name '*.tsx' | wc -l | tr -d ' ')\"",
+                "timeout_ms": 5000
+            }
+        ],
+        "postToolUse": [
+            {
+                "matcher": "fs_write",
+                "command": "bun run lint --fix 2>/dev/null || true",
+                "timeout_ms": 30000
+            }
+        ]
+    },
+    "includeMcpJson": true,
+    "model": "claude-sonnet-4.5"
 }

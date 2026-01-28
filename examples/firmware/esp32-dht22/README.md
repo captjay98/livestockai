@@ -27,34 +27,34 @@ Note: Pin 3 of DHT22 is not connected (NC).
 - Arduino IDE 2.0+ or PlatformIO
 - ESP32 board support package
 - Required libraries:
-  - WiFi (built-in)
-  - HTTPClient (built-in)
-  - DHT sensor library by Adafruit
-  - ArduinoJson
+    - WiFi (built-in)
+    - HTTPClient (built-in)
+    - DHT sensor library by Adafruit
+    - ArduinoJson
 
 ## Installation
 
 ### Arduino IDE
 
 1. Install ESP32 board support:
-   - Go to File → Preferences
-   - Add to "Additional Board Manager URLs":
-     ```
-     https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-     ```
-   - Go to Tools → Board → Boards Manager
-   - Search for "esp32" and install
+    - Go to File → Preferences
+    - Add to "Additional Board Manager URLs":
+        ```
+        https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+        ```
+    - Go to Tools → Board → Boards Manager
+    - Search for "esp32" and install
 
 2. Install required libraries:
-   - Go to Sketch → Include Library → Manage Libraries
-   - Search and install:
-     - "DHT sensor library" by Adafruit
-     - "ArduinoJson" by Benoit Blanchon
+    - Go to Sketch → Include Library → Manage Libraries
+    - Search and install:
+        - "DHT sensor library" by Adafruit
+        - "ArduinoJson" by Benoit Blanchon
 
 3. Open `sensor.ino` and configure:
-   - WiFi credentials
-   - API endpoint URL
-   - Sensor API key
+    - WiFi credentials
+    - API endpoint URL
+    - Sensor API key
 
 4. Select your board (ESP32 Dev Module) and upload
 
@@ -95,26 +95,29 @@ const int READING_INTERVAL_MS = 300000; // 5 minutes
 
 The built-in LED indicates sensor status:
 
-| Pattern | Meaning |
-|---------|---------|
-| Solid ON | WiFi connecting |
-| Slow blink (1s) | Reading sensor |
-| Fast blink (100ms) | Sending data |
-| OFF | Idle/sleeping |
+| Pattern            | Meaning         |
+| ------------------ | --------------- |
+| Solid ON           | WiFi connecting |
+| Slow blink (1s)    | Reading sensor  |
+| Fast blink (100ms) | Sending data    |
+| OFF                | Idle/sleeping   |
 
 ## Troubleshooting
 
 ### WiFi Connection Issues
+
 - Verify SSID and password are correct
 - Ensure 2.4GHz network (ESP32 doesn't support 5GHz)
 - Check signal strength (move closer to router)
 
 ### Sensor Reading Errors
+
 - Verify wiring connections
 - Check pull-up resistor is installed
 - Ensure DHT22 is not damaged (try another sensor)
 
 ### API Errors
+
 - Verify API key is correct
 - Check endpoint URL
 - Ensure sensor is active in OpenLivestock
@@ -124,10 +127,10 @@ The built-in LED indicates sensor status:
 
 For battery-powered deployments:
 
-| Mode | Current Draw |
-|------|-------------|
-| Active (WiFi) | ~150mA |
-| Deep Sleep | ~10µA |
+| Mode          | Current Draw |
+| ------------- | ------------ |
+| Active (WiFi) | ~150mA       |
+| Deep Sleep    | ~10µA        |
 
 To extend battery life, increase `READING_INTERVAL_MS` and enable deep sleep between readings.
 

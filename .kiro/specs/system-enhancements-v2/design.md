@@ -82,32 +82,32 @@ Server Functions (new files):
 // app/lib/feed-inventory/server.ts
 export async function getFeedInventory(userId: string, farmId?: string)
 export async function createFeedInventory(
-  userId: string,
-  input: CreateFeedInventoryInput,
+    userId: string,
+    input: CreateFeedInventoryInput,
 )
 export async function updateFeedInventory(
-  userId: string,
-  id: string,
-  input: UpdateFeedInventoryInput,
+    userId: string,
+    id: string,
+    input: UpdateFeedInventoryInput,
 )
 export async function deleteFeedInventory(userId: string, id: string)
 
 // app/lib/medication-inventory/server.ts
 export async function getMedicationInventory(userId: string, farmId?: string)
 export async function createMedication(
-  userId: string,
-  input: CreateMedicationInput,
+    userId: string,
+    input: CreateMedicationInput,
 )
 export async function updateMedication(
-  userId: string,
-  id: string,
-  input: UpdateMedicationInput,
+    userId: string,
+    id: string,
+    input: UpdateMedicationInput,
 )
 export async function deleteMedication(userId: string, id: string)
 export async function useMedication(
-  userId: string,
-  id: string,
-  quantity: number,
+    userId: string,
+    id: string,
+    quantity: number,
 ) // For treatment integration
 ```
 
@@ -133,13 +133,13 @@ Server Functions:
 export async function getStructures(userId: string, farmId: string)
 export async function getStructure(userId: string, structureId: string)
 export async function createStructure(
-  userId: string,
-  input: CreateStructureInput,
+    userId: string,
+    input: CreateStructureInput,
 )
 export async function updateStructure(
-  userId: string,
-  id: string,
-  input: UpdateStructureInput,
+    userId: string,
+    id: string,
+    input: UpdateStructureInput,
 )
 export async function deleteStructure(userId: string, id: string)
 export async function getStructureBatches(userId: string, structureId: string)
@@ -153,12 +153,12 @@ New form fields:
 
 ```typescript
 interface EnhancedSaleInput {
-  // Existing fields...
-  unitType?: 'bird' | 'kg' | 'crate' | 'piece'
-  ageWeeks?: number
-  averageWeightKg?: number
-  paymentStatus?: 'paid' | 'pending' | 'partial'
-  paymentMethod?: 'cash' | 'transfer' | 'credit'
+    // Existing fields...
+    unitType?: 'bird' | 'kg' | 'crate' | 'piece'
+    ageWeeks?: number
+    averageWeightKg?: number
+    paymentStatus?: 'paid' | 'pending' | 'partial'
+    paymentMethod?: 'cash' | 'transfer' | 'credit'
 }
 ```
 
@@ -178,11 +178,11 @@ New form fields:
 
 ```typescript
 interface EnhancedBatchInput {
-  // Existing fields...
-  batchName?: string
-  sourceSize?: 'day-old' | 'point-of-lay' | 'fingerling' | 'jumbo'
-  structureId?: string
-  targetHarvestDate?: Date
+    // Existing fields...
+    batchName?: string
+    sourceSize?: 'day-old' | 'point-of-lay' | 'fingerling' | 'jumbo'
+    structureId?: string
+    targetHarvestDate?: Date
 }
 ```
 
@@ -201,9 +201,9 @@ New form fields:
 
 ```typescript
 interface EnhancedWeightInput {
-  // Existing fields...
-  minWeightKg?: number
-  maxWeightKg?: number
+    // Existing fields...
+    minWeightKg?: number
+    maxWeightKg?: number
 }
 ```
 

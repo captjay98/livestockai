@@ -32,27 +32,27 @@ The base storage provider system handles file upload/download/delete but lacks:
 
 ```typescript
 export interface StorageOptions {
-  /** Access mode: public (CDN) or private (signed URLs) */
-  access?: 'public' | 'private'
-  /** Cache-Control max-age in seconds (public only) */
-  maxAge?: number
-  /** Custom metadata */
-  metadata?: Record<string, string>
+    /** Access mode: public (CDN) or private (signed URLs) */
+    access?: 'public' | 'private'
+    /** Cache-Control max-age in seconds (public only) */
+    maxAge?: number
+    /** Custom metadata */
+    metadata?: Record<string, string>
 }
 
 export interface StorageProvider {
-  readonly name: string
+    readonly name: string
 
-  upload: (
-    key: string,
-    content: ArrayBuffer | Uint8Array,
-    contentType: string,
-    options?: StorageOptions, // NEW
-  ) => Promise<StorageResult>
+    upload: (
+        key: string,
+        content: ArrayBuffer | Uint8Array,
+        contentType: string,
+        options?: StorageOptions, // NEW
+    ) => Promise<StorageResult>
 
-  download: (key: string) => Promise<StorageDownloadResult>
-  delete: (key: string) => Promise<ProviderResult>
-  getSignedUrl?: (key: string, expiresIn: number) => Promise<string>
+    download: (key: string) => Promise<StorageDownloadResult>
+    delete: (key: string) => Promise<ProviderResult>
+    getSignedUrl?: (key: string, expiresIn: number) => Promise<string>
 }
 ```
 
@@ -62,56 +62,57 @@ export interface StorageProvider {
 
 ```typescript
 export class R2Provider implements StorageProvider {
-  readonly name = 'r2'
+    readonly name = 'r2'
 
-  private async getBucket(access: 'public' | 'private' = 'private') {
-    const { env } = await import('cloudflare:workers')
+    private async getBucket(access: 'public' | 'private' = 'private') {
+        const { env } = await import('cloudflare:workers')
 
-    if (access === 'public') {
-      return env.PUBLIC_STORAGE_BUCKET
+        if (access === 'public') {
+            return env.PUBLIC_STORAGE_BUCKET
+        }
+        return env.PRIVATE_STORAGE_BUCKET
     }
-    return env.PRIVATE_STORAGE_BUCKET
-  }
 
-  async upload(
-    key: string,
-    content: ArrayBuffer | Uint8Array,
-    contentType: string,
-    options: StorageOptions = {},
-  ): Promise<StorageResult> {
-    try {
-      const bucket = await this.getBucket(options.access)
+    async upload(
+        key: string,
+        content: ArrayBuffer | Uint8Array,
+        contentType: string,
+        options: StorageOptions = {},
+    ): Promise<StorageResult> {
+        try {
+            const bucket = await this.getBucket(options.access)
 
-      if (!bucket) {
-        return { success: false, error: 'R2 bucket not configured' }
-      }
+            if (!bucket) {
+                return { success: false, error: 'R2 bucket not configured' }
+            }
 
-      const httpMetadata: Record<string, string> = { contentType }
+            const httpMetadata: Record<string, string> = { contentType }
 
-      // Add cache control for public files
-      if (options.access === 'public' && options.maxAge) {
-        httpMetadata.cacheControl = `public, max-age=${options.maxAge}`
-      }
+            // Add cache control for public files
+            if (options.access === 'public' && options.maxAge) {
+                httpMetadata.cacheControl = `public, max-age=${options.maxAge}`
+            }
 
-      await bucket.put(key, content, {
-        httpMetadata,
-        customMetadata: options.metadata,
-      })
+            await bucket.put(key, content, {
+                httpMetadata,
+                customMetadata: options.metadata,
+            })
 
-      // Public files use CDN URL, private files use signed URLs
-      const url =
-        options.access === 'public'
-          ? `${process.env.R2_PUBLIC_CDN_URL}/${key}`
-          : await this.getSignedUrl(key, 3600) // 1 hour default
+            // Public files use CDN URL, private files use signed URLs
+            const url =
+                options.access === 'public'
+                    ? `${process.env.R2_PUBLIC_CDN_URL}/${key}`
+                    : await this.getSignedUrl(key, 3600) // 1 hour default
 
-      return { success: true, url, key }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'R2 upload failed',
-      }
+            return { success: true, url, key }
+        } catch (error) {
+            return {
+                success: false,
+                error:
+                    error instanceof Error ? error.message : 'R2 upload failed',
+            }
+        }
     }
-  }
 }
 ```
 
@@ -129,36 +130,36 @@ export const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
 export const MAX_AVATAR_SIZE = 2 * 1024 * 1024 // 2MB
 
 export interface ImageValidationResult {
-  valid: boolean
-  error?: string
+    valid: boolean
+    error?: string
 }
 
 export function validateImage(
-  file: File,
-  maxSize = MAX_IMAGE_SIZE,
+    file: File,
+    maxSize = MAX_IMAGE_SIZE,
 ): ImageValidationResult {
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    return {
-      valid: false,
-      error: 'Invalid image format. Use JPEG, PNG, or WebP.',
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        return {
+            valid: false,
+            error: 'Invalid image format. Use JPEG, PNG, or WebP.',
+        }
     }
-  }
 
-  if (file.size > maxSize) {
-    const maxMB = (maxSize / (1024 * 1024)).toFixed(1)
-    return {
-      valid: false,
-      error: `Image too large. Maximum ${maxMB}MB.`,
+    if (file.size > maxSize) {
+        const maxMB = (maxSize / (1024 * 1024)).toFixed(1)
+        return {
+            valid: false,
+            error: `Image too large. Maximum ${maxMB}MB.`,
+        }
     }
-  }
 
-  return { valid: true }
+    return { valid: true }
 }
 
 export interface ImageCompressionOptions {
-  maxSizeMB?: number
-  maxWidthOrHeight?: number
-  useWebWorker?: boolean
+    maxSizeMB?: number
+    maxWidthOrHeight?: number
+    useWebWorker?: boolean
 }
 
 /**
@@ -166,33 +167,33 @@ export interface ImageCompressionOptions {
  * Uses browser-image-compression library
  */
 export async function compressImage(
-  file: File,
-  options: ImageCompressionOptions = {},
+    file: File,
+    options: ImageCompressionOptions = {},
 ): Promise<File> {
-  const imageCompression = await import('browser-image-compression')
+    const imageCompression = await import('browser-image-compression')
 
-  const defaultOptions = {
-    maxSizeMB: 1,
-    maxWidthOrHeight: 1920,
-    useWebWorker: true,
-    ...options,
-  }
+    const defaultOptions = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+        ...options,
+    }
 
-  return imageCompression.default(file, defaultOptions)
+    return imageCompression.default(file, defaultOptions)
 }
 
 /**
  * Generate thumbnail from image
  */
 export async function generateThumbnail(
-  file: File,
-  maxSize = 200,
+    file: File,
+    maxSize = 200,
 ): Promise<File> {
-  return compressImage(file, {
-    maxSizeMB: 0.1,
-    maxWidthOrHeight: maxSize,
-    useWebWorker: true,
-  })
+    return compressImage(file, {
+        maxSizeMB: 0.1,
+        maxWidthOrHeight: maxSize,
+        useWebWorker: true,
+    })
 }
 ```
 
@@ -206,71 +207,72 @@ import { uploadFile } from '~/features/integrations/storage'
 import { validateImage, compressImage } from './image-utils'
 
 export interface UseImageUploadOptions {
-  maxSize?: number
-  compress?: boolean
-  onSuccess?: (url: string) => void
-  onError?: (error: string) => void
+    maxSize?: number
+    compress?: boolean
+    onSuccess?: (url: string) => void
+    onError?: (error: string) => void
 }
 
 export function useImageUpload(options: UseImageUploadOptions = {}) {
-  const [uploading, setUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [error, setError] = useState<string | null>(null)
+    const [uploading, setUploading] = useState(false)
+    const [progress, setProgress] = useState(0)
+    const [error, setError] = useState<string | null>(null)
 
-  const upload = async (file: File, key: string) => {
-    setUploading(true)
-    setError(null)
-    setProgress(0)
+    const upload = async (file: File, key: string) => {
+        setUploading(true)
+        setError(null)
+        setProgress(0)
 
-    try {
-      // Validate
-      const validation = validateImage(file, options.maxSize)
-      if (!validation.valid) {
-        throw new Error(validation.error)
-      }
+        try {
+            // Validate
+            const validation = validateImage(file, options.maxSize)
+            if (!validation.valid) {
+                throw new Error(validation.error)
+            }
 
-      setProgress(25)
+            setProgress(25)
 
-      // Compress if enabled
-      let fileToUpload = file
-      if (options.compress !== false) {
-        fileToUpload = await compressImage(file)
-      }
+            // Compress if enabled
+            let fileToUpload = file
+            if (options.compress !== false) {
+                fileToUpload = await compressImage(file)
+            }
 
-      setProgress(50)
+            setProgress(50)
 
-      // Upload
-      const result = await uploadFile(
-        key,
-        await fileToUpload.arrayBuffer(),
-        fileToUpload.type,
-        { access: 'public', maxAge: 31536000 }, // 1 year cache
-      )
+            // Upload
+            const result = await uploadFile(
+                key,
+                await fileToUpload.arrayBuffer(),
+                fileToUpload.type,
+                { access: 'public', maxAge: 31536000 }, // 1 year cache
+            )
 
-      setProgress(100)
+            setProgress(100)
 
-      if (!result.success) {
-        throw new Error(result.error || 'Upload failed')
-      }
+            if (!result.success) {
+                throw new Error(result.error || 'Upload failed')
+            }
 
-      options.onSuccess?.(result.url!)
-      return result.url!
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Upload failed'
-      setError(errorMessage)
-      options.onError?.(errorMessage)
-      throw err
-    } finally {
-      setUploading(false)
+            options.onSuccess?.(result.url!)
+            return result.url!
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error ? err.message : 'Upload failed'
+            setError(errorMessage)
+            options.onError?.(errorMessage)
+            throw err
+        } finally {
+            setUploading(false)
+        }
     }
-  }
 
-  return {
-    upload,
-    uploading,
-    progress,
-    error,
-  }
+    return {
+        upload,
+        uploading,
+        progress,
+        error,
+    }
 }
 ```
 
@@ -395,18 +397,18 @@ export function ImageUpload({
 
 ```jsonc
 {
-  "r2_buckets": [
-    {
-      "binding": "PUBLIC_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-public",
-      "preview_bucket_name": "openlivestock-public-preview",
-    },
-    {
-      "binding": "PRIVATE_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-private",
-      "preview_bucket_name": "openlivestock-private-preview",
-    },
-  ],
+    "r2_buckets": [
+        {
+            "binding": "PUBLIC_STORAGE_BUCKET",
+            "bucket_name": "openlivestock-public",
+            "preview_bucket_name": "openlivestock-public-preview",
+        },
+        {
+            "binding": "PRIVATE_STORAGE_BUCKET",
+            "bucket_name": "openlivestock-private",
+            "preview_bucket_name": "openlivestock-private-preview",
+        },
+    ],
 }
 ```
 
@@ -549,17 +551,17 @@ function BatchPhotos({ batchId }: { batchId: string }) {
 import { uploadFile } from '~/features/integrations/storage'
 
 async function uploadInvoicePDF(invoiceId: string, pdfBuffer: ArrayBuffer) {
-  const result = await uploadFile(
-    `private/invoices/${invoiceId}.pdf`,
-    pdfBuffer,
-    'application/pdf',
-    { access: 'private' }, // Requires signed URL to access
-  )
+    const result = await uploadFile(
+        `private/invoices/${invoiceId}.pdf`,
+        pdfBuffer,
+        'application/pdf',
+        { access: 'private' }, // Requires signed URL to access
+    )
 
-  if (result.success) {
-    // Save private URL to database
-    await saveInvoiceUrl(invoiceId, result.url)
-  }
+    if (result.success) {
+        // Save private URL to database
+        await saveInvoiceUrl(invoiceId, result.url)
+    }
 }
 ```
 
@@ -593,31 +595,31 @@ CREATE INDEX idx_batch_photos_batch_id ON batch_photos(batch_id);
 
 ```typescript
 describe('Image Validation', () => {
-  it('should accept valid JPEG', () => {
-    const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
-    const result = validateImage(file)
-    expect(result.valid).toBe(true)
-  })
+    it('should accept valid JPEG', () => {
+        const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
+        const result = validateImage(file)
+        expect(result.valid).toBe(true)
+    })
 
-  it('should reject invalid format', () => {
-    const file = new File([''], 'test.gif', { type: 'image/gif' })
-    const result = validateImage(file)
-    expect(result.valid).toBe(false)
-    expect(result.error).toContain('Invalid image format')
-  })
+    it('should reject invalid format', () => {
+        const file = new File([''], 'test.gif', { type: 'image/gif' })
+        const result = validateImage(file)
+        expect(result.valid).toBe(false)
+        expect(result.error).toContain('Invalid image format')
+    })
 
-  it('should reject oversized image', () => {
-    const largeFile = new File(
-      [new ArrayBuffer(6 * 1024 * 1024)],
-      'large.jpg',
-      {
-        type: 'image/jpeg',
-      },
-    )
-    const result = validateImage(largeFile)
-    expect(result.valid).toBe(false)
-    expect(result.error).toContain('too large')
-  })
+    it('should reject oversized image', () => {
+        const largeFile = new File(
+            [new ArrayBuffer(6 * 1024 * 1024)],
+            'large.jpg',
+            {
+                type: 'image/jpeg',
+            },
+        )
+        const result = validateImage(largeFile)
+        expect(result.valid).toBe(false)
+        expect(result.error).toContain('too large')
+    })
 })
 ```
 

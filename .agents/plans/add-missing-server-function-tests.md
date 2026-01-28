@@ -73,11 +73,11 @@ Add 69 property-based and integration tests across 7 features to validate:
 ### Relevant Documentation - SHOULD READ BEFORE IMPLEMENTING
 
 - [Vitest Documentation](https://vitest.dev/guide/)
-  - Why: Test framework and patterns
+    - Why: Test framework and patterns
 - [fast-check Documentation](https://fast-check.dev/)
-  - Why: Property-based testing for calculations
+    - Why: Property-based testing for calculations
 - OpenLivestock AGENTS.md - Better Auth and access control patterns
-  - Why: Understand `checkFarmAccess()` usage in tests
+    - Why: Understand `checkFarmAccess()` usage in tests
 
 ### Patterns to Follow
 
@@ -87,80 +87,80 @@ Add 69 property-based and integration tests across 7 features to validate:
 // tests/features/{feature}/server.test.ts
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import {
-  getTestDb,
-  seedTestUser,
-  seedTestFarm,
-  truncateAllTables,
-  closeTestDb,
+    getTestDb,
+    seedTestUser,
+    seedTestFarm,
+    truncateAllTables,
+    closeTestDb,
 } from '../../helpers/db-integration'
 import {
-  createCustomerFn,
-  getCustomersFn,
-  updateCustomerFn,
-  deleteCustomerFn,
+    createCustomerFn,
+    getCustomersFn,
+    updateCustomerFn,
+    deleteCustomerFn,
 } from '~/features/customers/server'
 
 describe('customers server functions', () => {
-  let db: any
-  let userId: string
-  let farmId: string
+    let db: any
+    let userId: string
+    let farmId: string
 
-  beforeEach(async () => {
-    db = getTestDb()
-    await truncateAllTables()
-    const user = await seedTestUser({ email: 'test@example.com' })
-    userId = user.userId
-    const farm = await seedTestFarm(userId)
-    farmId = farm.farmId
-  })
-
-  afterEach(async () => {
-    await closeTestDb()
-  })
-
-  describe('createCustomerFn', () => {
-    it('creates customer for authorized farm', async () => {
-      const result = await createCustomerFn({
-        data: {
-          farmId,
-          name: 'Test Customer',
-          phone: '1234567890',
-          email: 'customer@example.com',
-          location: 'Test Location',
-          customerType: 'individual',
-        },
-      })
-      expect(result).toBeDefined()
-      expect(result.farmId).toBe(farmId)
+    beforeEach(async () => {
+        db = getTestDb()
+        await truncateAllTables()
+        const user = await seedTestUser({ email: 'test@example.com' })
+        userId = user.userId
+        const farm = await seedTestFarm(userId)
+        farmId = farm.farmId
     })
 
-    it('throws ACCESS_DENIED for unauthorized farm', async () => {
-      const otherUser = await seedTestUser({ email: 'other@example.com' })
-      const otherFarm = await seedTestFarm(otherUser.userId)
-
-      await expect(
-        createCustomerFn({
-          data: {
-            farmId: otherFarm.farmId,
-            name: 'Test Customer',
-            phone: '1234567890',
-          },
-        }),
-      ).rejects.toThrow('ACCESS_DENIED')
+    afterEach(async () => {
+        await closeTestDb()
     })
 
-    it('validates required fields', async () => {
-      await expect(
-        createCustomerFn({
-          data: {
-            farmId,
-            name: '', // Invalid: empty name
-            phone: '1234567890',
-          },
-        }),
-      ).rejects.toThrow('VALIDATION_ERROR')
+    describe('createCustomerFn', () => {
+        it('creates customer for authorized farm', async () => {
+            const result = await createCustomerFn({
+                data: {
+                    farmId,
+                    name: 'Test Customer',
+                    phone: '1234567890',
+                    email: 'customer@example.com',
+                    location: 'Test Location',
+                    customerType: 'individual',
+                },
+            })
+            expect(result).toBeDefined()
+            expect(result.farmId).toBe(farmId)
+        })
+
+        it('throws ACCESS_DENIED for unauthorized farm', async () => {
+            const otherUser = await seedTestUser({ email: 'other@example.com' })
+            const otherFarm = await seedTestFarm(otherUser.userId)
+
+            await expect(
+                createCustomerFn({
+                    data: {
+                        farmId: otherFarm.farmId,
+                        name: 'Test Customer',
+                        phone: '1234567890',
+                    },
+                }),
+            ).rejects.toThrow('ACCESS_DENIED')
+        })
+
+        it('validates required fields', async () => {
+            await expect(
+                createCustomerFn({
+                    data: {
+                        farmId,
+                        name: '', // Invalid: empty name
+                        phone: '1234567890',
+                    },
+                }),
+            ).rejects.toThrow('VALIDATION_ERROR')
+        })
     })
-  })
 })
 ```
 
@@ -171,26 +171,26 @@ describe('customers server functions', () => {
 import * as fc from 'fast-check'
 
 describe('invoice calculations', () => {
-  it('total always equals sum of line items', () => {
-    fc.assert(
-      fc.property(
-        fc.array(
-          fc.record({
-            quantity: fc.nat({ min: 1 }),
-            unitPrice: fc.nat({ min: 1 }),
-          }),
-          { minLength: 1 },
-        ),
-        (items) => {
-          const total = items.reduce(
-            (sum, item) => sum + item.quantity * item.unitPrice,
-            0,
-          )
-          expect(total).toBeGreaterThan(0)
-        },
-      ),
-    )
-  })
+    it('total always equals sum of line items', () => {
+        fc.assert(
+            fc.property(
+                fc.array(
+                    fc.record({
+                        quantity: fc.nat({ min: 1 }),
+                        unitPrice: fc.nat({ min: 1 }),
+                    }),
+                    { minLength: 1 },
+                ),
+                (items) => {
+                    const total = items.reduce(
+                        (sum, item) => sum + item.quantity * item.unitPrice,
+                        0,
+                    )
+                    expect(total).toBeGreaterThan(0)
+                },
+            ),
+        )
+    })
 })
 ```
 
@@ -199,22 +199,22 @@ describe('invoice calculations', () => {
 ```typescript
 // Test server function with database
 describe('getCustomersFn integration', () => {
-  it('returns only customers from authorized farm', async () => {
-    // Create customer in farm1
-    await createCustomerFn({
-      data: { farmId: farm1Id, name: 'Customer 1', phone: '123' },
-    })
+    it('returns only customers from authorized farm', async () => {
+        // Create customer in farm1
+        await createCustomerFn({
+            data: { farmId: farm1Id, name: 'Customer 1', phone: '123' },
+        })
 
-    // Create customer in farm2
-    await createCustomerFn({
-      data: { farmId: farm2Id, name: 'Customer 2', phone: '456' },
-    })
+        // Create customer in farm2
+        await createCustomerFn({
+            data: { farmId: farm2Id, name: 'Customer 2', phone: '456' },
+        })
 
-    // Query farm1 - should only get Customer 1
-    const result = await getCustomersFn({ data: { farmId: farm1Id } })
-    expect(result).toHaveLength(1)
-    expect(result[0].name).toBe('Customer 1')
-  })
+        // Query farm1 - should only get Customer 1
+        const result = await getCustomersFn({ data: { farmId: farm1Id } })
+        expect(result).toHaveLength(1)
+        expect(result[0].name).toBe('Customer 1')
+    })
 })
 ```
 

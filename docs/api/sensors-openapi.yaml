@@ -3,15 +3,15 @@ info:
   title: OpenLivestock IoT Sensor Hub API
   description: |
     REST API for IoT sensor data ingestion and retrieval.
-    
+
     ## Authentication
     Sensors authenticate using API keys passed in the `X-Sensor-API-Key` header.
     API keys are generated when registering a sensor and should be stored securely.
-    
+
     ## Rate Limiting
     - Ingestion endpoint: 60 requests/minute per sensor
     - Query endpoints: 100 requests/minute per user
-    
+
     ## Data Retention
     - Raw readings: 7 days (configurable)
     - Hourly aggregates: 30 days
@@ -57,7 +57,7 @@ paths:
                   $ref: '#/components/schemas/Sensor'
         '401':
           $ref: '#/components/responses/Unauthorized'
-    
+
     post:
       tags: [Sensors]
       summary: Register a new sensor
@@ -95,7 +95,7 @@ paths:
                 $ref: '#/components/schemas/SensorWithReadings'
         '404':
           $ref: '#/components/responses/NotFound'
-    
+
     patch:
       tags: [Sensors]
       summary: Update sensor configuration
@@ -116,7 +116,7 @@ paths:
                 $ref: '#/components/schemas/Sensor'
         '404':
           $ref: '#/components/responses/NotFound'
-    
+
     delete:
       tags: [Sensors]
       summary: Delete a sensor (soft delete)
@@ -134,7 +134,7 @@ paths:
       summary: Ingest sensor reading
       description: |
         Submit a sensor reading. Authenticates via API key in header.
-        
+
         **Rate limit**: 60 requests/minute per sensor
       security:
         - SensorApiKey: []

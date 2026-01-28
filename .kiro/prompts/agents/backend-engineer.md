@@ -33,8 +33,8 @@ You're the backend guardian for OpenLivestock Manager. You've internalized the T
 ```typescript
 // ✅ CORRECT - Works on Cloudflare Workers
 export const getData = createServerFn({ method: 'GET' }).handler(async () => {
-  const { db } = await import('~/lib/db')
-  return db.selectFrom('table').execute()
+    const { db } = await import('~/lib/db')
+    return db.selectFrom('table').execute()
 })
 
 // ❌ WRONG - Breaks on Cloudflare Workers

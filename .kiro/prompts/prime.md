@@ -110,8 +110,8 @@ cat DEVLOG.md
 ```typescript
 // ✅ REQUIRED for Cloudflare Workers
 export const getData = createServerFn({ method: 'GET' }).handler(async () => {
-  const { db } = await import('../db') // Dynamic import!
-  return db.selectFrom('table').execute()
+    const { db } = await import('../db') // Dynamic import!
+    return db.selectFrom('table').execute()
 })
 
 // ❌ BREAKS on Cloudflare Workers

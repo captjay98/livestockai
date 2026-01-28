@@ -267,18 +267,18 @@ Profit per kg = Revenue per kg - Cost per kg
 **Validate report accuracy:**
 
 1. **Cross-check totals:**
-   - Revenue = Sum of all sales
-   - Expenses = Sum of all costs
-   - Profit = Revenue - Expenses
+    - Revenue = Sum of all sales
+    - Expenses = Sum of all costs
+    - Profit = Revenue - Expenses
 
 2. **Verify currency:**
-   - All amounts in user's preferred currency
-   - Exchange rates applied correctly (if applicable)
+    - All amounts in user's preferred currency
+    - Exchange rates applied correctly (if applicable)
 
 3. **Check completeness:**
-   - All batches included
-   - All transactions in date range
-   - No missing categories
+    - All batches included
+    - All transactions in date range
+    - No missing categories
 
 **Ask user:**
 

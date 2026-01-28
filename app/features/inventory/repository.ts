@@ -14,39 +14,39 @@ import type { Database } from '~/lib/db/types'
  * Feed inventory record with farm information
  */
 export interface FeedInventoryRecord {
-  id: string
-  farmId: string
-  feedType: Database['feed_inventory']['feedType']
-  quantityKg: string
-  minThresholdKg: string
-  updatedAt: Date
-  farmName?: string | null
+    id: string
+    farmId: string
+    feedType: Database['feed_inventory']['feedType']
+    quantityKg: string
+    minThresholdKg: string
+    updatedAt: Date
+    farmName?: string | null
 }
 
 /**
  * Feed inventory with computed status
  */
 export interface FeedInventoryWithStatus extends FeedInventoryRecord {
-  status: 'normal' | 'low' | 'critical'
+    status: 'normal' | 'low' | 'critical'
 }
 
 /**
  * Data for inserting a new feed inventory record
  */
 export interface FeedInventoryInsert {
-  farmId: string
-  feedType: Database['feed_inventory']['feedType']
-  quantityKg: string
-  minThresholdKg: string
+    farmId: string
+    feedType: Database['feed_inventory']['feedType']
+    quantityKg: string
+    minThresholdKg: string
 }
 
 /**
  * Data for updating a feed inventory record
  */
 export interface FeedInventoryUpdate {
-  feedType?: Database['feed_inventory']['feedType']
-  quantityKg?: string
-  minThresholdKg?: string
+    feedType?: Database['feed_inventory']['feedType']
+    quantityKg?: string
+    minThresholdKg?: string
 }
 
 // ============================================================================
@@ -57,47 +57,47 @@ export interface FeedInventoryUpdate {
  * Medication inventory record with farm information
  */
 export interface MedicationInventoryRecord {
-  id: string
-  farmId: string
-  medicationName: string
-  quantity: number
-  unit: Database['medication_inventory']['unit']
-  expiryDate: Date | null
-  minThreshold: number
-  updatedAt: Date
-  farmName?: string | null
+    id: string
+    farmId: string
+    medicationName: string
+    quantity: number
+    unit: Database['medication_inventory']['unit']
+    expiryDate: Date | null
+    minThreshold: number
+    updatedAt: Date
+    farmName?: string | null
 }
 
 /**
  * Medication inventory with computed status
  */
 export interface MedicationInventoryWithStatus extends MedicationInventoryRecord {
-  status: 'normal' | 'low' | 'critical'
-  isExpiring?: boolean
-  daysUntilExpiry?: number | null
+    status: 'normal' | 'low' | 'critical'
+    isExpiring?: boolean
+    daysUntilExpiry?: number | null
 }
 
 /**
  * Data for inserting a new medication inventory record
  */
 export interface MedicationInventoryInsert {
-  farmId: string
-  medicationName: string
-  quantity: number
-  unit: Database['medication_inventory']['unit']
-  expiryDate?: Date | null
-  minThreshold: number
+    farmId: string
+    medicationName: string
+    quantity: number
+    unit: Database['medication_inventory']['unit']
+    expiryDate?: Date | null
+    minThreshold: number
 }
 
 /**
  * Data for updating a medication inventory record
  */
 export interface MedicationInventoryUpdate {
-  medicationName?: string
-  quantity?: number
-  unit?: Database['medication_inventory']['unit']
-  expiryDate?: Date | null
-  minThreshold?: number
+    medicationName?: string
+    quantity?: number
+    unit?: Database['medication_inventory']['unit']
+    expiryDate?: Date | null
+    minThreshold?: number
 }
 
 // ============================================================================
@@ -112,25 +112,25 @@ export interface MedicationInventoryUpdate {
  * @returns Feed inventory record with farm info, or null if not found
  */
 export async function getFeedInventoryById(
-  db: Kysely<Database>,
-  id: string,
+    db: Kysely<Database>,
+    id: string,
 ): Promise<FeedInventoryRecord | null> {
-  const record = await db
-    .selectFrom('feed_inventory')
-    .leftJoin('farms', 'farms.id', 'feed_inventory.farmId')
-    .select([
-      'feed_inventory.id',
-      'feed_inventory.farmId',
-      'feed_inventory.feedType',
-      'feed_inventory.quantityKg',
-      'feed_inventory.minThresholdKg',
-      'feed_inventory.updatedAt',
-      'farms.name as farmName',
-    ])
-    .where('feed_inventory.id', '=', id)
-    .executeTakeFirst()
+    const record = await db
+        .selectFrom('feed_inventory')
+        .leftJoin('farms', 'farms.id', 'feed_inventory.farmId')
+        .select([
+            'feed_inventory.id',
+            'feed_inventory.farmId',
+            'feed_inventory.feedType',
+            'feed_inventory.quantityKg',
+            'feed_inventory.minThresholdKg',
+            'feed_inventory.updatedAt',
+            'farms.name as farmName',
+        ])
+        .where('feed_inventory.id', '=', id)
+        .executeTakeFirst()
 
-  return (record as FeedInventoryRecord | undefined) ?? null
+    return (record as FeedInventoryRecord | undefined) ?? null
 }
 
 /**
@@ -141,24 +141,24 @@ export async function getFeedInventoryById(
  * @returns Array of feed inventory records with farm names
  */
 export async function selectFeedInventory(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
 ): Promise<Array<FeedInventoryRecord>> {
-  return await db
-    .selectFrom('feed_inventory')
-    .leftJoin('farms', 'farms.id', 'feed_inventory.farmId')
-    .select([
-      'feed_inventory.id',
-      'feed_inventory.farmId',
-      'feed_inventory.feedType',
-      'feed_inventory.quantityKg',
-      'feed_inventory.minThresholdKg',
-      'feed_inventory.updatedAt',
-      'farms.name as farmName',
-    ])
-    .where('feed_inventory.farmId', 'in', farmIds)
-    .orderBy('feed_inventory.feedType', 'asc')
-    .execute()
+    return await db
+        .selectFrom('feed_inventory')
+        .leftJoin('farms', 'farms.id', 'feed_inventory.farmId')
+        .select([
+            'feed_inventory.id',
+            'feed_inventory.farmId',
+            'feed_inventory.feedType',
+            'feed_inventory.quantityKg',
+            'feed_inventory.minThresholdKg',
+            'feed_inventory.updatedAt',
+            'farms.name as farmName',
+        ])
+        .where('feed_inventory.farmId', 'in', farmIds)
+        .orderBy('feed_inventory.feedType', 'asc')
+        .execute()
 }
 
 /**
@@ -170,18 +170,20 @@ export async function selectFeedInventory(
  * @returns Feed inventory record if found, null otherwise
  */
 export async function getFeedInventoryByFarmAndType(
-  db: Kysely<Database>,
-  farmId: string,
-  feedType: Database['feed_inventory']['feedType'],
+    db: Kysely<Database>,
+    farmId: string,
+    feedType: Database['feed_inventory']['feedType'],
 ): Promise<(FeedInventoryRecord & { id: string }) | null> {
-  const record = await db
-    .selectFrom('feed_inventory')
-    .select(['id', 'quantityKg'])
-    .where('farmId', '=', farmId)
-    .where('feedType', '=', feedType)
-    .executeTakeFirst()
+    const record = await db
+        .selectFrom('feed_inventory')
+        .select(['id', 'quantityKg'])
+        .where('farmId', '=', farmId)
+        .where('feedType', '=', feedType)
+        .executeTakeFirst()
 
-  return (record as (FeedInventoryRecord & { id: string }) | undefined) ?? null
+    return (
+        (record as (FeedInventoryRecord & { id: string }) | undefined) ?? null
+    )
 }
 
 /**
@@ -192,19 +194,19 @@ export async function getFeedInventoryByFarmAndType(
  * @returns The ID of the created record
  */
 export async function insertFeedInventory(
-  db: Kysely<Database>,
-  data: FeedInventoryInsert,
+    db: Kysely<Database>,
+    data: FeedInventoryInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('feed_inventory')
-    .values({
-      ...data,
-      updatedAt: new Date(),
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+    const result = await db
+        .insertInto('feed_inventory')
+        .values({
+            ...data,
+            updatedAt: new Date(),
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow()
 
-  return result.id
+    return result.id
 }
 
 /**
@@ -216,18 +218,18 @@ export async function insertFeedInventory(
  * @returns Promise resolving when update is complete
  */
 export async function updateFeedInventory(
-  db: Kysely<Database>,
-  id: string,
-  data: FeedInventoryUpdate,
+    db: Kysely<Database>,
+    id: string,
+    data: FeedInventoryUpdate,
 ): Promise<void> {
-  await db
-    .updateTable('feed_inventory')
-    .set({
-      ...data,
-      updatedAt: new Date(),
-    })
-    .where('id', '=', id)
-    .execute()
+    await db
+        .updateTable('feed_inventory')
+        .set({
+            ...data,
+            updatedAt: new Date(),
+        })
+        .where('id', '=', id)
+        .execute()
 }
 
 /**
@@ -238,10 +240,10 @@ export async function updateFeedInventory(
  * @returns Promise resolving when delete is complete
  */
 export async function deleteFeedInventory(
-  db: Kysely<Database>,
-  id: string,
+    db: Kysely<Database>,
+    id: string,
 ): Promise<void> {
-  await db.deleteFrom('feed_inventory').where('id', '=', id).execute()
+    await db.deleteFrom('feed_inventory').where('id', '=', id).execute()
 }
 
 /**
@@ -252,27 +254,31 @@ export async function deleteFeedInventory(
  * @returns Array of feed inventory records below threshold
  */
 export async function getLowStockFeed(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
 ): Promise<Array<FeedInventoryRecord>> {
-  return await db
-    .selectFrom('feed_inventory')
-    .leftJoin('farms', 'farms.id', 'feed_inventory.farmId')
-    .select([
-      'feed_inventory.id',
-      'feed_inventory.farmId',
-      'feed_inventory.feedType',
-      'feed_inventory.quantityKg',
-      'feed_inventory.minThresholdKg',
-      'feed_inventory.updatedAt',
-      'farms.name as farmName',
-    ])
-    .where('feed_inventory.farmId', 'in', farmIds)
-    .where((eb) =>
-      eb('feed_inventory.quantityKg', '<=', 'feed_inventory."minThresholdKg"'),
-    )
-    .orderBy('feed_inventory.feedType', 'asc')
-    .execute()
+    return await db
+        .selectFrom('feed_inventory')
+        .leftJoin('farms', 'farms.id', 'feed_inventory.farmId')
+        .select([
+            'feed_inventory.id',
+            'feed_inventory.farmId',
+            'feed_inventory.feedType',
+            'feed_inventory.quantityKg',
+            'feed_inventory.minThresholdKg',
+            'feed_inventory.updatedAt',
+            'farms.name as farmName',
+        ])
+        .where('feed_inventory.farmId', 'in', farmIds)
+        .where((eb) =>
+            eb(
+                'feed_inventory.quantityKg',
+                '<=',
+                'feed_inventory."minThresholdKg"',
+            ),
+        )
+        .orderBy('feed_inventory.feedType', 'asc')
+        .execute()
 }
 
 // ============================================================================
@@ -287,27 +293,27 @@ export async function getLowStockFeed(
  * @returns Medication inventory record with farm info, or null if not found
  */
 export async function getMedicationInventoryById(
-  db: Kysely<Database>,
-  id: string,
+    db: Kysely<Database>,
+    id: string,
 ): Promise<MedicationInventoryRecord | null> {
-  const record = await db
-    .selectFrom('medication_inventory')
-    .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
-    .select([
-      'medication_inventory.id',
-      'medication_inventory.farmId',
-      'medication_inventory.medicationName',
-      'medication_inventory.quantity',
-      'medication_inventory.unit',
-      'medication_inventory.expiryDate',
-      'medication_inventory.minThreshold',
-      'medication_inventory.updatedAt',
-      'farms.name as farmName',
-    ])
-    .where('medication_inventory.id', '=', id)
-    .executeTakeFirst()
+    const record = await db
+        .selectFrom('medication_inventory')
+        .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
+        .select([
+            'medication_inventory.id',
+            'medication_inventory.farmId',
+            'medication_inventory.medicationName',
+            'medication_inventory.quantity',
+            'medication_inventory.unit',
+            'medication_inventory.expiryDate',
+            'medication_inventory.minThreshold',
+            'medication_inventory.updatedAt',
+            'farms.name as farmName',
+        ])
+        .where('medication_inventory.id', '=', id)
+        .executeTakeFirst()
 
-  return (record as MedicationInventoryRecord | undefined) ?? null
+    return (record as MedicationInventoryRecord | undefined) ?? null
 }
 
 /**
@@ -318,26 +324,26 @@ export async function getMedicationInventoryById(
  * @returns Array of medication inventory records with farm names
  */
 export async function selectMedicationInventory(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
 ): Promise<Array<MedicationInventoryRecord>> {
-  return await db
-    .selectFrom('medication_inventory')
-    .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
-    .select([
-      'medication_inventory.id',
-      'medication_inventory.farmId',
-      'medication_inventory.medicationName',
-      'medication_inventory.quantity',
-      'medication_inventory.unit',
-      'medication_inventory.expiryDate',
-      'medication_inventory.minThreshold',
-      'medication_inventory.updatedAt',
-      'farms.name as farmName',
-    ])
-    .where('medication_inventory.farmId', 'in', farmIds)
-    .orderBy('medication_inventory.medicationName', 'asc')
-    .execute()
+    return await db
+        .selectFrom('medication_inventory')
+        .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
+        .select([
+            'medication_inventory.id',
+            'medication_inventory.farmId',
+            'medication_inventory.medicationName',
+            'medication_inventory.quantity',
+            'medication_inventory.unit',
+            'medication_inventory.expiryDate',
+            'medication_inventory.minThreshold',
+            'medication_inventory.updatedAt',
+            'farms.name as farmName',
+        ])
+        .where('medication_inventory.farmId', 'in', farmIds)
+        .orderBy('medication_inventory.medicationName', 'asc')
+        .execute()
 }
 
 /**
@@ -348,19 +354,19 @@ export async function selectMedicationInventory(
  * @returns The ID of the created record
  */
 export async function insertMedicationInventory(
-  db: Kysely<Database>,
-  data: MedicationInventoryInsert,
+    db: Kysely<Database>,
+    data: MedicationInventoryInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('medication_inventory')
-    .values({
-      ...data,
-      updatedAt: new Date(),
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+    const result = await db
+        .insertInto('medication_inventory')
+        .values({
+            ...data,
+            updatedAt: new Date(),
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow()
 
-  return result.id
+    return result.id
 }
 
 /**
@@ -372,18 +378,18 @@ export async function insertMedicationInventory(
  * @returns Promise resolving when update is complete
  */
 export async function updateMedicationInventory(
-  db: Kysely<Database>,
-  id: string,
-  data: MedicationInventoryUpdate,
+    db: Kysely<Database>,
+    id: string,
+    data: MedicationInventoryUpdate,
 ): Promise<void> {
-  await db
-    .updateTable('medication_inventory')
-    .set({
-      ...data,
-      updatedAt: new Date(),
-    })
-    .where('id', '=', id)
-    .execute()
+    await db
+        .updateTable('medication_inventory')
+        .set({
+            ...data,
+            updatedAt: new Date(),
+        })
+        .where('id', '=', id)
+        .execute()
 }
 
 /**
@@ -394,10 +400,10 @@ export async function updateMedicationInventory(
  * @returns Promise resolving when delete is complete
  */
 export async function deleteMedicationInventory(
-  db: Kysely<Database>,
-  id: string,
+    db: Kysely<Database>,
+    id: string,
 ): Promise<void> {
-  await db.deleteFrom('medication_inventory').where('id', '=', id).execute()
+    await db.deleteFrom('medication_inventory').where('id', '=', id).execute()
 }
 
 /**
@@ -409,32 +415,32 @@ export async function deleteMedicationInventory(
  * @returns Array of medications expiring soon
  */
 export async function getExpiringMedications(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  days: number = 30,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    days: number = 30,
 ): Promise<Array<MedicationInventoryRecord>> {
-  const futureDate = new Date()
-  futureDate.setDate(futureDate.getDate() + days)
+    const futureDate = new Date()
+    futureDate.setDate(futureDate.getDate() + days)
 
-  return await db
-    .selectFrom('medication_inventory')
-    .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
-    .select([
-      'medication_inventory.id',
-      'medication_inventory.farmId',
-      'medication_inventory.medicationName',
-      'medication_inventory.quantity',
-      'medication_inventory.unit',
-      'medication_inventory.expiryDate',
-      'medication_inventory.minThreshold',
-      'medication_inventory.updatedAt',
-      'farms.name as farmName',
-    ])
-    .where('medication_inventory.farmId', 'in', farmIds)
-    .where('medication_inventory.expiryDate', 'is not', null)
-    .where('medication_inventory.expiryDate', '<=', futureDate)
-    .orderBy('medication_inventory.expiryDate', 'asc')
-    .execute()
+    return await db
+        .selectFrom('medication_inventory')
+        .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
+        .select([
+            'medication_inventory.id',
+            'medication_inventory.farmId',
+            'medication_inventory.medicationName',
+            'medication_inventory.quantity',
+            'medication_inventory.unit',
+            'medication_inventory.expiryDate',
+            'medication_inventory.minThreshold',
+            'medication_inventory.updatedAt',
+            'farms.name as farmName',
+        ])
+        .where('medication_inventory.farmId', 'in', farmIds)
+        .where('medication_inventory.expiryDate', 'is not', null)
+        .where('medication_inventory.expiryDate', '<=', futureDate)
+        .orderBy('medication_inventory.expiryDate', 'asc')
+        .execute()
 }
 
 /**
@@ -445,33 +451,33 @@ export async function getExpiringMedications(
  * @returns Array of medications below threshold
  */
 export async function getLowStockMedications(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
 ): Promise<Array<MedicationInventoryRecord>> {
-  return await db
-    .selectFrom('medication_inventory')
-    .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
-    .select([
-      'medication_inventory.id',
-      'medication_inventory.farmId',
-      'medication_inventory.medicationName',
-      'medication_inventory.quantity',
-      'medication_inventory.unit',
-      'medication_inventory.minThreshold',
-      'medication_inventory.expiryDate',
-      'medication_inventory.updatedAt',
-      'farms.name as farmName',
-    ])
-    .where('medication_inventory.farmId', 'in', farmIds)
-    .where((eb) =>
-      eb(
-        'medication_inventory.quantity',
-        '<=',
-        eb.ref('medication_inventory.minThreshold'),
-      ),
-    )
-    .orderBy('medication_inventory.medicationName', 'asc')
-    .execute()
+    return await db
+        .selectFrom('medication_inventory')
+        .leftJoin('farms', 'farms.id', 'medication_inventory.farmId')
+        .select([
+            'medication_inventory.id',
+            'medication_inventory.farmId',
+            'medication_inventory.medicationName',
+            'medication_inventory.quantity',
+            'medication_inventory.unit',
+            'medication_inventory.minThreshold',
+            'medication_inventory.expiryDate',
+            'medication_inventory.updatedAt',
+            'farms.name as farmName',
+        ])
+        .where('medication_inventory.farmId', 'in', farmIds)
+        .where((eb) =>
+            eb(
+                'medication_inventory.quantity',
+                '<=',
+                eb.ref('medication_inventory.minThreshold'),
+            ),
+        )
+        .orderBy('medication_inventory.medicationName', 'asc')
+        .execute()
 }
 
 /**
@@ -482,19 +488,19 @@ export async function getLowStockMedications(
  * @param quantityKg - Quantity to add
  */
 export async function atomicAddFeedQuantity(
-  db: Kysely<Database>,
-  id: string,
-  quantityKg: number,
+    db: Kysely<Database>,
+    id: string,
+    quantityKg: number,
 ): Promise<void> {
-  const { sql } = await import('kysely')
-  await db
-    .updateTable('feed_inventory')
-    .set({
-      quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) + ${quantityKg} AS TEXT)`,
-      updatedAt: new Date(),
-    })
-    .where('id', '=', id)
-    .execute()
+    const { sql } = await import('kysely')
+    await db
+        .updateTable('feed_inventory')
+        .set({
+            quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) + ${quantityKg} AS TEXT)`,
+            updatedAt: new Date(),
+        })
+        .where('id', '=', id)
+        .execute()
 }
 
 /**
@@ -505,17 +511,17 @@ export async function atomicAddFeedQuantity(
  * @param quantityKg - Quantity to subtract
  */
 export async function atomicSubtractFeedQuantity(
-  db: Kysely<Database>,
-  id: string,
-  quantityKg: number,
+    db: Kysely<Database>,
+    id: string,
+    quantityKg: number,
 ): Promise<void> {
-  const { sql } = await import('kysely')
-  await db
-    .updateTable('feed_inventory')
-    .set({
-      quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) - ${quantityKg} AS TEXT)`,
-      updatedAt: new Date(),
-    })
-    .where('id', '=', id)
-    .execute()
+    const { sql } = await import('kysely')
+    await db
+        .updateTable('feed_inventory')
+        .set({
+            quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) - ${quantityKg} AS TEXT)`,
+            updatedAt: new Date(),
+        })
+        .where('id', '=', id)
+        .execute()
 }

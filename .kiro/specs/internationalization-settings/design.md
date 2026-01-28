@@ -61,34 +61,34 @@ flowchart TB
 // app/lib/settings/server.ts
 
 export const getUserSettings = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const { db } = await import('../db')
-    const session = await getSession()
+    async () => {
+        const { db } = await import('../db')
+        const session = await getSession()
 
-    const settings = await db
-      .selectFrom('user_settings')
-      .selectAll()
-      .where('userId', '=', session.user.id)
-      .executeTakeFirst()
+        const settings = await db
+            .selectFrom('user_settings')
+            .selectAll()
+            .where('userId', '=', session.user.id)
+            .executeTakeFirst()
 
-    return settings ?? DEFAULT_SETTINGS
-  },
+        return settings ?? DEFAULT_SETTINGS
+    },
 )
 
 export const updateUserSettings = createServerFn({ method: 'POST' })
-  .validator(userSettingsSchema)
-  .handler(async ({ data }) => {
-    const { db } = await import('../db')
-    const session = await getSession()
+    .validator(userSettingsSchema)
+    .handler(async ({ data }) => {
+        const { db } = await import('../db')
+        const session = await getSession()
 
-    await db
-      .insertInto('user_settings')
-      .values({ userId: session.user.id, ...data })
-      .onConflict((oc) => oc.column('userId').doUpdateSet(data))
-      .execute()
+        await db
+            .insertInto('user_settings')
+            .values({ userId: session.user.id, ...data })
+            .onConflict((oc) => oc.column('userId').doUpdateSet(data))
+            .execute()
 
-    return { success: true }
-  })
+        return { success: true }
+    })
 ```
 
 ### Settings Context
@@ -97,29 +97,29 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
 // app/lib/settings/context.tsx
 
 interface SettingsContextValue {
-  settings: UserSettings
-  updateSettings: (settings: Partial<UserSettings>) => Promise<void>
-  isLoading: boolean
+    settings: UserSettings
+    updateSettings: (settings: Partial<UserSettings>) => Promise<void>
+    isLoading: boolean
 }
 
 interface UserSettings {
-  // Currency
-  currencyCode: string // 'USD', 'NGN', 'EUR', etc.
-  currencySymbol: string // '$', '₦', '€', etc.
-  currencyDecimals: number // 0, 2, 3
-  currencySymbolPosition: 'before' | 'after'
-  thousandSeparator: ',' | '.' | ' ' | ''
-  decimalSeparator: '.' | ','
+    // Currency
+    currencyCode: string // 'USD', 'NGN', 'EUR', etc.
+    currencySymbol: string // '$', '₦', '€', etc.
+    currencyDecimals: number // 0, 2, 3
+    currencySymbolPosition: 'before' | 'after'
+    thousandSeparator: ',' | '.' | ' ' | ''
+    decimalSeparator: '.' | ','
 
-  // Date/Time
-  dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
-  timeFormat: '12h' | '24h'
-  firstDayOfWeek: 0 | 1 | 6 // Sunday, Monday, Saturday
+    // Date/Time
+    dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
+    timeFormat: '12h' | '24h'
+    firstDayOfWeek: 0 | 1 | 6 // Sunday, Monday, Saturday
 
-  // Units
-  weightUnit: 'kg' | 'lbs'
-  areaUnit: 'sqm' | 'sqft'
-  temperatureUnit: 'celsius' | 'fahrenheit'
+    // Units
+    weightUnit: 'kg' | 'lbs'
+    areaUnit: 'sqm' | 'sqft'
+    temperatureUnit: 'celsius' | 'fahrenheit'
 }
 ```
 
@@ -129,34 +129,34 @@ interface UserSettings {
 // app/lib/settings/currency-formatter.ts
 
 export function formatCurrency(
-  amount: MoneyInput,
-  settings: UserSettings,
+    amount: MoneyInput,
+    settings: UserSettings,
 ): string {
-  const value = toNumber(amount)
-  const formatted = formatNumber(value, {
-    decimals: settings.currencyDecimals,
-    thousandSeparator: settings.thousandSeparator,
-    decimalSeparator: settings.decimalSeparator,
-  })
+    const value = toNumber(amount)
+    const formatted = formatNumber(value, {
+        decimals: settings.currencyDecimals,
+        thousandSeparator: settings.thousandSeparator,
+        decimalSeparator: settings.decimalSeparator,
+    })
 
-  return settings.currencySymbolPosition === 'before'
-    ? `${settings.currencySymbol}${formatted}`
-    : `${formatted}${settings.currencySymbol}`
+    return settings.currencySymbolPosition === 'before'
+        ? `${settings.currencySymbol}${formatted}`
+        : `${formatted}${settings.currencySymbol}`
 }
 
 export function formatCompactCurrency(
-  amount: MoneyInput,
-  settings: UserSettings,
+    amount: MoneyInput,
+    settings: UserSettings,
 ): string {
-  const value = toNumber(amount)
-  const symbol = settings.currencySymbol
+    const value = toNumber(amount)
+    const symbol = settings.currencySymbol
 
-  if (value >= 1_000_000) {
-    return `${symbol}${(value / 1_000_000).toFixed(1)}M`
-  } else if (value >= 1_000) {
-    return `${symbol}${(value / 1_000).toFixed(1)}K`
-  }
-  return formatCurrency(amount, settings)
+    if (value >= 1_000_000) {
+        return `${symbol}${(value / 1_000_000).toFixed(1)}M`
+    } else if (value >= 1_000) {
+        return `${symbol}${(value / 1_000).toFixed(1)}K`
+    }
+    return formatCurrency(amount, settings)
 }
 ```
 
@@ -166,32 +166,32 @@ export function formatCompactCurrency(
 // app/lib/settings/date-formatter.ts
 
 const DATE_FORMAT_MAP = {
-  'MM/DD/YYYY': 'MM/dd/yyyy',
-  'DD/MM/YYYY': 'dd/MM/yyyy',
-  'YYYY-MM-DD': 'yyyy-MM-dd',
+    'MM/DD/YYYY': 'MM/dd/yyyy',
+    'DD/MM/YYYY': 'dd/MM/yyyy',
+    'YYYY-MM-DD': 'yyyy-MM-dd',
 }
 
 export function formatDate(
-  date: Date | string,
-  settings: UserSettings,
+    date: Date | string,
+    settings: UserSettings,
 ): string {
-  const d = typeof date === 'string' ? new Date(date) : date
-  return format(d, DATE_FORMAT_MAP[settings.dateFormat])
+    const d = typeof date === 'string' ? new Date(date) : date
+    return format(d, DATE_FORMAT_MAP[settings.dateFormat])
 }
 
 export function formatTime(
-  date: Date | string,
-  settings: UserSettings,
+    date: Date | string,
+    settings: UserSettings,
 ): string {
-  const d = typeof date === 'string' ? new Date(date) : date
-  return format(d, settings.timeFormat === '12h' ? 'h:mm a' : 'HH:mm')
+    const d = typeof date === 'string' ? new Date(date) : date
+    return format(d, settings.timeFormat === '12h' ? 'h:mm a' : 'HH:mm')
 }
 
 export function formatDateTime(
-  date: Date | string,
-  settings: UserSettings,
+    date: Date | string,
+    settings: UserSettings,
 ): string {
-  return `${formatDate(date, settings)} ${formatTime(date, settings)}`
+    return `${formatDate(date, settings)} ${formatTime(date, settings)}`
 }
 ```
 
@@ -201,51 +201,51 @@ export function formatDateTime(
 // app/lib/settings/unit-converter.ts
 
 const CONVERSION_FACTORS = {
-  weight: { kg: 1, lbs: 2.20462 },
-  area: { sqm: 1, sqft: 10.7639 },
-  temperature: {
-    toFahrenheit: (c: number) => (c * 9) / 5 + 32,
-    toCelsius: (f: number) => ((f - 32) * 5) / 9,
-  },
+    weight: { kg: 1, lbs: 2.20462 },
+    area: { sqm: 1, sqft: 10.7639 },
+    temperature: {
+        toFahrenheit: (c: number) => (c * 9) / 5 + 32,
+        toCelsius: (f: number) => ((f - 32) * 5) / 9,
+    },
 }
 
 export function formatWeight(valueKg: number, settings: UserSettings): string {
-  const converted = valueKg * CONVERSION_FACTORS.weight[settings.weightUnit]
-  return `${converted.toFixed(2)} ${settings.weightUnit}`
+    const converted = valueKg * CONVERSION_FACTORS.weight[settings.weightUnit]
+    return `${converted.toFixed(2)} ${settings.weightUnit}`
 }
 
 export function formatArea(valueSqm: number, settings: UserSettings): string {
-  const converted = valueSqm * CONVERSION_FACTORS.area[settings.areaUnit]
-  return `${converted.toFixed(2)} ${settings.areaUnit === 'sqm' ? 'm²' : 'ft²'}`
+    const converted = valueSqm * CONVERSION_FACTORS.area[settings.areaUnit]
+    return `${converted.toFixed(2)} ${settings.areaUnit === 'sqm' ? 'm²' : 'ft²'}`
 }
 
 export function formatTemperature(
-  valueCelsius: number,
-  settings: UserSettings,
+    valueCelsius: number,
+    settings: UserSettings,
 ): string {
-  if (settings.temperatureUnit === 'fahrenheit') {
-    const f = CONVERSION_FACTORS.temperature.toFahrenheit(valueCelsius)
-    return `${f.toFixed(1)}°F`
-  }
-  return `${valueCelsius.toFixed(1)}°C`
+    if (settings.temperatureUnit === 'fahrenheit') {
+        const f = CONVERSION_FACTORS.temperature.toFahrenheit(valueCelsius)
+        return `${f.toFixed(1)}°F`
+    }
+    return `${valueCelsius.toFixed(1)}°C`
 }
 
 // Convert from display unit to storage unit (metric)
 export function toMetricWeight(value: number, unit: 'kg' | 'lbs'): number {
-  return unit === 'lbs' ? value / CONVERSION_FACTORS.weight.lbs : value
+    return unit === 'lbs' ? value / CONVERSION_FACTORS.weight.lbs : value
 }
 
 export function toMetricArea(value: number, unit: 'sqm' | 'sqft'): number {
-  return unit === 'sqft' ? value / CONVERSION_FACTORS.area.sqft : value
+    return unit === 'sqft' ? value / CONVERSION_FACTORS.area.sqft : value
 }
 
 export function toCelsius(
-  value: number,
-  unit: 'celsius' | 'fahrenheit',
+    value: number,
+    unit: 'celsius' | 'fahrenheit',
 ): number {
-  return unit === 'fahrenheit'
-    ? CONVERSION_FACTORS.temperature.toCelsius(value)
-    : value
+    return unit === 'fahrenheit'
+        ? CONVERSION_FACTORS.temperature.toCelsius(value)
+        : value
 }
 ```
 
@@ -294,29 +294,29 @@ ON CONFLICT (user_id) DO NOTHING;
 // app/lib/db/types.ts (addition)
 
 export interface UserSettingsTable {
-  id: Generated<string>
-  userId: string
+    id: Generated<string>
+    userId: string
 
-  // Currency
-  currencyCode: string
-  currencySymbol: string
-  currencyDecimals: number
-  currencySymbolPosition: 'before' | 'after'
-  thousandSeparator: string
-  decimalSeparator: string
+    // Currency
+    currencyCode: string
+    currencySymbol: string
+    currencyDecimals: number
+    currencySymbolPosition: 'before' | 'after'
+    thousandSeparator: string
+    decimalSeparator: string
 
-  // Date/Time
-  dateFormat: string
-  timeFormat: string
-  firstDayOfWeek: number
+    // Date/Time
+    dateFormat: string
+    timeFormat: string
+    firstDayOfWeek: number
 
-  // Units
-  weightUnit: string
-  areaUnit: string
-  temperatureUnit: string
+    // Units
+    weightUnit: string
+    areaUnit: string
+    temperatureUnit: string
 
-  createdAt: Generated<Date>
-  updatedAt: Generated<Date>
+    createdAt: Generated<Date>
+    updatedAt: Generated<Date>
 }
 ```
 
@@ -326,196 +326,196 @@ export interface UserSettingsTable {
 // app/lib/settings/currency-presets.ts
 
 export interface CurrencyPreset {
-  code: string
-  name: string
-  symbol: string
-  decimals: number
-  symbolPosition: 'before' | 'after'
-  thousandSeparator: ',' | '.' | ' '
-  decimalSeparator: '.' | ','
+    code: string
+    name: string
+    symbol: string
+    decimals: number
+    symbolPosition: 'before' | 'after'
+    thousandSeparator: ',' | '.' | ' '
+    decimalSeparator: '.' | ','
 }
 
 export const CURRENCY_PRESETS: CurrencyPreset[] = [
-  {
-    code: 'USD',
-    name: 'US Dollar',
-    symbol: '$',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'EUR',
-    name: 'Euro',
-    symbol: '€',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: '.',
-    decimalSeparator: ',',
-  },
-  {
-    code: 'GBP',
-    name: 'British Pound',
-    symbol: '£',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'NGN',
-    name: 'Nigerian Naira',
-    symbol: '₦',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'KES',
-    name: 'Kenyan Shilling',
-    symbol: 'KSh',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'ZAR',
-    name: 'South African Rand',
-    symbol: 'R',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ' ',
-    decimalSeparator: ',',
-  },
-  {
-    code: 'INR',
-    name: 'Indian Rupee',
-    symbol: '₹',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'CNY',
-    name: 'Chinese Yuan',
-    symbol: '¥',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'JPY',
-    name: 'Japanese Yen',
-    symbol: '¥',
-    decimals: 0,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'BRL',
-    name: 'Brazilian Real',
-    symbol: 'R$',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: '.',
-    decimalSeparator: ',',
-  },
-  {
-    code: 'MXN',
-    name: 'Mexican Peso',
-    symbol: '$',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'CAD',
-    name: 'Canadian Dollar',
-    symbol: 'CA$',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'AUD',
-    name: 'Australian Dollar',
-    symbol: 'A$',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
-  {
-    code: 'CHF',
-    name: 'Swiss Franc',
-    symbol: 'CHF',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: "'",
-    decimalSeparator: '.',
-  },
-  {
-    code: 'SEK',
-    name: 'Swedish Krona',
-    symbol: 'kr',
-    decimals: 2,
-    symbolPosition: 'after',
-    thousandSeparator: ' ',
-    decimalSeparator: ',',
-  },
-  {
-    code: 'NOK',
-    name: 'Norwegian Krone',
-    symbol: 'kr',
-    decimals: 2,
-    symbolPosition: 'after',
-    thousandSeparator: ' ',
-    decimalSeparator: ',',
-  },
-  {
-    code: 'DKK',
-    name: 'Danish Krone',
-    symbol: 'kr',
-    decimals: 2,
-    symbolPosition: 'after',
-    thousandSeparator: '.',
-    decimalSeparator: ',',
-  },
-  {
-    code: 'PLN',
-    name: 'Polish Zloty',
-    symbol: 'zł',
-    decimals: 2,
-    symbolPosition: 'after',
-    thousandSeparator: ' ',
-    decimalSeparator: ',',
-  },
-  {
-    code: 'TRY',
-    name: 'Turkish Lira',
-    symbol: '₺',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: '.',
-    decimalSeparator: ',',
-  },
-  {
-    code: 'AED',
-    name: 'UAE Dirham',
-    symbol: 'د.إ',
-    decimals: 2,
-    symbolPosition: 'before',
-    thousandSeparator: ',',
-    decimalSeparator: '.',
-  },
+    {
+        code: 'USD',
+        name: 'US Dollar',
+        symbol: '$',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'EUR',
+        name: 'Euro',
+        symbol: '€',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: '.',
+        decimalSeparator: ',',
+    },
+    {
+        code: 'GBP',
+        name: 'British Pound',
+        symbol: '£',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'NGN',
+        name: 'Nigerian Naira',
+        symbol: '₦',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'KES',
+        name: 'Kenyan Shilling',
+        symbol: 'KSh',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'ZAR',
+        name: 'South African Rand',
+        symbol: 'R',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+    },
+    {
+        code: 'INR',
+        name: 'Indian Rupee',
+        symbol: '₹',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'CNY',
+        name: 'Chinese Yuan',
+        symbol: '¥',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'JPY',
+        name: 'Japanese Yen',
+        symbol: '¥',
+        decimals: 0,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'BRL',
+        name: 'Brazilian Real',
+        symbol: 'R$',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: '.',
+        decimalSeparator: ',',
+    },
+    {
+        code: 'MXN',
+        name: 'Mexican Peso',
+        symbol: '$',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'CAD',
+        name: 'Canadian Dollar',
+        symbol: 'CA$',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'AUD',
+        name: 'Australian Dollar',
+        symbol: 'A$',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
+    {
+        code: 'CHF',
+        name: 'Swiss Franc',
+        symbol: 'CHF',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: "'",
+        decimalSeparator: '.',
+    },
+    {
+        code: 'SEK',
+        name: 'Swedish Krona',
+        symbol: 'kr',
+        decimals: 2,
+        symbolPosition: 'after',
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+    },
+    {
+        code: 'NOK',
+        name: 'Norwegian Krone',
+        symbol: 'kr',
+        decimals: 2,
+        symbolPosition: 'after',
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+    },
+    {
+        code: 'DKK',
+        name: 'Danish Krone',
+        symbol: 'kr',
+        decimals: 2,
+        symbolPosition: 'after',
+        thousandSeparator: '.',
+        decimalSeparator: ',',
+    },
+    {
+        code: 'PLN',
+        name: 'Polish Zloty',
+        symbol: 'zł',
+        decimals: 2,
+        symbolPosition: 'after',
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+    },
+    {
+        code: 'TRY',
+        name: 'Turkish Lira',
+        symbol: '₺',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: '.',
+        decimalSeparator: ',',
+    },
+    {
+        code: 'AED',
+        name: 'UAE Dirham',
+        symbol: 'د.إ',
+        decimals: 2,
+        symbolPosition: 'before',
+        thousandSeparator: ',',
+        decimalSeparator: '.',
+    },
 ]
 ```
 
@@ -607,25 +607,25 @@ When settings data is malformed or invalid:
 Unit tests will verify specific examples and edge cases:
 
 1. **Currency Formatter**
-   - Format $0.00 correctly
-   - Format large numbers (millions) with thousand separators
-   - Handle JPY (0 decimals) correctly
-   - Handle symbol-after currencies (SEK, NOK)
+    - Format $0.00 correctly
+    - Format large numbers (millions) with thousand separators
+    - Handle JPY (0 decimals) correctly
+    - Handle symbol-after currencies (SEK, NOK)
 
 2. **Date Formatter**
-   - Format edge dates (Jan 1, Dec 31, Feb 29)
-   - Handle timezone edge cases
-   - Verify all three format patterns
+    - Format edge dates (Jan 1, Dec 31, Feb 29)
+    - Handle timezone edge cases
+    - Verify all three format patterns
 
 3. **Unit Converter**
-   - Convert known values (1 kg = 2.20462 lbs)
-   - Handle zero values
-   - Handle very large/small values
+    - Convert known values (1 kg = 2.20462 lbs)
+    - Handle zero values
+    - Handle very large/small values
 
 4. **Settings Context**
-   - Load default settings when none exist
-   - Update settings optimistically
-   - Handle concurrent updates
+    - Load default settings when none exist
+    - Update settings optimistically
+    - Handle concurrent updates
 
 ### Property-Based Tests
 
@@ -636,32 +636,32 @@ Property-based tests will use `fast-check` to verify universal properties across
 import * as fc from 'fast-check'
 
 describe('Currency Formatter Properties', () => {
-  it('Property 1: Currency formatting correctness', () => {
-    // Feature: internationalization-settings, Property 1: Currency Formatting Correctness
-    // Validates: Requirements 1.3, 1.4, 1.5, 1.6, 1.7
-    fc.assert(
-      fc.property(
-        fc.double({ min: 0, max: 1_000_000_000, noNaN: true }),
-        fc.record({
-          currencySymbol: fc.stringOf(fc.char(), {
-            minLength: 1,
-            maxLength: 5,
-          }),
-          currencySymbolPosition: fc.constantFrom('before', 'after'),
-          currencyDecimals: fc.integer({ min: 0, max: 3 }),
-          thousandSeparator: fc.constantFrom(',', '.', ' '),
-          decimalSeparator: fc.constantFrom('.', ','),
-        }),
-        (amount, settings) => {
-          const result = formatCurrency(amount, settings)
-          // Verify symbol presence and position
-          // Verify decimal places
-          // Verify separators
-        },
-      ),
-      { numRuns: 100 },
-    )
-  })
+    it('Property 1: Currency formatting correctness', () => {
+        // Feature: internationalization-settings, Property 1: Currency Formatting Correctness
+        // Validates: Requirements 1.3, 1.4, 1.5, 1.6, 1.7
+        fc.assert(
+            fc.property(
+                fc.double({ min: 0, max: 1_000_000_000, noNaN: true }),
+                fc.record({
+                    currencySymbol: fc.stringOf(fc.char(), {
+                        minLength: 1,
+                        maxLength: 5,
+                    }),
+                    currencySymbolPosition: fc.constantFrom('before', 'after'),
+                    currencyDecimals: fc.integer({ min: 0, max: 3 }),
+                    thousandSeparator: fc.constantFrom(',', '.', ' '),
+                    decimalSeparator: fc.constantFrom('.', ','),
+                }),
+                (amount, settings) => {
+                    const result = formatCurrency(amount, settings)
+                    // Verify symbol presence and position
+                    // Verify decimal places
+                    // Verify separators
+                },
+            ),
+            { numRuns: 100 },
+        )
+    })
 })
 ```
 
@@ -670,12 +670,12 @@ describe('Currency Formatter Properties', () => {
 Integration tests will verify end-to-end flows:
 
 1. **Settings Persistence**
-   - Save settings → reload page → settings persist
-   - Multiple users have independent settings
+    - Save settings → reload page → settings persist
+    - Multiple users have independent settings
 
 2. **Settings Migration**
-   - New users get USD defaults
-   - Existing users get NGN defaults (backward compatibility)
+    - New users get USD defaults
+    - Existing users get NGN defaults (backward compatibility)
 
 3. **Context Updates**
-   - Changing settings updates all displayed values immediately
+    - Changing settings updates all displayed values immediately

@@ -39,7 +39,7 @@ Start with high-traffic pages, expand incrementally.
 ### Relevant Files - MUST READ!
 
 - `app/features/i18n/config.ts` (lines 1-50) - Current English translations
-  - Why: Shows structure to mirror for Hausa
+    - Why: Shows structure to mirror for Hausa
 - `app/components/navigation.tsx` - Navigation items to translate
 - `app/routes/_auth/dashboard/index.tsx` - Dashboard labels to translate
 

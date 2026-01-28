@@ -67,10 +67,10 @@ expect(calculateProfit(1000, 600)).toBe(400)
 
 // ✅ Property-based test
 fc.assert(
-  fc.property(fc.nat(), fc.nat(), (revenue, costs) => {
-    const profit = calculateProfit(revenue, costs)
-    expect(profit).toBe(revenue - costs) // Always true
-  }),
+    fc.property(fc.nat(), fc.nat(), (revenue, costs) => {
+        const profit = calculateProfit(revenue, costs)
+        expect(profit).toBe(revenue - costs) // Always true
+    }),
 )
 ```
 
@@ -90,41 +90,41 @@ import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 
 describe('Feed Conversion Ratio', () => {
-  it('should always be feed / weight gain', () => {
-    fc.assert(
-      fc.property(
-        fc.float({ min: 0.1, max: 1000 }), // feed kg
-        fc.float({ min: 0.1, max: 100 }), // weight gain kg
-        (feed, weightGain) => {
-          const fcr = calculateFCR(feed, weightGain)
-          expect(fcr).toBeCloseTo(feed / weightGain, 2)
-        },
-      ),
-      { numRuns: 1000 }, // Test 1000 random combinations
-    )
-  })
+    it('should always be feed / weight gain', () => {
+        fc.assert(
+            fc.property(
+                fc.float({ min: 0.1, max: 1000 }), // feed kg
+                fc.float({ min: 0.1, max: 100 }), // weight gain kg
+                (feed, weightGain) => {
+                    const fcr = calculateFCR(feed, weightGain)
+                    expect(fcr).toBeCloseTo(feed / weightGain, 2)
+                },
+            ),
+            { numRuns: 1000 }, // Test 1000 random combinations
+        )
+    })
 
-  it('should be undefined when weight gain is zero', () => {
-    fc.assert(
-      fc.property(fc.float({ min: 0.1 }), (feed) => {
-        expect(calculateFCR(feed, 0)).toBeUndefined()
-      }),
-    )
-  })
+    it('should be undefined when weight gain is zero', () => {
+        fc.assert(
+            fc.property(fc.float({ min: 0.1 }), (feed) => {
+                expect(calculateFCR(feed, 0)).toBeUndefined()
+            }),
+        )
+    })
 
-  it('should increase when feed increases', () => {
-    fc.assert(
-      fc.property(
-        fc.float({ min: 1, max: 100 }),
-        fc.float({ min: 0.1, max: 10 }),
-        (feed, weightGain) => {
-          const fcr1 = calculateFCR(feed, weightGain)
-          const fcr2 = calculateFCR(feed * 2, weightGain)
-          expect(fcr2).toBeGreaterThan(fcr1!)
-        },
-      ),
-    )
-  })
+    it('should increase when feed increases', () => {
+        fc.assert(
+            fc.property(
+                fc.float({ min: 1, max: 100 }),
+                fc.float({ min: 0.1, max: 10 }),
+                (feed, weightGain) => {
+                    const fcr1 = calculateFCR(feed, weightGain)
+                    const fcr2 = calculateFCR(feed * 2, weightGain)
+                    expect(fcr2).toBeGreaterThan(fcr1!)
+                },
+            ),
+        )
+    })
 })
 ```
 
@@ -135,9 +135,9 @@ describe('Feed Conversion Ratio', () => {
 ```typescript
 // Encoding/decoding should be inverse
 fc.assert(
-  fc.property(fc.string(), (str) => {
-    expect(decode(encode(str))).toBe(str)
-  }),
+    fc.property(fc.string(), (str) => {
+        expect(decode(encode(str))).toBe(str)
+    }),
 )
 ```
 
@@ -146,11 +146,11 @@ fc.assert(
 ```typescript
 // Sorting twice = sorting once
 fc.assert(
-  fc.property(fc.array(fc.integer()), (arr) => {
-    const sorted1 = sort(arr)
-    const sorted2 = sort(sorted1)
-    expect(sorted2).toEqual(sorted1)
-  }),
+    fc.property(fc.array(fc.integer()), (arr) => {
+        const sorted1 = sort(arr)
+        const sorted2 = sort(sorted1)
+        expect(sorted2).toEqual(sorted1)
+    }),
 )
 ```
 
@@ -159,10 +159,10 @@ fc.assert(
 ```typescript
 // Sum of parts = total
 fc.assert(
-  fc.property(fc.array(fc.nat()), (numbers) => {
-    const total = sum(numbers)
-    expect(total).toBe(numbers.reduce((a, b) => a + b, 0))
-  }),
+    fc.property(fc.array(fc.nat()), (numbers) => {
+        const total = sum(numbers)
+        expect(total).toBe(numbers.reduce((a, b) => a + b, 0))
+    }),
 )
 ```
 
@@ -171,9 +171,9 @@ fc.assert(
 ```typescript
 // Order doesn't matter
 fc.assert(
-  fc.property(fc.nat(), fc.nat(), (a, b) => {
-    expect(add(a, b)).toBe(add(b, a))
-  }),
+    fc.property(fc.nat(), fc.nat(), (a, b) => {
+        expect(add(a, b)).toBe(add(b, a))
+    }),
 )
 ```
 
@@ -188,34 +188,34 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { createBatch, getBatches } from '~/features/batches/server'
 
 describe('Batch Server Functions', () => {
-  beforeEach(async () => {
-    // Clean database
-    await db.deleteFrom('batches').execute()
-  })
-
-  it('should create a batch', async () => {
-    const batchId = await createBatch('user-id', {
-      farmId: 'farm-id',
-      livestockType: 'poultry',
-      species: 'broiler',
-      initialQuantity: 100,
-      acquisitionDate: new Date(),
-      costPerUnit: 500,
+    beforeEach(async () => {
+        // Clean database
+        await db.deleteFrom('batches').execute()
     })
 
-    expect(batchId).toBeDefined()
-  })
+    it('should create a batch', async () => {
+        const batchId = await createBatch('user-id', {
+            farmId: 'farm-id',
+            livestockType: 'poultry',
+            species: 'broiler',
+            initialQuantity: 100,
+            acquisitionDate: new Date(),
+            costPerUnit: 500,
+        })
 
-  it('should get batches for user', async () => {
-    await createBatch('user-id', {
-      /* ... */
+        expect(batchId).toBeDefined()
     })
 
-    const batches = await getBatches('user-id', 'farm-id')
+    it('should get batches for user', async () => {
+        await createBatch('user-id', {
+            /* ... */
+        })
 
-    expect(batches).toHaveLength(1)
-    expect(batches[0].species).toBe('broiler')
-  })
+        const batches = await getBatches('user-id', 'farm-id')
+
+        expect(batches).toHaveLength(1)
+        expect(batches[0].species).toBe('broiler')
+    })
 })
 ```
 
@@ -226,31 +226,31 @@ import { describe, it, expect } from 'vitest'
 import { formatCurrency } from '~/features/settings/currency'
 
 describe('Currency Formatting', () => {
-  it('should format USD correctly', () => {
-    const result = formatCurrency(1234.56, {
-      currencyCode: 'USD',
-      currencySymbol: '$',
-      currencyDecimals: 2,
-      currencySymbolPosition: 'before',
-      thousandSeparator: ',',
-      decimalSeparator: '.',
+    it('should format USD correctly', () => {
+        const result = formatCurrency(1234.56, {
+            currencyCode: 'USD',
+            currencySymbol: '$',
+            currencyDecimals: 2,
+            currencySymbolPosition: 'before',
+            thousandSeparator: ',',
+            decimalSeparator: '.',
+        })
+
+        expect(result).toBe('$1,234.56')
     })
 
-    expect(result).toBe('$1,234.56')
-  })
+    it('should format NGN correctly', () => {
+        const result = formatCurrency(1234.56, {
+            currencyCode: 'NGN',
+            currencySymbol: '₦',
+            currencyDecimals: 2,
+            currencySymbolPosition: 'before',
+            thousandSeparator: ',',
+            decimalSeparator: '.',
+        })
 
-  it('should format NGN correctly', () => {
-    const result = formatCurrency(1234.56, {
-      currencyCode: 'NGN',
-      currencySymbol: '₦',
-      currencyDecimals: 2,
-      currencySymbolPosition: 'before',
-      thousandSeparator: ',',
-      decimalSeparator: '.',
+        expect(result).toBe('₦1,234.56')
     })
-
-    expect(result).toBe('₦1,234.56')
-  })
 })
 ```
 
@@ -265,83 +265,83 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { db } from '~/lib/db'
 
 describe('Batch Integration Tests', () => {
-  let userId: string
-  let farmId: string
+    let userId: string
+    let farmId: string
 
-  beforeAll(async () => {
-    // Create test user and farm
-    const user = await db
-      .insertInto('users')
-      .values({ email: 'test@example.com', name: 'Test' })
-      .returning('id')
-      .executeTakeFirstOrThrow()
-    userId = user.id
+    beforeAll(async () => {
+        // Create test user and farm
+        const user = await db
+            .insertInto('users')
+            .values({ email: 'test@example.com', name: 'Test' })
+            .returning('id')
+            .executeTakeFirstOrThrow()
+        userId = user.id
 
-    const farm = await db
-      .insertInto('farms')
-      .values({ name: 'Test Farm', location: 'Test', type: 'poultry' })
-      .returning('id')
-      .executeTakeFirstOrThrow()
-    farmId = farm.id
+        const farm = await db
+            .insertInto('farms')
+            .values({ name: 'Test Farm', location: 'Test', type: 'poultry' })
+            .returning('id')
+            .executeTakeFirstOrThrow()
+        farmId = farm.id
 
-    await db
-      .insertInto('user_farms')
-      .values({ userId, farmId, role: 'owner' })
-      .execute()
-  })
+        await db
+            .insertInto('user_farms')
+            .values({ userId, farmId, role: 'owner' })
+            .execute()
+    })
 
-  afterAll(async () => {
-    // Cleanup
-    await db.deleteFrom('user_farms').where('userId', '=', userId).execute()
-    await db.deleteFrom('farms').where('id', '=', farmId).execute()
-    await db.deleteFrom('users').where('id', '=', userId).execute()
-  })
+    afterAll(async () => {
+        // Cleanup
+        await db.deleteFrom('user_farms').where('userId', '=', userId).execute()
+        await db.deleteFrom('farms').where('id', '=', farmId).execute()
+        await db.deleteFrom('users').where('id', '=', userId).execute()
+    })
 
-  it('should create batch and update quantity on mortality', async () => {
-    // Create batch
-    const batch = await db
-      .insertInto('batches')
-      .values({
-        farmId,
-        livestockType: 'poultry',
-        species: 'broiler',
-        initialQuantity: 100,
-        currentQuantity: 100,
-        acquisitionDate: new Date(),
-        costPerUnit: '500',
-        totalCost: '50000',
-        status: 'active',
-      })
-      .returning('id')
-      .executeTakeFirstOrThrow()
+    it('should create batch and update quantity on mortality', async () => {
+        // Create batch
+        const batch = await db
+            .insertInto('batches')
+            .values({
+                farmId,
+                livestockType: 'poultry',
+                species: 'broiler',
+                initialQuantity: 100,
+                currentQuantity: 100,
+                acquisitionDate: new Date(),
+                costPerUnit: '500',
+                totalCost: '50000',
+                status: 'active',
+            })
+            .returning('id')
+            .executeTakeFirstOrThrow()
 
-    // Record mortality
-    await db
-      .insertInto('mortality_records')
-      .values({
-        batchId: batch.id,
-        quantity: 5,
-        date: new Date(),
-        cause: 'disease',
-      })
-      .execute()
+        // Record mortality
+        await db
+            .insertInto('mortality_records')
+            .values({
+                batchId: batch.id,
+                quantity: 5,
+                date: new Date(),
+                cause: 'disease',
+            })
+            .execute()
 
-    // Update batch quantity
-    await db
-      .updateTable('batches')
-      .set({ currentQuantity: 95 })
-      .where('id', '=', batch.id)
-      .execute()
+        // Update batch quantity
+        await db
+            .updateTable('batches')
+            .set({ currentQuantity: 95 })
+            .where('id', '=', batch.id)
+            .execute()
 
-    // Verify
-    const updated = await db
-      .selectFrom('batches')
-      .select('currentQuantity')
-      .where('id', '=', batch.id)
-      .executeTakeFirstOrThrow()
+        // Verify
+        const updated = await db
+            .selectFrom('batches')
+            .select('currentQuantity')
+            .where('id', '=', batch.id)
+            .executeTakeFirstOrThrow()
 
-    expect(updated.currentQuantity).toBe(95)
-  })
+        expect(updated.currentQuantity).toBe(95)
+    })
 })
 ```
 
@@ -432,12 +432,12 @@ expect(screen.getByText(/loading/i)).toBeInTheDocument()
 ```typescript
 // ❌ Vague
 it('works', () => {
-  /* ... */
+    /* ... */
 })
 
 // ✅ Descriptive
 it('should calculate FCR as feed divided by weight gain', () => {
-  /* ... */
+    /* ... */
 })
 ```
 
@@ -445,14 +445,14 @@ it('should calculate FCR as feed divided by weight gain', () => {
 
 ```typescript
 it('should create batch', async () => {
-  // Arrange
-  const data = { species: 'broiler', quantity: 100 }
+    // Arrange
+    const data = { species: 'broiler', quantity: 100 }
 
-  // Act
-  const batchId = await createBatch('user-id', data)
+    // Act
+    const batchId = await createBatch('user-id', data)
 
-  // Assert
-  expect(batchId).toBeDefined()
+    // Assert
+    expect(batchId).toBeDefined()
 })
 ```
 
@@ -460,11 +460,11 @@ it('should create batch', async () => {
 
 ```typescript
 it('should handle zero quantity', () => {
-  expect(calculateFCR(100, 0)).toBeUndefined()
+    expect(calculateFCR(100, 0)).toBeUndefined()
 })
 
 it('should handle negative numbers', () => {
-  expect(() => calculateFCR(-100, 10)).toThrow()
+    expect(() => calculateFCR(-100, 10)).toThrow()
 })
 ```
 
@@ -473,12 +473,12 @@ it('should handle negative numbers', () => {
 ```typescript
 // tests/fixtures/batches.ts
 export const mockBatch = {
-  id: 'batch-1',
-  farmId: 'farm-1',
-  species: 'broiler',
-  initialQuantity: 100,
-  currentQuantity: 95,
-  status: 'active',
+    id: 'batch-1',
+    farmId: 'farm-1',
+    species: 'broiler',
+    initialQuantity: 100,
+    currentQuantity: 95,
+    status: 'active',
 }
 
 // In tests
@@ -499,21 +499,21 @@ name: Tests
 on: [push, pull_request]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v1
+            - uses: oven-sh/setup-bun@v1
 
-      - name: Install dependencies
-        run: bun install
+            - name: Install dependencies
+              run: bun install
 
-      - name: Run tests
-        run: bun run test --coverage
+            - name: Run tests
+              run: bun run test --coverage
 
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
+            - name: Upload coverage
+              uses: codecov/codecov-action@v3
 ```
 
 ---
@@ -532,11 +532,11 @@ bun run test -t "should calculate FCR"
 import { describe, it, expect } from 'vitest'
 
 describe('Debug Test', () => {
-  it.only('should debug this test', () => {
-    // .only runs only this test
-    console.log('Debug output')
-    expect(true).toBe(true)
-  })
+    it.only('should debug this test', () => {
+        // .only runs only this test
+        console.log('Debug output')
+        expect(true).toBe(true)
+    })
 })
 ```
 
@@ -544,13 +544,13 @@ describe('Debug Test', () => {
 
 ```typescript
 it('should create batch', async () => {
-  await createBatch('user-id', data)
+    await createBatch('user-id', data)
 
-  // Inspect database
-  const batches = await db.selectFrom('batches').selectAll().execute()
-  console.log('Batches:', batches)
+    // Inspect database
+    const batches = await db.selectFrom('batches').selectAll().execute()
+    console.log('Batches:', batches)
 
-  expect(batches).toHaveLength(1)
+    expect(batches).toHaveLength(1)
 })
 ```
 
@@ -565,16 +565,16 @@ import { describe, it, expect } from 'vitest'
 import { performance } from 'perf_hooks'
 
 describe('Performance', () => {
-  it('should calculate FCR in < 1ms', () => {
-    const start = performance.now()
+    it('should calculate FCR in < 1ms', () => {
+        const start = performance.now()
 
-    for (let i = 0; i < 1000; i++) {
-      calculateFCR(100, 10)
-    }
+        for (let i = 0; i < 1000; i++) {
+            calculateFCR(100, 10)
+        }
 
-    const duration = performance.now() - start
-    expect(duration).toBeLessThan(1)
-  })
+        const duration = performance.now() - start
+        expect(duration).toBeLessThan(1)
+    })
 })
 ```
 
@@ -588,21 +588,21 @@ describe('Performance', () => {
 import { test, expect } from '@playwright/test'
 
 test('user can create batch', async ({ page }) => {
-  await page.goto('http://localhost:3000')
+    await page.goto('http://localhost:3000')
 
-  // Login
-  await page.fill('[name="email"]', 'test@example.com')
-  await page.fill('[name="password"]', 'password')
-  await page.click('button[type="submit"]')
+    // Login
+    await page.fill('[name="email"]', 'test@example.com')
+    await page.fill('[name="password"]', 'password')
+    await page.click('button[type="submit"]')
 
-  // Create batch
-  await page.click('text=Add Batch')
-  await page.fill('[name="species"]', 'broiler')
-  await page.fill('[name="quantity"]', '100')
-  await page.click('text=Create Batch')
+    // Create batch
+    await page.click('text=Add Batch')
+    await page.fill('[name="species"]', 'broiler')
+    await page.fill('[name="quantity"]', '100')
+    await page.click('text=Create Batch')
 
-  // Verify
-  await expect(page.locator('text=broiler')).toBeVisible()
+    // Verify
+    await expect(page.locator('text=broiler')).toBeVisible()
 })
 ```
 

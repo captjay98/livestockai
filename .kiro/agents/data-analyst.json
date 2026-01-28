@@ -1,129 +1,129 @@
 {
-  "name": "data-analyst",
-  "description": "Data analyst for livestock analytics and financial forecasting - guardian of data-driven decisions",
-  "keyboardShortcut": "ctrl+shift+7",
-  "welcomeMessage": "📊 Data Analyst ready. I analyze batch performance, forecast growth, and generate reports.",
-  "prompt": "file://../prompts/agents/data-analyst.md",
-  "tools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking"
-  ],
-  "allowedTools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking"
-  ],
-  "toolsSettings": {
-    "write": {
-      "allowedPaths": [
-        "app/features/reports/**",
-        "app/features/monitoring/**",
-        "app/lib/finance/**",
-        "tests/**",
-        "*.md"
-      ]
-    },
-    "shell": {
-      "allowedCommands": [
-        "bun *",
-        "cat *",
-        "ls *",
-        "grep *",
-        "find *",
-        "head *",
-        "tail *",
-        "echo *"
-      ],
-      "autoAllowReadonly": true,
-      "deniedCommands": ["rm -rf *", "sudo *"]
-    }
-  },
-  "resources": [
-    "file://AGENTS.md",
-    "file://README.md",
-    "file://app/features/batches/forecasting.ts",
-    "file://app/lib/finance/calculations.ts",
-    "file://app/features/monitoring/service.ts",
-    "file://app/features/reports/server.ts",
-    {
-      "type": "knowledgeBase",
-      "source": "file://./docs",
-      "name": "ProjectDocs",
-      "description": "Architecture, database, deployment, testing, and API documentation",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./DEVLOG.md",
-      "name": "DevLog",
-      "description": "Development history, decisions, and progress tracking",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./app/features/reports",
-      "name": "ReportsCode",
-      "description": "Reports feature - server functions, services, and report generation",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./app/lib/finance",
-      "name": "FinanceCalculations",
-      "description": "Financial calculations and business logic",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    "skill://.kiro/skills/financial-calculations/SKILL.md",
-    "skill://.kiro/skills/livestock-poultry/SKILL.md",
-    "skill://.kiro/skills/livestock-aquaculture/SKILL.md",
-    "skill://.kiro/skills/livestock-ruminants/SKILL.md",
-    "skill://.kiro/skills/livestock-apiculture/SKILL.md",
-    "skill://.kiro/skills/batch-centric-design/SKILL.md"
-  ],
-  "hooks": {
-    "agentSpawn": [
-      {
-        "command": "echo '📊 Data Analyst ready.' && echo 'Available reports: Profit/Loss, Inventory, Sales, Feed, Eggs'",
-        "timeout_ms": 5000
-      }
+    "name": "data-analyst",
+    "description": "Data analyst for livestock analytics and financial forecasting - guardian of data-driven decisions",
+    "keyboardShortcut": "ctrl+shift+7",
+    "welcomeMessage": "📊 Data Analyst ready. I analyze batch performance, forecast growth, and generate reports.",
+    "prompt": "file://../prompts/agents/data-analyst.md",
+    "tools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking"
     ],
-    "postToolUse": [
-      {
-        "matcher": "fs_write",
-        "command": "bun run lint --fix 2>/dev/null || true",
-        "timeout_ms": 30000
-      }
-    ]
-  },
-  "includeMcpJson": true,
-  "model": "claude-sonnet-4.5"
+    "allowedTools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking"
+    ],
+    "toolsSettings": {
+        "write": {
+            "allowedPaths": [
+                "app/features/reports/**",
+                "app/features/monitoring/**",
+                "app/lib/finance/**",
+                "tests/**",
+                "*.md"
+            ]
+        },
+        "shell": {
+            "allowedCommands": [
+                "bun *",
+                "cat *",
+                "ls *",
+                "grep *",
+                "find *",
+                "head *",
+                "tail *",
+                "echo *"
+            ],
+            "autoAllowReadonly": true,
+            "deniedCommands": ["rm -rf *", "sudo *"]
+        }
+    },
+    "resources": [
+        "file://AGENTS.md",
+        "file://README.md",
+        "file://app/features/batches/forecasting.ts",
+        "file://app/lib/finance/calculations.ts",
+        "file://app/features/monitoring/service.ts",
+        "file://app/features/reports/server.ts",
+        {
+            "type": "knowledgeBase",
+            "source": "file://./docs",
+            "name": "ProjectDocs",
+            "description": "Architecture, database, deployment, testing, and API documentation",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./DEVLOG.md",
+            "name": "DevLog",
+            "description": "Development history, decisions, and progress tracking",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./app/features/reports",
+            "name": "ReportsCode",
+            "description": "Reports feature - server functions, services, and report generation",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./app/lib/finance",
+            "name": "FinanceCalculations",
+            "description": "Financial calculations and business logic",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        "skill://.kiro/skills/financial-calculations/SKILL.md",
+        "skill://.kiro/skills/livestock-poultry/SKILL.md",
+        "skill://.kiro/skills/livestock-aquaculture/SKILL.md",
+        "skill://.kiro/skills/livestock-ruminants/SKILL.md",
+        "skill://.kiro/skills/livestock-apiculture/SKILL.md",
+        "skill://.kiro/skills/batch-centric-design/SKILL.md"
+    ],
+    "hooks": {
+        "agentSpawn": [
+            {
+                "command": "echo '📊 Data Analyst ready.' && echo 'Available reports: Profit/Loss, Inventory, Sales, Feed, Eggs'",
+                "timeout_ms": 5000
+            }
+        ],
+        "postToolUse": [
+            {
+                "matcher": "fs_write",
+                "command": "bun run lint --fix 2>/dev/null || true",
+                "timeout_ms": 30000
+            }
+        ]
+    },
+    "includeMcpJson": true,
+    "model": "claude-sonnet-4.5"
 }

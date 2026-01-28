@@ -53,12 +53,12 @@ None - only modifying existing documentation files.
 ### Relevant Documentation - YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [Mermaid Documentation](https://mermaid.js.org/intro/)
-  - Specific section: Flowcharts, Sequence Diagrams, Class Diagrams
-  - Why: Syntax reference for creating diagrams
+    - Specific section: Flowcharts, Sequence Diagrams, Class Diagrams
+    - Why: Syntax reference for creating diagrams
 - [Mermaid Live Editor](https://mermaid.live/)
-  - Why: Test diagrams before adding to docs
+    - Why: Test diagrams before adding to docs
 - [GitHub Mermaid Support](https://github.blog/2022-02-14-include-diagrams-markdown-files-mermaid/)
-  - Why: Verify GitHub rendering
+    - Why: Verify GitHub rendering
 
 ### Patterns to Follow
 

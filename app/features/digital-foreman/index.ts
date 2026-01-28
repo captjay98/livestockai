@@ -1,40 +1,40 @@
 /**
  * Digital Foreman Feature
- * 
+ *
  * Workforce management for farm workers with GPS-verified attendance,
  * granular permissions, task assignments with photo proof, and payroll tracking.
  */
 
 // Server functions - Worker Management
 export {
-  createWorkerProfileFn,
-  updateWorkerProfileFn,
-  getWorkersByFarmFn,
-  removeWorkerFromFarmFn,
-  getOpenCheckInForCurrentUserFn,
-  // Attendance
-  checkInFn,
-  checkOutFn,
-  getAttendanceByFarmFn,
-  syncOfflineCheckInsFn,
+    createWorkerProfileFn,
+    updateWorkerProfileFn,
+    getWorkersByFarmFn,
+    removeWorkerFromFarmFn,
+    getOpenCheckInForCurrentUserFn,
+    // Attendance
+    checkInFn,
+    checkOutFn,
+    getAttendanceByFarmFn,
+    syncOfflineCheckInsFn,
 } from './server'
 
 // Server functions - Tasks
 export {
-  assignTaskFn,
-  completeTaskFn,
-  approveTaskFn,
-  getAssignmentsByWorkerFn,
-  getAssignmentsByFarmFn,
-  getPendingApprovalsFn,
+    assignTaskFn,
+    completeTaskFn,
+    approveTaskFn,
+    getAssignmentsByWorkerFn,
+    getAssignmentsByFarmFn,
+    getPendingApprovalsFn,
 } from './server-tasks'
 
 // Server functions - Payroll
 export {
-  createPayrollPeriodFn,
-  getPayrollSummaryFn,
-  recordPaymentFn,
-  getPayrollHistoryFn,
+    createPayrollPeriodFn,
+    getPayrollSummaryFn,
+    recordPaymentFn,
+    getPayrollHistoryFn,
 } from './server-payroll'
 
 // Services (pure business logic)
@@ -46,7 +46,14 @@ export * from './permission-service'
 
 // Notifications
 export { createDigitalForemanNotification } from './notifications'
-export type { DigitalForemanNotificationType, CreateDigitalForemanNotificationData } from './notifications'
+export type {
+    DigitalForemanNotificationType,
+    CreateDigitalForemanNotificationData,
+} from './notifications'
 
 // Photo storage
-export { uploadTaskPhoto, deleteTaskPhoto, compressImageForUpload } from './photo-storage'
+export {
+    uploadTaskPhoto,
+    deleteTaskPhoto,
+    compressImageForUpload,
+} from './photo-storage'

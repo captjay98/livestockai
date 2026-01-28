@@ -12,59 +12,59 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
  * Data for inserting a new weight sample record
  */
 export interface WeightSampleInsert {
-  batchId: string
-  date: Date
-  sampleSize: number
-  averageWeightKg: string
-  minWeightKg?: string | null
-  maxWeightKg?: string | null
-  notes?: string | null
+    batchId: string
+    date: Date
+    sampleSize: number
+    averageWeightKg: string
+    minWeightKg?: string | null
+    maxWeightKg?: string | null
+    notes?: string | null
 }
 
 /**
  * Data for updating a weight sample record
  */
 export interface WeightSampleUpdate {
-  date?: Date
-  sampleSize?: number
-  averageWeightKg?: string
-  minWeightKg?: string | null
-  maxWeightKg?: string | null
-  notes?: string | null
+    date?: Date
+    sampleSize?: number
+    averageWeightKg?: string
+    minWeightKg?: string | null
+    maxWeightKg?: string | null
+    notes?: string | null
 }
 
 /**
  * Weight sample record with batch information
  */
 export interface WeightSampleRecord {
-  id: string
-  batchId: string
-  date: Date
-  sampleSize: number
-  averageWeightKg: string
-  minWeightKg: string | null
-  maxWeightKg: string | null
-  notes: string | null
-  createdAt: Date
+    id: string
+    batchId: string
+    date: Date
+    sampleSize: number
+    averageWeightKg: string
+    minWeightKg: string | null
+    maxWeightKg: string | null
+    notes: string | null
+    createdAt: Date
 }
 
 /**
  * Extended record with all related data for display
  */
 export interface WeightSampleWithDetails extends WeightSampleRecord {
-  batchSpecies?: string
-  livestockType?: string
-  farmId?: string
-  farmName?: string
+    batchSpecies?: string
+    livestockType?: string
+    farmId?: string
+    farmName?: string
 }
 
 /**
  * Filters for weight sample queries
  */
 export interface WeightSampleFilters extends BasePaginatedQuery {
-  batchId?: string
-  startDate?: Date
-  endDate?: Date
+    batchId?: string
+    startDate?: Date
+    endDate?: Date
 }
 
 /**
@@ -80,15 +80,15 @@ export interface WeightPaginatedResult extends PaginatedResult<WeightSampleWithD
  * @returns The ID of the created record
  */
 export async function insertWeightSample(
-  db: Kysely<Database>,
-  data: WeightSampleInsert,
+    db: Kysely<Database>,
+    data: WeightSampleInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('weight_samples')
-    .values(data)
-    .returning('id')
-    .executeTakeFirstOrThrow()
-  return result.id
+    const result = await db
+        .insertInto('weight_samples')
+        .values(data)
+        .returning('id')
+        .executeTakeFirstOrThrow()
+    return result.id
 }
 
 /**
@@ -99,32 +99,32 @@ export async function insertWeightSample(
  * @returns The record with batch and farm details, or null if not found
  */
 export async function getWeightSampleById(
-  db: Kysely<Database>,
-  recordId: string,
+    db: Kysely<Database>,
+    recordId: string,
 ): Promise<WeightSampleWithDetails | null> {
-  const record = await db
-    .selectFrom('weight_samples')
-    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'weight_samples.id',
-      'weight_samples.batchId',
-      'weight_samples.date',
-      'weight_samples.sampleSize',
-      'weight_samples.averageWeightKg',
-      'weight_samples.minWeightKg',
-      'weight_samples.maxWeightKg',
-      'weight_samples.notes',
-      'weight_samples.createdAt',
-      'batches.species as batchSpecies',
-      'batches.livestockType',
-      'batches.farmId',
-      'farms.name as farmName',
-    ])
-    .where('weight_samples.id', '=', recordId)
-    .executeTakeFirst()
+    const record = await db
+        .selectFrom('weight_samples')
+        .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'weight_samples.id',
+            'weight_samples.batchId',
+            'weight_samples.date',
+            'weight_samples.sampleSize',
+            'weight_samples.averageWeightKg',
+            'weight_samples.minWeightKg',
+            'weight_samples.maxWeightKg',
+            'weight_samples.notes',
+            'weight_samples.createdAt',
+            'batches.species as batchSpecies',
+            'batches.livestockType',
+            'batches.farmId',
+            'farms.name as farmName',
+        ])
+        .where('weight_samples.id', '=', recordId)
+        .executeTakeFirst()
 
-  return (record as WeightSampleWithDetails | null) ?? null
+    return (record as WeightSampleWithDetails | null) ?? null
 }
 
 /**
@@ -136,15 +136,15 @@ export async function getWeightSampleById(
  * @returns Promise resolving when update is complete
  */
 export async function updateWeightSample(
-  db: Kysely<Database>,
-  recordId: string,
-  data: WeightSampleUpdate,
+    db: Kysely<Database>,
+    recordId: string,
+    data: WeightSampleUpdate,
 ): Promise<void> {
-  await db
-    .updateTable('weight_samples')
-    .set(data)
-    .where('id', '=', recordId)
-    .execute()
+    await db
+        .updateTable('weight_samples')
+        .set(data)
+        .where('id', '=', recordId)
+        .execute()
 }
 
 /**
@@ -155,10 +155,10 @@ export async function updateWeightSample(
  * @returns Promise resolving when delete is complete
  */
 export async function deleteWeightSample(
-  db: Kysely<Database>,
-  recordId: string,
+    db: Kysely<Database>,
+    recordId: string,
 ): Promise<void> {
-  await db.deleteFrom('weight_samples').where('id', '=', recordId).execute()
+    await db.deleteFrom('weight_samples').where('id', '=', recordId).execute()
 }
 
 /**
@@ -169,28 +169,28 @@ export async function deleteWeightSample(
  * @returns Array of weight sample records ordered by date ascending
  */
 export async function getWeightSamplesByBatch(
-  db: Kysely<Database>,
-  batchId: string,
+    db: Kysely<Database>,
+    batchId: string,
 ): Promise<Array<WeightSampleRecord>> {
-  const records = await db
-    .selectFrom('weight_samples')
-    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
-    .select([
-      'weight_samples.id',
-      'weight_samples.batchId',
-      'weight_samples.date',
-      'weight_samples.sampleSize',
-      'weight_samples.averageWeightKg',
-      'weight_samples.minWeightKg',
-      'weight_samples.maxWeightKg',
-      'weight_samples.notes',
-      'weight_samples.createdAt',
-    ])
-    .where('weight_samples.batchId', '=', batchId)
-    .orderBy('weight_samples.date', 'asc')
-    .execute()
+    const records = await db
+        .selectFrom('weight_samples')
+        .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+        .select([
+            'weight_samples.id',
+            'weight_samples.batchId',
+            'weight_samples.date',
+            'weight_samples.sampleSize',
+            'weight_samples.averageWeightKg',
+            'weight_samples.minWeightKg',
+            'weight_samples.maxWeightKg',
+            'weight_samples.notes',
+            'weight_samples.createdAt',
+        ])
+        .where('weight_samples.batchId', '=', batchId)
+        .orderBy('weight_samples.date', 'asc')
+        .execute()
 
-  return records as Array<WeightSampleRecord>
+    return records as Array<WeightSampleRecord>
 }
 
 /**
@@ -202,40 +202,40 @@ export async function getWeightSamplesByBatch(
  * @returns Array of weight sample records with batch and farm details
  */
 export async function getWeightSamplesByFarm(
-  db: Kysely<Database>,
-  farmId: string,
-  options?: { startDate?: Date; endDate?: Date },
+    db: Kysely<Database>,
+    farmId: string,
+    options?: { startDate?: Date; endDate?: Date },
 ): Promise<Array<WeightSampleWithDetails>> {
-  let query = db
-    .selectFrom('weight_samples')
-    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'weight_samples.id',
-      'weight_samples.batchId',
-      'weight_samples.date',
-      'weight_samples.sampleSize',
-      'weight_samples.averageWeightKg',
-      'weight_samples.minWeightKg',
-      'weight_samples.maxWeightKg',
-      'weight_samples.notes',
-      'weight_samples.createdAt',
-      'batches.species as batchSpecies',
-      'batches.livestockType',
-      'farms.name as farmName',
-    ])
-    .where('batches.farmId', '=', farmId)
+    let query = db
+        .selectFrom('weight_samples')
+        .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'weight_samples.id',
+            'weight_samples.batchId',
+            'weight_samples.date',
+            'weight_samples.sampleSize',
+            'weight_samples.averageWeightKg',
+            'weight_samples.minWeightKg',
+            'weight_samples.maxWeightKg',
+            'weight_samples.notes',
+            'weight_samples.createdAt',
+            'batches.species as batchSpecies',
+            'batches.livestockType',
+            'farms.name as farmName',
+        ])
+        .where('batches.farmId', '=', farmId)
 
-  if (options?.startDate) {
-    query = query.where('weight_samples.date', '>=', options.startDate)
-  }
-  if (options?.endDate) {
-    query = query.where('weight_samples.date', '<=', options.endDate)
-  }
+    if (options?.startDate) {
+        query = query.where('weight_samples.date', '>=', options.startDate)
+    }
+    if (options?.endDate) {
+        query = query.where('weight_samples.date', '<=', options.endDate)
+    }
 
-  const records = await query.orderBy('weight_samples.date', 'desc').execute()
+    const records = await query.orderBy('weight_samples.date', 'desc').execute()
 
-  return records as Array<WeightSampleWithDetails>
+    return records as Array<WeightSampleWithDetails>
 }
 
 /**
@@ -247,84 +247,88 @@ export async function getWeightSamplesByFarm(
  * @returns Paginated result with weight records
  */
 export async function getWeightSamplesPaginated(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  filters: WeightSampleFilters,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    filters: WeightSampleFilters,
 ): Promise<WeightPaginatedResult> {
-  const page = filters.page || 1
-  const pageSize = filters.pageSize || 10
-  const offset = (page - 1) * pageSize
+    const page = filters.page || 1
+    const pageSize = filters.pageSize || 10
+    const offset = (page - 1) * pageSize
 
-  let baseQuery = db
-    .selectFrom('weight_samples')
-    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .where('batches.farmId', 'in', farmIds)
+    let baseQuery = db
+        .selectFrom('weight_samples')
+        .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .where('batches.farmId', 'in', farmIds)
 
-  if (filters.search) {
-    const searchLower = `%${filters.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) =>
-      eb.or([eb('batches.species', 'ilike', searchLower)]),
-    )
-  }
-
-  if (filters.batchId) {
-    baseQuery = baseQuery.where('weight_samples.batchId', '=', filters.batchId)
-  }
-
-  // Get total count
-  const countResult = await baseQuery
-    .select(sql<number>`count(*)`.as('count'))
-    .executeTakeFirst()
-
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
-
-  // Get data
-  let dataQuery = baseQuery
-    .select([
-      'weight_samples.id',
-      'weight_samples.batchId',
-      'weight_samples.date',
-      'weight_samples.sampleSize',
-      'weight_samples.averageWeightKg',
-      'weight_samples.minWeightKg',
-      'weight_samples.maxWeightKg',
-      'weight_samples.notes',
-      'weight_samples.createdAt',
-      'batches.species as batchSpecies',
-      'batches.livestockType',
-      'farms.name as farmName',
-      'batches.farmId',
-    ])
-    .limit(pageSize)
-    .offset(offset)
-
-  if (filters.sortBy) {
-    const sortOrder = filters.sortOrder || 'desc'
-    // Validate sort column to prevent SQL injection
-    const allowedCols: Record<string, string> = {
-      date: 'weight_samples.date',
-      averageWeightKg: 'weight_samples.averageWeightKg',
-      sampleSize: 'weight_samples.sampleSize',
-      createdAt: 'weight_samples.createdAt',
-      species: 'batches.species',
+    if (filters.search) {
+        const searchLower = `%${filters.search.toLowerCase()}%`
+        baseQuery = baseQuery.where((eb) =>
+            eb.or([eb('batches.species', 'ilike', searchLower)]),
+        )
     }
-    const sortCol = allowedCols[filters.sortBy] || 'weight_samples.date'
-    dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
-  } else {
-    dataQuery = dataQuery.orderBy('weight_samples.date', 'desc')
-  }
 
-  const data = await dataQuery.execute()
+    if (filters.batchId) {
+        baseQuery = baseQuery.where(
+            'weight_samples.batchId',
+            '=',
+            filters.batchId,
+        )
+    }
 
-  return {
-    data: data as Array<WeightSampleWithDetails>,
-    total,
-    page,
-    pageSize,
-    totalPages,
-  }
+    // Get total count
+    const countResult = await baseQuery
+        .select(sql<number>`count(*)`.as('count'))
+        .executeTakeFirst()
+
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
+
+    // Get data
+    let dataQuery = baseQuery
+        .select([
+            'weight_samples.id',
+            'weight_samples.batchId',
+            'weight_samples.date',
+            'weight_samples.sampleSize',
+            'weight_samples.averageWeightKg',
+            'weight_samples.minWeightKg',
+            'weight_samples.maxWeightKg',
+            'weight_samples.notes',
+            'weight_samples.createdAt',
+            'batches.species as batchSpecies',
+            'batches.livestockType',
+            'farms.name as farmName',
+            'batches.farmId',
+        ])
+        .limit(pageSize)
+        .offset(offset)
+
+    if (filters.sortBy) {
+        const sortOrder = filters.sortOrder || 'desc'
+        // Validate sort column to prevent SQL injection
+        const allowedCols: Record<string, string> = {
+            date: 'weight_samples.date',
+            averageWeightKg: 'weight_samples.averageWeightKg',
+            sampleSize: 'weight_samples.sampleSize',
+            createdAt: 'weight_samples.createdAt',
+            species: 'batches.species',
+        }
+        const sortCol = allowedCols[filters.sortBy] || 'weight_samples.date'
+        dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
+    } else {
+        dataQuery = dataQuery.orderBy('weight_samples.date', 'desc')
+    }
+
+    const data = await dataQuery.execute()
+
+    return {
+        data: data as Array<WeightSampleWithDetails>,
+        total,
+        page,
+        pageSize,
+        totalPages,
+    }
 }
 
 /**
@@ -336,19 +340,19 @@ export async function getWeightSamplesPaginated(
  * @returns The record ID and batch ID if verified, null otherwise
  */
 export async function verifyWeightSampleForFarm(
-  db: Kysely<Database>,
-  recordId: string,
-  farmId: string,
+    db: Kysely<Database>,
+    recordId: string,
+    farmId: string,
 ): Promise<{ id: string; batchId: string } | null> {
-  const record = await db
-    .selectFrom('weight_samples')
-    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
-    .select(['weight_samples.id', 'weight_samples.batchId'])
-    .where('weight_samples.id', '=', recordId)
-    .where('batches.farmId', '=', farmId)
-    .executeTakeFirst()
+    const record = await db
+        .selectFrom('weight_samples')
+        .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+        .select(['weight_samples.id', 'weight_samples.batchId'])
+        .where('weight_samples.id', '=', recordId)
+        .where('batches.farmId', '=', farmId)
+        .executeTakeFirst()
 
-  return (record as { id: string; batchId: string } | null) ?? null
+    return (record as { id: string; batchId: string } | null) ?? null
 }
 
 /**
@@ -360,21 +364,24 @@ export async function verifyWeightSampleForFarm(
  * @returns Batch info if verified, null otherwise
  */
 export async function getBatchForWeightRecord(
-  db: Kysely<Database>,
-  batchId: string,
-  farmId: string,
+    db: Kysely<Database>,
+    batchId: string,
+    farmId: string,
 ): Promise<{ id: string; farmId: string; livestockType: string } | null> {
-  const record = await db
-    .selectFrom('batches')
-    .select(['id', 'farmId', 'livestockType'])
-    .where('id', '=', batchId)
-    .where('farmId', '=', farmId)
-    .executeTakeFirst()
+    const record = await db
+        .selectFrom('batches')
+        .select(['id', 'farmId', 'livestockType'])
+        .where('id', '=', batchId)
+        .where('farmId', '=', farmId)
+        .executeTakeFirst()
 
-  return (
-    (record as { id: string; farmId: string; livestockType: string } | null) ??
-    null
-  )
+    return (
+        (record as {
+            id: string
+            farmId: string
+            livestockType: string
+        } | null) ?? null
+    )
 }
 
 /**
@@ -385,39 +392,39 @@ export async function getBatchForWeightRecord(
  * @returns Array of active batches with farm info
  */
 export async function getActiveBatchesForAlerts(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
 ): Promise<
-  Array<{
-    id: string
-    species: string
-    livestockType: string
-    acquisitionDate: Date
-    farmId: string
-    farmName: string | null
-  }>
+    Array<{
+        id: string
+        species: string
+        livestockType: string
+        acquisitionDate: Date
+        farmId: string
+        farmName: string | null
+    }>
 > {
-  const batches = await db
-    .selectFrom('batches')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'batches.id',
-      'batches.species',
-      'batches.livestockType',
-      'batches.acquisitionDate',
-      'batches.farmId',
-      'farms.name as farmName',
-    ])
-    .where('batches.farmId', 'in', farmIds)
-    .where('status', '=', 'active')
-    .execute()
+    const batches = await db
+        .selectFrom('batches')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'batches.id',
+            'batches.species',
+            'batches.livestockType',
+            'batches.acquisitionDate',
+            'batches.farmId',
+            'farms.name as farmName',
+        ])
+        .where('batches.farmId', 'in', farmIds)
+        .where('status', '=', 'active')
+        .execute()
 
-  return batches as Array<{
-    id: string
-    species: string
-    livestockType: string
-    acquisitionDate: Date
-    farmId: string
-    farmName: string | null
-  }>
+    return batches as Array<{
+        id: string
+        species: string
+        livestockType: string
+        acquisitionDate: Date
+        farmId: string
+        farmName: string | null
+    }>
 }

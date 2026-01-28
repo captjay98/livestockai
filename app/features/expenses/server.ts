@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import type {
-  CreateExpenseInput,
-  ExpenseQuery,
-  PaginatedResult,
-  UpdateExpenseInput,
+    CreateExpenseInput,
+    ExpenseQuery,
+    PaginatedResult,
+    UpdateExpenseInput,
 } from './types'
 import { AppError } from '~/lib/errors'
 
@@ -15,11 +15,11 @@ export { EXPENSE_CATEGORIES, type ExpenseCategory } from './constants'
 
 // Re-export types for backward compatibility
 export type {
-  ExpenseInsert,
-  ExpenseUpdate,
-  ExpenseFilters,
-  ExpenseWithJoins,
-  FeedInventory,
+    ExpenseInsert,
+    ExpenseUpdate,
+    ExpenseFilters,
+    ExpenseWithJoins,
+    FeedInventory,
 } from './repository'
 
 /**
@@ -32,132 +32,137 @@ export type {
  * @throws {Error} If user does not have access to the specified farm
  */
 export async function createExpense(
-  userId: string,
-  input: CreateExpenseInput,
+    userId: string,
+    input: CreateExpenseInput,
 ): Promise<string> {
-  const { getDb } = await import('~/lib/db')
-  const db = await getDb()
-  const { verifyFarmAccess } = await import('~/features/auth/utils')
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    const { verifyFarmAccess } = await import('~/features/auth/utils')
 
-  // Import service functions for business logic
-  const {
-    validateExpenseData,
-    calculateNewFeedInventory,
-    shouldUpdateFeedInventory,
-  } = await import('./service')
+    // Import service functions for business logic
+    const {
+        validateExpenseData,
+        calculateNewFeedInventory,
+        shouldUpdateFeedInventory,
+    } = await import('./service')
 
-  // Import repository functions for database operations
-  const {
-    insertExpense,
-    getFeedInventory,
-    updateFeedInventory,
-    insertFeedInventory,
-  } = await import('./repository')
+    // Import repository functions for database operations
+    const {
+        insertExpense,
+        getFeedInventory,
+        updateFeedInventory,
+        insertFeedInventory,
+    } = await import('./repository')
 
-  try {
-    await verifyFarmAccess(userId, input.farmId)
+    try {
+        await verifyFarmAccess(userId, input.farmId)
 
-    // Business logic: validate expense data
-    const validationError = validateExpenseData(input)
-    if (validationError) {
-      throw new AppError('VALIDATION_ERROR', {
-        metadata: { error: validationError },
-      })
-    }
-
-    const result = await db.transaction().execute(async (tx) => {
-      // 1. Record the expense
-      const expenseId = await insertExpense(tx, {
-        farmId: input.farmId,
-        batchId: input.batchId ?? null,
-        category: input.category,
-        amount: input.amount.toString(),
-        date: input.date,
-        description: input.description,
-        supplierId: input.supplierId || null,
-        isRecurring: input.isRecurring || false,
-      })
-
-      // 2. If it's a feed expense with quantity, update inventory
-      if (
-        shouldUpdateFeedInventory(
-          input.category,
-          input.feedType,
-          input.feedQuantityKg,
-        )
-      ) {
-        const existing = await getFeedInventory(
-          tx,
-          input.farmId,
-          input.feedType!,
-        )
-
-        if (existing) {
-          // Business logic: calculate new quantity
-          const newQuantity = calculateNewFeedInventory(
-            existing.quantityKg,
-            input.feedQuantityKg!,
-          )
-          await updateFeedInventory(tx, existing.id, newQuantity.toString())
-        } else {
-          // Create new inventory record
-          await insertFeedInventory(tx, {
-            farmId: input.farmId,
-            feedType: input.feedType!,
-            quantityKg: input.feedQuantityKg!,
-            minThresholdKg: '10.00', // Default threshold
-          })
+        // Business logic: validate expense data
+        const validationError = validateExpenseData(input)
+        if (validationError) {
+            throw new AppError('VALIDATION_ERROR', {
+                metadata: { error: validationError },
+            })
         }
-      }
 
-      return expenseId
-    })
+        const result = await db.transaction().execute(async (tx) => {
+            // 1. Record the expense
+            const expenseId = await insertExpense(tx, {
+                farmId: input.farmId,
+                batchId: input.batchId ?? null,
+                category: input.category,
+                amount: input.amount.toString(),
+                date: input.date,
+                description: input.description,
+                supplierId: input.supplierId || null,
+                isRecurring: input.isRecurring || false,
+            })
 
-    return result
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to create expense',
-      cause: error,
-    })
-  }
+            // 2. If it's a feed expense with quantity, update inventory
+            if (
+                shouldUpdateFeedInventory(
+                    input.category,
+                    input.feedType,
+                    input.feedQuantityKg,
+                )
+            ) {
+                const existing = await getFeedInventory(
+                    tx,
+                    input.farmId,
+                    input.feedType!,
+                )
+
+                if (existing) {
+                    // Business logic: calculate new quantity
+                    const newQuantity = calculateNewFeedInventory(
+                        existing.quantityKg,
+                        input.feedQuantityKg!,
+                    )
+                    await updateFeedInventory(
+                        tx,
+                        existing.id,
+                        newQuantity.toString(),
+                    )
+                } else {
+                    // Create new inventory record
+                    await insertFeedInventory(tx, {
+                        farmId: input.farmId,
+                        feedType: input.feedType!,
+                        quantityKg: input.feedQuantityKg!,
+                        minThresholdKg: '10.00', // Default threshold
+                    })
+                }
+            }
+
+            return expenseId
+        })
+
+        return result
+    } catch (error) {
+        if (error instanceof AppError) throw error
+        throw new AppError('DATABASE_ERROR', {
+            message: 'Failed to create expense',
+            cause: error,
+        })
+    }
 }
 
 /**
  * Server function to create an expense record.
  */
 export const createExpenseFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    z.object({
-      expense: z.object({
-        farmId: z.string().uuid(),
-        category: z.enum([
-          'feed',
-          'medicine',
-          'equipment',
-          'utilities',
-          'labor',
-          'transport',
-          'livestock',
-          'livestock_chicken',
-          'livestock_fish',
-          'maintenance',
-          'marketing',
-          'other',
-        ]),
-        description: z.string(),
-        amount: z.number().nonnegative(),
-        date: z.coerce.date(),
-        supplierId: z.string().uuid().optional(),
-        notes: z.string().optional(),
-      }),
-    }),
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return createExpense(session.user.id, data.expense)
-  })
+    .inputValidator(
+        z.object({
+            expense: z.object({
+                farmId: z.string().uuid(),
+                category: z.enum([
+                    'feed',
+                    'medicine',
+                    'equipment',
+                    'utilities',
+                    'labor',
+                    'transport',
+                    'livestock',
+                    'livestock_chicken',
+                    'livestock_fish',
+                    'maintenance',
+                    'marketing',
+                    'other',
+                ]),
+                description: z.string(),
+                amount: z.number().nonnegative(),
+                date: z.coerce.date(),
+                supplierId: z.string().uuid().optional(),
+                notes: z.string().optional(),
+            }),
+        }),
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return createExpense(session.user.id, data.expense)
+    })
 
 /**
  * Permanently remove an expense record.
@@ -167,52 +172,53 @@ export const createExpenseFn = createServerFn({ method: 'POST' })
  * @throws {Error} If expense not found or user lacks permission
  */
 export async function deleteExpense(userId: string, expenseId: string) {
-  const { getDb } = await import('~/lib/db')
-  const db = await getDb()
-  const { getUserFarms } = await import('~/features/auth/utils')
-  const { deleteExpense: deleteExpenseRecord, getExpenseFarmId } =
-    await import('./repository')
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    const { getUserFarms } = await import('~/features/auth/utils')
+    const { deleteExpense: deleteExpenseRecord, getExpenseFarmId } =
+        await import('./repository')
 
-  try {
-    const userFarms = await getUserFarms(userId)
-    const farmIds = userFarms
+    try {
+        const userFarms = await getUserFarms(userId)
+        const farmIds = userFarms
 
-    const expenseFarmId = await getExpenseFarmId(db, expenseId)
+        const expenseFarmId = await getExpenseFarmId(db, expenseId)
 
-    if (!expenseFarmId) {
-      throw new AppError('EXPENSE_NOT_FOUND', {
-        metadata: { resource: 'Expense', id: expenseId },
-      })
+        if (!expenseFarmId) {
+            throw new AppError('EXPENSE_NOT_FOUND', {
+                metadata: { resource: 'Expense', id: expenseId },
+            })
+        }
+
+        if (!farmIds.includes(expenseFarmId)) {
+            throw new AppError('ACCESS_DENIED', {
+                metadata: { farmId: expenseFarmId },
+            })
+        }
+
+        await deleteExpenseRecord(db, expenseId)
+
+        return true
+    } catch (error) {
+        if (error instanceof AppError) throw error
+        throw new AppError('DATABASE_ERROR', {
+            message: 'Failed to delete expense',
+            cause: error,
+        })
     }
-
-    if (!farmIds.includes(expenseFarmId)) {
-      throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: expenseFarmId },
-      })
-    }
-
-    await deleteExpenseRecord(db, expenseId)
-
-    return true
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to delete expense',
-      cause: error,
-    })
-  }
 }
 
 /**
  * Server function to delete an expense record.
  */
 export const deleteExpenseFn = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ expenseId: z.string().uuid() }))
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return deleteExpense(session.user.id, data.expenseId)
-  })
+    .inputValidator(z.object({ expenseId: z.string().uuid() }))
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return deleteExpense(session.user.id, data.expenseId)
+    })
 
 /**
  * Update an existing expense record.
@@ -224,103 +230,106 @@ export const deleteExpenseFn = createServerFn({ method: 'POST' })
  * @throws {Error} If expense not found or user unauthorized
  */
 export async function updateExpense(
-  userId: string,
-  expenseId: string,
-  data: UpdateExpenseInput,
+    userId: string,
+    expenseId: string,
+    data: UpdateExpenseInput,
 ) {
-  const { getDb } = await import('~/lib/db')
-  const db = await getDb()
-  const { getUserFarms } = await import('~/features/auth/utils')
-  const { validateUpdateData } = await import('./service')
-  const { updateExpense: updateExpenseRecord, getExpenseFarmId } =
-    await import('./repository')
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    const { getUserFarms } = await import('~/features/auth/utils')
+    const { validateUpdateData } = await import('./service')
+    const { updateExpense: updateExpenseRecord, getExpenseFarmId } =
+        await import('./repository')
 
-  try {
-    const farmIds = await getUserFarms(userId)
-    const expenseFarmId = await getExpenseFarmId(db, expenseId)
+    try {
+        const farmIds = await getUserFarms(userId)
+        const expenseFarmId = await getExpenseFarmId(db, expenseId)
 
-    if (!expenseFarmId) {
-      throw new AppError('EXPENSE_NOT_FOUND', {
-        metadata: { resource: 'Expense', id: expenseId },
-      })
+        if (!expenseFarmId) {
+            throw new AppError('EXPENSE_NOT_FOUND', {
+                metadata: { resource: 'Expense', id: expenseId },
+            })
+        }
+
+        if (!farmIds.includes(expenseFarmId)) {
+            throw new AppError('ACCESS_DENIED', {
+                metadata: { farmId: expenseFarmId },
+            })
+        }
+
+        // Business logic: validate update data
+        const validationError = validateUpdateData(data)
+        if (validationError) {
+            throw new AppError('VALIDATION_ERROR', {
+                metadata: { error: validationError },
+            })
+        }
+
+        // We are not handling complex feed inventory restoration on update for now
+        // Assumes simple field updates.
+        const updateData: Record<string, unknown> = {}
+        if (data.category !== undefined) updateData.category = data.category
+        if (data.amount !== undefined)
+            updateData.amount = data.amount.toString()
+        if (data.date !== undefined) updateData.date = data.date
+        if (data.description !== undefined)
+            updateData.description = data.description
+        if (data.batchId !== undefined) updateData.batchId = data.batchId
+        if (data.supplierId !== undefined)
+            updateData.supplierId = data.supplierId
+        if (data.isRecurring !== undefined)
+            updateData.isRecurring = data.isRecurring
+
+        await updateExpenseRecord(db, expenseId, updateData)
+
+        return true
+    } catch (error) {
+        if (error instanceof AppError) throw error
+        throw new AppError('DATABASE_ERROR', {
+            message: 'Failed to update expense',
+            cause: error,
+        })
     }
-
-    if (!farmIds.includes(expenseFarmId)) {
-      throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: expenseFarmId },
-      })
-    }
-
-    // Business logic: validate update data
-    const validationError = validateUpdateData(data)
-    if (validationError) {
-      throw new AppError('VALIDATION_ERROR', {
-        metadata: { error: validationError },
-      })
-    }
-
-    // We are not handling complex feed inventory restoration on update for now
-    // Assumes simple field updates.
-    const updateData: Record<string, unknown> = {}
-    if (data.category !== undefined) updateData.category = data.category
-    if (data.amount !== undefined) updateData.amount = data.amount.toString()
-    if (data.date !== undefined) updateData.date = data.date
-    if (data.description !== undefined)
-      updateData.description = data.description
-    if (data.batchId !== undefined) updateData.batchId = data.batchId
-    if (data.supplierId !== undefined) updateData.supplierId = data.supplierId
-    if (data.isRecurring !== undefined)
-      updateData.isRecurring = data.isRecurring
-
-    await updateExpenseRecord(db, expenseId, updateData)
-
-    return true
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to update expense',
-      cause: error,
-    })
-  }
 }
 
 /**
  * Server function to update an expense record.
  */
 export const updateExpenseFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    z.object({
-      expenseId: z.string().uuid(),
-      data: z.object({
-        category: z
-          .enum([
-            'feed',
-            'medicine',
-            'equipment',
-            'utilities',
-            'labor',
-            'transport',
-            'livestock',
-            'livestock_chicken',
-            'livestock_fish',
-            'maintenance',
-            'marketing',
-            'other',
-          ])
-          .optional(),
-        description: z.string().optional(),
-        amount: z.number().nonnegative().optional(),
-        date: z.coerce.date().optional(),
-        supplierId: z.string().uuid().optional(),
-        notes: z.string().optional(),
-      }),
-    }),
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return updateExpense(session.user.id, data.expenseId, data.data)
-  })
+    .inputValidator(
+        z.object({
+            expenseId: z.string().uuid(),
+            data: z.object({
+                category: z
+                    .enum([
+                        'feed',
+                        'medicine',
+                        'equipment',
+                        'utilities',
+                        'labor',
+                        'transport',
+                        'livestock',
+                        'livestock_chicken',
+                        'livestock_fish',
+                        'maintenance',
+                        'marketing',
+                        'other',
+                    ])
+                    .optional(),
+                description: z.string().optional(),
+                amount: z.number().nonnegative().optional(),
+                date: z.coerce.date().optional(),
+                supplierId: z.string().uuid().optional(),
+                notes: z.string().optional(),
+            }),
+        }),
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return updateExpense(session.user.id, data.expenseId, data.data)
+    })
 
 /**
  * Retrieve a list of expenses for a user.
@@ -333,51 +342,51 @@ export const updateExpenseFn = createServerFn({ method: 'POST' })
  * @throws {Error} If user does not have access to the specified farm
  */
 export async function getExpenses(
-  userId: string,
-  farmId?: string,
-  options?: {
-    startDate?: Date
-    endDate?: Date
-    category?: string
-  },
+    userId: string,
+    farmId?: string,
+    options?: {
+        startDate?: Date
+        endDate?: Date
+        category?: string
+    },
 ) {
-  const { checkFarmAccess, getUserFarms } =
-    await import('~/features/auth/utils')
-  const { getExpensesByFarm } = await import('./repository')
+    const { checkFarmAccess, getUserFarms } =
+        await import('~/features/auth/utils')
+    const { getExpensesByFarm } = await import('./repository')
 
-  try {
-    let targetFarmIds: Array<string> = []
+    try {
+        let targetFarmIds: Array<string> = []
 
-    if (farmId) {
-      const hasAccess = await checkFarmAccess(userId, farmId)
-      if (!hasAccess)
-        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
-      targetFarmIds = [farmId]
-    } else {
-      targetFarmIds = await getUserFarms(userId)
-      if (targetFarmIds.length === 0) return []
+        if (farmId) {
+            const hasAccess = await checkFarmAccess(userId, farmId)
+            if (!hasAccess)
+                throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+            targetFarmIds = [farmId]
+        } else {
+            targetFarmIds = await getUserFarms(userId)
+            if (targetFarmIds.length === 0) return []
+        }
+
+        const { getDb } = await import('~/lib/db')
+        const db = await getDb()
+        return await getExpensesByFarm(
+            db,
+            targetFarmIds,
+            options
+                ? {
+                      startDate: options.startDate,
+                      endDate: options.endDate,
+                      category: options.category,
+                  }
+                : undefined,
+        )
+    } catch (error) {
+        if (error instanceof AppError) throw error
+        throw new AppError('DATABASE_ERROR', {
+            message: 'Failed to fetch expenses',
+            cause: error,
+        })
     }
-
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    return await getExpensesByFarm(
-      db,
-      targetFarmIds,
-      options
-        ? {
-            startDate: options.startDate,
-            endDate: options.endDate,
-            category: options.category,
-          }
-        : undefined,
-    )
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to fetch expenses',
-      cause: error,
-    })
-  }
 }
 
 /**
@@ -390,42 +399,42 @@ export async function getExpenses(
  * @throws {Error} If user lacks access to the farm
  */
 export async function getExpensesForFarm(
-  userId: string,
-  farmId: string,
-  options?: {
-    startDate?: Date
-    endDate?: Date
-    category?: string
-    limit?: number
-  },
+    userId: string,
+    farmId: string,
+    options?: {
+        startDate?: Date
+        endDate?: Date
+        category?: string
+        limit?: number
+    },
 ) {
-  const { verifyFarmAccess } = await import('~/features/auth/utils')
-  const { getExpensesByFarm } = await import('./repository')
+    const { verifyFarmAccess } = await import('~/features/auth/utils')
+    const { getExpensesByFarm } = await import('./repository')
 
-  try {
-    await verifyFarmAccess(userId, farmId)
+    try {
+        await verifyFarmAccess(userId, farmId)
 
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    const expenses = await getExpensesByFarm(db, [farmId], {
-      startDate: options?.startDate,
-      endDate: options?.endDate,
-      category: options?.category,
-    })
+        const { getDb } = await import('~/lib/db')
+        const db = await getDb()
+        const expenses = await getExpensesByFarm(db, [farmId], {
+            startDate: options?.startDate,
+            endDate: options?.endDate,
+            category: options?.category,
+        })
 
-    // Apply limit if provided
-    if (options?.limit) {
-      return expenses.slice(0, options.limit)
+        // Apply limit if provided
+        if (options?.limit) {
+            return expenses.slice(0, options.limit)
+        }
+
+        return expenses
+    } catch (error) {
+        if (error instanceof AppError) throw error
+        throw new AppError('DATABASE_ERROR', {
+            message: 'Failed to fetch expenses',
+            cause: error,
+        })
     }
-
-    return expenses
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to fetch expenses',
-      cause: error,
-    })
-  }
 }
 
 /**
@@ -438,53 +447,53 @@ export async function getExpensesForFarm(
  * @returns Promise resolving to an object containing categorized totals and overall sum
  */
 export async function getExpensesSummary(
-  userId: string,
-  farmId?: string,
-  options?: {
-    startDate?: Date
-    endDate?: Date
-  },
+    userId: string,
+    farmId?: string,
+    options?: {
+        startDate?: Date
+        endDate?: Date
+    },
 ) {
-  const { checkFarmAccess, getUserFarms } =
-    await import('~/features/auth/utils')
-  const { getExpensesSummary: getExpensesSummaryFromDb } =
-    await import('./repository')
-  const { buildExpensesSummary } = await import('./service')
+    const { checkFarmAccess, getUserFarms } =
+        await import('~/features/auth/utils')
+    const { getExpensesSummary: getExpensesSummaryFromDb } =
+        await import('./repository')
+    const { buildExpensesSummary } = await import('./service')
 
-  try {
-    let targetFarmIds: Array<string> = []
+    try {
+        let targetFarmIds: Array<string> = []
 
-    if (farmId) {
-      const hasAccess = await checkFarmAccess(userId, farmId)
-      if (!hasAccess)
-        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
-      targetFarmIds = [farmId]
-    } else {
-      targetFarmIds = await getUserFarms(userId)
-      if (targetFarmIds.length === 0) {
-        return {
-          byCategory: {},
-          total: { count: 0, amount: 0 },
+        if (farmId) {
+            const hasAccess = await checkFarmAccess(userId, farmId)
+            if (!hasAccess)
+                throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+            targetFarmIds = [farmId]
+        } else {
+            targetFarmIds = await getUserFarms(userId)
+            if (targetFarmIds.length === 0) {
+                return {
+                    byCategory: {},
+                    total: { count: 0, amount: 0 },
+                }
+            }
         }
-      }
+
+        const { getDb } = await import('~/lib/db')
+        const db = await getDb()
+        const results = await getExpensesSummaryFromDb(db, targetFarmIds, {
+            startDate: options?.startDate,
+            endDate: options?.endDate,
+        })
+
+        // Business logic: build summary from raw results
+        return buildExpensesSummary(results)
+    } catch (error) {
+        if (error instanceof AppError) throw error
+        throw new AppError('DATABASE_ERROR', {
+            message: 'Failed to fetch expenses summary',
+            cause: error,
+        })
     }
-
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    const results = await getExpensesSummaryFromDb(db, targetFarmIds, {
-      startDate: options?.startDate,
-      endDate: options?.endDate,
-    })
-
-    // Business logic: build summary from raw results
-    return buildExpensesSummary(results)
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to fetch expenses summary',
-      cause: error,
-    })
-  }
 }
 
 /**
@@ -497,35 +506,35 @@ export async function getExpensesSummary(
  * @throws {Error} If user lacks access to the farm
  */
 export async function getTotalExpenses(
-  userId: string,
-  farmId: string,
-  options?: {
-    startDate?: Date
-    endDate?: Date
-  },
+    userId: string,
+    farmId: string,
+    options?: {
+        startDate?: Date
+        endDate?: Date
+    },
 ): Promise<number> {
-  const { verifyFarmAccess } = await import('~/features/auth/utils')
-  const { getTotalExpenses: getTotalExpensesFromDb } =
-    await import('./repository')
+    const { verifyFarmAccess } = await import('~/features/auth/utils')
+    const { getTotalExpenses: getTotalExpensesFromDb } =
+        await import('./repository')
 
-  try {
-    await verifyFarmAccess(userId, farmId)
+    try {
+        await verifyFarmAccess(userId, farmId)
 
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    const total = await getTotalExpensesFromDb(db, [farmId], {
-      startDate: options?.startDate,
-      endDate: options?.endDate,
-    })
+        const { getDb } = await import('~/lib/db')
+        const db = await getDb()
+        const total = await getTotalExpensesFromDb(db, [farmId], {
+            startDate: options?.startDate,
+            endDate: options?.endDate,
+        })
 
-    return parseFloat(total)
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to calculate total expenses',
-      cause: error,
-    })
-  }
+        return parseFloat(total)
+    } catch (error) {
+        if (error instanceof AppError) throw error
+        throw new AppError('DATABASE_ERROR', {
+            message: 'Failed to calculate total expenses',
+            cause: error,
+        })
+    }
 }
 
 /**
@@ -536,112 +545,114 @@ export async function getTotalExpenses(
  * @returns Promise resolving to a paginated set of expense records with joined entity names
  */
 export async function getExpensesPaginated(
-  userId: string,
-  query: ExpenseQuery = {},
+    userId: string,
+    query: ExpenseQuery = {},
 ): Promise<
-  PaginatedResult<{
-    id: string
-    farmId: string
-    farmName: string | null
-    category: string
-    amount: string
-    date: Date
-    description: string
-    supplierName: string | null
-    batchSpecies: string | null
-    batchType: string | null
-    isRecurring: boolean
-  }>
+    PaginatedResult<{
+        id: string
+        farmId: string
+        farmName: string | null
+        category: string
+        amount: string
+        date: Date
+        description: string
+        supplierName: string | null
+        batchSpecies: string | null
+        batchType: string | null
+        isRecurring: boolean
+    }>
 > {
-  const { checkFarmAccess, getUserFarms } =
-    await import('~/features/auth/utils')
-  const { getExpensesPaginated: getExpensesPaginatedFromDb } =
-    await import('./repository')
+    const { checkFarmAccess, getUserFarms } =
+        await import('~/features/auth/utils')
+    const { getExpensesPaginated: getExpensesPaginatedFromDb } =
+        await import('./repository')
 
-  try {
-    // Determine target farms
-    let targetFarmIds: Array<string> = []
-    if (query.farmId) {
-      const hasAccess = await checkFarmAccess(userId, query.farmId)
-      if (!hasAccess)
-        throw new AppError('ACCESS_DENIED', {
-          metadata: { farmId: query.farmId },
-        })
-      targetFarmIds = [query.farmId]
-    } else {
-      targetFarmIds = await getUserFarms(userId)
-      if (targetFarmIds.length === 0) {
-        return {
-          data: [],
-          total: 0,
-          page: query.page || 1,
-          pageSize: query.pageSize || 10,
-          totalPages: 0,
+    try {
+        // Determine target farms
+        let targetFarmIds: Array<string> = []
+        if (query.farmId) {
+            const hasAccess = await checkFarmAccess(userId, query.farmId)
+            if (!hasAccess)
+                throw new AppError('ACCESS_DENIED', {
+                    metadata: { farmId: query.farmId },
+                })
+            targetFarmIds = [query.farmId]
+        } else {
+            targetFarmIds = await getUserFarms(userId)
+            if (targetFarmIds.length === 0) {
+                return {
+                    data: [],
+                    total: 0,
+                    page: query.page || 1,
+                    pageSize: query.pageSize || 10,
+                    totalPages: 0,
+                }
+            }
         }
-      }
-    }
 
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    return await getExpensesPaginatedFromDb(db, targetFarmIds, {
-      page: query.page,
-      pageSize: query.pageSize,
-      sortBy: query.sortBy,
-      sortOrder: query.sortOrder,
-      search: query.search,
-      category: query.category,
-      batchId: query.batchId,
-    })
-  } catch (error) {
-    if (error instanceof AppError) throw error
-    throw new AppError('DATABASE_ERROR', {
-      message: 'Failed to fetch paginated expenses',
-      cause: error,
-    })
-  }
+        const { getDb } = await import('~/lib/db')
+        const db = await getDb()
+        return await getExpensesPaginatedFromDb(db, targetFarmIds, {
+            page: query.page,
+            pageSize: query.pageSize,
+            sortBy: query.sortBy,
+            sortOrder: query.sortOrder,
+            search: query.search,
+            category: query.category,
+            batchId: query.batchId,
+        })
+    } catch (error) {
+        if (error instanceof AppError) throw error
+        throw new AppError('DATABASE_ERROR', {
+            message: 'Failed to fetch paginated expenses',
+            cause: error,
+        })
+    }
 }
 
 /**
  * Server function to retrieve paginated expense records.
  */
 export const getExpensesPaginatedFn = createServerFn({ method: 'GET' })
-  .inputValidator(
-    z.object({
-      page: z.number().int().positive().optional(),
-      pageSize: z.number().int().positive().max(100).optional(),
-      sortBy: z.string().optional(),
-      sortOrder: z.enum(['asc', 'desc']).optional(),
-      search: z.string().optional(),
-      farmId: z.string().uuid().optional(),
-      category: z.string().optional(),
-      startDate: z.coerce.date().optional(),
-      endDate: z.coerce.date().optional(),
-    }),
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return getExpensesPaginated(session.user.id, data)
-  })
+    .inputValidator(
+        z.object({
+            page: z.number().int().positive().optional(),
+            pageSize: z.number().int().positive().max(100).optional(),
+            sortBy: z.string().optional(),
+            sortOrder: z.enum(['asc', 'desc']).optional(),
+            search: z.string().optional(),
+            farmId: z.string().uuid().optional(),
+            category: z.string().optional(),
+            startDate: z.coerce.date().optional(),
+            endDate: z.coerce.date().optional(),
+        }),
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return getExpensesPaginated(session.user.id, data)
+    })
 
 /**
  * Server function to retrieve expenses summary by category.
  */
 export const getExpensesSummaryFn = createServerFn({ method: 'GET' })
-  .inputValidator(
-    z.object({
-      farmId: z.string().uuid().optional(),
-      startDate: z.coerce.date().optional(),
-      endDate: z.coerce.date().optional(),
-    }),
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return getExpensesSummary(session.user.id, data.farmId, {
-      startDate: data.startDate,
-      endDate: data.endDate,
+    .inputValidator(
+        z.object({
+            farmId: z.string().uuid().optional(),
+            startDate: z.coerce.date().optional(),
+            endDate: z.coerce.date().optional(),
+        }),
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return getExpensesSummary(session.user.id, data.farmId, {
+            startDate: data.startDate,
+            endDate: data.endDate,
+        })
     })
-  })
 
 export type { CreateExpenseInput, UpdateExpenseInput } from './types'

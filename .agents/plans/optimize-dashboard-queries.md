@@ -142,212 +142,225 @@ const salesResult = await db...executeTakeFirst()
 ```typescript
 // Parallel Batch 1: Core metrics
 const [
-  inventoryByType,
-  activeBatchesResult,
-  salesResult,
-  prevMonthSalesResult,
-  expensesResult,
-  prevMonthExpensesResult,
+    inventoryByType,
+    activeBatchesResult,
+    salesResult,
+    prevMonthSalesResult,
+    expensesResult,
+    prevMonthExpensesResult,
 ] = await Promise.all([
-  // Inventory by type
-  db
-    .selectFrom('batches')
-    .select([
-      'livestockType',
-      sql<number>`SUM(CAST("currentQuantity" AS INTEGER))`.as('total'),
-    ])
-    .where('status', '=', 'active')
-    .where('farmId', 'in', targetFarmIds)
-    .groupBy('livestockType')
-    .execute(),
+    // Inventory by type
+    db
+        .selectFrom('batches')
+        .select([
+            'livestockType',
+            sql<number>`SUM(CAST("currentQuantity" AS INTEGER))`.as('total'),
+        ])
+        .where('status', '=', 'active')
+        .where('farmId', 'in', targetFarmIds)
+        .groupBy('livestockType')
+        .execute(),
 
-  // Active batches count
-  db
-    .selectFrom('batches')
-    .select(sql<number>`COUNT(*)`.as('count'))
-    .where('status', '=', 'active')
-    .where('farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Active batches count
+    db
+        .selectFrom('batches')
+        .select(sql<number>`COUNT(*)`.as('count'))
+        .where('status', '=', 'active')
+        .where('farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 
-  // Current month revenue
-  db
-    .selectFrom('sales')
-    .select(
-      sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as('total'),
-    )
-    .where('date', '>=', startOfMonth)
-    .where('date', '<=', endOfMonth)
-    .where('farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Current month revenue
+    db
+        .selectFrom('sales')
+        .select(
+            sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as(
+                'total',
+            ),
+        )
+        .where('date', '>=', startOfMonth)
+        .where('date', '<=', endOfMonth)
+        .where('farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 
-  // Previous month revenue
-  db
-    .selectFrom('sales')
-    .select(
-      sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as('total'),
-    )
-    .where('date', '>=', prevMonthStart)
-    .where('date', '<=', prevMonthEnd)
-    .where('farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Previous month revenue
+    db
+        .selectFrom('sales')
+        .select(
+            sql<string>`COALESCE(SUM(CAST("totalAmount" AS DECIMAL)), 0)`.as(
+                'total',
+            ),
+        )
+        .where('date', '>=', prevMonthStart)
+        .where('date', '<=', prevMonthEnd)
+        .where('farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 
-  // Current month expenses
-  db
-    .selectFrom('expenses')
-    .select(sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)`.as('total'))
-    .where('date', '>=', startOfMonth)
-    .where('date', '<=', endOfMonth)
-    .where('farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Current month expenses
+    db
+        .selectFrom('expenses')
+        .select(
+            sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)`.as('total'),
+        )
+        .where('date', '>=', startOfMonth)
+        .where('date', '<=', endOfMonth)
+        .where('farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 
-  // Previous month expenses
-  db
-    .selectFrom('expenses')
-    .select(sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)`.as('total'))
-    .where('date', '>=', prevMonthStart)
-    .where('date', '<=', prevMonthEnd)
-    .where('farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Previous month expenses
+    db
+        .selectFrom('expenses')
+        .select(
+            sql<string>`COALESCE(SUM(CAST(amount AS DECIMAL)), 0)`.as('total'),
+        )
+        .where('date', '>=', prevMonthStart)
+        .where('date', '<=', prevMonthEnd)
+        .where('farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 ])
 
 // Parallel Batch 2: Production & health metrics
 const [
-  eggsQuery,
-  layerBirdsQuery,
-  mortalityQuery,
-  initialQuantityQuery,
-  feedQuery,
-  totalWeightQuery,
+    eggsQuery,
+    layerBirdsQuery,
+    mortalityQuery,
+    initialQuantityQuery,
+    feedQuery,
+    totalWeightQuery,
 ] = await Promise.all([
-  // Eggs this month
-  db
-    .selectFrom('egg_records')
-    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
-    .select([
-      sql<number>`COALESCE(SUM("quantityCollected"), 0)`.as('totalEggs'),
-    ])
-    .where('egg_records.date', '>=', startOfMonth)
-    .where('egg_records.date', '<=', endOfMonth)
-    .where('batches.farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Eggs this month
+    db
+        .selectFrom('egg_records')
+        .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+        .select([
+            sql<number>`COALESCE(SUM("quantityCollected"), 0)`.as('totalEggs'),
+        ])
+        .where('egg_records.date', '>=', startOfMonth)
+        .where('egg_records.date', '<=', endOfMonth)
+        .where('batches.farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 
-  // Layer birds count
-  db
-    .selectFrom('batches')
-    .select(sql<number>`COALESCE(SUM("currentQuantity"), 0)`.as('total'))
-    .where('species', 'ilike', '%layer%')
-    .where('status', '=', 'active')
-    .where('farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Layer birds count
+    db
+        .selectFrom('batches')
+        .select(sql<number>`COALESCE(SUM("currentQuantity"), 0)`.as('total'))
+        .where('species', 'ilike', '%layer%')
+        .where('status', '=', 'active')
+        .where('farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 
-  // Mortality this month
-  db
-    .selectFrom('mortality_records')
-    .innerJoin('batches', 'batches.id', 'mortality_records.batchId')
-    .select([sql<number>`COALESCE(SUM(quantity), 0)`.as('totalDeaths')])
-    .where('mortality_records.date', '>=', startOfMonth)
-    .where('mortality_records.date', '<=', endOfMonth)
-    .where('batches.farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Mortality this month
+    db
+        .selectFrom('mortality_records')
+        .innerJoin('batches', 'batches.id', 'mortality_records.batchId')
+        .select([sql<number>`COALESCE(SUM(quantity), 0)`.as('totalDeaths')])
+        .where('mortality_records.date', '>=', startOfMonth)
+        .where('mortality_records.date', '<=', endOfMonth)
+        .where('batches.farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 
-  // Initial quantity for mortality rate
-  db
-    .selectFrom('batches')
-    .select([sql<number>`COALESCE(SUM("initialQuantity"), 0)`.as('total')])
-    .where('status', '=', 'active')
-    .where('farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Initial quantity for mortality rate
+    db
+        .selectFrom('batches')
+        .select([sql<number>`COALESCE(SUM("initialQuantity"), 0)`.as('total')])
+        .where('status', '=', 'active')
+        .where('farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 
-  // Feed this month
-  db
-    .selectFrom('feed_records')
-    .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-    .select([
-      sql<string>`COALESCE(SUM(CAST(cost AS DECIMAL)), 0)`.as('totalCost'),
-      sql<string>`COALESCE(SUM(CAST("quantityKg" AS DECIMAL)), 0)`.as(
-        'totalKg',
-      ),
-    ])
-    .where('feed_records.date', '>=', startOfMonth)
-    .where('feed_records.date', '<=', endOfMonth)
-    .where('batches.farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Feed this month
+    db
+        .selectFrom('feed_records')
+        .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+        .select([
+            sql<string>`COALESCE(SUM(CAST(cost AS DECIMAL)), 0)`.as(
+                'totalCost',
+            ),
+            sql<string>`COALESCE(SUM(CAST("quantityKg" AS DECIMAL)), 0)`.as(
+                'totalKg',
+            ),
+        ])
+        .where('feed_records.date', '>=', startOfMonth)
+        .where('feed_records.date', '<=', endOfMonth)
+        .where('batches.farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 
-  // Total quantity for FCR
-  db
-    .selectFrom('batches')
-    .select([
-      sql<number>`COALESCE(SUM("currentQuantity"), 0)`.as('totalQuantity'),
-    ])
-    .where('status', '=', 'active')
-    .where('farmId', 'in', targetFarmIds)
-    .executeTakeFirst(),
+    // Total quantity for FCR
+    db
+        .selectFrom('batches')
+        .select([
+            sql<number>`COALESCE(SUM("currentQuantity"), 0)`.as(
+                'totalQuantity',
+            ),
+        ])
+        .where('status', '=', 'active')
+        .where('farmId', 'in', targetFarmIds)
+        .executeTakeFirst(),
 ])
 
 // Parallel Batch 3: Lists (customers, transactions, alerts)
 const [topCustomers, recentSales, recentExpenses, alerts] = await Promise.all([
-  // Top customers
-  db
-    .selectFrom('customers')
-    .leftJoin('sales', 'sales.customerId', 'customers.id')
-    .select([
-      'customers.id',
-      'customers.name',
-      sql<string>`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`.as(
-        'totalSpent',
-      ),
-    ])
-    .where((eb) =>
-      eb.or([
-        eb('sales.farmId', 'in', targetFarmIds),
-        eb('sales.farmId', 'is', null),
-      ]),
-    )
-    .groupBy(['customers.id', 'customers.name'])
-    .orderBy(
-      sql`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`,
-      'desc',
-    )
-    .limit(5)
-    .execute(),
+    // Top customers
+    db
+        .selectFrom('customers')
+        .leftJoin('sales', 'sales.customerId', 'customers.id')
+        .select([
+            'customers.id',
+            'customers.name',
+            sql<string>`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`.as(
+                'totalSpent',
+            ),
+        ])
+        .where((eb) =>
+            eb.or([
+                eb('sales.farmId', 'in', targetFarmIds),
+                eb('sales.farmId', 'is', null),
+            ]),
+        )
+        .groupBy(['customers.id', 'customers.name'])
+        .orderBy(
+            sql`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`,
+            'desc',
+        )
+        .limit(5)
+        .execute(),
 
-  // Recent sales
-  db
-    .selectFrom('sales')
-    .select([
-      'id',
-      sql<'sale'>`'sale'`.as('type'),
-      sql<string>`CONCAT("livestockType", ' sale - ', quantity, ' units')`.as(
-        'description',
-      ),
-      'totalAmount as amount',
-      'date',
-    ])
-    .where('farmId', 'in', targetFarmIds)
-    .orderBy('date', 'desc')
-    .limit(5)
-    .execute(),
+    // Recent sales
+    db
+        .selectFrom('sales')
+        .select([
+            'id',
+            sql<'sale'>`'sale'`.as('type'),
+            sql<string>`CONCAT("livestockType", ' sale - ', quantity, ' units')`.as(
+                'description',
+            ),
+            'totalAmount as amount',
+            'date',
+        ])
+        .where('farmId', 'in', targetFarmIds)
+        .orderBy('date', 'desc')
+        .limit(5)
+        .execute(),
 
-  // Recent expenses
-  db
-    .selectFrom('expenses')
-    .select([
-      'id',
-      sql<'expense'>`'expense'`.as('type'),
-      'description',
-      'amount',
-      'date',
-    ])
-    .where('farmId', 'in', targetFarmIds)
-    .orderBy('date', 'desc')
-    .limit(5)
-    .execute(),
+    // Recent expenses
+    db
+        .selectFrom('expenses')
+        .select([
+            'id',
+            sql<'expense'>`'expense'`.as('type'),
+            'description',
+            'amount',
+            'date',
+        ])
+        .where('farmId', 'in', targetFarmIds)
+        .orderBy('date', 'desc')
+        .limit(5)
+        .execute(),
 
-  // Alerts (already async)
-  (async () => {
-    const { getAllBatchAlerts } = await import('~/features/monitoring/server')
-    return getAllBatchAlerts({ data: { farmId } })
-  })(),
+    // Alerts (already async)
+    (async () => {
+        const { getAllBatchAlerts } =
+            await import('~/features/monitoring/server')
+        return getAllBatchAlerts({ data: { farmId } })
+    })(),
 ])
 ```
 

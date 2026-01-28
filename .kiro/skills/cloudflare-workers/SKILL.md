@@ -33,9 +33,9 @@ Database and auth modules must use dynamic imports in server functions:
 ```typescript
 // ✅ Correct - works on Workers
 export const fn = createServerFn().handler(async () => {
-  const { getDb } = await import('~/lib/db')
-  const db = await getDb()
-  // ...
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    // ...
 })
 
 // ❌ Wrong - fails on Workers
@@ -56,10 +56,10 @@ The `wrangler.jsonc` file configures the Worker:
 
 ```jsonc
 {
-  "name": "openlivestock",
-  "compatibility_date": "2024-01-01",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "./dist/server/index.mjs",
+    "name": "openlivestock",
+    "compatibility_date": "2024-01-01",
+    "compatibility_flags": ["nodejs_compat"],
+    "main": "./dist/server/index.mjs",
 }
 ```
 

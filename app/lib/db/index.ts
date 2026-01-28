@@ -30,18 +30,18 @@ let dbInstance: Kysely<Database> | undefined
  * Tries process.env first, then falls back to cloudflare:workers env.
  */
 async function getDatabaseUrl(): Promise<string | undefined> {
-  // Try process.env first (works in Node.js, Bun, and when Vite injects it)
-  if (typeof process !== 'undefined' && process.env.DATABASE_URL) {
-    return process.env.DATABASE_URL
-  }
+    // Try process.env first (works in Node.js, Bun, and when Vite injects it)
+    if (typeof process !== 'undefined' && process.env.DATABASE_URL) {
+        return process.env.DATABASE_URL
+    }
 
-  // Fall back to Cloudflare Workers env binding
-  try {
-    const { env } = await import('cloudflare:workers')
-    return env.DATABASE_URL
-  } catch {
-    return undefined
-  }
+    // Fall back to Cloudflare Workers env binding
+    try {
+        const { env } = await import('cloudflare:workers')
+        return env.DATABASE_URL
+    } catch {
+        return undefined
+    }
 }
 
 /**
@@ -61,20 +61,20 @@ async function getDatabaseUrl(): Promise<string | undefined> {
  * ```
  */
 export async function getDb(): Promise<Kysely<Database>> {
-  if (!dbInstance) {
-    const databaseUrl = await getDatabaseUrl()
-    if (!databaseUrl) {
-      throw new Error(
-        'DATABASE_URL environment variable is not set. Make sure you are running this code on the server.',
-      )
+    if (!dbInstance) {
+        const databaseUrl = await getDatabaseUrl()
+        if (!databaseUrl) {
+            throw new Error(
+                'DATABASE_URL environment variable is not set. Make sure you are running this code on the server.',
+            )
+        }
+        dbInstance = new Kysely<Database>({
+            dialect: new NeonDialect({
+                neon: neon(databaseUrl),
+            }),
+        })
     }
-    dbInstance = new Kysely<Database>({
-      dialect: new NeonDialect({
-        neon: neon(databaseUrl),
-      }),
-    })
-  }
-  return dbInstance
+    return dbInstance
 }
 
 /**
@@ -96,21 +96,21 @@ export async function getDb(): Promise<Kysely<Database>> {
  * ```
  */
 export const db: Kysely<Database> = (() => {
-  if (typeof process !== 'undefined' && process.env.DATABASE_URL) {
-    return new Kysely<Database>({
-      dialect: new NeonDialect({
-        neon: neon(process.env.DATABASE_URL),
-      }),
+    if (typeof process !== 'undefined' && process.env.DATABASE_URL) {
+        return new Kysely<Database>({
+            dialect: new NeonDialect({
+                neon: neon(process.env.DATABASE_URL),
+            }),
+        })
+    }
+    // Return a proxy that throws a helpful error
+    return new Proxy({} as Kysely<Database>, {
+        get() {
+            throw new Error(
+                'DATABASE_URL not available. In server functions, use: const { getDb } = await import("~/lib/db"); const db = await getDb();',
+            )
+        },
     })
-  }
-  // Return a proxy that throws a helpful error
-  return new Proxy({} as Kysely<Database>, {
-    get() {
-      throw new Error(
-        'DATABASE_URL not available. In server functions, use: const { getDb } = await import("~/lib/db"); const db = await getDb();',
-      )
-    },
-  })
 })()
 
 // Export types for use in other files

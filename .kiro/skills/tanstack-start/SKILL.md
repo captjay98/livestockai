@@ -18,23 +18,26 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 export const getBatchesFn = createServerFn({ method: 'GET' })
-  .inputValidator(
-    z.object({
-      farmId: z.string().uuid().optional(),
-      status: z.enum(['active', 'depleted', 'sold']).optional(),
-    }),
-  )
-  .handler(async ({ data }) => {
-    // Auth check
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
+    .inputValidator(
+        z.object({
+            farmId: z.string().uuid().optional(),
+            status: z.enum(['active', 'depleted', 'sold']).optional(),
+        }),
+    )
+    .handler(async ({ data }) => {
+        // Auth check
+        const { requireAuth } = await import('../auth/server-middleware')
+        const session = await requireAuth()
 
-    // Database access (dynamic import for Cloudflare)
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
+        // Database access (dynamic import for Cloudflare)
+        const { getDb } = await import('~/lib/db')
+        const db = await getDb()
 
-    return db.selectFrom('batches').where('farmId', '=', data.farmId).execute()
-  })
+        return db
+            .selectFrom('batches')
+            .where('farmId', '=', data.farmId)
+            .execute()
+    })
 ```
 
 ### Three-Layer Architecture
@@ -44,25 +47,25 @@ Server functions orchestrate the three layers:
 ```typescript
 // server.ts - Orchestration layer
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator(createBatchSchema)
-  .handler(async ({ data }) => {
-    // 1. Auth
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
+    .inputValidator(createBatchSchema)
+    .handler(async ({ data }) => {
+        // 1. Auth
+        const { requireAuth } = await import('../auth/server-middleware')
+        const session = await requireAuth()
 
-    // 2. Business logic (service layer)
-    const validationError = validateBatchData(data.batch)
-    if (validationError) {
-      throw new AppError('VALIDATION_ERROR', {
-        metadata: { error: validationError },
-      })
-    }
+        // 2. Business logic (service layer)
+        const validationError = validateBatchData(data.batch)
+        if (validationError) {
+            throw new AppError('VALIDATION_ERROR', {
+                metadata: { error: validationError },
+            })
+        }
 
-    // 3. Database (repository layer)
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    return insertBatch(db, data.batch)
-  })
+        // 3. Database (repository layer)
+        const { getDb } = await import('~/lib/db')
+        const db = await getDb()
+        return insertBatch(db, data.batch)
+    })
 ```
 
 ## Input Validation
@@ -111,9 +114,9 @@ notes: z.string().max(500).nullish()
 
 ```typescript
 export const Route = createFileRoute('/_auth/batches/')({
-  loader: async ({ deps }) => {
-    return getBatchesForFarmFn({ data: deps })
-  },
+    loader: async ({ deps }) => {
+        return getBatchesForFarmFn({ data: deps })
+    },
 })
 ```
 

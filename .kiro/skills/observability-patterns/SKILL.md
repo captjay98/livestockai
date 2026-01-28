@@ -22,18 +22,18 @@ When logging errors, never log just the message. Log the _Context_.
 ```typescript
 // ✅ Correct Logging Pattern
 console.error(
-  JSON.stringify({
-    level: 'error',
-    requestId: ctx.requestId,
-    error: error.name,
-    code: error.code,
-    // Critical for debugging offline sync issues:
-    metadata: {
-      batchId: data.batchId,
-      inputs: truncate(JSON.stringify(data), 1000),
-    },
-    stack: error.stack,
-  }),
+    JSON.stringify({
+        level: 'error',
+        requestId: ctx.requestId,
+        error: error.name,
+        code: error.code,
+        // Critical for debugging offline sync issues:
+        metadata: {
+            batchId: data.batchId,
+            inputs: truncate(JSON.stringify(data), 1000),
+        },
+        stack: error.stack,
+    }),
 )
 ```
 

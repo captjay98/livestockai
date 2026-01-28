@@ -11,57 +11,64 @@ import { FarmEmptyState } from '~/components/farms/farm-empty-state'
 import { FarmsSkeleton } from '~/components/farms/farms-skeleton'
 
 export const Route = createFileRoute('/_auth/farms/')({
-  component: FarmsIndexPage,
-  loader: async () => {
-    try {
-      const farms = await getFarmsWithStats()
-      return { farms }
-    } catch (err) {
-      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
-        throw redirect({ to: '/login' })
-      }
-      throw err
-    }
-  },
-  pendingComponent: FarmsSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">Error loading farms: {error.message}</div>
-  ),
+    component: FarmsIndexPage,
+    loader: async () => {
+        try {
+            const farms = await getFarmsWithStats()
+            return { farms }
+        } catch (err) {
+            if (err instanceof Error && err.message === 'UNAUTHORIZED') {
+                throw redirect({ to: '/login' })
+            }
+            throw err
+        }
+    },
+    pendingComponent: FarmsSkeleton,
+    errorComponent: ({ error }) => (
+        <div className="p-4 text-red-600">
+            Error loading farms: {error.message}
+        </div>
+    ),
 })
 
 function FarmsIndexPage() {
-  const { t } = useTranslation(['farms'])
-  const loaderData = Route.useLoaderData()
-  const farms = loaderData.farms
+    const { t } = useTranslation(['farms'])
+    const loaderData = Route.useLoaderData()
+    const farms = loaderData.farms
 
-  const { dialogOpen, setDialogOpen, selectedFarm, handleCreate, handleEdit } =
-    useFarmsPage(farms)
+    const {
+        dialogOpen,
+        setDialogOpen,
+        selectedFarm,
+        handleCreate,
+        handleEdit,
+    } = useFarmsPage(farms)
 
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t('farms:title')}
-        description={t('farms:description')}
-        icon={Building2}
-        actions={
-          <Button onClick={handleCreate}>
-            <Plus className="h-4 w-4 mr-2" />
-            {t('farms:add')}
-          </Button>
-        }
-      />
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                title={t('farms:title')}
+                description={t('farms:description')}
+                icon={Building2}
+                actions={
+                    <Button onClick={handleCreate}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        {t('farms:add')}
+                    </Button>
+                }
+            />
 
-      <FarmDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        farm={selectedFarm}
-      />
+            <FarmDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                farm={selectedFarm}
+            />
 
-      {farms.length === 0 ? (
-        <FarmEmptyState onCreate={handleCreate} />
-      ) : (
-        <FarmList farms={farms} onEdit={handleEdit} />
-      )}
-    </div>
-  )
+            {farms.length === 0 ? (
+                <FarmEmptyState onCreate={handleCreate} />
+            ) : (
+                <FarmList farms={farms} onEdit={handleEdit} />
+            )}
+        </div>
+    )
 }

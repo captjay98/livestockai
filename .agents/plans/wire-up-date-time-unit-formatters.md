@@ -151,10 +151,10 @@ Run tsc and lint to ensure no errors.
 
 - **ADD IMPORT**: `useFormatDate, useFormatWeight` from `~/features/settings`
 - **ADD HOOKS**:
-  ```typescript
-  const { format: formatDate } = useFormatDate()
-  const { label: weightLabel } = useFormatWeight()
-  ```
+    ```typescript
+    const { format: formatDate } = useFormatDate()
+    const { label: weightLabel } = useFormatWeight()
+    ```
 - **REPLACE** 5 occurrences of `new Date(...).toLocaleDateString()` → `formatDate(...)`
 - **REPLACE** "Feed (Kg)" header → `Feed (${weightLabel})`
 - **REPLACE** "Qty (Kg)" header → `Qty (${weightLabel})`

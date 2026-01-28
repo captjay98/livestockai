@@ -208,30 +208,30 @@ import { z } from 'zod'
 import { AppError } from '~/lib/errors'
 
 export const getFeatureDataFn = createServerFn({ method: 'GET' })
-  .inputValidator(
-    z.object({
-      farmId: z.string().uuid().optional(),
-      page: z.number().int().positive().optional(),
-      pageSize: z.number().int().positive().optional(),
-      sortBy: z.string().optional(),
-      sortOrder: z.enum(['asc', 'desc']).optional(),
-      search: z.string().optional(),
-    }),
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
+    .inputValidator(
+        z.object({
+            farmId: z.string().uuid().optional(),
+            page: z.number().int().positive().optional(),
+            pageSize: z.number().int().positive().optional(),
+            sortBy: z.string().optional(),
+            sortOrder: z.enum(['asc', 'desc']).optional(),
+            search: z.string().optional(),
+        }),
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } = await import('../auth/server-middleware')
+        const session = await requireAuth()
 
-    const { db } = await import('~/lib/db') // MUST be dynamic
+        const { db } = await import('~/lib/db') // MUST be dynamic
 
-    try {
-      // Implementation
-      return await getFeatureData(session.user.id, data)
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('DATABASE_ERROR', { cause: error })
-    }
-  })
+        try {
+            // Implementation
+            return await getFeatureData(session.user.id, data)
+        } catch (error) {
+            if (error instanceof AppError) throw error
+            throw new AppError('DATABASE_ERROR', { cause: error })
+        }
+    })
 ```
 
 ### Pattern 3: Custom Hook (Mutations Only)
@@ -242,23 +242,23 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 
 export function useFeaturePage() {
-  const queryClient = useQueryClient()
+    const queryClient = useQueryClient()
 
-  // ✅ Mutations only
-  const createMutation = useMutation({
-    mutationFn: (data) => createFeatureFn({ data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['feature'] })
-    },
-  })
+    // ✅ Mutations only
+    const createMutation = useMutation({
+        mutationFn: (data) => createFeatureFn({ data }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['feature'] })
+        },
+    })
 
-  // ✅ Local UI state only
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+    // ✅ Local UI state only
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  // ❌ NO data fetching with useEffect
-  // ❌ NO useState for loading states
+    // ❌ NO data fetching with useEffect
+    // ❌ NO useState for loading states
 
-  return { createMutation, isDialogOpen, setIsDialogOpen }
+    return { createMutation, isDialogOpen, setIsDialogOpen }
 }
 ```
 
@@ -290,32 +290,32 @@ export function FeatureSkeleton() {
 ```typescript
 // app/features/{feature}/repository.ts
 export async function getFeaturesPaginated(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  page: number = 1,
-  pageSize: number = 20,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    page: number = 1,
+    pageSize: number = 20,
 ) {
-  // Get total count
-  const countResult = await db
-    .selectFrom('table')
-    .where('farmId', 'in', farmIds)
-    .select(sql<number>`count(*)`.as('count'))
-    .executeTakeFirst()
+    // Get total count
+    const countResult = await db
+        .selectFrom('table')
+        .where('farmId', 'in', farmIds)
+        .select(sql<number>`count(*)`.as('count'))
+        .executeTakeFirst()
 
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
 
-  // Get paginated data
-  const data = await db
-    .selectFrom('table')
-    .select(['id', 'name', 'createdAt']) // Explicit columns
-    .where('farmId', 'in', farmIds)
-    .orderBy('createdAt', 'desc')
-    .limit(pageSize)
-    .offset((page - 1) * pageSize)
-    .execute()
+    // Get paginated data
+    const data = await db
+        .selectFrom('table')
+        .select(['id', 'name', 'createdAt']) // Explicit columns
+        .where('farmId', 'in', farmIds)
+        .orderBy('createdAt', 'desc')
+        .limit(pageSize)
+        .offset((page - 1) * pageSize)
+        .execute()
 
-  return { data, total, page, pageSize, totalPages }
+    return { data, total, page, pageSize, totalPages }
 }
 ```
 
@@ -394,13 +394,13 @@ export async function getFeaturesPaginated(
 ```typescript
 // Add to repository.ts
 export async function getBatchesByFarmPaginated(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  filters?: BatchFilters,
-  page: number = 1,
-  pageSize: number = 20,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    filters?: BatchFilters,
+    page: number = 1,
+    pageSize: number = 20,
 ): Promise<PaginatedResult<BatchWithFarmName>> {
-  // Implementation following sales pattern
+    // Implementation following sales pattern
 }
 ```
 
@@ -430,26 +430,26 @@ export async function getBatchesByFarmPaginated(
 import { Kysely, sql } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
-  // Add indexes for better query performance
-  await sql`CREATE INDEX IF NOT EXISTS idx_batches_livestock_type ON batches(livestockType)`.execute(
-    db,
-  )
-  await sql`CREATE INDEX IF NOT EXISTS idx_sales_livestock_type ON sales(livestockType)`.execute(
-    db,
-  )
-  await sql`CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category)`.execute(
-    db,
-  )
-  await sql`CREATE INDEX IF NOT EXISTS idx_batches_acquisition_date ON batches(acquisitionDate)`.execute(
-    db,
-  )
+    // Add indexes for better query performance
+    await sql`CREATE INDEX IF NOT EXISTS idx_batches_livestock_type ON batches(livestockType)`.execute(
+        db,
+    )
+    await sql`CREATE INDEX IF NOT EXISTS idx_sales_livestock_type ON sales(livestockType)`.execute(
+        db,
+    )
+    await sql`CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category)`.execute(
+        db,
+    )
+    await sql`CREATE INDEX IF NOT EXISTS idx_batches_acquisition_date ON batches(acquisitionDate)`.execute(
+        db,
+    )
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql`DROP INDEX IF EXISTS idx_batches_livestock_type`.execute(db)
-  await sql`DROP INDEX IF EXISTS idx_sales_livestock_type`.execute(db)
-  await sql`DROP INDEX IF EXISTS idx_expenses_category`.execute(db)
-  await sql`DROP INDEX IF EXISTS idx_batches_acquisition_date`.execute(db)
+    await sql`DROP INDEX IF EXISTS idx_batches_livestock_type`.execute(db)
+    await sql`DROP INDEX IF EXISTS idx_sales_livestock_type`.execute(db)
+    await sql`DROP INDEX IF EXISTS idx_expenses_category`.execute(db)
+    await sql`DROP INDEX IF EXISTS idx_batches_acquisition_date`.execute(db)
 }
 ```
 
@@ -464,15 +464,15 @@ export async function down(db: Kysely<any>): Promise<void> {
 ```typescript
 // Example for loginFn
 export const loginFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    z.object({
-      email: z.string().email(),
-      password: z.string().min(8),
-    }),
-  )
-  .handler(async ({ data }) => {
-    // existing implementation
-  })
+    .inputValidator(
+        z.object({
+            email: z.string().email(),
+            password: z.string().min(8),
+        }),
+    )
+    .handler(async ({ data }) => {
+        // existing implementation
+    })
 ```
 
 #### Task 1.6: ADD validators to farms server functions (2 functions)
@@ -535,13 +535,13 @@ export const loginFn = createServerFn({ method: 'POST' })
 #### Task 1.14: VALIDATE Phase 1 completion
 
 - **VALIDATE**:
-  ```bash
-  # All checks must pass
-  npx tsc --noEmit || exit 1
-  bun run lint || exit 1
-  bun run test --run || exit 1
-  bun run build || exit 1
-  ```
+    ```bash
+    # All checks must pass
+    npx tsc --noEmit || exit 1
+    bun run lint || exit 1
+    bun run test --run || exit 1
+    bun run build || exit 1
+    ```
 
 ---
 
@@ -656,8 +656,8 @@ export const loginFn = createServerFn({ method: 'POST' })
 #### Task 2.17: REFACTOR use-feed-inventory and use-medication-inventory hooks
 
 - **FILES**:
-  - `app/features/inventory/use-feed-inventory.ts`
-  - `app/features/inventory/use-medication-inventory.ts`
+    - `app/features/inventory/use-feed-inventory.ts`
+    - `app/features/inventory/use-medication-inventory.ts`
 - **IMPLEMENT**: Remove data fetching from both
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -794,8 +794,8 @@ export const loginFn = createServerFn({ method: 'POST' })
 #### Task 2.41: ADD pendingComponent to farms routes (2 routes)
 
 - **FILES**:
-  - `app/routes/_auth/farms/index.tsx`
-  - `app/routes/_auth/farms/$farmId/index.tsx`
+    - `app/routes/_auth/farms/index.tsx`
+    - `app/routes/_auth/farms/$farmId/index.tsx`
 - **IMPLEMENT**: Add pendingComponent and errorComponent (loaders already exist)
 - **CREATE**: `app/components/farms/farms-skeleton.tsx` and `app/components/farms/farm-detail-skeleton.tsx`
 - **VALIDATE**: Navigate to farms, verify loading states
@@ -817,8 +817,8 @@ export const loginFn = createServerFn({ method: 'POST' })
 #### Task 2.44: ADD pendingComponent to reports routes (2 routes)
 
 - **FILES**:
-  - `app/routes/_auth/reports/index.tsx`
-  - `app/routes/_auth/reports/export.tsx`
+    - `app/routes/_auth/reports/index.tsx`
+    - `app/routes/_auth/reports/export.tsx`
 - **IMPLEMENT**: Add pendingComponent and errorComponent
 - **CREATE**: `app/components/reports/reports-skeleton.tsx`
 - **VALIDATE**: Navigate to reports
@@ -826,8 +826,8 @@ export const loginFn = createServerFn({ method: 'POST' })
 #### Task 2.45: ADD pendingComponent to settings routes (2 routes)
 
 - **FILES**:
-  - `app/routes/_auth/settings/audit.tsx`
-  - `app/routes/_auth/settings/users.tsx`
+    - `app/routes/_auth/settings/audit.tsx`
+    - `app/routes/_auth/settings/users.tsx`
 - **IMPLEMENT**: Add pendingComponent and errorComponent
 - **CREATE**: Skeletons if needed
 - **VALIDATE**: Navigate to settings pages
@@ -864,18 +864,18 @@ export const loginFn = createServerFn({ method: 'POST' })
 
 - **VALIDATE**:
 
-  ```bash
-  # All checks must pass
-  npx tsc --noEmit || exit 1
-  bun run lint || exit 1
-  bun run test --run || exit 1
+    ```bash
+    # All checks must pass
+    npx tsc --noEmit || exit 1
+    bun run lint || exit 1
+    bun run test --run || exit 1
 
-  # Manual testing
-  # Navigate to all 15 refactored routes
-  # Verify SSR (view page source, check for data)
-  # Verify loading states (throttle network)
-  # Verify error states (break server function temporarily)
-  ```
+    # Manual testing
+    # Navigate to all 15 refactored routes
+    # Verify SSR (view page source, check for data)
+    # Verify loading states (throttle network)
+    # Verify error states (break server function temporarily)
+    ```
 
 ---
 
@@ -897,15 +897,15 @@ export const loginFn = createServerFn({ method: 'POST' })
 ```typescript
 // Add type narrowing
 const livestockType = searchParams.livestockType as
-  | 'poultry'
-  | 'fish'
-  | 'eggs'
-  | undefined
+    | 'poultry'
+    | 'fish'
+    | 'eggs'
+    | undefined
 const paymentStatus = searchParams.paymentStatus as
-  | 'paid'
-  | 'pending'
-  | 'partial'
-  | undefined
+    | 'paid'
+    | 'pending'
+    | 'partial'
+    | undefined
 ```
 
 #### Task 3.3: OPTIMIZE getRelatedRecords N+1 query
@@ -918,41 +918,41 @@ const paymentStatus = searchParams.paymentStatus as
 ```typescript
 // Replace 4 queries with 1
 export async function getRelatedRecords(db: Kysely<Database>, batchId: string) {
-  const result = await db
-    .selectFrom('batches as b')
-    .leftJoin('feed_records as fr', 'fr.batchId', 'b.id')
-    .leftJoin('egg_records as er', 'er.batchId', 'b.id')
-    .leftJoin('sales as s', 's.batchId', 'b.id')
-    .leftJoin('mortality_records as mr', 'mr.batchId', 'b.id')
-    .select([
-      sql<boolean>`COUNT(DISTINCT fr.id) > 0`.as('hasFeedRecords'),
-      sql<boolean>`COUNT(DISTINCT er.id) > 0`.as('hasEggRecords'),
-      sql<boolean>`COUNT(DISTINCT s.id) > 0`.as('hasSales'),
-      sql<boolean>`COUNT(DISTINCT mr.id) > 0`.as('hasMortality'),
-    ])
-    .where('b.id', '=', batchId)
-    .groupBy('b.id')
-    .executeTakeFirst()
+    const result = await db
+        .selectFrom('batches as b')
+        .leftJoin('feed_records as fr', 'fr.batchId', 'b.id')
+        .leftJoin('egg_records as er', 'er.batchId', 'b.id')
+        .leftJoin('sales as s', 's.batchId', 'b.id')
+        .leftJoin('mortality_records as mr', 'mr.batchId', 'b.id')
+        .select([
+            sql<boolean>`COUNT(DISTINCT fr.id) > 0`.as('hasFeedRecords'),
+            sql<boolean>`COUNT(DISTINCT er.id) > 0`.as('hasEggRecords'),
+            sql<boolean>`COUNT(DISTINCT s.id) > 0`.as('hasSales'),
+            sql<boolean>`COUNT(DISTINCT mr.id) > 0`.as('hasMortality'),
+        ])
+        .where('b.id', '=', batchId)
+        .groupBy('b.id')
+        .executeTakeFirst()
 
-  return (
-    result || {
-      hasFeedRecords: false,
-      hasEggRecords: false,
-      hasSales: false,
-      hasMortality: false,
-    }
-  )
+    return (
+        result || {
+            hasFeedRecords: false,
+            hasEggRecords: false,
+            hasSales: false,
+            hasMortality: false,
+        }
+    )
 }
 ```
 
 #### Task 3.4: VALIDATE Phase 3 completion
 
 - **VALIDATE**:
-  ```bash
-  npx tsc --noEmit || exit 1
-  bun run lint || exit 1
-  bun run test --run || exit 1
-  ```
+    ```bash
+    npx tsc --noEmit || exit 1
+    bun run lint || exit 1
+    bun run test --run || exit 1
+    ```
 
 ---
 
@@ -962,35 +962,35 @@ export async function getRelatedRecords(db: Kysely<Database>, batchId: string) {
 
 - **VALIDATE**:
 
-  ```bash
-  # All tests must pass
-  bun run test --run || exit 1
+    ```bash
+    # All tests must pass
+    bun run test --run || exit 1
 
-  # Check coverage
-  bun run test --coverage
+    # Check coverage
+    bun run test --coverage
 
-  # Verify no regressions
-  # All 1,305+ tests should pass
-  ```
+    # Verify no regressions
+    # All 1,305+ tests should pass
+    ```
 
 #### Task 4.2: MANUAL testing of all refactored routes
 
 - **TEST**: Navigate to each of the 15 refactored routes
 - **VERIFY**:
-  - Data loads correctly
-  - Loading states show (throttle network to 3G)
-  - Error states work (temporarily break server function)
-  - SSR works (view page source, check for pre-rendered data)
-  - Prefetching works (hover over links, check Network tab)
+    - Data loads correctly
+    - Loading states show (throttle network to 3G)
+    - Error states work (temporarily break server function)
+    - SSR works (view page source, check for pre-rendered data)
+    - Prefetching works (hover over links, check Network tab)
 
 #### Task 4.3: UPDATE AGENTS.md documentation
 
 - **FILE**: `AGENTS.md`
 - **IMPLEMENT**: Add section documenting the remediation patterns
 - **CONTENT**:
-  - Summary of changes made
-  - New patterns established
-  - Migration guide for future features
+    - Summary of changes made
+    - New patterns established
+    - Migration guide for future features
 - **VALIDATE**: Review for completeness
 
 #### Task 4.4: CREATE migration guide
@@ -998,31 +998,31 @@ export async function getRelatedRecords(db: Kysely<Database>, batchId: string) {
 - **FILE**: `.agents/MIGRATION-GUIDE.md`
 - **IMPLEMENT**: Document how to migrate remaining routes (if any)
 - **CONTENT**:
-  - Step-by-step migration process
-  - Common pitfalls
-  - Testing checklist
+    - Step-by-step migration process
+    - Common pitfalls
+    - Testing checklist
 - **VALIDATE**: Review with team
 
 #### Task 4.5: FINAL validation
 
 - **VALIDATE**:
 
-  ```bash
-  # Complete validation suite
-  npx tsc --noEmit || exit 1
-  bun run lint || exit 1
-  bun run test --run || exit 1
-  bun run build || exit 1
+    ```bash
+    # Complete validation suite
+    npx tsc --noEmit || exit 1
+    bun run lint || exit 1
+    bun run test --run || exit 1
+    bun run build || exit 1
 
-  # Database validation
-  bun run db:migrate
+    # Database validation
+    bun run db:migrate
 
-  # Manual smoke tests
-  # - Login
-  # - Navigate to all major routes
-  # - Create/edit/delete operations
-  # - Verify no console errors
-  ```
+    # Manual smoke tests
+    # - Login
+    # - Navigate to all major routes
+    # - Create/edit/delete operations
+    # - Verify no console errors
+    ```
 
 ---
 
@@ -1177,23 +1177,23 @@ bun run check && bun run test --run
 ### Phase 1: Critical Infrastructure ✓
 
 - [ ] Pagination added to 3 repository functions
-  - [ ] `getBatchesByFarm` returns paginated results
-  - [ ] `getExpensesByFarm` returns paginated results
-  - [ ] `getSalesByFarm` returns paginated results
+    - [ ] `getBatchesByFarm` returns paginated results
+    - [ ] `getExpensesByFarm` returns paginated results
+    - [ ] `getSalesByFarm` returns paginated results
 - [ ] 4 database indexes created
-  - [ ] `idx_batches_livestock_type` exists
-  - [ ] `idx_sales_livestock_type` exists
-  - [ ] `idx_expenses_category` exists
-  - [ ] `idx_batches_acquisition_date` exists
+    - [ ] `idx_batches_livestock_type` exists
+    - [ ] `idx_sales_livestock_type` exists
+    - [ ] `idx_expenses_category` exists
+    - [ ] `idx_batches_acquisition_date` exists
 - [ ] 21 server functions have Zod validators
-  - [ ] auth (3 functions)
-  - [ ] farms (2 functions)
-  - [ ] integrations (1 function)
-  - [ ] notifications (1 function)
-  - [ ] onboarding (5 functions)
-  - [ ] settings (8 functions)
-  - [ ] suppliers (1 function)
-  - [ ] users (1 function)
+    - [ ] auth (3 functions)
+    - [ ] farms (2 functions)
+    - [ ] integrations (1 function)
+    - [ ] notifications (1 function)
+    - [ ] onboarding (5 functions)
+    - [ ] settings (8 functions)
+    - [ ] suppliers (1 function)
+    - [ ] users (1 function)
 - [ ] 4 identity validators standardized to direct Zod
 - [ ] All validation commands pass
 - [ ] No regressions (all tests pass)
@@ -1201,43 +1201,43 @@ bun run check && bun run test --run
 ### Phase 2: TanStack Router Standardization ✓
 
 - [ ] 15 routes refactored to use loaders
-  - [ ] customers, customers/$customerId
-  - [ ] expenses
-  - [ ] feed
-  - [ ] eggs
-  - [ ] inventory
-  - [ ] invoices
-  - [ ] mortality
-  - [ ] sales
-  - [ ] settings
-  - [ ] suppliers
-  - [ ] vaccinations
-  - [ ] water-quality
-  - [ ] weight
+    - [ ] customers, customers/$customerId
+    - [ ] expenses
+    - [ ] feed
+    - [ ] eggs
+    - [ ] inventory
+    - [ ] invoices
+    - [ ] mortality
+    - [ ] sales
+    - [ ] settings
+    - [ ] suppliers
+    - [ ] vaccinations
+    - [ ] water-quality
+    - [ ] weight
 - [ ] 12 custom hooks refactored (data fetching removed)
-  - [ ] use-weight-page
-  - [ ] use-supplier-page
-  - [ ] use-sales-page
-  - [ ] use-invoice-page
-  - [ ] use-expense-page
-  - [ ] use-water-quality-page
-  - [ ] use-feed-page
-  - [ ] use-feed-inventory
-  - [ ] use-medication-inventory
-  - [ ] use-mortality-page
-  - [ ] use-egg-page
-  - [ ] use-health-data
+    - [ ] use-weight-page
+    - [ ] use-supplier-page
+    - [ ] use-sales-page
+    - [ ] use-invoice-page
+    - [ ] use-expense-page
+    - [ ] use-water-quality-page
+    - [ ] use-feed-page
+    - [ ] use-feed-inventory
+    - [ ] use-medication-inventory
+    - [ ] use-mortality-page
+    - [ ] use-egg-page
+    - [ ] use-health-data
 - [ ] 9 routes have pendingComponent added
-  - [ ] farms (2 routes)
-  - [ ] invoices/$invoiceId
-  - [ ] onboarding
-  - [ ] reports (2 routes)
-  - [ ] settings (2 routes)
-  - [ ] suppliers/$supplierId
-  - [ ] tasks
+    - [ ] farms (2 routes)
+    - [ ] invoices/$invoiceId
+    - [ ] onboarding
+    - [ ] reports (2 routes)
+    - [ ] settings (2 routes)
+    - [ ] suppliers/$supplierId
+    - [ ] tasks
 - [ ] 2 components refactored
-  - [ ] integrations-tab.tsx
-  - [ ] farms/selector.tsx
+    - [ ] integrations-tab.tsx
+    - [ ] farms/selector.tsx
 - [ ] All routes support SSR (verified in page source)
 - [ ] All routes support prefetching (verified in Network tab)
 - [ ] All routes have loading states (skeleton components)
@@ -1248,11 +1248,11 @@ bun run check && bun run test --run
 ### Phase 3: Code Quality & Optimization ✓
 
 - [ ] 3 TypeScript errors fixed
-  - [ ] onboarding/server.ts unused import removed
-  - [ ] sales/use-sales-page.ts type mismatches fixed
+    - [ ] onboarding/server.ts unused import removed
+    - [ ] sales/use-sales-page.ts type mismatches fixed
 - [ ] N+1 query optimized
-  - [ ] `getRelatedRecords` uses single query with JOINs
-  - [ ] Query count reduced from 4 to 1
+    - [ ] `getRelatedRecords` uses single query with JOINs
+    - [ ] Query count reduced from 4 to 1
 - [ ] All validation commands pass
 - [ ] No regressions (all tests pass)
 
@@ -1260,9 +1260,9 @@ bun run check && bun run test --run
 
 - [ ] Full test suite passes (1,305+ tests)
 - [ ] Test coverage meets targets
-  - [ ] Overall: 80%+
-  - [ ] Business logic: 90%+
-  - [ ] Financial: 100%
+    - [ ] Overall: 80%+
+    - [ ] Business logic: 90%+
+    - [ ] Financial: 100%
 - [ ] Manual testing complete for all refactored routes
 - [ ] AGENTS.md updated with remediation patterns
 - [ ] Migration guide created

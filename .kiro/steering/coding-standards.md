@@ -27,20 +27,20 @@ All server functions MUST use `getDb()` with dynamic imports for Cloudflare Work
 ```typescript
 // ✅ Correct pattern - server.ts
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator(schema)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('./server-middleware')
-    const session = await requireAuth()
+    .inputValidator(schema)
+    .handler(async ({ data }) => {
+        const { requireAuth } = await import('./server-middleware')
+        const session = await requireAuth()
 
-    // Use service for business logic
-    const validationError = validateBatchData(data)
-    if (validationError) throw new AppError('VALIDATION_ERROR')
+        // Use service for business logic
+        const validationError = validateBatchData(data)
+        if (validationError) throw new AppError('VALIDATION_ERROR')
 
-    // Use repository for database - MUST use getDb()
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    return insertBatch(db, data)
-  })
+        // Use repository for database - MUST use getDb()
+        const { getDb } = await import('~/lib/db')
+        const db = await getDb()
+        return insertBatch(db, data)
+    })
 
 // ❌ Never do this - breaks Cloudflare Workers
 import { db } from '~/lib/db'
@@ -58,17 +58,17 @@ Pure functions with no side effects - easy to test:
 ```typescript
 // service.ts - Pure business logic
 export function calculateFCR(
-  totalFeedKg: number,
-  totalWeightGain: number,
+    totalFeedKg: number,
+    totalWeightGain: number,
 ): number {
-  if (totalWeightGain <= 0) return 0
-  return Number((totalFeedKg / totalWeightGain).toFixed(2))
+    if (totalWeightGain <= 0) return 0
+    return Number((totalFeedKg / totalWeightGain).toFixed(2))
 }
 
 export function validateBatchData(data: CreateBatchData): string | null {
-  if (data.initialQuantity <= 0) return 'Initial quantity must be positive'
-  if (data.costPerUnit < 0) return 'Cost cannot be negative'
-  return null
+    if (data.initialQuantity <= 0) return 'Initial quantity must be positive'
+    if (data.costPerUnit < 0) return 'Cost cannot be negative'
+    return null
 }
 ```
 
@@ -79,23 +79,23 @@ Database operations only - no business logic:
 ```typescript
 // repository.ts - Database operations
 export async function insertBatch(
-  db: Kysely<Database>,
-  data: BatchInsert,
+    db: Kysely<Database>,
+    data: BatchInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('batches')
-    .values(data)
-    .returning('id')
-    .executeTakeFirstOrThrow()
-  return result.id
+    const result = await db
+        .insertInto('batches')
+        .values(data)
+        .returning('id')
+        .executeTakeFirstOrThrow()
+    return result.id
 }
 
 export async function getBatchById(db: Kysely<Database>, id: string) {
-  return db
-    .selectFrom('batches')
-    .selectAll()
-    .where('id', '=', id)
-    .executeTakeFirst()
+    return db
+        .selectFrom('batches')
+        .selectAll()
+        .where('id', '=', id)
+        .executeTakeFirst()
 }
 ```
 
@@ -106,17 +106,17 @@ Use Kysely's type-safe query builder:
 ```typescript
 // Prefer explicit column selection
 const batches = await db
-  .selectFrom('batches')
-  .select(['id', 'batchName', 'status'])
-  .where('farmId', '=', farmId)
-  .execute()
+    .selectFrom('batches')
+    .select(['id', 'batchName', 'status'])
+    .where('farmId', '=', farmId)
+    .execute()
 
 // Use joins for related data
 const batchesWithFarm = await db
-  .selectFrom('batches')
-  .leftJoin('farms', 'farms.id', 'batches.farmId')
-  .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
-  .execute()
+    .selectFrom('batches')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
+    .execute()
 ```
 
 ## Component Patterns
@@ -177,12 +177,12 @@ import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 
 describe('calculateProfit', () => {
-  it('should always return revenue minus costs', () => {
-    fc.assert(
-      fc.property(fc.nat(), fc.nat(), (revenue, costs) => {
-        expect(calculateProfit(revenue, costs)).toBe(revenue - costs)
-      }),
-    )
-  })
+    it('should always return revenue minus costs', () => {
+        fc.assert(
+            fc.property(fc.nat(), fc.nat(), (revenue, costs) => {
+                expect(calculateProfit(revenue, costs)).toBe(revenue - costs)
+            }),
+        )
+    })
 })
 ```

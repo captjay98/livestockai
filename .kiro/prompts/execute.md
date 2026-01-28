@@ -116,29 +116,29 @@ import { z } from 'zod'
 import { AppError } from '~/lib/errors'
 
 export const getFeatureData = createServerFn({ method: 'GET' })
-  .validator(
-    z.object({
-      farmId: z.string().uuid(),
-      // Add other params
-    }),
-  )
-  .handler(async ({ data }) => {
-    try {
-      const { db } = await import('../db') // CRITICAL: Dynamic import!
+    .validator(
+        z.object({
+            farmId: z.string().uuid(),
+            // Add other params
+        }),
+    )
+    .handler(async ({ data }) => {
+        try {
+            const { db } = await import('../db') // CRITICAL: Dynamic import!
 
-      return db
-        .selectFrom('batches')
-        .where('farmId', '=', data.farmId)
-        .select(['id', 'batchName', 'status', 'currentQuantity'])
-        .execute()
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('DATABASE_ERROR', {
-        message: 'Failed to fetch feature data',
-        cause: error,
-      })
-    }
-  })
+            return db
+                .selectFrom('batches')
+                .where('farmId', '=', data.farmId)
+                .select(['id', 'batchName', 'status', 'currentQuantity'])
+                .execute()
+        } catch (error) {
+            if (error instanceof AppError) throw error
+            throw new AppError('DATABASE_ERROR', {
+                message: 'Failed to fetch feature data',
+                cause: error,
+            })
+        }
+    })
 
 // ❌ WRONG - Breaks on Cloudflare Workers
 import { db } from '../db' // Static import will fail!
@@ -153,27 +153,27 @@ import { db } from '../db' // Static import will fail!
 ```typescript
 // Simple select
 const batches = await db
-  .selectFrom('batches')
-  .where('status', '=', 'active')
-  .select(['id', 'batchName', 'currentQuantity'])
-  .execute()
+    .selectFrom('batches')
+    .where('status', '=', 'active')
+    .select(['id', 'batchName', 'currentQuantity'])
+    .execute()
 
 // Join with related data
 const batchesWithFarm = await db
-  .selectFrom('batches')
-  .leftJoin('farms', 'farms.id', 'batches.farmId')
-  .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
-  .execute()
+    .selectFrom('batches')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
+    .execute()
 
 // Aggregation
 const stats = await db
-  .selectFrom('mortality_records')
-  .where('batchId', '=', batchId)
-  .select([
-    db.fn.sum('quantity').as('totalDeaths'),
-    db.fn.count('id').as('incidents'),
-  ])
-  .executeTakeFirst()
+    .selectFrom('mortality_records')
+    .where('batchId', '=', batchId)
+    .select([
+        db.fn.sum('quantity').as('totalDeaths'),
+        db.fn.count('id').as('incidents'),
+    ])
+    .executeTakeFirst()
 ```
 
 #### 3c. React Components
@@ -223,20 +223,20 @@ function FeatureComponent() {
 import type { Kysely } from 'kysely'
 
 export async function up(db: Kysely<unknown>): Promise<void> {
-  await db.schema
-    .createTable('new_table')
-    .addColumn('id', 'uuid', (col) =>
-      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
-    )
-    .addColumn('name', 'varchar(255)', (col) => col.notNull())
-    .addColumn('createdAt', 'timestamptz', (col) =>
-      col.defaultTo(sql`now()`).notNull(),
-    )
-    .execute()
+    await db.schema
+        .createTable('new_table')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('name', 'varchar(255)', (col) => col.notNull())
+        .addColumn('createdAt', 'timestamptz', (col) =>
+            col.defaultTo(sql`now()`).notNull(),
+        )
+        .execute()
 }
 
 export async function down(db: Kysely<unknown>): Promise<void> {
-  await db.schema.dropTable('new_table').execute()
+    await db.schema.dropTable('new_table').execute()
 }
 ```
 
@@ -279,14 +279,14 @@ import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 
 describe('calculateFeatureMetric', () => {
-  it('should handle all valid inputs', () => {
-    fc.assert(
-      fc.property(fc.nat(), fc.nat(), (a, b) => {
-        const result = calculateFeatureMetric(a, b)
-        expect(result).toBeGreaterThanOrEqual(0)
-      }),
-    )
-  })
+    it('should handle all valid inputs', () => {
+        fc.assert(
+            fc.property(fc.nat(), fc.nat(), (a, b) => {
+                const result = calculateFeatureMetric(a, b)
+                expect(result).toBeGreaterThanOrEqual(0)
+            }),
+        )
+    })
 })
 ```
 

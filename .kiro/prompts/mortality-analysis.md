@@ -220,12 +220,12 @@ For specialized analysis:
 ## Root Cause Analysis
 
 1. **Primary Cause**: [Most significant factor]
-   - Evidence: [Data supporting this]
-   - Impact: X deaths (X%)
+    - Evidence: [Data supporting this]
+    - Impact: X deaths (X%)
 
 2. **Secondary Cause**: [Second factor]
-   - Evidence: [Data supporting this]
-   - Impact: X deaths (X%)
+    - Evidence: [Data supporting this]
+    - Impact: X deaths (X%)
 
 ## Recommendations
 

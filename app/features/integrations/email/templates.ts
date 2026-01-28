@@ -1,24 +1,24 @@
 interface EmailTemplate {
-  subject: string
-  html: string
+    subject: string
+    html: string
 }
 
 // Brand colors matching app theme
 const COLORS = {
-  primary: '#059669',
-  destructive: '#ff3333',
-  success: '#059669',
-  warning: '#f59e0b',
-  info: '#2563eb',
-  text: '#5c6166',
-  muted: '#828a95',
-  border: '#e6e4e4',
-  background: '#fbfbfb',
-  card: '#ffffff',
+    primary: '#059669',
+    destructive: '#ff3333',
+    success: '#059669',
+    warning: '#f59e0b',
+    info: '#2563eb',
+    text: '#5c6166',
+    muted: '#828a95',
+    border: '#e6e4e4',
+    background: '#fbfbfb',
+    card: '#ffffff',
 }
 
 function emailLayout(content: string, accentColor: string): string {
-  return `
+    return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -68,10 +68,10 @@ function emailLayout(content: string, accentColor: string): string {
 }
 
 export const emailTemplates = {
-  highMortality: (message: string, species: string): EmailTemplate => ({
-    subject: `🚨 High Mortality Alert - ${species}`,
-    html: emailLayout(
-      `
+    highMortality: (message: string, species: string): EmailTemplate => ({
+        subject: `🚨 High Mortality Alert - ${species}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #fef2f2; border-radius: 50%; line-height: 56px; font-size: 28px;">🚨</span>
       </div>
@@ -87,14 +87,14 @@ export const emailTemplates = {
         </p>
       </div>
       `,
-      COLORS.destructive,
-    ),
-  }),
+            COLORS.destructive,
+        ),
+    }),
 
-  lowStock: (itemName: string, quantity: number): EmailTemplate => ({
-    subject: `⚠️ Low Stock Alert - ${itemName}`,
-    html: emailLayout(
-      `
+    lowStock: (itemName: string, quantity: number): EmailTemplate => ({
+        subject: `⚠️ Low Stock Alert - ${itemName}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #fffbeb; border-radius: 50%; line-height: 56px; font-size: 28px;">📦</span>
       </div>
@@ -109,18 +109,18 @@ export const emailTemplates = {
         <p style="margin: 0; font-size: 32px; font-weight: 700; color: ${COLORS.warning};">${quantity.toFixed(1)} kg</p>
       </div>
       `,
-      COLORS.warning,
-    ),
-  }),
+            COLORS.warning,
+        ),
+    }),
 
-  invoiceDue: (
-    invoiceNumber: string,
-    customerName: string,
-    daysUntilDue: number,
-  ): EmailTemplate => ({
-    subject: `📋 Invoice ${invoiceNumber} Due Soon`,
-    html: emailLayout(
-      `
+    invoiceDue: (
+        invoiceNumber: string,
+        customerName: string,
+        daysUntilDue: number,
+    ): EmailTemplate => ({
+        subject: `📋 Invoice ${invoiceNumber} Due Soon`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #eff6ff; border-radius: 50%; line-height: 56px; font-size: 28px;">💰</span>
       </div>
@@ -159,19 +159,19 @@ export const emailTemplates = {
         </table>
       </div>
       `,
-      COLORS.info,
-    ),
-  }),
+            COLORS.info,
+        ),
+    }),
 
-  batchHarvest: (
-    batchName: string,
-    species: string,
-    daysUntilHarvest: number,
-    quantity: number,
-  ): EmailTemplate => ({
-    subject: `🌾 Batch Ready for Harvest - ${batchName || species}`,
-    html: emailLayout(
-      `
+    batchHarvest: (
+        batchName: string,
+        species: string,
+        daysUntilHarvest: number,
+        quantity: number,
+    ): EmailTemplate => ({
+        subject: `🌾 Batch Ready for Harvest - ${batchName || species}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #ecfdf5; border-radius: 50%; line-height: 56px; font-size: 28px;">🎉</span>
       </div>
@@ -199,14 +199,14 @@ export const emailTemplates = {
         Start preparing for sale and coordinate with buyers.
       </p>
       `,
-      COLORS.success,
-    ),
-  }),
+            COLORS.success,
+        ),
+    }),
 
-  test: (): EmailTemplate => ({
-    subject: '✅ OpenLivestock Test Email',
-    html: emailLayout(
-      `
+    test: (): EmailTemplate => ({
+        subject: '✅ OpenLivestock Test Email',
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #fff7ed; border-radius: 50%; line-height: 56px; font-size: 28px;">✅</span>
       </div>
@@ -222,20 +222,20 @@ export const emailTemplates = {
         </p>
       </div>
       `,
-      COLORS.primary,
-    ),
-  }),
+            COLORS.primary,
+        ),
+    }),
 
-  // === NEW NOTIFICATION TEMPLATES ===
+    // === NEW NOTIFICATION TEMPLATES ===
 
-  vaccinationDue: (
-    vaccineName: string,
-    batchName: string,
-    daysUntilDue: number,
-  ): EmailTemplate => ({
-    subject: `💉 Vaccination Due - ${vaccineName}`,
-    html: emailLayout(
-      `
+    vaccinationDue: (
+        vaccineName: string,
+        batchName: string,
+        daysUntilDue: number,
+    ): EmailTemplate => ({
+        subject: `💉 Vaccination Due - ${vaccineName}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #faf5ff; border-radius: 50%; line-height: 56px; font-size: 28px;">💉</span>
       </div>
@@ -253,19 +253,19 @@ export const emailTemplates = {
         Timely vaccination prevents disease outbreaks and protects your flock.
       </p>
       `,
-      '#9333ea',
-    ),
-  }),
+            '#9333ea',
+        ),
+    }),
 
-  medicationExpiry: (
-    medicationName: string,
-    daysUntilExpiry: number,
-    quantity: number,
-    unit: string,
-  ): EmailTemplate => ({
-    subject: `⏰ Medication Expiring - ${medicationName}`,
-    html: emailLayout(
-      `
+    medicationExpiry: (
+        medicationName: string,
+        daysUntilExpiry: number,
+        quantity: number,
+        unit: string,
+    ): EmailTemplate => ({
+        subject: `⏰ Medication Expiring - ${medicationName}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #fef2f2; border-radius: 50%; line-height: 56px; font-size: 28px;">⏰</span>
       </div>
@@ -290,19 +290,19 @@ export const emailTemplates = {
         </table>
       </div>
       `,
-      COLORS.destructive,
-    ),
-  }),
+            COLORS.destructive,
+        ),
+    }),
 
-  waterQualityAlert: (
-    batchName: string,
-    parameter: string,
-    value: number,
-    safeRange: string,
-  ): EmailTemplate => ({
-    subject: `🌊 Water Quality Alert - ${parameter}`,
-    html: emailLayout(
-      `
+    waterQualityAlert: (
+        batchName: string,
+        parameter: string,
+        value: number,
+        safeRange: string,
+    ): EmailTemplate => ({
+        subject: `🌊 Water Quality Alert - ${parameter}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #eff6ff; border-radius: 50%; line-height: 56px; font-size: 28px;">🌊</span>
       </div>
@@ -330,23 +330,23 @@ export const emailTemplates = {
         Take immediate action to prevent fish stress or mortality.
       </p>
       `,
-      COLORS.info,
-    ),
-  }),
+            COLORS.info,
+        ),
+    }),
 
-  weeklySummary: (data: {
-    farmName: string
-    period: string
-    revenue: string
-    expenses: string
-    profit: string
-    salesCount: number
-    mortalityCount: number
-    activeBatches: number
-  }): EmailTemplate => ({
-    subject: `📊 Weekly Summary - ${data.farmName}`,
-    html: emailLayout(
-      `
+    weeklySummary: (data: {
+        farmName: string
+        period: string
+        revenue: string
+        expenses: string
+        profit: string
+        salesCount: number
+        mortalityCount: number
+        activeBatches: number
+    }): EmailTemplate => ({
+        subject: `📊 Weekly Summary - ${data.farmName}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #fff7ed; border-radius: 50%; line-height: 56px; font-size: 28px;">📊</span>
       </div>
@@ -403,20 +403,20 @@ export const emailTemplates = {
         </table>
       </div>
       `,
-      COLORS.primary,
-    ),
-  }),
+            COLORS.primary,
+        ),
+    }),
 
-  dailySales: (data: {
-    date: string
-    totalRevenue: string
-    salesCount: number
-    topProduct: string
-    topProductQty: number
-  }): EmailTemplate => ({
-    subject: `💵 Daily Sales Report - ${data.date}`,
-    html: emailLayout(
-      `
+    dailySales: (data: {
+        date: string
+        totalRevenue: string
+        salesCount: number
+        topProduct: string
+        topProductQty: number
+    }): EmailTemplate => ({
+        subject: `💵 Daily Sales Report - ${data.date}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #ecfdf5; border-radius: 50%; line-height: 56px; font-size: 28px;">💵</span>
       </div>
@@ -432,33 +432,33 @@ export const emailTemplates = {
         <p style="margin: 8px 0 0 0; font-size: 14px; color: ${COLORS.text};">${data.salesCount} sale${data.salesCount !== 1 ? 's' : ''}</p>
       </div>
       ${
-        data.topProduct
-          ? `
+          data.topProduct
+              ? `
       <div style="background-color: ${COLORS.background}; border-radius: 8px; padding: 16px; text-align: center;">
         <p style="margin: 0 0 4px 0; font-size: 13px; color: ${COLORS.muted};">Top Seller</p>
         <p style="margin: 0; font-size: 16px; font-weight: 600; color: ${COLORS.text};">${data.topProduct} (${data.topProductQty} units)</p>
       </div>
       `
-          : ''
+              : ''
       }
       `,
-      COLORS.success,
-    ),
-  }),
+            COLORS.success,
+        ),
+    }),
 
-  batchPerformance: (data: {
-    batchName: string
-    species: string
-    ageWeeks: number
-    currentWeight: string
-    targetWeight: string
-    fcr: string
-    mortalityRate: string
-    status: 'good' | 'warning' | 'poor'
-  }): EmailTemplate => ({
-    subject: `📈 Batch Performance - ${data.batchName || data.species}`,
-    html: emailLayout(
-      `
+    batchPerformance: (data: {
+        batchName: string
+        species: string
+        ageWeeks: number
+        currentWeight: string
+        targetWeight: string
+        fcr: string
+        mortalityRate: string
+        status: 'good' | 'warning' | 'poor'
+    }): EmailTemplate => ({
+        subject: `📈 Batch Performance - ${data.batchName || data.species}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: ${data.status === 'good' ? '#ecfdf5' : data.status === 'warning' ? '#fffbeb' : '#fef2f2'}; border-radius: 50%; line-height: 56px; font-size: 28px;">📈</span>
       </div>
@@ -503,23 +503,23 @@ export const emailTemplates = {
         </table>
       </div>
       `,
-      data.status === 'good'
-        ? COLORS.success
-        : data.status === 'warning'
-          ? COLORS.warning
-          : COLORS.destructive,
-    ),
-  }),
+            data.status === 'good'
+                ? COLORS.success
+                : data.status === 'warning'
+                  ? COLORS.warning
+                  : COLORS.destructive,
+        ),
+    }),
 
-  paymentReceived: (data: {
-    invoiceNumber: string
-    customerName: string
-    amount: string
-    paymentMethod: string
-  }): EmailTemplate => ({
-    subject: `✅ Payment Received - ${data.invoiceNumber}`,
-    html: emailLayout(
-      `
+    paymentReceived: (data: {
+        invoiceNumber: string
+        customerName: string
+        amount: string
+        paymentMethod: string
+    }): EmailTemplate => ({
+        subject: `✅ Payment Received - ${data.invoiceNumber}`,
+        html: emailLayout(
+            `
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="display: inline-block; width: 56px; height: 56px; background-color: #ecfdf5; border-radius: 50%; line-height: 56px; font-size: 28px;">✅</span>
       </div>
@@ -535,7 +535,7 @@ export const emailTemplates = {
         <p style="margin: 8px 0 0 0; font-size: 14px; color: ${COLORS.text};">via ${data.paymentMethod}</p>
       </div>
       `,
-      COLORS.success,
-    ),
-  }),
+            COLORS.success,
+        ),
+    }),
 }

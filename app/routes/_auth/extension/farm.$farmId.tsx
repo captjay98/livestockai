@@ -1,0 +1,160 @@
+import { Link, createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
+import { AlertTriangle, Plus, TrendingUp, Users } from 'lucide-react'
+import { checkObserverAccess } from '~/auth/utils'
+import { getVisitRecordsFn } from '~/features/visits/server'
+import { getFarmHealthComparisonFn } from '~/features/farms/server'
+import { Button } from '~/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { VisitCard } from '~/components/extension/visit-card'
+
+export const Route = createFileRoute('/_auth/extension/farm/$farmId')({
+    loader: async ({ params }) => {
+        // Verify observer access
+        await checkObserverAccess(params.farmId)
+
+        // Get visit records and health comparison for this farm
+        const [visits, healthComparison] = await Promise.all([
+            getVisitRecordsFn({ data: { farmId: params.farmId } }),
+            getFarmHealthComparisonFn({ data: { farmId: params.farmId } }),
+        ])
+
+        return { visits, healthComparison }
+    },
+    component: FarmHealthSummary,
+})
+
+function FarmHealthSummary() {
+    const { t } = useTranslation(['extension', 'common'])
+    const { farmId } = Route.useParams()
+    const { visits, healthComparison } = Route.useLoaderData()
+
+    return (
+        <div className="container mx-auto p-6 space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold">
+                        {t('extension:farmHealth.title', {
+                            defaultValue: 'Farm Health Summary',
+                        })}
+                    </h1>
+                    <p className="text-muted-foreground">
+                        {t('extension:farmHealth.subtitle', {
+                            defaultValue:
+                                'Extension worker view for farm monitoring',
+                        })}
+                    </p>
+                </div>
+                <Button asChild>
+                    <Link
+                        to="/extension/visits/new/$farmId"
+                        params={{ farmId }}
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        {t('extension:newVisit', { defaultValue: 'New Visit' })}
+                    </Link>
+                </Button>
+            </div>
+
+            {/* Farm Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            {t('extension:overview.activeBatches', {
+                                defaultValue: 'Active Batches',
+                            })}
+                        </CardTitle>
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">12</div>
+                        <p className="text-xs text-muted-foreground">
+                            {t('extension:overview.batchesDesc', {
+                                defaultValue: 'Currently active',
+                            })}
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            {t('extension:overview.avgMortality', {
+                                defaultValue: 'Avg Mortality',
+                            })}
+                        </CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">2.3%</div>
+                        <p className="text-xs text-muted-foreground">
+                            {healthComparison.districtAvgMortality !== null ? (
+                                <>
+                                    District avg:{' '}
+                                    {healthComparison.districtAvgMortality}%
+                                </>
+                            ) : (
+                                t('extension:overview.mortalityDesc', {
+                                    defaultValue: 'Within normal range',
+                                })
+                            )}
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            {t('extension:overview.districtRank', {
+                                defaultValue: 'District Ranking',
+                            })}
+                        </CardTitle>
+                        <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            {healthComparison.percentileRank !== null
+                                ? `${healthComparison.percentileRank}%`
+                                : 'N/A'}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            {healthComparison.percentileRank !== null ? (
+                                <>Farms with higher mortality</>
+                            ) : (
+                                'No district data'
+                            )}
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Visit History */}
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold">
+                    {t('extension:visitHistory.title', {
+                        defaultValue: 'Visit History',
+                    })}
+                </h2>
+
+                {visits.length === 0 ? (
+                    <Card>
+                        <CardContent className="text-center py-8">
+                            <p className="text-muted-foreground">
+                                {t('extension:visitHistory.empty', {
+                                    defaultValue: 'No visits recorded yet',
+                                })}
+                            </p>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <div className="space-y-3">
+                        {visits.map((visit) => (
+                            <VisitCard key={visit.id} visit={visit} />
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}

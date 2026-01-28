@@ -1,144 +1,144 @@
 {
-  "name": "livestock-specialist",
-  "description": "Domain expert for multi-species livestock management - guardian of farming best practices and industry standards",
-  "keyboardShortcut": "ctrl+shift+9",
-  "welcomeMessage": "🐔 Livestock Specialist ready. I provide domain expertise for poultry, fish, cattle, goats, sheep, and bees.",
-  "prompt": "file://../prompts/agents/livestock-specialist.md",
-  "tools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking"
-  ],
-  "allowedTools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking"
-  ],
-  "toolsSettings": {
-    "write": {
-      "allowedPaths": [
-        "app/features/batches/**",
-        "app/features/feed/**",
-        "app/features/mortality/**",
-        "app/features/vaccinations/**",
-        "app/features/water-quality/**",
-        "app/features/weight/**",
-        "app/features/eggs/**",
-        "app/features/sales/**",
-        "app/features/monitoring/**",
-        "tests/**",
-        "*.md"
-      ]
-    },
-    "shell": {
-      "allowedCommands": [
-        "bun *",
-        "cat *",
-        "ls *",
-        "grep *",
-        "find *",
-        "head *",
-        "tail *"
-      ],
-      "autoAllowReadonly": true,
-      "deniedCommands": ["rm -rf *", "sudo *"]
-    }
-  },
-  "resources": [
-    "file://AGENTS.md",
-    "file://README.md",
-    "file://app/features/modules/constants.ts",
-    "file://app/features/batches/constants.ts",
-    "file://app/features/batches/forecasting.ts",
-    "file://app/features/monitoring/service.ts",
-    {
-      "type": "knowledgeBase",
-      "source": "file://./docs",
-      "name": "ProjectDocs",
-      "description": "Architecture, database, deployment, testing, and API documentation",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./DEVLOG.md",
-      "name": "DevLog",
-      "description": "Development history, decisions, and progress tracking",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./app/features/batches",
-      "name": "BatchesCode",
-      "description": "Batch management - forecasting, growth curves, lifecycle tracking",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./app/features/feed",
-      "name": "FeedCode",
-      "description": "Feed management - consumption tracking, FCR calculations",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./app/features/mortality",
-      "name": "MortalityCode",
-      "description": "Mortality tracking - cause analysis, rate calculations",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    "skill://.kiro/skills/livestock-poultry/SKILL.md",
-    "skill://.kiro/skills/livestock-aquaculture/SKILL.md",
-    "skill://.kiro/skills/livestock-ruminants/SKILL.md",
-    "skill://.kiro/skills/livestock-apiculture/SKILL.md",
-    "skill://.kiro/skills/batch-centric-design/SKILL.md",
-    "skill://.kiro/skills/financial-calculations/SKILL.md",
-    "skill://.kiro/skills/financial-integrity/SKILL.md",
-    "skill://.kiro/skills/offline-sync-strategies/SKILL.md"
-  ],
-  "hooks": {
-    "agentSpawn": [
-      {
-        "command": "echo '🐔 Livestock Specialist ready. Current batches:' && grep -r 'status.*active' app/lib/db/seed.ts 2>/dev/null | head -3 || echo 'No seed data found'",
-        "timeout_ms": 5000
-      }
+    "name": "livestock-specialist",
+    "description": "Domain expert for multi-species livestock management - guardian of farming best practices and industry standards",
+    "keyboardShortcut": "ctrl+shift+9",
+    "welcomeMessage": "🐔 Livestock Specialist ready. I provide domain expertise for poultry, fish, cattle, goats, sheep, and bees.",
+    "prompt": "file://../prompts/agents/livestock-specialist.md",
+    "tools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking"
     ],
-    "postToolUse": [
-      {
-        "matcher": "fs_write",
-        "command": "bun run lint --fix 2>/dev/null || true",
-        "timeout_ms": 30000
-      }
-    ]
-  },
-  "includeMcpJson": true,
-  "model": "claude-sonnet-4.5"
+    "allowedTools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking"
+    ],
+    "toolsSettings": {
+        "write": {
+            "allowedPaths": [
+                "app/features/batches/**",
+                "app/features/feed/**",
+                "app/features/mortality/**",
+                "app/features/vaccinations/**",
+                "app/features/water-quality/**",
+                "app/features/weight/**",
+                "app/features/eggs/**",
+                "app/features/sales/**",
+                "app/features/monitoring/**",
+                "tests/**",
+                "*.md"
+            ]
+        },
+        "shell": {
+            "allowedCommands": [
+                "bun *",
+                "cat *",
+                "ls *",
+                "grep *",
+                "find *",
+                "head *",
+                "tail *"
+            ],
+            "autoAllowReadonly": true,
+            "deniedCommands": ["rm -rf *", "sudo *"]
+        }
+    },
+    "resources": [
+        "file://AGENTS.md",
+        "file://README.md",
+        "file://app/features/modules/constants.ts",
+        "file://app/features/batches/constants.ts",
+        "file://app/features/batches/forecasting.ts",
+        "file://app/features/monitoring/service.ts",
+        {
+            "type": "knowledgeBase",
+            "source": "file://./docs",
+            "name": "ProjectDocs",
+            "description": "Architecture, database, deployment, testing, and API documentation",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./DEVLOG.md",
+            "name": "DevLog",
+            "description": "Development history, decisions, and progress tracking",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./app/features/batches",
+            "name": "BatchesCode",
+            "description": "Batch management - forecasting, growth curves, lifecycle tracking",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./app/features/feed",
+            "name": "FeedCode",
+            "description": "Feed management - consumption tracking, FCR calculations",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./app/features/mortality",
+            "name": "MortalityCode",
+            "description": "Mortality tracking - cause analysis, rate calculations",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        "skill://.kiro/skills/livestock-poultry/SKILL.md",
+        "skill://.kiro/skills/livestock-aquaculture/SKILL.md",
+        "skill://.kiro/skills/livestock-ruminants/SKILL.md",
+        "skill://.kiro/skills/livestock-apiculture/SKILL.md",
+        "skill://.kiro/skills/batch-centric-design/SKILL.md",
+        "skill://.kiro/skills/financial-calculations/SKILL.md",
+        "skill://.kiro/skills/financial-integrity/SKILL.md",
+        "skill://.kiro/skills/offline-sync-strategies/SKILL.md"
+    ],
+    "hooks": {
+        "agentSpawn": [
+            {
+                "command": "echo '🐔 Livestock Specialist ready. Current batches:' && grep -r 'status.*active' app/lib/db/seed.ts 2>/dev/null | head -3 || echo 'No seed data found'",
+                "timeout_ms": 5000
+            }
+        ],
+        "postToolUse": [
+            {
+                "matcher": "fs_write",
+                "command": "bun run lint --fix 2>/dev/null || true",
+                "timeout_ms": 30000
+            }
+        ]
+    },
+    "includeMcpJson": true,
+    "model": "claude-sonnet-4.5"
 }

@@ -5,15 +5,15 @@ import { SupportTiers } from '~/components/landing/SupportTiers'
 import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/support')({
-  component: SupportPage,
+    component: SupportPage,
 })
 
 function SupportPage() {
-  return (
-    <LandingLayout variant="neon">
-      <SupportHero />
-      <SupportTiers />
-      <CTASection />
-    </LandingLayout>
-  )
+    return (
+        <LandingLayout variant="neon">
+            <SupportHero />
+            <SupportTiers />
+            <CTASection />
+        </LandingLayout>
+    )
 }

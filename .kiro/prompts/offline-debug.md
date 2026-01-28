@@ -98,13 +98,13 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
 ```typescript
 // Check mutation handlers for conflict resolution
 const mutation = useMutation({
-  mutationFn: createBatch,
-  onSuccess: (data, variables) => {
-    // Verify optimistic update handling
-  },
-  onError: (error, variables, context) => {
-    // Check rollback logic
-  },
+    mutationFn: createBatch,
+    onSuccess: (data, variables) => {
+        // Verify optimistic update handling
+    },
+    onError: (error, variables, context) => {
+        // Check rollback logic
+    },
 })
 ```
 
@@ -143,11 +143,11 @@ const mutation = useMutation({
 const isOnline = navigator.onLine
 
 window.addEventListener('online', () => {
-  // Trigger sync
+    // Trigger sync
 })
 
 window.addEventListener('offline', () => {
-  // Switch to offline mode
+    // Switch to offline mode
 })
 ```
 
@@ -157,9 +157,9 @@ window.addEventListener('offline', () => {
 
 1. **Network tab**: Throttle to offline
 2. **Application tab**:
-   - Service Workers status
-   - IndexedDB contents
-   - Cache Storage
+    - Service Workers status
+    - IndexedDB contents
+    - Cache Storage
 3. **Console**: Check for sync errors
 
 ### Code Inspection
@@ -188,10 +188,10 @@ grep -r "persistQueryClient" app/
 ```typescript
 // Playwright offline test
 test('works offline', async ({ page, context }) => {
-  await page.goto('/batches')
-  await context.setOffline(true)
-  // Verify app still works
-  await expect(page.locator('text=Batches')).toBeVisible()
+    await page.goto('/batches')
+    await context.setOffline(true)
+    // Verify app still works
+    await expect(page.locator('text=Batches')).toBeVisible()
 })
 ```
 
@@ -202,13 +202,13 @@ test('works offline', async ({ page, context }) => {
 ```typescript
 // app/lib/query-client.ts
 const persister = createSyncStoragePersister({
-  storage: window.localStorage,
+    storage: window.localStorage,
 })
 
 persistQueryClient({
-  queryClient,
-  persister,
-  maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    queryClient,
+    persister,
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 })
 ```
 
@@ -216,11 +216,11 @@ persistQueryClient({
 
 ```typescript
 const mutation = useMutation({
-  mutationFn: createBatch,
-  // Queue mutations when offline
-  networkMode: 'offlineFirst',
-  retry: 3,
-  retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    mutationFn: createBatch,
+    // Queue mutations when offline
+    networkMode: 'offlineFirst',
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 })
 ```
 
@@ -229,19 +229,19 @@ const mutation = useMutation({
 ```typescript
 // vite.config.ts
 VitePWA({
-  workbox: {
-    globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-    runtimeCaching: [
-      {
-        urlPattern: /^https:\/\/api\./,
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'api-cache',
-          networkTimeoutSeconds: 10,
-        },
-      },
-    ],
-  },
+    workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        runtimeCaching: [
+            {
+                urlPattern: /^https:\/\/api\./,
+                handler: 'NetworkFirst',
+                options: {
+                    cacheName: 'api-cache',
+                    networkTimeoutSeconds: 10,
+                },
+            },
+        ],
+    },
 })
 ```
 
@@ -262,21 +262,21 @@ VitePWA({
 **Validate offline functionality:**
 
 1. **Test offline mode:**
-   - Disconnect network
-   - Make changes (add/edit/delete)
-   - Close and reopen app
-   - Verify changes persisted
+    - Disconnect network
+    - Make changes (add/edit/delete)
+    - Close and reopen app
+    - Verify changes persisted
 
 2. **Test sync:**
-   - Reconnect network
-   - Verify changes sync to server
-   - Check for conflicts
-   - Confirm no data loss
+    - Reconnect network
+    - Verify changes sync to server
+    - Check for conflicts
+    - Confirm no data loss
 
 3. **Test edge cases:**
-   - Multiple offline changes
-   - Conflicting edits
-   - Network interruptions during sync
+    - Multiple offline changes
+    - Conflicting edits
+    - Network interruptions during sync
 
 **Ask user:**
 

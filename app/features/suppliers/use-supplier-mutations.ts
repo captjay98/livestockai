@@ -5,20 +5,20 @@ import { useTranslation } from 'react-i18next'
 import { createSupplierFn, deleteSupplierFn, updateSupplierFn } from './server'
 import type { CreateSupplierInput } from './types'
 import type {
-  OptimisticContext,
-  OptimisticRecord,
+    OptimisticContext,
+    OptimisticRecord,
 } from '~/lib/optimistic-utils'
 import {
-  addOptimisticRecord,
-  cancelQueries,
-  createOptimisticContext,
-  createRollback,
-  generateEntityTempId,
-  getQueryData,
-  removeById,
-  replaceTempIdWithRecord,
-  setQueryData,
-  updateById,
+    addOptimisticRecord,
+    cancelQueries,
+    createOptimisticContext,
+    createRollback,
+    generateEntityTempId,
+    getQueryData,
+    removeById,
+    replaceTempIdWithRecord,
+    setQueryData,
+    updateById,
 } from '~/lib/optimistic-utils'
 import { tempIdResolver } from '~/lib/temp-id-resolver'
 
@@ -26,80 +26,81 @@ import { tempIdResolver } from '~/lib/temp-id-resolver'
  * Supplier record type for cache operations.
  */
 export interface SupplierCacheRecord extends OptimisticRecord {
-  id: string
-  name: string
-  phone: string
-  email?: string | null
-  location?: string | null
-  products: Array<string>
-  supplierType?: string | null
-  createdAt?: Date
-  totalSpent?: number
-  expenseCount?: number
+    id: string
+    name: string
+    phone: string
+    email?: string | null
+    location?: string | null
+    products: Array<string>
+    supplierType?: string | null
+    createdAt?: Date
+    totalSpent?: number
+    expenseCount?: number
 }
 
 /**
  * Query key constants for supplier-related queries
  */
 export const SUPPLIER_QUERY_KEYS = {
-  all: ['suppliers'] as const,
-  lists: () => [...SUPPLIER_QUERY_KEYS.all, 'list'] as const,
-  list: (farmId?: string) => [...SUPPLIER_QUERY_KEYS.lists(), farmId] as const,
-  details: () => [...SUPPLIER_QUERY_KEYS.all, 'detail'] as const,
-  detail: (id: string) => [...SUPPLIER_QUERY_KEYS.details(), id] as const,
+    all: ['suppliers'] as const,
+    lists: () => [...SUPPLIER_QUERY_KEYS.all, 'list'] as const,
+    list: (farmId?: string) =>
+        [...SUPPLIER_QUERY_KEYS.lists(), farmId] as const,
+    details: () => [...SUPPLIER_QUERY_KEYS.all, 'detail'] as const,
+    detail: (id: string) => [...SUPPLIER_QUERY_KEYS.details(), id] as const,
 } as const
 
 /**
  * Input type for creating a supplier mutation
  */
 export interface CreateSupplierMutationInput {
-  supplier: CreateSupplierInput
+    supplier: CreateSupplierInput
 }
 
 /**
  * Input type for updating a supplier mutation
  */
 export interface UpdateSupplierMutationInput {
-  supplierId: string
-  data: Partial<CreateSupplierInput>
+    supplierId: string
+    data: Partial<CreateSupplierInput>
 }
 
 /**
  * Input type for deleting a supplier mutation
  */
 export interface DeleteSupplierMutationInput {
-  supplierId: string
+    supplierId: string
 }
 
 /**
  * Result type for the useSupplierMutations hook
  */
 export interface UseSupplierMutationsResult {
-  createSupplier: ReturnType<
-    typeof useMutation<
-      string,
-      Error,
-      CreateSupplierMutationInput,
-      OptimisticContext<Array<SupplierCacheRecord>>
+    createSupplier: ReturnType<
+        typeof useMutation<
+            string,
+            Error,
+            CreateSupplierMutationInput,
+            OptimisticContext<Array<SupplierCacheRecord>>
+        >
     >
-  >
-  updateSupplier: ReturnType<
-    typeof useMutation<
-      void,
-      Error,
-      UpdateSupplierMutationInput,
-      OptimisticContext<Array<SupplierCacheRecord>>
+    updateSupplier: ReturnType<
+        typeof useMutation<
+            void,
+            Error,
+            UpdateSupplierMutationInput,
+            OptimisticContext<Array<SupplierCacheRecord>>
+        >
     >
-  >
-  deleteSupplier: ReturnType<
-    typeof useMutation<
-      void,
-      Error,
-      DeleteSupplierMutationInput,
-      OptimisticContext<Array<SupplierCacheRecord>>
+    deleteSupplier: ReturnType<
+        typeof useMutation<
+            void,
+            Error,
+            DeleteSupplierMutationInput,
+            OptimisticContext<Array<SupplierCacheRecord>>
+        >
     >
-  >
-  isPending: boolean
+    isPending: boolean
 }
 
 /**
@@ -110,233 +111,240 @@ export interface UseSupplierMutationsResult {
  * **Validates: Requirements 7.2**
  */
 export function useSupplierMutations(): UseSupplierMutationsResult {
-  const queryClient = useQueryClient()
-  const { t } = useTranslation(['suppliers', 'common'])
+    const queryClient = useQueryClient()
+    const { t } = useTranslation(['suppliers', 'common'])
 
-  const rollbackSuppliers = createRollback<Array<SupplierCacheRecord>>(
-    queryClient,
-    SUPPLIER_QUERY_KEYS.all,
-  )
-
-  const createSupplier = useMutation<
-    string,
-    Error,
-    CreateSupplierMutationInput,
-    OptimisticContext<Array<SupplierCacheRecord>>
-  >({
-    mutationFn: async ({ supplier }) => {
-      return createSupplierFn({ data: supplier })
-    },
-
-    onMutate: async ({ supplier }) => {
-      await cancelQueries(queryClient, SUPPLIER_QUERY_KEYS.all)
-
-      const previousSuppliers = getQueryData<Array<SupplierCacheRecord>>(
+    const rollbackSuppliers = createRollback<Array<SupplierCacheRecord>>(
         queryClient,
         SUPPLIER_QUERY_KEYS.all,
-      )
-      const tempId = generateEntityTempId('supplier')
+    )
 
-      const optimisticSupplier: Omit<SupplierCacheRecord, 'id'> = {
-        name: supplier.name,
-        phone: supplier.phone,
-        email: supplier.email || null,
-        location: supplier.location || null,
-        products: supplier.products,
-        supplierType: supplier.supplierType || null,
-        createdAt: new Date(),
-        totalSpent: 0,
-        expenseCount: 0,
-      }
+    const createSupplier = useMutation<
+        string,
+        Error,
+        CreateSupplierMutationInput,
+        OptimisticContext<Array<SupplierCacheRecord>>
+    >({
+        mutationFn: async ({ supplier }) => {
+            return createSupplierFn({ data: supplier })
+        },
 
-      const updatedSuppliers = addOptimisticRecord(
-        previousSuppliers,
-        optimisticSupplier,
-        tempId,
-      )
-      setQueryData(queryClient, SUPPLIER_QUERY_KEYS.all, updatedSuppliers)
+        onMutate: async ({ supplier }) => {
+            await cancelQueries(queryClient, SUPPLIER_QUERY_KEYS.all)
 
-      return createOptimisticContext(previousSuppliers, tempId)
-    },
+            const previousSuppliers = getQueryData<Array<SupplierCacheRecord>>(
+                queryClient,
+                SUPPLIER_QUERY_KEYS.all,
+            )
+            const tempId = generateEntityTempId('supplier')
 
-    onError: (error, _variables, context) => {
-      rollbackSuppliers(context)
-      toast.error(
-        t('messages.createError', {
-          defaultValue: 'Failed to create supplier',
-          ns: 'suppliers',
-        }),
-        { description: error.message },
-      )
-    },
+            const optimisticSupplier: Omit<SupplierCacheRecord, 'id'> = {
+                name: supplier.name,
+                phone: supplier.phone,
+                email: supplier.email || null,
+                location: supplier.location || null,
+                products: supplier.products,
+                supplierType: supplier.supplierType || null,
+                createdAt: new Date(),
+                totalSpent: 0,
+                expenseCount: 0,
+            }
 
-    onSuccess: async (serverId, { supplier }, context) => {
-      if (context.tempId) {
-        // Register the temp ID → server ID mapping for dependent mutations
-        await tempIdResolver.register(context.tempId, serverId, 'supplier')
+            const updatedSuppliers = addOptimisticRecord(
+                previousSuppliers,
+                optimisticSupplier,
+                tempId,
+            )
+            setQueryData(queryClient, SUPPLIER_QUERY_KEYS.all, updatedSuppliers)
 
-        // Update pending mutations that reference this temp ID
-        tempIdResolver.updatePendingMutations(queryClient)
+            return createOptimisticContext(previousSuppliers, tempId)
+        },
 
-        const currentSuppliers = getQueryData<Array<SupplierCacheRecord>>(
-          queryClient,
-          SUPPLIER_QUERY_KEYS.all,
-        )
+        onError: (error, _variables, context) => {
+            rollbackSuppliers(context)
+            toast.error(
+                t('messages.createError', {
+                    defaultValue: 'Failed to create supplier',
+                    ns: 'suppliers',
+                }),
+                { description: error.message },
+            )
+        },
 
-        const serverSupplier: SupplierCacheRecord = {
-          id: serverId,
-          name: supplier.name,
-          phone: supplier.phone,
-          email: supplier.email || null,
-          location: supplier.location || null,
-          products: supplier.products,
-          supplierType: supplier.supplierType || null,
-          createdAt: new Date(),
-          totalSpent: 0,
-          expenseCount: 0,
-          _isOptimistic: false,
-          _tempId: undefined,
-        }
+        onSuccess: async (serverId, { supplier }, context) => {
+            if (context.tempId) {
+                // Register the temp ID → server ID mapping for dependent mutations
+                await tempIdResolver.register(
+                    context.tempId,
+                    serverId,
+                    'supplier',
+                )
 
-        const updatedSuppliers = replaceTempIdWithRecord(
-          currentSuppliers,
-          context.tempId,
-          serverSupplier,
-        )
-        setQueryData(queryClient, SUPPLIER_QUERY_KEYS.all, updatedSuppliers)
-      }
+                // Update pending mutations that reference this temp ID
+                tempIdResolver.updatePendingMutations(queryClient)
 
-      toast.success(
-        t('messages.created', {
-          defaultValue: 'Supplier created successfully',
-          ns: 'suppliers',
-        }),
-      )
-    },
+                const currentSuppliers = getQueryData<
+                    Array<SupplierCacheRecord>
+                >(queryClient, SUPPLIER_QUERY_KEYS.all)
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: SUPPLIER_QUERY_KEYS.all })
-    },
-  })
+                const serverSupplier: SupplierCacheRecord = {
+                    id: serverId,
+                    name: supplier.name,
+                    phone: supplier.phone,
+                    email: supplier.email || null,
+                    location: supplier.location || null,
+                    products: supplier.products,
+                    supplierType: supplier.supplierType || null,
+                    createdAt: new Date(),
+                    totalSpent: 0,
+                    expenseCount: 0,
+                    _isOptimistic: false,
+                    _tempId: undefined,
+                }
 
-  const updateSupplier = useMutation<
-    void,
-    Error,
-    UpdateSupplierMutationInput,
-    OptimisticContext<Array<SupplierCacheRecord>>
-  >({
-    mutationFn: async ({ supplierId, data }) => {
-      return updateSupplierFn({ data: { id: supplierId, data } })
-    },
+                const updatedSuppliers = replaceTempIdWithRecord(
+                    currentSuppliers,
+                    context.tempId,
+                    serverSupplier,
+                )
+                setQueryData(
+                    queryClient,
+                    SUPPLIER_QUERY_KEYS.all,
+                    updatedSuppliers,
+                )
+            }
 
-    onMutate: async ({ supplierId, data }) => {
-      await cancelQueries(queryClient, SUPPLIER_QUERY_KEYS.all)
+            toast.success(
+                t('messages.created', {
+                    defaultValue: 'Supplier created successfully',
+                    ns: 'suppliers',
+                }),
+            )
+        },
 
-      const previousSuppliers = getQueryData<Array<SupplierCacheRecord>>(
-        queryClient,
-        SUPPLIER_QUERY_KEYS.all,
-      )
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: SUPPLIER_QUERY_KEYS.all })
+        },
+    })
 
-      const updateData: Partial<SupplierCacheRecord> = {}
-      if (data.name !== undefined) updateData.name = data.name
-      if (data.phone !== undefined) updateData.phone = data.phone
-      if (data.email !== undefined) updateData.email = data.email
-      if (data.location !== undefined) updateData.location = data.location
-      if (data.products !== undefined) updateData.products = data.products
-      if (data.supplierType !== undefined)
-        updateData.supplierType = data.supplierType
+    const updateSupplier = useMutation<
+        void,
+        Error,
+        UpdateSupplierMutationInput,
+        OptimisticContext<Array<SupplierCacheRecord>>
+    >({
+        mutationFn: async ({ supplierId, data }) => {
+            return updateSupplierFn({ data: { id: supplierId, data } })
+        },
 
-      const updatedSuppliers = updateById(
-        previousSuppliers,
-        supplierId,
-        updateData,
-      )
-      setQueryData(queryClient, SUPPLIER_QUERY_KEYS.all, updatedSuppliers)
+        onMutate: async ({ supplierId, data }) => {
+            await cancelQueries(queryClient, SUPPLIER_QUERY_KEYS.all)
 
-      return createOptimisticContext(previousSuppliers)
-    },
+            const previousSuppliers = getQueryData<Array<SupplierCacheRecord>>(
+                queryClient,
+                SUPPLIER_QUERY_KEYS.all,
+            )
 
-    onError: (error, _variables, context) => {
-      rollbackSuppliers(context)
-      toast.error(
-        t('messages.updateError', {
-          defaultValue: 'Failed to update supplier',
-          ns: 'suppliers',
-        }),
-        { description: error.message },
-      )
-    },
+            const updateData: Partial<SupplierCacheRecord> = {}
+            if (data.name !== undefined) updateData.name = data.name
+            if (data.phone !== undefined) updateData.phone = data.phone
+            if (data.email !== undefined) updateData.email = data.email
+            if (data.location !== undefined) updateData.location = data.location
+            if (data.products !== undefined) updateData.products = data.products
+            if (data.supplierType !== undefined)
+                updateData.supplierType = data.supplierType
 
-    onSuccess: () => {
-      toast.success(
-        t('messages.updated', {
-          defaultValue: 'Supplier updated successfully',
-          ns: 'suppliers',
-        }),
-      )
-    },
+            const updatedSuppliers = updateById(
+                previousSuppliers,
+                supplierId,
+                updateData,
+            )
+            setQueryData(queryClient, SUPPLIER_QUERY_KEYS.all, updatedSuppliers)
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: SUPPLIER_QUERY_KEYS.all })
-    },
-  })
+            return createOptimisticContext(previousSuppliers)
+        },
 
-  const deleteSupplier = useMutation<
-    void,
-    Error,
-    DeleteSupplierMutationInput,
-    OptimisticContext<Array<SupplierCacheRecord>>
-  >({
-    mutationFn: async ({ supplierId }) => {
-      await deleteSupplierFn({ data: { id: supplierId } })
-    },
+        onError: (error, _variables, context) => {
+            rollbackSuppliers(context)
+            toast.error(
+                t('messages.updateError', {
+                    defaultValue: 'Failed to update supplier',
+                    ns: 'suppliers',
+                }),
+                { description: error.message },
+            )
+        },
 
-    onMutate: async ({ supplierId }) => {
-      await cancelQueries(queryClient, SUPPLIER_QUERY_KEYS.all)
+        onSuccess: () => {
+            toast.success(
+                t('messages.updated', {
+                    defaultValue: 'Supplier updated successfully',
+                    ns: 'suppliers',
+                }),
+            )
+        },
 
-      const previousSuppliers = getQueryData<Array<SupplierCacheRecord>>(
-        queryClient,
-        SUPPLIER_QUERY_KEYS.all,
-      )
-      const updatedSuppliers = removeById(previousSuppliers, supplierId)
-      setQueryData(queryClient, SUPPLIER_QUERY_KEYS.all, updatedSuppliers)
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: SUPPLIER_QUERY_KEYS.all })
+        },
+    })
 
-      return createOptimisticContext(previousSuppliers)
-    },
+    const deleteSupplier = useMutation<
+        void,
+        Error,
+        DeleteSupplierMutationInput,
+        OptimisticContext<Array<SupplierCacheRecord>>
+    >({
+        mutationFn: async ({ supplierId }) => {
+            await deleteSupplierFn({ data: { id: supplierId } })
+        },
 
-    onError: (error, _variables, context) => {
-      rollbackSuppliers(context)
-      toast.error(
-        t('messages.deleteError', {
-          defaultValue: 'Failed to delete supplier',
-          ns: 'suppliers',
-        }),
-        { description: error.message },
-      )
-    },
+        onMutate: async ({ supplierId }) => {
+            await cancelQueries(queryClient, SUPPLIER_QUERY_KEYS.all)
 
-    onSuccess: () => {
-      toast.success(
-        t('messages.deleted', {
-          defaultValue: 'Supplier deleted successfully',
-          ns: 'suppliers',
-        }),
-      )
-    },
+            const previousSuppliers = getQueryData<Array<SupplierCacheRecord>>(
+                queryClient,
+                SUPPLIER_QUERY_KEYS.all,
+            )
+            const updatedSuppliers = removeById(previousSuppliers, supplierId)
+            setQueryData(queryClient, SUPPLIER_QUERY_KEYS.all, updatedSuppliers)
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: SUPPLIER_QUERY_KEYS.all })
-      queryClient.invalidateQueries({ queryKey: ['expenses'] })
-    },
-  })
+            return createOptimisticContext(previousSuppliers)
+        },
 
-  return {
-    createSupplier,
-    updateSupplier,
-    deleteSupplier,
-    isPending:
-      createSupplier.isPending ||
-      updateSupplier.isPending ||
-      deleteSupplier.isPending,
-  }
+        onError: (error, _variables, context) => {
+            rollbackSuppliers(context)
+            toast.error(
+                t('messages.deleteError', {
+                    defaultValue: 'Failed to delete supplier',
+                    ns: 'suppliers',
+                }),
+                { description: error.message },
+            )
+        },
+
+        onSuccess: () => {
+            toast.success(
+                t('messages.deleted', {
+                    defaultValue: 'Supplier deleted successfully',
+                    ns: 'suppliers',
+                }),
+            )
+        },
+
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: SUPPLIER_QUERY_KEYS.all })
+            queryClient.invalidateQueries({ queryKey: ['expenses'] })
+        },
+    })
+
+    return {
+        createSupplier,
+        updateSupplier,
+        deleteSupplier,
+        isPending:
+            createSupplier.isPending ||
+            updateSupplier.isPending ||
+            deleteSupplier.isPending,
+    }
 }

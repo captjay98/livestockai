@@ -134,9 +134,9 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'password123'
 **🚨 Critical (Immediate Action Required):**
 
 1. Extract Dashboard Business Logic
-   - Create `app/features/dashboard/service.ts` with calculation functions
-   - Create `app/features/dashboard/repository.ts` for data access
-   - Refactor `server.ts` to orchestrate service/repository calls
+    - Create `app/features/dashboard/service.ts` with calculation functions
+    - Create `app/features/dashboard/repository.ts` for data access
+    - Refactor `server.ts` to orchestrate service/repository calls
 
 **🔧 High Priority (Next Sprint):** 2. Standardize Missing Layers
 
@@ -144,8 +144,8 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'password123'
 - Evaluate if auth needs service layer or document why it doesn't
 
 3. Consolidate Inventory Structure
-   - Merge `feed-server.ts` and `medication-server.ts` into single `server.ts`
-   - Ensure consistent 3-layer pattern
+    - Merge `feed-server.ts` and `medication-server.ts` into single `server.ts`
+    - Ensure consistent 3-layer pattern
 
 ---
 
@@ -330,8 +330,8 @@ Database migrations are well-structured:
 **Minor optimization opportunities identified:**
 
 1. **Query Complexity**: Some repository functions use multiple joins (3-4 tables) which could benefit from:
-   - Selective field selection instead of `selectAll()`
-   - Query result limiting for large datasets
+    - Selective field selection instead of `selectAll()`
+    - Query result limiting for large datasets
 
 2. **Search Patterns**: 3 instances of `LIKE` queries found - consider `ILIKE` for case-insensitive searches where appropriate
 
@@ -503,40 +503,40 @@ The codebase shows good overall structure with TypeScript strict mode enabled, b
 #### Specific Recommendations
 
 1. **Address Type Safety Violations**
-   - Replace "as any" in repository files with proper type guards
-   - Create proper types for database query parameters
-   - Review route component type assertions
-   - Consider regenerating routeTree.gen.ts if possible
+    - Replace "as any" in repository files with proper type guards
+    - Create proper types for database query parameters
+    - Review route component type assertions
+    - Consider regenerating routeTree.gen.ts if possible
 
 2. **Clean Up Console Statements**
-   - Remove debug console.log statements from production code
-   - Standardize error logging approach
-   - Keep console output in seed/setup scripts
+    - Remove debug console.log statements from production code
+    - Standardize error logging approach
+    - Keep console output in seed/setup scripts
 
 3. **Import Organization**
-   - Current import patterns appear consistent
-   - Consider adding import sorting rules to ESLint
+    - Current import patterns appear consistent
+    - Consider adding import sorting rules to ESLint
 
 4. **Variable Declaration Review**
-   - "let" usage appears appropriate for mutable variables
-   - No "var" declarations found in application code
+    - "let" usage appears appropriate for mutable variables
+    - No "var" declarations found in application code
 
 #### Next Steps
 
 1. **Immediate Actions:**
-   - Fix "as any" assertions in repository files (highest impact)
-   - Remove debug console.log from route components
-   - Review test file type assertions for better patterns
+    - Fix "as any" assertions in repository files (highest impact)
+    - Remove debug console.log from route components
+    - Review test file type assertions for better patterns
 
 2. **Medium-term:**
-   - Implement proper database query types
-   - Add ESLint rules to prevent "as any" usage
-   - Standardize error logging approach
+    - Implement proper database query types
+    - Add ESLint rules to prevent "as any" usage
+    - Standardize error logging approach
 
 3. **Long-term:**
-   - Consider TypeScript strict mode enhancements
-   - Implement automated type safety checks in CI/CD
-   - Regular code quality audits
+    - Consider TypeScript strict mode enhancements
+    - Implement automated type safety checks in CI/CD
+    - Regular code quality audits
 
 ---
 
@@ -569,12 +569,12 @@ const expensesResult = await db.selectFrom('expenses')...
 
 ```typescript
 const [feedRecords, eggRecords, sales, mortalities] = await Promise.all([
-  db
-    .selectFrom('feed_records')
-    .select('id')
-    .where('batchId', '=', batchId)
-    .executeTakeFirst(),
-  // 3 more similar queries...
+    db
+        .selectFrom('feed_records')
+        .select('id')
+        .where('batchId', '=', batchId)
+        .executeTakeFirst(),
+    // 3 more similar queries...
 ])
 ```
 
@@ -597,9 +597,9 @@ const [feedRecords, eggRecords, sales, mortalities] = await Promise.all([
 
 - **Issue:** No composite indexes for common query patterns
 - **Critical Gaps:**
-  - `(farmId, status)` for batch filtering
-  - `(farmId, date)` for sales/expense reporting
-  - `(batchId, date)` for chronological data queries
+    - `(farmId, status)` for batch filtering
+    - `(farmId, date)` for sales/expense reporting
+    - `(batchId, date)` for chronological data queries
 
 **Current Indexes** (from migration analysis):
 
@@ -612,10 +612,10 @@ const [feedRecords, eggRecords, sales, mortalities] = await Promise.all([
 
 - **Issue:** Minimal `vite.config.ts` with no bundle optimization
 - **Missing Optimizations:**
-  - Code splitting configuration
-  - Tree shaking enhancements
-  - Compression settings
-  - Asset optimization
+    - Code splitting configuration
+    - Tree shaking enhancements
+    - Compression settings
+    - Asset optimization
 
 **Code Size Analysis**
 
@@ -672,7 +672,7 @@ CREATE INDEX idx_expenses_farm_date ON expenses(farmId, date);
 
 ```typescript
 const BatchList = React.memo(({ batches, onSelect }) => {
-  // Component logic with useMemo for expensive computations
+    // Component logic with useMemo for expensive computations
 })
 ```
 
@@ -828,21 +828,21 @@ build: {
 #### Recommendations
 
 1. **Before Production Deployment:**
-   - Set `account_id` in wrangler.jsonc
-   - Generate new BETTER_AUTH_SECRET (32+ characters)
-   - Set production DATABASE_URL
-   - Configure production email/SMS providers
+    - Set `account_id` in wrangler.jsonc
+    - Generate new BETTER_AUTH_SECRET (32+ characters)
+    - Set production DATABASE_URL
+    - Configure production email/SMS providers
 
 2. **Consider Adding:**
-   - GitHub Actions for CI/CD
-   - Automated testing in deployment pipeline
-   - Error monitoring/logging service
-   - Performance monitoring
+    - GitHub Actions for CI/CD
+    - Automated testing in deployment pipeline
+    - Error monitoring/logging service
+    - Performance monitoring
 
 3. **Optional Enhancements:**
-   - Enable Cloudflare observability MCP for production debugging
-   - Add KV cache for frequently accessed data
-   - Consider D1 for metadata if relational complexity not needed
+    - Enable Cloudflare observability MCP for production debugging
+    - Add KV cache for frequently accessed data
+    - Consider D1 for metadata if relational complexity not needed
 
 **Overall Assessment: PASS** - The codebase is well-architected for Cloudflare Workers deployment with proper patterns and configurations in place.
 
@@ -862,10 +862,10 @@ build: {
 **❌ Issues:**
 
 - **Limited scope:** Only basic profit/loss and ROI - missing advanced metrics like:
-  - Gross margin analysis
-  - EBITDA calculations
-  - Cash flow projections
-  - Break-even analysis
+    - Gross margin analysis
+    - EBITDA calculations
+    - Cash flow projections
+    - Break-even analysis
 - **No currency handling:** Calculations don't account for multi-currency operations
 - **Missing time-based metrics:** No annualized ROI or IRR calculations
 
@@ -881,9 +881,9 @@ build: {
 **❌ Critical Issues:**
 
 - **Formula inconsistency:** Different FCR calculations across services:
-  - `feed/service.ts`: `FCR = totalFeedKg / weightGainKg` (correct)
-  - `batches/service.ts`: `FCR = totalFeedKg / currentWeightKg` (incorrect)
-  - `dashboard/server.ts`: Simplified approximation
+    - `feed/service.ts`: `FCR = totalFeedKg / weightGainKg` (correct)
+    - `batches/service.ts`: `FCR = totalFeedKg / currentWeightKg` (incorrect)
+    - `dashboard/server.ts`: Simplified approximation
 - **Missing FCR history:** No trending analysis over time
 - **No FCR benchmarking:** Limited industry standard comparisons
 
@@ -899,9 +899,9 @@ build: {
 **❌ Issues:**
 
 - **Oversimplified ROI:** Only basic percentage - missing:
-  - Annualized ROI calculations
-  - Risk-adjusted ROI
-  - ROI by time periods
+    - Annualized ROI calculations
+    - Risk-adjusted ROI
+    - ROI by time periods
 - **Profit margin limitations:** No gross vs net margin distinction
 - **No profitability forecasting:** Missing projection capabilities
 
@@ -928,10 +928,10 @@ build: {
 
 - Complete weight sampling system
 - Species-specific ADG (Average Daily Gain) values:
-  - Broiler: 50g/day
-  - Layer: 20g/day
-  - Catfish: 15g/day
-  - Tilapia: 10g/day
+    - Broiler: 50g/day
+    - Layer: 20g/day
+    - Catfish: 15g/day
+    - Tilapia: 10g/day
 - Growth standards database with industry curves
 - Sample size validation and statistical tracking
 
@@ -968,12 +968,12 @@ build: {
 
 - **Limited KPI implementation:** Only basic metrics (profit, mortality rate, FCR)
 - **Missing critical KPIs:**
-  - **DOC (Days Open):** Critical for poultry reproduction cycles
-  - **ABC (Animal Breeding Cycle):** Reproduction efficiency
-  - **Laying Percentage:** Egg production efficiency
-  - **Stocking Density:** Space utilization metrics
-  - **Turnover Rate:** Batch processing efficiency
-  - **Cost of Production:** Per unit production costs
+    - **DOC (Days Open):** Critical for poultry reproduction cycles
+    - **ABC (Animal Breeding Cycle):** Reproduction efficiency
+    - **Laying Percentage:** Egg production efficiency
+    - **Stocking Density:** Space utilization metrics
+    - **Turnover Rate:** Batch processing efficiency
+    - **Cost of Production:** Per unit production costs
 
 **✅ Available Metrics:**
 
@@ -1022,90 +1022,90 @@ build: {
 **Must complete before any production deployment:**
 
 1. **Remove Default Admin Credentials** (2 hours)
-   - **File:** `app/lib/db/seeds/production.ts`
-   - **Action:** Require explicit `ADMIN_PASSWORD` environment variable
-   - **Validation:** Fail fast if not provided
-   - **Priority:** 🔴 CRITICAL (Security)
+    - **File:** `app/lib/db/seeds/production.ts`
+    - **Action:** Require explicit `ADMIN_PASSWORD` environment variable
+    - **Validation:** Fail fast if not provided
+    - **Priority:** 🔴 CRITICAL (Security)
 
 2. **Fix FCR Calculation Inconsistency** (1 day)
-   - **Files:** `app/features/feed/service.ts`, `app/features/batches/service.ts`, `app/features/dashboard/server.ts`
-   - **Action:** Create unified FCR calculation service
-   - **Validation:** Update all services to use consistent formula (FCR = feedKg / weightGainKg)
-   - **Testing:** Add property tests to prevent regressions
-   - **Priority:** 🔴 CRITICAL (Business Logic)
+    - **Files:** `app/features/feed/service.ts`, `app/features/batches/service.ts`, `app/features/dashboard/server.ts`
+    - **Action:** Create unified FCR calculation service
+    - **Validation:** Update all services to use consistent formula (FCR = feedKg / weightGainKg)
+    - **Testing:** Add property tests to prevent regressions
+    - **Priority:** 🔴 CRITICAL (Business Logic)
 
 3. **Add Database Indexes** (2 hours)
-   - **File:** New migration file in `app/lib/db/migrations/`
-   - **Action:**
+    - **File:** New migration file in `app/lib/db/migrations/`
+    - **Action:**
 
-   ```sql
-   CREATE INDEX idx_batches_farm_status ON batches(farmId, status);
-   CREATE INDEX idx_sales_farm_date ON sales(farmId, date);
-   CREATE INDEX idx_expenses_farm_date ON expenses(farmId, date);
-   CREATE INDEX idx_feed_records_batch_date ON feed_records(batchId, date);
-   ```
+    ```sql
+    CREATE INDEX idx_batches_farm_status ON batches(farmId, status);
+    CREATE INDEX idx_sales_farm_date ON sales(farmId, date);
+    CREATE INDEX idx_expenses_farm_date ON expenses(farmId, date);
+    CREATE INDEX idx_feed_records_batch_date ON feed_records(batchId, date);
+    ```
 
-   - **Expected Impact:** 60-80% query reduction
-   - **Priority:** 🔴 CRITICAL (Performance)
+    - **Expected Impact:** 60-80% query reduction
+    - **Priority:** 🔴 CRITICAL (Performance)
 
 4. **Extract Dashboard Service Layer** (2-3 days)
-   - **Files:** `app/features/dashboard/server.ts`
-   - **Actions:**
-     - Create `app/features/dashboard/service.ts` with calculation functions
-     - Create `app/features/dashboard/repository.ts` for data access
-     - Refactor `server.ts` to orchestrate service/repository calls only
-   - **Priority:** 🔴 CRITICAL (Architecture)
+    - **Files:** `app/features/dashboard/server.ts`
+    - **Actions:**
+        - Create `app/features/dashboard/service.ts` with calculation functions
+        - Create `app/features/dashboard/repository.ts` for data access
+        - Refactor `server.ts` to orchestrate service/repository calls only
+    - **Priority:** 🔴 CRITICAL (Architecture)
 
 ### Phase 2: High-Priority Improvements (Week 2-3)
 
 **Address high-impact security and performance issues:**
 
 5. **Audit Type Assertions** (2-3 days)
-   - **Scope:** 208 `as any` instances across 58 files
-   - **Actions:**
-     - Review and replace critical ones with proper types
-     - Focus on database operations and route components
-     - Add ESLint rules to prevent future issues
-   - **Priority:** 🟡 HIGH (Code Quality)
+    - **Scope:** 208 `as any` instances across 58 files
+    - **Actions:**
+        - Review and replace critical ones with proper types
+        - Focus on database operations and route components
+        - Add ESLint rules to prevent future issues
+    - **Priority:** 🟡 HIGH (Code Quality)
 
 6. **Consolidate Dashboard Queries** (1 day)
-   - **File:** `app/features/dashboard/server.ts`
-   - **Action:** Replace 8 sequential queries with single aggregation
-   - **Expected Impact:** 60-80% query reduction
-   - **Priority:** 🟡 HIGH (Performance)
+    - **File:** `app/features/dashboard/server.ts`
+    - **Action:** Replace 8 sequential queries with single aggregation
+    - **Expected Impact:** 60-80% query reduction
+    - **Priority:** 🟡 HIGH (Performance)
 
 7. **Add React Performance Optimizations** (2 days)
-   - **Scope:** Data-heavy components (batch listings, tables)
-   - **Actions:**
-     - Add React.memo to data table components
-     - Implement useMemo for expensive computations
-     - Optimize state management patterns
-   - **Expected Impact:** 40-60% reduction in unnecessary re-renders
-   - **Priority:** 🟡 HIGH (Performance)
+    - **Scope:** Data-heavy components (batch listings, tables)
+    - **Actions:**
+        - Add React.memo to data table components
+        - Implement useMemo for expensive computations
+        - Optimize state management patterns
+    - **Expected Impact:** 40-60% reduction in unnecessary re-renders
+    - **Priority:** 🟡 HIGH (Performance)
 
 8. **Complete Growth Standards Database** (1 day)
-   - **Files:** Database seeds for growth standards
-   - **Action:** Add growth curves for cattle, goats, sheep, bees
-   - **Source:** Industry data for species-specific benchmarks
-   - **Priority:** 🟡 HIGH (Domain Logic)
+    - **Files:** Database seeds for growth standards
+    - **Action:** Add growth curves for cattle, goats, sheep, bees
+    - **Source:** Industry data for species-specific benchmarks
+    - **Priority:** 🟡 HIGH (Domain Logic)
 
 ### Phase 3: Medium-Priority Enhancements (Week 4-6)
 
 **Improve quality and add missing features:**
 
 9. **Remove Debug Logging** (1 day)
-   - **Scope:** 250+ console.log statements across 56 files
-   - **Action:** Clean up debug console.log from production code
-   - **Standardize:** Error logging approach
-   - **Priority:** 🟢 MEDIUM (Code Quality)
+    - **Scope:** 250+ console.log statements across 56 files
+    - **Action:** Clean up debug console.log from production code
+    - **Standardize:** Error logging approach
+    - **Priority:** 🟢 MEDIUM (Code Quality)
 
 10. **Implement Missing KPIs** (2-3 days)
     - **File:** `app/features/` (various modules)
     - **Actions:**
-      - Add DOC (Days Open) calculations
-      - Add ABC (Animal Breeding Cycle) calculations
-      - Add laying percentage calculations
-      - Implement stocking density and turnover rate metrics
+        - Add DOC (Days Open) calculations
+        - Add ABC (Animal Breeding Cycle) calculations
+        - Add laying percentage calculations
+        - Implement stocking density and turnover rate metrics
     - **Priority:** 🟢 MEDIUM (Domain Logic)
 
 11. **Add Component Tests** (3-5 days)
@@ -1123,25 +1123,25 @@ build: {
 13. **Bundle Optimization** (2 days)
     - **File:** `vite.config.ts`
     - **Actions:**
-      - Configure Vite code splitting
-      - Add compression and asset optimization
+        - Configure Vite code splitting
+        - Add compression and asset optimization
     - **Expected Impact:** 30-50% bundle size reduction
     - **Priority:** 🔵 LOW (Performance)
 
 14. **Implement Caching Strategy** (2-3 days)
     - **Scope:** TanStack Query and PWA
     - **Actions:**
-      - Configure TanStack Query (5-10 min staleTime)
-      - Add service worker for PWA caching
+        - Configure TanStack Query (5-10 min staleTime)
+        - Add service worker for PWA caching
     - **Expected Impact:** 70-90% reduction in redundant API calls
     - **Priority:** 🔵 LOW (Performance)
 
 15. **Enhance Financial Calculations** (3-5 days)
     - **File:** `app/lib/finance/calculations.ts`
     - **Actions:**
-      - Add gross margin, EBITDA, cash flow
-      - Implement annualized ROI and IRR
-      - Add profit forecasting capabilities
+        - Add gross margin, EBITDA, cash flow
+        - Implement annualized ROI and IRR
+        - Add profit forecasting capabilities
     - **Priority:** 🔵 LOW (Domain Logic)
 
 16. **Add CI/CD Pipeline** (1-2 days)

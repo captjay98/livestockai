@@ -44,11 +44,11 @@ Implement performance optimizations:
 ### Performance-Critical Files
 
 - `vite.config.ts` - Build configuration
-  - Why: Configure bundle analysis and optimization
+    - Why: Configure bundle analysis and optimization
 - `app/lib/db/migrations/` - Database indexes
-  - Why: Add missing indexes for common queries
+    - Why: Add missing indexes for common queries
 - `app/routes/` - Route definitions
-  - Why: Add lazy loading
+    - Why: Add lazy loading
 
 ---
 
@@ -66,11 +66,11 @@ Implement performance optimizations:
 
 - **CREATE**: Migration for missing indexes
 - **INDEXES**:
-  - batches(farmId, status)
-  - sales(farmId, date)
-  - expenses(farmId, date)
-  - feed_records(batchId, date)
-  - mortality_records(batchId, date)
+    - batches(farmId, status)
+    - sales(farmId, date)
+    - expenses(farmId, date)
+    - feed_records(batchId, date)
+    - mortality_records(batchId, date)
 - **VALIDATE**: `bun run db:migrate`
 
 ### Task 3: OPTIMIZE N+1 queries
@@ -134,14 +134,14 @@ const DashboardPage = lazy(() => import('./dashboard'))
 ### Changes Made
 
 1. **Database Indexes** - Added 8 composite indexes:
-   - batches(farmId, status)
-   - sales(farmId, date)
-   - expenses(farmId, date)
-   - feed_records(batchId, date)
-   - mortality_records(batchId, date)
-   - notifications(userId, read)
-   - weight_samples(batchId, date)
-   - egg_records(batchId, date)
+    - batches(farmId, status)
+    - sales(farmId, date)
+    - expenses(farmId, date)
+    - feed_records(batchId, date)
+    - mortality_records(batchId, date)
+    - notifications(userId, read)
+    - weight_samples(batchId, date)
+    - egg_records(batchId, date)
 
 2. **Query Optimization** - Verified no N+1 patterns
 3. **Bundle Analysis** - Installed rollup-plugin-visualizer

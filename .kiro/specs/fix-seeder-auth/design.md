@@ -102,22 +102,22 @@ account table:
 
 ```typescript
 interface CreateUserParams {
-  email: string
-  password: string
-  name: string
-  role?: 'admin' | 'user'
+    email: string
+    password: string
+    name: string
+    role?: 'admin' | 'user'
 }
 
 interface CreatedUser {
-  userId: string
-  email: string
-  name: string
-  role: string
+    userId: string
+    email: string
+    name: string
+    role: string
 }
 
 async function createUserWithAuth(
-  db: Kysely<Database>,
-  params: CreateUserParams,
+    db: Kysely<Database>,
+    params: CreateUserParams,
 ): Promise<CreatedUser>
 
 async function hashPassword(password: string): Promise<string>
@@ -168,18 +168,18 @@ async function hashPassword(password: string): Promise<string>
 
 ```typescript
 interface User {
-  id: string
-  email: string
-  name: string
-  role: 'admin' | 'user'
-  emailVerified: boolean
-  image: string | null
-  banned: boolean
-  banReason: string | null
-  banExpires: Date | null
-  createdAt: Date
-  updatedAt: Date
-  // password field REMOVED
+    id: string
+    email: string
+    name: string
+    role: 'admin' | 'user'
+    emailVerified: boolean
+    image: string | null
+    banned: boolean
+    banReason: string | null
+    banExpires: Date | null
+    createdAt: Date
+    updatedAt: Date
+    // password field REMOVED
 }
 ```
 
@@ -187,19 +187,19 @@ interface User {
 
 ```typescript
 interface Account {
-  id: string
-  userId: string
-  accountId: string // user's email for credential provider
-  providerId: string // 'credential' for email/password
-  accessToken: string | null
-  refreshToken: string | null
-  accessTokenExpiresAt: Date | null
-  refreshTokenExpiresAt: Date | null
-  scope: string | null
-  idToken: string | null
-  password: string | null // password hash stored here
-  createdAt: Date
-  updatedAt: Date
+    id: string
+    userId: string
+    accountId: string // user's email for credential provider
+    providerId: string // 'credential' for email/password
+    accessToken: string | null
+    refreshToken: string | null
+    accessTokenExpiresAt: Date | null
+    refreshTokenExpiresAt: Date | null
+    scope: string | null
+    idToken: string | null
+    password: string | null // password hash stored here
+    createdAt: Date
+    updatedAt: Date
 }
 ```
 

@@ -312,11 +312,11 @@ Create a JSON file in `.kiro/agents/`:
 
 ```json
 {
-  "name": "my-agent",
-  "description": "Agent description",
-  "prompt": "file://./prompts/my-agent.md",
-  "tools": ["read", "write", "shell"],
-  "allowedTools": ["read"]
+    "name": "my-agent",
+    "description": "Agent description",
+    "prompt": "file://./prompts/my-agent.md",
+    "tools": ["read", "write", "shell"],
+    "allowedTools": ["read"]
 }
 ```
 

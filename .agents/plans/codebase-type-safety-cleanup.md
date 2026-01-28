@@ -119,16 +119,16 @@ The codebase has accumulated 39 uses of `any` type, 10 duplicate `PaginatedQuery
 ```typescript
 // BEFORE
 const updateSearch = (updates: Partial<FeedSearchParams>) => {
-  navigate({
-    search: (prev: any) => ({ ...prev, ...updates }),
-  })
+    navigate({
+        search: (prev: any) => ({ ...prev, ...updates }),
+    })
 }
 
 // AFTER
 const updateSearch = (updates: Partial<FeedSearchParams>) => {
-  navigate({
-    search: (prev) => ({ ...prev, ...updates }),
-  })
+    navigate({
+        search: (prev) => ({ ...prev, ...updates }),
+    })
 }
 // Note: TanStack Router infers the type from Route.useSearch()
 ```
@@ -150,9 +150,9 @@ const updateSearch = (updates: Partial<FeedSearchParams>) => {
 import type { LucideIcon } from 'lucide-react'
 
 export interface NavigationItem {
-  name: string
-  href: string
-  icon: LucideIcon
+    name: string
+    href: string
+    icon: LucideIcon
 }
 ```
 
@@ -161,21 +161,21 @@ export interface NavigationItem {
 ```typescript
 // BEFORE (in each feature)
 export interface PaginatedQuery {
-  page?: number
-  pageSize?: number
-  sortBy?: string
-  sortOrder?: 'asc' | 'desc'
-  search?: string
-  farmId?: string
-  category?: string // feature-specific
+    page?: number
+    pageSize?: number
+    sortBy?: string
+    sortOrder?: 'asc' | 'desc'
+    search?: string
+    farmId?: string
+    category?: string // feature-specific
 }
 
 // AFTER
 import type { BasePaginatedQuery } from '~/lib/types'
 
 interface ExpenseQuery extends BasePaginatedQuery {
-  category?: string
-  batchId?: string
+    category?: string
+    batchId?: string
 }
 ```
 

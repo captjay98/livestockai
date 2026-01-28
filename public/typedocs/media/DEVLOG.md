@@ -224,11 +224,11 @@ The most important technical decision was using dynamic imports for Cloudflare W
 ```typescript
 // This pattern is REQUIRED for Cloudflare Workers
 export const getBatches = createServerFn({ method: 'GET' })
-  .validator(schema)
-  .handler(async ({ data }) => {
-    const { db } = await import('../db')
-    return db.selectFrom('batches').execute()
-  })
+    .validator(schema)
+    .handler(async ({ data }) => {
+        const { db } = await import('../db')
+        return db.selectFrom('batches').execute()
+    })
 ```
 
 Static imports break at runtime on Workers—this took significant debugging to discover.
@@ -572,12 +572,12 @@ Created comprehensive test suite in `app/hooks/useModuleNavigation.property.test
 - Added `useModules` hook to DashboardPage component
 - Replaced hardcoded inventory cards with conditional rendering based on `enabledModules`
 - Added inventory cards for all 6 livestock types:
-  - Poultry (Bird icon, primary color)
-  - Aquaculture/Fish (Fish icon, blue)
-  - Cattle (Beef icon, orange)
-  - Goats (Rabbit icon, green)
-  - Sheep (Cloud icon, purple)
-  - Bees (Hexagon icon, amber)
+    - Poultry (Bird icon, primary color)
+    - Aquaculture/Fish (Fish icon, blue)
+    - Cattle (Beef icon, orange)
+    - Goats (Rabbit icon, green)
+    - Sheep (Cloud icon, purple)
+    - Bees (Hexagon icon, amber)
 
 **Next Steps**:
 
@@ -596,12 +596,12 @@ Created comprehensive test suite in `app/hooks/useModuleNavigation.property.test
 ### Time Tracking
 
 - Task 7 (Navigation): ~45 minutes
-  - Component updates: 15 minutes
-  - Property test creation: 20 minutes
-  - Test debugging and fixes: 10 minutes
+    - Component updates: 15 minutes
+    - Property test creation: 20 minutes
+    - Test debugging and fixes: 10 minutes
 - Task 8 (Dashboard): ~15 minutes (in progress)
-  - Icon imports and hook integration: 10 minutes
-  - Dynamic inventory cards: 5 minutes
+    - Icon imports and hook integration: 10 minutes
+    - Dynamic inventory cards: 5 minutes
 
 ### Technical Insights
 
@@ -1104,11 +1104,11 @@ Resolved persistent OAuth re-authentication issue when switching between agents.
 **Solution:**
 
 1. Fixed callback ports for all MCP servers:
-   - Neon: 3334
-   - Cloudflare-bindings: 3335
-   - Cloudflare-builds: 3336
-   - Cloudflare-observability: 3337
-   - Cloudflare-docs: 3338
+    - Neon: 3334
+    - Cloudflare-bindings: 3335
+    - Cloudflare-builds: 3336
+    - Cloudflare-observability: 3337
+    - Cloudflare-docs: 3338
 
 2. Per-agent MCP configuration:
    | Agent | MCP Access |
@@ -1213,11 +1213,11 @@ Eliminated ALL remaining `any` types in the codebase.
 ```typescript
 // Local interface matching server response
 interface Batch {
-  id: string
-  species: string
-  livestockType: string
-  currentQuantity: number
-  status: string
+    id: string
+    species: string
+    livestockType: string
+    currentQuantity: number
+    status: string
 }
 
 // Cast with eslint-disable (required for TanStack Router)
@@ -1875,14 +1875,14 @@ Created 6 detailed implementation plans:
 **Solution**: Database and build optimizations
 
 - **8 Composite Indexes**: Added for common query patterns
-  - batches(farmId, status)
-  - sales(farmId, date)
-  - expenses(farmId, date)
-  - feed_records(batchId, date)
-  - mortality_records(batchId, date)
-  - notifications(userId, read)
-  - weight_samples(batchId, date)
-  - egg_records(batchId, date)
+    - batches(farmId, status)
+    - sales(farmId, date)
+    - expenses(farmId, date)
+    - feed_records(batchId, date)
+    - mortality_records(batchId, date)
+    - notifications(userId, read)
+    - weight_samples(batchId, date)
+    - egg_records(batchId, date)
 - **Query Audit**: Verified no N+1 patterns (dashboard uses efficient joins)
 - **Bundle Analyzer**: Installed rollup-plugin-visualizer
 
@@ -2102,9 +2102,9 @@ Continued from Day 8 (Evening Part 1) with focus on expanding database capabilit
 
 - Created `app/lib/db/seeds/` directory
 - Renamed files for clarity:
-  - `seed.ts` → `production.ts`
-  - `seed-dev.ts` → `development.ts`
-  - `seed-helpers.ts` → `helpers.ts`
+    - `seed.ts` → `production.ts`
+    - `seed-dev.ts` → `development.ts`
+    - `seed-helpers.ts` → `helpers.ts`
 - Updated all imports and package.json scripts
 - Moved backup file to seeds directory
 
@@ -2411,9 +2411,9 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 - Problem: Skipping onboarding caused infinite redirect loop
 - Root cause: `skipOnboarding()` didn't persist to database, `navigate()` called during render
 - Solution:
-  - Call `markOnboardingCompleteFn()` to persist skip to DB
-  - Move `navigate()` to `useEffect` to avoid render-time navigation
-  - Expanded farm type options from 3 to 7 (poultry, fishery, cattle, goats, sheep, bees, mixed)
+    - Call `markOnboardingCompleteFn()` to persist skip to DB
+    - Move `navigate()` to `useEffect` to avoid render-time navigation
+    - Expanded farm type options from 3 to 7 (poultry, fishery, cattle, goats, sheep, bees, mixed)
 - Files: `onboarding/context.tsx`, `onboarding/index.tsx`
 
 **2. Settings Merge Bug**
@@ -2448,9 +2448,9 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 
 - Objective: Maximize screen real estate on mobile devices
 - Changes:
-  - Shell layout: `p-6` → `p-4`
-  - Card components: `p-6` → `p-4`
-  - Select/Switch/Tabs: Reduced internal padding
+    - Shell layout: `p-6` → `p-4`
+    - Card components: `p-6` → `p-4`
+    - Select/Switch/Tabs: Reduced internal padding
 - Impact: ~15% more content visible on mobile screens
 - Files: 5 UI components
 

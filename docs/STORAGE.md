@@ -51,13 +51,13 @@ OpenLivestock uses a multi-provider storage system supporting R2 (Cloudflare), S
 import { uploadFile } from '~/features/integrations'
 
 const result = await uploadFile(
-  'public/batches/batch-123/photo-1.jpg',
-  fileBuffer,
-  'image/jpeg',
-  {
-    access: 'public',
-    maxAge: 31536000, // 1 year cache
-  },
+    'public/batches/batch-123/photo-1.jpg',
+    fileBuffer,
+    'image/jpeg',
+    {
+        access: 'public',
+        maxAge: 31536000, // 1 year cache
+    },
 )
 ```
 
@@ -68,7 +68,7 @@ import { downloadFile } from '~/features/integrations'
 
 const result = await downloadFile('private/receipts/receipt-456.pdf')
 if (result.success) {
-  const blob = new Blob([result.data], { type: result.contentType })
+    const blob = new Blob([result.data], { type: result.contentType })
 }
 ```
 
@@ -108,8 +108,8 @@ import { ImageUpload } from '~/components/ui/image-upload'
 import { useImageUpload } from '~/features/integrations/storage/use-image-upload'
 
 const { upload, uploading, progress, error } = useImageUpload({
-  access: 'public',
-  onSuccess: (url) => console.log('Uploaded:', url),
+    access: 'public',
+    onSuccess: (url) => console.log('Uploaded:', url),
 })
 ```
 
@@ -119,14 +119,14 @@ const { upload, uploading, progress, error } = useImageUpload({
 
 ```typescript
 import {
-  validateImage,
-  MAX_IMAGE_SIZE,
-  MAX_AVATAR_SIZE,
+    validateImage,
+    MAX_IMAGE_SIZE,
+    MAX_AVATAR_SIZE,
 } from '~/features/integrations/storage/image-utils'
 
 const result = validateImage(file, MAX_AVATAR_SIZE)
 if (!result.valid) {
-  console.error(result.error)
+    console.error(result.error)
 }
 ```
 
@@ -134,13 +134,13 @@ if (!result.valid) {
 
 ```typescript
 import {
-  validatePdf,
-  MAX_PDF_SIZE,
+    validatePdf,
+    MAX_PDF_SIZE,
 } from '~/features/integrations/storage/image-utils'
 
 const result = validatePdf(file, MAX_PDF_SIZE)
 if (!result.valid) {
-  console.error(result.error)
+    console.error(result.error)
 }
 ```
 
@@ -178,16 +178,16 @@ LOCAL_STORAGE_PATH=./storage
 
 ```jsonc
 {
-  "r2_buckets": [
-    {
-      "binding": "PUBLIC_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-public",
-    },
-    {
-      "binding": "PRIVATE_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-private",
-    },
-  ],
+    "r2_buckets": [
+        {
+            "binding": "PUBLIC_STORAGE_BUCKET",
+            "bucket_name": "openlivestock-public",
+        },
+        {
+            "binding": "PRIVATE_STORAGE_BUCKET",
+            "bucket_name": "openlivestock-private",
+        },
+    ],
 }
 ```
 
@@ -199,13 +199,13 @@ LOCAL_STORAGE_PATH=./storage
 // Images
 const validation = validateImage(file, MAX_IMAGE_SIZE)
 if (!validation.valid) {
-  throw new Error(validation.error)
+    throw new Error(validation.error)
 }
 
 // PDFs
 const pdfValidation = validatePdf(file, MAX_PDF_SIZE)
 if (!pdfValidation.valid) {
-  throw new Error(pdfValidation.error)
+    throw new Error(pdfValidation.error)
 }
 ```
 
@@ -215,8 +215,8 @@ if (!pdfValidation.valid) {
 import { compressImage } from '~/features/integrations/storage/image-utils'
 
 const compressed = await compressImage(file, {
-  maxSizeMB: 1,
-  maxWidthOrHeight: 1920,
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
 })
 ```
 
@@ -230,9 +230,9 @@ const compressed = await compressImage(file, {
 ```typescript
 // When deleting a batch, delete associated photos
 if (batch.photos) {
-  for (const photo of batch.photos) {
-    await deleteFile(extractKeyFromUrl(photo.url))
-  }
+    for (const photo of batch.photos) {
+        await deleteFile(extractKeyFromUrl(photo.url))
+    }
 }
 ```
 
@@ -241,9 +241,9 @@ if (batch.photos) {
 ```typescript
 const result = await uploadFile(key, buffer, contentType)
 if (!result.success) {
-  console.error('Upload failed:', result.error)
-  // Show user-friendly error message
-  // Retry with exponential backoff
+    console.error('Upload failed:', result.error)
+    // Show user-friendly error message
+    // Retry with exponential backoff
 }
 ```
 
@@ -280,11 +280,13 @@ if (!result.success) {
 **Current Status**: R2 provider returns direct URLs instead of time-limited signed URLs.
 
 **Impact**: Private files in R2 are accessible via direct URL without expiration. This is acceptable for:
+
 - Internal documents with obscure URLs
 - Files behind authentication layers
 - Development/testing environments
 
 **Not recommended for**:
+
 - Highly sensitive documents (use S3 instead)
 - Compliance-required access controls
 - Public-facing production without additional auth
@@ -316,44 +318,49 @@ bun run db:migrate
 ### Planned Features
 
 1. **R2 Presigned URLs** - Implement when Cloudflare adds support
-   - Time-limited access to private files
-   - Enhanced security for sensitive documents
+    - Time-limited access to private files
+    - Enhanced security for sensitive documents
 
 2. **Multiple File Upload** - Batch upload component
-   ```typescript
-   <MultipleImageUpload
-     maxFiles={5}
-     onUpload={(urls) => console.log(urls)}
-   />
-   ```
+
+    ```typescript
+    <MultipleImageUpload
+      maxFiles={5}
+      onUpload={(urls) => console.log(urls)}
+    />
+    ```
 
 3. **CSV File Validation** - Support for data imports
-   ```typescript
-   import { validateCsv } from '~/features/integrations/storage/file-utils'
-   
-   const result = validateCsv(file, { maxSizeMB: 5 })
-   ```
+
+    ```typescript
+    import { validateCsv } from '~/features/integrations/storage/file-utils'
+
+    const result = validateCsv(file, { maxSizeMB: 5 })
+    ```
 
 4. **Automatic Thumbnail Generation** - Server-side image processing
-   - Generate thumbnails on upload
-   - Multiple sizes (small, medium, large)
-   - WebP conversion for better compression
+    - Generate thumbnails on upload
+    - Multiple sizes (small, medium, large)
+    - WebP conversion for better compression
 
 5. **Storage Usage Analytics** - Track storage consumption
-   - Per-farm storage usage
-   - Cost estimation
-   - Cleanup recommendations
+    - Per-farm storage usage
+    - Cost estimation
+    - Cleanup recommendations
 
 ### Implementation Priority
 
 **High Priority** (Next Sprint):
+
 - Multiple file upload component
 - CSV validation
 
 **Medium Priority** (Q2 2026):
+
 - R2 presigned URLs (when available)
 - Automatic thumbnails
 
 **Low Priority** (Future):
+
 - Storage analytics
 - Video support

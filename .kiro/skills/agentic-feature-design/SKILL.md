@@ -21,10 +21,10 @@ Server functions are the tools we give to agents. Document them accordingly.
 
 ```typescript
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator(batchSchema)
-  .handler(async ({ data }) => {
-    /* ... */
-  })
+    .inputValidator(batchSchema)
+    .handler(async ({ data }) => {
+        /* ... */
+    })
 
 /**
  * @description Creates a new livestock batch.

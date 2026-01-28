@@ -41,12 +41,12 @@ Located in `tests/helpers/db-integration.ts`:
 
 ```typescript
 import {
-  getTestDb,
-  truncateAllTables,
-  seedTestUser,
-  seedTestFarm,
-  seedTestBatch,
-  closeTestDb,
+    getTestDb,
+    truncateAllTables,
+    seedTestUser,
+    seedTestFarm,
+    seedTestBatch,
+    closeTestDb,
 } from '../helpers/db-integration'
 ```
 
@@ -55,56 +55,56 @@ import {
 ```typescript
 import { describe, it, expect, beforeEach, afterAll } from 'vitest'
 import {
-  getTestDb,
-  truncateAllTables,
-  seedTestUser,
-  seedTestFarm,
-  seedTestBatch,
-  closeTestDb,
+    getTestDb,
+    truncateAllTables,
+    seedTestUser,
+    seedTestFarm,
+    seedTestBatch,
+    closeTestDb,
 } from '../helpers/db-integration'
 
 describe('Batch Integration Tests', () => {
-  beforeEach(async () => {
-    await truncateAllTables()
-  })
-
-  afterAll(async () => {
-    await closeTestDb()
-  })
-
-  it('creates batch with correct data', async () => {
-    const { userId } = await seedTestUser({ email: 'test@example.com' })
-    const { farmId } = await seedTestFarm(userId)
-    const { batchId } = await seedTestBatch(farmId, {
-      species: 'Broiler',
-      initialQuantity: 500,
+    beforeEach(async () => {
+        await truncateAllTables()
     })
 
-    const db = getTestDb()
-    const batch = await db
-      .selectFrom('batches')
-      .where('id', '=', batchId)
-      .executeTakeFirst()
+    afterAll(async () => {
+        await closeTestDb()
+    })
 
-    expect(batch).toBeDefined()
-    expect(batch?.species).toBe('Broiler')
-    expect(batch?.initialQuantity).toBe(500)
-  })
-
-  it('enforces foreign key constraints', async () => {
-    const db = getTestDb()
-
-    await expect(
-      db
-        .insertInto('batches')
-        .values({
-          farmId: 'non-existent-uuid',
-          species: 'Broiler',
-          initialQuantity: 100,
+    it('creates batch with correct data', async () => {
+        const { userId } = await seedTestUser({ email: 'test@example.com' })
+        const { farmId } = await seedTestFarm(userId)
+        const { batchId } = await seedTestBatch(farmId, {
+            species: 'Broiler',
+            initialQuantity: 500,
         })
-        .execute(),
-    ).rejects.toThrow()
-  })
+
+        const db = getTestDb()
+        const batch = await db
+            .selectFrom('batches')
+            .where('id', '=', batchId)
+            .executeTakeFirst()
+
+        expect(batch).toBeDefined()
+        expect(batch?.species).toBe('Broiler')
+        expect(batch?.initialQuantity).toBe(500)
+    })
+
+    it('enforces foreign key constraints', async () => {
+        const db = getTestDb()
+
+        await expect(
+            db
+                .insertInto('batches')
+                .values({
+                    farmId: 'non-existent-uuid',
+                    species: 'Broiler',
+                    initialQuantity: 100,
+                })
+                .execute(),
+        ).rejects.toThrow()
+    })
 })
 ```
 
@@ -113,22 +113,22 @@ describe('Batch Integration Tests', () => {
 ```typescript
 // Create user with auth
 const { userId } = await seedTestUser({
-  email: 'test@example.com',
-  password: 'password123',
-  name: 'Test User',
+    email: 'test@example.com',
+    password: 'password123',
+    name: 'Test User',
 })
 
 // Create farm with modules
 const { farmId } = await seedTestFarm(userId, {
-  name: 'Test Farm',
-  modules: ['poultry', 'fish'],
+    name: 'Test Farm',
+    modules: ['poultry', 'fish'],
 })
 
 // Create batch
 const { batchId } = await seedTestBatch(farmId, {
-  species: 'Broiler',
-  initialQuantity: 500,
-  livestockType: 'poultry',
+    species: 'Broiler',
+    initialQuantity: 500,
+    livestockType: 'poultry',
 })
 ```
 

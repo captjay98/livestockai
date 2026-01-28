@@ -9,19 +9,19 @@ import { CTASection } from '~/components/landing/CTASection'
 import { SmartEcosystemSection } from '~/components/landing/SmartEcosystemSection'
 
 export const Route = createFileRoute('/')({
-  component: Index,
+    component: Index,
 })
 
 function Index() {
-  return (
-    <LandingLayout>
-      <LandingHero />
-      <FeaturesSection />
-      <SmartEcosystemSection />
-      <TechStackSection />
-      <CommunitySection />
-      <AgentReadySection />
-      <CTASection />
-    </LandingLayout>
-  )
+    return (
+        <LandingLayout>
+            <LandingHero />
+            <FeaturesSection />
+            <SmartEcosystemSection />
+            <TechStackSection />
+            <CommunitySection />
+            <AgentReadySection />
+            <CTASection />
+        </LandingLayout>
+    )
 }

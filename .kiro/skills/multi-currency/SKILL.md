@@ -24,10 +24,10 @@ Currency preference is stored in `user_settings`:
 
 ```typescript
 interface UserSettings {
-  currency: 'NGN' | 'USD' | 'EUR' | 'GBP' | 'INR' | 'KES'
-  dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'
-  weightUnit: 'kg' | 'lb'
-  language: 'en' | 'fr' | 'es' | 'pt' | 'sw' | 'ha'
+    currency: 'NGN' | 'USD' | 'EUR' | 'GBP' | 'INR' | 'KES'
+    dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'
+    weightUnit: 'kg' | 'lb'
+    language: 'en' | 'fr' | 'es' | 'pt' | 'sw' | 'ha'
 }
 ```
 
@@ -54,21 +54,21 @@ function PriceDisplay({ amount }: { amount: number }) {
 ```typescript
 // app/features/settings/currency-presets.ts
 export const CURRENCY_PRESETS = {
-  NGN: {
-    code: 'NGN',
-    symbol: '₦',
-    name: 'Nigerian Naira',
-    locale: 'en-NG',
-    decimals: 2,
-  },
-  USD: {
-    code: 'USD',
-    symbol: '$',
-    name: 'US Dollar',
-    locale: 'en-US',
-    decimals: 2,
-  },
-  // ...
+    NGN: {
+        code: 'NGN',
+        symbol: '₦',
+        name: 'Nigerian Naira',
+        locale: 'en-NG',
+        decimals: 2,
+    },
+    USD: {
+        code: 'USD',
+        symbol: '$',
+        name: 'US Dollar',
+        locale: 'en-US',
+        decimals: 2,
+    },
+    // ...
 }
 ```
 
@@ -95,7 +95,7 @@ All monetary values are stored as DECIMAL(19,2) without currency symbol:
 ```typescript
 // Store
 await db.insertInto('sales').values({
-  totalAmount: toDbString(1234.56), // "1234.56"
+    totalAmount: toDbString(1234.56), // "1234.56"
 })
 
 // Display

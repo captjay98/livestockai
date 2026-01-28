@@ -119,26 +119,26 @@ Propose sidebar grouping:
 
 ```typescript
 const NAVIGATION_GROUPS = {
-  operations: {
-    label: 'Operations',
-    icon: Activity,
-    items: ['dashboard', 'batches', 'tasks'],
-  },
-  inventory: {
-    label: 'Inventory',
-    icon: Package,
-    items: ['feed', 'medications', 'equipment'],
-  },
-  analysis: {
-    label: 'Analysis',
-    icon: BarChart,
-    items: ['reports', 'forecasts'],
-  },
-  ecosystem: {
-    label: 'Network',
-    icon: Users,
-    items: ['customers', 'suppliers'],
-  },
+    operations: {
+        label: 'Operations',
+        icon: Activity,
+        items: ['dashboard', 'batches', 'tasks'],
+    },
+    inventory: {
+        label: 'Inventory',
+        icon: Package,
+        items: ['feed', 'medications', 'equipment'],
+    },
+    analysis: {
+        label: 'Analysis',
+        icon: BarChart,
+        items: ['reports', 'forecasts'],
+    },
+    ecosystem: {
+        label: 'Network',
+        icon: Users,
+        items: ['customers', 'suppliers'],
+    },
 }
 ```
 

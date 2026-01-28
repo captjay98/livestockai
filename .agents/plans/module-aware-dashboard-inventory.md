@@ -64,8 +64,8 @@ None - all changes are updates to existing dashboard file
 ### Relevant Documentation
 
 - [Lucide Icons](https://lucide.dev/icons/)
-  - Icon reference for livestock types
-  - Why: Need to find appropriate icons for cattle, goats, sheep, bees
+    - Icon reference for livestock types
+    - Why: Need to find appropriate icons for cattle, goats, sheep, bees
 
 ### Patterns to Follow
 
@@ -158,10 +158,10 @@ Validate across different farm types and module combinations.
 
 - **IMPLEMENT**: Add useModules import and additional livestock icons
 - **IMPORTS**:
-  ```typescript
-  import { useModules } from '~/features/modules/context'
-  import { Beef, Rabbit, Cloud, Hexagon } from 'lucide-react'
-  ```
+    ```typescript
+    import { useModules } from '~/features/modules/context'
+    import { Beef, Rabbit, Cloud, Hexagon } from 'lucide-react'
+    ```
 - **LOCATION**: Add to existing import block (lines 1-40)
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -171,58 +171,61 @@ Validate across different farm types and module combinations.
 - **PATTERN**: Object mapping pattern from MODULE_METADATA
 - **LOCATION**: Inside DashboardPage component, before return statement
 - **CODE**:
-  ```typescript
-  const LIVESTOCK_CARDS = {
-    poultry: {
-      icon: Bird,
-      label: 'Poultry',
-      color: 'primary',
-      bgClass: 'bg-primary/10',
-      textClass: 'text-primary',
-      getValue: (stats: DashboardStats) => stats.inventory.totalPoultry,
-    },
-    aquaculture: {
-      icon: Fish,
-      label: 'Fish',
-      color: 'blue',
-      bgClass: 'bg-blue-100 dark:bg-blue-900/30',
-      textClass: 'text-blue-600 dark:text-blue-400',
-      getValue: (stats: DashboardStats) => stats.inventory.totalFish,
-    },
-    cattle: {
-      icon: Beef,
-      label: 'Cattle',
-      color: 'orange',
-      bgClass: 'bg-orange-100 dark:bg-orange-900/30',
-      textClass: 'text-orange-600 dark:text-orange-400',
-      getValue: (stats: DashboardStats) => stats.inventory.totalCattle || 0,
-    },
-    goats: {
-      icon: Rabbit,
-      label: 'Goats',
-      color: 'green',
-      bgClass: 'bg-green-100 dark:bg-green-900/30',
-      textClass: 'text-green-600 dark:text-green-400',
-      getValue: (stats: DashboardStats) => stats.inventory.totalGoats || 0,
-    },
-    sheep: {
-      icon: Cloud,
-      label: 'Sheep',
-      color: 'purple',
-      bgClass: 'bg-purple-100 dark:bg-purple-900/30',
-      textClass: 'text-purple-600 dark:text-purple-400',
-      getValue: (stats: DashboardStats) => stats.inventory.totalSheep || 0,
-    },
-    bees: {
-      icon: Hexagon,
-      label: 'Bees',
-      color: 'amber',
-      bgClass: 'bg-amber-100 dark:bg-amber-900/30',
-      textClass: 'text-amber-600 dark:text-amber-400',
-      getValue: (stats: DashboardStats) => stats.inventory.totalBees || 0,
-    },
-  } as const
-  ```
+    ```typescript
+    const LIVESTOCK_CARDS = {
+        poultry: {
+            icon: Bird,
+            label: 'Poultry',
+            color: 'primary',
+            bgClass: 'bg-primary/10',
+            textClass: 'text-primary',
+            getValue: (stats: DashboardStats) => stats.inventory.totalPoultry,
+        },
+        aquaculture: {
+            icon: Fish,
+            label: 'Fish',
+            color: 'blue',
+            bgClass: 'bg-blue-100 dark:bg-blue-900/30',
+            textClass: 'text-blue-600 dark:text-blue-400',
+            getValue: (stats: DashboardStats) => stats.inventory.totalFish,
+        },
+        cattle: {
+            icon: Beef,
+            label: 'Cattle',
+            color: 'orange',
+            bgClass: 'bg-orange-100 dark:bg-orange-900/30',
+            textClass: 'text-orange-600 dark:text-orange-400',
+            getValue: (stats: DashboardStats) =>
+                stats.inventory.totalCattle || 0,
+        },
+        goats: {
+            icon: Rabbit,
+            label: 'Goats',
+            color: 'green',
+            bgClass: 'bg-green-100 dark:bg-green-900/30',
+            textClass: 'text-green-600 dark:text-green-400',
+            getValue: (stats: DashboardStats) =>
+                stats.inventory.totalGoats || 0,
+        },
+        sheep: {
+            icon: Cloud,
+            label: 'Sheep',
+            color: 'purple',
+            bgClass: 'bg-purple-100 dark:bg-purple-900/30',
+            textClass: 'text-purple-600 dark:text-purple-400',
+            getValue: (stats: DashboardStats) =>
+                stats.inventory.totalSheep || 0,
+        },
+        bees: {
+            icon: Hexagon,
+            label: 'Bees',
+            color: 'amber',
+            bgClass: 'bg-amber-100 dark:bg-amber-900/30',
+            textClass: 'text-amber-600 dark:text-amber-400',
+            getValue: (stats: DashboardStats) => stats.inventory.totalBees || 0,
+        },
+    } as const
+    ```
 - **VALIDATE**: `npx tsc --noEmit`
 
 ### Task 3: UPDATE app/routes/\_auth/dashboard/index.tsx - Add module context
@@ -231,9 +234,9 @@ Validate across different farm types and module combinations.
 - **PATTERN**: useModules hook pattern
 - **LOCATION**: Inside DashboardPage component, after other hooks
 - **CODE**:
-  ```typescript
-  const { enabledModules } = useModules()
-  ```
+    ```typescript
+    const { enabledModules } = useModules()
+    ```
 - **VALIDATE**: `npx tsc --noEmit`
 
 ### Task 4: UPDATE app/routes/\_auth/dashboard/index.tsx - Replace inventory cards section
@@ -244,41 +247,41 @@ Validate across different farm types and module combinations.
 - **OLD CODE**: Look for `{/* Inventory Summary */}` comment
 - **NEW CODE**:
 
-  ```typescript
-  {/* Inventory Summary - Dynamic based on enabled modules */}
-  {enabledModules.length > 0 && (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {enabledModules.map((moduleKey) => {
-        const config = LIVESTOCK_CARDS[moduleKey]
-        if (!config) return null
+    ```typescript
+    {/* Inventory Summary - Dynamic based on enabled modules */}
+    {enabledModules.length > 0 && (
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {enabledModules.map((moduleKey) => {
+          const config = LIVESTOCK_CARDS[moduleKey]
+          if (!config) return null
 
-        const Icon = config.icon
-        const count = config.getValue(stats)
+          const Icon = config.icon
+          const count = config.getValue(stats)
 
-        return (
-          <Card key={moduleKey}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  'h-10 w-10 rounded-lg flex items-center justify-center shrink-0',
-                  config.bgClass
-                )}>
-                  <Icon className={cn('h-5 w-5', config.textClass)} />
+          return (
+            <Card key={moduleKey}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    'h-10 w-10 rounded-lg flex items-center justify-center shrink-0',
+                    config.bgClass
+                  )}>
+                    <Icon className={cn('h-5 w-5', config.textClass)} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">{config.label}</p>
+                    <p className="text-lg sm:text-xl font-bold">
+                      {count.toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">{config.label}</p>
-                  <p className="text-lg sm:text-xl font-bold">
-                    {count.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )
-      })}
-    </div>
-  )}
-  ```
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+    )}
+    ```
 
 - **GOTCHA**: Use `cn()` utility for conditional classes
 - **VALIDATE**: `npx tsc --noEmit`
@@ -288,17 +291,17 @@ Validate across different farm types and module combinations.
 - **IMPLEMENT**: Add optional fields for new livestock types
 - **LOCATION**: Find DashboardStats interface (around line 160-180)
 - **ADD TO INTERFACE**:
-  ```typescript
-  inventory: {
-    activeBatches: number
-    totalPoultry: number
-    totalFish: number
-    totalCattle?: number  // Add
-    totalGoats?: number   // Add
-    totalSheep?: number   // Add
-    totalBees?: number    // Add
-  }
-  ```
+    ```typescript
+    inventory: {
+      activeBatches: number
+      totalPoultry: number
+      totalFish: number
+      totalCattle?: number  // Add
+      totalGoats?: number   // Add
+      totalSheep?: number   // Add
+      totalBees?: number    // Add
+    }
+    ```
 - **VALIDATE**: `npx tsc --noEmit`
 
 ### Task 6: VERIFY app/features/dashboard/server.ts - Check inventory data
@@ -435,28 +438,28 @@ bun run build
 **Design Decisions:**
 
 1. **Icons**: Using Lucide icons that best represent each livestock type
-   - Beef for cattle (most recognizable)
-   - Rabbit for goats (similar silhouette)
-   - Cloud for sheep (wool association)
-   - Hexagon for bees (honeycomb pattern)
+    - Beef for cattle (most recognizable)
+    - Rabbit for goats (similar silhouette)
+    - Cloud for sheep (wool association)
+    - Hexagon for bees (honeycomb pattern)
 
 2. **Colors**: Each livestock type gets unique color for visual distinction
-   - Poultry: Primary (orange) - existing brand color
-   - Fish: Blue - water association
-   - Cattle: Orange - warm, earthy
-   - Goats: Green - pasture association
-   - Sheep: Purple - distinct from others
-   - Bees: Amber - honey color
+    - Poultry: Primary (orange) - existing brand color
+    - Fish: Blue - water association
+    - Cattle: Orange - warm, earthy
+    - Goats: Green - pasture association
+    - Sheep: Purple - distinct from others
+    - Bees: Amber - honey color
 
 3. **Grid Layout**: Responsive grid adapts to card count
-   - Mobile: 1 column (stacked)
-   - Tablet: 2 columns
-   - Desktop: 3 columns (optimal for 3-6 cards)
+    - Mobile: 1 column (stacked)
+    - Tablet: 2 columns
+    - Desktop: 3 columns (optimal for 3-6 cards)
 
 4. **Data Handling**: Optional fields with fallback to 0
-   - New livestock types default to 0 if not in stats
-   - No errors if backend doesn't provide counts yet
-   - Graceful degradation
+    - New livestock types default to 0 if not in stats
+    - No errors if backend doesn't provide counts yet
+    - Graceful degradation
 
 **Trade-offs:**
 

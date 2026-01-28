@@ -4,31 +4,31 @@
  */
 
 export interface CreateFarmData {
-  name: string
-  location: string
-  type:
-    | 'poultry'
-    | 'aquaculture'
-    | 'mixed'
-    | 'cattle'
-    | 'goats'
-    | 'sheep'
-    | 'bees'
-    | 'multi'
+    name: string
+    location: string
+    type:
+        | 'poultry'
+        | 'aquaculture'
+        | 'mixed'
+        | 'cattle'
+        | 'goats'
+        | 'sheep'
+        | 'bees'
+        | 'multi'
 }
 
 export interface UpdateFarmData {
-  name?: string
-  location?: string
-  type?:
-    | 'poultry'
-    | 'aquaculture'
-    | 'mixed'
-    | 'cattle'
-    | 'goats'
-    | 'sheep'
-    | 'bees'
-    | 'multi'
+    name?: string
+    location?: string
+    type?:
+        | 'poultry'
+        | 'aquaculture'
+        | 'mixed'
+        | 'cattle'
+        | 'goats'
+        | 'sheep'
+        | 'bees'
+        | 'multi'
 }
 
 /**
@@ -49,15 +49,15 @@ export interface UpdateFarmData {
  * ```
  */
 export function canDeleteFarm(hasDependents: {
-  hasBatches: boolean
-  hasSales: boolean
-  hasExpenses: boolean
+    hasBatches: boolean
+    hasSales: boolean
+    hasExpenses: boolean
 }): boolean {
-  return !(
-    hasDependents.hasBatches ||
-    hasDependents.hasSales ||
-    hasDependents.hasExpenses
-  )
+    return !(
+        hasDependents.hasBatches ||
+        hasDependents.hasSales ||
+        hasDependents.hasExpenses
+    )
 }
 
 /**
@@ -75,7 +75,7 @@ export function canDeleteFarm(hasDependents: {
  * ```
  */
 export function isLastOwner(otherOwnersCount: number): boolean {
-  return otherOwnersCount === 0
+    return otherOwnersCount === 0
 }
 
 /**
@@ -92,7 +92,7 @@ export function isLastOwner(otherOwnersCount: number): boolean {
  * ```
  */
 export function shouldReturnAllFarmsForAdmin(userRole: string): boolean {
-  return userRole === 'admin'
+    return userRole === 'admin'
 }
 
 /**
@@ -120,30 +120,30 @@ export function shouldReturnAllFarmsForAdmin(userRole: string): boolean {
  * ```
  */
 export function validateFarmData(data: CreateFarmData): string | null {
-  if (!data.name || data.name.trim() === '') {
-    return 'Farm name is required'
-  }
+    if (!data.name || data.name.trim() === '') {
+        return 'Farm name is required'
+    }
 
-  if (!data.location || data.location.trim() === '') {
-    return 'Farm location is required'
-  }
+    if (!data.location || data.location.trim() === '') {
+        return 'Farm location is required'
+    }
 
-  const validTypes = [
-    'poultry',
-    'aquaculture',
-    'mixed',
-    'cattle',
-    'goats',
-    'sheep',
-    'bees',
-    'multi',
-  ]
+    const validTypes = [
+        'poultry',
+        'aquaculture',
+        'mixed',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+        'multi',
+    ]
 
-  if (!validTypes.includes(data.type)) {
-    return 'Farm type is required and must be valid'
-  }
+    if (!validTypes.includes(data.type)) {
+        return 'Farm type is required and must be valid'
+    }
 
-  return null
+    return null
 }
 
 /**
@@ -153,30 +153,30 @@ export function validateFarmData(data: CreateFarmData): string | null {
  * @returns Validation error message, or null if valid
  */
 export function validateUpdateData(data: UpdateFarmData): string | null {
-  if (data.name !== undefined && data.name.trim() === '') {
-    return 'Farm name cannot be empty'
-  }
+    if (data.name !== undefined && data.name.trim() === '') {
+        return 'Farm name cannot be empty'
+    }
 
-  if (data.location !== undefined && data.location.trim() === '') {
-    return 'Farm location cannot be empty'
-  }
+    if (data.location !== undefined && data.location.trim() === '') {
+        return 'Farm location cannot be empty'
+    }
 
-  const validTypes = [
-    'poultry',
-    'aquaculture',
-    'mixed',
-    'cattle',
-    'goats',
-    'sheep',
-    'bees',
-    'multi',
-  ]
+    const validTypes = [
+        'poultry',
+        'aquaculture',
+        'mixed',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+        'multi',
+    ]
 
-  if (data.type !== undefined && !validTypes.includes(data.type)) {
-    return 'Farm type must be valid'
-  }
+    if (data.type !== undefined && !validTypes.includes(data.type)) {
+        return 'Farm type must be valid'
+    }
 
-  return null
+    return null
 }
 
 /**
@@ -188,16 +188,16 @@ export function validateUpdateData(data: UpdateFarmData): string | null {
  * @returns Object with canRemove flag and error message if applicable
  */
 export function canRemoveUserFromFarm(
-  isOwner: boolean,
-  otherOwnersCount: number,
+    isOwner: boolean,
+    otherOwnersCount: number,
 ): { canRemove: boolean; error?: string } {
-  if (isOwner && isLastOwner(otherOwnersCount)) {
-    return {
-      canRemove: false,
-      error: 'Cannot remove the last owner of a farm',
+    if (isOwner && isLastOwner(otherOwnersCount)) {
+        return {
+            canRemove: false,
+            error: 'Cannot remove the last owner of a farm',
+        }
     }
-  }
-  return { canRemove: true }
+    return { canRemove: true }
 }
 
 /**
@@ -210,19 +210,19 @@ export function canRemoveUserFromFarm(
  * @returns Object with canChange flag and error message if applicable
  */
 export function canChangeUserRole(
-  currentRole: string,
-  newRole: string,
-  otherOwnersCount: number,
+    currentRole: string,
+    newRole: string,
+    otherOwnersCount: number,
 ): { canChange: boolean; error?: string } {
-  if (currentRole === 'owner' && newRole !== 'owner') {
-    if (isLastOwner(otherOwnersCount)) {
-      return {
-        canChange: false,
-        error: 'Cannot demote the last owner of a farm',
-      }
+    if (currentRole === 'owner' && newRole !== 'owner') {
+        if (isLastOwner(otherOwnersCount)) {
+            return {
+                canChange: false,
+                error: 'Cannot demote the last owner of a farm',
+            }
+        }
     }
-  }
-  return { canChange: true }
+    return { canChange: true }
 }
 
 /**
@@ -232,11 +232,11 @@ export function canChangeUserRole(
  * @returns Validation error message, or null if valid
  */
 export function validateFarmRole(role: string): string | null {
-  const validRoles = ['owner', 'manager', 'viewer']
+    const validRoles = ['owner', 'manager', 'viewer', 'worker', 'observer']
 
-  if (!validRoles.includes(role)) {
-    return 'Role must be owner, manager, or viewer'
-  }
+    if (!validRoles.includes(role)) {
+        return `Role must be one of: ${validRoles.join(', ')}`
+    }
 
-  return null
+    return null
 }

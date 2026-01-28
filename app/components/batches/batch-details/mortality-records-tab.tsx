@@ -5,62 +5,64 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DataTable } from '~/components/ui/data-table'
 
 interface MortalityRecordsTabProps {
-  records: Array<MortalityRecord>
-  isLoading: boolean
+    records: Array<MortalityRecord>
+    isLoading: boolean
 }
 
 export function MortalityRecordsTab({
-  records,
-  isLoading,
+    records,
+    isLoading,
 }: MortalityRecordsTabProps) {
-  const { t } = useTranslation(['common', 'batches'])
-  const { format: formatDate } = useFormatDate()
+    const { t } = useTranslation(['common', 'batches'])
+    const { format: formatDate } = useFormatDate()
 
-  const columns = [
-    {
-      accessorKey: 'date',
-      header: t('common:date', { defaultValue: 'Date' }),
-      cell: ({ row }: { row: { original: MortalityRecord } }) =>
-        formatDate(row.original.date),
-    },
-    {
-      accessorKey: 'quantity',
-      header: t('common:quantity', { defaultValue: 'Quantity' }),
-    },
-    {
-      accessorKey: 'cause',
-      header: t('batches:mortality.cause', { defaultValue: 'Cause' }),
-      cell: ({ row }: { row: { original: MortalityRecord } }) => (
-        <span className="capitalize">{row.original.cause}</span>
-      ),
-    },
-    {
-      accessorKey: 'notes',
-      header: t('common:notes', { defaultValue: 'Notes' }),
-    },
-  ]
+    const columns = [
+        {
+            accessorKey: 'date',
+            header: t('common:date', { defaultValue: 'Date' }),
+            cell: ({ row }: { row: { original: MortalityRecord } }) =>
+                formatDate(row.original.date),
+        },
+        {
+            accessorKey: 'quantity',
+            header: t('common:quantity', { defaultValue: 'Quantity' }),
+        },
+        {
+            accessorKey: 'cause',
+            header: t('batches:mortality.cause', { defaultValue: 'Cause' }),
+            cell: ({ row }: { row: { original: MortalityRecord } }) => (
+                <span className="capitalize">{row.original.cause}</span>
+            ),
+        },
+        {
+            accessorKey: 'notes',
+            header: t('common:notes', { defaultValue: 'Notes' }),
+        },
+    ]
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {t('mortality.records', { defaultValue: 'Mortality Records' })}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <DataTable
-          columns={columns}
-          data={records}
-          total={records.length}
-          page={1}
-          pageSize={20}
-          totalPages={1}
-          filters={null}
-          isLoading={isLoading}
-          onPaginationChange={() => {}}
-          onSortChange={() => {}}
-        />
-      </CardContent>
-    </Card>
-  )
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>
+                    {t('mortality.records', {
+                        defaultValue: 'Mortality Records',
+                    })}
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <DataTable
+                    columns={columns}
+                    data={records}
+                    total={records.length}
+                    page={1}
+                    pageSize={20}
+                    totalPages={1}
+                    filters={null}
+                    isLoading={isLoading}
+                    onPaginationChange={() => {}}
+                    onSortChange={() => {}}
+                />
+            </CardContent>
+        </Card>
+    )
 }

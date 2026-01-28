@@ -22,13 +22,13 @@ import { multiply, toDbString } from '~/features/settings/currency'
  * ```
  */
 export function calculateBatchTotalCost(
-  initialQuantity: number,
-  costPerUnit: number,
+    initialQuantity: number,
+    costPerUnit: number,
 ): string {
-  if (initialQuantity <= 0 || costPerUnit < 0) {
-    return toDbString(0)
-  }
-  return toDbString(multiply(initialQuantity, costPerUnit))
+    if (initialQuantity <= 0 || costPerUnit < 0) {
+        return toDbString(0)
+    }
+    return toDbString(multiply(initialQuantity, costPerUnit))
 }
 
 /**
@@ -58,45 +58,45 @@ export function calculateBatchTotalCost(
  * ```
  */
 export function validateBatchData(data: CreateBatchData): string | null {
-  if (data.farmId === '' || data.farmId.trim() === '') {
-    return 'Farm ID is required'
-  }
+    if (data.farmId === '' || data.farmId.trim() === '') {
+        return 'Farm ID is required'
+    }
 
-  if (data.species.trim() === '') {
-    return 'Species is required'
-  }
+    if (data.species.trim() === '') {
+        return 'Species is required'
+    }
 
-  if (data.initialQuantity <= 0) {
-    return 'Initial quantity must be greater than 0'
-  }
+    if (data.initialQuantity <= 0) {
+        return 'Initial quantity must be greater than 0'
+    }
 
-  if (data.costPerUnit < 0) {
-    return 'Cost per unit cannot be negative'
-  }
+    if (data.costPerUnit < 0) {
+        return 'Cost per unit cannot be negative'
+    }
 
-  if (isNaN(data.acquisitionDate.getTime())) {
-    return 'Acquisition date is required'
-  }
+    if (isNaN(data.acquisitionDate.getTime())) {
+        return 'Acquisition date is required'
+    }
 
-  // Validate target harvest date is after acquisition date
-  if (
-    data.targetHarvestDate !== undefined &&
-    data.targetHarvestDate !== null &&
-    data.acquisitionDate >= data.targetHarvestDate
-  ) {
-    return 'Target harvest date must be after acquisition date'
-  }
+    // Validate target harvest date is after acquisition date
+    if (
+        data.targetHarvestDate !== undefined &&
+        data.targetHarvestDate !== null &&
+        data.acquisitionDate >= data.targetHarvestDate
+    ) {
+        return 'Target harvest date must be after acquisition date'
+    }
 
-  // Validate target weight is positive
-  if (
-    data.target_weight_g !== undefined &&
-    data.target_weight_g !== null &&
-    data.target_weight_g <= 0
-  ) {
-    return 'Target weight must be greater than 0'
-  }
+    // Validate target weight is positive
+    if (
+        data.target_weight_g !== undefined &&
+        data.target_weight_g !== null &&
+        data.target_weight_g <= 0
+    ) {
+        return 'Target weight must be greater than 0'
+    }
 
-  return null
+    return null
 }
 
 /**
@@ -114,15 +114,19 @@ export function validateBatchData(data: CreateBatchData): string | null {
  * ```
  */
 export function determineBatchStatus(
-  currentQuantity: number,
-  soldQuantity?: number,
+    currentQuantity: number,
+    soldQuantity?: number,
 ): 'active' | 'depleted' | 'sold' {
-  // If all units were sold, mark as sold
-  if (soldQuantity !== undefined && soldQuantity > 0 && currentQuantity === 0) {
-    return 'sold'
-  }
-  // If no units remain (and not marked as sold), mark as depleted
-  return currentQuantity <= 0 ? 'depleted' : 'active'
+    // If all units were sold, mark as sold
+    if (
+        soldQuantity !== undefined &&
+        soldQuantity > 0 &&
+        currentQuantity === 0
+    ) {
+        return 'sold'
+    }
+    // If no units remain (and not marked as sold), mark as depleted
+    return currentQuantity <= 0 ? 'depleted' : 'active'
 }
 
 /**
@@ -141,14 +145,14 @@ export function determineBatchStatus(
  * ```
  */
 export function calculateMortalityRate(
-  initialQuantity: number,
-  _currentQuantity: number,
-  totalMortality: number,
+    initialQuantity: number,
+    _currentQuantity: number,
+    totalMortality: number,
 ): number {
-  if (initialQuantity <= 0) {
-    return 0
-  }
-  return (totalMortality / initialQuantity) * 100
+    if (initialQuantity <= 0) {
+        return 0
+    }
+    return (totalMortality / initialQuantity) * 100
 }
 
 /**
@@ -167,14 +171,14 @@ export function calculateMortalityRate(
  * ```
  */
 export function calculateFCR(
-  totalFeedKg: number,
-  weightGainKg: number,
+    totalFeedKg: number,
+    weightGainKg: number,
 ): number | null {
-  if (totalFeedKg <= 0 || weightGainKg <= 0) {
-    return null
-  }
-  const fcr = totalFeedKg / weightGainKg
-  return Math.round(fcr * 100) / 100
+    if (totalFeedKg <= 0 || weightGainKg <= 0) {
+        return null
+    }
+    const fcr = totalFeedKg / weightGainKg
+    return Math.round(fcr * 100) / 100
 }
 
 /**
@@ -191,11 +195,11 @@ export function calculateFCR(
  * ```
  */
 export function calculateNewQuantity(
-  currentQuantity: number,
-  mortalityCount: number,
+    currentQuantity: number,
+    mortalityCount: number,
 ): number {
-  const newQuantity = currentQuantity - mortalityCount
-  return Math.max(0, newQuantity)
+    const newQuantity = currentQuantity - mortalityCount
+    return Math.max(0, newQuantity)
 }
 
 /**
@@ -205,30 +209,30 @@ export function calculateNewQuantity(
  * @returns Validation error message, or null if valid
  */
 export function validateUpdateData(data: UpdateBatchData): string | null {
-  // Validate species if provided
-  if (data.species !== undefined && data.species.trim() === '') {
-    return 'Species cannot be empty'
-  }
+    // Validate species if provided
+    if (data.species !== undefined && data.species.trim() === '') {
+        return 'Species cannot be empty'
+    }
 
-  // Validate target harvest date
-  if (
-    data.targetHarvestDate !== undefined &&
-    data.targetHarvestDate !== null &&
-    isNaN(data.targetHarvestDate.getTime())
-  ) {
-    return 'Target harvest date is invalid'
-  }
+    // Validate target harvest date
+    if (
+        data.targetHarvestDate !== undefined &&
+        data.targetHarvestDate !== null &&
+        isNaN(data.targetHarvestDate.getTime())
+    ) {
+        return 'Target harvest date is invalid'
+    }
 
-  // Validate target weight
-  if (
-    data.target_weight_g !== undefined &&
-    data.target_weight_g !== null &&
-    data.target_weight_g < 0
-  ) {
-    return 'Target weight cannot be negative'
-  }
+    // Validate target weight
+    if (
+        data.target_weight_g !== undefined &&
+        data.target_weight_g !== null &&
+        data.target_weight_g < 0
+    ) {
+        return 'Target weight cannot be negative'
+    }
 
-  return null
+    return null
 }
 
 /**
@@ -250,17 +254,17 @@ export function validateUpdateData(data: UpdateBatchData): string | null {
  * ```
  */
 export function canDeleteBatch(hasRelatedRecords: {
-  hasFeedRecords: boolean
-  hasEggRecords: boolean
-  hasSales: boolean
-  hasMortality: boolean
+    hasFeedRecords: boolean
+    hasEggRecords: boolean
+    hasSales: boolean
+    hasMortality: boolean
 }): boolean {
-  return !(
-    hasRelatedRecords.hasFeedRecords ||
-    hasRelatedRecords.hasEggRecords ||
-    hasRelatedRecords.hasSales ||
-    hasRelatedRecords.hasMortality
-  )
+    return !(
+        hasRelatedRecords.hasFeedRecords ||
+        hasRelatedRecords.hasEggRecords ||
+        hasRelatedRecords.hasSales ||
+        hasRelatedRecords.hasMortality
+    )
 }
 
 /**
@@ -278,14 +282,14 @@ export function canDeleteBatch(hasRelatedRecords: {
  * ```
  */
 export function calculateDepletionPercentage(
-  initialQuantity: number,
-  currentQuantity: number,
+    initialQuantity: number,
+    currentQuantity: number,
 ): number {
-  if (initialQuantity <= 0) {
-    return 0
-  }
-  const depleted = initialQuantity - currentQuantity
-  return Math.min(100, (depleted / initialQuantity) * 100)
+    if (initialQuantity <= 0) {
+        return 0
+    }
+    const depleted = initialQuantity - currentQuantity
+    return Math.min(100, (depleted / initialQuantity) * 100)
 }
 
 /**
@@ -297,24 +301,24 @@ export function calculateDepletionPercentage(
  * @returns Array of value/label pairs for source size options
  */
 export function getSourceSizeOptions(
-  livestockType: LivestockType,
-  moduleMetadata: Record<
-    string,
-    {
-      livestockTypes: Array<LivestockType>
-      sourceSizeOptions: Array<{ value: string; label: string }>
-    }
-  >,
+    livestockType: LivestockType,
+    moduleMetadata: Record<
+        string,
+        {
+            livestockTypes: Array<LivestockType>
+            sourceSizeOptions: Array<{ value: string; label: string }>
+        }
+    >,
 ): Array<{ value: string; label: string }> {
-  const moduleEntry = Object.entries(moduleMetadata).find(([_, metadata]) =>
-    metadata.livestockTypes.includes(livestockType),
-  )
+    const moduleEntry = Object.entries(moduleMetadata).find(([_, metadata]) =>
+        metadata.livestockTypes.includes(livestockType),
+    )
 
-  if (!moduleEntry) {
-    return []
-  }
+    if (!moduleEntry) {
+        return []
+    }
 
-  return moduleEntry[1].sourceSizeOptions
+    return moduleEntry[1].sourceSizeOptions
 }
 
 /**
@@ -325,16 +329,16 @@ export function getSourceSizeOptions(
  * @returns Validation error or null
  */
 export function validateQuantityUpdate(
-  currentQuantity: number,
-  newQuantity: number,
+    currentQuantity: number,
+    newQuantity: number,
 ): string | null {
-  if (newQuantity < 0) {
-    return 'Quantity cannot be negative'
-  }
+    if (newQuantity < 0) {
+        return 'Quantity cannot be negative'
+    }
 
-  if (newQuantity > currentQuantity) {
-    return 'New quantity cannot exceed current quantity without adding stock'
-  }
+    if (newQuantity > currentQuantity) {
+        return 'New quantity cannot exceed current quantity without adding stock'
+    }
 
-  return null
+    return null
 }

@@ -11,93 +11,93 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
  * Data for inserting a new invoice
  */
 export interface InvoiceInsert {
-  invoiceNumber: string
-  customerId: string
-  farmId: string
-  totalAmount: string
-  status: 'unpaid' | 'partial' | 'paid'
-  date: Date
-  dueDate: Date | null
-  notes: string | null
+    invoiceNumber: string
+    customerId: string
+    farmId: string
+    totalAmount: string
+    status: 'unpaid' | 'partial' | 'paid'
+    date: Date
+    dueDate: Date | null
+    notes: string | null
 }
 
 /**
  * Data for inserting invoice items
  */
 export interface InvoiceItemInsert {
-  invoiceId: string
-  description: string
-  quantity: number
-  unitPrice: string
-  total: string
+    invoiceId: string
+    description: string
+    quantity: number
+    unitPrice: string
+    total: string
 }
 
 /**
  * Invoice with customer information
  */
 export interface InvoiceWithCustomer {
-  id: string
-  invoiceNumber: string
-  totalAmount: string
-  status: 'unpaid' | 'partial' | 'paid'
-  date: Date
-  dueDate: Date | null
-  notes: string | null
-  customerId: string
-  customerName: string
+    id: string
+    invoiceNumber: string
+    totalAmount: string
+    status: 'unpaid' | 'partial' | 'paid'
+    date: Date
+    dueDate: Date | null
+    notes: string | null
+    customerId: string
+    customerName: string
 }
 
 /**
  * Full invoice with customer and farm details
  */
 export interface InvoiceWithDetails {
-  id: string
-  invoiceNumber: string
-  totalAmount: string
-  status: 'unpaid' | 'partial' | 'paid'
-  date: Date
-  dueDate: Date | null
-  notes: string | null
-  customerId: string
-  customerName: string
-  customerPhone: string | null
-  customerEmail: string | null
-  customerLocation: string | null
-  farmId: string
-  farmName: string
-  farmLocation: string | null
+    id: string
+    invoiceNumber: string
+    totalAmount: string
+    status: 'unpaid' | 'partial' | 'paid'
+    date: Date
+    dueDate: Date | null
+    notes: string | null
+    customerId: string
+    customerName: string
+    customerPhone: string | null
+    customerEmail: string | null
+    customerLocation: string | null
+    farmId: string
+    farmName: string
+    farmLocation: string | null
 }
 
 /**
  * Invoice line item
  */
 export interface InvoiceItem {
-  id: string
-  description: string
-  quantity: number
-  unitPrice: string
-  total: string
+    id: string
+    description: string
+    quantity: number
+    unitPrice: string
+    total: string
 }
 
 /**
  * Sale record for invoice creation
  */
 export interface SaleForInvoice {
-  id: string
-  farmId: string
-  customerId: string | null
-  livestockType: string
-  quantity: number
-  unitPrice: string
-  totalAmount: string
+    id: string
+    farmId: string
+    customerId: string | null
+    livestockType: string
+    quantity: number
+    unitPrice: string
+    totalAmount: string
 }
 
 /**
  * Filters for invoice queries
  */
 export interface InvoiceFilters extends Omit<BasePaginatedQuery, 'farmId'> {
-  farmId?: string | Array<string>
-  status?: 'unpaid' | 'partial' | 'paid'
+    farmId?: string | Array<string>
+    status?: 'unpaid' | 'partial' | 'paid'
 }
 
 /**
@@ -116,20 +116,20 @@ export interface InvoiceFilters extends Omit<BasePaginatedQuery, 'farmId'> {
  * ```
  */
 export async function getLastInvoiceNumber(
-  db: Kysely<Database>,
-  prefix: string,
-  farmId: string,
+    db: Kysely<Database>,
+    prefix: string,
+    farmId: string,
 ): Promise<string | null> {
-  const result = await db
-    .selectFrom('invoices')
-    .select('invoiceNumber')
-    .where('farmId', '=', farmId)
-    .where('invoiceNumber', 'like', `${prefix}%`)
-    .orderBy('invoiceNumber', 'desc')
-    .limit(1)
-    .executeTakeFirst()
+    const result = await db
+        .selectFrom('invoices')
+        .select('invoiceNumber')
+        .where('farmId', '=', farmId)
+        .where('invoiceNumber', 'like', `${prefix}%`)
+        .orderBy('invoiceNumber', 'desc')
+        .limit(1)
+        .executeTakeFirst()
 
-  return result?.invoiceNumber ?? null
+    return result?.invoiceNumber ?? null
 }
 
 /**
@@ -154,16 +154,16 @@ export async function getLastInvoiceNumber(
  * ```
  */
 export async function insertInvoice(
-  db: Kysely<Database>,
-  data: InvoiceInsert,
+    db: Kysely<Database>,
+    data: InvoiceInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('invoices')
-    .values(data)
-    .returning('id')
-    .executeTakeFirstOrThrow()
+    const result = await db
+        .insertInto('invoices')
+        .values(data)
+        .returning('id')
+        .executeTakeFirstOrThrow()
 
-  return result.id
+    return result.id
 }
 
 /**
@@ -181,12 +181,12 @@ export async function insertInvoice(
  * ```
  */
 export async function insertInvoiceItems(
-  db: Kysely<Database>,
-  items: Array<InvoiceItemInsert>,
+    db: Kysely<Database>,
+    items: Array<InvoiceItemInsert>,
 ): Promise<void> {
-  if (items.length === 0) return
+    if (items.length === 0) return
 
-  await db.insertInto('invoice_items').values(items).execute()
+    await db.insertInto('invoice_items').values(items).execute()
 }
 
 /**
@@ -197,34 +197,34 @@ export async function insertInvoiceItems(
  * @returns The invoice data or null if not found
  */
 export async function getInvoiceById(
-  db: Kysely<Database>,
-  invoiceId: string,
+    db: Kysely<Database>,
+    invoiceId: string,
 ): Promise<InvoiceWithDetails | null> {
-  const invoice = await db
-    .selectFrom('invoices')
-    .innerJoin('customers', 'customers.id', 'invoices.customerId')
-    .innerJoin('farms', 'farms.id', 'invoices.farmId')
-    .select([
-      'invoices.id',
-      'invoices.invoiceNumber',
-      'invoices.totalAmount',
-      'invoices.status',
-      'invoices.date',
-      'invoices.dueDate',
-      'invoices.notes',
-      'customers.id as customerId',
-      'customers.name as customerName',
-      'customers.phone as customerPhone',
-      'customers.email as customerEmail',
-      'customers.location as customerLocation',
-      'invoices.farmId',
-      'farms.name as farmName',
-      'farms.location as farmLocation',
-    ])
-    .where('invoices.id', '=', invoiceId)
-    .executeTakeFirst()
+    const invoice = await db
+        .selectFrom('invoices')
+        .innerJoin('customers', 'customers.id', 'invoices.customerId')
+        .innerJoin('farms', 'farms.id', 'invoices.farmId')
+        .select([
+            'invoices.id',
+            'invoices.invoiceNumber',
+            'invoices.totalAmount',
+            'invoices.status',
+            'invoices.date',
+            'invoices.dueDate',
+            'invoices.notes',
+            'customers.id as customerId',
+            'customers.name as customerName',
+            'customers.phone as customerPhone',
+            'customers.email as customerEmail',
+            'customers.location as customerLocation',
+            'invoices.farmId',
+            'farms.name as farmName',
+            'farms.location as farmLocation',
+        ])
+        .where('invoices.id', '=', invoiceId)
+        .executeTakeFirst()
 
-  return (invoice as InvoiceWithDetails | null) ?? null
+    return (invoice as InvoiceWithDetails | null) ?? null
 }
 
 /**
@@ -235,26 +235,26 @@ export async function getInvoiceById(
  * @returns Array of invoices with customer names
  */
 export async function getInvoicesByFarm(
-  db: Kysely<Database>,
-  farmId: string,
+    db: Kysely<Database>,
+    farmId: string,
 ): Promise<Array<InvoiceWithCustomer>> {
-  return (await db
-    .selectFrom('invoices')
-    .innerJoin('customers', 'customers.id', 'invoices.customerId')
-    .select([
-      'invoices.id',
-      'invoices.invoiceNumber',
-      'invoices.totalAmount',
-      'invoices.status',
-      'invoices.date',
-      'invoices.dueDate',
-      'invoices.notes',
-      'customers.id as customerId',
-      'customers.name as customerName',
-    ])
-    .where('invoices.farmId', '=', farmId)
-    .orderBy('invoices.date', 'desc')
-    .execute()) as unknown as Array<InvoiceWithCustomer>
+    return (await db
+        .selectFrom('invoices')
+        .innerJoin('customers', 'customers.id', 'invoices.customerId')
+        .select([
+            'invoices.id',
+            'invoices.invoiceNumber',
+            'invoices.totalAmount',
+            'invoices.status',
+            'invoices.date',
+            'invoices.dueDate',
+            'invoices.notes',
+            'customers.id as customerId',
+            'customers.name as customerName',
+        ])
+        .where('invoices.farmId', '=', farmId)
+        .orderBy('invoices.date', 'desc')
+        .execute()) as unknown as Array<InvoiceWithCustomer>
 }
 
 /**
@@ -265,14 +265,14 @@ export async function getInvoicesByFarm(
  * @returns Array of invoice items
  */
 export async function getInvoiceItems(
-  db: Kysely<Database>,
-  invoiceId: string,
+    db: Kysely<Database>,
+    invoiceId: string,
 ): Promise<Array<InvoiceItem>> {
-  return await db
-    .selectFrom('invoice_items')
-    .select(['id', 'description', 'quantity', 'unitPrice', 'total'])
-    .where('invoiceId', '=', invoiceId)
-    .execute()
+    return await db
+        .selectFrom('invoice_items')
+        .select(['id', 'description', 'quantity', 'unitPrice', 'total'])
+        .where('invoiceId', '=', invoiceId)
+        .execute()
 }
 
 /**
@@ -283,15 +283,15 @@ export async function getInvoiceItems(
  * @param status - New payment status
  */
 export async function updateInvoiceStatus(
-  db: Kysely<Database>,
-  invoiceId: string,
-  status: 'unpaid' | 'partial' | 'paid',
+    db: Kysely<Database>,
+    invoiceId: string,
+    status: 'unpaid' | 'partial' | 'paid',
 ): Promise<void> {
-  await db
-    .updateTable('invoices')
-    .set({ status })
-    .where('id', '=', invoiceId)
-    .execute()
+    await db
+        .updateTable('invoices')
+        .set({ status })
+        .where('id', '=', invoiceId)
+        .execute()
 }
 
 /**
@@ -302,13 +302,13 @@ export async function updateInvoiceStatus(
  * @param invoiceId - Invoice ID
  */
 export async function deleteInvoiceItems(
-  db: Kysely<Database>,
-  invoiceId: string,
+    db: Kysely<Database>,
+    invoiceId: string,
 ): Promise<void> {
-  await db
-    .deleteFrom('invoice_items')
-    .where('invoiceId', '=', invoiceId)
-    .execute()
+    await db
+        .deleteFrom('invoice_items')
+        .where('invoiceId', '=', invoiceId)
+        .execute()
 }
 
 /**
@@ -319,10 +319,10 @@ export async function deleteInvoiceItems(
  * @param invoiceId - ID of the invoice to delete
  */
 export async function deleteInvoice(
-  db: Kysely<Database>,
-  invoiceId: string,
+    db: Kysely<Database>,
+    invoiceId: string,
 ): Promise<void> {
-  await db.deleteFrom('invoices').where('id', '=', invoiceId).execute()
+    await db.deleteFrom('invoices').where('id', '=', invoiceId).execute()
 }
 
 /**
@@ -333,24 +333,24 @@ export async function deleteInvoice(
  * @returns Sale data or null if not found
  */
 export async function getSaleForInvoice(
-  db: Kysely<Database>,
-  saleId: string,
+    db: Kysely<Database>,
+    saleId: string,
 ): Promise<SaleForInvoice | null> {
-  const sale = await db
-    .selectFrom('sales')
-    .select([
-      'id',
-      'farmId',
-      'customerId',
-      'livestockType',
-      'quantity',
-      'unitPrice',
-      'totalAmount',
-    ])
-    .where('id', '=', saleId)
-    .executeTakeFirst()
+    const sale = await db
+        .selectFrom('sales')
+        .select([
+            'id',
+            'farmId',
+            'customerId',
+            'livestockType',
+            'quantity',
+            'unitPrice',
+            'totalAmount',
+        ])
+        .where('id', '=', saleId)
+        .executeTakeFirst()
 
-  return (sale as SaleForInvoice | null) ?? null
+    return (sale as SaleForInvoice | null) ?? null
 }
 
 /**
@@ -361,100 +361,100 @@ export async function getSaleForInvoice(
  * @returns Paginated result with invoice data
  */
 export async function getInvoicesPaginated(
-  db: Kysely<Database>,
-  filters: InvoiceFilters = {},
+    db: Kysely<Database>,
+    filters: InvoiceFilters = {},
 ): Promise<
-  PaginatedResult<{
-    id: string
-    invoiceNumber: string
-    totalAmount: string
-    status: 'unpaid' | 'partial' | 'paid'
-    date: Date
-    dueDate: Date | null
-    customerName: string
-  }>
+    PaginatedResult<{
+        id: string
+        invoiceNumber: string
+        totalAmount: string
+        status: 'unpaid' | 'partial' | 'paid'
+        date: Date
+        dueDate: Date | null
+        customerName: string
+    }>
 > {
-  const { sql } = await import('kysely')
+    const { sql } = await import('kysely')
 
-  const page = filters.page || 1
-  const pageSize = filters.pageSize || 10
-  const offset = (page - 1) * pageSize
+    const page = filters.page || 1
+    const pageSize = filters.pageSize || 10
+    const offset = (page - 1) * pageSize
 
-  let baseQuery = db
-    .selectFrom('invoices')
-    .innerJoin('customers', 'customers.id', 'invoices.customerId')
+    let baseQuery = db
+        .selectFrom('invoices')
+        .innerJoin('customers', 'customers.id', 'invoices.customerId')
 
-  if (filters.farmId) {
-    // Support both single farmId (string) and multiple farmIds (array)
-    if (Array.isArray(filters.farmId)) {
-      baseQuery = baseQuery.where('invoices.farmId', 'in', filters.farmId)
-    } else {
-      baseQuery = baseQuery.where('invoices.farmId', '=', filters.farmId)
+    if (filters.farmId) {
+        // Support both single farmId (string) and multiple farmIds (array)
+        if (Array.isArray(filters.farmId)) {
+            baseQuery = baseQuery.where('invoices.farmId', 'in', filters.farmId)
+        } else {
+            baseQuery = baseQuery.where('invoices.farmId', '=', filters.farmId)
+        }
     }
-  }
 
-  if (filters.status) {
-    baseQuery = baseQuery.where('invoices.status', '=', filters.status)
-  }
+    if (filters.status) {
+        baseQuery = baseQuery.where('invoices.status', '=', filters.status)
+    }
 
-  if (filters.search) {
-    const searchLower = `%${filters.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) =>
-      eb.or([
-        eb('invoices.invoiceNumber', 'ilike', searchLower),
-        eb('customers.name', 'ilike', searchLower),
-      ]),
-    )
-  }
+    if (filters.search) {
+        const searchLower = `%${filters.search.toLowerCase()}%`
+        baseQuery = baseQuery.where((eb) =>
+            eb.or([
+                eb('invoices.invoiceNumber', 'ilike', searchLower),
+                eb('customers.name', 'ilike', searchLower),
+            ]),
+        )
+    }
 
-  // Count total records
-  const countResult = await baseQuery
-    .select(sql<number>`count(invoices.id)`.as('count'))
-    .executeTakeFirst()
+    // Count total records
+    const countResult = await baseQuery
+        .select(sql<number>`count(invoices.id)`.as('count'))
+        .executeTakeFirst()
 
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
 
-  // Build data query with sorting
-  let dataQuery = baseQuery
-    .select([
-      'invoices.id',
-      'invoices.invoiceNumber',
-      'invoices.totalAmount',
-      'invoices.status',
-      'invoices.date',
-      'invoices.dueDate',
-      'customers.name as customerName',
-    ])
-    .limit(pageSize)
-    .offset(offset)
+    // Build data query with sorting
+    let dataQuery = baseQuery
+        .select([
+            'invoices.id',
+            'invoices.invoiceNumber',
+            'invoices.totalAmount',
+            'invoices.status',
+            'invoices.date',
+            'invoices.dueDate',
+            'customers.name as customerName',
+        ])
+        .limit(pageSize)
+        .offset(offset)
 
-  // Apply sorting - validate columns to prevent SQL injection
-  const sortBy = filters.sortBy
-  const sortOrder = filters.sortOrder || 'desc'
-  const allowedCols: Record<string, string> = {
-    invoiceNumber: 'invoices."invoiceNumber"',
-    totalAmount: 'invoices."totalAmount"',
-    status: 'invoices.status',
-    date: 'invoices.date',
-    dueDate: 'invoices."dueDate"',
-    createdAt: 'invoices."createdAt"',
-    customerName: 'customers.name',
-  }
-  const sortCol = sortBy ? allowedCols[sortBy] : null
-  if (sortCol) {
-    dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
-  } else {
-    dataQuery = dataQuery.orderBy('invoices.date', 'desc')
-  }
+    // Apply sorting - validate columns to prevent SQL injection
+    const sortBy = filters.sortBy
+    const sortOrder = filters.sortOrder || 'desc'
+    const allowedCols: Record<string, string> = {
+        invoiceNumber: 'invoices."invoiceNumber"',
+        totalAmount: 'invoices."totalAmount"',
+        status: 'invoices.status',
+        date: 'invoices.date',
+        dueDate: 'invoices."dueDate"',
+        createdAt: 'invoices."createdAt"',
+        customerName: 'customers.name',
+    }
+    const sortCol = sortBy ? allowedCols[sortBy] : null
+    if (sortCol) {
+        dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
+    } else {
+        dataQuery = dataQuery.orderBy('invoices.date', 'desc')
+    }
 
-  const data = await dataQuery.execute()
+    const data = await dataQuery.execute()
 
-  return {
-    data,
-    total,
-    page,
-    pageSize,
-    totalPages,
-  }
+    return {
+        data,
+        total,
+        page,
+        pageSize,
+        totalPages,
+    }
 }

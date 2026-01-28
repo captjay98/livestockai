@@ -7,14 +7,14 @@
  * Input data for batch financial analysis
  */
 export interface BatchFinancials {
-  /** Gross revenue from all sales in this batch */
-  totalRevenue: number
-  /** Purchase cost of the livestock (birds, fingerlings, etc.) */
-  initialCost: number
-  /** Cumulative cost of feed consumed */
-  feedCost: number
-  /** All other expenses (medicine, transport, labor, etc.) */
-  otherExpenses: number
+    /** Gross revenue from all sales in this batch */
+    totalRevenue: number
+    /** Purchase cost of the livestock (birds, fingerlings, etc.) */
+    initialCost: number
+    /** Cumulative cost of feed consumed */
+    feedCost: number
+    /** All other expenses (medicine, transport, labor, etc.) */
+    otherExpenses: number
 }
 
 /**
@@ -25,9 +25,9 @@ export interface BatchFinancials {
  * @returns The calculated net profit/loss
  */
 export function calculateBatchProfit(financials: BatchFinancials): number {
-  const totalCost =
-    financials.initialCost + financials.feedCost + financials.otherExpenses
-  return financials.totalRevenue - totalCost
+    const totalCost =
+        financials.initialCost + financials.feedCost + financials.otherExpenses
+    return financials.totalRevenue - totalCost
 }
 
 /**
@@ -39,8 +39,8 @@ export function calculateBatchProfit(financials: BatchFinancials): number {
  * @returns ROI percentage (e.g., 25.5 for 25.5%)
  */
 export function calculateROI(profit: number, totalInvestment: number): number {
-  if (totalInvestment === 0) return 0
-  return (profit / totalInvestment) * 100
+    if (totalInvestment === 0) return 0
+    return (profit / totalInvestment) * 100
 }
 
 /**
@@ -53,9 +53,9 @@ export function calculateROI(profit: number, totalInvestment: number): number {
  * @returns Cost per individual unit
  */
 export function calculateCostPerUnit(
-  totalInvestment: number,
-  quantity: number,
+    totalInvestment: number,
+    quantity: number,
 ): number {
-  if (quantity <= 0) return 0
-  return totalInvestment / quantity
+    if (quantity <= 0) return 0
+    return totalInvestment / quantity
 }

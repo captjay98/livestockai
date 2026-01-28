@@ -62,46 +62,52 @@ Add Edit/Delete functionality using the existing dialog pattern from Feed page. 
 
 ```typescript
 export async function updateRecord(
-  userId: string,
-  farmId: string,
-  recordId: string,
-  input: UpdateInput,
+    userId: string,
+    farmId: string,
+    recordId: string,
+    input: UpdateInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
-  const { verifyFarmAccess } = await import('~/features/auth/utils')
-  await verifyFarmAccess(userId, farmId)
+    const { db } = await import('~/lib/db')
+    const { verifyFarmAccess } = await import('~/features/auth/utils')
+    await verifyFarmAccess(userId, farmId)
 
-  await db
-    .updateTable('table_name')
-    .set({ ...input })
-    .where('id', '=', recordId)
-    .execute()
+    await db
+        .updateTable('table_name')
+        .set({ ...input })
+        .where('id', '=', recordId)
+        .execute()
 }
 
 export const updateRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { farmId: string; recordId: string; data: UpdateInput }) => data,
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return updateRecord(session.user.id, data.farmId, data.recordId, data.data)
-  })
+    .inputValidator(
+        (data: { farmId: string; recordId: string; data: UpdateInput }) => data,
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return updateRecord(
+            session.user.id,
+            data.farmId,
+            data.recordId,
+            data.data,
+        )
+    })
 ```
 
 **Delete Pattern:**
 
 ```typescript
 export async function deleteRecord(
-  userId: string,
-  farmId: string,
-  recordId: string,
+    userId: string,
+    farmId: string,
+    recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
-  const { verifyFarmAccess } = await import('~/features/auth/utils')
-  await verifyFarmAccess(userId, farmId)
+    const { db } = await import('~/lib/db')
+    const { verifyFarmAccess } = await import('~/features/auth/utils')
+    await verifyFarmAccess(userId, farmId)
 
-  await db.deleteFrom('table_name').where('id', '=', recordId).execute()
+    await db.deleteFrom('table_name').where('id', '=', recordId).execute()
 }
 ```
 
@@ -149,142 +155,149 @@ Add update and delete functions for mortality records.
 // Add after recordMortality function
 
 export interface UpdateMortalityInput {
-  quantity?: number
-  date?: Date
-  cause?:
-    | 'disease'
-    | 'predator'
-    | 'weather'
-    | 'unknown'
-    | 'other'
-    | 'starvation'
-    | 'injury'
-    | 'poisoning'
-    | 'suffocation'
-    | 'culling'
-  notes?: string | null
+    quantity?: number
+    date?: Date
+    cause?:
+        | 'disease'
+        | 'predator'
+        | 'weather'
+        | 'unknown'
+        | 'other'
+        | 'starvation'
+        | 'injury'
+        | 'poisoning'
+        | 'suffocation'
+        | 'culling'
+    notes?: string | null
 }
 
 export async function updateMortalityRecord(
-  userId: string,
-  recordId: string,
-  input: UpdateMortalityInput,
+    userId: string,
+    recordId: string,
+    input: UpdateMortalityInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  // Get existing record with batch info
-  const existing = await db
-    .selectFrom('mortality_records')
-    .innerJoin('batches', 'batches.id', 'mortality_records.batchId')
-    .select([
-      'mortality_records.id',
-      'mortality_records.batchId',
-      'mortality_records.quantity',
-      'batches.farmId',
-      'batches.currentQuantity',
-    ])
-    .where('mortality_records.id', '=', recordId)
-    .executeTakeFirst()
+    // Get existing record with batch info
+    const existing = await db
+        .selectFrom('mortality_records')
+        .innerJoin('batches', 'batches.id', 'mortality_records.batchId')
+        .select([
+            'mortality_records.id',
+            'mortality_records.batchId',
+            'mortality_records.quantity',
+            'batches.farmId',
+            'batches.currentQuantity',
+        ])
+        .where('mortality_records.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  // Verify access
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    // Verify access
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db.transaction().execute(async (trx) => {
-    // If quantity changed, adjust batch
-    if (input.quantity !== undefined && input.quantity !== existing.quantity) {
-      const diff = existing.quantity - input.quantity // positive = restore, negative = deduct more
-      const newBatchQty = existing.currentQuantity + diff
+    await db.transaction().execute(async (trx) => {
+        // If quantity changed, adjust batch
+        if (
+            input.quantity !== undefined &&
+            input.quantity !== existing.quantity
+        ) {
+            const diff = existing.quantity - input.quantity // positive = restore, negative = deduct more
+            const newBatchQty = existing.currentQuantity + diff
 
-      if (newBatchQty < 0)
-        throw new Error('Cannot increase mortality beyond batch quantity')
+            if (newBatchQty < 0)
+                throw new Error(
+                    'Cannot increase mortality beyond batch quantity',
+                )
 
-      await trx
-        .updateTable('batches')
-        .set({
-          currentQuantity: newBatchQty,
-          status: newBatchQty <= 0 ? 'depleted' : 'active',
-        })
-        .where('id', '=', existing.batchId)
-        .execute()
-    }
+            await trx
+                .updateTable('batches')
+                .set({
+                    currentQuantity: newBatchQty,
+                    status: newBatchQty <= 0 ? 'depleted' : 'active',
+                })
+                .where('id', '=', existing.batchId)
+                .execute()
+        }
 
-    await trx
-      .updateTable('mortality_records')
-      .set({
-        quantity: input.quantity ?? existing.quantity,
-        date: input.date,
-        cause: input.cause,
-        notes: input.notes,
-      })
-      .where('id', '=', recordId)
-      .execute()
-  })
+        await trx
+            .updateTable('mortality_records')
+            .set({
+                quantity: input.quantity ?? existing.quantity,
+                date: input.date,
+                cause: input.cause,
+                notes: input.notes,
+            })
+            .where('id', '=', recordId)
+            .execute()
+    })
 }
 
 export const updateMortalityRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { recordId: string; data: UpdateMortalityInput }) => data,
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return updateMortalityRecord(session.user.id, data.recordId, data.data)
-  })
+    .inputValidator(
+        (data: { recordId: string; data: UpdateMortalityInput }) => data,
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return updateMortalityRecord(session.user.id, data.recordId, data.data)
+    })
 
 export async function deleteMortalityRecord(
-  userId: string,
-  recordId: string,
+    userId: string,
+    recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  const existing = await db
-    .selectFrom('mortality_records')
-    .innerJoin('batches', 'batches.id', 'mortality_records.batchId')
-    .select([
-      'mortality_records.id',
-      'mortality_records.batchId',
-      'mortality_records.quantity',
-      'batches.farmId',
-      'batches.currentQuantity',
-    ])
-    .where('mortality_records.id', '=', recordId)
-    .executeTakeFirst()
+    const existing = await db
+        .selectFrom('mortality_records')
+        .innerJoin('batches', 'batches.id', 'mortality_records.batchId')
+        .select([
+            'mortality_records.id',
+            'mortality_records.batchId',
+            'mortality_records.quantity',
+            'batches.farmId',
+            'batches.currentQuantity',
+        ])
+        .where('mortality_records.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db.transaction().execute(async (trx) => {
-    // Restore batch quantity
-    await trx
-      .updateTable('batches')
-      .set({
-        currentQuantity: existing.currentQuantity + existing.quantity,
-        status: 'active',
-      })
-      .where('id', '=', existing.batchId)
-      .execute()
+    await db.transaction().execute(async (trx) => {
+        // Restore batch quantity
+        await trx
+            .updateTable('batches')
+            .set({
+                currentQuantity: existing.currentQuantity + existing.quantity,
+                status: 'active',
+            })
+            .where('id', '=', existing.batchId)
+            .execute()
 
-    await trx
-      .deleteFrom('mortality_records')
-      .where('id', '=', recordId)
-      .execute()
-  })
+        await trx
+            .deleteFrom('mortality_records')
+            .where('id', '=', recordId)
+            .execute()
+    })
 }
 
 export const deleteMortalityRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return deleteMortalityRecord(session.user.id, data.recordId)
-  })
+    .inputValidator((data: { recordId: string }) => data)
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return deleteMortalityRecord(session.user.id, data.recordId)
+    })
 ```
 
 **VALIDATE**: `bun run check`
@@ -297,87 +310,89 @@ Add update and delete functions (simpler - no batch quantity impact).
 
 ```typescript
 export interface UpdateWeightSampleInput {
-  date?: Date
-  sampleSize?: number
-  averageWeightKg?: number
-  minWeightKg?: number | null
-  maxWeightKg?: number | null
-  notes?: string | null
+    date?: Date
+    sampleSize?: number
+    averageWeightKg?: number
+    minWeightKg?: number | null
+    maxWeightKg?: number | null
+    notes?: string | null
 }
 
 export async function updateWeightSample(
-  userId: string,
-  recordId: string,
-  input: UpdateWeightSampleInput,
+    userId: string,
+    recordId: string,
+    input: UpdateWeightSampleInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  const existing = await db
-    .selectFrom('weight_samples')
-    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
-    .select(['weight_samples.id', 'batches.farmId'])
-    .where('weight_samples.id', '=', recordId)
-    .executeTakeFirst()
+    const existing = await db
+        .selectFrom('weight_samples')
+        .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+        .select(['weight_samples.id', 'batches.farmId'])
+        .where('weight_samples.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db
-    .updateTable('weight_samples')
-    .set({
-      date: input.date,
-      sampleSize: input.sampleSize,
-      averageWeightKg: input.averageWeightKg?.toString(),
-      minWeightKg: input.minWeightKg?.toString() ?? null,
-      maxWeightKg: input.maxWeightKg?.toString() ?? null,
-      notes: input.notes,
-    })
-    .where('id', '=', recordId)
-    .execute()
+    await db
+        .updateTable('weight_samples')
+        .set({
+            date: input.date,
+            sampleSize: input.sampleSize,
+            averageWeightKg: input.averageWeightKg?.toString(),
+            minWeightKg: input.minWeightKg?.toString() ?? null,
+            maxWeightKg: input.maxWeightKg?.toString() ?? null,
+            notes: input.notes,
+        })
+        .where('id', '=', recordId)
+        .execute()
 }
 
 export const updateWeightSampleFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { recordId: string; data: UpdateWeightSampleInput }) => data,
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return updateWeightSample(session.user.id, data.recordId, data.data)
-  })
+    .inputValidator(
+        (data: { recordId: string; data: UpdateWeightSampleInput }) => data,
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return updateWeightSample(session.user.id, data.recordId, data.data)
+    })
 
 export async function deleteWeightSample(
-  userId: string,
-  recordId: string,
+    userId: string,
+    recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  const existing = await db
-    .selectFrom('weight_samples')
-    .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
-    .select(['weight_samples.id', 'batches.farmId'])
-    .where('weight_samples.id', '=', recordId)
-    .executeTakeFirst()
+    const existing = await db
+        .selectFrom('weight_samples')
+        .innerJoin('batches', 'batches.id', 'weight_samples.batchId')
+        .select(['weight_samples.id', 'batches.farmId'])
+        .where('weight_samples.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db.deleteFrom('weight_samples').where('id', '=', recordId).execute()
+    await db.deleteFrom('weight_samples').where('id', '=', recordId).execute()
 }
 
 export const deleteWeightSampleFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return deleteWeightSample(session.user.id, data.recordId)
-  })
+    .inputValidator((data: { recordId: string }) => data)
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return deleteWeightSample(session.user.id, data.recordId)
+    })
 ```
 
 **VALIDATE**: `bun run check`
@@ -390,168 +405,172 @@ Add update and delete for both vaccinations and treatments.
 
 ```typescript
 export interface UpdateVaccinationInput {
-  vaccineName?: string
-  dateAdministered?: Date
-  dosage?: string
-  nextDueDate?: Date | null
-  notes?: string | null
+    vaccineName?: string
+    dateAdministered?: Date
+    dosage?: string
+    nextDueDate?: Date | null
+    notes?: string | null
 }
 
 export interface UpdateTreatmentInput {
-  medicationName?: string
-  reason?: string
-  date?: Date
-  dosage?: string
-  withdrawalDays?: number
-  notes?: string | null
+    medicationName?: string
+    reason?: string
+    date?: Date
+    dosage?: string
+    withdrawalDays?: number
+    notes?: string | null
 }
 
 export async function updateVaccination(
-  userId: string,
-  recordId: string,
-  input: UpdateVaccinationInput,
+    userId: string,
+    recordId: string,
+    input: UpdateVaccinationInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  const existing = await db
-    .selectFrom('vaccinations')
-    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
-    .select(['vaccinations.id', 'batches.farmId'])
-    .where('vaccinations.id', '=', recordId)
-    .executeTakeFirst()
+    const existing = await db
+        .selectFrom('vaccinations')
+        .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+        .select(['vaccinations.id', 'batches.farmId'])
+        .where('vaccinations.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db
-    .updateTable('vaccinations')
-    .set({
-      vaccineName: input.vaccineName,
-      dateAdministered: input.dateAdministered,
-      dosage: input.dosage,
-      nextDueDate: input.nextDueDate,
-      notes: input.notes,
-    })
-    .where('id', '=', recordId)
-    .execute()
+    await db
+        .updateTable('vaccinations')
+        .set({
+            vaccineName: input.vaccineName,
+            dateAdministered: input.dateAdministered,
+            dosage: input.dosage,
+            nextDueDate: input.nextDueDate,
+            notes: input.notes,
+        })
+        .where('id', '=', recordId)
+        .execute()
 }
 
 export const updateVaccinationFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { recordId: string; data: UpdateVaccinationInput }) => data,
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return updateVaccination(session.user.id, data.recordId, data.data)
-  })
+    .inputValidator(
+        (data: { recordId: string; data: UpdateVaccinationInput }) => data,
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return updateVaccination(session.user.id, data.recordId, data.data)
+    })
 
 export async function deleteVaccination(
-  userId: string,
-  recordId: string,
+    userId: string,
+    recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  const existing = await db
-    .selectFrom('vaccinations')
-    .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
-    .select(['vaccinations.id', 'batches.farmId'])
-    .where('vaccinations.id', '=', recordId)
-    .executeTakeFirst()
+    const existing = await db
+        .selectFrom('vaccinations')
+        .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+        .select(['vaccinations.id', 'batches.farmId'])
+        .where('vaccinations.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db.deleteFrom('vaccinations').where('id', '=', recordId).execute()
+    await db.deleteFrom('vaccinations').where('id', '=', recordId).execute()
 }
 
 export const deleteVaccinationFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return deleteVaccination(session.user.id, data.recordId)
-  })
+    .inputValidator((data: { recordId: string }) => data)
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return deleteVaccination(session.user.id, data.recordId)
+    })
 
 export async function updateTreatment(
-  userId: string,
-  recordId: string,
-  input: UpdateTreatmentInput,
+    userId: string,
+    recordId: string,
+    input: UpdateTreatmentInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  const existing = await db
-    .selectFrom('treatments')
-    .innerJoin('batches', 'batches.id', 'treatments.batchId')
-    .select(['treatments.id', 'batches.farmId'])
-    .where('treatments.id', '=', recordId)
-    .executeTakeFirst()
+    const existing = await db
+        .selectFrom('treatments')
+        .innerJoin('batches', 'batches.id', 'treatments.batchId')
+        .select(['treatments.id', 'batches.farmId'])
+        .where('treatments.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db
-    .updateTable('treatments')
-    .set({
-      medicationName: input.medicationName,
-      reason: input.reason,
-      date: input.date,
-      dosage: input.dosage,
-      withdrawalDays: input.withdrawalDays,
-      notes: input.notes,
-    })
-    .where('id', '=', recordId)
-    .execute()
+    await db
+        .updateTable('treatments')
+        .set({
+            medicationName: input.medicationName,
+            reason: input.reason,
+            date: input.date,
+            dosage: input.dosage,
+            withdrawalDays: input.withdrawalDays,
+            notes: input.notes,
+        })
+        .where('id', '=', recordId)
+        .execute()
 }
 
 export const updateTreatmentFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { recordId: string; data: UpdateTreatmentInput }) => data,
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return updateTreatment(session.user.id, data.recordId, data.data)
-  })
+    .inputValidator(
+        (data: { recordId: string; data: UpdateTreatmentInput }) => data,
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return updateTreatment(session.user.id, data.recordId, data.data)
+    })
 
 export async function deleteTreatment(
-  userId: string,
-  recordId: string,
+    userId: string,
+    recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  const existing = await db
-    .selectFrom('treatments')
-    .innerJoin('batches', 'batches.id', 'treatments.batchId')
-    .select(['treatments.id', 'batches.farmId'])
-    .where('treatments.id', '=', recordId)
-    .executeTakeFirst()
+    const existing = await db
+        .selectFrom('treatments')
+        .innerJoin('batches', 'batches.id', 'treatments.batchId')
+        .select(['treatments.id', 'batches.farmId'])
+        .where('treatments.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db.deleteFrom('treatments').where('id', '=', recordId).execute()
+    await db.deleteFrom('treatments').where('id', '=', recordId).execute()
 }
 
 export const deleteTreatmentFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return deleteTreatment(session.user.id, data.recordId)
-  })
+    .inputValidator((data: { recordId: string }) => data)
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return deleteTreatment(session.user.id, data.recordId)
+    })
 ```
 
 **VALIDATE**: `bun run check`
@@ -564,87 +583,93 @@ Add update and delete functions.
 
 ```typescript
 export interface UpdateWaterQualityInput {
-  date?: Date
-  ph?: number
-  temperatureCelsius?: number
-  dissolvedOxygenMgL?: number
-  ammoniaMgL?: number
-  notes?: string | null
+    date?: Date
+    ph?: number
+    temperatureCelsius?: number
+    dissolvedOxygenMgL?: number
+    ammoniaMgL?: number
+    notes?: string | null
 }
 
 export async function updateWaterQualityRecord(
-  userId: string,
-  recordId: string,
-  input: UpdateWaterQualityInput,
+    userId: string,
+    recordId: string,
+    input: UpdateWaterQualityInput,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  const existing = await db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .select(['water_quality.id', 'batches.farmId'])
-    .where('water_quality.id', '=', recordId)
-    .executeTakeFirst()
+    const existing = await db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .select(['water_quality.id', 'batches.farmId'])
+        .where('water_quality.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db
-    .updateTable('water_quality')
-    .set({
-      date: input.date,
-      ph: input.ph?.toString(),
-      temperatureCelsius: input.temperatureCelsius?.toString(),
-      dissolvedOxygenMgL: input.dissolvedOxygenMgL?.toString(),
-      ammoniaMgL: input.ammoniaMgL?.toString(),
-      notes: input.notes,
-    })
-    .where('id', '=', recordId)
-    .execute()
+    await db
+        .updateTable('water_quality')
+        .set({
+            date: input.date,
+            ph: input.ph?.toString(),
+            temperatureCelsius: input.temperatureCelsius?.toString(),
+            dissolvedOxygenMgL: input.dissolvedOxygenMgL?.toString(),
+            ammoniaMgL: input.ammoniaMgL?.toString(),
+            notes: input.notes,
+        })
+        .where('id', '=', recordId)
+        .execute()
 }
 
 export const updateWaterQualityRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { recordId: string; data: UpdateWaterQualityInput }) => data,
-  )
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return updateWaterQualityRecord(session.user.id, data.recordId, data.data)
-  })
+    .inputValidator(
+        (data: { recordId: string; data: UpdateWaterQualityInput }) => data,
+    )
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return updateWaterQualityRecord(
+            session.user.id,
+            data.recordId,
+            data.data,
+        )
+    })
 
 export async function deleteWaterQualityRecord(
-  userId: string,
-  recordId: string,
+    userId: string,
+    recordId: string,
 ): Promise<void> {
-  const { db } = await import('~/lib/db')
+    const { db } = await import('~/lib/db')
 
-  const existing = await db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .select(['water_quality.id', 'batches.farmId'])
-    .where('water_quality.id', '=', recordId)
-    .executeTakeFirst()
+    const existing = await db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .select(['water_quality.id', 'batches.farmId'])
+        .where('water_quality.id', '=', recordId)
+        .executeTakeFirst()
 
-  if (!existing) throw new Error('Record not found')
+    if (!existing) throw new Error('Record not found')
 
-  const { checkFarmAccess } = await import('../auth/utils')
-  const hasAccess = await checkFarmAccess(userId, existing.farmId)
-  if (!hasAccess) throw new Error('Access denied')
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(userId, existing.farmId)
+    if (!hasAccess) throw new Error('Access denied')
 
-  await db.deleteFrom('water_quality').where('id', '=', recordId).execute()
+    await db.deleteFrom('water_quality').where('id', '=', recordId).execute()
 }
 
 export const deleteWaterQualityRecordFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { recordId: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    return deleteWaterQualityRecord(session.user.id, data.recordId)
-  })
+    .inputValidator((data: { recordId: string }) => data)
+    .handler(async ({ data }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        return deleteWaterQualityRecord(session.user.id, data.recordId)
+    })
 ```
 
 **VALIDATE**: `bun run check`

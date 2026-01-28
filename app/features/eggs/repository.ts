@@ -12,68 +12,68 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
  * Data for inserting a new egg collection record
  */
 export interface EggCollectionInsert {
-  batchId: string
-  date: Date
-  quantityCollected: number
-  quantityBroken: number
-  quantitySold: number
+    batchId: string
+    date: Date
+    quantityCollected: number
+    quantityBroken: number
+    quantitySold: number
 }
 
 /**
  * Data for updating an egg collection record
  */
 export interface EggCollectionUpdate {
-  date?: Date
-  quantityCollected?: number
-  quantityBroken?: number
-  quantitySold?: number
+    date?: Date
+    quantityCollected?: number
+    quantityBroken?: number
+    quantitySold?: number
 }
 
 /**
  * Egg collection record with batch information
  */
 export interface EggCollectionRecord {
-  id: string
-  batchId: string
-  date: Date
-  quantityCollected: number
-  quantityBroken: number
-  quantitySold: number
-  createdAt: Date
-  batchSpecies?: string
-  farmId?: string
-  farmName?: string
-  currentQuantity?: number
+    id: string
+    batchId: string
+    date: Date
+    quantityCollected: number
+    quantityBroken: number
+    quantitySold: number
+    createdAt: Date
+    batchSpecies?: string
+    farmId?: string
+    farmName?: string
+    currentQuantity?: number
 }
 
 /**
  * Extended record with all related data for display
  */
 export interface EggCollectionWithDetails extends EggCollectionRecord {
-  batchSpecies: string
-  farmId: string
-  farmName: string
-  livestockType: string
+    batchSpecies: string
+    farmId: string
+    farmName: string
+    livestockType: string
 }
 
 /**
  * Filters for egg collection queries
  */
 export interface EggCollectionFilters extends BasePaginatedQuery {
-  batchId?: string
-  startDate?: Date
-  endDate?: Date
+    batchId?: string
+    startDate?: Date
+    endDate?: Date
 }
 
 /**
  * Summary data for egg collections
  */
 export interface EggSummaryData {
-  totalCollected: number
-  totalBroken: number
-  totalSold: number
-  currentInventory: number
-  recordCount: number
+    totalCollected: number
+    totalBroken: number
+    totalSold: number
+    currentInventory: number
+    recordCount: number
 }
 
 /**
@@ -95,15 +95,15 @@ export interface EggSummaryData {
  * ```
  */
 export async function insertEggCollection(
-  db: Kysely<Database>,
-  data: EggCollectionInsert,
+    db: Kysely<Database>,
+    data: EggCollectionInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('egg_records')
-    .values(data)
-    .returning('id')
-    .executeTakeFirstOrThrow()
-  return result.id
+    const result = await db
+        .insertInto('egg_records')
+        .values(data)
+        .returning('id')
+        .executeTakeFirstOrThrow()
+    return result.id
 }
 
 /**
@@ -114,30 +114,30 @@ export async function insertEggCollection(
  * @returns The record with batch and farm details, or null if not found
  */
 export async function getEggCollectionById(
-  db: Kysely<Database>,
-  recordId: string,
+    db: Kysely<Database>,
+    recordId: string,
 ): Promise<EggCollectionWithDetails | null> {
-  const record = await db
-    .selectFrom('egg_records')
-    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'egg_records.id',
-      'egg_records.batchId',
-      'egg_records.date',
-      'egg_records.quantityCollected',
-      'egg_records.quantityBroken',
-      'egg_records.quantitySold',
-      'egg_records.createdAt',
-      'batches.species as batchSpecies',
-      'batches.livestockType',
-      'batches.farmId',
-      'farms.name as farmName',
-    ])
-    .where('egg_records.id', '=', recordId)
-    .executeTakeFirst()
+    const record = await db
+        .selectFrom('egg_records')
+        .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'egg_records.id',
+            'egg_records.batchId',
+            'egg_records.date',
+            'egg_records.quantityCollected',
+            'egg_records.quantityBroken',
+            'egg_records.quantitySold',
+            'egg_records.createdAt',
+            'batches.species as batchSpecies',
+            'batches.livestockType',
+            'batches.farmId',
+            'farms.name as farmName',
+        ])
+        .where('egg_records.id', '=', recordId)
+        .executeTakeFirst()
 
-  return (record as EggCollectionWithDetails | null) ?? null
+    return (record as EggCollectionWithDetails | null) ?? null
 }
 
 /**
@@ -149,15 +149,15 @@ export async function getEggCollectionById(
  * @returns Promise resolving when update is complete
  */
 export async function updateEggCollection(
-  db: Kysely<Database>,
-  recordId: string,
-  data: EggCollectionUpdate,
+    db: Kysely<Database>,
+    recordId: string,
+    data: EggCollectionUpdate,
 ): Promise<void> {
-  await db
-    .updateTable('egg_records')
-    .set(data)
-    .where('id', '=', recordId)
-    .execute()
+    await db
+        .updateTable('egg_records')
+        .set(data)
+        .where('id', '=', recordId)
+        .execute()
 }
 
 /**
@@ -168,10 +168,10 @@ export async function updateEggCollection(
  * @returns Promise resolving when delete is complete
  */
 export async function deleteEggCollection(
-  db: Kysely<Database>,
-  recordId: string,
+    db: Kysely<Database>,
+    recordId: string,
 ): Promise<void> {
-  await db.deleteFrom('egg_records').where('id', '=', recordId).execute()
+    await db.deleteFrom('egg_records').where('id', '=', recordId).execute()
 }
 
 /**
@@ -183,40 +183,40 @@ export async function deleteEggCollection(
  * @returns Array of egg collection records with details
  */
 export async function getEggCollectionsByFarm(
-  db: Kysely<Database>,
-  farmId: string,
-  options?: {
-    startDate?: Date
-    endDate?: Date
-  },
+    db: Kysely<Database>,
+    farmId: string,
+    options?: {
+        startDate?: Date
+        endDate?: Date
+    },
 ): Promise<Array<EggCollectionWithDetails>> {
-  let query = db
-    .selectFrom('egg_records')
-    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'egg_records.id',
-      'egg_records.batchId',
-      'egg_records.date',
-      'egg_records.quantityCollected',
-      'egg_records.quantityBroken',
-      'egg_records.quantitySold',
-      'egg_records.createdAt',
-      'batches.species as batchSpecies',
-      'batches.livestockType',
-      'batches.farmId',
-      'farms.name as farmName',
-    ])
-    .where('batches.farmId', '=', farmId)
+    let query = db
+        .selectFrom('egg_records')
+        .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'egg_records.id',
+            'egg_records.batchId',
+            'egg_records.date',
+            'egg_records.quantityCollected',
+            'egg_records.quantityBroken',
+            'egg_records.quantitySold',
+            'egg_records.createdAt',
+            'batches.species as batchSpecies',
+            'batches.livestockType',
+            'batches.farmId',
+            'farms.name as farmName',
+        ])
+        .where('batches.farmId', '=', farmId)
 
-  if (options?.startDate) {
-    query = query.where('egg_records.date', '>=', options.startDate)
-  }
-  if (options?.endDate) {
-    query = query.where('egg_records.date', '<=', options.endDate)
-  }
+    if (options?.startDate) {
+        query = query.where('egg_records.date', '>=', options.startDate)
+    }
+    if (options?.endDate) {
+        query = query.where('egg_records.date', '<=', options.endDate)
+    }
 
-  return await query.orderBy('egg_records.date', 'desc').execute()
+    return await query.orderBy('egg_records.date', 'desc').execute()
 }
 
 /**
@@ -227,23 +227,23 @@ export async function getEggCollectionsByFarm(
  * @returns Array of egg collection records
  */
 export async function getEggCollectionsByBatch(
-  db: Kysely<Database>,
-  batchId: string,
+    db: Kysely<Database>,
+    batchId: string,
 ): Promise<Array<EggCollectionRecord>> {
-  return await db
-    .selectFrom('egg_records')
-    .select([
-      'id',
-      'batchId',
-      'date',
-      'quantityCollected',
-      'quantityBroken',
-      'quantitySold',
-      'createdAt',
-    ])
-    .where('batchId', '=', batchId)
-    .orderBy('date', 'desc')
-    .execute()
+    return await db
+        .selectFrom('egg_records')
+        .select([
+            'id',
+            'batchId',
+            'date',
+            'quantityCollected',
+            'quantityBroken',
+            'quantitySold',
+            'createdAt',
+        ])
+        .where('batchId', '=', batchId)
+        .orderBy('date', 'desc')
+        .execute()
 }
 
 /**
@@ -255,91 +255,91 @@ export async function getEggCollectionsByBatch(
  * @returns Paginated result set
  */
 export async function getEggPaginated(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  filters: EggCollectionFilters = {},
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    filters: EggCollectionFilters = {},
 ): Promise<PaginatedResult<EggCollectionWithDetails>> {
-  const page = filters.page || 1
-  const pageSize = filters.pageSize || 10
-  const offset = (page - 1) * pageSize
+    const page = filters.page || 1
+    const pageSize = filters.pageSize || 10
+    const offset = (page - 1) * pageSize
 
-  let baseQuery = db
-    .selectFrom('egg_records')
-    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .where('batches.farmId', 'in', farmIds)
+    let baseQuery = db
+        .selectFrom('egg_records')
+        .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .where('batches.farmId', 'in', farmIds)
 
-  // Apply filters
-  if (filters.search) {
-    const searchLower = `%${filters.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) =>
-      eb.or([eb('batches.species', 'ilike', searchLower)]),
-    )
-  }
-
-  if (filters.batchId) {
-    baseQuery = baseQuery.where('egg_records.batchId', '=', filters.batchId)
-  }
-
-  // Get total count using egg_records.id for count
-  const countResult = await baseQuery
-    .select((eb) => [eb.fn.count<number>('egg_records.id').as('count')])
-    .executeTakeFirst()
-
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
-
-  // Get data
-  let dataQuery = baseQuery
-    .select([
-      'egg_records.id',
-      'egg_records.batchId',
-      'egg_records.date',
-      'egg_records.quantityCollected',
-      'egg_records.quantityBroken',
-      'egg_records.quantitySold',
-      'egg_records.createdAt',
-      'batches.species as batchSpecies',
-      'batches.livestockType',
-      'farms.name as farmName',
-      'batches.farmId',
-    ])
-    .limit(pageSize)
-    .offset(offset)
-
-  // Apply sorting with validated column references to prevent SQL injection
-  if (filters.sortBy) {
-    const sortOrder = filters.sortOrder || 'desc'
-    const allowedCols: Record<string, string> = {
-      date: 'egg_records.date',
-      quantityCollected: 'egg_records.quantityCollected',
-      quantityBroken: 'egg_records.quantityBroken',
-      quantitySold: 'egg_records.quantitySold',
-      createdAt: 'egg_records.createdAt',
-      species: 'batches.species',
+    // Apply filters
+    if (filters.search) {
+        const searchLower = `%${filters.search.toLowerCase()}%`
+        baseQuery = baseQuery.where((eb) =>
+            eb.or([eb('batches.species', 'ilike', searchLower)]),
+        )
     }
-    const sortCol = allowedCols[filters.sortBy]
-    if (sortCol) {
-      dataQuery = dataQuery.orderBy(
-        sql.raw(`"${sortCol.replace('.', '"."')}"`),
-        sortOrder,
-      )
+
+    if (filters.batchId) {
+        baseQuery = baseQuery.where('egg_records.batchId', '=', filters.batchId)
+    }
+
+    // Get total count using egg_records.id for count
+    const countResult = await baseQuery
+        .select((eb) => [eb.fn.count<number>('egg_records.id').as('count')])
+        .executeTakeFirst()
+
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
+
+    // Get data
+    let dataQuery = baseQuery
+        .select([
+            'egg_records.id',
+            'egg_records.batchId',
+            'egg_records.date',
+            'egg_records.quantityCollected',
+            'egg_records.quantityBroken',
+            'egg_records.quantitySold',
+            'egg_records.createdAt',
+            'batches.species as batchSpecies',
+            'batches.livestockType',
+            'farms.name as farmName',
+            'batches.farmId',
+        ])
+        .limit(pageSize)
+        .offset(offset)
+
+    // Apply sorting with validated column references to prevent SQL injection
+    if (filters.sortBy) {
+        const sortOrder = filters.sortOrder || 'desc'
+        const allowedCols: Record<string, string> = {
+            date: 'egg_records.date',
+            quantityCollected: 'egg_records.quantityCollected',
+            quantityBroken: 'egg_records.quantityBroken',
+            quantitySold: 'egg_records.quantitySold',
+            createdAt: 'egg_records.createdAt',
+            species: 'batches.species',
+        }
+        const sortCol = allowedCols[filters.sortBy]
+        if (sortCol) {
+            dataQuery = dataQuery.orderBy(
+                sql.raw(`"${sortCol.replace('.', '"."')}"`),
+                sortOrder,
+            )
+        } else {
+            dataQuery = dataQuery.orderBy('egg_records.date', 'desc')
+        }
     } else {
-      dataQuery = dataQuery.orderBy('egg_records.date', 'desc')
+        dataQuery = dataQuery.orderBy('egg_records.date', 'desc')
     }
-  } else {
-    dataQuery = dataQuery.orderBy('egg_records.date', 'desc')
-  }
 
-  const data = await dataQuery.execute()
+    const data = await dataQuery.execute()
 
-  return {
-    data: data as Array<EggCollectionWithDetails>,
-    total,
-    page,
-    pageSize,
-    totalPages,
-  }
+    return {
+        data: data as Array<EggCollectionWithDetails>,
+        total,
+        page,
+        pageSize,
+        totalPages,
+    }
 }
 
 /**
@@ -351,48 +351,48 @@ export async function getEggPaginated(
  * @returns Summary data object
  */
 export async function getEggSummary(
-  db: Kysely<Database>,
-  farmId: string,
-  options?: {
-    startDate?: Date
-    endDate?: Date
-  },
+    db: Kysely<Database>,
+    farmId: string,
+    options?: {
+        startDate?: Date
+        endDate?: Date
+    },
 ): Promise<EggSummaryData> {
-  let query = db
-    .selectFrom('egg_records')
-    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
-    .select([
-      'egg_records.quantityCollected',
-      'egg_records.quantityBroken',
-      'egg_records.quantitySold',
-      'batches.currentQuantity',
-    ])
-    .where('batches.farmId', '=', farmId)
+    let query = db
+        .selectFrom('egg_records')
+        .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+        .select([
+            'egg_records.quantityCollected',
+            'egg_records.quantityBroken',
+            'egg_records.quantitySold',
+            'batches.currentQuantity',
+        ])
+        .where('batches.farmId', '=', farmId)
 
-  if (options?.startDate) {
-    query = query.where('egg_records.date', '>=', options.startDate)
-  }
-  if (options?.endDate) {
-    query = query.where('egg_records.date', '<=', options.endDate)
-  }
+    if (options?.startDate) {
+        query = query.where('egg_records.date', '>=', options.startDate)
+    }
+    if (options?.endDate) {
+        query = query.where('egg_records.date', '<=', options.endDate)
+    }
 
-  const records = await query.execute()
+    const records = await query.execute()
 
-  const totalCollected = records.reduce(
-    (sum, r) => sum + r.quantityCollected,
-    0,
-  )
-  const totalBroken = records.reduce((sum, r) => sum + r.quantityBroken, 0)
-  const totalSold = records.reduce((sum, r) => sum + r.quantitySold, 0)
-  const currentInventory = totalCollected - totalBroken - totalSold
+    const totalCollected = records.reduce(
+        (sum, r) => sum + r.quantityCollected,
+        0,
+    )
+    const totalBroken = records.reduce((sum, r) => sum + r.quantityBroken, 0)
+    const totalSold = records.reduce((sum, r) => sum + r.quantitySold, 0)
+    const currentInventory = totalCollected - totalBroken - totalSold
 
-  return {
-    totalCollected,
-    totalBroken,
-    totalSold,
-    currentInventory: Math.max(0, currentInventory),
-    recordCount: records.length,
-  }
+    return {
+        totalCollected,
+        totalBroken,
+        totalSold,
+        currentInventory: Math.max(0, currentInventory),
+        recordCount: records.length,
+    }
 }
 
 /**
@@ -404,34 +404,34 @@ export async function getEggSummary(
  * @returns Current inventory count
  */
 export async function getEggInventory(
-  db: Kysely<Database>,
-  farmId: string,
-  batchId?: string,
+    db: Kysely<Database>,
+    farmId: string,
+    batchId?: string,
 ): Promise<number> {
-  let query = db
-    .selectFrom('egg_records')
-    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
-    .select([
-      'egg_records.quantityCollected',
-      'egg_records.quantityBroken',
-      'egg_records.quantitySold',
-    ])
-    .where('batches.farmId', '=', farmId)
+    let query = db
+        .selectFrom('egg_records')
+        .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+        .select([
+            'egg_records.quantityCollected',
+            'egg_records.quantityBroken',
+            'egg_records.quantitySold',
+        ])
+        .where('batches.farmId', '=', farmId)
 
-  if (batchId) {
-    query = query.where('egg_records.batchId', '=', batchId)
-  }
+    if (batchId) {
+        query = query.where('egg_records.batchId', '=', batchId)
+    }
 
-  const records = await query.execute()
+    const records = await query.execute()
 
-  const totalCollected = records.reduce(
-    (sum, r) => sum + r.quantityCollected,
-    0,
-  )
-  const totalBroken = records.reduce((sum, r) => sum + r.quantityBroken, 0)
-  const totalSold = records.reduce((sum, r) => sum + r.quantitySold, 0)
+    const totalCollected = records.reduce(
+        (sum, r) => sum + r.quantityCollected,
+        0,
+    )
+    const totalBroken = records.reduce((sum, r) => sum + r.quantityBroken, 0)
+    const totalSold = records.reduce((sum, r) => sum + r.quantitySold, 0)
 
-  return totalCollected - totalBroken - totalSold
+    return totalCollected - totalBroken - totalSold
 }
 
 /**
@@ -443,21 +443,24 @@ export async function getEggInventory(
  * @returns Batch data if found and is poultry, null otherwise
  */
 export async function getBatchForEggRecord(
-  db: Kysely<Database>,
-  batchId: string,
-  farmId: string,
+    db: Kysely<Database>,
+    batchId: string,
+    farmId: string,
 ): Promise<{ id: string; farmId: string; livestockType: string } | null> {
-  const batch = await db
-    .selectFrom('batches')
-    .select(['id', 'farmId', 'livestockType'])
-    .where('id', '=', batchId)
-    .where('farmId', '=', farmId)
-    .executeTakeFirst()
+    const batch = await db
+        .selectFrom('batches')
+        .select(['id', 'farmId', 'livestockType'])
+        .where('id', '=', batchId)
+        .where('farmId', '=', farmId)
+        .executeTakeFirst()
 
-  return (
-    (batch as { id: string; farmId: string; livestockType: string } | null) ??
-    null
-  )
+    return (
+        (batch as {
+            id: string
+            farmId: string
+            livestockType: string
+        } | null) ?? null
+    )
 }
 
 /**
@@ -469,19 +472,19 @@ export async function getBatchForEggRecord(
  * @returns Record if found and belongs to farm, null otherwise
  */
 export async function verifyEggRecordForFarm(
-  db: Kysely<Database>,
-  recordId: string,
-  farmId: string,
+    db: Kysely<Database>,
+    recordId: string,
+    farmId: string,
 ): Promise<{ id: string; batchId: string } | null> {
-  const record = await db
-    .selectFrom('egg_records')
-    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
-    .select(['egg_records.id', 'egg_records.batchId'])
-    .where('egg_records.id', '=', recordId)
-    .where('batches.farmId', '=', farmId)
-    .executeTakeFirst()
+    const record = await db
+        .selectFrom('egg_records')
+        .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+        .select(['egg_records.id', 'egg_records.batchId'])
+        .where('egg_records.id', '=', recordId)
+        .where('batches.farmId', '=', farmId)
+        .executeTakeFirst()
 
-  return (record as { id: string; batchId: string } | null) ?? null
+    return (record as { id: string; batchId: string } | null) ?? null
 }
 
 /**
@@ -493,16 +496,16 @@ export async function verifyEggRecordForFarm(
  * @returns Current quantity or null if batch not found
  */
 export async function getBatchCurrentQuantity(
-  db: Kysely<Database>,
-  batchId: string,
-  farmId: string,
+    db: Kysely<Database>,
+    batchId: string,
+    farmId: string,
 ): Promise<number | null> {
-  const batch = await db
-    .selectFrom('batches')
-    .select(['currentQuantity'])
-    .where('id', '=', batchId)
-    .where('farmId', '=', farmId)
-    .executeTakeFirst()
+    const batch = await db
+        .selectFrom('batches')
+        .select(['currentQuantity'])
+        .where('id', '=', batchId)
+        .where('farmId', '=', farmId)
+        .executeTakeFirst()
 
-  return batch?.currentQuantity ?? null
+    return batch?.currentQuantity ?? null
 }

@@ -109,18 +109,18 @@ bun run test --coverage --reporter=text
 ```typescript
 // Test pattern for server functions
 describe('getBatches', () => {
-  it('returns batches for farm', async () => {
-    const result = await getBatches({ farmId: 'test-farm-id' })
-    expect(result).toBeInstanceOf(Array)
-  })
-
-  it('filters by status', async () => {
-    const result = await getBatches({
-      farmId: 'test-farm-id',
-      status: 'active',
+    it('returns batches for farm', async () => {
+        const result = await getBatches({ farmId: 'test-farm-id' })
+        expect(result).toBeInstanceOf(Array)
     })
-    expect(result.every((b) => b.status === 'active')).toBe(true)
-  })
+
+    it('filters by status', async () => {
+        const result = await getBatches({
+            farmId: 'test-farm-id',
+            status: 'active',
+        })
+        expect(result.every((b) => b.status === 'active')).toBe(true)
+    })
 })
 ```
 
@@ -134,13 +134,13 @@ import { describe, it, expect } from 'vitest'
 import { calculateProfit, calculateFCR } from './calculations'
 
 describe('calculateProfit', () => {
-  it('calculates profit correctly', () => {
-    expect(calculateProfit(10000, 6000)).toBe(4000)
-  })
+    it('calculates profit correctly', () => {
+        expect(calculateProfit(10000, 6000)).toBe(4000)
+    })
 
-  it('handles zero revenue', () => {
-    expect(calculateProfit(0, 1000)).toBe(-1000)
-  })
+    it('handles zero revenue', () => {
+        expect(calculateProfit(0, 1000)).toBe(-1000)
+    })
 })
 ```
 
@@ -151,29 +151,29 @@ describe('calculateProfit', () => {
 import * as fc from 'fast-check'
 
 describe('calculateFCR', () => {
-  it('is always positive for valid inputs', () => {
-    fc.assert(
-      fc.property(
-        fc.nat({ min: 1 }),
-        fc.nat({ min: 1 }),
-        (feed, weight) => calculateFCR(feed, weight) > 0,
-      ),
-    )
-  })
+    it('is always positive for valid inputs', () => {
+        fc.assert(
+            fc.property(
+                fc.nat({ min: 1 }),
+                fc.nat({ min: 1 }),
+                (feed, weight) => calculateFCR(feed, weight) > 0,
+            ),
+        )
+    })
 
-  it('increases with more feed', () => {
-    fc.assert(
-      fc.property(
-        fc.nat({ min: 1, max: 1000 }),
-        fc.nat({ min: 1, max: 100 }),
-        (baseFeed, weight) => {
-          const fcr1 = calculateFCR(baseFeed, weight)
-          const fcr2 = calculateFCR(baseFeed + 100, weight)
-          return fcr2 > fcr1
-        },
-      ),
-    )
-  })
+    it('increases with more feed', () => {
+        fc.assert(
+            fc.property(
+                fc.nat({ min: 1, max: 1000 }),
+                fc.nat({ min: 1, max: 100 }),
+                (baseFeed, weight) => {
+                    const fcr1 = calculateFCR(baseFeed, weight)
+                    const fcr2 = calculateFCR(baseFeed + 100, weight)
+                    return fcr2 > fcr1
+                },
+            ),
+        )
+    })
 })
 ```
 
@@ -182,31 +182,31 @@ describe('calculateFCR', () => {
 ```typescript
 // Test server function with database
 describe('createBatch', () => {
-  it('creates batch and returns id', async () => {
-    const batch = await createBatch('user-id', {
-      farmId: 'test-farm',
-      livestockType: 'poultry',
-      species: 'Broiler',
-      initialQuantity: 1000,
-      acquisitionDate: new Date(),
-      costPerUnit: 500,
+    it('creates batch and returns id', async () => {
+        const batch = await createBatch('user-id', {
+            farmId: 'test-farm',
+            livestockType: 'poultry',
+            species: 'Broiler',
+            initialQuantity: 1000,
+            acquisitionDate: new Date(),
+            costPerUnit: 500,
+        })
+
+        expect(batch).toBeDefined()
     })
 
-    expect(batch).toBeDefined()
-  })
-
-  it('throws AppError for invalid farm access', async () => {
-    await expect(
-      createBatch('wrong-user', {
-        farmId: 'test-farm',
-        livestockType: 'poultry',
-        species: 'Broiler',
-        initialQuantity: 1000,
-        acquisitionDate: new Date(),
-        costPerUnit: 500,
-      }),
-    ).rejects.toThrow('ACCESS_DENIED')
-  })
+    it('throws AppError for invalid farm access', async () => {
+        await expect(
+            createBatch('wrong-user', {
+                farmId: 'test-farm',
+                livestockType: 'poultry',
+                species: 'Broiler',
+                initialQuantity: 1000,
+                acquisitionDate: new Date(),
+                costPerUnit: 500,
+            }),
+        ).rejects.toThrow('ACCESS_DENIED')
+    })
 })
 ```
 
@@ -349,14 +349,14 @@ For comprehensive test coverage improvement:
 **Validate coverage analysis:**
 
 1. **Verify accuracy:**
-   - Coverage percentages match test output
-   - All critical files identified
-   - No false positives (commented code counted as uncovered)
+    - Coverage percentages match test output
+    - All critical files identified
+    - No false positives (commented code counted as uncovered)
 
 2. **Check priorities:**
-   - Critical paths identified correctly
-   - Effort estimates realistic
-   - Dependencies considered
+    - Critical paths identified correctly
+    - Effort estimates realistic
+    - Dependencies considered
 
 **Ask user:**
 

@@ -6,15 +6,15 @@
 
 import Decimal from 'decimal.js'
 import {
-  formatCompactCurrency,
-  formatCurrency as formatWithSettings,
+    formatCompactCurrency,
+    formatCurrency as formatWithSettings,
 } from './currency-formatter'
 import { DEFAULT_SETTINGS } from './currency-presets'
 
 // Configure Decimal.js for currency operations
 Decimal.set({
-  precision: 20,
-  rounding: Decimal.ROUND_HALF_UP,
+    precision: 20,
+    rounding: Decimal.ROUND_HALF_UP,
 })
 
 /**
@@ -29,13 +29,13 @@ export type MoneyInput = string | number | Decimal | undefined | null
  * @returns Decimal instance
  */
 export function toDecimal(value: MoneyInput): Decimal {
-  if (value instanceof Decimal) {
-    return value
-  }
-  if (value === undefined || value === null || value === '') {
-    return new Decimal(0)
-  }
-  return new Decimal(value)
+    if (value instanceof Decimal) {
+        return value
+    }
+    if (value === undefined || value === null || value === '') {
+        return new Decimal(0)
+    }
+    return new Decimal(value)
 }
 
 /**
@@ -44,10 +44,10 @@ export function toDecimal(value: MoneyInput): Decimal {
  * @returns Number representation
  */
 export function toNumber(value: MoneyInput | undefined | null): number {
-  if (value === undefined || value === null || value === '') {
-    return 0
-  }
-  return toDecimal(value).toNumber()
+    if (value === undefined || value === null || value === '') {
+        return 0
+    }
+    return toDecimal(value).toNumber()
 }
 
 /**
@@ -56,7 +56,7 @@ export function toNumber(value: MoneyInput | undefined | null): number {
  * @returns String with 2 decimal places
  */
 export function toDbString(value: MoneyInput): string {
-  return toDecimal(value).toFixed(2)
+    return toDecimal(value).toFixed(2)
 }
 
 /**
@@ -66,7 +66,7 @@ export function toDbString(value: MoneyInput): string {
  * @returns Formatted currency string
  */
 export function formatCurrency(amount: MoneyInput): string {
-  return formatWithSettings(amount, DEFAULT_SETTINGS)
+    return formatWithSettings(amount, DEFAULT_SETTINGS)
 }
 
 /**
@@ -75,21 +75,21 @@ export function formatCurrency(amount: MoneyInput): string {
  * @returns Decimal amount, or null if invalid
  */
 export function parseCurrency(currencyString: string): Decimal | null {
-  // Remove common currency symbols, spaces, and commas
-  const cleaned = currencyString.replace(/[$€£¥₦₹\s,]/g, '')
+    // Remove common currency symbols, spaces, and commas
+    const cleaned = currencyString.replace(/[$€£¥₦₹\s,]/g, '')
 
-  try {
-    const decimal = new Decimal(cleaned)
+    try {
+        const decimal = new Decimal(cleaned)
 
-    // Return null if negative
-    if (decimal.isNegative()) {
-      return null
+        // Return null if negative
+        if (decimal.isNegative()) {
+            return null
+        }
+
+        return decimal
+    } catch {
+        return null
     }
-
-    return decimal
-  } catch {
-    return null
-  }
 }
 
 /**
@@ -98,13 +98,13 @@ export function parseCurrency(currencyString: string): Decimal | null {
  * @returns Compact formatted number string
  */
 export function formatCompactNumber(num: number): string {
-  if (num >= 1_000_000) {
-    return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
-  } else if (num >= 1_000) {
-    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K'
-  } else {
-    return num.toLocaleString()
-  }
+    if (num >= 1_000_000) {
+        return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
+    } else if (num >= 1_000) {
+        return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K'
+    } else {
+        return num.toLocaleString()
+    }
 }
 
 /**
@@ -114,7 +114,7 @@ export function formatCompactNumber(num: number): string {
  * @returns Compact formatted currency string
  */
 export function formatCurrencyCompact(amount: MoneyInput): string {
-  return formatCompactCurrency(amount, DEFAULT_SETTINGS)
+    return formatCompactCurrency(amount, DEFAULT_SETTINGS)
 }
 
 /**
@@ -124,19 +124,19 @@ export function formatCurrencyCompact(amount: MoneyInput): string {
  * @returns Percentage (0-100), or 0 if total is 0
  */
 export function calculatePercentage(
-  part: MoneyInput,
-  total: MoneyInput,
+    part: MoneyInput,
+    total: MoneyInput,
 ): number {
-  const partDecimal = toDecimal(part)
-  const totalDecimal = toDecimal(total)
+    const partDecimal = toDecimal(part)
+    const totalDecimal = toDecimal(total)
 
-  if (totalDecimal.isZero()) return 0
+    if (totalDecimal.isZero()) return 0
 
-  return partDecimal
-    .dividedBy(totalDecimal)
-    .times(100)
-    .toDecimalPlaces(2)
-    .toNumber()
+    return partDecimal
+        .dividedBy(totalDecimal)
+        .times(100)
+        .toDecimalPlaces(2)
+        .toNumber()
 }
 
 /**
@@ -145,10 +145,10 @@ export function calculatePercentage(
  * @returns Sum as Decimal
  */
 export function sumAmounts(...amounts: Array<MoneyInput>): Decimal {
-  return amounts.reduce<Decimal>(
-    (sum, amount) => sum.plus(toDecimal(amount)),
-    new Decimal(0),
-  )
+    return amounts.reduce<Decimal>(
+        (sum, amount) => sum.plus(toDecimal(amount)),
+        new Decimal(0),
+    )
 }
 
 /**
@@ -158,7 +158,7 @@ export function sumAmounts(...amounts: Array<MoneyInput>): Decimal {
  * @returns Product as Decimal
  */
 export function multiply(a: MoneyInput, b: MoneyInput): Decimal {
-  return toDecimal(a).times(toDecimal(b))
+    return toDecimal(a).times(toDecimal(b))
 }
 
 /**
@@ -168,9 +168,9 @@ export function multiply(a: MoneyInput, b: MoneyInput): Decimal {
  * @returns Quotient as Decimal, or null if dividing by zero
  */
 export function divide(a: MoneyInput, b: MoneyInput): Decimal | null {
-  const divisor = toDecimal(b)
-  if (divisor.isZero()) return null
-  return toDecimal(a).dividedBy(divisor)
+    const divisor = toDecimal(b)
+    if (divisor.isZero()) return null
+    return toDecimal(a).dividedBy(divisor)
 }
 
 /**
@@ -180,7 +180,7 @@ export function divide(a: MoneyInput, b: MoneyInput): Decimal | null {
  * @returns Difference as Decimal
  */
 export function subtract(a: MoneyInput, b: MoneyInput): Decimal {
-  return toDecimal(a).minus(toDecimal(b))
+    return toDecimal(a).minus(toDecimal(b))
 }
 
 /**
@@ -189,12 +189,12 @@ export function subtract(a: MoneyInput, b: MoneyInput): Decimal {
  * @returns True if valid (>= 0), false otherwise
  */
 export function isValidAmount(amount: MoneyInput): boolean {
-  try {
-    const decimal = toDecimal(amount)
-    return !decimal.isNegative()
-  } catch {
-    return false
-  }
+    try {
+        const decimal = toDecimal(amount)
+        return !decimal.isNegative()
+    } catch {
+        return false
+    }
 }
 
 /**
@@ -203,7 +203,7 @@ export function isValidAmount(amount: MoneyInput): boolean {
  * @returns Rounded Decimal
  */
 export function roundCurrency(amount: MoneyInput): Decimal {
-  return toDecimal(amount).toDecimalPlaces(2, Decimal.ROUND_HALF_UP)
+    return toDecimal(amount).toDecimalPlaces(2, Decimal.ROUND_HALF_UP)
 }
 
 /**
@@ -213,8 +213,8 @@ export function roundCurrency(amount: MoneyInput): Decimal {
  * @returns -1 if a < b, 0 if equal, 1 if a > b
  */
 export function compare(a: MoneyInput, b: MoneyInput): -1 | 0 | 1 {
-  const result = toDecimal(a).comparedTo(toDecimal(b))
-  return result as -1 | 0 | 1
+    const result = toDecimal(a).comparedTo(toDecimal(b))
+    return result as -1 | 0 | 1
 }
 
 /**
@@ -224,7 +224,7 @@ export function compare(a: MoneyInput, b: MoneyInput): -1 | 0 | 1 {
  * @returns True if equal
  */
 export function equals(a: MoneyInput, b: MoneyInput): boolean {
-  return toDecimal(a).equals(toDecimal(b))
+    return toDecimal(a).equals(toDecimal(b))
 }
 
 // Re-export Decimal for use in other modules

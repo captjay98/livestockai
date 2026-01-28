@@ -301,16 +301,16 @@ Remember: Accessibility isn't just compliance - it's about making the app usable
 **Validate audit findings:**
 
 1. **Test with real users:**
-   - Screen reader users
-   - Keyboard-only navigation
-   - Colorblind simulation
-   - Mobile device testing
+    - Screen reader users
+    - Keyboard-only navigation
+    - Colorblind simulation
+    - Mobile device testing
 
 2. **Verify fixes:**
-   - Re-run automated tools
-   - Manual testing of fixed issues
-   - Cross-browser compatibility
-   - Assistive technology compatibility
+    - Re-run automated tools
+    - Manual testing of fixed issues
+    - Cross-browser compatibility
+    - Assistive technology compatibility
 
 **Ask user:**
 

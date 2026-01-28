@@ -42,10 +42,10 @@ await db.deleteFrom('credit_reports').where('id', '=', reportId).execute()
 
 // After
 await db
-  .updateTable('credit_reports')
-  .set({ deletedAt: new Date() })
-  .where('id', '=', reportId)
-  .execute()
+    .updateTable('credit_reports')
+    .set({ deletedAt: new Date() })
+    .where('id', '=', reportId)
+    .execute()
 ```
 
 ### 4. ✅ Repository Signature Mismatch
@@ -91,24 +91,24 @@ const batchIds = batches.map((b) => b.id)
 ```typescript
 // Future: app/features/credit-passport/cron.ts
 export async function checkExpiringReports() {
-  const sevenDaysFromNow = new Date()
-  sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
+    const sevenDaysFromNow = new Date()
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
 
-  const expiringReports = await db
-    .selectFrom('credit_reports')
-    .where('expiresAt', '<=', sevenDaysFromNow)
-    .where('status', '=', 'active')
-    .execute()
+    const expiringReports = await db
+        .selectFrom('credit_reports')
+        .where('expiresAt', '<=', sevenDaysFromNow)
+        .where('status', '=', 'active')
+        .execute()
 
-  for (const report of expiringReports) {
-    await createNotification({
-      userId: report.userId,
-      type: 'reportExpiring',
-      title: 'Credit Report Expiring Soon',
-      message: `Your ${report.reportType} report expires in 7 days`,
-      actionUrl: `/credit-passport/history`,
-    })
-  }
+    for (const report of expiringReports) {
+        await createNotification({
+            userId: report.userId,
+            type: 'reportExpiring',
+            title: 'Credit Report Expiring Soon',
+            message: `Your ${report.reportType} report expires in 7 days`,
+            actionUrl: `/credit-passport/history`,
+        })
+    }
 }
 ```
 
@@ -139,14 +139,14 @@ Tests: 16 passed | 1 skipped (17)
 ## Files Modified
 
 1. `app/features/credit-passport/server.ts`
-   - Added `id` to verification response
-   - Implemented soft delete in `deleteReportFn`
+    - Added `id` to verification response
+    - Implemented soft delete in `deleteReportFn`
 
 2. `app/routes/verify.$reportId.tsx`
-   - Fixed status check to use `report.isValid`
+    - Fixed status check to use `report.isValid`
 
 3. `app/features/credit-passport/repository.ts`
-   - Fixed `getOperationalData` signature (farmIds → batchIds)
+    - Fixed `getOperationalData` signature (farmIds → batchIds)
 
 ---
 

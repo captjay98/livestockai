@@ -80,21 +80,21 @@ const { db } = await import('../db')
 
 // Type-safe queries
 const batches = await db
-  .selectFrom('batches')
-  .where('farmId', '=', farmId)
-  .select(['id', 'batchName', 'status'])
-  .execute()
+    .selectFrom('batches')
+    .where('farmId', '=', farmId)
+    .select(['id', 'batchName', 'status'])
+    .execute()
 ```
 
 ### Server Function Pattern (TanStack Start)
 
 ```typescript
 export const getData = createServerFn({ method: 'GET' })
-  .validator(z.object({ farmId: z.string().uuid() }))
-  .handler(async ({ data }) => {
-    const { db } = await import('../db')
-    return db.selectFrom('table').execute()
-  })
+    .validator(z.object({ farmId: z.string().uuid() }))
+    .handler(async ({ data }) => {
+        const { db } = await import('../db')
+        return db.selectFrom('table').execute()
+    })
 ```
 
 ### Key Tables Reference

@@ -172,10 +172,10 @@ Detailed Audit Results by Category
 - Batches repository: getRelatedRecords() executes 4 separate queries
   Missing Database Indexes:
 - No composite indexes for common patterns:
-  - (farmId, status) for batch filtering
-  - (farmId, date) for sales/expense reporting
-  - (batchId, date) for chronological data
-    React Re-render Issues:
+    - (farmId, status) for batch filtering
+    - (farmId, date) for sales/expense reporting
+    - (batchId, date) for chronological data
+      React Re-render Issues:
 - 473 useState/useEffect patterns vs only 49 useMemo/useCallback
 - No React.memo usage in component library
 - Unnecessary re-renders in data-heavy components
@@ -238,13 +238,13 @@ Detailed Audit Results by Category
 - 🔴 FCR formula inconsistency across services (see Security section)
 - ❌ Incomplete growth standards (only 4 of 6 species have curves)
 - ❌ Missing industry-standard KPIs:
-  - DOC (Days Open)
-  - ABC (Animal Breeding Cycle)
-  - Laying Percentage
-  - Stocking Density
-  - Turnover Rate
-  - Cost of Production
-    Gaps:
+    - DOC (Days Open)
+    - ABC (Animal Breeding Cycle)
+    - Laying Percentage
+    - Stocking Density
+    - Turnover Rate
+    - Cost of Production
+      Gaps:
 - Limited financial sophistication (basic profit/loss only)
 - No gross margin vs net margin distinction
 - No annualized ROI or IRR calculations
@@ -265,42 +265,42 @@ Phase 1: Critical Fixes (Week 1 - Before Production)
 Must complete before any production deployment:
 
 1. Remove Default Admin Credentials (2 hours)
-   - File: app/lib/db/seeds/production.ts
-   - Require explicit ADMIN_PASSWORD environment variable
-   - Fail fast if not provided
+    - File: app/lib/db/seeds/production.ts
+    - Require explicit ADMIN_PASSWORD environment variable
+    - Fail fast if not provided
 2. Fix FCR Calculation Inconsistency (1 day)
-   - Create unified FCR calculation service
-   - Update all services to use consistent formula
-   - Add property tests to prevent regressions
+    - Create unified FCR calculation service
+    - Update all services to use consistent formula
+    - Add property tests to prevent regressions
 3. Add Database Indexes (2 hours)
    CREATE INDEX idx_batches_farm_status ON batches(farmId, status);
    CREATE INDEX idx_sales_farm_date ON sales(farmId, date);
    CREATE INDEX idx_expenses_farm_date ON expenses(farmId, date);
 4. Extract Dashboard Service Layer (2-3 days)
-   - Create app/features/dashboard/service.ts
-   - Create app/features/dashboard/repository.ts
-   - Refactor server.ts to orchestrate only
-     Phase 2: High-Priority Improvements (Week 2-3)
-     Address high-impact security and performance issues:
+    - Create app/features/dashboard/service.ts
+    - Create app/features/dashboard/repository.ts
+    - Refactor server.ts to orchestrate only
+      Phase 2: High-Priority Improvements (Week 2-3)
+      Address high-impact security and performance issues:
 5. Audit Type Assertions (2-3 days)
-   - Review 208 as any instances
-   - Replace critical ones with proper types (especially database operations)
-   - Add ESLint rules to prevent future issues
+    - Review 208 as any instances
+    - Replace critical ones with proper types (especially database operations)
+    - Add ESLint rules to prevent future issues
 6. Consolidate Dashboard Queries (1 day)
-   - Replace 8 sequential queries with single aggregation
-   - Estimated 60-80% query reduction
+    - Replace 8 sequential queries with single aggregation
+    - Estimated 60-80% query reduction
 7. Add React Performance Optimizations (2 days)
-   - Add React.memo to data table components
-   - Implement useMemo for expensive computations
-   - Estimated 40-60% reduction in unnecessary re-renders
+    - Add React.memo to data table components
+    - Implement useMemo for expensive computations
+    - Estimated 40-60% reduction in unnecessary re-renders
 8. Complete Growth Standards Database (1 day)
-   - Add growth curves for cattle, goats, sheep, bees
-   - Use industry data for species-specific benchmarks
-     Phase 3: Medium-Priority Enhancements (Week 4-6)
-     Improve quality and add missing features:
+    - Add growth curves for cattle, goats, sheep, bees
+    - Use industry data for species-specific benchmarks
+      Phase 3: Medium-Priority Enhancements (Week 4-6)
+      Improve quality and add missing features:
 9. Remove Debug Logging (1 day)
-   - Clean up 250+ console.log statements
-   - Standardize error logging approach
+    - Clean up 250+ console.log statements
+    - Standardize error logging approach
 10. Implement Missing KPIs (2-3 days)
     - Add DOC, ABC, laying percentage calculations
     - Implement stocking density and turnover rate metrics

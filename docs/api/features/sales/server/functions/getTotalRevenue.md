@@ -48,6 +48,6 @@ Promise resolving to the total revenue amount
 
 ```typescript
 const revenue = await getTotalRevenue('user_1', 'farm_A', {
-  startDate: weekStart,
+    startDate: weekStart,
 })
 ```

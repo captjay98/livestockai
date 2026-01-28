@@ -121,10 +121,10 @@ import type { CreateBatchData } from './types'
  * Pure function - no side effects, easily testable
  */
 export function calculateBatchTotalCost(
-  initialQuantity: number,
-  costPerUnit: number,
+    initialQuantity: number,
+    costPerUnit: number,
 ): string {
-  return toDbString(multiply(initialQuantity, costPerUnit))
+    return toDbString(multiply(initialQuantity, costPerUnit))
 }
 
 /**
@@ -132,34 +132,34 @@ export function calculateBatchTotalCost(
  * Returns validation errors or null if valid
  */
 export function validateBatchData(data: CreateBatchData): string | null {
-  if (data.initialQuantity <= 0) {
-    return 'Initial quantity must be greater than 0'
-  }
-  if (data.costPerUnit < 0) {
-    return 'Cost per unit cannot be negative'
-  }
-  return null
+    if (data.initialQuantity <= 0) {
+        return 'Initial quantity must be greater than 0'
+    }
+    if (data.costPerUnit < 0) {
+        return 'Cost per unit cannot be negative'
+    }
+    return null
 }
 
 /**
  * Determine batch status based on current quantity
  */
 export function determineBatchStatus(
-  currentQuantity: number,
+    currentQuantity: number,
 ): 'active' | 'depleted' {
-  return currentQuantity <= 0 ? 'depleted' : 'active'
+    return currentQuantity <= 0 ? 'depleted' : 'active'
 }
 
 /**
  * Calculate mortality rate for a batch
  */
 export function calculateMortalityRate(
-  initialQuantity: number,
-  currentQuantity: number,
-  totalMortality: number,
+    initialQuantity: number,
+    currentQuantity: number,
+    totalMortality: number,
 ): number {
-  if (initialQuantity <= 0) return 0
-  return (totalMortality / initialQuantity) * 100
+    if (initialQuantity <= 0) return 0
+    return (totalMortality / initialQuantity) * 100
 }
 ```
 
@@ -171,59 +171,59 @@ import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 export interface BatchInsert {
-  farmId: string
-  livestockType: string
-  species: string
-  initialQuantity: number
-  currentQuantity: number
-  acquisitionDate: Date
-  costPerUnit: string
-  totalCost: string
-  status: 'active' | 'depleted' | 'sold'
-  batchName?: string | null
-  // ... other fields
+    farmId: string
+    livestockType: string
+    species: string
+    initialQuantity: number
+    currentQuantity: number
+    acquisitionDate: Date
+    costPerUnit: string
+    totalCost: string
+    status: 'active' | 'depleted' | 'sold'
+    batchName?: string | null
+    // ... other fields
 }
 
 /**
  * Insert a new batch into the database
  */
 export async function insertBatch(
-  db: Kysely<Database>,
-  data: BatchInsert,
+    db: Kysely<Database>,
+    data: BatchInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('batches')
-    .values(data)
-    .returning('id')
-    .executeTakeFirstOrThrow()
-  return result.id
+    const result = await db
+        .insertInto('batches')
+        .values(data)
+        .returning('id')
+        .executeTakeFirstOrThrow()
+    return result.id
 }
 
 /**
  * Get batch by ID with optional joins
  */
 export async function getBatchById(db: Kysely<Database>, batchId: string) {
-  return db
-    .selectFrom('batches')
-    .selectAll()
-    .where('id', '=', batchId)
-    .executeTakeFirst()
+    return db
+        .selectFrom('batches')
+        .selectAll()
+        .where('id', '=', batchId)
+        .executeTakeFirst()
 }
 
 /**
  * Update batch quantity and status
  */
 export async function updateBatchQuantity(
-  db: Kysely<Database>,
-  batchId: string,
-  newQuantity: number,
-  status: 'active' | 'depleted' | 'sold',
+    db: Kysely<Database>,
+    batchId: string,
+    newQuantity: number,
+    status: 'active' | 'depleted' | 'sold',
 ): Promise<void> {
-  await db
-    .updateTable('batches')
-    .set({ currentQuantity: newQuantity, status })
-    .where('id', '=', batchId)
-    .execute()
+    await db
+        .updateTable('batches')
+        .set({ currentQuantity: newQuantity, status })
+        .where('id', '=', batchId)
+        .execute()
 }
 ```
 
@@ -238,55 +238,58 @@ import { insertBatch, getBatchById } from './repository'
 import type { CreateBatchData } from './types'
 
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { batch: CreateBatchData }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
+    .inputValidator((data: { batch: CreateBatchData }) => data)
+    .handler(async ({ data }) => {
+        const { requireAuth } = await import('../auth/server-middleware')
+        const session = await requireAuth()
 
-    const { db } = await import('~/lib/db')
-    const { checkFarmAccess } = await import('../auth/utils')
+        const { db } = await import('~/lib/db')
+        const { checkFarmAccess } = await import('../auth/utils')
 
-    // Auth check
-    const hasAccess = await checkFarmAccess(session.user.id, data.batch.farmId)
-    if (!hasAccess) {
-      throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: data.batch.farmId },
-      })
-    }
+        // Auth check
+        const hasAccess = await checkFarmAccess(
+            session.user.id,
+            data.batch.farmId,
+        )
+        if (!hasAccess) {
+            throw new AppError('ACCESS_DENIED', {
+                metadata: { farmId: data.batch.farmId },
+            })
+        }
 
-    // Business logic (testable via service.ts)
-    const validationError = validateBatchData(data.batch)
-    if (validationError) {
-      throw new AppError('VALIDATION_ERROR', {
-        metadata: { error: validationError },
-      })
-    }
+        // Business logic (testable via service.ts)
+        const validationError = validateBatchData(data.batch)
+        if (validationError) {
+            throw new AppError('VALIDATION_ERROR', {
+                metadata: { error: validationError },
+            })
+        }
 
-    const totalCost = calculateBatchTotalCost(
-      data.batch.initialQuantity,
-      data.batch.costPerUnit,
-    )
+        const totalCost = calculateBatchTotalCost(
+            data.batch.initialQuantity,
+            data.batch.costPerUnit,
+        )
 
-    // Database operation (testable via repository.ts)
-    const batchId = await insertBatch(db, {
-      ...data.batch,
-      totalCost,
-      currentQuantity: data.batch.initialQuantity,
-      status: 'active',
+        // Database operation (testable via repository.ts)
+        const batchId = await insertBatch(db, {
+            ...data.batch,
+            totalCost,
+            currentQuantity: data.batch.initialQuantity,
+            status: 'active',
+        })
+
+        // Audit logging
+        const { logAudit } = await import('../logging/audit')
+        await logAudit({
+            userId: session.user.id,
+            action: 'create',
+            entityType: 'batch',
+            entityId: batchId,
+            details: data.batch,
+        })
+
+        return batchId
     })
-
-    // Audit logging
-    const { logAudit } = await import('../logging/audit')
-    await logAudit({
-      userId: session.user.id,
-      action: 'create',
-      entityType: 'batch',
-      entityId: batchId,
-      details: data.batch,
-    })
-
-    return batchId
-  })
 ```
 
 **Service Test Pattern:**
@@ -296,80 +299,83 @@ export const createBatchFn = createServerFn({ method: 'POST' })
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 import {
-  calculateBatchTotalCost,
-  validateBatchData,
-  determineBatchStatus,
-  calculateMortalityRate,
+    calculateBatchTotalCost,
+    validateBatchData,
+    determineBatchStatus,
+    calculateMortalityRate,
 } from '~/features/batches/service'
 
 describe('Batch Service', () => {
-  describe('calculateBatchTotalCost', () => {
-    it('should calculate total = quantity * costPerUnit', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 1, max: 10000 }),
-          fc.integer({ min: 1, max: 100000 }),
-          (quantity, costCents) => {
-            const costPerUnit = costCents / 100
-            const result = calculateBatchTotalCost(quantity, costPerUnit)
-            const expected = (quantity * costPerUnit).toFixed(2)
-            expect(result).toBe(expected)
-          },
-        ),
-      )
-    })
-  })
-
-  describe('validateBatchData', () => {
-    it('should reject zero quantity', () => {
-      const result = validateBatchData({
-        farmId: 'farm-1',
-        livestockType: 'poultry',
-        species: 'broiler',
-        initialQuantity: 0,
-        acquisitionDate: new Date(),
-        costPerUnit: 10,
-      })
-      expect(result).not.toBeNull()
+    describe('calculateBatchTotalCost', () => {
+        it('should calculate total = quantity * costPerUnit', () => {
+            fc.assert(
+                fc.property(
+                    fc.integer({ min: 1, max: 10000 }),
+                    fc.integer({ min: 1, max: 100000 }),
+                    (quantity, costCents) => {
+                        const costPerUnit = costCents / 100
+                        const result = calculateBatchTotalCost(
+                            quantity,
+                            costPerUnit,
+                        )
+                        const expected = (quantity * costPerUnit).toFixed(2)
+                        expect(result).toBe(expected)
+                    },
+                ),
+            )
+        })
     })
 
-    it('should accept valid data', () => {
-      const result = validateBatchData({
-        farmId: 'farm-1',
-        livestockType: 'poultry',
-        species: 'broiler',
-        initialQuantity: 100,
-        acquisitionDate: new Date(),
-        costPerUnit: 10,
-      })
-      expect(result).toBeNull()
-    })
-  })
+    describe('validateBatchData', () => {
+        it('should reject zero quantity', () => {
+            const result = validateBatchData({
+                farmId: 'farm-1',
+                livestockType: 'poultry',
+                species: 'broiler',
+                initialQuantity: 0,
+                acquisitionDate: new Date(),
+                costPerUnit: 10,
+            })
+            expect(result).not.toBeNull()
+        })
 
-  describe('determineBatchStatus', () => {
-    it('should return depleted when quantity is 0', () => {
-      expect(determineBatchStatus(0)).toBe('depleted')
-    })
-
-    it('should return active when quantity > 0', () => {
-      fc.assert(
-        fc.property(fc.integer({ min: 1, max: 10000 }), (qty) => {
-          expect(determineBatchStatus(qty)).toBe('active')
-        }),
-      )
-    })
-  })
-
-  describe('calculateMortalityRate', () => {
-    it('should calculate rate as percentage', () => {
-      expect(calculateMortalityRate(100, 90, 10)).toBe(10)
-      expect(calculateMortalityRate(100, 50, 50)).toBe(50)
+        it('should accept valid data', () => {
+            const result = validateBatchData({
+                farmId: 'farm-1',
+                livestockType: 'poultry',
+                species: 'broiler',
+                initialQuantity: 100,
+                acquisitionDate: new Date(),
+                costPerUnit: 10,
+            })
+            expect(result).toBeNull()
+        })
     })
 
-    it('should return 0 for zero initial quantity', () => {
-      expect(calculateMortalityRate(0, 0, 0)).toBe(0)
+    describe('determineBatchStatus', () => {
+        it('should return depleted when quantity is 0', () => {
+            expect(determineBatchStatus(0)).toBe('depleted')
+        })
+
+        it('should return active when quantity > 0', () => {
+            fc.assert(
+                fc.property(fc.integer({ min: 1, max: 10000 }), (qty) => {
+                    expect(determineBatchStatus(qty)).toBe('active')
+                }),
+            )
+        })
     })
-  })
+
+    describe('calculateMortalityRate', () => {
+        it('should calculate rate as percentage', () => {
+            expect(calculateMortalityRate(100, 90, 10)).toBe(10)
+            expect(calculateMortalityRate(100, 50, 50)).toBe(50)
+        })
+
+        it('should return 0 for zero initial quantity', () => {
+            expect(calculateMortalityRate(0, 0, 0)).toBe(0)
+        })
+    })
 })
 ```
 
@@ -414,11 +420,11 @@ Apply the same pattern to remaining features.
 Extract pure business logic from `app/features/batches/server.ts`:
 
 - **IMPLEMENT**:
-  - `calculateBatchTotalCost(quantity, costPerUnit)` - Returns total cost string
-  - `validateBatchData(data)` - Returns validation error or null
-  - `determineBatchStatus(currentQuantity)` - Returns 'active' | 'depleted'
-  - `calculateMortalityRate(initial, current, mortality)` - Returns percentage
-  - `calculateFCR(feedKg, weightGainKg)` - Feed conversion ratio
+    - `calculateBatchTotalCost(quantity, costPerUnit)` - Returns total cost string
+    - `validateBatchData(data)` - Returns validation error or null
+    - `determineBatchStatus(currentQuantity)` - Returns 'active' | 'depleted'
+    - `calculateMortalityRate(initial, current, mortality)` - Returns percentage
+    - `calculateFCR(feedKg, weightGainKg)` - Feed conversion ratio
 - **PATTERN**: Follow `app/features/finance/calculations.ts`
 - **IMPORTS**: `~/features/settings/currency` for decimal operations
 - **GOTCHA**: Use `toDbString()` for database-ready decimal strings
@@ -429,13 +435,13 @@ Extract pure business logic from `app/features/batches/server.ts`:
 Extract database operations:
 
 - **IMPLEMENT**:
-  - `insertBatch(db, data)` - Insert and return ID
-  - `getBatchById(db, batchId)` - Get single batch
-  - `getBatchesByFarm(db, farmId, filters)` - Get filtered batches
-  - `updateBatch(db, batchId, data)` - Update batch fields
-  - `updateBatchQuantity(db, batchId, quantity, status)` - Update quantity
-  - `deleteBatch(db, batchId)` - Delete batch
-  - `getBatchStats(db, batchId)` - Get aggregated stats
+    - `insertBatch(db, data)` - Insert and return ID
+    - `getBatchById(db, batchId)` - Get single batch
+    - `getBatchesByFarm(db, farmId, filters)` - Get filtered batches
+    - `updateBatch(db, batchId, data)` - Update batch fields
+    - `updateBatchQuantity(db, batchId, quantity, status)` - Update quantity
+    - `deleteBatch(db, batchId)` - Delete batch
+    - `getBatchStats(db, batchId)` - Get aggregated stats
 
 - **PATTERN**: Pass `Kysely<Database>` as first parameter
 - **IMPORTS**: `~/lib/db/types` for Database type
@@ -447,10 +453,10 @@ Extract database operations:
 Refactor to use service and repository:
 
 - **REFACTOR**:
-  - Import from `./service` and `./repository`
-  - Replace inline calculations with service function calls
-  - Replace inline DB queries with repository function calls
-  - Keep only: auth checks, error handling, audit logging
+    - Import from `./service` and `./repository`
+    - Replace inline calculations with service function calls
+    - Replace inline DB queries with repository function calls
+    - Keep only: auth checks, error handling, audit logging
 
 - **PATTERN**: See "Refactored Server Function Pattern" above
 - **GOTCHA**: Keep dynamic imports for `db` and auth modules
@@ -468,9 +474,9 @@ Add comprehensive service tests:
 ### Task 5-8: Repeat for `sales` feature
 
 - Task 5: CREATE `app/features/sales/service.ts`
-  - `calculateSaleTotal(quantity, unitPrice)`
-  - `validateSaleData(data)`
-  - `calculateRevenueByPeriod(sales, startDate, endDate)`
+    - `calculateSaleTotal(quantity, unitPrice)`
+    - `validateSaleData(data)`
+    - `calculateRevenueByPeriod(sales, startDate, endDate)`
 - Task 6: CREATE `app/features/sales/repository.ts`
 - Task 7: UPDATE `app/features/sales/server.ts`
 - Task 8: CREATE `tests/features/sales/sales.service.test.ts`
@@ -478,9 +484,9 @@ Add comprehensive service tests:
 ### Task 9-12: Repeat for `expenses` feature
 
 - Task 9: CREATE `app/features/expenses/service.ts`
-  - `validateExpenseData(data)`
-  - `categorizeExpenses(expenses)`
-  - `calculateTotalByCategory(expenses)`
+    - `validateExpenseData(data)`
+    - `categorizeExpenses(expenses)`
+    - `calculateTotalByCategory(expenses)`
 - Task 10: CREATE `app/features/expenses/repository.ts`
 - Task 11: UPDATE `app/features/expenses/server.ts`
 - Task 12: CREATE `tests/features/expenses/expenses.service.test.ts`
@@ -488,9 +494,9 @@ Add comprehensive service tests:
 ### Task 13-16: Repeat for `mortality` feature
 
 - Task 13: CREATE `app/features/mortality/service.ts`
-  - `validateMortalityData(data, batchQuantity)`
-  - `calculateNewBatchQuantity(current, mortalityCount)`
-  - `analyzeMortalityCauses(records)`
+    - `validateMortalityData(data, batchQuantity)`
+    - `calculateNewBatchQuantity(current, mortalityCount)`
+    - `analyzeMortalityCauses(records)`
 - Task 14: CREATE `app/features/mortality/repository.ts`
 - Task 15: UPDATE `app/features/mortality/server.ts`
 - Task 16: CREATE `tests/features/mortality/mortality.service.test.ts`
@@ -505,9 +511,9 @@ Add comprehensive service tests:
 ### Task 21-24: Repeat for `feed` feature
 
 - Task 21: CREATE `app/features/feed/service.ts`
-  - `calculateFeedCost(quantityKg, pricePerKg)`
-  - `validateFeedRecord(data)`
-  - `calculateDailyFeedRate(records)`
+    - `calculateFeedCost(quantityKg, pricePerKg)`
+    - `validateFeedRecord(data)`
+    - `calculateDailyFeedRate(records)`
 - Task 22: CREATE `app/features/feed/repository.ts`
 - Task 23: UPDATE `app/features/feed/server.ts`
 - Task 24: CREATE `tests/features/feed/feed.service.test.ts`
@@ -515,9 +521,9 @@ Add comprehensive service tests:
 ### Task 25-28: Repeat for `invoices` feature
 
 - Task 25: CREATE `app/features/invoices/service.ts`
-  - `calculateInvoiceTotal(items)`
-  - `generateInvoiceNumber(prefix, sequence)`
-  - `validateInvoiceData(data)`
+    - `calculateInvoiceTotal(items)`
+    - `generateInvoiceNumber(prefix, sequence)`
+    - `validateInvoiceData(data)`
 - Task 26: CREATE `app/features/invoices/repository.ts`
 - Task 27: UPDATE `app/features/invoices/server.ts`
 - Task 28: CREATE `tests/features/invoices/invoices.service.test.ts`

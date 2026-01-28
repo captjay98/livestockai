@@ -36,8 +36,8 @@ Promise resolving to a paginated result set
 
 ```typescript
 const result = await getBatchesPaginated('user_1', {
-  page: 1,
-  pageSize: 20,
-  status: 'active',
+    page: 1,
+    pageSize: 20,
+    status: 'active',
 })
 ```

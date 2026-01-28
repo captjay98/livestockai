@@ -187,7 +187,7 @@ app/
 
 - [TanStack Router File-Based Routing](https://tanstack.com/router/latest/docs/framework/react/routing/file-based-routing)
 - [Feature-Based Architecture](https://saas-ui.dev/docs/tanstack-router-starter-kit/project-structure)
-  - "Application code is grouped by feature... all related assets, like components, hooks, pages are grouped in a single feature folder"
+    - "Application code is grouped by feature... all related assets, like components, hooks, pages are grouped in a single feature folder"
 
 ---
 
@@ -261,10 +261,10 @@ rmdir app/lib/farms
 ```
 
 - **ALSO MOVE**:
-  - `components/farm-context.tsx` → `features/farms/context.tsx`
-  - `components/farm-selector.tsx` → `features/farms/components/selector.tsx`
-  - `components/dialogs/farm-dialog.tsx` → `features/farms/components/farm-dialog.tsx`
-  - `components/dialogs/edit-farm-dialog.tsx` → `features/farms/components/edit-farm-dialog.tsx`
+    - `components/farm-context.tsx` → `features/farms/context.tsx`
+    - `components/farm-selector.tsx` → `features/farms/components/selector.tsx`
+    - `components/dialogs/farm-dialog.tsx` → `features/farms/components/farm-dialog.tsx`
+    - `components/dialogs/edit-farm-dialog.tsx` → `features/farms/components/edit-farm-dialog.tsx`
 - **UPDATE IMPORTS**: Change all farm-related imports
 - **VALIDATE**: `grep -r "lib/farms" app/` returns no results
 
@@ -276,8 +276,8 @@ rmdir app/lib/modules
 ```
 
 - **ALSO MOVE**:
-  - `components/module-context.tsx` → `features/modules/context.tsx`
-  - `components/module-selector.tsx` → `features/modules/components/selector.tsx`
+    - `components/module-context.tsx` → `features/modules/context.tsx`
+    - `components/module-selector.tsx` → `features/modules/components/selector.tsx`
 - **UPDATE IMPORTS**: Change all module-related imports
 - **VALIDATE**: `grep -r "lib/modules" app/` returns no results
 
@@ -291,7 +291,7 @@ rmdir app/lib/settings
 ```
 
 - **ALSO MOVE**:
-  - `components/settings/audit-log-table.tsx` → `features/settings/components/audit-log-table.tsx`
+    - `components/settings/audit-log-table.tsx` → `features/settings/components/audit-log-table.tsx`
 - **UPDATE IMPORTS**: Change all settings-related imports
 - **VALIDATE**: `grep -r "lib/settings" app/` returns no results
 
@@ -307,8 +307,8 @@ rmdir app/lib/batches
 ```
 
 - **ALSO MOVE**:
-  - `components/batches/projections-card.tsx` → `features/batches/components/projections-card.tsx`
-  - `components/dialogs/batch-dialog.tsx` → `features/batches/components/batch-dialog.tsx`
+    - `components/batches/projections-card.tsx` → `features/batches/components/projections-card.tsx`
+    - `components/dialogs/batch-dialog.tsx` → `features/batches/components/batch-dialog.tsx`
 - **UPDATE IMPORTS**
 - **VALIDATE**: `grep -r "lib/batches" app/` returns no results
 
@@ -320,7 +320,7 @@ rmdir app/lib/sales
 ```
 
 - **ALSO MOVE**:
-  - `components/dialogs/sale-dialog.tsx` → `features/sales/components/sale-dialog.tsx`
+    - `components/dialogs/sale-dialog.tsx` → `features/sales/components/sale-dialog.tsx`
 - **UPDATE IMPORTS**
 - **VALIDATE**: `grep -r "lib/sales" app/` returns no results
 
@@ -352,7 +352,7 @@ rmdir app/lib/expenses
 ```
 
 - **ALSO MOVE**:
-  - `components/dialogs/expense-dialog.tsx` → `features/expenses/components/expense-dialog.tsx`
+    - `components/dialogs/expense-dialog.tsx` → `features/expenses/components/expense-dialog.tsx`
 - **UPDATE IMPORTS**
 - **VALIDATE**: `grep -r "lib/expenses" app/` returns no results
 
@@ -374,7 +374,7 @@ rmdir app/lib/feed
 ```
 
 - **ALSO MOVE**:
-  - `components/dialogs/feed-dialog.tsx` → `features/feed/components/feed-dialog.tsx`
+    - `components/dialogs/feed-dialog.tsx` → `features/feed/components/feed-dialog.tsx`
 - **UPDATE IMPORTS**
 - **VALIDATE**: `grep -r "lib/feed" app/` returns no results
 
@@ -438,7 +438,7 @@ rmdir app/lib/eggs
 ```
 
 - **ALSO MOVE**:
-  - `components/dialogs/egg-dialog.tsx` → `features/eggs/components/egg-dialog.tsx`
+    - `components/dialogs/egg-dialog.tsx` → `features/eggs/components/egg-dialog.tsx`
 - **UPDATE IMPORTS**
 - **VALIDATE**: `grep -r "lib/eggs" app/` returns no results
 

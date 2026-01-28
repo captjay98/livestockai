@@ -1,146 +1,151 @@
 {
-  "name": "backend-engineer",
-  "description": "Backend specialist for TanStack Start, Kysely ORM, and Neon PostgreSQL - guardian of server-side architecture",
-  "keyboardShortcut": "ctrl+shift+1",
-  "welcomeMessage": "🔧 Backend Engineer ready. I handle server functions, Kysely queries, and Cloudflare Workers patterns.",
-  "prompt": "file://../prompts/agents/backend-engineer.md",
-  "tools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking",
-    "@neon"
-  ],
-  "allowedTools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking",
-    "@neon"
-  ],
-  "toolsSettings": {
-    "write": {
-      "allowedPaths": ["app/features/**", "app/lib/**", "tests/**", "*.md"]
-    },
-    "shell": {
-      "allowedCommands": [
-        "bun *",
-        "cat *",
-        "ls *",
-        "grep *",
-        "find *",
-        "head *",
-        "tail *",
-        "git status",
-        "git diff *",
-        "git log *"
-      ],
-      "autoAllowReadonly": true,
-      "deniedCommands": ["rm -rf *", "sudo *"]
-    }
-  },
-  "resources": [
-    "file://AGENTS.md",
-    "file://README.md",
-    "file://app/lib/db/index.ts",
-    "file://app/lib/db/types.ts",
-    "file://app/lib/errors/index.ts",
-    "file://app/features/batches/server.ts",
-    "file://app/features/batches/service.ts",
-    "file://app/features/batches/repository.ts",
-    {
-      "type": "knowledgeBase",
-      "source": "file://./docs",
-      "name": "ProjectDocs",
-      "description": "Architecture, database, deployment, testing, and API documentation",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./DEVLOG.md",
-      "name": "DevLog",
-      "description": "Development history, decisions, and progress tracking",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./app/lib/db",
-      "name": "DatabasePatterns",
-      "description": "Database schema, migrations, types, and query patterns",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    "skill://.kiro/skills/neon-database/SKILL.md",
-    "skill://.kiro/skills/dynamic-imports/SKILL.md",
-    "skill://.kiro/skills/kysely-orm/SKILL.md",
-    "skill://.kiro/skills/three-layer-architecture/SKILL.md",
-    "skill://.kiro/skills/tanstack-start/SKILL.md",
-    "skill://.kiro/skills/zod-validation/SKILL.md",
-    "skill://.kiro/skills/error-handling/SKILL.md",
-    "skill://.kiro/skills/financial-integrity/SKILL.md",
-    "skill://.kiro/skills/agentic-feature-design/SKILL.md",
-    "skill://.kiro/skills/observability-patterns/SKILL.md"
-  ],
-  "hooks": {
-    "agentSpawn": [
-      {
-        "command": "echo '⚙️ Backend Engineer ready.' && git status --short 2>/dev/null | head -5 || echo 'Not a git repo'",
-        "timeout_ms": 5000
-      }
+    "name": "backend-engineer",
+    "description": "Backend specialist for TanStack Start, Kysely ORM, and Neon PostgreSQL - guardian of server-side architecture",
+    "keyboardShortcut": "ctrl+shift+1",
+    "welcomeMessage": "🔧 Backend Engineer ready. I handle server functions, Kysely queries, and Cloudflare Workers patterns.",
+    "prompt": "file://../prompts/agents/backend-engineer.md",
+    "tools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking",
+        "@neon"
     ],
-    "postToolUse": [
-      {
-        "matcher": "fs_write",
-        "command": "bun run lint --fix 2>/dev/null || true",
-        "timeout_ms": 30000
-      }
-    ]
-  },
-  "includeMcpJson": true,
-  "model": "claude-sonnet-4.5",
-  "mcpServers": {
-    "neon": {
-      "command": "bunx",
-      "args": [
-        "mcp-remote",
-        "https://mcp.neon.tech/mcp",
-        "3334",
-        "--cache-dir",
-        "${HOME}/.mcp-cache/neon"
-      ],
-      "disabled": false,
-      "autoApprove": [
-        "list_projects",
-        "get_project",
-        "get_database_tables",
-        "describe_table_schema",
-        "get_database_schema",
-        "list_databases"
-      ]
+    "allowedTools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking",
+        "@neon"
+    ],
+    "toolsSettings": {
+        "write": {
+            "allowedPaths": [
+                "app/features/**",
+                "app/lib/**",
+                "tests/**",
+                "*.md"
+            ]
+        },
+        "shell": {
+            "allowedCommands": [
+                "bun *",
+                "cat *",
+                "ls *",
+                "grep *",
+                "find *",
+                "head *",
+                "tail *",
+                "git status",
+                "git diff *",
+                "git log *"
+            ],
+            "autoAllowReadonly": true,
+            "deniedCommands": ["rm -rf *", "sudo *"]
+        }
+    },
+    "resources": [
+        "file://AGENTS.md",
+        "file://README.md",
+        "file://app/lib/db/index.ts",
+        "file://app/lib/db/types.ts",
+        "file://app/lib/errors/index.ts",
+        "file://app/features/batches/server.ts",
+        "file://app/features/batches/service.ts",
+        "file://app/features/batches/repository.ts",
+        {
+            "type": "knowledgeBase",
+            "source": "file://./docs",
+            "name": "ProjectDocs",
+            "description": "Architecture, database, deployment, testing, and API documentation",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./DEVLOG.md",
+            "name": "DevLog",
+            "description": "Development history, decisions, and progress tracking",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./app/lib/db",
+            "name": "DatabasePatterns",
+            "description": "Database schema, migrations, types, and query patterns",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        "skill://.kiro/skills/neon-database/SKILL.md",
+        "skill://.kiro/skills/dynamic-imports/SKILL.md",
+        "skill://.kiro/skills/kysely-orm/SKILL.md",
+        "skill://.kiro/skills/three-layer-architecture/SKILL.md",
+        "skill://.kiro/skills/tanstack-start/SKILL.md",
+        "skill://.kiro/skills/zod-validation/SKILL.md",
+        "skill://.kiro/skills/error-handling/SKILL.md",
+        "skill://.kiro/skills/financial-integrity/SKILL.md",
+        "skill://.kiro/skills/agentic-feature-design/SKILL.md",
+        "skill://.kiro/skills/observability-patterns/SKILL.md"
+    ],
+    "hooks": {
+        "agentSpawn": [
+            {
+                "command": "echo '⚙️ Backend Engineer ready.' && git status --short 2>/dev/null | head -5 || echo 'Not a git repo'",
+                "timeout_ms": 5000
+            }
+        ],
+        "postToolUse": [
+            {
+                "matcher": "fs_write",
+                "command": "bun run lint --fix 2>/dev/null || true",
+                "timeout_ms": 30000
+            }
+        ]
+    },
+    "includeMcpJson": true,
+    "model": "claude-sonnet-4.5",
+    "mcpServers": {
+        "neon": {
+            "command": "bunx",
+            "args": [
+                "mcp-remote",
+                "https://mcp.neon.tech/mcp",
+                "3334",
+                "--cache-dir",
+                "${HOME}/.mcp-cache/neon"
+            ],
+            "disabled": false,
+            "autoApprove": [
+                "list_projects",
+                "get_project",
+                "get_database_tables",
+                "describe_table_schema",
+                "get_database_schema",
+                "list_databases"
+            ]
+        }
     }
-  }
 }

@@ -12,8 +12,8 @@ import type { UserSettings } from './currency-presets'
  * Base unit: kilograms (kg)
  */
 const WEIGHT_FACTORS = {
-  kg: 1,
-  lbs: 2.20462,
+    kg: 1,
+    lbs: 2.20462,
 } as const
 
 /**
@@ -21,8 +21,8 @@ const WEIGHT_FACTORS = {
  * Base unit: square meters (sqm)
  */
 const AREA_FACTORS = {
-  sqm: 1,
-  sqft: 10.7639,
+    sqm: 1,
+    sqft: 10.7639,
 } as const
 
 /**
@@ -30,8 +30,8 @@ const AREA_FACTORS = {
  * Base unit: Celsius
  */
 const TEMPERATURE = {
-  toFahrenheit: (celsius: number): number => (celsius * 9) / 5 + 32,
-  toCelsius: (fahrenheit: number): number => ((fahrenheit - 32) * 5) / 9,
+    toFahrenheit: (celsius: number): number => (celsius * 9) / 5 + 32,
+    toCelsius: (fahrenheit: number): number => ((fahrenheit - 32) * 5) / 9,
 }
 
 // ============ DISPLAY FORMATTING ============
@@ -44,11 +44,11 @@ const TEMPERATURE = {
  * @returns Formatted weight string with unit (e.g., "2.50 kg" or "5.51 lbs")
  */
 export function formatWeight(
-  valueKg: number,
-  settings: Pick<UserSettings, 'weightUnit'>,
+    valueKg: number,
+    settings: Pick<UserSettings, 'weightUnit'>,
 ): string {
-  const converted = valueKg * WEIGHT_FACTORS[settings.weightUnit]
-  return `${converted.toFixed(2)} ${settings.weightUnit}`
+    const converted = valueKg * WEIGHT_FACTORS[settings.weightUnit]
+    return `${converted.toFixed(2)} ${settings.weightUnit}`
 }
 
 /**
@@ -59,11 +59,11 @@ export function formatWeight(
  * @returns Formatted weight number string (e.g., "2.50" or "5.51")
  */
 export function formatWeightValue(
-  valueKg: number,
-  settings: Pick<UserSettings, 'weightUnit'>,
+    valueKg: number,
+    settings: Pick<UserSettings, 'weightUnit'>,
 ): string {
-  const converted = valueKg * WEIGHT_FACTORS[settings.weightUnit]
-  return converted.toFixed(2)
+    const converted = valueKg * WEIGHT_FACTORS[settings.weightUnit]
+    return converted.toFixed(2)
 }
 
 /**
@@ -74,12 +74,12 @@ export function formatWeightValue(
  * @returns Formatted area string with unit (e.g., "100.00 m²" or "1076.39 ft²")
  */
 export function formatArea(
-  valueSqm: number,
-  settings: Pick<UserSettings, 'areaUnit'>,
+    valueSqm: number,
+    settings: Pick<UserSettings, 'areaUnit'>,
 ): string {
-  const converted = valueSqm * AREA_FACTORS[settings.areaUnit]
-  const unitLabel = settings.areaUnit === 'sqm' ? 'm²' : 'ft²'
-  return `${converted.toFixed(2)} ${unitLabel}`
+    const converted = valueSqm * AREA_FACTORS[settings.areaUnit]
+    const unitLabel = settings.areaUnit === 'sqm' ? 'm²' : 'ft²'
+    return `${converted.toFixed(2)} ${unitLabel}`
 }
 
 /**
@@ -90,11 +90,11 @@ export function formatArea(
  * @returns Formatted area number string (e.g., "100.00" or "1076.39")
  */
 export function formatAreaValue(
-  valueSqm: number,
-  settings: Pick<UserSettings, 'areaUnit'>,
+    valueSqm: number,
+    settings: Pick<UserSettings, 'areaUnit'>,
 ): string {
-  const converted = valueSqm * AREA_FACTORS[settings.areaUnit]
-  return converted.toFixed(2)
+    const converted = valueSqm * AREA_FACTORS[settings.areaUnit]
+    return converted.toFixed(2)
 }
 
 /**
@@ -105,14 +105,14 @@ export function formatAreaValue(
  * @returns Formatted temperature string with unit (e.g., "25.0°C" or "77.0°F")
  */
 export function formatTemperature(
-  valueCelsius: number,
-  settings: Pick<UserSettings, 'temperatureUnit'>,
+    valueCelsius: number,
+    settings: Pick<UserSettings, 'temperatureUnit'>,
 ): string {
-  if (settings.temperatureUnit === 'fahrenheit') {
-    const fahrenheit = TEMPERATURE.toFahrenheit(valueCelsius)
-    return `${fahrenheit.toFixed(1)}°F`
-  }
-  return `${valueCelsius.toFixed(1)}°C`
+    if (settings.temperatureUnit === 'fahrenheit') {
+        const fahrenheit = TEMPERATURE.toFahrenheit(valueCelsius)
+        return `${fahrenheit.toFixed(1)}°F`
+    }
+    return `${valueCelsius.toFixed(1)}°C`
 }
 
 /**
@@ -123,14 +123,14 @@ export function formatTemperature(
  * @returns Formatted temperature number string (e.g., "25.0" or "77.0")
  */
 export function formatTemperatureValue(
-  valueCelsius: number,
-  settings: Pick<UserSettings, 'temperatureUnit'>,
+    valueCelsius: number,
+    settings: Pick<UserSettings, 'temperatureUnit'>,
 ): string {
-  if (settings.temperatureUnit === 'fahrenheit') {
-    const fahrenheit = TEMPERATURE.toFahrenheit(valueCelsius)
-    return fahrenheit.toFixed(1)
-  }
-  return valueCelsius.toFixed(1)
+    if (settings.temperatureUnit === 'fahrenheit') {
+        const fahrenheit = TEMPERATURE.toFahrenheit(valueCelsius)
+        return fahrenheit.toFixed(1)
+    }
+    return valueCelsius.toFixed(1)
 }
 
 // ============ CONVERSION TO METRIC (FOR STORAGE) ============
@@ -143,7 +143,7 @@ export function formatTemperatureValue(
  * @returns Weight in kilograms
  */
 export function toMetricWeight(value: number, unit: 'kg' | 'lbs'): number {
-  return value / WEIGHT_FACTORS[unit]
+    return value / WEIGHT_FACTORS[unit]
 }
 
 /**
@@ -154,7 +154,7 @@ export function toMetricWeight(value: number, unit: 'kg' | 'lbs'): number {
  * @returns Area in square meters
  */
 export function toMetricArea(value: number, unit: 'sqm' | 'sqft'): number {
-  return value / AREA_FACTORS[unit]
+    return value / AREA_FACTORS[unit]
 }
 
 /**
@@ -165,10 +165,10 @@ export function toMetricArea(value: number, unit: 'sqm' | 'sqft'): number {
  * @returns Temperature in Celsius
  */
 export function toCelsius(
-  value: number,
-  unit: 'celsius' | 'fahrenheit',
+    value: number,
+    unit: 'celsius' | 'fahrenheit',
 ): number {
-  return unit === 'fahrenheit' ? TEMPERATURE.toCelsius(value) : value
+    return unit === 'fahrenheit' ? TEMPERATURE.toCelsius(value) : value
 }
 
 // ============ CONVERSION FROM METRIC (FOR DISPLAY) ============
@@ -181,7 +181,7 @@ export function toCelsius(
  * @returns Weight in display unit
  */
 export function fromMetricWeight(valueKg: number, unit: 'kg' | 'lbs'): number {
-  return valueKg * WEIGHT_FACTORS[unit]
+    return valueKg * WEIGHT_FACTORS[unit]
 }
 
 /**
@@ -192,7 +192,7 @@ export function fromMetricWeight(valueKg: number, unit: 'kg' | 'lbs'): number {
  * @returns Area in display unit
  */
 export function fromMetricArea(valueSqm: number, unit: 'sqm' | 'sqft'): number {
-  return valueSqm * AREA_FACTORS[unit]
+    return valueSqm * AREA_FACTORS[unit]
 }
 
 /**
@@ -203,12 +203,12 @@ export function fromMetricArea(valueSqm: number, unit: 'sqm' | 'sqft'): number {
  * @returns Temperature in display unit
  */
 export function fromCelsius(
-  valueCelsius: number,
-  unit: 'celsius' | 'fahrenheit',
+    valueCelsius: number,
+    unit: 'celsius' | 'fahrenheit',
 ): number {
-  return unit === 'fahrenheit'
-    ? TEMPERATURE.toFahrenheit(valueCelsius)
-    : valueCelsius
+    return unit === 'fahrenheit'
+        ? TEMPERATURE.toFahrenheit(valueCelsius)
+        : valueCelsius
 }
 
 // ============ UNIT LABELS ============
@@ -217,19 +217,19 @@ export function fromCelsius(
  * Get the display label for a weight unit
  */
 export function getWeightLabel(unit: 'kg' | 'lbs'): string {
-  return unit
+    return unit
 }
 
 /**
  * Get the display label for an area unit
  */
 export function getAreaLabel(unit: 'sqm' | 'sqft'): string {
-  return unit === 'sqm' ? 'm²' : 'ft²'
+    return unit === 'sqm' ? 'm²' : 'ft²'
 }
 
 /**
  * Get the display label for a temperature unit
  */
 export function getTemperatureLabel(unit: 'celsius' | 'fahrenheit'): string {
-  return unit === 'celsius' ? '°C' : '°F'
+    return unit === 'celsius' ? '°C' : '°F'
 }

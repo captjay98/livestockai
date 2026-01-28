@@ -8,8 +8,8 @@ import Decimal from 'decimal.js'
 
 // Configure Decimal.js for currency operations
 Decimal.set({
-  precision: 20,
-  rounding: Decimal.ROUND_HALF_UP,
+    precision: 20,
+    rounding: Decimal.ROUND_HALF_UP,
 })
 
 /**
@@ -24,13 +24,13 @@ export type MoneyInput = string | number | Decimal | undefined | null
  * @returns Decimal instance
  */
 export function toDecimal(value: MoneyInput): Decimal {
-  if (value instanceof Decimal) {
-    return value
-  }
-  if (value === undefined || value === null || value === '') {
-    return new Decimal(0)
-  }
-  return new Decimal(value)
+    if (value instanceof Decimal) {
+        return value
+    }
+    if (value === undefined || value === null || value === '') {
+        return new Decimal(0)
+    }
+    return new Decimal(value)
 }
 
 /**
@@ -39,10 +39,10 @@ export function toDecimal(value: MoneyInput): Decimal {
  * @returns Number representation
  */
 export function toNumber(value: MoneyInput | undefined | null): number {
-  if (value === undefined || value === null || value === '') {
-    return 0
-  }
-  return toDecimal(value).toNumber()
+    if (value === undefined || value === null || value === '') {
+        return 0
+    }
+    return toDecimal(value).toNumber()
 }
 
 /**
@@ -51,7 +51,7 @@ export function toNumber(value: MoneyInput | undefined | null): number {
  * @returns String with 2 decimal places
  */
 export function toDbString(value: MoneyInput): string {
-  return toDecimal(value).toFixed(2)
+    return toDecimal(value).toFixed(2)
 }
 
 // Re-export Decimal for use in other modules

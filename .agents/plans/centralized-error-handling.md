@@ -65,11 +65,11 @@ Create a two-part error system:
 ### Relevant Documentation
 
 - [TanStack Start Error Boundaries](https://tanstack.com/start/latest/docs/framework/react/guide/error-boundaries)
-  - Shows errorComponent pattern for routes
+    - Shows errorComponent pattern for routes
 - [TanStack Start Observability](https://tanstack.com/start/latest/docs/framework/react/guide/observability)
-  - Shows error logging patterns in server functions
+    - Shows error logging patterns in server functions
 - [Unified Error Handling Pattern](https://hsawana9.com/docs/error)
-  - AppError class and ErrorMap pattern reference
+    - AppError class and ErrorMap pattern reference
 
 ### Patterns to Follow
 
@@ -87,10 +87,10 @@ throw new Error('Batch not found')
 import { AppError } from '~/lib/errors'
 
 throw new AppError('ACCESS_DENIED', {
-  metadata: { farmId, userId },
+    metadata: { farmId, userId },
 })
 throw new AppError('NOT_FOUND', {
-  metadata: { resourceType: 'batch', resourceId: batchId },
+    metadata: { resourceType: 'batch', resourceId: batchId },
 })
 ```
 
@@ -171,20 +171,20 @@ Integrate with error boundaries and toasts.
 
 ```typescript
 export interface ErrorMetadata {
-  userId?: string
-  farmId?: string
-  resourceId?: string
-  resourceType?: string
-  action?: string
-  field?: string
-  [key: string]: unknown
+    userId?: string
+    farmId?: string
+    resourceId?: string
+    resourceType?: string
+    action?: string
+    field?: string
+    [key: string]: unknown
 }
 
 export interface ErrorDefinition {
-  code: number
-  httpStatus: number
-  category: 'AUTH' | 'VALIDATION' | 'NOT_FOUND' | 'FORBIDDEN' | 'SERVER'
-  message: string // Developer message (not shown to users)
+    code: number
+    httpStatus: number
+    category: 'AUTH' | 'VALIDATION' | 'NOT_FOUND' | 'FORBIDDEN' | 'SERVER'
+    message: string // Developer message (not shown to users)
 }
 ```
 
@@ -196,93 +196,93 @@ export interface ErrorDefinition {
 
 ```typescript
 export const ErrorMap = {
-  // Auth (401xx)
-  UNAUTHORIZED: {
-    code: 40100,
-    httpStatus: 401,
-    category: 'AUTH',
-    message: 'Not authenticated',
-  },
-  SESSION_EXPIRED: {
-    code: 40101,
-    httpStatus: 401,
-    category: 'AUTH',
-    message: 'Session expired',
-  },
-  INVALID_CREDENTIALS: {
-    code: 40102,
-    httpStatus: 401,
-    category: 'AUTH',
-    message: 'Invalid credentials',
-  },
+    // Auth (401xx)
+    UNAUTHORIZED: {
+        code: 40100,
+        httpStatus: 401,
+        category: 'AUTH',
+        message: 'Not authenticated',
+    },
+    SESSION_EXPIRED: {
+        code: 40101,
+        httpStatus: 401,
+        category: 'AUTH',
+        message: 'Session expired',
+    },
+    INVALID_CREDENTIALS: {
+        code: 40102,
+        httpStatus: 401,
+        category: 'AUTH',
+        message: 'Invalid credentials',
+    },
 
-  // Forbidden (403xx)
-  ACCESS_DENIED: {
-    code: 40300,
-    httpStatus: 403,
-    category: 'FORBIDDEN',
-    message: 'Access denied',
-  },
-  BANNED: {
-    code: 40301,
-    httpStatus: 403,
-    category: 'FORBIDDEN',
-    message: 'User is banned',
-  },
+    // Forbidden (403xx)
+    ACCESS_DENIED: {
+        code: 40300,
+        httpStatus: 403,
+        category: 'FORBIDDEN',
+        message: 'Access denied',
+    },
+    BANNED: {
+        code: 40301,
+        httpStatus: 403,
+        category: 'FORBIDDEN',
+        message: 'User is banned',
+    },
 
-  // Not Found (404xx)
-  NOT_FOUND: {
-    code: 40400,
-    httpStatus: 404,
-    category: 'NOT_FOUND',
-    message: 'Resource not found',
-  },
-  FARM_NOT_FOUND: {
-    code: 40401,
-    httpStatus: 404,
-    category: 'NOT_FOUND',
-    message: 'Farm not found',
-  },
-  BATCH_NOT_FOUND: {
-    code: 40402,
-    httpStatus: 404,
-    category: 'NOT_FOUND',
-    message: 'Batch not found',
-  },
+    // Not Found (404xx)
+    NOT_FOUND: {
+        code: 40400,
+        httpStatus: 404,
+        category: 'NOT_FOUND',
+        message: 'Resource not found',
+    },
+    FARM_NOT_FOUND: {
+        code: 40401,
+        httpStatus: 404,
+        category: 'NOT_FOUND',
+        message: 'Farm not found',
+    },
+    BATCH_NOT_FOUND: {
+        code: 40402,
+        httpStatus: 404,
+        category: 'NOT_FOUND',
+        message: 'Batch not found',
+    },
 
-  // Validation (400xx)
-  VALIDATION_ERROR: {
-    code: 40000,
-    httpStatus: 400,
-    category: 'VALIDATION',
-    message: 'Validation failed',
-  },
-  INVALID_INPUT: {
-    code: 40001,
-    httpStatus: 400,
-    category: 'VALIDATION',
-    message: 'Invalid input',
-  },
-  INSUFFICIENT_STOCK: {
-    code: 40002,
-    httpStatus: 400,
-    category: 'VALIDATION',
-    message: 'Insufficient stock',
-  },
+    // Validation (400xx)
+    VALIDATION_ERROR: {
+        code: 40000,
+        httpStatus: 400,
+        category: 'VALIDATION',
+        message: 'Validation failed',
+    },
+    INVALID_INPUT: {
+        code: 40001,
+        httpStatus: 400,
+        category: 'VALIDATION',
+        message: 'Invalid input',
+    },
+    INSUFFICIENT_STOCK: {
+        code: 40002,
+        httpStatus: 400,
+        category: 'VALIDATION',
+        message: 'Insufficient stock',
+    },
 
-  // Server (500xx)
-  INTERNAL_ERROR: {
-    code: 50000,
-    httpStatus: 500,
-    category: 'SERVER',
-    message: 'Internal server error',
-  },
-  DATABASE_ERROR: {
-    code: 50001,
-    httpStatus: 500,
-    category: 'SERVER',
-    message: 'Database error',
-  },
+    // Server (500xx)
+    INTERNAL_ERROR: {
+        code: 50000,
+        httpStatus: 500,
+        category: 'SERVER',
+        message: 'Internal server error',
+    },
+    DATABASE_ERROR: {
+        code: 50001,
+        httpStatus: 500,
+        category: 'SERVER',
+        message: 'Database error',
+    },
 } as const
 
 export type ReasonCode = keyof typeof ErrorMap
@@ -300,52 +300,52 @@ import { ErrorMap, type ReasonCode } from './error-map'
 import type { ErrorMetadata } from './types'
 
 export class AppError extends Error {
-  public readonly reason: ReasonCode
-  public readonly code: number
-  public readonly httpStatus: number
-  public readonly category: string
-  public readonly metadata: ErrorMetadata
+    public readonly reason: ReasonCode
+    public readonly code: number
+    public readonly httpStatus: number
+    public readonly category: string
+    public readonly metadata: ErrorMetadata
 
-  constructor(
-    reason: ReasonCode,
-    options?: { metadata?: ErrorMetadata; cause?: unknown },
-  ) {
-    const def = ErrorMap[reason]
-    super(def.message)
-    this.name = 'AppError'
-    this.reason = reason
-    this.code = def.code
-    this.httpStatus = def.httpStatus
-    this.category = def.category
-    this.metadata = options?.metadata ?? {}
-    this.cause = options?.cause
-  }
-
-  toJSON() {
-    return {
-      name: this.name,
-      reason: this.reason,
-      code: this.code,
-      httpStatus: this.httpStatus,
-      category: this.category,
-      message: this.message,
-      metadata: this.metadata,
+    constructor(
+        reason: ReasonCode,
+        options?: { metadata?: ErrorMetadata; cause?: unknown },
+    ) {
+        const def = ErrorMap[reason]
+        super(def.message)
+        this.name = 'AppError'
+        this.reason = reason
+        this.code = def.code
+        this.httpStatus = def.httpStatus
+        this.category = def.category
+        this.metadata = options?.metadata ?? {}
+        this.cause = options?.cause
     }
-  }
 
-  static isAppError(error: unknown): error is AppError {
-    return (
-      error instanceof AppError ||
-      (error instanceof Error && error.name === 'AppError')
-    )
-  }
+    toJSON() {
+        return {
+            name: this.name,
+            reason: this.reason,
+            code: this.code,
+            httpStatus: this.httpStatus,
+            category: this.category,
+            message: this.message,
+            metadata: this.metadata,
+        }
+    }
 
-  static fromJSON(json: ReturnType<AppError['toJSON']>): AppError {
-    const err = new AppError(json.reason as ReasonCode, {
-      metadata: json.metadata,
-    })
-    return err
-  }
+    static isAppError(error: unknown): error is AppError {
+        return (
+            error instanceof AppError ||
+            (error instanceof Error && error.name === 'AppError')
+        )
+    }
+
+    static fromJSON(json: ReturnType<AppError['toJSON']>): AppError {
+        const err = new AppError(json.reason as ReasonCode, {
+            metadata: json.metadata,
+        })
+        return err
+    }
 }
 ```
 
@@ -432,17 +432,19 @@ import { useTranslation } from 'react-i18next'
 import { AppError } from '~/lib/errors'
 
 export function useErrorMessage() {
-  const { t } = useTranslation('common')
+    const { t } = useTranslation('common')
 
-  return (error: unknown): string => {
-    if (AppError.isAppError(error)) {
-      return t(`errors.${error.reason}`, { defaultValue: t('errors.unknown') })
+    return (error: unknown): string => {
+        if (AppError.isAppError(error)) {
+            return t(`errors.${error.reason}`, {
+                defaultValue: t('errors.unknown'),
+            })
+        }
+        if (error instanceof Error) {
+            return error.message
+        }
+        return t('errors.unknown')
     }
-    if (error instanceof Error) {
-      return error.message
-    }
-    return t('errors.unknown')
-  }
 }
 ```
 
@@ -476,24 +478,27 @@ throw new AppError('BANNED', { metadata: { userId: session.user.id } })
 import { AppError } from '~/lib/errors'
 
 export const createQueryClient = () => {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        gcTime: 1000 * 60 * 60 * 24,
-        staleTime: 1000 * 60,
-        retry: (failureCount, error) => {
-          // Don't retry auth errors
-          if (AppError.isAppError(error)) {
-            if (error.category === 'AUTH' || error.category === 'FORBIDDEN') {
-              return false
-            }
-          }
-          if ((error as any).status === 404) return false
-          return failureCount < 3
+    return new QueryClient({
+        defaultOptions: {
+            queries: {
+                gcTime: 1000 * 60 * 60 * 24,
+                staleTime: 1000 * 60,
+                retry: (failureCount, error) => {
+                    // Don't retry auth errors
+                    if (AppError.isAppError(error)) {
+                        if (
+                            error.category === 'AUTH' ||
+                            error.category === 'FORBIDDEN'
+                        ) {
+                            return false
+                        }
+                    }
+                    if ((error as any).status === 404) return false
+                    return failureCount < 3
+                },
+            },
         },
-      },
-    },
-  })
+    })
 }
 ```
 
@@ -508,13 +513,13 @@ import { useTranslation } from 'react-i18next'
 import { AppError } from '~/lib/errors'
 
 export function ErrorPage({ error, reset }: ErrorPageProps) {
-  const { t } = useTranslation('common')
+    const { t } = useTranslation('common')
 
-  const errorMessage = AppError.isAppError(error)
-    ? t(`errors.${error.reason}`, { defaultValue: t('errors.unknown') })
-    : t('errors.unknown')
+    const errorMessage = AppError.isAppError(error)
+        ? t(`errors.${error.reason}`, { defaultValue: t('errors.unknown') })
+        : t('errors.unknown')
 
-  // Use errorMessage in the UI
+    // Use errorMessage in the UI
 }
 ```
 

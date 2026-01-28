@@ -243,23 +243,23 @@ bun run db:seed:dev  # Sembrar datos de demostración completos
 
 1. Instale Wrangler CLI:
 
-   ```bash
-   bun add -g wrangler
-   wrangler login
-   ```
+    ```bash
+    bun add -g wrangler
+    wrangler login
+    ```
 
 2. Establezca sus secretos:
 
-   ```bash
-   wrangler secret put DATABASE_URL
-   wrangler secret put BETTER_AUTH_SECRET
-   wrangler secret put BETTER_AUTH_URL
-   ```
+    ```bash
+    wrangler secret put DATABASE_URL
+    wrangler secret put BETTER_AUTH_SECRET
+    wrangler secret put BETTER_AUTH_URL
+    ```
 
 3. Desplegar:
-   ```bash
-   bun run deploy
-   ```
+    ```bash
+    bun run deploy
+    ```
 
 ### Otras Plataformas
 

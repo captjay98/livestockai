@@ -46,10 +46,10 @@ If user lacks access to the farm or inventory is insufficient
 
 ```typescript
 const recordId = await createFeedRecord('user_1', 'farm_A', {
-  batchId: 'batch_123',
-  feedType: 'starter',
-  quantityKg: 25,
-  cost: 15000,
-  date: new Date(),
+    batchId: 'batch_123',
+    feedType: 'starter',
+    quantityKg: 25,
+    cost: 15000,
+    date: new Date(),
 })
 ```

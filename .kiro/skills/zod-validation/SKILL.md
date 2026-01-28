@@ -17,19 +17,19 @@ import { z } from 'zod'
 
 // ✅ Correct - Zod validation
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    z.object({
-      farmId: z.string().uuid(),
-      species: z.string().min(1).max(100),
-      quantity: z.number().int().positive(),
-    }),
-  )
-  .handler(async ({ data }) => {
-    // data is fully typed and validated
-  })
+    .inputValidator(
+        z.object({
+            farmId: z.string().uuid(),
+            species: z.string().min(1).max(100),
+            quantity: z.number().int().positive(),
+        }),
+    )
+    .handler(async ({ data }) => {
+        // data is fully typed and validated
+    })
 
-  // ❌ Wrong - No validation
-  .inputValidator((data: { farmId: string }) => data)
+    // ❌ Wrong - No validation
+    .inputValidator((data: { farmId: string }) => data)
 ```
 
 ## Common Patterns
@@ -89,23 +89,23 @@ notes: z.string().nullish()
 
 ```typescript
 const createBatchSchema = z.object({
-  farmId: z.string().uuid(),
-  livestockType: z.enum([
-    'poultry',
-    'fish',
-    'cattle',
-    'goats',
-    'sheep',
-    'bees',
-  ]),
-  species: z.string().min(1).max(100),
-  breedId: z.string().uuid().nullish(),
-  initialQuantity: z.number().int().positive(),
-  acquisitionDate: z.coerce.date(),
-  costPerUnit: z.number().nonnegative(),
-  batchName: z.string().max(100).nullish(),
-  targetHarvestDate: z.coerce.date().nullish(),
-  notes: z.string().max(500).nullish(),
+    farmId: z.string().uuid(),
+    livestockType: z.enum([
+        'poultry',
+        'fish',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+    ]),
+    species: z.string().min(1).max(100),
+    breedId: z.string().uuid().nullish(),
+    initialQuantity: z.number().int().positive(),
+    acquisitionDate: z.coerce.date(),
+    costPerUnit: z.number().nonnegative(),
+    batchName: z.string().max(100).nullish(),
+    targetHarvestDate: z.coerce.date().nullish(),
+    notes: z.string().max(500).nullish(),
 })
 ```
 
@@ -113,11 +113,11 @@ const createBatchSchema = z.object({
 
 ```typescript
 const paginatedQuerySchema = z.object({
-  page: z.number().int().positive().optional().default(1),
-  pageSize: z.number().int().positive().max(100).optional().default(10),
-  sortBy: z.string().optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
-  search: z.string().optional(),
+    page: z.number().int().positive().optional().default(1),
+    pageSize: z.number().int().positive().max(100).optional().default(10),
+    sortBy: z.string().optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional(),
+    search: z.string().optional(),
 })
 ```
 

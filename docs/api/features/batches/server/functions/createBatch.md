@@ -40,11 +40,11 @@ If the user lacks access to the specified farm
 
 ```typescript
 const id = await createBatch('user_1', {
-  farmId: 'farm_A',
-  livestockType: 'poultry',
-  species: 'Broiler',
-  initialQuantity: 100,
-  acquisitionDate: new Date(),
-  costPerUnit: 500,
+    farmId: 'farm_A',
+    livestockType: 'poultry',
+    species: 'Broiler',
+    initialQuantity: 100,
+    acquisitionDate: new Date(),
+    costPerUnit: 500,
 })
 ```

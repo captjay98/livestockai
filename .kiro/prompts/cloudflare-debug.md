@@ -206,7 +206,7 @@ Ensure `wrangler.jsonc` has:
 
 ```jsonc
 {
-  "compatibility_flags": ["nodejs_compat"],
+    "compatibility_flags": ["nodejs_compat"],
 }
 ```
 
@@ -232,29 +232,29 @@ After applying fixes, verify:
 
 1. **Build succeeds:**
 
-   ```bash
-   bun run build
-   ```
+    ```bash
+    bun run build
+    ```
 
 2. **Deployment succeeds:**
 
-   ```bash
-   wrangler deploy --dry-run
-   ```
+    ```bash
+    wrangler deploy --dry-run
+    ```
 
 3. **App responds:**
 
-   ```bash
-   curl https://your-worker.workers.dev/api/health
-   ```
+    ```bash
+    curl https://your-worker.workers.dev/api/health
+    ```
 
 4. **Database connects:**
-   - Use Neon MCP: `neon__run_sql "SELECT 1"`
-   - Or check logs: `wrangler tail`
+    - Use Neon MCP: `neon__run_sql "SELECT 1"`
+    - Or check logs: `wrangler tail`
 
 5. **Monitor for errors:**
-   - Watch logs for 5 minutes
-   - Check error rate in dashboard
+    - Watch logs for 5 minutes
+    - Check error rate in dashboard
 
 **Ask user:** "All checks passed. Monitor the deployment for the next hour and let me know if issues recur."
 

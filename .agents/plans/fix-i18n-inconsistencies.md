@@ -55,11 +55,11 @@ None - all changes are updates to existing locale files
 ### Relevant Documentation YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [react-i18next Documentation](https://react.i18next.com/latest/usetranslation-hook)
-  - Specific section: Translation key structure
-  - Why: Understand proper key naming and nesting conventions
+    - Specific section: Translation key structure
+    - Why: Understand proper key naming and nesting conventions
 - [i18next Interpolation](https://www.i18next.com/translation-function/interpolation)
-  - Specific section: Variable interpolation syntax
-  - Why: Ensure error messages with variables are properly formatted
+    - Specific section: Variable interpolation syntax
+    - Why: Ensure error messages with variables are properly formatted
 
 ### Patterns to Follow
 
@@ -1421,24 +1421,24 @@ console.log('PASS: French has no extra batch status keys');
 **Test in browser:**
 
 1. **English locale** (`/settings` → change language to English):
-   - Navigate to `/reports` → verify feed.summary.\* keys render
-   - Navigate to `/eggs` → verify eggs.columns.\* keys render
-   - Trigger an error → verify error message displays
+    - Navigate to `/reports` → verify feed.summary.\* keys render
+    - Navigate to `/eggs` → verify eggs.columns.\* keys render
+    - Trigger an error → verify error message displays
 
 2. **Nigerian languages** (ha, yo, ig):
-   - Change language in settings
-   - Trigger batch update error → verify Hausa/Yoruba/Igbo error message
-   - Navigate to user management → trigger user error → verify translation
+    - Change language in settings
+    - Trigger batch update error → verify Hausa/Yoruba/Igbo error message
+    - Navigate to user management → trigger user error → verify translation
 
 3. **Unicode script languages** (hi, am, th, bn):
-   - Change language in settings
-   - Verify all text renders properly (no boxes/question marks)
-   - Trigger errors → verify script displays correctly
+    - Change language in settings
+    - Verify all text renders properly (no boxes/question marks)
+    - Trigger errors → verify script displays correctly
 
 4. **Diacritic languages** (fr, es, pt, vi, tr):
-   - Change language in settings
-   - Verify accents display correctly (é, ñ, ã, ă, ğ)
-   - Trigger errors → verify diacritics in error messages
+    - Change language in settings
+    - Verify accents display correctly (é, ñ, ã, ă, ğ)
+    - Trigger errors → verify diacritics in error messages
 
 ---
 

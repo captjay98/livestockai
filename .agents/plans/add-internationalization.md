@@ -78,14 +78,14 @@ Expand existing i18n infrastructure (i18next + react-i18next) with:
 ### Relevant Documentation - YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [i18next Documentation](https://www.i18next.com/)
-  - Specific section: Namespaces, Plurals, Interpolation
-  - Why: Advanced i18n features
+    - Specific section: Namespaces, Plurals, Interpolation
+    - Why: Advanced i18n features
 - [react-i18next Documentation](https://react.i18next.com/)
-  - Specific section: useTranslation hook, Trans component
-  - Why: React integration patterns
+    - Specific section: useTranslation hook, Trans component
+    - Why: React integration patterns
 - [ICU Message Format](https://unicode-org.github.io/icu/userguide/format_parse/messages/)
-  - Specific section: Plurals, Gender
-  - Why: Complex translation patterns
+    - Specific section: Plurals, Gender
+    - Why: Complex translation patterns
 
 ### Patterns to Follow
 
@@ -93,30 +93,30 @@ Expand existing i18n infrastructure (i18next + react-i18next) with:
 
 ```typescript
 export const fr = {
-  common: {
-    // Navigation
-    dashboard: 'Tableau de bord',
-    batches: 'Lots',
-    inventory: 'Inventaire',
-    sales: 'Ventes',
-    expenses: 'Dépenses',
-    reports: 'Rapports',
-    settings: 'Paramètres',
+    common: {
+        // Navigation
+        dashboard: 'Tableau de bord',
+        batches: 'Lots',
+        inventory: 'Inventaire',
+        sales: 'Ventes',
+        expenses: 'Dépenses',
+        reports: 'Rapports',
+        settings: 'Paramètres',
 
-    // Actions
-    add: 'Ajouter',
-    edit: 'Modifier',
-    delete: 'Supprimer',
-    save: 'Enregistrer',
-    cancel: 'Annuler',
-  },
-  batches: {
-    title: 'Gestion des lots',
-    create: 'Créer un lot',
-    species: 'Espèce',
-    quantity: 'Quantité',
-    // ...
-  },
+        // Actions
+        add: 'Ajouter',
+        edit: 'Modifier',
+        delete: 'Supprimer',
+        save: 'Enregistrer',
+        cancel: 'Annuler',
+    },
+    batches: {
+        title: 'Gestion des lots',
+        create: 'Créer un lot',
+        species: 'Espèce',
+        quantity: 'Quantité',
+        // ...
+    },
 }
 ```
 
@@ -281,10 +281,10 @@ Validate translations:
 
 - **IMPLEMENT**: Script to validate all translations
 - **CHECKS**:
-  - All keys present in all languages
-  - No missing translations
-  - No extra keys
-  - Pluralization rules correct
+    - All keys present in all languages
+    - No missing translations
+    - No extra keys
+    - Pluralization rules correct
 - **OUTPUT**: Report of missing/extra keys
 - **VALIDATE**: `bun run scripts/validate-translations.ts`
 

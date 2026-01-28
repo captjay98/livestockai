@@ -29,12 +29,12 @@ Automatically update DEVLOG.md with recent development work, maintaining consist
 2. Analyze git status and recent changes
 3. Review modified files and their purpose
 4. Generate DEVLOG entry with sections:
-   - Context
-   - What was built
-   - Technical decisions
-   - Challenges and solutions
-   - Metrics
-   - Key insights
+    - Context
+    - What was built
+    - Technical decisions
+    - Challenges and solutions
+    - Metrics
+    - Key insights
 5. Append to DEVLOG.md
 
 ### Input Parameters
@@ -68,17 +68,17 @@ Create structured commit plan for staged/unstaged changes, following conventiona
 
 1. Run git status to see changes
 2. Analyze modified files by category:
-   - Features (feat)
-   - Bug fixes (fix)
-   - Refactoring (refactor)
-   - Documentation (docs)
-   - Tests (test)
-   - Chores (chore)
+    - Features (feat)
+    - Bug fixes (fix)
+    - Refactoring (refactor)
+    - Documentation (docs)
+    - Tests (test)
+    - Chores (chore)
 3. Group related changes into logical commits
 4. Generate commit messages with:
-   - Type and scope
-   - Short description
-   - Detailed body
+    - Type and scope
+    - Short description
+    - Detailed body
 5. Create execution plan with validation
 
 ### Commit Message Format

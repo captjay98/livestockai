@@ -88,9 +88,9 @@ All `features/*/components/` directories that are empty after moving components:
 ### Relevant Documentation
 
 - [TanStack Start Server Routes](https://tanstack.com/start/latest/docs/framework/react/guide/server-routes)
-  - Server routes can be defined alongside app routes in the same file
-  - No need for separate `/api/` directory
-  - Use `server.handlers` property in route files for API endpoints
+    - Server routes can be defined alongside app routes in the same file
+    - No need for separate `/api/` directory
+    - Use `server.handlers` property in route files for API endpoints
 
 ### Target Structure After Cleanup
 

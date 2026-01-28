@@ -17,21 +17,21 @@ These examples show how to implement the `SMSProvider` and `EmailProvider` inter
 
 1. Install dependencies for the examples:
 
-   ```bash
-   cd examples
-   bun install
-   ```
+    ```bash
+    cd examples
+    bun install
+    ```
 
 2. Copy the environment template and add your credentials:
 
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 
 3. Run the tests to see the examples in action:
-   ```bash
-   bun test
-   ```
+    ```bash
+    bun test
+    ```
 
 ## Included Examples
 

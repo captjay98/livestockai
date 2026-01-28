@@ -39,10 +39,10 @@ These are improvements to be implemented after critical audit remediation is com
 - [ ] Add Labor hours/cost tracking (20-30% of production costs)
 - [ ] Add Environmental monitoring (Temperature/Humidity sensors)
 - [ ] Add Beekeeping specific metrics:
-  - Honey yield per hive
-  - Hive health scoring
-  - Varroa mite monitoring
-  - Swarm prevention timing
+    - Honey yield per hive
+    - Hive health scoring
+    - Varroa mite monitoring
+    - Swarm prevention timing
 
 ### Industry KPIs
 

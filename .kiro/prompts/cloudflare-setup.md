@@ -178,11 +178,11 @@ wrangler_update_config {
 
 ```jsonc
 {
-  "name": "jayfarms",
-  "account_id": "your-account-id-here",
-  "compatibility_date": "2025-03-11",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
+    "name": "jayfarms",
+    "account_id": "your-account-id-here",
+    "compatibility_date": "2025-03-11",
+    "compatibility_flags": ["nodejs_compat"],
+    "main": "@tanstack/react-start/server-entry",
 }
 ```
 
@@ -306,22 +306,22 @@ Set up staging and production environments in `wrangler.jsonc`:
 
 ```jsonc
 {
-  "name": "jayfarms",
-  "account_id": "your-account-id",
-  "env": {
-    "staging": {
-      "name": "jayfarms-staging",
-      "vars": {
-        "ENVIRONMENT": "staging",
-      },
+    "name": "jayfarms",
+    "account_id": "your-account-id",
+    "env": {
+        "staging": {
+            "name": "jayfarms-staging",
+            "vars": {
+                "ENVIRONMENT": "staging",
+            },
+        },
+        "production": {
+            "name": "jayfarms-production",
+            "vars": {
+                "ENVIRONMENT": "production",
+            },
+        },
     },
-    "production": {
-      "name": "jayfarms-production",
-      "vars": {
-        "ENVIRONMENT": "production",
-      },
-    },
-  },
 }
 ```
 
@@ -367,18 +367,18 @@ wrangler kv:namespace create "SESSIONS" --preview
 
 ```jsonc
 {
-  "kv_namespaces": [
-    {
-      "binding": "CACHE",
-      "id": "your-cache-namespace-id",
-      "preview_id": "your-cache-preview-id",
-    },
-    {
-      "binding": "SESSIONS",
-      "id": "your-sessions-namespace-id",
-      "preview_id": "your-sessions-preview-id",
-    },
-  ],
+    "kv_namespaces": [
+        {
+            "binding": "CACHE",
+            "id": "your-cache-namespace-id",
+            "preview_id": "your-cache-preview-id",
+        },
+        {
+            "binding": "SESSIONS",
+            "id": "your-sessions-namespace-id",
+            "preview_id": "your-sessions-preview-id",
+        },
+    ],
 }
 ```
 
@@ -402,12 +402,12 @@ wrangler r2 bucket create jayfarms-uploads
 
 ```jsonc
 {
-  "r2_buckets": [
-    {
-      "binding": "UPLOADS",
-      "bucket_name": "jayfarms-uploads",
-    },
-  ],
+    "r2_buckets": [
+        {
+            "binding": "UPLOADS",
+            "bucket_name": "jayfarms-uploads",
+        },
+    ],
 }
 ```
 
@@ -449,10 +449,10 @@ bun run build --analyze
 // Example: Cache static data in KV
 const cachedData = await env.CACHE.get('key')
 if (!cachedData) {
-  const data = await fetchData()
-  await env.CACHE.put('key', JSON.stringify(data), {
-    expirationTtl: 3600, // 1 hour
-  })
+    const data = await fetchData()
+    await env.CACHE.put('key', JSON.stringify(data), {
+        expirationTtl: 3600, // 1 hour
+    })
 }
 ```
 
@@ -598,10 +598,10 @@ if (!cachedData) {
 
 1. **Check current state** (Step 0) - Ask about their Cloudflare situation
 2. **Route appropriately**:
-   - `none` → Offer quickstart or manual setup
-   - `partial` → Assess what exists, offer to continue
-   - `complete` → Ask which advanced features they want
-   - `issues` → Troubleshoot specific problems
+    - `none` → Offer quickstart or manual setup
+    - `partial` → Assess what exists, offer to continue
+    - `complete` → Ask which advanced features they want
+    - `issues` → Troubleshoot specific problems
 3. **Execute chosen path** - Guide through setup or advanced features
 4. **Validate each step** - Test before proceeding
 5. **Document changes** - Update wrangler.jsonc and secrets

@@ -41,9 +41,9 @@ Both cards conditional based on `cards.mortality` and `cards.feed` preferences.
 ### Relevant Files - MUST READ!
 
 - `app/routes/_auth/dashboard/index.tsx` (lines 385-520) - Existing card structure
-  - Why: Pattern to mirror for new cards
+    - Why: Pattern to mirror for new cards
 - `app/features/dashboard/server.ts` - DashboardStats interface
-  - Why: Check if mortality/feed data already returned
+    - Why: Check if mortality/feed data already returned
 
 ---
 
@@ -126,16 +126,16 @@ Both cards conditional based on `cards.mortality` and `cards.feed` preferences.
 ### Changes Made
 
 1. **app/features/dashboard/server.ts**
-   - Added `mortality` and `feed` to DashboardStats interface
-   - Added mortality query (total deaths, mortality rate)
-   - Added feed query (total cost, total kg, FCR)
-   - Updated empty stats return
+    - Added `mortality` and `feed` to DashboardStats interface
+    - Added mortality query (total deaths, mortality rate)
+    - Added feed query (total cost, total kg, FCR)
+    - Updated empty stats return
 
 2. **app/routes/\_auth/dashboard/index.tsx**
-   - Added mortality card with AlertTriangle icon
-   - Added feed card with Wheat icon
-   - Updated stats type definition
-   - Updated empty state condition
+    - Added mortality card with AlertTriangle icon
+    - Added feed card with Wheat icon
+    - Updated stats type definition
+    - Updated empty state condition
 
 ### Validation Results
 

@@ -13,13 +13,13 @@ Located in `app/features/settings/currency.ts`:
 
 ```typescript
 import {
-  toDecimal,
-  toNumber,
-  toDbString,
-  formatCurrency,
-  multiply,
-  divide,
-  sumAmounts,
+    toDecimal,
+    toNumber,
+    toDbString,
+    formatCurrency,
+    multiply,
+    divide,
+    sumAmounts,
 } from '~/features/settings/currency'
 ```
 
@@ -89,7 +89,7 @@ All monetary values are stored as `DECIMAL(19,2)`:
 ```typescript
 // Inserting
 await db.insertInto('sales').values({
-  totalAmount: toDbString(1234.56), // "1234.56"
+    totalAmount: toDbString(1234.56), // "1234.56"
 })
 
 // Reading
@@ -103,13 +103,13 @@ const amount = toNumber(sale.totalAmount) // 1234.56
 
 ```typescript
 export function calculateBatchTotalCost(
-  initialQuantity: number,
-  costPerUnit: number,
+    initialQuantity: number,
+    costPerUnit: number,
 ): string {
-  if (initialQuantity <= 0 || costPerUnit < 0) {
-    return toDbString(0)
-  }
-  return toDbString(multiply(initialQuantity, costPerUnit))
+    if (initialQuantity <= 0 || costPerUnit < 0) {
+        return toDbString(0)
+    }
+    return toDbString(multiply(initialQuantity, costPerUnit))
 }
 ```
 
@@ -117,10 +117,10 @@ export function calculateBatchTotalCost(
 
 ```typescript
 export function calculateProfit(
-  revenue: MoneyInput,
-  costs: MoneyInput,
+    revenue: MoneyInput,
+    costs: MoneyInput,
 ): Decimal {
-  return subtract(revenue, costs)
+    return subtract(revenue, costs)
 }
 ```
 

@@ -70,18 +70,18 @@ import type { Database } from '~/lib/db/types'
 
 // Table interfaces
 export interface BatchTable {
-  id: Generated<string>
-  farmId: string
-  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
-  species: string
-  initialQuantity: number
-  currentQuantity: number
-  acquisitionDate: Date
-  costPerUnit: string // DECIMAL stored as string
-  totalCost: string // DECIMAL stored as string
-  status: 'active' | 'depleted' | 'sold'
-  createdAt: Generated<Date>
-  updatedAt: Generated<Date>
+    id: Generated<string>
+    farmId: string
+    livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+    species: string
+    initialQuantity: number
+    currentQuantity: number
+    acquisitionDate: Date
+    costPerUnit: string // DECIMAL stored as string
+    totalCost: string // DECIMAL stored as string
+    status: 'active' | 'depleted' | 'sold'
+    createdAt: Generated<Date>
+    updatedAt: Generated<Date>
 }
 ```
 
@@ -114,24 +114,24 @@ const batches = await db.selectFrom('batches').selectAll().execute()
 
 // Select specific columns
 const batches = await db
-  .selectFrom('batches')
-  .select(['id', 'species', 'currentQuantity'])
-  .execute()
+    .selectFrom('batches')
+    .select(['id', 'species', 'currentQuantity'])
+    .execute()
 
 // Where clause
 const activeBatches = await db
-  .selectFrom('batches')
-  .selectAll()
-  .where('status', '=', 'active')
-  .execute()
+    .selectFrom('batches')
+    .selectAll()
+    .where('status', '=', 'active')
+    .execute()
 
 // Multiple conditions
 const batches = await db
-  .selectFrom('batches')
-  .selectAll()
-  .where('farmId', '=', farmId)
-  .where('status', '=', 'active')
-  .execute()
+    .selectFrom('batches')
+    .selectAll()
+    .where('farmId', '=', farmId)
+    .where('status', '=', 'active')
+    .execute()
 ```
 
 ### Joins
@@ -139,23 +139,23 @@ const batches = await db
 ```typescript
 // Left join
 const batchesWithFarm = await db
-  .selectFrom('batches')
-  .leftJoin('farms', 'farms.id', 'batches.farmId')
-  .select(['batches.id', 'batches.species', 'farms.name as farmName'])
-  .execute()
+    .selectFrom('batches')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .select(['batches.id', 'batches.species', 'farms.name as farmName'])
+    .execute()
 
 // Multiple joins
 const feedRecords = await db
-  .selectFrom('feed_records')
-  .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-  .leftJoin('suppliers', 'suppliers.id', 'feed_records.supplierId')
-  .select([
-    'feed_records.id',
-    'feed_records.quantityKg',
-    'batches.species',
-    'suppliers.name as supplierName',
-  ])
-  .execute()
+    .selectFrom('feed_records')
+    .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+    .leftJoin('suppliers', 'suppliers.id', 'feed_records.supplierId')
+    .select([
+        'feed_records.id',
+        'feed_records.quantityKg',
+        'batches.species',
+        'suppliers.name as supplierName',
+    ])
+    .execute()
 ```
 
 ### Aggregations
@@ -163,29 +163,29 @@ const feedRecords = await db
 ```typescript
 // Count
 const count = await db
-  .selectFrom('batches')
-  .select(db.fn.count('id').as('total'))
-  .where('farmId', '=', farmId)
-  .executeTakeFirst()
+    .selectFrom('batches')
+    .select(db.fn.count('id').as('total'))
+    .where('farmId', '=', farmId)
+    .executeTakeFirst()
 
 // Sum
 const totalCost = await db
-  .selectFrom('expenses')
-  .select(db.fn.sum('amount').as('total'))
-  .where('farmId', '=', farmId)
-  .executeTakeFirst()
+    .selectFrom('expenses')
+    .select(db.fn.sum('amount').as('total'))
+    .where('farmId', '=', farmId)
+    .executeTakeFirst()
 
 // Group by
 const batchesBySpecies = await db
-  .selectFrom('batches')
-  .select([
-    'species',
-    db.fn.count('id').as('count'),
-    db.fn.sum('currentQuantity').as('totalQuantity'),
-  ])
-  .where('farmId', '=', farmId)
-  .groupBy('species')
-  .execute()
+    .selectFrom('batches')
+    .select([
+        'species',
+        db.fn.count('id').as('count'),
+        db.fn.sum('currentQuantity').as('totalQuantity'),
+    ])
+    .where('farmId', '=', farmId)
+    .groupBy('species')
+    .execute()
 ```
 
 ### Ordering & Pagination
@@ -193,22 +193,22 @@ const batchesBySpecies = await db
 ```typescript
 // Order by
 const batches = await db
-  .selectFrom('batches')
-  .selectAll()
-  .orderBy('acquisitionDate', 'desc')
-  .execute()
+    .selectFrom('batches')
+    .selectAll()
+    .orderBy('acquisitionDate', 'desc')
+    .execute()
 
 // Pagination
 const page = 1
 const pageSize = 10
 
 const batches = await db
-  .selectFrom('batches')
-  .selectAll()
-  .orderBy('acquisitionDate', 'desc')
-  .limit(pageSize)
-  .offset((page - 1) * pageSize)
-  .execute()
+    .selectFrom('batches')
+    .selectAll()
+    .orderBy('acquisitionDate', 'desc')
+    .limit(pageSize)
+    .offset((page - 1) * pageSize)
+    .execute()
 ```
 
 ### Insert
@@ -216,29 +216,34 @@ const batches = await db
 ```typescript
 // Insert single row
 const result = await db
-  .insertInto('batches')
-  .values({
-    farmId: 'farm-id',
-    livestockType: 'poultry',
-    species: 'broiler',
-    initialQuantity: 100,
-    currentQuantity: 100,
-    acquisitionDate: new Date(),
-    costPerUnit: '500',
-    totalCost: '50000',
-    status: 'active',
-  })
-  .returning('id')
-  .executeTakeFirstOrThrow()
+    .insertInto('batches')
+    .values({
+        farmId: 'farm-id',
+        livestockType: 'poultry',
+        species: 'broiler',
+        initialQuantity: 100,
+        currentQuantity: 100,
+        acquisitionDate: new Date(),
+        costPerUnit: '500',
+        totalCost: '50000',
+        status: 'active',
+    })
+    .returning('id')
+    .executeTakeFirstOrThrow()
 
 // Insert multiple rows
 await db
-  .insertInto('mortality_records')
-  .values([
-    { batchId: 'batch-1', quantity: 5, date: new Date(), cause: 'disease' },
-    { batchId: 'batch-2', quantity: 3, date: new Date(), cause: 'predator' },
-  ])
-  .execute()
+    .insertInto('mortality_records')
+    .values([
+        { batchId: 'batch-1', quantity: 5, date: new Date(), cause: 'disease' },
+        {
+            batchId: 'batch-2',
+            quantity: 3,
+            date: new Date(),
+            cause: 'predator',
+        },
+    ])
+    .execute()
 ```
 
 ### Update
@@ -246,17 +251,17 @@ await db
 ```typescript
 // Update single row
 await db
-  .updateTable('batches')
-  .set({ currentQuantity: 95, status: 'active' })
-  .where('id', '=', batchId)
-  .execute()
+    .updateTable('batches')
+    .set({ currentQuantity: 95, status: 'active' })
+    .where('id', '=', batchId)
+    .execute()
 
 // Update with expression
 await db
-  .updateTable('batches')
-  .set({ currentQuantity: db.fn('currentQuantity', ['-', 5]) })
-  .where('id', '=', batchId)
-  .execute()
+    .updateTable('batches')
+    .set({ currentQuantity: db.fn('currentQuantity', ['-', 5]) })
+    .where('id', '=', batchId)
+    .execute()
 ```
 
 ### Delete
@@ -267,37 +272,37 @@ await db.deleteFrom('batches').where('id', '=', batchId).execute()
 
 // Delete with condition
 await db
-  .deleteFrom('mortality_records')
-  .where('batchId', '=', batchId)
-  .where('date', '<', new Date('2025-01-01'))
-  .execute()
+    .deleteFrom('mortality_records')
+    .where('batchId', '=', batchId)
+    .where('date', '<', new Date('2025-01-01'))
+    .execute()
 ```
 
 ### Transactions
 
 ```typescript
 await db.transaction().execute(async (trx) => {
-  // Create sale
-  const sale = await trx
-    .insertInto('sales')
-    .values({
-      farmId,
-      batchId,
-      quantity: 50,
-      totalAmount: '25000',
-      date: new Date(),
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+    // Create sale
+    const sale = await trx
+        .insertInto('sales')
+        .values({
+            farmId,
+            batchId,
+            quantity: 50,
+            totalAmount: '25000',
+            date: new Date(),
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow()
 
-  // Update batch quantity
-  await trx
-    .updateTable('batches')
-    .set({ currentQuantity: db.fn('currentQuantity', ['-', 50]) })
-    .where('id', '=', batchId)
-    .execute()
+    // Update batch quantity
+    await trx
+        .updateTable('batches')
+        .set({ currentQuantity: db.fn('currentQuantity', ['-', 50]) })
+        .where('id', '=', batchId)
+        .execute()
 
-  return sale.id
+    return sale.id
 })
 ```
 
@@ -320,34 +325,34 @@ app/lib/db/migrations/
 import type { Kysely } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
-  // Create table
-  await db.schema
-    .createTable('batches')
-    .addColumn('id', 'uuid', (col) =>
-      col.primaryKey().defaultTo(db.fn('gen_random_uuid()')),
-    )
-    .addColumn('farmId', 'uuid', (col) =>
-      col.references('farms.id').onDelete('cascade').notNull(),
-    )
-    .addColumn('species', 'varchar(100)', (col) => col.notNull())
-    .addColumn('initialQuantity', 'integer', (col) => col.notNull())
-    .addColumn('currentQuantity', 'integer', (col) => col.notNull())
-    .addColumn('status', 'varchar(20)', (col) => col.notNull())
-    .addColumn('createdAt', 'timestamp', (col) =>
-      col.defaultTo(db.fn.now()).notNull(),
-    )
-    .execute()
+    // Create table
+    await db.schema
+        .createTable('batches')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(db.fn('gen_random_uuid()')),
+        )
+        .addColumn('farmId', 'uuid', (col) =>
+            col.references('farms.id').onDelete('cascade').notNull(),
+        )
+        .addColumn('species', 'varchar(100)', (col) => col.notNull())
+        .addColumn('initialQuantity', 'integer', (col) => col.notNull())
+        .addColumn('currentQuantity', 'integer', (col) => col.notNull())
+        .addColumn('status', 'varchar(20)', (col) => col.notNull())
+        .addColumn('createdAt', 'timestamp', (col) =>
+            col.defaultTo(db.fn.now()).notNull(),
+        )
+        .execute()
 
-  // Add index
-  await db.schema
-    .createIndex('batches_farmId_status_idx')
-    .on('batches')
-    .columns(['farmId', 'status'])
-    .execute()
+    // Add index
+    await db.schema
+        .createIndex('batches_farmId_status_idx')
+        .on('batches')
+        .columns(['farmId', 'status'])
+        .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable('batches').execute()
+    await db.schema.dropTable('batches').execute()
 }
 ```
 
@@ -441,10 +446,10 @@ import { createUserWithAuth } from '~/lib/db/seeds/helpers'
 
 // Create user with hashed password
 const user = await createUserWithAuth(db, {
-  email: 'user@example.com',
-  password: 'password',
-  name: 'John Doe',
-  role: 'user',
+    email: 'user@example.com',
+    password: 'password',
+    name: 'John Doe',
+    role: 'user',
 })
 ```
 
@@ -460,9 +465,9 @@ const batches = await db.selectFrom('batches').selectAll().execute()
 
 // ✅ Fast - only needed columns
 const batches = await db
-  .selectFrom('batches')
-  .select(['id', 'species', 'currentQuantity'])
-  .execute()
+    .selectFrom('batches')
+    .select(['id', 'species', 'currentQuantity'])
+    .execute()
 ```
 
 ### Use Indexes
@@ -470,11 +475,11 @@ const batches = await db
 ```typescript
 // ✅ Uses index: batches_farmId_status_idx
 const batches = await db
-  .selectFrom('batches')
-  .selectAll()
-  .where('farmId', '=', farmId)
-  .where('status', '=', 'active')
-  .execute()
+    .selectFrom('batches')
+    .selectAll()
+    .where('farmId', '=', farmId)
+    .where('status', '=', 'active')
+    .execute()
 ```
 
 ### Avoid N+1 Queries
@@ -482,19 +487,19 @@ const batches = await db
 ```typescript
 // ❌ N+1 - queries database for each batch
 for (const batch of batches) {
-  const farm = await db
-    .selectFrom('farms')
-    .selectAll()
-    .where('id', '=', batch.farmId)
-    .executeTakeFirst()
+    const farm = await db
+        .selectFrom('farms')
+        .selectAll()
+        .where('id', '=', batch.farmId)
+        .executeTakeFirst()
 }
 
 // ✅ Single query with join
 const batchesWithFarm = await db
-  .selectFrom('batches')
-  .leftJoin('farms', 'farms.id', 'batches.farmId')
-  .select(['batches.id', 'batches.species', 'farms.name as farmName'])
-  .execute()
+    .selectFrom('batches')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .select(['batches.id', 'batches.species', 'farms.name as farmName'])
+    .execute()
 ```
 
 ### Use Transactions for Multiple Writes
@@ -502,18 +507,18 @@ const batchesWithFarm = await db
 ```typescript
 // ✅ Atomic - all or nothing
 await db.transaction().execute(async (trx) => {
-  await trx
-    .insertInto('sales')
-    .values({
-      /* ... */
-    })
-    .execute()
-  await trx
-    .updateTable('batches')
-    .set({
-      /* ... */
-    })
-    .execute()
+    await trx
+        .insertInto('sales')
+        .values({
+            /* ... */
+        })
+        .execute()
+    await trx
+        .updateTable('batches')
+        .set({
+            /* ... */
+        })
+        .execute()
 })
 ```
 
@@ -525,31 +530,31 @@ await db.transaction().execute(async (trx) => {
 
 ```typescript
 export async function getBatchesPaginated(
-  userId: string,
-  page: number = 1,
-  pageSize: number = 10,
+    userId: string,
+    page: number = 1,
+    pageSize: number = 10,
 ) {
-  // Get total count
-  const countResult = await db
-    .selectFrom('batches')
-    .select(db.fn.count('id').as('count'))
-    .where('farmId', 'in', farmIds)
-    .executeTakeFirst()
+    // Get total count
+    const countResult = await db
+        .selectFrom('batches')
+        .select(db.fn.count('id').as('count'))
+        .where('farmId', 'in', farmIds)
+        .executeTakeFirst()
 
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
 
-  // Get paginated data
-  const data = await db
-    .selectFrom('batches')
-    .selectAll()
-    .where('farmId', 'in', farmIds)
-    .orderBy('acquisitionDate', 'desc')
-    .limit(pageSize)
-    .offset((page - 1) * pageSize)
-    .execute()
+    // Get paginated data
+    const data = await db
+        .selectFrom('batches')
+        .selectAll()
+        .where('farmId', 'in', farmIds)
+        .orderBy('acquisitionDate', 'desc')
+        .limit(pageSize)
+        .offset((page - 1) * pageSize)
+        .execute()
 
-  return { data, total, page, pageSize, totalPages }
+    return { data, total, page, pageSize, totalPages }
 }
 ```
 
@@ -557,15 +562,15 @@ export async function getBatchesPaginated(
 
 ```typescript
 const batches = await db
-  .selectFrom('batches')
-  .selectAll()
-  .where((eb) =>
-    eb.or([
-      eb('species', 'ilike', `%${search}%`),
-      eb('batchName', 'ilike', `%${search}%`),
-    ]),
-  )
-  .execute()
+    .selectFrom('batches')
+    .selectAll()
+    .where((eb) =>
+        eb.or([
+            eb('species', 'ilike', `%${search}%`),
+            eb('batchName', 'ilike', `%${search}%`),
+        ]),
+    )
+    .execute()
 ```
 
 ### Soft Delete
@@ -573,23 +578,23 @@ const batches = await db
 ```typescript
 // Add deletedAt column
 await db.schema
-  .alterTable('batches')
-  .addColumn('deletedAt', 'timestamp')
-  .execute()
+    .alterTable('batches')
+    .addColumn('deletedAt', 'timestamp')
+    .execute()
 
 // Soft delete
 await db
-  .updateTable('batches')
-  .set({ deletedAt: new Date() })
-  .where('id', '=', batchId)
-  .execute()
+    .updateTable('batches')
+    .set({ deletedAt: new Date() })
+    .where('id', '=', batchId)
+    .execute()
 
 // Query only non-deleted
 const batches = await db
-  .selectFrom('batches')
-  .selectAll()
-  .where('deletedAt', 'is', null)
-  .execute()
+    .selectFrom('batches')
+    .selectAll()
+    .where('deletedAt', 'is', null)
+    .execute()
 ```
 
 ---
@@ -603,10 +608,10 @@ const batches = await db
 import { db } from '~/lib/db'
 
 try {
-  await db.selectFrom('users').select('id').limit(1).execute()
-  console.log('✅ Database connected')
+    await db.selectFrom('users').select('id').limit(1).execute()
+    console.log('✅ Database connected')
 } catch (error) {
-  console.error('❌ Database connection failed:', error)
+    console.error('❌ Database connection failed:', error)
 }
 ```
 

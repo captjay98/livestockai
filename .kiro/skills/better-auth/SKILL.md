@@ -26,10 +26,10 @@ Better Auth uses two tables:
 import { createUserWithAuth } from '~/lib/db/seeds/helpers'
 
 const result = await createUserWithAuth(db, {
-  email: 'user@example.com',
-  password: 'securepassword',
-  name: 'John Doe',
-  role: 'user', // or 'admin'
+    email: 'user@example.com',
+    password: 'securepassword',
+    name: 'John Doe',
+    role: 'user', // or 'admin'
 })
 ```
 
@@ -44,12 +44,12 @@ This helper:
 ```typescript
 // ❌ WRONG - users table has no password field!
 await db
-  .insertInto('users')
-  .values({
-    email: 'user@example.com',
-    password: 'hashedpassword', // This field doesn't exist!
-  })
-  .execute()
+    .insertInto('users')
+    .values({
+        email: 'user@example.com',
+        password: 'hashedpassword', // This field doesn't exist!
+    })
+    .execute()
 ```
 
 ## Auth Configuration
@@ -60,17 +60,17 @@ The auth config is in `app/features/auth/config.ts`:
 import { betterAuth } from 'better-auth'
 
 export const auth = betterAuth({
-  database: {
-    type: 'postgres',
-    url: process.env.DATABASE_URL,
-  },
-  emailAndPassword: {
-    enabled: true,
-  },
-  session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24, // 1 day
-  },
+    database: {
+        type: 'postgres',
+        url: process.env.DATABASE_URL,
+    },
+    emailAndPassword: {
+        enabled: true,
+    },
+    session: {
+        expiresIn: 60 * 60 * 24 * 7, // 7 days
+        updateAge: 60 * 60 * 24, // 1 day
+    },
 })
 ```
 
@@ -80,18 +80,18 @@ Use `requireAuth()` in server functions:
 
 ```typescript
 export const myServerFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
+    async () => {
+        const { requireAuth } = await import('../auth/server-middleware')
+        const session = await requireAuth()
 
-    // session.user contains:
-    // - id: string
-    // - email: string
-    // - name: string
-    // - role: 'user' | 'admin'
+        // session.user contains:
+        // - id: string
+        // - email: string
+        // - name: string
+        // - role: 'user' | 'admin'
 
-    return { userId: session.user.id }
-  },
+        return { userId: session.user.id }
+    },
 )
 ```
 
@@ -102,8 +102,8 @@ export const myServerFn = createServerFn({ method: 'GET' }).handler(
 
 // Check if user has access to a farm
 export async function checkFarmAccess(
-  userId: string,
-  farmId: string,
+    userId: string,
+    farmId: string,
 ): Promise<boolean>
 
 // Get all farms a user has access to
@@ -143,13 +143,13 @@ The `_auth.tsx` layout protects routes:
 ```typescript
 // app/routes/_auth.tsx
 export const Route = createFileRoute('/_auth')({
-  beforeLoad: async () => {
-    const session = await getSession()
-    if (!session) {
-      throw redirect({ to: '/login' })
-    }
-    return { session }
-  },
+    beforeLoad: async () => {
+        const session = await getSession()
+        if (!session) {
+            throw redirect({ to: '/login' })
+        }
+        return { session }
+    },
 })
 ```
 
@@ -167,7 +167,7 @@ OpenLivestock supports roles:
 // Check role in server function
 const session = await requireAuth()
 if (session.user.role !== 'admin') {
-  throw new AppError('ACCESS_DENIED')
+    throw new AppError('ACCESS_DENIED')
 }
 ```
 
@@ -177,14 +177,14 @@ The session object contains:
 
 ```typescript
 interface Session {
-  user: {
-    id: string
-    email: string
-    name: string
-    role: 'user' | 'admin' | 'extension_agent'
-    image?: string
-  }
-  expires: Date
+    user: {
+        id: string
+        email: string
+        name: string
+        role: 'user' | 'admin' | 'extension_agent'
+        image?: string
+    }
+    expires: Date
 }
 ```
 

@@ -38,31 +38,31 @@ import { insertBatch } from './repository'
 import { AppError } from '~/lib/errors'
 
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    z.object({
-      farmId: z.string().uuid(),
-      species: z.string().min(1),
-      initialQuantity: z.number().int().positive(),
-    }),
-  )
-  .handler(async ({ data }) => {
-    // 1. Auth
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
+    .inputValidator(
+        z.object({
+            farmId: z.string().uuid(),
+            species: z.string().min(1),
+            initialQuantity: z.number().int().positive(),
+        }),
+    )
+    .handler(async ({ data }) => {
+        // 1. Auth
+        const { requireAuth } = await import('../auth/server-middleware')
+        const session = await requireAuth()
 
-    // 2. Business logic validation (service layer)
-    const validationError = validateBatchData(data)
-    if (validationError) {
-      throw new AppError('VALIDATION_ERROR', {
-        metadata: { error: validationError },
-      })
-    }
+        // 2. Business logic validation (service layer)
+        const validationError = validateBatchData(data)
+        if (validationError) {
+            throw new AppError('VALIDATION_ERROR', {
+                metadata: { error: validationError },
+            })
+        }
 
-    // 3. Database operation (repository layer)
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    return insertBatch(db, data)
-  })
+        // 3. Database operation (repository layer)
+        const { getDb } = await import('~/lib/db')
+        const db = await getDb()
+        return insertBatch(db, data)
+    })
 ```
 
 ## Service Layer (service.ts)
@@ -78,13 +78,13 @@ import { multiply, toDbString } from '~/features/settings/currency'
  * Pure function - no side effects
  */
 export function calculateBatchTotalCost(
-  initialQuantity: number,
-  costPerUnit: number,
+    initialQuantity: number,
+    costPerUnit: number,
 ): string {
-  if (initialQuantity <= 0 || costPerUnit < 0) {
-    return toDbString(0)
-  }
-  return toDbString(multiply(initialQuantity, costPerUnit))
+    if (initialQuantity <= 0 || costPerUnit < 0) {
+        return toDbString(0)
+    }
+    return toDbString(multiply(initialQuantity, costPerUnit))
 }
 
 /**
@@ -92,26 +92,26 @@ export function calculateBatchTotalCost(
  * Returns error message or null if valid
  */
 export function validateBatchData(data: CreateBatchData): string | null {
-  if (data.initialQuantity <= 0) {
-    return 'Initial quantity must be greater than 0'
-  }
-  if (data.costPerUnit < 0) {
-    return 'Cost per unit cannot be negative'
-  }
-  return null
+    if (data.initialQuantity <= 0) {
+        return 'Initial quantity must be greater than 0'
+    }
+    if (data.costPerUnit < 0) {
+        return 'Cost per unit cannot be negative'
+    }
+    return null
 }
 
 /**
  * Calculate Feed Conversion Ratio
  */
 export function calculateFCR(
-  totalFeedKg: number,
-  weightGainKg: number,
+    totalFeedKg: number,
+    weightGainKg: number,
 ): number | null {
-  if (totalFeedKg <= 0 || weightGainKg <= 0) {
-    return null
-  }
-  return Math.round((totalFeedKg / weightGainKg) * 100) / 100
+    if (totalFeedKg <= 0 || weightGainKg <= 0) {
+        return null
+    }
+    return Math.round((totalFeedKg / weightGainKg) * 100) / 100
 }
 ```
 
@@ -124,43 +124,43 @@ import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 export interface BatchInsert {
-  farmId: string
-  species: string
-  initialQuantity: number
-  currentQuantity: number
-  status: 'active' | 'depleted' | 'sold'
+    farmId: string
+    species: string
+    initialQuantity: number
+    currentQuantity: number
+    status: 'active' | 'depleted' | 'sold'
 }
 
 export async function insertBatch(
-  db: Kysely<Database>,
-  data: BatchInsert,
+    db: Kysely<Database>,
+    data: BatchInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('batches')
-    .values(data)
-    .returning('id')
-    .executeTakeFirstOrThrow()
-  return result.id
+    const result = await db
+        .insertInto('batches')
+        .values(data)
+        .returning('id')
+        .executeTakeFirstOrThrow()
+    return result.id
 }
 
 export async function getBatchById(db: Kysely<Database>, id: string) {
-  return db
-    .selectFrom('batches')
-    .selectAll()
-    .where('id', '=', id)
-    .executeTakeFirst()
+    return db
+        .selectFrom('batches')
+        .selectAll()
+        .where('id', '=', id)
+        .executeTakeFirst()
 }
 
 export async function updateBatch(
-  db: Kysely<Database>,
-  id: string,
-  data: Partial<BatchInsert>,
+    db: Kysely<Database>,
+    id: string,
+    data: Partial<BatchInsert>,
 ) {
-  return db
-    .updateTable('batches')
-    .set({ ...data, updatedAt: new Date() })
-    .where('id', '=', id)
-    .execute()
+    return db
+        .updateTable('batches')
+        .set({ ...data, updatedAt: new Date() })
+        .where('id', '=', id)
+        .execute()
 }
 ```
 

@@ -59,11 +59,11 @@ Create an optional integrations layer that:
 ### Relevant Documentation
 
 - [Resend Node.js SDK](https://resend.com/nodejs)
-  - Installation and basic usage
-  - Why: Primary email integration
+    - Installation and basic usage
+    - Why: Primary email integration
 - [Africa's Talking Node.js SDK](https://www.npmjs.com/package/africastalking)
-  - SMS sending for African markets
-  - Why: SMS critical for rural farmers
+    - SMS sending for African markets
+    - Why: SMS critical for rural farmers
 
 ### Patterns to Follow
 
@@ -71,12 +71,12 @@ Create an optional integrations layer that:
 
 ```typescript
 export const sendTestEmailFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { to: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
-    // Implementation
-  })
+    .inputValidator((data: { to: string }) => data)
+    .handler(async ({ data }) => {
+        const { requireAuth } = await import('../auth/server-middleware')
+        await requireAuth()
+        // Implementation
+    })
 ```
 
 **Dynamic Import Pattern (CRITICAL for Cloudflare):**
@@ -173,21 +173,21 @@ Update documentation for users.
 export type IntegrationType = 'email' | 'sms'
 
 export interface IntegrationStatus {
-  type: IntegrationType
-  enabled: boolean
-  configured: boolean
-  lastError?: string
+    type: IntegrationType
+    enabled: boolean
+    configured: boolean
+    lastError?: string
 }
 
 export interface SendEmailOptions {
-  to: string
-  subject: string
-  html: string
+    to: string
+    subject: string
+    html: string
 }
 
 export interface SendSMSOptions {
-  to: string
-  message: string
+    to: string
+    message: string
 }
 ```
 
@@ -200,19 +200,23 @@ export interface SendSMSOptions {
 
 ```typescript
 export const INTEGRATIONS = {
-  email: !!process.env.RESEND_API_KEY,
-  sms: !!process.env.AFRICASTALKING_API_KEY,
+    email: !!process.env.RESEND_API_KEY,
+    sms: !!process.env.AFRICASTALKING_API_KEY,
 } as const
 
 export function getIntegrationStatus(): Array<IntegrationStatus> {
-  return [
-    {
-      type: 'email',
-      enabled: INTEGRATIONS.email,
-      configured: INTEGRATIONS.email,
-    },
-    { type: 'sms', enabled: INTEGRATIONS.sms, configured: INTEGRATIONS.sms },
-  ]
+    return [
+        {
+            type: 'email',
+            enabled: INTEGRATIONS.email,
+            configured: INTEGRATIONS.email,
+        },
+        {
+            type: 'sms',
+            enabled: INTEGRATIONS.sms,
+            configured: INTEGRATIONS.sms,
+        },
+    ]
 }
 ```
 
@@ -241,26 +245,27 @@ Templates needed:
 
 ```typescript
 export async function sendEmail(
-  options: SendEmailOptions,
+    options: SendEmailOptions,
 ): Promise<{ success: boolean; error?: string }> {
-  if (!process.env.RESEND_API_KEY) {
-    return { success: false, error: 'Email not configured' }
-  }
-  try {
-    const { Resend } = await import('resend')
-    const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send({
-      from:
-        process.env.EMAIL_FROM || 'OpenLivestock <noreply@openlivestock.app>',
-      ...options,
-    })
-    return { success: true }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+    if (!process.env.RESEND_API_KEY) {
+        return { success: false, error: 'Email not configured' }
     }
-  }
+    try {
+        const { Resend } = await import('resend')
+        const resend = new Resend(process.env.RESEND_API_KEY)
+        await resend.emails.send({
+            from:
+                process.env.EMAIL_FROM ||
+                'OpenLivestock <noreply@openlivestock.app>',
+            ...options,
+        })
+        return { success: true }
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error',
+        }
+    }
 }
 ```
 
@@ -274,25 +279,25 @@ export async function sendEmail(
 
 ```typescript
 export async function sendSMS(
-  options: SendSMSOptions,
+    options: SendSMSOptions,
 ): Promise<{ success: boolean; error?: string }> {
-  if (!process.env.AFRICASTALKING_API_KEY) {
-    return { success: false, error: 'SMS not configured' }
-  }
-  try {
-    const AfricasTalking = (await import('africastalking')).default
-    const at = AfricasTalking({
-      apiKey: process.env.AFRICASTALKING_API_KEY,
-      username: process.env.AFRICASTALKING_USERNAME || 'sandbox',
-    })
-    await at.SMS.send({ to: [options.to], message: options.message })
-    return { success: true }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+    if (!process.env.AFRICASTALKING_API_KEY) {
+        return { success: false, error: 'SMS not configured' }
     }
-  }
+    try {
+        const AfricasTalking = (await import('africastalking')).default
+        const at = AfricasTalking({
+            apiKey: process.env.AFRICASTALKING_API_KEY,
+            username: process.env.AFRICASTALKING_USERNAME || 'sandbox',
+        })
+        await at.SMS.send({ to: [options.to], message: options.message })
+        return { success: true }
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error',
+        }
+    }
 }
 ```
 
@@ -305,37 +310,37 @@ export async function sendSMS(
 
 ```typescript
 export const testEmailFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { to: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    const { sendEmail } = await import('./email/service')
-    return sendEmail({
-      to: data.to,
-      subject: 'OpenLivestock Test Email',
-      html: '<h1>Test Email</h1><p>Your email integration is working!</p>',
+    .inputValidator((data: { to: string }) => data)
+    .handler(async ({ data }) => {
+        const { requireAuth } = await import('../auth/server-middleware')
+        const session = await requireAuth()
+        const { sendEmail } = await import('./email/service')
+        return sendEmail({
+            to: data.to,
+            subject: 'OpenLivestock Test Email',
+            html: '<h1>Test Email</h1><p>Your email integration is working!</p>',
+        })
     })
-  })
 
 export const testSMSFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { to: string }) => data)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
-    const { sendSMS } = await import('./sms/service')
-    return sendSMS({
-      to: data.to,
-      message: 'OpenLivestock: Your SMS integration is working!',
+    .inputValidator((data: { to: string }) => data)
+    .handler(async ({ data }) => {
+        const { requireAuth } = await import('../auth/server-middleware')
+        await requireAuth()
+        const { sendSMS } = await import('./sms/service')
+        return sendSMS({
+            to: data.to,
+            message: 'OpenLivestock: Your SMS integration is working!',
+        })
     })
-  })
 
 export const getIntegrationStatusFn = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
-    const { getIntegrationStatus } = await import('./config')
-    return getIntegrationStatus()
-  },
+    async () => {
+        const { requireAuth } = await import('../auth/server-middleware')
+        await requireAuth()
+        const { getIntegrationStatus } = await import('./config')
+        return getIntegrationStatus()
+    },
 )
 ```
 
@@ -366,18 +371,18 @@ After each `createNotification()` call, add:
 // Send external notification if configured
 const { INTEGRATIONS, sendEmail, sendSMS } = await import('../integrations')
 const user = await db
-  .selectFrom('users')
-  .select(['email'])
-  .where('id', '=', userId)
-  .executeTakeFirst()
+    .selectFrom('users')
+    .select(['email'])
+    .where('id', '=', userId)
+    .executeTakeFirst()
 
 if (INTEGRATIONS.email && user?.email) {
-  const { emailTemplates } = await import('../integrations/email/templates')
-  const template = emailTemplates.lowStock(
-    item.feedType,
-    Number(item.quantityKg),
-  )
-  await sendEmail({ to: user.email, ...template })
+    const { emailTemplates } = await import('../integrations/email/templates')
+    const template = emailTemplates.lowStock(
+        item.feedType,
+        Number(item.quantityKg),
+    )
+    await sendEmail({ to: user.email, ...template })
 }
 ```
 
@@ -393,12 +398,12 @@ After the `createNotification()` for highMortality:
 
 ```typescript
 if (INTEGRATIONS.email && user?.email) {
-  const { emailTemplates } = await import('../integrations/email/templates')
-  const template = emailTemplates.highMortality(
-    alert.message,
-    batch?.species || 'Unknown',
-  )
-  await sendEmail({ to: user.email, ...template })
+    const { emailTemplates } = await import('../integrations/email/templates')
+    const template = emailTemplates.highMortality(
+        alert.message,
+        batch?.species || 'Unknown',
+    )
+    await sendEmail({ to: user.email, ...template })
 }
 ```
 
@@ -496,18 +501,18 @@ Test integration services with mocked external APIs:
 ### Manual Testing
 
 1. Without any integration env vars:
-   - App works normally
-   - Settings shows integrations as "Not configured"
-   - Notifications only appear in-app
+    - App works normally
+    - Settings shows integrations as "Not configured"
+    - Notifications only appear in-app
 
 2. With RESEND_API_KEY set:
-   - Settings shows email as "Configured"
-   - Test email button sends email
-   - Critical alerts trigger email
+    - Settings shows email as "Configured"
+    - Test email button sends email
+    - Critical alerts trigger email
 
 3. With AFRICASTALKING_API_KEY set:
-   - Settings shows SMS as "Configured"
-   - Test SMS button sends SMS
+    - Settings shows SMS as "Configured"
+    - Test SMS button sends SMS
 
 ---
 

@@ -1,6 +1,6 @@
 import type {
-  ProviderResult,
-  SMSProvider,
+    ProviderResult,
+    SMSProvider,
 } from '../../app/features/integrations/contracts'
 
 /**
@@ -17,61 +17,63 @@ import type {
  * @see https://www.twilio.com/docs/sms/api/message-resource
  */
 export class TwilioProvider implements SMSProvider {
-  readonly name = 'twilio'
+    readonly name = 'twilio'
 
-  async send(to: string, message: string): Promise<ProviderResult> {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID
-    const authToken = process.env.TWILIO_AUTH_TOKEN
-    const fromNumber = process.env.TWILIO_PHONE_NUMBER
+    async send(to: string, message: string): Promise<ProviderResult> {
+        const accountSid = process.env.TWILIO_ACCOUNT_SID
+        const authToken = process.env.TWILIO_AUTH_TOKEN
+        const fromNumber = process.env.TWILIO_PHONE_NUMBER
 
-    if (!accountSid || !authToken || !fromNumber) {
-      return {
-        success: false,
-        error:
-          'Twilio credentials (SID, TOKEN, or PHONE_NUMBER) not configured',
-      }
-    }
-
-    try {
-      // Twilio API URL includes the Account SID
-      const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`
-
-      const auth = btoa(`${accountSid}:${authToken}`)
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${auth}`,
-        },
-        body: new URLSearchParams({
-          To: to,
-          From: fromNumber,
-          Body: message,
-        }),
-      })
-
-      const data = (await response.json()) as { sid?: string; message?: string }
-
-      if (response.ok && data.sid) {
-        return {
-          success: true,
-          messageId: data.sid,
+        if (!accountSid || !authToken || !fromNumber) {
+            return {
+                success: false,
+                error: 'Twilio credentials (SID, TOKEN, or PHONE_NUMBER) not configured',
+            }
         }
-      }
 
-      return {
-        success: false,
-        error: data.message || 'Twilio failed to send message',
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Unknown Twilio communication error',
-      }
+        try {
+            // Twilio API URL includes the Account SID
+            const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`
+
+            const auth = btoa(`${accountSid}:${authToken}`)
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    Authorization: `Basic ${auth}`,
+                },
+                body: new URLSearchParams({
+                    To: to,
+                    From: fromNumber,
+                    Body: message,
+                }),
+            })
+
+            const data = (await response.json()) as {
+                sid?: string
+                message?: string
+            }
+
+            if (response.ok && data.sid) {
+                return {
+                    success: true,
+                    messageId: data.sid,
+                }
+            }
+
+            return {
+                success: false,
+                error: data.message || 'Twilio failed to send message',
+            }
+        } catch (error) {
+            return {
+                success: false,
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : 'Unknown Twilio communication error',
+            }
+        }
     }
-  }
 }

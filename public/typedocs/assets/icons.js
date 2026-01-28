@@ -1,12 +1,12 @@
 ;(function () {
-  addIcons()
-  function addIcons() {
-    if (document.readyState === 'loading')
-      return document.addEventListener('DOMContentLoaded', addIcons)
-    const svg = document.body.appendChild(
-      document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-    )
-    svg.innerHTML = `
+    addIcons()
+    function addIcons() {
+        if (document.readyState === 'loading')
+            return document.addEventListener('DOMContentLoaded', addIcons)
+        const svg = document.body.appendChild(
+            document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
+        )
+        svg.innerHTML = `
     <g id="icon-1" class="tsd-no-select">
         <rect fill="var(--color-ts-module)" stroke-width="1.5" x="1" y="1"
               width="22" height="22" rx="12"></rect>
@@ -187,97 +187,100 @@
               d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path>
     </g>
 `
-    svg.style.display = 'none'
-    updateUseElements()
-    addCurrentClassName()
-    showSettings()
-    moveOverlay()
-  }
-
-  function updateUseElements() {
-    document.querySelectorAll('use').forEach((el) => {
-      if (el.getAttribute('href').includes('#icon-')) {
-        el.setAttribute('href', el.getAttribute('href').replace(/.*#/, '#'))
-      }
-    })
-  }
-
-  function showSettings() {
-    const timer = setInterval(() => {
-      const details = document.querySelector(
-        '.settings > details.tsd-accordion',
-      )
-      if (!details) return
-
-      clearInterval(timer)
-      setTimeout(() => {
-        details.setAttribute('open', 'true')
-      }, 1)
-    }, 10)
-  }
-
-  function addCurrentClassName() {
-    const timer = setInterval(() => {
-      const nav = document.querySelector('.site-menu > .tsd-navigation')
-      if (!nav) return
-
-      clearInterval(timer)
-      setTimeout(() => {
-        highlightCurrent(nav)
-      }, 1)
-    }, 10)
-
-    function highlightCurrent(nav) {
-      const currentPath = normalizePath(window.location.pathname)
-      const currentHash = normalizeHash(window.location.hash)
-
-      const links = nav.querySelectorAll('a[href]')
-      links.forEach((a) => {
-        const href = a.getAttribute('href')
-        if (!href) return
-
-        try {
-          const url = new URL(href, window.location.href)
-
-          const linkPath = normalizePath(url.pathname)
-          const linkHash = normalizeHash(url.hash)
-
-          // path 必须一致
-          if (linkPath !== currentPath) return
-
-          // 只要一方有 hash，就要求双方 hash 完全一致
-          if (linkHash || currentHash) {
-            if (linkHash !== currentHash) return
-          }
-
-          a.classList.add('current')
-        } catch (e) {}
-      })
+        svg.style.display = 'none'
+        updateUseElements()
+        addCurrentClassName()
+        showSettings()
+        moveOverlay()
     }
 
-    function normalizePath(path) {
-      return path
-        .replace(/\/+$/, '') // 去掉结尾 /
-        .replace(/\.html$/, '') // 忽略 .html
-        .toLowerCase()
+    function updateUseElements() {
+        document.querySelectorAll('use').forEach((el) => {
+            if (el.getAttribute('href').includes('#icon-')) {
+                el.setAttribute(
+                    'href',
+                    el.getAttribute('href').replace(/.*#/, '#'),
+                )
+            }
+        })
     }
 
-    function normalizeHash(hash) {
-      // 统一处理：'' 或 '#xxx'（不做 toLowerCase 也可以）
-      return hash || ''
+    function showSettings() {
+        const timer = setInterval(() => {
+            const details = document.querySelector(
+                '.settings > details.tsd-accordion',
+            )
+            if (!details) return
+
+            clearInterval(timer)
+            setTimeout(() => {
+                details.setAttribute('open', 'true')
+            }, 1)
+        }, 10)
     }
-  }
 
-  function moveOverlay() {
-    const timer = setInterval(() => {
-      const colContent = document.querySelector('.col-content')
-      const overlay = document.querySelector('.overlay')
+    function addCurrentClassName() {
+        const timer = setInterval(() => {
+            const nav = document.querySelector('.site-menu > .tsd-navigation')
+            if (!nav) return
 
-      if (colContent && overlay) {
-        colContent.appendChild(overlay)
+            clearInterval(timer)
+            setTimeout(() => {
+                highlightCurrent(nav)
+            }, 1)
+        }, 10)
 
-        clearInterval(timer)
-      }
-    }, 10)
-  }
+        function highlightCurrent(nav) {
+            const currentPath = normalizePath(window.location.pathname)
+            const currentHash = normalizeHash(window.location.hash)
+
+            const links = nav.querySelectorAll('a[href]')
+            links.forEach((a) => {
+                const href = a.getAttribute('href')
+                if (!href) return
+
+                try {
+                    const url = new URL(href, window.location.href)
+
+                    const linkPath = normalizePath(url.pathname)
+                    const linkHash = normalizeHash(url.hash)
+
+                    // path 必须一致
+                    if (linkPath !== currentPath) return
+
+                    // 只要一方有 hash，就要求双方 hash 完全一致
+                    if (linkHash || currentHash) {
+                        if (linkHash !== currentHash) return
+                    }
+
+                    a.classList.add('current')
+                } catch (e) {}
+            })
+        }
+
+        function normalizePath(path) {
+            return path
+                .replace(/\/+$/, '') // 去掉结尾 /
+                .replace(/\.html$/, '') // 忽略 .html
+                .toLowerCase()
+        }
+
+        function normalizeHash(hash) {
+            // 统一处理：'' 或 '#xxx'（不做 toLowerCase 也可以）
+            return hash || ''
+        }
+    }
+
+    function moveOverlay() {
+        const timer = setInterval(() => {
+            const colContent = document.querySelector('.col-content')
+            const overlay = document.querySelector('.overlay')
+
+            if (colContent && overlay) {
+                colContent.appendChild(overlay)
+
+                clearInterval(timer)
+            }
+        }, 10)
+    }
 })()

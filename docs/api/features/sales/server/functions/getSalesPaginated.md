@@ -36,8 +36,8 @@ Promise resolving to a paginated result set
 
 ```typescript
 const result = await getSalesPaginated('user_1', {
-  page: 1,
-  pageSize: 20,
-  livestockType: 'poultry',
+    page: 1,
+    pageSize: 20,
+    livestockType: 'poultry',
 })
 ```

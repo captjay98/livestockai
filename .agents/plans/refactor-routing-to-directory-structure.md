@@ -107,11 +107,11 @@ app/routes/_auth/
 ### Relevant Documentation YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [TanStack Router File-Based Routing](https://tanstack.com/router/latest/docs/framework/react/guide/file-based-routing)
-  - Specific section: Directory-based routing
-  - Why: Shows how directory structure maps to routes
+    - Specific section: Directory-based routing
+    - Why: Shows how directory structure maps to routes
 - [TanStack Router Route Trees](https://tanstack.com/router/latest/docs/framework/react/guide/route-trees)
-  - Specific section: Nested routes
-  - Why: Explains parent-child route relationships
+    - Specific section: Nested routes
+    - Why: Explains parent-child route relationships
 
 ### Patterns to Follow
 
@@ -125,8 +125,8 @@ app/routes/_auth/
 
 ```typescript
 export const Route = createFileRoute('/_auth/feature/action')({
-  component: ComponentName,
-  // ... other route options
+    component: ComponentName,
+    // ... other route options
 })
 ```
 
@@ -204,9 +204,9 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move batch-related routes to batches directory
 - **PATTERN**:
-  - `_auth.batches.index.tsx` → `_auth/batches/index.tsx`
-  - `_auth.batches.new.tsx` → `_auth/batches/new.tsx`
-  - `_auth.batches.$batchId.index.tsx` → `_auth/batches/$batchId/index.tsx`
+    - `_auth.batches.index.tsx` → `_auth/batches/index.tsx`
+    - `_auth.batches.new.tsx` → `_auth/batches/new.tsx`
+    - `_auth.batches.$batchId.index.tsx` → `_auth/batches/$batchId/index.tsx`
 - **IMPORTS**: Update createFileRoute paths accordingly
 - **VALIDATE**: `bun dev` and test /batches, /batches/new, /batches/123
 
@@ -214,11 +214,11 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move farm-related routes to farms directory
 - **PATTERN**:
-  - `_auth.farms.index.tsx` → `_auth/farms/index.tsx`
-  - `_auth.farms.tsx` → `_auth/farms/index.tsx` (merge if needed)
-  - `_auth.farms.new.tsx` → `_auth/farms/new.tsx`
-  - `_auth.farms.$farmId.index.tsx` → `_auth/farms/$farmId/index.tsx`
-  - `_auth.farms.$farmId.tsx` → `_auth/farms/$farmId.tsx` (if different from index)
+    - `_auth.farms.index.tsx` → `_auth/farms/index.tsx`
+    - `_auth.farms.tsx` → `_auth/farms/index.tsx` (merge if needed)
+    - `_auth.farms.new.tsx` → `_auth/farms/new.tsx`
+    - `_auth.farms.$farmId.index.tsx` → `_auth/farms/$farmId/index.tsx`
+    - `_auth.farms.$farmId.tsx` → `_auth/farms/$farmId.tsx` (if different from index)
 - **IMPORTS**: Update createFileRoute paths
 - **VALIDATE**: Test /farms routes and dynamic farm pages
 
@@ -226,8 +226,8 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move sales-related routes
 - **PATTERN**:
-  - `_auth.sales.tsx` → `_auth/sales/index.tsx`
-  - `_auth.sales.new.tsx` → `_auth/sales/new.tsx`
+    - `_auth.sales.tsx` → `_auth/sales/index.tsx`
+    - `_auth.sales.new.tsx` → `_auth/sales/new.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test /sales and /sales/new
 
@@ -235,9 +235,9 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move customer-related routes
 - **PATTERN**:
-  - `_auth.customers.tsx` → `_auth/customers/index.tsx`
-  - `_auth.customers.new.tsx` → `_auth/customers/new.tsx`
-  - `_auth.customers.$customerId.tsx` → `_auth/customers/$customerId.tsx`
+    - `_auth.customers.tsx` → `_auth/customers/index.tsx`
+    - `_auth.customers.new.tsx` → `_auth/customers/new.tsx`
+    - `_auth.customers.$customerId.tsx` → `_auth/customers/$customerId.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test customer routes including dynamic customer pages
 
@@ -245,9 +245,9 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move supplier-related routes
 - **PATTERN**:
-  - `_auth.suppliers.tsx` → `_auth/suppliers/index.tsx`
-  - `_auth.suppliers.new.tsx` → `_auth/suppliers/new.tsx`
-  - `_auth.suppliers.$supplierId.tsx` → `_auth/suppliers/$supplierId.tsx`
+    - `_auth.suppliers.tsx` → `_auth/suppliers/index.tsx`
+    - `_auth.suppliers.new.tsx` → `_auth/suppliers/new.tsx`
+    - `_auth.suppliers.$supplierId.tsx` → `_auth/suppliers/$supplierId.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test supplier routes
 
@@ -255,10 +255,10 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move settings-related routes
 - **PATTERN**:
-  - `_auth.settings.tsx` → `_auth/settings/index.tsx`
-  - `_auth.settings.users.tsx` → `_auth/settings/users.tsx`
-  - `_auth.settings.audit.tsx` → `_auth/settings/audit.tsx`
-  - `_auth.settings.modules.tsx` → `_auth/settings/modules.tsx`
+    - `_auth.settings.tsx` → `_auth/settings/index.tsx`
+    - `_auth.settings.users.tsx` → `_auth/settings/users.tsx`
+    - `_auth.settings.audit.tsx` → `_auth/settings/audit.tsx`
+    - `_auth.settings.modules.tsx` → `_auth/settings/modules.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test all settings pages
 
@@ -266,8 +266,8 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move report-related routes
 - **PATTERN**:
-  - `_auth.reports.tsx` → `_auth/reports/index.tsx`
-  - `_auth.reports.export.tsx` → `_auth/reports/export.tsx`
+    - `_auth.reports.tsx` → `_auth/reports/index.tsx`
+    - `_auth.reports.export.tsx` → `_auth/reports/export.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test reports functionality
 
@@ -275,9 +275,9 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move invoice-related routes
 - **PATTERN**:
-  - `_auth.invoices.tsx` → `_auth/invoices/index.tsx`
-  - `_auth.invoices.new.tsx` → `_auth/invoices/new.tsx`
-  - `_auth.invoices.$invoiceId.tsx` → `_auth/invoices/$invoiceId.tsx`
+    - `_auth.invoices.tsx` → `_auth/invoices/index.tsx`
+    - `_auth.invoices.new.tsx` → `_auth/invoices/new.tsx`
+    - `_auth.invoices.$invoiceId.tsx` → `_auth/invoices/$invoiceId.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test invoice routes including dynamic invoice pages
 
@@ -285,8 +285,8 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move expense-related routes
 - **PATTERN**:
-  - `_auth.expenses.tsx` → `_auth/expenses/index.tsx`
-  - `_auth.expenses.new.tsx` → `_auth/expenses/new.tsx`
+    - `_auth.expenses.tsx` → `_auth/expenses/index.tsx`
+    - `_auth.expenses.new.tsx` → `_auth/expenses/new.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test expense routes
 
@@ -294,8 +294,8 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move feed-related routes
 - **PATTERN**:
-  - `_auth.feed.tsx` → `_auth/feed/index.tsx`
-  - `_auth.feed.new.tsx` → `_auth/feed/new.tsx`
+    - `_auth.feed.tsx` → `_auth/feed/index.tsx`
+    - `_auth.feed.new.tsx` → `_auth/feed/new.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test feed routes
 
@@ -303,8 +303,8 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move weight-related routes
 - **PATTERN**:
-  - `_auth.weight.tsx` → `_auth/weight/index.tsx`
-  - `_auth.weight.new.tsx` → `_auth/weight/new.tsx`
+    - `_auth.weight.tsx` → `_auth/weight/index.tsx`
+    - `_auth.weight.new.tsx` → `_auth/weight/new.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test weight tracking routes
 
@@ -312,8 +312,8 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move vaccination-related routes
 - **PATTERN**:
-  - `_auth.vaccinations.tsx` → `_auth/vaccinations/index.tsx`
-  - `_auth.vaccinations.new.tsx` → `_auth/vaccinations/new.tsx`
+    - `_auth.vaccinations.tsx` → `_auth/vaccinations/index.tsx`
+    - `_auth.vaccinations.new.tsx` → `_auth/vaccinations/new.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test vaccination routes
 
@@ -321,8 +321,8 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move water quality routes
 - **PATTERN**:
-  - `_auth.water-quality.tsx` → `_auth/water-quality/index.tsx`
-  - `_auth.water-quality.new.tsx` → `_auth/water-quality/new.tsx`
+    - `_auth.water-quality.tsx` → `_auth/water-quality/index.tsx`
+    - `_auth.water-quality.new.tsx` → `_auth/water-quality/new.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test water quality routes
 
@@ -330,8 +330,8 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move egg-related routes
 - **PATTERN**:
-  - `_auth.eggs.tsx` → `_auth/eggs/index.tsx`
-  - `_auth.eggs.new.tsx` → `_auth/eggs/new.tsx`
+    - `_auth.eggs.tsx` → `_auth/eggs/index.tsx`
+    - `_auth.eggs.new.tsx` → `_auth/eggs/new.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test egg tracking routes
 
@@ -339,9 +339,9 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 
 - **IMPLEMENT**: Move remaining single routes
 - **PATTERN**:
-  - `_auth.inventory.tsx` → `_auth/inventory.tsx`
-  - `_auth.mortality.tsx` → `_auth/mortality.tsx`
-  - `_auth.onboarding.tsx` → `_auth/onboarding.tsx`
+    - `_auth.inventory.tsx` → `_auth/inventory.tsx`
+    - `_auth.mortality.tsx` → `_auth/mortality.tsx`
+    - `_auth.onboarding.tsx` → `_auth/onboarding.tsx`
 - **IMPORTS**: Update route paths
 - **VALIDATE**: Test each individual route
 

@@ -238,289 +238,294 @@ createServerFn('GET', '/api/export/:type')
 ```typescript
 // Database interface for Kysely
 interface Database {
-  users: UserTable
-  sessions: SessionTable
-  farms: FarmTable
-  user_farms: UserFarmTable
-  structures: StructureTable
-  batches: BatchTable
-  mortality_records: MortalityTable
-  feed_records: FeedTable
-  egg_records: EggTable
-  weight_samples: WeightTable
-  vaccinations: VaccinationTable
-  treatments: TreatmentTable
-  water_quality: WaterQualityTable
-  sales: SaleTable
-  expenses: ExpenseTable
-  customers: CustomerTable
-  suppliers: SupplierTable
-  medication_inventory: MedicationInventoryTable
-  invoices: InvoiceTable
-  invoice_items: InvoiceItemTable
+    users: UserTable
+    sessions: SessionTable
+    farms: FarmTable
+    user_farms: UserFarmTable
+    structures: StructureTable
+    batches: BatchTable
+    mortality_records: MortalityTable
+    feed_records: FeedTable
+    egg_records: EggTable
+    weight_samples: WeightTable
+    vaccinations: VaccinationTable
+    treatments: TreatmentTable
+    water_quality: WaterQualityTable
+    sales: SaleTable
+    expenses: ExpenseTable
+    customers: CustomerTable
+    suppliers: SupplierTable
+    medication_inventory: MedicationInventoryTable
+    invoices: InvoiceTable
+    invoice_items: InvoiceItemTable
 }
 
 // User & Auth
 interface UserTable {
-  id: Generated<string>
-  email: string
-  password_hash: string
-  name: string
-  role: 'admin' | 'staff'
-  created_at: Generated<Date>
-  updated_at: Date
+    id: Generated<string>
+    email: string
+    password_hash: string
+    name: string
+    role: 'admin' | 'staff'
+    created_at: Generated<Date>
+    updated_at: Date
 }
 
 interface SessionTable {
-  id: string
-  user_id: string
-  expires_at: Date
-  created_at: Generated<Date>
+    id: string
+    user_id: string
+    expires_at: Date
+    created_at: Generated<Date>
 }
 
 // Farm
 interface FarmTable {
-  id: Generated<string>
-  name: string
-  location: string
-  type: 'poultry' | 'fishery' | 'mixed'
-  contactPhone: string | null
-  notes: string | null
-  created_at: Generated<Date>
-  updated_at: Date
+    id: Generated<string>
+    name: string
+    location: string
+    type: 'poultry' | 'fishery' | 'mixed'
+    contactPhone: string | null
+    notes: string | null
+    created_at: Generated<Date>
+    updated_at: Date
 }
 
 interface UserFarmTable {
-  user_id: string
-  farm_id: string
+    user_id: string
+    farm_id: string
 }
 
 // Structures (houses, ponds, pens, cages)
 interface StructureTable {
-  id: Generated<string>
-  farm_id: string
-  name: string
-  type: 'house' | 'pond' | 'pen' | 'cage'
-  capacity: number | null
-  area_sqm: number | null
-  status: 'active' | 'empty' | 'maintenance'
-  notes: string | null
-  created_at: Generated<Date>
+    id: Generated<string>
+    farm_id: string
+    name: string
+    type: 'house' | 'pond' | 'pen' | 'cage'
+    capacity: number | null
+    area_sqm: number | null
+    status: 'active' | 'empty' | 'maintenance'
+    notes: string | null
+    created_at: Generated<Date>
 }
 
 // Livestock
 interface BatchTable {
-  id: Generated<string>
-  farm_id: string
-  batch_name: string | null
-  livestock_type: 'poultry' | 'fish'
-  species: string // broiler, layer, catfish, tilapia, etc.
-  initial_quantity: number
-  current_quantity: number
-  acquisition_date: Date
-  cost_per_unit: number // in kobo (smallest Naira unit)
-  total_cost: number // in kobo
-  status: 'active' | 'depleted' | 'sold'
-  supplier_id: string | null
-  source_size: string | null
-  structure_id: string | null
-  target_harvest_date: Date | null
-  notes: string | null
-  created_at: Generated<Date>
-  updated_at: Date
+    id: Generated<string>
+    farm_id: string
+    batch_name: string | null
+    livestock_type: 'poultry' | 'fish'
+    species: string // broiler, layer, catfish, tilapia, etc.
+    initial_quantity: number
+    current_quantity: number
+    acquisition_date: Date
+    cost_per_unit: number // in kobo (smallest Naira unit)
+    total_cost: number // in kobo
+    status: 'active' | 'depleted' | 'sold'
+    supplier_id: string | null
+    source_size: string | null
+    structure_id: string | null
+    target_harvest_date: Date | null
+    notes: string | null
+    created_at: Generated<Date>
+    updated_at: Date
 }
 
 interface MortalityTable {
-  id: Generated<string>
-  batch_id: string
-  quantity: number
-  date: Date
-  cause: 'disease' | 'predator' | 'weather' | 'unknown' | 'other'
-  notes: string | null
-  created_at: Generated<Date>
+    id: Generated<string>
+    batch_id: string
+    quantity: number
+    date: Date
+    cause: 'disease' | 'predator' | 'weather' | 'unknown' | 'other'
+    notes: string | null
+    created_at: Generated<Date>
 }
 
 interface FeedTable {
-  id: Generated<string>
-  batch_id: string
-  feed_type: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
-  quantity_kg: number
-  cost: number // in kobo
-  date: Date
-  supplier_id: string | null
-  brand_name: string | null
-  bag_size_kg: number | null
-  number_of_bags: number | null
-  notes: string | null
-  created_at: Generated<Date>
+    id: Generated<string>
+    batch_id: string
+    feed_type: 'starter' | 'grower' | 'finisher' | 'layer_mash' | 'fish_feed'
+    quantity_kg: number
+    cost: number // in kobo
+    date: Date
+    supplier_id: string | null
+    brand_name: string | null
+    bag_size_kg: number | null
+    number_of_bags: number | null
+    notes: string | null
+    created_at: Generated<Date>
 }
 
 interface EggTable {
-  id: Generated<string>
-  batch_id: string
-  date: Date
-  quantity_collected: number
-  quantity_broken: number
-  quantity_sold: number
-  created_at: Generated<Date>
+    id: Generated<string>
+    batch_id: string
+    date: Date
+    quantity_collected: number
+    quantity_broken: number
+    quantity_sold: number
+    created_at: Generated<Date>
 }
 
 interface WeightTable {
-  id: Generated<string>
-  batch_id: string
-  date: Date
-  sample_size: number
-  average_weight_kg: number
-  min_weight_kg: number | null
-  max_weight_kg: number | null
-  notes: string | null
-  created_at: Generated<Date>
+    id: Generated<string>
+    batch_id: string
+    date: Date
+    sample_size: number
+    average_weight_kg: number
+    min_weight_kg: number | null
+    max_weight_kg: number | null
+    notes: string | null
+    created_at: Generated<Date>
 }
 
 interface VaccinationTable {
-  id: Generated<string>
-  batch_id: string
-  vaccine_name: string
-  date_administered: Date
-  dosage: string
-  next_due_date: Date | null
-  notes: string | null
-  created_at: Generated<Date>
+    id: Generated<string>
+    batch_id: string
+    vaccine_name: string
+    date_administered: Date
+    dosage: string
+    next_due_date: Date | null
+    notes: string | null
+    created_at: Generated<Date>
 }
 
 interface TreatmentTable {
-  id: Generated<string>
-  batch_id: string
-  medication_name: string
-  reason: string
-  date: Date
-  dosage: string
-  withdrawal_days: number
-  notes: string | null
-  created_at: Generated<Date>
+    id: Generated<string>
+    batch_id: string
+    medication_name: string
+    reason: string
+    date: Date
+    dosage: string
+    withdrawal_days: number
+    notes: string | null
+    created_at: Generated<Date>
 }
 
 interface WaterQualityTable {
-  id: Generated<string>
-  batch_id: string
-  date: Date
-  ph: number
-  temperature_celsius: number
-  dissolved_oxygen_mg_l: number
-  ammonia_mg_l: number
-  notes: string | null
-  created_at: Generated<Date>
+    id: Generated<string>
+    batch_id: string
+    date: Date
+    ph: number
+    temperature_celsius: number
+    dissolved_oxygen_mg_l: number
+    ammonia_mg_l: number
+    notes: string | null
+    created_at: Generated<Date>
 }
 
 // Financial
 interface SaleTable {
-  id: Generated<string>
-  farm_id: string
-  batch_id: string | null
-  customer_id: string | null
-  livestock_type: 'poultry' | 'fish' | 'eggs'
-  quantity: number
-  unit_price: number // in kobo
-  total_amount: number // in kobo
-  date: Date
-  age_weeks: number | null
-  average_weight_kg: number | null
-  unit_type: 'bird' | 'kg' | 'crate' | 'piece' | null
-  payment_status: 'paid' | 'pending' | 'partial'
-  payment_method: 'cash' | 'transfer' | 'credit' | null
-  invoice_id: string | null
-  notes: string | null
-  created_at: Generated<Date>
+    id: Generated<string>
+    farm_id: string
+    batch_id: string | null
+    customer_id: string | null
+    livestock_type: 'poultry' | 'fish' | 'eggs'
+    quantity: number
+    unit_price: number // in kobo
+    total_amount: number // in kobo
+    date: Date
+    age_weeks: number | null
+    average_weight_kg: number | null
+    unit_type: 'bird' | 'kg' | 'crate' | 'piece' | null
+    payment_status: 'paid' | 'pending' | 'partial'
+    payment_method: 'cash' | 'transfer' | 'credit' | null
+    invoice_id: string | null
+    notes: string | null
+    created_at: Generated<Date>
 }
 
 interface ExpenseTable {
-  id: Generated<string>
-  farm_id: string
-  category:
-    | 'feed'
-    | 'medicine'
-    | 'equipment'
-    | 'utilities'
-    | 'labor'
-    | 'transport'
-    | 'livestock'
-    | 'livestock_chicken'
-    | 'livestock_fish'
-    | 'maintenance'
-    | 'marketing'
-    | 'other'
-  amount: number // in kobo
-  date: Date
-  description: string
-  supplier_id: string | null
-  is_recurring: boolean
-  created_at: Generated<Date>
+    id: Generated<string>
+    farm_id: string
+    category:
+        | 'feed'
+        | 'medicine'
+        | 'equipment'
+        | 'utilities'
+        | 'labor'
+        | 'transport'
+        | 'livestock'
+        | 'livestock_chicken'
+        | 'livestock_fish'
+        | 'maintenance'
+        | 'marketing'
+        | 'other'
+    amount: number // in kobo
+    date: Date
+    description: string
+    supplier_id: string | null
+    is_recurring: boolean
+    created_at: Generated<Date>
 }
 
 // Contacts
 interface CustomerTable {
-  id: Generated<string>
-  name: string
-  phone: string
-  email: string | null
-  location: string | null
-  customer_type: 'individual' | 'restaurant' | 'retailer' | 'wholesaler' | null
-  created_at: Generated<Date>
-  updated_at: Date
+    id: Generated<string>
+    name: string
+    phone: string
+    email: string | null
+    location: string | null
+    customer_type:
+        | 'individual'
+        | 'restaurant'
+        | 'retailer'
+        | 'wholesaler'
+        | null
+    created_at: Generated<Date>
+    updated_at: Date
 }
 
 interface SupplierTable {
-  id: Generated<string>
-  name: string
-  phone: string
-  email: string | null
-  location: string | null
-  products: string[] // what they supply
-  supplier_type:
-    | 'hatchery'
-    | 'feed_mill'
-    | 'pharmacy'
-    | 'equipment'
-    | 'fingerlings'
-    | 'other'
-    | null
-  created_at: Generated<Date>
-  updated_at: Date
+    id: Generated<string>
+    name: string
+    phone: string
+    email: string | null
+    location: string | null
+    products: string[] // what they supply
+    supplier_type:
+        | 'hatchery'
+        | 'feed_mill'
+        | 'pharmacy'
+        | 'equipment'
+        | 'fingerlings'
+        | 'other'
+        | null
+    created_at: Generated<Date>
+    updated_at: Date
 }
 
 // Medication Inventory
 interface MedicationInventoryTable {
-  id: Generated<string>
-  farm_id: string
-  medication_name: string
-  quantity: number
-  unit: 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet'
-  expiry_date: Date | null
-  min_threshold: number
-  updated_at: Date
+    id: Generated<string>
+    farm_id: string
+    medication_name: string
+    quantity: number
+    unit: 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet'
+    expiry_date: Date | null
+    min_threshold: number
+    updated_at: Date
 }
 
 // Invoices
 interface InvoiceTable {
-  id: Generated<string>
-  invoice_number: string
-  customer_id: string
-  farm_id: string
-  total_amount: number // in kobo
-  status: 'unpaid' | 'partial' | 'paid'
-  date: Date
-  due_date: Date | null
-  notes: string | null
-  created_at: Generated<Date>
+    id: Generated<string>
+    invoice_number: string
+    customer_id: string
+    farm_id: string
+    total_amount: number // in kobo
+    status: 'unpaid' | 'partial' | 'paid'
+    date: Date
+    due_date: Date | null
+    notes: string | null
+    created_at: Generated<Date>
 }
 
 interface InvoiceItemTable {
-  id: Generated<string>
-  invoice_id: string
-  description: string
-  quantity: number
-  unit_price: number // in kobo
-  total: number // in kobo
+    id: Generated<string>
+    invoice_id: string
+    description: string
+    quantity: number
+    unit_price: number // in kobo
+    total: number // in kobo
 }
 ```
 
@@ -531,19 +536,19 @@ All monetary values are stored in **kobo** (1 Naira = 100 kobo) to avoid floatin
 ```typescript
 // Utility functions
 function nairaToKobo(naira: number): number {
-  return Math.round(naira * 100)
+    return Math.round(naira * 100)
 }
 
 function koboToNaira(kobo: number): number {
-  return kobo / 100
+    return kobo / 100
 }
 
 function formatNaira(kobo: number): string {
-  const naira = koboToNaira(kobo)
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-  }).format(naira)
+    const naira = koboToNaira(kobo)
+    return new Intl.NumberFormat('en-NG', {
+        style: 'currency',
+        currency: 'NGN',
+    }).format(naira)
 }
 // Example: formatNaira(150000) => "₦1,500.00"
 ```
@@ -785,27 +790,27 @@ import * as fc from 'fast-check'
 import { calculateMortalityRate } from '../src/utils/calculations'
 
 describe('Property 5: Mortality Rate Calculation', () => {
-  // Feature: poultry-fishery-tracker, Property 5: Mortality Rate Calculation
-  // Validates: Requirements 4.3, 4.4
+    // Feature: poultry-fishery-tracker, Property 5: Mortality Rate Calculation
+    // Validates: Requirements 4.3, 4.4
 
-  it('mortality rate equals (deaths / initial) × 100 for all valid inputs', () => {
-    fc.assert(
-      fc.property(
-        fc.integer({ min: 1, max: 100000 }), // initial quantity
-        fc.integer({ min: 0, max: 100000 }), // deaths
-        (initial, deaths) => {
-          // Ensure deaths don't exceed initial
-          const validDeaths = Math.min(deaths, initial)
+    it('mortality rate equals (deaths / initial) × 100 for all valid inputs', () => {
+        fc.assert(
+            fc.property(
+                fc.integer({ min: 1, max: 100000 }), // initial quantity
+                fc.integer({ min: 0, max: 100000 }), // deaths
+                (initial, deaths) => {
+                    // Ensure deaths don't exceed initial
+                    const validDeaths = Math.min(deaths, initial)
 
-          const rate = calculateMortalityRate(initial, validDeaths)
-          const expected = (validDeaths / initial) * 100
+                    const rate = calculateMortalityRate(initial, validDeaths)
+                    const expected = (validDeaths / initial) * 100
 
-          expect(rate).toBeCloseTo(expected, 10)
-        },
-      ),
-      { numRuns: 100 },
-    )
-  })
+                    expect(rate).toBeCloseTo(expected, 10)
+                },
+            ),
+            { numRuns: 100 },
+        )
+    })
 })
 ```
 
@@ -814,32 +819,42 @@ describe('Property 5: Mortality Rate Calculation', () => {
 ```typescript
 // Currency formatting edge cases
 describe('formatNaira', () => {
-  it('formats zero correctly', () => {
-    expect(formatNaira(0)).toBe('₦0.00')
-  })
+    it('formats zero correctly', () => {
+        expect(formatNaira(0)).toBe('₦0.00')
+    })
 
-  it('formats small amounts correctly', () => {
-    expect(formatNaira(50)).toBe('₦0.50')
-  })
+    it('formats small amounts correctly', () => {
+        expect(formatNaira(50)).toBe('₦0.50')
+    })
 
-  it('formats large amounts with separators', () => {
-    expect(formatNaira(150000000)).toBe('₦1,500,000.00')
-  })
+    it('formats large amounts with separators', () => {
+        expect(formatNaira(150000000)).toBe('₦1,500,000.00')
+    })
 })
 
 // Water quality threshold edge cases
 describe('isWaterQualityAlert', () => {
-  it('returns false for values exactly at boundaries', () => {
-    expect(
-      isWaterQualityAlert({ ph: 6.5, temp: 25, oxygen: 5, ammonia: 0.02 }),
-    ).toBe(false)
-  })
+    it('returns false for values exactly at boundaries', () => {
+        expect(
+            isWaterQualityAlert({
+                ph: 6.5,
+                temp: 25,
+                oxygen: 5,
+                ammonia: 0.02,
+            }),
+        ).toBe(false)
+    })
 
-  it('returns true for pH just below minimum', () => {
-    expect(
-      isWaterQualityAlert({ ph: 6.49, temp: 27, oxygen: 6, ammonia: 0.01 }),
-    ).toBe(true)
-  })
+    it('returns true for pH just below minimum', () => {
+        expect(
+            isWaterQualityAlert({
+                ph: 6.49,
+                temp: 27,
+                oxygen: 6,
+                ammonia: 0.01,
+            }),
+        ).toBe(true)
+    })
 })
 ```
 

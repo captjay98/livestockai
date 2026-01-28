@@ -15,155 +15,155 @@ import { HealthDataTable } from '~/components/vaccinations/health-data-table'
 import { VaccinationsSkeleton } from '~/components/vaccinations/vaccinations-skeleton'
 
 export const Route = createFileRoute('/_auth/vaccinations/')({
-  validateSearch: (search: Record<string, unknown>): PaginatedQuery => {
-    const validSortBy = [
-      'dateAdministered',
-      'vaccineName',
-      'nextDueDate',
-      'createdAt',
-      'date',
-      'medicationName',
-    ] as const
-    return {
-      page: Number(search.page) || 1,
-      pageSize: Number(search.pageSize) || 10,
-      sortBy:
-        typeof search.sortBy === 'string' &&
-        (validSortBy as ReadonlyArray<string>).includes(search.sortBy)
-          ? search.sortBy
-          : 'date',
-      sortOrder:
-        search.sortOrder === 'asc' || search.sortOrder === 'desc'
-          ? search.sortOrder
-          : 'desc',
-      search: typeof search.search === 'string' ? search.search : '',
-      type: search.type ? (search.type as any) : 'all',
-    }
-  },
-  loaderDeps: ({ search }) => ({
-    farmId: null, // Will be handled by server function
-    page: search.page,
-    pageSize: search.pageSize,
-    sortBy: search.sortBy,
-    sortOrder: search.sortOrder,
-    search: search.search,
-    type: search.type,
-  }),
-  loader: async ({ deps }) => {
-    return getHealthDataForFarm({ data: deps })
-  },
-  pendingComponent: VaccinationsSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading vaccinations: {error.message}
-    </div>
-  ),
-  component: VaccinationsPage,
+    validateSearch: (search: Record<string, unknown>): PaginatedQuery => {
+        const validSortBy = [
+            'dateAdministered',
+            'vaccineName',
+            'nextDueDate',
+            'createdAt',
+            'date',
+            'medicationName',
+        ] as const
+        return {
+            page: Number(search.page) || 1,
+            pageSize: Number(search.pageSize) || 10,
+            sortBy:
+                typeof search.sortBy === 'string' &&
+                (validSortBy as ReadonlyArray<string>).includes(search.sortBy)
+                    ? search.sortBy
+                    : 'date',
+            sortOrder:
+                search.sortOrder === 'asc' || search.sortOrder === 'desc'
+                    ? search.sortOrder
+                    : 'desc',
+            search: typeof search.search === 'string' ? search.search : '',
+            type: search.type ? (search.type as any) : 'all',
+        }
+    },
+    loaderDeps: ({ search }) => ({
+        farmId: null, // Will be handled by server function
+        page: search.page,
+        pageSize: search.pageSize,
+        sortBy: search.sortBy,
+        sortOrder: search.sortOrder,
+        search: search.search,
+        type: search.type,
+    }),
+    loader: async ({ deps }) => {
+        return getHealthDataForFarm({ data: deps })
+    },
+    pendingComponent: VaccinationsSkeleton,
+    errorComponent: ({ error }) => (
+        <div className="p-4 text-red-600">
+            Error loading vaccinations: {error.message}
+        </div>
+    ),
+    component: VaccinationsPage,
 })
 
 function VaccinationsPage() {
-  const router = useRouter()
-  const { t } = useTranslation(['vaccinations'])
-  const { format: formatDate } = useFormatDate()
-  const { selectedFarmId } = useFarm()
-  const searchParams = Route.useSearch()
-  const navigate = useNavigate({ from: Route.fullPath })
+    const router = useRouter()
+    const { t } = useTranslation(['vaccinations'])
+    const { format: formatDate } = useFormatDate()
+    const { selectedFarmId } = useFarm()
+    const searchParams = Route.useSearch()
+    const navigate = useNavigate({ from: Route.fullPath })
 
-  // Get data from loader
-  const { paginatedRecords, batches, alerts } = Route.useLoaderData()
+    // Get data from loader
+    const { paginatedRecords, batches, alerts } = Route.useLoaderData()
 
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [deleteOpen, setDeleteOpen] = useState(false)
+    const [dialogOpen, setDialogOpen] = useState(false)
+    const [deleteOpen, setDeleteOpen] = useState(false)
 
-  const {
-    dialogType,
-    selectedRecord,
-    isSubmitting,
-    setSelectedRecord,
-    handleFormSubmit,
-    handleDeleteConfirm,
-    openVaccinationDialog,
-    openTreatmentDialog,
-    openEditDialog,
-  } = useTreatmentMode()
+    const {
+        dialogType,
+        selectedRecord,
+        isSubmitting,
+        setSelectedRecord,
+        handleFormSubmit,
+        handleDeleteConfirm,
+        openVaccinationDialog,
+        openTreatmentDialog,
+        openEditDialog,
+    } = useTreatmentMode()
 
-  const updateSearch = (updates: Partial<PaginatedQuery>) => {
-    navigate({ search: (prev) => ({ ...prev, ...updates }) })
-  }
+    const updateSearch = (updates: Partial<PaginatedQuery>) => {
+        navigate({ search: (prev) => ({ ...prev, ...updates }) })
+    }
 
-  const handleSuccess = async () => {
-    setDialogOpen(false)
-    setDeleteOpen(false)
-    await router.invalidate()
-  }
+    const handleSuccess = async () => {
+        setDialogOpen(false)
+        setDeleteOpen(false)
+        await router.invalidate()
+    }
 
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t('title')}
-        description={t('description')}
-        icon={Syringe}
-        actions={
-          <VaccinationTabs
-            onVaccinate={() => {
-              openVaccinationDialog()
-              setDialogOpen(true)
-            }}
-            onTreat={() => {
-              openTreatmentDialog()
-              setDialogOpen(true)
-            }}
-          />
-        }
-      />
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                title={t('title')}
+                description={t('description')}
+                icon={Syringe}
+                actions={
+                    <VaccinationTabs
+                        onVaccinate={() => {
+                            openVaccinationDialog()
+                            setDialogOpen(true)
+                        }}
+                        onTreat={() => {
+                            openTreatmentDialog()
+                            setDialogOpen(true)
+                        }}
+                    />
+                }
+            />
 
-      <HealthAlerts alerts={alerts} formatDate={formatDate} />
+            <HealthAlerts alerts={alerts} formatDate={formatDate} />
 
-      <HealthDataTable
-        paginatedRecords={paginatedRecords}
-        searchParams={searchParams}
-        isLoading={false}
-        onEdit={(record) => {
-          openEditDialog(record)
-          setDialogOpen(true)
-        }}
-        onDelete={(record) => {
-          setSelectedRecord(record)
-          setDeleteOpen(true)
-        }}
-        onPaginationChange={(page, pageSize) =>
-          updateSearch({ page, pageSize })
-        }
-        onSortChange={(sortBy, sortOrder) =>
-          updateSearch({ sortBy, sortOrder, page: 1 })
-        }
-        onSearchChange={(search) => updateSearch({ search, page: 1 })}
-        onTypeChange={(type) =>
-          updateSearch({
-            type: type as 'all' | 'vaccination' | 'treatment',
-            page: 1,
-          })
-        }
-      />
+            <HealthDataTable
+                paginatedRecords={paginatedRecords}
+                searchParams={searchParams}
+                isLoading={false}
+                onEdit={(record) => {
+                    openEditDialog(record)
+                    setDialogOpen(true)
+                }}
+                onDelete={(record) => {
+                    setSelectedRecord(record)
+                    setDeleteOpen(true)
+                }}
+                onPaginationChange={(page, pageSize) =>
+                    updateSearch({ page, pageSize })
+                }
+                onSortChange={(sortBy, sortOrder) =>
+                    updateSearch({ sortBy, sortOrder, page: 1 })
+                }
+                onSearchChange={(search) => updateSearch({ search, page: 1 })}
+                onTypeChange={(type) =>
+                    updateSearch({
+                        type: type as 'all' | 'vaccination' | 'treatment',
+                        page: 1,
+                    })
+                }
+            />
 
-      <HealthFormDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onSubmit={(data) =>
-          handleFormSubmit(data, selectedFarmId || '', handleSuccess)
-        }
-        batches={batches}
-        type={dialogType}
-        isSubmitting={isSubmitting}
-        initialData={selectedRecord}
-      />
+            <HealthFormDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                onSubmit={(data) =>
+                    handleFormSubmit(data, selectedFarmId || '', handleSuccess)
+                }
+                batches={batches}
+                type={dialogType}
+                isSubmitting={isSubmitting}
+                initialData={selectedRecord}
+            />
 
-      <DeleteHealthDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        onConfirm={() => handleDeleteConfirm(handleSuccess)}
-        isSubmitting={isSubmitting}
-      />
-    </div>
-  )
+            <DeleteHealthDialog
+                open={deleteOpen}
+                onOpenChange={setDeleteOpen}
+                onConfirm={() => handleDeleteConfirm(handleSuccess)}
+                isSubmitting={isSubmitting}
+            />
+        </div>
+    )
 }

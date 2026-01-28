@@ -11,50 +11,50 @@ import type { Database } from '~/lib/db/types'
  * Data for inserting a new water quality reading.
  */
 export interface WaterQualityReadingInsert {
-  batchId: string
-  date: Date
-  ph: string
-  temperatureCelsius: string
-  dissolvedOxygenMgL: string
-  ammoniaMgL: string
-  notes: string | null
+    batchId: string
+    date: Date
+    ph: string
+    temperatureCelsius: string
+    dissolvedOxygenMgL: string
+    ammoniaMgL: string
+    notes: string | null
 }
 
 /**
  * Data for updating a water quality reading.
  */
 export interface WaterQualityReadingUpdate {
-  date?: Date
-  ph?: string
-  temperatureCelsius?: string
-  dissolvedOxygenMgL?: string
-  ammoniaMgL?: string
-  notes?: string | null
+    date?: Date
+    ph?: string
+    temperatureCelsius?: string
+    dissolvedOxygenMgL?: string
+    ammoniaMgL?: string
+    notes?: string | null
 }
 
 /**
  * Water quality reading with batch and farm information.
  */
 export interface WaterQualityReadingWithDetails {
-  id: string
-  batchId: string
-  date: Date
-  ph: string
-  temperatureCelsius: string
-  dissolvedOxygenMgL: string
-  ammoniaMgL: string
-  notes: string | null
-  createdAt: Date
-  species: string | null
-  farmName: string | null
+    id: string
+    batchId: string
+    date: Date
+    ph: string
+    temperatureCelsius: string
+    dissolvedOxygenMgL: string
+    ammoniaMgL: string
+    notes: string | null
+    createdAt: Date
+    species: string | null
+    farmName: string | null
 }
 
 /**
  * Filters for water quality queries.
  */
 export interface WaterQualityFilters {
-  batchId?: string
-  search?: string
+    batchId?: string
+    search?: string
 }
 
 /**
@@ -78,15 +78,15 @@ export interface WaterQualityFilters {
  * ```
  */
 export async function insertReading(
-  db: Kysely<Database>,
-  data: WaterQualityReadingInsert,
+    db: Kysely<Database>,
+    data: WaterQualityReadingInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('water_quality')
-    .values(data)
-    .returning('id')
-    .executeTakeFirstOrThrow()
-  return result.id
+    const result = await db
+        .insertInto('water_quality')
+        .values(data)
+        .returning('id')
+        .executeTakeFirstOrThrow()
+    return result.id
 }
 
 /**
@@ -97,30 +97,30 @@ export async function insertReading(
  * @returns The reading data or null if not found
  */
 export async function getReadingById(
-  db: Kysely<Database>,
-  id: string,
+    db: Kysely<Database>,
+    id: string,
 ): Promise<WaterQualityReadingWithDetails | null> {
-  const reading = await db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'water_quality.id',
-      'water_quality.batchId',
-      'water_quality.date',
-      'water_quality.ph',
-      'water_quality.temperatureCelsius',
-      'water_quality.dissolvedOxygenMgL',
-      'water_quality.ammoniaMgL',
-      'water_quality.notes',
-      'water_quality.createdAt',
-      'batches.species',
-      'farms.name as farmName',
-    ])
-    .where('water_quality.id', '=', id)
-    .executeTakeFirst()
+    const reading = await db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'water_quality.id',
+            'water_quality.batchId',
+            'water_quality.date',
+            'water_quality.ph',
+            'water_quality.temperatureCelsius',
+            'water_quality.dissolvedOxygenMgL',
+            'water_quality.ammoniaMgL',
+            'water_quality.notes',
+            'water_quality.createdAt',
+            'batches.species',
+            'farms.name as farmName',
+        ])
+        .where('water_quality.id', '=', id)
+        .executeTakeFirst()
 
-  return (reading as WaterQualityReadingWithDetails | null) ?? null
+    return (reading as WaterQualityReadingWithDetails | null) ?? null
 }
 
 /**
@@ -131,11 +131,15 @@ export async function getReadingById(
  * @param data - Fields to update
  */
 export async function updateReading(
-  db: Kysely<Database>,
-  id: string,
-  data: WaterQualityReadingUpdate,
+    db: Kysely<Database>,
+    id: string,
+    data: WaterQualityReadingUpdate,
 ): Promise<void> {
-  await db.updateTable('water_quality').set(data).where('id', '=', id).execute()
+    await db
+        .updateTable('water_quality')
+        .set(data)
+        .where('id', '=', id)
+        .execute()
 }
 
 /**
@@ -145,10 +149,10 @@ export async function updateReading(
  * @param id - ID of the reading to delete
  */
 export async function deleteReading(
-  db: Kysely<Database>,
-  id: string,
+    db: Kysely<Database>,
+    id: string,
 ): Promise<void> {
-  await db.deleteFrom('water_quality').where('id', '=', id).execute()
+    await db.deleteFrom('water_quality').where('id', '=', id).execute()
 }
 
 /**
@@ -160,43 +164,43 @@ export async function deleteReading(
  * @returns Array of water quality readings
  */
 export async function getReadingsByFarm(
-  db: Kysely<Database>,
-  farmId: string,
-  filters?: WaterQualityFilters,
+    db: Kysely<Database>,
+    farmId: string,
+    filters?: WaterQualityFilters,
 ): Promise<Array<WaterQualityReadingWithDetails>> {
-  let query = db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'water_quality.id',
-      'water_quality.batchId',
-      'water_quality.date',
-      'water_quality.ph',
-      'water_quality.temperatureCelsius',
-      'water_quality.dissolvedOxygenMgL',
-      'water_quality.ammoniaMgL',
-      'water_quality.notes',
-      'water_quality.createdAt',
-      'batches.species',
-      'farms.name as farmName',
-    ])
-    .where('batches.farmId', '=', farmId)
-    .where('batches.livestockType', '=', 'fish')
-    .orderBy('water_quality.date', 'desc')
+    let query = db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'water_quality.id',
+            'water_quality.batchId',
+            'water_quality.date',
+            'water_quality.ph',
+            'water_quality.temperatureCelsius',
+            'water_quality.dissolvedOxygenMgL',
+            'water_quality.ammoniaMgL',
+            'water_quality.notes',
+            'water_quality.createdAt',
+            'batches.species',
+            'farms.name as farmName',
+        ])
+        .where('batches.farmId', '=', farmId)
+        .where('batches.livestockType', '=', 'fish')
+        .orderBy('water_quality.date', 'desc')
 
-  if (filters?.batchId) {
-    query = query.where('water_quality.batchId', '=', filters.batchId)
-  }
+    if (filters?.batchId) {
+        query = query.where('water_quality.batchId', '=', filters.batchId)
+    }
 
-  if (filters?.search) {
-    const searchLower = `%${filters.search.toLowerCase()}%`
-    query = query.where((eb) =>
-      eb.or([eb('batches.species', 'ilike', searchLower)]),
-    )
-  }
+    if (filters?.search) {
+        const searchLower = `%${filters.search.toLowerCase()}%`
+        query = query.where((eb) =>
+            eb.or([eb('batches.species', 'ilike', searchLower)]),
+        )
+    }
 
-  return await query.execute()
+    return await query.execute()
 }
 
 /**
@@ -207,29 +211,29 @@ export async function getReadingsByFarm(
  * @returns Array of water quality readings
  */
 export async function getReadingsByBatch(
-  db: Kysely<Database>,
-  batchId: string,
+    db: Kysely<Database>,
+    batchId: string,
 ): Promise<Array<WaterQualityReadingWithDetails>> {
-  return await db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'water_quality.id',
-      'water_quality.batchId',
-      'water_quality.date',
-      'water_quality.ph',
-      'water_quality.temperatureCelsius',
-      'water_quality.dissolvedOxygenMgL',
-      'water_quality.ammoniaMgL',
-      'water_quality.notes',
-      'water_quality.createdAt',
-      'batches.species',
-      'farms.name as farmName',
-    ])
-    .where('water_quality.batchId', '=', batchId)
-    .orderBy('water_quality.date', 'desc')
-    .execute()
+    return await db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'water_quality.id',
+            'water_quality.batchId',
+            'water_quality.date',
+            'water_quality.ph',
+            'water_quality.temperatureCelsius',
+            'water_quality.dissolvedOxygenMgL',
+            'water_quality.ammoniaMgL',
+            'water_quality.notes',
+            'water_quality.createdAt',
+            'batches.species',
+            'farms.name as farmName',
+        ])
+        .where('water_quality.batchId', '=', batchId)
+        .orderBy('water_quality.date', 'desc')
+        .execute()
 }
 
 /**
@@ -240,32 +244,32 @@ export async function getReadingsByBatch(
  * @returns The latest reading or null if not found
  */
 export async function getLatestReading(
-  db: Kysely<Database>,
-  batchId: string,
+    db: Kysely<Database>,
+    batchId: string,
 ): Promise<WaterQualityReadingWithDetails | null> {
-  const reading = await db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'water_quality.id',
-      'water_quality.batchId',
-      'water_quality.date',
-      'water_quality.ph',
-      'water_quality.temperatureCelsius',
-      'water_quality.dissolvedOxygenMgL',
-      'water_quality.ammoniaMgL',
-      'water_quality.notes',
-      'water_quality.createdAt',
-      'batches.species',
-      'farms.name as farmName',
-    ])
-    .where('water_quality.batchId', '=', batchId)
-    .orderBy('water_quality.date', 'desc')
-    .limit(1)
-    .executeTakeFirst()
+    const reading = await db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'water_quality.id',
+            'water_quality.batchId',
+            'water_quality.date',
+            'water_quality.ph',
+            'water_quality.temperatureCelsius',
+            'water_quality.dissolvedOxygenMgL',
+            'water_quality.ammoniaMgL',
+            'water_quality.notes',
+            'water_quality.createdAt',
+            'batches.species',
+            'farms.name as farmName',
+        ])
+        .where('water_quality.batchId', '=', batchId)
+        .orderBy('water_quality.date', 'desc')
+        .limit(1)
+        .executeTakeFirst()
 
-  return (reading as WaterQualityReadingWithDetails | null) ?? null
+    return (reading as WaterQualityReadingWithDetails | null) ?? null
 }
 
 /**
@@ -276,55 +280,55 @@ export async function getLatestReading(
  * @returns Array of latest readings per batch
  */
 export async function getLatestReadingsByFarms(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
+    db: Kysely<Database>,
+    farmIds: Array<string>,
 ): Promise<Array<WaterQualityReadingWithDetails>> {
-  const records = await db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .select([
-      'water_quality.id',
-      'water_quality.batchId',
-      'water_quality.date',
-      'water_quality.ph',
-      'water_quality.temperatureCelsius',
-      'water_quality.dissolvedOxygenMgL',
-      'water_quality.ammoniaMgL',
-      'water_quality.notes',
-      'water_quality.createdAt',
-      'batches.species',
-      'farms.name as farmName',
-    ])
-    .where('batches.farmId', 'in', farmIds)
-    .where('batches.livestockType', '=', 'fish')
-    .where('batches.status', '=', 'active')
-    .orderBy('water_quality.date', 'desc')
-    .execute()
+    const records = await db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .select([
+            'water_quality.id',
+            'water_quality.batchId',
+            'water_quality.date',
+            'water_quality.ph',
+            'water_quality.temperatureCelsius',
+            'water_quality.dissolvedOxygenMgL',
+            'water_quality.ammoniaMgL',
+            'water_quality.notes',
+            'water_quality.createdAt',
+            'batches.species',
+            'farms.name as farmName',
+        ])
+        .where('batches.farmId', 'in', farmIds)
+        .where('batches.livestockType', '=', 'fish')
+        .where('batches.status', '=', 'active')
+        .orderBy('water_quality.date', 'desc')
+        .execute()
 
-  // Group by batch and get the most recent for each
-  const latestByBatch = new Map<string, WaterQualityReadingWithDetails>()
-  for (const record of records) {
-    if (!latestByBatch.has(record.batchId)) {
-      latestByBatch.set(
-        record.batchId,
-        record as WaterQualityReadingWithDetails,
-      )
+    // Group by batch and get the most recent for each
+    const latestByBatch = new Map<string, WaterQualityReadingWithDetails>()
+    for (const record of records) {
+        if (!latestByBatch.has(record.batchId)) {
+            latestByBatch.set(
+                record.batchId,
+                record as WaterQualityReadingWithDetails,
+            )
+        }
     }
-  }
 
-  return Array.from(latestByBatch.values())
+    return Array.from(latestByBatch.values())
 }
 
 /**
  * Paginated result type for water quality queries.
  */
 export interface WaterQualityPaginatedResult {
-  data: Array<WaterQualityReadingWithDetails>
-  total: number
-  page: number
-  pageSize: number
-  totalPages: number
+    data: Array<WaterQualityReadingWithDetails>
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
 }
 
 /**
@@ -336,106 +340,110 @@ export interface WaterQualityPaginatedResult {
  * @returns Paginated result with readings
  */
 export async function getWaterQualityPaginated(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  filters: {
-    page?: number
-    pageSize?: number
-    sortBy?: string
-    sortOrder?: 'asc' | 'desc'
-    batchId?: string
-    search?: string
-  },
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    filters: {
+        page?: number
+        pageSize?: number
+        sortBy?: string
+        sortOrder?: 'asc' | 'desc'
+        batchId?: string
+        search?: string
+    },
 ): Promise<WaterQualityPaginatedResult> {
-  const page = filters.page || 1
-  const pageSize = filters.pageSize || 10
-  const offset = (page - 1) * pageSize
+    const page = filters.page || 1
+    const pageSize = filters.pageSize || 10
+    const offset = (page - 1) * pageSize
 
-  let baseQuery = db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .innerJoin('farms', 'farms.id', 'batches.farmId')
-    .where('batches.farmId', 'in', farmIds)
-    .where('batches.livestockType', '=', 'fish')
+    let baseQuery = db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .innerJoin('farms', 'farms.id', 'batches.farmId')
+        .where('batches.farmId', 'in', farmIds)
+        .where('batches.livestockType', '=', 'fish')
 
-  if (filters.search) {
-    const searchLower = `%${filters.search.toLowerCase()}%`
-    baseQuery = baseQuery.where((eb) =>
-      eb.or([eb('batches.species', 'ilike', searchLower)]),
-    )
-  }
-
-  if (filters.batchId) {
-    baseQuery = baseQuery.where('water_quality.batchId', '=', filters.batchId)
-  }
-
-  const countResult = await baseQuery
-    .select((eb) => eb.fn.countAll<number>().as('count'))
-    .executeTakeFirst()
-
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
-
-  let dataQuery = baseQuery
-    .select([
-      'water_quality.id',
-      'water_quality.batchId',
-      'water_quality.date',
-      'water_quality.ph',
-      'water_quality.temperatureCelsius',
-      'water_quality.dissolvedOxygenMgL',
-      'water_quality.ammoniaMgL',
-      'water_quality.notes',
-      'water_quality.createdAt',
-      'batches.species',
-      'farms.name as farmName',
-    ])
-    .limit(pageSize)
-    .offset(offset)
-
-  if (filters.sortBy) {
-    const sortOrder = filters.sortOrder || 'desc'
-    // Validate sort column to prevent SQL injection
-    const allowedCols: Record<string, string> = {
-      date: 'water_quality.date',
-      ph: 'water_quality.ph',
-      temperatureCelsius: 'water_quality.temperatureCelsius',
-      dissolvedOxygenMgL: 'water_quality.dissolvedOxygenMgL',
-      ammoniaMgL: 'water_quality.ammoniaMgL',
-      createdAt: 'water_quality.createdAt',
-      species: 'batches.species',
+    if (filters.search) {
+        const searchLower = `%${filters.search.toLowerCase()}%`
+        baseQuery = baseQuery.where((eb) =>
+            eb.or([eb('batches.species', 'ilike', searchLower)]),
+        )
     }
-    const sortCol = allowedCols[filters.sortBy] || 'water_quality.date'
-    dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
-  } else {
-    dataQuery = dataQuery.orderBy('water_quality.date', 'desc')
-  }
 
-  const data = await dataQuery.execute()
+    if (filters.batchId) {
+        baseQuery = baseQuery.where(
+            'water_quality.batchId',
+            '=',
+            filters.batchId,
+        )
+    }
 
-  return {
-    data: data as Array<WaterQualityReadingWithDetails>,
-    total,
-    page,
-    pageSize,
-    totalPages,
-  }
+    const countResult = await baseQuery
+        .select((eb) => eb.fn.countAll<number>().as('count'))
+        .executeTakeFirst()
+
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
+
+    let dataQuery = baseQuery
+        .select([
+            'water_quality.id',
+            'water_quality.batchId',
+            'water_quality.date',
+            'water_quality.ph',
+            'water_quality.temperatureCelsius',
+            'water_quality.dissolvedOxygenMgL',
+            'water_quality.ammoniaMgL',
+            'water_quality.notes',
+            'water_quality.createdAt',
+            'batches.species',
+            'farms.name as farmName',
+        ])
+        .limit(pageSize)
+        .offset(offset)
+
+    if (filters.sortBy) {
+        const sortOrder = filters.sortOrder || 'desc'
+        // Validate sort column to prevent SQL injection
+        const allowedCols: Record<string, string> = {
+            date: 'water_quality.date',
+            ph: 'water_quality.ph',
+            temperatureCelsius: 'water_quality.temperatureCelsius',
+            dissolvedOxygenMgL: 'water_quality.dissolvedOxygenMgL',
+            ammoniaMgL: 'water_quality.ammoniaMgL',
+            createdAt: 'water_quality.createdAt',
+            species: 'batches.species',
+        }
+        const sortCol = allowedCols[filters.sortBy] || 'water_quality.date'
+        dataQuery = dataQuery.orderBy(sql.raw(sortCol), sortOrder)
+    } else {
+        dataQuery = dataQuery.orderBy('water_quality.date', 'desc')
+    }
+
+    const data = await dataQuery.execute()
+
+    return {
+        data: data as Array<WaterQualityReadingWithDetails>,
+        total,
+        page,
+        pageSize,
+        totalPages,
+    }
 }
 
 /**
  * Summary data for water quality over a period.
  */
 export interface WaterQualitySummaryData {
-  totalReadings: number
-  alertCount: number
-  averagePh: number | null
-  averageTemperature: number | null
-  averageDissolvedOxygen: number | null
-  averageAmmonia: number | null
-  phStatus: 'optimal' | 'acceptable' | 'warning' | 'critical'
-  temperatureStatus: 'optimal' | 'acceptable' | 'warning' | 'critical'
-  dissolvedOxygenStatus: 'optimal' | 'acceptable' | 'warning' | 'critical'
-  ammoniaStatus: 'optimal' | 'acceptable' | 'warning' | 'critical'
+    totalReadings: number
+    alertCount: number
+    averagePh: number | null
+    averageTemperature: number | null
+    averageDissolvedOxygen: number | null
+    averageAmmonia: number | null
+    phStatus: 'optimal' | 'acceptable' | 'warning' | 'critical'
+    temperatureStatus: 'optimal' | 'acceptable' | 'warning' | 'critical'
+    dissolvedOxygenStatus: 'optimal' | 'acceptable' | 'warning' | 'critical'
+    ammoniaStatus: 'optimal' | 'acceptable' | 'warning' | 'critical'
 }
 
 /**
@@ -447,113 +455,113 @@ export interface WaterQualitySummaryData {
  * @returns Summary data for the farm
  */
 export async function getWaterQualitySummary(
-  db: Kysely<Database>,
-  farmId: string,
-  period: 'day' | 'week' | 'month' = 'week',
+    db: Kysely<Database>,
+    farmId: string,
+    period: 'day' | 'week' | 'month' = 'week',
 ): Promise<WaterQualitySummaryData> {
-  let startDate: Date
-  const now = new Date()
+    let startDate: Date
+    const now = new Date()
 
-  switch (period) {
-    case 'day':
-      startDate = new Date(now.setDate(now.getDate() - 1))
-      break
-    case 'week':
-      startDate = new Date(now.setDate(now.getDate() - 7))
-      break
-    case 'month':
-      startDate = new Date(now.setMonth(now.getMonth() - 1))
-      break
-    default:
-      startDate = new Date(now.setDate(now.getDate() - 7))
-  }
-
-  const readings = await db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .select([
-      'water_quality.ph',
-      'water_quality.temperatureCelsius',
-      'water_quality.dissolvedOxygenMgL',
-      'water_quality.ammoniaMgL',
-    ])
-    .where('batches.farmId', '=', farmId)
-    .where('batches.livestockType', '=', 'fish')
-    .where('water_quality.date', '>=', startDate)
-    .execute()
-
-  // Calculate aggregates
-  const totalReadings = readings.length
-
-  let alertCount = 0
-  let sumPh = 0
-  let sumTemp = 0
-  let sumDo = 0
-  let sumAmmonia = 0
-  let validCount = 0
-
-  for (const reading of readings) {
-    const ph = parseFloat(reading.ph)
-    const temp = parseFloat(reading.temperatureCelsius)
-    const doVal = parseFloat(reading.dissolvedOxygenMgL)
-    const ammonia = parseFloat(reading.ammoniaMgL)
-
-    if (isNaN(ph) || isNaN(temp) || isNaN(doVal) || isNaN(ammonia)) {
-      continue
+    switch (period) {
+        case 'day':
+            startDate = new Date(now.setDate(now.getDate() - 1))
+            break
+        case 'week':
+            startDate = new Date(now.setDate(now.getDate() - 7))
+            break
+        case 'month':
+            startDate = new Date(now.setMonth(now.getMonth() - 1))
+            break
+        default:
+            startDate = new Date(now.setDate(now.getDate() - 7))
     }
 
-    // Check for alert
-    if (
-      ph < 6.5 ||
-      ph > 9.0 ||
-      temp < 25 ||
-      temp > 30 ||
-      doVal < 5 ||
-      ammonia > 0.02
-    ) {
-      alertCount++
+    const readings = await db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .select([
+            'water_quality.ph',
+            'water_quality.temperatureCelsius',
+            'water_quality.dissolvedOxygenMgL',
+            'water_quality.ammoniaMgL',
+        ])
+        .where('batches.farmId', '=', farmId)
+        .where('batches.livestockType', '=', 'fish')
+        .where('water_quality.date', '>=', startDate)
+        .execute()
+
+    // Calculate aggregates
+    const totalReadings = readings.length
+
+    let alertCount = 0
+    let sumPh = 0
+    let sumTemp = 0
+    let sumDo = 0
+    let sumAmmonia = 0
+    let validCount = 0
+
+    for (const reading of readings) {
+        const ph = parseFloat(reading.ph)
+        const temp = parseFloat(reading.temperatureCelsius)
+        const doVal = parseFloat(reading.dissolvedOxygenMgL)
+        const ammonia = parseFloat(reading.ammoniaMgL)
+
+        if (isNaN(ph) || isNaN(temp) || isNaN(doVal) || isNaN(ammonia)) {
+            continue
+        }
+
+        // Check for alert
+        if (
+            ph < 6.5 ||
+            ph > 9.0 ||
+            temp < 25 ||
+            temp > 30 ||
+            doVal < 5 ||
+            ammonia > 0.02
+        ) {
+            alertCount++
+        }
+
+        sumPh += ph
+        sumTemp += temp
+        sumDo += doVal
+        sumAmmonia += ammonia
+        validCount++
     }
 
-    sumPh += ph
-    sumTemp += temp
-    sumDo += doVal
-    sumAmmonia += ammonia
-    validCount++
-  }
+    const averagePh = validCount > 0 ? sumPh / validCount : null
+    const averageTemperature = validCount > 0 ? sumTemp / validCount : null
+    const averageDissolvedOxygen = validCount > 0 ? sumDo / validCount : null
+    const averageAmmonia = validCount > 0 ? sumAmmonia / validCount : null
 
-  const averagePh = validCount > 0 ? sumPh / validCount : null
-  const averageTemperature = validCount > 0 ? sumTemp / validCount : null
-  const averageDissolvedOxygen = validCount > 0 ? sumDo / validCount : null
-  const averageAmmonia = validCount > 0 ? sumAmmonia / validCount : null
+    // Import here to avoid circular dependency
+    const { determineParameterStatus } = await import('./service')
 
-  // Import here to avoid circular dependency
-  const { determineParameterStatus } = await import('./service')
+    const phStatus = averagePh
+        ? determineParameterStatus('ph', averagePh)
+        : 'acceptable'
+    const temperatureStatus = averageTemperature
+        ? determineParameterStatus('temperatureCelsius', averageTemperature)
+        : 'acceptable'
+    const dissolvedOxygenStatus = averageDissolvedOxygen
+        ? determineParameterStatus('dissolvedOxygenMgL', averageDissolvedOxygen)
+        : 'acceptable'
+    const ammoniaStatus = averageAmmonia
+        ? determineParameterStatus('ammoniaMgL', averageAmmonia)
+        : 'acceptable'
 
-  const phStatus = averagePh
-    ? determineParameterStatus('ph', averagePh)
-    : 'acceptable'
-  const temperatureStatus = averageTemperature
-    ? determineParameterStatus('temperatureCelsius', averageTemperature)
-    : 'acceptable'
-  const dissolvedOxygenStatus = averageDissolvedOxygen
-    ? determineParameterStatus('dissolvedOxygenMgL', averageDissolvedOxygen)
-    : 'acceptable'
-  const ammoniaStatus = averageAmmonia
-    ? determineParameterStatus('ammoniaMgL', averageAmmonia)
-    : 'acceptable'
-
-  return {
-    totalReadings,
-    alertCount,
-    averagePh,
-    averageTemperature,
-    averageDissolvedOxygen,
-    averageAmmonia,
-    phStatus,
-    temperatureStatus,
-    dissolvedOxygenStatus,
-    ammoniaStatus,
-  }
+    return {
+        totalReadings,
+        alertCount,
+        averagePh,
+        averageTemperature,
+        averageDissolvedOxygen,
+        averageAmmonia,
+        phStatus,
+        temperatureStatus,
+        dissolvedOxygenStatus,
+        ammoniaStatus,
+    }
 }
 
 /**
@@ -565,18 +573,18 @@ export async function getWaterQualitySummary(
  * @returns True if batch is valid fish batch for the farm
  */
 export async function verifyFishBatch(
-  db: Kysely<Database>,
-  batchId: string,
-  farmId: string,
+    db: Kysely<Database>,
+    batchId: string,
+    farmId: string,
 ): Promise<boolean> {
-  const batch = await db
-    .selectFrom('batches')
-    .select(['id', 'livestockType'])
-    .where('id', '=', batchId)
-    .where('farmId', '=', farmId)
-    .executeTakeFirst()
+    const batch = await db
+        .selectFrom('batches')
+        .select(['id', 'livestockType'])
+        .where('id', '=', batchId)
+        .where('farmId', '=', farmId)
+        .executeTakeFirst()
 
-  return batch?.livestockType === 'fish'
+    return batch?.livestockType === 'fish'
 }
 
 /**
@@ -587,15 +595,15 @@ export async function verifyFishBatch(
  * @returns The farm ID or null if not found
  */
 export async function getRecordFarmId(
-  db: Kysely<Database>,
-  recordId: string,
+    db: Kysely<Database>,
+    recordId: string,
 ): Promise<string | null> {
-  const result = await db
-    .selectFrom('water_quality')
-    .innerJoin('batches', 'batches.id', 'water_quality.batchId')
-    .select(['batches.farmId'])
-    .where('water_quality.id', '=', recordId)
-    .executeTakeFirst()
+    const result = await db
+        .selectFrom('water_quality')
+        .innerJoin('batches', 'batches.id', 'water_quality.batchId')
+        .select(['batches.farmId'])
+        .where('water_quality.id', '=', recordId)
+        .executeTakeFirst()
 
-  return result?.farmId ?? null
+    return result?.farmId ?? null
 }

@@ -60,10 +60,10 @@ Current settings page has 8 tabs which fragments related settings:
 
 ```tsx
 <Tabs defaultValue="regional" className="space-y-4">
-  <TabsList>
-    <TabsTrigger value="regional">Regional</TabsTrigger>
-  </TabsList>
-  <TabsContent value="regional">{/* Content */}</TabsContent>
+    <TabsList>
+        <TabsTrigger value="regional">Regional</TabsTrigger>
+    </TabsList>
+    <TabsContent value="regional">{/* Content */}</TabsContent>
 </Tabs>
 ```
 
@@ -71,11 +71,11 @@ Current settings page has 8 tabs which fragments related settings:
 
 ```tsx
 <div className="flex items-center justify-between">
-  <div>
-    <Label htmlFor="id">Label</Label>
-    <p className="text-xs text-muted-foreground">Description</p>
-  </div>
-  <Switch id="id" checked={value} onCheckedChange={handler} />
+    <div>
+        <Label htmlFor="id">Label</Label>
+        <p className="text-xs text-muted-foreground">Description</p>
+    </div>
+    <Switch id="id" checked={value} onCheckedChange={handler} />
 </div>
 ```
 
@@ -144,12 +144,12 @@ Replace auto-save with expandable details and explicit save.
 
 ```tsx
 <TabsList className="flex-wrap">
-  <TabsTrigger value="regional">Regional</TabsTrigger>
-  <TabsTrigger value="preferences">Preferences</TabsTrigger>
-  <TabsTrigger value="notifications">Notifications</TabsTrigger>
-  <TabsTrigger value="business">Business</TabsTrigger>
-  <TabsTrigger value="modules">Modules</TabsTrigger>
-  <TabsTrigger value="integrations">Integrations</TabsTrigger>
+    <TabsTrigger value="regional">Regional</TabsTrigger>
+    <TabsTrigger value="preferences">Preferences</TabsTrigger>
+    <TabsTrigger value="notifications">Notifications</TabsTrigger>
+    <TabsTrigger value="business">Business</TabsTrigger>
+    <TabsTrigger value="modules">Modules</TabsTrigger>
+    <TabsTrigger value="integrations">Integrations</TabsTrigger>
 </TabsList>
 ```
 
@@ -164,23 +164,25 @@ Replace auto-save with expandable details and explicit save.
 
 ```tsx
 <TabsContent value="regional">
-  <Card className="p-6 space-y-6">
-    {/* Currency Section */}
-    <div>
-      <h3 className="text-base font-semibold mb-4">Currency</h3>
-      {/* Currency fields */}
-    </div>
+    <Card className="p-6 space-y-6">
+        {/* Currency Section */}
+        <div>
+            <h3 className="text-base font-semibold mb-4">Currency</h3>
+            {/* Currency fields */}
+        </div>
 
-    <div className="border-t pt-6">
-      <h3 className="text-base font-semibold mb-4">Date & Time</h3>
-      {/* Date/time fields */}
-    </div>
+        <div className="border-t pt-6">
+            <h3 className="text-base font-semibold mb-4">Date & Time</h3>
+            {/* Date/time fields */}
+        </div>
 
-    <div className="border-t pt-6">
-      <h3 className="text-base font-semibold mb-4">Units of Measurement</h3>
-      {/* Unit fields */}
-    </div>
-  </Card>
+        <div className="border-t pt-6">
+            <h3 className="text-base font-semibold mb-4">
+                Units of Measurement
+            </h3>
+            {/* Unit fields */}
+        </div>
+    </Card>
 </TabsContent>
 ```
 
@@ -205,22 +207,22 @@ Replace auto-save with expandable details and explicit save.
 
 ```tsx
 {
-  /* Critical Alerts Group */
+    /* Critical Alerts Group */
 }
 ;<div className="space-y-3">
-  <div className="flex items-center justify-between">
-    <h4 className="text-sm font-medium">Critical Alerts</h4>
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => toggleGroup('critical', true)}
-    >
-      Enable All
-    </Button>
-  </div>
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-    {/* Compact toggle items */}
-  </div>
+    <div className="flex items-center justify-between">
+        <h4 className="text-sm font-medium">Critical Alerts</h4>
+        <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => toggleGroup('critical', true)}
+        >
+            Enable All
+        </Button>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Compact toggle items */}
+    </div>
 </div>
 ```
 
@@ -244,21 +246,21 @@ Replace auto-save with expandable details and explicit save.
 
 ```tsx
 const [selectedModules, setSelectedModules] =
-  useState<ModuleKey[]>(enabledModules)
+    useState<ModuleKey[]>(enabledModules)
 const [expandedModule, setExpandedModule] = useState<ModuleKey | null>(null)
 
 const handleCardClick = (moduleKey: ModuleKey) => {
-  if (expandedModule === moduleKey) {
-    // Toggle selection
-    setSelectedModules((prev) =>
-      prev.includes(moduleKey)
-        ? prev.filter((k) => k !== moduleKey)
-        : [...prev, moduleKey],
-    )
-  } else {
-    // Expand to show details
-    setExpandedModule(moduleKey)
-  }
+    if (expandedModule === moduleKey) {
+        // Toggle selection
+        setSelectedModules((prev) =>
+            prev.includes(moduleKey)
+                ? prev.filter((k) => k !== moduleKey)
+                : [...prev, moduleKey],
+        )
+    } else {
+        // Expand to show details
+        setExpandedModule(moduleKey)
+    }
 }
 ```
 
@@ -274,28 +276,28 @@ const handleCardClick = (moduleKey: ModuleKey) => {
 
 ```tsx
 {
-  expandedModule === moduleKey && (
-    <div className="mt-3 pt-3 border-t space-y-2 text-xs">
-      <div>
-        <span className="font-medium">Species:</span>
-        <span className="ml-2 text-muted-foreground">
-          {module.speciesOptions.map((s) => s.label).join(', ')}
-        </span>
-      </div>
-      <div>
-        <span className="font-medium">Feed Types:</span>
-        <span className="ml-2 text-muted-foreground">
-          {module.feedTypes.join(', ')}
-        </span>
-      </div>
-      <div>
-        <span className="font-medium">Structures:</span>
-        <span className="ml-2 text-muted-foreground">
-          {module.structureTypes.join(', ')}
-        </span>
-      </div>
-    </div>
-  )
+    expandedModule === moduleKey && (
+        <div className="mt-3 pt-3 border-t space-y-2 text-xs">
+            <div>
+                <span className="font-medium">Species:</span>
+                <span className="ml-2 text-muted-foreground">
+                    {module.speciesOptions.map((s) => s.label).join(', ')}
+                </span>
+            </div>
+            <div>
+                <span className="font-medium">Feed Types:</span>
+                <span className="ml-2 text-muted-foreground">
+                    {module.feedTypes.join(', ')}
+                </span>
+            </div>
+            <div>
+                <span className="font-medium">Structures:</span>
+                <span className="ml-2 text-muted-foreground">
+                    {module.structureTypes.join(', ')}
+                </span>
+            </div>
+        </div>
+    )
 }
 ```
 
@@ -309,27 +311,27 @@ const handleCardClick = (moduleKey: ModuleKey) => {
 
 ```tsx
 const hasChanges =
-  JSON.stringify([...selectedModules].sort()) !==
-  JSON.stringify([...enabledModules].sort())
+    JSON.stringify([...selectedModules].sort()) !==
+    JSON.stringify([...enabledModules].sort())
 
 const handleSave = async () => {
-  const toEnable = selectedModules.filter((m) => !enabledModules.includes(m))
-  const toDisable = enabledModules.filter((m) => !selectedModules.includes(m))
+    const toEnable = selectedModules.filter((m) => !enabledModules.includes(m))
+    const toDisable = enabledModules.filter((m) => !selectedModules.includes(m))
 
-  for (const m of toEnable) await toggleModule(m)
-  for (const m of toDisable) {
-    const canDisable = await canDisableModule(m)
-    if (canDisable) await toggleModule(m)
-  }
+    for (const m of toEnable) await toggleModule(m)
+    for (const m of toDisable) {
+        const canDisable = await canDisableModule(m)
+        if (canDisable) await toggleModule(m)
+    }
 }
 
 // At bottom of component
 {
-  hasChanges && (
-    <div className="flex justify-end pt-4">
-      <Button onClick={handleSave}>Save Changes</Button>
-    </div>
-  )
+    hasChanges && (
+        <div className="flex justify-end pt-4">
+            <Button onClick={handleSave}>Save Changes</Button>
+        </div>
+    )
 }
 ```
 
@@ -352,10 +354,10 @@ const handleSave = async () => {
 2. **Regional Tab**: Currency, Date/Time, Units sections all functional
 3. **Notifications Tab**: Group toggles work, individual toggles work
 4. **Modules Tab**:
-   - Click expands card with details
-   - Selection toggles without saving
-   - Save button appears when changes made
-   - Save persists changes
+    - Click expands card with details
+    - Selection toggles without saving
+    - Save button appears when changes made
+    - Save persists changes
 5. **Settings Persistence**: Changes save correctly to database
 
 ---

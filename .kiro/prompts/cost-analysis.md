@@ -216,14 +216,14 @@ Labor Cost % = Labor Cost / Total Cost × 100
 ### High Impact
 
 1. **Feed Cost Reduction**
-   - Current: [Currency]X/kg
-   - Target: [Currency]X/kg
-   - Potential Savings: [Currency]X
+    - Current: [Currency]X/kg
+    - Target: [Currency]X/kg
+    - Potential Savings: [Currency]X
 
 2. **[Other opportunity]**
-   - Current: [Currency]X
-   - Target: [Currency]X
-   - Potential Savings: [Currency]X
+    - Current: [Currency]X
+    - Target: [Currency]X
+    - Potential Savings: [Currency]X
 
 ### Medium Impact
 
@@ -244,19 +244,19 @@ Labor Cost % = Labor Cost / Total Cost × 100
 **Validate analysis accuracy:**
 
 1. **Cross-check totals:**
-   - Sum of categories = Total expenses
-   - Percentages add up to 100%
-   - No duplicate transactions
+    - Sum of categories = Total expenses
+    - Percentages add up to 100%
+    - No duplicate transactions
 
 2. **Verify categorization:**
-   - All expenses properly categorized
-   - No miscategorized items
-   - Consistent category usage
+    - All expenses properly categorized
+    - No miscategorized items
+    - Consistent category usage
 
 3. **Check benchmarks:**
-   - Comparisons are species-appropriate
-   - Regional differences considered
-   - Realistic targets for farm size
+    - Comparisons are species-appropriate
+    - Regional differences considered
+    - Realistic targets for farm size
 
 **Ask user:**
 

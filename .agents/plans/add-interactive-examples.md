@@ -71,13 +71,13 @@ Create `examples/` directory with:
 ### Relevant Documentation - YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [Africa's Talking SMS API](https://developers.africastalking.com/docs/sms/overview)
-  - Specific section: Sending SMS
-  - Why: API structure for implementation
+    - Specific section: Sending SMS
+    - Why: API structure for implementation
 - [AWS SES SDK](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/ses/)
-  - Specific section: SendEmail command
-  - Why: AWS SDK v3 patterns
+    - Specific section: SendEmail command
+    - Why: AWS SDK v3 patterns
 - [TypeScript Project References](https://www.typescriptlang.org/docs/handbook/project-references.html)
-  - Why: Proper TypeScript setup for examples directory
+    - Why: Proper TypeScript setup for examples directory
 
 ### Patterns to Follow
 
@@ -87,14 +87,14 @@ Create `examples/` directory with:
 import type { SMSProvider, ProviderResult } from '../../contracts'
 
 export class MyProvider implements SMSProvider {
-  readonly name = 'my-provider'
+    readonly name = 'my-provider'
 
-  async send(to: string, message: string): Promise<ProviderResult> {
-    // 1. Validate environment variables
-    // 2. Make API call
-    // 3. Handle response
-    // 4. Return ProviderResult
-  }
+    async send(to: string, message: string): Promise<ProviderResult> {
+        // 1. Validate environment variables
+        // 2. Make API call
+        // 3. Handle response
+        // 4. Return ProviderResult
+    }
 }
 ```
 
@@ -102,19 +102,19 @@ export class MyProvider implements SMSProvider {
 
 ```typescript
 try {
-  const response = await fetch(url, options)
-  const data = await response.json()
+    const response = await fetch(url, options)
+    const data = await response.json()
 
-  if (data.success) {
-    return { success: true, messageId: data.id }
-  }
+    if (data.success) {
+        return { success: true, messageId: data.id }
+    }
 
-  return { success: false, error: data.error }
+    return { success: false, error: data.error }
 } catch (error) {
-  return {
-    success: false,
-    error: error instanceof Error ? error.message : 'Unknown error',
-  }
+    return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+    }
 }
 ```
 
@@ -124,15 +124,15 @@ try {
 import { describe, it, expect, beforeEach } from 'vitest'
 
 describe('MyProvider', () => {
-  beforeEach(() => {
-    process.env.API_KEY = 'test-key'
-  })
+    beforeEach(() => {
+        process.env.API_KEY = 'test-key'
+    })
 
-  it('should send successfully', async () => {
-    const provider = new MyProvider()
-    const result = await provider.send('+1234567890', 'Test')
-    expect(result.success).toBe(true)
-  })
+    it('should send successfully', async () => {
+        const provider = new MyProvider()
+        const result = await provider.send('+1234567890', 'Test')
+        expect(result.success).toBe(true)
+    })
 })
 ```
 
@@ -232,10 +232,10 @@ Update examples/README.md:
 
 - **IMPLEMENT**: Test file for Africa's Talking provider
 - **TESTS**:
-  - Should send SMS successfully
-  - Should handle missing API key
-  - Should handle API errors
-  - Should validate phone number format
+    - Should send SMS successfully
+    - Should handle missing API key
+    - Should handle API errors
+    - Should validate phone number format
 - **MOCKING**: Mock fetch API responses
 - **PATTERN**: Similar to existing property tests
 - **VALIDATE**: `cd examples && bun test sms/africas-talking.test.ts`
@@ -256,10 +256,10 @@ Update examples/README.md:
 
 - **IMPLEMENT**: Test file for AWS SES provider
 - **TESTS**:
-  - Should send email successfully
-  - Should handle missing credentials
-  - Should handle SDK errors
-  - Should validate email format
+    - Should send email successfully
+    - Should handle missing credentials
+    - Should handle SDK errors
+    - Should validate email format
 - **MOCKING**: Mock AWS SDK client
 - **PATTERN**: Similar to existing property tests
 - **VALIDATE**: `cd examples && bun test email/aws-ses.test.ts`
@@ -268,12 +268,12 @@ Update examples/README.md:
 
 - **IMPLEMENT**: Heavily commented SMS provider template
 - **COMMENTS**:
-  - Step 1: Import types (explain ProviderResult)
-  - Step 2: Define class (explain readonly name)
-  - Step 3: Validate environment (explain why)
-  - Step 4: Make API call (explain fetch pattern)
-  - Step 5: Handle response (explain success/error)
-  - Step 6: Error handling (explain try/catch)
+    - Step 1: Import types (explain ProviderResult)
+    - Step 2: Define class (explain readonly name)
+    - Step 3: Validate environment (explain why)
+    - Step 4: Make API call (explain fetch pattern)
+    - Step 5: Handle response (explain success/error)
+    - Step 6: Error handling (explain try/catch)
 - **PLACEHOLDERS**: YOUR_API_URL, YOUR_API_KEY_ENV_VAR, YOUR_RESPONSE_STRUCTURE
 - **VALIDATE**: `bun run type-check examples/templates/custom-sms-provider.ts`
 
@@ -288,11 +288,11 @@ Update examples/README.md:
 
 - **IMPLEMENT**: Section explaining how to integrate examples into main app
 - **STEPS**:
-  1. Copy provider file to app/features/integrations/sms/providers/
-  2. Register in app/features/integrations/sms/index.ts
-  3. Add to config.ts validation
-  4. Set environment variables
-  5. Test with console provider first
+    1. Copy provider file to app/features/integrations/sms/providers/
+    2. Register in app/features/integrations/sms/index.ts
+    3. Add to config.ts validation
+    4. Set environment variables
+    5. Test with console provider first
 - **VALIDATE**: Follow instructions manually to verify
 
 ### Task 12: UPDATE docs/INTEGRATIONS.md - Link to Examples

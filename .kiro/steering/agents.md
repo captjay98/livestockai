@@ -96,13 +96,13 @@ These agents focus on their domain expertise and delegate infrastructure tasks.
 
 ## MCP Access Matrix
 
-| Agent              | MCP Server                | Purpose                                    |
-| ------------------ | ------------------------- | ------------------------------------------ |
-| `backend-engineer` | `@neon`                   | Database queries, schema inspection        |
-| `devops-engineer`  | `@cloudflare-bindings`    | Workers, KV, R2, D1, Hyperdrive management |
-| `devops-engineer`  | `@cloudflare-builds`      | Deployment status and build logs           |
+| Agent              | MCP Server                  | Purpose                                    |
+| ------------------ | --------------------------- | ------------------------------------------ |
+| `backend-engineer` | `@neon`                     | Database queries, schema inspection        |
+| `devops-engineer`  | `@cloudflare-bindings`      | Workers, KV, R2, D1, Hyperdrive management |
+| `devops-engineer`  | `@cloudflare-builds`        | Deployment status and build logs           |
 | `devops-engineer`  | `@cloudflare-observability` | Worker logs and debugging                  |
-| `devops-engineer`  | `@cloudflare-docs`        | Cloudflare documentation search            |
+| `devops-engineer`  | `@cloudflare-docs`          | Cloudflare documentation search            |
 
 **All other agents**: Delegate to these specialists for MCP access.
 

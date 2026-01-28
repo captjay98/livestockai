@@ -112,18 +112,18 @@ The query client configuration needs to be updated to enable offline-first mutat
 
 ```typescript
 interface QueryClientConfig {
-  defaultOptions: {
-    queries: {
-      gcTime: number // 24 hours cache retention
-      staleTime: number // 1 minute before refetch
-      retry: RetryFunction // Custom retry logic
+    defaultOptions: {
+        queries: {
+            gcTime: number // 24 hours cache retention
+            staleTime: number // 1 minute before refetch
+            retry: RetryFunction // Custom retry logic
+        }
+        mutations: {
+            networkMode: 'offlineFirst' // Changed from 'online'
+            retry: number // 3 retries on failure
+            retryDelay: RetryDelayFunction // Exponential backoff
+        }
     }
-    mutations: {
-      networkMode: 'offlineFirst' // Changed from 'online'
-      retry: number // 3 retries on failure
-      retryDelay: RetryDelayFunction // Exponential backoff
-    }
-  }
 }
 ```
 
@@ -135,14 +135,14 @@ Shared utilities for optimistic updates across all mutation hooks:
 
 ```typescript
 interface OptimisticContext<T> {
-  previousData: T | undefined
-  tempId?: string
+    previousData: T | undefined
+    tempId?: string
 }
 
 interface OptimisticUpdateOptions<TData, TVariables> {
-  queryKey: QueryKey
-  updater: (old: TData | undefined, variables: TVariables) => TData
-  generateTempId?: () => string
+    queryKey: QueryKey
+    updater: (old: TData | undefined, variables: TVariables) => TData
+    generateTempId?: () => string
 }
 
 // Generate temporary IDs for offline-created records
@@ -150,21 +150,21 @@ function generateTempId(): string
 
 // Create optimistic update handler
 function createOptimisticUpdate<TData, TVariables>(
-  queryClient: QueryClient,
-  options: OptimisticUpdateOptions<TData, TVariables>,
+    queryClient: QueryClient,
+    options: OptimisticUpdateOptions<TData, TVariables>,
 ): MutationOptions<TData, Error, TVariables>['onMutate']
 
 // Create rollback handler
 function createRollback<TData>(
-  queryClient: QueryClient,
-  queryKey: QueryKey,
+    queryClient: QueryClient,
+    queryKey: QueryKey,
 ): (context: OptimisticContext<TData>) => void
 
 // Create success handler that replaces temp data
 function createSuccessHandler<TData>(
-  queryClient: QueryClient,
-  queryKey: QueryKey,
-  tempIdField?: string,
+    queryClient: QueryClient,
+    queryKey: QueryKey,
+    tempIdField?: string,
 ): (data: TData, variables: unknown, context: OptimisticContext<TData>) => void
 ```
 
@@ -174,50 +174,50 @@ function createSuccessHandler<TData>(
 
 ```typescript
 interface MutationHookResult<TCreate, TUpdate, TDelete> {
-  create: UseMutationResult<TCreate, Error, CreateInput>
-  update: UseMutationResult<TUpdate, Error, UpdateInput>
-  delete: UseMutationResult<TDelete, Error, string>
-  isPending: boolean
+    create: UseMutationResult<TCreate, Error, CreateInput>
+    update: UseMutationResult<TUpdate, Error, UpdateInput>
+    delete: UseMutationResult<TDelete, Error, string>
+    isPending: boolean
 }
 
 // Example: useBatchMutations
 function useBatchMutations(): MutationHookResult<Batch, Batch, void> {
-  const queryClient = useQueryClient()
+    const queryClient = useQueryClient()
 
-  const create = useMutation({
-    mutationFn: createBatchFn,
-    onMutate: async (newBatch) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['batches'] })
+    const create = useMutation({
+        mutationFn: createBatchFn,
+        onMutate: async (newBatch) => {
+            // Cancel outgoing refetches
+            await queryClient.cancelQueries({ queryKey: ['batches'] })
 
-      // Snapshot previous value
-      const previousBatches = queryClient.getQueryData(['batches'])
+            // Snapshot previous value
+            const previousBatches = queryClient.getQueryData(['batches'])
 
-      // Optimistically add new batch with temp ID
-      const tempId = generateTempId()
-      queryClient.setQueryData(['batches'], (old) => [
-        ...(old || []),
-        { ...newBatch, id: tempId, _isOptimistic: true },
-      ])
+            // Optimistically add new batch with temp ID
+            const tempId = generateTempId()
+            queryClient.setQueryData(['batches'], (old) => [
+                ...(old || []),
+                { ...newBatch, id: tempId, _isOptimistic: true },
+            ])
 
-      return { previousBatches, tempId }
-    },
-    onError: (err, newBatch, context) => {
-      // Rollback on error
-      queryClient.setQueryData(['batches'], context?.previousBatches)
-    },
-    onSuccess: (data, variables, context) => {
-      // Replace temp data with server data
-      queryClient.setQueryData(['batches'], (old) =>
-        old?.map((b) => (b.id === context?.tempId ? data : b)),
-      )
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['batches'] })
-    },
-  })
+            return { previousBatches, tempId }
+        },
+        onError: (err, newBatch, context) => {
+            // Rollback on error
+            queryClient.setQueryData(['batches'], context?.previousBatches)
+        },
+        onSuccess: (data, variables, context) => {
+            // Replace temp data with server data
+            queryClient.setQueryData(['batches'], (old) =>
+                old?.map((b) => (b.id === context?.tempId ? data : b)),
+            )
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['batches'] })
+        },
+    })
 
-  // Similar patterns for update and delete...
+    // Similar patterns for update and delete...
 }
 ```
 
@@ -229,35 +229,37 @@ Enhanced to show actual pending mutation count and provide retry functionality:
 
 ```typescript
 interface SyncStatusProps {
-  className?: string
-  showLabel?: boolean
-  size?: 'sm' | 'default'
-  showRetry?: boolean
+    className?: string
+    showLabel?: boolean
+    size?: 'sm' | 'default'
+    showRetry?: boolean
 }
 
 interface SyncState {
-  status: 'synced' | 'syncing' | 'pending' | 'offline' | 'error'
-  pendingCount: number
-  failedCount: number
-  lastSyncTime?: Date
+    status: 'synced' | 'syncing' | 'pending' | 'offline' | 'error'
+    pendingCount: number
+    failedCount: number
+    lastSyncTime?: Date
 }
 
 function useSyncState(): SyncState {
-  const queryClient = useQueryClient()
-  const isOnline = useOnlineStatus()
+    const queryClient = useQueryClient()
+    const isOnline = useOnlineStatus()
 
-  // Subscribe to mutation cache changes
-  const mutationCache = queryClient.getMutationCache()
-  const mutations = mutationCache.getAll()
+    // Subscribe to mutation cache changes
+    const mutationCache = queryClient.getMutationCache()
+    const mutations = mutationCache.getAll()
 
-  const pendingCount = mutations.filter(
-    (m) => m.state.status === 'pending' || m.state.isPaused,
-  ).length
+    const pendingCount = mutations.filter(
+        (m) => m.state.status === 'pending' || m.state.isPaused,
+    ).length
 
-  const failedCount = mutations.filter((m) => m.state.status === 'error').length
+    const failedCount = mutations.filter(
+        (m) => m.state.status === 'error',
+    ).length
 
-  // Determine overall state
-  // ...
+    // Determine overall state
+    // ...
 }
 ```
 
@@ -271,23 +273,23 @@ Replace mocked implementation with actual `vite-plugin-pwa` registration:
 import { useRegisterSW } from 'virtual:pwa-register/react'
 
 function usePWARegistration() {
-  const {
-    needRefresh: [needRefresh, setNeedRefresh],
-    offlineReady: [offlineReady, setOfflineReady],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegistered(registration) {
-      console.log('SW Registered:', registration)
-    },
-    onRegisterError(error) {
-      console.error('SW Registration error:', error)
-    },
-    onOfflineReady() {
-      console.log('App ready for offline use')
-    },
-  })
+    const {
+        needRefresh: [needRefresh, setNeedRefresh],
+        offlineReady: [offlineReady, setOfflineReady],
+        updateServiceWorker,
+    } = useRegisterSW({
+        onRegistered(registration) {
+            console.log('SW Registered:', registration)
+        },
+        onRegisterError(error) {
+            console.error('SW Registration error:', error)
+        },
+        onOfflineReady() {
+            console.log('App ready for offline use')
+        },
+    })
 
-  return { needRefresh, offlineReady, updateServiceWorker, setNeedRefresh }
+    return { needRefresh, offlineReady, updateServiceWorker, setNeedRefresh }
 }
 ```
 
@@ -323,47 +325,47 @@ Manages temp ID → server ID mappings and updates pending mutations:
 
 ```typescript
 interface TempIdMapping {
-  tempId: string
-  serverId: string
-  entityType:
-    | 'batch'
-    | 'sale'
-    | 'expense'
-    | 'customer'
-    | 'supplier'
-    | 'feed'
-    | 'mortality'
-    | 'weight'
-    | 'invoice'
-  resolvedAt: Date
+    tempId: string
+    serverId: string
+    entityType:
+        | 'batch'
+        | 'sale'
+        | 'expense'
+        | 'customer'
+        | 'supplier'
+        | 'feed'
+        | 'mortality'
+        | 'weight'
+        | 'invoice'
+    resolvedAt: Date
 }
 
 interface TempIdResolver {
-  // Register a resolved temp ID
-  register(tempId: string, serverId: string, entityType: string): void
+    // Register a resolved temp ID
+    register(tempId: string, serverId: string, entityType: string): void
 
-  // Get server ID for a temp ID (returns undefined if not resolved)
-  resolve(tempId: string): string | undefined
+    // Get server ID for a temp ID (returns undefined if not resolved)
+    resolve(tempId: string): string | undefined
 
-  // Check if an ID is a temp ID
-  isTempId(id: string): boolean
+    // Check if an ID is a temp ID
+    isTempId(id: string): boolean
 
-  // Update all pending mutations with resolved IDs
-  updatePendingMutations(queryClient: QueryClient): void
+    // Update all pending mutations with resolved IDs
+    updatePendingMutations(queryClient: QueryClient): void
 
-  // Clear mappings (after successful full sync)
-  clear(): void
+    // Clear mappings (after successful full sync)
+    clear(): void
 }
 
 // Temp ID format: "temp-{entity}-{uuid}"
 const TEMP_ID_PREFIX = 'temp-'
 
 function generateTempId(entityType: string): string {
-  return `${TEMP_ID_PREFIX}${entityType}-${crypto.randomUUID()}`
+    return `${TEMP_ID_PREFIX}${entityType}-${crypto.randomUUID()}`
 }
 
 function isTempId(id: string): boolean {
-  return id.startsWith(TEMP_ID_PREFIX)
+    return id.startsWith(TEMP_ID_PREFIX)
 }
 
 // Singleton instance for app-wide temp ID tracking
@@ -378,44 +380,44 @@ Optimizes the mutation queue by collapsing redundant operations:
 
 ```typescript
 interface DeduplicationResult {
-  removed: number
-  merged: number
-  mutations: MutationMeta[]
+    removed: number
+    merged: number
+    mutations: MutationMeta[]
 }
 
 interface MutationMeta {
-  id: string
-  type: 'create' | 'update' | 'delete'
-  entityType: string
-  entityId: string // Can be temp ID or server ID
-  data: unknown
-  timestamp: number
+    id: string
+    type: 'create' | 'update' | 'delete'
+    entityType: string
+    entityId: string // Can be temp ID or server ID
+    data: unknown
+    timestamp: number
 }
 
 // Deduplicate mutations for a specific entity
 function deduplicateMutations(mutations: MutationMeta[]): DeduplicationResult {
-  // Group by entityId
-  // Apply rules:
-  // 1. create + delete (same tempId) → remove both
-  // 2. create + update* + delete → remove all
-  // 3. update + update → merge into single update
-  // 4. update + delete → keep only delete
+    // Group by entityId
+    // Apply rules:
+    // 1. create + delete (same tempId) → remove both
+    // 2. create + update* + delete → remove all
+    // 3. update + update → merge into single update
+    // 4. update + delete → keep only delete
 }
 
 // Hook to run deduplication before sync
 function useDeduplicatedSync() {
-  const queryClient = useQueryClient()
+    const queryClient = useQueryClient()
 
-  const deduplicate = useCallback(() => {
-    const mutationCache = queryClient.getMutationCache()
-    const mutations = mutationCache.getAll()
+    const deduplicate = useCallback(() => {
+        const mutationCache = queryClient.getMutationCache()
+        const mutations = mutationCache.getAll()
 
-    // Extract mutation metadata
-    // Run deduplication
-    // Remove/update mutations in cache
-  }, [queryClient])
+        // Extract mutation metadata
+        // Run deduplication
+        // Remove/update mutations in cache
+    }, [queryClient])
 
-  return { deduplicate }
+    return { deduplicate }
 }
 ```
 
@@ -427,63 +429,67 @@ Monitors IndexedDB usage and provides warnings:
 
 ```typescript
 interface StorageStatus {
-  used: number // Bytes used
-  quota: number // Total quota in bytes
-  percentage: number // 0-100
-  level: 'ok' | 'warning' | 'critical' | 'blocked'
+    used: number // Bytes used
+    quota: number // Total quota in bytes
+    percentage: number // 0-100
+    level: 'ok' | 'warning' | 'critical' | 'blocked'
 }
 
 interface StorageMonitorOptions {
-  warningThreshold: number // Default: 0.70 (70%)
-  criticalThreshold: number // Default: 0.85 (85%)
-  blockedThreshold: number // Default: 0.95 (95%)
-  pollInterval: number // Default: 30000 (30 seconds)
+    warningThreshold: number // Default: 0.70 (70%)
+    criticalThreshold: number // Default: 0.85 (85%)
+    blockedThreshold: number // Default: 0.95 (95%)
+    pollInterval: number // Default: 30000 (30 seconds)
 }
 
 function useStorageMonitor(
-  options?: Partial<StorageMonitorOptions>,
+    options?: Partial<StorageMonitorOptions>,
 ): StorageStatus {
-  const [status, setStatus] = useState<StorageStatus>({
-    used: 0,
-    quota: 0,
-    percentage: 0,
-    level: 'ok',
-  })
+    const [status, setStatus] = useState<StorageStatus>({
+        used: 0,
+        quota: 0,
+        percentage: 0,
+        level: 'ok',
+    })
 
-  useEffect(() => {
-    const checkStorage = async () => {
-      if (!navigator.storage?.estimate) {
-        // Graceful degradation - assume OK
-        return
-      }
+    useEffect(() => {
+        const checkStorage = async () => {
+            if (!navigator.storage?.estimate) {
+                // Graceful degradation - assume OK
+                return
+            }
 
-      const estimate = await navigator.storage.estimate()
-      const used = estimate.usage || 0
-      const quota = estimate.quota || 0
-      const percentage = quota > 0 ? (used / quota) * 100 : 0
+            const estimate = await navigator.storage.estimate()
+            const used = estimate.usage || 0
+            const quota = estimate.quota || 0
+            const percentage = quota > 0 ? (used / quota) * 100 : 0
 
-      let level: StorageStatus['level'] = 'ok'
-      if (percentage >= options?.blockedThreshold ?? 95) level = 'blocked'
-      else if (percentage >= options?.criticalThreshold ?? 85)
-        level = 'critical'
-      else if (percentage >= options?.warningThreshold ?? 70) level = 'warning'
+            let level: StorageStatus['level'] = 'ok'
+            if (percentage >= options?.blockedThreshold ?? 95) level = 'blocked'
+            else if (percentage >= options?.criticalThreshold ?? 85)
+                level = 'critical'
+            else if (percentage >= options?.warningThreshold ?? 70)
+                level = 'warning'
 
-      setStatus({ used, quota, percentage, level })
-    }
+            setStatus({ used, quota, percentage, level })
+        }
 
-    checkStorage()
-    const interval = setInterval(checkStorage, options?.pollInterval ?? 30000)
-    return () => clearInterval(interval)
-  }, [options])
+        checkStorage()
+        const interval = setInterval(
+            checkStorage,
+            options?.pollInterval ?? 30000,
+        )
+        return () => clearInterval(interval)
+    }, [options])
 
-  return status
+    return status
 }
 
 // Format bytes for display
 function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 ```
 
@@ -495,15 +501,15 @@ TanStack Query manages the mutation queue internally. Each mutation in the cache
 
 ```typescript
 interface MutationState<TData, TError, TVariables, TContext> {
-  context: TContext | undefined
-  data: TData | undefined
-  error: TError | null
-  failureCount: number
-  failureReason: TError | null
-  isPaused: boolean
-  status: 'idle' | 'pending' | 'success' | 'error'
-  variables: TVariables | undefined
-  submittedAt: number
+    context: TContext | undefined
+    data: TData | undefined
+    error: TError | null
+    failureCount: number
+    failureReason: TError | null
+    isPaused: boolean
+    status: 'idle' | 'pending' | 'success' | 'error'
+    variables: TVariables | undefined
+    submittedAt: number
 }
 ```
 
@@ -513,8 +519,8 @@ Records created optimistically are marked with a flag:
 
 ```typescript
 interface OptimisticRecord {
-  _isOptimistic?: boolean // True for records not yet confirmed by server
-  _tempId?: string // Temporary ID before server assigns real ID
+    _isOptimistic?: boolean // True for records not yet confirmed by server
+    _tempId?: string // Temporary ID before server assigns real ID
 }
 
 // Example: Batch with optimistic marker
@@ -527,16 +533,16 @@ All mutable records include timestamps for conflict resolution:
 
 ```typescript
 interface TimestampedRecord {
-  createdAt: Date
-  updatedAt: Date
+    createdAt: Date
+    updatedAt: Date
 }
 
 // Server-side conflict check
 interface ConflictCheckResult {
-  hasConflict: boolean
-  serverVersion: TimestampedRecord
-  clientVersion: TimestampedRecord
-  resolution: 'client-wins' | 'server-wins'
+    hasConflict: boolean
+    serverVersion: TimestampedRecord
+    clientVersion: TimestampedRecord
+    resolution: 'client-wins' | 'server-wins'
 }
 ```
 
@@ -544,19 +550,19 @@ interface ConflictCheckResult {
 
 ```typescript
 interface SyncStatusState {
-  isOnline: boolean
-  pendingMutations: number
-  failedMutations: number
-  lastSyncAttempt: Date | null
-  lastSuccessfulSync: Date | null
-  syncErrors: SyncError[]
+    isOnline: boolean
+    pendingMutations: number
+    failedMutations: number
+    lastSyncAttempt: Date | null
+    lastSuccessfulSync: Date | null
+    syncErrors: SyncError[]
 }
 
 interface SyncError {
-  mutationKey: string
-  error: string
-  timestamp: Date
-  retryCount: number
+    mutationKey: string
+    error: string
+    timestamp: Date
+    retryCount: number
 }
 ```
 
@@ -564,10 +570,10 @@ interface SyncError {
 
 ```typescript
 interface PWAState {
-  isRegistered: boolean
-  isOfflineReady: boolean
-  needsRefresh: boolean
-  registration: ServiceWorkerRegistration | null
+    isRegistered: boolean
+    isOfflineReady: boolean
+    needsRefresh: boolean
+    registration: ServiceWorkerRegistration | null
 }
 ```
 
@@ -704,13 +710,13 @@ _For any_ attempt to queue a new mutation when storage usage exceeds 95%, the mu
 
 ```typescript
 const retryConfig = {
-  maxRetries: 3,
-  baseDelay: 1000, // 1 second
-  maxDelay: 30000, // 30 seconds
-  backoffMultiplier: 2,
+    maxRetries: 3,
+    baseDelay: 1000, // 1 second
+    maxDelay: 30000, // 30 seconds
+    backoffMultiplier: 2,
 
-  // Calculate delay: min(baseDelay * 2^attempt, maxDelay)
-  getDelay: (attempt: number) => Math.min(1000 * Math.pow(2, attempt), 30000),
+    // Calculate delay: min(baseDelay * 2^attempt, maxDelay)
+    getDelay: (attempt: number) => Math.min(1000 * Math.pow(2, attempt), 30000),
 }
 ```
 

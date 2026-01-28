@@ -72,11 +72,11 @@ app/features/integrations/
 ### Relevant Documentation
 
 - [Twilio SMS API](https://www.twilio.com/docs/sms/quickstart/node)
-  - REST API for sending SMS
-  - Why: Global SMS provider, widely available
+    - REST API for sending SMS
+    - Why: Global SMS provider, widely available
 - [Nodemailer SMTP](https://nodemailer.com/about/)
-  - Universal email via SMTP
-  - Why: Works with any email server (Gmail, Outlook, self-hosted)
+    - Universal email via SMTP
+    - Why: Works with any email server (Gmail, Outlook, self-hosted)
 
 ### Patterns to Follow
 
@@ -85,8 +85,8 @@ app/features/integrations/
 ```typescript
 // Always use dynamic imports inside functions
 export async function sendSMS(to: string, message: string) {
-  const provider = await getProvider()
-  return provider.send(to, message)
+    const provider = await getProvider()
+    return provider.send(to, message)
 }
 ```
 
@@ -95,8 +95,8 @@ export async function sendSMS(to: string, message: string) {
 ```typescript
 // From current service.ts - always return result, never throw
 return {
-  success: false,
-  error: error instanceof Error ? error.message : 'Unknown error',
+    success: false,
+    error: error instanceof Error ? error.message : 'Unknown error',
 }
 ```
 
@@ -105,8 +105,8 @@ return {
 ```typescript
 // From config.ts
 export const INTEGRATIONS = {
-  email: !!process.env.RESEND_API_KEY,
-  sms: !!process.env.TERMII_API_KEY,
+    email: !!process.env.RESEND_API_KEY,
+    sms: !!process.env.TERMII_API_KEY,
 } as const
 ```
 
@@ -171,9 +171,9 @@ Wire everything together and update exports.
  * Result returned by all provider operations
  */
 export interface ProviderResult {
-  success: boolean
-  messageId?: string
-  error?: string
+    success: boolean
+    messageId?: string
+    error?: string
 }
 
 /**
@@ -181,8 +181,8 @@ export interface ProviderResult {
  * Implement this interface to add a new SMS provider
  */
 export interface SMSProvider {
-  readonly name: string
-  send(to: string, message: string): Promise<ProviderResult>
+    readonly name: string
+    send(to: string, message: string): Promise<ProviderResult>
 }
 
 /**
@@ -190,8 +190,8 @@ export interface SMSProvider {
  * Implement this interface to add a new Email provider
  */
 export interface EmailProvider {
-  readonly name: string
-  send(to: string, subject: string, html: string): Promise<ProviderResult>
+    readonly name: string
+    send(to: string, subject: string, html: string): Promise<ProviderResult>
 }
 ```
 
@@ -205,28 +205,28 @@ export interface EmailProvider {
 export type IntegrationType = 'email' | 'sms'
 
 export interface IntegrationStatus {
-  type: IntegrationType
-  enabled: boolean
-  configured: boolean
-  provider?: string // ADD: which provider is active
+    type: IntegrationType
+    enabled: boolean
+    configured: boolean
+    provider?: string // ADD: which provider is active
 }
 
 // Keep existing types for backward compatibility
 export interface SendEmailOptions {
-  to: string
-  subject: string
-  html: string
+    to: string
+    subject: string
+    html: string
 }
 
 export interface SendSMSOptions {
-  to: string
-  message: string
+    to: string
+    message: string
 }
 
 export interface IntegrationResult {
-  success: boolean
-  messageId?: string // ADD: for tracking
-  error?: string
+    success: boolean
+    messageId?: string // ADD: for tracking
+    error?: string
 }
 ```
 
@@ -243,46 +243,46 @@ import type { SMSProvider, ProviderResult } from '../../contracts'
 const TERMII_BASE_URL = 'https://v3.api.termii.com'
 
 export class TermiiProvider implements SMSProvider {
-  readonly name = 'termii'
+    readonly name = 'termii'
 
-  async send(to: string, message: string): Promise<ProviderResult> {
-    const apiKey = process.env.TERMII_API_KEY
-    if (!apiKey) {
-      return { success: false, error: 'TERMII_API_KEY not configured' }
+    async send(to: string, message: string): Promise<ProviderResult> {
+        const apiKey = process.env.TERMII_API_KEY
+        if (!apiKey) {
+            return { success: false, error: 'TERMII_API_KEY not configured' }
+        }
+
+        try {
+            const response = await fetch(`${TERMII_BASE_URL}/api/sms/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    api_key: apiKey,
+                    to,
+                    from: process.env.TERMII_SENDER_ID || 'OpenLvstck',
+                    sms: message,
+                    type: 'plain',
+                    channel: 'dnd',
+                }),
+            })
+
+            const data = (await response.json()) as {
+                code?: string
+                message_id?: string
+                message?: string
+            }
+
+            if (data.code === 'ok') {
+                return { success: true, messageId: data.message_id }
+            }
+
+            return { success: false, error: data.message || 'SMS send failed' }
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+            }
+        }
     }
-
-    try {
-      const response = await fetch(`${TERMII_BASE_URL}/api/sms/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          api_key: apiKey,
-          to,
-          from: process.env.TERMII_SENDER_ID || 'OpenLvstck',
-          sms: message,
-          type: 'plain',
-          channel: 'dnd',
-        }),
-      })
-
-      const data = (await response.json()) as {
-        code?: string
-        message_id?: string
-        message?: string
-      }
-
-      if (data.code === 'ok') {
-        return { success: true, messageId: data.message_id }
-      }
-
-      return { success: false, error: data.message || 'SMS send failed' }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
-    }
-  }
 }
 ```
 
@@ -296,52 +296,55 @@ export class TermiiProvider implements SMSProvider {
 import type { SMSProvider, ProviderResult } from '../../contracts'
 
 export class TwilioProvider implements SMSProvider {
-  readonly name = 'twilio'
+    readonly name = 'twilio'
 
-  async send(to: string, message: string): Promise<ProviderResult> {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID
-    const authToken = process.env.TWILIO_AUTH_TOKEN
-    const fromNumber = process.env.TWILIO_PHONE_NUMBER
+    async send(to: string, message: string): Promise<ProviderResult> {
+        const accountSid = process.env.TWILIO_ACCOUNT_SID
+        const authToken = process.env.TWILIO_AUTH_TOKEN
+        const fromNumber = process.env.TWILIO_PHONE_NUMBER
 
-    if (!accountSid || !authToken || !fromNumber) {
-      return { success: false, error: 'Twilio credentials not configured' }
+        if (!accountSid || !authToken || !fromNumber) {
+            return {
+                success: false,
+                error: 'Twilio credentials not configured',
+            }
+        }
+
+        try {
+            const response = await fetch(
+                `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}`,
+                    },
+                    body: new URLSearchParams({
+                        To: to,
+                        From: fromNumber,
+                        Body: message,
+                    }),
+                },
+            )
+
+            const data = (await response.json()) as {
+                sid?: string
+                message?: string
+                code?: number
+            }
+
+            if (response.ok && data.sid) {
+                return { success: true, messageId: data.sid }
+            }
+
+            return { success: false, error: data.message || 'SMS send failed' }
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+            }
+        }
     }
-
-    try {
-      const response = await fetch(
-        `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}`,
-          },
-          body: new URLSearchParams({
-            To: to,
-            From: fromNumber,
-            Body: message,
-          }),
-        },
-      )
-
-      const data = (await response.json()) as {
-        sid?: string
-        message?: string
-        code?: number
-      }
-
-      if (response.ok && data.sid) {
-        return { success: true, messageId: data.sid }
-      }
-
-      return { success: false, error: data.message || 'SMS send failed' }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
-    }
-  }
 }
 ```
 
@@ -357,19 +360,21 @@ import type { SendSMSOptions, IntegrationResult } from '../types'
 
 // Provider registry - add custom providers here
 const providers: Record<string, () => Promise<SMSProvider>> = {
-  termii: async () => new (await import('./providers/termii')).TermiiProvider(),
-  twilio: async () => new (await import('./providers/twilio')).TwilioProvider(),
+    termii: async () =>
+        new (await import('./providers/termii')).TermiiProvider(),
+    twilio: async () =>
+        new (await import('./providers/twilio')).TwilioProvider(),
 }
 
 /**
  * Get the configured SMS provider
  */
 async function getProvider(): Promise<SMSProvider | null> {
-  const providerName = process.env.SMS_PROVIDER
-  if (!providerName || !providers[providerName]) {
-    return null
-  }
-  return providers[providerName]()
+    const providerName = process.env.SMS_PROVIDER
+    if (!providerName || !providers[providerName]) {
+        return null
+    }
+    return providers[providerName]()
 }
 
 /**
@@ -377,31 +382,31 @@ async function getProvider(): Promise<SMSProvider | null> {
  * This is the public API - consumers don't need to know which provider is used
  */
 export async function sendSMS(
-  options: SendSMSOptions,
+    options: SendSMSOptions,
 ): Promise<IntegrationResult> {
-  const provider = await getProvider()
-  if (!provider) {
-    return {
-      success: false,
-      error: 'SMS provider not configured. Set SMS_PROVIDER in .env',
+    const provider = await getProvider()
+    if (!provider) {
+        return {
+            success: false,
+            error: 'SMS provider not configured. Set SMS_PROVIDER in .env',
+        }
     }
-  }
-  return provider.send(options.to, options.message)
+    return provider.send(options.to, options.message)
 }
 
 /**
  * Get the name of the configured SMS provider
  */
 export function getSMSProviderName(): string | null {
-  return process.env.SMS_PROVIDER || null
+    return process.env.SMS_PROVIDER || null
 }
 
 /**
  * Check if SMS is configured
  */
 export function isSMSConfigured(): boolean {
-  const providerName = process.env.SMS_PROVIDER
-  return !!providerName && !!providers[providerName]
+    const providerName = process.env.SMS_PROVIDER
+    return !!providerName && !!providers[providerName]
 }
 ```
 
@@ -416,42 +421,43 @@ export function isSMSConfigured(): boolean {
 import type { EmailProvider, ProviderResult } from '../../contracts'
 
 export class ResendProvider implements EmailProvider {
-  readonly name = 'resend'
+    readonly name = 'resend'
 
-  async send(
-    to: string,
-    subject: string,
-    html: string,
-  ): Promise<ProviderResult> {
-    const apiKey = process.env.RESEND_API_KEY
-    if (!apiKey) {
-      return { success: false, error: 'RESEND_API_KEY not configured' }
+    async send(
+        to: string,
+        subject: string,
+        html: string,
+    ): Promise<ProviderResult> {
+        const apiKey = process.env.RESEND_API_KEY
+        if (!apiKey) {
+            return { success: false, error: 'RESEND_API_KEY not configured' }
+        }
+
+        try {
+            const { Resend } = await import('resend')
+            const resend = new Resend(apiKey)
+
+            const result = await resend.emails.send({
+                from:
+                    process.env.EMAIL_FROM ||
+                    'OpenLivestock <noreply@openlivestock.app>',
+                to,
+                subject,
+                html,
+            })
+
+            if (result.error) {
+                return { success: false, error: result.error.message }
+            }
+
+            return { success: true, messageId: result.data?.id }
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+            }
+        }
     }
-
-    try {
-      const { Resend } = await import('resend')
-      const resend = new Resend(apiKey)
-
-      const result = await resend.emails.send({
-        from:
-          process.env.EMAIL_FROM || 'OpenLivestock <noreply@openlivestock.app>',
-        to,
-        subject,
-        html,
-      })
-
-      if (result.error) {
-        return { success: false, error: result.error.message }
-      }
-
-      return { success: true, messageId: result.data?.id }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
-    }
-  }
 }
 ```
 
@@ -466,47 +472,49 @@ export class ResendProvider implements EmailProvider {
 import type { EmailProvider, ProviderResult } from '../../contracts'
 
 export class SMTPProvider implements EmailProvider {
-  readonly name = 'smtp'
+    readonly name = 'smtp'
 
-  async send(
-    to: string,
-    subject: string,
-    html: string,
-  ): Promise<ProviderResult> {
-    const host = process.env.SMTP_HOST
-    const port = process.env.SMTP_PORT
-    const user = process.env.SMTP_USER
-    const pass = process.env.SMTP_PASS
+    async send(
+        to: string,
+        subject: string,
+        html: string,
+    ): Promise<ProviderResult> {
+        const host = process.env.SMTP_HOST
+        const port = process.env.SMTP_PORT
+        const user = process.env.SMTP_USER
+        const pass = process.env.SMTP_PASS
 
-    if (!host) {
-      return { success: false, error: 'SMTP_HOST not configured' }
+        if (!host) {
+            return { success: false, error: 'SMTP_HOST not configured' }
+        }
+
+        try {
+            const nodemailer = await import('nodemailer')
+
+            const transporter = nodemailer.createTransport({
+                host,
+                port: port ? parseInt(port) : 587,
+                secure: port === '465',
+                auth: user && pass ? { user, pass } : undefined,
+            })
+
+            const result = await transporter.sendMail({
+                from:
+                    process.env.EMAIL_FROM ||
+                    'OpenLivestock <noreply@localhost>',
+                to,
+                subject,
+                html,
+            })
+
+            return { success: true, messageId: result.messageId }
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+            }
+        }
     }
-
-    try {
-      const nodemailer = await import('nodemailer')
-
-      const transporter = nodemailer.createTransport({
-        host,
-        port: port ? parseInt(port) : 587,
-        secure: port === '465',
-        auth: user && pass ? { user, pass } : undefined,
-      })
-
-      const result = await transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'OpenLivestock <noreply@localhost>',
-        to,
-        subject,
-        html,
-      })
-
-      return { success: true, messageId: result.messageId }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
-    }
-  }
 }
 ```
 
@@ -522,19 +530,20 @@ import type { SendEmailOptions, IntegrationResult } from '../types'
 
 // Provider registry - add custom providers here
 const providers: Record<string, () => Promise<EmailProvider>> = {
-  resend: async () => new (await import('./providers/resend')).ResendProvider(),
-  smtp: async () => new (await import('./providers/smtp')).SMTPProvider(),
+    resend: async () =>
+        new (await import('./providers/resend')).ResendProvider(),
+    smtp: async () => new (await import('./providers/smtp')).SMTPProvider(),
 }
 
 /**
  * Get the configured Email provider
  */
 async function getProvider(): Promise<EmailProvider | null> {
-  const providerName = process.env.EMAIL_PROVIDER
-  if (!providerName || !providers[providerName]) {
-    return null
-  }
-  return providers[providerName]()
+    const providerName = process.env.EMAIL_PROVIDER
+    if (!providerName || !providers[providerName]) {
+        return null
+    }
+    return providers[providerName]()
 }
 
 /**
@@ -542,31 +551,31 @@ async function getProvider(): Promise<EmailProvider | null> {
  * This is the public API - consumers don't need to know which provider is used
  */
 export async function sendEmail(
-  options: SendEmailOptions,
+    options: SendEmailOptions,
 ): Promise<IntegrationResult> {
-  const provider = await getProvider()
-  if (!provider) {
-    return {
-      success: false,
-      error: 'Email provider not configured. Set EMAIL_PROVIDER in .env',
+    const provider = await getProvider()
+    if (!provider) {
+        return {
+            success: false,
+            error: 'Email provider not configured. Set EMAIL_PROVIDER in .env',
+        }
     }
-  }
-  return provider.send(options.to, options.subject, options.html)
+    return provider.send(options.to, options.subject, options.html)
 }
 
 /**
  * Get the name of the configured Email provider
  */
 export function getEmailProviderName(): string | null {
-  return process.env.EMAIL_PROVIDER || null
+    return process.env.EMAIL_PROVIDER || null
 }
 
 /**
  * Check if Email is configured
  */
 export function isEmailConfigured(): boolean {
-  const providerName = process.env.EMAIL_PROVIDER
-  return !!providerName && !!providers[providerName]
+    const providerName = process.env.EMAIL_PROVIDER
+    return !!providerName && !!providers[providerName]
 }
 ```
 
@@ -582,25 +591,25 @@ import { isSMSConfigured, getSMSProviderName } from './sms'
 import { isEmailConfigured, getEmailProviderName } from './email'
 
 export const INTEGRATIONS = {
-  email: isEmailConfigured(),
-  sms: isSMSConfigured(),
+    email: isEmailConfigured(),
+    sms: isSMSConfigured(),
 } as const
 
 export function getIntegrationStatus(): Array<IntegrationStatus> {
-  return [
-    {
-      type: 'email',
-      enabled: INTEGRATIONS.email,
-      configured: INTEGRATIONS.email,
-      provider: getEmailProviderName() || undefined,
-    },
-    {
-      type: 'sms',
-      enabled: INTEGRATIONS.sms,
-      configured: INTEGRATIONS.sms,
-      provider: getSMSProviderName() || undefined,
-    },
-  ]
+    return [
+        {
+            type: 'email',
+            enabled: INTEGRATIONS.email,
+            configured: INTEGRATIONS.email,
+            provider: getEmailProviderName() || undefined,
+        },
+        {
+            type: 'sms',
+            enabled: INTEGRATIONS.sms,
+            configured: INTEGRATIONS.sms,
+            provider: getSMSProviderName() || undefined,
+        },
+    ]
 }
 ```
 
@@ -817,11 +826,11 @@ Technical users can add a custom provider by:
 import type { SMSProvider, ProviderResult } from '../../contracts'
 
 export class MyProvider implements SMSProvider {
-  readonly name = 'my-provider'
+    readonly name = 'my-provider'
 
-  async send(to: string, message: string): Promise<ProviderResult> {
-    // Implementation
-  }
+    async send(to: string, message: string): Promise<ProviderResult> {
+        // Implementation
+    }
 }
 ```
 
@@ -829,9 +838,9 @@ export class MyProvider implements SMSProvider {
 
 ```typescript
 const providers: Record<string, () => Promise<SMSProvider>> = {
-  // ... existing providers
-  'my-provider': async () =>
-    new (await import('./providers/my-provider')).MyProvider(),
+    // ... existing providers
+    'my-provider': async () =>
+        new (await import('./providers/my-provider')).MyProvider(),
 }
 ```
 

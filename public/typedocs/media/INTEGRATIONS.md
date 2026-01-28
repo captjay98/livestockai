@@ -287,60 +287,60 @@ Create `app/features/integrations/sms/providers/africastalking.ts`:
 import type { ProviderResult, SMSProvider } from '../../contracts'
 
 export class AfricasTalkingProvider implements SMSProvider {
-  readonly name = 'africastalking'
+    readonly name = 'africastalking'
 
-  async send(to: string, message: string): Promise<ProviderResult> {
-    // 1. Check required environment variables
-    const apiKey = process.env.AFRICASTALKING_API_KEY
-    const username = process.env.AFRICASTALKING_USERNAME
+    async send(to: string, message: string): Promise<ProviderResult> {
+        // 1. Check required environment variables
+        const apiKey = process.env.AFRICASTALKING_API_KEY
+        const username = process.env.AFRICASTALKING_USERNAME
 
-    if (!apiKey || !username) {
-      return {
-        success: false,
-        error: 'AFRICASTALKING_API_KEY and AFRICASTALKING_USERNAME required',
-      }
-    }
-
-    try {
-      // 2. Make API call to provider
-      const response = await fetch(
-        'https://api.africastalking.com/version1/messaging',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            apiKey: apiKey,
-          },
-          body: new URLSearchParams({
-            username,
-            to,
-            message,
-          }),
-        },
-      )
-
-      const data = await response.json()
-
-      // 3. Return standardized result
-      if (data.SMSMessageData?.Recipients?.[0]?.status === 'Success') {
-        return {
-          success: true,
-          messageId: data.SMSMessageData.Recipients[0].messageId,
+        if (!apiKey || !username) {
+            return {
+                success: false,
+                error: 'AFRICASTALKING_API_KEY and AFRICASTALKING_USERNAME required',
+            }
         }
-      }
 
-      return {
-        success: false,
-        error: data.SMSMessageData?.Message || 'SMS send failed',
-      }
-    } catch (error) {
-      // 4. Handle errors gracefully
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        try {
+            // 2. Make API call to provider
+            const response = await fetch(
+                'https://api.africastalking.com/version1/messaging',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        apiKey: apiKey,
+                    },
+                    body: new URLSearchParams({
+                        username,
+                        to,
+                        message,
+                    }),
+                },
+            )
+
+            const data = await response.json()
+
+            // 3. Return standardized result
+            if (data.SMSMessageData?.Recipients?.[0]?.status === 'Success') {
+                return {
+                    success: true,
+                    messageId: data.SMSMessageData.Recipients[0].messageId,
+                }
+            }
+
+            return {
+                success: false,
+                error: data.SMSMessageData?.Message || 'SMS send failed',
+            }
+        } catch (error) {
+            // 4. Handle errors gracefully
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+            }
+        }
     }
-  }
 }
 ```
 
@@ -350,24 +350,26 @@ Update `app/features/integrations/sms/index.ts`:
 
 ```typescript
 const providers = new Map<string, ProviderFactory>([
-  [
-    'console',
-    async () => new (await import('./providers/console')).ConsoleProvider(),
-  ],
-  [
-    'termii',
-    async () => new (await import('./providers/termii')).TermiiProvider(),
-  ],
-  [
-    'twilio',
-    async () => new (await import('./providers/twilio')).TwilioProvider(),
-  ],
-  // Add your custom provider
-  [
-    'africastalking',
-    async () =>
-      new (await import('./providers/africastalking')).AfricasTalkingProvider(),
-  ],
+    [
+        'console',
+        async () => new (await import('./providers/console')).ConsoleProvider(),
+    ],
+    [
+        'termii',
+        async () => new (await import('./providers/termii')).TermiiProvider(),
+    ],
+    [
+        'twilio',
+        async () => new (await import('./providers/twilio')).TwilioProvider(),
+    ],
+    // Add your custom provider
+    [
+        'africastalking',
+        async () =>
+            new (
+                await import('./providers/africastalking')
+            ).AfricasTalkingProvider(),
+    ],
 ])
 ```
 
@@ -377,23 +379,25 @@ Add to `app/features/integrations/config.ts`:
 
 ```typescript
 export function isSMSConfigured(): boolean {
-  const provider = process.env.SMS_PROVIDER
+    const provider = process.env.SMS_PROVIDER
 
-  switch (provider) {
-    case 'console':
-      return true
-    case 'termii':
-      return !!process.env.TERMII_API_KEY
-    case 'twilio':
-      return !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
-    case 'africastalking':
-      return !!(
-        process.env.AFRICASTALKING_API_KEY &&
-        process.env.AFRICASTALKING_USERNAME
-      )
-    default:
-      return false
-  }
+    switch (provider) {
+        case 'console':
+            return true
+        case 'termii':
+            return !!process.env.TERMII_API_KEY
+        case 'twilio':
+            return !!(
+                process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
+            )
+        case 'africastalking':
+            return !!(
+                process.env.AFRICASTALKING_API_KEY &&
+                process.env.AFRICASTALKING_USERNAME
+            )
+        default:
+            return false
+    }
 }
 ```
 
@@ -425,8 +429,8 @@ graph TD
 import { sendSMS } from '~/features/integrations'
 
 const result = await sendSMS({
-  to: '+254712345678',
-  message: 'Test message from OpenLivestock',
+    to: '+254712345678',
+    message: 'Test message from OpenLivestock',
 })
 
 console.log(result) // { success: true, messageId: '...' }
@@ -459,52 +463,52 @@ Create `app/features/integrations/email/providers/ses.ts`:
 import type { EmailProvider, ProviderResult } from '../../contracts'
 
 export class SESProvider implements EmailProvider {
-  readonly name = 'ses'
+    readonly name = 'ses'
 
-  async send(
-    to: string,
-    subject: string,
-    html: string,
-  ): Promise<ProviderResult> {
-    const region = process.env.AWS_REGION
-    const accessKeyId = process.env.AWS_ACCESS_KEY_ID
-    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+    async send(
+        to: string,
+        subject: string,
+        html: string,
+    ): Promise<ProviderResult> {
+        const region = process.env.AWS_REGION
+        const accessKeyId = process.env.AWS_ACCESS_KEY_ID
+        const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
 
-    if (!region || !accessKeyId || !secretAccessKey) {
-      return {
-        success: false,
-        error: 'AWS credentials not configured',
-      }
+        if (!region || !accessKeyId || !secretAccessKey) {
+            return {
+                success: false,
+                error: 'AWS credentials not configured',
+            }
+        }
+
+        try {
+            // Use AWS SDK v3
+            const { SESClient, SendEmailCommand } =
+                await import('@aws-sdk/client-ses')
+
+            const client = new SESClient({ region })
+            const command = new SendEmailCommand({
+                Source: process.env.EMAIL_FROM || 'noreply@openlivestock.app',
+                Destination: { ToAddresses: [to] },
+                Message: {
+                    Subject: { Data: subject },
+                    Body: { Html: { Data: html } },
+                },
+            })
+
+            const response = await client.send(command)
+
+            return {
+                success: true,
+                messageId: response.MessageId,
+            }
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
+            }
+        }
     }
-
-    try {
-      // Use AWS SDK v3
-      const { SESClient, SendEmailCommand } =
-        await import('@aws-sdk/client-ses')
-
-      const client = new SESClient({ region })
-      const command = new SendEmailCommand({
-        Source: process.env.EMAIL_FROM || 'noreply@openlivestock.app',
-        Destination: { ToAddresses: [to] },
-        Message: {
-          Subject: { Data: subject },
-          Body: { Html: { Data: html } },
-        },
-      })
-
-      const response = await client.send(command)
-
-      return {
-        success: true,
-        messageId: response.MessageId,
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
-    }
-  }
 }
 ```
 
@@ -518,8 +522,8 @@ All providers MUST implement these interfaces:
 
 ```typescript
 interface SMSProvider {
-  readonly name: string
-  send(to: string, message: string): Promise<ProviderResult>
+    readonly name: string
+    send(to: string, message: string): Promise<ProviderResult>
 }
 ```
 
@@ -527,8 +531,8 @@ interface SMSProvider {
 
 ```typescript
 interface EmailProvider {
-  readonly name: string
-  send(to: string, subject: string, html: string): Promise<ProviderResult>
+    readonly name: string
+    send(to: string, subject: string, html: string): Promise<ProviderResult>
 }
 ```
 
@@ -536,9 +540,9 @@ interface EmailProvider {
 
 ```typescript
 interface ProviderResult {
-  success: boolean
-  messageId?: string // Provider's message ID for tracking
-  error?: string // Error message if success is false
+    success: boolean
+    messageId?: string // Provider's message ID for tracking
+    error?: string // Error message if success is false
 }
 ```
 
@@ -659,8 +663,8 @@ Follow the same pattern as SMS, but use `EmailProvider` interface:
 
 ```typescript
 interface EmailProvider {
-  readonly name: string
-  send(to: string, subject: string, html: string): Promise<ProviderResult>
+    readonly name: string
+    send(to: string, subject: string, html: string): Promise<ProviderResult>
 }
 ```
 
@@ -710,38 +714,38 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { AfricasTalkingProvider } from './africastalking'
 
 describe('AfricasTalkingProvider', () => {
-  const originalEnv = process.env
+    const originalEnv = process.env
 
-  beforeEach(() => {
-    process.env = {
-      ...originalEnv,
-      AFRICASTALKING_API_KEY: 'test_key',
-      AFRICASTALKING_USERNAME: 'test_user',
-    }
-  })
+    beforeEach(() => {
+        process.env = {
+            ...originalEnv,
+            AFRICASTALKING_API_KEY: 'test_key',
+            AFRICASTALKING_USERNAME: 'test_user',
+        }
+    })
 
-  afterEach(() => {
-    process.env = originalEnv
-  })
+    afterEach(() => {
+        process.env = originalEnv
+    })
 
-  it('should return error when credentials missing', async () => {
-    delete process.env.AFRICASTALKING_API_KEY
+    it('should return error when credentials missing', async () => {
+        delete process.env.AFRICASTALKING_API_KEY
 
-    const provider = new AfricasTalkingProvider()
-    const result = await provider.send('+254712345678', 'Test')
+        const provider = new AfricasTalkingProvider()
+        const result = await provider.send('+254712345678', 'Test')
 
-    expect(result.success).toBe(false)
-    expect(result.error).toContain('API_KEY')
-  })
+        expect(result.success).toBe(false)
+        expect(result.error).toContain('API_KEY')
+    })
 
-  it('should send SMS successfully', async () => {
-    // Mock fetch or use actual API in integration tests
-    const provider = new AfricasTalkingProvider()
-    const result = await provider.send('+254712345678', 'Test message')
+    it('should send SMS successfully', async () => {
+        // Mock fetch or use actual API in integration tests
+        const provider = new AfricasTalkingProvider()
+        const result = await provider.send('+254712345678', 'Test message')
 
-    expect(result.success).toBe(true)
-    expect(result.messageId).toBeDefined()
-  })
+        expect(result.success).toBe(true)
+        expect(result.messageId).toBeDefined()
+    })
 })
 ```
 
@@ -754,8 +758,8 @@ import { sendSMS } from '~/features/integrations'
 
 // Set SMS_PROVIDER=africastalking in test environment
 const result = await sendSMS({
-  to: '+254712345678',
-  message: 'Integration test message',
+    to: '+254712345678',
+    message: 'Integration test message',
 })
 
 expect(result.success).toBe(true)

@@ -106,18 +106,21 @@ For each changed file, read the ENTIRE file (not just diff) to understand contex
 ```typescript
 // ✅ CORRECT - Works on Cloudflare Workers
 export const getBatches = createServerFn({ method: 'GET' })
-  .validator(z.object({ farmId: z.string().uuid() }))
-  .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db') // Dynamic import!
-    return db.selectFrom('batches').where('farmId', '=', data.farmId).execute()
-  })
+    .validator(z.object({ farmId: z.string().uuid() }))
+    .handler(async ({ data }) => {
+        const { db } = await import('~/lib/db') // Dynamic import!
+        return db
+            .selectFrom('batches')
+            .where('farmId', '=', data.farmId)
+            .execute()
+    })
 
 // ❌ WRONG - Breaks on Cloudflare Workers
 import { db } from '~/lib/db' // Static import at top level
 export const getBatches = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    return db.selectFrom('batches').execute() // Will fail!
-  },
+    async () => {
+        return db.selectFrom('batches').execute() // Will fail!
+    },
 )
 ```
 
@@ -136,23 +139,23 @@ grep -rn "^import.*db.*from.*\/db" app/features/
 ```typescript
 // ✅ CORRECT - Validated input
 export const createBatch = createServerFn({ method: 'POST' })
-  .validator(
-    z.object({
-      farmId: z.string().uuid(),
-      batchName: z.string().min(1).max(100),
-      species: z.enum(['broiler', 'catfish', 'layer', 'tilapia']),
-      initialQuantity: z.number().int().positive(),
-    }),
-  )
-  .handler(async ({ data }) => {
-    /* ... */
-  })
+    .validator(
+        z.object({
+            farmId: z.string().uuid(),
+            batchName: z.string().min(1).max(100),
+            species: z.enum(['broiler', 'catfish', 'layer', 'tilapia']),
+            initialQuantity: z.number().int().positive(),
+        }),
+    )
+    .handler(async ({ data }) => {
+        /* ... */
+    })
 
 // ❌ WRONG - No validation
 export const createBatch = createServerFn({ method: 'POST' }).handler(
-  async ({ data }) => {
-    // data is unvalidated - security risk!
-  },
+    async ({ data }) => {
+        // data is unvalidated - security risk!
+    },
 )
 ```
 
@@ -163,23 +166,24 @@ export const createBatch = createServerFn({ method: 'POST' }).handler(
 ```typescript
 // ✅ CORRECT - Protected route
 export const Route = createFileRoute('/_auth/batches/')({
-  // _auth prefix ensures authentication
+    // _auth prefix ensures authentication
 })
 
 // ✅ CORRECT - Server-side auth check with AppError
 import { AppError } from '~/lib/errors'
 
 export const getData = createServerFn({ method: 'GET' }).handler(
-  async ({ data, context }) => {
-    const { requireAuth } = await import('~/features/auth/server-middleware')
-    const session = await requireAuth()
-    // session.user.id is now available
-  },
+    async ({ data, context }) => {
+        const { requireAuth } =
+            await import('~/features/auth/server-middleware')
+        const session = await requireAuth()
+        // session.user.id is now available
+    },
 )
 
 // ❌ WRONG - Unprotected sensitive route
 export const Route = createFileRoute('/admin/users/')({
-  // Missing _auth prefix!
+    // Missing _auth prefix!
 })
 ```
 
@@ -190,31 +194,31 @@ export const Route = createFileRoute('/admin/users/')({
 ```typescript
 // ✅ CORRECT - Explicit column selection
 const batches = await db
-  .selectFrom('batches')
-  .select(['id', 'batchName', 'status', 'currentQuantity'])
-  .where('farmId', '=', farmId)
-  .execute()
+    .selectFrom('batches')
+    .select(['id', 'batchName', 'status', 'currentQuantity'])
+    .where('farmId', '=', farmId)
+    .execute()
 
 // ❌ AVOID - Select all (performance, security)
 const batches = await db
-  .selectFrom('batches')
-  .selectAll() // Avoid in production
-  .execute()
+    .selectFrom('batches')
+    .selectAll() // Avoid in production
+    .execute()
 
 // ✅ CORRECT - Type-safe joins
 const batchesWithFarm = await db
-  .selectFrom('batches')
-  .leftJoin('farms', 'farms.id', 'batches.farmId')
-  .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
-  .execute()
+    .selectFrom('batches')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
+    .execute()
 
 // ❌ WRONG - N+1 query pattern
 for (const batch of batches) {
-  const farm = await db
-    .selectFrom('farms')
-    .where('id', '=', batch.farmId)
-    .execute()
-  // This creates N+1 queries!
+    const farm = await db
+        .selectFrom('farms')
+        .where('id', '=', batch.farmId)
+        .execute()
+    // This creates N+1 queries!
 }
 ```
 
@@ -248,31 +252,31 @@ const displayValue = toNumber(dbString) // Convert from DB string
 import { AppError } from '~/lib/errors'
 
 export const getBatches = createServerFn({ method: 'GET' })
-  .handler(async ({ data }) => {
-    try {
-      const { db } = await import('~/lib/db')
-      const { checkFarmAccess } = await import('~/features/auth/utils')
+    .handler(async ({ data }) => {
+        try {
+            const { db } = await import('~/lib/db')
+            const { checkFarmAccess } = await import('~/features/auth/utils')
 
-      const hasAccess = await checkFarmAccess(userId, farmId)
-      if (!hasAccess) {
-        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
-      }
+            const hasAccess = await checkFarmAccess(userId, farmId)
+            if (!hasAccess) {
+                throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+            }
 
-      return await db.selectFrom('batches').execute()
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('DATABASE_ERROR', {
-        message: 'Failed to fetch batches',
-        cause: error,
-      })
-    }
-  })
+            return await db.selectFrom('batches').execute()
+        } catch (error) {
+            if (error instanceof AppError) throw error
+            throw new AppError('DATABASE_ERROR', {
+                message: 'Failed to fetch batches',
+                cause: error,
+            })
+        }
+    })
 
-  // ❌ WRONG - Generic error handling
-  .handler(async ({ data }) => {
-    const { db } = await import('~/lib/db')
-    return db.selectFrom('batches').execute() // Unhandled errors!
-  })
+    // ❌ WRONG - Generic error handling
+    .handler(async ({ data }) => {
+        const { db } = await import('~/lib/db')
+        return db.selectFrom('batches').execute() // Unhandled errors!
+    })
 
 // ❌ WRONG - Non-specific error
 throw new Error('Something went wrong') // Use AppError codes!

@@ -17,10 +17,10 @@ import type { QueryClient, QueryKey } from '@tanstack/react-query'
  * @template T - The type of data being cached
  */
 export interface OptimisticContext<T> {
-  /** Snapshot of the cache data before the optimistic update was applied */
-  previousData: T | undefined
-  /** Temporary ID assigned to newly created records (before server confirmation) */
-  tempId?: string
+    /** Snapshot of the cache data before the optimistic update was applied */
+    previousData: T | undefined
+    /** Temporary ID assigned to newly created records (before server confirmation) */
+    tempId?: string
 }
 
 /**
@@ -28,10 +28,10 @@ export interface OptimisticContext<T> {
  * These flags help identify records that haven't been confirmed by the server yet.
  */
 export interface OptimisticRecord {
-  /** True for records not yet confirmed by server */
-  _isOptimistic?: boolean
-  /** Temporary ID before server assigns real ID */
-  _tempId?: string
+    /** True for records not yet confirmed by server */
+    _isOptimistic?: boolean
+    /** Temporary ID before server assigns real ID */
+    _tempId?: string
 }
 
 /**
@@ -41,12 +41,12 @@ export interface OptimisticRecord {
  * @template TVariables - The type of mutation variables
  */
 export interface OptimisticUpdateOptions<TData, TVariables> {
-  /** The query key to update in the cache */
-  queryKey: QueryKey
-  /** Function to update the cached data with the new mutation variables */
-  updater: (old: TData | undefined, variables: TVariables) => TData
-  /** Optional function to generate a temporary ID for new records */
-  generateTempId?: () => string
+    /** The query key to update in the cache */
+    queryKey: QueryKey
+    /** Function to update the cached data with the new mutation variables */
+    updater: (old: TData | undefined, variables: TVariables) => TData
+    /** Optional function to generate a temporary ID for new records */
+    generateTempId?: () => string
 }
 
 /**
@@ -68,7 +68,7 @@ export const TEMP_ID_PREFIX = 'temp-'
  * ```
  */
 export function generateTempId(): string {
-  return `${TEMP_ID_PREFIX}${crypto.randomUUID()}`
+    return `${TEMP_ID_PREFIX}${crypto.randomUUID()}`
 }
 
 /**
@@ -85,7 +85,7 @@ export function generateTempId(): string {
  * ```
  */
 export function generateEntityTempId(entityType: string): string {
-  return `${TEMP_ID_PREFIX}${entityType}-${crypto.randomUUID()}`
+    return `${TEMP_ID_PREFIX}${entityType}-${crypto.randomUUID()}`
 }
 
 /**
@@ -101,7 +101,7 @@ export function generateEntityTempId(entityType: string): string {
  * ```
  */
 export function isTempId(id: string): boolean {
-  return id.startsWith(TEMP_ID_PREFIX)
+    return id.startsWith(TEMP_ID_PREFIX)
 }
 
 /**
@@ -120,13 +120,13 @@ export function isTempId(id: string): boolean {
  * ```
  */
 export function createOptimisticContext<T>(
-  previousData: T | undefined,
-  tempId?: string,
+    previousData: T | undefined,
+    tempId?: string,
 ): OptimisticContext<T> {
-  return {
-    previousData,
-    tempId,
-  }
+    return {
+        previousData,
+        tempId,
+    }
 }
 
 /**
@@ -151,25 +151,25 @@ export function createOptimisticContext<T>(
  * ```
  */
 export function replaceTempId<T extends { id: string }>(
-  records: Array<T> | undefined,
-  tempId: string,
-  serverId: string,
-  additionalUpdates?: Partial<Omit<T, 'id'>>,
+    records: Array<T> | undefined,
+    tempId: string,
+    serverId: string,
+    additionalUpdates?: Partial<Omit<T, 'id'>>,
 ): Array<T> {
-  if (!records) return []
+    if (!records) return []
 
-  return records.map((record) => {
-    if (record.id === tempId) {
-      return {
-        ...record,
-        id: serverId,
-        _isOptimistic: false,
-        _tempId: undefined,
-        ...additionalUpdates,
-      } as T
-    }
-    return record
-  })
+    return records.map((record) => {
+        if (record.id === tempId) {
+            return {
+                ...record,
+                id: serverId,
+                _isOptimistic: false,
+                _tempId: undefined,
+                ...additionalUpdates,
+            } as T
+        }
+        return record
+    })
 }
 
 /**
@@ -192,27 +192,27 @@ export function replaceTempId<T extends { id: string }>(
  * ```
  */
 export function replaceTempIdWithRecord<T extends { id: string }>(
-  records: Array<T> | undefined,
-  tempId: string,
-  serverRecord: T,
+    records: Array<T> | undefined,
+    tempId: string,
+    serverRecord: T,
 ): Array<T> {
-  if (!records) return [serverRecord]
+    if (!records) return [serverRecord]
 
-  const index = records.findIndex((record) => record.id === tempId)
+    const index = records.findIndex((record) => record.id === tempId)
 
-  if (index === -1) {
-    // Temp ID not found, append the server record
-    return [...records, serverRecord]
-  }
+    if (index === -1) {
+        // Temp ID not found, append the server record
+        return [...records, serverRecord]
+    }
 
-  // Replace the temp record with the server record
-  const newRecords = [...records]
-  newRecords[index] = {
-    ...serverRecord,
-    _isOptimistic: false,
-    _tempId: undefined,
-  } as T
-  return newRecords
+    // Replace the temp record with the server record
+    const newRecords = [...records]
+    newRecords[index] = {
+        ...serverRecord,
+        _isOptimistic: false,
+        _tempId: undefined,
+    } as T
+    return newRecords
 }
 
 /**
@@ -230,11 +230,11 @@ export function replaceTempIdWithRecord<T extends { id: string }>(
  * ```
  */
 export function removeById<T extends { id: string }>(
-  records: Array<T> | undefined,
-  id: string,
+    records: Array<T> | undefined,
+    id: string,
 ): Array<T> {
-  if (!records) return []
-  return records.filter((record) => record.id !== id)
+    if (!records) return []
+    return records.filter((record) => record.id !== id)
 }
 
 /**
@@ -253,22 +253,22 @@ export function removeById<T extends { id: string }>(
  * ```
  */
 export function updateById<T extends { id: string }>(
-  records: Array<T> | undefined,
-  id: string,
-  updates: Partial<T>,
+    records: Array<T> | undefined,
+    id: string,
+    updates: Partial<T>,
 ): Array<T> {
-  if (!records) return []
+    if (!records) return []
 
-  return records.map((record) => {
-    if (record.id === id) {
-      return {
-        ...record,
-        ...updates,
-        _isOptimistic: true,
-      } as T
-    }
-    return record
-  })
+    return records.map((record) => {
+        if (record.id === id) {
+            return {
+                ...record,
+                ...updates,
+                _isOptimistic: true,
+            } as T
+        }
+        return record
+    })
 }
 
 /**
@@ -288,19 +288,19 @@ export function updateById<T extends { id: string }>(
  * ```
  */
 export function addOptimisticRecord<T extends { id: string }>(
-  records: Array<T> | undefined,
-  newRecord: Omit<T, 'id'>,
-  tempId: string,
+    records: Array<T> | undefined,
+    newRecord: Omit<T, 'id'>,
+    tempId: string,
 ): Array<T> {
-  const optimisticRecord = {
-    ...newRecord,
-    id: tempId,
-    _isOptimistic: true,
-    _tempId: tempId,
-  } as unknown as T
+    const optimisticRecord = {
+        ...newRecord,
+        id: tempId,
+        _isOptimistic: true,
+        _tempId: tempId,
+    } as unknown as T
 
-  if (!records) return [optimisticRecord]
-  return [...records, optimisticRecord]
+    if (!records) return [optimisticRecord]
+    return [...records, optimisticRecord]
 }
 
 /**
@@ -323,14 +323,14 @@ export function addOptimisticRecord<T extends { id: string }>(
  * ```
  */
 export function createRollback<T>(
-  queryClient: QueryClient,
-  queryKey: QueryKey,
+    queryClient: QueryClient,
+    queryKey: QueryKey,
 ): (context: OptimisticContext<T> | undefined) => void {
-  return (context) => {
-    if (context?.previousData !== undefined) {
-      queryClient.setQueryData(queryKey, context.previousData)
+    return (context) => {
+        if (context?.previousData !== undefined) {
+            queryClient.setQueryData(queryKey, context.previousData)
+        }
     }
-  }
 }
 
 /**
@@ -348,10 +348,10 @@ export function createRollback<T>(
  * ```
  */
 export async function cancelQueries(
-  queryClient: QueryClient,
-  queryKey: QueryKey,
+    queryClient: QueryClient,
+    queryKey: QueryKey,
 ): Promise<void> {
-  await queryClient.cancelQueries({ queryKey })
+    await queryClient.cancelQueries({ queryKey })
 }
 
 /**
@@ -369,10 +369,10 @@ export async function cancelQueries(
  * ```
  */
 export function getQueryData<T>(
-  queryClient: QueryClient,
-  queryKey: QueryKey,
+    queryClient: QueryClient,
+    queryKey: QueryKey,
 ): T | undefined {
-  return queryClient.getQueryData<T>(queryKey)
+    return queryClient.getQueryData<T>(queryKey)
 }
 
 /**
@@ -390,11 +390,11 @@ export function getQueryData<T>(
  * ```
  */
 export function setQueryData<T>(
-  queryClient: QueryClient,
-  queryKey: QueryKey,
-  data: T,
+    queryClient: QueryClient,
+    queryKey: QueryKey,
+    data: T,
 ): void {
-  queryClient.setQueryData(queryKey, data)
+    queryClient.setQueryData(queryKey, data)
 }
 
 /**
@@ -409,18 +409,21 @@ export function setQueryData<T>(
  * @returns True if the error is a conflict error
  */
 export function isConflictError(error: unknown): boolean {
-  if (error instanceof Error) {
-    // Check for AppError with CONFLICT reason
-    const appError = error as { reason?: string; httpStatus?: number }
-    if (appError.reason === 'CONFLICT' || appError.httpStatus === 409) {
-      return true
+    if (error instanceof Error) {
+        // Check for AppError with CONFLICT reason
+        const appError = error as { reason?: string; httpStatus?: number }
+        if (appError.reason === 'CONFLICT' || appError.httpStatus === 409) {
+            return true
+        }
+        // Check error message for conflict indicators
+        if (
+            error.message.includes('409') ||
+            error.message.includes('conflict')
+        ) {
+            return true
+        }
     }
-    // Check error message for conflict indicators
-    if (error.message.includes('409') || error.message.includes('conflict')) {
-      return true
-    }
-  }
-  return false
+    return false
 }
 
 /**
@@ -431,18 +434,21 @@ export function isConflictError(error: unknown): boolean {
  * @returns True if the error is a not found error
  */
 export function isNotFoundError(error: unknown): boolean {
-  if (error instanceof Error) {
-    // Check for AppError with NOT_FOUND category
-    const appError = error as { httpStatus?: number; category?: string }
-    if (appError.httpStatus === 404 || appError.category === 'NOT_FOUND') {
-      return true
+    if (error instanceof Error) {
+        // Check for AppError with NOT_FOUND category
+        const appError = error as { httpStatus?: number; category?: string }
+        if (appError.httpStatus === 404 || appError.category === 'NOT_FOUND') {
+            return true
+        }
+        // Check error message for not found indicators
+        if (
+            error.message.includes('404') ||
+            error.message.includes('not found')
+        ) {
+            return true
+        }
     }
-    // Check error message for not found indicators
-    if (error.message.includes('404') || error.message.includes('not found')) {
-      return true
-    }
-  }
-  return false
+    return false
 }
 
 /**
@@ -452,28 +458,28 @@ export function isNotFoundError(error: unknown): boolean {
  * @returns The conflict metadata or null if not a conflict error
  */
 export function extractConflictMetadata<T>(error: unknown): {
-  serverVersion: T
-  clientVersion: T
-  resolution: 'server-wins' | 'client-wins'
+    serverVersion: T
+    clientVersion: T
+    resolution: 'server-wins' | 'client-wins'
 } | null {
-  if (error instanceof Error) {
-    const appError = error as {
-      metadata?: {
-        serverVersion?: T
-        clientVersion?: T
-        resolution?: 'server-wins' | 'client-wins'
-      }
+    if (error instanceof Error) {
+        const appError = error as {
+            metadata?: {
+                serverVersion?: T
+                clientVersion?: T
+                resolution?: 'server-wins' | 'client-wins'
+            }
+        }
+        const metadata = appError.metadata
+        if (metadata?.serverVersion && metadata.clientVersion) {
+            return {
+                serverVersion: metadata.serverVersion,
+                clientVersion: metadata.clientVersion,
+                resolution: metadata.resolution || 'server-wins',
+            }
+        }
     }
-    const metadata = appError.metadata
-    if (metadata?.serverVersion && metadata.clientVersion) {
-      return {
-        serverVersion: metadata.serverVersion,
-        clientVersion: metadata.clientVersion,
-        resolution: metadata.resolution || 'server-wins',
-      }
-    }
-  }
-  return null
+    return null
 }
 
 /**
@@ -484,10 +490,10 @@ export function extractConflictMetadata<T>(error: unknown): {
  * @returns True if client version is newer and should win
  */
 export function shouldClientWin(
-  serverUpdatedAt: Date | string,
-  clientUpdatedAt: Date | string,
+    serverUpdatedAt: Date | string,
+    clientUpdatedAt: Date | string,
 ): boolean {
-  const serverTime = new Date(serverUpdatedAt).getTime()
-  const clientTime = new Date(clientUpdatedAt).getTime()
-  return clientTime > serverTime
+    const serverTime = new Date(serverUpdatedAt).getTime()
+    const clientTime = new Date(clientUpdatedAt).getTime()
+    return clientTime > serverTime
 }

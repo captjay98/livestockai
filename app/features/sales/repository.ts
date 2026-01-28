@@ -11,79 +11,79 @@ import type { PaymentMethod, PaymentStatus, UnitType } from './server'
  * Data for inserting a new sale
  */
 export interface SaleInsert {
-  farmId: string
-  batchId: string | null
-  customerId: string | null
-  livestockType: 'poultry' | 'fish' | 'eggs'
-  quantity: number
-  unitPrice: string
-  totalAmount: string
-  date: Date
-  notes: string | null
-  unitType: UnitType | null
-  ageWeeks: number | null
-  averageWeightKg: string | null
-  paymentStatus: PaymentStatus | null
-  paymentMethod: PaymentMethod | null
+    farmId: string
+    batchId: string | null
+    customerId: string | null
+    livestockType: 'poultry' | 'fish' | 'eggs'
+    quantity: number
+    unitPrice: string
+    totalAmount: string
+    date: Date
+    notes: string | null
+    unitType: UnitType | null
+    ageWeeks: number | null
+    averageWeightKg: string | null
+    paymentStatus: PaymentStatus | null
+    paymentMethod: PaymentMethod | null
 }
 
 /**
  * Data for updating a sale
  */
 export interface SaleUpdate {
-  quantity?: number
-  unitPrice?: string
-  totalAmount?: string
-  date?: Date
-  notes?: string | null
-  unitType?: UnitType | null
-  ageWeeks?: number | null
-  averageWeightKg?: string | null
-  paymentStatus?: PaymentStatus | null
-  paymentMethod?: PaymentMethod | null
+    quantity?: number
+    unitPrice?: string
+    totalAmount?: string
+    date?: Date
+    notes?: string | null
+    unitType?: UnitType | null
+    ageWeeks?: number | null
+    averageWeightKg?: string | null
+    paymentStatus?: PaymentStatus | null
+    paymentMethod?: PaymentMethod | null
 }
 
 /**
  * Sale with joined data from related tables
  */
 export type SaleWithJoins = {
-  id: string
-  farmId: string
-  batchId: string | null
-  customerId: string | null
-  livestockType: string
-  quantity: number
-  unitPrice: string
-  totalAmount: string
-  date: Date
-  notes: string | null
-  unitType: string | null
-  ageWeeks: number | null
-  averageWeightKg: string | null
-  paymentStatus: string | null
-  paymentMethod: string | null
-  createdAt: Date
-  customerName: string | null
-  batchSpecies: string | null
-  farmName: string | null
+    id: string
+    farmId: string
+    batchId: string | null
+    customerId: string | null
+    livestockType: string
+    quantity: number
+    unitPrice: string
+    totalAmount: string
+    date: Date
+    notes: string | null
+    unitType: string | null
+    ageWeeks: number | null
+    averageWeightKg: string | null
+    paymentStatus: string | null
+    paymentMethod: string | null
+    createdAt: Date
+    customerName: string | null
+    batchSpecies: string | null
+    farmName: string | null
 }
 
 /**
  * Batch data for quantity updates
  */
 export interface BatchQuantityData {
-  id: string
-  currentQuantity: number
-  farmId: string
+    id: string
+    currentQuantity: number
+    farmId: string
 }
 
 /**
  * Result from batch query
  */
 export interface BatchResult {
-  id: string
-  farmId: string
-  currentQuantity: number
+    id: string
+    farmId: string
+    currentQuantity: number
 }
 
 /**
@@ -114,15 +114,15 @@ export interface BatchResult {
  * ```
  */
 export async function insertSale(
-  db: Kysely<Database>,
-  data: SaleInsert,
+    db: Kysely<Database>,
+    data: SaleInsert,
 ): Promise<string> {
-  const result = await db
-    .insertInto('sales')
-    .values(data)
-    .returning('id')
-    .executeTakeFirstOrThrow()
-  return result.id
+    const result = await db
+        .insertInto('sales')
+        .values(data)
+        .returning('id')
+        .executeTakeFirstOrThrow()
+    return result.id
 }
 
 /**
@@ -133,39 +133,39 @@ export async function insertSale(
  * @returns The sale data or null if not found
  */
 export async function getSaleById(
-  db: Kysely<Database>,
-  saleId: string,
+    db: Kysely<Database>,
+    saleId: string,
 ): Promise<SaleWithJoins | null> {
-  const sale = await db
-    .selectFrom('sales')
-    .leftJoin('customers', 'customers.id', 'sales.customerId')
-    .leftJoin('batches', 'batches.id', 'sales.batchId')
-    .leftJoin('farms', 'farms.id', 'sales.farmId')
-    .select([
-      'sales.id',
-      'sales.farmId',
-      'sales.batchId',
-      'sales.customerId',
-      'sales.livestockType',
-      'sales.quantity',
-      'sales.unitPrice',
-      'sales.totalAmount',
-      'sales.date',
-      'sales.notes',
-      'sales.unitType',
-      'sales.ageWeeks',
-      'sales.averageWeightKg',
-      'sales.paymentStatus',
-      'sales.paymentMethod',
-      'sales.createdAt',
-      'customers.name as customerName',
-      'batches.species as batchSpecies',
-      'farms.name as farmName',
-    ])
-    .where('sales.id', '=', saleId)
-    .executeTakeFirst()
+    const sale = await db
+        .selectFrom('sales')
+        .leftJoin('customers', 'customers.id', 'sales.customerId')
+        .leftJoin('batches', 'batches.id', 'sales.batchId')
+        .leftJoin('farms', 'farms.id', 'sales.farmId')
+        .select([
+            'sales.id',
+            'sales.farmId',
+            'sales.batchId',
+            'sales.customerId',
+            'sales.livestockType',
+            'sales.quantity',
+            'sales.unitPrice',
+            'sales.totalAmount',
+            'sales.date',
+            'sales.notes',
+            'sales.unitType',
+            'sales.ageWeeks',
+            'sales.averageWeightKg',
+            'sales.paymentStatus',
+            'sales.paymentMethod',
+            'sales.createdAt',
+            'customers.name as customerName',
+            'batches.species as batchSpecies',
+            'farms.name as farmName',
+        ])
+        .where('sales.id', '=', saleId)
+        .executeTakeFirst()
 
-  return (sale as SaleWithJoins | null) ?? null
+    return (sale as SaleWithJoins | null) ?? null
 }
 
 /**
@@ -176,16 +176,16 @@ export async function getSaleById(
  * @returns The batch data or null if not found
  */
 export async function getBatchById(
-  db: Kysely<Database>,
-  batchId: string,
+    db: Kysely<Database>,
+    batchId: string,
 ): Promise<BatchQuantityData | null> {
-  const batch = await db
-    .selectFrom('batches')
-    .select(['id', 'currentQuantity', 'farmId'])
-    .where('id', '=', batchId)
-    .executeTakeFirst()
+    const batch = await db
+        .selectFrom('batches')
+        .select(['id', 'currentQuantity', 'farmId'])
+        .where('id', '=', batchId)
+        .executeTakeFirst()
 
-  return (batch as BatchQuantityData | null) ?? null
+    return (batch as BatchQuantityData | null) ?? null
 }
 
 /**
@@ -196,20 +196,20 @@ export async function getBatchById(
  * @param subtractQuantity - Quantity to subtract
  */
 export async function atomicDecrementBatchQuantity(
-  db: Kysely<Database>,
-  batchId: string,
-  subtractQuantity: number,
+    db: Kysely<Database>,
+    batchId: string,
+    subtractQuantity: number,
 ): Promise<void> {
-  const { sql } = await import('kysely')
-  await db
-    .updateTable('batches')
-    .set((eb) => ({
-      currentQuantity: eb('currentQuantity', '-', subtractQuantity),
-      status: sql`CASE WHEN "currentQuantity" - ${subtractQuantity} <= 0 THEN 'sold' ELSE 'active' END`,
-      updatedAt: new Date(),
-    }))
-    .where('id', '=', batchId)
-    .execute()
+    const { sql } = await import('kysely')
+    await db
+        .updateTable('batches')
+        .set((eb) => ({
+            currentQuantity: eb('currentQuantity', '-', subtractQuantity),
+            status: sql`CASE WHEN "currentQuantity" - ${subtractQuantity} <= 0 THEN 'sold' ELSE 'active' END`,
+            updatedAt: new Date(),
+        }))
+        .where('id', '=', batchId)
+        .execute()
 }
 
 /**
@@ -219,10 +219,10 @@ export async function atomicDecrementBatchQuantity(
  * @param saleId - ID of the sale to delete
  */
 export async function deleteSale(
-  db: Kysely<Database>,
-  saleId: string,
+    db: Kysely<Database>,
+    saleId: string,
 ): Promise<void> {
-  await db.deleteFrom('sales').where('id', '=', saleId).execute()
+    await db.deleteFrom('sales').where('id', '=', saleId).execute()
 }
 
 /**
@@ -233,11 +233,11 @@ export async function deleteSale(
  * @param data - Fields to update
  */
 export async function updateSale(
-  db: Kysely<Database>,
-  saleId: string,
-  data: SaleUpdate,
+    db: Kysely<Database>,
+    saleId: string,
+    data: SaleUpdate,
 ): Promise<void> {
-  await db.updateTable('sales').set(data).where('id', '=', saleId).execute()
+    await db.updateTable('sales').set(data).where('id', '=', saleId).execute()
 }
 
 /**
@@ -249,57 +249,57 @@ export async function updateSale(
  * @returns Array of sales with joins
  */
 export async function getSalesByFarm(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  filters?: {
-    startDate?: Date
-    endDate?: Date
-    livestockType?: 'poultry' | 'fish' | 'eggs'
-  },
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    filters?: {
+        startDate?: Date
+        endDate?: Date
+        livestockType?: 'poultry' | 'fish' | 'eggs'
+    },
 ): Promise<Array<SaleWithJoins>> {
-  let query = db
-    .selectFrom('sales')
-    .leftJoin('customers', 'customers.id', 'sales.customerId')
-    .leftJoin('batches', 'batches.id', 'sales.batchId')
-    .leftJoin('farms', 'farms.id', 'sales.farmId')
-    .select([
-      'sales.id',
-      'sales.farmId',
-      'sales.batchId',
-      'sales.customerId',
-      'sales.livestockType',
-      'sales.quantity',
-      'sales.unitPrice',
-      'sales.totalAmount',
-      'sales.unitType',
-      'sales.ageWeeks',
-      'sales.averageWeightKg',
-      'sales.paymentStatus',
-      'sales.paymentMethod',
-      'sales.date',
-      'sales.notes',
-      'sales.createdAt',
-      'customers.name as customerName',
-      'batches.species as batchSpecies',
-      'farms.name as farmName',
-    ])
-    .where('sales.farmId', 'in', farmIds)
+    let query = db
+        .selectFrom('sales')
+        .leftJoin('customers', 'customers.id', 'sales.customerId')
+        .leftJoin('batches', 'batches.id', 'sales.batchId')
+        .leftJoin('farms', 'farms.id', 'sales.farmId')
+        .select([
+            'sales.id',
+            'sales.farmId',
+            'sales.batchId',
+            'sales.customerId',
+            'sales.livestockType',
+            'sales.quantity',
+            'sales.unitPrice',
+            'sales.totalAmount',
+            'sales.unitType',
+            'sales.ageWeeks',
+            'sales.averageWeightKg',
+            'sales.paymentStatus',
+            'sales.paymentMethod',
+            'sales.date',
+            'sales.notes',
+            'sales.createdAt',
+            'customers.name as customerName',
+            'batches.species as batchSpecies',
+            'farms.name as farmName',
+        ])
+        .where('sales.farmId', 'in', farmIds)
 
-  if (filters?.startDate) {
-    query = query.where('sales.date', '>=', filters.startDate)
-  }
+    if (filters?.startDate) {
+        query = query.where('sales.date', '>=', filters.startDate)
+    }
 
-  if (filters?.endDate) {
-    query = query.where('sales.date', '<=', filters.endDate)
-  }
+    if (filters?.endDate) {
+        query = query.where('sales.date', '<=', filters.endDate)
+    }
 
-  if (filters?.livestockType) {
-    query = query.where('sales.livestockType', '=', filters.livestockType)
-  }
+    if (filters?.livestockType) {
+        query = query.where('sales.livestockType', '=', filters.livestockType)
+    }
 
-  return (await query
-    .orderBy('sales.date', 'desc')
-    .execute()) as Array<SaleWithJoins>
+    return (await query
+        .orderBy('sales.date', 'desc')
+        .execute()) as Array<SaleWithJoins>
 }
 
 /**
@@ -311,45 +311,45 @@ export async function getSalesByFarm(
  * @returns Array of summary rows
  */
 export async function getSalesSummary(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  filters?: {
-    startDate?: Date
-    endDate?: Date
-  },
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    filters?: {
+        startDate?: Date
+        endDate?: Date
+    },
 ): Promise<
-  Array<{
-    livestockType: 'poultry' | 'fish' | 'eggs'
-    count: string
-    totalQuantity: string
-    totalRevenue: string
-  }>
+    Array<{
+        livestockType: 'poultry' | 'fish' | 'eggs'
+        count: string
+        totalQuantity: string
+        totalRevenue: string
+    }>
 > {
-  let query = db
-    .selectFrom('sales')
-    .select([
-      'livestockType',
-      (eb) => eb.fn.count('id').as('count'),
-      (eb) => eb.fn.sum('quantity').as('totalQuantity'),
-      (eb) => eb.fn.sum('totalAmount').as('totalRevenue'),
-    ])
-    .where('farmId', 'in', farmIds)
-    .groupBy('livestockType')
+    let query = db
+        .selectFrom('sales')
+        .select([
+            'livestockType',
+            (eb) => eb.fn.count('id').as('count'),
+            (eb) => eb.fn.sum('quantity').as('totalQuantity'),
+            (eb) => eb.fn.sum('totalAmount').as('totalRevenue'),
+        ])
+        .where('farmId', 'in', farmIds)
+        .groupBy('livestockType')
 
-  if (filters?.startDate) {
-    query = query.where('date', '>=', filters.startDate)
-  }
+    if (filters?.startDate) {
+        query = query.where('date', '>=', filters.startDate)
+    }
 
-  if (filters?.endDate) {
-    query = query.where('date', '<=', filters.endDate)
-  }
+    if (filters?.endDate) {
+        query = query.where('date', '<=', filters.endDate)
+    }
 
-  return (await query.execute()) as Array<{
-    livestockType: 'poultry' | 'fish' | 'eggs'
-    count: string
-    totalQuantity: string
-    totalRevenue: string
-  }>
+    return (await query.execute()) as Array<{
+        livestockType: 'poultry' | 'fish' | 'eggs'
+        count: string
+        totalQuantity: string
+        totalRevenue: string
+    }>
 }
 
 /**
@@ -361,28 +361,28 @@ export async function getSalesSummary(
  * @returns Total revenue as string
  */
 export async function getTotalRevenue(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  filters?: {
-    startDate?: Date
-    endDate?: Date
-  },
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    filters?: {
+        startDate?: Date
+        endDate?: Date
+    },
 ): Promise<string> {
-  let query = db
-    .selectFrom('sales')
-    .select((eb) => eb.fn.sum('totalAmount').as('total'))
-    .where('farmId', 'in', farmIds)
+    let query = db
+        .selectFrom('sales')
+        .select((eb) => eb.fn.sum('totalAmount').as('total'))
+        .where('farmId', 'in', farmIds)
 
-  if (filters?.startDate) {
-    query = query.where('date', '>=', filters.startDate)
-  }
+    if (filters?.startDate) {
+        query = query.where('date', '>=', filters.startDate)
+    }
 
-  if (filters?.endDate) {
-    query = query.where('date', '<=', filters.endDate)
-  }
+    if (filters?.endDate) {
+        query = query.where('date', '<=', filters.endDate)
+    }
 
-  const result = await query.executeTakeFirst()
-  return (result?.total as string | null) ?? '0'
+    const result = await query.executeTakeFirst()
+    return (result?.total as string | null) ?? '0'
 }
 
 /**
@@ -394,167 +394,167 @@ export async function getTotalRevenue(
  * @returns Paginated result
  */
 export async function getSalesPaginated(
-  db: Kysely<Database>,
-  farmIds: Array<string>,
-  filters: {
-    page?: number
-    pageSize?: number
-    sortBy?: string
-    sortOrder?: 'asc' | 'desc'
-    search?: string
-    livestockType?: string
-    paymentStatus?: string
-    batchId?: string
-  },
+    db: Kysely<Database>,
+    farmIds: Array<string>,
+    filters: {
+        page?: number
+        pageSize?: number
+        sortBy?: string
+        sortOrder?: 'asc' | 'desc'
+        search?: string
+        livestockType?: string
+        paymentStatus?: string
+        batchId?: string
+    },
 ): Promise<{
-  data: Array<SaleWithJoins>
-  total: number
-  page: number
-  pageSize: number
-  totalPages: number
+    data: Array<SaleWithJoins>
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
 }> {
-  const { sql } = await import('kysely')
+    const { sql } = await import('kysely')
 
-  const page = filters.page || 1
-  const pageSize = filters.pageSize || 10
-  const sortBy = filters.sortBy || 'date'
-  const sortOrder = filters.sortOrder || 'desc'
-  const search = filters.search || ''
-  const livestockType = filters.livestockType
-  const paymentStatus = filters.paymentStatus
-  const batchId = filters.batchId
+    const page = filters.page || 1
+    const pageSize = filters.pageSize || 10
+    const sortBy = filters.sortBy || 'date'
+    const sortOrder = filters.sortOrder || 'desc'
+    const search = filters.search || ''
+    const livestockType = filters.livestockType
+    const paymentStatus = filters.paymentStatus
+    const batchId = filters.batchId
 
-  // Build base query for count
-  let countQuery = db
-    .selectFrom('sales')
-    .leftJoin('customers', 'customers.id', 'sales.customerId')
-    .leftJoin('batches', 'batches.id', 'sales.batchId')
-    .leftJoin('farms', 'farms.id', 'sales.farmId')
-    .where('sales.farmId', 'in', farmIds)
+    // Build base query for count
+    let countQuery = db
+        .selectFrom('sales')
+        .leftJoin('customers', 'customers.id', 'sales.customerId')
+        .leftJoin('batches', 'batches.id', 'sales.batchId')
+        .leftJoin('farms', 'farms.id', 'sales.farmId')
+        .where('sales.farmId', 'in', farmIds)
 
-  // Apply search filter
-  if (search) {
-    countQuery = countQuery.where((eb) =>
-      eb.or([
-        eb('customers.name', 'ilike', `%${search}%`),
-        eb('batches.species', 'ilike', `%${search}%`),
-        eb('sales.notes', 'ilike', `%${search}%`),
-      ]),
-    )
-  }
+    // Apply search filter
+    if (search) {
+        countQuery = countQuery.where((eb) =>
+            eb.or([
+                eb('customers.name', 'ilike', `%${search}%`),
+                eb('batches.species', 'ilike', `%${search}%`),
+                eb('sales.notes', 'ilike', `%${search}%`),
+            ]),
+        )
+    }
 
-  // Apply type filter
-  if (livestockType) {
-    countQuery = countQuery.where(
-      'sales.livestockType',
-      '=',
-      livestockType as any,
-    )
-  }
+    // Apply type filter
+    if (livestockType) {
+        countQuery = countQuery.where(
+            'sales.livestockType',
+            '=',
+            livestockType as any,
+        )
+    }
 
-  // Apply payment status filter
-  if (paymentStatus) {
-    countQuery = countQuery.where(
-      'sales.paymentStatus',
-      '=',
-      paymentStatus as any,
-    )
-  }
+    // Apply payment status filter
+    if (paymentStatus) {
+        countQuery = countQuery.where(
+            'sales.paymentStatus',
+            '=',
+            paymentStatus as any,
+        )
+    }
 
-  // Apply batchId filter
-  if (batchId) {
-    countQuery = countQuery.where('sales.batchId', '=', batchId)
-  }
+    // Apply batchId filter
+    if (batchId) {
+        countQuery = countQuery.where('sales.batchId', '=', batchId)
+    }
 
-  // Get total count
-  const countResult = await countQuery
-    .select(sql<number>`count(*)`.as('count'))
-    .executeTakeFirst()
-  const total = Number(countResult?.count || 0)
-  const totalPages = Math.ceil(total / pageSize)
+    // Get total count
+    const countResult = await countQuery
+        .select(sql<number>`count(*)`.as('count'))
+        .executeTakeFirst()
+    const total = Number(countResult?.count || 0)
+    const totalPages = Math.ceil(total / pageSize)
 
-  // Apply sorting
-  const sortColumn =
-    sortBy === 'totalAmount'
-      ? 'sales.totalAmount'
-      : sortBy === 'quantity'
-        ? 'sales.quantity'
-        : sortBy === 'customerName'
-          ? 'customers.name'
-          : sortBy === 'livestockType'
-            ? 'sales.livestockType'
-            : 'sales.date'
+    // Apply sorting
+    const sortColumn =
+        sortBy === 'totalAmount'
+            ? 'sales.totalAmount'
+            : sortBy === 'quantity'
+              ? 'sales.quantity'
+              : sortBy === 'customerName'
+                ? 'customers.name'
+                : sortBy === 'livestockType'
+                  ? 'sales.livestockType'
+                  : 'sales.date'
 
-  let dataQuery = db
-    .selectFrom('sales')
-    .leftJoin('customers', 'customers.id', 'sales.customerId')
-    .leftJoin('batches', 'batches.id', 'sales.batchId')
-    .leftJoin('farms', 'farms.id', 'sales.farmId')
-    .select([
-      'sales.id',
-      'sales.farmId',
-      'sales.batchId',
-      'sales.customerId',
-      'sales.livestockType',
-      'sales.quantity',
-      'sales.unitPrice',
-      'sales.totalAmount',
-      'sales.unitType',
-      'sales.ageWeeks',
-      'sales.averageWeightKg',
-      'sales.paymentStatus',
-      'sales.paymentMethod',
-      'sales.date',
-      'sales.notes',
-      'sales.createdAt',
-      'customers.name as customerName',
-      'batches.species as batchSpecies',
-      'farms.name as farmName',
-    ])
-    .where('sales.farmId', 'in', farmIds)
+    let dataQuery = db
+        .selectFrom('sales')
+        .leftJoin('customers', 'customers.id', 'sales.customerId')
+        .leftJoin('batches', 'batches.id', 'sales.batchId')
+        .leftJoin('farms', 'farms.id', 'sales.farmId')
+        .select([
+            'sales.id',
+            'sales.farmId',
+            'sales.batchId',
+            'sales.customerId',
+            'sales.livestockType',
+            'sales.quantity',
+            'sales.unitPrice',
+            'sales.totalAmount',
+            'sales.unitType',
+            'sales.ageWeeks',
+            'sales.averageWeightKg',
+            'sales.paymentStatus',
+            'sales.paymentMethod',
+            'sales.date',
+            'sales.notes',
+            'sales.createdAt',
+            'customers.name as customerName',
+            'batches.species as batchSpecies',
+            'farms.name as farmName',
+        ])
+        .where('sales.farmId', 'in', farmIds)
 
-  // Re-apply filters
-  if (search) {
-    dataQuery = dataQuery.where((eb) =>
-      eb.or([
-        eb('customers.name', 'ilike', `%${search}%`),
-        eb('batches.species', 'ilike', `%${search}%`),
-        eb('sales.notes', 'ilike', `%${search}%`),
-      ]),
-    )
-  }
-  if (livestockType) {
-    dataQuery = dataQuery.where(
-      'sales.livestockType',
-      '=',
-      livestockType as any,
-    )
-  }
-  if (paymentStatus) {
-    dataQuery = dataQuery.where(
-      'sales.paymentStatus',
-      '=',
-      paymentStatus as any,
-    )
-  }
-  if (batchId) {
-    dataQuery = dataQuery.where('sales.batchId', '=', batchId)
-  }
+    // Re-apply filters
+    if (search) {
+        dataQuery = dataQuery.where((eb) =>
+            eb.or([
+                eb('customers.name', 'ilike', `%${search}%`),
+                eb('batches.species', 'ilike', `%${search}%`),
+                eb('sales.notes', 'ilike', `%${search}%`),
+            ]),
+        )
+    }
+    if (livestockType) {
+        dataQuery = dataQuery.where(
+            'sales.livestockType',
+            '=',
+            livestockType as any,
+        )
+    }
+    if (paymentStatus) {
+        dataQuery = dataQuery.where(
+            'sales.paymentStatus',
+            '=',
+            paymentStatus as any,
+        )
+    }
+    if (batchId) {
+        dataQuery = dataQuery.where('sales.batchId', '=', batchId)
+    }
 
-  // Apply sorting and pagination
-  const data = await dataQuery
-    .orderBy(sortColumn as any, sortOrder)
-    .limit(pageSize)
-    .offset((page - 1) * pageSize)
-    .execute()
+    // Apply sorting and pagination
+    const data = await dataQuery
+        .orderBy(sortColumn as any, sortOrder)
+        .limit(pageSize)
+        .offset((page - 1) * pageSize)
+        .execute()
 
-  return {
-    data: data as Array<SaleWithJoins>,
-    total,
-    page,
-    pageSize,
-    totalPages,
-  }
+    return {
+        data: data as Array<SaleWithJoins>,
+        total,
+        page,
+        pageSize,
+        totalPages,
+    }
 }
 
 /**
@@ -565,19 +565,19 @@ export async function getSalesPaginated(
  * @param quantity - Quantity to restore
  */
 export async function restoreBatchQuantityOnDelete(
-  db: Kysely<Database>,
-  batchId: string,
-  quantity: number,
+    db: Kysely<Database>,
+    batchId: string,
+    quantity: number,
 ): Promise<void> {
-  await db
-    .updateTable('batches')
-    .set((eb) => ({
-      currentQuantity: eb('currentQuantity', '+', quantity),
-      status: 'active',
-      updatedAt: new Date(),
-    }))
-    .where('id', '=', batchId)
-    .execute()
+    await db
+        .updateTable('batches')
+        .set((eb) => ({
+            currentQuantity: eb('currentQuantity', '+', quantity),
+            status: 'active',
+            updatedAt: new Date(),
+        }))
+        .where('id', '=', batchId)
+        .execute()
 }
 
 /**
@@ -588,16 +588,16 @@ export async function restoreBatchQuantityOnDelete(
  * @param quantityDiff - Quantity difference (positive = increase sale, negative = decrease)
  */
 export async function adjustBatchQuantityOnUpdate(
-  db: Kysely<Database>,
-  batchId: string,
-  quantityDiff: number,
+    db: Kysely<Database>,
+    batchId: string,
+    quantityDiff: number,
 ): Promise<void> {
-  await db
-    .updateTable('batches')
-    .set((eb) => ({
-      currentQuantity: eb('currentQuantity', '-', quantityDiff),
-      updatedAt: new Date(),
-    }))
-    .where('id', '=', batchId)
-    .execute()
+    await db
+        .updateTable('batches')
+        .set((eb) => ({
+            currentQuantity: eb('currentQuantity', '-', quantityDiff),
+            updatedAt: new Date(),
+        }))
+        .where('id', '=', batchId)
+        .execute()
 }

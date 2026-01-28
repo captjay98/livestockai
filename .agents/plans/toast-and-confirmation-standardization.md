@@ -198,9 +198,9 @@ Run TypeScript, ESLint, and manual testing.
 - **IMPLEMENT**: Add toast notifications for create/update/delete success
 - **IMPORTS**: Add `import { toast } from 'sonner'`
 - **LOCATIONS**:
-  - handleSubmit success → `toast.success('Batch created successfully')`
-  - handleEditSubmit success → `toast.success('Batch updated')`
-  - handleDeleteConfirm success → `toast.success('Batch deleted')`
+    - handleSubmit success → `toast.success('Batch created successfully')`
+    - handleEditSubmit success → `toast.success('Batch updated')`
+    - handleDeleteConfirm success → `toast.success('Batch deleted')`
 - **VALIDATE**: `cd /Users/captjay98/projects/jayfarms && npx tsc --noEmit 2>&1 | grep batches`
 
 ### Task 4: UPDATE `app/routes/_auth/sales/index.tsx`

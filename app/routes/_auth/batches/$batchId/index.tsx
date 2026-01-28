@@ -19,187 +19,198 @@ import { getBatchDetailsFn } from '~/features/batches/server'
 import { BatchDetailSkeleton } from '~/components/batches/batch-detail-skeleton'
 
 function FormulationCard({ formulation }: { formulation: any }) {
-  const { t } = useTranslation(['batches'])
+    const { t } = useTranslation(['batches'])
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {t('formulation.title', { defaultValue: 'Feed Formulation' })}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <div>
-          <span className="font-medium">{formulation.name}</span>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {formulation.species} • {formulation.stage}
-        </div>
-        <div className="text-sm">
-          <span className="font-medium">Cost: </span>
-          {formulation.costPerKg}/kg
-        </div>
-        <Link
-          to="/feed-formulation"
-          search={{ highlight: formulation.id }}
-          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-        >
-          View Details <ExternalLink className="h-3 w-3" />
-        </Link>
-      </CardContent>
-    </Card>
-  )
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>
+                    {t('formulation.title', {
+                        defaultValue: 'Feed Formulation',
+                    })}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+                <div>
+                    <span className="font-medium">{formulation.name}</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                    {formulation.species} • {formulation.stage}
+                </div>
+                <div className="text-sm">
+                    <span className="font-medium">Cost: </span>
+                    {formulation.costPerKg}/kg
+                </div>
+                <Link
+                    to="/feed-formulation"
+                    search={{ highlight: formulation.id }}
+                    className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                >
+                    View Details <ExternalLink className="h-3 w-3" />
+                </Link>
+            </CardContent>
+        </Card>
+    )
 }
 
 export const Route = createFileRoute('/_auth/batches/$batchId/')({
-  loader: async ({ params }) =>
-    getBatchDetailsFn({ data: { batchId: params.batchId } }),
-  pendingComponent: BatchDetailSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading batch details: {error.message}
-    </div>
-  ),
-  component: BatchDetailsPage,
+    loader: async ({ params }) =>
+        getBatchDetailsFn({ data: { batchId: params.batchId } }),
+    pendingComponent: BatchDetailSkeleton,
+    errorComponent: ({ error }) => (
+        <div className="p-4 text-red-600">
+            Error loading batch details: {error.message}
+        </div>
+    ),
+    component: BatchDetailsPage,
 })
 
 function BatchDetailsPage() {
-  const { t } = useTranslation([
-    'batches',
-    'common',
-    'dashboard',
-    'sales',
-    'feed',
-    'mortality',
-  ])
-  const { batchId } = Route.useParams()
-  const data = Route.useLoaderData()
-  const [targetWeightPromptDismissed, setTargetWeightPromptDismissed] =
-    useState(false)
+    const { t } = useTranslation([
+        'batches',
+        'common',
+        'dashboard',
+        'sales',
+        'feed',
+        'mortality',
+    ])
+    const { batchId } = Route.useParams()
+    const data = Route.useLoaderData()
+    const [targetWeightPromptDismissed, setTargetWeightPromptDismissed] =
+        useState(false)
 
-  const { batch, mortality, feed, sales, expenses } = data
+    const { batch, mortality, feed, sales, expenses } = data
 
-  // Create metrics object from the data structure
-  const metrics = {
-    currentQuantity: batch.currentQuantity,
-    initialQuantity: batch.initialQuantity,
-    mortalityCount: mortality.totalQuantity,
-    mortalityRate: mortality.rate,
-    feedTotalKg: feed.totalKg,
-    feedFcr: feed.fcr,
-    totalInvestment: Number(batch.totalCost),
-    costPerUnit: Number(batch.costPerUnit),
-    totalRevenue: sales.totalRevenue,
-    totalSold: sales.totalQuantity,
-    avgSalesPrice:
-      sales.totalQuantity > 0 ? sales.totalRevenue / sales.totalQuantity : 0,
-    netProfit:
-      sales.totalRevenue -
-      Number(batch.totalCost) -
-      feed.totalCost -
-      expenses.total,
-    roi:
-      Number(batch.totalCost) > 0
-        ? ((sales.totalRevenue -
+    // Create metrics object from the data structure
+    const metrics = {
+        currentQuantity: batch.currentQuantity,
+        initialQuantity: batch.initialQuantity,
+        mortalityCount: mortality.totalQuantity,
+        mortalityRate: mortality.rate,
+        feedTotalKg: feed.totalKg,
+        feedFcr: feed.fcr,
+        totalInvestment: Number(batch.totalCost),
+        costPerUnit: Number(batch.costPerUnit),
+        totalRevenue: sales.totalRevenue,
+        totalSold: sales.totalQuantity,
+        avgSalesPrice:
+            sales.totalQuantity > 0
+                ? sales.totalRevenue / sales.totalQuantity
+                : 0,
+        netProfit:
+            sales.totalRevenue -
             Number(batch.totalCost) -
             feed.totalCost -
-            expenses.total) /
-            Number(batch.totalCost)) *
-          100
-        : 0,
-  }
+            expenses.total,
+        roi:
+            Number(batch.totalCost) > 0
+                ? ((sales.totalRevenue -
+                      Number(batch.totalCost) -
+                      feed.totalCost -
+                      expenses.total) /
+                      Number(batch.totalCost)) *
+                  100
+                : 0,
+    }
 
-  return (
-    <div className="space-y-6">
-      <BatchHeader batch={batch} onEdit={() => {}} onDelete={() => {}} />
+    return (
+        <div className="space-y-6">
+            <BatchHeader batch={batch} onEdit={() => {}} onDelete={() => {}} />
 
-      <BatchCommandCenter batchId={batchId} />
+            <BatchCommandCenter batchId={batchId} />
 
-      <BatchKPIs metrics={metrics} batchId={batchId} />
+            <BatchKPIs metrics={metrics} batchId={batchId} />
 
-      {batch.formulation && <FormulationCard formulation={batch.formulation} />}
+            {batch.formulation && (
+                <FormulationCard formulation={batch.formulation} />
+            )}
 
-      <Tabs defaultValue="feed" className="w-full">
-        <TabsList>
-          <TabsTrigger value="feed">
-            {t('tabs.feed', { defaultValue: 'Feed Logs' })}
-          </TabsTrigger>
-          <TabsTrigger value="growth">
-            {t('tabs.growth', { defaultValue: 'Growth' })}
-          </TabsTrigger>
-          <TabsTrigger value="projections">
-            {t('tabs.projections', { defaultValue: 'Projections' })}
-          </TabsTrigger>
-          <TabsTrigger value="health">
-            {t('tabs.health', { defaultValue: 'Mortality & Health' })}
-          </TabsTrigger>
-          <TabsTrigger value="expenses">
-            {t('tabs.expenses', { defaultValue: 'Expenses' })}
-          </TabsTrigger>
-          <TabsTrigger value="sales">
-            {t('tabs.sales', { defaultValue: 'Sales' })}
-          </TabsTrigger>
-        </TabsList>
+            <Tabs defaultValue="feed" className="w-full">
+                <TabsList>
+                    <TabsTrigger value="feed">
+                        {t('tabs.feed', { defaultValue: 'Feed Logs' })}
+                    </TabsTrigger>
+                    <TabsTrigger value="growth">
+                        {t('tabs.growth', { defaultValue: 'Growth' })}
+                    </TabsTrigger>
+                    <TabsTrigger value="projections">
+                        {t('tabs.projections', { defaultValue: 'Projections' })}
+                    </TabsTrigger>
+                    <TabsTrigger value="health">
+                        {t('tabs.health', {
+                            defaultValue: 'Mortality & Health',
+                        })}
+                    </TabsTrigger>
+                    <TabsTrigger value="expenses">
+                        {t('tabs.expenses', { defaultValue: 'Expenses' })}
+                    </TabsTrigger>
+                    <TabsTrigger value="sales">
+                        {t('tabs.sales', { defaultValue: 'Sales' })}
+                    </TabsTrigger>
+                </TabsList>
 
-        <TabsContent value="feed" className="mt-4">
-          <FeedRecordsTab records={[]} isLoading={false} />
-        </TabsContent>
+                <TabsContent value="feed" className="mt-4">
+                    <FeedRecordsTab records={[]} isLoading={false} />
+                </TabsContent>
 
-        <TabsContent value="growth" className="mt-4">
-          <GrowthChart
-            batchId={batch.id}
-            acquisitionDate={batch.acquisitionDate}
-          />
-        </TabsContent>
+                <TabsContent value="growth" className="mt-4">
+                    <GrowthChart
+                        batchId={batch.id}
+                        acquisitionDate={batch.acquisitionDate}
+                    />
+                </TabsContent>
 
-        <TabsContent value="projections" className="mt-4">
-          {!batch.target_weight_g && !targetWeightPromptDismissed && (
-            <Alert className="mb-4">
-              <Target className="h-4 w-4" />
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <AlertTitle>Set Target Weight</AlertTitle>
-                  <AlertDescription>
-                    Add a target weight to enable growth projections and harvest
-                    date predictions.
-                  </AlertDescription>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => {
-                      /* TODO: Implement edit dialog */
-                    }}
-                  >
-                    Edit Batch
-                  </Button>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setTargetWeightPromptDismissed(true)}
-                  className="ml-2 h-6 w-6 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </Alert>
-          )}
-          <ProjectionsCard batchId={batch.id} />
-        </TabsContent>
+                <TabsContent value="projections" className="mt-4">
+                    {!batch.target_weight_g && !targetWeightPromptDismissed && (
+                        <Alert className="mb-4">
+                            <Target className="h-4 w-4" />
+                            <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                    <AlertTitle>Set Target Weight</AlertTitle>
+                                    <AlertDescription>
+                                        Add a target weight to enable growth
+                                        projections and harvest date
+                                        predictions.
+                                    </AlertDescription>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-2"
+                                        onClick={() => {
+                                            /* TODO: Implement edit dialog */
+                                        }}
+                                    >
+                                        Edit Batch
+                                    </Button>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                        setTargetWeightPromptDismissed(true)
+                                    }
+                                    className="ml-2 h-6 w-6 p-0"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </Alert>
+                    )}
+                    <ProjectionsCard batchId={batch.id} />
+                </TabsContent>
 
-        <TabsContent value="health" className="mt-4">
-          <MortalityRecordsTab records={[]} isLoading={false} />
-        </TabsContent>
+                <TabsContent value="health" className="mt-4">
+                    <MortalityRecordsTab records={[]} isLoading={false} />
+                </TabsContent>
 
-        <TabsContent value="expenses" className="mt-4">
-          <ExpensesTab records={[]} isLoading={false} />
-        </TabsContent>
+                <TabsContent value="expenses" className="mt-4">
+                    <ExpensesTab records={[]} isLoading={false} />
+                </TabsContent>
 
-        <TabsContent value="sales" className="mt-4">
-          <SalesTab records={[]} isLoading={false} />
-        </TabsContent>
-      </Tabs>
-    </div>
-  )
+                <TabsContent value="sales" className="mt-4">
+                    <SalesTab records={[]} isLoading={false} />
+                </TabsContent>
+            </Tabs>
+        </div>
+    )
 }

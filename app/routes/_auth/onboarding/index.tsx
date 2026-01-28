@@ -4,97 +4,97 @@ import { useTranslation } from 'react-i18next'
 import type { OnboardingStep } from '~/features/onboarding/types'
 import { getOnboardingProgressFn } from '~/features/onboarding/server'
 import {
-  OnboardingProvider,
-  useOnboarding,
+    OnboardingProvider,
+    useOnboarding,
 } from '~/features/onboarding/context'
 import {
-  CompleteStep,
-  CreateBatchStep,
-  CreateFarmStep,
-  CreateStructureStep,
-  EnableModulesStep,
-  OnboardingLayout,
-  PreferencesStep,
-  TourStep,
-  WelcomeStep,
+    CompleteStep,
+    CreateBatchStep,
+    CreateFarmStep,
+    CreateStructureStep,
+    EnableModulesStep,
+    OnboardingLayout,
+    PreferencesStep,
+    TourStep,
+    WelcomeStep,
 } from '~/components/onboarding'
 import { OnboardingSkeleton } from '~/components/onboarding/onboarding-skeleton'
 
 export const Route = createFileRoute('/_auth/onboarding/')({
-  loader: async () => {
-    const result = await getOnboardingProgressFn({ data: {} })
-    return result
-  },
-  component: OnboardingPage,
-  pendingComponent: OnboardingSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading onboarding: {error.message}
-    </div>
-  ),
+    loader: async () => {
+        const result = await getOnboardingProgressFn({ data: {} })
+        return result
+    },
+    component: OnboardingPage,
+    pendingComponent: OnboardingSkeleton,
+    errorComponent: ({ error }) => (
+        <div className="p-4 text-red-600">
+            Error loading onboarding: {error.message}
+        </div>
+    ),
 })
 
 function OnboardingPage() {
-  const loaderData = Route.useLoaderData()
+    const loaderData = Route.useLoaderData()
 
-  return (
-    <OnboardingProvider
-      initialNeedsOnboarding={loaderData.needsOnboarding}
-      initialIsAdminAdded={loaderData.isAdminAdded}
-      initialFarmId={loaderData.farmId}
-    >
-      <OnboardingContent />
-    </OnboardingProvider>
-  )
+    return (
+        <OnboardingProvider
+            initialNeedsOnboarding={loaderData.needsOnboarding}
+            initialIsAdminAdded={loaderData.isAdminAdded}
+            initialFarmId={loaderData.farmId}
+        >
+            <OnboardingContent />
+        </OnboardingProvider>
+    )
 }
 
 function OnboardingContent() {
-  const { t } = useTranslation(['common'])
-  const navigate = useNavigate()
-  const { isLoading, needsOnboarding, progress } = useOnboarding()
+    const { t } = useTranslation(['common'])
+    const navigate = useNavigate()
+    const { isLoading, needsOnboarding, progress } = useOnboarding()
 
-  useEffect(() => {
-    if (!isLoading && !needsOnboarding) {
-      navigate({ to: '/dashboard' })
+    useEffect(() => {
+        if (!isLoading && !needsOnboarding) {
+            navigate({ to: '/dashboard' })
+        }
+    }, [isLoading, needsOnboarding, navigate])
+
+    if (isLoading || !needsOnboarding) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-pulse text-muted-foreground">
+                    {t('common:loading', { defaultValue: 'Loading...' })}
+                </div>
+            </div>
+        )
     }
-  }, [isLoading, needsOnboarding, navigate])
 
-  if (isLoading || !needsOnboarding) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">
-          {t('common:loading', { defaultValue: 'Loading...' })}
-        </div>
-      </div>
+        <OnboardingLayout>
+            <StepRenderer currentStep={progress.currentStep} />
+        </OnboardingLayout>
     )
-  }
-
-  return (
-    <OnboardingLayout>
-      <StepRenderer currentStep={progress.currentStep} />
-    </OnboardingLayout>
-  )
 }
 
 function StepRenderer({ currentStep }: { currentStep: OnboardingStep }) {
-  switch (currentStep) {
-    case 'welcome':
-      return <WelcomeStep />
-    case 'create-farm':
-      return <CreateFarmStep />
-    case 'enable-modules':
-      return <EnableModulesStep />
-    case 'create-structure':
-      return <CreateStructureStep />
-    case 'create-batch':
-      return <CreateBatchStep />
-    case 'preferences':
-      return <PreferencesStep />
-    case 'tour':
-      return <TourStep />
-    case 'complete':
-      return <CompleteStep />
-    default:
-      return <WelcomeStep />
-  }
+    switch (currentStep) {
+        case 'welcome':
+            return <WelcomeStep />
+        case 'create-farm':
+            return <CreateFarmStep />
+        case 'enable-modules':
+            return <EnableModulesStep />
+        case 'create-structure':
+            return <CreateStructureStep />
+        case 'create-batch':
+            return <CreateBatchStep />
+        case 'preferences':
+            return <PreferencesStep />
+        case 'tour':
+            return <TourStep />
+        case 'complete':
+            return <CompleteStep />
+        default:
+            return <WelcomeStep />
+    }
 }

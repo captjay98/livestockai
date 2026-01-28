@@ -1,135 +1,135 @@
 {
-  "name": "product-architect",
-  "description": "Product architect for routes, UI flows, and structure - guardian of batch-centric design",
-  "keyboardShortcut": "ctrl+shift+0",
-  "welcomeMessage": "📐 Product Architect ready. I organize routes, features, and enforce batch-centric design.",
-  "prompt": "file://../prompts/agents/product-architect.md",
-  "tools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking"
-  ],
-  "allowedTools": [
-    "read",
-    "write",
-    "shell",
-    "grep",
-    "glob",
-    "aws",
-    "code",
-    "web_search",
-    "web_fetch",
-    "knowledge",
-    "todo_list",
-    "thinking",
-    "introspect",
-    "subagent",
-    "@sequential-thinking"
-  ],
-  "toolsSettings": {
-    "write": {
-      "allowedPaths": [
-        "app/routes/**",
-        "app/features/**",
-        "app/components/**",
-        ".kiro/steering/**",
-        ".kiro/specs/**",
-        "docs/**",
-        "*.md"
-      ]
-    },
-    "shell": {
-      "allowedCommands": [
-        "bun *",
-        "ls *",
-        "tree app",
-        "find app -name '*'",
-        "mkdir *",
-        "mv *",
-        "cat *",
-        "grep *"
-      ],
-      "autoAllowReadonly": true,
-      "deniedCommands": ["rm -rf *", "rm *", "sudo *"]
-    }
-  },
-  "hooks": {
-    "agentSpawn": [
-      {
-        "command": "echo '📐 Product Architect ready.' && echo \"Routes: $(find app/routes -name '*.tsx' | wc -l | tr -d ' ')\" && echo \"Features: $(ls app/features | wc -l | tr -d ' ')\" && echo \"Specs: $(ls .kiro/specs 2>/dev/null | wc -l | tr -d ' ')\"",
-        "timeout_ms": 5000
-      }
+    "name": "product-architect",
+    "description": "Product architect for routes, UI flows, and structure - guardian of batch-centric design",
+    "keyboardShortcut": "ctrl+shift+0",
+    "welcomeMessage": "📐 Product Architect ready. I organize routes, features, and enforce batch-centric design.",
+    "prompt": "file://../prompts/agents/product-architect.md",
+    "tools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking"
     ],
-    "userPromptSubmit": [
-      {
-        "command": "echo '📋 Active specs:' && ls -1 .kiro/specs 2>/dev/null | head -5 || echo 'No specs found'",
-        "timeout_ms": 3000
-      }
+    "allowedTools": [
+        "read",
+        "write",
+        "shell",
+        "grep",
+        "glob",
+        "aws",
+        "code",
+        "web_search",
+        "web_fetch",
+        "knowledge",
+        "todo_list",
+        "thinking",
+        "introspect",
+        "subagent",
+        "@sequential-thinking"
     ],
-    "postToolUse": [
-      {
-        "matcher": "fs_write",
-        "command": "bun run lint --fix 2>/dev/null || true",
-        "timeout_ms": 30000
-      }
-    ]
-  },
-  "resources": [
-    "file://AGENTS.md",
-    "file://README.md",
-    "file://app/routes/__root.tsx",
-    {
-      "type": "knowledgeBase",
-      "source": "file://./docs",
-      "name": "ProjectDocs",
-      "description": "Architecture, database, deployment, testing, and API documentation",
-      "indexType": "best",
-      "autoUpdate": true
+    "toolsSettings": {
+        "write": {
+            "allowedPaths": [
+                "app/routes/**",
+                "app/features/**",
+                "app/components/**",
+                ".kiro/steering/**",
+                ".kiro/specs/**",
+                "docs/**",
+                "*.md"
+            ]
+        },
+        "shell": {
+            "allowedCommands": [
+                "bun *",
+                "ls *",
+                "tree app",
+                "find app -name '*'",
+                "mkdir *",
+                "mv *",
+                "cat *",
+                "grep *"
+            ],
+            "autoAllowReadonly": true,
+            "deniedCommands": ["rm -rf *", "rm *", "sudo *"]
+        }
     },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./DEVLOG.md",
-      "name": "DevLog",
-      "description": "Development history, decisions, and progress tracking",
-      "indexType": "best",
-      "autoUpdate": true
+    "hooks": {
+        "agentSpawn": [
+            {
+                "command": "echo '📐 Product Architect ready.' && echo \"Routes: $(find app/routes -name '*.tsx' | wc -l | tr -d ' ')\" && echo \"Features: $(ls app/features | wc -l | tr -d ' ')\" && echo \"Specs: $(ls .kiro/specs 2>/dev/null | wc -l | tr -d ' ')\"",
+                "timeout_ms": 5000
+            }
+        ],
+        "userPromptSubmit": [
+            {
+                "command": "echo '📋 Active specs:' && ls -1 .kiro/specs 2>/dev/null | head -5 || echo 'No specs found'",
+                "timeout_ms": 3000
+            }
+        ],
+        "postToolUse": [
+            {
+                "matcher": "fs_write",
+                "command": "bun run lint --fix 2>/dev/null || true",
+                "timeout_ms": 30000
+            }
+        ]
     },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./app",
-      "name": "AppCode",
-      "description": "Full application codebase - components, features, routes, lib",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    {
-      "type": "knowledgeBase",
-      "source": "file://./.kiro/specs",
-      "name": "FeatureSpecs",
-      "description": "Feature specifications - requirements, designs, and task lists",
-      "indexType": "best",
-      "autoUpdate": true
-    },
-    "skill://.kiro/skills/feature-structure/SKILL.md",
-    "skill://.kiro/skills/batch-centric-design/SKILL.md",
-    "skill://.kiro/skills/rugged-utility/SKILL.md",
-    "skill://.kiro/skills/tanstack-router/SKILL.md",
-    "skill://.kiro/skills/three-layer-architecture/SKILL.md",
-    "skill://.kiro/skills/agentic-feature-design/SKILL.md",
-    "skill://.kiro/skills/offline-sync-strategies/SKILL.md"
-  ],
-  "includeMcpJson": true,
-  "model": "claude-sonnet-4.5"
+    "resources": [
+        "file://AGENTS.md",
+        "file://README.md",
+        "file://app/routes/__root.tsx",
+        {
+            "type": "knowledgeBase",
+            "source": "file://./docs",
+            "name": "ProjectDocs",
+            "description": "Architecture, database, deployment, testing, and API documentation",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./DEVLOG.md",
+            "name": "DevLog",
+            "description": "Development history, decisions, and progress tracking",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./app",
+            "name": "AppCode",
+            "description": "Full application codebase - components, features, routes, lib",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        {
+            "type": "knowledgeBase",
+            "source": "file://./.kiro/specs",
+            "name": "FeatureSpecs",
+            "description": "Feature specifications - requirements, designs, and task lists",
+            "indexType": "best",
+            "autoUpdate": true
+        },
+        "skill://.kiro/skills/feature-structure/SKILL.md",
+        "skill://.kiro/skills/batch-centric-design/SKILL.md",
+        "skill://.kiro/skills/rugged-utility/SKILL.md",
+        "skill://.kiro/skills/tanstack-router/SKILL.md",
+        "skill://.kiro/skills/three-layer-architecture/SKILL.md",
+        "skill://.kiro/skills/agentic-feature-design/SKILL.md",
+        "skill://.kiro/skills/offline-sync-strategies/SKILL.md"
+    ],
+    "includeMcpJson": true,
+    "model": "claude-sonnet-4.5"
 }

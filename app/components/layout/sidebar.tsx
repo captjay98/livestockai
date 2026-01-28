@@ -1,8 +1,16 @@
 import { Link } from '@tanstack/react-router'
-import { LogOut, User as UserIcon, X } from 'lucide-react'
+import {
+    AlertTriangle,
+    BarChart3,
+    LogOut,
+    MapPin,
+    User as UserIcon,
+    X,
+} from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavSection } from './nav-section'
+import { RoleSwitcher } from './role-switcher'
 import type { User } from '~/features/auth/types'
 import { getNavigationSections } from '~/components/navigation'
 import { cn } from '~/lib/utils'
@@ -12,107 +20,161 @@ import { ThemeToggle } from '~/components/theme-toggle'
 import { Logo } from '~/components/logo'
 import { useModules } from '~/features/modules/context'
 import { filterNavigationByModules } from '~/hooks/useModuleNavigation'
+import { useExtensionNav } from '~/features/extension/use-extension-nav'
+import { useFarm } from '~/features/farms/context'
 
 interface SidebarProps {
-  className?: string
-  onClose?: () => void
-  user: User
+    className?: string
+    onClose?: () => void
+    user: User
 }
 
 export function Sidebar({ className, onClose, user }: SidebarProps) {
-  const { t } = useTranslation(['common'])
-  const { enabledModules, isLoading } = useModules()
+    const { t } = useTranslation(['common'])
+    const { enabledModules, isLoading } = useModules()
+    const { isExtensionWorker, isSupervisor } = useExtensionNav()
+    const { farms } = useFarm()
 
-  const sections = useMemo(() => getNavigationSections(t), [t])
+    // Check if user has both farm ownership and extension access
+    const hasFarmAccess = farms.length > 0
+    const hasExtensionAccess = isExtensionWorker
 
-  const filteredSections = useMemo(() => {
-    // Show all navigation when no modules loaded (no farm selected or loading)
-    if (enabledModules.length === 0 && !isLoading) {
-      return sections
-    }
+    const sections = useMemo(() => getNavigationSections(t), [t])
 
-    return sections
-      .map((section) => ({
-        ...section,
-        items: filterNavigationByModules(section.items, enabledModules),
-      }))
-      .filter((section) => section.items.length > 0)
-  }, [enabledModules, isLoading, sections])
+    const filteredSections = useMemo(() => {
+        // Show all navigation when no modules loaded (no farm selected or loading)
+        if (enabledModules.length === 0 && !isLoading) {
+            return sections
+        }
 
-  const userName = user.name || t('common:user')
-  const userEmail = user.email || ''
+        return sections
+            .map((section) => ({
+                ...section,
+                items: filterNavigationByModules(section.items, enabledModules),
+            }))
+            .filter((section) => section.items.length > 0)
+    }, [enabledModules, isLoading, sections])
 
-  return (
-    <div
-      className={cn(
-        'flex flex-col h-full text-sidebar-foreground transition-all duration-300',
-        className,
-      )}
-    >
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <Link
-            to="/"
-            className="flex items-center gap-3 transition-transform hover:scale-[1.02]"
-            onClick={onClose}
-          >
-            <Logo className="h-8" variant="full" />
-          </Link>
-          {onClose && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="md:hidden"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          )}
-        </div>
+    // Add extension section if user is extension worker
+    const allSections = useMemo(() => {
+        if (!isExtensionWorker) return filteredSections
 
-        <FarmSelector className="w-full shadow-sm rounded-lg" />
-      </div>
+        const extensionSection = {
+            title: t('common:extension', { defaultValue: 'Extension' }),
+            items: [
+                {
+                    name: t('common:myDistricts', {
+                        defaultValue: 'My Districts',
+                    }),
+                    href: '/extension',
+                    icon: MapPin,
+                },
+                {
+                    name: t('common:outbreakAlerts', {
+                        defaultValue: 'Outbreak Alerts',
+                    }),
+                    href: '/extension/alerts',
+                    icon: AlertTriangle,
+                },
+                ...(isSupervisor
+                    ? [
+                          {
+                              name: t('common:supervisorDashboard', {
+                                  defaultValue: 'Supervisor Dashboard',
+                              }),
+                              href: '/extension/supervisor',
+                              icon: BarChart3,
+                          },
+                      ]
+                    : []),
+            ],
+        }
 
-      <div className="flex-1 overflow-y-auto px-3 py-2 no-scrollbar space-y-4">
-        {filteredSections.map((section) => (
-          <NavSection
-            key={section.title}
-            title={section.title}
-            items={section.items}
-            defaultOpen={section.title !== 'Setup'}
-            onItemClick={onClose}
-          />
-        ))}
-      </div>
+        return [extensionSection, ...filteredSections]
+    }, [filteredSections, isExtensionWorker, isSupervisor, t])
 
-      <div className="p-4 m-4 mt-2 bg-sidebar-accent rounded-lg border border-sidebar-border shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="h-10 w-10 rounded-full bg-background border border-border shadow-sm flex items-center justify-center shrink-0">
-              <UserIcon className="h-5 w-5 text-muted-foreground" />
+    const userName = user.name || t('common:user')
+    const userEmail = user.email || ''
+
+    return (
+        <div
+            className={cn(
+                'flex flex-col h-full text-sidebar-foreground transition-all duration-300',
+                className,
+            )}
+        >
+            <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <Link
+                        to="/"
+                        className="flex items-center gap-3 transition-transform hover:scale-[1.02]"
+                        onClick={onClose}
+                    >
+                        <Logo className="h-8" variant="full" />
+                    </Link>
+                    {onClose && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={onClose}
+                            className="md:hidden"
+                        >
+                            <X className="h-5 w-5" />
+                        </Button>
+                    )}
+                </div>
+
+                <FarmSelector className="w-full shadow-sm rounded-lg" />
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">{userName}</p>
-              {userEmail && (
-                <p className="text-xs text-muted-foreground truncate">
-                  {userEmail}
-                </p>
-              )}
+
+            <div className="flex-1 overflow-y-auto px-3 py-2 no-scrollbar space-y-4">
+                {allSections.map((section) => (
+                    <NavSection
+                        key={section.title}
+                        title={section.title}
+                        items={section.items}
+                        defaultOpen={section.title !== 'Setup'}
+                        onItemClick={onClose}
+                    />
+                ))}
             </div>
-          </div>
-          <ThemeToggle />
+
+            {/* Role Switcher - only show if user has both farm and extension access */}
+            <RoleSwitcher
+                hasFarmAccess={hasFarmAccess}
+                hasExtensionAccess={hasExtensionAccess}
+            />
+
+            <div className="p-4 m-4 mt-2 bg-sidebar-accent rounded-lg border border-sidebar-border shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-10 w-10 rounded-full bg-background border border-border shadow-sm flex items-center justify-center shrink-0">
+                            <UserIcon className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold truncate">
+                                {userName}
+                            </p>
+                            {userEmail && (
+                                <p className="text-xs text-muted-foreground truncate">
+                                    {userEmail}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                    <ThemeToggle />
+                </div>
+                <Link to="/login" onClick={onClose}>
+                    <Button
+                        variant="outline"
+                        className="w-full justify-start gap-2 rounded-lg bg-background/50 hover:bg-background border-border/50"
+                        size="sm"
+                    >
+                        <LogOut className="h-4 w-4" />
+                        {t('common:signOut')}
+                    </Button>
+                </Link>
+            </div>
         </div>
-        <Link to="/login" onClick={onClose}>
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-2 rounded-lg bg-background/50 hover:bg-background border-border/50"
-            size="sm"
-          >
-            <LogOut className="h-4 w-4" />
-            {t('common:signOut')}
-          </Button>
-        </Link>
-      </div>
-    </div>
-  )
+    )
 }

@@ -48,9 +48,9 @@ Add property tests for:
 ### Existing Property Tests - MUST READ!
 
 - `app/features/finance/customer-revenue.property.test.ts` - Pattern reference
-  - Why: Shows how to structure property tests
+    - Why: Shows how to structure property tests
 - `app/hooks/useModuleNavigation.property.test.ts` - Recent example
-  - Why: Shows modern fast-check patterns
+    - Why: Shows modern fast-check patterns
 
 ### Business Logic Files
 
@@ -66,50 +66,50 @@ Add property tests for:
 
 - **FILE**: `tests/features/batches/fcr.property.test.ts`
 - **PROPERTIES**:
-  - FCR is always positive
-  - FCR = totalFeedKg / totalWeightGain
-  - FCR increases as feed increases (weight constant)
-  - FCR decreases as weight increases (feed constant)
+    - FCR is always positive
+    - FCR = totalFeedKg / totalWeightGain
+    - FCR increases as feed increases (weight constant)
+    - FCR decreases as weight increases (feed constant)
 - **VALIDATE**: `bun test fcr.property.test.ts`
 
 ### Task 2: CREATE mortality rate property tests
 
 - **FILE**: `tests/features/monitoring/mortality.property.test.ts`
 - **PROPERTIES**:
-  - Rate is always 0-100%
-  - Rate = (deaths / initialQuantity) \* 100
-  - Rate is 0 when no deaths
-  - Rate is 100 when all dead
+    - Rate is always 0-100%
+    - Rate = (deaths / initialQuantity) \* 100
+    - Rate is 0 when no deaths
+    - Rate is 100 when all dead
 - **VALIDATE**: `bun test mortality.property.test.ts`
 
 ### Task 3: CREATE growth forecasting property tests
 
 - **FILE**: `tests/features/growth/forecasting.property.test.ts`
 - **PROPERTIES**:
-  - Projected weight always increases with age
-  - Weight at day 0 matches initial weight
-  - Forecast respects growth standards
-  - Harvest date calculated correctly
+    - Projected weight always increases with age
+    - Weight at day 0 matches initial weight
+    - Forecast respects growth standards
+    - Harvest date calculated correctly
 - **VALIDATE**: `bun test forecasting.property.test.ts`
 
 ### Task 4: CREATE profit/loss property tests
 
 - **FILE**: `tests/features/finance/profit.property.test.ts`
 - **PROPERTIES**:
-  - Profit = revenue - expenses
-  - Profit is negative when expenses > revenue
-  - Profit increases as revenue increases
-  - Profit decreases as expenses increase
+    - Profit = revenue - expenses
+    - Profit is negative when expenses > revenue
+    - Profit increases as revenue increases
+    - Profit decreases as expenses increase
 - **VALIDATE**: `bun test profit.property.test.ts`
 
 ### Task 5: CREATE invoice total property tests
 
 - **FILE**: `tests/features/invoices/totals.property.test.ts`
 - **PROPERTIES**:
-  - Total = sum of all line items
-  - Total is 0 for empty invoice
-  - Adding item increases total
-  - Removing item decreases total
+    - Total = sum of all line items
+    - Total is 0 for empty invoice
+    - Adding item increases total
+    - Removing item decreases total
 - **VALIDATE**: `bun test totals.property.test.ts`
 
 ### Task 6: RUN all tests and verify coverage

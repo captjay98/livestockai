@@ -62,14 +62,14 @@ Implement a phased approach to improve database integrity:
 ### Relevant Documentation YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [Kysely Schema Documentation](https://kysely.dev/docs/schema)
-  - Specific section: Foreign key constraints and migrations
-  - Why: Required for implementing proper FK constraints
+    - Specific section: Foreign key constraints and migrations
+    - Why: Required for implementing proper FK constraints
 - [PostgreSQL CHECK Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-CHECK-CONSTRAINTS)
-  - Specific section: Enum validation with CHECK constraints
-  - Why: Shows proper enum constraint patterns
+    - Specific section: Enum validation with CHECK constraints
+    - Why: Shows proper enum constraint patterns
 - [Better Auth Users & Accounts](https://www.better-auth.com/docs/concepts/users-accounts)
-  - Specific section: User creation patterns
-  - Why: Required for seeder user creation
+    - Specific section: User creation patterns
+    - Why: Required for seeder user creation
 
 ### Patterns to Follow
 
@@ -78,9 +78,9 @@ Implement a phased approach to improve database integrity:
 ```typescript
 // From existing migration file
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql`ALTER TABLE table_name ADD CONSTRAINT constraint_name CHECK (column IN ('value1', 'value2'))`.execute(
-    db,
-  )
+    await sql`ALTER TABLE table_name ADD CONSTRAINT constraint_name CHECK (column IN ('value1', 'value2'))`.execute(
+        db,
+    )
 }
 ```
 
@@ -98,10 +98,10 @@ export async function up(db: Kysely<any>): Promise<void> {
 ```typescript
 // From existing helpers.ts
 const user = await createUserWithAuth(db, {
-  email: 'user@example.com',
-  password: 'password',
-  name: 'User Name',
-  role: 'user',
+    email: 'user@example.com',
+    password: 'password',
+    name: 'User Name',
+    role: 'user',
 })
 ```
 
@@ -168,14 +168,14 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 - **PATTERN**: Follow existing migration pattern from `2025-01-08-001-initial-schema.ts:400-420`
 - **IMPORTS**: `import { sql } from 'kysely'`, `import type { Kysely } from 'kysely'`
 - **CONSTRAINTS**: Add FK constraints for:
-  - `sales.batchId → batches.id` (optional, can be null)
-  - `sales.customerId → customers.id` (optional, can be null)
-  - `sales.invoiceId → invoices.id` (optional, can be null)
-  - `expenses.batchId → batches.id` (optional, can be null)
-  - `expenses.supplierId → suppliers.id` (optional, can be null)
-  - `invoices.customerId → customers.id` (required)
-  - `invoices.farmId → farms.id` (required)
-  - `user_settings.defaultFarmId → farms.id` (optional, can be null)
+    - `sales.batchId → batches.id` (optional, can be null)
+    - `sales.customerId → customers.id` (optional, can be null)
+    - `sales.invoiceId → invoices.id` (optional, can be null)
+    - `expenses.batchId → batches.id` (optional, can be null)
+    - `expenses.supplierId → suppliers.id` (optional, can be null)
+    - `invoices.customerId → customers.id` (required)
+    - `invoices.farmId → farms.id` (required)
+    - `user_settings.defaultFarmId → farms.id` (optional, can be null)
 - **GOTCHA**: Use `onDelete('set null')` for optional relationships, `onDelete('cascade')` for required
 - **VALIDATE**: `bun run db:migrate`
 
@@ -184,9 +184,9 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 - **IMPLEMENT**: Migration to standardize livestock type enums across tables
 - **PATTERN**: Follow CHECK constraint pattern from existing migration lines 414-417
 - **ANALYSIS**: Current inconsistencies:
-  - `batches.livestockType`: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
-  - `farms.type`: 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
-  - `sales.livestockType`: includes 'eggs', 'honey', 'milk', 'wool', etc.
+    - `batches.livestockType`: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+    - `farms.type`: 'poultry' | 'fishery' | 'mixed' | 'cattle' | 'goats' | 'sheep' | 'bees' | 'multi'
+    - `sales.livestockType`: includes 'eggs', 'honey', 'milk', 'wool', etc.
 - **STANDARDIZE**: Align `farms.type` to use 'aquaculture' instead of 'fishery' to match farm_modules
 - **UPDATE**: Add new sales livestock types to CHECK constraint
 - **GOTCHA**: Must handle existing data - use ALTER TABLE to modify constraints
@@ -197,9 +197,9 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 - **IMPLEMENT**: Update TypeScript interfaces to match new constraints
 - **PATTERN**: Follow existing interface patterns in types.ts
 - **CHANGES**:
-  - Update `FarmTable.type` to use 'aquaculture' instead of 'fishery'
-  - Add new sales livestock types to `SaleTable.livestockType`
-  - Ensure all foreign key fields are properly typed
+    - Update `FarmTable.type` to use 'aquaculture' instead of 'fishery'
+    - Add new sales livestock types to `SaleTable.livestockType`
+    - Ensure all foreign key fields are properly typed
 - **IMPORTS**: No new imports needed
 - **GOTCHA**: Keep existing field optionality (nullable fields stay nullable)
 - **VALIDATE**: `bun run check`
@@ -209,18 +209,18 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 - **IMPLEMENT**: Enhanced seeder with 5 diverse Nigerian farms showcasing all livestock types
 - **PATTERN**: Follow structure from existing `development.ts` but more comprehensive
 - **FARMS**: Create 5 farms:
-  1. Sunrise Poultry Farm (Kaduna) - Broilers + Layers with complete lifecycle
-  2. Blue Waters Aquaculture (Ibadan) - Catfish + Tilapia with water quality monitoring
-  3. Savanna Livestock Ranch (Kano) - Cattle + Goats with grazing management
-  4. Golden Hive Apiary (Enugu) - Bees with honey production cycles
-  5. Green Valley Mixed Farm (Jos) - Multi-species with integrated operations
+    1. Sunrise Poultry Farm (Kaduna) - Broilers + Layers with complete lifecycle
+    2. Blue Waters Aquaculture (Ibadan) - Catfish + Tilapia with water quality monitoring
+    3. Savanna Livestock Ranch (Kano) - Cattle + Goats with grazing management
+    4. Golden Hive Apiary (Enugu) - Bees with honey production cycles
+    5. Green Valley Mixed Farm (Jos) - Multi-species with integrated operations
 - **DATA**: Each farm should have:
-  - Complete batch lifecycle (acquisition → growth → harvest/sale)
-  - Feed records with realistic consumption patterns
-  - Health records (vaccinations, treatments)
-  - Financial records (sales, expenses, invoices)
-  - Inventory management (feed, medications)
-  - Growth monitoring (weight samples, mortality tracking)
+    - Complete batch lifecycle (acquisition → growth → harvest/sale)
+    - Feed records with realistic consumption patterns
+    - Health records (vaccinations, treatments)
+    - Financial records (sales, expenses, invoices)
+    - Inventory management (feed, medications)
+    - Growth monitoring (weight samples, mortality tracking)
 - **IMPORTS**: `import { db } from '../index'`, `import { createUserWithAuth } from './helpers'`
 - **GOTCHA**: Use realistic Nigerian data (locations, phone numbers, pricing in NGN)
 - **VALIDATE**: `bun run db:seed:comprehensive` (add script to package.json)
@@ -238,11 +238,11 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 - **IMPLEMENT**: Add business rule validation at database level
 - **PATTERN**: Follow CHECK constraint pattern from existing migration
 - **CONSTRAINTS**:
-  - Batch quantity validation: `currentQuantity >= 0 AND currentQuantity <= initialQuantity`
-  - Date validation: `acquisitionDate <= CURRENT_DATE`
-  - Price validation: `costPerUnit > 0 AND (targetPricePerUnit IS NULL OR targetPricePerUnit > 0)`
-  - Mortality validation: `quantity > 0`
-  - Feed validation: `quantityKg > 0 AND cost >= 0`
+    - Batch quantity validation: `currentQuantity >= 0 AND currentQuantity <= initialQuantity`
+    - Date validation: `acquisitionDate <= CURRENT_DATE`
+    - Price validation: `costPerUnit > 0 AND (targetPricePerUnit IS NULL OR targetPricePerUnit > 0)`
+    - Mortality validation: `quantity > 0`
+    - Feed validation: `quantityKg > 0 AND cost >= 0`
 - **GOTCHA**: Use proper PostgreSQL syntax for date and numeric comparisons
 - **VALIDATE**: `bun run db:migrate`
 
@@ -251,9 +251,9 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 - **IMPLEMENT**: Update existing development seeder to use new enum values
 - **PATTERN**: Maintain existing structure but fix enum inconsistencies
 - **CHANGES**:
-  - Change 'fishery' to 'aquaculture' in farm types
-  - Ensure all livestock types match new constraints
-  - Add missing foreign key relationships
+    - Change 'fishery' to 'aquaculture' in farm types
+    - Ensure all livestock types match new constraints
+    - Add missing foreign key relationships
 - **GOTCHA**: Preserve existing data structure and relationships
 - **VALIDATE**: `bun run db:seed:dev`
 
@@ -262,10 +262,10 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
 - **IMPLEMENT**: Tests to validate schema integrity and constraints
 - **PATTERN**: Follow existing test patterns in tests/ directory
 - **TESTS**:
-  - Foreign key constraint enforcement
-  - Enum value validation
-  - Business rule constraint validation
-  - Seeder data integrity
+    - Foreign key constraint enforcement
+    - Enum value validation
+    - Business rule constraint validation
+    - Seeder data integrity
 - **IMPORTS**: `import { describe, it, expect, beforeEach } from 'vitest'`
 - **GOTCHA**: Use test database, not production
 - **VALIDATE**: `bun test tests/database/schema-integrity.test.ts`

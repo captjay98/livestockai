@@ -55,20 +55,20 @@ Check the project state:
 
 1. **Check if dependencies installed**:
 
-   ```bash
-   ls node_modules 2>/dev/null && echo "✅ Dependencies installed" || echo "❌ Run: bun install"
-   ```
+    ```bash
+    ls node_modules 2>/dev/null && echo "✅ Dependencies installed" || echo "❌ Run: bun install"
+    ```
 
 2. **Check if .env exists**:
 
-   ```bash
-   ls .env 2>/dev/null && echo "✅ .env exists" || echo "❌ Run: cp .env.example .env"
-   ```
+    ```bash
+    ls .env 2>/dev/null && echo "✅ .env exists" || echo "❌ Run: cp .env.example .env"
+    ```
 
 3. **Check DATABASE_URL**:
-   ```bash
-   grep DATABASE_URL .env 2>/dev/null && echo "✅ DATABASE_URL configured" || echo "❌ Need database URL"
-   ```
+    ```bash
+    grep DATABASE_URL .env 2>/dev/null && echo "✅ DATABASE_URL configured" || echo "❌ Need database URL"
+    ```
 
 **Ask the user**: "Should I check your project setup? (yes/no)"
 
@@ -195,37 +195,37 @@ Based on choice:
 ### Error Handling:
 
 - **Neon MCP fails**:
-  - Check if Neon MCP is configured: Run `neon__get_current_user`
-  - If not authenticated: Guide through OAuth authentication
-  - Offer manual setup fallback if MCP unavailable
+    - Check if Neon MCP is configured: Run `neon__get_current_user`
+    - If not authenticated: Guide through OAuth authentication
+    - Offer manual setup fallback if MCP unavailable
 - **Project creation fails**:
-  - Check Neon account limits (free tier: 10 projects)
-  - Suggest using existing project or upgrading plan
+    - Check Neon account limits (free tier: 10 projects)
+    - Suggest using existing project or upgrading plan
 - **Database creation fails**:
-  - Verify project exists and is active
-  - Check for naming conflicts
-  - Retry with different database name
+    - Verify project exists and is active
+    - Check for naming conflicts
+    - Retry with different database name
 - **Migration fails**:
-  - Show detailed error message
-  - Check if schema already exists
-  - Offer to drop and recreate (⚠️ data loss warning)
-  - Suggest manual fix with `@neon-migrate`
+    - Show detailed error message
+    - Check if schema already exists
+    - Offer to drop and recreate (⚠️ data loss warning)
+    - Suggest manual fix with `@neon-migrate`
 - **Connection fails**:
-  - Verify credentials are correct
-  - Check if database is active (not suspended)
-  - Test with: `neon__execute_query "SELECT 1"`
-  - Suggest troubleshooting with `@neon-setup`
+    - Verify credentials are correct
+    - Check if database is active (not suspended)
+    - Test with: `neon__execute_query "SELECT 1"`
+    - Suggest troubleshooting with `@neon-setup`
 
 - **Test database setup fails**:
-  - Continue with production database only
-  - Warn that integration tests won't work
-  - Offer to retry test database setup later
+    - Continue with production database only
+    - Warn that integration tests won't work
+    - Offer to retry test database setup later
 
 - **Seeding fails**:
-  - Check migration status first
-  - Verify admin user doesn't already exist
-  - Show error and offer to continue without seeding
-  - Can seed later with `bun run db:seed`
+    - Check migration status first
+    - Verify admin user doesn't already exist
+    - Show error and offer to continue without seeding
+    - Can seed later with `bun run db:seed`
 
 ## Step 4: Verify Everything Works
 
@@ -239,10 +239,10 @@ bun dev
 
 - If yes: Continue to test verification
 - If no: Debug common issues:
-  - Port in use: `PORT=3002 bun dev`
-  - Database error: Check DATABASE_URL in .env
-  - Module errors: `rm -rf node_modules && bun install`
-  - Build errors: `bun run check` to see type/lint errors
+    - Port in use: `PORT=3002 bun dev`
+    - Database error: Check DATABASE_URL in .env
+    - Module errors: `rm -rf node_modules && bun install`
+    - Build errors: `bun run check` to see type/lint errors
 
 ### Test Suite Verification
 
@@ -319,8 +319,8 @@ If "yes":
 1. **Authenticate**: Ensure wrangler is logged in
 2. **List accounts**: Use `cloudflare-bindings__accounts_list` to get all accounts
 3. **Handle multiple accounts**:
-   - If 1 account: Use it automatically
-   - If multiple accounts: Show list and ask user to choose
+    - If 1 account: Use it automatically
+    - If multiple accounts: Show list and ask user to choose
 4. **Update wrangler.jsonc**: Use `wrangler_update_config` to set account_id automatically
 
 **Progress indicators:**
@@ -379,11 +379,11 @@ Then retry the automated setup.
 2. Click "Workers & Pages" in sidebar
 3. Copy your Account ID from the right sidebar
 4. Update `wrangler.jsonc`:
-   ```jsonc
-   {
-     "account_id": "your-account-id-here",
-   }
-   ```
+    ```jsonc
+    {
+        "account_id": "your-account-id-here",
+    }
+    ```
 
 ### Part C: Cloudflare MCP (Optional)
 

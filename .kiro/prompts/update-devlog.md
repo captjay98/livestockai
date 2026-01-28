@@ -39,14 +39,17 @@ The Time Investment section MUST include Kiro/AI usage details:
 **AI-Accelerated Workflow**:
 
 **[Phase Name]** (~X minutes/hours):
+
 - Used `@prompt-name` in Kiro CLI to [action]
 - Used Kiro IDE in spec mode for [action]
 - [Specific tools/agents used]
 
 **[Phase Name]** (~X minutes/hours):
+
 - [Implementation details]
 
 **Breakdown**:
+
 - [Task 1]: ~X min
 - [Task 2]: ~X hour
 
@@ -345,15 +348,15 @@ git commit -m "docs: update DEVLOG with Day 8 progress"
 **Validate DEVLOG entry:**
 
 1. **Check accuracy:**
-   - All commits included
-   - Correct day number
-   - Accurate metrics
-   - Proper categorization
+    - All commits included
+    - Correct day number
+    - Accurate metrics
+    - Proper categorization
 
 2. **Review formatting:**
-   - Markdown syntax correct
-   - Tables formatted properly
-   - Links working
+    - Markdown syntax correct
+    - Tables formatted properly
+    - Links working
 
 **Ask user:**
 

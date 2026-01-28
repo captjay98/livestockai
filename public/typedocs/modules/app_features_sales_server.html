@@ -1,1045 +1,1370 @@
 <!doctype html>
 <html class="default" lang="en" data-base="../">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>app/features/sales/server | OpenLivestock API Reference</title>
-    <meta
-      name="description"
-      content="Documentation for OpenLivestock API Reference"
-    />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="../assets/style.css" />
-    <link rel="stylesheet" href="../assets/highlight.css" />
-    <script defer src="../assets/main.js"></script>
-    <script async src="../assets/icons.js" id="tsd-icons-script"></script>
-    <script async src="../assets/search.js" id="tsd-search-script"></script>
-    <script async src="../assets/navigation.js" id="tsd-nav-script"></script>
-    <script
-      async
-      src="../assets/hierarchy.js"
-      id="tsd-hierarchy-script"
-    ></script>
-    <link rel="stylesheet" href="../assets/rhineai-style.css" />
-  </head>
-  <body>
-    <script>
-      document.documentElement.dataset.theme =
-        localStorage.getItem('tsd-theme') || 'os'
-      document.body.style.display = 'none'
-      setTimeout(
-        () =>
-          window.app
-            ? app.showPage()
-            : document.body.style.removeProperty('display'),
-        500,
-      )
-    </script>
-    <header class="tsd-page-toolbar">
-      <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
-        <div id="tsd-toolbar-links"></div>
-        <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <use href="../assets/icons.svg#icon-search"></use>
-          </svg>
-        </button>
-        <dialog id="tsd-search" aria-label="Search">
-          <input
-            role="combobox"
-            id="tsd-search-input"
-            aria-controls="tsd-search-results"
-            aria-autocomplete="list"
-            aria-expanded="true"
-            autocapitalize="off"
-            autocomplete="off"
-            placeholder="Search the docs"
-            maxlength="100"
-          />
-          <ul role="listbox" id="tsd-search-results"></ul>
-          <div id="tsd-search-status" aria-live="polite" aria-atomic="true">
-            <div>Preparing search index...</div>
-          </div>
-        </dialog>
-        <a
-          href="#"
-          class="tsd-widget menu"
-          id="tsd-toolbar-menu-trigger"
-          data-toggle="menu"
-          aria-label="Menu"
-          ><svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <use href="../assets/icons.svg#icon-menu"></use></svg
-        ></a>
-      </div>
-    </header>
-    <div class="container container-main">
-      <div class="col-content">
-        <div class="tsd-page-title">
-          <ul class="tsd-breadcrumb" aria-label="Breadcrumb">
-            <li>
-              <a href="" aria-current="page">app/features/sales/server</a>
-            </li>
-          </ul>
-          <h1>Module app/features/sales/server</h1>
-        </div>
-        <details class="tsd-panel-group tsd-member-group tsd-accordion" open>
-          <summary class="tsd-accordion-summary" data-key="section-Interfaces">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <use href="../assets/icons.svg#icon-chevronDown"></use>
-            </svg>
-            <h2>Interfaces</h2>
-          </summary>
-          <dl class="tsd-member-summaries">
-            <dt class="tsd-member-summary" id="createsaleinput">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Interface"
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="IE=edge" />
+        <title>app/features/sales/server | OpenLivestock API Reference</title>
+        <meta
+            name="description"
+            content="Documentation for OpenLivestock API Reference"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="../assets/style.css" />
+        <link rel="stylesheet" href="../assets/highlight.css" />
+        <script defer src="../assets/main.js"></script>
+        <script async src="../assets/icons.js" id="tsd-icons-script"></script>
+        <script async src="../assets/search.js" id="tsd-search-script"></script>
+        <script
+            async
+            src="../assets/navigation.js"
+            id="tsd-nav-script"
+        ></script>
+        <script
+            async
+            src="../assets/hierarchy.js"
+            id="tsd-hierarchy-script"
+        ></script>
+        <link rel="stylesheet" href="../assets/rhineai-style.css" />
+    </head>
+    <body>
+        <script>
+            document.documentElement.dataset.theme =
+                localStorage.getItem('tsd-theme') || 'os'
+            document.body.style.display = 'none'
+            setTimeout(
+                () =>
+                    window.app
+                        ? app.showPage()
+                        : document.body.style.removeProperty('display'),
+                500,
+            )
+        </script>
+        <header class="tsd-page-toolbar">
+            <div class="tsd-toolbar-contents container">
+                <a href="../index.html" class="title"
+                    >OpenLivestock API Reference</a
                 >
-                  <use href="../assets/icons.svg#icon-256"></use></svg
-                ><a
-                  href="../interfaces/app_features_sales_server.CreateSaleInput.html"
-                  >CreateSaleInput</a
-                ><a
-                  href="#createsaleinput"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="salesquery">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Interface"
+                <div id="tsd-toolbar-links"></div>
+                <button
+                    id="tsd-search-trigger"
+                    class="tsd-widget"
+                    aria-label="Search"
                 >
-                  <use href="../assets/icons.svg#icon-256"></use></svg
-                ><a
-                  href="../interfaces/app_features_sales_server.SalesQuery.html"
-                  >SalesQuery</a
-                ><a
-                  href="#salesquery"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-          </dl>
-        </details>
-        <details class="tsd-panel-group tsd-member-group tsd-accordion" open>
-          <summary
-            class="tsd-accordion-summary"
-            data-key="section-Type Aliases"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <use href="../assets/icons.svg#icon-chevronDown"></use>
-            </svg>
-            <h2>Type Aliases</h2>
-          </summary>
-          <dl class="tsd-member-summaries">
-            <dt class="tsd-member-summary" id="paymentmethod">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Type Alias"
-                >
-                  <use href="../assets/icons.svg#icon-2097152"></use></svg
-                ><a href="../types/app_features_sales_server.PaymentMethod.html"
-                  >PaymentMethod</a
-                ><a
-                  href="#paymentmethod"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="paymentstatus">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Type Alias"
-                >
-                  <use href="../assets/icons.svg#icon-2097152"></use></svg
-                ><a href="../types/app_features_sales_server.PaymentStatus.html"
-                  >PaymentStatus</a
-                ><a
-                  href="#paymentstatus"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="unittype">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Type Alias"
-                >
-                  <use href="../assets/icons.svg#icon-2097152"></use></svg
-                ><a href="../types/app_features_sales_server.UnitType.html"
-                  >UnitType</a
-                ><a
-                  href="#unittype"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="updatesaleinput">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Type Alias"
-                >
-                  <use href="../assets/icons.svg#icon-2097152"></use></svg
-                ><a
-                  href="../types/app_features_sales_server.UpdateSaleInput.html"
-                  >UpdateSaleInput</a
-                ><a
-                  href="#updatesaleinput"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-          </dl>
-        </details>
-        <details class="tsd-panel-group tsd-member-group tsd-accordion" open>
-          <summary class="tsd-accordion-summary" data-key="section-Variables">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <use href="../assets/icons.svg#icon-chevronDown"></use>
-            </svg>
-            <h2>Variables</h2>
-          </summary>
-          <dl class="tsd-member-summaries">
-            <dt class="tsd-member-summary" id="createsalefn">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Variable"
-                >
-                  <use href="../assets/icons.svg#icon-32"></use></svg
-                ><a
-                  href="../variables/app_features_sales_server.createSaleFn.html"
-                  >createSaleFn</a
-                ><a
-                  href="#createsalefn"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="deletesalefn">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Variable"
-                >
-                  <use href="../assets/icons.svg#icon-32"></use></svg
-                ><a
-                  href="../variables/app_features_sales_server.deleteSaleFn.html"
-                  >deleteSaleFn</a
-                ><a
-                  href="#deletesalefn"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="getsalespaginatedfn">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Variable"
-                >
-                  <use href="../assets/icons.svg#icon-32"></use></svg
-                ><a
-                  href="../variables/app_features_sales_server.getSalesPaginatedFn.html"
-                  >getSalesPaginatedFn</a
-                ><a
-                  href="#getsalespaginatedfn"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="getsalessummaryfn">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Variable"
-                >
-                  <use href="../assets/icons.svg#icon-32"></use></svg
-                ><a
-                  href="../variables/app_features_sales_server.getSalesSummaryFn.html"
-                  >getSalesSummaryFn</a
-                ><a
-                  href="#getsalessummaryfn"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="payment_methods">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Variable"
-                >
-                  <use href="../assets/icons.svg#icon-32"></use></svg
-                ><a
-                  href="../variables/app_features_sales_server.PAYMENT_METHODS.html"
-                  >PAYMENT_METHODS</a
-                ><a
-                  href="#payment_methods"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="payment_statuses">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Variable"
-                >
-                  <use href="../assets/icons.svg#icon-32"></use></svg
-                ><a
-                  href="../variables/app_features_sales_server.PAYMENT_STATUSES.html"
-                  >PAYMENT_STATUSES</a
-                ><a
-                  href="#payment_statuses"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="unit_types">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Variable"
-                >
-                  <use href="../assets/icons.svg#icon-32"></use></svg
-                ><a
-                  href="../variables/app_features_sales_server.UNIT_TYPES.html"
-                  >UNIT_TYPES</a
-                ><a
-                  href="#unit_types"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="updatesalefn">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Variable"
-                >
-                  <use href="../assets/icons.svg#icon-32"></use></svg
-                ><a
-                  href="../variables/app_features_sales_server.updateSaleFn.html"
-                  >updateSaleFn</a
-                ><a
-                  href="#updatesalefn"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-          </dl>
-        </details>
-        <details class="tsd-panel-group tsd-member-group tsd-accordion" open>
-          <summary class="tsd-accordion-summary" data-key="section-Functions">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <use href="../assets/icons.svg#icon-chevronDown"></use>
-            </svg>
-            <h2>Functions</h2>
-          </summary>
-          <dl class="tsd-member-summaries">
-            <dt class="tsd-member-summary" id="createsale">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Function"
-                >
-                  <use href="../assets/icons.svg#icon-64"></use></svg
-                ><a
-                  href="../functions/app_features_sales_server.createSale.html"
-                  >createSale</a
-                ><a
-                  href="#createsale"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="deletesale">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Function"
-                >
-                  <use href="../assets/icons.svg#icon-64"></use></svg
-                ><a
-                  href="../functions/app_features_sales_server.deleteSale.html"
-                  >deleteSale</a
-                ><a
-                  href="#deletesale"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="getsales">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Function"
-                >
-                  <use href="../assets/icons.svg#icon-64"></use></svg
-                ><a href="../functions/app_features_sales_server.getSales.html"
-                  >getSales</a
-                ><a
-                  href="#getsales"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="getsalesforfarm">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Function"
-                >
-                  <use href="../assets/icons.svg#icon-64"></use></svg
-                ><a
-                  href="../functions/app_features_sales_server.getSalesForFarm.html"
-                  >getSalesForFarm</a
-                ><a
-                  href="#getsalesforfarm"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="getsalespaginated">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Function"
-                >
-                  <use href="../assets/icons.svg#icon-64"></use></svg
-                ><a
-                  href="../functions/app_features_sales_server.getSalesPaginated.html"
-                  >getSalesPaginated</a
-                ><a
-                  href="#getsalespaginated"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="getsalessummary">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Function"
-                >
-                  <use href="../assets/icons.svg#icon-64"></use></svg
-                ><a
-                  href="../functions/app_features_sales_server.getSalesSummary.html"
-                  >getSalesSummary</a
-                ><a
-                  href="#getsalessummary"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="gettotalrevenue">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Function"
-                >
-                  <use href="../assets/icons.svg#icon-64"></use></svg
-                ><a
-                  href="../functions/app_features_sales_server.getTotalRevenue.html"
-                  >getTotalRevenue</a
-                ><a
-                  href="#gettotalrevenue"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="updatesale">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Function"
-                >
-                  <use href="../assets/icons.svg#icon-64"></use></svg
-                ><a
-                  href="../functions/app_features_sales_server.updateSale.html"
-                  >updateSale</a
-                ><a
-                  href="#updatesale"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-          </dl>
-        </details>
-        <details class="tsd-panel-group tsd-member-group tsd-accordion" open>
-          <summary class="tsd-accordion-summary" data-key="section-References">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <use href="../assets/icons.svg#icon-chevronDown"></use>
-            </svg>
-            <h2>References</h2>
-          </summary>
-          <dl class="tsd-member-summaries">
-            <dt class="tsd-member-summary" id="paginatedresult">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Interface"
-                >
-                  <use href="../assets/icons.svg#icon-256"></use></svg
-                ><span>PaginatedResult</span><span> → </span
-                ><a
-                  href="../interfaces/app_features_batches_server.PaginatedResult.html"
-                  >PaginatedResult</a
-                ><a
-                  href="#paginatedresult"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
-          </dl>
-        </details>
-      </div>
-      <div class="col-sidebar">
-        <div class="page-menu">
-          <div class="tsd-navigation settings">
-            <details class="tsd-accordion">
-              <summary class="tsd-accordion-summary">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <use href="../assets/icons.svg#icon-chevronDown"></use>
-                </svg>
-                <h3>Settings</h3>
-              </summary>
-              <div class="tsd-accordion-details">
-                <div class="tsd-filter-visibility">
-                  <span class="settings-label">Member Visibility</span>
-                  <ul id="tsd-filter-options">
-                    <li class="tsd-filter-item">
-                      <label class="tsd-filter-input"
-                        ><input
-                          type="checkbox"
-                          id="tsd-filter-inherited"
-                          name="inherited"
-                          checked
-                        /><svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          aria-hidden="true"
-                        >
-                          <rect
-                            class="tsd-checkbox-background"
-                            width="30"
-                            height="30"
-                            x="1"
-                            y="1"
-                            rx="6"
-                            fill="none"
-                          ></rect>
-                          <path
-                            class="tsd-checkbox-checkmark"
-                            d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
-                            stroke="none"
-                            stroke-width="3.5"
-                            stroke-linejoin="round"
-                            fill="none"
-                          ></path></svg
-                        ><span>Inherited</span></label
-                      >
-                    </li>
-                    <li class="tsd-filter-item">
-                      <label class="tsd-filter-input"
-                        ><input
-                          type="checkbox"
-                          id="tsd-filter-external"
-                          name="external"
-                        /><svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          aria-hidden="true"
-                        >
-                          <rect
-                            class="tsd-checkbox-background"
-                            width="30"
-                            height="30"
-                            x="1"
-                            y="1"
-                            rx="6"
-                            fill="none"
-                          ></rect>
-                          <path
-                            class="tsd-checkbox-checkmark"
-                            d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
-                            stroke="none"
-                            stroke-width="3.5"
-                            stroke-linejoin="round"
-                            fill="none"
-                          ></path></svg
-                        ><span>External</span></label
-                      >
-                    </li>
-                  </ul>
-                </div>
-                <div class="tsd-theme-toggle">
-                  <label class="settings-label" for="tsd-theme">Theme</label
-                  ><select id="tsd-theme">
-                    <option value="os">OS</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                  </select>
-                </div>
-              </div>
-            </details>
-          </div>
-          <details open class="tsd-accordion tsd-page-navigation">
-            <summary class="tsd-accordion-summary">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <use href="../assets/icons.svg#icon-chevronDown"></use>
-              </svg>
-              <h3>On This Page</h3>
-            </summary>
-            <div class="tsd-accordion-details">
-              <details open class="tsd-accordion tsd-page-navigation-section">
-                <summary
-                  class="tsd-accordion-summary"
-                  data-key="section-Interfaces"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <use href="../assets/icons.svg#icon-chevronDown"></use></svg
-                  >Interfaces
-                </summary>
-                <div>
-                  <a href="#createsaleinput"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Interface"
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        aria-hidden="true"
                     >
-                      <use href="../assets/icons.svg#icon-256"></use></svg
-                    ><span>Create<wbr />Sale<wbr />Input</span></a
-                  ><a href="#salesquery"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Interface"
+                        <use href="../assets/icons.svg#icon-search"></use>
+                    </svg>
+                </button>
+                <dialog id="tsd-search" aria-label="Search">
+                    <input
+                        role="combobox"
+                        id="tsd-search-input"
+                        aria-controls="tsd-search-results"
+                        aria-autocomplete="list"
+                        aria-expanded="true"
+                        autocapitalize="off"
+                        autocomplete="off"
+                        placeholder="Search the docs"
+                        maxlength="100"
+                    />
+                    <ul role="listbox" id="tsd-search-results"></ul>
+                    <div
+                        id="tsd-search-status"
+                        aria-live="polite"
+                        aria-atomic="true"
                     >
-                      <use href="../assets/icons.svg#icon-256"></use></svg
-                    ><span>Sales<wbr />Query</span></a
-                  >
-                </div>
-              </details>
-              <details open class="tsd-accordion tsd-page-navigation-section">
-                <summary
-                  class="tsd-accordion-summary"
-                  data-key="section-Type Aliases"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <use href="../assets/icons.svg#icon-chevronDown"></use></svg
-                  >Type Aliases
-                </summary>
-                <div>
-                  <a href="#paymentmethod"
+                        <div>Preparing search index...</div>
+                    </div>
+                </dialog>
+                <a
+                    href="#"
+                    class="tsd-widget menu"
+                    id="tsd-toolbar-menu-trigger"
+                    data-toggle="menu"
+                    aria-label="Menu"
                     ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Type Alias"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        aria-hidden="true"
                     >
-                      <use href="../assets/icons.svg#icon-2097152"></use></svg
-                    ><span>Payment<wbr />Method</span></a
-                  ><a href="#paymentstatus"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Type Alias"
-                    >
-                      <use href="../assets/icons.svg#icon-2097152"></use></svg
-                    ><span>Payment<wbr />Status</span></a
-                  ><a href="#unittype"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Type Alias"
-                    >
-                      <use href="../assets/icons.svg#icon-2097152"></use></svg
-                    ><span>Unit<wbr />Type</span></a
-                  ><a href="#updatesaleinput"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Type Alias"
-                    >
-                      <use href="../assets/icons.svg#icon-2097152"></use></svg
-                    ><span>Update<wbr />Sale<wbr />Input</span></a
-                  >
-                </div>
-              </details>
-              <details open class="tsd-accordion tsd-page-navigation-section">
-                <summary
-                  class="tsd-accordion-summary"
-                  data-key="section-Variables"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <use href="../assets/icons.svg#icon-chevronDown"></use></svg
-                  >Variables
-                </summary>
-                <div>
-                  <a href="#createsalefn"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Variable"
-                    >
-                      <use href="../assets/icons.svg#icon-32"></use></svg
-                    ><span>create<wbr />Sale<wbr />Fn</span></a
-                  ><a href="#deletesalefn"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Variable"
-                    >
-                      <use href="../assets/icons.svg#icon-32"></use></svg
-                    ><span>delete<wbr />Sale<wbr />Fn</span></a
-                  ><a href="#getsalespaginatedfn"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Variable"
-                    >
-                      <use href="../assets/icons.svg#icon-32"></use></svg
-                    ><span>get<wbr />Sales<wbr />Paginated<wbr />Fn</span></a
-                  ><a href="#getsalessummaryfn"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Variable"
-                    >
-                      <use href="../assets/icons.svg#icon-32"></use></svg
-                    ><span>get<wbr />Sales<wbr />Summary<wbr />Fn</span></a
-                  ><a href="#payment_methods"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Variable"
-                    >
-                      <use href="../assets/icons.svg#icon-32"></use></svg
-                    ><span>PAYMENT_<wbr />METHODS</span></a
-                  ><a href="#payment_statuses"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Variable"
-                    >
-                      <use href="../assets/icons.svg#icon-32"></use></svg
-                    ><span>PAYMENT_<wbr />STATUSES</span></a
-                  ><a href="#unit_types"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Variable"
-                    >
-                      <use href="../assets/icons.svg#icon-32"></use></svg
-                    ><span>UNIT_<wbr />TYPES</span></a
-                  ><a href="#updatesalefn"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Variable"
-                    >
-                      <use href="../assets/icons.svg#icon-32"></use></svg
-                    ><span>update<wbr />Sale<wbr />Fn</span></a
-                  >
-                </div>
-              </details>
-              <details open class="tsd-accordion tsd-page-navigation-section">
-                <summary
-                  class="tsd-accordion-summary"
-                  data-key="section-Functions"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <use href="../assets/icons.svg#icon-chevronDown"></use></svg
-                  >Functions
-                </summary>
-                <div>
-                  <a href="#createsale"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Function"
-                    >
-                      <use href="../assets/icons.svg#icon-64"></use></svg
-                    ><span>create<wbr />Sale</span></a
-                  ><a href="#deletesale"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Function"
-                    >
-                      <use href="../assets/icons.svg#icon-64"></use></svg
-                    ><span>delete<wbr />Sale</span></a
-                  ><a href="#getsales"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Function"
-                    >
-                      <use href="../assets/icons.svg#icon-64"></use></svg
-                    ><span>get<wbr />Sales</span></a
-                  ><a href="#getsalesforfarm"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Function"
-                    >
-                      <use href="../assets/icons.svg#icon-64"></use></svg
-                    ><span>get<wbr />Sales<wbr />For<wbr />Farm</span></a
-                  ><a href="#getsalespaginated"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Function"
-                    >
-                      <use href="../assets/icons.svg#icon-64"></use></svg
-                    ><span>get<wbr />Sales<wbr />Paginated</span></a
-                  ><a href="#getsalessummary"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Function"
-                    >
-                      <use href="../assets/icons.svg#icon-64"></use></svg
-                    ><span>get<wbr />Sales<wbr />Summary</span></a
-                  ><a href="#gettotalrevenue"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Function"
-                    >
-                      <use href="../assets/icons.svg#icon-64"></use></svg
-                    ><span>get<wbr />Total<wbr />Revenue</span></a
-                  ><a href="#updatesale"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Function"
-                    >
-                      <use href="../assets/icons.svg#icon-64"></use></svg
-                    ><span>update<wbr />Sale</span></a
-                  >
-                </div>
-              </details>
-              <details open class="tsd-accordion tsd-page-navigation-section">
-                <summary
-                  class="tsd-accordion-summary"
-                  data-key="section-References"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <use href="../assets/icons.svg#icon-chevronDown"></use></svg
-                  >References
-                </summary>
-                <div>
-                  <a href="#paginatedresult"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Reference"
-                    >
-                      <use href="../assets/icons.svg#icon-4194304"></use></svg
-                    ><span>Paginated<wbr />Result</span></a
-                  >
-                </div>
-              </details>
+                        <use href="../assets/icons.svg#icon-menu"></use></svg
+                ></a>
             </div>
-          </details>
+        </header>
+        <div class="container container-main">
+            <div class="col-content">
+                <div class="tsd-page-title">
+                    <ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+                        <li>
+                            <a href="" aria-current="page"
+                                >app/features/sales/server</a
+                            >
+                        </li>
+                    </ul>
+                    <h1>Module app/features/sales/server</h1>
+                </div>
+                <details
+                    class="tsd-panel-group tsd-member-group tsd-accordion"
+                    open
+                >
+                    <summary
+                        class="tsd-accordion-summary"
+                        data-key="section-Interfaces"
+                    >
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                        >
+                            <use
+                                href="../assets/icons.svg#icon-chevronDown"
+                            ></use>
+                        </svg>
+                        <h2>Interfaces</h2>
+                    </summary>
+                    <dl class="tsd-member-summaries">
+                        <dt class="tsd-member-summary" id="createsaleinput">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Interface"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-256"
+                                    ></use></svg
+                                ><a
+                                    href="../interfaces/app_features_sales_server.CreateSaleInput.html"
+                                    >CreateSaleInput</a
+                                ><a
+                                    href="#createsaleinput"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="salesquery">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Interface"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-256"
+                                    ></use></svg
+                                ><a
+                                    href="../interfaces/app_features_sales_server.SalesQuery.html"
+                                    >SalesQuery</a
+                                ><a
+                                    href="#salesquery"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                    </dl>
+                </details>
+                <details
+                    class="tsd-panel-group tsd-member-group tsd-accordion"
+                    open
+                >
+                    <summary
+                        class="tsd-accordion-summary"
+                        data-key="section-Type Aliases"
+                    >
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                        >
+                            <use
+                                href="../assets/icons.svg#icon-chevronDown"
+                            ></use>
+                        </svg>
+                        <h2>Type Aliases</h2>
+                    </summary>
+                    <dl class="tsd-member-summaries">
+                        <dt class="tsd-member-summary" id="paymentmethod">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Type Alias"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-2097152"
+                                    ></use></svg
+                                ><a
+                                    href="../types/app_features_sales_server.PaymentMethod.html"
+                                    >PaymentMethod</a
+                                ><a
+                                    href="#paymentmethod"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="paymentstatus">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Type Alias"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-2097152"
+                                    ></use></svg
+                                ><a
+                                    href="../types/app_features_sales_server.PaymentStatus.html"
+                                    >PaymentStatus</a
+                                ><a
+                                    href="#paymentstatus"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="unittype">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Type Alias"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-2097152"
+                                    ></use></svg
+                                ><a
+                                    href="../types/app_features_sales_server.UnitType.html"
+                                    >UnitType</a
+                                ><a
+                                    href="#unittype"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="updatesaleinput">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Type Alias"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-2097152"
+                                    ></use></svg
+                                ><a
+                                    href="../types/app_features_sales_server.UpdateSaleInput.html"
+                                    >UpdateSaleInput</a
+                                ><a
+                                    href="#updatesaleinput"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                    </dl>
+                </details>
+                <details
+                    class="tsd-panel-group tsd-member-group tsd-accordion"
+                    open
+                >
+                    <summary
+                        class="tsd-accordion-summary"
+                        data-key="section-Variables"
+                    >
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                        >
+                            <use
+                                href="../assets/icons.svg#icon-chevronDown"
+                            ></use>
+                        </svg>
+                        <h2>Variables</h2>
+                    </summary>
+                    <dl class="tsd-member-summaries">
+                        <dt class="tsd-member-summary" id="createsalefn">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Variable"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-32"
+                                    ></use></svg
+                                ><a
+                                    href="../variables/app_features_sales_server.createSaleFn.html"
+                                    >createSaleFn</a
+                                ><a
+                                    href="#createsalefn"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="deletesalefn">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Variable"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-32"
+                                    ></use></svg
+                                ><a
+                                    href="../variables/app_features_sales_server.deleteSaleFn.html"
+                                    >deleteSaleFn</a
+                                ><a
+                                    href="#deletesalefn"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="getsalespaginatedfn">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Variable"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-32"
+                                    ></use></svg
+                                ><a
+                                    href="../variables/app_features_sales_server.getSalesPaginatedFn.html"
+                                    >getSalesPaginatedFn</a
+                                ><a
+                                    href="#getsalespaginatedfn"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="getsalessummaryfn">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Variable"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-32"
+                                    ></use></svg
+                                ><a
+                                    href="../variables/app_features_sales_server.getSalesSummaryFn.html"
+                                    >getSalesSummaryFn</a
+                                ><a
+                                    href="#getsalessummaryfn"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="payment_methods">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Variable"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-32"
+                                    ></use></svg
+                                ><a
+                                    href="../variables/app_features_sales_server.PAYMENT_METHODS.html"
+                                    >PAYMENT_METHODS</a
+                                ><a
+                                    href="#payment_methods"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="payment_statuses">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Variable"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-32"
+                                    ></use></svg
+                                ><a
+                                    href="../variables/app_features_sales_server.PAYMENT_STATUSES.html"
+                                    >PAYMENT_STATUSES</a
+                                ><a
+                                    href="#payment_statuses"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="unit_types">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Variable"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-32"
+                                    ></use></svg
+                                ><a
+                                    href="../variables/app_features_sales_server.UNIT_TYPES.html"
+                                    >UNIT_TYPES</a
+                                ><a
+                                    href="#unit_types"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="updatesalefn">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Variable"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-32"
+                                    ></use></svg
+                                ><a
+                                    href="../variables/app_features_sales_server.updateSaleFn.html"
+                                    >updateSaleFn</a
+                                ><a
+                                    href="#updatesalefn"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                    </dl>
+                </details>
+                <details
+                    class="tsd-panel-group tsd-member-group tsd-accordion"
+                    open
+                >
+                    <summary
+                        class="tsd-accordion-summary"
+                        data-key="section-Functions"
+                    >
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                        >
+                            <use
+                                href="../assets/icons.svg#icon-chevronDown"
+                            ></use>
+                        </svg>
+                        <h2>Functions</h2>
+                    </summary>
+                    <dl class="tsd-member-summaries">
+                        <dt class="tsd-member-summary" id="createsale">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Function"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-64"
+                                    ></use></svg
+                                ><a
+                                    href="../functions/app_features_sales_server.createSale.html"
+                                    >createSale</a
+                                ><a
+                                    href="#createsale"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="deletesale">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Function"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-64"
+                                    ></use></svg
+                                ><a
+                                    href="../functions/app_features_sales_server.deleteSale.html"
+                                    >deleteSale</a
+                                ><a
+                                    href="#deletesale"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="getsales">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Function"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-64"
+                                    ></use></svg
+                                ><a
+                                    href="../functions/app_features_sales_server.getSales.html"
+                                    >getSales</a
+                                ><a
+                                    href="#getsales"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="getsalesforfarm">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Function"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-64"
+                                    ></use></svg
+                                ><a
+                                    href="../functions/app_features_sales_server.getSalesForFarm.html"
+                                    >getSalesForFarm</a
+                                ><a
+                                    href="#getsalesforfarm"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="getsalespaginated">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Function"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-64"
+                                    ></use></svg
+                                ><a
+                                    href="../functions/app_features_sales_server.getSalesPaginated.html"
+                                    >getSalesPaginated</a
+                                ><a
+                                    href="#getsalespaginated"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="getsalessummary">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Function"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-64"
+                                    ></use></svg
+                                ><a
+                                    href="../functions/app_features_sales_server.getSalesSummary.html"
+                                    >getSalesSummary</a
+                                ><a
+                                    href="#getsalessummary"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="gettotalrevenue">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Function"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-64"
+                                    ></use></svg
+                                ><a
+                                    href="../functions/app_features_sales_server.getTotalRevenue.html"
+                                    >getTotalRevenue</a
+                                ><a
+                                    href="#gettotalrevenue"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                        <dt class="tsd-member-summary" id="updatesale">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Function"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-64"
+                                    ></use></svg
+                                ><a
+                                    href="../functions/app_features_sales_server.updateSale.html"
+                                    >updateSale</a
+                                ><a
+                                    href="#updatesale"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                    </dl>
+                </details>
+                <details
+                    class="tsd-panel-group tsd-member-group tsd-accordion"
+                    open
+                >
+                    <summary
+                        class="tsd-accordion-summary"
+                        data-key="section-References"
+                    >
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                        >
+                            <use
+                                href="../assets/icons.svg#icon-chevronDown"
+                            ></use>
+                        </svg>
+                        <h2>References</h2>
+                    </summary>
+                    <dl class="tsd-member-summaries">
+                        <dt class="tsd-member-summary" id="paginatedresult">
+                            <span class="tsd-member-summary-name"
+                                ><svg
+                                    class="tsd-kind-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-label="Interface"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-256"
+                                    ></use></svg
+                                ><span>PaginatedResult</span><span> → </span
+                                ><a
+                                    href="../interfaces/app_features_batches_server.PaginatedResult.html"
+                                    >PaginatedResult</a
+                                ><a
+                                    href="#paginatedresult"
+                                    aria-label="Permalink"
+                                    class="tsd-anchor-icon"
+                                    ><svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-anchor"
+                                        ></use></svg></a
+                            ></span>
+                        </dt>
+                        <dd class="tsd-member-summary"></dd>
+                    </dl>
+                </details>
+            </div>
+            <div class="col-sidebar">
+                <div class="page-menu">
+                    <div class="tsd-navigation settings">
+                        <details class="tsd-accordion">
+                            <summary class="tsd-accordion-summary">
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <use
+                                        href="../assets/icons.svg#icon-chevronDown"
+                                    ></use>
+                                </svg>
+                                <h3>Settings</h3>
+                            </summary>
+                            <div class="tsd-accordion-details">
+                                <div class="tsd-filter-visibility">
+                                    <span class="settings-label"
+                                        >Member Visibility</span
+                                    >
+                                    <ul id="tsd-filter-options">
+                                        <li class="tsd-filter-item">
+                                            <label class="tsd-filter-input"
+                                                ><input
+                                                    type="checkbox"
+                                                    id="tsd-filter-inherited"
+                                                    name="inherited"
+                                                    checked
+                                                /><svg
+                                                    width="32"
+                                                    height="32"
+                                                    viewBox="0 0 32 32"
+                                                    aria-hidden="true"
+                                                >
+                                                    <rect
+                                                        class="tsd-checkbox-background"
+                                                        width="30"
+                                                        height="30"
+                                                        x="1"
+                                                        y="1"
+                                                        rx="6"
+                                                        fill="none"
+                                                    ></rect>
+                                                    <path
+                                                        class="tsd-checkbox-checkmark"
+                                                        d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+                                                        stroke="none"
+                                                        stroke-width="3.5"
+                                                        stroke-linejoin="round"
+                                                        fill="none"
+                                                    ></path></svg
+                                                ><span>Inherited</span></label
+                                            >
+                                        </li>
+                                        <li class="tsd-filter-item">
+                                            <label class="tsd-filter-input"
+                                                ><input
+                                                    type="checkbox"
+                                                    id="tsd-filter-external"
+                                                    name="external"
+                                                /><svg
+                                                    width="32"
+                                                    height="32"
+                                                    viewBox="0 0 32 32"
+                                                    aria-hidden="true"
+                                                >
+                                                    <rect
+                                                        class="tsd-checkbox-background"
+                                                        width="30"
+                                                        height="30"
+                                                        x="1"
+                                                        y="1"
+                                                        rx="6"
+                                                        fill="none"
+                                                    ></rect>
+                                                    <path
+                                                        class="tsd-checkbox-checkmark"
+                                                        d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+                                                        stroke="none"
+                                                        stroke-width="3.5"
+                                                        stroke-linejoin="round"
+                                                        fill="none"
+                                                    ></path></svg
+                                                ><span>External</span></label
+                                            >
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="tsd-theme-toggle">
+                                    <label
+                                        class="settings-label"
+                                        for="tsd-theme"
+                                        >Theme</label
+                                    ><select id="tsd-theme">
+                                        <option value="os">OS</option>
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                    <details open class="tsd-accordion tsd-page-navigation">
+                        <summary class="tsd-accordion-summary">
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden="true"
+                            >
+                                <use
+                                    href="../assets/icons.svg#icon-chevronDown"
+                                ></use>
+                            </svg>
+                            <h3>On This Page</h3>
+                        </summary>
+                        <div class="tsd-accordion-details">
+                            <details
+                                open
+                                class="tsd-accordion tsd-page-navigation-section"
+                            >
+                                <summary
+                                    class="tsd-accordion-summary"
+                                    data-key="section-Interfaces"
+                                >
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-chevronDown"
+                                        ></use></svg
+                                    >Interfaces
+                                </summary>
+                                <div>
+                                    <a href="#createsaleinput"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Interface"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-256"
+                                            ></use></svg
+                                        ><span
+                                            >Create<wbr />Sale<wbr />Input</span
+                                        ></a
+                                    ><a href="#salesquery"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Interface"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-256"
+                                            ></use></svg
+                                        ><span>Sales<wbr />Query</span></a
+                                    >
+                                </div>
+                            </details>
+                            <details
+                                open
+                                class="tsd-accordion tsd-page-navigation-section"
+                            >
+                                <summary
+                                    class="tsd-accordion-summary"
+                                    data-key="section-Type Aliases"
+                                >
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-chevronDown"
+                                        ></use></svg
+                                    >Type Aliases
+                                </summary>
+                                <div>
+                                    <a href="#paymentmethod"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Type Alias"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-2097152"
+                                            ></use></svg
+                                        ><span>Payment<wbr />Method</span></a
+                                    ><a href="#paymentstatus"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Type Alias"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-2097152"
+                                            ></use></svg
+                                        ><span>Payment<wbr />Status</span></a
+                                    ><a href="#unittype"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Type Alias"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-2097152"
+                                            ></use></svg
+                                        ><span>Unit<wbr />Type</span></a
+                                    ><a href="#updatesaleinput"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Type Alias"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-2097152"
+                                            ></use></svg
+                                        ><span
+                                            >Update<wbr />Sale<wbr />Input</span
+                                        ></a
+                                    >
+                                </div>
+                            </details>
+                            <details
+                                open
+                                class="tsd-accordion tsd-page-navigation-section"
+                            >
+                                <summary
+                                    class="tsd-accordion-summary"
+                                    data-key="section-Variables"
+                                >
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-chevronDown"
+                                        ></use></svg
+                                    >Variables
+                                </summary>
+                                <div>
+                                    <a href="#createsalefn"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Variable"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-32"
+                                            ></use></svg
+                                        ><span
+                                            >create<wbr />Sale<wbr />Fn</span
+                                        ></a
+                                    ><a href="#deletesalefn"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Variable"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-32"
+                                            ></use></svg
+                                        ><span
+                                            >delete<wbr />Sale<wbr />Fn</span
+                                        ></a
+                                    ><a href="#getsalespaginatedfn"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Variable"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-32"
+                                            ></use></svg
+                                        ><span
+                                            >get<wbr />Sales<wbr />Paginated<wbr />Fn</span
+                                        ></a
+                                    ><a href="#getsalessummaryfn"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Variable"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-32"
+                                            ></use></svg
+                                        ><span
+                                            >get<wbr />Sales<wbr />Summary<wbr />Fn</span
+                                        ></a
+                                    ><a href="#payment_methods"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Variable"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-32"
+                                            ></use></svg
+                                        ><span>PAYMENT_<wbr />METHODS</span></a
+                                    ><a href="#payment_statuses"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Variable"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-32"
+                                            ></use></svg
+                                        ><span>PAYMENT_<wbr />STATUSES</span></a
+                                    ><a href="#unit_types"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Variable"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-32"
+                                            ></use></svg
+                                        ><span>UNIT_<wbr />TYPES</span></a
+                                    ><a href="#updatesalefn"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Variable"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-32"
+                                            ></use></svg
+                                        ><span
+                                            >update<wbr />Sale<wbr />Fn</span
+                                        ></a
+                                    >
+                                </div>
+                            </details>
+                            <details
+                                open
+                                class="tsd-accordion tsd-page-navigation-section"
+                            >
+                                <summary
+                                    class="tsd-accordion-summary"
+                                    data-key="section-Functions"
+                                >
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-chevronDown"
+                                        ></use></svg
+                                    >Functions
+                                </summary>
+                                <div>
+                                    <a href="#createsale"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Function"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-64"
+                                            ></use></svg
+                                        ><span>create<wbr />Sale</span></a
+                                    ><a href="#deletesale"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Function"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-64"
+                                            ></use></svg
+                                        ><span>delete<wbr />Sale</span></a
+                                    ><a href="#getsales"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Function"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-64"
+                                            ></use></svg
+                                        ><span>get<wbr />Sales</span></a
+                                    ><a href="#getsalesforfarm"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Function"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-64"
+                                            ></use></svg
+                                        ><span
+                                            >get<wbr />Sales<wbr />For<wbr />Farm</span
+                                        ></a
+                                    ><a href="#getsalespaginated"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Function"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-64"
+                                            ></use></svg
+                                        ><span
+                                            >get<wbr />Sales<wbr />Paginated</span
+                                        ></a
+                                    ><a href="#getsalessummary"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Function"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-64"
+                                            ></use></svg
+                                        ><span
+                                            >get<wbr />Sales<wbr />Summary</span
+                                        ></a
+                                    ><a href="#gettotalrevenue"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Function"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-64"
+                                            ></use></svg
+                                        ><span
+                                            >get<wbr />Total<wbr />Revenue</span
+                                        ></a
+                                    ><a href="#updatesale"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Function"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-64"
+                                            ></use></svg
+                                        ><span>update<wbr />Sale</span></a
+                                    >
+                                </div>
+                            </details>
+                            <details
+                                open
+                                class="tsd-accordion tsd-page-navigation-section"
+                            >
+                                <summary
+                                    class="tsd-accordion-summary"
+                                    data-key="section-References"
+                                >
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        aria-hidden="true"
+                                    >
+                                        <use
+                                            href="../assets/icons.svg#icon-chevronDown"
+                                        ></use></svg
+                                    >References
+                                </summary>
+                                <div>
+                                    <a href="#paginatedresult"
+                                        ><svg
+                                            class="tsd-kind-icon"
+                                            viewBox="0 0 24 24"
+                                            aria-label="Reference"
+                                        >
+                                            <use
+                                                href="../assets/icons.svg#icon-4194304"
+                                            ></use></svg
+                                        ><span>Paginated<wbr />Result</span></a
+                                    >
+                                </div>
+                            </details>
+                        </div>
+                    </details>
+                </div>
+                <div class="site-menu">
+                    <nav class="tsd-navigation">
+                        <a href="../modules.html"
+                            >OpenLivestock API Reference</a
+                        >
+                        <ul
+                            class="tsd-small-nested-navigation"
+                            id="tsd-nav-container"
+                        >
+                            <li>Loading...</li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
         </div>
-        <div class="site-menu">
-          <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
-            <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
-              <li>Loading...</li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </div>
-    <footer></footer>
-    <div class="overlay"></div>
-  </body>
+        <footer></footer>
+        <div class="overlay"></div>
+    </body>
 </html>

@@ -56,15 +56,15 @@ Replace each `.selectAll()` with `.select([...columns])` using the exact columns
 
 ```typescript
 ;[
-  'id',
-  'farmId',
-  'name',
-  'phone',
-  'email',
-  'location',
-  'customerType',
-  'createdAt',
-  'updatedAt',
+    'id',
+    'farmId',
+    'name',
+    'phone',
+    'email',
+    'location',
+    'customerType',
+    'createdAt',
+    'updatedAt',
 ]
 ```
 
@@ -72,15 +72,15 @@ Replace each `.selectAll()` with `.select([...columns])` using the exact columns
 
 ```typescript
 ;[
-  'id',
-  'name',
-  'phone',
-  'email',
-  'location',
-  'products',
-  'supplierType',
-  'createdAt',
-  'updatedAt',
+    'id',
+    'name',
+    'phone',
+    'email',
+    'location',
+    'products',
+    'supplierType',
+    'createdAt',
+    'updatedAt',
 ]
 ```
 
@@ -88,19 +88,19 @@ Replace each `.selectAll()` with `.select([...columns])` using the exact columns
 
 ```typescript
 ;[
-  'id',
-  'batchId',
-  'feedType',
-  'brandName',
-  'bagSizeKg',
-  'numberOfBags',
-  'quantityKg',
-  'cost',
-  'date',
-  'supplierId',
-  'inventoryId',
-  'notes',
-  'createdAt',
+    'id',
+    'batchId',
+    'feedType',
+    'brandName',
+    'bagSizeKg',
+    'numberOfBags',
+    'quantityKg',
+    'cost',
+    'date',
+    'supplierId',
+    'inventoryId',
+    'notes',
+    'createdAt',
 ]
 ```
 
@@ -108,16 +108,16 @@ Replace each `.selectAll()` with `.select([...columns])` using the exact columns
 
 ```typescript
 ;[
-  'id',
-  'farmId',
-  'batchId',
-  'category',
-  'amount',
-  'date',
-  'description',
-  'supplierId',
-  'isRecurring',
-  'createdAt',
+    'id',
+    'farmId',
+    'batchId',
+    'category',
+    'amount',
+    'date',
+    'description',
+    'supplierId',
+    'isRecurring',
+    'createdAt',
 ]
 ```
 
@@ -128,14 +128,14 @@ Keep `.selectAll()` - settings table has 30+ columns and all are needed.
 
 ```typescript
 ;[
-  'id',
-  'batchId',
-  'vaccineName',
-  'dateAdministered',
-  'dosage',
-  'nextDueDate',
-  'notes',
-  'createdAt',
+    'id',
+    'batchId',
+    'vaccineName',
+    'dateAdministered',
+    'dosage',
+    'nextDueDate',
+    'notes',
+    'createdAt',
 ]
 ```
 
@@ -149,26 +149,26 @@ Keep `.selectAll()` - settings table has 30+ columns and all are needed.
 
 ```typescript
 ;[
-  'id',
-  'farmId',
-  'batchName',
-  'livestockType',
-  'species',
-  'sourceSize',
-  'initialQuantity',
-  'currentQuantity',
-  'acquisitionDate',
-  'costPerUnit',
-  'totalCost',
-  'status',
-  'supplierId',
-  'structureId',
-  'targetHarvestDate',
-  'target_weight_g',
-  'targetPricePerUnit',
-  'notes',
-  'createdAt',
-  'updatedAt',
+    'id',
+    'farmId',
+    'batchName',
+    'livestockType',
+    'species',
+    'sourceSize',
+    'initialQuantity',
+    'currentQuantity',
+    'acquisitionDate',
+    'costPerUnit',
+    'totalCost',
+    'status',
+    'supplierId',
+    'structureId',
+    'targetHarvestDate',
+    'target_weight_g',
+    'targetPricePerUnit',
+    'notes',
+    'createdAt',
+    'updatedAt',
 ]
 ```
 
@@ -188,16 +188,16 @@ Keep `.selectAll()` - settings table has 30+ columns and all are needed.
 
 ```typescript
 ;[
-  'id',
-  'userId',
-  'farmId',
-  'type',
-  'title',
-  'message',
-  'read',
-  'actionUrl',
-  'metadata',
-  'createdAt',
+    'id',
+    'userId',
+    'farmId',
+    'type',
+    'title',
+    'message',
+    'read',
+    'actionUrl',
+    'metadata',
+    'createdAt',
 ]
 ```
 
@@ -211,14 +211,14 @@ Keep `.selectAll()` - settings table has 30+ columns and all are needed.
 
 ```typescript
 ;[
-  'id',
-  'farmId',
-  'medicationName',
-  'quantity',
-  'unit',
-  'expiryDate',
-  'minThreshold',
-  'updatedAt',
+    'id',
+    'farmId',
+    'medicationName',
+    'quantity',
+    'unit',
+    'expiryDate',
+    'minThreshold',
+    'updatedAt',
 ]
 ```
 
@@ -228,30 +228,30 @@ Keep `.selectAll()` - settings table has 30+ columns and all are needed.
 
 ```typescript
 return await db
-  .selectFrom('customers')
-  .selectAll()
-  .where('id', '=', customerId)
-  .executeTakeFirst()
+    .selectFrom('customers')
+    .selectAll()
+    .where('id', '=', customerId)
+    .executeTakeFirst()
 ```
 
 **After:**
 
 ```typescript
 return await db
-  .selectFrom('customers')
-  .select([
-    'id',
-    'farmId',
-    'name',
-    'phone',
-    'email',
-    'location',
-    'customerType',
-    'createdAt',
-    'updatedAt',
-  ])
-  .where('id', '=', customerId)
-  .executeTakeFirst()
+    .selectFrom('customers')
+    .select([
+        'id',
+        'farmId',
+        'name',
+        'phone',
+        'email',
+        'location',
+        'customerType',
+        'createdAt',
+        'updatedAt',
+    ])
+    .where('id', '=', customerId)
+    .executeTakeFirst()
 ```
 
 ---

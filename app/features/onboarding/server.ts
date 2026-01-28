@@ -17,75 +17,75 @@ import { DEFAULT_SETTINGS } from '~/features/settings/currency-presets'
  * @returns A promise resolving to the onboarding status object.
  */
 export const getOnboardingProgressFn = createServerFn({
-  method: 'GET',
+    method: 'GET',
 })
-  .inputValidator(z.object({}))
-  .handler(async () => {
-    try {
-      const { requireAuth } = await import('../auth/server-middleware')
-      const session = await requireAuth()
-      const { getDb } = await import('~/lib/db')
-      const db = await getDb()
+    .inputValidator(z.object({}))
+    .handler(async () => {
+        try {
+            const { requireAuth } = await import('../auth/server-middleware')
+            const session = await requireAuth()
+            const { getDb } = await import('~/lib/db')
+            const db = await getDb()
 
-      // Check if user has any farms
-      const userFarms = await db
-        .selectFrom('user_farms')
-        .select(['farmId'])
-        .where('userId', '=', session.user.id)
-        .execute()
+            // Check if user has any farms
+            const userFarms = await db
+                .selectFrom('user_farms')
+                .select(['farmId'])
+                .where('userId', '=', session.user.id)
+                .execute()
 
-      const hasFarms = userFarms.length > 0
+            const hasFarms = userFarms.length > 0
 
-      // Get stored progress from user_settings (if we have that table)
-      // For now, we'll use a simple approach - check if user has farms
-      // If they have farms, they've completed onboarding or were added by admin
+            // Get stored progress from user_settings (if we have that table)
+            // For now, we'll use a simple approach - check if user has farms
+            // If they have farms, they've completed onboarding or were added by admin
 
-      // Check user's createdAt to determine if they're new
-      const user = await db
-        .selectFrom('users')
-        .select(['createdAt'])
-        .where('id', '=', session.user.id)
-        .executeTakeFirst()
+            // Check user's createdAt to determine if they're new
+            const user = await db
+                .selectFrom('users')
+                .select(['createdAt'])
+                .where('id', '=', session.user.id)
+                .executeTakeFirst()
 
-      // If user has farms, they either completed onboarding or were added by admin
-      if (hasFarms) {
-        return {
-          needsOnboarding: false,
-          isAdminAdded: true, // Assume admin-added if they have farms
-          progress: {
-            ...DEFAULT_PROGRESS,
-            currentStep: 'complete' as const,
-            completedSteps: [
-              'welcome',
-              'create-farm',
-              'enable-modules',
-              'create-structure',
-              'create-batch',
-              'preferences',
-              'tour',
-              'complete',
-            ] as const,
-            completedAt: user?.createdAt.toISOString(),
-          },
-          farmId: userFarms[0]?.farmId,
+            // If user has farms, they either completed onboarding or were added by admin
+            if (hasFarms) {
+                return {
+                    needsOnboarding: false,
+                    isAdminAdded: true, // Assume admin-added if they have farms
+                    progress: {
+                        ...DEFAULT_PROGRESS,
+                        currentStep: 'complete' as const,
+                        completedSteps: [
+                            'welcome',
+                            'create-farm',
+                            'enable-modules',
+                            'create-structure',
+                            'create-batch',
+                            'preferences',
+                            'tour',
+                            'complete',
+                        ] as const,
+                        completedAt: user?.createdAt.toISOString(),
+                    },
+                    farmId: userFarms[0]?.farmId,
+                }
+            }
+
+            // New user without farms - needs full onboarding
+            return {
+                needsOnboarding: true,
+                isAdminAdded: false,
+                progress: DEFAULT_PROGRESS,
+                farmId: null,
+            }
+        } catch (error) {
+            if (error instanceof AppError) throw error
+            throw new AppError('INTERNAL_ERROR', {
+                message: 'Failed to retrieve onboarding progress',
+                cause: error,
+            })
         }
-      }
-
-      // New user without farms - needs full onboarding
-      return {
-        needsOnboarding: true,
-        isAdminAdded: false,
-        progress: DEFAULT_PROGRESS,
-        farmId: null,
-      }
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('INTERNAL_ERROR', {
-        message: 'Failed to retrieve onboarding progress',
-        cause: error,
-      })
-    }
-  })
+    })
 
 /**
  * Save onboarding progress.
@@ -95,55 +95,55 @@ export const getOnboardingProgressFn = createServerFn({
  * @returns A promise resolving to the success state and saving progress.
  */
 export const saveOnboardingProgressFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    z.object({
-      progress: z.object({
-        currentStep: z.enum([
-          'welcome',
-          'create-farm',
-          'enable-modules',
-          'create-structure',
-          'create-batch',
-          'preferences',
-          'tour',
-          'complete',
-        ]),
-        completedSteps: z.array(
-          z.enum([
-            'welcome',
-            'create-farm',
-            'enable-modules',
-            'create-structure',
-            'create-batch',
-            'preferences',
-            'tour',
-            'complete',
-          ]),
-        ),
-        farmId: z.string().uuid().optional(),
-        structureId: z.string().uuid().optional(),
-        batchId: z.string().uuid().optional(),
-        skipped: z.boolean(),
-        completedAt: z.string().optional(),
-      }),
-    }),
-  )
-  .handler(async ({ data }) => {
-    try {
-      const { requireAuth } = await import('../auth/server-middleware')
-      await requireAuth()
+    .inputValidator(
+        z.object({
+            progress: z.object({
+                currentStep: z.enum([
+                    'welcome',
+                    'create-farm',
+                    'enable-modules',
+                    'create-structure',
+                    'create-batch',
+                    'preferences',
+                    'tour',
+                    'complete',
+                ]),
+                completedSteps: z.array(
+                    z.enum([
+                        'welcome',
+                        'create-farm',
+                        'enable-modules',
+                        'create-structure',
+                        'create-batch',
+                        'preferences',
+                        'tour',
+                        'complete',
+                    ]),
+                ),
+                farmId: z.string().uuid().optional(),
+                structureId: z.string().uuid().optional(),
+                batchId: z.string().uuid().optional(),
+                skipped: z.boolean(),
+                completedAt: z.string().optional(),
+            }),
+        }),
+    )
+    .handler(async ({ data }) => {
+        try {
+            const { requireAuth } = await import('../auth/server-middleware')
+            await requireAuth()
 
-      // For now, progress is stored client-side in localStorage
-      // In a full implementation, we'd store this in a user_settings table
-      return { success: true, progress: data.progress }
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('INTERNAL_ERROR', {
-        message: 'Failed to save onboarding progress',
-        cause: error,
-      })
-    }
-  })
+            // For now, progress is stored client-side in localStorage
+            // In a full implementation, we'd store this in a user_settings table
+            return { success: true, progress: data.progress }
+        } catch (error) {
+            if (error instanceof AppError) throw error
+            throw new AppError('INTERNAL_ERROR', {
+                message: 'Failed to save onboarding progress',
+                cause: error,
+            })
+        }
+    })
 
 /**
  * Mark onboarding as complete.
@@ -151,21 +151,21 @@ export const saveOnboardingProgressFn = createServerFn({ method: 'POST' })
  * @returns A promise resolving to the success state and completion timestamp.
  */
 export const completeOnboardingFn = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({}))
-  .handler(async () => {
-    try {
-      const { requireAuth } = await import('../auth/server-middleware')
-      await requireAuth()
+    .inputValidator(z.object({}))
+    .handler(async () => {
+        try {
+            const { requireAuth } = await import('../auth/server-middleware')
+            await requireAuth()
 
-      return { success: true, completedAt: new Date().toISOString() }
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('INTERNAL_ERROR', {
-        message: 'Failed to complete onboarding',
-        cause: error,
-      })
-    }
-  })
+            return { success: true, completedAt: new Date().toISOString() }
+        } catch (error) {
+            if (error instanceof AppError) throw error
+            throw new AppError('INTERNAL_ERROR', {
+                message: 'Failed to complete onboarding',
+                cause: error,
+            })
+        }
+    })
 
 /**
  * Evaluates whether a user requires the onboarding walkthrough.
@@ -174,45 +174,45 @@ export const completeOnboardingFn = createServerFn({ method: 'POST' })
  * @returns A promise resolving to the needsOnboarding flag and farm presence.
  */
 export const checkNeedsOnboardingFn = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({}))
-  .handler(async () => {
-    try {
-      const { requireAuth } = await import('../auth/server-middleware')
-      const session = await requireAuth()
-      const { getDb } = await import('~/lib/db')
-      const db = await getDb()
+    .inputValidator(z.object({}))
+    .handler(async () => {
+        try {
+            const { requireAuth } = await import('../auth/server-middleware')
+            const session = await requireAuth()
+            const { getDb } = await import('~/lib/db')
+            const db = await getDb()
 
-      // Check user_settings for onboardingCompleted flag
-      const userSettings = await db
-        .selectFrom('user_settings')
-        .select(['onboardingCompleted'])
-        .where('userId', '=', session.user.id)
-        .executeTakeFirst()
+            // Check user_settings for onboardingCompleted flag
+            const userSettings = await db
+                .selectFrom('user_settings')
+                .select(['onboardingCompleted'])
+                .where('userId', '=', session.user.id)
+                .executeTakeFirst()
 
-      // If settings exist and onboarding completed, don't need onboarding
-      if (userSettings?.onboardingCompleted) {
-        return { needsOnboarding: false, hasFarms: true }
-      }
+            // If settings exist and onboarding completed, don't need onboarding
+            if (userSettings?.onboardingCompleted) {
+                return { needsOnboarding: false, hasFarms: true }
+            }
 
-      // Check if user has any farms (fallback for users without settings)
-      const userFarm = await db
-        .selectFrom('user_farms')
-        .select(['farmId'])
-        .where('userId', '=', session.user.id)
-        .executeTakeFirst()
+            // Check if user has any farms (fallback for users without settings)
+            const userFarm = await db
+                .selectFrom('user_farms')
+                .select(['farmId'])
+                .where('userId', '=', session.user.id)
+                .executeTakeFirst()
 
-      return {
-        needsOnboarding: !userFarm,
-        hasFarms: !!userFarm,
-      }
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('INTERNAL_ERROR', {
-        message: 'Failed to check onboarding status',
-        cause: error,
-      })
-    }
-  })
+            return {
+                needsOnboarding: !userFarm,
+                hasFarms: !!userFarm,
+            }
+        } catch (error) {
+            if (error instanceof AppError) throw error
+            throw new AppError('INTERNAL_ERROR', {
+                message: 'Failed to check onboarding status',
+                cause: error,
+            })
+        }
+    })
 
 /**
  * Mark onboarding as complete in the database.
@@ -221,51 +221,51 @@ export const checkNeedsOnboardingFn = createServerFn({ method: 'GET' })
  * @returns A promise resolving to a success indicator.
  */
 export const markOnboardingCompleteFn = createServerFn({
-  method: 'POST',
+    method: 'POST',
 })
-  .inputValidator(z.object({}))
-  .handler(async () => {
-    try {
-      const { requireAuth } = await import('../auth/server-middleware')
-      const session = await requireAuth()
-      const { getDb } = await import('~/lib/db')
-      const db = await getDb()
+    .inputValidator(z.object({}))
+    .handler(async () => {
+        try {
+            const { requireAuth } = await import('../auth/server-middleware')
+            const session = await requireAuth()
+            const { getDb } = await import('~/lib/db')
+            const db = await getDb()
 
-      // Check if user_settings exists
-      const existing = await db
-        .selectFrom('user_settings')
-        .select(['id'])
-        .where('userId', '=', session.user.id)
-        .executeTakeFirst()
+            // Check if user_settings exists
+            const existing = await db
+                .selectFrom('user_settings')
+                .select(['id'])
+                .where('userId', '=', session.user.id)
+                .executeTakeFirst()
 
-      if (existing) {
-        await db
-          .updateTable('user_settings')
-          .set({ onboardingCompleted: true })
-          .where('userId', '=', session.user.id)
-          .execute()
-      } else {
-        // Create settings with onboardingCompleted = true
-        await db
-          .insertInto('user_settings')
-          .values({
-            userId: session.user.id,
-            onboardingCompleted: true,
-            onboardingStep: 8,
-            ...DEFAULT_SETTINGS,
-          })
-          .execute()
-      }
+            if (existing) {
+                await db
+                    .updateTable('user_settings')
+                    .set({ onboardingCompleted: true })
+                    .where('userId', '=', session.user.id)
+                    .execute()
+            } else {
+                // Create settings with onboardingCompleted = true
+                await db
+                    .insertInto('user_settings')
+                    .values({
+                        userId: session.user.id,
+                        onboardingCompleted: true,
+                        onboardingStep: 8,
+                        ...DEFAULT_SETTINGS,
+                    })
+                    .execute()
+            }
 
-      return { success: true }
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('DATABASE_ERROR', {
-        message: 'Failed to mark onboarding as complete',
-        cause: error,
-      })
-    }
-  })
+            return { success: true }
+        } catch (error) {
+            if (error instanceof AppError) throw error
+            throw new AppError('DATABASE_ERROR', {
+                message: 'Failed to mark onboarding as complete',
+                cause: error,
+            })
+        }
+    })
 
 /**
  * Reset onboarding state to allow user to restart the guide.
@@ -273,26 +273,26 @@ export const markOnboardingCompleteFn = createServerFn({
  * @returns A promise resolving to a success indicator.
  */
 export const resetOnboardingFn = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({}))
-  .handler(async () => {
-    try {
-      const { requireAuth } = await import('../auth/server-middleware')
-      const session = await requireAuth()
-      const { getDb } = await import('~/lib/db')
-      const db = await getDb()
+    .inputValidator(z.object({}))
+    .handler(async () => {
+        try {
+            const { requireAuth } = await import('../auth/server-middleware')
+            const session = await requireAuth()
+            const { getDb } = await import('~/lib/db')
+            const db = await getDb()
 
-      await db
-        .updateTable('user_settings')
-        .set({ onboardingCompleted: false, onboardingStep: 0 })
-        .where('userId', '=', session.user.id)
-        .execute()
+            await db
+                .updateTable('user_settings')
+                .set({ onboardingCompleted: false, onboardingStep: 0 })
+                .where('userId', '=', session.user.id)
+                .execute()
 
-      return { success: true }
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('DATABASE_ERROR', {
-        message: 'Failed to reset onboarding',
-        cause: error,
-      })
-    }
-  })
+            return { success: true }
+        } catch (error) {
+            if (error instanceof AppError) throw error
+            throw new AppError('DATABASE_ERROR', {
+                message: 'Failed to reset onboarding',
+                cause: error,
+            })
+        }
+    })

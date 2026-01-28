@@ -5,15 +5,15 @@ import { RoadmapTimeline } from '~/components/landing/RoadmapTimeline'
 import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/roadmap')({
-  component: RoadmapPage,
+    component: RoadmapPage,
 })
 
 function RoadmapPage() {
-  return (
-    <LandingLayout>
-      <RoadmapHero />
-      <RoadmapTimeline />
-      <CTASection />
-    </LandingLayout>
-  )
+    return (
+        <LandingLayout>
+            <RoadmapHero />
+            <RoadmapTimeline />
+            <CTASection />
+        </LandingLayout>
+    )
 }

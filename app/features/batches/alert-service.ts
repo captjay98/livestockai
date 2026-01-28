@@ -19,10 +19,10 @@ export type AlertType = 'growthDeviation' | 'earlyHarvest'
  * Alert result
  */
 export interface AlertResult {
-  shouldAlert: boolean
-  severity: AlertSeverity
-  type: AlertType
-  recommendation: string
+    shouldAlert: boolean
+    severity: AlertSeverity
+    type: AlertType
+    recommendation: string
 }
 
 /**
@@ -37,40 +37,43 @@ export interface AlertResult {
  * @returns Alert result with severity and recommendation
  */
 export function determineAlertSeverity(
-  performanceIndex: number,
+    performanceIndex: number,
 ): AlertResult | null {
-  // Critical: Severely behind schedule
-  if (performanceIndex < 80) {
-    return {
-      shouldAlert: true,
-      severity: 'critical',
-      type: 'growthDeviation',
-      recommendation: generateRecommendation(performanceIndex, 'critical'),
+    // Critical: Severely behind schedule
+    if (performanceIndex < 80) {
+        return {
+            shouldAlert: true,
+            severity: 'critical',
+            type: 'growthDeviation',
+            recommendation: generateRecommendation(
+                performanceIndex,
+                'critical',
+            ),
+        }
     }
-  }
 
-  // Warning: Behind schedule
-  if (performanceIndex < 90) {
-    return {
-      shouldAlert: true,
-      severity: 'warning',
-      type: 'growthDeviation',
-      recommendation: generateRecommendation(performanceIndex, 'warning'),
+    // Warning: Behind schedule
+    if (performanceIndex < 90) {
+        return {
+            shouldAlert: true,
+            severity: 'warning',
+            type: 'growthDeviation',
+            recommendation: generateRecommendation(performanceIndex, 'warning'),
+        }
     }
-  }
 
-  // Info: Ahead of schedule
-  if (performanceIndex > 110) {
-    return {
-      shouldAlert: true,
-      severity: 'info',
-      type: 'earlyHarvest',
-      recommendation: generateRecommendation(performanceIndex, 'info'),
+    // Info: Ahead of schedule
+    if (performanceIndex > 110) {
+        return {
+            shouldAlert: true,
+            severity: 'info',
+            type: 'earlyHarvest',
+            recommendation: generateRecommendation(performanceIndex, 'info'),
+        }
     }
-  }
 
-  // No alert needed (95-110 range is on track)
-  return null
+    // No alert needed (95-110 range is on track)
+    return null
 }
 
 /**
@@ -81,27 +84,27 @@ export function determineAlertSeverity(
  * @returns Recommendation message
  */
 export function generateRecommendation(
-  performanceIndex: number,
-  severity: AlertSeverity,
+    performanceIndex: number,
+    severity: AlertSeverity,
 ): string {
-  const severityRecommendations: Record<
-    AlertSeverity,
-    (deviation: string) => string
-  > = {
-    critical: (deviation) =>
-      `Batch is ${deviation}% behind expected growth. Immediate action required: Check for disease, increase protein feed, verify water quality, and consult veterinarian.`,
-    warning: (deviation) =>
-      `Batch is ${deviation}% behind expected growth. Recommended actions: Increase feed quality, check for signs of disease, verify environmental conditions.`,
-    info: (deviation) =>
-      `Batch is ${deviation}% ahead of expected growth. Consider early harvest opportunity to optimize market timing and reduce feed costs.`,
-  }
+    const severityRecommendations: Record<
+        AlertSeverity,
+        (deviation: string) => string
+    > = {
+        critical: (deviation) =>
+            `Batch is ${deviation}% behind expected growth. Immediate action required: Check for disease, increase protein feed, verify water quality, and consult veterinarian.`,
+        warning: (deviation) =>
+            `Batch is ${deviation}% behind expected growth. Recommended actions: Increase feed quality, check for signs of disease, verify environmental conditions.`,
+        info: (deviation) =>
+            `Batch is ${deviation}% ahead of expected growth. Consider early harvest opportunity to optimize market timing and reduce feed costs.`,
+    }
 
-  const deviation =
-    severity === 'info'
-      ? (performanceIndex - 100).toFixed(1)
-      : Math.abs(100 - performanceIndex).toFixed(1)
+    const deviation =
+        severity === 'info'
+            ? (performanceIndex - 100).toFixed(1)
+            : Math.abs(100 - performanceIndex).toFixed(1)
 
-  return severityRecommendations[severity](deviation)
+    return severityRecommendations[severity](deviation)
 }
 
 /**
@@ -115,21 +118,23 @@ export function generateRecommendation(
  * @returns True if alert should be created
  */
 export async function shouldCreateAlert(
-  db: Kysely<Database>,
-  batchId: string,
-  alertType: AlertType,
+    db: Kysely<Database>,
+    batchId: string,
+    alertType: AlertType,
 ): Promise<boolean> {
-  const { sql } = await import('kysely')
+    const { sql } = await import('kysely')
 
-  // Check for recent alerts (within 24 hours)
-  const recentAlert = await db
-    .selectFrom('notifications')
-    .select('id')
-    .where('type', '=', alertType)
-    .where((eb) => eb(sql`metadata::text`, 'like', `%${batchId}%`))
-    .where((eb) => eb(sql`"createdAt"`, '>', sql`NOW() - INTERVAL '24 hours'`))
-    .executeTakeFirst()
+    // Check for recent alerts (within 24 hours)
+    const recentAlert = await db
+        .selectFrom('notifications')
+        .select('id')
+        .where('type', '=', alertType)
+        .where((eb) => eb(sql`metadata::text`, 'like', `%${batchId}%`))
+        .where((eb) =>
+            eb(sql`"createdAt"`, '>', sql`NOW() - INTERVAL '24 hours'`),
+        )
+        .executeTakeFirst()
 
-  // Should create alert if no recent alert exists
-  return !recentAlert
+    // Should create alert if no recent alert exists
+    return !recentAlert
 }
