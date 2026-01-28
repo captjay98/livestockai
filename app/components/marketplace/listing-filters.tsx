@@ -51,7 +51,7 @@ export function ListingFilters({ filters, onFiltersChange }: ListingFiltersProps
         <Label>{t('filters.livestockType', { defaultValue: 'Livestock Type' })}</Label>
         <Select
           value={filters.livestockType}
-          onValueChange={(value) => updateFilter('livestockType', value)}
+          onValueChange={(value) => updateFilter('livestockType', value || '')}
         >
           <SelectTrigger>
             <SelectValue placeholder={t('filters.allTypes', { defaultValue: 'All types' })} />
@@ -100,7 +100,7 @@ export function ListingFilters({ filters, onFiltersChange }: ListingFiltersProps
         <Label>{t('filters.distance', { defaultValue: 'Distance' })}</Label>
         <Select
           value={filters.distanceRadius}
-          onValueChange={(value) => updateFilter('distanceRadius', value)}
+          onValueChange={(value) => updateFilter('distanceRadius', value || '')}
         >
           <SelectTrigger>
             <SelectValue placeholder={t('filters.anyDistance', { defaultValue: 'Any distance' })} />

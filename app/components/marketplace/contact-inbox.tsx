@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
-import type { ContactRequestRecord } from '~/features/marketplace/repository'
 import { RequestCard } from './request-card'
+import type { ContactRequestRecord } from '~/features/marketplace/repository'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 
 interface ContactInboxProps {
-  requests: ContactRequestRecord[]
+  requests: Array<ContactRequestRecord>
   onRespond: (requestId: string, approved: boolean, message?: string) => void
 }
 

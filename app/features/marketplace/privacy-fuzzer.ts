@@ -1,162 +1,204 @@
 /**
- * Privacy fuzzing service for marketplace listings.
- * Pure functions for protecting seller privacy while maintaining utility.
+ * Privacy fuzzing utilities for marketplace listings.
+ * Applies location obfuscation based on fuzzing level.
  */
 
-import type { MarketplaceListingTable, FuzzingLevel } from '~/lib/db/types'
+import type { FuzzingLevel } from '~/lib/db/types'
+import type { ListingRecord } from './repository'
 
-export type ListingRecord = MarketplaceListingTable
+/**
+ * Coordinates for location fuzzing
+ */
+export interface Coordinates {
+  lat: number
+  lon: number
+}
 
-export interface FuzzedListing {
-  id: string
-  sellerId: string
-  livestockType: string
-  species: string
-  quantity: string // Fuzzed range like '10-25'
-  priceRange: string // Fuzzed price like '₦4,500-5,500/unit'
-  location: string // Fuzzed location based on privacy level
-  description: string | null
-  photoUrls: string[] | null
-  contactPreference: 'app' | 'phone' | 'both'
-  status: string
-  viewCount: number
-  createdAt: Date
+/** Fuzzed listing with optional distance */
+export type FuzzedListing = ListingRecord & { distance?: number; isOwner?: boolean }
+
+/**
+ * Fuzzing configuration by level
+ */
+const FUZZING_CONFIG: Record<FuzzingLevel, { radiusKm: number; precision: number }> = {
+  low: { radiusKm: 1, precision: 4 }, // ~100m accuracy
+  medium: { radiusKm: 5, precision: 3 }, // ~1km accuracy
+  high: { radiusKm: 20, precision: 2 }, // ~10km accuracy
 }
 
 /**
- * Fuzz exact quantity into privacy-preserving ranges
+ * Apply random offset to coordinates within specified radius
+ *
+ * @param lat - Original latitude
+ * @param lon - Original longitude
+ * @param radiusKm - Maximum offset radius in kilometers
+ * @returns Fuzzed coordinates
  */
-export function fuzzQuantity(exactQuantity: number): string {
-  if (exactQuantity <= 10) return '1-10'
-  if (exactQuantity <= 25) return '10-25'
-  if (exactQuantity <= 50) return '25-50'
-  if (exactQuantity <= 100) return '50-100'
-  if (exactQuantity <= 250) return '100-250'
-  if (exactQuantity <= 500) return '250-500'
-  return '500+'
+function applyLocationOffset(lat: number, lon: number, radiusKm: number): Coordinates {
+  // Convert radius to degrees (rough approximation)
+  const radiusDegrees = radiusKm / 111
+
+  // Generate random angle and distance
+  const angle = Math.random() * 2 * Math.PI
+  const distance = Math.random() * radiusDegrees
+
+  // Apply offset
+  const deltaLat = distance * Math.cos(angle)
+  const deltaLon = distance * Math.sin(angle) / Math.cos(lat * (Math.PI / 180))
+
+  return {
+    lat: lat + deltaLat,
+    lon: lon + deltaLon,
+  }
 }
 
 /**
- * Fuzz price range with buffer and formatting
+ * Round coordinates to specified precision
+ *
+ * @param lat - Latitude
+ * @param lon - Longitude
+ * @param precision - Number of decimal places
+ * @returns Rounded coordinates
  */
-export function fuzzPrice(
-  minPrice: number,
-  maxPrice: number,
-  currencySymbol: string,
-): string {
-  // Add ~10% buffer and round to significant figures
-  const buffer = 0.1
-  const fuzzedMin = Math.round(minPrice * (1 - buffer) / 100) * 100
-  const fuzzedMax = Math.round(maxPrice * (1 + buffer) / 100) * 100
+function roundCoordinates(lat: number, lon: number, precision: number): Coordinates {
+  const factor = Math.pow(10, precision)
+  return {
+    lat: Math.round(lat * factor) / factor,
+    lon: Math.round(lon * factor) / factor,
+  }
+}
+
+/**
+ * Apply privacy fuzzing to a listing
+ *
+ * @param listing - Original listing record
+ * @param sellerId - ID of the seller (null for anonymous viewing)
+ * @param viewerLocation - Optional viewer location for distance calculation
+ * @returns Fuzzed listing with privacy protection applied
+ */
+export function fuzzListing(
+  listing: ListingRecord,
+  sellerId: string | null,
+  viewerLocation?: Coordinates,
+): ListingRecord & { distance?: number } {
+  // If viewer is the seller, return original data
+  if (sellerId === listing.sellerId) {
+    return listing
+  }
+
+  const config = FUZZING_CONFIG[listing.fuzzingLevel]
+  const originalLat = parseFloat(listing.latitude)
+  const originalLon = parseFloat(listing.longitude)
+
+  // Apply location fuzzing
+  const offset = applyLocationOffset(originalLat, originalLon, config.radiusKm)
+  const fuzzed = roundCoordinates(offset.lat, offset.lon, config.precision)
+
+  // Calculate distance if viewer location provided
+  let distance: number | undefined
+  if (viewerLocation) {
+    const R = 6371 // Earth's radius in km
+    const dLat = (fuzzed.lat - viewerLocation.lat) * (Math.PI / 180)
+    const dLon = (fuzzed.lon - viewerLocation.lon) * (Math.PI / 180)
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(viewerLocation.lat * (Math.PI / 180)) *
+        Math.cos(fuzzed.lat * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    distance = Math.round(R * c * 10) / 10 // Round to 1 decimal place
+  }
+
+  return {
+    ...listing,
+    latitude: fuzzed.lat.toString(),
+    longitude: fuzzed.lon.toString(),
+    // Generalize address based on fuzzing level
+    formattedAddress: listing.fuzzingLevel === 'high' 
+      ? `${listing.region}, ${listing.country}`
+      : listing.fuzzingLevel === 'medium'
+      ? `${listing.locality}, ${listing.region}`
+      : listing.formattedAddress,
+    distance,
+  }
+}
+
+/**
+ * Get fuzzing level description for UI
+ *
+ * @param level - Fuzzing level
+ * @returns Human-readable description
+ */
+export function getFuzzingDescription(level: FuzzingLevel): string {
+  switch (level) {
+    case 'low':
+      return 'Precise location (~100m accuracy)'
+    case 'medium':
+      return 'General area (~1km accuracy)'
+    case 'high':
+      return 'Regional location (~10km accuracy)'
+  }
+}
+
+/**
+ * Fuzz quantity based on fuzzing level
+ * Returns a range string instead of exact number
+ */
+export function fuzzQuantity(quantity: number, level: FuzzingLevel): string {
+  if (level === 'low') {
+    // Show exact quantity
+    return quantity.toString()
+  }
   
-  return `${currencySymbol}${fuzzedMin.toLocaleString()}-${fuzzedMax.toLocaleString()}/unit`
+  // Round to nearest bucket
+  const buckets = level === 'medium' 
+    ? [5, 10, 25, 50, 100, 250, 500, 1000]
+    : [10, 50, 100, 500, 1000, 5000]
+  
+  for (let i = 0; i < buckets.length; i++) {
+    if (quantity <= buckets[i]) {
+      const lower = i === 0 ? 1 : buckets[i - 1] + 1
+      return `${lower}-${buckets[i]}`
+    }
+  }
+  return `${buckets[buckets.length - 1]}+`
 }
 
 /**
- * Calculate distance between two coordinates in kilometers
+ * Fuzz price range based on fuzzing level
+ * Returns a rounded range string
  */
-function calculateDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number {
-  const R = 6371 // Earth's radius in km
-  const dLat = (lat2 - lat1) * Math.PI / 180
-  const dLon = (lon2 - lon1) * Math.PI / 180
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon/2) * Math.sin(dLon/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-  return R * c
+export function fuzzPrice(minPrice: number, maxPrice: number, currencySymbol: string): string {
+  const roundTo = (n: number, precision: number) => {
+    const factor = Math.pow(10, precision)
+    return Math.round(n / factor) * factor
+  }
+  
+  // Round to nearest 100 for display
+  const roundedMin = roundTo(minPrice, 2)
+  const roundedMax = roundTo(maxPrice, 2)
+  
+  if (roundedMin === roundedMax) {
+    return `${currencySymbol}${roundedMin.toLocaleString()}`
+  }
+  return `${currencySymbol}${roundedMin.toLocaleString()} - ${currencySymbol}${roundedMax.toLocaleString()}`
 }
 
 /**
- * Fuzz location based on privacy level
+ * Fuzz location to general area
+ * Returns generalized location string based on level
  */
 export function fuzzLocation(
   location: { locality: string; region: string; country: string },
-  level: FuzzingLevel,
-  viewerLocation?: { lat: number; lon: number },
-  listingLocation?: { lat: number; lon: number },
+  level: FuzzingLevel
 ): string {
   switch (level) {
     case 'low':
       return `${location.locality}, ${location.region}`
     case 'medium':
-      return location.region
+      return `${location.region}, ${location.country}`
     case 'high':
-      if (viewerLocation && listingLocation) {
-        const distance = calculateDistance(
-          viewerLocation.lat,
-          viewerLocation.lon,
-          listingLocation.lat,
-          listingLocation.lon,
-        )
-        return `~${Math.round(distance)}km away`
-      }
-      return 'Location hidden'
-  }
-}
-
-/**
- * Apply privacy fuzzing to a marketplace listing
- */
-export function fuzzListing(
-  listing: ListingRecord,
-  viewerId: string | null,
-  viewerLocation?: { lat: number; lon: number },
-  currencySymbol = '₦',
-): FuzzedListing {
-  // No fuzzing for the seller viewing their own listing
-  if (viewerId === listing.sellerId) {
-    return {
-      id: listing.id,
-      sellerId: listing.sellerId,
-      livestockType: listing.livestockType,
-      species: listing.species,
-      quantity: listing.quantity.toString(),
-      priceRange: `${currencySymbol}${Number(listing.minPrice).toLocaleString()}-${Number(listing.maxPrice).toLocaleString()}/unit`,
-      location: `${listing.locality}, ${listing.region}`,
-      description: listing.description,
-      photoUrls: listing.photoUrls,
-      contactPreference: listing.contactPreference,
-      status: listing.status,
-      viewCount: listing.viewCount,
-      createdAt: listing.createdAt,
-    }
-  }
-
-  // Apply fuzzing for other viewers
-  return {
-    id: listing.id,
-    sellerId: listing.sellerId,
-    livestockType: listing.livestockType,
-    species: listing.species,
-    quantity: fuzzQuantity(listing.quantity),
-    priceRange: fuzzPrice(
-      Number(listing.minPrice),
-      Number(listing.maxPrice),
-      currencySymbol,
-    ),
-    location: fuzzLocation(
-      {
-        locality: listing.locality,
-        region: listing.region,
-        country: listing.country,
-      },
-      listing.fuzzingLevel,
-      viewerLocation,
-      {
-        lat: Number(listing.latitude),
-        lon: Number(listing.longitude),
-      },
-    ),
-    description: listing.description,
-    photoUrls: listing.photoUrls,
-    contactPreference: listing.contactPreference,
-    status: listing.status,
-    viewCount: listing.viewCount,
-    createdAt: listing.createdAt,
+      return location.country
   }
 }

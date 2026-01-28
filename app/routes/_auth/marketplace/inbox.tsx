@@ -11,7 +11,7 @@ const inboxSearchSchema = z.object({
   page: z.number().int().positive().default(1),
 })
 
-export const Route = createFileRoute('/_auth/marketplace/inbox')({
+export const Route = createFileRoute('/_auth/marketplace/inbox' as const)({
   validateSearch: inboxSearchSchema,
   loaderDeps: ({ search }) => ({ status: search.status, page: search.page }),
   loader: async ({ deps }) => {

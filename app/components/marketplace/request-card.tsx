@@ -1,10 +1,10 @@
 import { formatDistanceToNow } from 'date-fns'
-import { Check, X, Phone, Mail, MessageSquare } from 'lucide-react'
+import { Check, Mail, MessageSquare, Phone, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import type { ContactRequestRecord } from '~/features/marketplace/repository'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader } from '~/components/ui/card'
-import type { ContactRequestRecord } from '~/features/marketplace/repository'
 
 interface RequestCardProps {
   request: ContactRequestRecord

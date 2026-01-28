@@ -1,5 +1,5 @@
-import type { Kysely } from 'kysely'
 import { sql } from 'kysely'
+import type { Kysely } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
@@ -30,16 +30,16 @@ export async function up(db: Kysely<any>): Promise<void> {
     .column('viewedAt')
     .execute()
 
-  // Unique constraint for deduplication: one view per user per listing per day
+  // Unique constraint for deduplication: one view per user per listing
   // Using a partial unique index for authenticated users
-  await sql`CREATE UNIQUE INDEX idx_listing_views_user_daily 
-    ON listing_views (listing_id, viewer_id, (viewed_at::date)) 
-    WHERE viewer_id IS NOT NULL`.execute(db)
+  await sql`CREATE UNIQUE INDEX idx_listing_views_user_unique 
+    ON listing_views ("listingId", "viewerId") 
+    WHERE "viewerId" IS NOT NULL`.execute(db)
 
-  // For anonymous users, dedupe by IP per day
-  await sql`CREATE UNIQUE INDEX idx_listing_views_ip_daily 
-    ON listing_views (listing_id, viewer_ip, (viewed_at::date)) 
-    WHERE viewer_id IS NULL AND viewer_ip IS NOT NULL`.execute(db)
+  // For anonymous users, dedupe by IP (one view per IP per listing)
+  await sql`CREATE UNIQUE INDEX idx_listing_views_ip_unique 
+    ON listing_views ("listingId", "viewerIp") 
+    WHERE "viewerId" IS NULL AND "viewerIp" IS NOT NULL`.execute(db)
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

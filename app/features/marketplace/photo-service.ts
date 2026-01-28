@@ -62,7 +62,7 @@ export async function uploadListingPhoto(
  * 
  * @param photoUrls - Array of photo URLs to delete
  */
-export async function deleteListingPhotos(photoUrls: string[]): Promise<void> {
+export async function deleteListingPhotos(photoUrls: Array<string>): Promise<void> {
   if (!isStorageConfigured()) {
     return // Nothing to delete if storage not configured
   }

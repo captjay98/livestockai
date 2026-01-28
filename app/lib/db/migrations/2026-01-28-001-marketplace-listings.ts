@@ -1,5 +1,5 @@
-import type { Kysely } from 'kysely'
 import { sql } from 'kysely'
+import type { Kysely } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
@@ -14,14 +14,14 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('livestockType', 'varchar(20)', (col) => col.notNull())
     .addColumn('species', 'varchar(100)', (col) => col.notNull())
     .addColumn('quantity', 'integer', (col) => col.notNull())
-    .addColumn('minPrice', 'decimal(19,2)', (col) => col.notNull())
-    .addColumn('maxPrice', 'decimal(19,2)', (col) => col.notNull())
+    .addColumn('minPrice', sql`decimal(19,2)`, (col) => col.notNull())
+    .addColumn('maxPrice', sql`decimal(19,2)`, (col) => col.notNull())
     .addColumn('currency', 'varchar(3)', (col) =>
       col.notNull().defaultTo('NGN'),
     )
     // Location (exact, fuzzing applied at display time)
-    .addColumn('latitude', 'decimal(10,8)', (col) => col.notNull())
-    .addColumn('longitude', 'decimal(11,8)', (col) => col.notNull())
+    .addColumn('latitude', sql`decimal(10,8)`, (col) => col.notNull())
+    .addColumn('longitude', sql`decimal(11,8)`, (col) => col.notNull())
     .addColumn('country', 'varchar(100)', (col) => col.notNull())
     .addColumn('region', 'varchar(100)', (col) => col.notNull())
     .addColumn('locality', 'varchar(100)', (col) => col.notNull())

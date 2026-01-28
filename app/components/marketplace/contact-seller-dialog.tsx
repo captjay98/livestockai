@@ -33,7 +33,6 @@ interface ContactSellerDialogProps {
 }
 
 export function ContactSellerDialog({
-  listingId,
   open,
   onOpenChange,
   onSubmit,

@@ -47,7 +47,7 @@ export function getBoundingBox(
  * Filter listings by distance and add distance property
  */
 export function filterByDistance<T extends { latitude: string | number; longitude: string | number }>(
-  listings: T[],
+  listings: Array<T>,
   viewerLat: number,
   viewerLon: number,
   radiusKm: number,

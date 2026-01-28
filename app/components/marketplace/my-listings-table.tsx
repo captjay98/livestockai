@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { ListingActions } from './listing-actions'
+import type { ListingRecord } from '~/features/marketplace/repository'
 import { useFormatCurrency } from '~/features/settings'
 import { Badge } from '~/components/ui/badge'
 import {
@@ -9,11 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table'
-import type { ListingRecord } from '~/features/marketplace/repository'
-import { ListingActions } from './listing-actions'
 
 interface MyListingsTableProps {
-  listings: ListingRecord[]
+  listings: Array<ListingRecord>
   onAction: (listingId: string, action: string) => void
 }
 

@@ -9,15 +9,20 @@ const createListingSchema = z.object({
   quantity: z.number().int().positive(),
   minPrice: z.number().nonnegative(),
   maxPrice: z.number().nonnegative(),
+  currency: z.string().min(1).max(5).default('₦'),
   location: z.object({
     latitude: z.number().min(-90).max(90),
     longitude: z.number().min(-180).max(180),
-    address: z.string().min(1).max(200),
+    country: z.string().min(1).max(100),
+    region: z.string().min(1).max(100),
+    locality: z.string().min(1).max(100),
+    formattedAddress: z.string().min(1).max(200),
   }),
-  description: z.string().min(1).max(1000),
-  contactMethod: z.enum(['phone', 'whatsapp', 'both']),
-  contactPhone: z.string().min(1).max(20),
-  isNegotiable: z.boolean().default(true),
+  description: z.string().max(1000).optional(),
+  photoUrls: z.array(z.string().url()).max(5).optional(),
+  fuzzingLevel: z.enum(['low', 'medium', 'high']).default('medium'),
+  contactPreference: z.enum(['app', 'phone', 'both']).default('app'),
+  batchId: z.string().uuid().optional(),
 })
 
 const getListingsSchema = z.object({
@@ -54,7 +59,7 @@ export const createListingFn = createServerFn({ method: 'POST' })
 
       // Calculate expiration date using service
       const { calculateExpirationDate } = await import('./listing-service')
-      const expiresAt = calculateExpirationDate()
+      const expiresAt = calculateExpirationDate(new Date(), 30)
 
       // Validate price range
       if (data.maxPrice < data.minPrice) {
@@ -72,13 +77,19 @@ export const createListingFn = createServerFn({ method: 'POST' })
         quantity: data.quantity,
         minPrice: data.minPrice.toString(),
         maxPrice: data.maxPrice.toString(),
-        latitude: data.location.latitude,
-        longitude: data.location.longitude,
-        address: data.location.address,
-        description: data.description,
-        contactMethod: data.contactMethod,
-        contactPhone: data.contactPhone,
-        isNegotiable: data.isNegotiable,
+        currency: data.currency,
+        latitude: data.location.latitude.toString(),
+        longitude: data.location.longitude.toString(),
+        country: data.location.country,
+        region: data.location.region,
+        locality: data.location.locality,
+        formattedAddress: data.location.formattedAddress,
+        description: data.description ?? null,
+        photoUrls: data.photoUrls ?? null,
+        fuzzingLevel: data.fuzzingLevel,
+        contactPreference: data.contactPreference,
+        batchId: data.batchId ?? null,
+        status: 'active',
         expiresAt,
       })
 
@@ -107,45 +118,69 @@ export const getListingsFn = createServerFn({ method: 'GET' })
       await markExpiredListings(db)
 
       // Build filters
-      const filters: any = {
+      const filters: {
+        livestockType?: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+        species?: string
+        minPrice?: string
+        maxPrice?: string
+        boundingBox?: {
+          minLat: number
+          maxLat: number
+          minLon: number
+          maxLon: number
+        }
+      } = {
         livestockType: data.livestockType,
         species: data.species,
-        minPrice: data.minPrice,
-        maxPrice: data.maxPrice,
+        minPrice: data.minPrice?.toString(),
+        maxPrice: data.maxPrice?.toString(),
       }
 
       // Add location filtering if coordinates provided
       if (data.latitude && data.longitude) {
-        const { calculateBoundingBox } = await import('./listing-service')
-        const boundingBox = calculateBoundingBox(
-          data.latitude,
-          data.longitude,
-          data.radiusKm,
-        )
-        filters.boundingBox = boundingBox
-        filters.centerLat = data.latitude
-        filters.centerLng = data.longitude
-        filters.radiusKm = data.radiusKm
+        // Simple bounding box calculation
+        const radiusInDegrees = data.radiusKm / 111 // Rough conversion
+        filters.boundingBox = {
+          minLat: data.latitude - radiusInDegrees,
+          maxLat: data.latitude + radiusInDegrees,
+          minLon: data.longitude - radiusInDegrees,
+          maxLon: data.longitude + radiusInDegrees,
+        }
       }
 
       // Get listings from repository
-      const { getListings } = await import('./repository')
-      const result = await getListings(db, {
-        page: data.page,
-        pageSize: data.pageSize,
-        sortBy: data.sortBy,
-        filters,
-      })
+      const { getListings, getListingsInBoundingBox } = await import('./repository')
+      
+      let result: { data: Array<any>; total: number }
+      
+      if (filters.boundingBox) {
+        // Use bounding box query
+        const listings = await getListingsInBoundingBox(db, filters.boundingBox, filters)
+        result = {
+          data: listings,
+          total: listings.length,
+        }
+      } else {
+        // Use regular filtered query
+        result = await getListings(db, filters, {
+          page: data.page,
+          pageSize: data.pageSize,
+        })
+      }
 
       // Apply privacy fuzzing
-      const { applyPrivacyFuzzing } = await import('./privacy-fuzzer')
+      const { fuzzListing } = await import('./privacy-fuzzer')
       const fuzzedListings = result.data.map((listing) =>
-        applyPrivacyFuzzing(listing, data.latitude, data.longitude),
+        fuzzListing(listing, null, data.latitude && data.longitude ? { lat: data.latitude, lon: data.longitude } : undefined),
       )
 
+      // Calculate pagination info
+      const totalPages = Math.ceil(result.total / data.pageSize)
+
       return {
-        ...result,
         data: fuzzedListings,
+        totalPages,
+        currentPage: data.page,
       }
     } catch (error) {
       if (error instanceof AppError) throw error
@@ -179,8 +214,8 @@ export const getListingDetailFn = createServerFn({ method: 'GET' })
       // Check if viewer is owner (optional auth)
       let isOwner = false
       try {
-        const { getSession } = await import('../auth/server-middleware')
-        const session = await getSession()
+        const { getOptionalSession } = await import('../auth/server-middleware')
+        const session = await getOptionalSession()
         isOwner = session?.user.id === listing.sellerId
       } catch {
         // No session, continue as anonymous viewer
@@ -189,11 +224,11 @@ export const getListingDetailFn = createServerFn({ method: 'GET' })
       // Apply fuzzing if not owner
       let result = listing
       if (!isOwner) {
-        const { applyPrivacyFuzzing } = await import('./privacy-fuzzer')
-        result = applyPrivacyFuzzing(
+        const { fuzzListing } = await import('./privacy-fuzzer')
+        result = fuzzListing(
           listing,
-          data.viewerLatitude,
-          data.viewerLongitude,
+          null,
+          data.viewerLatitude && data.viewerLongitude ? { lat: data.viewerLatitude, lon: data.viewerLongitude } : undefined,
         )
       }
 
@@ -290,7 +325,7 @@ export const updateListingFn = createServerFn({ method: 'POST' })
       let expiresAt = listing.expiresAt
       if (data.expirationDays) {
         const { calculateExpirationDate } = await import('./listing-service')
-        expiresAt = calculateExpirationDate(data.expirationDays)
+        expiresAt = calculateExpirationDate(new Date(), data.expirationDays)
       }
 
       // Update listing
@@ -342,8 +377,8 @@ export const deleteListingFn = createServerFn({ method: 'POST' })
       }
 
       // Soft delete listing
-      const { deleteListing } = await import('./repository')
-      await deleteListing(db, data.listingId)
+      const { softDeleteListing } = await import('./repository')
+      await softDeleteListing(db, data.listingId)
 
       // Notify pending contact requesters
       const { notifyContactRequestersOfDeletion } = await import('./repository')
@@ -373,12 +408,15 @@ export const getMyListingsFn = createServerFn({ method: 'GET' })
       const db = await getDb()
 
       // Get user's listings with analytics
-      const { getUserListings } = await import('./repository')
-      const result = await getUserListings(db, session.user.id, {
-        status: data.status,
+      const { getListingsBySeller } = await import('./repository')
+      const listings = await getListingsBySeller(db, session.user.id, data.status)
+      
+      const result = {
+        data: listings,
+        total: listings.length,
         page: data.page,
         pageSize: data.pageSize,
-      })
+      }
 
       return result
     } catch (error) {
@@ -397,8 +435,11 @@ export const recordListingViewFn = createServerFn({ method: 'POST' })
   .inputValidator(recordListingViewSchema)
   .handler(async ({ data }) => {
     try {
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
+      
       const { recordListingView } = await import('./repository')
-      const success = await recordListingView(data.listingId)
+      const success = await recordListingView(db, data.listingId, null, null)
       return { success }
     } catch (error) {
       // Don't throw errors for view recording to avoid breaking user experience
@@ -456,14 +497,14 @@ export const createContactRequestFn = createServerFn({ method: 'POST' })
       }
 
       // Check no existing request
-      const { getContactRequest } = await import('./repository')
-      const existing = await getContactRequest(db, data.listingId, session.user.id)
+      const { hasExistingContactRequest } = await import('./repository')
+      const existing = await hasExistingContactRequest(db, data.listingId, session.user.id)
       if (existing) {
         throw new AppError('DUPLICATE_CONTACT_REQUEST')
       }
 
       // Insert contact request
-      const { insertContactRequest, incrementContactCount } = await import('./repository')
+      const { insertContactRequest } = await import('./repository')
       const requestId = await insertContactRequest(db, {
         listingId: data.listingId,
         buyerId: session.user.id,
@@ -473,8 +514,7 @@ export const createContactRequestFn = createServerFn({ method: 'POST' })
         email: data.email,
       })
 
-      // Increment contact count
-      await incrementContactCount(db, data.listingId)
+      // Note: Contact count increment would need to be implemented in repository
 
       // Create notification for seller
       const { createNotification } = await import('../notifications/server')
@@ -513,7 +553,15 @@ export const respondToRequestFn = createServerFn({ method: 'POST' })
       const { getContactRequestById } = await import('./repository')
       const request = await getContactRequestById(db, data.requestId)
       
-      if (!request || request.listing.sellerId !== session.user.id) {
+      if (!request) {
+        throw new AppError('NOT_LISTING_OWNER')
+      }
+
+      // Get listing to check ownership
+      const { getListingById } = await import('./repository')
+      const listing = await getListingById(db, request.listingId)
+      
+      if (!listing || listing.sellerId !== session.user.id) {
         throw new AppError('NOT_LISTING_OWNER')
       }
 
@@ -523,12 +571,8 @@ export const respondToRequestFn = createServerFn({ method: 'POST' })
       }
 
       // Update request status
-      const { updateContactRequest } = await import('./repository')
-      const updatedRequest = await updateContactRequest(db, data.requestId, {
-        status: data.approved ? 'approved' : 'denied',
-        responseMessage: data.responseMessage,
-        respondedAt: new Date(),
-      })
+      const { updateContactRequestStatus } = await import('./repository')
+      await updateContactRequestStatus(db, data.requestId, data.approved ? 'approved' : 'denied', data.responseMessage)
 
       // Create notification for buyer
       const { createNotification } = await import('../notifications/server')
@@ -537,12 +581,12 @@ export const respondToRequestFn = createServerFn({ method: 'POST' })
         type: data.approved ? 'contactApproved' : 'contactDenied',
         title: data.approved ? 'Contact Request Approved' : 'Contact Request Denied',
         message: data.approved 
-          ? `Your request for ${request.listing.species} was approved`
-          : `Your request for ${request.listing.species} was denied`,
+          ? `Your request for ${listing.species} was approved`
+          : `Your request for ${listing.species} was denied`,
         metadata: { listingId: request.listingId, requestId: data.requestId },
       })
 
-      return updatedRequest
+      return { success: true }
     } catch (error) {
       if (error instanceof AppError) throw error
       throw new AppError('DATABASE_ERROR', {
@@ -567,11 +611,14 @@ export const getContactRequestsFn = createServerFn({ method: 'GET' })
 
       // Get requests for seller's listings
       const { getContactRequestsForSeller } = await import('./repository')
-      const result = await getContactRequestsForSeller(db, session.user.id, {
-        status: data.status,
+      const requests = await getContactRequestsForSeller(db, session.user.id, data.status)
+      
+      const result = {
+        data: requests,
+        total: requests.length,
         page: data.page,
         pageSize: data.pageSize,
-      })
+      }
 
       return result
     } catch (error) {

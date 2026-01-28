@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useFormatCurrency } from '~/features/settings'
 import { ChevronLeft, ChevronRight, Upload } from 'lucide-react'
+import { BatchSelector } from './batch-selector'
+import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -13,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { BatchSelector } from './batch-selector'
 
 interface Batch {
   id: string
@@ -25,7 +25,7 @@ interface Batch {
 
 interface CreateListingFormProps {
   onSubmit: (data: any) => void
-  batches: Batch[]
+  batches: Array<Batch>
   isSubmitting?: boolean
 }
 
@@ -39,7 +39,7 @@ interface FormData {
   coordinates: string
   fuzzingLevel: string
   description: string
-  photos: File[]
+  photos: Array<File>
   contactPreference: string
   expirationPeriod: string
 }

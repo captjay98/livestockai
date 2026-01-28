@@ -3,13 +3,60 @@
  * Leverages existing offline-writes-v1 infrastructure
  */
 
-import { set, get, keys, del } from 'idb-keyval'
+import { del, get, keys, set } from 'idb-keyval'
+
+/** Data shape for creating a listing (matches createListingSchema) */
+export interface CreateListingData {
+  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  species: string
+  quantity: number
+  minPrice: number
+  maxPrice: number
+  currency?: string
+  location: {
+    latitude: number
+    longitude: number
+    country: string
+    region: string
+    locality: string
+    formattedAddress: string
+  }
+  description?: string
+  photoUrls?: Array<string>
+  fuzzingLevel?: 'low' | 'medium' | 'high'
+  contactPreference?: 'app' | 'phone' | 'both'
+  batchId?: string
+}
+
+/** Data shape for updating a listing */
+export interface UpdateListingData {
+  listingId: string
+  status?: 'active' | 'paused' | 'sold'
+  quantity?: number
+  minPrice?: number
+  maxPrice?: number
+  description?: string
+}
+
+/** Data shape for deleting a listing */
+export interface DeleteListingData {
+  listingId: string
+}
+
+/** Data shape for creating a contact request */
+export interface CreateContactRequestData {
+  listingId: string
+  message: string
+  contactMethod: 'app' | 'phone' | 'email'
+  phoneNumber?: string
+  email?: string
+}
 
 export interface PendingItem {
   id: string
   type: 'listing' | 'contact_request'
   action: 'create' | 'update' | 'delete'
-  data: any
+  data: CreateListingData | UpdateListingData | DeleteListingData | CreateContactRequestData
   createdAt: Date
   retryCount: number
 }
@@ -34,7 +81,7 @@ export async function queueForSync(item: PendingItem): Promise<void> {
 /**
  * Get all pending marketplace items
  */
-export async function getPendingItems(): Promise<PendingItem[]> {
+export async function getPendingItems(): Promise<Array<PendingItem>> {
   const allKeys = await keys()
   const pendingKeys = allKeys.filter(key => 
     typeof key === 'string' && key.startsWith(PENDING_PREFIX)
@@ -111,10 +158,45 @@ export async function syncPendingItems(): Promise<{ synced: number; failed: numb
 }
 
 /**
- * Placeholder for actual API sync
+ * Sync item with server using dynamic imports
  */
-async function syncItem(item: PendingItem): Promise<void> {
-  // TODO: Implement actual API calls based on item.type and item.action
-  // This would use the existing server functions pattern
-  throw new Error('Sync not implemented')
+function syncItem(item: PendingItem): Promise<void> {
+  switch (item.type) {
+    case 'listing':
+      return syncListingItem(item)
+    case 'contact_request':
+      return syncContactRequestItem(item)
+    default:
+      throw new Error(`Unknown sync item type: ${item.type}`)
+  }
+}
+
+async function syncListingItem(item: PendingItem): Promise<void> {
+  const { createListingFn, updateListingFn, deleteListingFn } = await import('./server')
+  
+  switch (item.action) {
+    case 'create':
+      await createListingFn({ data: item.data as CreateListingData })
+      break
+    case 'update':
+      await updateListingFn({ data: item.data as UpdateListingData })
+      break
+    case 'delete':
+      await deleteListingFn({ data: item.data as DeleteListingData })
+      break
+    default:
+      throw new Error(`Unknown listing action: ${item.action}`)
+  }
+}
+
+async function syncContactRequestItem(item: PendingItem): Promise<void> {
+  const { createContactRequestFn } = await import('./server')
+  
+  switch (item.action) {
+    case 'create':
+      await createContactRequestFn({ data: item.data as CreateContactRequestData })
+      break
+    default:
+      throw new Error(`Unknown contact request action: ${item.action}`)
+  }
 }

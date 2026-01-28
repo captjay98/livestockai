@@ -364,6 +364,12 @@ export const ErrorMap = {
     category: 'VALIDATION',
     message: 'Payroll period overlaps with existing period',
   },
+  CONFLICT: {
+    code: 40900,
+    httpStatus: 409,
+    category: 'VALIDATION',
+    message: 'Resource conflict - server version is newer than client version',
+  },
   DUPLICATE_CONTACT_REQUEST: {
     code: 40904,
     httpStatus: 409,

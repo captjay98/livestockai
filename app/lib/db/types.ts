@@ -1459,7 +1459,7 @@ export interface MarketplaceListingTable {
   formattedAddress: string
   // Content
   description: string | null
-  photoUrls: string[] | null
+  photoUrls: Array<string> | null
   // Settings
   fuzzingLevel: FuzzingLevel
   contactPreference: 'app' | 'phone' | 'both'

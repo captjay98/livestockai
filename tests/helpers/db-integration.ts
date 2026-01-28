@@ -80,6 +80,7 @@ export async function truncateAllTables(): Promise<void> {
   // Single TRUNCATE CASCADE is fastest - resets all tables at once
   await sql`
     TRUNCATE TABLE 
+      listing_views, listing_contact_requests, marketplace_listings,
       invoice_items, water_quality, treatments, vaccinations, weight_samples, 
       egg_records, feed_records, mortality_records, sales, expenses, batches,
       invoices, structures, medication_inventory, feed_inventory, notifications, 

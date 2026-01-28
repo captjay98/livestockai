@@ -9,23 +9,8 @@ import { useFarm } from '~/features/farms/context'
 
 export const Route = createFileRoute('/_auth/marketplace/create')({
   loader: async () => {
-    // Fetch user's active batches for pre-fill option
-    const { selectedFarmId } = useFarm.getState()
-    if (!selectedFarmId) return { batches: [] }
-    
-    try {
-      const result = await getBatchesForFarmFn({
-        data: {
-          farmId: selectedFarmId,
-          page: 1,
-          pageSize: 100,
-          status: 'active',
-        },
-      })
-      return { batches: result.paginatedBatches.data }
-    } catch {
-      return { batches: [] }
-    }
+    // Return empty batches array for now - will be loaded in component
+    return { batches: [] }
   },
   component: CreateListingPage,
 })
@@ -33,13 +18,14 @@ export const Route = createFileRoute('/_auth/marketplace/create')({
 function CreateListingPage() {
   const { t } = useTranslation('marketplace')
   const router = useRouter()
-  const { batches } = Route.useLoaderData()
+  const { selectedFarmId } = useFarm()
+  const loaderData = Route.useLoaderData()
 
   const createListingMutation = useMutation({
     mutationFn: createListingFn,
     onSuccess: () => {
       toast.success('Listing created successfully')
-      router.navigate({ to: '/marketplace/my-listings' })
+      router.navigate({ to: '/_auth/marketplace/my-listings' })
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to create listing')
@@ -56,7 +42,7 @@ function CreateListingPage() {
       </div>
       
       <CreateListingForm
-        batches={batches}
+        batches={loaderData.batches}
         onSubmit={(data) => createListingMutation.mutate({ data })}
         isSubmitting={createListingMutation.isPending}
       />

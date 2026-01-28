@@ -16,14 +16,15 @@ interface Batch {
 }
 
 interface BatchSelectorProps {
-  batches: Batch[]
+  batches: Array<Batch>
   onSelect: (batch: Batch) => void
 }
 
 export function BatchSelector({ batches, onSelect }: BatchSelectorProps) {
   const { t } = useTranslation('marketplace')
 
-  const handleSelect = (batchId: string) => {
+  const handleSelect = (batchId: string | null) => {
+    if (!batchId) return
     const batch = batches.find(b => b.id === batchId)
     if (batch) {
       onSelect(batch)

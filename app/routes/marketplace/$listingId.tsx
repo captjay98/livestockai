@@ -1,13 +1,13 @@
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
+import { ArrowLeft, MessageCircle } from 'lucide-react'
+import type { FuzzedListing } from '~/features/marketplace/privacy-fuzzer'
 import { getListingDetailFn, recordListingViewFn } from '~/features/marketplace/server'
 import { ListingDetail } from '~/components/marketplace/listing-detail'
 import { ContactSellerDialog } from '~/components/marketplace/contact-seller-dialog'
 import { Button } from '~/components/ui/button'
-import { ArrowLeft, MessageCircle } from 'lucide-react'
-import { Alert, AlertDescription } from '~/components/ui/alert'
 
 const listingDetailSearchSchema = z.object({
   viewerLatitude: z.number().min(-90).max(90).optional(),
@@ -17,14 +17,18 @@ const listingDetailSearchSchema = z.object({
 export const Route = createFileRoute('/marketplace/$listingId')({
   validateSearch: listingDetailSearchSchema,
 
-  loaderDeps: ({ params, search }) => ({
-    listingId: params.listingId,
+  loaderDeps: ({ search }) => ({
     viewerLatitude: search.viewerLatitude,
     viewerLongitude: search.viewerLongitude,
   }),
 
-  loader: async ({ deps }) => {
-    return getListingDetailFn({ data: deps })
+  loader: async ({ params, deps }) => {
+    return getListingDetailFn({ 
+      data: { 
+        listingId: params.listingId,
+        ...deps 
+      } 
+    })
   },
 
   component: ListingDetailPage,
@@ -46,25 +50,28 @@ function ListingDetailPage() {
   }, [listingId])
 
   const handleContactSeller = () => {
-    // Check if user is authenticated
-    // Since this is a public route, we need to check auth status
-    // For now, show login prompt - in real app, check session
     setShowLoginPrompt(true)
   }
 
   const handleLoginRedirect = () => {
-    router.navigate({ to: '/auth/login', search: { redirect: `/marketplace/${listingId}` } })
+    router.navigate({ to: '/login', search: { redirect: `/marketplace/${listingId}` } })
+  }
+
+  if (!listing) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <p>{t('listingNotFound')}</p>
+      </div>
+    )
   }
 
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
-        <Button variant="ghost" size="sm" asChild>
-          <Link to="/marketplace">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t('backToMarketplace')}
-          </Link>
-        </Button>
+        <Link to="/marketplace" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          {t('listing.backToMarketplace')}
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -81,26 +88,26 @@ function ListingDetailPage() {
                 size="lg"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
-                {t('contactSeller')}
+                {t('listing.contactSeller')}
               </Button>
             )}
 
             {listing.sellerVerification && (
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <h3 className="font-medium text-green-900 mb-2">{t('verifiedSeller')}</h3>
+                <h3 className="font-medium text-green-900 mb-2">{t('listing.verifiedSeller')}</h3>
                 <p className="text-sm text-green-700">
-                  {t('verifiedSellerDescription')}
+                  {t('listing.verifiedSellerDescription')}
                 </p>
               </div>
             )}
 
             <div className="p-4 bg-muted rounded-lg">
-              <h3 className="font-medium mb-2">{t('safetyTips')}</h3>
+              <h3 className="font-medium mb-2">{t('listing.safetyTips')}</h3>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• {t('safetyTip1')}</li>
-                <li>• {t('safetyTip2')}</li>
-                <li>• {t('safetyTip3')}</li>
-                <li>• {t('safetyTip4')}</li>
+                <li>• {t('listing.safetyTip1')}</li>
+                <li>• {t('listing.safetyTip2')}</li>
+                <li>• {t('listing.safetyTip3')}</li>
+                <li>• {t('listing.safetyTip4')}</li>
               </ul>
             </div>
           </div>
@@ -111,27 +118,27 @@ function ListingDetailPage() {
       {showLoginPrompt && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">{t('loginRequired')}</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('listing.loginRequired')}</h3>
             <p className="text-muted-foreground mb-6">
-              {t('loginRequiredDescription')}
+              {t('listing.loginRequiredDescription')}
             </p>
             <div className="flex gap-3">
               <Button onClick={handleLoginRedirect} className="flex-1">
-                {t('loginSignUp')}
+                {t('listing.loginSignUp')}
               </Button>
               <Button 
                 variant="outline" 
                 onClick={() => setShowLoginPrompt(false)}
                 className="flex-1"
               >
-                {t('cancel')}
+                {t('actions.cancel')}
               </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Contact Dialog - only shown if authenticated */}
+      {/* Contact Dialog */}
       <ContactSellerDialog
         open={showContactDialog}
         onOpenChange={setShowContactDialog}

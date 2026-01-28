@@ -1,11 +1,14 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
 import { z } from 'zod'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import type { FuzzedListing } from '~/features/marketplace/privacy-fuzzer'
 import { getListingsFn } from '~/features/marketplace/server'
 import { ListingFilters } from '~/components/marketplace/listing-filters'
 import { ListingCard } from '~/components/marketplace/listing-card'
+import { StalenessIndicator } from '~/components/marketplace/staleness-indicator'
 import { Button } from '~/components/ui/button'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 const marketplaceSearchSchema = z.object({
   page: z.number().int().positive().catch(1),
@@ -20,21 +23,12 @@ const marketplaceSearchSchema = z.object({
   sortBy: z.enum(['price_asc', 'price_desc', 'distance', 'newest']).catch('newest'),
 })
 
-export const Route = createFileRoute('/marketplace/')({
+type MarketplaceFilters = z.infer<typeof marketplaceSearchSchema>
+
+export const Route = createFileRoute('/marketplace/' as const)({
   validateSearch: marketplaceSearchSchema,
   
-  loaderDeps: ({ search }) => ({
-    page: search.page,
-    pageSize: search.pageSize,
-    livestockType: search.livestockType,
-    species: search.species,
-    minPrice: search.minPrice,
-    maxPrice: search.maxPrice,
-    radiusKm: search.radiusKm,
-    latitude: search.latitude,
-    longitude: search.longitude,
-    sortBy: search.sortBy,
-  }),
+  loaderDeps: ({ search }) => search,
 
   loader: async ({ deps }) => {
     return getListingsFn({ data: deps })
@@ -45,32 +39,56 @@ export const Route = createFileRoute('/marketplace/')({
 
 function MarketplacePage() {
   const { t } = useTranslation('marketplace')
-  const { data: listings, totalPages, currentPage } = Route.useLoaderData()
+  const result = Route.useLoaderData()
   const search = Route.useSearch()
+  const [filters, setFilters] = useState<MarketplaceFilters>(search)
+
+  const listings = result?.data ?? []
+  const totalPages = result?.totalPages ?? 1
+  const currentPage = result?.currentPage ?? 1
+
+  // Transform search params to ListingFilters format
+  const listingFilters = {
+    livestockType: search.livestockType || '',
+    species: search.species || '',
+    minPrice: search.minPrice?.toString() || '',
+    maxPrice: search.maxPrice?.toString() || '',
+    distanceRadius: search.radiusKm?.toString() || '',
+  }
+
+  const handleFiltersChange = (newFilters: typeof listingFilters) => {
+    setFilters({
+      ...filters,
+      livestockType: newFilters.livestockType as any,
+      species: newFilters.species,
+      minPrice: newFilters.minPrice ? parseFloat(newFilters.minPrice) : undefined,
+      maxPrice: newFilters.maxPrice ? parseFloat(newFilters.maxPrice) : undefined,
+      radiusKm: newFilters.distanceRadius ? parseFloat(newFilters.distanceRadius) : filters.radiusKm,
+    })
+  }
 
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">{t('title')}</h1>
-        <p className="text-muted-foreground">
-          {t('description')}
-        </p>
+        <h1 className="text-2xl font-bold mb-2">{t('browse.title')}</h1>
+        <p className="text-muted-foreground">{t('browse.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-1">
-          <ListingFilters />
+          <ListingFilters filters={listingFilters} onFiltersChange={handleFiltersChange} />
         </div>
 
         <div className="lg:col-span-3">
+          <StalenessIndicator lastSyncTime={new Date()} />
           {listings.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">{t('noListingsFound')}</p>
+              <p className="text-muted-foreground">{t('browse.noListings')}</p>
             </div>
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-                {listings.map((listing) => (
+                {listings.map((listing: FuzzedListing) => (
                   <Link
                     key={listing.id}
                     to="/marketplace/$listingId"
@@ -88,34 +106,24 @@ function MarketplacePage() {
                     variant="outline"
                     size="sm"
                     disabled={currentPage <= 1}
-                    asChild
+                    onClick={() => window.location.href = `/marketplace?page=${currentPage - 1}`}
                   >
-                    <Link
-                      to="/marketplace"
-                      search={{ ...search, page: currentPage - 1 }}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      {t('previous')}
-                    </Link>
+                    <ChevronLeft className="h-4 w-4" />
+                    {t('browse.previous')}
                   </Button>
 
                   <span className="text-sm text-muted-foreground">
-                    {t('pageInfo', { current: currentPage, total: totalPages })}
+                    {t('browse.pageInfo', { current: currentPage, total: totalPages })}
                   </span>
 
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={currentPage >= totalPages}
-                    asChild
+                    onClick={() => window.location.href = `/marketplace?page=${currentPage + 1}`}
                   >
-                    <Link
-                      to="/marketplace"
-                      search={{ ...search, page: currentPage + 1 }}
-                    >
-                      {t('next')}
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
+                    {t('browse.next')}
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               )}

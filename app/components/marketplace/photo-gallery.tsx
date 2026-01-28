@@ -7,7 +7,7 @@ import {
 } from '~/components/ui/dialog'
 
 interface PhotoGalleryProps {
-  photos: string[]
+  photos: Array<string>
   alt: string
 }
 

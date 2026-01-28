@@ -1,36 +1,38 @@
-import { get, set, del } from 'idb-keyval'
-import type { FuzzedListing } from '../privacy-fuzzer'
+import { del, get, set } from 'idb-keyval'
+import type { FuzzedListing } from './privacy-fuzzer'
 import type { ListingFilters } from './repository'
 
 const CACHE_KEY = 'marketplace-listings-cache'
 const SYNC_KEY = 'marketplace-last-sync'
 const CACHE_DURATION = 24 * 60 * 60 * 1000 // 24 hours
 
-export async function getCachedListings(filters?: ListingFilters): Promise<FuzzedListing[]> {
+export async function getCachedListings(filters?: ListingFilters): Promise<Array<FuzzedListing>> {
   const cached = await get(CACHE_KEY)
   if (!cached) return []
   
-  let listings = cached as FuzzedListing[]
+  let listings = cached as Array<FuzzedListing>
   
   if (filters) {
-    if (filters.category) {
-      listings = listings.filter(l => l.category === filters.category)
+    if (filters.livestockType) {
+      listings = listings.filter(l => l.livestockType === filters.livestockType)
     }
-    if (filters.minPrice) {
-      listings = listings.filter(l => l.price >= filters.minPrice!)
+    if (filters.minPrice !== undefined) {
+      const minPriceNum = parseFloat(filters.minPrice)
+      listings = listings.filter(l => parseFloat(l.minPrice) >= minPriceNum)
     }
-    if (filters.maxPrice) {
-      listings = listings.filter(l => l.price <= filters.maxPrice!)
+    if (filters.maxPrice !== undefined) {
+      const maxPriceNum = parseFloat(filters.maxPrice)
+      listings = listings.filter(l => parseFloat(l.maxPrice) <= maxPriceNum)
     }
-    if (filters.location) {
-      listings = listings.filter(l => l.location.includes(filters.location!))
+    if (filters.region) {
+      listings = listings.filter(l => l.region.includes(filters.region!))
     }
   }
   
   return listings
 }
 
-export async function updateListingCache(listings: FuzzedListing[]): Promise<void> {
+export async function updateListingCache(listings: Array<FuzzedListing>): Promise<void> {
   await set(CACHE_KEY, listings)
   await setLastSyncTime(new Date())
 }

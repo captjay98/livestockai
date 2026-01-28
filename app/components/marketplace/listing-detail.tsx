@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
+import { Calendar, Eye, MapPin, Shield } from 'lucide-react'
+import { PhotoGallery } from './photo-gallery'
+import type { FuzzedListing } from '~/features/marketplace/privacy-fuzzer'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { PhotoGallery } from './photo-gallery'
-import type { FuzzedListing } from '~/features/marketplace/privacy-fuzzer'
-import { MapPin, Calendar, Eye, Shield } from 'lucide-react'
 
 interface ListingDetailProps {
   listing: FuzzedListing

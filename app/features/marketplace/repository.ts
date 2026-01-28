@@ -4,7 +4,7 @@
  */
 
 import type { Kysely } from 'kysely'
-import type { Database, MarketplaceLivestockType, ListingStatus, FuzzingLevel, ContactRequestStatus } from '~/lib/db/types'
+import type { Database, FuzzingLevel, ListingStatus, MarketplaceLivestockType } from '~/lib/db/types'
 
 /**
  * Data for inserting a new listing
@@ -24,7 +24,7 @@ export interface ListingInsert {
   locality: string
   formattedAddress: string
   description?: string | null
-  photoUrls?: string[] | null
+  photoUrls?: Array<string> | null
   fuzzingLevel: FuzzingLevel
   contactPreference: 'app' | 'phone' | 'both'
   batchId?: string | null
@@ -42,7 +42,7 @@ export interface ListingUpdate {
   minPrice?: string
   maxPrice?: string
   description?: string | null
-  photoUrls?: string[] | null
+  photoUrls?: Array<string> | null
   fuzzingLevel?: FuzzingLevel
   contactPreference?: 'app' | 'phone' | 'both'
   status?: ListingStatus
@@ -80,7 +80,7 @@ export interface ListingRecord {
   locality: string
   formattedAddress: string
   description: string | null
-  photoUrls: string[] | null
+  photoUrls: Array<string> | null
   fuzzingLevel: FuzzingLevel
   contactPreference: 'app' | 'phone' | 'both'
   batchId: string | null
@@ -132,7 +132,7 @@ export async function getListings(
   db: Kysely<Database>,
   filters: ListingFilters,
   pagination: { page: number; pageSize: number },
-): Promise<{ data: ListingRecord[]; total: number }> {
+): Promise<{ data: Array<ListingRecord>; total: number }> {
   let query = db
     .selectFrom('marketplace_listings')
     .where('status', '=', 'active')
@@ -173,7 +173,7 @@ export async function getListings(
     .offset((pagination.page - 1) * pagination.pageSize)
     .execute()
 
-  return { data: data as ListingRecord[], total }
+  return { data: data as Array<ListingRecord>, total }
 }
 
 /**
@@ -183,7 +183,7 @@ export async function getListingsInBoundingBox(
   db: Kysely<Database>,
   box: { minLat: number; maxLat: number; minLon: number; maxLon: number },
   filters?: ListingFilters,
-): Promise<ListingRecord[]> {
+): Promise<Array<ListingRecord>> {
   let query = db
     .selectFrom('marketplace_listings')
     .selectAll()
@@ -210,7 +210,7 @@ export async function getListingsInBoundingBox(
   }
 
   const listings = await query.execute()
-  return listings as ListingRecord[]
+  return listings as Array<ListingRecord>
 }
 
 /**
@@ -220,7 +220,7 @@ export async function getListingsBySeller(
   db: Kysely<Database>,
   sellerId: string,
   status?: ListingStatus | 'all',
-): Promise<ListingRecord[]> {
+): Promise<Array<ListingRecord>> {
   let query = db
     .selectFrom('marketplace_listings')
     .selectAll()
@@ -235,7 +235,7 @@ export async function getListingsBySeller(
     .orderBy('createdAt', 'desc')
     .execute()
 
-  return listings as ListingRecord[]
+  return listings as Array<ListingRecord>
 }
 
 /**
@@ -245,7 +245,7 @@ export async function updateListing(
   db: Kysely<Database>,
   listingId: string,
   updates: ListingUpdate,
-): Promise<void> {
+): Promise<ListingRecord> {
   await db
     .updateTable('marketplace_listings')
     .set({
@@ -254,6 +254,13 @@ export async function updateListing(
     })
     .where('id', '=', listingId)
     .execute()
+
+  // Return the updated listing
+  const updated = await getListingById(db, listingId)
+  if (!updated) {
+    throw new Error('Failed to retrieve updated listing')
+  }
+  return updated
 }
 
 /**
@@ -341,6 +348,16 @@ export async function insertContactRequest(
       })
       .returning('id')
       .executeTakeFirstOrThrow()
+
+    // Increment contact count on the listing
+    await db
+      .updateTable('marketplace_listings')
+      .set((eb) => ({
+        contactCount: eb('contactCount', '+', 1),
+      }))
+      .where('id', '=', request.listingId)
+      .execute()
+
     return result.id
   } catch (error: any) {
     // Handle unique constraint violation
@@ -396,7 +413,7 @@ export async function getContactRequestsForSeller(
   db: Kysely<Database>,
   sellerId: string,
   status?: 'pending' | 'approved' | 'denied' | 'all',
-): Promise<ContactRequestRecord[]> {
+): Promise<Array<ContactRequestRecord>> {
   let query = db
     .selectFrom('listing_contact_requests')
     .innerJoin('marketplace_listings', 'marketplace_listings.id', 'listing_contact_requests.listingId')
@@ -411,7 +428,7 @@ export async function getContactRequestsForSeller(
     .orderBy('listing_contact_requests.createdAt', 'desc')
     .execute()
 
-  return requests as ContactRequestRecord[]
+  return requests as Array<ContactRequestRecord>
 }
 
 /**
@@ -420,7 +437,7 @@ export async function getContactRequestsForSeller(
 export async function getContactRequestsForBuyer(
   db: Kysely<Database>,
   buyerId: string,
-): Promise<ContactRequestRecord[]> {
+): Promise<Array<ContactRequestRecord>> {
   const requests = await db
     .selectFrom('listing_contact_requests')
     .selectAll()
@@ -428,7 +445,7 @@ export async function getContactRequestsForBuyer(
     .orderBy('createdAt', 'desc')
     .execute()
 
-  return requests as ContactRequestRecord[]
+  return requests as Array<ContactRequestRecord>
 }
 
 /**
@@ -461,26 +478,25 @@ export async function recordListingView(
   viewerIp: string | null,
 ): Promise<boolean> {
   try {
-    await db.transaction().execute(async (trx) => {
-      // Insert view record
-      await trx
-        .insertInto('listing_views')
-        .values({
-          listingId,
-          viewerId,
-          viewerIp,
-        })
-        .execute()
+    // Insert view record (will fail on duplicate due to unique constraint)
+    await db
+      .insertInto('listing_views')
+      .values({
+        listingId,
+        viewerId,
+        viewerIp,
+      })
+      .execute()
 
-      // Increment view count
-      await trx
-        .updateTable('marketplace_listings')
-        .set((eb) => ({
-          viewCount: eb('viewCount', '+', 1),
-        }))
-        .where('id', '=', listingId)
-        .execute()
-    })
+    // Increment view count
+    await db
+      .updateTable('marketplace_listings')
+      .set((eb) => ({
+        viewCount: eb('viewCount', '+', 1),
+      }))
+      .where('id', '=', listingId)
+      .execute()
+
     return true
   } catch (error) {
     // Handle unique constraint violation (duplicate view)
@@ -545,11 +561,11 @@ export async function notifyContactRequestersOfDeletion(
   
   // Get all pending contact requests for this listing
   const requests = await db
-    .selectFrom('marketplace_contact_requests as mcr')
-    .innerJoin('marketplace_listings as ml', 'ml.id', 'mcr.listingId')
-    .select(['mcr.buyerId', 'ml.species'])
-    .where('mcr.listingId', '=', listingId)
-    .where('mcr.status', '=', 'pending')
+    .selectFrom('listing_contact_requests as lcr')
+    .innerJoin('marketplace_listings as ml', 'ml.id', 'lcr.listingId')
+    .select(['lcr.buyerId', 'ml.species'])
+    .where('lcr.listingId', '=', listingId)
+    .where('lcr.status', '=', 'pending')
     .execute()
 
   // Create notifications for each requester

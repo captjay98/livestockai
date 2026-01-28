@@ -3,16 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { getMyListingsFn, updateListingFn, deleteListingFn } from '~/features/marketplace/server'
+import { deleteListingFn, getMyListingsFn, updateListingFn } from '~/features/marketplace/server'
 import { MyListingsTable } from '~/components/marketplace/my-listings-table'
-import { ListingActions } from '~/components/marketplace/listing-actions'
 
 const myListingsSearchSchema = z.object({
   status: z.enum(['active', 'paused', 'sold', 'expired', 'all']).default('all'),
   page: z.number().int().positive().default(1),
 })
 
-export const Route = createFileRoute('/_auth/marketplace/my-listings')({
+export const Route = createFileRoute('/_auth/marketplace/my-listings' as const)({
   validateSearch: myListingsSearchSchema,
   loaderDeps: ({ search }) => ({ status: search.status, page: search.page }),
   loader: async ({ deps }) => {
@@ -31,7 +30,7 @@ function MyListingsPage() {
   const { t } = useTranslation('marketplace')
   const queryClient = useQueryClient()
   const { status, page } = Route.useSearch()
-  const data = Route.useLoaderData()
+  const listingsData = Route.useLoaderData()
 
   const updateListingMutation = useMutation({
     mutationFn: updateListingFn,
@@ -55,10 +54,10 @@ function MyListingsPage() {
     },
   })
 
-  const handleAction = (action: string, listingId: string, data?: any) => {
+  const handleAction = (action: string, listingId: string, updateData?: any) => {
     switch (action) {
       case 'edit':
-        updateListingMutation.mutate({ data: { listingId, ...data } })
+        updateListingMutation.mutate({ data: { listingId, ...updateData } })
         break
       case 'pause':
         updateListingMutation.mutate({ data: { listingId, status: 'paused' } })
@@ -88,7 +87,7 @@ function MyListingsPage() {
       </div>
 
       <MyListingsTable
-        data={data}
+        data={listingsData}
         currentStatus={status}
         currentPage={page}
         onAction={handleAction}
