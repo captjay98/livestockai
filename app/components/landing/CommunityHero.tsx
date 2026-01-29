@@ -31,7 +31,7 @@ export function CommunityHero() {
             transitionDelay: '200ms',
           }}
         >
-          Global <br />
+          Farmer <br />
           <span className="text-purple-500">Community</span>
         </h1>
 
@@ -43,8 +43,8 @@ export function CommunityHero() {
             transitionDelay: '300ms',
           }}
         >
-          Connect with developers, farmers, and researchers building the future
-          of sustainable agriculture together.
+          Connect with farmers worldwide. Share experiences, ask questions, and
+          learn from others managing livestock operations.
         </p>
 
         {/* Buttons */}
@@ -53,24 +53,22 @@ export function CommunityHero() {
           style={{ transitionDelay: '400ms' }}
         >
           <a
-            href="https://github.com/captjay98/livestock-ai"
-            target="_blank"
-            rel="noreferrer"
-            className="px-8 py-4 rounded-lg bg-white dark:bg-black text-black dark:text-white font-semibold tracking-tight hover:scale-105 transition-transform border border-neutral-200 dark:border-neutral-800"
+            href="/register"
+            className="px-8 py-4 rounded-lg bg-emerald-500 text-white font-semibold tracking-tight hover:bg-emerald-600 transition-colors hover:scale-105 transform"
           >
-            Star on GitHub
+            Join Community
           </a>
           <a
             href="https://chat.whatsapp.com/livestockai"
             className="px-8 py-4 rounded-lg bg-[#25D366] text-white font-semibold tracking-tight hover:bg-[#128C7E] transition-colors hover:scale-105 transform"
           >
-            Join WhatsApp
+            WhatsApp Group
           </a>
           <a
             href="https://discord.gg/livestockai"
             className="px-8 py-4 rounded-lg bg-[#5865F2] text-white font-semibold tracking-tight hover:bg-[#4752C4] transition-colors hover:scale-105 transform"
           >
-            Join Discord
+            Discord Server
           </a>
         </div>
       </div>
