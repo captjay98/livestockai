@@ -81,9 +81,9 @@ export function CTASection() {
 
         {/* Tech Footer Line */}
         <div className="mt-20 flex items-center justify-center gap-4 text-[10px] font-mono text-neutral-500 dark:text-neutral-600 uppercase tracking-widest">
-          <span>v1.0.0 Stable</span>
+          <span>Beta</span>
           <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-800"></span>
-          <span>MIT License</span>
+          <span>Offline-First</span>
           <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-800"></span>
           <span>Encrypted</span>
         </div>

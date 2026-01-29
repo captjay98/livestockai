@@ -78,13 +78,13 @@ export function LandingFooter() {
                 <path d="m12 5 7 7-7 7"></path>
               </svg>
             </Link>
-            <a
-              href="https://github.com/captjay98/open-livestock-manager"
+            <Link
+              to="/pricing"
               className="text-sm transition-colors hover:text-emerald-500"
               style={{ color: 'var(--text-landing-secondary)' }}
             >
-              Or self-host for free →
-            </a>
+              View pricing plans →
+            </Link>
           </div>
         </div>
 
@@ -139,13 +139,6 @@ export function LandingFooter() {
             >
               Documentation
             </Link>
-            <a
-              href="https://github.com/captjay98/open-livestock-manager"
-              className="text-sm transition-colors hover:text-emerald-500"
-              style={{ color: 'var(--text-landing-secondary)' }}
-            >
-              GitHub
-            </a>
             <Link
               to="/community"
               className="text-sm transition-colors hover:text-emerald-500"
@@ -171,7 +164,7 @@ export function LandingFooter() {
           color: 'var(--text-landing-secondary)',
         }}
       >
-        <span>© 2026 OpenLivestock. Apache 2.0 after 2 years.</span>
+        <span>© 2026 OpenLivestock. All rights reserved.</span>
         <span>Last updated: {time}</span>
       </div>
     </footer>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Terminal } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 export function LandingHero() {
   const textRef = useRef<HTMLDivElement>(null)
@@ -64,7 +64,7 @@ export function LandingHero() {
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
             <span className="text-xs font-mono text-emerald-500 uppercase tracking-widest">
-              Open Source
+              Beta
             </span>
             <span className="text-neutral-600 dark:text-neutral-600/50">•</span>
             <span className="text-xs font-mono text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">
@@ -88,7 +88,7 @@ export function LandingHero() {
               color: 'var(--text-landing-primary)',
             }}
           >
-            <div className="">OPEN-SOURCE</div>
+            <div className="">INTELLIGENT</div>
             <div className="pl-8 lg:pl-24 text-emerald-600 dark:text-emerald-500">
               LIVESTOCK
             </div>
@@ -102,8 +102,7 @@ export function LandingHero() {
             <span style={{ color: 'var(--text-landing-secondary)' }}>
               AI-powered livestock management with predictive analytics, smart
               recommendations, and autonomous monitoring. Supports 6+ species
-              with offline-first architecture. Self-host or use our managed
-              cloud.
+              with offline-first architecture.
             </span>
           </p>
 
@@ -120,19 +119,16 @@ export function LandingHero() {
                 <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
-            <a
-              href="https://github.com/captjay98/open-livestock-manager"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/features"
               className="px-6 py-3 rounded-lg border text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-2"
               style={{
                 borderColor: 'var(--border-landing-subtle)',
                 color: 'var(--text-landing-primary)',
               }}
             >
-              <Terminal className="w-4 h-4" />
-              View on GitHub
-            </a>
+              Explore Features
+            </Link>
           </div>
         </div>
 

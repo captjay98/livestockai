@@ -4,7 +4,6 @@ import { LandingHero } from '~/components/landing/LandingHero'
 import { FeaturesSection } from '~/components/landing/FeaturesSection'
 import { TechStackSection } from '~/components/landing/TechStackSection'
 import { AgentReadySection } from '~/components/landing/AgentReadySection'
-import { CommunitySection } from '~/components/landing/CommunitySection'
 import { CTASection } from '~/components/landing/CTASection'
 import { SmartEcosystemSection } from '~/components/landing/SmartEcosystemSection'
 
@@ -19,7 +18,6 @@ function Index() {
       <FeaturesSection />
       <SmartEcosystemSection />
       <TechStackSection />
-      <CommunitySection />
       <AgentReadySection />
       <CTASection />
     </LandingLayout>
