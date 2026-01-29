@@ -34,12 +34,16 @@ export async function handleScheduled(event: ScheduledEvent): Promise<void> {
         await runOutbreakDetectionTask(db)
         break
 
-      default:
-        console.warn(`Unknown cron schedule: ${event.cron}`)
+      default: {
+        const { debug } = await import('~/lib/logger')
+        await debug(`Unknown cron schedule: ${event.cron}`)
+        break
+      }
     }
-  } catch (error) {
-    console.error('Scheduled task failed:', error)
-    throw error
+  } catch (err) {
+    const { error } = await import('~/lib/logger')
+    await error('Scheduled task failed:', err)
+    throw err
   }
 }
 
@@ -67,7 +71,8 @@ export async function expireAccessGrants(db: Kysely<Database>): Promise<void> {
       .where('expiresAt', '<', now)
       .execute()
 
-    console.log(`Expired ${expired.length} access grants`)
+    const { debug } = await import('~/lib/logger')
+    await debug(`Expired ${expired.length} access grants`)
 
     for (const grant of expired) {
       await db
@@ -113,7 +118,8 @@ export async function expireAccessRequests(
       .where('createdAt', '<', cutoffDate)
       .execute()
 
-    console.log(`Expired ${expired.length} pending access requests`)
+    const { debug } = await import('~/lib/logger')
+    await debug(`Expired ${expired.length} pending access requests`)
 
     for (const request of expired) {
       await db
@@ -164,7 +170,8 @@ export async function sendExpirationWarnings(
     .execute()
 
   if (expiringGrants.length > 0) {
-    console.log(
+    const { debug } = await import('~/lib/logger')
+    await debug(
       `Found ${expiringGrants.length} grants expiring within ${EXTENSION_DEFAULTS.ACCESS_EXPIRY_WARNING_DAYS} days`,
     )
 
@@ -202,12 +209,20 @@ export async function runOutbreakDetectionTask(
     .where('isActive', '=', true)
     .execute()
 
-  console.log(`Running outbreak detection for ${districts.length} districts`)
+  const { debug } = await import('~/lib/logger')
+  await debug(`Running outbreak detection for ${districts.length} districts`)
 
   // Get species thresholds
   const thresholds = await db
     .selectFrom('species_thresholds')
-    .selectAll()
+    .select([
+      'id',
+      'species',
+      'regionId',
+      'amberThreshold',
+      'redThreshold',
+      'createdAt',
+    ])
     .execute()
 
   // Build threshold map
@@ -309,7 +324,8 @@ export async function runOutbreakDetectionTask(
             })
             .execute()
 
-          console.log(
+          const { debug: logDebug } = await import('~/lib/logger')
+          await logDebug(
             `Created ${severity} outbreak alert for ${species} in ${district.name}`,
           )
         }

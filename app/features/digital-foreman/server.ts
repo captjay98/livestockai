@@ -63,7 +63,7 @@ export const createWorkerProfileFn = createServerFn({ method: 'POST' })
       wageRateAmount: data.wageRateAmount.toFixed(2),
       wageRateType: data.wageRateType,
       wageCurrency: data.wageCurrency,
-      permissions: data.permissions as any,
+      permissions: data.permissions as Array<ModulePermission>,
       structureIds: data.structureIds,
       emergencyContactName: data.emergencyContactName,
       emergencyContactPhone: data.emergencyContactPhone,
@@ -244,7 +244,23 @@ export const checkOutFn = createServerFn({ method: 'POST' })
 
     const checkIn = await db
       .selectFrom('worker_check_ins')
-      .selectAll()
+      .select([
+        'id',
+        'workerId',
+        'farmId',
+        'checkInTime',
+        'checkInLat',
+        'checkInLng',
+        'checkInAccuracy',
+        'verificationStatus',
+        'checkOutTime',
+        'checkOutLat',
+        'checkOutLng',
+        'checkOutAccuracy',
+        'hoursWorked',
+        'syncStatus',
+        'createdAt',
+      ])
       .where('id', '=', data.checkInId)
       .executeTakeFirst()
     if (!checkIn) throw new AppError('CHECK_IN_NOT_FOUND')

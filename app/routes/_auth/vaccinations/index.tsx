@@ -3,7 +3,7 @@ import { Syringe } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { PaginatedQuery } from '~/features/vaccinations/types'
-import { getHealthDataForFarm } from '~/features/vaccinations/server'
+import { getHealthDataForFarmFn } from '~/features/vaccinations/server'
 import { useFormatDate } from '~/features/settings'
 import { useTreatmentMode } from '~/features/vaccinations/use-treatment-mode'
 import { useFarm } from '~/features/farms/context'
@@ -50,7 +50,7 @@ export const Route = createFileRoute('/_auth/vaccinations/')({
     type: search.type,
   }),
   loader: async ({ deps }) => {
-    return getHealthDataForFarm({ data: deps })
+    return getHealthDataForFarmFn({ data: deps })
   },
   pendingComponent: VaccinationsSkeleton,
   errorComponent: ({ error }) => (

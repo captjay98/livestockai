@@ -74,13 +74,14 @@ export async function handleAggregationCron(
       dailyAggregation: dailyResult,
       cleanupCount,
     }
-  } catch (error) {
-    console.error('Aggregation cron failed:', error)
+  } catch (err) {
+    const { error: logError } = await import('~/lib/logger')
+    await logError('Aggregation cron failed:', err)
     return {
       success: false,
       hourlyAggregation: { processed: 0, aggregated: 0 },
       cleanupCount: 0,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: err instanceof Error ? err.message : 'Unknown error',
     }
   }
 }

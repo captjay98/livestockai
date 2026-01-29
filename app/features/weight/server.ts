@@ -496,7 +496,7 @@ export const deleteWeightSampleFn = createServerFn({ method: 'POST' })
 /**
  * Get comprehensive weight data for a farm including records, alerts, and batches
  */
-export const getWeightDataForFarm = createServerFn({ method: 'GET' })
+export const getWeightDataForFarmFn = createServerFn({ method: 'GET' })
   .inputValidator(
     (data: {
       farmId?: string | null

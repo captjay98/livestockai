@@ -1,7 +1,7 @@
-import { Edit, Mail, MapPin, Phone } from 'lucide-react'
+import { Mail, MapPin, Phone } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { CustomerRecord } from '~/features/customers/types'
-import { Button } from '~/components/ui/button'
+import { ActionColumn } from '~/components/ui/action-column'
 import { Badge } from '~/components/ui/badge'
 import { useFormatCurrency } from '~/features/settings'
 
@@ -89,15 +89,10 @@ export function getCustomerColumns({
     {
       id: 'actions',
       cell: ({ row }) => (
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onEdit(row.original)}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-        </div>
+        <ActionColumn
+          entity={`customer ${row.original.name}`}
+          onEdit={() => onEdit(row.original)}
+        />
       ),
     },
   ]

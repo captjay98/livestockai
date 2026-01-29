@@ -3,7 +3,7 @@ import { Bird, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { validateEggSearch } from '~/features/eggs/validation'
-import { getEggDataForFarm } from '~/features/eggs/server'
+import { getEggDataForFarmFn } from '~/features/eggs/server'
 import { useEggPage } from '~/features/eggs/use-egg-page'
 import { useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -37,7 +37,7 @@ export const Route = createFileRoute('/_auth/eggs/')({
     search: search.search,
   }),
   loader: async ({ deps }) => {
-    return getEggDataForFarm({ data: deps })
+    return getEggDataForFarmFn({ data: deps })
   },
   pendingComponent: EggsSkeleton,
   errorComponent: ({ error }) => (

@@ -59,7 +59,8 @@ export async function uploadTaskPhoto(
   }
 
   // Fallback to base64 if upload fails
-  console.error('Failed to upload task photo:', result.error)
+  const { error } = await import('~/lib/logger')
+  await error('Failed to upload task photo:', result.error)
   return base64Data
 }
 

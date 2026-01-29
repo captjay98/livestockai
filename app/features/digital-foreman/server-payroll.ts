@@ -77,7 +77,16 @@ export const getPayrollSummaryFn = createServerFn({ method: 'GET' })
 
     const period = await db
       .selectFrom('payroll_periods')
-      .selectAll()
+      .select([
+        'id',
+        'farmId',
+        'periodType',
+        'startDate',
+        'endDate',
+        'status',
+        'createdAt',
+        'updatedAt',
+      ])
       .where('id', '=', data.payrollPeriodId)
       .executeTakeFirst()
     if (!period) throw new AppError('PAYROLL_PERIOD_NOT_FOUND')
@@ -270,7 +279,16 @@ export const exportPayrollCsvFn = createServerFn({ method: 'GET' })
 
     const period = await db
       .selectFrom('payroll_periods')
-      .selectAll()
+      .select([
+        'id',
+        'farmId',
+        'periodType',
+        'startDate',
+        'endDate',
+        'status',
+        'createdAt',
+        'updatedAt',
+      ])
       .where('id', '=', data.payrollPeriodId)
       .executeTakeFirst()
     if (!period) throw new AppError('PAYROLL_PERIOD_NOT_FOUND')

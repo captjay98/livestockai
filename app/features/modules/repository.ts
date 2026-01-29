@@ -10,7 +10,7 @@ import type { FarmModule, LivestockType, ModuleKey } from './types'
 /**
  * Retrieve all module records for a farm.
  */
-export async function selectFarmModules(
+export async function getFarmModules(
   db: Kysely<Database>,
   farmId: string,
 ): Promise<Array<FarmModule>> {
@@ -29,7 +29,7 @@ export async function selectFarmModules(
 /**
  * Retrieve a single module record for a farm.
  */
-export async function selectFarmModule(
+export async function getFarmModule(
   db: Kysely<Database>,
   farmId: string,
   moduleKey: ModuleKey,

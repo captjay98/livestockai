@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Plus, Scale } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { validateWeightSearch } from '~/features/weight/validation'
+import { z } from 'zod'
 import { useWeightPage } from '~/features/weight/use-weight-page'
 import { useFormatDate, useFormatWeight } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -16,10 +16,20 @@ import { WeightDeleteDialog } from '~/components/weight/weight-delete-dialog'
 import { WeightFilters } from '~/components/weight/weight-filters'
 import { getWeightColumns } from '~/components/weight/weight-columns'
 import { WeightSkeleton } from '~/components/weight/weight-skeleton'
-import { getWeightDataForFarm } from '~/features/weight/server'
+import { getWeightDataForFarmFn } from '~/features/weight/server'
+
+const weightSearchSchema = z.object({
+  farmId: z.string().optional(),
+  page: z.number().optional().default(1),
+  pageSize: z.number().optional().default(10),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  q: z.string().optional(),
+  batchId: z.string().optional(),
+})
 
 export const Route = createFileRoute('/_auth/weight/')({
-  validateSearch: validateWeightSearch,
+  validateSearch: weightSearchSchema,
   loaderDeps: ({ search }) => ({
     farmId: search.farmId || undefined,
     page: search.page,
@@ -29,7 +39,7 @@ export const Route = createFileRoute('/_auth/weight/')({
     search: search.q,
   }),
   loader: async ({ deps }) => {
-    return getWeightDataForFarm({
+    return getWeightDataForFarmFn({
       data: {
         farmId: deps.farmId,
         page: deps.page,

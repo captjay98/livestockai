@@ -84,7 +84,7 @@ export interface AlertThresholds {
  * @param farmIds - Array of farm IDs to filter by
  * @returns Array of active batch data for monitoring
  */
-export async function selectBatchesForMonitoring(
+export async function getBatchesForMonitoring(
   db: Kysely<Database>,
   farmIds: Array<string>,
 ): Promise<Array<MonitoringBatch>> {
@@ -110,7 +110,7 @@ export async function selectBatchesForMonitoring(
  * @param batchId - Batch ID to retrieve
  * @returns Batch data or null if not found
  */
-export async function selectBatchForMonitoring(
+export async function getBatchForMonitoring(
   db: Kysely<Database>,
   batchId: string,
 ): Promise<MonitoringBatch | null> {
@@ -138,7 +138,7 @@ export async function selectBatchForMonitoring(
  * @param sinceDate - Start date for the query
  * @returns Mortality data with run total
  */
-export async function selectRecentMortality(
+export async function getRecentMortality(
   db: Kysely<Database>,
   batchId: string,
   sinceDate: Date,
@@ -163,7 +163,7 @@ export async function selectRecentMortality(
  * @param batchId - Batch ID to query
  * @returns Total mortality count
  */
-export async function selectTotalMortality(
+export async function getTotalMortality(
   db: Kysely<Database>,
   batchId: string,
 ): Promise<number> {
@@ -183,7 +183,7 @@ export async function selectTotalMortality(
  * @param batchId - Batch ID to query
  * @returns Most recent water quality data or null
  */
-export async function selectRecentWaterQuality(
+export async function getRecentWaterQuality(
   db: Kysely<Database>,
   batchId: string,
 ): Promise<WaterQualityData | null> {
@@ -211,7 +211,7 @@ export async function selectRecentWaterQuality(
  * @param batchId - Batch ID to query
  * @returns Array of pending vaccination records
  */
-export async function selectPendingVaccinations(
+export async function getPendingVaccinations(
   db: Kysely<Database>,
   batchId: string,
 ): Promise<Array<VaccinationData>> {
@@ -236,7 +236,7 @@ export async function selectPendingVaccinations(
  * @param batchId - Batch ID to query
  * @returns Feed data with total kilograms
  */
-export async function selectFeedRecords(
+export async function getFeedRecords(
   db: Kysely<Database>,
   batchId: string,
 ): Promise<FeedData> {
@@ -258,7 +258,7 @@ export async function selectFeedRecords(
  * @param batchId - Batch ID to query
  * @returns Most recent weight data or null
  */
-export async function selectWeightSamples(
+export async function getWeightSamples(
   db: Kysely<Database>,
   batchId: string,
 ): Promise<WeightData | null> {
@@ -285,7 +285,7 @@ export async function selectWeightSamples(
  * @param species - Species to query standards for
  * @returns Array of growth standard records
  */
-export async function selectGrowthStandards(
+export async function getGrowthStandards(
   db: Kysely<Database>,
   species: string,
 ): Promise<Array<GrowthStandardData>> {
@@ -310,7 +310,7 @@ export async function selectGrowthStandards(
  * @param userId - User ID to query
  * @returns Alert thresholds or defaults if not found
  */
-export async function selectUserSettings(
+export async function getUserSettings(
   db: Kysely<Database>,
   userId: string,
 ): Promise<AlertThresholds> {
@@ -340,7 +340,7 @@ export async function selectUserSettings(
  * @param userId - User ID to query
  * @returns Full user settings or null
  */
-export async function selectUserSettingsFull(
+export async function getUserSettingsFull(
   db: Kysely<Database>,
   userId: string,
 ): Promise<Pick<UserSettingsTable, 'notifications'> | null> {
@@ -360,7 +360,7 @@ export async function selectUserSettingsFull(
  * @param userId - User ID to query
  * @returns User email or null
  */
-export async function selectUserEmail(
+export async function getUserEmail(
   db: Kysely<Database>,
   userId: string,
 ): Promise<string | null> {
@@ -380,7 +380,7 @@ export async function selectUserEmail(
  * @param batchId - Batch ID to query
  * @returns Batch species or null
  */
-export async function selectBatchSpecies(
+export async function getBatchSpecies(
   db: Kysely<Database>,
   batchId: string,
 ): Promise<string | null> {

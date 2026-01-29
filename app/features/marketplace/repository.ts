@@ -122,7 +122,34 @@ export async function getListingById(
 ): Promise<ListingRecord | null> {
   const listing = await db
     .selectFrom('marketplace_listings')
-    .selectAll()
+    .select([
+      'id',
+      'sellerId',
+      'livestockType',
+      'species',
+      'quantity',
+      'minPrice',
+      'maxPrice',
+      'currency',
+      'latitude',
+      'longitude',
+      'country',
+      'region',
+      'locality',
+      'formattedAddress',
+      'description',
+      'photoUrls',
+      'fuzzingLevel',
+      'contactPreference',
+      'batchId',
+      'status',
+      'expiresAt',
+      'viewCount',
+      'contactCount',
+      'createdAt',
+      'updatedAt',
+      'deletedAt',
+    ])
     .where('id', '=', listingId)
     .where('deletedAt', 'is', null)
     .executeTakeFirst()
@@ -172,7 +199,34 @@ export async function getListings(
 
   // Get paginated data
   const data = await query
-    .selectAll()
+    .select([
+      'id',
+      'sellerId',
+      'livestockType',
+      'species',
+      'quantity',
+      'minPrice',
+      'maxPrice',
+      'currency',
+      'latitude',
+      'longitude',
+      'country',
+      'region',
+      'locality',
+      'formattedAddress',
+      'description',
+      'photoUrls',
+      'fuzzingLevel',
+      'contactPreference',
+      'batchId',
+      'status',
+      'expiresAt',
+      'viewCount',
+      'contactCount',
+      'createdAt',
+      'updatedAt',
+      'deletedAt',
+    ])
     .orderBy('createdAt', 'desc')
     .limit(pagination.pageSize)
     .offset((pagination.page - 1) * pagination.pageSize)
@@ -191,7 +245,34 @@ export async function getListingsInBoundingBox(
 ): Promise<Array<ListingRecord>> {
   let query = db
     .selectFrom('marketplace_listings')
-    .selectAll()
+    .select([
+      'id',
+      'sellerId',
+      'livestockType',
+      'species',
+      'quantity',
+      'minPrice',
+      'maxPrice',
+      'currency',
+      'latitude',
+      'longitude',
+      'country',
+      'region',
+      'locality',
+      'formattedAddress',
+      'description',
+      'photoUrls',
+      'fuzzingLevel',
+      'contactPreference',
+      'batchId',
+      'status',
+      'expiresAt',
+      'viewCount',
+      'contactCount',
+      'createdAt',
+      'updatedAt',
+      'deletedAt',
+    ])
     .where('status', '=', 'active')
     .where('deletedAt', 'is', null)
     .where('expiresAt', '>', new Date())
@@ -228,7 +309,34 @@ export async function getListingsBySeller(
 ): Promise<Array<ListingRecord>> {
   let query = db
     .selectFrom('marketplace_listings')
-    .selectAll()
+    .select([
+      'id',
+      'sellerId',
+      'livestockType',
+      'species',
+      'quantity',
+      'minPrice',
+      'maxPrice',
+      'currency',
+      'latitude',
+      'longitude',
+      'country',
+      'region',
+      'locality',
+      'formattedAddress',
+      'description',
+      'photoUrls',
+      'fuzzingLevel',
+      'contactPreference',
+      'batchId',
+      'status',
+      'expiresAt',
+      'viewCount',
+      'contactCount',
+      'createdAt',
+      'updatedAt',
+      'deletedAt',
+    ])
     .where('sellerId', '=', sellerId)
     .where('deletedAt', 'is', null)
 
@@ -409,7 +517,19 @@ export async function getContactRequestById(
 ): Promise<ContactRequestRecord | null> {
   const request = await db
     .selectFrom('listing_contact_requests')
-    .selectAll()
+    .select([
+      'id',
+      'listingId',
+      'buyerId',
+      'message',
+      'contactMethod',
+      'phoneNumber',
+      'email',
+      'status',
+      'responseMessage',
+      'respondedAt',
+      'createdAt',
+    ])
     .where('id', '=', requestId)
     .executeTakeFirst()
   return request as ContactRequestRecord | null
@@ -453,7 +573,19 @@ export async function getContactRequestsForBuyer(
 ): Promise<Array<ContactRequestRecord>> {
   const requests = await db
     .selectFrom('listing_contact_requests')
-    .selectAll()
+    .select([
+      'id',
+      'listingId',
+      'buyerId',
+      'message',
+      'contactMethod',
+      'phoneNumber',
+      'email',
+      'status',
+      'responseMessage',
+      'respondedAt',
+      'createdAt',
+    ])
     .where('buyerId', '=', buyerId)
     .orderBy('createdAt', 'desc')
     .execute()
@@ -548,7 +680,8 @@ export async function recordListingView(
     return true
   } catch (error) {
     // Handle any unexpected errors
-    console.error('Error recording listing view:', error)
+    const { error: logError } = await import('~/lib/logger')
+    await logError('Error recording listing view', error)
     return false
   }
 }

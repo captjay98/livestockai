@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import type { FarmWithStats } from './types'
 import { getFarmsForUser } from '~/features/farms/server'
 
-export const getFarmsWithStats = createServerFn({ method: 'GET' }).handler(
+export const getFarmsWithStatsFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const { getDb } = await import('~/lib/db')
     const db = await getDb()

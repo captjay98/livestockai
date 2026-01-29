@@ -1,8 +1,7 @@
-import { Edit, Eye, Trash2 } from 'lucide-react'
 import { TYPE_COLORS, getTypeIcon } from './utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Badge } from '~/components/ui/badge'
-import { Button } from '~/components/ui/button'
+import { ActionColumn } from '~/components/ui/action-column'
 import { PAYMENT_STATUSES } from '~/features/sales/server'
 
 export interface Sale {
@@ -106,22 +105,12 @@ export const getSaleColumns = ({
   {
     id: 'actions',
     cell: ({ row }) => (
-      <div className="flex gap-1 justify-end">
-        <Button variant="ghost" size="sm" onClick={() => onView(row.original)}>
-          <Eye className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => onEdit(row.original)}>
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive hover:text-destructive"
-          onClick={() => onDelete(row.original)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
+      <ActionColumn
+        entity={`sale ${row.original.id}`}
+        onView={() => onView(row.original)}
+        onEdit={() => onEdit(row.original)}
+        onDelete={() => onDelete(row.original)}
+      />
     ),
   },
 ]

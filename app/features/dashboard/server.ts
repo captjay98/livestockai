@@ -332,7 +332,7 @@ export async function getDashboardStats(
         (async () => {
           const { getAllBatchAlerts } =
             await import('~/features/monitoring/server')
-          return getAllBatchAlerts({ data: { farmId } })
+          return getAllBatchAlerts(userId, farmId)
         })(),
       ])
 

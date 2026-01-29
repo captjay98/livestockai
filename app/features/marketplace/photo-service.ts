@@ -59,7 +59,8 @@ export async function uploadListingPhoto(
   }
 
   // Fallback to base64 if upload fails
-  console.error('Failed to upload listing photo:', result.error)
+  const { error } = await import('~/lib/logger')
+  await error('Failed to upload listing photo', result.error)
   return base64Data
 }
 

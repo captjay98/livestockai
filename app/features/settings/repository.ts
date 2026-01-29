@@ -52,13 +52,13 @@ export type UserSettingsRow = {
     highMortality: boolean
     invoiceDue: boolean
     batchHarvest: boolean
-    vaccinationDue?: boolean
-    medicationExpiry?: boolean
-    waterQualityAlert?: boolean
-    weeklySummary?: boolean
-    dailySales?: boolean
-    batchPerformance?: boolean
-    paymentReceived?: boolean
+    vaccinationDue: boolean
+    medicationExpiry: boolean
+    waterQualityAlert: boolean
+    weeklySummary: boolean
+    dailySales: boolean
+    batchPerformance: boolean
+    paymentReceived: boolean
   }
   defaultPaymentTermsDays: number
   fiscalYearStartMonth: number
@@ -116,11 +116,40 @@ export async function getUserSettings(
 ): Promise<UserSettingsRow | null> {
   const settings = await db
     .selectFrom('user_settings')
-    .selectAll()
+    .select([
+      'id',
+      'userId',
+      'currencyCode',
+      'currencySymbol',
+      'currencyDecimals',
+      'currencySymbolPosition',
+      'thousandSeparator',
+      'decimalSeparator',
+      'dateFormat',
+      'timeFormat',
+      'firstDayOfWeek',
+      'weightUnit',
+      'areaUnit',
+      'temperatureUnit',
+      'defaultFarmId',
+      'language',
+      'theme',
+      'lowStockThresholdPercent',
+      'mortalityAlertPercent',
+      'mortalityAlertQuantity',
+      'notifications',
+      'defaultPaymentTermsDays',
+      'fiscalYearStartMonth',
+      'dashboardCards',
+      'onboardingCompleted',
+      'onboardingStep',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('userId', '=', userId)
     .executeTakeFirst()
 
-  return (settings as UserSettingsRow | null) ?? null
+  return (settings as any) ?? null
 }
 
 /**
@@ -161,12 +190,12 @@ export async function upsertUserSettings(
 ): Promise<void> {
   await db
     .insertInto('user_settings')
-    .values(data as any)
+    .values(data)
     .onConflict((oc) =>
       oc.column('userId').doUpdateSet({
         ...data,
         updatedAt: new Date(),
-      } as any),
+      }),
     )
     .execute()
 }
@@ -186,7 +215,7 @@ export async function updateUserSettings(
 ): Promise<void> {
   await db
     .updateTable('user_settings')
-    .set({ ...data, updatedAt: new Date() } as any)
+    .set({ ...data, updatedAt: new Date() })
     .where('userId', '=', userId)
     .execute()
 }
@@ -222,7 +251,7 @@ export async function setSetting(
 ): Promise<void> {
   await db
     .updateTable('user_settings')
-    .set({ [key]: value, updatedAt: new Date() } as any)
+    .set({ [key]: value, updatedAt: new Date() })
     .where('userId', '=', userId)
     .execute()
 }
@@ -246,7 +275,7 @@ export async function deleteSetting(
 
   await db
     .updateTable('user_settings')
-    .set({ [key]: defaultValue, updatedAt: new Date() } as any)
+    .set({ [key]: defaultValue, updatedAt: new Date() })
     .where('userId', '=', userId)
     .execute()
 }
@@ -264,11 +293,40 @@ export async function getAllUserSettings(
 ): Promise<Array<UserSettingsRow>> {
   const settings = await db
     .selectFrom('user_settings')
-    .selectAll()
+    .select([
+      'id',
+      'userId',
+      'currencyCode',
+      'currencySymbol',
+      'currencyDecimals',
+      'currencySymbolPosition',
+      'thousandSeparator',
+      'decimalSeparator',
+      'dateFormat',
+      'timeFormat',
+      'firstDayOfWeek',
+      'weightUnit',
+      'areaUnit',
+      'temperatureUnit',
+      'defaultFarmId',
+      'language',
+      'theme',
+      'lowStockThresholdPercent',
+      'mortalityAlertPercent',
+      'mortalityAlertQuantity',
+      'notifications',
+      'defaultPaymentTermsDays',
+      'fiscalYearStartMonth',
+      'dashboardCards',
+      'onboardingCompleted',
+      'onboardingStep',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('userId', '=', userId)
     .execute()
 
-  return settings as Array<UserSettingsRow>
+  return settings as Array<any>
 }
 
 /**
@@ -391,7 +449,7 @@ export async function getNotificationSettings(
     return null
   }
 
-  return settings.notifications as UserSettings['notifications']
+  return settings.notifications
 }
 
 /**
@@ -420,7 +478,7 @@ export async function updateNotificationSettings(
     const insertData: UserSettingsInsert = {
       userId,
       ...DEFAULT_SETTINGS,
-      notifications: mergedNotifications as any,
+      notifications: mergedNotifications,
       dashboardCards: DEFAULT_SETTINGS.dashboardCards,
       onboardingCompleted: false,
       onboardingStep: 0,
@@ -433,11 +491,11 @@ export async function updateNotificationSettings(
   // Merge with existing notifications
   const mergedNotifications = {
     ...DEFAULT_SETTINGS.notifications,
-    ...(existing.notifications as UserSettings['notifications']),
+    ...existing.notifications,
     ...notifications,
   }
 
-  await setSetting(db, userId, 'notifications', mergedNotifications as any)
+  await setSetting(db, userId, 'notifications', mergedNotifications)
 }
 
 /**
@@ -457,7 +515,7 @@ export async function getDashboardCardSettings(
     return null
   }
 
-  return settings.dashboardCards as UserSettings['dashboardCards']
+  return settings.dashboardCards
 }
 
 /**
@@ -487,7 +545,7 @@ export async function updateDashboardCardSettings(
       userId,
       ...DEFAULT_SETTINGS,
       notifications: DEFAULT_SETTINGS.notifications,
-      dashboardCards: mergedCards as any,
+      dashboardCards: mergedCards,
       onboardingCompleted: false,
       onboardingStep: 0,
     }
@@ -499,11 +557,11 @@ export async function updateDashboardCardSettings(
   // Merge with existing dashboard cards
   const mergedCards = {
     ...DEFAULT_SETTINGS.dashboardCards,
-    ...(existing.dashboardCards as UserSettings['dashboardCards']),
+    ...existing.dashboardCards,
     ...dashboardCards,
   }
 
-  await setSetting(db, userId, 'dashboardCards', mergedCards as any)
+  await setSetting(db, userId, 'dashboardCards', mergedCards)
 }
 
 /**

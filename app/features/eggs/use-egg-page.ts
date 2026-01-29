@@ -3,7 +3,7 @@ import { useNavigate, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import {
-  createEggRecordAction,
+  createEggRecordActionFn,
   deleteEggRecordFn,
   updateEggRecordFn,
 } from './server'
@@ -38,7 +38,7 @@ export function useEggPage({ selectedFarmId, routePath }: UseEggPageProps) {
     if (!selectedFarmId) return
     setIsSubmitting(true)
     try {
-      await createEggRecordAction({
+      await createEggRecordActionFn({
         data: {
           farmId: selectedFarmId,
           batchId: data.batchId as string,

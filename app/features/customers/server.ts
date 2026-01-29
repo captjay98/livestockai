@@ -108,7 +108,7 @@ export async function getCustomers(userId: string, farmId?: string) {
       if (targetFarmIds.length === 0) return []
     }
 
-    const customers = await repository.selectCustomersByFarms(db, targetFarmIds)
+    const customers = await repository.getCustomersByFarms(db, targetFarmIds)
     // Add default aggregates for simple list
     return customers.map((c) => ({
       ...c,
@@ -145,7 +145,7 @@ export async function getCustomerById(userId: string, customerId: string) {
 
   try {
     const userFarms = await getUserFarms(userId)
-    const customer = await repository.selectCustomerById(db, customerId)
+    const customer = await repository.getCustomerById(db, customerId)
 
     if (!customer) return null
 
@@ -179,7 +179,7 @@ export async function updateCustomer(
 
   try {
     const userFarms = await getUserFarms(userId)
-    const customer = await repository.selectCustomerById(db, customerId)
+    const customer = await repository.getCustomerById(db, customerId)
 
     if (!customer) {
       throw new AppError('NOT_FOUND', { metadata: { customerId } })
@@ -230,7 +230,7 @@ export async function deleteCustomer(
 
   try {
     const userFarms = await getUserFarms(userId)
-    const customer = await repository.selectCustomerById(db, customerId)
+    const customer = await repository.getCustomerById(db, customerId)
 
     if (!customer) {
       throw new AppError('NOT_FOUND', { metadata: { customerId } })
@@ -275,7 +275,7 @@ export async function getCustomerWithSales(userId: string, customerId: string) {
 
   try {
     const userFarms = await getUserFarms(userId)
-    const customer = await repository.selectCustomerById(db, customerId)
+    const customer = await repository.getCustomerById(db, customerId)
     if (!customer) return null
 
     if (!userFarms.includes(customer.farmId)) {
@@ -284,7 +284,7 @@ export async function getCustomerWithSales(userId: string, customerId: string) {
       })
     }
 
-    const sales = await repository.selectCustomerSales(db, customerId)
+    const sales = await repository.getCustomerSales(db, customerId)
     const totalSpent = sales.reduce(
       (sum, s) => sum + parseFloat(s.totalAmount),
       0,
@@ -332,7 +332,7 @@ export async function getTopCustomers(
       if (targetFarmIds.length === 0) return []
     }
 
-    return await repository.selectTopCustomersByFarms(db, targetFarmIds, limit)
+    return await repository.getTopCustomersByFarms(db, targetFarmIds, limit)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
@@ -378,7 +378,7 @@ export async function getCustomersPaginated(
       }
     }
 
-    return await repository.selectCustomersPaginatedByFarms(
+    return await repository.getCustomersPaginatedByFarms(
       db,
       targetFarmIds,
       query,

@@ -69,7 +69,7 @@ describe('Feed Service', () => {
   describe('validateFeedRecord', () => {
     const validData: CreateFeedRecordInput = {
       batchId: 'batch-1',
-      feedType: 'starter',
+      feedType: 'starter-crumble',
       quantityKg: 25,
       cost: 15000,
       date: new Date('2024-01-01'),
@@ -82,17 +82,17 @@ describe('Feed Service', () => {
 
     it('should accept all valid feed types', () => {
       const validFeedTypes = [
-        'starter',
-        'grower',
-        'finisher',
-        'layer_mash',
-        'fish_feed',
-        'cattle_feed',
-        'goat_feed',
-        'sheep_feed',
+        'starter-crumble',
+        'grower-pellet',
+        'finisher-pellet',
+        'layer-mash',
+        'fish-feed',
+        'cattle-feed',
+        'goat-feed',
+        'sheep-feed',
         'hay',
         'silage',
-        'bee_feed',
+        'bee-feed',
       ] as const
 
       for (const feedType of validFeedTypes) {
@@ -146,18 +146,22 @@ describe('Feed Service', () => {
     })
 
     it('should validate batchId parameter', () => {
-      expect(validateFeedRecord(validData, '')).toBe('Batch ID is required')
-      expect(validateFeedRecord(validData, '   ')).toBe('Batch ID is required')
-      expect(validateFeedRecord(validData, 'valid-batch-id')).toBeNull()
+      expect(validateFeedRecord({ ...validData, batchId: '' })).toBe(
+        'Batch ID is required',
+      )
+      expect(validateFeedRecord({ ...validData, batchId: '   ' })).toBe(
+        'Batch ID is required',
+      )
+      expect(validateFeedRecord(validData)).toBeNull()
     })
   })
 
   describe('buildFeedSummary', () => {
     it('should calculate total quantity and cost', () => {
       const records = [
-        { feedType: 'starter', quantityKg: '25.00', cost: '15000.00' },
-        { feedType: 'grower', quantityKg: '30.00', cost: '18000.00' },
-        { feedType: 'starter', quantityKg: '15.00', cost: '9000.00' },
+        { feedType: 'starter-crumble', quantityKg: '25.00', cost: '15000.00' },
+        { feedType: 'grower-pellet', quantityKg: '30.00', cost: '18000.00' },
+        { feedType: 'starter-crumble', quantityKg: '15.00', cost: '9000.00' },
       ]
 
       const result = buildFeedSummary(records)
@@ -169,9 +173,9 @@ describe('Feed Service', () => {
 
     it('should group by feed type', () => {
       const records = [
-        { feedType: 'starter', quantityKg: '25.00', cost: '15000.00' },
-        { feedType: 'grower', quantityKg: '30.00', cost: '18000.00' },
-        { feedType: 'starter', quantityKg: '15.00', cost: '9000.00' },
+        { feedType: 'starter-crumble', quantityKg: '25.00', cost: '15000.00' },
+        { feedType: 'grower-pellet', quantityKg: '30.00', cost: '18000.00' },
+        { feedType: 'starter-crumble', quantityKg: '15.00', cost: '9000.00' },
       ]
 
       const result = buildFeedSummary(records)
@@ -198,8 +202,8 @@ describe('Feed Service', () => {
 
     it('should handle decimal values correctly', () => {
       const records = [
-        { feedType: 'starter', quantityKg: '25.75', cost: '15000.50' },
-        { feedType: 'grower', quantityKg: '30.25', cost: '18000.75' },
+        { feedType: 'starter-crumble', quantityKg: '25.75', cost: '15000.50' },
+        { feedType: 'grower-pellet', quantityKg: '30.25', cost: '18000.75' },
       ]
 
       const result = buildFeedSummary(records)
@@ -210,7 +214,7 @@ describe('Feed Service', () => {
 
     it('should handle single record', () => {
       const records = [
-        { feedType: 'starter', quantityKg: '100.00', cost: '50000.00' },
+        { feedType: 'starter-crumble', quantityKg: '100.00', cost: '50000.00' },
       ]
 
       const result = buildFeedSummary(records)
@@ -399,7 +403,7 @@ describe('Feed Service', () => {
     const validData: Partial<CreateFeedRecordInput> = {
       quantityKg: 25,
       cost: 15000,
-      feedType: 'starter',
+      feedType: 'starter-crumble',
       date: new Date('2024-01-01'),
     }
 
@@ -411,7 +415,7 @@ describe('Feed Service', () => {
     it('should accept partial updates', () => {
       expect(validateUpdateData({ quantityKg: 30 })).toBeNull()
       expect(validateUpdateData({ cost: 20000 })).toBeNull()
-      expect(validateUpdateData({ feedType: 'grower' })).toBeNull()
+      expect(validateUpdateData({ feedType: 'grower-pellet' })).toBeNull()
       expect(validateUpdateData({})).toBeNull()
     })
 
@@ -450,17 +454,17 @@ describe('Feed Service', () => {
 
     it('should accept all valid feed types', () => {
       const validFeedTypes = [
-        'starter',
-        'grower',
-        'finisher',
-        'layer_mash',
-        'fish_feed',
-        'cattle_feed',
-        'goat_feed',
-        'sheep_feed',
+        'starter-crumble',
+        'grower-pellet',
+        'finisher-pellet',
+        'layer-mash',
+        'fish-feed',
+        'cattle-feed',
+        'goat-feed',
+        'sheep-feed',
         'hay',
         'silage',
-        'bee_feed',
+        'bee-feed',
       ] as const
 
       for (const feedType of validFeedTypes) {

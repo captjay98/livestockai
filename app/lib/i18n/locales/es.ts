@@ -324,7 +324,7 @@ export const es = {
     },
   },
   dashboard: {
-    welcome: 'Bienvenido a OpenLivestock',
+    welcome: 'Bienvenido a Livestock AI',
     welcomeDescription:
       'Su solución completa de gestión para granjas. Comience creando su primera granja.',
     subtitle: 'Aquí está lo que sucede en sus granjas.',

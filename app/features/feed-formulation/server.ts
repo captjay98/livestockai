@@ -309,7 +309,6 @@ export const linkFormulationToBatchFn = createServerFn({ method: 'POST' })
       const { getDb } = await import('~/lib/db')
       const db = await getDb()
       const { recordFormulationUsage } = await import('./repository')
-      const { toNumber } = await import('~/features/settings/currency')
 
       // Verify user owns both formulation and batch
       const [formulation, batch] = await Promise.all([
@@ -329,18 +328,15 @@ export const linkFormulationToBatchFn = createServerFn({ method: 'POST' })
         })
       }
 
-      // Calculate total cost for the batch
-      const batchSizeKg = toNumber(formulation.batchSizeKg)
-      const costPerKg = toNumber(formulation.totalCostPerKg)
-      const totalCost = batchSizeKg * costPerKg
+      // Calculate total cost for the batch (moved to usage record)
 
       // Record usage
       await recordFormulationUsage(db, {
         formulationId: data.formulationId,
         batchId: data.batchId,
         userId: session.user.id,
-        batchSizeKg: batchSizeKg.toFixed(2),
-        totalCost: totalCost.toFixed(2),
+        batchSizeKg: formulation.batchSizeKg,
+        totalCost: formulation.totalCostPerKg,
         notes: `Linked to batch with ${batch.initialQuantity} animals`,
       })
 

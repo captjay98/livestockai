@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import { updateUserSettings } from './server'
+import { updateUserSettingsFn } from './server'
 import { DEFAULT_SETTINGS } from './index'
 import type { UserSettings } from '~/features/settings/currency-presets'
 
@@ -21,7 +21,7 @@ export function useSettingsTabs(
     setSaveSuccess(false)
 
     try {
-      await updateUserSettings({ data: partialSettings })
+      await updateUserSettingsFn({ data: partialSettings })
       setSaveSuccess(true)
       toast.success(t('saved'))
       setTimeout(() => setSaveSuccess(false), 3000)

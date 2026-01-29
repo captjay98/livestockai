@@ -45,9 +45,12 @@ export function useMortalityPage({
       await recordMortalityActionFn({
         data: {
           farmId: selectedFarmId,
-          ...data,
+          batchId: data.batchId as string,
           quantity: parseInt(data.quantity as string),
-        } as any,
+          date: data.date as string,
+          cause: data.cause as string,
+          notes: data.notes as string | undefined,
+        },
       })
       toast.success(t('mortality:recorded'))
       // Reload page to refresh data
@@ -67,12 +70,24 @@ export function useMortalityPage({
         data: {
           recordId: selectedRecord.id,
           data: {
-            ...data,
             quantity: data.quantity
               ? parseInt(data.quantity as string)
               : undefined,
             date: data.date ? new Date(data.date as string | Date) : undefined,
-          } as any,
+            cause: data.cause as
+              | 'disease'
+              | 'predator'
+              | 'weather'
+              | 'unknown'
+              | 'other'
+              | 'starvation'
+              | 'injury'
+              | 'poisoning'
+              | 'suffocation'
+              | 'culling'
+              | undefined,
+            notes: data.notes as string | null | undefined,
+          },
         },
       })
       toast.success(t('common:updated'))

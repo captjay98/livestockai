@@ -4,7 +4,7 @@
  */
 
 import type { CreateInvoiceInput } from './types'
-import { multiply, toDbString } from '~/features/settings/currency'
+import { multiply, toDbString, toNumber } from '~/features/settings/currency'
 
 /**
  * Line item for invoice calculations
@@ -153,16 +153,15 @@ export function transformInvoiceData(
     ...invoice,
     totalAmount:
       typeof invoice.totalAmount === 'string'
-        ? parseFloat(invoice.totalAmount)
+        ? toNumber(invoice.totalAmount)
         : invoice.totalAmount,
     items: invoice.items.map((item) => ({
       ...item,
       unitPrice:
         typeof item.unitPrice === 'string'
-          ? parseFloat(item.unitPrice)
+          ? toNumber(item.unitPrice)
           : item.unitPrice,
-      total:
-        typeof item.total === 'string' ? parseFloat(item.total) : item.total,
+      total: typeof item.total === 'string' ? toNumber(item.total) : item.total,
     })),
   }
 }

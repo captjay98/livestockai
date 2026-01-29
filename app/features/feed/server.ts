@@ -31,6 +31,7 @@ import {
   restoreOldInventory,
   updateFeedRecord as updateFeedRecordInDb,
 } from './repository'
+import type { FeedType } from './constants'
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 import { AppError } from '~/lib/errors'
 
@@ -62,18 +63,7 @@ export interface CreateFeedRecordInput {
   /** ID of the livestock batch being fed */
   batchId: string
   /** The specific category of feed used */
-  feedType:
-    | 'starter'
-    | 'grower'
-    | 'finisher'
-    | 'layer_mash'
-    | 'fish_feed'
-    | 'cattle_feed'
-    | 'goat_feed'
-    | 'sheep_feed'
-    | 'hay'
-    | 'silage'
-    | 'bee_feed'
+  feedType: FeedType
   /** Total weight of feed consumed in kilograms */
   quantityKg: number
   /** Total cost of the feed consumed in the system currency */
@@ -135,7 +125,7 @@ export async function createFeedRecord(
     await verifyFarmAccess(userId, farmId)
 
     // Validate input using service layer
-    const validationError = validateFeedRecord(input, input.batchId)
+    const validationError = validateFeedRecord(input)
     if (validationError) {
       throw new AppError('VALIDATION_ERROR', {
         metadata: { error: validationError },
@@ -210,19 +200,7 @@ const createFeedRecordSchema = z.object({
   farmId: z.string().uuid(),
   record: z.object({
     batchId: z.string().uuid(),
-    feedType: z.enum([
-      'starter',
-      'grower',
-      'finisher',
-      'layer_mash',
-      'fish_feed',
-      'cattle_feed',
-      'goat_feed',
-      'sheep_feed',
-      'hay',
-      'silage',
-      'bee_feed',
-    ]),
+    feedType: z.string(), // Validated in service layer
     quantityKg: z.number().positive(),
     cost: z.number().nonnegative(),
     date: z.coerce.date(),
@@ -240,7 +218,7 @@ export const createFeedRecordFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return createFeedRecord(session.user.id, data.farmId, data.record)
+    return createFeedRecord(session.user.id, data.farmId, data.record as any)
   })
 
 /**
@@ -327,7 +305,10 @@ export async function updateFeedRecord(
     await verifyFarmAccess(userId, farmId)
 
     // Validate update data using service layer
-    const validationError = validateUpdateData(data)
+    const validationError = validateUpdateData({
+      ...data,
+      feedType: data.feedType as any,
+    })
     if (validationError) {
       throw new AppError('VALIDATION_ERROR', {
         metadata: { error: validationError },
@@ -381,7 +362,7 @@ export async function updateFeedRecord(
 
       // 4. Update the record using repository
       await updateFeedRecordInDb(tx, recordId, {
-        feedType: data.feedType,
+        feedType: data.feedType as any,
         quantityKg: data.quantityKg?.toString(),
         cost: data.cost?.toString(),
         date: data.date,
@@ -402,21 +383,7 @@ const updateFeedRecordSchema = z.object({
   recordId: z.string().uuid(),
   data: z.object({
     batchId: z.string().uuid().optional(),
-    feedType: z
-      .enum([
-        'starter',
-        'grower',
-        'finisher',
-        'layer_mash',
-        'fish_feed',
-        'cattle_feed',
-        'goat_feed',
-        'sheep_feed',
-        'hay',
-        'silage',
-        'bee_feed',
-      ])
-      .optional(),
+    feedType: z.string().optional(),
     quantityKg: z.number().positive().optional(),
     cost: z.number().nonnegative().optional(),
     date: z.coerce.date().optional(),
@@ -438,7 +405,7 @@ export const updateFeedRecordFn = createServerFn({ method: 'POST' })
       session.user.id,
       data.farmId,
       data.recordId,
-      data.data,
+      data.data as any,
     )
   })
 
@@ -736,7 +703,7 @@ const getFeedDataForFarmSchema = z.object({
   feedType: z.string().optional(),
 })
 
-export const getFeedDataForFarm = createServerFn({ method: 'GET' })
+export const getFeedDataForFarmFn = createServerFn({ method: 'GET' })
   .inputValidator(getFeedDataForFarmSchema)
   .handler(async ({ data }) => {
     try {

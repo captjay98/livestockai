@@ -1,4 +1,5 @@
 // Module system types for feature modules
+import type { FeedType } from '~/features/feed/constants'
 
 export type ModuleKey =
   | 'poultry'
@@ -37,19 +38,6 @@ export type StructureType =
   | 'hive'
   | 'milking_parlor'
   | 'shearing_shed'
-
-export type FeedType =
-  | 'starter'
-  | 'grower'
-  | 'finisher'
-  | 'layer_mash'
-  | 'fish_feed'
-  | 'cattle_feed'
-  | 'goat_feed'
-  | 'sheep_feed'
-  | 'hay'
-  | 'silage'
-  | 'bee_feed'
 
 export interface ModuleMetadata {
   key: ModuleKey

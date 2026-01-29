@@ -15,9 +15,9 @@ import {
 export const Route = createFileRoute('/_auth/sensors/' as any)({
   loader: async () => {
     const { getStructuresFn } = await import('~/features/structures/server')
-    const { getUserSettings } = await import('~/features/settings/server')
+    const { getUserSettingsFn } = await import('~/features/settings/server')
 
-    const settings = await getUserSettings({ data: {} })
+    const settings = await getUserSettingsFn({ data: {} })
     const farmId = settings.defaultFarmId
 
     const [sensors, structures] = await Promise.all([

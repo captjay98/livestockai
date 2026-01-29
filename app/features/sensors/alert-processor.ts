@@ -211,7 +211,8 @@ async function sendAlertNotifications(
 
         // Note: Would need phone number from user profile
         // For now, just log that SMS would be sent
-        console.log(
+        const { debug } = await import('~/lib/logger')
+        await debug(
           `[SMS] Would send alert to user ${user?.id}: ${alert.message}`,
         )
       }

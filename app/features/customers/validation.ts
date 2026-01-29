@@ -1,9 +1,8 @@
-import type { CustomerSearchParams } from './types'
+import { z } from 'zod'
+import { createSearchValidator } from '~/lib/validation/search-params'
 
-export function validateCustomerSearch(
-  search: Record<string, unknown>,
-): CustomerSearchParams {
-  const validSortBy = [
+export const validateCustomerSearch = createSearchValidator({
+  sortBy: [
     'name',
     'phone',
     'email',
@@ -12,23 +11,8 @@ export function validateCustomerSearch(
     'createdAt',
     'totalRevenue',
     'salesCount',
-  ] as const
-
-  return {
-    page: Number(search.page) || 1,
-    pageSize: Number(search.pageSize) || 10,
-    sortBy:
-      typeof search.sortBy === 'string' &&
-      (validSortBy as ReadonlyArray<string>).includes(search.sortBy)
-        ? search.sortBy
-        : 'createdAt',
-    sortOrder:
-      typeof search.sortOrder === 'string' &&
-      (search.sortOrder === 'asc' || search.sortOrder === 'desc')
-        ? search.sortOrder
-        : 'desc',
-    q: (search.q as string) || '',
-    customerType:
-      typeof search.customerType === 'string' ? search.customerType : undefined,
-  }
-}
+  ],
+  custom: {
+    customerType: z.string().optional(),
+  },
+})

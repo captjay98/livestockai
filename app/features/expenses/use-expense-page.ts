@@ -36,8 +36,13 @@ export function useExpensePage({
         data: {
           expense: {
             farmId: selectedFarmId,
-            ...data,
-          } as any,
+            category: data.category as ExpenseCategory,
+            amount: data.amount as number,
+            date: data.date as Date,
+            description: data.description as string,
+            supplierId: (data.supplierId as string | null) ?? undefined,
+            notes: (data.notes as string | null) ?? undefined,
+          },
         },
       })
       toast.success(t('messages.recorded'))

@@ -41,7 +41,7 @@ const buttonVariants = cva(
   },
 )
 
-interface ButtonProps
+export interface ButtonProps
   extends
     Omit<ButtonPrimitive.Props, 'className'>,
     VariantProps<typeof buttonVariants> {

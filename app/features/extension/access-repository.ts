@@ -185,7 +185,19 @@ export async function getActiveAccessGrant(
 ) {
   return await db
     .selectFrom('access_grants')
-    .selectAll()
+    .select([
+      'id',
+      'userId',
+      'farmId',
+      'accessRequestId',
+      'grantedBy',
+      'grantedAt',
+      'expiresAt',
+      'financialVisibility',
+      'revokedAt',
+      'revokedBy',
+      'revokedReason',
+    ])
     .where('userId', '=', userId)
     .where('farmId', '=', farmId)
     .where('revokedAt', 'is', null)

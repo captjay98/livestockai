@@ -5,7 +5,13 @@
 
 import { sql } from 'kysely'
 import type { Kysely } from 'kysely'
-import type { Database } from '~/lib/db/types'
+import type { Database, StructureTable } from '~/lib/db/types'
+
+/** Valid structure types from the database schema */
+type StructureType = StructureTable['type']
+
+/** Valid structure statuses from the database schema */
+type StructureStatus = StructureTable['status']
 
 /**
  * Data for inserting a new structure
@@ -13,10 +19,10 @@ import type { Database } from '~/lib/db/types'
 export interface StructureInsert {
   farmId: string
   name: string
-  type: string
+  type: StructureType
   capacity: number | null
   areaSqm: string | null
-  status: string
+  status: StructureStatus
   notes: string | null
 }
 
@@ -25,10 +31,10 @@ export interface StructureInsert {
  */
 export interface StructureUpdate {
   name?: string
-  type?: string
+  type?: StructureType
   capacity?: number | null
   areaSqm?: string | null
-  status?: string
+  status?: StructureStatus
   notes?: string | null
 }
 
@@ -97,7 +103,7 @@ export async function insertStructure(
 ): Promise<string> {
   const result = await db
     .insertInto('structures')
-    .values(data as any)
+    .values(data)
     .returning('id')
     .executeTakeFirstOrThrow()
   return result.id
@@ -195,7 +201,7 @@ export async function getStructuresByType(
       'farms.name as farmName',
     ])
     .where('structures.farmId', '=', farmId)
-    .where('structures.type', '=', type as any)
+    .where('structures.type', '=', type as StructureType)
     .orderBy('structures.name', 'asc')
     .execute()
 }
@@ -261,7 +267,7 @@ export async function updateStructure(
 ): Promise<void> {
   await db
     .updateTable('structures')
-    .set(data as any)
+    .set(data)
     .where('id', '=', structureId)
     .execute()
 }
@@ -320,11 +326,19 @@ export async function getStructuresPaginated(
     .where('structures.farmId', '=', farmId)
 
   if (filters?.status) {
-    baseQuery = baseQuery.where('structures.status', '=', filters.status as any)
+    baseQuery = baseQuery.where(
+      'structures.status',
+      '=',
+      filters.status as StructureStatus,
+    )
   }
 
   if (filters?.type) {
-    baseQuery = baseQuery.where('structures.type', '=', filters.type as any)
+    baseQuery = baseQuery.where(
+      'structures.type',
+      '=',
+      filters.type as StructureType,
+    )
   }
 
   // Get total count

@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Building2, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { getFarmsWithStats } from '~/features/farms/farm-stats'
+import { getFarmsWithStatsFn } from '~/features/farms/farm-stats'
 import { useFarmsPage } from '~/features/farms/use-farms-page'
 import { Button } from '~/components/ui/button'
 import { FarmDialog } from '~/components/dialogs/farm-dialog'
@@ -14,7 +14,7 @@ export const Route = createFileRoute('/_auth/farms/')({
   component: FarmsIndexPage,
   loader: async () => {
     try {
-      const farms = await getFarmsWithStats()
+      const farms = await getFarmsWithStatsFn()
       return { farms }
     } catch (err) {
       if (err instanceof Error && err.message === 'UNAUTHORIZED') {

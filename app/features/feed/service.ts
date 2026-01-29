@@ -79,14 +79,7 @@ export function calculateNewInventoryQuantity(
  * // Returns: "Quantity must be greater than 0"
  * ```
  */
-export function validateFeedRecord(
-  data: CreateFeedRecordInput,
-  batchId?: string,
-): string | null {
-  if (batchId === '' || batchId?.trim() === '') {
-    return 'Batch ID is required'
-  }
-
+export function validateFeedRecord(data: CreateFeedRecordInput): string | null {
   if (data.batchId === '' || data.batchId.trim() === '') {
     return 'Batch ID is required'
   }
@@ -117,7 +110,7 @@ export function validateFeedRecord(
     'bee_feed',
   ] as const
 
-  if (!validFeedTypes.includes(data.feedType as any)) {
+  if (!(validFeedTypes as ReadonlyArray<string>).includes(data.feedType)) {
     return 'Invalid feed type'
   }
 
@@ -323,7 +316,7 @@ export function validateUpdateData(
 
   if (
     data.feedType !== undefined &&
-    !validFeedTypes.includes(data.feedType as any)
+    !(validFeedTypes as ReadonlyArray<string>).includes(data.feedType)
   ) {
     return 'Invalid feed type'
   }

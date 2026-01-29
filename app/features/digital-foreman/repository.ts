@@ -30,7 +30,24 @@ export async function insertWorkerProfile(
 export async function getWorkerProfileById(db: Kysely<Database>, id: string) {
   return db
     .selectFrom('worker_profiles')
-    .selectAll()
+    .select([
+      'id',
+      'userId',
+      'farmId',
+      'phone',
+      'emergencyContactName',
+      'emergencyContactPhone',
+      'employmentStatus',
+      'employmentStartDate',
+      'employmentEndDate',
+      'wageRateAmount',
+      'wageRateType',
+      'wageCurrency',
+      'permissions',
+      'structureIds',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('id', '=', id)
     .executeTakeFirst()
 }
@@ -42,7 +59,24 @@ export async function getWorkerProfileByUserId(
 ) {
   return db
     .selectFrom('worker_profiles')
-    .selectAll()
+    .select([
+      'id',
+      'userId',
+      'farmId',
+      'phone',
+      'emergencyContactName',
+      'emergencyContactPhone',
+      'employmentStatus',
+      'employmentStartDate',
+      'employmentEndDate',
+      'wageRateAmount',
+      'wageRateType',
+      'wageCurrency',
+      'permissions',
+      'structureIds',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('userId', '=', userId)
     .where('farmId', '=', farmId)
     .executeTakeFirst()
@@ -121,7 +155,23 @@ export async function getOpenCheckIn(
 ) {
   return db
     .selectFrom('worker_check_ins')
-    .selectAll()
+    .select([
+      'id',
+      'workerId',
+      'farmId',
+      'checkInTime',
+      'checkInLat',
+      'checkInLng',
+      'checkInAccuracy',
+      'verificationStatus',
+      'checkOutTime',
+      'checkOutLat',
+      'checkOutLng',
+      'checkOutAccuracy',
+      'hoursWorked',
+      'syncStatus',
+      'createdAt',
+    ])
     .where('workerId', '=', workerId)
     .where('farmId', '=', farmId)
     .where('checkOutTime', 'is', null)
@@ -153,7 +203,23 @@ export async function getCheckInsByWorker(
 ) {
   return db
     .selectFrom('worker_check_ins')
-    .selectAll()
+    .select([
+      'id',
+      'workerId',
+      'farmId',
+      'checkInTime',
+      'checkInLat',
+      'checkInLng',
+      'checkInAccuracy',
+      'verificationStatus',
+      'checkOutTime',
+      'checkOutLat',
+      'checkOutLng',
+      'checkOutAccuracy',
+      'hoursWorked',
+      'syncStatus',
+      'createdAt',
+    ])
     .where('workerId', '=', workerId)
     .where('checkInTime', '>=', startDate)
     .where('checkInTime', '<=', endDate)
@@ -223,7 +289,18 @@ export async function upsertGeofence(
 export async function getGeofenceByFarm(db: Kysely<Database>, farmId: string) {
   return db
     .selectFrom('farm_geofences')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'geofenceType',
+      'centerLat',
+      'centerLng',
+      'radiusMeters',
+      'vertices',
+      'toleranceMeters',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('farmId', '=', farmId)
     .executeTakeFirst()
 }
@@ -254,7 +331,26 @@ export async function insertTaskAssignment(
 export async function getTaskAssignmentById(db: Kysely<Database>, id: string) {
   return db
     .selectFrom('task_assignments')
-    .selectAll()
+    .select([
+      'id',
+      'taskId',
+      'workerId',
+      'assignedBy',
+      'farmId',
+      'dueDate',
+      'priority',
+      'status',
+      'requiresPhoto',
+      'requiresApproval',
+      'notes',
+      'completedAt',
+      'completionNotes',
+      'approvedBy',
+      'approvedAt',
+      'rejectionReason',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('id', '=', id)
     .executeTakeFirst()
 }
@@ -266,7 +362,26 @@ export async function getAssignmentsByWorker(
 ) {
   let query = db
     .selectFrom('task_assignments')
-    .selectAll()
+    .select([
+      'id',
+      'taskId',
+      'workerId',
+      'assignedBy',
+      'farmId',
+      'dueDate',
+      'priority',
+      'status',
+      'requiresPhoto',
+      'requiresApproval',
+      'notes',
+      'completedAt',
+      'completionNotes',
+      'approvedBy',
+      'approvedAt',
+      'rejectionReason',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('workerId', '=', workerId)
   if (status) query = query.where('status', '=', status as any)
   return query.orderBy('dueDate', 'asc').execute()
@@ -368,7 +483,15 @@ export async function getPhotosByAssignment(
 ) {
   return db
     .selectFrom('task_photos')
-    .selectAll()
+    .select([
+      'id',
+      'assignmentId',
+      'photoUrl',
+      'capturedLat',
+      'capturedLng',
+      'capturedAt',
+      'uploadedAt',
+    ])
     .where('assignmentId', '=', assignmentId)
     .orderBy('capturedAt', 'desc')
     .execute()
@@ -398,7 +521,16 @@ export async function getPayrollPeriodsByFarm(
 ) {
   return db
     .selectFrom('payroll_periods')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'periodType',
+      'startDate',
+      'endDate',
+      'status',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('farmId', '=', farmId)
     .orderBy('startDate', 'desc')
     .execute()
@@ -412,7 +544,16 @@ export async function getOverlappingPeriods(
 ) {
   return db
     .selectFrom('payroll_periods')
-    .selectAll()
+    .select([
+      'id',
+      'farmId',
+      'periodType',
+      'startDate',
+      'endDate',
+      'status',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('farmId', '=', farmId)
     .where((eb) =>
       eb.or([

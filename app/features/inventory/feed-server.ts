@@ -13,11 +13,11 @@ import {
 } from './service'
 import {
   deleteFeedInventory,
+  getFeedInventory,
   getFeedInventoryByFarmAndType,
   getFeedInventoryById,
   getLowStockFeed,
   insertFeedInventory,
-  selectFeedInventory,
   updateFeedInventory,
 } from './repository'
 import type {
@@ -67,7 +67,7 @@ const feedStockSchema = z.object({
   quantityKg: z.number().nonnegative(),
 })
 
-export async function getFeedInventory(userId: string, farmId?: string) {
+export async function getFeedInventoryForUser(userId: string, farmId?: string) {
   let targetFarmIds: Array<string> = []
 
   if (farmId) {
@@ -83,7 +83,7 @@ export async function getFeedInventory(userId: string, farmId?: string) {
 
   const { getDb } = await import('~/lib/db')
   const db = await getDb()
-  return selectFeedInventory(db, targetFarmIds)
+  return getFeedInventory(db, targetFarmIds)
 }
 
 export const getFeedInventoryFn = createServerFn({ method: 'GET' })
@@ -91,7 +91,7 @@ export const getFeedInventoryFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return getFeedInventory(session.user.id, data.farmId)
+    return getFeedInventoryForUser(session.user.id, data.farmId)
   })
 
 export async function getLowStockFeedInventory(

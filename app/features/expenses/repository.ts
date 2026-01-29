@@ -442,8 +442,15 @@ export async function getExpensesPaginated(
     dataQuery = dataQuery.where('expenses.date', '<=', filters.endDate)
   }
 
-  // Apply sorting and pagination
-  const sortColumn =
+  // Apply sorting - use type-safe column reference
+  type SortableColumn =
+    | 'expenses.amount'
+    | 'expenses.category'
+    | 'expenses.description'
+    | 'suppliers.name'
+    | 'expenses.date'
+
+  const sortColumn: SortableColumn =
     sortBy === 'amount'
       ? 'expenses.amount'
       : sortBy === 'category'
@@ -455,7 +462,7 @@ export async function getExpensesPaginated(
             : 'expenses.date'
 
   const data = await dataQuery
-    .orderBy(sortColumn as any, sortOrder)
+    .orderBy(sortColumn, sortOrder)
     .limit(pageSize)
     .offset((page - 1) * pageSize)
     .execute()

@@ -604,8 +604,10 @@ export async function getMortalitySummary(userId: string, farmId?: string) {
     const totalDeaths = records.reduce((sum, r) => sum + r.quantity, 0)
 
     // Count alerts (this might be expensive if called frequently, but manageable)
-    const { getAllBatchAlerts } = await import('~/features/monitoring/server')
-    const alerts = await getAllBatchAlerts({ data: { farmId } })
+    const { getAllBatchAlertsFn } = await import('~/features/monitoring/server')
+    const alerts = (await getAllBatchAlertsFn({
+      data: { farmId },
+    })) as Array<any>
     // Filter for ONLY mortality logic alerts to keep summary consistent?
     // Actually the UI just says "Critical Alerts", so using all is probably fine/better.
     const criticalAlerts = alerts.filter((a) => a.type === 'critical').length
@@ -852,9 +854,9 @@ export const getMortalityDataForFarmFn = createServerFn({ method: 'GET' })
         cause: data.cause,
       }),
       (async () => {
-        const { getAllBatchAlerts } =
+        const { getAllBatchAlertsFn } =
           await import('~/features/monitoring/server')
-        return getAllBatchAlerts({ data: { farmId } })
+        return getAllBatchAlertsFn({ data: { farmId } }) as any
       })(),
       getMortalitySummary(session.user.id, farmId),
       (async () => {
@@ -895,7 +897,7 @@ export const recordMortalityActionFn = createServerFn({ method: 'POST' })
       batchId: data.batchId,
       quantity: data.quantity,
       date: new Date(data.date),
-      cause: data.cause as any,
+      cause: data.cause as CreateMortalityData['cause'],
       notes: data.notes,
     })
     return { success: true, id }

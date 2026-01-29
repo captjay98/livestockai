@@ -1,0 +1,33 @@
+export const errors = {
+  UNAUTHORIZED: 'Unauthorized access',
+  INVALID_CREDENTIALS: 'Invalid email or password',
+  SESSION_EXPIRED: 'Session expired',
+  ACCESS_DENIED: 'Access denied',
+  BANNED: 'Your account has been suspended',
+  NOT_FOUND: 'Resource not found',
+  FARM_NOT_FOUND: 'Farm not found',
+  BATCH_NOT_FOUND: 'Batch not found',
+  CUSTOMER_NOT_FOUND: 'Customer not found',
+  SUPPLIER_NOT_FOUND: 'Supplier not found',
+  INVOICE_NOT_FOUND: 'Invoice not found',
+  STRUCTURE_NOT_FOUND: 'Structure not found',
+  SALE_NOT_FOUND: 'Sale not found',
+  VALIDATION_ERROR: 'Validation failed',
+  INVALID_INPUT: 'Invalid input',
+  INSUFFICIENT_STOCK: 'Insufficient stock',
+  ALREADY_EXISTS: 'Resource already exists',
+  INTERNAL_ERROR: 'Internal server error',
+  DATABASE_ERROR: 'Database error',
+  unknown: 'An unknown error occurred',
+
+  // Legacy/UI specific (keep camelCase if used directly in UI components, or map them)
+  // For now keeping them as they might be used elsewhere
+  userNotFound: 'User not found',
+  saveFailed: 'Failed to save settings',
+  resetFailed: 'Failed to reset settings',
+  farmDeleteFailed: 'Cannot delete farm with existing records',
+  userNotAssigned: 'User is not assigned to this farm',
+  lastOwnerRemove: 'Cannot remove the last owner from a farm',
+  lastOwnerDemote: 'Cannot demote the last owner of a farm',
+  accessDeniedFarm: 'Access denied to this farm',
+}

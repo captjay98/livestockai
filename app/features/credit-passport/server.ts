@@ -139,34 +139,37 @@ export const generateReportFn = createServerFn({ method: 'POST' })
       } = await import('./metrics-service')
 
       const financial = calculateFinancialMetrics({
-        sales: financialData.sales,
-        expenses: financialData.expenses,
+        sales: financialData.sales as Array<any>,
+        expenses: financialData.expenses as Array<any>,
         startDate: data.startDate,
         endDate: data.endDate,
       })
 
       const operational = calculateOperationalMetrics({
-        batches: operationalData.batches,
-        feedRecords: operationalData.feedRecords,
-        weightSamples: operationalData.weightSamples,
+        batches: operationalData.batches as Array<any>,
+        feedRecords: operationalData.feedRecords as Array<any>,
+        weightSamples: operationalData.weightSamples as Array<any>,
       })
 
       const assets = calculateAssetSummary({
-        batches: assetData.batches,
-        structures: assetData.structures,
-        marketPrices: assetData.marketPrices,
+        batches: assetData.batches as Array<any>,
+        structures: assetData.structures as Array<any>,
+        marketPrices: assetData.marketPrices as Array<any>,
       })
 
       // Calculate track record from actual data
       const trackRecord = calculateTrackRecord({
-        batches: trackRecordData.batches.map((b) => ({
+        batches: (trackRecordData.batches as Array<any>).map((b) => ({
           acquisitionDate: b.acquisitionDate,
           status: b.status,
           initialQuantity: b.initialQuantity,
           target_weight_g: b.targetWeightG,
+          livestockType: b.livestockType,
         })),
-        sales: trackRecordData.sales.map((s) => ({
-          ...s,
+        sales: (trackRecordData.sales as Array<any>).map((s) => ({
+          totalAmount: s.totalAmount,
+          livestockType: s.livestockType,
+          date: s.date,
           customerId: s.customerId || '',
         })),
         reportDate: new Date(),
@@ -184,7 +187,10 @@ export const generateReportFn = createServerFn({ method: 'POST' })
         operational,
         assets,
         trackRecord,
-        creditScore,
+        creditScore: {
+          ...creditScore,
+          grade: creditScore.grade as any,
+        },
       }
 
       // Generate crypto signature
@@ -219,7 +225,7 @@ export const generateReportFn = createServerFn({ method: 'POST' })
         branding: data.whiteLabel ? 'white-label' : 'livestockai',
         language: 'en', // TODO: Get from user settings
       })
-      const pdfBuffer = await renderToBuffer(pdfElement)
+      const pdfBuffer = await renderToBuffer(pdfElement as any)
 
       // Upload to R2 private storage
       const { uploadFile } = await import('~/features/integrations/storage')

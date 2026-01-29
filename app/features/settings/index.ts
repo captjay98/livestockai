@@ -63,7 +63,7 @@ export {
 
 // Server functions
 export {
-  getUserSettings,
-  updateUserSettings,
-  resetUserSettings,
+  getUserSettingsFn,
+  updateUserSettingsFn,
+  resetUserSettingsFn,
 } from './server'

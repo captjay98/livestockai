@@ -103,17 +103,18 @@ let authInitPromise: Promise<ReturnType<typeof betterAuth>> | undefined
 
 async function createAuth() {
   const env = await getEnv()
+  const { debug, error } = await import('~/lib/logger')
 
-  console.log('[AUTH CONFIG] Creating auth instance...')
-  console.log('[AUTH CONFIG] env.DATABASE_URL exists:', !!env.DATABASE_URL)
-  console.log(
+  await debug('[AUTH CONFIG] Creating auth instance...')
+  await debug('[AUTH CONFIG] env.DATABASE_URL exists:', !!env.DATABASE_URL)
+  await debug(
     '[AUTH CONFIG] env.BETTER_AUTH_SECRET exists:',
     !!env.BETTER_AUTH_SECRET,
   )
-  console.log('[AUTH CONFIG] env.BETTER_AUTH_URL:', env.BETTER_AUTH_URL)
+  await debug('[AUTH CONFIG] env.BETTER_AUTH_URL:', env.BETTER_AUTH_URL)
 
   if (!env.DATABASE_URL) {
-    console.error('[AUTH CONFIG] DATABASE_URL is missing!')
+    await error('[AUTH CONFIG] DATABASE_URL is missing!')
     throw new Error('DATABASE_URL environment variable is not set')
   }
   return betterAuth({
@@ -143,7 +144,7 @@ async function createAuth() {
       },
     },
     advanced: {
-      cookiePrefix: 'openlivestock',
+      cookiePrefix: 'livestockai',
       useSecureCookies: true,
     },
     user: {

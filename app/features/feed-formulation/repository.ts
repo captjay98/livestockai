@@ -127,12 +127,26 @@ export async function insertUserIngredientPrice(
 export async function getIngredients(
   db: Kysely<Database>,
 ): Promise<Array<IngredientWithPrice>> {
-  return await db
+  return (await db
     .selectFrom('feed_ingredients')
-    .selectAll()
+    .select([
+      'id',
+      'name',
+      'category',
+      'proteinPercent',
+      'energyKcalKg',
+      'fatPercent',
+      'fiberPercent',
+      'calciumPercent',
+      'phosphorusPercent',
+      'lysinePercent',
+      'methioninePercent',
+      'maxInclusionPercent',
+      'updatedAt',
+    ] as any)
     .orderBy('category')
     .orderBy('name')
-    .execute()
+    .execute()) as any as Array<IngredientWithPrice>
 }
 
 /**
@@ -143,11 +157,26 @@ export async function getIngredientById(
   ingredientId: string,
 ): Promise<IngredientWithPrice | null> {
   return (
-    (await db
+    ((await db
       .selectFrom('feed_ingredients')
-      .selectAll()
+      .select([
+        'id',
+        'name',
+        'category',
+        'proteinPercent',
+        'energyKcalPerKg',
+        'fiberPercent',
+        'fatPercent',
+        'calciumPercent',
+        'phosphorusPercent',
+        'lysinePercent',
+        'methioninePercent',
+        'isActive',
+        'createdAt',
+        'updatedAt',
+      ] as any)
       .where('id', '=', ingredientId)
-      .executeTakeFirst()) || null
+      .executeTakeFirst()) as any) || null
   )
 }
 
@@ -159,12 +188,31 @@ export async function getNutritionalRequirements(
   species: string,
   stage: string,
 ) {
-  return await db
+  return (await db
     .selectFrom('nutritional_requirements')
-    .selectAll()
+    .select([
+      'id',
+      'species',
+      'productionStage',
+      'minProteinPercent',
+      'maxProteinPercent',
+      'minEnergyKcalPerKg',
+      'maxEnergyKcalPerKg',
+      'maxFiberPercent',
+      'minFatPercent',
+      'maxFatPercent',
+      'minCalciumPercent',
+      'maxCalciumPercent',
+      'minPhosphorusPercent',
+      'maxPhosphorusPercent',
+      'minLysinePercent',
+      'minMethioninePercent',
+      'createdAt',
+      'updatedAt',
+    ] as any)
     .where('species', '=', species)
     .where('productionStage', '=', stage)
-    .executeTakeFirst()
+    .executeTakeFirst()) as any
 }
 
 /**
@@ -272,7 +320,7 @@ export async function getFormulations(
     createdAt: Date
   }>
 > {
-  return await db
+  return (await db
     .selectFrom('saved_formulations')
     .select([
       'id',
@@ -286,7 +334,7 @@ export async function getFormulations(
     ])
     .where('userId', '=', userId)
     .orderBy('createdAt', 'desc')
-    .execute()
+    .execute()) as any
 }
 
 /**
@@ -395,12 +443,25 @@ export async function getFormulationById(
   formulationId: string,
   userId: string,
 ) {
-  return await db
+  return (await db
     .selectFrom('saved_formulations')
-    .selectAll()
+    .select([
+      'id',
+      'userId',
+      'name',
+      'species',
+      'productionStage',
+      'ingredients',
+      'nutritionalAnalysis',
+      'costPerKg',
+      'notes',
+      'isActive',
+      'createdAt',
+      'updatedAt',
+    ] as any)
     .where('id', '=', formulationId)
     .where('userId', '=', userId)
-    .executeTakeFirst()
+    .executeTakeFirst()) as any
 }
 
 /**

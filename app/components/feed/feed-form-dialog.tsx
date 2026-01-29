@@ -35,10 +35,22 @@ interface FeedInventory {
 interface FeedFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: any) => Promise<void>
+  onSubmit: (data: {
+    batchId: string
+    feedType: string
+    quantityKg: string
+    cost: string
+    date: string
+  }) => Promise<void>
   batches: Array<Batch>
   inventory: Array<FeedInventory>
-  initialData?: any
+  initialData?: {
+    batchId?: string
+    feedType?: string
+    quantityKg?: number
+    cost?: number
+    date?: Date | string
+  }
   isSubmitting: boolean
   title: string
   description?: string
@@ -122,8 +134,8 @@ export function FeedFormDialog({
                   {formData.batchId
                     ? batches.find((b) => b.id === formData.batchId)?.species
                     : t('feed:placeholders.selectBatch', {
-                        defaultValue: 'Select batch',
-                      })}
+                      defaultValue: 'Select batch',
+                    })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -155,11 +167,11 @@ export function FeedFormDialog({
                 <SelectValue>
                   {formData.feedType
                     ? FEED_TYPES.find(
-                        (tInfo) => tInfo.value === formData.feedType,
-                      )?.label
+                      (tInfo) => tInfo.value === formData.feedType,
+                    )?.label
                     : t('feed:placeholders.selectType', {
-                        defaultValue: 'Select type',
-                      })}
+                      defaultValue: 'Select type',
+                    })}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -258,12 +270,12 @@ export function FeedFormDialog({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? t('common:saving', {
-                    defaultValue: 'Saving...',
-                  })
+                  defaultValue: 'Saving...',
+                })
                 : initialData
                   ? t('common:saveChanges', {
-                      defaultValue: 'Save Changes',
-                    })
+                    defaultValue: 'Save Changes',
+                  })
                   : t('common:save', { defaultValue: 'Save' })}
             </Button>
           </DialogFooter>

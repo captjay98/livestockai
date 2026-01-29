@@ -14,9 +14,9 @@ import {
   deleteMedicationInventory,
   getExpiringMedications,
   getLowStockMedications,
+  getMedicationInventory,
   getMedicationInventoryById,
   insertMedicationInventory,
-  selectMedicationInventory,
   updateMedicationInventory,
 } from './repository'
 import type { CreateMedicationInput, UpdateMedicationInput } from './service'
@@ -87,7 +87,10 @@ const addMedicationStockSchema = z.object({
   quantityToAdd: z.number().int().positive(),
 })
 
-export async function getMedicationInventory(userId: string, farmId?: string) {
+export async function getMedicationInventoryForUser(
+  userId: string,
+  farmId?: string,
+) {
   let targetFarmIds: Array<string> = []
 
   if (farmId) {
@@ -103,7 +106,7 @@ export async function getMedicationInventory(userId: string, farmId?: string) {
 
   const { getDb } = await import('~/lib/db')
   const db = await getDb()
-  return selectMedicationInventory(db, targetFarmIds)
+  return getMedicationInventory(db, targetFarmIds)
 }
 
 export const getMedicationInventoryFn = createServerFn({ method: 'GET' })
@@ -111,7 +114,7 @@ export const getMedicationInventoryFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    return getMedicationInventory(session.user.id, data.farmId)
+    return getMedicationInventoryForUser(session.user.id, data.farmId)
   })
 
 export async function getExpiringMedicationsList(

@@ -348,7 +348,7 @@ export const en = {
     },
   },
   dashboard: {
-    welcome: 'Welcome to OpenLivestock',
+    welcome: 'Welcome to Livestock AI',
     welcomeDescription:
       'Your complete poultry and fishery management solution. Start by creating your first farm.',
     subtitle: "Here's what's happening on your farms.",
@@ -1361,7 +1361,7 @@ export const en = {
       percent: '{{percent}}% complete',
     },
     welcome: {
-      title: 'Welcome to OpenLivestock!',
+      title: 'Welcome to Livestock AI!',
       descUser: "Let's get your farm set up in just a few minutes.",
       descAdmin: "You've been added to a farm. Let's take a quick tour.",
       start: 'Get Started',
@@ -1406,7 +1406,7 @@ export const en = {
     },
     createStructure: {
       title: 'Farm Organization',
-      desc: 'How OpenLivestock organizes your data.',
+      desc: 'How Livestock AI organizes your data.',
       items: {
         farm: 'Your top-level workspace',
         batches: 'Groups of livestock acquired together',
@@ -1438,7 +1438,7 @@ export const en = {
     },
     tour: {
       title: 'Quick Tour',
-      summary: 'Explore key features of OpenLivestock',
+      summary: 'Explore key features of Livestock AI',
       finish: 'Finish Tour',
       dashboard: {
         title: 'Dashboard',

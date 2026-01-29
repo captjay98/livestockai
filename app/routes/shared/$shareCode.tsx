@@ -6,12 +6,37 @@ import { toNumber } from '~/features/settings/currency'
 
 export const Route = createFileRoute('/shared/$shareCode')({
   loader: async ({ params }) => {
+    // Rate limiting for public route
+    // Note: Request object isn't directly available in TanStack loader context here
+    // In a real environment, we'd use a platform-specific way to get the IP
+    const { checkRateLimit } = await import('~/lib/rate-limit')
+    const ip = 'public-visitor' as any // Fallback for type safety
+
+    const { allowed } = checkRateLimit(ip)
+    if (!allowed) {
+      throw new Response('Rate limit exceeded', { status: 429 })
+    }
+
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
 
     const formulation = await db
       .selectFrom('saved_formulations')
-      .selectAll()
+      .select([
+        'id',
+        'userId',
+        'name',
+        'species',
+        'productionStage',
+        'batchSizeKg',
+        'ingredients',
+        'totalCostPerKg',
+        'nutritionalValues',
+        'mixingInstructions',
+        'shareCode',
+        'createdAt',
+        'updatedAt',
+      ])
       .where('shareCode', '=', params.shareCode)
       .executeTakeFirst()
 

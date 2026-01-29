@@ -21,13 +21,13 @@ export function useBatchPage({ selectedFarmId, routePath }: UseBatchPageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const updateSearch = (updates: Partial<BatchSearchParams>) => {
-    // @ts-ignore - TanStack Router type limitation
+    // TanStack Router type limitation - search params are dynamically typed
     navigate({
-      search: (prev: BatchSearchParams) => ({
+      search: ((prev: BatchSearchParams) => ({
         ...prev,
         ...updates,
-      }),
-    } as any)
+      })) as any,
+    })
   }
 
   const handleEditSubmit = async (data: {

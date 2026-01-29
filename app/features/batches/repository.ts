@@ -54,8 +54,8 @@ export interface BatchWithFarmName {
   batchName: string | null
   livestockType: string
   species: string
-  breedId?: string | null
-  breedName?: string | null
+  breedId: string | null
+  breedName: string | null
   sourceSize: string | null
   initialQuantity: number
   currentQuantity: number
@@ -68,10 +68,10 @@ export interface BatchWithFarmName {
   notes: string | null
   createdAt: Date
   updatedAt: Date
-  deletedAt?: Date | null
-  structureName?: string | null
-  supplierName?: string | null
-  formulation?: {
+  deletedAt: Date | null
+  structureName: string | null
+  supplierName: string | null
+  formulation: {
     name: string
     species: string
     stage: string
@@ -186,6 +186,8 @@ export async function getBatchesByFarm(
     .selectFrom('batches')
     .leftJoin('farms', 'farms.id', 'batches.farmId')
     .leftJoin('breeds', 'breeds.id', 'batches.breedId')
+    .leftJoin('structures', 'structures.id', 'batches.structureId')
+    .leftJoin('suppliers', 'suppliers.id', 'batches.supplierId')
     .select([
       'batches.id',
       'batches.farmId',
@@ -206,7 +208,10 @@ export async function getBatchesByFarm(
       'batches.notes',
       'batches.createdAt',
       'batches.updatedAt',
+      'batches.deletedAt',
       'farms.name as farmName',
+      'structures.name as structureName',
+      'suppliers.name as supplierName',
     ])
     .where('batches.farmId', 'in', farmIds)
     .where('batches.deletedAt', 'is', null)
@@ -228,7 +233,10 @@ export async function getBatchesByFarm(
     query = query.where('batches.breedId', '=', filters.breedId)
   }
 
-  return await query.execute()
+  return (await query.execute()).map((batch) => ({
+    ...batch,
+    formulation: null, // TODO: Implement formulation lookup if needed
+  })) as Array<BatchWithFarmName>
 }
 
 /**
@@ -267,7 +275,30 @@ export async function updateBatchWithConflictCheck(
     // Get current batch state
     const currentBatch = await trx
       .selectFrom('batches')
-      .selectAll()
+      .select([
+        'id',
+        'farmId',
+        'livestockType',
+        'species',
+        'breedId',
+        'batchName',
+        'sourceSize',
+        'initialQuantity',
+        'currentQuantity',
+        'acquisitionDate',
+        'costPerUnit',
+        'totalCost',
+        'status',
+        'structureId',
+        'targetHarvestDate',
+        'target_weight_g',
+        'targetPricePerUnit',
+        'supplierId',
+        'notes',
+        'createdAt',
+        'updatedAt',
+        'deletedAt',
+      ])
       .where('id', '=', batchId)
       .where('deletedAt', 'is', null)
       .executeTakeFirst()
@@ -470,91 +501,80 @@ export async function getRelatedRecords(
 }
 
 /**
- * Get aggregated statistics for a batch
+ * Get aggregated statistics for a batch using optimized single query with JOINs
  *
  * @param db - Kysely database instance
  * @param batchId - ID of the batch
  * @returns Object containing mortality, feed, sales, and expense statistics
  */
 export async function getBatchStats(db: Kysely<Database>, batchId: string) {
-  const [mortalityStats, feedStats, salesStats, expenseStats, formulationData] =
-    await Promise.all([
-      // Mortality statistics
-      db
-        .selectFrom('mortality_records')
-        .select([
-          db.fn.count('id').as('total_deaths'),
-          db.fn.sum('quantity').as('total_mortality'),
-        ])
-        .where('batchId', '=', batchId)
-        .executeTakeFirst(),
+  const { sql } = await import('kysely')
 
-      // Feed statistics
-      db
-        .selectFrom('feed_records')
-        .select([
-          db.fn.count('id').as('total_feedings'),
-          db.fn.sum('quantityKg').as('total_feed_kg'),
-          db.fn.sum('cost').as('total_feed_cost'),
-        ])
-        .where('batchId', '=', batchId)
-        .executeTakeFirst(),
+  // Single optimized query with LEFT JOINs and aggregations
+  const stats = await db
+    .selectFrom('batches as b')
+    .leftJoin('mortality_records as mr', 'mr.batchId', 'b.id')
+    .leftJoin('feed_records as fr', 'fr.batchId', 'b.id')
+    .leftJoin('sales as s', 's.batchId', 'b.id')
+    .leftJoin('expenses as e', 'e.batchId', 'b.id')
+    .select([
+      // Mortality aggregations
+      sql<number>`COUNT(DISTINCT mr.id)`.as('total_deaths'),
+      sql<number>`COALESCE(SUM(mr.quantity), 0)`.as('total_mortality'),
 
-      // Sales statistics
-      db
-        .selectFrom('sales')
-        .select([
-          db.fn.count('id').as('total_sales'),
-          db.fn.sum('quantity').as('total_sold'),
-          db.fn.sum('totalAmount').as('total_revenue'),
-        ])
-        .where('batchId', '=', batchId)
-        .executeTakeFirst(),
+      // Feed aggregations
+      sql<number>`COUNT(DISTINCT fr.id)`.as('total_feedings'),
+      sql<string>`SUM(fr."quantityKg")`.as('total_feed_kg'),
+      sql<string>`SUM(fr.cost)`.as('total_feed_cost'),
 
-      // Other Expenses statistics
-      db
-        .selectFrom('expenses')
-        .select(db.fn.sum('amount').as('total_expenses'))
-        .where('batchId', '=', batchId)
-        .executeTakeFirst(),
+      // Sales aggregations
+      sql<number>`COUNT(DISTINCT s.id)`.as('total_sales'),
+      sql<number>`COALESCE(SUM(s.quantity), 0)`.as('total_sold'),
+      sql<string>`SUM(s."totalAmount")`.as('total_revenue'),
 
-      // Formulation data (most recent)
-      db
-        .selectFrom('formulation_usage')
-        .leftJoin(
-          'saved_formulations',
-          'formulation_usage.formulationId',
-          'saved_formulations.id',
-        )
-        .select([
-          'saved_formulations.name',
-          'saved_formulations.species',
-          'saved_formulations.productionStage',
-          'saved_formulations.totalCostPerKg',
-        ])
-        .where('formulation_usage.batchId', '=', batchId)
-        .orderBy('formulation_usage.createdAt', 'desc')
-        .limit(1)
-        .executeTakeFirst(),
+      // Expense aggregations
+      sql<string>`SUM(e.amount)`.as('total_expenses'),
     ])
+    .where('b.id', '=', batchId)
+    .groupBy('b.id')
+    .executeTakeFirst()
+
+  // Get most recent formulation separately (complex join)
+  const formulationData = await db
+    .selectFrom('formulation_usage')
+    .leftJoin(
+      'saved_formulations',
+      'formulation_usage.formulationId',
+      'saved_formulations.id',
+    )
+    .select([
+      'saved_formulations.name',
+      'saved_formulations.species',
+      'saved_formulations.productionStage',
+      'saved_formulations.totalCostPerKg',
+    ])
+    .where('formulation_usage.batchId', '=', batchId)
+    .orderBy('formulation_usage.createdAt', 'desc')
+    .limit(1)
+    .executeTakeFirst()
 
   return {
     mortality: {
-      totalDeaths: Number(mortalityStats?.total_deaths || 0),
-      totalMortality: Number(mortalityStats?.total_mortality || 0),
+      totalDeaths: Number(stats?.total_deaths || 0),
+      totalMortality: Number(stats?.total_mortality || 0),
     },
     feed: {
-      totalFeedings: Number(feedStats?.total_feedings || 0),
-      totalFeedKg: feedStats?.total_feed_kg || null,
-      totalFeedCost: feedStats?.total_feed_cost || null,
+      totalFeedings: Number(stats?.total_feedings || 0),
+      totalFeedKg: stats?.total_feed_kg || null,
+      totalFeedCost: stats?.total_feed_cost || null,
     },
     sales: {
-      totalSales: Number(salesStats?.total_sales || 0),
-      totalSold: Number(salesStats?.total_sold || 0),
-      totalRevenue: salesStats?.total_revenue || null,
+      totalSales: Number(stats?.total_sales || 0),
+      totalSold: Number(stats?.total_sold || 0),
+      totalRevenue: stats?.total_revenue || null,
     },
     expenses: {
-      totalExpenses: expenseStats?.total_expenses || null,
+      totalExpenses: stats?.total_expenses || null,
     },
     formulation: formulationData
       ? {
@@ -731,8 +751,15 @@ export async function getBatchesByFarmPaginated(
     dataQuery = dataQuery.where('batches.breedId', '=', filters.breedId)
   }
 
-  // Apply sorting
-  const sortColumn =
+  // Apply sorting - use type-safe column reference
+  type SortableColumn =
+    | 'batches.species'
+    | 'batches.currentQuantity'
+    | 'batches.status'
+    | 'farms.name'
+    | 'batches.acquisitionDate'
+
+  const sortColumn: SortableColumn =
     sortBy === 'species'
       ? 'batches.species'
       : sortBy === 'currentQuantity'
@@ -744,7 +771,7 @@ export async function getBatchesByFarmPaginated(
             : 'batches.acquisitionDate'
 
   const data = await dataQuery
-    .orderBy(sortColumn as any, sortOrder)
+    .orderBy(sortColumn, sortOrder)
     .limit(pageSize)
     .offset((page - 1) * pageSize)
     .execute()
@@ -899,7 +926,7 @@ export async function getGrowthStandards(
   if (breedId) {
     const breedStandards = await db
       .selectFrom('growth_standards')
-      .selectAll()
+      .select(['id', 'species', 'day', 'expected_weight_g', 'breedId'])
       .where('species', '=', species)
       .where('breedId', '=', breedId)
       .orderBy('day', 'asc')
@@ -914,7 +941,7 @@ export async function getGrowthStandards(
   // Fall back to species-level standards (breedId IS NULL)
   return db
     .selectFrom('growth_standards')
-    .selectAll()
+    .select(['id', 'species', 'day', 'expected_weight_g', 'breedId'])
     .where('species', '=', species)
     .where('breedId', 'is', null)
     .orderBy('day', 'asc')

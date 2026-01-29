@@ -8,7 +8,7 @@ import { validateFeedSearch } from '~/features/feed/validation'
 import {
   createFeedRecordFn,
   deleteFeedRecordFn,
-  getFeedDataForFarm,
+  getFeedDataForFarmFn,
   updateFeedRecordFn,
 } from '~/features/feed/server'
 import {
@@ -38,7 +38,7 @@ export const Route = createFileRoute('/_auth/feed/')({
     feedType: search.feedType,
   }),
   loader: async ({ deps }) => {
-    return getFeedDataForFarm({ data: deps })
+    return getFeedDataForFarmFn({ data: deps })
   },
   pendingComponent: FeedSkeleton,
   errorComponent: ({ error }) => (
@@ -235,7 +235,17 @@ function FeedPage() {
         }}
         batches={batches}
         inventory={inventory}
-        initialData={selectedRecord}
+        initialData={
+          selectedRecord
+            ? {
+                batchId: selectedRecord.batchId,
+                feedType: selectedRecord.feedType,
+                quantityKg: parseFloat(selectedRecord.quantityKg),
+                cost: parseFloat(selectedRecord.cost),
+                date: selectedRecord.date,
+              }
+            : undefined
+        }
         isSubmitting={isSubmitting}
         title={t('feed:dialog.editTitle')}
       />

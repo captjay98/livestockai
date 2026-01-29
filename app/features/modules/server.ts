@@ -9,8 +9,8 @@ import { z } from 'zod'
 import { DEFAULT_MODULES_BY_FARM_TYPE, MODULE_METADATA } from './constants'
 import {
   countActiveBatchesByLivestockTypes,
+  getFarmModules as getFarmModulesFromDb,
   insertFarmModules,
-  selectFarmModules,
   upsertFarmModule,
 } from './repository'
 import {
@@ -70,7 +70,7 @@ export async function getFarmModules(
   const db = await getDb()
 
   try {
-    return await selectFarmModules(db, farmId)
+    return await getFarmModulesFromDb(db, farmId)
   } catch (error) {
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {

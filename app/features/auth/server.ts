@@ -31,8 +31,9 @@ export const loginFn = createServerFn({ method: 'POST' })
     const headers = getRequestHeaders()
     try {
       const { email, password } = data
-      console.log('[AUTH DEBUG] Login attempt for:', email)
-      console.log('[AUTH DEBUG] Password length:', password.length)
+      const { debug } = await import('~/lib/logger')
+      await debug('[AUTH DEBUG] Login attempt for:', email)
+      await debug('[AUTH DEBUG] Password length:', password.length)
 
       const auth = await getAuth()
       const res = await auth.api.signInEmail({
@@ -40,15 +41,12 @@ export const loginFn = createServerFn({ method: 'POST' })
         headers,
       })
 
-      console.log('[AUTH DEBUG] Login successful for:', email)
-      console.log('[AUTH DEBUG] User:', res.user)
+      await debug('[AUTH DEBUG] Login successful for:', email)
+      await debug('[AUTH DEBUG] User:', res.user)
       return { success: true, user: res.user }
     } catch (e: unknown) {
-      console.error('[AUTH DEBUG] Login failed:', e)
-      if (e instanceof Error) {
-        console.error('[AUTH DEBUG] Error message:', e.message)
-        console.error('[AUTH DEBUG] Error stack:', e.stack)
-      }
+      const { error } = await import('~/lib/logger')
+      await error('[AUTH DEBUG] Login failed', e)
 
       // Re-throw database/config errors as server error (don't expose DB details)
       if (e instanceof Error && e.message.includes('neon()')) {

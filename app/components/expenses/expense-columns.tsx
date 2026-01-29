@@ -89,10 +89,20 @@ export const getExpenseColumns = ({
     id: 'actions',
     cell: ({ row }) => (
       <div className="flex gap-1 justify-end">
-        <Button variant="ghost" size="sm" onClick={() => onView(row.original)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onView(row.original)}
+          aria-label={`View expense ${row.original.description}`}
+        >
           <Eye className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => onEdit(row.original)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onEdit(row.original)}
+          aria-label={`Edit expense ${row.original.description}`}
+        >
           <Edit className="h-4 w-4" />
         </Button>
         <Button
@@ -100,6 +110,7 @@ export const getExpenseColumns = ({
           size="sm"
           className="text-destructive hover:text-destructive"
           onClick={() => onDelete(row.original)}
+          aria-label={`Delete expense ${row.original.description}`}
         >
           <Trash2 className="h-4 w-4" />
         </Button>

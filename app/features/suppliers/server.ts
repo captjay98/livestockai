@@ -142,7 +142,7 @@ export async function getSuppliers(): Promise<Array<SupplierRecord>> {
   const db = await getDb()
 
   try {
-    return await repository.selectAllSuppliers(db)
+    return await repository.getAllSuppliers(db)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch suppliers',
@@ -170,7 +170,7 @@ export async function getSupplierById(supplierId: string) {
   const db = await getDb()
 
   try {
-    return await repository.selectSupplierById(db, supplierId)
+    return await repository.getSupplierById(db, supplierId)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch supplier',
@@ -264,10 +264,10 @@ export async function getSupplierWithExpenses(supplierId: string) {
   const db = await getDb()
 
   try {
-    const supplier = await repository.selectSupplierById(db, supplierId)
+    const supplier = await repository.getSupplierById(db, supplierId)
     if (!supplier) return null
 
-    const expenses = await repository.selectSupplierExpenses(db, supplierId)
+    const expenses = await repository.getSupplierExpenses(db, supplierId)
     const totalSpent = expenses.reduce(
       (sum, e) => sum + parseFloat(e.amount),
       0,
@@ -296,7 +296,7 @@ export async function getSuppliersPaginated(query: SupplierQuery = {}) {
   const db = await getDb()
 
   try {
-    return await repository.selectSuppliersPaginated(db, query)
+    return await repository.getSuppliersPaginated(db, query)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch paginated suppliers',

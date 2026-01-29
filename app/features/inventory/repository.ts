@@ -140,7 +140,7 @@ export async function getFeedInventoryById(
  * @param farmIds - Array of farm IDs
  * @returns Array of feed inventory records with farm names
  */
-export async function selectFeedInventory(
+export async function getFeedInventory(
   db: Kysely<Database>,
   farmIds: Array<string>,
 ): Promise<Array<FeedInventoryRecord>> {
@@ -317,7 +317,7 @@ export async function getMedicationInventoryById(
  * @param farmIds - Array of farm IDs
  * @returns Array of medication inventory records with farm names
  */
-export async function selectMedicationInventory(
+export async function getMedicationInventory(
   db: Kysely<Database>,
   farmIds: Array<string>,
 ): Promise<Array<MedicationInventoryRecord>> {

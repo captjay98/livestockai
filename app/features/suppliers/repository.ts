@@ -4,13 +4,16 @@
  */
 
 import type { Kysely } from 'kysely'
-import type { Database } from '~/lib/db/types'
+import type { Database, SupplierTable } from '~/lib/db/types'
 import type { PaginatedResult } from '~/lib/types'
 import type {
   CreateSupplierInput,
   SupplierQuery,
   SupplierRecord,
 } from './server'
+
+/** Valid supplier types from the database schema */
+type SupplierType = SupplierTable['supplierType']
 
 /**
  * Insert a new supplier record
@@ -38,7 +41,7 @@ export async function insertSupplier(
 /**
  * Retrieve all suppliers (unpaginated)
  */
-export async function selectAllSuppliers(
+export async function getAllSuppliers(
   db: Kysely<Database>,
 ): Promise<Array<SupplierRecord>> {
   return await db
@@ -62,7 +65,7 @@ export async function selectAllSuppliers(
 /**
  * Retrieve a supplier by ID
  */
-export async function selectSupplierById(
+export async function getSupplierById(
   db: Kysely<Database>,
   supplierId: string,
 ): Promise<SupplierRecord | undefined> {
@@ -133,7 +136,7 @@ export async function restoreSupplier(
 /**
  * Retrieve paginated suppliers with optional filtering
  */
-export async function selectSuppliersPaginated(
+export async function getSuppliersPaginated(
   db: Kysely<Database>,
   query: SupplierQuery,
 ): Promise<PaginatedResult<SupplierRecord>> {
@@ -162,7 +165,7 @@ export async function selectSuppliersPaginated(
     baseQuery = baseQuery.where(
       'suppliers.supplierType',
       '=',
-      query.supplierType as any,
+      query.supplierType as SupplierType,
     )
   }
 
@@ -240,7 +243,7 @@ export async function selectSuppliersPaginated(
 /**
  * Retrieve expenses for a specific supplier
  */
-export async function selectSupplierExpenses(
+export async function getSupplierExpenses(
   db: Kysely<Database>,
   supplierId: string,
 ): Promise<

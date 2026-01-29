@@ -16,7 +16,7 @@ import { MortalityRecordsTab } from '~/components/batches/batch-details/mortalit
 import { ExpensesTab } from '~/components/batches/batch-details/expenses-tab'
 import { SalesTab } from '~/components/batches/batch-details/sales-tab'
 import { getBatchDetailsFn } from '~/features/batches/server'
-import { BatchDetailSkeleton } from '~/components/batches/batch-detail-skeleton'
+import { DetailSkeleton } from '~/components/ui/detail-skeleton'
 
 function FormulationCard({ formulation }: { formulation: any }) {
   const { t } = useTranslation(['batches'])
@@ -56,7 +56,16 @@ function FormulationCard({ formulation }: { formulation: any }) {
 export const Route = createFileRoute('/_auth/batches/$batchId/')({
   loader: async ({ params }) =>
     getBatchDetailsFn({ data: { batchId: params.batchId } }),
-  pendingComponent: BatchDetailSkeleton,
+  pendingComponent: () => (
+    <DetailSkeleton
+      sections={[
+        { type: 'header' },
+        { type: 'actions', props: { count: 3 } },
+        { type: 'cards', props: { count: 4 } },
+        { type: 'tabs', props: { count: 6 } },
+      ]}
+    />
+  ),
   errorComponent: ({ error }) => (
     <div className="p-4 text-red-600">
       Error loading batch details: {error.message}

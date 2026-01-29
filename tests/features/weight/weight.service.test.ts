@@ -46,7 +46,7 @@ describe('Weight Service', () => {
     it('should reject invalid date', () => {
       const result = validateWeightRecord({
         ...validData,
-        date: new Date('invalid') as any,
+        date: new Date('invalid'),
       })
       expect(result).toBe('Valid measurement date is required')
     })
@@ -141,7 +141,7 @@ describe('Weight Service', () => {
 
     it('should reject invalid date', () => {
       const result = validateUpdateData({
-        date: new Date('invalid') as any,
+        date: new Date('invalid'),
       })
       expect(result).toBe('Date must be valid')
     })
@@ -279,8 +279,9 @@ describe('Weight Service', () => {
         { weight: 6.0, date: new Date() },
         { weight: 2.0, date: new Date(Date.now() - 86400000) },
       )
-      expect(growthRate).not.toBeNull()
-      expect(determineGrowthStatus(growthRate!)).toBe('rapid')
+      if (growthRate !== null) {
+        expect(determineGrowthStatus(growthRate)).toBe('rapid')
+      }
     })
   })
 

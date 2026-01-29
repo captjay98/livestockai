@@ -11,7 +11,7 @@ export interface FuzzedListing {
   sellerId: string
   livestockType: string
   species: string
-  quantity: string // Fuzzed range like '10-25'
+  quantity: number
   priceRange: string // Fuzzed price like '₦4,500-5,500/unit'
   location: string // Fuzzed location based on privacy level
   description: string | null
@@ -117,7 +117,7 @@ export function fuzzListing(
       sellerId: listing.sellerId,
       livestockType: listing.livestockType,
       species: listing.species,
-      quantity: listing.quantity.toString(),
+      quantity: Number(listing.quantity) || 0,
       priceRange: `${currencySymbol}${Number(listing.minPrice).toLocaleString()}-${Number(listing.maxPrice).toLocaleString()}/unit`,
       location: `${listing.locality}, ${listing.region}`,
       description: listing.description,
@@ -135,7 +135,7 @@ export function fuzzListing(
     sellerId: listing.sellerId,
     livestockType: listing.livestockType,
     species: listing.species,
-    quantity: fuzzQuantity(listing.quantity),
+    quantity: listing.quantity,
     priceRange: fuzzPrice(
       Number(listing.minPrice),
       Number(listing.maxPrice),

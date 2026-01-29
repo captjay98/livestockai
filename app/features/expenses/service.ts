@@ -4,6 +4,7 @@
  */
 
 import type { CreateExpenseInput, UpdateExpenseInput } from './types'
+import { sumAmounts, toDecimal, toNumber } from '~/features/settings/currency'
 
 /**
  * Calculate new feed inventory quantity when adding stock.
@@ -23,11 +24,11 @@ export function calculateNewFeedInventory(
   existingQty: string,
   addedQty: number,
 ): number {
-  const current = parseFloat(existingQty)
+  const current = toNumber(existingQty)
   if (current < 0 || addedQty < 0) {
     return 0
   }
-  return current + addedQty
+  return toNumber(sumAmounts(current, addedQty))
 }
 
 /**
@@ -114,11 +115,11 @@ export function buildExpensesSummary(
 } {
   const summary: Record<string, { count: number; amount: number }> = {}
   let totalCount = 0
-  let totalAmount = 0
+  let totalAmountDecimal = toDecimal(0)
 
   for (const expense of expenses) {
     const count = expense.count ? Number(expense.count) : 1
-    const amount = parseFloat(expense.amount)
+    const amount = toDecimal(expense.amount)
 
     const key = expense.category
     if (!(key in summary)) {
@@ -127,14 +128,14 @@ export function buildExpensesSummary(
 
     const entry = summary[key]
     entry.count += count
-    entry.amount += amount
+    entry.amount = toNumber(sumAmounts(entry.amount, amount))
     totalCount += count
-    totalAmount += amount
+    totalAmountDecimal = totalAmountDecimal.plus(amount)
   }
 
   return {
     byCategory: summary,
-    total: { count: totalCount, amount: totalAmount },
+    total: { count: totalCount, amount: toNumber(totalAmountDecimal) },
   }
 }
 

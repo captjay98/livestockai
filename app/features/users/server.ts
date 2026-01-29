@@ -2,11 +2,11 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import {
   deleteUser,
-  selectAllUsers,
-  selectUserByEmail,
-  selectUserById,
-  selectUserFarmAssignments,
-  selectUserOwnedFarms,
+  getAllUsers,
+  getUserByEmail,
+  getUserById,
+  getUserFarmAssignments,
+  getUserOwnedFarms,
   updateUserBan,
   updateUserRoleById,
 } from './repository'
@@ -56,7 +56,7 @@ const updateRoleSchema = z.object({
  * @internal Restricted to administrative context.
  * @returns A promise resolving to a list of users with their details and ban status.
  */
-export const listUsers = createServerFn({ method: 'GET' })
+export const listUsersFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({}))
   .handler(async () => {
     const { requireAdmin } = await import('../auth/server-middleware')
@@ -65,7 +65,7 @@ export const listUsers = createServerFn({ method: 'GET' })
 
     try {
       await requireAdmin()
-      return await selectAllUsers(db)
+      return await getAllUsers(db)
     } catch (error) {
       if (error instanceof AppError) throw error
       throw new AppError('DATABASE_ERROR', {
@@ -82,7 +82,7 @@ export const listUsers = createServerFn({ method: 'GET' })
  * @returns A promise resolving to the user details and farm assignments.
  * @throws {Error} If the user is not found.
  */
-export const getUser = createServerFn({ method: 'GET' })
+export const getUserFn = createServerFn({ method: 'GET' })
   .inputValidator(userIdSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
@@ -92,7 +92,7 @@ export const getUser = createServerFn({ method: 'GET' })
     try {
       await requireAdmin()
 
-      const user = await selectUserById(db, data.userId)
+      const user = await getUserById(db, data.userId)
 
       if (!user) {
         throw new AppError('USER_NOT_FOUND', {
@@ -100,7 +100,7 @@ export const getUser = createServerFn({ method: 'GET' })
         })
       }
 
-      const farmAssignments = await selectUserFarmAssignments(db, data.userId)
+      const farmAssignments = await getUserFarmAssignments(db, data.userId)
 
       return { ...user, farmAssignments }
     } catch (error) {
@@ -119,7 +119,7 @@ export const getUser = createServerFn({ method: 'GET' })
  * @returns A promise resolving to the created user result.
  * @throws {Error} If the email already exists.
  */
-export const createUser = createServerFn({ method: 'POST' })
+export const createUserFn = createServerFn({ method: 'POST' })
   .inputValidator(createUserSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
@@ -136,7 +136,7 @@ export const createUser = createServerFn({ method: 'POST' })
         })
       }
 
-      const existing = await selectUserByEmail(db, data.email)
+      const existing = await getUserByEmail(db, data.email)
 
       if (existing) {
         throw new AppError('ALREADY_EXISTS', {
@@ -174,7 +174,7 @@ export const createUser = createServerFn({ method: 'POST' })
  * @param data - Object containing userId and newPassword.
  * @returns A promise resolving to a success indicator.
  */
-export const setUserPassword = createServerFn({ method: 'POST' })
+export const setUserPasswordFn = createServerFn({ method: 'POST' })
   .inputValidator(setPasswordSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
@@ -219,7 +219,7 @@ export const setUserPassword = createServerFn({ method: 'POST' })
  * @returns A promise resolving to a success indicator.
  * @throws {Error} If attempting to ban self or another admin.
  */
-export const banUser = createServerFn({ method: 'POST' })
+export const banUserFn = createServerFn({ method: 'POST' })
   .inputValidator(banUserSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
@@ -236,7 +236,7 @@ export const banUser = createServerFn({ method: 'POST' })
         })
       }
 
-      const user = await selectUserById(db, data.userId)
+      const user = await getUserById(db, data.userId)
 
       if (!user) {
         throw new AppError('USER_NOT_FOUND', {
@@ -275,7 +275,7 @@ export const banUser = createServerFn({ method: 'POST' })
  * @param data - Object containing userId.
  * @returns A promise resolving to a success indicator.
  */
-export const unbanUser = createServerFn({ method: 'POST' })
+export const unbanUserFn = createServerFn({ method: 'POST' })
   .inputValidator(userIdSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
@@ -304,7 +304,7 @@ export const unbanUser = createServerFn({ method: 'POST' })
  * @returns A promise resolving to a success indicator.
  * @throws {Error} If attempting to delete self, another admin, or a sole farm owner.
  */
-export const removeUser = createServerFn({ method: 'POST' })
+export const removeUserFn = createServerFn({ method: 'POST' })
   .inputValidator(userIdSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
@@ -321,7 +321,7 @@ export const removeUser = createServerFn({ method: 'POST' })
         })
       }
 
-      const user = await selectUserById(db, data.userId)
+      const user = await getUserById(db, data.userId)
 
       if (!user) {
         throw new AppError('USER_NOT_FOUND', {
@@ -329,7 +329,7 @@ export const removeUser = createServerFn({ method: 'POST' })
         })
       }
 
-      const ownedFarms = await selectUserOwnedFarms(db, data.userId)
+      const ownedFarms = await getUserOwnedFarms(db, data.userId)
 
       const deleteCheck = canDeleteUser(
         session.user.id,
@@ -361,7 +361,7 @@ export const removeUser = createServerFn({ method: 'POST' })
  * @returns A promise resolving to a success indicator.
  * @throws {Error} If attempting to change own role.
  */
-export const updateUserRole = createServerFn({ method: 'POST' })
+export const updateUserRoleFn = createServerFn({ method: 'POST' })
   .inputValidator(updateRoleSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import('../auth/server-middleware')
@@ -397,12 +397,4 @@ export const updateUserRole = createServerFn({ method: 'POST' })
     }
   })
 
-// Export server function wrappers with 'Fn' suffix for consistency
-export const listUsersFn = listUsers
-export const getUserFn = getUser
-export const createUserFn = createUser
-export const setUserPasswordFn = setUserPassword
-export const banUserFn = banUser
-export const unbanUserFn = unbanUser
-export const removeUserFn = removeUser
-export const updateUserRoleFn = updateUserRole
+// All server functions are already exported above with 'Fn' suffix

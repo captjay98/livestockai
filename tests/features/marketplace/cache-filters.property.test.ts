@@ -27,7 +27,7 @@ describe('Cache Filter Property Tests', () => {
       'bees',
     ),
     species: fc.string({ minLength: 1 }),
-    quantity: fc.constantFrom('1-10', '10-25', '25-50', '50-100', '100-250'),
+    quantity: fc.integer({ min: 1, max: 1000 }),
     priceRange: fc
       .integer({ min: 100, max: 10000 })
       .chain((min) =>

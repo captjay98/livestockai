@@ -38,6 +38,27 @@ export const Route = createFileRoute('/_auth/inventory/')({
 
 type TabType = 'feed' | 'medication'
 
+interface FeedInventoryItem {
+  id: string
+  feedType: string
+  quantityKg: string
+  minThresholdKg: string
+  costPerKg?: string
+  supplier?: string
+  lastRestocked?: Date | string
+}
+
+interface MedicationInventoryItem {
+  id: string
+  medicationName: string
+  quantity: number
+  unit: string
+  minThreshold: number
+  expiryDate?: Date | string | null | undefined
+  cost?: string
+  supplier?: string
+}
+
 function InventoryPage() {
   const { t } = useTranslation(['inventory', 'common'])
   const { format: formatWeight } = useFormatWeight()
@@ -63,11 +84,11 @@ function InventoryPage() {
   } = useMedicationInventory(selectedFarmId)
 
   // Calculate counts from loader data
-  const lowStockFeedCount = feedData.filter(
+  const lowStockFeedCount = (feedData as Array<FeedInventoryItem>).filter(
     (f) => parseFloat(f.quantityKg) <= parseFloat(f.minThresholdKg),
   ).length
 
-  const isExpiringSoon = (date: Date | string | null) => {
+  const isExpiringSoon = (date: Date | string | null | undefined) => {
     if (!date) return false
     const d = new Date(date)
     const thirtyDaysFromNow = new Date()
@@ -75,22 +96,24 @@ function InventoryPage() {
     return d <= thirtyDaysFromNow
   }
 
-  const isExpired = (date: Date | string | null) => {
+  const isExpired = (date: Date | string | null | undefined) => {
     if (!date) return false
     return new Date(date) < new Date()
   }
 
-  const lowStockMedCount = medicationData.filter(
-    (m) => m.quantity <= m.minThreshold,
-  ).length
+  const lowStockMedCount = (
+    medicationData as Array<MedicationInventoryItem>
+  ).filter((m) => m.quantity <= m.minThreshold).length
 
-  const expiringMedCount = medicationData.filter(
+  const expiringMedCount = (
+    medicationData as Array<MedicationInventoryItem>
+  ).filter(
     (m) => isExpiringSoon(m.expiryDate) && !isExpired(m.expiryDate),
   ).length
 
-  const expiredMedCount = medicationData.filter((m) =>
-    isExpired(m.expiryDate),
-  ).length
+  const expiredMedCount = (
+    medicationData as Array<MedicationInventoryItem>
+  ).filter((m) => isExpired(m.expiryDate)).length
 
   return (
     <div className="space-y-6">

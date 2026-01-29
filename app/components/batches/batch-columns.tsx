@@ -118,7 +118,7 @@ export const getBatchColumns = ({
           variant="ghost"
           size="icon"
           asChild
-          title={t('actions.viewDetails', {
+          aria-label={t('actions.viewDetails', {
             defaultValue: 'View Details',
           })}
         >
@@ -130,7 +130,7 @@ export const getBatchColumns = ({
           variant="ghost"
           size="icon"
           onClick={() => onEdit(row.original)}
-          title={t('actions.editBatch', {
+          aria-label={t('actions.editBatch', {
             defaultValue: 'Edit Batch',
           })}
         >
@@ -141,7 +141,7 @@ export const getBatchColumns = ({
           size="icon"
           className="text-destructive hover:text-destructive"
           onClick={() => onDelete(row.original)}
-          title={t('actions.deleteBatch', {
+          aria-label={t('actions.deleteBatch', {
             defaultValue: 'Delete Batch',
           })}
         >

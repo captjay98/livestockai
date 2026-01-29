@@ -14,7 +14,7 @@ import {
 } from 'react'
 import { toast } from 'sonner'
 import { DEFAULT_SETTINGS } from './currency-presets'
-import { getUserSettings, updateUserSettings } from './server'
+import { getUserSettingsFn, updateUserSettingsFn } from './server'
 import type { ReactNode } from 'react'
 import type { UserSettings } from './currency-presets'
 
@@ -56,7 +56,7 @@ export function SettingsProvider({
       try {
         setIsLoading(true)
         setError(null)
-        const loadedSettings = await getUserSettings({ data: {} })
+        const loadedSettings = await getUserSettingsFn({ data: {} })
         setSettings(loadedSettings)
       } catch (err) {
         setError('Failed to load settings')
@@ -81,7 +81,7 @@ export function SettingsProvider({
       setError(null)
 
       try {
-        await updateUserSettings({ data: newSettings })
+        await updateUserSettingsFn({ data: newSettings })
       } catch (err) {
         // If unauthorized (e.g. login page), don't rollback - keep local state
         const errString = String(err).toLowerCase()

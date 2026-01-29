@@ -558,7 +558,7 @@ export const getEggRecordsPaginatedFn = createServerFn({ method: 'GET' })
 /**
  * Server function to get all egg data for a farm (paginated records, summary, and batches)
  */
-export const getEggDataForFarm = createServerFn({ method: 'GET' })
+export const getEggDataForFarmFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
       farmId: z.string().uuid().nullish(),
@@ -603,7 +603,7 @@ export const getEggDataForFarm = createServerFn({ method: 'GET' })
 /**
  * Server function to create an egg record
  */
-export const createEggRecordAction = createServerFn({ method: 'POST' })
+export const createEggRecordActionFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       farmId: z.string().uuid(),

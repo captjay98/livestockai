@@ -3,6 +3,7 @@
  * All functions are side-effect-free and easily unit testable.
  */
 
+import { validateLivestockTypeSpeciesCombination } from './validation'
 import type { LivestockType } from '~/features/modules/types'
 import type { CreateBatchData, UpdateBatchData } from './server'
 import { multiply, toDbString } from '~/features/settings/currency'
@@ -64,6 +65,15 @@ export function validateBatchData(data: CreateBatchData): string | null {
 
   if (data.species.trim() === '') {
     return 'Species is required'
+  }
+
+  // Enhanced livestock type and species cross-validation
+  const speciesValidationError = validateLivestockTypeSpeciesCombination(
+    data.livestockType,
+    data.species,
+  )
+  if (speciesValidationError) {
+    return speciesValidationError
   }
 
   if (data.initialQuantity <= 0) {

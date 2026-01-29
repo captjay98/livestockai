@@ -131,7 +131,7 @@ export const userSettingsSchema = z.object({
  *
  * @returns Promise resolving to the user's settings object
  */
-export const getUserSettings = createServerFn({ method: 'GET' })
+export const getUserSettingsFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({}))
   .handler(async () => {
     const { getDb } = await import('~/lib/db')
@@ -168,7 +168,7 @@ export const getUserSettings = createServerFn({ method: 'GET' })
  * @returns Promise resolving to a success indicator
  * @throws {Error} If update fails
  */
-export const updateUserSettings = createServerFn({ method: 'POST' })
+export const updateUserSettingsFn = createServerFn({ method: 'POST' })
   .inputValidator(userSettingsSchema.partial())
   .handler(async ({ data }) => {
     const { getDb } = await import('~/lib/db')
@@ -256,7 +256,7 @@ export const updateUserSettings = createServerFn({ method: 'POST' })
  * @returns Promise resolving to a success indicator
  * @throws {Error} If reset fails
  */
-export const resetUserSettings = createServerFn({ method: 'POST' })
+export const resetUserSettingsFn = createServerFn({ method: 'POST' })
   .inputValidator(z.object({}))
   .handler(async () => {
     const { getDb } = await import('~/lib/db')
@@ -284,7 +284,7 @@ export const resetUserSettings = createServerFn({ method: 'POST' })
  *
  * @returns Promise resolving to the default farm ID or null
  */
-export const getDefaultFarm = createServerFn({ method: 'GET' })
+export const getDefaultFarmFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({}))
   .handler(async () => {
     const { getDb } = await import('~/lib/db')
@@ -303,7 +303,7 @@ export const getDefaultFarm = createServerFn({ method: 'GET' })
  * @param farmId - The farm ID to set as default
  * @returns Promise resolving to a success indicator
  */
-export const setDefaultFarm = createServerFn({ method: 'POST' })
+export const setDefaultFarmFn = createServerFn({ method: 'POST' })
   .inputValidator(z.object({ farmId: z.string().uuid().nullable() }))
   .handler(async ({ data }) => {
     const { getDb } = await import('~/lib/db')
@@ -323,7 +323,7 @@ export const setDefaultFarm = createServerFn({ method: 'POST' })
  *
  * @returns Promise resolving to onboarding status
  */
-export const getOnboarding = createServerFn({ method: 'GET' }).handler(
+export const getOnboardingFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
@@ -349,7 +349,7 @@ export const getOnboarding = createServerFn({ method: 'GET' }).handler(
  * @param step - Current onboarding step
  * @returns Promise resolving to a success indicator
  */
-export const updateOnboarding = createServerFn({ method: 'POST' })
+export const updateOnboardingFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       completed: z.boolean().optional(),
@@ -379,7 +379,7 @@ export const updateOnboarding = createServerFn({ method: 'POST' })
  *
  * @returns Promise resolving to currency settings
  */
-export const getCurrency = createServerFn({ method: 'GET' }).handler(
+export const getCurrencyFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
@@ -410,7 +410,7 @@ export const getCurrency = createServerFn({ method: 'GET' }).handler(
  *
  * @returns Promise resolving to notification settings
  */
-export const getNotifications = createServerFn({ method: 'GET' }).handler(
+export const getNotificationsFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
@@ -435,7 +435,7 @@ export const getNotifications = createServerFn({ method: 'GET' }).handler(
  * @param notifications - Notification settings to update
  * @returns Promise resolving to a success indicator
  */
-export const updateNotifications = createServerFn({ method: 'POST' })
+export const updateNotificationsFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       lowStock: z.boolean().optional(),
@@ -469,7 +469,7 @@ export const updateNotifications = createServerFn({ method: 'POST' })
  *
  * @returns Promise resolving to dashboard card settings
  */
-export const getDashboardCards = createServerFn({ method: 'GET' }).handler(
+export const getDashboardCardsFn = createServerFn({ method: 'GET' }).handler(
   async () => {
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
@@ -494,7 +494,7 @@ export const getDashboardCards = createServerFn({ method: 'GET' }).handler(
  * @param dashboardCards - Dashboard card settings to update
  * @returns Promise resolving to a success indicator
  */
-export const updateDashboardCards = createServerFn({ method: 'POST' })
+export const updateDashboardCardsFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       inventory: z.boolean().optional(),
@@ -619,7 +619,7 @@ export const formatCurrencyFn = createServerFn({ method: 'POST' })
 export const getSettingsPageDataFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({}))
   .handler(async () => {
-    return getUserSettings({ data: {} })
+    return getUserSettingsFn({ data: {} })
   })
 
 /**

@@ -254,7 +254,7 @@ export async function getSalesByFarm(
   filters?: {
     startDate?: Date
     endDate?: Date
-    livestockType?: 'poultry' | 'fish' | 'eggs'
+    livestockType?: string
   },
 ): Promise<Array<SaleWithJoins>> {
   let query = db
@@ -294,7 +294,11 @@ export async function getSalesByFarm(
   }
 
   if (filters?.livestockType) {
-    query = query.where('sales.livestockType', '=', filters.livestockType)
+    query = query.where(
+      'sales.livestockType',
+      '=',
+      filters.livestockType as any,
+    )
   }
 
   return (await query
@@ -473,8 +477,15 @@ export async function getSalesPaginated(
   const total = Number(countResult?.count || 0)
   const totalPages = Math.ceil(total / pageSize)
 
-  // Apply sorting
-  const sortColumn =
+  // Apply sorting - use type-safe column reference
+  type SortableColumn =
+    | 'sales.totalAmount'
+    | 'sales.quantity'
+    | 'customers.name'
+    | 'sales.livestockType'
+    | 'sales.date'
+
+  const sortColumn: SortableColumn =
     sortBy === 'totalAmount'
       ? 'sales.totalAmount'
       : sortBy === 'quantity'
@@ -543,7 +554,7 @@ export async function getSalesPaginated(
 
   // Apply sorting and pagination
   const data = await dataQuery
-    .orderBy(sortColumn as any, sortOrder)
+    .orderBy(sortColumn, sortOrder)
     .limit(pageSize)
     .offset((page - 1) * pageSize)
     .execute()

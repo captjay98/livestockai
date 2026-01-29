@@ -53,7 +53,20 @@ export async function getOutbreakAlert(
 ): Promise<OutbreakAlertWithFarms | null> {
   const alert = await db
     .selectFrom('outbreak_alerts')
-    .selectAll()
+    .select([
+      'id',
+      'districtId',
+      'species',
+      'livestockType',
+      'severity',
+      'status',
+      'detectedAt',
+      'resolvedAt',
+      'notes',
+      'createdBy',
+      'updatedAt',
+      'updatedBy',
+    ])
     .where('id', '=', alertId)
     .executeTakeFirst()
 
@@ -61,7 +74,7 @@ export async function getOutbreakAlert(
 
   const farms = await db
     .selectFrom('outbreak_alert_farms')
-    .selectAll()
+    .select(['alertId', 'farmId', 'mortalityRate', 'reportedAt'])
     .where('alertId', '=', alertId)
     .execute()
 
@@ -77,7 +90,20 @@ export async function getActiveAlerts(
 ): Promise<Array<OutbreakAlertWithFarms>> {
   const alerts = await db
     .selectFrom('outbreak_alerts')
-    .selectAll()
+    .select([
+      'id',
+      'districtId',
+      'species',
+      'livestockType',
+      'severity',
+      'status',
+      'detectedAt',
+      'resolvedAt',
+      'notes',
+      'createdBy',
+      'updatedAt',
+      'updatedBy',
+    ])
     .where('districtId', '=', districtId)
     .where('status', 'in', ['active', 'monitoring'])
     .orderBy('detectedAt', 'desc')
@@ -87,7 +113,7 @@ export async function getActiveAlerts(
     alerts.map(async (alert) => {
       const farms = await db
         .selectFrom('outbreak_alert_farms')
-        .selectAll()
+        .select(['alertId', 'farmId', 'mortalityRate', 'reportedAt'])
         .where('alertId', '=', alert.id)
         .execute()
       return { ...alert, farms }

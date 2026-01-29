@@ -516,10 +516,12 @@ export function useBatchMutations(): UseBatchMutationsResult {
       // Handle orphaned mutations (404 - record no longer exists)
       if (isNotFoundError(error)) {
         // Record was already deleted - this is fine, just log and continue
-        console.warn(
-          `[Orphaned Mutation] Batch ${variables.batchId} not found - already deleted`,
-          { batchId: variables.batchId },
-        )
+        import('~/lib/logger').then(({ debug }) => {
+          debug(
+            `[Orphaned Mutation] Batch ${variables.batchId} not found - already deleted`,
+            { batchId: variables.batchId },
+          )
+        })
 
         // Don't rollback - the record is already gone
         // Just show an info message

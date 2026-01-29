@@ -12,7 +12,7 @@ import type { Database } from '~/lib/db/types'
 export async function getCountries(db: Kysely<Database>) {
   return await db
     .selectFrom('countries')
-    .selectAll()
+    .select(['id', 'code', 'name', 'localizedNames', 'createdAt'])
     .orderBy('name', 'asc')
     .execute()
 }
@@ -26,7 +26,18 @@ export async function getRegionsByCountry(
 ) {
   return await db
     .selectFrom('regions')
-    .selectAll()
+    .select([
+      'id',
+      'countryId',
+      'parentId',
+      'level',
+      'name',
+      'slug',
+      'localizedNames',
+      'isActive',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('countryId', '=', countryId)
     .orderBy('name', 'asc')
     .execute()
@@ -41,7 +52,18 @@ export async function getDistrictsByRegion(
 ) {
   return await db
     .selectFrom('regions')
-    .selectAll()
+    .select([
+      'id',
+      'countryId',
+      'parentId',
+      'level',
+      'name',
+      'slug',
+      'localizedNames',
+      'isActive',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('parentId', '=', regionId)
     .orderBy('name', 'asc')
     .execute()
@@ -53,7 +75,18 @@ export async function getDistrictsByRegion(
 export async function getRegionById(db: Kysely<Database>, id: string) {
   return await db
     .selectFrom('regions')
-    .selectAll()
+    .select([
+      'id',
+      'countryId',
+      'parentId',
+      'level',
+      'name',
+      'slug',
+      'localizedNames',
+      'isActive',
+      'createdAt',
+      'updatedAt',
+    ])
     .where('id', '=', id)
     .executeTakeFirst()
 }
@@ -80,7 +113,7 @@ export async function createRegion(
       level: data.level,
       countryId: data.countryId,
       parentId: data.parentId ?? null,
-      localizedNames: data.localizedNames ?? {},
+      localizedNames: (data.localizedNames ?? {}) as any,
     })
     .returning('id')
     .executeTakeFirstOrThrow()
@@ -99,7 +132,7 @@ export async function updateRegion(
     localizedNames?: Record<string, string>
   },
 ) {
-  await db.updateTable('regions').set(data).where('id', '=', id).execute()
+  await db.updateTable('regions').set(data as any).where('id', '=', id).execute()
 }
 
 /**

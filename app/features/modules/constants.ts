@@ -22,7 +22,12 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'grower', label: 'Grower (4-8 weeks)' },
       { value: 'point-of-lay', label: 'Point-of-lay (16-18 weeks)' },
     ],
-    feedTypes: ['starter', 'grower', 'finisher', 'layer_mash'],
+    feedTypes: [
+      'starter-crumble',
+      'grower-pellet',
+      'finisher-pellet',
+      'layer-mash',
+    ],
     structureTypes: ['house', 'pen', 'cage'],
   },
 
@@ -38,7 +43,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'juvenile', label: 'Juvenile (4-6 inches)' },
       { value: 'jumbo', label: 'Jumbo (6+ inches)' },
     ],
-    feedTypes: ['fish_feed'],
+    feedTypes: ['fish-feed'],
     structureTypes: ['pond', 'cage'],
   },
 
@@ -55,7 +60,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'yearling', label: 'Yearling (12-24 months)' },
       { value: 'adult', label: 'Adult (24+ months)' },
     ],
-    feedTypes: ['cattle_feed', 'hay', 'silage'],
+    feedTypes: ['cattle-feed', 'hay', 'silage'],
     structureTypes: ['barn', 'pasture', 'pen', 'milking_parlor'],
   },
 
@@ -72,7 +77,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'yearling', label: 'Yearling (12-24 months)' },
       { value: 'adult', label: 'Adult (24+ months)' },
     ],
-    feedTypes: ['goat_feed', 'hay'],
+    feedTypes: ['goat-feed', 'hay'],
     structureTypes: ['barn', 'pasture', 'pen', 'milking_parlor'],
   },
 
@@ -89,7 +94,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'yearling', label: 'Yearling (12-24 months)' },
       { value: 'adult', label: 'Adult (24+ months)' },
     ],
-    feedTypes: ['sheep_feed', 'hay'],
+    feedTypes: ['sheep-feed', 'hay'],
     structureTypes: ['barn', 'pasture', 'pen', 'shearing_shed'],
   },
 
@@ -106,7 +111,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'swarm', label: 'Captured Swarm' },
       { value: 'established', label: 'Established Colony' },
     ],
-    feedTypes: ['bee_feed'],
+    feedTypes: ['bee-feed'],
     structureTypes: ['hive'],
   },
 }

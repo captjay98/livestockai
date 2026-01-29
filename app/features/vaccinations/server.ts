@@ -718,7 +718,7 @@ export const deleteTreatmentFn = createServerFn({ method: 'POST' })
 /**
  * Server function to get health data for a farm including records, alerts, and batches.
  */
-export const getHealthDataForFarm = createServerFn({ method: 'GET' })
+export const getHealthDataForFarmFn = createServerFn({ method: 'GET' })
   .inputValidator(
     (data: {
       farmId?: string | null

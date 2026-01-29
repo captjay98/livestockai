@@ -39,7 +39,7 @@ type FarmRole = 'owner' | 'manager' | 'viewer' | 'worker' | 'observer'
 /**
  * Retrieve all users (admin listing)
  */
-export async function selectAllUsers(
+export async function getAllUsers(
   db: Kysely<Database>,
 ): Promise<Array<Omit<UserRecord, 'banExpires'>>> {
   return await db
@@ -61,7 +61,7 @@ export async function selectAllUsers(
 /**
  * Retrieve a user by ID
  */
-export async function selectUserById(
+export async function getUserById(
   db: Kysely<Database>,
   userId: string,
 ): Promise<UserRecord | undefined> {
@@ -84,7 +84,7 @@ export async function selectUserById(
 /**
  * Retrieve user's farm assignments with farm names
  */
-export async function selectUserFarmAssignments(
+export async function getUserFarmAssignments(
   db: Kysely<Database>,
   userId: string,
 ): Promise<Array<{ farmId: string; role: FarmRole; farmName: string }>> {
@@ -99,7 +99,7 @@ export async function selectUserFarmAssignments(
 /**
  * Check if a user exists by email
  */
-export async function selectUserByEmail(
+export async function getUserByEmail(
   db: Kysely<Database>,
   email: string,
 ): Promise<{ id: string } | undefined> {
@@ -155,7 +155,7 @@ export async function deleteUser(
 /**
  * Check if user is the last owner of a farm
  */
-export async function selectFarmOwners(
+export async function getFarmOwners(
   db: Kysely<Database>,
   farmId: string,
 ): Promise<Array<{ userId: string }>> {
@@ -170,7 +170,7 @@ export async function selectFarmOwners(
 /**
  * Get farms owned by a user
  */
-export async function selectUserOwnedFarms(
+export async function getUserOwnedFarms(
   db: Kysely<Database>,
   userId: string,
 ): Promise<Array<{ farmId: string }>> {

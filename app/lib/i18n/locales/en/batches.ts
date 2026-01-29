@@ -1,0 +1,175 @@
+export const batches = {
+  title: 'Batches',
+  create: 'Add Batch',
+  description:
+    'Track groups of animals from acquisition to sale. Each batch represents a cohort you manage together.',
+  livestockType: 'Livestock Type',
+  species: 'Species',
+  breed: 'Breed',
+  targetPrice: 'Target Price',
+  targetPriceHelp:
+    'Expected price per unit at harvest (for revenue forecasting)',
+  quantity: 'Quantity',
+  poultry: 'Poultry',
+  fish: 'Fish',
+  statuses: {
+    active: 'Active',
+    depleted: 'Depleted',
+    sold: 'Sold',
+  },
+  livestockTypes: {
+    poultry: 'Poultry',
+    fish: 'Fish',
+  },
+  totalLivestock: 'Total Livestock',
+  totalInvestment: 'Total Investment',
+  activeBatches: 'active batches',
+  depletedBatches: 'depleted batches',
+  lowStock: 'Low Stock',
+  species_broiler: 'Broiler',
+  species_layer: 'Layer',
+  species_cockerel: 'Cockerel',
+  species_turkey: 'Turkey',
+  species_catfish: 'Catfish',
+  species_tilapia: 'Tilapia',
+  additionalDetails: 'Additional Details',
+  batchName: 'Batch Name',
+  batchNamePlaceholder: 'e.g., JAN-2026-BR-01',
+  sourceSize: 'Source Size',
+  selectSourceSize: 'Select source size',
+  structure: 'Structure',
+  selectStructure: 'Select structure',
+  supplier: 'Supplier',
+  selectSupplier: 'Select supplier',
+  targetHarvestDate: 'Target Harvest Date',
+  breedSpecificStandards: 'Using breed-specific standards',
+  notesPlaceholder: 'Any additional notes about this batch...',
+  columns: {
+    species: 'Species',
+    status: 'Status',
+    currentQty: 'Current Qty',
+    initialQty: 'Initial Qty',
+    acquisitionDate: 'Acquisition Date',
+  },
+  actions: {
+    view: 'View Details',
+    edit: 'Edit Batch',
+    delete: 'Delete Batch',
+  },
+  empty: {
+    title: 'No batches found',
+    description: 'Get started by creating your first livestock batch.',
+  },
+  dialog: {
+    editTitle: 'Edit Batch',
+    editDescription: 'Update batch information',
+    deleteTitle: 'Delete Batch',
+    deleteDescription:
+      'Are you sure you want to delete this batch? This action cannot be undone.',
+    deleteConfirm: 'Delete Batch',
+  },
+  detail: {
+    currentStock: 'Current Stock',
+    initial: 'initial',
+    mortality: 'Mortality',
+    feed: 'Feed',
+    expenses: 'Expenses',
+    revenue: 'Revenue',
+    profit: 'Profit / Loss',
+    roi: 'ROI',
+    days: 'days',
+  },
+  tabs: {
+    feed: 'Feed Logs',
+    projections: 'Projections',
+    health: 'Mortality & Health',
+    expenses: 'Expenses',
+    sales: 'Sales',
+  },
+  feed: {
+    history: 'Feeding History',
+    recent: 'Recent records',
+  },
+  mortality: {
+    records: 'Mortality Records',
+  },
+  sales: {
+    history: 'Sales History',
+    customer: 'Customer',
+  },
+  messages: {
+    created: 'Batch created successfully',
+    createError: 'Failed to create batch',
+    updated: 'Batch updated successfully',
+    deleted: 'Batch deleted successfully',
+    selectFarm: 'Please select a farm first',
+  },
+  errors: {
+    // Auth
+    UNAUTHORIZED: 'Please sign in to continue',
+    SESSION_EXPIRED: 'Your session has expired. Please sign in again',
+    INVALID_CREDENTIALS: 'Invalid email or password',
+
+    // Forbidden
+    ACCESS_DENIED: "You don't have permission to access this resource",
+    BANNED: 'Your account has been suspended',
+
+    // Not Found
+    NOT_FOUND: 'The requested resource was not found',
+    FARM_NOT_FOUND: 'Farm not found',
+    BATCH_NOT_FOUND: 'Batch not found',
+    CUSTOMER_NOT_FOUND: 'Customer not found',
+    SUPPLIER_NOT_FOUND: 'Supplier not found',
+    INVOICE_NOT_FOUND: 'Invoice not found',
+    STRUCTURE_NOT_FOUND: 'Structure not found',
+    SALE_NOT_FOUND: 'Sale not found',
+
+    // Validation
+    VALIDATION_ERROR: 'Please check your input and try again',
+    INVALID_INPUT: 'Invalid input provided',
+    INSUFFICIENT_STOCK: 'Not enough stock available',
+
+    // Server
+    INTERNAL_ERROR: 'Something went wrong. Please try again later',
+    DATABASE_ERROR: 'A database error occurred. Please try again',
+
+    update: 'Failed to update batch',
+    delete: 'Failed to delete batch',
+  },
+  placeholders: {
+    selectType: 'Select type',
+    selectSpecies: 'Select species',
+    selectBreed: 'Select breed',
+    allBreeds: 'All Breeds',
+  },
+}
+
+export const farms = {
+  createFirst: 'Create Your First Farm',
+  updated: 'Farm updated',
+  created: 'Farm created',
+  error: {
+    update: 'Failed to update farm',
+    create: 'Failed to create farm',
+  },
+  editFarm: 'Edit Farm',
+  createNewFarm: 'Create New Farm',
+  editDescription: 'Update the details of your farm',
+  createDescription: 'Enter the basic information for your new farm',
+  farmName: 'Farm Name',
+  namePlaceholder: 'e.g. Green Valley Farms',
+  location: 'Location',
+  locationPlaceholder: 'e.g. Lagos, Nigeria',
+  farmType: 'Farm Type',
+  createFarm: 'Create Farm',
+  updateFarm: 'Update Farm',
+  placeholders: {
+    location: 'Enter farm location',
+    name: 'Enter farm name',
+  },
+  types: {
+    poultry: 'Poultry',
+    aquaculture: 'Aquaculture',
+    mixed: 'Mixed',
+  },
+}

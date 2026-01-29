@@ -4,8 +4,11 @@
  */
 
 import type { Kysely } from 'kysely'
-import type { Database } from '~/lib/db/types'
+import type { CustomerTable, Database } from '~/lib/db/types'
 import type { CreateCustomerInput, CustomerQuery } from './server'
+
+/** Valid customer types from the database schema */
+type CustomerType = CustomerTable['customerType']
 
 /** Raw customer record from database */
 export interface CustomerDbRecord {
@@ -47,7 +50,7 @@ export async function insertCustomer(
 /**
  * Retrieve all customers for specific farms (unpaginated)
  */
-export async function selectCustomersByFarms(
+export async function getCustomersByFarms(
   db: Kysely<Database>,
   farmIds: Array<string>,
 ): Promise<Array<CustomerDbRecord>> {
@@ -73,7 +76,7 @@ export async function selectCustomersByFarms(
 /**
  * Retrieve all customers for a farm (unpaginated)
  */
-export async function selectAllCustomers(
+export async function getAllCustomers(
   db: Kysely<Database>,
 ): Promise<Array<CustomerDbRecord>> {
   return await db
@@ -97,7 +100,7 @@ export async function selectAllCustomers(
 /**
  * Retrieve a customer by ID
  */
-export async function selectCustomerById(
+export async function getCustomerById(
   db: Kysely<Database>,
   customerId: string,
 ): Promise<CustomerDbRecord | undefined> {
@@ -168,7 +171,7 @@ export async function restoreCustomer(
 /**
  * Retrieve paginated customers for specific farms with optional filtering
  */
-export async function selectCustomersPaginatedByFarms(
+export async function getCustomersPaginatedByFarms(
   db: Kysely<Database>,
   farmIds: Array<string>,
   query: CustomerQuery,
@@ -200,7 +203,7 @@ export async function selectCustomersPaginatedByFarms(
     baseQuery = baseQuery.where(
       'customers.customerType',
       '=',
-      query.customerType as any,
+      query.customerType as CustomerType,
     )
   }
 
@@ -278,7 +281,7 @@ export async function selectCustomersPaginatedByFarms(
 /**
  * Retrieve paginated customers with optional filtering
  */
-export async function selectCustomersPaginated(
+export async function getCustomersPaginated(
   db: Kysely<Database>,
   query: CustomerQuery,
 ) {
@@ -307,7 +310,7 @@ export async function selectCustomersPaginated(
     baseQuery = baseQuery.where(
       'customers.customerType',
       '=',
-      query.customerType as any,
+      query.customerType as CustomerType,
     )
   }
 
@@ -385,7 +388,7 @@ export async function selectCustomersPaginated(
 /**
  * Retrieve sales for a specific customer
  */
-export async function selectCustomerSales(
+export async function getCustomerSales(
   db: Kysely<Database>,
   customerId: string,
 ) {
@@ -407,7 +410,7 @@ export async function selectCustomerSales(
 /**
  * Retrieve top customers by total spent for specific farms
  */
-export async function selectTopCustomersByFarms(
+export async function getTopCustomersByFarms(
   db: Kysely<Database>,
   farmIds: Array<string>,
   limit: number = 10,
@@ -454,7 +457,7 @@ export async function selectTopCustomersByFarms(
 /**
  * Retrieve top customers by total spent
  */
-export async function selectTopCustomers(
+export async function getTopCustomers(
   db: Kysely<Database>,
   limit: number = 10,
 ): Promise<

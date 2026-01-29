@@ -62,13 +62,8 @@ export interface FeedInventoryRecord {
   farmId: string
   feedType: string
   quantityKg: string
-  supplierId: string | null
-  brandName: string | null
-  costPerKg: string | null
-  notes: string | null
-  createdAt: Date
+  minThresholdKg: string | null
   updatedAt: Date
-  minThresholdKg?: string
 }
 
 /**
@@ -163,7 +158,7 @@ export async function getFeedRecordById(
     .where('id', '=', recordId)
     .executeTakeFirst()
 
-  return (record as FeedRecordWithBatch | null) ?? null
+  return record ?? null
 }
 
 /**
@@ -183,7 +178,7 @@ export async function getBatchById(
     .where('id', '=', batchId)
     .executeTakeFirst()
 
-  return (batch as BatchRecord | null) ?? null
+  return batch ?? null
 }
 
 /**
@@ -210,7 +205,7 @@ export async function getFeedInventoryById(
     .where('id', '=', inventoryId)
     .executeTakeFirst()
 
-  return (inventory as FeedInventoryRecord | null) ?? null
+  return inventory ?? null
 }
 
 /**
@@ -240,7 +235,7 @@ export async function getFeedInventoryByFarmAndType(
     .where('feedType', '=', feedType as any)
     .executeTakeFirst()
 
-  return (inventory as FeedInventoryRecord | null) ?? null
+  return inventory ?? null
 }
 
 /**
@@ -258,7 +253,7 @@ export async function deductFromInventory(
   await db
     .updateTable('feed_inventory')
     .set((eb) => ({
-      quantityKg: eb('quantityKg', '-', quantity as any),
+      quantityKg: eb('quantityKg', '-', quantity),
       updatedAt: new Date(),
     }))
     .where('id', '=', inventoryId)
@@ -295,7 +290,7 @@ export async function restoreInventoryOnDelete(
   await db
     .updateTable('feed_inventory')
     .set((eb) => ({
-      quantityKg: eb('quantityKg', '+', quantity as any),
+      quantityKg: eb('quantityKg', '+', quantity),
       updatedAt: new Date(),
     }))
     .where('farmId', '=', farmId)
@@ -339,7 +334,7 @@ export async function restoreOldInventory(
   await db
     .updateTable('feed_inventory')
     .set((eb) => ({
-      quantityKg: eb('quantityKg', '+', quantity as any),
+      quantityKg: eb('quantityKg', '+', quantity),
       updatedAt: new Date(),
     }))
     .where('farmId', '=', farmId)
@@ -374,7 +369,7 @@ export async function getNewInventory(
     .where('feedType', '=', feedType as any)
     .executeTakeFirst()
 
-  return (inventory as FeedInventoryRecord | null) ?? null
+  return inventory ?? null
 }
 
 /**
@@ -392,7 +387,7 @@ export async function deductNewInventory(
   await db
     .updateTable('feed_inventory')
     .set((eb) => ({
-      quantityKg: eb('quantityKg', '-', quantity as any),
+      quantityKg: eb('quantityKg', '-', quantity),
       updatedAt: new Date(),
     }))
     .where('id', '=', inventoryId)
@@ -431,7 +426,7 @@ export async function getFeedRecordsByBatch(
     .orderBy('date', 'desc')
     .execute()
 
-  return records as Array<FeedRecordWithBatch>
+  return records
 }
 
 /**
@@ -470,7 +465,7 @@ export async function getFeedRecordsPaginated(
     baseQuery = baseQuery.where((eb) =>
       eb.or([
         eb('feed_records.feedType', 'ilike', searchLower as any),
-        eb('batches.species', 'ilike', searchLower),
+        eb('batches.species', 'ilike', searchLower as any),
       ]),
     )
   }
@@ -555,7 +550,7 @@ export async function getFeedSummary(
     .where('batches.farmId', '=', farmId)
     .execute()
 
-  return records as Array<FeedRecordForSummary>
+  return records
 }
 
 /**
@@ -577,7 +572,7 @@ export async function getWeightSamples(
     .orderBy('weight_samples.date', 'asc')
     .execute()
 
-  return samples as Array<WeightSampleRecord>
+  return samples
 }
 
 /**
@@ -624,7 +619,7 @@ export async function getFeedInventoryForFarms(
     .where('farmId', 'in', farmIds)
     .execute()
 
-  return inventory as Array<FeedInventoryRecord>
+  return inventory
 }
 
 /**
@@ -645,7 +640,7 @@ export async function getFeedStatsData(
     .where('batches.farmId', 'in', farmIds)
     .execute()
 
-  return records as Array<FeedRecordForStats>
+  return records
 }
 
 /**
@@ -673,7 +668,7 @@ export async function getFeedSummaryByBatch(
     .where('batches.farmId', '=', farmId)
     .execute()
 
-  return records as Array<FeedRecordForSummary>
+  return records
 }
 
 /**
@@ -693,7 +688,7 @@ export async function getFeedRecordForValidation(
     .where('id', '=', recordId)
     .executeTakeFirst()
 
-  return (record as { feedType: string; quantityKg: string } | null) ?? null
+  return record ?? null
 }
 
 /**

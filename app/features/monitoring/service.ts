@@ -4,6 +4,10 @@
  */
 
 import { differenceInDays, subHours } from 'date-fns'
+import {
+  DEFAULT_MORTALITY_THRESHOLD,
+  MORTALITY_THRESHOLD_BY_SPECIES,
+} from './constants'
 import type {
   AlertThresholds,
   FeedData,
@@ -122,6 +126,15 @@ export function checkMortalityAlerts(
   const totalRate =
     batch.initialQuantity > 0 ? totalMortality / batch.initialQuantity : 0
 
+  // Get species-specific thresholds
+  const speciesKey = batch.species.toLowerCase()
+  const speciesThresholds =
+    speciesKey in MORTALITY_THRESHOLD_BY_SPECIES
+      ? MORTALITY_THRESHOLD_BY_SPECIES[
+          speciesKey as keyof typeof MORTALITY_THRESHOLD_BY_SPECIES
+        ]
+      : DEFAULT_MORTALITY_THRESHOLD
+
   // Check sudden death (24h threshold)
   if (
     dailyMortalityRate > thresholds.mortalityAlertPercent / 100 ||
@@ -139,13 +152,13 @@ export function checkMortalityAlerts(
     })
   }
 
-  // Check cumulative mortality (> 5% total is concerning)
-  if (totalRate > 0.05) {
+  // Check cumulative mortality using species-specific thresholds
+  if (totalRate > speciesThresholds.alert) {
     alerts.push({
       id: `mortality-total-${batch.id}`,
       batchId: batch.id,
       species: batch.species,
-      type: totalRate > 0.1 ? 'critical' : 'warning',
+      type: totalRate > speciesThresholds.critical ? 'critical' : 'warning',
       source: 'mortality',
       message: `High Cumulative Mortality: ${(totalRate * 100).toFixed(1)}%`,
       timestamp: new Date(),
