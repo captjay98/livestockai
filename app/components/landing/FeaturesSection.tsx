@@ -3,6 +3,7 @@ import {
   Globe,
   LayoutGrid,
   Minus,
+  Shield,
   ShieldCheck,
   TrendingUp,
   Wallet,
@@ -17,6 +18,14 @@ const features = [
     icon: LayoutGrid,
     accent: 'emerald',
     code: 'SPEC-01',
+  },
+  {
+    title: 'Government & NGO Support',
+    description:
+      'Multi-farm oversight, outbreak detection, and digital visit records for agricultural extension services.',
+    icon: Shield,
+    accent: 'emerald',
+    code: 'EXT-02',
   },
   {
     title: 'Predictive Analytics',

@@ -1,13 +1,16 @@
 import { Shield } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '~/components/ui/skeleton'
 import { PageHeader } from '~/components/page-header'
 
 export function AuditSkeleton() {
+  const { t } = useTranslation('settings')
+  
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Audit Log"
-        description="Track all system activities and changes."
+        title={t('title')}
+        description={t('description')}
         icon={Shield}
         actions={<Skeleton className="h-10 w-32" />}
       />

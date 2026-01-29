@@ -82,6 +82,7 @@ const RegisterSchema = z.object({
   name: z.string().min(2, 'validation.name'),
   email: z.string().email('validation.email'),
   password: z.string().min(8, 'validation.password'),
+  userType: z.enum(['farmer', 'buyer', 'both']).optional().default('farmer'),
 })
 
 /**
@@ -93,12 +94,16 @@ export const registerFn = createServerFn({ method: 'POST' })
     const { getRequestHeaders } = await import('@tanstack/react-start/server')
     const headers = getRequestHeaders()
     try {
-      const { email, password, name } = data
+      const { email, password, name, userType } = data
       const auth = await getAuth()
+
+      // Register user with Better Auth (includes userType in additionalFields)
+      // Better Auth will add userType to the users table
       const res = await auth.api.signUpEmail({
-        body: { email, password, name },
+        body: { email, password, name, userType },
         headers,
       })
+
       return { success: true, user: res.user }
     } catch (e: unknown) {
       // Check for duplicate email error

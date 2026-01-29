@@ -265,8 +265,30 @@ export async function getDashboardStats(
 
     const feedTotalCost = parseFloat(feedQuery?.totalCost || '0')
     const feedTotalKg = parseFloat(feedQuery?.totalKg || '0')
-    const totalQuantity = Number(totalWeightQuery?.totalQuantity || 0)
-    const fcr = totalQuantity > 0 ? feedTotalKg / totalQuantity : 0
+
+    // Calculate FCR using actual weight gain from weight samples
+    let fcr = 0
+    if (feedTotalKg > 0) {
+      const weightGainQuery = await db
+        .selectFrom('weight_samples as ws1')
+        .innerJoin('weight_samples as ws2', (join) =>
+          join
+            .onRef('ws1.batchId', '=', 'ws2.batchId')
+            .on('ws1.sampledAt', '<', 'ws2.sampledAt'),
+        )
+        .innerJoin('batches', 'batches.id', 'ws1.batchId')
+        .select([
+          sql<number>`COALESCE(SUM((ws2."averageWeightKg" - ws1."averageWeightKg") * batches."currentQuantity"), 0)`.as(
+            'totalWeightGain',
+          ),
+        ])
+        .where('batches.farmId', 'in', targetFarmIds)
+        .where('batches.status', '=', 'active')
+        .executeTakeFirst()
+
+      const totalWeightGain = Number(weightGainQuery?.totalWeightGain || 0)
+      fcr = totalWeightGain > 0 ? feedTotalKg / totalWeightGain : 0
+    }
 
     // Parallel Batch 3: Lists (customers, transactions, alerts)
     const [topCustomers, recentSales, recentExpenses, alerts] =

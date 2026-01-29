@@ -190,7 +190,7 @@ export const createSaleFn = createServerFn({ method: 'POST' })
         farmId: z.string().uuid(),
         batchId: z.string().uuid().optional().nullable(),
         customerId: z.string().uuid().optional().nullable(),
-        livestockType: z.enum(['poultry', 'fish', 'eggs']),
+        livestockType: z.enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees']),
         quantity: z.number().int().positive(),
         unitPrice: z.number().nonnegative(),
         date: z.coerce.date(),
@@ -449,7 +449,7 @@ export async function getSales(
   options?: {
     startDate?: Date
     endDate?: Date
-    livestockType?: 'poultry' | 'fish' | 'eggs'
+    livestockType?: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   },
 ) {
   const { getDb } = await import('~/lib/db')
@@ -502,7 +502,7 @@ export async function getSalesForFarm(
   options?: {
     startDate?: Date
     endDate?: Date
-    livestockType?: 'poultry' | 'fish' | 'eggs'
+    livestockType?: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   },
 ) {
   const { getDb } = await import('~/lib/db')
@@ -718,7 +718,7 @@ export const getSalesPaginatedFn = createServerFn({ method: 'GET' })
       sortOrder: z.enum(['asc', 'desc']).optional(),
       search: z.string().optional(),
       farmId: z.string().uuid().optional(),
-      livestockType: z.enum(['poultry', 'fish', 'eggs']).optional(),
+      livestockType: z.enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees']).optional(),
       startDate: z.coerce.date().optional(),
       endDate: z.coerce.date().optional(),
       paymentStatus: z.enum(['paid', 'pending', 'partial']).optional(),
@@ -753,7 +753,7 @@ export const getSalesPageDataFn = createServerFn({ method: 'GET' })
       sortBy: z.string().optional(),
       sortOrder: z.enum(['asc', 'desc']).optional(),
       search: z.string().optional(),
-      livestockType: z.enum(['poultry', 'fish', 'eggs']).optional(),
+      livestockType: z.enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees']).optional(),
       paymentStatus: z.enum(['paid', 'pending', 'partial']).optional(),
     }),
   )

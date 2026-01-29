@@ -170,6 +170,7 @@ export const completeOnboardingFn = createServerFn({ method: 'POST' })
 /**
  * Evaluates whether a user requires the onboarding walkthrough.
  * Checks both explicit completion flags and heuristic (presence of farms).
+ * Buyers (userType='buyer') skip onboarding automatically.
  *
  * @returns A promise resolving to the needsOnboarding flag and farm presence.
  */
@@ -181,6 +182,18 @@ export const checkNeedsOnboardingFn = createServerFn({ method: 'GET' })
       const session = await requireAuth()
       const { getDb } = await import('~/lib/db')
       const db = await getDb()
+
+      // Get user with userType from users table (Better Auth additionalFields)
+      const user = await db
+        .selectFrom('users')
+        .select(['userType'])
+        .where('id', '=', session.user.id)
+        .executeTakeFirst()
+
+      // Buyers skip onboarding (they don't need farms)
+      if (user?.userType === 'buyer') {
+        return { needsOnboarding: false, hasFarms: false }
+      }
 
       // Check user_settings for onboardingCompleted flag
       const userSettings = await db

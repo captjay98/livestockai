@@ -14,55 +14,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { updateOutbreakAlertFn } from '~/features/extension/server'
+import {
+  getOutbreakAlertFn,
+  updateOutbreakAlertFn,
+} from '~/features/extension/server'
 import { useErrorMessage } from '~/hooks/useErrorMessage'
 
-interface AlertData {
-  id: string
-  species: string
-  livestockType: string
-  severity: 'critical' | 'alert' | 'watch'
-  status: 'active' | 'monitoring' | 'resolved' | 'false_positive'
-  detectedAt: Date
-  resolvedAt: Date | null
-  notes: string | null
-  farms: Array<{
-    farmId: string
-    farmName: string
-    mortalityRate: string
-    reportedAt: Date
-  }>
-}
-
-export const Route = createFileRoute('/dashboard' as any)({
-  component: AlertDetailPage,
-  loader: (): AlertData => {
-    // Mock data - replace with actual server function
-    return {
-      id: 'alert-1',
-      species: 'poultry',
-      livestockType: 'poultry',
-      severity: 'critical' as const,
-      status: 'active' as const,
-      detectedAt: new Date('2024-01-15'),
-      resolvedAt: null,
-      notes: 'Initial outbreak detected in northern farms',
-      farms: [
-        {
-          farmId: '1',
-          farmName: 'Green Valley Farm',
-          mortalityRate: '8.5',
-          reportedAt: new Date('2024-01-15'),
-        },
-        {
-          farmId: '2',
-          farmName: 'Sunrise Poultry',
-          mortalityRate: '12.3',
-          reportedAt: new Date('2024-01-15'),
-        },
-      ],
-    }
+export const Route = createFileRoute('/_auth/extension/alerts/$alertId')({
+  loader: async ({ params }) => {
+    return getOutbreakAlertFn({ data: { alertId: params.alertId } })
   },
+  component: AlertDetailPage,
 })
 
 function AlertDetailPage() {
@@ -125,7 +87,7 @@ function AlertDetailPage() {
         <div>
           <h1 className="text-3xl font-bold">Alert Details</h1>
           <p className="text-muted-foreground">
-            {alert.species} outbreak in district
+            {alert.livestockType} outbreak in district
           </p>
         </div>
       </div>
@@ -148,16 +110,20 @@ function AlertDetailPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>Detected: {alert.detectedAt.toLocaleDateString()}</span>
+              <span>
+                Detected: {new Date(alert.detectedAt).toLocaleDateString()}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>Species: {alert.species}</span>
+              <span>Species: {alert.livestockType}</span>
             </div>
             {alert.resolvedAt && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Resolved: {alert.resolvedAt.toLocaleDateString()}</span>
+                <span>
+                  Resolved: {new Date(alert.resolvedAt).toLocaleDateString()}
+                </span>
               </div>
             )}
           </CardContent>
@@ -167,28 +133,33 @@ function AlertDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Affected Farms ({alert.farms.length})
+              Affected Farms ({alert.farms.length || 0})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {alert.farms.map((farm: any) => (
-                <div
-                  key={farm.farmId}
-                  className="flex justify-between items-center p-3 bg-muted rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium">{farm.farmName}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Reported: {farm.reportedAt.toLocaleDateString()}
-                    </p>
+            {alert.farms.length > 0 ? (
+              <div className="space-y-3">
+                {alert.farms.map((farm: any) => (
+                  <div
+                    key={farm.farmId}
+                    className="flex justify-between items-center p-3 bg-muted rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium">{farm.farmName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Reported:{' '}
+                        {new Date(farm.reportedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Badge variant="destructive">
+                      {Number(farm.mortalityRate).toFixed(1)}% mortality
+                    </Badge>
                   </div>
-                  <Badge variant="destructive">
-                    {farm.mortalityRate}% mortality
-                  </Badge>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No farms affected</p>
+            )}
           </CardContent>
         </Card>
       </div>

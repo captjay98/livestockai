@@ -1,13 +1,16 @@
 import { Rocket } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '~/components/ui/skeleton'
 import { PageHeader } from '~/components/page-header'
 
 export function OnboardingSkeleton() {
+  const { t } = useTranslation('onboarding')
+  
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Welcome to LivestockAI"
-        description="Let's get your farm set up in just a few steps."
+        title={t('title')}
+        description={t('description')}
         icon={Rocket}
       />
 

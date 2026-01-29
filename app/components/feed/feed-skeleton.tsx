@@ -1,14 +1,16 @@
 import { Wheat } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
 import { PageHeader } from '~/components/page-header'
 import { Skeleton } from '~/components/ui/skeleton'
 
 export function FeedSkeleton() {
+  const { t } = useTranslation('feed')
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Feed Records"
-        description="Track feed consumption and costs"
+        title={t('title')}
+        description={t('description')}
         icon={Wheat}
         actions={<Skeleton className="h-10 w-32" />}
       />

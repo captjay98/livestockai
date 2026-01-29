@@ -1,13 +1,16 @@
 import { BarChart3 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '~/components/ui/skeleton'
 import { PageHeader } from '~/components/page-header'
 
 export function ReportsSkeleton() {
+  const { t } = useTranslation('reports')
+  
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Reports"
-        description="Generate comprehensive reports for your livestock operations."
+        title={t('title')}
+        description={t('description')}
         icon={BarChart3}
         actions={<Skeleton className="h-10 w-32" />}
       />

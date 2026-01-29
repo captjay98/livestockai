@@ -14,6 +14,10 @@ export const EXPECTED_ADG_BY_SPECIES: Record<string, number> = {
   layer: 0.02, // 20g/day
   catfish: 0.015, // 15g/day
   tilapia: 0.01, // 10g/day
+  cattle: 0.8, // 800g/day
+  goats: 0.15, // 150g/day
+  sheep: 0.25, // 250g/day
+  bees: 0.001, // 1g/day (colony weight gain)
 }
 
 /**

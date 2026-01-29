@@ -8,12 +8,22 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { VisitCard } from '~/components/extension/visit-card'
 
-export const Route = createFileRoute('/dashboard' as any)({
-  loader: async () => {
-    const farmId = 'farm-1' // Mock farm ID
+export const Route = createFileRoute('/_auth/extension/farm/$farmId')({
+  loader: async ({ params }) => {
+    const farmId = params.farmId
 
-    // Verify observer access
+    // Verify observer access and get grant details
     await checkObserverAccess(farmId)
+
+    // Get access grant to check financial visibility
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+
+    const { getActiveAccessGrant } =
+      await import('~/features/extension/access-repository')
+    const accessGrant = await getActiveAccessGrant(db, session.user.id, farmId)
 
     // Get visit records and health comparison for this farm
     const [visits, healthComparison] = await Promise.all([
@@ -21,14 +31,20 @@ export const Route = createFileRoute('/dashboard' as any)({
       getFarmHealthComparisonFn({ data: { farmId } }),
     ])
 
-    return { visits, healthComparison }
+    return {
+      farmId,
+      visits,
+      healthComparison,
+      hasFinancialAccess: accessGrant?.financialVisibility ?? false,
+    }
   },
   component: FarmHealthSummary,
 })
 
 function FarmHealthSummary() {
   const { t } = useTranslation(['extension', 'common'])
-  const { visits, healthComparison } = Route.useLoaderData()
+  const { farmId, visits, healthComparison, hasFinancialAccess } =
+    Route.useLoaderData()
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -44,9 +60,16 @@ function FarmHealthSummary() {
               defaultValue: 'Extension worker view for farm monitoring',
             })}
           </p>
+          {!hasFinancialAccess && (
+            <p className="text-sm text-amber-600 mt-1">
+              {t('extension:farmHealth.limitedAccess', {
+                defaultValue: 'Financial data is not visible for this farm',
+              })}
+            </p>
+          )}
         </div>
         <Button asChild>
-          <Link to="/dashboard">
+          <Link to="/extension/visits/new/$farmId" params={{ farmId }}>
             <Plus className="h-4 w-4 mr-2" />
             {t('extension:newVisit', { defaultValue: 'New Visit' })}
           </Link>
@@ -131,7 +154,25 @@ function FarmHealthSummary() {
           })}
         </h2>
 
-        {visits.length === 0 ? (
+        {visits.length > 0 ? (
+          visits.map((visit) => (
+            <Card key={visit.id}>
+              <CardContent className="pt-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-medium">{formatDate(visit.visitDate)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {visit.purpose}
+                    </p>
+                  </div>
+                </div>
+                {visit.notes && (
+                  <p className="mt-2 text-sm">{visit.notes}</p>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        ) : (
           <Card>
             <CardContent className="text-center py-8">
               <p className="text-muted-foreground">
@@ -141,12 +182,6 @@ function FarmHealthSummary() {
               </p>
             </CardContent>
           </Card>
-        ) : (
-          <div className="space-y-3">
-            {visits.map((visit: any) => (
-              <VisitCard key={visit.id} visit={visit} />
-            ))}
-          </div>
         )}
       </div>
     </div>

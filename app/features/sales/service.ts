@@ -215,7 +215,7 @@ export function calculateNewTotalAmount(
  */
 export function buildSalesSummary(
   sales: Array<{
-    livestockType: 'poultry' | 'fish' | 'eggs'
+    livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
     count: string | number
     totalQuantity: string | number
     totalRevenue: string

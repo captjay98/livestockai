@@ -39,6 +39,7 @@ function ListingDetailPage() {
   const router = useRouter()
   const [showContactDialog, setShowContactDialog] = useState(false)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false)
 
   // Record view on mount
   useEffect(() => {
@@ -47,11 +48,52 @@ function ListingDetailPage() {
     })
   }, [listingId])
 
-  const handleContactSeller = () => {
-    // Check if user is authenticated
-    // Since this is a public route, we need to check auth status
-    // For now, show login prompt - in real app, check session
-    setShowLoginPrompt(true)
+  const handleContactSeller = async () => {
+    setIsCheckingAuth(true)
+    try {
+      // Check if user is authenticated
+      const { checkAuthFn } = await import('~/features/auth/server')
+      await checkAuthFn({ data: {} })
+      // User is authenticated → show contact dialog
+      setShowContactDialog(true)
+    } catch {
+      // Not authenticated → show login prompt
+      setShowLoginPrompt(true)
+    } finally {
+      setIsCheckingAuth(false)
+    }
+  }
+
+  const handleContactSubmit = async (data: {
+    message: string
+    contactMethod: 'app' | 'phone' | 'email'
+    phone?: string
+    email?: string
+  }) => {
+    try {
+      const { createContactRequestFn } = await import(
+        '~/features/marketplace/server'
+      )
+      const { toast } = await import('sonner')
+
+      await createContactRequestFn({
+        data: {
+          listingId,
+          message: data.message,
+          contactMethod: data.contactMethod,
+          phoneNumber: data.phone,
+          email: data.email,
+        },
+      })
+
+      setShowContactDialog(false)
+      toast.success(t('contactRequestSent', 'Contact request sent!'))
+    } catch (error) {
+      const { toast } = await import('sonner')
+      toast.error(
+        t('contactRequestFailed', 'Failed to send contact request'),
+      )
+    }
   }
 
   const handleLoginRedirect = () => {
@@ -87,9 +129,10 @@ function ListingDetailPage() {
                 onClick={handleContactSeller}
                 className="w-full"
                 size="lg"
+                disabled={isCheckingAuth}
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
-                {t('contactSeller')}
+                {isCheckingAuth ? t('checking') : t('contactSeller')}
               </Button>
             )}
 
@@ -146,7 +189,7 @@ function ListingDetailPage() {
         listingId={listingId}
         open={showContactDialog}
         onOpenChange={setShowContactDialog}
-        onSubmit={() => setShowContactDialog(false)}
+        onSubmit={handleContactSubmit}
       />
     </div>
   )

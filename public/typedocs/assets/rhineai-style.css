@@ -135,8 +135,12 @@
  */
 
 :root {
-  --font-family-text: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  --font-family-code: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  --font-family-text:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-family-code:
+    ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono,
+    monospace;
 }
 
 body {
@@ -146,7 +150,8 @@ body {
 /**
  * Basic
  */
-html,body {
+html,
+body {
   width: 100%;
   height: 100%;
 }
@@ -179,7 +184,12 @@ footer {
   display: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   line-height: 1.4;
   font-weight: 400;
 }
@@ -419,7 +429,6 @@ pre:hover button {
   transform: translateY(2px);
 }
 
-
 /**
  * Search
  */
@@ -485,7 +494,10 @@ pre:hover button {
   overflow-y: auto;
   padding: 3rem 1px 0 1px;
   box-sizing: border-box;
-  grid-template-columns: minmax(10rem, 18rem) minmax(20rem, 2.5fr) minmax(10rem, 18rem);
+  grid-template-columns: minmax(10rem, 18rem) minmax(20rem, 2.5fr) minmax(
+      10rem,
+      18rem
+    );
   scroll-padding-top: 64px;
 }
 
@@ -497,7 +509,8 @@ pre:hover button {
   box-sizing: border-box;
 }
 
-.page-menu, .site-menu {
+.page-menu,
+.site-menu {
   padding: 3rem 0 2rem 0;
   margin: 0;
   font-size: 0.9rem;
@@ -531,7 +544,8 @@ pre:hover button {
     grid-template-columns: minmax(10rem, 18rem) minmax(20rem, 2.5fr);
   }
 
-  .page-menu, .site-menu {
+  .page-menu,
+  .site-menu {
     height: unset;
     min-height: unset;
     max-height: unset;
@@ -580,7 +594,10 @@ pre:hover button {
   transition: all 0.2s ease-in-out;
 }
 
-.tsd-page-navigation details[open].tsd-accordion > .tsd-accordion-summary > svg {
+.tsd-page-navigation
+  details[open].tsd-accordion
+  > .tsd-accordion-summary
+  > svg {
   transform: translateY(-50%) rotate(0deg);
 }
 
@@ -635,8 +652,16 @@ pre:hover button {
 }
 
 .tsd-navigation > a,
-.tsd-navigation :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation) > li > a,
-.tsd-navigation :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation) > li > details.tsd-accordion > summary.tsd-accordion-summary > :is(span, a) {
+.tsd-navigation
+  :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation)
+  > li
+  > a,
+.tsd-navigation
+  :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation)
+  > li
+  > details.tsd-accordion
+  > summary.tsd-accordion-summary
+  > :is(span, a) {
   width: 100%;
   padding: 0.5rem 0.7rem;
   border-radius: 0.4rem;
@@ -644,20 +669,44 @@ pre:hover button {
 }
 
 .tsd-navigation > a.current,
-.tsd-navigation :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation) > li > a.current,
-.tsd-navigation :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation) > li > details.tsd-accordion > summary.tsd-accordion-summary > :is(span.current, a.current) {
+.tsd-navigation
+  :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation)
+  > li
+  > a.current,
+.tsd-navigation
+  :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation)
+  > li
+  > details.tsd-accordion
+  > summary.tsd-accordion-summary
+  > :is(span.current, a.current) {
   background-color: color-mix(in srgb, var(--color-text-aside), #0000 92%);
 }
 
 .tsd-navigation > a:hover,
-.tsd-navigation :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation) > li > a:hover,
-.tsd-navigation :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation) > li > details.tsd-accordion > summary.tsd-accordion-summary > :is(span:hover, a:hover) {
+.tsd-navigation
+  :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation)
+  > li
+  > a:hover,
+.tsd-navigation
+  :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation)
+  > li
+  > details.tsd-accordion
+  > summary.tsd-accordion-summary
+  > :is(span:hover, a:hover) {
   background-color: color-mix(in srgb, var(--color-text-aside), #0000 92%);
 }
 
 .tsd-navigation > a:active,
-.tsd-navigation :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation) > li > a:active,
-.tsd-navigation :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation) > li > details.tsd-accordion > summary.tsd-accordion-summary > :is(span:active, a:active) {
+.tsd-navigation
+  :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation)
+  > li
+  > a:active,
+.tsd-navigation
+  :is(ul.tsd-small-nested-navigation, ul.tsd-nested-navigation)
+  > li
+  > details.tsd-accordion
+  > summary.tsd-accordion-summary
+  > :is(span:active, a:active) {
   background-color: color-mix(in srgb, var(--color-text-aside), #0000 87%);
 }
 
@@ -677,7 +726,8 @@ pre:hover button {
   margin-left: 0;
 }
 
-.tsd-navigation > a, .tsd-navigation .tsd-accordion-summary {
+.tsd-navigation > a,
+.tsd-navigation .tsd-accordion-summary {
   width: 100%;
 }
 

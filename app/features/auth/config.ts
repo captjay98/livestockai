@@ -126,9 +126,15 @@ async function createAuth() {
     },
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
+    // Generate UUIDs instead of nanoid (matches our database schema)
+    advanced: {
+      generateId: () => crypto.randomUUID(),
+      cookiePrefix: 'livestockai',
+      useSecureCookies: true,
+    },
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: false, // Disabled for dev - seeded users work without verification
+      requireEmailVerification: process.env.NODE_ENV === 'production',
       password: {
         hash: hashPassword,
         verify: async ({ hash, password }) => verifyPassword(hash, password),
@@ -142,10 +148,6 @@ async function createAuth() {
         enabled: true,
         maxAge: 60 * 5, // 5 minutes
       },
-    },
-    advanced: {
-      cookiePrefix: 'livestockai',
-      useSecureCookies: true,
     },
     user: {
       modelName: 'users',
@@ -168,6 +170,12 @@ async function createAuth() {
           type: 'date',
           required: false,
         },
+        userType: {
+          type: 'string',
+          required: false,
+          defaultValue: 'farmer',
+          input: true, // Allow users to set this during registration
+        },
       },
     },
     account: {
@@ -180,6 +188,7 @@ async function createAuth() {
       'http://localhost:3000',
       'http://localhost:3001',
       'http://localhost:5173',
+      ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
     ],
     plugins: [
       tanstackStartCookies(),
@@ -219,6 +228,7 @@ export const auth = new Proxy({} as ReturnType<typeof betterAuth>, {
         'Auth not initialized yet. Use `const auth = await getAuth()` in server functions.',
       )
     }
-    return (authInstance as any)[prop]
+    // Type-safe property access
+    return authInstance[prop as keyof typeof authInstance]
   },
 })

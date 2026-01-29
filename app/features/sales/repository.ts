@@ -14,7 +14,7 @@ export interface SaleInsert {
   farmId: string
   batchId: string | null
   customerId: string | null
-  livestockType: 'poultry' | 'fish' | 'eggs'
+  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   quantity: number
   unitPrice: string
   totalAmount: string
@@ -323,7 +323,7 @@ export async function getSalesSummary(
   },
 ): Promise<
   Array<{
-    livestockType: 'poultry' | 'fish' | 'eggs'
+    livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
     count: string
     totalQuantity: string
     totalRevenue: string
@@ -349,7 +349,7 @@ export async function getSalesSummary(
   }
 
   return (await query.execute()) as Array<{
-    livestockType: 'poultry' | 'fish' | 'eggs'
+    livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
     count: string
     totalQuantity: string
     totalRevenue: string

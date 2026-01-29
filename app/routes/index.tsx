@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { LandingLayout } from '~/components/landing/LandingLayout'
 import { LandingHero } from '~/components/landing/LandingHero'
 import { FeaturesSection } from '~/components/landing/FeaturesSection'
+import { ExtensionSection } from '~/components/landing/ExtensionSection'
 import { TechStackSection } from '~/components/landing/TechStackSection'
 import { AgentReadySection } from '~/components/landing/AgentReadySection'
 import { CTASection } from '~/components/landing/CTASection'
@@ -16,6 +17,7 @@ function Index() {
     <LandingLayout>
       <LandingHero />
       <FeaturesSection />
+      <ExtensionSection />
       <SmartEcosystemSection />
       <TechStackSection />
       <AgentReadySection />

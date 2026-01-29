@@ -10,7 +10,7 @@ export interface BatchSearchParams {
   sortOrder?: 'asc' | 'desc'
   q?: string
   status?: 'active' | 'depleted' | 'sold'
-  livestockType?: 'poultry' | 'fish'
+  livestockType?: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   breedId?: string
 }
 
@@ -34,7 +34,7 @@ export interface GetBatchesForFarmInput {
   sortOrder?: 'asc' | 'desc'
   search?: string
   status?: 'active' | 'depleted' | 'sold'
-  livestockType?: 'poultry' | 'fish'
+  livestockType?: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   breedId?: string
 }
 

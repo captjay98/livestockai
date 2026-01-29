@@ -70,6 +70,7 @@ import { Route as AuthExtensionAlertsRouteImport } from './routes/_auth/extensio
 import { Route as AuthCustomersCustomerIdRouteImport } from './routes/_auth/customers/$customerId'
 import { Route as AuthCreditPassportRequestsRouteImport } from './routes/_auth/credit-passport/requests'
 import { Route as AuthCreditPassportHistoryRouteImport } from './routes/_auth/credit-passport/history'
+import { Route as AuthBuyerContactsRouteImport } from './routes/_auth/buyer/contacts'
 import { Route as AuthFarmsFarmIdIndexRouteImport } from './routes/_auth/farms/$farmId/index'
 import { Route as AuthBatchesBatchIdIndexRouteImport } from './routes/_auth/batches/$batchId/index'
 import { Route as AuthFarmsFarmIdGeofenceRouteImport } from './routes/_auth/farms/$farmId/geofence'
@@ -77,6 +78,9 @@ import { Route as AuthFarmsFarmIdAccessRouteImport } from './routes/_auth/farms.
 import { Route as AuthExtensionFarmFarmIdRouteImport } from './routes/_auth/extension/farm.$farmId'
 import { Route as AuthExtensionDistrictDistrictIdRouteImport } from './routes/_auth/extension/district.$districtId'
 import { Route as AuthExtensionAlertsAlertIdRouteImport } from './routes/_auth/extension/alerts.$alertId'
+import { Route as AuthAdminExtensionThresholdsRouteImport } from './routes/_auth/admin/extension/thresholds'
+import { Route as AuthAdminExtensionRegionsRouteImport } from './routes/_auth/admin/extension/regions'
+import { Route as AuthAdminExtensionAssignmentsRouteImport } from './routes/_auth/admin/extension/assignments'
 import { Route as AuthExtensionVisitsNewFarmIdRouteImport } from './routes/_auth/extension/visits/new.$farmId'
 
 const SupportRoute = SupportRouteImport.update({
@@ -388,6 +392,11 @@ const AuthCreditPassportHistoryRoute =
     path: '/credit-passport/history',
     getParentRoute: () => AuthRoute,
   } as any)
+const AuthBuyerContactsRoute = AuthBuyerContactsRouteImport.update({
+  id: '/buyer/contacts',
+  path: '/buyer/contacts',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthFarmsFarmIdIndexRoute = AuthFarmsFarmIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -425,6 +434,24 @@ const AuthExtensionAlertsAlertIdRoute =
     path: '/$alertId',
     getParentRoute: () => AuthExtensionAlertsRoute,
   } as any)
+const AuthAdminExtensionThresholdsRoute =
+  AuthAdminExtensionThresholdsRouteImport.update({
+    id: '/admin/extension/thresholds',
+    path: '/admin/extension/thresholds',
+    getParentRoute: () => AuthRoute,
+  } as any)
+const AuthAdminExtensionRegionsRoute =
+  AuthAdminExtensionRegionsRouteImport.update({
+    id: '/admin/extension/regions',
+    path: '/admin/extension/regions',
+    getParentRoute: () => AuthRoute,
+  } as any)
+const AuthAdminExtensionAssignmentsRoute =
+  AuthAdminExtensionAssignmentsRouteImport.update({
+    id: '/admin/extension/assignments',
+    path: '/admin/extension/assignments',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthExtensionVisitsNewFarmIdRoute =
   AuthExtensionVisitsNewFarmIdRouteImport.update({
     id: '/extension/visits/new/$farmId',
@@ -451,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/shared/$shareCode': typeof SharedShareCodeRoute
   '/verify/$reportId': typeof VerifyReportIdRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/buyer/contacts': typeof AuthBuyerContactsRoute
   '/credit-passport/history': typeof AuthCreditPassportHistoryRoute
   '/credit-passport/requests': typeof AuthCreditPassportRequestsRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
@@ -493,6 +521,9 @@ export interface FileRoutesByFullPath {
   '/water-quality/': typeof AuthWaterQualityIndexRoute
   '/weight/': typeof AuthWeightIndexRoute
   '/workers/': typeof AuthWorkersIndexRoute
+  '/admin/extension/assignments': typeof AuthAdminExtensionAssignmentsRoute
+  '/admin/extension/regions': typeof AuthAdminExtensionRegionsRoute
+  '/admin/extension/thresholds': typeof AuthAdminExtensionThresholdsRoute
   '/extension/alerts/$alertId': typeof AuthExtensionAlertsAlertIdRoute
   '/extension/district/$districtId': typeof AuthExtensionDistrictDistrictIdRoute
   '/extension/farm/$farmId': typeof AuthExtensionFarmFarmIdRoute
@@ -521,6 +552,7 @@ export interface FileRoutesByTo {
   '/shared/$shareCode': typeof SharedShareCodeRoute
   '/verify/$reportId': typeof VerifyReportIdRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/buyer/contacts': typeof AuthBuyerContactsRoute
   '/credit-passport/history': typeof AuthCreditPassportHistoryRoute
   '/credit-passport/requests': typeof AuthCreditPassportRequestsRoute
   '/customers/$customerId': typeof AuthCustomersCustomerIdRoute
@@ -562,6 +594,9 @@ export interface FileRoutesByTo {
   '/water-quality': typeof AuthWaterQualityIndexRoute
   '/weight': typeof AuthWeightIndexRoute
   '/workers': typeof AuthWorkersIndexRoute
+  '/admin/extension/assignments': typeof AuthAdminExtensionAssignmentsRoute
+  '/admin/extension/regions': typeof AuthAdminExtensionRegionsRoute
+  '/admin/extension/thresholds': typeof AuthAdminExtensionThresholdsRoute
   '/extension/alerts/$alertId': typeof AuthExtensionAlertsAlertIdRoute
   '/extension/district/$districtId': typeof AuthExtensionDistrictDistrictIdRoute
   '/extension/farm/$farmId': typeof AuthExtensionFarmFarmIdRoute
@@ -592,6 +627,7 @@ export interface FileRoutesById {
   '/shared/$shareCode': typeof SharedShareCodeRoute
   '/verify/$reportId': typeof VerifyReportIdRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/_auth/buyer/contacts': typeof AuthBuyerContactsRoute
   '/_auth/credit-passport/history': typeof AuthCreditPassportHistoryRoute
   '/_auth/credit-passport/requests': typeof AuthCreditPassportRequestsRoute
   '/_auth/customers/$customerId': typeof AuthCustomersCustomerIdRoute
@@ -634,6 +670,9 @@ export interface FileRoutesById {
   '/_auth/water-quality/': typeof AuthWaterQualityIndexRoute
   '/_auth/weight/': typeof AuthWeightIndexRoute
   '/_auth/workers/': typeof AuthWorkersIndexRoute
+  '/_auth/admin/extension/assignments': typeof AuthAdminExtensionAssignmentsRoute
+  '/_auth/admin/extension/regions': typeof AuthAdminExtensionRegionsRoute
+  '/_auth/admin/extension/thresholds': typeof AuthAdminExtensionThresholdsRoute
   '/_auth/extension/alerts/$alertId': typeof AuthExtensionAlertsAlertIdRoute
   '/_auth/extension/district/$districtId': typeof AuthExtensionDistrictDistrictIdRoute
   '/_auth/extension/farm/$farmId': typeof AuthExtensionFarmFarmIdRoute
@@ -664,6 +703,7 @@ export interface FileRouteTypes {
     | '/shared/$shareCode'
     | '/verify/$reportId'
     | '/marketplace/'
+    | '/buyer/contacts'
     | '/credit-passport/history'
     | '/credit-passport/requests'
     | '/customers/$customerId'
@@ -706,6 +746,9 @@ export interface FileRouteTypes {
     | '/water-quality/'
     | '/weight/'
     | '/workers/'
+    | '/admin/extension/assignments'
+    | '/admin/extension/regions'
+    | '/admin/extension/thresholds'
     | '/extension/alerts/$alertId'
     | '/extension/district/$districtId'
     | '/extension/farm/$farmId'
@@ -734,6 +777,7 @@ export interface FileRouteTypes {
     | '/shared/$shareCode'
     | '/verify/$reportId'
     | '/marketplace'
+    | '/buyer/contacts'
     | '/credit-passport/history'
     | '/credit-passport/requests'
     | '/customers/$customerId'
@@ -775,6 +819,9 @@ export interface FileRouteTypes {
     | '/water-quality'
     | '/weight'
     | '/workers'
+    | '/admin/extension/assignments'
+    | '/admin/extension/regions'
+    | '/admin/extension/thresholds'
     | '/extension/alerts/$alertId'
     | '/extension/district/$districtId'
     | '/extension/farm/$farmId'
@@ -804,6 +851,7 @@ export interface FileRouteTypes {
     | '/shared/$shareCode'
     | '/verify/$reportId'
     | '/marketplace/'
+    | '/_auth/buyer/contacts'
     | '/_auth/credit-passport/history'
     | '/_auth/credit-passport/requests'
     | '/_auth/customers/$customerId'
@@ -846,6 +894,9 @@ export interface FileRouteTypes {
     | '/_auth/water-quality/'
     | '/_auth/weight/'
     | '/_auth/workers/'
+    | '/_auth/admin/extension/assignments'
+    | '/_auth/admin/extension/regions'
+    | '/_auth/admin/extension/thresholds'
     | '/_auth/extension/alerts/$alertId'
     | '/_auth/extension/district/$districtId'
     | '/_auth/extension/farm/$farmId'
@@ -1303,6 +1354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCreditPassportHistoryRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/buyer/contacts': {
+      id: '/_auth/buyer/contacts'
+      path: '/buyer/contacts'
+      fullPath: '/buyer/contacts'
+      preLoaderRoute: typeof AuthBuyerContactsRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/farms/$farmId/': {
       id: '/_auth/farms/$farmId/'
       path: '/'
@@ -1352,6 +1410,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthExtensionAlertsAlertIdRouteImport
       parentRoute: typeof AuthExtensionAlertsRoute
     }
+    '/_auth/admin/extension/thresholds': {
+      id: '/_auth/admin/extension/thresholds'
+      path: '/admin/extension/thresholds'
+      fullPath: '/admin/extension/thresholds'
+      preLoaderRoute: typeof AuthAdminExtensionThresholdsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/admin/extension/regions': {
+      id: '/_auth/admin/extension/regions'
+      path: '/admin/extension/regions'
+      fullPath: '/admin/extension/regions'
+      preLoaderRoute: typeof AuthAdminExtensionRegionsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/admin/extension/assignments': {
+      id: '/_auth/admin/extension/assignments'
+      path: '/admin/extension/assignments'
+      fullPath: '/admin/extension/assignments'
+      preLoaderRoute: typeof AuthAdminExtensionAssignmentsRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/extension/visits/new/$farmId': {
       id: '/_auth/extension/visits/new/$farmId'
       path: '/extension/visits/new/$farmId'
@@ -1394,6 +1473,7 @@ interface AuthRouteChildren {
   AuthPayrollRoute: typeof AuthPayrollRoute
   AuthTaskAssignmentsRoute: typeof AuthTaskAssignmentsRoute
   AuthWorkerRoute: typeof AuthWorkerRoute
+  AuthBuyerContactsRoute: typeof AuthBuyerContactsRoute
   AuthCreditPassportHistoryRoute: typeof AuthCreditPassportHistoryRoute
   AuthCreditPassportRequestsRoute: typeof AuthCreditPassportRequestsRoute
   AuthCustomersCustomerIdRoute: typeof AuthCustomersCustomerIdRoute
@@ -1436,6 +1516,9 @@ interface AuthRouteChildren {
   AuthWaterQualityIndexRoute: typeof AuthWaterQualityIndexRoute
   AuthWeightIndexRoute: typeof AuthWeightIndexRoute
   AuthWorkersIndexRoute: typeof AuthWorkersIndexRoute
+  AuthAdminExtensionAssignmentsRoute: typeof AuthAdminExtensionAssignmentsRoute
+  AuthAdminExtensionRegionsRoute: typeof AuthAdminExtensionRegionsRoute
+  AuthAdminExtensionThresholdsRoute: typeof AuthAdminExtensionThresholdsRoute
   AuthExtensionDistrictDistrictIdRoute: typeof AuthExtensionDistrictDistrictIdRoute
   AuthExtensionFarmFarmIdRoute: typeof AuthExtensionFarmFarmIdRoute
   AuthBatchesBatchIdIndexRoute: typeof AuthBatchesBatchIdIndexRoute
@@ -1447,6 +1530,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthPayrollRoute: AuthPayrollRoute,
   AuthTaskAssignmentsRoute: AuthTaskAssignmentsRoute,
   AuthWorkerRoute: AuthWorkerRoute,
+  AuthBuyerContactsRoute: AuthBuyerContactsRoute,
   AuthCreditPassportHistoryRoute: AuthCreditPassportHistoryRoute,
   AuthCreditPassportRequestsRoute: AuthCreditPassportRequestsRoute,
   AuthCustomersCustomerIdRoute: AuthCustomersCustomerIdRoute,
@@ -1489,6 +1573,9 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthWaterQualityIndexRoute: AuthWaterQualityIndexRoute,
   AuthWeightIndexRoute: AuthWeightIndexRoute,
   AuthWorkersIndexRoute: AuthWorkersIndexRoute,
+  AuthAdminExtensionAssignmentsRoute: AuthAdminExtensionAssignmentsRoute,
+  AuthAdminExtensionRegionsRoute: AuthAdminExtensionRegionsRoute,
+  AuthAdminExtensionThresholdsRoute: AuthAdminExtensionThresholdsRoute,
   AuthExtensionDistrictDistrictIdRoute: AuthExtensionDistrictDistrictIdRoute,
   AuthExtensionFarmFarmIdRoute: AuthExtensionFarmFarmIdRoute,
   AuthBatchesBatchIdIndexRoute: AuthBatchesBatchIdIndexRoute,

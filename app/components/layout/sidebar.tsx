@@ -39,7 +39,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
   const hasFarmAccess = !!selectedFarmId
   const hasExtensionAccess = isExtensionWorker
 
-  const sections = useMemo(() => getNavigationSections(t), [t])
+  const sections = useMemo(() => getNavigationSections(t, (user as any).userType), [t, user])
 
   const filteredSections = useMemo(() => {
     // Show all navigation when no modules loaded (no farm selected or loading)

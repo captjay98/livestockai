@@ -132,7 +132,11 @@ export async function updateRegion(
     localizedNames?: Record<string, string>
   },
 ) {
-  await db.updateTable('regions').set(data as any).where('id', '=', id).execute()
+  await db
+    .updateTable('regions')
+    .set(data as any)
+    .where('id', '=', id)
+    .execute()
 }
 
 /**

@@ -80,7 +80,7 @@ export async function createBatch(
       initialQuantity: data.initialQuantity,
       currentQuantity: data.initialQuantity,
       acquisitionDate: data.acquisitionDate,
-      costPerUnit: totalCost,
+      costPerUnit: data.costPerUnit.toString(),
       totalCost: totalCost,
       status: 'active',
       // Enhanced fields

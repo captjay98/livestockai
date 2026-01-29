@@ -25,7 +25,7 @@ export async function getBatches(
   farmId?: string,
   filters?: {
     status?: 'active' | 'depleted' | 'sold'
-    livestockType?: 'poultry' | 'fish'
+    livestockType?: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
     species?: string
   },
 ) {

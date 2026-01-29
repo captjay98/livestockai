@@ -40,7 +40,14 @@ function LoginPage() {
       logger.debug('Login successful', { result })
 
       await router.invalidate()
-      window.location.href = '/dashboard'
+      
+      // Redirect based on user type
+      const user = result.user as any
+      if (user.userType === 'buyer') {
+        window.location.href = '/marketplace'
+      } else {
+        window.location.href = '/dashboard'
+      }
     } catch (err: any) {
       logger.error('Login failed', {
         error: err,

@@ -273,8 +273,8 @@ export function BatchDialog({
               >
                 {isSubmitting
                   ? t('common:saving', {
-                    defaultValue: 'Creating...',
-                  })
+                      defaultValue: 'Creating...',
+                    })
                   : t('create')}
               </Button>
             </DialogFooter>

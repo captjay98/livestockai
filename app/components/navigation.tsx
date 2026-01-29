@@ -9,11 +9,13 @@ import {
   FileCheck,
   FileText,
   Home,
+  MapPin,
   Menu,
   Package,
   Receipt,
   Scale,
   Settings,
+  Shield,
   ShoppingCart,
   Syringe,
   TrendingDown,
@@ -31,6 +33,7 @@ import { LanguageSwitcher } from './ui/language-switcher'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import { useModuleNavigation } from '~/hooks/useModuleNavigation'
+import { useExtensionNav } from '~/features/extension/use-extension-nav'
 // import { NotificationBell } from './notification-bell' // Assuming this exists or will be created/imported correctly if it was working before.
 // Wait, if it was working before, maybe it was imported?
 // I will check the file content again. I don't see it.
@@ -39,10 +42,36 @@ import { useModuleNavigation } from '~/hooks/useModuleNavigation'
 // Actually, I'll just add LanguageSwitcher and fix t. If NotificationBell is red, I'll deal with it.
 
 // Navigation structure helper (internal)
-export const getNavigationSections = (t: any) => [
-  {
-    title: t('common:operations', { defaultValue: 'Operations' }),
-    items: [
+export const getNavigationSections = (t: any, userType?: string) => {
+  const sections = [
+    {
+      title: t('common:marketplace', { defaultValue: 'Marketplace' }),
+      items: [
+        {
+          name: t('common:browseListings', { defaultValue: 'Browse Listings' }),
+          href: '/marketplace',
+          icon: ShoppingCart,
+        },
+        // Buyer-specific items
+        ...(userType === 'buyer' || userType === 'both'
+          ? [
+              {
+                name: t('common:myContacts', { defaultValue: 'My Contacts' }),
+                href: '/buyer/contacts',
+                icon: UserCircle,
+              },
+            ]
+          : []),
+      ],
+    },
+  ]
+
+  // Only show farm operations for farmers
+  if (userType !== 'buyer') {
+    sections.push(
+      {
+        title: t('common:operations', { defaultValue: 'Operations' }),
+        items: [
       {
         name: t('common:batches', { defaultValue: 'Batches' }),
         href: '/batches',
@@ -169,7 +198,10 @@ export const getNavigationSections = (t: any) => [
       },
     ],
   },
-]
+  ]
+
+  return sections
+}
 
 // Base navigation sections (raw structure without translations for backward compatibility)
 export const NAVIGATION_SECTIONS = [
@@ -225,8 +257,34 @@ export function Navigation() {
   const { t } = useTranslation('common')
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { isExtensionWorker, isSupervisor } = useExtensionNav()
 
   const sections = getNavigationSections(t)
+
+  // Add extension navigation if user is an extension worker
+  if (isExtensionWorker) {
+    const extensionSection = {
+      title: t('common:extension', { defaultValue: 'Extension' }),
+      items: [
+        ...(isSupervisor
+          ? [
+              {
+                name: t('common:supervisor', { defaultValue: 'Supervisor' }),
+                href: '/extension/supervisor',
+                icon: Shield,
+              },
+            ]
+          : []),
+        {
+          name: t('common:districts', { defaultValue: 'Districts' }),
+          href: '/extension/districts',
+          icon: MapPin,
+        },
+      ],
+    }
+    sections.splice(1, 0, extensionSection) // Insert after Overview section
+  }
+
   const navItems = sections.flatMap((section) => section.items)
   const filteredNavigation = useModuleNavigation(navItems)
 

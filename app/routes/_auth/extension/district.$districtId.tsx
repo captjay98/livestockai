@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { MapPin, Search } from 'lucide-react'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Download, MapPin, Search } from 'lucide-react'
 import { z } from 'zod'
 import { getDistrictDashboardFn } from '~/features/extension/server'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { PageHeader } from '~/components/page-header'
+import { exportToCSV } from '~/lib/export/csv'
 
 const validateSearch = z.object({
   page: z.number().min(1).catch(1),
@@ -52,6 +53,22 @@ function DistrictDashboardPage() {
     })
   }
 
+  const handleExportCSV = () => {
+    const csvData = farms.map((farm: any) => ({
+      'Farm Name': farm.name,
+      Owner: farm.ownerName,
+      Location: farm.location,
+      'Health Status': farm.healthStatus,
+      'Batch Count': farm.batchCount,
+      'Last Visit': farm.lastVisit || 'Never',
+    }))
+
+    exportToCSV(
+      csvData,
+      `district-${district.slug}-farms-${new Date().toISOString().split('T')[0]}.csv`,
+    )
+  }
+
   const getHealthBadgeVariant = (status: string) => {
     switch (status) {
       case 'healthy':
@@ -71,10 +88,16 @@ function DistrictDashboardPage() {
         title={district.name}
         description={`District dashboard with ${stats.totalFarms} farms`}
         icon={MapPin}
+        action={
+          <Button onClick={handleExportCSV} variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+        }
       />
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Farms</CardTitle>
@@ -116,6 +139,18 @@ function DistrictDashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
               {stats.criticalFarms}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-orange-600">
+              Active Alerts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">
+              {stats.activeOutbreakCount || 0}
             </div>
           </CardContent>
         </Card>
@@ -174,39 +209,46 @@ function DistrictDashboardPage() {
       {/* Farm Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {farms.map((farm: any) => (
-          <Card key={farm.id}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{farm.name}</CardTitle>
-                <Badge variant={getHealthBadgeVariant(farm.healthStatus)}>
-                  {farm.healthStatus}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <span className="font-medium">Owner:</span> {farm.ownerName}
-                </p>
-                <p>
-                  <span className="font-medium">Location:</span> {farm.location}
-                </p>
-                <p>
-                  <span className="font-medium">Batches:</span>{' '}
-                  {farm.batchCount}
-                </p>
-                <p>
-                  <span className="font-medium">Last Visit:</span>{' '}
-                  {farm.lastVisit || 'Never'}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <Link
+            key={farm.id}
+            to="/extension/farm/$farmId"
+            params={{ farmId: farm.id }}
+          >
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">{farm.name}</CardTitle>
+                  <Badge variant={getHealthBadgeVariant(farm.healthStatus)}>
+                    {farm.healthStatus}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    <span className="font-medium">Owner:</span> {farm.ownerName}
+                  </p>
+                  <p>
+                    <span className="font-medium">Location:</span>{' '}
+                    {farm.location}
+                  </p>
+                  <p>
+                    <span className="font-medium">Batches:</span>{' '}
+                    {farm.batchCount}
+                  </p>
+                  <p>
+                    <span className="font-medium">Last Visit:</span>{' '}
+                    {farm.lastVisit || 'Never'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
       {/* Pagination */}
-      {(pagination.totalPages as number) > 1 && (
+      {pagination.totalPages > 1 && (
         <div className="flex justify-center gap-2">
           {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
             (page) => (

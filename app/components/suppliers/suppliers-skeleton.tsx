@@ -1,19 +1,22 @@
 import { Building2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '~/components/page-header'
 import { Button } from '~/components/ui/button'
 import { Skeleton } from '~/components/ui/skeleton'
 
 export function SuppliersSkeleton() {
+  const { t } = useTranslation('suppliers')
+  
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Suppliers"
-        description="Manage your suppliers and vendors"
+        title={t('title')}
+        description={t('description')}
         icon={Building2}
         actions={
           <Button disabled>
             <Skeleton className="h-4 w-4 mr-2" />
-            Add Supplier
+            {t('add')}
           </Button>
         }
       />

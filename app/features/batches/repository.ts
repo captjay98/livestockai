@@ -84,7 +84,7 @@ export interface BatchWithFarmName {
  */
 export interface BatchFilters {
   status?: 'active' | 'depleted' | 'sold'
-  livestockType?: 'poultry' | 'fish'
+  livestockType?: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   species?: string
   breedId?: string
   farmId?: string
@@ -137,12 +137,14 @@ export async function getBatchById(
 ): Promise<BatchWithFarmName | null> {
   const batch = await db
     .selectFrom('batches')
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
     .leftJoin('structures', 'structures.id', 'batches.structureId')
     .leftJoin('suppliers', 'suppliers.id', 'batches.supplierId')
     .leftJoin('breeds', 'breeds.id', 'batches.breedId')
     .select([
       'batches.id',
       'batches.farmId',
+      'farms.name as farmName',
       'batches.batchName',
       'batches.livestockType',
       'batches.species',
@@ -326,8 +328,8 @@ export async function updateBatchWithConflictCheck(
       .where('id', '=', batchId)
       .execute()
 
-    // Return the updated batch
-    return await getBatchById(db, batchId)
+    // Return the updated batch (use trx for transaction consistency)
+    return await getBatchById(trx, batchId)
   })
 }
 

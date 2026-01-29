@@ -1,13 +1,15 @@
 import { Scale } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '~/components/ui/skeleton'
 import { PageHeader } from '~/components/page-header'
 
 export function WeightSkeleton() {
+  const { t } = useTranslation('weight')
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Weight Samples"
-        description="Track growth by recording periodic weight samples. Compare against industry standards."
+        title={t('title')}
+        description={t('description')}
         icon={Scale}
         actions={<Skeleton className="h-10 w-32" />}
       />

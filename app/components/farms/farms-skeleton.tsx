@@ -1,13 +1,15 @@
 import { Building2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '~/components/ui/skeleton'
 import { PageHeader } from '~/components/page-header'
 
 export function FarmsSkeleton() {
+  const { t } = useTranslation('farms')
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Farms"
-        description="Manage your farm locations and livestock operations."
+        title={t('title')}
+        description={t('description')}
         icon={Building2}
         actions={<Skeleton className="h-10 w-32" />}
       />

@@ -21,6 +21,8 @@ import { FarmInfoCard } from '~/components/farms/farm-info-card'
 import { FarmStatsSidebar } from '~/components/farms/farm-stats-sidebar'
 import { FarmDetailSkeleton } from '~/components/farms/farm-detail-skeleton'
 import { SensorStatusCard } from '~/components/sensors/sensor-status-card'
+import { AccessRequestsCard } from '~/components/extension/access-requests-card'
+import { VisitHistoryCard } from '~/components/extension/visit-history-card'
 
 export const Route = createFileRoute('/_auth/farms/$farmId/')({
   component: FarmDetailsPage,
@@ -97,6 +99,10 @@ function FarmDetailsPage() {
           <StructuresCard farmId={farmId} initialStructures={structures} />
 
           <SensorStatusCard {...sensorSummary} />
+
+          <AccessRequestsCard farmId={farmId} />
+
+          <VisitHistoryCard farmId={farmId} />
 
           <FarmRecentActivityCard
             recentSales={recentSales as unknown as Array<RecentSale>}

@@ -1,13 +1,16 @@
 import { Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '~/components/ui/skeleton'
 import { PageHeader } from '~/components/page-header'
 
 export function UsersSkeleton() {
+  const { t } = useTranslation('settings')
+  
   return (
     <div className="space-y-6">
       <PageHeader
-        title="User Management"
-        description="Manage user accounts and permissions."
+        title={t('title')}
+        description={t('description')}
         icon={Users}
         actions={<Skeleton className="h-10 w-32" />}
       />

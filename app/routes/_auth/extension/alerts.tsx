@@ -4,37 +4,18 @@ import { useTranslation } from 'react-i18next'
 import { Badge } from '~/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Button } from '~/components/ui/button'
+import { getOutbreakAlertsFn } from '~/features/extension/server'
 
 export const Route = createFileRoute('/_auth/extension/alerts')({
+  loader: async () => {
+    return getOutbreakAlertsFn()
+  },
   component: ExtensionAlertsPage,
 })
 
-// Mock data - replace with actual server function
-const mockAlerts = [
-  {
-    id: '1',
-    severity: 'critical' as const,
-    species: 'poultry',
-    title: 'Avian Flu Outbreak',
-    description: 'Confirmed cases in 3 farms within district',
-    affectedFarmCount: 3,
-    districtName: 'Kaduna North',
-    createdAt: new Date('2024-01-15'),
-  },
-  {
-    id: '2',
-    severity: 'warning' as const,
-    species: 'fish',
-    title: 'Water Quality Alert',
-    description: 'pH levels below optimal range detected',
-    affectedFarmCount: 1,
-    districtName: 'Kaduna South',
-    createdAt: new Date('2024-01-14'),
-  },
-]
-
 function ExtensionAlertsPage() {
   const { t } = useTranslation(['common'])
+  const alerts = Route.useLoaderData()
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -76,7 +57,7 @@ function ExtensionAlertsPage() {
         </div>
       </div>
 
-      {mockAlerts.length === 0 ? (
+      {alerts.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
@@ -88,20 +69,22 @@ function ExtensionAlertsPage() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {mockAlerts.map((alert) => (
+          {alerts.map((alert: any) => (
             <Card key={alert.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="text-2xl">
-                      {getSpeciesIcon(alert.species)}
+                      {getSpeciesIcon(alert.livestockType)}
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{alert.title}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {alert.livestockType} Alert
+                      </CardTitle>
                       <div className="flex items-center gap-2 mt-1">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">
-                          {alert.districtName}
+                          {alert.districtName || 'Unknown District'}
                         </span>
                       </div>
                     </div>
@@ -113,13 +96,13 @@ function ExtensionAlertsPage() {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-muted-foreground mb-4">
-                  {alert.description}
+                  {alert.notes || 'No additional notes'}
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="h-4 w-4" />
                     <span>
-                      {alert.affectedFarmCount} farm
+                      {alert.affectedFarmCount || 0} farm
                       {alert.affectedFarmCount !== 1 ? 's' : ''} affected
                     </span>
                   </div>

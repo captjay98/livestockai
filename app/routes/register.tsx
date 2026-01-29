@@ -18,6 +18,9 @@ function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [userType, setUserType] = useState<'farmer' | 'buyer' | 'both'>(
+    'farmer',
+  )
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -32,11 +35,18 @@ function RegisterPage() {
           name,
           email,
           password,
+          userType,
         },
       })
 
       await router.invalidate()
-      window.location.href = '/dashboard'
+
+      // Redirect based on user type
+      if (userType === 'buyer') {
+        window.location.href = '/marketplace'
+      } else {
+        window.location.href = '/dashboard'
+      }
     } catch (err: any) {
       const message = err.message || 'register.errors.default'
       const errorMessage = message.includes('.') ? t(message) : message
@@ -121,6 +131,79 @@ function RegisterPage() {
               className="h-12 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium"
               style={{ color: 'var(--text-landing-primary)' }}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label
+              className="text-xs font-mono uppercase tracking-wider opacity-70"
+              style={{ color: 'var(--text-landing-secondary)' }}
+            >
+              {t('register.userType', 'I am a')}
+            </Label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setUserType('farmer')}
+                disabled={isLoading}
+                className={`h-12 px-4 rounded-md font-medium transition-all ${
+                  userType === 'farmer'
+                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                    : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10'
+                }`}
+                style={
+                  userType !== 'farmer'
+                    ? { color: 'var(--text-landing-primary)' }
+                    : undefined
+                }
+              >
+                🌾 {t('register.farmer', 'Farmer')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserType('buyer')}
+                disabled={isLoading}
+                className={`h-12 px-4 rounded-md font-medium transition-all ${
+                  userType === 'buyer'
+                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                    : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10'
+                }`}
+                style={
+                  userType !== 'buyer'
+                    ? { color: 'var(--text-landing-primary)' }
+                    : undefined
+                }
+              >
+                🛒 {t('register.buyer', 'Buyer')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserType('both')}
+                disabled={isLoading}
+                className={`h-12 px-4 rounded-md font-medium transition-all ${
+                  userType === 'both'
+                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                    : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10'
+                }`}
+                style={
+                  userType !== 'both'
+                    ? { color: 'var(--text-landing-primary)' }
+                    : undefined
+                }
+              >
+                🌾🛒 {t('register.both', 'Both')}
+              </button>
+            </div>
+            <p
+              className="text-xs mt-1"
+              style={{ color: 'var(--text-landing-secondary)' }}
+            >
+              {userType === 'farmer' &&
+                t('register.farmerDesc', 'Manage your farm and sell livestock')}
+              {userType === 'buyer' &&
+                t('register.buyerDesc', 'Browse and purchase livestock')}
+              {userType === 'both' &&
+                t('register.bothDesc', 'Full access to all features')}
+            </p>
           </div>
         </div>
 

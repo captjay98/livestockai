@@ -100,14 +100,19 @@ function SupervisorDashboard() {
               </div>
 
               <Button asChild variant="outline" className="w-full">
-                <Link to="/dashboard">View District Details</Link>
+                <Link
+                  to="/extension/district/$districtId"
+                  params={{ districtId: district.id }}
+                >
+                  View District Details
+                </Link>
               </Button>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {(districts.length as number) === 0 && (
+      {districts.length === 0 && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Shield className="h-12 w-12 text-muted-foreground mb-4" />

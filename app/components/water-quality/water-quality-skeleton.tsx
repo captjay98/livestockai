@@ -1,19 +1,21 @@
 import { Droplets } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '~/components/page-header'
 import { Button } from '~/components/ui/button'
 import { Skeleton } from '~/components/ui/skeleton'
 
 export function WaterQualitySkeleton() {
+  const { t } = useTranslation('water-quality')
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Water Quality"
-        description="Monitor pond conditions for optimal fish health"
+        title={t('title')}
+        description={t('description')}
         icon={Droplets}
         actions={
           <Button disabled>
             <Skeleton className="h-4 w-4 mr-2" />
-            Add Record
+            {t('addRecord')}
           </Button>
         }
       />

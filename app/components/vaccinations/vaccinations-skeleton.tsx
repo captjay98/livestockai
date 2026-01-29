@@ -1,24 +1,26 @@
 import { Syringe } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '~/components/page-header'
 import { Button } from '~/components/ui/button'
 import { Skeleton } from '~/components/ui/skeleton'
 
 export function VaccinationsSkeleton() {
+  const { t } = useTranslation('vaccinations')
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Vaccinations & Treatments"
-        description="Track health interventions for your livestock"
+        title={t('title')}
+        description={t('description')}
         icon={Syringe}
         actions={
           <div className="flex gap-2">
             <Button disabled>
               <Skeleton className="h-4 w-4 mr-2" />
-              Vaccinate
+              {t('vaccinate')}
             </Button>
             <Button disabled>
               <Skeleton className="h-4 w-4 mr-2" />
-              Treat
+              {t('treat')}
             </Button>
           </div>
         }

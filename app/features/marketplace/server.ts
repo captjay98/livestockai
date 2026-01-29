@@ -611,6 +611,53 @@ export const getContactRequestsFn = createServerFn({ method: 'GET' })
   })
 
 /**
+ * Get contact requests sent by buyer
+ */
+export const getMyContactRequestsFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({}))
+  .handler(async () => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+
+    try {
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
+
+      const requests = await db
+        .selectFrom('listing_contact_requests as lcr')
+        .leftJoin(
+          'marketplace_listings as ml',
+          'ml.id',
+          'lcr.listingId',
+        )
+        .select([
+          'lcr.id',
+          'lcr.listingId',
+          'lcr.message',
+          'lcr.contactMethod',
+          'lcr.phoneNumber',
+          'lcr.email',
+          'lcr.status',
+          'lcr.createdAt',
+          'ml.species',
+          'ml.quantity',
+          'ml.pricePerUnit',
+        ])
+        .where('lcr.buyerId', '=', session.user.id)
+        .orderBy('lcr.createdAt', 'desc')
+        .execute()
+
+      return requests
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to get contact requests',
+        cause: error,
+      })
+    }
+  })
+
+/**
  * Check for expiring listings and send notifications
  */
 export const checkExpiringListingsFn = createServerFn({ method: 'POST' })

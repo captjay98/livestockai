@@ -77,6 +77,28 @@ const tiers = [
     href: '/register',
     popular: false,
   },
+  {
+    name: 'Government',
+    code: 'GOV-05',
+    price: { USD: 'Custom', NGN: 'Custom' },
+    description: 'For Government & NGO extension services.',
+    icon: Shield,
+    accent: 'purple',
+    features: [
+      'Unlimited extension workers',
+      'Multi-district management',
+      'Outbreak detection & alerts',
+      'Digital visit records',
+      'Priority support',
+      'Custom training',
+      'SLA guarantees',
+      'Dedicated account manager',
+    ],
+    cta: 'Contact Sales',
+    href: '/support',
+    popular: false,
+    badge: 'For Government & NGOs',
+  },
 ]
 
 const colorMap = {
@@ -107,7 +129,7 @@ export function PricingCards({ currency }: PricingCardsProps) {
       />
 
       <div className="max-w-[1400px] mx-auto relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {tiers.map((tier, idx) => (
             <div
               key={idx}
@@ -156,6 +178,14 @@ export function PricingCards({ currency }: PricingCardsProps) {
                         <Shield className="w-3 h-3 text-emerald-400" />
                         <span className="text-[10px] font-bold text-emerald-400 tracking-tighter uppercase font-mono">
                           Most Popular
+                        </span>
+                      </div>
+                    )}
+                    {tier.badge && !tier.popular && (
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-sm bg-purple-500/10 border border-purple-500/20">
+                        <Shield className="w-3 h-3 text-purple-400" />
+                        <span className="text-[10px] font-bold text-purple-400 tracking-tighter uppercase font-mono">
+                          {tier.badge}
                         </span>
                       </div>
                     )}

@@ -16,8 +16,8 @@ export interface CreateSaleInput {
   batchId?: string | null
   /** Optional ID of the customer who made the purchase */
   customerId?: string | null
-  /** The type of item sold (poultry, fish, or eggs) */
-  livestockType: 'poultry' | 'fish' | 'eggs'
+  /** The type of item sold (livestock type) */
+  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   /** Quantity of items sold */
   quantity: number
   /** Unit price for the item sold */

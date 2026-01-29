@@ -95,7 +95,9 @@ export const validateBatchSearch = createSearchValidator({
   status: ['active', 'depleted', 'sold'],
   custom: {
     farmId: z.string().optional(),
-    livestockType: z.enum(['poultry', 'fish']).optional(),
+    livestockType: z
+      .enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'])
+      .optional(),
     breedId: z.string().optional(),
   },
 })

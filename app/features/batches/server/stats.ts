@@ -51,12 +51,20 @@ export async function getBatchStatsWrapper(userId: string, batchId: string) {
 
     // Calculate FCR (Feed Conversion Ratio) if we have weight data
     let fcr = null
-    if (weightSamples.length > 0) {
+    if (weightSamples.length >= 2) {
       const totalFeedKg = toNumber(String(stats.feed.totalFeedKg || '0'))
       if (totalFeedKg > 0) {
-        const avgWeight = toNumber(weightSamples[0].averageWeightKg)
-        const totalWeightGain = avgWeight * batch.currentQuantity
-        fcr = calculateFeedConversionRatio(totalFeedKg, totalWeightGain)
+        // Calculate weight gain from first to last sample
+        const firstWeight = toNumber(
+          weightSamples[weightSamples.length - 1].averageWeightKg,
+        ) // oldest sample
+        const lastWeight = toNumber(weightSamples[0].averageWeightKg) // newest sample
+        const weightGainPerBird = lastWeight - firstWeight
+        const totalWeightGain = weightGainPerBird * batch.currentQuantity
+
+        if (totalWeightGain > 0) {
+          fcr = calculateFeedConversionRatio(totalFeedKg, totalWeightGain)
+        }
       }
     }
 

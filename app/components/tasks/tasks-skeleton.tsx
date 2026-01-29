@@ -1,13 +1,16 @@
 import { CheckSquare } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '~/components/ui/skeleton'
 import { PageHeader } from '~/components/page-header'
 
 export function TasksSkeleton() {
+  const { t } = useTranslation('common')
+  
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Tasks"
-        description="Manage your daily farm tasks and checklists."
+        title={t('title')}
+        description={t('description')}
         icon={CheckSquare}
         actions={<Skeleton className="h-10 w-32" />}
       />

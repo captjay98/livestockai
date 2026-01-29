@@ -179,6 +179,12 @@ export function buildFeedSummary(
  * @param initialQuantity - Initial batch quantity (for validation)
  * @returns FCR as number rounded to 2 decimals, or null if calculation is not possible
  *
+ * @deprecated Use calculateFCR from ~/lib/utils/calculations instead
+ * @param totalFeedKg - Total feed consumed in kilograms
+ * @param weightGainKg - Total weight gain in kilograms
+ * @param initialQuantity - Initial quantity (unused, kept for backward compatibility)
+ * @returns FCR as number rounded to 2 decimals, or null if calculation is not possible
+ *
  * @example
  * ```ts
  * const fcr = calculateFCR(150, 100, 100)
@@ -193,11 +199,11 @@ export function calculateFCR(
   weightGainKg: number,
   initialQuantity: number,
 ): number | null {
-  if (totalFeedKg <= 0 || weightGainKg <= 0 || initialQuantity <= 0) {
-    return null
-  }
-  const fcr = totalFeedKg / weightGainKg
-  return Math.round(fcr * 100) / 100
+  // Re-export from shared utility (initialQuantity unused)
+  const {
+    calculateFCR: sharedCalculateFCR,
+  } = require('~/lib/utils/calculations')
+  return sharedCalculateFCR(totalFeedKg, weightGainKg)
 }
 
 /**
