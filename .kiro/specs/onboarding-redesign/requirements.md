@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document specifies the requirements for redesigning the OpenLivestock onboarding flow. The current onboarding has critical bugs (modules not persisting to database, structure step not creating anything) and duplicates existing dialog components instead of reusing them. This redesign simplifies the flow from 8 steps to 7 steps, fixes data persistence issues, and eliminates code duplication by reusing existing `FarmDialog` and `BatchDialog` components.
+This document specifies the requirements for redesigning the LivestockAI onboarding flow. The current onboarding has critical bugs (modules not persisting to database, structure step not creating anything) and duplicates existing dialog components instead of reusing them. This redesign simplifies the flow from 8 steps to 7 steps, fixes data persistence issues, and eliminates code duplication by reusing existing `FarmDialog` and `BatchDialog` components.
 
 ## Glossary
 

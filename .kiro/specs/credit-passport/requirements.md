@@ -190,7 +190,7 @@ The system generates three types of reports (Credit Assessment, Production Certi
 #### Acceptance Criteria
 
 1. THE PDF_Generator SHALL use @react-pdf/renderer for PDF creation
-2. THE PDF_Generator SHALL include OpenLivestock branding (logo, colors) by default
+2. THE PDF_Generator SHALL include LivestockAI branding (logo, colors) by default
 3. WHERE white-label option is selected, THE PDF_Generator SHALL use neutral branding
 4. THE PDF_Generator SHALL embed the QR code for verification on the first page
 5. THE PDF_Generator SHALL include page numbers and generation timestamp on each page

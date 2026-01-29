@@ -15,7 +15,7 @@ Comprehensive cleanup of codebase inconsistencies identified in the audit:
 
 ## User Story
 
-As a developer maintaining OpenLivestock
+As a developer maintaining LivestockAI
 I want consistent type safety and coding patterns across the codebase
 So that the code is maintainable, IDE-friendly, and catches bugs at compile time
 
@@ -141,7 +141,7 @@ Run TypeScript and lint checks to ensure no regressions.
 
 ```typescript
 /**
- * Shared TypeScript types for OpenLivestock
+ * Shared TypeScript types for LivestockAI
  */
 
 /**

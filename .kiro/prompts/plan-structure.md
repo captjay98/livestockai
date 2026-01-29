@@ -4,11 +4,11 @@ description: 'Reorganize routes and features around the Batch-Centric philosophy
 
 # @plan-structure
 
-Audit and reorganize the OpenLivestock route and feature structure to align with the "Batch is the Boss" philosophy.
+Audit and reorganize the LivestockAI route and feature structure to align with the "Batch is the Boss" philosophy.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management
+**Project**: LivestockAI - Multi-species livestock management
 **Philosophy**: Batch-Centric design where the Batch is the atomic unit
 **Agent**: product-architect
 

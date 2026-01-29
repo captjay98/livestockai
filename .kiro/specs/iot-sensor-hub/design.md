@@ -2,7 +2,7 @@
 
 ## Overview
 
-The IoT Sensor Hub provides real-time environmental monitoring for livestock structures through connected sensors. The system follows OpenLivestock's three-layer architecture (Server → Service → Repository) and integrates with existing notification, structure, and monitoring systems.
+The IoT Sensor Hub provides real-time environmental monitoring for livestock structures through connected sensors. The system follows LivestockAI's three-layer architecture (Server → Service → Repository) and integrates with existing notification, structure, and monitoring systems.
 
 ## Existing Codebase Context
 
@@ -483,7 +483,7 @@ export const Route = createAPIFileRoute('/api/sensors/readings')({
 
 ```typescript
 // MQTT message handler (called by MQTT broker integration)
-// Topic format: openlivestock/{farm_id}/sensors/{sensor_id}/readings
+// Topic format: livestockai/{farm_id}/sensors/{sensor_id}/readings
 
 export async function handleMQTTMessage(
   topic: string,
@@ -958,7 +958,7 @@ export const SPECIES_SENSOR_OVERRIDES: Record<
 
 ```
 # Publish readings
-openlivestock/{farm_id}/sensors/{sensor_id}/readings
+livestockai/{farm_id}/sensors/{sensor_id}/readings
 
 # Payload (JSON)
 {
@@ -967,7 +967,7 @@ openlivestock/{farm_id}/sensors/{sensor_id}/readings
 }
 
 # Subscribe to alerts (optional)
-openlivestock/{farm_id}/sensors/{sensor_id}/alerts
+livestockai/{farm_id}/sensors/{sensor_id}/alerts
 ```
 
 ## Alert Processing Flow
@@ -1418,7 +1418,7 @@ DHT dht(DHT_PIN, DHT_TYPE);
 
 const char* ssid = "YOUR_WIFI_SSID";
 const char* password = "YOUR_WIFI_PASSWORD";
-const char* serverUrl = "https://your-farm.openlivestock.app/api/sensors/readings";
+const char* serverUrl = "https://your-farm.livestockai.app/api/sensors/readings";
 const char* apiKey = "YOUR_SENSOR_API_KEY";
 
 struct Reading {

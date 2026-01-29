@@ -5,7 +5,7 @@ description: Designing features for the "Action Era" that are AI-accessible by d
 
 # Agentic Feature Design
 
-Features in OpenLivestock must now be designed for **dual consumption**: Humans (UI) and Agents (MCP/API).
+Features in LivestockAI must now be designed for **dual consumption**: Humans (UI) and Agents (MCP/API).
 
 ## 1. The "Headless First" Rule
 

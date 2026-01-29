@@ -1,14 +1,14 @@
 ---
-description: 'Load comprehensive OpenLivestock Manager project context with MCP integration'
+description: 'Load comprehensive LivestockAI project context with MCP integration'
 ---
 
-# Prime: Load OpenLivestock Manager Context
+# Prime: Load LivestockAI Context
 
-Build deep understanding of the OpenLivestock Manager codebase through documentation, database exploration, and live data analysis.
+Build deep understanding of the LivestockAI codebase through documentation, database exploration, and live data analysis.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Tech Stack**: TanStack Start, Kysely ORM, Neon PostgreSQL, Cloudflare Workers, Better Auth
 **Target Users**: Nigerian farmers managing poultry (broilers, layers) and aquaculture (catfish, tilapia)
 
@@ -298,7 +298,7 @@ git diff --stat
 ### 📊 Project Summary
 
 ```
-OpenLivestock Manager
+LivestockAI
 ━━━━━━━━━━━━━━━━━━━━━━
 Purpose: Offline-first livestock management for Nigerian farmers
 Species: Poultry (broilers, layers) + Aquaculture (catfish, tilapia)

@@ -10,7 +10,7 @@ Eliminate the remaining ~27 `any` type annotations in route files by properly ty
 
 ## User Story
 
-As a developer maintaining OpenLivestock
+As a developer maintaining LivestockAI
 I want fully typed loader data in all route files
 So that TypeScript catches type errors and IDE provides accurate autocomplete
 

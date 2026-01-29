@@ -200,7 +200,7 @@ The marketplace is designed to be globally accessible, supporting multiple langu
 1. THE Marketplace SHALL display all UI elements in the user's selected language
 2. THE Marketplace SHALL allow listing descriptions to be entered in any language
 3. WHEN displaying listings, THE Marketplace SHALL show the original language with optional translation indicator
-4. THE Marketplace SHALL support all languages available in OpenLivestock (English, Hausa, Yoruba, Igbo, French, Portuguese, Swahili, Spanish, Hindi, Turkish, Indonesian, Bengali, Thai, Vietnamese, Amharic)
+4. THE Marketplace SHALL support all languages available in LivestockAI (English, Hausa, Yoruba, Igbo, French, Portuguese, Swahili, Spanish, Hindi, Turkish, Indonesian, Bengali, Thai, Vietnamese, Amharic)
 
 ### Requirement 15: Listing Photos
 

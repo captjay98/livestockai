@@ -1,6 +1,6 @@
 # Guía de Despliegue
 
-Guía completa para desplegar OpenLivestock Manager en producción.
+Guía completa para desplegar LivestockAI en producción.
 
 ---
 
@@ -17,8 +17,8 @@ Guía completa para desplegar OpenLivestock Manager en producción.
 
 ```bash
 # 1. Clonar e instalar
-git clone https://github.com/yourusername/openlivestock.git
-cd openlivestock
+git clone https://github.com/yourusername/livestockai.git
+cd livestockai
 bun install
 
 # 2. Configurar base de datos
@@ -94,7 +94,7 @@ Edite `wrangler.jsonc`:
 
 ```jsonc
 {
-  "name": "openlivestock-production",
+  "name": "livestockai-production",
   "main": "./.output/server/index.mjs",
   "compatibility_date": "2024-01-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -151,7 +151,7 @@ wrangler deployments list
 wrangler tail
 ```
 
-Su aplicación ahora está en vivo en: `https://openlivestock-production.your-subdomain.workers.dev`
+Su aplicación ahora está en vivo en: `https://livestockai-production.your-subdomain.workers.dev`
 
 ---
 
@@ -449,7 +449,7 @@ bun run db:migrate
 ## Soporte
 
 - **Documentación**: [docs/INDEX.md](./INDEX.md)
-- **Problemas de GitHub**: [github.com/yourusername/openlivestock/issues](https://github.com/yourusername/openlivestock/issues)
+- **Problemas de GitHub**: [github.com/yourusername/livestockai/issues](https://github.com/yourusername/livestockai/issues)
 - **Comunidad**: [Enlace Discord/Slack]
 
 ---

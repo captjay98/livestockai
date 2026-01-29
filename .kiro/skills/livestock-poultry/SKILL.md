@@ -1,11 +1,11 @@
 ---
 name: Livestock - Poultry
-description: Poultry farming domain knowledge for broilers and layers in OpenLivestock
+description: Poultry farming domain knowledge for broilers and layers in LivestockAI
 ---
 
 # Livestock - Poultry
 
-OpenLivestock supports poultry farming with specialized tracking for broilers and layers.
+LivestockAI supports poultry farming with specialized tracking for broilers and layers.
 
 ## Supported Species
 

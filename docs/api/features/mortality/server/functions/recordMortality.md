@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/mortality/server](../README.md) / recordMortality
+[LivestockAI API Reference](../../../../modules.md) / [features/mortality/server](../README.md) / recordMortality
 
 # Function: recordMortality()
 

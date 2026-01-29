@@ -65,7 +65,7 @@ export interface MarketDataPackage {
 
 ```
 Step 5: Regional Data (Optional)
-  - [ ] Nigerian Market Data (NGN) - by OpenLivestock Team
+  - [ ] Nigerian Market Data (NGN) - by LivestockAI Team
   - [ ] Kenyan Market Data (KES) - by Community
   - [ ] Skip for now
 ```

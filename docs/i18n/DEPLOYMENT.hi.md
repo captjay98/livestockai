@@ -1,6 +1,6 @@
 # डिप्लॉयमेंट गाइड
 
-OpenLivestock Manager को प्रोडक्शन में डिप्लॉय करने के लिए पूरी गाइड।
+LivestockAI को प्रोडक्शन में डिप्लॉय करने के लिए पूरी गाइड।
 
 ---
 
@@ -17,8 +17,8 @@ OpenLivestock Manager को प्रोडक्शन में डिप्�
 
 ```bash
 # 1. क्लोन और इंस्टॉल करें
-git clone https://github.com/yourusername/openlivestock.git
-cd openlivestock
+git clone https://github.com/yourusername/livestockai.git
+cd livestockai
 bun install
 
 # 2. डेटाबेस सेटअप करें
@@ -94,7 +94,7 @@ wrangler login
 
 ```jsonc
 {
-  "name": "openlivestock-production",
+  "name": "livestockai-production",
   "main": "./.output/server/index.mjs",
   "compatibility_date": "2024-01-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -151,7 +151,7 @@ wrangler deployments list
 wrangler tail
 ```
 
-आपका ऐप अब लाइव है: `https://openlivestock-production.your-subdomain.workers.dev`
+आपका ऐप अब लाइव है: `https://livestockai-production.your-subdomain.workers.dev`
 
 ---
 
@@ -449,7 +449,7 @@ bun run db:migrate
 ## समर्थन
 
 - **दस्तावेज़ीकरण**: [docs/INDEX.md](./INDEX.md)
-- **GitHub मुद्दे**: [github.com/yourusername/openlivestock/issues](https://github.com/yourusername/openlivestock/issues)
+- **GitHub मुद्दे**: [github.com/yourusername/livestockai/issues](https://github.com/yourusername/livestockai/issues)
 - **समुदाय**: [Discord/Slack लिंक]
 
 ---

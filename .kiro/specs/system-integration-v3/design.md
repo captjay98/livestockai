@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design document outlines the implementation of system integration improvements for OpenLivestock, focusing on automated inventory management, complete CRUD operations for customers/suppliers/invoices, dark mode fixes, and improved data relationships.
+This design document outlines the implementation of system integration improvements for LivestockAI, focusing on automated inventory management, complete CRUD operations for customers/suppliers/invoices, dark mode fixes, and improved data relationships.
 
 ## Architecture
 

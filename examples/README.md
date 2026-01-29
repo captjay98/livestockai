@@ -1,10 +1,10 @@
 # Interactive Provider Examples
 
-This directory contains standalone examples and templates for implementing custom SMS and Email providers for OpenLivestock.
+This directory contains standalone examples and templates for implementing custom SMS and Email providers for Livestock AI.
 
 ## Overview
 
-OpenLivestock uses a provider pattern for its notification systems. While the core application comes with standard providers (Twilio, Resend, etc.), you might need to integrate with a service specific to your region or infrastructure.
+Livestock AI uses a provider pattern for its notification systems. While the core application comes with standard providers (Twilio, Resend, etc.), you might need to integrate with a service specific to your region or infrastructure.
 
 These examples show how to implement the `SMSProvider` and `EmailProvider` interfaces correctly.
 

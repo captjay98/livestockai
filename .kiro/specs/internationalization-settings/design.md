@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design document describes the technical architecture for implementing internationalization settings in OpenLivestock Manager. The feature enables users to configure currency, date/time formats, and units of measurement to match their regional preferences.
+This design document describes the technical architecture for implementing internationalization settings in LivestockAI. The feature enables users to configure currency, date/time formats, and units of measurement to match their regional preferences.
 
 The implementation follows a context-based approach where settings are loaded once on login and made available throughout the application via React Context. All formatting functions will read from this context to apply user preferences consistently.
 

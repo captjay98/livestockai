@@ -5,7 +5,7 @@ description: Advanced conflict resolution and data consistency patterns for offl
 
 # Offline Sync Strategies
 
-OpenLivestock's "Action Era" requires robust handling of data conflicts beyond simple "last-write-wins".
+LivestockAI's "Action Era" requires robust handling of data conflicts beyond simple "last-write-wins".
 
 ## The Problem: Dependent Mutations
 

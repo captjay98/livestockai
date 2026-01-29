@@ -2,9 +2,9 @@
 
 ## Overview
 
-The Digital Foreman transforms OpenLivestock from a farm management tool into a comprehensive workforce management platform. By extending the existing user/farm/task systems, it enables farm owners to manage workers with GPS-verified attendance, granular module permissions, task assignments with photo proof, and integrated payroll tracking.
+The Digital Foreman transforms LivestockAI from a farm management tool into a comprehensive workforce management platform. By extending the existing user/farm/task systems, it enables farm owners to manage workers with GPS-verified attendance, granular module permissions, task assignments with photo proof, and integrated payroll tracking.
 
-The system follows OpenLivestock's three-layer architecture (Server → Service → Repository) and integrates with existing features (users, farms, tasks, notifications, audit_logs). GPS verification uses the browser's Geolocation API with offline buffering via IndexedDB. Photo storage uses Cloudflare R2 for scalability.
+The system follows LivestockAI's three-layer architecture (Server → Service → Repository) and integrates with existing features (users, farms, tasks, notifications, audit_logs). GPS verification uses the browser's Geolocation API with offline buffering via IndexedDB. Photo storage uses Cloudflare R2 for scalability.
 
 Key design decisions:
 

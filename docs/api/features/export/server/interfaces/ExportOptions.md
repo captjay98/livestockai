@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/export/server](../README.md) / ExportOptions
+[LivestockAI API Reference](../../../../modules.md) / [features/export/server](../README.md) / ExportOptions
 
 # Interface: ExportOptions
 

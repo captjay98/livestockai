@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/users/server](../README.md) / unbanUserFn
+[LivestockAI API Reference](../../../../modules.md) / [features/users/server](../README.md) / unbanUserFn
 
 # Variable: unbanUserFn
 

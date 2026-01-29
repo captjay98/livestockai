@@ -4,11 +4,11 @@ description: 'Optimize PWA performance and user experience'
 
 # PWA Optimization
 
-Optimize Progressive Web App performance for OpenLivestock Manager.
+Optimize Progressive Web App performance for LivestockAI.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **PWA**: Vite PWA plugin with Workbox
 **Target**: Rural farmers with limited connectivity
 
@@ -100,7 +100,7 @@ npx lighthouse http://localhost:3001 --view --only-categories=pwa,performance
 
 ```json
 {
-  "name": "OpenLivestock Manager",
+  "name": "LivestockAI",
   "short_name": "Livestock",
   "description": "Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)",
   "start_url": "/",

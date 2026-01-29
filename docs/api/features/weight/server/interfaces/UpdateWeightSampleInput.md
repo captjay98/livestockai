@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/weight/server](../README.md) / UpdateWeightSampleInput
+[LivestockAI API Reference](../../../../modules.md) / [features/weight/server](../README.md) / UpdateWeightSampleInput
 
 # Interface: UpdateWeightSampleInput
 

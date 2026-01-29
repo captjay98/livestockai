@@ -1,11 +1,11 @@
 ---
 name: Zod Validation
-description: Input validation patterns with Zod in OpenLivestock server functions
+description: Input validation patterns with Zod in LivestockAI server functions
 ---
 
 # Zod Validation
 
-OpenLivestock uses [Zod](https://zod.dev) for runtime input validation in server functions.
+LivestockAI uses [Zod](https://zod.dev) for runtime input validation in server functions.
 
 ## Server Function Validation
 

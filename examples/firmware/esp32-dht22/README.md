@@ -1,6 +1,6 @@
 # ESP32 DHT22 Sensor Example
 
-This example demonstrates how to connect an ESP32 microcontroller with a DHT22 temperature/humidity sensor to the OpenLivestock IoT Sensor Hub.
+This example demonstrates how to connect an ESP32 microcontroller with a DHT22 temperature/humidity sensor to the Livestock AI IoT Sensor Hub.
 
 ## Hardware Requirements
 
@@ -74,7 +74,7 @@ Edit the following constants in `sensor.ino`:
 const char* WIFI_SSID = "your-wifi-ssid";
 const char* WIFI_PASSWORD = "your-wifi-password";
 
-// OpenLivestock API
+// Livestock AI API
 const char* API_ENDPOINT = "https://your-domain.workers.dev/api/sensors/ingest";
 const char* SENSOR_API_KEY = "your-sensor-api-key";
 
@@ -85,7 +85,7 @@ const int READING_INTERVAL_MS = 300000; // 5 minutes
 
 ## Getting Your API Key
 
-1. Log in to OpenLivestock Manager
+1. Log in to Livestock AI Manager
 2. Navigate to your farm → Sensors
 3. Click "Add Sensor"
 4. Fill in sensor details (name, type: temperature or humidity)
@@ -120,7 +120,7 @@ The built-in LED indicates sensor status:
 
 - Verify API key is correct
 - Check endpoint URL
-- Ensure sensor is active in OpenLivestock
+- Ensure sensor is active in Livestock AI
 - Check rate limits (max 60 requests/minute)
 
 ## Power Consumption

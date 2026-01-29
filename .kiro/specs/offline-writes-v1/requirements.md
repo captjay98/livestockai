@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Offline Writes V1 enables full offline functionality for OpenLivestock Manager, allowing farmers to continue recording data when internet connectivity is unavailable. This is critical for rural farming environments where connectivity is unreliable. The feature leverages TanStack Query's built-in offline capabilities with IndexedDB persistence, optimistic updates for immediate UI feedback, and automatic synchronization when connectivity is restored.
+Offline Writes V1 enables full offline functionality for LivestockAI, allowing farmers to continue recording data when internet connectivity is unavailable. This is critical for rural farming environments where connectivity is unreliable. The feature leverages TanStack Query's built-in offline capabilities with IndexedDB persistence, optimistic updates for immediate UI feedback, and automatic synchronization when connectivity is restored.
 
 ## Glossary
 

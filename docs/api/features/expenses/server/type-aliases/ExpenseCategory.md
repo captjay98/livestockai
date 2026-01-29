@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/expenses/server](../README.md) / ExpenseCategory
+[LivestockAI API Reference](../../../../modules.md) / [features/expenses/server](../README.md) / ExpenseCategory
 
 # Type Alias: ExpenseCategory
 

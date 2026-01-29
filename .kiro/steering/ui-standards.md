@@ -1,8 +1,8 @@
-# OpenLivestock UI Standards - "Rugged Utility"
+# LivestockAI UI Standards - "Rugged Utility"
 
 ## Design Philosophy
 
-OpenLivestock is built for farmers in the field - often on dusty phones with cracked screens, under bright sunlight, with dirty hands. Every UI decision prioritizes **usability over aesthetics**.
+LivestockAI is built for farmers in the field - often on dusty phones with cracked screens, under bright sunlight, with dirty hands. Every UI decision prioritizes **usability over aesthetics**.
 
 ## Signal Palette
 

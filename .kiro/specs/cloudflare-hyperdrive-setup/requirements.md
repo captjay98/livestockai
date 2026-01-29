@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This specification covers the setup of Cloudflare Hyperdrive to enable full transaction support in the OpenLivestock codebase. The current implementation uses `@neondatabase/serverless` with `NeonDialect` (HTTP driver), which does not support interactive transactions. The codebase has 11 places using `db.transaction()` that will fail at runtime. Cloudflare Hyperdrive with the standard `pg` driver provides full transaction support, connection pooling at the edge, and improved performance.
+This specification covers the setup of Cloudflare Hyperdrive to enable full transaction support in the LivestockAI codebase. The current implementation uses `@neondatabase/serverless` with `NeonDialect` (HTTP driver), which does not support interactive transactions. The codebase has 11 places using `db.transaction()` that will fail at runtime. Cloudflare Hyperdrive with the standard `pg` driver provides full transaction support, connection pooling at the edge, and improved performance.
 
 ## Glossary
 

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document specifies requirements for the Gemini Vision Assistant - a comprehensive AI-powered livestock assessment system for OpenLivestock Manager. The Vision Assistant operates in two complementary modes:
+This document specifies requirements for the Gemini Vision Assistant - a comprehensive AI-powered livestock assessment system for LivestockAI. The Vision Assistant operates in two complementary modes:
 
 1. **Live Mode**: Real-time frame-by-frame video analysis using Gemini 3 Flash's standard API for continuous assessment, weight estimation, counting, and adaptive guidance through the phone camera.
 

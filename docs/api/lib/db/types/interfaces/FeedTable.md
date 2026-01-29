@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [lib/db/types](../README.md) / FeedTable
+[LivestockAI API Reference](../../../../modules.md) / [lib/db/types](../README.md) / FeedTable
 
 # Interface: FeedTable
 

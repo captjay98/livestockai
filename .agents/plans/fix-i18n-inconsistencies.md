@@ -10,7 +10,7 @@ Fix critical i18n inconsistencies across 15 language locales (21,069 total lines
 
 ## User Story
 
-As a non-English speaking farmer using OpenLivestock
+As a non-English speaking farmer using LivestockAI
 I want to see all interface text and error messages in my selected language
 So that I can effectively manage my farm without language barriers
 

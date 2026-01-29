@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/structures/server](../README.md) / createStructure
+[LivestockAI API Reference](../../../../modules.md) / [features/structures/server](../README.md) / createStructure
 
 # Function: createStructure()
 

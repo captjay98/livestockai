@@ -10,7 +10,7 @@ Refactor data fetching patterns across all routes to follow TanStack Router and 
 
 ## User Story
 
-As a developer maintaining OpenLivestock Manager
+As a developer maintaining LivestockAI Manager
 I want consistent data fetching patterns across all routes
 So that the application benefits from SSR, prefetching, proper loading states, and maintainable code
 
@@ -706,7 +706,7 @@ bun run check && bun run test --run && bun run build
 - [ ] Error states display correctly with retry functionality
 - [ ] All validation commands pass: `bun run check && bun run test --run && bun run build`
 - [ ] No regressions in existing functionality (all 1,306 tests pass)
-- [ ] Code follows OpenLivestock patterns:
+- [ ] Code follows LivestockAI patterns:
   - [ ] Dynamic imports in server functions
   - [ ] AppError for error handling
   - [ ] Zod validation on all server function inputs

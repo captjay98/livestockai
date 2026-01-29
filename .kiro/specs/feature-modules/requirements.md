@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Feature Modules System enables farms to selectively enable or disable livestock management features based on their operational needs. This allows OpenLivestock to support diverse farm types (poultry, aquaculture, cattle, goats, sheep, bees) while keeping the interface clean and relevant for each user. Farms can enable only the modules they need, reducing clutter and improving usability.
+The Feature Modules System enables farms to selectively enable or disable livestock management features based on their operational needs. This allows LivestockAI to support diverse farm types (poultry, aquaculture, cattle, goats, sheep, bees) while keeping the interface clean and relevant for each user. Farms can enable only the modules they need, reducing clutter and improving usability.
 
 ## Glossary
 

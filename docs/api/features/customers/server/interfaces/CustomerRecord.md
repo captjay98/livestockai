@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/customers/server](../README.md) / CustomerRecord
+[LivestockAI API Reference](../../../../modules.md) / [features/customers/server](../README.md) / CustomerRecord
 
 # Interface: CustomerRecord
 

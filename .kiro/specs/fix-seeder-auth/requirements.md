@@ -6,7 +6,7 @@ The production and development seeders currently create admin users incorrectly,
 
 ## Glossary
 
-- **Better Auth**: The authentication library used by OpenLivestock Manager
+- **Better Auth**: The authentication library used by LivestockAI
 - **Credential Provider**: Better Auth's email/password authentication method
 - **Account Table**: Better Auth table that stores provider-specific authentication data
 - **Users Table**: Application table that stores user profile information
@@ -46,7 +46,7 @@ The production and development seeders currently create admin users incorrectly,
 1. WHEN running `bun run db:seed`, THE System SHALL create an admin user with both `users` and `account` entries
 2. WHEN the admin user already exists, THE System SHALL skip user creation and only update reference data
 3. THE Production seeder SHALL use environment variables for admin credentials (ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME)
-4. THE Production seeder SHALL default to 'admin@openlivestock.local' / 'password123' if env vars are not set
+4. THE Production seeder SHALL default to 'admin@livestockai.local' / 'password123' if env vars are not set
 
 ### Requirement 4: Development Seeder Compliance
 

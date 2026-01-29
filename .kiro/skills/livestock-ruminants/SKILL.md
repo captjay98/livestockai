@@ -1,11 +1,11 @@
 ---
 name: Livestock - Ruminants
-description: Cattle, goats, and sheep farming domain knowledge in OpenLivestock
+description: Cattle, goats, and sheep farming domain knowledge in LivestockAI
 ---
 
 # Livestock - Ruminants
 
-OpenLivestock supports ruminant farming including cattle, goats, and sheep.
+LivestockAI supports ruminant farming including cattle, goats, and sheep.
 
 ## Supported Species
 

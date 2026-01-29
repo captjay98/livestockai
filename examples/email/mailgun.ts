@@ -51,7 +51,7 @@ export class MailgunProvider implements EmailProvider {
       const formData = new URLSearchParams()
       formData.append(
         'from',
-        process.env.EMAIL_FROM || `OpenLivestock <notifications@${domain}>`,
+        process.env.EMAIL_FROM || `Livestock AI <notifications@${domain}>`,
       )
       formData.append('to', to)
       formData.append('subject', subject)

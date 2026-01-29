@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document specifies requirements for the Farm Sentinel - an autonomous AI monitoring agent for OpenLivestock Manager. Farm Sentinel leverages Google Gemini 3's advanced capabilities to continuously monitor farm data streams, detect anomalies, reason about cause-and-effect relationships, and take corrective actions without human supervision.
+This document specifies requirements for the Farm Sentinel - an autonomous AI monitoring agent for LivestockAI. Farm Sentinel leverages Google Gemini 3's advanced capabilities to continuously monitor farm data streams, detect anomalies, reason about cause-and-effect relationships, and take corrective actions without human supervision.
 
 Farm Sentinel is designed for the "Marathon Agent" hackathon track, demonstrating long-running autonomous operation over days/weeks, multi-day reasoning with context continuity using Thought Signatures, self-correction from feedback, and real autonomous actions that modify farm operations.
 
@@ -200,7 +200,7 @@ The key differentiator is that Farm Sentinel is NOT a chatbot - it runs autonomo
 
 ### Requirement 12: Integration with Existing Systems
 
-**User Story:** As a farmer using OpenLivestock, I want the AI to work seamlessly with my existing data, so that I don't need to change how I record information.
+**User Story:** As a farmer using LivestockAI, I want the AI to work seamlessly with my existing data, so that I don't need to change how I record information.
 
 #### Acceptance Criteria
 

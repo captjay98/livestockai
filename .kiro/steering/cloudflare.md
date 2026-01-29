@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenLivestock Manager is deployed on Cloudflare Workers. This guide covers Workers-specific patterns and best practices.
+LivestockAI is deployed on Cloudflare Workers. This guide covers Workers-specific patterns and best practices.
 
 ## MCP Servers Available
 

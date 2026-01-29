@@ -1,8 +1,8 @@
 /**
- * OpenLivestock IoT Sensor Hub - ESP32 DHT22 Example
+ * Livestock AI IoT Sensor Hub - ESP32 DHT22 Example
  * 
  * This sketch reads temperature and humidity from a DHT22 sensor
- * and sends the data to the OpenLivestock API.
+ * and sends the data to the Livestock AI API.
  * 
  * Hardware: ESP32 + DHT22
  * 
@@ -25,7 +25,7 @@
 const char* WIFI_SSID = "your-wifi-ssid";
 const char* WIFI_PASSWORD = "your-wifi-password";
 
-// OpenLivestock API configuration
+// Livestock AI API configuration
 const char* API_ENDPOINT = "https://your-domain.workers.dev/api/sensors/ingest";
 const char* TEMP_SENSOR_API_KEY = "your-temperature-sensor-api-key";
 const char* HUMIDITY_SENSOR_API_KEY = "your-humidity-sensor-api-key";
@@ -56,7 +56,7 @@ void setup() {
   delay(1000);
   
   Serial.println("\n========================================");
-  Serial.println("OpenLivestock IoT Sensor Hub");
+  Serial.println("Livestock AI IoT Sensor Hub");
   Serial.println("ESP32 DHT22 Example");
   Serial.println("========================================\n");
   

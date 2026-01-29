@@ -243,7 +243,7 @@ Configure Cloudflare Workers for R2, add environment variables, and document the
 
 ### Phase 5: Testing & Validation
 
-Implement comprehensive tests following OpenLivestock testing patterns. Test each provider independently and the facade integration.
+Implement comprehensive tests following LivestockAI testing patterns. Test each provider independently and the facade integration.
 
 **Tasks:**
 
@@ -776,8 +776,8 @@ export function isStorageConfigured(): boolean {
   "r2_buckets": [
     {
       "binding": "CREDIT_REPORTS_BUCKET",
-      "bucket_name": "openlivestock-credit-reports",
-      "preview_bucket_name": "openlivestock-credit-reports-preview",
+      "bucket_name": "livestockai-credit-reports",
+      "preview_bucket_name": "livestockai-credit-reports-preview",
     },
   ],
 }
@@ -797,7 +797,7 @@ STORAGE_PROVIDER=local  # Options: 'r2', 's3', 'local'
 R2_PUBLIC_URL=https://pub-xxx.r2.dev
 
 # S3 Configuration (AWS)
-S3_BUCKET=openlivestock-credit-reports
+S3_BUCKET=livestockai-credit-reports
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
@@ -1175,7 +1175,7 @@ bun run check && bun run test --run && bun run build
 - [ ] All validation commands pass: `bun run check && bun run test --run && bun run build`
 - [ ] Test coverage meets requirements (80%+ overall)
 - [ ] Integration tests verify local provider operations
-- [ ] Code follows OpenLivestock patterns:
+- [ ] Code follows LivestockAI patterns:
   - [ ] Dynamic imports in all providers (no static imports)
   - [ ] ProviderResult return type for all operations
   - [ ] Graceful error handling (no thrown exceptions)
@@ -1392,7 +1392,7 @@ R2_PUBLIC_URL=https://pub-xxx.r2.dev
 
 ```bash
 STORAGE_PROVIDER=s3
-S3_BUCKET=openlivestock-credit-reports
+S3_BUCKET=livestockai-credit-reports
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_key
 AWS_SECRET_ACCESS_KEY=your_secret

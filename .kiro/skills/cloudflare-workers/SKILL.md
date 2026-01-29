@@ -1,11 +1,11 @@
 ---
 name: Cloudflare Workers
-description: Edge deployment patterns and Cloudflare-specific considerations for OpenLivestock
+description: Edge deployment patterns and Cloudflare-specific considerations for LivestockAI
 ---
 
 # Cloudflare Workers
 
-OpenLivestock is deployed on Cloudflare Workers for global edge performance. This skill covers Workers-specific patterns and constraints.
+LivestockAI is deployed on Cloudflare Workers for global edge performance. This skill covers Workers-specific patterns and constraints.
 
 ## Key Constraints
 
@@ -56,7 +56,7 @@ The `wrangler.jsonc` file configures the Worker:
 
 ```jsonc
 {
-  "name": "openlivestock",
+  "name": "livestockai",
   "compatibility_date": "2024-01-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./dist/server/index.mjs",

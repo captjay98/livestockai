@@ -1,11 +1,11 @@
 ---
 name: TanStack Query
-description: Client-side data fetching, caching, and mutations in OpenLivestock
+description: Client-side data fetching, caching, and mutations in LivestockAI
 ---
 
 # TanStack Query
 
-OpenLivestock uses [TanStack Query](https://tanstack.com/query) for client-side data management, primarily for mutations and cache invalidation.
+LivestockAI uses [TanStack Query](https://tanstack.com/query) for client-side data management, primarily for mutations and cache invalidation.
 
 ## Key Principle
 

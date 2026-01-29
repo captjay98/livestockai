@@ -4,7 +4,7 @@
 
 The Reference Data Foundation feature introduces a database-driven breed management system that replaces hardcoded species/breed data with dynamic, queryable reference data. This enables breed-specific growth forecasting, supports future AI-powered features, and provides a foundation for regional customization.
 
-The design follows OpenLivestock's three-layer architecture (Server → Service → Repository) and maintains backward compatibility with existing batches that don't have breed assignments.
+The design follows LivestockAI's three-layer architecture (Server → Service → Repository) and maintains backward compatibility with existing batches that don't have breed assignments.
 
 ## Existing Codebase Context
 

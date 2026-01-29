@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/settings/date-formatter](../README.md) / formatRelativeDate
+[LivestockAI API Reference](../../../../modules.md) / [features/settings/date-formatter](../README.md) / formatRelativeDate
 
 # Function: formatRelativeDate()
 

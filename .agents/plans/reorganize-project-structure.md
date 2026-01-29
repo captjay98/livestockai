@@ -4,11 +4,11 @@ The following plan should be complete, but validate documentation and codebase p
 
 ## Feature Description
 
-Reorganize the OpenLivestock Manager codebase from a scattered lib/-heavy structure to a feature-based architecture following TanStack Start best practices. This improves maintainability, makes features self-contained, and follows modern React/TanStack conventions.
+Reorganize the LivestockAI Manager codebase from a scattered lib/-heavy structure to a feature-based architecture following TanStack Start best practices. This improves maintainability, makes features self-contained, and follows modern React/TanStack conventions.
 
 ## User Story
 
-As a developer working on OpenLivestock Manager
+As a developer working on LivestockAI Manager
 I want features organized as self-contained modules
 So that I can easily find, modify, and maintain related code without jumping between directories
 

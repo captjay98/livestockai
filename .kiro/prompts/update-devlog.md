@@ -8,7 +8,7 @@ Automatically update DEVLOG.md with recent commits that haven't been documented 
 
 ## Context
 
-**Project**: OpenLivestock Manager  
+**Project**: LivestockAI
 **DEVLOG**: `DEVLOG.md` - Development timeline with day-by-day entries  
 **Format**: Day-based entries following canonical structure
 

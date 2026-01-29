@@ -1,4 +1,4 @@
-# AI Agent Guide for OpenLivestock Manager
+# AI Agent Guide for LivestockAI
 
 This document helps AI coding assistants (Claude, GPT, Kiro, Cursor, etc.) understand and work with this codebase effectively.
 
@@ -6,7 +6,7 @@ This document helps AI coding assistants (Claude, GPT, Kiro, Cursor, etc.) under
 
 ## Project Overview
 
-**OpenLivestock Manager** is a full-stack livestock management application supporting 6 livestock types (poultry, fish, cattle, goats, sheep, bees). It's built with:
+**LivestockAI** is a full-stack livestock management application supporting 6 livestock types (poultry, fish, cattle, goats, sheep, bees). It's built with:
 
 - **Frontend**: React 19 + TanStack Router + TanStack Query
 - **Backend**: TanStack Start (SSR) + Server Functions
@@ -563,14 +563,14 @@ Integration tests require a separate test database to avoid affecting developmen
 
 ```bash
 # Via Neon Console or CLI
-# Create a new database named: openlivestock_test
+# Create a new database named: livestockai_test
 ```
 
 #### 2. Set Environment Variable
 
 ```bash
 # .env.test or .env
-DATABASE_URL_TEST=postgres://user:pass@ep-xxx.region.neon.tech/openlivestock_test?sslmode=require
+DATABASE_URL_TEST=postgres://user:pass@ep-xxx.region.neon.tech/livestockai_test?sslmode=require
 ```
 
 #### 3. Run Migrations on Test Database

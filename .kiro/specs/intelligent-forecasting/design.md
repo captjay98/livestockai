@@ -2,9 +2,9 @@
 
 ## Overview
 
-The Intelligent Forecasting feature transforms OpenLivestock from a simple record-keeping tool into a predictive farming assistant. By analyzing weight samples against breed-specific growth curves (provided by the Reference Data Foundation), the system calculates Average Daily Gain (ADG), Performance Index, and projected harvest dates. Visual components (Forecast Card and Growth Chart) make this data actionable, while deviation alerts proactively notify farmers when batches need attention.
+The Intelligent Forecasting feature transforms LivestockAI from a simple record-keeping tool into a predictive farming assistant. By analyzing weight samples against breed-specific growth curves (provided by the Reference Data Foundation), the system calculates Average Daily Gain (ADG), Performance Index, and projected harvest dates. Visual components (Forecast Card and Growth Chart) make this data actionable, while deviation alerts proactively notify farmers when batches need attention.
 
-The design follows OpenLivestock's three-layer architecture (Server → Service → Repository) and integrates with existing batch detail pages, dashboard, and notification systems.
+The design follows LivestockAI's three-layer architecture (Server → Service → Repository) and integrates with existing batch detail pages, dashboard, and notification systems.
 
 ## Existing Codebase Context
 

@@ -1,7 +1,7 @@
-# OpenLivestock Manager
+# LivestockAI
 
 <p align="center">
-  <img src="../../public/logo-icon.png" alt="Nembo ya OpenLivestock" width="120" />
+  <img src="../../public/logo-icon.png" alt="Nembo ya LivestockAI" width="120" />
 </p>
 
 <p align="center">
@@ -143,8 +143,8 @@
 ### 1. Nakili & Sakinisha
 
 ```bash
-git clone https://github.com/yourusername/open-livestock-manager.git
-cd open-livestock-manager
+git clone https://github.com/yourusername/livestock-ai.git
+cd livestock-ai
 bun install
 ```
 
@@ -177,16 +177,16 @@ Baada ya kuendesha seeder, unaweza kuingia na akaunti hizi za msingi:
 
 #### Seeder ya Uzalishaji (`bun run db:seed`)
 
-| Jukumu | Barua pepe                  | Nenosiri      |
-| ------ | --------------------------- | ------------- |
-| Admin  | `admin@openlivestock.local` | `password123` |
+| Jukumu | Barua pepe                | Nenosiri      |
+| ------ | ------------------------- | ------------- |
+| Admin  | `admin@livestockai.local` | `password123` |
 
 #### Seeder ya Maendeleo (`bun run db:seed:dev`)
 
-| Jukumu | Barua pepe                  | Nenosiri      |
-| ------ | --------------------------- | ------------- |
-| Admin  | `admin@openlivestock.local` | `password123` |
-| Demo   | `demo@openlivestock.local`  | `demo123`     |
+| Jukumu | Barua pepe                | Nenosiri      |
+| ------ | ------------------------- | ------------- |
+| Admin  | `admin@livestockai.local` | `password123` |
+| Demo   | `demo@livestockai.local`  | `demo123`     |
 
 **⚠️ Kumbuka ya Usalama**: Badilisha nywila hizi za msingi mara moja katika mazingira ya uzalishaji. Unaweza kuweka maelezo maalum kupitia vigeu vya mazingira:
 

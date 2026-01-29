@@ -9,7 +9,7 @@ Analyze livestock batch performance and provide actionable insights.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Species**: All 6 livestock types with species-specific metrics
 **Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
 **Database**: PostgreSQL (Neon) via Kysely ORM

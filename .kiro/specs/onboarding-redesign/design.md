@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design addresses the broken onboarding flow in OpenLivestock by:
+This design addresses the broken onboarding flow in LivestockAI by:
 
 1. Reducing steps from 8 to 7 by combining farm creation with module selection
 2. Fixing the critical bug where modules don't persist to the database

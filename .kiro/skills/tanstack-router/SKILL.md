@@ -1,11 +1,11 @@
 ---
 name: TanStack Router
-description: File-based routing, loaders, and navigation patterns in OpenLivestock
+description: File-based routing, loaders, and navigation patterns in LivestockAI
 ---
 
 # TanStack Router
 
-OpenLivestock uses [TanStack Router](https://tanstack.com/router) for type-safe, file-based routing with SSR support.
+LivestockAI uses [TanStack Router](https://tanstack.com/router) for type-safe, file-based routing with SSR support.
 
 ## Route Structure
 

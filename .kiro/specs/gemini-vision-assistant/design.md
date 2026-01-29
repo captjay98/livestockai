@@ -10,7 +10,7 @@ The Gemini Vision Assistant is a comprehensive AI-powered livestock assessment s
 
 Built for the "Real-Time Teacher" hackathon track, it demonstrates true multimodal understanding beyond simple object detection, while addressing the critical need for veterinary guidance in rural areas with limited connectivity.
 
-The system integrates with OpenLivestock's existing batch management, task system, and notification infrastructure, as well as Farm Sentinel (autonomous monitoring) and Farm Optimizer (strategy generation) for a complete intelligence loop.
+The system integrates with LivestockAI's existing batch management, task system, and notification infrastructure, as well as Farm Sentinel (autonomous monitoring) and Farm Optimizer (strategy generation) for a complete intelligence loop.
 
 ### Key Design Principles
 

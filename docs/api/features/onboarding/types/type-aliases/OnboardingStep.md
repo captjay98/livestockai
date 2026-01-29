@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/onboarding/types](../README.md) / OnboardingStep
+[LivestockAI API Reference](../../../../modules.md) / [features/onboarding/types](../README.md) / OnboardingStep
 
 # Type Alias: OnboardingStep
 

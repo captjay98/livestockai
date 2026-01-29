@@ -4,7 +4,7 @@ The following plan addresses critical test coverage gaps identified in comprehen
 
 ## Feature Description
 
-OpenLivestock Manager has 1,256 passing tests but critical server functions lack test coverage. 7 features (customers, suppliers, invoices, notifications, dashboard, reports, tasks) have no server function tests, creating security and financial risks. This plan systematically adds 69 tests to close all critical gaps.
+LivestockAI Manager has 1,256 passing tests but critical server functions lack test coverage. 7 features (customers, suppliers, invoices, notifications, dashboard, reports, tasks) have no server function tests, creating security and financial risks. This plan systematically adds 69 tests to close all critical gaps.
 
 ## User Story
 
@@ -76,7 +76,7 @@ Add 69 property-based and integration tests across 7 features to validate:
   - Why: Test framework and patterns
 - [fast-check Documentation](https://fast-check.dev/)
   - Why: Property-based testing for calculations
-- OpenLivestock AGENTS.md - Better Auth and access control patterns
+- LivestockAI AGENTS.md - Better Auth and access control patterns
   - Why: Understand `checkFarmAccess()` usage in tests
 
 ### Patterns to Follow
@@ -568,7 +568,7 @@ bun run check && bun run test --run && bun run build
 - [ ] All validation commands pass: `bun run check && bun run test --run && bun run build`
 - [ ] Test coverage improved for server functions (target 80%+)
 - [ ] No regressions in existing tests (all 1,256+ tests pass)
-- [ ] Code follows OpenLivestock test patterns
+- [ ] Code follows LivestockAI test patterns
 - [ ] Farm access control validated in tests
 - [ ] Financial calculations validated in tests
 - [ ] Error handling (AppError codes) validated in tests

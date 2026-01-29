@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/feed/server](../README.md) / FEED_TYPES
+[LivestockAI API Reference](../../../../modules.md) / [features/feed/server](../README.md) / FEED_TYPES
 
 # Variable: FEED_TYPES
 

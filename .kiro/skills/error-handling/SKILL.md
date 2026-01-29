@@ -1,11 +1,11 @@
 ---
 name: Error Handling
-description: Structured error handling with AppError in OpenLivestock
+description: Structured error handling with AppError in LivestockAI
 ---
 
 # Error Handling
 
-OpenLivestock uses a structured `AppError` class for consistent error handling across the application.
+LivestockAI uses a structured `AppError` class for consistent error handling across the application.
 
 ## AppError Class
 

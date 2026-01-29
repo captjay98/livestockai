@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/settings/hooks](../README.md) / useFormatDate
+[LivestockAI API Reference](../../../../modules.md) / [features/settings/hooks](../README.md) / useFormatDate
 
 # Function: useFormatDate()
 

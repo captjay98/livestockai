@@ -1,14 +1,14 @@
 ---
-description: 'Comprehensive code review for OpenLivestock Manager with project-specific patterns'
+description: 'Comprehensive code review for LivestockAI with project-specific patterns'
 ---
 
-# Code Review: OpenLivestock Manager
+# Code Review: LivestockAI
 
-Perform comprehensive technical code review with OpenLivestock-specific pattern validation.
+Perform comprehensive technical code review with LivestockAI-specific pattern validation.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Tech Stack**: TanStack Start, Kysely ORM, Neon PostgreSQL, Cloudflare Workers, Better Auth
 **Critical**: All server functions MUST use dynamic imports for Cloudflare Workers compatibility
 
@@ -431,7 +431,7 @@ const { db } = await import('../db') // ✅ Dynamic import
 
 ```
 
-### OpenLivestock-Specific Issues
+### LivestockAI-Specific Issues
 
 Highlight any violations of:
 - **Dynamic import pattern** - Static db imports in server functions

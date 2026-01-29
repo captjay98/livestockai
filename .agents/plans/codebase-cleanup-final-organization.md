@@ -4,11 +4,11 @@ The following plan should be complete, but validate documentation and codebase p
 
 ## Feature Description
 
-Comprehensive cleanup and final organization of the OpenLivestock Manager codebase to achieve a clean, maintainable structure following TanStack Start best practices. This includes consolidating tests, removing unused files, streamlining the features directory, and properly organizing components.
+Comprehensive cleanup and final organization of the LivestockAI Manager codebase to achieve a clean, maintainable structure following TanStack Start best practices. This includes consolidating tests, removing unused files, streamlining the features directory, and properly organizing components.
 
 ## User Story
 
-As a developer working on OpenLivestock Manager
+As a developer working on LivestockAI Manager
 I want a clean, well-organized codebase with consistent patterns
 So that I can easily navigate, maintain, and extend the application
 

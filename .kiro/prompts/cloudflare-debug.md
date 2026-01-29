@@ -8,7 +8,7 @@ Systematic approach to debugging Cloudflare Workers deployment problems.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Deployment**: Cloudflare Workers (edge computing)
 **Database**: Neon PostgreSQL (serverless)
 
@@ -35,7 +35,7 @@ Wait for response, then route to appropriate troubleshooting section.
 
 ```
 workers_list
-workers_get_worker scriptName="openlivestock"
+workers_get_worker scriptName="livestockai"
 workers_builds_list_builds
 ```
 

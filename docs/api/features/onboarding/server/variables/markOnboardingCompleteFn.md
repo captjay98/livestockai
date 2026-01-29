@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/onboarding/server](../README.md) / markOnboardingCompleteFn
+[LivestockAI API Reference](../../../../modules.md) / [features/onboarding/server](../README.md) / markOnboardingCompleteFn
 
 # Variable: markOnboardingCompleteFn
 

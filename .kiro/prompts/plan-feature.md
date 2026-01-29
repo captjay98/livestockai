@@ -8,7 +8,7 @@ description: 'Create comprehensive feature plan with deep codebase analysis and 
 
 Transform a feature request into a **comprehensive implementation plan** through systematic codebase analysis, external research, and strategic planning.
 
-**Project Context**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project Context**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Tech Stack**: TanStack Start + React 19 + Kysely + Neon PostgreSQL + Cloudflare Workers
 **Architecture**: Server functions with dynamic imports, type-safe queries, multi-currency, i18n
 
@@ -57,7 +57,7 @@ So that <benefit/value>
 
 **1. Project Structure Analysis**
 
-OpenLivestock-specific structure:
+LivestockAI-specific structure:
 
 - **Server functions**: `app/features/{feature}/server.ts` with dynamic imports
 - **Types**: `app/lib/db/types.ts` for database, `app/features/{feature}/types.ts` for feature types
@@ -74,7 +74,7 @@ Check:
 
 **2. Pattern Recognition** (Use specialized subagents when beneficial)
 
-OpenLivestock mandatory patterns:
+LivestockAI mandatory patterns:
 
 - **Dynamic imports**: `const { db } = await import('~/lib/db')` in ALL server functions
 - **Error handling**: Use `AppError` from `~/lib/errors` with typed error codes
@@ -99,7 +99,7 @@ Check steering documents:
 
 **3. Dependency Analysis**
 
-OpenLivestock tech stack:
+LivestockAI tech stack:
 
 - **TanStack Start**: Server functions, SSR, file-based routing
 - **TanStack Router**: Routes, loaders, search params
@@ -121,7 +121,7 @@ Check existing integrations:
 
 **4. Testing Patterns**
 
-OpenLivestock testing approach:
+LivestockAI testing approach:
 
 - **Framework**: Vitest + fast-check (property-based testing)
 - **Location**: `tests/features/{feature}/`
@@ -142,7 +142,7 @@ Test patterns to follow:
 
 **5. Integration Points**
 
-OpenLivestock integration checklist:
+LivestockAI integration checklist:
 
 - **Database**: Does it need new tables/columns? → Create migration in `app/lib/db/migrations/`
 - **Types**: Update `app/lib/db/types.ts` for database changes
@@ -285,7 +285,7 @@ So that <benefit/value>
 
 ### Patterns to Follow
 
-**OpenLivestock Mandatory Patterns:**
+**LivestockAI Mandatory Patterns:**
 
 **Server Function Pattern:**
 
@@ -436,7 +436,7 @@ Use information-dense keywords for clarity:
 
 ## TESTING STRATEGY
 
-OpenLivestock testing approach:
+LivestockAI testing approach:
 
 ### Unit Tests
 
@@ -464,7 +464,7 @@ Test:
 
 ### Edge Cases
 
-OpenLivestock-specific edge cases to test:
+LivestockAI-specific edge cases to test:
 
 - Multi-currency calculations (different decimal separators)
 - Multi-language strings (Unicode handling)
@@ -478,7 +478,7 @@ OpenLivestock-specific edge cases to test:
 
 ## VALIDATION COMMANDS
 
-OpenLivestock validation suite - execute in order, fail fast:
+LivestockAI validation suite - execute in order, fail fast:
 
 ### Level 1: Syntax & Style
 
@@ -554,13 +554,13 @@ bun run test --run
 
 ## ACCEPTANCE CRITERIA
 
-OpenLivestock feature completion checklist:
+LivestockAI feature completion checklist:
 
 - [ ] Feature implements all specified functionality
 - [ ] All validation commands pass: `bun run check && bun run test --run && bun run build`
 - [ ] Test coverage meets requirements (80%+ overall, 90%+ business logic, 100% financial)
 - [ ] Integration tests verify end-to-end workflows
-- [ ] Code follows OpenLivestock patterns:
+- [ ] Code follows LivestockAI patterns:
   - [ ] Dynamic imports in server functions
   - [ ] AppError for error handling
   - [ ] useFormatCurrency() for currency display

@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/mortality/server](../README.md) / getMortalityRecordsPaginated
+[LivestockAI API Reference](../../../../modules.md) / [features/mortality/server](../README.md) / getMortalityRecordsPaginated
 
 # Function: getMortalityRecordsPaginated()
 

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Extension Worker Mode transforms OpenLivestock from a single-farm management tool into a multi-farm oversight platform for agricultural extension workers. Extension workers are government or NGO field agents who advise multiple farmers in a geographic region, helping them improve livestock production practices and connecting them with resources.
+Extension Worker Mode transforms LivestockAI from a single-farm management tool into a multi-farm oversight platform for agricultural extension workers. Extension workers are government or NGO field agents who advise multiple farmers in a geographic region, helping them improve livestock production practices and connecting them with resources.
 
 **Core Vision (from ROADMAP.md):**
 

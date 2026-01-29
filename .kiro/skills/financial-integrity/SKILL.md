@@ -5,7 +5,7 @@ description: Patterns for provable financial accuracy and invariant testing
 
 # Financial Integrity
 
-In the "Action Era", OpenLivestock agents may autonomously propose sales or analyze profit. **Trust is our currency.** Calculations must be mathematically provable.
+In the "Action Era", LivestockAI agents may autonomously propose sales or analyze profit. **Trust is our currency.** Calculations must be mathematically provable.
 
 ## Core Principle: The "Penny Perfect" Rule
 

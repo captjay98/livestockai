@@ -4,7 +4,7 @@ The following plan addresses 3 high-priority security and validation issues iden
 
 ## Feature Description
 
-OpenLivestock Manager code review identified critical gaps in input validation and farm access control that could allow security vulnerabilities. This plan systematically fixes all violations to ensure data isolation between farms and proper input validation across all server functions.
+LivestockAI Manager code review identified critical gaps in input validation and farm access control that could allow security vulnerabilities. This plan systematically fixes all violations to ensure data isolation between farms and proper input validation across all server functions.
 
 ## Problem Statement
 
@@ -57,7 +57,7 @@ None - all fixes are in existing files
   - Why: Need to create proper validation schemas
 - [TanStack Start - Server Functions](https://tanstack.com/start/latest/docs/framework/react/guide/server-functions)
   - Why: Understand `.inputValidator()` pattern
-- OpenLivestock AGENTS.md - Better Auth and access control patterns
+- LivestockAI AGENTS.md - Better Auth and access control patterns
   - Why: Understand `checkFarmAccess()` usage
 
 ### Patterns to Follow

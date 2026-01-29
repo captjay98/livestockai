@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/eggs/server](../README.md) / getEggRecords
+[LivestockAI API Reference](../../../../modules.md) / [features/eggs/server](../README.md) / getEggRecords
 
 # Function: getEggRecords()
 

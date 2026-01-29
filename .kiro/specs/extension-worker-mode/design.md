@@ -2,7 +2,7 @@
 
 ## Overview
 
-Extension Worker Mode enables government/NGO field agents to monitor farm health across their assigned districts through an OAuth-style consent model. The design follows OpenLivestock's three-layer architecture and integrates with existing systems.
+Extension Worker Mode enables government/NGO field agents to monitor farm health across their assigned districts through an OAuth-style consent model. The design follows LivestockAI's three-layer architecture and integrates with existing systems.
 
 **Key Design Decisions:**
 

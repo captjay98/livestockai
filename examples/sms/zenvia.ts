@@ -34,7 +34,7 @@ export class ZenviaProvider implements SMSProvider {
       const url = 'https://api.zenvia.com/v2/channels/sms/messages'
 
       const body = {
-        from: 'OpenLivestock', // This might need to be a specific number or ID provided by Zenvia
+        from: 'Livestock AI', // This might need to be a specific number or ID provided by Zenvia
         to: to.replace(/\+/g, ''), // Zenvia often prefers numbers without the + sign
         contents: [
           {

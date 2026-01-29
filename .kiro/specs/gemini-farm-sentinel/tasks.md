@@ -4,7 +4,7 @@
 
 This implementation plan breaks down the Farm Sentinel autonomous monitoring agent into discrete coding tasks. The plan follows a bottom-up approach: database schema first, then core services, then Gemini integration, and finally the orchestration layer and UI.
 
-The implementation uses TypeScript throughout, following the existing OpenLivestock patterns with the three-layer architecture (server → service → repository).
+The implementation uses TypeScript throughout, following the existing LivestockAI patterns with the three-layer architecture (server → service → repository).
 
 ## Tasks
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Feature Modules System introduces a flexible architecture that allows farms to enable or disable livestock management features based on their operational needs. This design extends OpenLivestock from supporting only poultry and fish to supporting cattle, goats, sheep, and bees while maintaining a clean, relevant interface for each user.
+The Feature Modules System introduces a flexible architecture that allows farms to enable or disable livestock management features based on their operational needs. This design extends LivestockAI from supporting only poultry and fish to supporting cattle, goats, sheep, and bees while maintaining a clean, relevant interface for each user.
 
 The system uses a database-backed module configuration that controls:
 

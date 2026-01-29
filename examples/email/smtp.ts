@@ -7,7 +7,7 @@ import type {
  * SMTP Email Provider Implementation (Core Service - Local Testing)
  *
  * SMTP is the legacy standard for email, useable with any mail server.
- * In OpenLivestock, this is primarily used for local testing with Mailpit.
+ * In Livestock AI, this is primarily used for local testing with Mailpit.
  *
  * This example demonstrates:
  * 1. Configuring Nodemailer for various ports and security levels
@@ -48,7 +48,7 @@ export class SMTPProvider implements EmailProvider {
       })
 
       const result = await transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'OpenLivestock <noreply@localhost>',
+        from: process.env.EMAIL_FROM || 'Livestock AI <noreply@localhost>',
         to: to,
         subject: subject,
         html: html,

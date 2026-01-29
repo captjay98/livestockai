@@ -1,11 +1,11 @@
 ---
 name: i18n Patterns
-description: Internationalization and translation patterns in OpenLivestock
+description: Internationalization and translation patterns in LivestockAI
 ---
 
 # i18n Patterns
 
-OpenLivestock supports multiple languages using i18next.
+LivestockAI supports multiple languages using i18next.
 
 ## Configuration
 

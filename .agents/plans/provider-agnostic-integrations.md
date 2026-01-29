@@ -8,7 +8,7 @@ Refactor the integrations system to use a Laravel-style provider pattern. This a
 
 ## User Story
 
-As a farm owner deploying OpenLivestock
+As a farm owner deploying LivestockAI
 I want to choose my preferred SMS/Email provider
 So that I can use services available in my region or that I already have accounts with
 
@@ -436,8 +436,7 @@ export class ResendProvider implements EmailProvider {
       const resend = new Resend(apiKey)
 
       const result = await resend.emails.send({
-        from:
-          process.env.EMAIL_FROM || 'OpenLivestock <noreply@openlivestock.app>',
+        from: process.env.EMAIL_FROM || 'LivestockAI <noreply@livestockai.app>',
         to,
         subject,
         html,
@@ -496,7 +495,7 @@ export class SMTPProvider implements EmailProvider {
       })
 
       const result = await transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'OpenLivestock <noreply@localhost>',
+        from: process.env.EMAIL_FROM || 'LivestockAI <noreply@localhost>',
         to,
         subject,
         html,
@@ -689,7 +688,7 @@ TWILIO_PHONE_NUMBER=
 EMAIL_PROVIDER=
 
 # Shared
-EMAIL_FROM=OpenLivestock <noreply@yourdomain.com>
+EMAIL_FROM=LivestockAI <noreply@yourdomain.com>
 
 # Resend - https://resend.com
 RESEND_API_KEY=

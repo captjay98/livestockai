@@ -2,12 +2,12 @@
 
 ## Introduction
 
-This document defines requirements for implementing user management capabilities in OpenLivestock Manager. The system will use Better Auth's Admin plugin for user administration and enhance the existing `user_farms` table with per-farm roles. This is designed for a single-person-per-farm model, not a multi-tenant system.
+This document defines requirements for implementing user management capabilities in LivestockAI. The system will use Better Auth's Admin plugin for user administration and enhance the existing `user_farms` table with per-farm roles. This is designed for a single-person-per-farm model, not a multi-tenant system.
 
 ## Glossary
 
 - **Admin_Plugin**: Better Auth plugin providing user administration capabilities (create, ban, remove users)
-- **System**: The OpenLivestock Manager application
+- **System**: The LivestockAI application
 - **Admin**: A user with the global 'admin' role who can manage all users and farms
 - **User**: A regular user who owns and manages their own farm(s)
 - **Farm_Role**: The role a user has within a specific farm (owner, manager, viewer)
@@ -85,7 +85,7 @@ This document defines requirements for implementing user management capabilities
 #### Acceptance Criteria
 
 1. WHEN a new user logs in for the first time, THE System SHALL detect they have no farms and redirect to onboarding
-2. THE System SHALL display a welcome step explaining what OpenLivestock does and its key benefits
+2. THE System SHALL display a welcome step explaining what LivestockAI does and its key benefits
 3. THE System SHALL guide the user to create their first farm with clear explanations of each field
 4. THE System SHALL guide the user to select which livestock modules to enable (poultry, fish, cattle, etc.)
 5. THE System SHALL guide the user to create their first structure (house, pond, pen) with explanations

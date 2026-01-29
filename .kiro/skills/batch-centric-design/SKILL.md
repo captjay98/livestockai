@@ -5,7 +5,7 @@ description: The batch is the atomic unit - UI patterns centered around batch ma
 
 # Batch-Centric Design
 
-In OpenLivestock, the "Batch" (a group of animals) is the atomic unit of the farm.
+In LivestockAI, the "Batch" (a group of animals) is the atomic unit of the farm.
 
 ## Core Principle
 

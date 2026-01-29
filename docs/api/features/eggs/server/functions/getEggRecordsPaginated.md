@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/eggs/server](../README.md) / getEggRecordsPaginated
+[LivestockAI API Reference](../../../../modules.md) / [features/eggs/server](../README.md) / getEggRecordsPaginated
 
 # Function: getEggRecordsPaginated()
 

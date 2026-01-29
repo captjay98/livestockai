@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / deleteTreatment
+[LivestockAI API Reference](../../../../modules.md) / [features/vaccinations/server](../README.md) / deleteTreatment
 
 # Function: deleteTreatment()
 

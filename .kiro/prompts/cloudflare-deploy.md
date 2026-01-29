@@ -1,5 +1,5 @@
 ---
-description: 'Deploy OpenLivestock Manager to Cloudflare Workers with validation and rollback procedures'
+description: 'Deploy LivestockAI to Cloudflare Workers with validation and rollback procedures'
 ---
 
 # Deploy to Cloudflare Workers
@@ -8,7 +8,7 @@ Execute a production deployment to Cloudflare Workers with comprehensive validat
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Platform**: Cloudflare Workers (Edge computing)
 **Critical**: All server functions MUST use dynamic imports for Workers compatibility
 

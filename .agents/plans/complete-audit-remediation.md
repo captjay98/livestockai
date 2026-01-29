@@ -16,7 +16,7 @@ This plan addresses ALL findings from the comprehensive codebase audit, covering
 - **Code quality improvements** (TypeScript errors, optimizations)
 - **Performance enhancements** (database queries, N+1 patterns)
 
-The audit identified **54 specific issues** across 28 routes, 120+ server functions, 19 hooks, and 216 components. This plan provides a phased approach to achieve 100% compliance with OpenLivestock best practices.
+The audit identified **54 specific issues** across 28 routes, 120+ server functions, 19 hooks, and 216 components. This plan provides a phased approach to achieve 100% compliance with LivestockAI best practices.
 
 ## User Story
 
@@ -140,7 +140,7 @@ Each phase is independently deployable and includes validation checkpoints.
 - [Kysely Queries](https://kysely.dev/docs/getting-started#queries) - Type-safe query building
 - [Kysely Migrations](https://kysely.dev/docs/migrations) - Schema migration patterns
 
-**OpenLivestock Patterns (MANDATORY):**
+**LivestockAI Patterns (MANDATORY):**
 
 - `AGENTS.md` (lines 200-450) - TanStack Router patterns section (added in this audit)
 - `.kiro/steering/coding-standards.md` - Mandatory coding patterns
@@ -1288,7 +1288,7 @@ bun run check && bun run test --run
 
 - [ ] Read audit report (`.agents/COMPREHENSIVE-AUDIT-2026-01-25.md`)
 - [ ] Review TanStack Router patterns in `AGENTS.md`
-- [ ] Understand OpenLivestock mandatory patterns
+- [ ] Understand LivestockAI mandatory patterns
 - [ ] Set up validation commands in terminal
 
 ### Phase 1 (Week 1)

@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/logging/audit](../README.md) / AuditLogQuery
+[LivestockAI API Reference](../../../../modules.md) / [features/logging/audit](../README.md) / AuditLogQuery
 
 # Interface: AuditLogQuery
 

@@ -1,11 +1,11 @@
 ---
 name: Financial Calculations
-description: Decimal precision and financial math patterns in OpenLivestock
+description: Decimal precision and financial math patterns in LivestockAI
 ---
 
 # Financial Calculations
 
-OpenLivestock uses decimal.js for precise financial calculations. All monetary values are stored as DECIMAL(19,2) in the database.
+LivestockAI uses decimal.js for precise financial calculations. All monetary values are stored as DECIMAL(19,2) in the database.
 
 ## Currency Utilities
 

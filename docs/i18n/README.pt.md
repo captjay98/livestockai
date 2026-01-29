@@ -1,7 +1,7 @@
-# OpenLivestock Manager
+# LivestockAI
 
 <p align="center">
-  <img src="../../public/logo-icon.png" alt="Logo OpenLivestock" width="120" />
+  <img src="../../public/logo-icon.png" alt="Logo LivestockAI" width="120" />
 </p>
 
 <p align="center">
@@ -143,8 +143,8 @@
 ### 1. Clonar & Instalar
 
 ```bash
-git clone https://github.com/yourusername/open-livestock-manager.git
-cd open-livestock-manager
+git clone https://github.com/yourusername/livestock-ai.git
+cd livestock-ai
 bun install
 ```
 
@@ -177,16 +177,16 @@ Após executar o seeder, você pode fazer login com estas contas padrão:
 
 #### Seeder de Produção (`bun run db:seed`)
 
-| Função | Email                       | Senha         |
-| ------ | --------------------------- | ------------- |
-| Admin  | `admin@openlivestock.local` | `password123` |
+| Função | Email                     | Senha         |
+| ------ | ------------------------- | ------------- |
+| Admin  | `admin@livestockai.local` | `password123` |
 
 #### Seeder de Desenvolvimento (`bun run db:seed:dev`)
 
-| Função | Email                       | Senha         |
-| ------ | --------------------------- | ------------- |
-| Admin  | `admin@openlivestock.local` | `password123` |
-| Demo   | `demo@openlivestock.local`  | `demo123`     |
+| Função | Email                     | Senha         |
+| ------ | ------------------------- | ------------- |
+| Admin  | `admin@livestockai.local` | `password123` |
+| Demo   | `demo@livestockai.local`  | `demo123`     |
 
 **⚠️ Nota de Segurança**: Altere essas senhas padrão imediatamente em ambientes de produção. Você pode definir credenciais personalizadas via variáveis de ambiente:
 

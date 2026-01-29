@@ -1,6 +1,6 @@
-# OpenLivestock Manager - Prompt Template
+# LivestockAI - Prompt Template
 
-This template defines the standard structure for all prompts in the OpenLivestock Manager project.
+This template defines the standard structure for all prompts in the LivestockAI project.
 
 ## Template Structure
 
@@ -16,7 +16,7 @@ Brief one-line description of the prompt's purpose.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Tech Stack**: TanStack Start, Kysely ORM, Neon PostgreSQL, Cloudflare Workers
 **Target Users**: Nigerian farmers with varying technical skills
 
@@ -70,7 +70,7 @@ bun run [command]
 
 [Continue pattern...]
 
-## OpenLivestock-Specific Patterns
+## LivestockAI-Specific Patterns
 
 ### Database Patterns (Kysely)
 
@@ -158,7 +158,7 @@ bun run build
 
 ### Key Principles
 
-- Be specific to OpenLivestock Manager
+- Be specific to LivestockAI
 - Use actual project patterns and examples
 - Leverage MCP servers for data access
 - Provide actionable, executable steps
@@ -176,7 +176,7 @@ Every prompt should have:
 - [ ] **Prerequisites**: Required setup
 - [ ] **MCP Integration**: Relevant MCP usage examples
 - [ ] **Process**: Step-by-step instructions with commands
-- [ ] **OpenLivestock Patterns**: Project-specific code examples
+- [ ] **LivestockAI Patterns**: Project-specific code examples
 - [ ] **Validation Commands**: How to verify success
 - [ ] **Success Criteria**: Measurable outcomes
 - [ ] **Error Handling**: Common issues and solutions
@@ -187,7 +187,7 @@ Every prompt should have:
 
 | Criteria | 5/5 Standard |
 |----------|--------------|
-| **OpenLivestock Specificity** | Uses actual project patterns, tables, and examples |
+| **LivestockAI Specificity** | Uses actual project patterns, tables, and examples |
 | **Tech Stack Integration** | Correct TanStack Start, Kysely, Neon, Cloudflare patterns |
 | **Clear Instructions** | Step-by-step with commands and expected outputs |
 | **Actionable Outputs** | Produces executable results, not just analysis |

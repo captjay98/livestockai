@@ -4,11 +4,11 @@ description: 'Audit UI components against Rugged Utility standards'
 
 # @ui-audit
 
-Verify that UI components meet OpenLivestock's "Rugged Utility" design standards for field use.
+Verify that UI components meet LivestockAI's "Rugged Utility" design standards for field use.
 
 ## Context
 
-**Project**: OpenLivestock Manager
+**Project**: LivestockAI
 **Design System**: Rugged Utility - built for farmers in the field
 **Reference**: `.kiro/steering/ui-standards.md`
 

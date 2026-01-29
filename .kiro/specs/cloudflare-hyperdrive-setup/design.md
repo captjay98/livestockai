@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design document describes the implementation of Cloudflare Hyperdrive integration for the OpenLivestock codebase. The goal is to enable full transaction support by switching from the `NeonDialect` (HTTP driver) to `PostgresDialect` with the standard `pg` driver, using Hyperdrive for connection pooling in production.
+This design document describes the implementation of Cloudflare Hyperdrive integration for the LivestockAI codebase. The goal is to enable full transaction support by switching from the `NeonDialect` (HTTP driver) to `PostgresDialect` with the standard `pg` driver, using Hyperdrive for connection pooling in production.
 
 The key insight is that Hyperdrive provides a connection string that can be used with standard PostgreSQL drivers, enabling interactive transactions while maintaining the performance benefits of edge connection pooling.
 

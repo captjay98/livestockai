@@ -2,12 +2,12 @@
 
 ## Feature Description
 
-Add comprehensive multi-language support for OpenLivestock Manager, focusing on key African languages: French (West/Central Africa), Portuguese (Angola, Mozambique), and Swahili (East Africa). Expand existing i18n infrastructure with complete translations for all UI text, documentation, and error messages.
+Add comprehensive multi-language support for LivestockAI Manager, focusing on key African languages: French (West/Central Africa), Portuguese (Angola, Mozambique), and Swahili (East Africa). Expand existing i18n infrastructure with complete translations for all UI text, documentation, and error messages.
 
 ## User Story
 
 As a **farmer or farm manager in francophone, lusophone, or Swahili-speaking Africa**
-I want to **use OpenLivestock in my native language**
+I want to **use LivestockAI in my native language**
 So that **I can manage my farm more effectively without language barriers**
 
 ## Problem Statement

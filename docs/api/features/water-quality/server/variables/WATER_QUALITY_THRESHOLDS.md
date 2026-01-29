@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/water-quality/server](../README.md) / WATER_QUALITY_THRESHOLDS
+[LivestockAI API Reference](../../../../modules.md) / [features/water-quality/server](../README.md) / WATER_QUALITY_THRESHOLDS
 
 # Variable: WATER_QUALITY_THRESHOLDS
 

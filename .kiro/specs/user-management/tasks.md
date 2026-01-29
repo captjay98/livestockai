@@ -127,7 +127,7 @@ This implementation plan covers adding Better Auth Admin plugin for user managem
     - _Requirements: 6.1_
   - [x] 9.3 Build Step 1: Welcome screen
     - App introduction and key benefits
-    - What OpenLivestock helps with (tracking, forecasting, finances)
+    - What LivestockAI helps with (tracking, forecasting, finances)
     - "Get Started" button
     - _Requirements: 6.2_
   - [x] 9.4 Build Step 2: Create farm

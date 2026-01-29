@@ -1,6 +1,6 @@
 # Mwongozo wa Usambazaji
 
-Mwongozo kamili wa kusambaza OpenLivestock Manager kwa uzalishaji.
+Mwongozo kamili wa kusambaza LivestockAI kwa uzalishaji.
 
 ---
 
@@ -17,8 +17,8 @@ Mwongozo kamili wa kusambaza OpenLivestock Manager kwa uzalishaji.
 
 ```bash
 # 1. Nakili na uweke
-git clone https://github.com/yourusername/openlivestock.git
-cd openlivestock
+git clone https://github.com/yourusername/livestockai.git
+cd livestockai
 bun install
 
 # 2. Sanidi hifadhidata
@@ -94,7 +94,7 @@ Hariri `wrangler.jsonc`:
 
 ```jsonc
 {
-  "name": "openlivestock-production",
+  "name": "livestockai-production",
   "main": "./.output/server/index.mjs",
   "compatibility_date": "2024-01-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -151,7 +151,7 @@ wrangler deployments list
 wrangler tail
 ```
 
-Programu yako sasa iko hewani kwa: `https://openlivestock-production.your-subdomain.workers.dev`
+Programu yako sasa iko hewani kwa: `https://livestockai-production.your-subdomain.workers.dev`
 
 ---
 
@@ -449,7 +449,7 @@ bun run db:migrate
 ## Msaada
 
 - **Nyaraka**: [docs/INDEX.md](./INDEX.md)
-- **Masuala ya GitHub**: [github.com/yourusername/openlivestock/issues](https://github.com/yourusername/openlivestock/issues)
+- **Masuala ya GitHub**: [github.com/yourusername/livestockai/issues](https://github.com/yourusername/livestockai/issues)
 - **Jamii**: [Kiungo cha Discord/Slack]
 
 ---

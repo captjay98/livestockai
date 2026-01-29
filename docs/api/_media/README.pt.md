@@ -1,7 +1,7 @@
-# Gerenciador OpenLivestock
+# Gerenciador LivestockAI
 
 <p align="center">
-  <img src="public/logo-icon.png" alt="OpenLivestock Logo" width="120" />
+  <img src="public/logo-icon.png" alt="LivestockAI Logo" width="120" />
 </p>
 
 <p align="center">
@@ -36,8 +36,8 @@
 ## Início Rápido
 
 ```bash
-git clone https://github.com/seu-usuario/open-livestock-manager.git
-cd open-livestock-manager
+git clone https://github.com/seu-usuario/livestock-ai.git
+cd livestock-ai
 bun install
 bun dev
 ```

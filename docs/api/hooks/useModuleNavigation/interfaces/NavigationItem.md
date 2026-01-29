@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../README.md)
+[**LivestockAI API Reference**](../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../modules.md) / [hooks/useModuleNavigation](../README.md) / NavigationItem
+[LivestockAI API Reference](../../../modules.md) / [hooks/useModuleNavigation](../README.md) / NavigationItem
 
 # Interface: NavigationItem
 

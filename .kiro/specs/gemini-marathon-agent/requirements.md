@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document specifies requirements for the Gemini Marathon Agent - an autonomous farm monitoring system for OpenLivestock Manager. The agent leverages Google Gemini 3 Pro's 1M token context window, Thought Signatures for session continuity, and Thinking Levels for complex reasoning chains. It continuously monitors farm data streams, detects anomalies, reasons about cause-and-effect relationships across time, and autonomously triggers interventions without human supervision.
+This document specifies requirements for the Gemini Marathon Agent - an autonomous farm monitoring system for LivestockAI. The agent leverages Google Gemini 3 Pro's 1M token context window, Thought Signatures for session continuity, and Thinking Levels for complex reasoning chains. It continuously monitors farm data streams, detects anomalies, reasons about cause-and-effect relationships across time, and autonomously triggers interventions without human supervision.
 
 The Marathon Agent is designed as an autonomous system for tasks spanning hours or days that maintains continuity and self-corrects across multi-step tool calls.
 
@@ -148,7 +148,7 @@ The Marathon Agent is designed as an autonomous system for tasks spanning hours 
 
 ### Requirement 10: Integration with Existing Systems
 
-**User Story:** As a developer, I want the agent to integrate seamlessly with existing OpenLivestock features, so that it enhances rather than duplicates functionality.
+**User Story:** As a developer, I want the agent to integrate seamlessly with existing LivestockAI features, so that it enhances rather than duplicates functionality.
 
 #### Acceptance Criteria
 

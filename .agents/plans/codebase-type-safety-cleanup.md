@@ -6,11 +6,11 @@ Pay special attention to naming of existing utils, types, and models. Import fro
 
 ## Feature Description
 
-Systematic cleanup of type safety issues and code consistency across the OpenLivestock codebase. This includes eliminating `any` types, consolidating duplicate interfaces, and removing debug console statements from production code.
+Systematic cleanup of type safety issues and code consistency across the LivestockAI codebase. This includes eliminating `any` types, consolidating duplicate interfaces, and removing debug console statements from production code.
 
 ## User Story
 
-As a developer maintaining OpenLivestock
+As a developer maintaining LivestockAI
 I want a fully type-safe codebase with consistent patterns
 So that I can catch bugs at compile time and maintain code quality
 

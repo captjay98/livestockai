@@ -9,7 +9,7 @@ Project revenue based on current batch performance and market conditions.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Species**: All 6 livestock types
 **Currency**: Multi-currency - use user preference
 

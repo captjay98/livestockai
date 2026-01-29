@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/structures/server](../README.md) / STRUCTURE_TYPES
+[LivestockAI API Reference](../../../../modules.md) / [features/structures/server](../README.md) / STRUCTURE_TYPES
 
 # Variable: STRUCTURE_TYPES
 

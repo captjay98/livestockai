@@ -2,9 +2,9 @@
 
 ## Overview
 
-The Offline Marketplace transforms OpenLivestock from a farm management tool into a livestock trading platform. By enabling farmers to list livestock for sale and discover nearby sellers—all while working offline—the feature addresses a critical gap in the farmer's workflow: finding buyers.
+The Offline Marketplace transforms LivestockAI from a farm management tool into a livestock trading platform. By enabling farmers to list livestock for sale and discover nearby sellers—all while working offline—the feature addresses a critical gap in the farmer's workflow: finding buyers.
 
-The system follows OpenLivestock's three-layer architecture (Server → Service → Repository) and integrates with existing features (batches, notifications, Credit Passport). Privacy fuzzing is applied at display time, not storage, ensuring exact data is preserved for owners while protecting sensitive information from strangers.
+The system follows LivestockAI's three-layer architecture (Server → Service → Repository) and integrates with existing features (batches, notifications, Credit Passport). Privacy fuzzing is applied at display time, not storage, ensuring exact data is preserved for owners while protecting sensitive information from strangers.
 
 Key design decisions:
 
@@ -33,7 +33,7 @@ app/routes/
     └── $listingId.tsx              # View listing detail (no auth)
 ```
 
-This is a new pattern for OpenLivestock. The public routes:
+This is a new pattern for LivestockAI. The public routes:
 
 - Do NOT use the `_auth` layout
 - Do NOT call `requireAuth()` in loaders

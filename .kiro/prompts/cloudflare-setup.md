@@ -1,5 +1,5 @@
 ---
-description: 'Complete Cloudflare Workers setup and configuration with MCP integration for OpenLivestock Manager'
+description: 'Complete Cloudflare Workers setup and configuration with MCP integration for LivestockAI'
 ---
 
 # Cloudflare Workers Setup & Configuration
@@ -8,7 +8,7 @@ description: 'Complete Cloudflare Workers setup and configuration with MCP integ
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Deployment**: Cloudflare Workers (edge computing)
 **Database**: Neon PostgreSQL (serverless)
 

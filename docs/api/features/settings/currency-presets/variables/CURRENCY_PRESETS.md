@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/settings/currency-presets](../README.md) / CURRENCY_PRESETS
+[LivestockAI API Reference](../../../../modules.md) / [features/settings/currency-presets](../README.md) / CURRENCY_PRESETS
 
 # Variable: CURRENCY_PRESETS
 

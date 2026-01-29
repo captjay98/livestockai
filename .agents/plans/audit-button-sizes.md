@@ -6,7 +6,7 @@ Audit all 42 `size="sm"` button usages across the application and upgrade approp
 
 ## User Story
 
-As a farmer using OpenLivestock in the field
+As a farmer using LivestockAI in the field
 I want all important buttons to be large enough to tap reliably
 So that I can use the app with dirty hands, gloves, or in bright sunlight
 

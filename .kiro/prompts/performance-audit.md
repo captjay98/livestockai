@@ -2,9 +2,9 @@
 description: 'Comprehensive performance analysis for PWA, mobile, and rural connectivity'
 ---
 
-# Performance Audit for OpenLivestock Manager
+# Performance Audit for LivestockAI
 
-⚡ Optimize OpenLivestock Manager for rural farmers using 3G connections and low-end Android devices.
+⚡ Optimize LivestockAI for rural farmers using 3G connections and low-end Android devices.
 
 ## Step 0: Determine Audit Scope
 

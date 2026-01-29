@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Digital Foreman is a comprehensive workforce management system for farm workers within OpenLivestock Manager. It extends the existing user/farm/task systems to provide worker role management with granular permissions, GPS-based attendance tracking with geofencing verification, task assignment with optional photo proof and approval workflows, and payroll tracking with wage calculations.
+The Digital Foreman is a comprehensive workforce management system for farm workers within LivestockAI. It extends the existing user/farm/task systems to provide worker role management with granular permissions, GPS-based attendance tracking with geofencing verification, task assignment with optional photo proof and approval workflows, and payroll tracking with wage calculations.
 
 This feature addresses the critical need for small-to-medium scale livestock farmers in Africa to manage their workforce effectively. Workers may be semi-literate and use basic Android phones, so the system prioritizes a simple mobile-first UI with offline-first capabilities for areas with unreliable internet connectivity.
 

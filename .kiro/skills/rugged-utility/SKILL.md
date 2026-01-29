@@ -1,11 +1,11 @@
 ---
 name: Rugged Utility
-description: OpenLivestock's design philosophy for field-ready, farmer-friendly UI
+description: LivestockAI's design philosophy for field-ready, farmer-friendly UI
 ---
 
 # Rugged Utility
 
-OpenLivestock is built for farmers in the field - often on dusty phones with cracked screens, under bright sunlight, with dirty hands. Every UI decision prioritizes **usability over aesthetics**.
+LivestockAI is built for farmers in the field - often on dusty phones with cracked screens, under bright sunlight, with dirty hands. Every UI decision prioritizes **usability over aesthetics**.
 
 ## Touch Targets
 

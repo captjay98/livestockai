@@ -1,11 +1,11 @@
 ---
 name: Livestock - Aquaculture
-description: Fish farming domain knowledge for catfish and tilapia in OpenLivestock
+description: Fish farming domain knowledge for catfish and tilapia in LivestockAI
 ---
 
 # Livestock - Aquaculture
 
-OpenLivestock supports aquaculture with specialized tracking for catfish and tilapia.
+LivestockAI supports aquaculture with specialized tracking for catfish and tilapia.
 
 ## Supported Species
 

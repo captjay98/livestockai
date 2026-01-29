@@ -2,9 +2,9 @@
 
 ## Overview
 
-The Credit Passport feature transforms OpenLivestock from a farm management tool into a financial verification platform. By aggregating farm data into cryptographically signed reports, farmers can prove their creditworthiness to banks, demonstrate production to government agencies, and show impact to NGOs—all without intermediaries.
+The Credit Passport feature transforms LivestockAI from a farm management tool into a financial verification platform. By aggregating farm data into cryptographically signed reports, farmers can prove their creditworthiness to banks, demonstrate production to government agencies, and show impact to NGOs—all without intermediaries.
 
-The system follows OpenLivestock's three-layer architecture (Server → Service → Repository) and integrates with existing features (batches, sales, expenses, notifications). PDF generation uses `@react-pdf/renderer` for Cloudflare Workers compatibility, and digital signatures use `@noble/ed25519` for cryptographic verification.
+The system follows LivestockAI's three-layer architecture (Server → Service → Repository) and integrates with existing features (batches, sales, expenses, notifications). PDF generation uses `@react-pdf/renderer` for Cloudflare Workers compatibility, and digital signatures use `@noble/ed25519` for cryptographic verification.
 
 Key design decisions:
 
@@ -466,7 +466,7 @@ interface ReportPDFProps {
   config: ReportConfig
   qrCodeDataUrl: string
   language: 'en' | 'fr' | 'sw' | 'ha'
-  branding: 'openlivestock' | 'whitelabel'
+  branding: 'livestockai' | 'whitelabel'
 }
 
 // Main PDF document component
@@ -527,9 +527,7 @@ export const generateReportFn = createServerFn({ method: 'POST' })
       }),
       validityDays: z.enum(['30', '60', '90']).default('30'),
       language: z.enum(['en', 'fr', 'sw', 'ha']).default('en'),
-      branding: z
-        .enum(['openlivestock', 'whitelabel'])
-        .default('openlivestock'),
+      branding: z.enum(['livestockai', 'whitelabel']).default('livestockai'),
       notes: z.string().max(1000).optional(),
     }),
   )
@@ -731,7 +729,7 @@ CREATE TABLE credit_reports (
 
   -- Configuration
   language VARCHAR(5) NOT NULL DEFAULT 'en',
-  branding VARCHAR(20) NOT NULL DEFAULT 'openlivestock',
+  branding VARCHAR(20) NOT NULL DEFAULT 'livestockai',
   notes TEXT,
 
   -- Status and expiration
@@ -840,7 +838,7 @@ interface CreditReportTable {
   pdfUrl: string
   pdfSizeBytes: number
   language: 'en' | 'fr' | 'sw' | 'ha'
-  branding: 'openlivestock' | 'whitelabel'
+  branding: 'livestockai' | 'whitelabel'
   notes: string | null
   status: 'active' | 'expired' | 'pending' | 'deleted'
   validityDays: number

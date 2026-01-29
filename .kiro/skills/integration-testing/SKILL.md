@@ -1,6 +1,6 @@
 ---
 name: Integration Testing
-description: Database integration testing patterns in OpenLivestock
+description: Database integration testing patterns in LivestockAI
 ---
 
 # Integration Testing
@@ -12,7 +12,7 @@ Integration tests verify database operations and constraints using a separate te
 ### 1. Create Test Database
 
 ```bash
-# Create database named: openlivestock_test
+# Create database named: livestockai_test
 # Via Neon Console or CLI
 ```
 
@@ -20,7 +20,7 @@ Integration tests verify database operations and constraints using a separate te
 
 ```bash
 # .env.test or .env
-DATABASE_URL_TEST=postgres://user:pass@ep-xxx.neon.tech/openlivestock_test?sslmode=require
+DATABASE_URL_TEST=postgres://user:pass@ep-xxx.neon.tech/livestockai_test?sslmode=require
 ```
 
 ### 3. Run Migrations

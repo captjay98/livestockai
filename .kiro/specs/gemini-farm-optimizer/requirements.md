@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document specifies requirements for the Farm Optimizer - an autonomous AI optimization agent for OpenLivestock Manager. Farm Optimizer leverages Google Gemini 3's advanced capabilities to analyze farm performance, generate improvement strategies, and **verify them through backtesting** against historical data before recommending implementation.
+This document specifies requirements for the Farm Optimizer - an autonomous AI optimization agent for LivestockAI. Farm Optimizer leverages Google Gemini 3's advanced capabilities to analyze farm performance, generate improvement strategies, and **verify them through backtesting** against historical data before recommending implementation.
 
 Farm Optimizer is designed for the "Vibe Engineering" hackathon track, demonstrating AI that doesn't just suggest - it proves. The key differentiator is the verification loop: strategies are tested against historical batch data, simulated with confidence intervals, and only recommended after passing validation. This produces verification artifacts as evidence of testing.
 
@@ -209,7 +209,7 @@ The system implements an autonomous optimization cycle: Analyze → Generate Str
 
 ### Requirement 13: Integration with Existing Systems
 
-**User Story:** As a farmer using OpenLivestock, I want the optimizer to work with my existing data, so that I don't need to enter information twice.
+**User Story:** As a farmer using LivestockAI, I want the optimizer to work with my existing data, so that I don't need to enter information twice.
 
 #### Acceptance Criteria
 

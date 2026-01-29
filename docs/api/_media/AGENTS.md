@@ -1,4 +1,4 @@
-# AI Agent Guide for OpenLivestock Manager
+# AI Agent Guide for LivestockAI Manager
 
 This document helps AI coding assistants (Claude, GPT, Kiro, Cursor, etc.) understand and work with this codebase effectively.
 
@@ -6,7 +6,7 @@ This document helps AI coding assistants (Claude, GPT, Kiro, Cursor, etc.) under
 
 ## Project Overview
 
-**OpenLivestock Manager** is a full-stack livestock management application supporting 6 livestock types (poultry, fish, cattle, goats, sheep, bees). It's built with:
+**LivestockAI Manager** is a full-stack livestock management application supporting 6 livestock types (poultry, fish, cattle, goats, sheep, bees). It's built with:
 
 - **Frontend**: React 19 + TanStack Router + TanStack Query
 - **Backend**: TanStack Start (SSR) + Server Functions

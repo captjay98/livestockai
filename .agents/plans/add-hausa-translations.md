@@ -7,7 +7,7 @@ Add Hausa language translations to enable Nigerian farmers who speak Hausa to us
 ## User Story
 
 As a Hausa-speaking farmer in Northern Nigeria
-I want to use OpenLivestock in Hausa
+I want to use LivestockAI in Hausa
 So that I can manage my farm without language barriers
 
 ## Problem Statement

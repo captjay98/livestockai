@@ -78,7 +78,7 @@ As a sensor device, I want to publish readings via MQTT so that I can use standa
 **Acceptance Criteria:**
 
 - MQTT broker endpoint provided (or integration with external broker)
-- Topic format: `openlivestock/{farm_id}/sensors/{sensor_id}/readings`
+- Topic format: `livestockai/{farm_id}/sensors/{sensor_id}/readings`
 - Supports QoS 0 and 1
 - Authentication via username (sensor_id) and password (api_key)
 

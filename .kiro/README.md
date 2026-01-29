@@ -1,6 +1,6 @@
-# OpenLivestock Manager - Kiro CLI Configuration
+# LivestockAI - Kiro CLI Configuration
 
-This directory contains the Kiro CLI configuration for OpenLivestock Manager, including custom agents, prompts, steering documents, and automation hooks.
+This directory contains the Kiro CLI configuration for LivestockAI, including custom agents, prompts, steering documents, and automation hooks.
 
 ## Quick Start
 
@@ -323,7 +323,7 @@ Create a JSON file in `.kiro/agents/`:
 ## Resources
 
 - [Kiro CLI Documentation](https://kiro.dev/docs/cli)
-- [OpenLivestock Manager README](../README.md)
+- [LivestockAI README](../README.md)
 - [AGENTS.md](../AGENTS.md) - AI agent development guide
 - [DEVLOG.md](../DEVLOG.md) - Development timeline
 

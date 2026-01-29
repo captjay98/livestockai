@@ -254,8 +254,7 @@ export async function sendEmail(
     const { Resend } = await import('resend')
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
-      from:
-        process.env.EMAIL_FROM || 'OpenLivestock <noreply@openlivestock.app>',
+      from: process.env.EMAIL_FROM || 'LivestockAI <noreply@livestockai.app>',
       ...options,
     })
     return { success: true }
@@ -316,7 +315,7 @@ export const testEmailFn = createServerFn({ method: 'POST' })
     const { sendEmail } = await import('./email/service')
     return sendEmail({
       to: data.to,
-      subject: 'OpenLivestock Test Email',
+      subject: 'LivestockAI Test Email',
       html: '<h1>Test Email</h1><p>Your email integration is working!</p>',
     })
   })
@@ -329,7 +328,7 @@ export const testSMSFn = createServerFn({ method: 'POST' })
     const { sendSMS } = await import('./sms/service')
     return sendSMS({
       to: data.to,
-      message: 'OpenLivestock: Your SMS integration is working!',
+      message: 'LivestockAI: Your SMS integration is working!',
     })
   })
 
@@ -447,7 +446,7 @@ Add to `settingsNav` array:
 
 # Email (Resend) - https://resend.com
 RESEND_API_KEY=
-EMAIL_FROM=OpenLivestock <noreply@yourdomain.com>
+EMAIL_FROM=LivestockAI <noreply@yourdomain.com>
 
 # SMS (Africa's Talking) - https://africastalking.com
 AFRICASTALKING_API_KEY=

@@ -10,7 +10,7 @@ Refactor the current flat routing structure from `_auth.feature.action.tsx` file
 
 ## User Story
 
-As a developer working on the OpenLivestock Manager codebase
+As a developer working on the LivestockAI Manager codebase
 I want routes organized in a directory-based structure
 So that I can easily navigate, maintain, and scale the routing system with better organization
 

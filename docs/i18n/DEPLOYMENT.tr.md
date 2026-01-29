@@ -1,6 +1,6 @@
 # Dağıtım Kılavuzu
 
-OpenLivestock Manager'ı üretime dağıtmak için tam kılavuz.
+LivestockAI'ı üretime dağıtmak için tam kılavuz.
 
 ---
 
@@ -17,8 +17,8 @@ OpenLivestock Manager'ı üretime dağıtmak için tam kılavuz.
 
 ```bash
 # 1. Klonla ve yükle
-git clone https://github.com/yourusername/openlivestock.git
-cd openlivestock
+git clone https://github.com/yourusername/livestockai.git
+cd livestockai
 bun install
 
 # 2. Veritabanını kur
@@ -94,7 +94,7 @@ wrangler login
 
 ```jsonc
 {
-  "name": "openlivestock-production",
+  "name": "livestockai-production",
   "main": "./.output/server/index.mjs",
   "compatibility_date": "2024-01-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -151,7 +151,7 @@ wrangler deployments list
 wrangler tail
 ```
 
-Uygulamanız şimdi şu adreste yayında: `https://openlivestock-production.your-subdomain.workers.dev`
+Uygulamanız şimdi şu adreste yayında: `https://livestockai-production.your-subdomain.workers.dev`
 
 ---
 
@@ -449,7 +449,7 @@ bun run db:migrate
 ## Destek
 
 - **Belgeleme**: [docs/INDEX.md](./INDEX.md)
-- **GitHub Sorunları**: [github.com/yourusername/openlivestock/issues](https://github.com/yourusername/openlivestock/issues)
+- **GitHub Sorunları**: [github.com/yourusername/livestockai/issues](https://github.com/yourusername/livestockai/issues)
 - **Topluluk**: [Discord/Slack bağlantısı]
 
 ---

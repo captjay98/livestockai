@@ -1,14 +1,14 @@
 ---
-description: 'Execute implementation plan with OpenLivestock-specific patterns and validation'
+description: 'Execute implementation plan with LivestockAI-specific patterns and validation'
 ---
 
 # Execute: Implement from Plan
 
-Transform an implementation plan into working code for OpenLivestock Manager.
+Transform an implementation plan into working code for LivestockAI.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Tech Stack**: TanStack Start, Kysely ORM, Neon PostgreSQL, Cloudflare Workers
 **Critical Pattern**: All database imports MUST be dynamic for Cloudflare Workers compatibility
 
@@ -297,7 +297,7 @@ bun test
 bun run test --coverage
 ```
 
-## OpenLivestock Key Tables Reference
+## LivestockAI Key Tables Reference
 
 | Table               | Purpose           | Key Columns                                             |
 | ------------------- | ----------------- | ------------------------------------------------------- |

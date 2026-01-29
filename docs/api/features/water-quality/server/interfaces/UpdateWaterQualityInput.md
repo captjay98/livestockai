@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/water-quality/server](../README.md) / UpdateWaterQualityInput
+[LivestockAI API Reference](../../../../modules.md) / [features/water-quality/server](../README.md) / UpdateWaterQualityInput
 
 # Interface: UpdateWaterQualityInput
 

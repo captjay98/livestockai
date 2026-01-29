@@ -5,7 +5,7 @@ description: Server → Service → Repository pattern for feature organization
 
 # Three-Layer Architecture
 
-OpenLivestock features follow a Server → Service → Repository pattern for clean separation of concerns.
+LivestockAI features follow a Server → Service → Repository pattern for clean separation of concerns.
 
 ## Layer Structure
 

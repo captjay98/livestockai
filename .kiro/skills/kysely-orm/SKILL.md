@@ -1,11 +1,11 @@
 ---
 name: Kysely ORM
-description: Type-safe SQL query building with Kysely in OpenLivestock
+description: Type-safe SQL query building with Kysely in LivestockAI
 ---
 
 # Kysely ORM
 
-OpenLivestock uses [Kysely](https://kysely.dev) as its type-safe SQL query builder. Kysely provides compile-time SQL validation and full TypeScript inference.
+LivestockAI uses [Kysely](https://kysely.dev) as its type-safe SQL query builder. Kysely provides compile-time SQL validation and full TypeScript inference.
 
 ## Database Types
 

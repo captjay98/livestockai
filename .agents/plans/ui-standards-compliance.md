@@ -12,7 +12,7 @@ Complete the UI standards implementation by:
 
 ## User Story
 
-As a farmer using OpenLivestock in the field
+As a farmer using LivestockAI in the field
 I want consistent visual feedback across all screens
 So that I can quickly understand sync status and data states at a glance
 

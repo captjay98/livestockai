@@ -8,7 +8,7 @@ Address all outstanding items from the UI audit to achieve full "Rugged Utility"
 
 ## User Story
 
-As a farmer using OpenLivestock
+As a farmer using LivestockAI
 I want consistent navigation and visual feedback
 So that I can quickly find features and understand data states
 

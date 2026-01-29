@@ -8,7 +8,7 @@ Automatically analyze uncommitted changes and create a structured commit plan fo
 
 ## Context
 
-**Project**: OpenLivestock Manager  
+**Project**: LivestockAI  
 **Commit Convention**: Conventional Commits (type(scope): description)  
 **Types**: feat, fix, refactor, docs, test, chore, perf, style
 

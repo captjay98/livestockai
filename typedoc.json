@@ -49,7 +49,7 @@
   "excludePrivate": true,
   "excludeProtected": true,
   "includeVersion": true,
-  "name": "OpenLivestock API Reference",
+  "name": "Livestock AI API Reference",
   "plugin": ["typedoc-rhineai-theme"],
   "theme": "typedoc-rhineai-theme",
   "skipErrorChecking": true

@@ -1,11 +1,11 @@
 ---
 name: Multi-Currency
-description: Currency settings and formatting for global users in OpenLivestock
+description: Currency settings and formatting for global users in LivestockAI
 ---
 
 # Multi-Currency
 
-OpenLivestock supports multiple currencies with user-configurable settings.
+LivestockAI supports multiple currencies with user-configurable settings.
 
 ## Supported Currencies
 

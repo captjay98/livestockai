@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation plan transforms OpenLivestock Manager into a fully offline-capable application by:
+This implementation plan transforms LivestockAI into a fully offline-capable application by:
 
 1. Configuring TanStack Query for offline-first mutations
 2. Adding optimistic updates to all mutation hooks

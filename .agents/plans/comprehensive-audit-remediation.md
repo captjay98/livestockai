@@ -6,7 +6,7 @@ The following plan consolidates findings from 3 audit reports plus independent v
 
 ## Feature Description
 
-Fix all critical security, domain logic, and performance issues identified across three comprehensive audits to make OpenLivestock production-ready.
+Fix all critical security, domain logic, and performance issues identified across three comprehensive audits to make LivestockAI production-ready.
 
 ## User Story
 
@@ -186,7 +186,7 @@ trustedOrigins: [
   'http://localhost:3001',
   'http://localhost:5173',
   // Add your production domain:
-  // 'https://app.openlivestock.com',
+  // 'https://app.livestockai.com',
 ],
 ```
 
@@ -202,11 +202,11 @@ trustedOrigins: [
 
 ```typescript
 // Line 21-22 - BEFORE:
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@openlivestock.local'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@livestockai.local'
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'password123'
 
 // AFTER:
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@openlivestock.local'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@livestockai.local'
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 
 // Add validation at start of seed() function (after line 27):

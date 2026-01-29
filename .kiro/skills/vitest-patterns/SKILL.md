@@ -1,11 +1,11 @@
 ---
 name: Vitest Patterns
-description: Unit testing patterns with Vitest in OpenLivestock
+description: Unit testing patterns with Vitest in LivestockAI
 ---
 
 # Vitest Patterns
 
-OpenLivestock uses Vitest for fast unit testing with TypeScript support.
+LivestockAI uses Vitest for fast unit testing with TypeScript support.
 
 ## Running Tests
 

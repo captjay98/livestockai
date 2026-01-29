@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / PaginatedResult
+[LivestockAI API Reference](../../../../modules.md) / [features/batches/server](../README.md) / PaginatedResult
 
 # Interface: PaginatedResult\<T\>
 

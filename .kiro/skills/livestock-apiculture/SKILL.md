@@ -1,11 +1,11 @@
 ---
 name: Livestock - Apiculture
-description: Beekeeping domain knowledge for honey production in OpenLivestock
+description: Beekeeping domain knowledge for honey production in LivestockAI
 ---
 
 # Livestock - Apiculture
 
-OpenLivestock supports beekeeping (apiculture) for honey and bee product production.
+LivestockAI supports beekeeping (apiculture) for honey and bee product production.
 
 ## Tracking Units
 

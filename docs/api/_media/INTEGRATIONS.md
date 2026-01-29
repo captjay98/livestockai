@@ -1,6 +1,6 @@
 # Integrations Guide
 
-OpenLivestock Manager uses a provider-agnostic integration system for SMS and Email notifications. This allows you to choose your preferred service provider or implement custom integrations without modifying core application code.
+LivestockAI Manager uses a provider-agnostic integration system for SMS and Email notifications. This allows you to choose your preferred service provider or implement custom integrations without modifying core application code.
 
 ---
 
@@ -426,7 +426,7 @@ import { sendSMS } from '~/features/integrations'
 
 const result = await sendSMS({
   to: '+254712345678',
-  message: 'Test message from OpenLivestock',
+  message: 'Test message from LivestockAI',
 })
 
 console.log(result) // { success: true, messageId: '...' }
@@ -484,7 +484,7 @@ export class SESProvider implements EmailProvider {
 
       const client = new SESClient({ region })
       const command = new SendEmailCommand({
-        Source: process.env.EMAIL_FROM || 'noreply@openlivestock.app',
+        Source: process.env.EMAIL_FROM || 'noreply@livestockai.app',
         Destination: { ToAddresses: [to] },
         Message: {
           Subject: { Data: subject },
@@ -797,7 +797,7 @@ expect(result.success).toBe(true)
 
 ## Contributing
 
-When adding a new provider to OpenLivestock:
+When adding a new provider to LivestockAI:
 
 1. **Create the provider** following the patterns above
 2. **Add tests** for success and error cases

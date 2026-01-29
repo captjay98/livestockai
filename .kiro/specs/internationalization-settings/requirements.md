@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This specification defines the internationalization settings feature for OpenLivestock Manager, enabling users worldwide to configure currency, date formats, units of measurement, and regional preferences. The goal is to make the application usable by farmers in any country without code changes.
+This specification defines the internationalization settings feature for LivestockAI, enabling users worldwide to configure currency, date formats, units of measurement, and regional preferences. The goal is to make the application usable by farmers in any country without code changes.
 
 ## Glossary
 

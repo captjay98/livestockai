@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/dashboard/server](../README.md) / DashboardStats
+[LivestockAI API Reference](../../../../modules.md) / [features/dashboard/server](../README.md) / DashboardStats
 
 # Interface: DashboardStats
 

@@ -6,7 +6,7 @@ Pay special attention to naming of existing utils, types, and models. Import fro
 
 ## Feature Description
 
-Implement the "Rugged Utility" UI standards defined in `.kiro/steering/ui-standards.md` to make OpenLivestock field-ready for farmers using phones in dusty conditions with dirty hands. This includes creating reusable components for touch-friendly action grids, batch context headers, health status indicators, and enhanced sync status display.
+Implement the "Rugged Utility" UI standards defined in `.kiro/steering/ui-standards.md` to make LivestockAI field-ready for farmers using phones in dusty conditions with dirty hands. This includes creating reusable components for touch-friendly action grids, batch context headers, health status indicators, and enhanced sync status display.
 
 ## User Story
 

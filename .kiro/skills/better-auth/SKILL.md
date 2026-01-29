@@ -1,11 +1,11 @@
 ---
 name: Better Auth
-description: Authentication and session management with Better Auth in OpenLivestock
+description: Authentication and session management with Better Auth in LivestockAI
 ---
 
 # Better Auth
 
-OpenLivestock uses [Better Auth](https://better-auth.com) for authentication. It provides secure session management with email/password authentication.
+LivestockAI uses [Better Auth](https://better-auth.com) for authentication. It provides secure session management with email/password authentication.
 
 ## Table Structure
 
@@ -155,7 +155,7 @@ export const Route = createFileRoute('/_auth')({
 
 ## User Roles
 
-OpenLivestock supports roles:
+LivestockAI supports roles:
 
 | Role              | Access               |
 | ----------------- | -------------------- |

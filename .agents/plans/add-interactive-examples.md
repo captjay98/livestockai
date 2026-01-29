@@ -6,7 +6,7 @@ Create an `examples/` directory with working provider implementations that devel
 
 ## User Story
 
-As a **developer integrating OpenLivestock with my preferred service**
+As a **developer integrating LivestockAI with my preferred service**
 I want to **see working code examples of custom provider implementations**
 So that **I can quickly implement my own provider without reading extensive documentation**
 

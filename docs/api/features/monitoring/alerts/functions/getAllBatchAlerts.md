@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/monitoring/alerts](../README.md) / getAllBatchAlerts
+[LivestockAI API Reference](../../../../modules.md) / [features/monitoring/alerts](../README.md) / getAllBatchAlerts
 
 # Function: getAllBatchAlerts()
 

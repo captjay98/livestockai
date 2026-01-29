@@ -6,7 +6,7 @@ Generate comprehensive API reference documentation from TypeScript code using Ty
 
 ## User Story
 
-As a **developer integrating with OpenLivestock or extending its functionality**
+As a **developer integrating with LivestockAI or extending its functionality**
 I want to **browse auto-generated API documentation for all server functions, hooks, and utilities**
 So that **I can quickly understand function signatures, parameters, return types, and usage without reading source code**
 

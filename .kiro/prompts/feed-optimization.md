@@ -9,7 +9,7 @@ Analyze feed conversion efficiency and recommend feeding program improvements.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Species**: All 6 livestock types with species-specific feed efficiency metrics
 **Currency**: Multi-currency (USD, EUR, NGN, etc.) - use user's preference
 **Database**: PostgreSQL (Neon) via Kysely ORM

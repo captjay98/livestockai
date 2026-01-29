@@ -9,7 +9,7 @@ Deep dive into cost structure and identify savings opportunities.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Species**: All 6 livestock types
 **Currency**: Multi-currency - use user preference
 

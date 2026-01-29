@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/feed/server](../README.md) / CreateFeedRecordInput
+[LivestockAI API Reference](../../../../modules.md) / [features/feed/server](../README.md) / CreateFeedRecordInput
 
 # Interface: CreateFeedRecordInput
 

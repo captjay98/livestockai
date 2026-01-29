@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../README.md)
+[**LivestockAI API Reference**](../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../modules.md) / features/structures/server
+[LivestockAI API Reference](../../../modules.md) / features/structures/server
 
 # features/structures/server
 

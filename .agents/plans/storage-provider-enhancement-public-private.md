@@ -398,13 +398,13 @@ export function ImageUpload({
   "r2_buckets": [
     {
       "binding": "PUBLIC_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-public",
-      "preview_bucket_name": "openlivestock-public-preview",
+      "bucket_name": "livestockai-public",
+      "preview_bucket_name": "livestockai-public-preview",
     },
     {
       "binding": "PRIVATE_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-private",
-      "preview_bucket_name": "openlivestock-private-preview",
+      "bucket_name": "livestockai-private",
+      "preview_bucket_name": "livestockai-private-preview",
     },
   ],
 }
@@ -419,12 +419,12 @@ export function ImageUpload({
 STORAGE_PROVIDER=local  # Options: 'r2', 's3', 'local'
 
 # R2 Configuration (Cloudflare)
-R2_PUBLIC_CDN_URL=https://cdn.openlivestock.app  # Public CDN URL
-R2_PRIVATE_URL=https://private.openlivestock.app  # Private bucket URL
+R2_PUBLIC_CDN_URL=https://cdn.livestockai.app  # Public CDN URL
+R2_PRIVATE_URL=https://private.livestockai.app  # Private bucket URL
 
 # S3 Configuration (AWS)
-S3_PUBLIC_BUCKET=openlivestock-public
-S3_PRIVATE_BUCKET=openlivestock-private
+S3_PUBLIC_BUCKET=livestockai-public
+S3_PRIVATE_BUCKET=livestockai-private
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key

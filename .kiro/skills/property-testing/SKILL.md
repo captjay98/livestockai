@@ -5,7 +5,7 @@ description: Property-based testing with fast-check for business logic validatio
 
 # Property Testing
 
-OpenLivestock uses property-based testing (PBT) with fast-check to validate business logic invariants.
+LivestockAI uses property-based testing (PBT) with fast-check to validate business logic invariants.
 
 ## What is Property Testing?
 

@@ -3,7 +3,7 @@
 ## Directory Layout
 
 ```
-OpenLivestock Manager/
+LivestockAI/
 ├── app/                          # TanStack Start application
 │   ├── components/               # Reusable UI components
 │   │   ├── ui/                   # Base UI components (shadcn/ui)

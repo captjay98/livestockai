@@ -1,11 +1,11 @@
 ---
 name: TanStack Start
-description: Server-side rendering and server functions with TanStack Start in OpenLivestock
+description: Server-side rendering and server functions with TanStack Start in LivestockAI
 ---
 
 # TanStack Start
 
-OpenLivestock uses [TanStack Start](https://tanstack.com/start) for server-side rendering (SSR) and server functions. It provides a full-stack React framework built on TanStack Router.
+LivestockAI uses [TanStack Start](https://tanstack.com/start) for server-side rendering (SSR) and server functions. It provides a full-stack React framework built on TanStack Router.
 
 ## Server Functions
 

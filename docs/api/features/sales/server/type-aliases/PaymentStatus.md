@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/sales/server](../README.md) / PaymentStatus
+[LivestockAI API Reference](../../../../modules.md) / [features/sales/server](../README.md) / PaymentStatus
 
 # Type Alias: PaymentStatus
 

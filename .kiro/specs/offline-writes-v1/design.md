@@ -2,7 +2,7 @@
 
 ## Overview
 
-Offline Writes V1 transforms OpenLivestock Manager into a fully offline-capable application by leveraging TanStack Query's built-in offline support. The implementation focuses on three key areas:
+Offline Writes V1 transforms LivestockAI into a fully offline-capable application by leveraging TanStack Query's built-in offline support. The implementation focuses on three key areas:
 
 1. **Network Mode Configuration** - Changing from `networkMode: 'online'` to `'offlineFirst'` to allow mutations to execute regardless of connectivity
 2. **Optimistic Updates** - Adding `onMutate` handlers to all mutation hooks for immediate UI feedback

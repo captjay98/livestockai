@@ -2,7 +2,7 @@
 
 ## Product Purpose
 
-OpenLivestock Manager is a comprehensive livestock management platform designed for diverse farming operations. It provides offline-first architecture with growth forecasting, financial tracking, and species-specific management tools, addressing the unique challenges of rural farming environments with unreliable internet connectivity.
+LivestockAI is a comprehensive livestock management platform designed for diverse farming operations. It provides offline-first architecture with growth forecasting, financial tracking, and species-specific management tools, addressing the unique challenges of rural farming environments with unreliable internet connectivity.
 
 The platform empowers farmers with data-driven insights for optimizing livestock production, managing costs, and maximizing profitability while maintaining detailed records for regulatory compliance.
 

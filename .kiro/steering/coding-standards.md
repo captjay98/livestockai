@@ -1,4 +1,4 @@
-# OpenLivestock Coding Standards
+# LivestockAI Coding Standards
 
 ## Three-Layer Architecture
 

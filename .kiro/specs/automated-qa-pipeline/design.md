@@ -142,17 +142,17 @@ export interface TestUser {
 
 export const testUsers: Record<string, TestUser> = {
   admin: {
-    email: 'admin@test.openlivestock.com',
+    email: 'admin@test.livestockai.com',
     password: 'TestAdmin123!',
     role: 'admin',
   },
   owner: {
-    email: 'owner@test.openlivestock.com',
+    email: 'owner@test.livestockai.com',
     password: 'TestOwner123!',
     role: 'owner',
   },
   worker: {
-    email: 'worker@test.openlivestock.com',
+    email: 'worker@test.livestockai.com',
     password: 'TestWorker123!',
     role: 'worker',
   },

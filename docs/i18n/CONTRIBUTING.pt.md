@@ -1,4 +1,4 @@
-# Contribuindo para o OpenLivestock Manager
+# Contribuindo para o LivestockAI
 
 Obrigado pelo seu interesse em contribuir! Adoramos pull requests de todos. Ao participar deste projeto, você concorda em respeitar nosso Código de Conduta e seguir nossas diretrizes de colaboração.
 
@@ -7,7 +7,7 @@ Obrigado pelo seu interesse em contribuir! Adoramos pull requests de todos. Ao p
 1.  **Fork** o repositório no GitHub.
 2.  **Clone** seu fork localmente:
     ```bash
-    git clone https://github.com/seu-usuario/open-livestock-manager.git
+    git clone https://github.com/seu-usuario/livestock-ai.git
     ```
 3.  **Crie um Branch** para seu trabalho. Usamos o formato `type/curta-descricao`:
     - `feat/add-batch-analysis`

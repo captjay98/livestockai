@@ -4,7 +4,7 @@
 
 The Feed Formulation Calculator is a sophisticated optimization tool that leverages linear programming to create cost-optimal feed recipes. The system uses the HiGHS solver compiled to WebAssembly, enabling high-performance optimization directly in Cloudflare Workers without external dependencies.
 
-The design follows OpenLivestock's three-layer architecture (Server → Service → Repository) and integrates with existing systems:
+The design follows LivestockAI's three-layer architecture (Server → Service → Repository) and integrates with existing systems:
 
 - **Feed inventory** (`feed_inventory` table) for stock levels
 - **Breeds** (`breeds` table) for species-specific data

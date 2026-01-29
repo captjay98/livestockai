@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../README.md)
+[**LivestockAI API Reference**](../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../modules.md) / lib/db/types
+[LivestockAI API Reference](../../../modules.md) / lib/db/types
 
 # lib/db/types
 

@@ -1,12 +1,12 @@
 # Testing Guide
 
-Comprehensive testing strategies for OpenLivestock Manager.
+Comprehensive testing strategies for LivestockAI Manager.
 
 ---
 
 ## Testing Philosophy
 
-OpenLivestock uses a **multi-layered testing approach**:
+LivestockAI uses a **multi-layered testing approach**:
 
 1. **Property-based tests** - Mathematical correctness (fast-check)
 2. **Unit tests** - Business logic validation (Vitest)

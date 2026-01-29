@@ -1,11 +1,11 @@
 ---
 name: Dynamic Imports
-description: Why and how to use dynamic imports in OpenLivestock server functions for Cloudflare Workers compatibility
+description: Why and how to use dynamic imports in LivestockAI server functions for Cloudflare Workers compatibility
 ---
 
 # Dynamic Imports
 
-OpenLivestock requires dynamic imports in server functions for Cloudflare Workers compatibility. This skill explains the pattern and why it's necessary.
+LivestockAI requires dynamic imports in server functions for Cloudflare Workers compatibility. This skill explains the pattern and why it's necessary.
 
 ## The Problem
 

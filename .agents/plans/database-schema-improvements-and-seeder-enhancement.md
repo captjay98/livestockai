@@ -6,11 +6,11 @@ Pay special attention to naming of existing utils types and models. Import from 
 
 ## Feature Description
 
-Improve the OpenLivestock Manager database schema by adding missing foreign key constraints, standardizing livestock type enums, and enhancing the seeder system to create more comprehensive and realistic demo data. This will ensure data integrity, prevent orphaned records, and provide better development/testing experience.
+Improve the LivestockAI Manager database schema by adding missing foreign key constraints, standardizing livestock type enums, and enhancing the seeder system to create more comprehensive and realistic demo data. This will ensure data integrity, prevent orphaned records, and provide better development/testing experience.
 
 ## User Story
 
-As a developer working on OpenLivestock Manager
+As a developer working on LivestockAI Manager
 I want a robust database schema with proper constraints and comprehensive seed data
 So that I can develop features confidently knowing data integrity is enforced and have realistic test scenarios
 

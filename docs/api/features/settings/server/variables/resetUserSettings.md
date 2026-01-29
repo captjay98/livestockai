@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/settings/server](../README.md) / resetUserSettings
+[LivestockAI API Reference](../../../../modules.md) / [features/settings/server](../README.md) / resetUserSettings
 
 # Variable: resetUserSettings
 

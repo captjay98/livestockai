@@ -2,17 +2,17 @@
 
 ## Feature Description
 
-Add Arabic (ar) language support to OpenLivestock Manager, including RTL (right-to-left) text direction handling. Arabic is spoken by 400M+ people across North Africa and the Middle East, with significant livestock markets in Egypt, Sudan, Morocco, and Algeria.
+Add Arabic (ar) language support to LivestockAI Manager, including RTL (right-to-left) text direction handling. Arabic is spoken by 400M+ people across North Africa and the Middle East, with significant livestock markets in Egypt, Sudan, Morocco, and Algeria.
 
 ## User Story
 
 As an Arabic-speaking farmer in Egypt, Sudan, or Morocco
-I want to use OpenLivestock in my native language with proper RTL layout
+I want to use LivestockAI in my native language with proper RTL layout
 So that I can manage my farm without language barriers
 
 ## Problem Statement
 
-OpenLivestock currently supports 15 languages but lacks Arabic, which is the primary language for North African livestock markets. Arabic also requires RTL text direction, which needs special handling in the UI.
+LivestockAI currently supports 15 languages but lacks Arabic, which is the primary language for North African livestock markets. Arabic also requires RTL text direction, which needs special handling in the UI.
 
 ## Solution Statement
 

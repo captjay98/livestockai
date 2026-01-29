@@ -6,7 +6,7 @@ This document defines requirements for two related features: (1) Admin GUI for m
 
 ## Glossary
 
-- **System**: The OpenLivestock Manager application
+- **System**: The LivestockAI application
 - **Admin**: A user with the global 'admin' role who can manage all system data
 - **Growth_Standards**: Reference data defining expected weight by age for each species
 - **Market_Prices**: Reference data defining current market prices by species and size category

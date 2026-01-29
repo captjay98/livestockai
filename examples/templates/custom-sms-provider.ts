@@ -1,6 +1,6 @@
 /**
  * STEP 1: Import the base contracts.
- * These ensure your provider follows the standard required by OpenLivestock.
+ * These ensure your provider follows the standard required by Livestock AI.
  */
 import type {
   ProviderResult,

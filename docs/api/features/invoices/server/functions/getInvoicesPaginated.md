@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/invoices/server](../README.md) / getInvoicesPaginated
+[LivestockAI API Reference](../../../../modules.md) / [features/invoices/server](../README.md) / getInvoicesPaginated
 
 # Function: getInvoicesPaginated()
 

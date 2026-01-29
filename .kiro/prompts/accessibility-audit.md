@@ -2,9 +2,9 @@
 description: 'Comprehensive accessibility audit for rural farmers and users with disabilities'
 ---
 
-# Accessibility Audit for OpenLivestock Manager
+# Accessibility Audit for LivestockAI
 
-🌍 Ensure OpenLivestock Manager works for all farmers, including those with disabilities, limited literacy, or using assistive technologies.
+🌍 Ensure LivestockAI works for all farmers, including those with disabilities, limited literacy, or using assistive technologies.
 
 ## Step 0: Determine Audit Scope
 

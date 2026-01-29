@@ -1,7 +1,7 @@
-# OpenLivestock Manager
+# LivestockAI
 
 <p align="center">
-  <img src="../../public/logo-icon.png" alt="OpenLivestock Logosu" width="120" />
+  <img src="../../public/logo-icon.png" alt="LivestockAI Logosu" width="120" />
 </p>
 
 <p align="center">
@@ -143,8 +143,8 @@
 ### 1. Klonla & Yükle
 
 ```bash
-git clone https://github.com/yourusername/open-livestock-manager.git
-cd open-livestock-manager
+git clone https://github.com/yourusername/livestock-ai.git
+cd livestock-ai
 bun install
 ```
 
@@ -177,16 +177,16 @@ Seeder'ı çalıştırdıktan sonra, bu varsayılan hesaplarla giriş yapabilirs
 
 #### Üretim Seeder'ı (`bun run db:seed`)
 
-| Rol      | E-posta                     | Şifre         |
-| -------- | --------------------------- | ------------- |
-| Yönetici | `admin@openlivestock.local` | `password123` |
+| Rol      | E-posta                   | Şifre         |
+| -------- | ------------------------- | ------------- |
+| Yönetici | `admin@livestockai.local` | `password123` |
 
 #### Geliştirme Seeder'ı (`bun run db:seed:dev`)
 
-| Rol      | E-posta                     | Şifre         |
-| -------- | --------------------------- | ------------- |
-| Yönetici | `admin@openlivestock.local` | `password123` |
-| Demo     | `demo@openlivestock.local`  | `demo123`     |
+| Rol      | E-posta                   | Şifre         |
+| -------- | ------------------------- | ------------- |
+| Yönetici | `admin@livestockai.local` | `password123` |
+| Demo     | `demo@livestockai.local`  | `demo123`     |
 
 **⚠️ Güvenlik Notu**: Üretim ortamlarında bu varsayılan şifreleri hemen değiştirin. Ortam değişkenleri aracılığıyla özel kimlik bilgileri ayarlayabilirsiniz:
 

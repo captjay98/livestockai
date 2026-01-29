@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This specification addresses critical bugs, form-schema mismatches, security gaps, and mobile responsiveness issues identified during the production readiness audit of the OpenLivestock application. The goal is to ensure the application is stable, secure, and provides a consistent user experience across all devices before production deployment.
+This specification addresses critical bugs, form-schema mismatches, security gaps, and mobile responsiveness issues identified during the production readiness audit of the LivestockAI application. The goal is to ensure the application is stable, secure, and provides a consistent user experience across all devices before production deployment.
 
 ## Glossary
 

@@ -1,11 +1,11 @@
 ---
 name: Feature Structure
-description: How to organize features in OpenLivestock
+description: How to organize features in LivestockAI
 ---
 
 # Feature Structure
 
-Each major feature in OpenLivestock has its own directory in `app/features/`.
+Each major feature in LivestockAI has its own directory in `app/features/`.
 
 ## Directory Layout
 

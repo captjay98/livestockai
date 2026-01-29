@@ -5,11 +5,11 @@ argument-hint: "[batch-id or 'farm' for farm-wide]"
 
 # Financial Report Generator
 
-Generate comprehensive profit and loss analysis for OpenLivestock Manager.
+Generate comprehensive profit and loss analysis for LivestockAI.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Species**: All 6 livestock types with species-specific financial metrics
 **Currency**: Multi-currency - use user preference
 **Database**: PostgreSQL (Neon) via Kysely ORM

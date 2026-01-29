@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/logging/audit](../README.md) / AuditEntityType
+[LivestockAI API Reference](../../../../modules.md) / [features/logging/audit](../README.md) / AuditEntityType
 
 # Type Alias: AuditEntityType
 

@@ -2,13 +2,13 @@
 
 ## Introduction
 
-The Reference Data Foundation feature moves hardcoded species and breed data from application constants to the database, enabling accurate breed-specific growth forecasting and laying the groundwork for future features like Dr. AI diagnostics and Feed Formulation Calculator. This foundational change transforms OpenLivestock from a generic livestock tracker to a precision farming tool with breed-specific intelligence.
+The Reference Data Foundation feature moves hardcoded species and breed data from application constants to the database, enabling accurate breed-specific growth forecasting and laying the groundwork for future features like Dr. AI diagnostics and Feed Formulation Calculator. This foundational change transforms LivestockAI from a generic livestock tracker to a precision farming tool with breed-specific intelligence.
 
 ## Glossary
 
 - **Breed**: A specific genetic line within a species (e.g., Cobb 500 is a breed of broiler chicken)
 - **Species**: A type of livestock within a module (e.g., broiler, layer, catfish, tilapia)
-- **Module**: A livestock category in OpenLivestock (poultry, aquaculture, cattle, goats, sheep, bees)
+- **Module**: A livestock category in LivestockAI (poultry, aquaculture, cattle, goats, sheep, bees)
 - **Growth_Standard**: Expected weight at a specific day/age for a species or breed
 - **FCR**: Feed Conversion Ratio - kg of feed required to produce 1kg of weight gain
 - **Source_Size**: The age/size category when livestock is acquired (e.g., day-old, fingerling, weaner)

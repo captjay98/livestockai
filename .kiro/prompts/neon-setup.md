@@ -1,5 +1,5 @@
 ---
-description: 'Complete Neon PostgreSQL setup and configuration with MCP integration for OpenLivestock Manager'
+description: 'Complete Neon PostgreSQL setup and configuration with MCP integration for LivestockAI'
 ---
 
 # Neon Database Setup & Configuration
@@ -8,7 +8,7 @@ description: 'Complete Neon PostgreSQL setup and configuration with MCP integrat
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Database**: Neon PostgreSQL (serverless)
 **ORM**: Kysely (type-safe SQL)
 **Tables**: 23 tables including batches, mortality_records, sales, expenses, notifications
@@ -146,7 +146,7 @@ neon__list_projects
 
 ```
 # Create new project
-neon__create_project "OpenLivestock-[timestamp]"
+neon__create_project "LivestockAI-[timestamp]"
 ```
 
 **If multiple projects exist:**
@@ -164,43 +164,43 @@ neon__create_project "OpenLivestock-[timestamp]"
 **Create production database:**
 
 ```
-neon__create_database "openlivestock_prod"
+neon__create_database "livestockai_prod"
 ```
 
 **Create test database:**
 
 ```
-neon__create_database "openlivestock_test"
+neon__create_database "livestockai_test"
 ```
 
 **Progress:**
 
 ```
 🔄 Creating production database... (15s)
-✅ Database: openlivestock_prod
+✅ Database: livestockai_prod
 
 🔄 Creating test database... (15s)
-✅ Database: openlivestock_test
+✅ Database: livestockai_test
 ```
 
 ### Step 4: Create Database User
 
 ```
-neon__create_user "openlivestock_user" --password [secure-generated]
+neon__create_user "livestockai_user" --password [secure-generated]
 ```
 
 **Grant permissions:**
 
 ```
-neon__run_sql "GRANT ALL PRIVILEGES ON DATABASE openlivestock_prod TO openlivestock_user"
-neon__run_sql "GRANT ALL PRIVILEGES ON DATABASE openlivestock_test TO openlivestock_user"
+neon__run_sql "GRANT ALL PRIVILEGES ON DATABASE livestockai_prod TO livestockai_user"
+neon__run_sql "GRANT ALL PRIVILEGES ON DATABASE livestockai_test TO livestockai_user"
 ```
 
 ### Step 5: Get Connection Strings
 
 ```
-neon__get_connection_string "openlivestock_prod"
-neon__get_connection_string "openlivestock_test"
+neon__get_connection_string "livestockai_prod"
+neon__get_connection_string "livestockai_test"
 ```
 
 ### Step 6: Update Environment Variables
@@ -209,10 +209,10 @@ neon__get_connection_string "openlivestock_test"
 
 ```bash
 # Production Database
-DATABASE_URL=postgresql://openlivestock_user:***@***.neon.tech/openlivestock_prod?sslmode=require
+DATABASE_URL=postgresql://livestockai_user:***@***.neon.tech/livestockai_prod?sslmode=require
 
 # Test Database
-DATABASE_URL_TEST=postgresql://openlivestock_user:***@***.neon.tech/openlivestock_test?sslmode=require
+DATABASE_URL_TEST=postgresql://livestockai_user:***@***.neon.tech/livestockai_test?sslmode=require
 
 # Auth (if not already set)
 BETTER_AUTH_SECRET=[generate-32-char-secret]
@@ -346,7 +346,7 @@ neon__run_sql "
 "
 ```
 
-**Common OpenLivestock optimizations:**
+**Common LivestockAI optimizations:**
 
 **Index for batch queries:**
 
@@ -600,5 +600,5 @@ bun run test tests/
 - **Validate state** - Check what exists before proceeding
 - **Use MCP with fallbacks** - Don't fail if MCP unavailable
 - **Provide specific commands** - Not just concepts
-- **Include OpenLivestock context** - Use domain-specific examples
+- **Include LivestockAI context** - Use domain-specific examples
 - **Test each step** - Validate before moving forward

@@ -7,7 +7,7 @@ import type {
  * Twilio SMS Provider Implementation (Core Service)
  *
  * Twilio is the global standard for cloud communications.
- * It's already the primary SMS provider for OpenLivestock.
+ * It's already the primary SMS provider for Livestock AI.
  *
  * This example demonstrates:
  * 1. POST request to Twilio's versioned REST API

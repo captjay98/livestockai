@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/settings/currency](../README.md) / parseCurrency
+[LivestockAI API Reference](../../../../modules.md) / [features/settings/currency](../README.md) / parseCurrency
 
 # Function: parseCurrency()
 

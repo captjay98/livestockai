@@ -1,8 +1,8 @@
-# OpenLivestock Product Map & Information Architecture
+# LivestockAI Product Map & Information Architecture
 
 ## Core Philosophy: "The Batch is the Boss"
 
-In OpenLivestock, the "Batch" (a group of animals) is the atomic unit of the farm.
+In LivestockAI, the "Batch" (a group of animals) is the atomic unit of the farm.
 
 - **Wrong:** A "Feed Log" page where you select a batch.
 - **Right:** A "Batch Dashboard" where you click "Log Feed."

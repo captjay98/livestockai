@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Automated QA Pipeline feature establishes a comprehensive End-to-End (E2E) testing infrastructure for OpenLivestock Manager. As the application grows with multiple livestock modules, user flows, and offline capabilities, manual testing becomes impractical and regression risks increase. This feature implements Playwright-based browser automation, visual regression testing, and CI/CD integration to ensure critical user paths remain functional across all changes.
+The Automated QA Pipeline feature establishes a comprehensive End-to-End (E2E) testing infrastructure for LivestockAI. As the application grows with multiple livestock modules, user flows, and offline capabilities, manual testing becomes impractical and regression risks increase. This feature implements Playwright-based browser automation, visual regression testing, and CI/CD integration to ensure critical user paths remain functional across all changes.
 
 ## Glossary
 

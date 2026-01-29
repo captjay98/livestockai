@@ -4,12 +4,12 @@ Systematically migrate all components to use existing i18n translations, increas
 
 ## Feature Description
 
-OpenLivestock has excellent i18n infrastructure (15 languages, 1,400+ translation keys each) but critically low adoption - only 3 of 134 .tsx files use translations. This plan migrates all 131 files with hardcoded English strings to use the existing translation keys.
+LivestockAI has excellent i18n infrastructure (15 languages, 1,400+ translation keys each) but critically low adoption - only 3 of 134 .tsx files use translations. This plan migrates all 131 files with hardcoded English strings to use the existing translation keys.
 
 ## User Story
 
 As a farmer in Nigeria, Senegal, or Kenya
-I want to use OpenLivestock in my native language (Hausa, French, Swahili)
+I want to use LivestockAI in my native language (Hausa, French, Swahili)
 So that I can manage my farm without language barriers
 
 ## Problem Statement

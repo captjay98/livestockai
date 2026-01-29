@@ -2,7 +2,7 @@
 description: 'Research and analyze competing livestock management solutions'
 ---
 
-# Competitive Analysis for OpenLivestock Manager
+# Competitive Analysis for LivestockAI
 
 🔍 Research competing livestock management solutions to identify opportunities, threats, and differentiation strategies.
 
@@ -60,7 +60,7 @@ Wait for response before proceeding.
 ### 1. Product Feature Comparison
 
 **Core Features Matrix**
-| Feature | OpenLivestock | Competitor A | Competitor B | Competitor C |
+| Feature | LivestockAI | Competitor A | Competitor B | Competitor C |
 |---------|---------------|--------------|--------------|--------------|
 | Multi-species support | ✅ | ❌ | ✅ | ❌ |
 | Offline functionality | ✅ | ❌ | ❌ | ❌ |

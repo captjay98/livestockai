@@ -1,11 +1,11 @@
 ---
 name: Neon Database
-description: Serverless PostgreSQL database patterns for OpenLivestock using Neon and Kysely ORM
+description: Serverless PostgreSQL database patterns for LivestockAI using Neon and Kysely ORM
 ---
 
 # Neon Database
 
-OpenLivestock uses [Neon](https://neon.tech) as its serverless PostgreSQL database, accessed through the Kysely query builder for type-safe SQL.
+LivestockAI uses [Neon](https://neon.tech) as its serverless PostgreSQL database, accessed through the Kysely query builder for type-safe SQL.
 
 ## Connection Pattern
 
@@ -63,13 +63,13 @@ const db = await getDb()
 
 ```bash
 # Local development (.env or .dev.vars)
-DATABASE_URL=postgres://user:pass@ep-xxx.region.neon.tech/openlivestock?sslmode=require
+DATABASE_URL=postgres://user:pass@ep-xxx.region.neon.tech/livestockai?sslmode=require
 
 # Production (Cloudflare secrets)
 wrangler secret put DATABASE_URL
 
 # Test database
-DATABASE_URL_TEST=postgres://user:pass@ep-xxx.region.neon.tech/openlivestock_test?sslmode=require
+DATABASE_URL_TEST=postgres://user:pass@ep-xxx.region.neon.tech/livestockai_test?sslmode=require
 ```
 
 ## Database Schema

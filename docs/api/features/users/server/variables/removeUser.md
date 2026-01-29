@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/users/server](../README.md) / removeUser
+[LivestockAI API Reference](../../../../modules.md) / [features/users/server](../README.md) / removeUser
 
 # Variable: removeUser
 

@@ -1,11 +1,11 @@
 ---
 name: Offline-First
-description: PWA patterns and offline functionality in OpenLivestock
+description: PWA patterns and offline functionality in LivestockAI
 ---
 
 # Offline-First
 
-OpenLivestock is designed to work offline in areas with unreliable internet connectivity.
+LivestockAI is designed to work offline in areas with unreliable internet connectivity.
 
 ## Architecture
 
@@ -30,8 +30,8 @@ The PWA manifest is in `public/manifest.json`:
 
 ```json
 {
-  "name": "OpenLivestock Manager",
-  "short_name": "OpenLivestock",
+  "name": "LivestockAI",
+  "short_name": "LivestockAI",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#10b981"

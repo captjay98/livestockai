@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/reports/server](../README.md) / ProfitLossReport
+[LivestockAI API Reference](../../../../modules.md) / [features/reports/server](../README.md) / ProfitLossReport
 
 # Interface: ProfitLossReport
 

@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](../../../../README.md)
+[**LivestockAI API Reference**](../../../../README.md)
 
 ---
 
-[OpenLivestock API Reference](../../../../modules.md) / [features/batches/server](../README.md) / getBatchById
+[LivestockAI API Reference](../../../../modules.md) / [features/batches/server](../README.md) / getBatchById
 
 # Function: getBatchById()
 

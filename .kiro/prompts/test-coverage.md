@@ -8,7 +8,7 @@ Analyze current test coverage and recommend improvements.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **Testing**: Vitest + fast-check (property-based testing)
 **Framework**: TanStack Start (React 19)
 **Database**: PostgreSQL (Neon) + Kysely ORM

@@ -8,7 +8,7 @@ Diagnose and fix offline functionality and data synchronization issues.
 
 ## Context
 
-**Project**: OpenLivestock Manager - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
+**Project**: LivestockAI - Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)
 **State**: TanStack Query + IndexedDB persistence
 **PWA**: Vite PWA plugin with service worker
 
