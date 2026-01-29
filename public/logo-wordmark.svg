@@ -3,6 +3,6 @@
         font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
         font-size="22" 
         font-weight="600">
-    <tspan fill="#171717">Open</tspan><tspan fill="#059669">Live</tspan><tspan fill="#171717">Stock</tspan>
+    <tspan fill="#171717">Livestock</tspan> <tspan fill="#10b981">AI</tspan>
   </text>
 </svg>
