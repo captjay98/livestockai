@@ -7,6 +7,7 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { AuthShell } from '~/features/auth/components/AuthShell'
+import { logger } from '~/lib/logger'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -25,8 +26,8 @@ function LoginPage() {
     setIsLoading(true)
     setError('')
 
-    console.log('[LOGIN DEBUG] Attempting login for:', email)
-    console.log('[LOGIN DEBUG] Password length:', password.length)
+    logger.debug('Attempting login', { email })
+    logger.debug('Password provided', { passwordLength: password.length })
 
     try {
       const result = await loginFn({
@@ -36,25 +37,26 @@ function LoginPage() {
         },
       })
 
-      console.log('[LOGIN DEBUG] Login result:', result)
+      logger.debug('Login successful', { result })
 
       await router.invalidate()
       window.location.href = '/dashboard'
     } catch (err: any) {
-      console.error('[LOGIN DEBUG] Login error:', err)
-      console.error('[LOGIN DEBUG] Error type:', typeof err)
-      console.error('[LOGIN DEBUG] Error keys:', Object.keys(err || {}))
-      console.error(
-        '[LOGIN DEBUG] Full error object:',
-        JSON.stringify(err, null, 2),
-      )
+      logger.error('Login failed', {
+        error: err,
+        errorType: typeof err,
+        errorKeys: Object.keys(err || {}),
+        fullError: JSON.stringify(err, null, 2),
+      })
 
       // Attempt to extract meaningful error message
       const message = err.message || err.region || 'login.errors.default'
       const errorMessage = message.includes('.') ? t(message) : message
 
-      console.error('[LOGIN DEBUG] Extracted message:', message)
-      console.error('[LOGIN DEBUG] Final error message:', errorMessage)
+      logger.error('Login error processing', {
+        extractedMessage: message,
+        finalErrorMessage: errorMessage,
+      })
 
       setError(
         message === 'Invalid email or password'

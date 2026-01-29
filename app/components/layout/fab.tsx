@@ -8,6 +8,7 @@ import {
   Wheat,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { logger } from '~/lib/logger'
 import { Button } from '~/components/ui/button'
 import {
   DropdownMenu,
@@ -39,10 +40,10 @@ export function GlobalQuickAction() {
         case 'feed':
           // navigate({ to: `/batches/${batchId}`, search: { tab: 'feed' } })
           // For now, simpler navigation, assuming we will add query params or state later
-          console.log('Log Feed for', batchId)
+          logger.debug('Log Feed action triggered', { batchId })
           break
         case 'mortality':
-          console.log('Log Mortality for', batchId)
+          logger.debug('Log Mortality action triggered', { batchId })
           break
       }
     } else {

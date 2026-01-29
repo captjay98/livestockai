@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { format as formatDate } from 'date-fns'
 import { toNumber } from '~/features/settings/currency'
+import { logger } from '~/lib/logger'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
@@ -170,7 +171,7 @@ export function SavedFormulations({
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('Failed to generate PDF:', error)
+      logger.error('Failed to generate PDF:', error)
     }
   }
 

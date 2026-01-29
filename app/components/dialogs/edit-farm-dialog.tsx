@@ -4,6 +4,7 @@ import { useRouter } from '@tanstack/react-router'
 import { Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getFarmByIdFn, updateFarmFn } from '~/features/farms/server'
+import { logger } from '~/lib/logger'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -60,7 +61,7 @@ export function EditFarmDialog({
             })
           }
         } catch (err) {
-          console.error('Failed to load farm:', err)
+          logger.error('Failed to load farm', { error: err, farmId })
           toast.error(
             t('common:errors.operationFailed', {
               defaultValue: 'Operation failed',

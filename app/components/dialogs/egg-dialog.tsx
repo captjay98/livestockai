@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
+import { logger } from '~/lib/logger'
 
 interface Batch {
   id: string
@@ -61,7 +62,7 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
         })
         setBatches(batchesData)
       } catch (err) {
-        console.error('Failed to load batches:', err)
+        logger.error('Failed to load batches:', err)
         toast.error(
           t('common:errors.operationFailed', {
             defaultValue: 'Operation failed',

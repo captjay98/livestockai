@@ -6,6 +6,7 @@ import type { ModuleKey } from '~/features/modules/types'
 import { useModules } from '~/features/modules/context'
 import { MODULE_METADATA } from '~/features/modules/constants'
 import { getSpeciesForModuleFn } from '~/features/breeds/server'
+import { logger } from '~/lib/logger'
 import { Alert, AlertDescription } from '~/components/ui/alert'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -48,7 +49,7 @@ export function ModuleSelector() {
           [expandedModule]: result,
         }))
       } catch (err) {
-        console.error('Failed to fetch species:', err)
+        logger.error('Failed to fetch species:', err)
       } finally {
         setIsLoadingSpecies(false)
       }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Bird, Fish } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { logger } from '~/lib/logger'
 import {
   Select,
   SelectContent,
@@ -47,7 +48,7 @@ export function BatchFilters({
         })
         setBreeds(result)
       } catch (err) {
-        console.error('Failed to fetch breeds for filter:', err)
+        logger.error('Failed to fetch breeds for filter:', err)
       } finally {
         setIsLoadingBreeds(false)
       }

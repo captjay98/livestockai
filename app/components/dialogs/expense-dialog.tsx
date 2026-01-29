@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
+import { logger } from '~/lib/logger'
 
 interface Supplier {
   id: string
@@ -68,7 +69,7 @@ export function ExpenseDialog({
         })
         setSuppliers(suppliersData)
       } catch (err) {
-        console.error('Failed to load suppliers:', err)
+        logger.error('Failed to load suppliers:', err)
         toast.error(
           t('common:errors.operationFailed', {
             defaultValue: 'Operation failed',

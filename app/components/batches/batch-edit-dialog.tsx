@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Breed } from '~/features/breeds/types'
 import { getBreedsForSpeciesFn } from '~/features/breeds/server'
+import { logger } from '~/lib/logger'
 import { Button } from '~/components/ui/button'
 import {
   Dialog,
@@ -75,7 +76,7 @@ export function BatchEditDialog({
           })
           setBreeds(result)
         } catch (err) {
-          console.error('Failed to fetch breeds:', err)
+          logger.error('Failed to fetch breeds:', err)
         } finally {
           setIsLoadingBreeds(false)
         }

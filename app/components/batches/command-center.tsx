@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { logger } from '~/lib/logger'
 import { Button } from '~/components/ui/button'
 import {
   Dialog,
@@ -55,7 +56,7 @@ export function BatchCommandCenter({
           <Button
             variant="outline"
             className="h-24 flex flex-col gap-2 border-blue-500/20 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/50 transition-all font-semibold"
-            onClick={() => console.log('Log Water')} // Placeholder
+            onClick={() => logger.debug('Log Water')} // Placeholder
           >
             <div className="h-10 w-10 rounded-full bg-background flex items-center justify-center shadow-sm">
               <Droplets className="h-5 w-5 text-blue-500" />
@@ -74,7 +75,7 @@ export function BatchCommandCenter({
           <Button
             variant="outline"
             className="h-20 flex flex-col gap-1 border-red-500/10 hover:bg-red-500/5 transition-all text-muted-foreground hover:text-foreground"
-            onClick={() => console.log('Log Mortality')}
+            onClick={() => logger.debug('Log Mortality')}
           >
             <HeartPulse className="h-5 w-5 text-red-500 mb-1" />
             {t('common:mortality', { defaultValue: 'Mortality' })}
@@ -82,7 +83,7 @@ export function BatchCommandCenter({
           <Button
             variant="outline"
             className="h-20 flex flex-col gap-1 hover:bg-accent transition-all text-muted-foreground hover:text-foreground"
-            onClick={() => console.log('Log Symptoms')}
+            onClick={() => logger.debug('Log Symptoms')}
           >
             <AlertTriangle className="h-5 w-5 text-yellow-500 mb-1" />
             {t('common:symptoms', { defaultValue: 'Symptoms' })}
@@ -99,7 +100,7 @@ export function BatchCommandCenter({
           <Button
             variant="outline"
             className="h-16 flex items-center justify-start px-4 gap-3"
-            onClick={() => console.log('New Sale')}
+            onClick={() => logger.debug('New Sale')}
           >
             <ShoppingCart className="h-4 w-4 text-emerald-600" />
             {t('common:newSale', { defaultValue: 'New Sale' })}
@@ -107,7 +108,7 @@ export function BatchCommandCenter({
           <Button
             variant="outline"
             className="h-16 flex items-center justify-start px-4 gap-3"
-            onClick={() => console.log('New Expense')}
+            onClick={() => logger.debug('New Expense')}
           >
             <Receipt className="h-4 w-4 text-muted-foreground" />
             {t('common:newExpense', {
@@ -148,7 +149,7 @@ export function BatchCommandCenter({
             <Button
               onClick={() => {
                 // Submit logic here
-                console.log('Submitted Feed:', feedAmount)
+                logger.debug('Submitted Feed:', feedAmount)
                 setQuickFeedOpen(false)
                 setFeedAmount(0)
               }}

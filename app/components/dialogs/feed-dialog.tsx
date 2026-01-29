@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { Wheat } from 'lucide-react'
 import type { CreateFeedRecordInput } from '~/features/feed/server'
+import { logger } from '~/lib/logger'
 import {
   FEED_TYPES,
   createFeedRecordFn,
@@ -77,7 +78,7 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
         setBatches(batchesData)
         setInventory(inventoryData)
       } catch (err) {
-        console.error('Failed to load data:', err)
+        logger.error('Failed to load data:', err)
         toast.error(
           t('common:errors.operationFailed', {
             defaultValue: 'Operation failed',

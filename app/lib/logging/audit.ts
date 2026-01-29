@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { logger } from '../logger'
 
 export type AuditAction =
   | 'create'
@@ -75,7 +76,13 @@ export async function logAudit({
       .execute()
   } catch (error) {
     // Fail silently to avoiding blocking main action?
-    console.error('Failed to create audit log:', error)
+    logger.error('Failed to create audit log', {
+      error,
+      userId,
+      action,
+      entityType,
+      entityId,
+    })
   }
 }
 

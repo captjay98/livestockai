@@ -42,6 +42,7 @@ import {
   CollapsibleTrigger,
 } from '~/components/ui/collapsible'
 import { Alert, AlertDescription } from '~/components/ui/alert'
+import { logger } from '~/lib/logger'
 
 interface BatchDialogProps {
   open: boolean
@@ -142,7 +143,7 @@ export function BatchDialog({
         })
         setSpeciesOptions(result)
       } catch (err) {
-        console.error('Failed to fetch species:', err)
+        logger.error('Failed to fetch species:', err)
         setSpeciesOptions([])
       } finally {
         setIsLoadingSpecies(false)
@@ -186,7 +187,7 @@ export function BatchDialog({
           setFormData((prev) => ({ ...prev, breedId: '' }))
         }
       } catch (err) {
-        console.error('Failed to fetch breeds:', err)
+        logger.error('Failed to fetch breeds:', err)
       } finally {
         setIsLoadingBreeds(false)
       }

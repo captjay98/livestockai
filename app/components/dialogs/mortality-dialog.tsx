@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { useFarm } from '~/features/farms/context'
+import { logger } from '~/lib/logger'
 
 type MortalityCause = MortalityTable['cause']
 
@@ -75,7 +76,7 @@ export function MortalityDialog({
           })
           setBatches(allBatches.filter((b: any) => b.status === 'active'))
         } catch (err) {
-          console.error('Failed to load batches:', err)
+          logger.error('Failed to load batches:', err)
         }
       }
     }

@@ -30,6 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
+import { logger } from '~/lib/logger'
 
 interface Batch {
   id: string
@@ -86,7 +87,7 @@ export function SaleDialog({ farmId, open, onOpenChange }: SaleDialogProps) {
         setBatches(data.batches)
         setCustomers(data.customers)
       } catch (err) {
-        console.error('Failed to load data:', err)
+        logger.error('Failed to load data:', err)
         toast.error(
           t('common:errors.operationFailed', {
             defaultValue: 'Operation failed',

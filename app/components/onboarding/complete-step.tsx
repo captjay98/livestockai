@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { ArrowRight, Check } from 'lucide-react'
 import { useOnboarding } from '~/features/onboarding/context'
+import { logger } from '~/lib/logger'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
 
@@ -36,7 +37,7 @@ export function CompleteStep() {
       await router.invalidate()
       navigate({ to: '/dashboard' })
     } catch (err) {
-      console.error('Failed to mark onboarding complete:', err)
+      logger.error('Failed to mark onboarding complete:', err)
       await router.invalidate()
       navigate({ to: '/dashboard' })
     }

@@ -24,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
+import { logger } from '~/lib/logger'
 
 interface Customer {
   id: string
@@ -82,7 +83,7 @@ export function InvoiceDialog({
           })),
         )
       } catch (err) {
-        console.error('Failed to load customers:', err)
+        logger.error('Failed to load customers:', err)
         toast.error(
           t('common:errors.operationFailed', {
             defaultValue: 'Operation failed',

@@ -13,6 +13,7 @@
 import { useCallback, useState } from 'react'
 import { useMutationState, useQueryClient } from '@tanstack/react-query'
 import { deduplicateMutationCache } from './mutation-deduplicator'
+import { logger } from './logger'
 import type { DeduplicationResult } from './mutation-deduplicator'
 
 /**
@@ -83,7 +84,7 @@ export function useDeduplicatedSync(): UseDeduplicatedSyncResult {
 
     // Log deduplication actions
     if (result.actions.length > 0) {
-      console.log('[Deduplication]', result.actions.join('; '))
+      logger.debug('Deduplication completed', { actions: result.actions })
     }
 
     // Remove deduplicated mutations from cache
