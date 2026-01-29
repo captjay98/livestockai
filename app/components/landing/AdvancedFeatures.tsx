@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import {
   Bot,
+  Calculator,
   Cpu,
   CreditCard,
   Scale,
+  ScanFace,
   ShieldCheck,
   Store,
   UserCheck,
@@ -13,19 +15,49 @@ import {
 
 const features = [
   {
-    id: 'dr-ai',
-    title: 'Dr. AI Veterinary Assistant',
-    badge: 'AI DIAGNOSTICS',
+    id: 'sentinel',
+    title: 'Farm Sentinel',
+    badge: 'MARATHON AGENT',
     description:
-      'Access expert veterinary triage instantly, anywhere. Our hybrid AI model runs locally on your device to analyze symptoms and photos, providing immediate care advice while you wait for a human vet.',
+      'An autonomous monitoring agent that runs 24/7, analyzing farm data streams, detecting anomalies, reasoning about cause-and-effect relationships, and taking corrective actions without human supervision.',
     details: [
-      'Offline-first decision tree for immediate triage',
-      'Multimodal analysis of symptoms and photos',
-      'Escalation pathway to human veterinarians',
-      'Works with poor or no internet connection',
+      'Continuous monitoring of mortality, feed, weight, water quality',
+      'Pattern recognition across multiple data streams',
+      'Causal reasoning: "Mortality spike correlates with feed batch change"',
+      'Self-correcting thresholds based on feedback',
     ],
     icon: Bot,
     color: 'emerald',
+  },
+  {
+    id: 'vision',
+    title: 'Vision Assistant',
+    badge: 'REAL-TIME TEACHER',
+    description:
+      'Point your camera at your livestock for instant health assessment, weight estimation, and adaptive guidance. Includes offline Vet Assist mode for areas with poor connectivity.',
+    details: [
+      'Live health assessment with symptom identification',
+      'Weight estimation from video analysis',
+      'Offline Vet Assist: decision tree triage without internet',
+      'Photo diagnosis queue with store-and-forward sync',
+    ],
+    icon: ScanFace,
+    color: 'cyan',
+  },
+  {
+    id: 'optimizer',
+    title: 'Farm Optimizer',
+    badge: 'VIBE ENGINEERING',
+    description:
+      "AI that doesn't just suggest - it proves. Analyzes farm performance, generates improvement strategies, then verifies them through backtesting against historical data before recommending implementation.",
+    details: [
+      'Deep analysis of farm metrics vs industry benchmarks',
+      'Strategy generation with multiple hypotheses',
+      'Backtesting against 6+ months of historical data',
+      'Verification loop with confidence intervals and rollback triggers',
+    ],
+    icon: Scale,
+    color: 'violet',
   },
   {
     id: 'passport',
@@ -40,7 +72,7 @@ const features = [
       'Privacy-preserving data sharing',
     ],
     icon: CreditCard,
-    color: 'violet',
+    color: 'indigo',
   },
   {
     id: 'feed',
@@ -54,8 +86,8 @@ const features = [
       'Customizable nutritional constraints',
       'Save and share successful formulas',
     ],
-    icon: Scale,
-    color: 'cyan',
+    icon: Calculator,
+    color: 'amber',
   },
   {
     id: 'foreman',
@@ -70,7 +102,7 @@ const features = [
       'Blind inventory counts for audit integrity',
     ],
     icon: UserCheck,
-    color: 'indigo',
+    color: 'lime',
   },
   {
     id: 'marketplace',
@@ -85,7 +117,7 @@ const features = [
       'Direct buyer-to-farmer messaging',
     ],
     icon: Store,
-    color: 'amber',
+    color: 'orange',
   },
   {
     id: 'iot',
@@ -115,7 +147,7 @@ const features = [
       'Compliance and grant tracking',
     ],
     icon: Users,
-    color: 'lime',
+    color: 'teal',
   },
 ]
 

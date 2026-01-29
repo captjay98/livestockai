@@ -7,54 +7,56 @@ import {
   Scale,
   ScanFace,
   Sparkles,
-  Users,
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import type { MouseEvent } from 'react'
 
 const ecosystems = [
   {
-    title: 'Dr. AI Assistant',
-    subtitle: 'Neural Diagnostics',
+    title: 'Farm Sentinel',
+    subtitle: 'Marathon Agent',
     description:
-      'Multimodal AI analysis of livestock symptoms. Instant triage with computer vision.',
+      'Autonomous 24/7 monitoring with causal reasoning. Detects anomalies before they become disasters.',
     icon: Bot,
     // Using semantic color mapping instead of hardcoded classes
     accent: 'primary',
-    link: '/features#dr-ai',
+    link: '/features#sentinel',
     colSpan: 'md:col-span-2 lg:col-span-2',
   },
   {
-    title: 'Credit Validation',
-    subtitle: 'DeFi Passport',
-    description: 'Cryptographic proof of solvency.',
+    title: 'Vision Assistant',
+    subtitle: 'Real-Time Teacher',
+    description:
+      'Point your camera for instant health assessment, weight estimation, and adaptive guidance.',
+    icon: ScanFace,
+    accent: 'secondary',
+    link: '/features#vision',
+    colSpan: 'md:col-span-1 lg:col-span-1',
+  },
+  {
+    title: 'Farm Optimizer',
+    subtitle: 'Vibe Engineering',
+    description:
+      'AI that backtests strategies before recommending. Verified improvements, not guesses.',
+    icon: Scale,
+    accent: 'primary',
+    link: '/features#optimizer',
+    colSpan: 'md:col-span-1 lg:col-span-1',
+  },
+  {
+    title: 'Credit Passport',
+    subtitle: 'DeFi Ready',
+    description: 'Cryptographic proof of farm performance for lenders.',
     icon: CreditCard,
     accent: 'secondary',
     link: '/features#passport',
     colSpan: 'md:col-span-1 lg:col-span-1',
   },
   {
-    title: 'Smart Feed',
-    subtitle: 'Optimization Engine',
-    description: 'Linear programming solver for least-cost nutrition.',
-    icon: Scale,
-    accent: 'primary',
-    link: '/features#feed',
-    colSpan: 'md:col-span-1 lg:col-span-1',
-  },
-  {
-    title: 'Digital Foreman',
-    subtitle: 'Staff Intelligence',
-    description: 'Behavioral analytics & GPS fencing.',
-    icon: Users,
-    accent: 'secondary',
-    link: '/features#foreman',
-    colSpan: 'md:col-span-1 lg:col-span-1',
-  },
-  {
-    title: 'IoT Neural Hub',
-    subtitle: 'Sensor Array',
-    description: 'Real-time environmental ingestion & anomaly detection.',
+    title: 'IoT Sensor Hub',
+    subtitle: 'Automation',
+    description:
+      'Connect ESP32/Arduino sensors for real-time environmental monitoring and alerts.',
     icon: Cpu,
     accent: 'primary',
     link: '/features#iot',
@@ -135,7 +137,7 @@ export function SmartEcosystemSection() {
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
               <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
-                Powered by Gemini & Nova
+                Powered by Gemini 3
               </span>
             </div>
 
