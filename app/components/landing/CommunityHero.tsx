@@ -53,7 +53,7 @@ export function CommunityHero() {
           style={{ transitionDelay: '400ms' }}
         >
           <a
-            href="https://github.com/captjay98/open-livestock-manager"
+            href="https://github.com/captjay98/livestock-ai"
             target="_blank"
             rel="noreferrer"
             className="px-8 py-4 rounded-lg bg-white dark:bg-black text-black dark:text-white font-semibold tracking-tight hover:scale-105 transition-transform border border-neutral-200 dark:border-neutral-800"

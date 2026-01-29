@@ -1,8 +1,8 @@
-# OpenLivestock Manager - System Architecture
+# LivestockAI Manager - System Architecture
 
 ## Overview
 
-OpenLivestock Manager is a full-stack livestock management platform built with TypeScript across the entire stack. It supports 6 livestock types (poultry, fish, cattle, goats, sheep, bees) with offline-first capabilities.
+LivestockAI Manager is a full-stack livestock management platform built with TypeScript across the entire stack. It supports 6 livestock types (poultry, fish, cattle, goats, sheep, bees) with offline-first capabilities.
 
 ```mermaid
 graph TD
@@ -321,7 +321,7 @@ User settings affect the entire application:
 
 ## Error Handling
 
-OpenLivestock uses a centralized `AppError` system with typed error codes:
+LivestockAI uses a centralized `AppError` system with typed error codes:
 
 ```typescript
 import { AppError } from '~/lib/errors'

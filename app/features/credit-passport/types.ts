@@ -54,4 +54,4 @@ export type ReportType =
 
 export type ReportLanguage = 'en' | 'fr' | 'sw' | 'ha'
 
-export type ReportBranding = 'openlivestock' | 'white-label'
+export type ReportBranding = 'livestockai' | 'white-label'

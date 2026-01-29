@@ -63,7 +63,7 @@ const ReportHeader: React.FC<{
       <Text style={styles.title}>{title}</Text>
       <Text>{dates}</Text>
     </View>
-    {branding === 'openlivestock' && <Text>OpenLivestock</Text>}
+    {branding === 'livestockai' && <Text>LivestockAI</Text>}
   </View>
 )
 

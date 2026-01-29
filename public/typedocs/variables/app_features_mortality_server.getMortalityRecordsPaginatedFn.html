@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>getMortalityRecordsPaginatedFn | OpenLivestock API Reference</title>
+    <title>getMortalityRecordsPaginatedFn | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -111,20 +111,166 @@
             class="tsd-signature-type"
             >undefined</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-type"
+            >ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
             class="tsd-signature-symbol"
-            >(</span
-          ><span class="tsd-kind-parameter">data</span
+            >{</span
+          ><br />            <span class="tsd-kind-property">batchId</span
           ><span class="tsd-signature-symbol">:</span>
-          <a
-            href="../interfaces/app_features_mortality_server.MortalityQuery.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >MortalityQuery</a
-          ><span class="tsd-signature-symbol">)</span>
-          <span class="tsd-signature-symbol">=&gt;</span>
-          <a
-            href="../interfaces/app_features_mortality_server.MortalityQuery.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >MortalityQuery</a
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >page</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNumber</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >pageSize</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNumber</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >search</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >sortBy</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >sortOrder</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodEnum</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-symbol">[</span
+          ><span class="tsd-signature-type">&quot;asc&quot;</span
+          ><span class="tsd-signature-symbol">,</span>
+          <span class="tsd-signature-type">&quot;desc&quot;</span
+          ><span class="tsd-signature-symbol">]</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >&quot;strip&quot;</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >ZodTypeAny</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          ><br />            <span class="tsd-kind-property">batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >page</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >pageSize</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >search</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >sortBy</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >sortOrder</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">&quot;asc&quot;</span
+          ><br />            <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;desc&quot;</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          ><br />            <span class="tsd-kind-property">batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >page</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >pageSize</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >search</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >sortBy</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >sortOrder</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">&quot;asc&quot;</span
+          ><br />            <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;desc&quot;</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-symbol"
+            >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-type"
             >Promise</span
@@ -142,8 +288,6 @@
           ><br />                <span class="tsd-kind-property">cause</span
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;other&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;disease&quot;</span
           ><br />                <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;predator&quot;</span
@@ -151,6 +295,8 @@
           <span class="tsd-signature-type">&quot;weather&quot;</span
           ><br />                <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;unknown&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;other&quot;</span
           ><br />                <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;starvation&quot;</span
           ><br />                <span class="tsd-signature-symbol">|</span>
@@ -248,7 +394,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/mortality/server.ts:443</li>
+            <li>Defined in features/mortality/server.ts:569</li>
           </ul>
         </aside>
       </div>
@@ -353,7 +499,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

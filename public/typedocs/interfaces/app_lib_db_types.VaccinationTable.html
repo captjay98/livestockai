@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>VaccinationTable | OpenLivestock API Reference</title>
+    <title>VaccinationTable | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -91,9 +91,7 @@
             <li>
               <a href="../modules/app_lib_db_types.html">app/lib/db/types</a>
             </li>
-            <li>
-              <a href="" aria-current="page">VaccinationTable</a>
-            </li>
+            <li><a href="" aria-current="page">VaccinationTable</a></li>
           </ul>
           <h1>Interface VaccinationTable</h1>
         </div>
@@ -106,6 +104,14 @@
             >batchId</a
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#certificateurl"
+            >certificateUrl</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#createdat"
@@ -154,6 +160,15 @@
           <span class="tsd-signature-type">null</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#updatedat"
+            >updatedAt</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">Generated</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">Date</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#vaccinename"
             >vaccineName</a
           ><span class="tsd-signature-symbol">:</span>
@@ -165,7 +180,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/lib/db/types.ts:394</li>
+            <li>Defined in lib/db/types.ts:521</li>
           </ul>
         </aside>
         <section class="tsd-panel-group tsd-index-group">
@@ -195,6 +210,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>batch<wbr />Id</span></a
+                    >
+                    <a href="#certificateurl" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>certificate<wbr />Url</span></a
                     >
                     <a href="#createdat" class="tsd-index-link"
                       ><svg
@@ -250,6 +274,15 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>notes</span></a
                     >
+                    <a href="#updatedat" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>updated<wbr />At</span></a
+                    >
                     <a href="#vaccinename" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -297,7 +330,31 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:396</li>
+                  <li>Defined in lib/db/types.ts:523</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="certificateurl">
+                <span>certificate<wbr />Url</span
+                ><a
+                  href="#certificateurl"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">certificateUrl</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">string</span>
+                <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">null</span>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:529</li>
                 </ul>
               </aside>
             </section>
@@ -322,7 +379,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:402</li>
+                  <li>Defined in lib/db/types.ts:530</li>
                 </ul>
               </aside>
             </section>
@@ -344,7 +401,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:398</li>
+                  <li>Defined in lib/db/types.ts:525</li>
                 </ul>
               </aside>
             </section>
@@ -366,7 +423,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:399</li>
+                  <li>Defined in lib/db/types.ts:526</li>
                 </ul>
               </aside>
             </section>
@@ -388,7 +445,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:395</li>
+                  <li>Defined in lib/db/types.ts:522</li>
                 </ul>
               </aside>
             </section>
@@ -412,7 +469,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:400</li>
+                  <li>Defined in lib/db/types.ts:527</li>
                 </ul>
               </aside>
             </section>
@@ -433,7 +490,32 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:401</li>
+                  <li>Defined in lib/db/types.ts:528</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="updatedat">
+                <span>updated<wbr />At</span
+                ><a
+                  href="#updatedat"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">updatedAt</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">Generated</span
+                ><span class="tsd-signature-symbol">&lt;</span
+                ><span class="tsd-signature-type">Date</span
+                ><span class="tsd-signature-symbol">&gt;</span>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:531</li>
                 </ul>
               </aside>
             </section>
@@ -455,7 +537,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:397</li>
+                  <li>Defined in lib/db/types.ts:524</li>
                 </ul>
               </aside>
             </section>
@@ -598,6 +680,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>batch<wbr />Id</span></a
+                  ><a href="#certificateurl"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>certificate<wbr />Url</span></a
                   ><a href="#createdat"
                     ><svg
                       class="tsd-kind-icon"
@@ -646,6 +736,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>notes</span></a
+                  ><a href="#updatedat"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>updated<wbr />At</span></a
                   ><a href="#vaccinename"
                     ><svg
                       class="tsd-kind-icon"
@@ -662,7 +760,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

@@ -1,7 +1,7 @@
 {
-  "name": "open-livestock-examples",
+  "name": "livestock-ai-examples",
   "version": "1.0.0",
-  "description": "Interactive provider examples for OpenLivestock",
+  "description": "Interactive provider examples for Livestock AI",
   "main": "index.js",
   "type": "module",
   "scripts": {

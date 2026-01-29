@@ -1,6 +1,6 @@
 # Documentation Entry Point
 
-Welcome to the OpenLivestock Documentation.
+Welcome to the LivestockAI Documentation.
 
 ## Reference
 

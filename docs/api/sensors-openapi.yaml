@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: OpenLivestock IoT Sensor Hub API
+  title: LivestockAI IoT Sensor Hub API
   description: |
     REST API for IoT sensor data ingestion and retrieval.
 
@@ -18,8 +18,8 @@ info:
     - Daily aggregates: 1 year
   version: 1.0.0
   contact:
-    name: OpenLivestock Support
-    url: https://github.com/openlivestock/manager
+    name: LivestockAI Support
+    url: https://github.com/livestockai/manager
 
 servers:
   - url: https://your-domain.workers.dev

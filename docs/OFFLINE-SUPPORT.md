@@ -1,6 +1,6 @@
 # Offline Support Guide
 
-OpenLivestock Manager is designed as an **offline-first** application, enabling farmers to continue working even in areas with unreliable internet connectivity. This document outlines which features work offline and which require an internet connection.
+LivestockAI is designed as an **offline-first** application, enabling farmers to continue working even in areas with unreliable internet connectivity. This document outlines which features work offline and which require an internet connection.
 
 ## Feature Availability Matrix
 

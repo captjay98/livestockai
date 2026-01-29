@@ -1,8 +1,8 @@
-# OpenLivestock Manager - System Architecture
+# LivestockAI Manager - System Architecture
 
 ## Overview
 
-OpenLivestock Manager is a full-stack livestock management platform built with TypeScript across the entire stack. It supports 6 livestock types (poultry, fish, cattle, goats, sheep, bees) with offline-first capabilities.
+LivestockAI Manager is a full-stack livestock management platform built with TypeScript across the entire stack. It supports 6 livestock types (poultry, fish, cattle, goats, sheep, bees) with offline-first capabilities.
 
 ```mermaid
 graph TD
@@ -79,9 +79,9 @@ graph TD
 
 ```
 app/
-├── features/              # Business logic (server functions)
+├── features/              # Business logic (three-layer architecture)
 │   ├── auth/              # Authentication
-│   ├── batches/           # Batch management
+│   ├── batches/           # Batch management (server.ts, service.ts, repository.ts)
 │   ├── sales/             # Sales & revenue
 │   ├── feed/              # Feed records
 │   ├── mortality/         # Death tracking
@@ -175,32 +175,48 @@ graph TD
 
 **Critical**: All database operations use dynamic imports for Cloudflare Workers compatibility.
 
+Features follow a three-layer architecture: **Server → Service → Repository**
+
 ```typescript
-// app/features/batches/server.ts
+// app/features/batches/server.ts - Orchestration layer
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator((data) => data)
+  .inputValidator(z.object({
+    farmId: z.string().uuid(),
+    batch: z.object({
+      batchName: z.string().min(1),
+      species: z.enum(['broiler', 'layer', 'catfish', 'tilapia', 'cattle', 'goat', 'sheep', 'bee']),
+      initialQuantity: z.number().int().positive(),
+    }),
+  }))
   .handler(async ({ data }) => {
     // 1. Auth check
     const { requireAuth } = await import('../auth/server-middleware')
     const session = await requireAuth()
 
-    // 2. Dynamic import (REQUIRED for Cloudflare)
-    const { db } = await import('~/lib/db')
+    // 2. Service layer - business logic validation
+    const { validateBatchData } = await import('./service')
+    const error = validateBatchData(data.batch)
+    if (error) throw new AppError('VALIDATION_ERROR')
 
-    // 3. Database operation
-    const result = await db
-      .insertInto('batches')
-      .values({ ...data.batch, farmId: data.farmId })
-      .returning('id')
-      .executeTakeFirstOrThrow()
+    // 3. Repository layer - database operation (use getDb for Cloudflare Workers)
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    const { insertBatch } = await import('./repository')
+    const result = await insertBatch(db, { ...data.batch, farmId: data.farmId })
 
     // 4. Audit log
     const { logAudit } = await import('../logging/audit')
     await logAudit({ userId: session.user.id, action: 'create', ... })
 
-    return result.id
+    return result
   })
 ```
+
+**Layer Responsibilities:**
+
+- **server.ts**: Auth, validation, orchestration (createServerFn)
+- **service.ts**: Pure business logic (calculations, validations)
+- **repository.ts**: Database operations (CRUD, queries)
 
 ## State Management
 
@@ -305,22 +321,70 @@ User settings affect the entire application:
 
 ## Error Handling
 
+LivestockAI uses a centralized `AppError` system with typed error codes:
+
 ```typescript
-// Server functions throw structured errors
+import { AppError } from '~/lib/errors'
+
+// Server functions throw typed errors
 .handler(async ({ data }) => {
   const batch = await getBatchById(userId, batchId)
   if (!batch) {
-    throw new Error('Batch not found')  // 404-like
+    throw new AppError('BATCH_NOT_FOUND', { metadata: { batchId } })
   }
 
   const hasAccess = await checkFarmAccess(userId, batch.farmId)
   if (!hasAccess) {
-    throw new Error('Access denied')  // 403-like
+    throw new AppError('ACCESS_DENIED', { metadata: { farmId: batch.farmId } })
   }
 
   // ... operation
 })
-````
+```
+
+**50+ Typed Error Codes:**
+- `UNAUTHORIZED`, `ACCESS_DENIED`, `FORBIDDEN`
+- `BATCH_NOT_FOUND`, `FARM_NOT_FOUND`, `USER_NOT_FOUND`
+- `VALIDATION_ERROR`, `DATABASE_ERROR`
+- All errors include metadata for debugging
+
+## Multi-Currency Support
+
+All financial displays use the user's currency preference:
+
+```typescript
+import { useFormatCurrency } from '~/features/settings'
+
+const { format: formatCurrency, symbol } = useFormatCurrency()
+
+// Displays: $1,234.56 or €1,234.56 or ₦1,234.56
+<div>{formatCurrency(amount)}</div>
+<Label>Cost ({symbol})</Label>
+```
+
+**Supported Currencies:** USD, EUR, NGN, GBP, ZAR, KES, GHS, and more
+
+**Currency Utilities:**
+- `multiply(a, b)` - Safe decimal multiplication
+- `divide(a, b)` - Safe decimal division
+- `toDbString(value)` - Convert to database format
+
+## Internationalization (i18n)
+
+15 languages with 1,005 translation keys each:
+
+```typescript
+import { useTranslation } from 'react-i18next'
+
+const { t } = useTranslation(['batches', 'common'])
+
+// Displays in user's language
+<h1>{t('title', { defaultValue: 'Livestock Batches' })}</h1>
+```
+
+**Languages:** English, Hausa, Yoruba, Igbo, French, Portuguese, Spanish, Swahili, Hindi, Turkish, Amharic, Bengali, Indonesian, Thai, Vietnamese
+
+**Total Translations:** 15,075 (1,005 keys × 15 languages)
 
 ## Testing Strategy
 
@@ -330,7 +394,7 @@ User settings affect the entire application:
 - **60,000+ assertions**
 
 ```bash
-bun test                    # Run all tests
+bun run test                    # Run all tests
 bun run check               # TypeScript + ESLint
 ```
 
@@ -345,11 +409,14 @@ Environment variables set via `wrangler secret put KEY`.
 
 ## Key Files Reference
 
-| File                           | Purpose                        |
-| ------------------------------ | ------------------------------ |
-| `app/lib/db/types.ts`          | Database TypeScript interfaces |
-| `app/lib/db/migrations/`       | Schema migrations              |
-| `app/features/*/server.ts`     | Server functions               |
-| `app/routes/_auth/*/index.tsx` | Protected pages                |
-| `app/components/dialogs/`      | Create/edit modals             |
-| `wrangler.jsonc`               | Cloudflare config              |
+| File                           | Purpose                              |
+| ------------------------------ | ------------------------------------ |
+| `app/lib/db/types.ts`          | Database TypeScript interfaces       |
+| `app/lib/db/migrations/`       | Schema migrations                    |
+| `app/features/*/server.ts`     | Server functions (orchestration)     |
+| `app/features/*/service.ts`    | Business logic (pure functions)      |
+| `app/features/*/repository.ts` | Database operations (CRUD, queries)  |
+| `app/routes/_auth/*/index.tsx` | Protected pages                      |
+| `app/components/dialogs/`      | Create/edit modals                   |
+| `wrangler.jsonc`               | Cloudflare config                    |
+````

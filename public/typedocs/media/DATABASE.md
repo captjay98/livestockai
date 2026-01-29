@@ -1,12 +1,12 @@
 # Database Guide
 
-Complete guide to the OpenLivestock database schema, migrations, and Kysely patterns.
+Complete guide to the LivestockAI database schema, migrations, and Kysely patterns.
 
 ---
 
 ## Overview
 
-OpenLivestock uses:
+LivestockAI uses:
 
 - **PostgreSQL** via Neon (serverless)
 - **Kysely** for type-safe queries

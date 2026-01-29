@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>getInvoicesPaginated | OpenLivestock API Reference</title>
+    <title>getInvoicesPaginated | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/invoices/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">getInvoicesPaginated</a>
-            </li>
+            <li><a href="" aria-current="page">getInvoicesPaginated</a></li>
           </ul>
           <h1>Function getInvoicesPaginated</h1>
         </div>
@@ -109,12 +107,14 @@
                 <span class="tsd-kind-call-signature">getInvoicesPaginated</span
                 ><span class="tsd-signature-symbol">(</span><br />    <span
                   class="tsd-kind-parameter"
+                  >userId</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">string</span
+                ><span class="tsd-signature-symbol">,</span><br />    <span
+                  class="tsd-kind-parameter"
                   >query</span
                 ><span class="tsd-signature-symbol">?:</span>
-                <a
-                  href="../interfaces/app_features_invoices_server.InvoiceQuery.html"
-                  class="tsd-signature-type tsd-kind-interface"
-                  >InvoiceQuery</a
+                <span class="tsd-signature-type">InvoiceQuery</span
                 ><span class="tsd-signature-symbol">,</span><br /><span
                   class="tsd-signature-symbol"
                   >)</span
@@ -212,11 +212,17 @@
                   <ul class="tsd-parameter-list">
                     <li>
                       <span
+                        ><span class="tsd-kind-parameter">userId</span>:
+                        <span class="tsd-signature-type">string</span></span
+                      >
+                      <div class="tsd-comment tsd-typography">
+                        <p>ID of the user requesting invoices</p>
+                      </div>
+                    </li>
+                    <li>
+                      <span
                         ><span class="tsd-kind-parameter">query</span>:
-                        <a
-                          href="../interfaces/app_features_invoices_server.InvoiceQuery.html"
-                          class="tsd-signature-type tsd-kind-interface"
-                          >InvoiceQuery</a
+                        <span class="tsd-signature-type">InvoiceQuery</span
                         ><span class="tsd-signature-symbol"> = {}</span></span
                       >
                       <div class="tsd-comment tsd-typography">
@@ -226,8 +232,7 @@
                   </ul>
                 </div>
                 <h4 class="tsd-returns-title">
-                  Returns
-                  <span class="tsd-signature-type">Promise</span
+                  Returns <span class="tsd-signature-type">Promise</span
                   ><span class="tsd-signature-symbol">&lt;</span><br />    <span
                     class="tsd-signature-symbol"
                     >{</span
@@ -303,7 +308,7 @@
                 <p>Promise resolving to a paginated set of invoice records</p>
                 <aside class="tsd-sources">
                   <ul>
-                    <li>Defined in app/features/invoices/server.ts:324</li>
+                    <li>Defined in features/invoices/server.ts:416</li>
                   </ul>
                 </aside>
               </div>
@@ -412,7 +417,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

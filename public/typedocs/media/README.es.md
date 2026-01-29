@@ -1,7 +1,7 @@
-# OpenLivestock Manager
+# LivestockAI
 
 <p align="center">
-  <img src="../../public/logo-icon.png" alt="Logo de OpenLivestock" width="120" />
+  <img src="../../public/logo-icon.png" alt="Logo de LivestockAI" width="120" />
 </p>
 
 <p align="center">
@@ -143,8 +143,8 @@
 ### 1. Clonar & Instalar
 
 ```bash
-git clone https://github.com/yourusername/open-livestock-manager.git
-cd open-livestock-manager
+git clone https://github.com/yourusername/livestock-ai.git
+cd livestock-ai
 bun install
 ```
 
@@ -177,16 +177,16 @@ Después de ejecutar el seeder, puede iniciar sesión con estas cuentas predeter
 
 #### Seeder de Producción (`bun run db:seed`)
 
-| Rol   | Correo electrónico          | Contraseña    |
-| ----- | --------------------------- | ------------- |
-| Admin | `admin@openlivestock.local` | `password123` |
+| Rol   | Correo electrónico        | Contraseña    |
+| ----- | ------------------------- | ------------- |
+| Admin | `admin@livestockai.local` | `password123` |
 
 #### Seeder de Desarrollo (`bun run db:seed:dev`)
 
-| Rol   | Correo electrónico          | Contraseña    |
-| ----- | --------------------------- | ------------- |
-| Admin | `admin@openlivestock.local` | `password123` |
-| Demo  | `demo@openlivestock.local`  | `demo123`     |
+| Rol   | Correo electrónico        | Contraseña    |
+| ----- | ------------------------- | ------------- |
+| Admin | `admin@livestockai.local` | `password123` |
+| Demo  | `demo@livestockai.local`  | `demo123`     |
 
 **⚠️ Nota de Seguridad**: Cambie estas contraseñas predeterminadas inmediatamente en entornos de producción. Puede establecer credenciales personalizadas a través de variables de entorno:
 
@@ -353,7 +353,7 @@ Vea [../.kiro/README.md](../.kiro/README.md) para la documentación completa.
 | --------------------- | ------------------------------------------------- |
 | `bun dev`             | Iniciar servidor de desarrollo                    |
 | `bun build`           | Construir para producción                         |
-| `bun test`            | Ejecutar pruebas                                  |
+| `bun run test`        | Ejecutar pruebas                                  |
 | `bun run lint`        | Ejecutar ESLint                                   |
 | `bun run check`       | Formatear + lint                                  |
 | `bun run db:migrate`  | Ejecutar migraciones de base de datos             |

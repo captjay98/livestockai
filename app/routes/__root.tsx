@@ -33,7 +33,7 @@ export const Route = createRootRoute({
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Error - OpenLivestock</title>
+        <title>Error - LivestockAI</title>
         <link rel="stylesheet" href={appCss} />
       </head>
       <body>
@@ -114,7 +114,7 @@ function RootComponent() {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{import.meta.env.VITE_APP_NAME ?? 'OpenLivestock'}</title>
+        <title>{import.meta.env.VITE_APP_NAME ?? 'LivestockAI'}</title>
         <HeadContent />
       </head>
       <body suppressHydrationWarning>

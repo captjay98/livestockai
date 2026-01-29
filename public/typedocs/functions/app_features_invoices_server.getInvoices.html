@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>getInvoices | OpenLivestock API Reference</title>
+    <title>getInvoices | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -102,68 +102,21 @@
             <li class="">
               <div class="tsd-signature tsd-anchor-link" id="getinvoices">
                 <span class="tsd-kind-call-signature">getInvoices</span
-                ><span class="tsd-signature-symbol">(</span><br />    <span
-                  class="tsd-kind-parameter"
-                  >farmId</span
+                ><span class="tsd-signature-symbol">(</span
+                ><span class="tsd-kind-parameter">userId</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">string</span
+                ><span class="tsd-signature-symbol">,</span>
+                <span class="tsd-kind-parameter">farmId</span
                 ><span class="tsd-signature-symbol">?:</span>
                 <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">,</span><br /><span
-                  class="tsd-signature-symbol"
-                  >)</span
+                ><span class="tsd-signature-symbol">)</span
                 ><span class="tsd-signature-symbol">:</span>
                 <span class="tsd-signature-type">Promise</span
-                ><span class="tsd-signature-symbol">&lt;</span><br />    <span
-                  class="tsd-signature-symbol"
-                  >{</span
-                ><br />        <span class="tsd-kind-property"
-                  >customerName</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >date</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">Date</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >dueDate</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">Date</span><br />        <span
-                  class="tsd-signature-symbol"
-                  >|</span
-                >
-                <span class="tsd-signature-type">null</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >id</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >invoiceNumber</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >status</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">&quot;paid&quot;</span>
-                <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;partial&quot;</span>
-                <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;unpaid&quot;</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >totalAmount</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />    <span
-                  class="tsd-signature-symbol"
-                  >}</span
+                ><span class="tsd-signature-symbol">&lt;</span
+                ><span class="tsd-signature-type">InvoiceWithCustomer</span
                 ><span class="tsd-signature-symbol">[]</span
-                ><span class="tsd-signature-symbol">,</span><br /><span
-                  class="tsd-signature-symbol"
-                  >&gt;</span
+                ><span class="tsd-signature-symbol">&gt;</span
                 ><a
                   href="#getinvoices"
                   aria-label="Permalink"
@@ -181,6 +134,15 @@
                   <ul class="tsd-parameter-list">
                     <li>
                       <span
+                        ><span class="tsd-kind-parameter">userId</span>:
+                        <span class="tsd-signature-type">string</span></span
+                      >
+                      <div class="tsd-comment tsd-typography">
+                        <p>ID of the user requesting invoices</p>
+                      </div>
+                    </li>
+                    <li>
+                      <span
                         ><code class="tsd-tag">Optional</code
                         ><span class="tsd-kind-parameter">farmId</span>:
                         <span class="tsd-signature-type">string</span></span
@@ -192,62 +154,18 @@
                   </ul>
                 </div>
                 <h4 class="tsd-returns-title">
-                  Returns
-                  <span class="tsd-signature-type">Promise</span
-                  ><span class="tsd-signature-symbol">&lt;</span><br />    <span
-                    class="tsd-signature-symbol"
-                    >{</span
-                  ><br />        <span class="tsd-kind-property"
-                    >customerName</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">date</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">Date</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">dueDate</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">Date</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">null</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">id</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property"
-                    >invoiceNumber</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">status</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">&quot;paid&quot;</span>
-                  <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;partial&quot;</span>
-                  <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;unpaid&quot;</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property"
-                    >totalAmount</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span><br />    <span
-                    class="tsd-signature-symbol"
-                    >}</span
+                  Returns <span class="tsd-signature-type">Promise</span
+                  ><span class="tsd-signature-symbol">&lt;</span
+                  ><span class="tsd-signature-type">InvoiceWithCustomer</span
                   ><span class="tsd-signature-symbol">[]</span
-                  ><span class="tsd-signature-symbol">,</span><br /><span
-                    class="tsd-signature-symbol"
-                    >&gt;</span
-                  >
+                  ><span class="tsd-signature-symbol">&gt;</span>
                 </h4>
                 <p>
                   Promise resolving to an array of invoices with customer names
                 </p>
                 <aside class="tsd-sources">
                   <ul>
-                    <li>Defined in app/features/invoices/server.ts:152</li>
+                    <li>Defined in features/invoices/server.ts:186</li>
                   </ul>
                 </aside>
               </div>
@@ -356,7 +274,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

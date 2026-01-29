@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>usePreferences | OpenLivestock API Reference</title>
+    <title>usePreferences | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/settings/hooks</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">usePreferences</a>
-            </li>
+            <li><a href="" aria-current="page">usePreferences</a></li>
           </ul>
           <h1>Function usePreferences</h1>
         </div>
@@ -122,6 +120,8 @@
                   class="tsd-signature-symbol"
                   >|</span
                 >
+                <span class="tsd-signature-type">&quot;id&quot;</span
+                ><br />        <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;en&quot;</span
                 ><br />        <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;ha&quot;</span
@@ -141,13 +141,21 @@
                 <span class="tsd-signature-type">&quot;hi&quot;</span
                 ><br />        <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;tr&quot;</span
+                ><br />        <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">&quot;bn&quot;</span
+                ><br />        <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">&quot;th&quot;</span
+                ><br />        <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">&quot;vi&quot;</span
+                ><br />        <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">&quot;am&quot;</span
                 ><span class="tsd-signature-symbol">;</span><br />    <span
                   class="tsd-kind-property"
                   >theme</span
                 ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">&quot;dark&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;light&quot;</span
+                ><br />    <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">&quot;dark&quot;</span
                 ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;system&quot;</span
                 ><span class="tsd-signature-symbol">;</span><br /><span
@@ -166,10 +174,8 @@
                   <p>Hook for accessing general user preferences</p>
                 </div>
                 <h4 class="tsd-returns-title">
-                  Returns
-                  <span class="tsd-signature-symbol">{</span><br />    <span
-                    class="tsd-kind-property"
-                    >defaultFarmId</span
+                  Returns <span class="tsd-signature-symbol">{</span
+                  ><br />    <span class="tsd-kind-property">defaultFarmId</span
                   ><span class="tsd-signature-symbol">:</span>
                   <span class="tsd-signature-type">string</span>
                   <span class="tsd-signature-symbol">|</span>
@@ -178,6 +184,8 @@
                     class="tsd-kind-property"
                     >language</span
                   ><span class="tsd-signature-symbol">:</span
+                  ><br />        <span class="tsd-signature-symbol">|</span>
+                  <span class="tsd-signature-type">&quot;id&quot;</span
                   ><br />        <span class="tsd-signature-symbol">|</span>
                   <span class="tsd-signature-type">&quot;en&quot;</span
                   ><br />        <span class="tsd-signature-symbol">|</span>
@@ -198,13 +206,21 @@
                   <span class="tsd-signature-type">&quot;hi&quot;</span
                   ><br />        <span class="tsd-signature-symbol">|</span>
                   <span class="tsd-signature-type">&quot;tr&quot;</span
+                  ><br />        <span class="tsd-signature-symbol">|</span>
+                  <span class="tsd-signature-type">&quot;bn&quot;</span
+                  ><br />        <span class="tsd-signature-symbol">|</span>
+                  <span class="tsd-signature-type">&quot;th&quot;</span
+                  ><br />        <span class="tsd-signature-symbol">|</span>
+                  <span class="tsd-signature-type">&quot;vi&quot;</span
+                  ><br />        <span class="tsd-signature-symbol">|</span>
+                  <span class="tsd-signature-type">&quot;am&quot;</span
                   ><span class="tsd-signature-symbol">;</span><br />    <span
                     class="tsd-kind-property"
                     >theme</span
                   ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">&quot;dark&quot;</span
-                  ><br />    <span class="tsd-signature-symbol">|</span>
                   <span class="tsd-signature-type">&quot;light&quot;</span
+                  ><br />    <span class="tsd-signature-symbol">|</span>
+                  <span class="tsd-signature-type">&quot;dark&quot;</span
                   ><br />    <span class="tsd-signature-symbol">|</span>
                   <span class="tsd-signature-type">&quot;system&quot;</span
                   ><span class="tsd-signature-symbol">;</span><br /><span
@@ -215,7 +231,7 @@
                 <p>Object containing defaultFarmId, language, and theme</p>
                 <aside class="tsd-sources">
                   <ul>
-                    <li>Defined in app/features/settings/hooks.ts:235</li>
+                    <li>Defined in features/settings/hooks.ts:235</li>
                   </ul>
                 </aside>
               </div>
@@ -324,7 +340,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

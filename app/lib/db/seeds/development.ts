@@ -1,5 +1,5 @@
 /**
- * Development/Demo Farm Seeder - OpenLivestock Manager
+ * Development/Demo Farm Seeder - LivestockAI Manager
  *
  * Creates 5 realistic Nigerian farms showcasing all 6 livestock types:
  * 1. Sunrise Poultry Farm (Kaduna) - Poultry only
@@ -71,7 +71,7 @@ const pickPayment = () => {
 
 // ============ MAIN SEED ============
 export async function seedDev() {
-  console.log('🌱 Seeding OpenLivestock Demo Data (5 Nigerian Farms)\n')
+  console.log('🌱 Seeding LivestockAI Demo Data (5 Nigerian Farms)\n')
   console.log(`📅 Reference date: ${TODAY.toISOString().split('T')[0]}\n`)
 
   try {
@@ -118,7 +118,7 @@ export async function seedDev() {
     // ============ USER ============
     console.log('👤 Creating farm owner...')
     const user = await createUserWithAuth(db, {
-      email: 'admin@openlivestock.local',
+      email: 'admin@livestockai.local',
       password: 'password123',
       name: 'Farm Administrator',
       role: 'admin',
@@ -1514,7 +1514,7 @@ export async function seedDev() {
     console.log('  - New structures: tarpaulin ponds, kraal, hives')
     console.log('  - New sale units: head, liter, kg, colony')
     console.log('  - Nigerian payment methods (60% mobile_money)')
-    console.log('\n🔐 Login: admin@openlivestock.local / password123\n')
+    console.log('\n🔐 Login: admin@livestockai.local / password123\n')
   } catch (error) {
     console.error('❌ Seeding failed:', error)
     throw error

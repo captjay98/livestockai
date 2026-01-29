@@ -1,4 +1,4 @@
-# OpenLivestock × Gemini 3 Hackathon Strategy
+# LivestockAI × Gemini 3 Hackathon Strategy
 
 > **Hackathon**: Google DeepMind Gemini 3 Global Hackathon  
 > **Theme**: The Action Era - Autonomous Agents that Plan & Execute  
@@ -8,11 +8,11 @@
 
 ## Executive Summary
 
-We're building **three interconnected AI systems** that transform OpenLivestock from a record-keeping app into an **autonomous farm intelligence platform**. Each system targets a different hackathon track while sharing a unified data layer.
+We're building **three interconnected AI systems** that transform LivestockAI from a record-keeping app into an **autonomous farm intelligence platform**. Each system targets a different hackathon track while sharing a unified data layer.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    OPENLIVESTOCK AI PLATFORM                        │
+│                    LIVESTOCKAI AI PLATFORM                        │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐            │
@@ -843,7 +843,7 @@ Given hackathon time constraints, recommended build order:
 
 **2-minute pitch:**
 
-"OpenLivestock started as a record-keeping app for farmers. Today, we're showing you how Gemini 3 transforms it into an autonomous farm intelligence platform.
+"LivestockAI started as a record-keeping app for farmers. Today, we're showing you how Gemini 3 transforms it into an autonomous farm intelligence platform.
 
 [Show Vision Assistant - Live Mode]
 Watch as I point my camera at this flock. Gemini 3 Flash doesn't just count birds - it identifies the 3 showing early disease symptoms, correlates with our batch data, and creates an isolation task. Real-time understanding, not just detection.

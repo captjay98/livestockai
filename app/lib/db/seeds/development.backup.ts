@@ -1,5 +1,5 @@
 /**
- * Development/Demo Farm Seeder - OpenLivestock Manager
+ * Development/Demo Farm Seeder - LivestockAI Manager
  *
  * Creates realistic demo data for a mixed poultry/aquaculture farm.
  * All data is randomized within realistic ranges with dynamic dates.
@@ -67,7 +67,7 @@ const addDays = (date: Date, days: number) =>
 
 // ============ MAIN SEED ============
 export async function seedDev() {
-  console.log('🌱 Seeding OpenLivestock Demo Data\n')
+  console.log('🌱 Seeding LivestockAI Demo Data\n')
   console.log(`📅 Reference date: ${TODAY.toISOString().split('T')[0]}\n`)
 
   try {
@@ -108,7 +108,7 @@ export async function seedDev() {
     // This creates both users and account entries with proper password hashing
     // Reference: https://www.better-auth.com/docs/concepts/users-accounts
     const result = await createUserWithAuth(db, {
-      email: 'admin@openlivestock.local',
+      email: 'admin@livestockai.local',
       password: 'password123',
       name: 'Farm Administrator',
       role: 'admin',
@@ -1929,7 +1929,7 @@ export async function seedDev() {
     const totalFishRevenue = f1TotalAmount
 
     console.log('═'.repeat(60))
-    console.log('🎉 OPENLIVESTOCK DEMO SEED COMPLETE!')
+    console.log('🎉 LIVESTOCKAI DEMO SEED COMPLETE!')
     console.log('═'.repeat(60))
     console.log('\n📊 Farm Summary:')
     console.log('   🏠 Structures: 2 broiler houses, 2 fish ponds')
@@ -1962,7 +1962,7 @@ export async function seedDev() {
     console.log('\n🔮 Growth & Markets:')
     console.log('   • Imported Cobb500 & Catfish Growth Standards')
     console.log('   • Updated Market Prices')
-    console.log('\n🔐 Login: admin@openlivestock.local / password123\n')
+    console.log('\n🔐 Login: admin@livestockai.local / password123\n')
   } catch (error) {
     console.error('❌ Seed failed:', error)
     throw error

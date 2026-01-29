@@ -1,6 +1,6 @@
-# OpenLivestock Manager - Kiro CLI Configuration
+# LivestockAI - Kiro CLI Configuration
 
-This directory contains the Kiro CLI configuration for OpenLivestock Manager, including custom agents, prompts, steering documents, and automation hooks.
+This directory contains the Kiro CLI configuration for LivestockAI, including custom agents, prompts, steering documents, and automation hooks.
 
 ## Quick Start
 
@@ -61,17 +61,17 @@ kiro-cli --agent backend-engineer
 
 Each agent has specific tools, write permissions, and MCP access:
 
-| Agent                  | Write Paths                                                                                                | MCP Access       | Key Tools                                      |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------- |
-| `fullstack-engineer`   | `app/**`, `tests/**`, `*.md`, `.kiro/**`                                                                   | Neon             | code, web_search, knowledge, todo_list         |
-| `livestock-specialist` | `app/lib/monitoring/**`, `app/lib/batches/**`, `app/lib/growth/**`, `app/lib/health/**`, `app/lib/feed/**` | Neon             | web_search, knowledge, todo_list               |
-| `backend-engineer`     | `app/lib/**`, `app/routes/api/**`, `*.md`                                                                  | Neon             | code, web_search, knowledge, todo_list         |
-| `frontend-engineer`    | `app/components/**`, `app/routes/**`, `*.md`                                                               | -                | code, web_search, knowledge, todo_list         |
-| `devops-engineer`      | `wrangler.jsonc`, `.github/**`, `.kiro/**`, `.env*`, `package.json`                                        | Neon, Cloudflare | wrangler, web_search, knowledge, todo_list     |
-| `data-analyst`         | `app/lib/reports/**`, `app/lib/monitoring/**`, `app/lib/analytics/**`                                      | Neon             | web_search, execute_bash, knowledge, todo_list |
-| `qa-engineer`          | `app/**/*.test.ts`, `tests/**`, `*.md`                                                                     | -                | code, web_search, knowledge, todo_list         |
-| `security-engineer`    | `app/lib/auth/**`, `app/routes/_auth.tsx`                                                                  | -                | code, web_search, knowledge, todo_list         |
-| `i18n-engineer`        | `app/lib/i18n/**`, `public/locales/**`, `app/routes/**`                                                    | -                | web_search, knowledge, todo_list               |
+| Agent                  | Write Paths                                                                                                                         | MCP Access       | Key Tools                                      |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------- |
+| `fullstack-engineer`   | `app/**`, `tests/**`, `*.md`, `.kiro/**`                                                                                            | Neon             | code, web_search, knowledge, todo_list         |
+| `livestock-specialist` | `app/features/monitoring/**`, `app/features/batches/**`, `app/features/growth/**`, `app/features/health/**`, `app/features/feed/**` | Neon             | web_search, knowledge, todo_list               |
+| `backend-engineer`     | `app/features/**`, `app/lib/**`, `*.md`                                                                                             | Neon             | code, web_search, knowledge, todo_list         |
+| `frontend-engineer`    | `app/components/**`, `app/routes/**`, `*.md`                                                                                        | -                | code, web_search, knowledge, todo_list         |
+| `devops-engineer`      | `wrangler.jsonc`, `.github/**`, `.kiro/**`, `.env*`, `package.json`                                                                 | Neon, Cloudflare | wrangler, web_search, knowledge, todo_list     |
+| `data-analyst`         | `app/features/reports/**`, `app/features/monitoring/**`, `app/features/analytics/**`                                                | Neon             | web_search, execute_bash, knowledge, todo_list |
+| `qa-engineer`          | `app/**/*.test.ts`, `tests/**`, `*.md`                                                                                              | -                | code, web_search, knowledge, todo_list         |
+| `security-engineer`    | `app/features/auth/**`, `app/routes/_auth.tsx`                                                                                      | -                | code, web_search, knowledge, todo_list         |
+| `i18n-engineer`        | `app/features/i18n/**`, `public/locales/**`, `app/routes/**`                                                                        | -                | web_search, knowledge, todo_list               |
 
 **Recommended Agent Selection:**
 
@@ -79,6 +79,25 @@ Each agent has specific tools, write permissions, and MCP access:
 - **Domain questions**: Use `livestock-specialist`
 - **Deployment/infra**: Use `devops-engineer`
 - **Specialized work**: Use the specific agent (backend, frontend, qa, etc.)
+
+### Agent Delegation Pattern
+
+**All agents are delegation-aware** - they recognize when work is better suited to another specialist and delegate accordingly.
+
+**Two delegation patterns:**
+
+1. **Information Gathering**: Quick questions to another domain
+2. **Task Delegation**: Complex work delegated to specialist, then integrated
+
+**See**: [Agent Delegation Pattern](.kiro/docs/agent-delegation-pattern.md) | [Quick Reference](.kiro/docs/agent-delegation-quick-ref.md)
+
+**Example:**
+
+```
+Frontend Agent: "This needs DB migrations - delegating to backend-engineer"
+Backend Agent: [Creates migration and repository functions]
+Frontend Agent: [Integrates new API into components]
+```
 
 ### Universal Agent Tools
 
@@ -106,7 +125,7 @@ kiro-cli --agent backend-engineer
 
 # Agent responds with:
 # ⚙️ Backend Engineer ready.
-# M app/lib/batches/server.ts
+# M app/features/batches/server.ts
 # M app/routes/api/batches.ts
 
 # Then you can ask:
@@ -304,7 +323,7 @@ Create a JSON file in `.kiro/agents/`:
 ## Resources
 
 - [Kiro CLI Documentation](https://kiro.dev/docs/cli)
-- [OpenLivestock Manager README](../README.md)
+- [LivestockAI README](../README.md)
 - [AGENTS.md](../AGENTS.md) - AI agent development guide
 - [DEVLOG.md](../DEVLOG.md) - Development timeline
 

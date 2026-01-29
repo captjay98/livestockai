@@ -1,6 +1,6 @@
-# Development Log - OpenLivestock Manager
+# Development Log - LivestockAI
 
-**Project**: OpenLivestock Manager  
+**Project**: LivestockAI (formerly OpenLivestock Manager)  
 **Duration**: January 7, 2026 - Present  
 **Developer**: Jamal Ibrahim Umar  
 **Tech Stack**: TanStack Start, React 19, PostgreSQL (Neon), Kysely ORM, Cloudflare Workers
@@ -9,7 +9,9 @@
 
 ## Project Overview
 
-OpenLivestock Manager is an open-source, offline-first livestock management platform supporting 6 livestock types (poultry, fish, cattle, goats, sheep, bees) in 15 languages. The application helps farmers track batches, monitor growth, manage finances, and make data-driven decisions—even in areas with unreliable internet connectivity.
+LivestockAI is an offline-first livestock management platform supporting 6 livestock types (poultry, fish, cattle, goats, sheep, bees) in 15 languages. The application helps farmers track batches, monitor growth, manage finances, and make data-driven decisions—even in areas with unreliable internet connectivity.
+
+> **Note**: This project was originally named "OpenLivestock Manager" and was open-source. It was rebranded to "LivestockAI" in January 2026. Historical entries in this log may reference the old name.
 
 ---
 

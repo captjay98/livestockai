@@ -1,4 +1,4 @@
-# Hackathon Demo Script: OpenLivestock Manager
+# Hackathon Demo Script: LivestockAI Manager
 
 **Target Duration**: 3:30 - 4:00 Minutes
 **Goal**: Demonstrate how the Kiro CLI enabled a single developer to build a "production-grade" livestock OS in record time.
@@ -9,7 +9,7 @@
 
 | Timestamp       | Visual Content                                            | Audio / Narrative Focus                                                                                                                                                              |
 | :-------------- | :-------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **0:00 - 0:30** | Intro slide + quick mobile PWA screen.                    | **The Problem**: 2 billion people rely on livestock, yet most are unbanked and offline. We built OpenLivestock to bring "Agentic Intelligence" to the edge.                          |
+| **0:00 - 0:30** | Intro slide + quick mobile PWA screen.                    | **The Problem**: 2 billion people rely on livestock, yet most are unbanked and offline. We built LivestockAI to bring "Agentic Intelligence" to the edge.                            |
 | **0:30 - 1:00** | Dashboard demo (Stats, Charts).                           | **The Solution**: An offline-first PWA running on Cloudflare Workers. 6 species supported, 15 languages out of the box. Fully functional even deep in the field.                     |
 | **1:00 - 1:45** | **The Kiro Workflow**: Open VS Code, show `.kiro/specs/`. | **The "Secret Sauce"**: We didn't just "prompt" this app. We used Kiro to orchestrate 9 specialized agents. Show a spec like `intelligent-forecasting.md` and how it maps to code.   |
 | **1:45 - 2:30** | Screen recording of a Kiro interaction.                   | **Agentic Delegation**: Show how we delegated a complex task (e.g., mortality rate logic) to a `backend-specialist` agent using the `kit` command. Demonstrate the 75% time savings. |

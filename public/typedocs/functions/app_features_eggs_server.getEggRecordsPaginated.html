@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>getEggRecordsPaginated | OpenLivestock API Reference</title>
+    <title>getEggRecordsPaginated | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/eggs/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">getEggRecordsPaginated</a>
-            </li>
+            <li><a href="" aria-current="page">getEggRecordsPaginated</a></li>
           </ul>
           <h1>Function getEggRecordsPaginated</h1>
         </div>
@@ -126,101 +124,15 @@
                   >)</span
                 ><span class="tsd-signature-symbol">:</span>
                 <span class="tsd-signature-type">Promise</span
-                ><span class="tsd-signature-symbol">&lt;</span><br />    <span
-                  class="tsd-signature-symbol"
-                  >{</span
-                ><br />        <span class="tsd-kind-property">data</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-symbol">{</span
-                ><br />            <span class="tsd-kind-property">batchId</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property"
-                  >createdAt</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">Date</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property">date</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">Date</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property">farmId</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property"
-                  >farmName</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property">id</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property"
-                  >livestockType</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">&quot;poultry&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;fish&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;cattle&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;goats&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;sheep&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;bees&quot;</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property"
-                  >quantityBroken</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">number</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property"
-                  >quantityCollected</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">number</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property"
-                  >quantitySold</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">number</span
-                ><span class="tsd-signature-symbol">;</span
-                ><br />            <span class="tsd-kind-property">species</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-signature-symbol"
-                  >}</span
-                ><span class="tsd-signature-symbol">[]</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >page</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">number</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >pageSize</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">number</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >total</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">number</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >totalPages</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">number</span
-                ><span class="tsd-signature-symbol">;</span><br />    <span
-                  class="tsd-signature-symbol"
-                  >}</span
-                ><span class="tsd-signature-symbol">,</span><br /><span
-                  class="tsd-signature-symbol"
-                  >&gt;</span
+                ><span class="tsd-signature-symbol">&lt;</span
+                ><a
+                  href="../interfaces/app_features_batches_server.PaginatedResult.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >PaginatedResult</a
+                ><span class="tsd-signature-symbol">&lt;</span
+                ><span class="tsd-signature-type">EggCollectionWithDetails</span
+                ><span class="tsd-signature-symbol">&gt;</span
+                ><span class="tsd-signature-symbol">&gt;</span
                 ><a
                   href="#geteggrecordspaginated"
                   aria-label="Permalink"
@@ -263,108 +175,22 @@
                   </ul>
                 </div>
                 <h4 class="tsd-returns-title">
-                  Returns
-                  <span class="tsd-signature-type">Promise</span
-                  ><span class="tsd-signature-symbol">&lt;</span><br />    <span
-                    class="tsd-signature-symbol"
-                    >{</span
-                  ><br />        <span class="tsd-kind-property">data</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-symbol">{</span
-                  ><br />            <span class="tsd-kind-property"
-                    >batchId</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property"
-                    >createdAt</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">Date</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property">date</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">Date</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property"
-                    >farmId</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property"
-                    >farmName</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property">id</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property"
-                    >livestockType</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">&quot;poultry&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;fish&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;cattle&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;goats&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;sheep&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;bees&quot;</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property"
-                    >quantityBroken</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">number</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property"
-                    >quantityCollected</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">number</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property"
-                    >quantitySold</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">number</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />            <span class="tsd-kind-property"
-                    >species</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-signature-symbol">}</span
-                  ><span class="tsd-signature-symbol">[]</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">page</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">number</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">pageSize</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">number</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">total</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">number</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property"
-                    >totalPages</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">number</span
-                  ><span class="tsd-signature-symbol">;</span><br />    <span
-                    class="tsd-signature-symbol"
-                    >}</span
-                  ><span class="tsd-signature-symbol">,</span><br /><span
-                    class="tsd-signature-symbol"
-                    >&gt;</span
-                  >
+                  Returns <span class="tsd-signature-type">Promise</span
+                  ><span class="tsd-signature-symbol">&lt;</span
+                  ><a
+                    href="../interfaces/app_features_batches_server.PaginatedResult.html"
+                    class="tsd-signature-type tsd-kind-interface"
+                    >PaginatedResult</a
+                  ><span class="tsd-signature-symbol">&lt;</span
+                  ><span class="tsd-signature-type"
+                    >EggCollectionWithDetails</span
+                  ><span class="tsd-signature-symbol">&gt;</span
+                  ><span class="tsd-signature-symbol">&gt;</span>
                 </h4>
                 <p>Paginated result set of egg collection entries</p>
                 <aside class="tsd-sources">
                   <ul>
-                    <li>Defined in app/features/eggs/server.ts:467</li>
+                    <li>Defined in features/eggs/server.ts:512</li>
                   </ul>
                 </aside>
               </div>
@@ -473,7 +299,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

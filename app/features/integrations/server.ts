@@ -48,7 +48,7 @@ export const testSMSFn = createServerFn({ method: 'POST' })
       const { sendSMS } = await import('./sms')
       return await sendSMS({
         to: data.to,
-        message: 'OpenLivestock: Your SMS integration is working!',
+        message: 'LivestockAI: Your SMS integration is working!',
       })
     } catch (error) {
       if (error instanceof AppError) throw error

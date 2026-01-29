@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>Database | OpenLivestock API Reference</title>
+    <title>Database | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -99,7 +99,7 @@
           <div class="tsd-comment tsd-typography">
             <p>
               Database schema interface for Kysely ORM. Defines all tables and
-              their structures for the OpenLivestock platform.
+              their structures for the LivestockAI platform.
             </p>
           </div>
         </section>
@@ -107,6 +107,24 @@
           <span class="tsd-signature-keyword">interface</span>
           <span class="tsd-kind-interface">Database</span>
           <span class="tsd-signature-symbol">{</span><br />    <a
+            class="tsd-kind-property"
+            href="#access_grants"
+            >access_grants</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.AccessGrantTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >AccessGrantTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#access_requests"
+            >access_requests</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.AccessRequestTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >AccessRequestTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#account"
             >account</a
@@ -133,6 +151,42 @@
             href="app_lib_db_types.BatchTable.html"
             class="tsd-signature-type tsd-kind-interface"
             >BatchTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#breed_requests"
+            >breed_requests</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.BreedRequestTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >BreedRequestTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#breeds"
+            >breeds</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.BreedTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >BreedTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#countries"
+            >countries</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.CountryTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >CountryTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#credit_reports"
+            >credit_reports</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.CreditReportTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >CreditReportTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#customers"
@@ -162,6 +216,15 @@
             >ExpenseTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#farm_geofences"
+            >farm_geofences</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.FarmGeofenceTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >FarmGeofenceTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#farm_modules"
             >farm_modules</a
           ><span class="tsd-signature-symbol">:</span>
@@ -180,6 +243,15 @@
             >FarmTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#feed_ingredients"
+            >feed_ingredients</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.FeedIngredientTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >FeedIngredientTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#feed_inventory"
             >feed_inventory</a
           ><span class="tsd-signature-symbol">:</span>
@@ -196,6 +268,15 @@
             href="app_lib_db_types.FeedTable.html"
             class="tsd-signature-type tsd-kind-interface"
             >FeedTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#formulation_usage"
+            >formulation_usage</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.FormulationUsageTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >FormulationUsageTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#growth_standards"
@@ -225,6 +306,24 @@
             >InvoiceTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#listing_contact_requests"
+            >listing_contact_requests</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.ListingContactRequestTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >ListingContactRequestTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#listing_views"
+            >listing_views</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.ListingViewTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >ListingViewTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#market_prices"
             >market_prices</a
           ><span class="tsd-signature-symbol">:</span>
@@ -232,6 +331,15 @@
             href="app_lib_db_types.MarketPriceTable.html"
             class="tsd-signature-type tsd-kind-interface"
             >MarketPriceTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#marketplace_listings"
+            >marketplace_listings</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.MarketplaceListingTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >MarketplaceListingTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#medication_inventory"
@@ -261,6 +369,78 @@
             >NotificationTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#nutritional_requirements"
+            >nutritional_requirements</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.NutritionalRequirementTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >NutritionalRequirementTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#outbreak_alert_farms"
+            >outbreak_alert_farms</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.OutbreakAlertFarmTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >OutbreakAlertFarmTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#outbreak_alerts"
+            >outbreak_alerts</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.OutbreakAlertTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >OutbreakAlertTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#payroll_periods"
+            >payroll_periods</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.PayrollPeriodTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >PayrollPeriodTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#regions"
+            >regions</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.RegionTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >RegionTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#report_access_logs"
+            >report_access_logs</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.ReportAccessLogTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >ReportAccessLogTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#report_configs"
+            >report_configs</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.ReportConfigTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >ReportConfigTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#report_requests"
+            >report_requests</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.ReportRequestTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >ReportRequestTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#sales"
             >sales</a
           ><span class="tsd-signature-symbol">:</span>
@@ -270,6 +450,60 @@
             >SaleTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#saved_formulations"
+            >saved_formulations</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.SavedFormulationTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >SavedFormulationTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#sensor_aggregates"
+            >sensor_aggregates</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.SensorAggregateTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >SensorAggregateTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#sensor_alert_config"
+            >sensor_alert_config</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.SensorAlertConfigTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >SensorAlertConfigTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#sensor_alerts"
+            >sensor_alerts</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.SensorAlertTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >SensorAlertTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#sensor_readings"
+            >sensor_readings</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.SensorReadingTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >SensorReadingTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#sensors"
+            >sensors</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.SensorTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >SensorTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#sessions"
             >sessions</a
           ><span class="tsd-signature-symbol">:</span>
@@ -277,6 +511,15 @@
             href="app_lib_db_types.SessionTable.html"
             class="tsd-signature-type tsd-kind-interface"
             >SessionTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#species_thresholds"
+            >species_thresholds</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.SpeciesThresholdTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >SpeciesThresholdTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#structures"
@@ -297,6 +540,42 @@
             >SupplierTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#task_assignments"
+            >task_assignments</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.TaskAssignmentTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >TaskAssignmentTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#task_completions"
+            >task_completions</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.TaskCompletionTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >TaskCompletionTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#task_photos"
+            >task_photos</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.TaskPhotoTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >TaskPhotoTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#tasks"
+            >tasks</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.TaskTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >TaskTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#treatments"
             >treatments</a
           ><span class="tsd-signature-symbol">:</span>
@@ -306,6 +585,15 @@
             >TreatmentTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#user_districts"
+            >user_districts</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.UserDistrictTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >UserDistrictTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#user_farms"
             >user_farms</a
           ><span class="tsd-signature-symbol">:</span>
@@ -313,6 +601,15 @@
             href="app_lib_db_types.UserFarmTable.html"
             class="tsd-signature-type tsd-kind-interface"
             >UserFarmTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#user_ingredient_prices"
+            >user_ingredient_prices</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.UserIngredientPriceTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >UserIngredientPriceTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#user_settings"
@@ -351,6 +648,24 @@
             >VerificationTable</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#visit_records"
+            >visit_records</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.VisitRecordTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >VisitRecordTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#wage_payments"
+            >wage_payments</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.WagePaymentTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >WagePaymentTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#water_quality"
             >water_quality</a
           ><span class="tsd-signature-symbol">:</span>
@@ -367,6 +682,24 @@
             href="app_lib_db_types.WeightTable.html"
             class="tsd-signature-type tsd-kind-interface"
             >WeightTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#worker_check_ins"
+            >worker_check_ins</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.WorkerCheckInTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >WorkerCheckInTable</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#worker_profiles"
+            >worker_profiles</a
+          ><span class="tsd-signature-symbol">:</span>
+          <a
+            href="app_lib_db_types.WorkerProfileTable.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >WorkerProfileTable</a
           ><span class="tsd-signature-symbol">;</span><br /><span
             class="tsd-signature-symbol"
             >}</span
@@ -374,7 +707,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/lib/db/types.ts:9</li>
+            <li>Defined in lib/db/types.ts:9</li>
           </ul>
         </aside>
         <section class="tsd-panel-group tsd-index-group">
@@ -396,6 +729,24 @@
                 <section class="tsd-index-section">
                   <h3 class="tsd-index-heading">Properties</h3>
                   <div class="tsd-index-list">
+                    <a href="#access_grants" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>access_<wbr />grants</span></a
+                    >
+                    <a href="#access_requests" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>access_<wbr />requests</span></a
+                    >
                     <a href="#account" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -422,6 +773,42 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>batches</span></a
+                    >
+                    <a href="#breed_requests" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>breed_<wbr />requests</span></a
+                    >
+                    <a href="#breeds" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>breeds</span></a
+                    >
+                    <a href="#countries" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>countries</span></a
+                    >
+                    <a href="#credit_reports" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>credit_<wbr />reports</span></a
                     >
                     <a href="#customers" class="tsd-index-link"
                       ><svg
@@ -450,6 +837,15 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>expenses</span></a
                     >
+                    <a href="#farm_geofences" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>farm_<wbr />geofences</span></a
+                    >
                     <a href="#farm_modules" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -468,6 +864,15 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>farms</span></a
                     >
+                    <a href="#feed_ingredients" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>feed_<wbr />ingredients</span></a
+                    >
                     <a href="#feed_inventory" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -485,6 +890,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>feed_<wbr />records</span></a
+                    >
+                    <a href="#formulation_usage" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>formulation_<wbr />usage</span></a
                     >
                     <a href="#growth_standards" class="tsd-index-link"
                       ><svg
@@ -513,6 +927,24 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>invoices</span></a
                     >
+                    <a href="#listing_contact_requests" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>listing_<wbr />contact_<wbr />requests</span></a
+                    >
+                    <a href="#listing_views" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>listing_<wbr />views</span></a
+                    >
                     <a href="#market_prices" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -521,6 +953,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>market_<wbr />prices</span></a
+                    >
+                    <a href="#marketplace_listings" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>marketplace_<wbr />listings</span></a
                     >
                     <a href="#medication_inventory" class="tsd-index-link"
                       ><svg
@@ -549,6 +990,78 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>notifications</span></a
                     >
+                    <a href="#nutritional_requirements" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>nutritional_<wbr />requirements</span></a
+                    >
+                    <a href="#outbreak_alert_farms" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>outbreak_<wbr />alert_<wbr />farms</span></a
+                    >
+                    <a href="#outbreak_alerts" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>outbreak_<wbr />alerts</span></a
+                    >
+                    <a href="#payroll_periods" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>payroll_<wbr />periods</span></a
+                    >
+                    <a href="#regions" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>regions</span></a
+                    >
+                    <a href="#report_access_logs" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>report_<wbr />access_<wbr />logs</span></a
+                    >
+                    <a href="#report_configs" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>report_<wbr />configs</span></a
+                    >
+                    <a href="#report_requests" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>report_<wbr />requests</span></a
+                    >
                     <a href="#sales" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -558,6 +1071,60 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>sales</span></a
                     >
+                    <a href="#saved_formulations" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>saved_<wbr />formulations</span></a
+                    >
+                    <a href="#sensor_aggregates" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>sensor_<wbr />aggregates</span></a
+                    >
+                    <a href="#sensor_alert_config" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>sensor_<wbr />alert_<wbr />config</span></a
+                    >
+                    <a href="#sensor_alerts" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>sensor_<wbr />alerts</span></a
+                    >
+                    <a href="#sensor_readings" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>sensor_<wbr />readings</span></a
+                    >
+                    <a href="#sensors" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>sensors</span></a
+                    >
                     <a href="#sessions" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -566,6 +1133,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>sessions</span></a
+                    >
+                    <a href="#species_thresholds" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>species_<wbr />thresholds</span></a
                     >
                     <a href="#structures" class="tsd-index-link"
                       ><svg
@@ -585,6 +1161,42 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>suppliers</span></a
                     >
+                    <a href="#task_assignments" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>task_<wbr />assignments</span></a
+                    >
+                    <a href="#task_completions" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>task_<wbr />completions</span></a
+                    >
+                    <a href="#task_photos" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>task_<wbr />photos</span></a
+                    >
+                    <a href="#tasks" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>tasks</span></a
+                    >
                     <a href="#treatments" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -594,6 +1206,15 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>treatments</span></a
                     >
+                    <a href="#user_districts" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>user_<wbr />districts</span></a
+                    >
                     <a href="#user_farms" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -602,6 +1223,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>user_<wbr />farms</span></a
+                    >
+                    <a href="#user_ingredient_prices" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>user_<wbr />ingredient_<wbr />prices</span></a
                     >
                     <a href="#user_settings" class="tsd-index-link"
                       ><svg
@@ -639,6 +1269,24 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>verification</span></a
                     >
+                    <a href="#visit_records" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>visit_<wbr />records</span></a
+                    >
+                    <a href="#wage_payments" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>wage_<wbr />payments</span></a
+                    >
                     <a href="#water_quality" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -656,6 +1304,24 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>weight_<wbr />samples</span></a
+                    >
+                    <a href="#worker_check_ins" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>worker_<wbr />check_<wbr />ins</span></a
+                    >
+                    <a href="#worker_profiles" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>worker_<wbr />profiles</span></a
                     >
                   </div>
                 </section>
@@ -677,6 +1343,64 @@
             <h2>Properties</h2>
           </summary>
           <section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="access_grants">
+                <span>access_<wbr />grants</span
+                ><a
+                  href="#access_grants"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">access_grants</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.AccessGrantTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >AccessGrantTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Time-limited access grants</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:137</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="access_requests">
+                <span>access_<wbr />requests</span
+                ><a
+                  href="#access_requests"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">access_requests</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.AccessRequestTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >AccessRequestTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Access requests from extension workers</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:135</li>
+                </ul>
+              </aside>
+            </section>
             <section class="tsd-panel tsd-member">
               <h3 class="tsd-anchor-link" id="account">
                 <span>account</span
@@ -702,7 +1426,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:17</li>
+                  <li>Defined in lib/db/types.ts:17</li>
                 </ul>
               </aside>
             </section>
@@ -731,7 +1455,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:61</li>
+                  <li>Defined in lib/db/types.ts:75</li>
                 </ul>
               </aside>
             </section>
@@ -760,7 +1484,123 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:29</li>
+                  <li>Defined in lib/db/types.ts:43</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="breed_requests">
+                <span>breed_<wbr />requests</span
+                ><a
+                  href="#breed_requests"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">breed_requests</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.BreedRequestTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >BreedRequestTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>User requests for missing breeds</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:31</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="breeds">
+                <span>breeds</span
+                ><a
+                  href="#breeds"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">breeds</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.BreedTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >BreedTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Livestock breeds reference data</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:29</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="countries">
+                <span>countries</span
+                ><a
+                  href="#countries"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">countries</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.CountryTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >CountryTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Countries with ISO codes</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:129</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="credit_reports">
+                <span>credit_<wbr />reports</span
+                ><a
+                  href="#credit_reports"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">credit_reports</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.CreditReportTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >CreditReportTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Credit reports for farmers</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:89</li>
                 </ul>
               </aside>
             </section>
@@ -789,7 +1629,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:49</li>
+                  <li>Defined in lib/db/types.ts:63</li>
                 </ul>
               </aside>
             </section>
@@ -818,7 +1658,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:35</li>
+                  <li>Defined in lib/db/types.ts:49</li>
                 </ul>
               </aside>
             </section>
@@ -842,12 +1682,39 @@
                   >ExpenseTable</a
                 >
               </div>
+              <div class="tsd-comment tsd-typography"><p>Farm expenses</p></div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:61</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="farm_geofences">
+                <span>farm_<wbr />geofences</span
+                ><a
+                  href="#farm_geofences"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">farm_geofences</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.FarmGeofenceTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >FarmGeofenceTable</a
+                >
+              </div>
               <div class="tsd-comment tsd-typography">
-                <p>Farm expenses</p>
+                <p>Farm geofence configurations</p>
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:47</li>
+                  <li>Defined in lib/db/types.ts:98</li>
                 </ul>
               </aside>
             </section>
@@ -876,7 +1743,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:23</li>
+                  <li>Defined in lib/db/types.ts:23</li>
                 </ul>
               </aside>
             </section>
@@ -902,7 +1769,36 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:21</li>
+                  <li>Defined in lib/db/types.ts:21</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="feed_ingredients">
+                <span>feed_<wbr />ingredients</span
+                ><a
+                  href="#feed_ingredients"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">feed_ingredients</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.FeedIngredientTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >FeedIngredientTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Feed ingredients master data</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:33</li>
                 </ul>
               </aside>
             </section>
@@ -931,7 +1827,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:57</li>
+                  <li>Defined in lib/db/types.ts:71</li>
                 </ul>
               </aside>
             </section>
@@ -960,7 +1856,36 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:33</li>
+                  <li>Defined in lib/db/types.ts:47</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="formulation_usage">
+                <span>formulation_<wbr />usage</span
+                ><a
+                  href="#formulation_usage"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">formulation_usage</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.FormulationUsageTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >FormulationUsageTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Formulation usage tracking</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:41</li>
                 </ul>
               </aside>
             </section>
@@ -989,7 +1914,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:63</li>
+                  <li>Defined in lib/db/types.ts:77</li>
                 </ul>
               </aside>
             </section>
@@ -1018,7 +1943,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:55</li>
+                  <li>Defined in lib/db/types.ts:69</li>
                 </ul>
               </aside>
             </section>
@@ -1047,7 +1972,65 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:53</li>
+                  <li>Defined in lib/db/types.ts:67</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="listing_contact_requests">
+                <span>listing_<wbr />contact_<wbr />requests</span
+                ><a
+                  href="#listing_contact_requests"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">listing_contact_requests</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.ListingContactRequestTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >ListingContactRequestTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Contact requests from buyers to sellers</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:124</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="listing_views">
+                <span>listing_<wbr />views</span
+                ><a
+                  href="#listing_views"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">listing_views</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.ListingViewTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >ListingViewTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Listing view tracking for analytics</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:126</li>
                 </ul>
               </aside>
             </section>
@@ -1076,7 +2059,36 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:65</li>
+                  <li>Defined in lib/db/types.ts:79</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="marketplace_listings">
+                <span>marketplace_<wbr />listings</span
+                ><a
+                  href="#marketplace_listings"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">marketplace_listings</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.MarketplaceListingTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >MarketplaceListingTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Marketplace listings for livestock sales</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:122</li>
                 </ul>
               </aside>
             </section>
@@ -1105,7 +2117,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:59</li>
+                  <li>Defined in lib/db/types.ts:73</li>
                 </ul>
               </aside>
             </section>
@@ -1134,7 +2146,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:31</li>
+                  <li>Defined in lib/db/types.ts:45</li>
                 </ul>
               </aside>
             </section>
@@ -1163,7 +2175,239 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:67</li>
+                  <li>Defined in lib/db/types.ts:81</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="nutritional_requirements">
+                <span>nutritional_<wbr />requirements</span
+                ><a
+                  href="#nutritional_requirements"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">nutritional_requirements</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.NutritionalRequirementTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >NutritionalRequirementTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Nutritional requirements by species and stage</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:35</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="outbreak_alert_farms">
+                <span>outbreak_<wbr />alert_<wbr />farms</span
+                ><a
+                  href="#outbreak_alert_farms"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">outbreak_alert_farms</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.OutbreakAlertFarmTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >OutbreakAlertFarmTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Junction table for farms affected by outbreak alerts</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:145</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="outbreak_alerts">
+                <span>outbreak_<wbr />alerts</span
+                ><a
+                  href="#outbreak_alerts"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">outbreak_alerts</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.OutbreakAlertTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >OutbreakAlertTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Outbreak alerts for disease monitoring</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:143</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="payroll_periods">
+                <span>payroll_<wbr />periods</span
+                ><a
+                  href="#payroll_periods"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">payroll_periods</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.PayrollPeriodTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >PayrollPeriodTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Payroll period definitions</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:106</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="regions">
+                <span>regions</span
+                ><a
+                  href="#regions"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">regions</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.RegionTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >RegionTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Geographic regions (State/Province -&gt; District)</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:131</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="report_access_logs">
+                <span>report_<wbr />access_<wbr />logs</span
+                ><a
+                  href="#report_access_logs"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">report_access_logs</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.ReportAccessLogTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >ReportAccessLogTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Report access audit logs</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:93</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="report_configs">
+                <span>report_<wbr />configs</span
+                ><a
+                  href="#report_configs"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">report_configs</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.ReportConfigTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >ReportConfigTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Saved report configurations</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:87</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="report_requests">
+                <span>report_<wbr />requests</span
+                ><a
+                  href="#report_requests"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">report_requests</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.ReportRequestTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >ReportRequestTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Report access requests</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:91</li>
                 </ul>
               </aside>
             </section>
@@ -1189,7 +2433,181 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:45</li>
+                  <li>Defined in lib/db/types.ts:59</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="saved_formulations">
+                <span>saved_<wbr />formulations</span
+                ><a
+                  href="#saved_formulations"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">saved_formulations</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.SavedFormulationTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >SavedFormulationTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Saved feed formulations</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:39</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="sensor_aggregates">
+                <span>sensor_<wbr />aggregates</span
+                ><a
+                  href="#sensor_aggregates"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">sensor_aggregates</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.SensorAggregateTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >SensorAggregateTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Aggregated sensor data (hourly/daily)</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:115</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="sensor_alert_config">
+                <span>sensor_<wbr />alert_<wbr />config</span
+                ><a
+                  href="#sensor_alert_config"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">sensor_alert_config</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.SensorAlertConfigTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >SensorAlertConfigTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Per-sensor alert configuration</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:119</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="sensor_alerts">
+                <span>sensor_<wbr />alerts</span
+                ><a
+                  href="#sensor_alerts"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">sensor_alerts</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.SensorAlertTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >SensorAlertTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Sensor alert history</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:117</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="sensor_readings">
+                <span>sensor_<wbr />readings</span
+                ><a
+                  href="#sensor_readings"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">sensor_readings</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.SensorReadingTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >SensorReadingTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Time-series sensor readings</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:113</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="sensors">
+                <span>sensors</span
+                ><a
+                  href="#sensors"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">sensors</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.SensorTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >SensorTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>IoT sensors for environmental monitoring</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:111</li>
                 </ul>
               </aside>
             </section>
@@ -1218,7 +2636,36 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:15</li>
+                  <li>Defined in lib/db/types.ts:15</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="species_thresholds">
+                <span>species_<wbr />thresholds</span
+                ><a
+                  href="#species_thresholds"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">species_thresholds</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.SpeciesThresholdTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >SpeciesThresholdTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Species-specific mortality thresholds</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:139</li>
                 </ul>
               </aside>
             </section>
@@ -1247,7 +2694,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:27</li>
+                  <li>Defined in lib/db/types.ts:27</li>
                 </ul>
               </aside>
             </section>
@@ -1276,7 +2723,120 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:51</li>
+                  <li>Defined in lib/db/types.ts:65</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="task_assignments">
+                <span>task_<wbr />assignments</span
+                ><a
+                  href="#task_assignments"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">task_assignments</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.TaskAssignmentTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >TaskAssignmentTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Task assignments to workers</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:102</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="task_completions">
+                <span>task_<wbr />completions</span
+                ><a
+                  href="#task_completions"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">task_completions</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.TaskCompletionTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >TaskCompletionTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Task completion records</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:85</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="task_photos">
+                <span>task_<wbr />photos</span
+                ><a
+                  href="#task_photos"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">task_photos</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.TaskPhotoTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >TaskPhotoTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Photo proof for task completions</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:104</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="tasks">
+                <span>tasks</span
+                ><a href="#tasks" aria-label="Permalink" class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">tasks</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.TaskTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >TaskTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Farm tasks (checklists)</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:83</li>
                 </ul>
               </aside>
             </section>
@@ -1305,7 +2865,36 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:41</li>
+                  <li>Defined in lib/db/types.ts:55</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="user_districts">
+                <span>user_<wbr />districts</span
+                ><a
+                  href="#user_districts"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">user_districts</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.UserDistrictTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >UserDistrictTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Extension worker district assignments</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:133</li>
                 </ul>
               </aside>
             </section>
@@ -1334,7 +2923,36 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:25</li>
+                  <li>Defined in lib/db/types.ts:25</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="user_ingredient_prices">
+                <span>user_<wbr />ingredient_<wbr />prices</span
+                ><a
+                  href="#user_ingredient_prices"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">user_ingredient_prices</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.UserIngredientPriceTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >UserIngredientPriceTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>User-specific ingredient prices with history</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:37</li>
                 </ul>
               </aside>
             </section>
@@ -1363,7 +2981,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:13</li>
+                  <li>Defined in lib/db/types.ts:13</li>
                 </ul>
               </aside>
             </section>
@@ -1389,7 +3007,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:11</li>
+                  <li>Defined in lib/db/types.ts:11</li>
                 </ul>
               </aside>
             </section>
@@ -1418,7 +3036,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:39</li>
+                  <li>Defined in lib/db/types.ts:53</li>
                 </ul>
               </aside>
             </section>
@@ -1447,7 +3065,65 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:19</li>
+                  <li>Defined in lib/db/types.ts:19</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="visit_records">
+                <span>visit_<wbr />records</span
+                ><a
+                  href="#visit_records"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">visit_records</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.VisitRecordTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >VisitRecordTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Extension worker visit records</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:141</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="wage_payments">
+                <span>wage_<wbr />payments</span
+                ><a
+                  href="#wage_payments"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">wage_payments</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.WagePaymentTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >WagePaymentTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Wage payment records</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:108</li>
                 </ul>
               </aside>
             </section>
@@ -1476,7 +3152,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:43</li>
+                  <li>Defined in lib/db/types.ts:57</li>
                 </ul>
               </aside>
             </section>
@@ -1505,7 +3181,65 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:37</li>
+                  <li>Defined in lib/db/types.ts:51</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="worker_check_ins">
+                <span>worker_<wbr />check_<wbr />ins</span
+                ><a
+                  href="#worker_check_ins"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">worker_check_ins</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.WorkerCheckInTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >WorkerCheckInTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Worker attendance check-ins</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:100</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="worker_profiles">
+                <span>worker_<wbr />profiles</span
+                ><a
+                  href="#worker_profiles"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">worker_profiles</span
+                ><span class="tsd-signature-symbol">:</span>
+                <a
+                  href="app_lib_db_types.WorkerProfileTable.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >WorkerProfileTable</a
+                >
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Worker employment profiles</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:96</li>
                 </ul>
               </aside>
             </section>
@@ -1640,7 +3374,23 @@
                   >Properties
                 </summary>
                 <div>
-                  <a href="#account"
+                  <a href="#access_grants"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>access_<wbr />grants</span></a
+                  ><a href="#access_requests"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>access_<wbr />requests</span></a
+                  ><a href="#account"
                     ><svg
                       class="tsd-kind-icon"
                       viewBox="0 0 24 24"
@@ -1664,6 +3414,38 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>batches</span></a
+                  ><a href="#breed_requests"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>breed_<wbr />requests</span></a
+                  ><a href="#breeds"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>breeds</span></a
+                  ><a href="#countries"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>countries</span></a
+                  ><a href="#credit_reports"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>credit_<wbr />reports</span></a
                   ><a href="#customers"
                     ><svg
                       class="tsd-kind-icon"
@@ -1688,6 +3470,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>expenses</span></a
+                  ><a href="#farm_geofences"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>farm_<wbr />geofences</span></a
                   ><a href="#farm_modules"
                     ><svg
                       class="tsd-kind-icon"
@@ -1704,6 +3494,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>farms</span></a
+                  ><a href="#feed_ingredients"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>feed_<wbr />ingredients</span></a
                   ><a href="#feed_inventory"
                     ><svg
                       class="tsd-kind-icon"
@@ -1720,6 +3518,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>feed_<wbr />records</span></a
+                  ><a href="#formulation_usage"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>formulation_<wbr />usage</span></a
                   ><a href="#growth_standards"
                     ><svg
                       class="tsd-kind-icon"
@@ -1744,6 +3550,22 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>invoices</span></a
+                  ><a href="#listing_contact_requests"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>listing_<wbr />contact_<wbr />requests</span></a
+                  ><a href="#listing_views"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>listing_<wbr />views</span></a
                   ><a href="#market_prices"
                     ><svg
                       class="tsd-kind-icon"
@@ -1752,6 +3574,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>market_<wbr />prices</span></a
+                  ><a href="#marketplace_listings"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>marketplace_<wbr />listings</span></a
                   ><a href="#medication_inventory"
                     ><svg
                       class="tsd-kind-icon"
@@ -1776,6 +3606,70 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>notifications</span></a
+                  ><a href="#nutritional_requirements"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>nutritional_<wbr />requirements</span></a
+                  ><a href="#outbreak_alert_farms"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>outbreak_<wbr />alert_<wbr />farms</span></a
+                  ><a href="#outbreak_alerts"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>outbreak_<wbr />alerts</span></a
+                  ><a href="#payroll_periods"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>payroll_<wbr />periods</span></a
+                  ><a href="#regions"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>regions</span></a
+                  ><a href="#report_access_logs"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>report_<wbr />access_<wbr />logs</span></a
+                  ><a href="#report_configs"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>report_<wbr />configs</span></a
+                  ><a href="#report_requests"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>report_<wbr />requests</span></a
                   ><a href="#sales"
                     ><svg
                       class="tsd-kind-icon"
@@ -1784,6 +3678,54 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>sales</span></a
+                  ><a href="#saved_formulations"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>saved_<wbr />formulations</span></a
+                  ><a href="#sensor_aggregates"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>sensor_<wbr />aggregates</span></a
+                  ><a href="#sensor_alert_config"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>sensor_<wbr />alert_<wbr />config</span></a
+                  ><a href="#sensor_alerts"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>sensor_<wbr />alerts</span></a
+                  ><a href="#sensor_readings"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>sensor_<wbr />readings</span></a
+                  ><a href="#sensors"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>sensors</span></a
                   ><a href="#sessions"
                     ><svg
                       class="tsd-kind-icon"
@@ -1792,6 +3734,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>sessions</span></a
+                  ><a href="#species_thresholds"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>species_<wbr />thresholds</span></a
                   ><a href="#structures"
                     ><svg
                       class="tsd-kind-icon"
@@ -1808,6 +3758,38 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>suppliers</span></a
+                  ><a href="#task_assignments"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>task_<wbr />assignments</span></a
+                  ><a href="#task_completions"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>task_<wbr />completions</span></a
+                  ><a href="#task_photos"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>task_<wbr />photos</span></a
+                  ><a href="#tasks"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>tasks</span></a
                   ><a href="#treatments"
                     ><svg
                       class="tsd-kind-icon"
@@ -1816,6 +3798,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>treatments</span></a
+                  ><a href="#user_districts"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>user_<wbr />districts</span></a
                   ><a href="#user_farms"
                     ><svg
                       class="tsd-kind-icon"
@@ -1824,6 +3814,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>user_<wbr />farms</span></a
+                  ><a href="#user_ingredient_prices"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>user_<wbr />ingredient_<wbr />prices</span></a
                   ><a href="#user_settings"
                     ><svg
                       class="tsd-kind-icon"
@@ -1856,6 +3854,22 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>verification</span></a
+                  ><a href="#visit_records"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>visit_<wbr />records</span></a
+                  ><a href="#wage_payments"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>wage_<wbr />payments</span></a
                   ><a href="#water_quality"
                     ><svg
                       class="tsd-kind-icon"
@@ -1872,6 +3886,22 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>weight_<wbr />samples</span></a
+                  ><a href="#worker_check_ins"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>worker_<wbr />check_<wbr />ins</span></a
+                  ><a href="#worker_profiles"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>worker_<wbr />profiles</span></a
                   >
                 </div>
               </details>
@@ -1880,7 +3910,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

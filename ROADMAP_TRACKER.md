@@ -1,4 +1,4 @@
-# OpenLivestock Roadmap Tracker
+# LivestockAI Roadmap Tracker
 
 Progress tracker for Phase 2 "Smart Ecosystem" features, ordered by implementation complexity.
 

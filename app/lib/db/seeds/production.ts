@@ -1,5 +1,5 @@
 /**
- * Production Seeder - OpenLivestock Manager
+ * Production Seeder - LivestockAI Manager
  *
  * Seeds minimal data required to bootstrap a fresh production instance:
  * - Admin user (from env vars or defaults)
@@ -261,7 +261,7 @@ function generateSheepGrowthStandards(): Array<{
 
 // ============ MAIN SEED ============
 export async function seed() {
-  console.log('🌱 Seeding OpenLivestock Production Data\n')
+  console.log('🌱 Seeding LivestockAI Production Data\n')
 
   // SECURITY: Require explicit admin credentials
   if (!process.env.ADMIN_EMAIL) {

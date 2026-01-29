@@ -4,7 +4,7 @@ import type { Generated } from 'kysely'
 // Note: Column names use camelCase to match Better Auth expectations
 /**
  * Database schema interface for Kysely ORM.
- * Defines all tables and their structures for the OpenLivestock platform.
+ * Defines all tables and their structures for the LivestockAI platform.
  */
 export interface Database {
   /** System users and their core profile data */

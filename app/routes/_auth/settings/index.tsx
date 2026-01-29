@@ -163,7 +163,7 @@ function SettingsPage() {
                 const { resetOnboardingFn } =
                   await import('~/features/onboarding/server')
                 await resetOnboardingFn({ data: {} })
-                localStorage.removeItem('openlivestock_onboarding')
+                localStorage.removeItem('livestockai_onboarding')
                 window.location.href = '/onboarding'
               } catch (err) {
                 toast.error('Failed to reset onboarding')

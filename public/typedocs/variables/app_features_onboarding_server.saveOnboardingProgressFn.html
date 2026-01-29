@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>saveOnboardingProgressFn | OpenLivestock API Reference</title>
+    <title>saveOnboardingProgressFn | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/onboarding/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">saveOnboardingProgressFn</a>
-            </li>
+            <li><a href="" aria-current="page">saveOnboardingProgressFn</a></li>
           </ul>
           <h1>
             Variable saveOnboardingProgressFn<code class="tsd-tag">Const</code>
@@ -109,50 +107,574 @@
             class="tsd-signature-type"
             >undefined</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-type"
+            >ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
             class="tsd-signature-symbol"
-            >(</span
-          ><br />        <span class="tsd-kind-parameter">data</span
+            >{</span
+          ><br />            <span class="tsd-kind-property">progress</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span>
-          <span class="tsd-kind-property">progress</span
+          <span class="tsd-signature-type">ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                <span class="tsd-signature-symbol">{</span
+          ><br />                    <span class="tsd-kind-property"
+            >batchId</span
           ><span class="tsd-signature-symbol">:</span>
-          <a
-            href="../interfaces/app_features_onboarding_types.OnboardingProgress.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >OnboardingProgress</a
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >completedAt</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >completedSteps</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodArray</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                        <span class="tsd-signature-type"
+            >ZodEnum</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                            <span class="tsd-signature-symbol"
+            >[</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;welcome&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;create-farm&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;enable-modules&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;create-structure&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;create-batch&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;preferences&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;tour&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;complete&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                            <span class="tsd-signature-symbol"
+            >]</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                        <span class="tsd-signature-type"
+            >&quot;many&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                    <span class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >currentStep</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodEnum</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >[</span
+          ><br />                            <span class="tsd-signature-type"
+            >&quot;welcome&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                            <span class="tsd-signature-type"
+            >&quot;create-farm&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                            <span class="tsd-signature-type"
+            >&quot;enable-modules&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                            <span class="tsd-signature-type"
+            >&quot;create-structure&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                            <span class="tsd-signature-type"
+            >&quot;create-batch&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                            <span class="tsd-signature-type"
+            >&quot;preferences&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                            <span class="tsd-signature-type"
+            >&quot;tour&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                            <span class="tsd-signature-type"
+            >&quot;complete&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >]</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                    <span class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >skipped</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodBoolean</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >structureId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-type"
+            >&quot;strip&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-type"
+            >ZodTypeAny</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-symbol">{</span
+          ><br />                    <span class="tsd-kind-property"
+            >batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >completedAt</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >completedSteps</span
+          ><span class="tsd-signature-symbol">:</span>
+          (<br />                        <span class="tsd-signature-symbol"
+            >|</span
           >
-          <span class="tsd-signature-symbol">}</span
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><br />                    )<span class="tsd-signature-symbol"
+            >[]</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >currentStep</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >skipped</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">boolean</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >structureId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-symbol">{</span
+          ><br />                    <span class="tsd-kind-property"
+            >batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >completedAt</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >completedSteps</span
+          ><span class="tsd-signature-symbol">:</span>
+          (<br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><br />                    )<span class="tsd-signature-symbol"
+            >[]</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >currentStep</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >skipped</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">boolean</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >structureId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span><br />            <span
+            class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >&quot;strip&quot;</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >ZodTypeAny</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          ><br />            <span class="tsd-kind-property">progress</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">{</span><br />                <span
+            class="tsd-kind-property"
+            >batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >completedAt</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >completedSteps</span
+          ><span class="tsd-signature-symbol">:</span>
+          (<br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><br />                )<span class="tsd-signature-symbol">[]</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >currentStep</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">farmId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">skipped</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">boolean</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >structureId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          ><br />            <span class="tsd-kind-property">progress</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">{</span><br />                <span
+            class="tsd-kind-property"
+            >batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >completedAt</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >completedSteps</span
+          ><span class="tsd-signature-symbol">:</span>
+          (<br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><br />                )<span class="tsd-signature-symbol">[]</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >currentStep</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">farmId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">skipped</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">boolean</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >structureId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
-            >)</span
-          >
-          <span class="tsd-signature-symbol">=&gt;</span>
-          <span class="tsd-signature-symbol">{</span>
-          <span class="tsd-kind-property">progress</span
-          ><span class="tsd-signature-symbol">:</span>
-          <a
-            href="../interfaces/app_features_onboarding_types.OnboardingProgress.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >OnboardingProgress</a
-          >
-          <span class="tsd-signature-symbol">}</span
+            >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-type"
             >Promise</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">{</span>
-          <span class="tsd-kind-property">progress</span
+          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          ><br />            <span class="tsd-kind-property">progress</span
           ><span class="tsd-signature-symbol">:</span>
-          <a
-            href="../interfaces/app_features_onboarding_types.OnboardingProgress.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >OnboardingProgress</a
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">success</span
+          <span class="tsd-signature-symbol">{</span><br />                <span
+            class="tsd-kind-property"
+            >batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >completedAt</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >completedSteps</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">true</span>
-          <span class="tsd-signature-symbol">}</span
-          ><span class="tsd-signature-symbol">&gt;</span
+          (<br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><br />                )<span class="tsd-signature-symbol">[]</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >currentStep</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;complete&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;welcome&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-farm&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;enable-modules&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-structure&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;create-batch&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;preferences&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;tour&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">farmId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">skipped</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">boolean</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >structureId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >success</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">true</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-symbol"
+            >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br /><span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -192,7 +714,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/onboarding/server.ts:85</li>
+            <li>Defined in features/onboarding/server.ts:97</li>
           </ul>
         </aside>
       </div>
@@ -297,7 +819,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

@@ -27,7 +27,7 @@ export class SMTPProvider implements EmailProvider {
       })
 
       const result = await transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'OpenLivestock <noreply@localhost>',
+        from: process.env.EMAIL_FROM || 'LivestockAI <noreply@localhost>',
         to,
         subject,
         html,

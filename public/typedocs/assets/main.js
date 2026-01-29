@@ -788,10 +788,7 @@ window.translations = {
             r.node.final && (r.prefix.charAt(0), e.push(r.prefix))
             for (var o = 0; o < s; o++) {
               var a = i[o]
-              n.push({
-                prefix: r.prefix.concat(a),
-                node: r.node.edges[a],
-              })
+              n.push({ prefix: r.prefix.concat(a), node: r.node.edges[a] })
             }
           }
           return e
@@ -841,11 +838,7 @@ window.translations = {
                     : ((m = new t.TokenSet()),
                       (m.final = w),
                       (r.output.edges[p] = m)),
-                    i.push({
-                      qNode: x,
-                      output: m,
-                      node: v,
-                    }))
+                    i.push({ qNode: x, output: m, node: v }))
                 }
               }
           }
@@ -878,11 +871,7 @@ window.translations = {
             var s = new t.TokenSet(),
               o = e[i]
             ;((n.edges[o] = s),
-              this.uncheckedNodes.push({
-                parent: n,
-                char: o,
-                child: s,
-              }),
+              this.uncheckedNodes.push({ parent: n, char: o, child: s }),
               (n = s))
           }
           ;((n.final = !0), (this.previousWord = e))
@@ -932,9 +921,7 @@ window.translations = {
               d = null,
               f = t.Set.empty
             l.usePipeline
-              ? (d = this.pipeline.runString(l.term, {
-                  fields: l.fields,
-                }))
+              ? (d = this.pipeline.runString(l.term, { fields: l.fields }))
               : (d = [l.term])
             for (var p = 0; p < d.length; p++) {
               var v = d[p]
@@ -1311,11 +1298,7 @@ window.translations = {
         (t.Query.wildcard.NONE = 0),
         (t.Query.wildcard.LEADING = 1),
         (t.Query.wildcard.TRAILING = 2),
-        (t.Query.presence = {
-          OPTIONAL: 1,
-          REQUIRED: 2,
-          PROHIBITED: 3,
-        }),
+        (t.Query.presence = { OPTIONAL: 1, REQUIRED: 2, PROHIBITED: 3 }),
         (t.Query.prototype.clause = function (e) {
           return (
             'fields' in e || (e.fields = this.allFields),

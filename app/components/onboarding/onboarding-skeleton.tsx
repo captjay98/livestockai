@@ -6,7 +6,7 @@ export function OnboardingSkeleton() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Welcome to OpenLivestock"
+        title="Welcome to LivestockAI"
         description="Let's get your farm set up in just a few steps."
         icon={Rocket}
       />

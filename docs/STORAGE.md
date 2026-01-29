@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenLivestock uses a multi-provider storage system supporting R2 (Cloudflare), S3 (AWS), and Local (development) storage with public/private access control.
+LivestockAI uses a multi-provider storage system supporting R2 (Cloudflare), S3 (AWS), and Local (development) storage with public/private access control.
 
 ## Storage Types
 
@@ -181,11 +181,11 @@ LOCAL_STORAGE_PATH=./storage
   "r2_buckets": [
     {
       "binding": "PUBLIC_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-public",
+      "bucket_name": "livestockai-public",
     },
     {
       "binding": "PRIVATE_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-private",
+      "bucket_name": "livestockai-private",
     },
   ],
 }

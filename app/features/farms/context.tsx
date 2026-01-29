@@ -28,7 +28,7 @@ interface FarmContextType {
 
 const FarmContext = createContext<FarmContextType | undefined>(undefined)
 
-const STORAGE_KEY = 'openlivestock-selected-farm'
+const STORAGE_KEY = 'livestockai-selected-farm'
 
 export function FarmProvider({ children }: { children: ReactNode }) {
   const [selectedFarmId, setSelectedFarmIdState] = useState<string | null>(null)

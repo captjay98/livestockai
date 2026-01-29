@@ -1,6 +1,6 @@
 # Deployment Guide
 
-Complete guide for deploying OpenLivestock Manager to production.
+Complete guide for deploying LivestockAI Manager to production.
 
 ---
 
@@ -17,8 +17,8 @@ Complete guide for deploying OpenLivestock Manager to production.
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/yourusername/openlivestock.git
-cd openlivestock
+git clone https://github.com/yourusername/livestockai.git
+cd livestockai
 bun install
 
 # 2. Set up database
@@ -94,7 +94,7 @@ Edit `wrangler.jsonc`:
 
 ```jsonc
 {
-  "name": "openlivestock-production",
+  "name": "livestockai-production",
   "main": "./.output/server/index.mjs",
   "compatibility_date": "2024-01-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -151,7 +151,7 @@ wrangler deployments list
 wrangler tail
 ```
 
-Your app is now live at: `https://openlivestock-production.your-subdomain.workers.dev`
+Your app is now live at: `https://livestockai-production.your-subdomain.workers.dev`
 
 ---
 
@@ -226,7 +226,7 @@ jobs:
         run: bun install
 
       - name: Run tests
-        run: bun test
+        run: bun run test
 
       - name: Build
         run: bun run build
@@ -339,12 +339,18 @@ psql $DATABASE_URL < backup.sql
 
 ### Build Errors
 
-**Error**: `Cannot find module '../db'`
+**Error**: `Cannot find module '../db'` or `DATABASE_URL not set`
 
-**Solution**: Ensure dynamic imports in server functions:
+**Solution**: Use the async `getDb()` pattern in server functions:
 
 ```typescript
-const { db } = await import('../db') // ✅
+// ✅ Correct - works on Cloudflare Workers
+const { getDb } = await import('~/lib/db')
+const db = await getDb()
+
+// ❌ Wrong - old pattern
+const { getDb } = await import('~/lib/db')
+const db = await getDb()
 ```
 
 ### Database Connection Errors
@@ -448,7 +454,7 @@ bun run db:migrate
 ## Support
 
 - **Documentation**: [docs/INDEX.md](./INDEX.md)
-- **GitHub Issues**: [github.com/yourusername/openlivestock/issues](https://github.com/yourusername/openlivestock/issues)
+- **GitHub Issues**: [github.com/yourusername/livestockai/issues](https://github.com/yourusername/livestockai/issues)
 - **Community**: [Discord/Slack link]
 
 ---

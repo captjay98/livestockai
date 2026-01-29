@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>banUserFn | OpenLivestock API Reference</title>
+    <title>banUserFn | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -105,11 +105,59 @@
             class="tsd-signature-type"
             >undefined</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-type"
+            >ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
             class="tsd-signature-symbol"
-            >(</span
-          ><br />        <span class="tsd-kind-parameter">data</span
+            >{</span
+          ><br />            <span class="tsd-kind-property">expiresAt</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >reason</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >userId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >&quot;strip&quot;</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >ZodTypeAny</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          >
+          <span class="tsd-kind-property">expiresAt</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">reason</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">userId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          >
           <span class="tsd-kind-property">expiresAt</span
           ><span class="tsd-signature-symbol">?:</span>
           <span class="tsd-signature-type">string</span
@@ -124,22 +172,7 @@
           <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
-            >)</span
-          >
-          <span class="tsd-signature-symbol">=&gt;</span>
-          <span class="tsd-signature-symbol">{</span>
-          <span class="tsd-kind-property">expiresAt</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">reason</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">userId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">}</span
+            >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-type"
             >Promise</span
@@ -153,11 +186,52 @@
           ><span class="tsd-signature-symbol">,</span><br /><span
             class="tsd-signature-symbol"
             >&gt;</span
-          ><span class="tsd-signature-symbol"> = banUser</span>
+          ><span class="tsd-signature-symbol"> = ...</span>
+        </div>
+        <div class="tsd-comment tsd-typography">
+          <p>Ban a user from the platform (admin only).</p>
+        </div>
+        <div class="tsd-comment tsd-typography">
+          <div class="tsd-tag-param">
+            <h4 class="tsd-anchor-link" id="param-data">
+              Param: data<a
+                href="#param-data"
+                aria-label="Permalink"
+                class="tsd-anchor-icon"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="../assets/icons.svg#icon-anchor"></use></svg
+              ></a>
+            </h4>
+            <p>Object containing userId, reason, and optional expiration.</p>
+          </div>
+          <div class="tsd-tag-returns">
+            <h4 class="tsd-anchor-link" id="returns">
+              Returns<a
+                href="#returns"
+                aria-label="Permalink"
+                class="tsd-anchor-icon"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="../assets/icons.svg#icon-anchor"></use></svg
+              ></a>
+            </h4>
+            <p>A promise resolving to a success indicator.</p>
+          </div>
+          <div class="tsd-tag-throws">
+            <h4 class="tsd-anchor-link" id="throws">
+              Throws<a
+                href="#throws"
+                aria-label="Permalink"
+                class="tsd-anchor-icon"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="../assets/icons.svg#icon-anchor"></use></svg
+              ></a>
+            </h4>
+            <p>If attempting to ban self or another admin.</p>
+          </div>
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/users/server.ts:355</li>
+            <li>Defined in features/users/server.ts:222</li>
           </ul>
         </aside>
       </div>
@@ -262,7 +336,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

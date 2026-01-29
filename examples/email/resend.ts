@@ -26,7 +26,7 @@ export class ResendProvider implements EmailProvider {
   ): Promise<ProviderResult> {
     const apiKey = process.env.RESEND_API_KEY
     const fromAddress =
-      process.env.EMAIL_FROM || 'OpenLivestock <noreply@openlivestock.app>'
+      process.env.EMAIL_FROM || 'LivestockAI <noreply@livestockai.app>'
 
     if (!apiKey) {
       return {

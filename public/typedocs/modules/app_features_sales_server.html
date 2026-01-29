@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>app/features/sales/server | OpenLivestock API Reference</title>
+    <title>app/features/sales/server | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -128,7 +128,7 @@
               ></span>
             </dt>
             <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="salesquery">
+            <dt class="tsd-member-summary" id="updatesaleinput">
               <span class="tsd-member-summary-name"
                 ><svg
                   class="tsd-kind-icon"
@@ -137,10 +137,10 @@
                 >
                   <use href="../assets/icons.svg#icon-256"></use></svg
                 ><a
-                  href="../interfaces/app_features_sales_server.SalesQuery.html"
-                  >SalesQuery</a
+                  href="../interfaces/app_features_sales_server.UpdateSaleInput.html"
+                  >UpdateSaleInput</a
                 ><a
-                  href="#salesquery"
+                  href="#updatesaleinput"
                   aria-label="Permalink"
                   class="tsd-anchor-icon"
                   ><svg viewBox="0 0 24 24" aria-hidden="true">
@@ -224,26 +224,6 @@
               ></span>
             </dt>
             <dd class="tsd-member-summary"></dd>
-            <dt class="tsd-member-summary" id="updatesaleinput">
-              <span class="tsd-member-summary-name"
-                ><svg
-                  class="tsd-kind-icon"
-                  viewBox="0 0 24 24"
-                  aria-label="Type Alias"
-                >
-                  <use href="../assets/icons.svg#icon-2097152"></use></svg
-                ><a
-                  href="../types/app_features_sales_server.UpdateSaleInput.html"
-                  >UpdateSaleInput</a
-                ><a
-                  href="#updatesaleinput"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
-              ></span>
-            </dt>
-            <dd class="tsd-member-summary"></dd>
           </dl>
         </details>
         <details class="tsd-panel-group tsd-member-group tsd-accordion" open>
@@ -293,6 +273,46 @@
                   >deleteSaleFn</a
                 ><a
                   href="#deletesalefn"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
+              ></span>
+            </dt>
+            <dd class="tsd-member-summary"></dd>
+            <dt class="tsd-member-summary" id="getsaleformdatafn">
+              <span class="tsd-member-summary-name"
+                ><svg
+                  class="tsd-kind-icon"
+                  viewBox="0 0 24 24"
+                  aria-label="Variable"
+                >
+                  <use href="../assets/icons.svg#icon-32"></use></svg
+                ><a
+                  href="../variables/app_features_sales_server.getSaleFormDataFn.html"
+                  >getSaleFormDataFn</a
+                ><a
+                  href="#getsaleformdatafn"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg></a
+              ></span>
+            </dt>
+            <dd class="tsd-member-summary"></dd>
+            <dt class="tsd-member-summary" id="getsalespagedatafn">
+              <span class="tsd-member-summary-name"
+                ><svg
+                  class="tsd-kind-icon"
+                  viewBox="0 0 24 24"
+                  aria-label="Variable"
+                >
+                  <use href="../assets/icons.svg#icon-32"></use></svg
+                ><a
+                  href="../variables/app_features_sales_server.getSalesPageDataFn.html"
+                  >getSalesPageDataFn</a
+                ><a
+                  href="#getsalespagedatafn"
                   aria-label="Permalink"
                   class="tsd-anchor-icon"
                   ><svg viewBox="0 0 24 24" aria-hidden="true">
@@ -771,14 +791,14 @@
                     >
                       <use href="../assets/icons.svg#icon-256"></use></svg
                     ><span>Create<wbr />Sale<wbr />Input</span></a
-                  ><a href="#salesquery"
+                  ><a href="#updatesaleinput"
                     ><svg
                       class="tsd-kind-icon"
                       viewBox="0 0 24 24"
                       aria-label="Interface"
                     >
                       <use href="../assets/icons.svg#icon-256"></use></svg
-                    ><span>Sales<wbr />Query</span></a
+                    ><span>Update<wbr />Sale<wbr />Input</span></a
                   >
                 </div>
               </details>
@@ -822,14 +842,6 @@
                     >
                       <use href="../assets/icons.svg#icon-2097152"></use></svg
                     ><span>Unit<wbr />Type</span></a
-                  ><a href="#updatesaleinput"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Type Alias"
-                    >
-                      <use href="../assets/icons.svg#icon-2097152"></use></svg
-                    ><span>Update<wbr />Sale<wbr />Input</span></a
                   >
                 </div>
               </details>
@@ -865,6 +877,26 @@
                     >
                       <use href="../assets/icons.svg#icon-32"></use></svg
                     ><span>delete<wbr />Sale<wbr />Fn</span></a
+                  ><a href="#getsaleformdatafn"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Variable"
+                    >
+                      <use href="../assets/icons.svg#icon-32"></use></svg
+                    ><span
+                      >get<wbr />Sale<wbr />Form<wbr />Data<wbr />Fn</span
+                    ></a
+                  ><a href="#getsalespagedatafn"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Variable"
+                    >
+                      <use href="../assets/icons.svg#icon-32"></use></svg
+                    ><span
+                      >get<wbr />Sales<wbr />Page<wbr />Data<wbr />Fn</span
+                    ></a
                   ><a href="#getsalespaginatedfn"
                     ><svg
                       class="tsd-kind-icon"
@@ -1031,7 +1063,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

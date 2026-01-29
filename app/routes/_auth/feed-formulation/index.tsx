@@ -11,7 +11,7 @@ import { SavedFormulations } from '~/components/feed-formulation/saved-formulati
 export const Route = createFileRoute('/_auth/feed-formulation/')({
   component: FeedFormulationPage,
   head: () => ({
-    title: 'Feed Formulation Calculator - OpenLivestock',
+    title: 'Feed Formulation Calculator - LivestockAI',
     meta: [
       {
         name: 'description',

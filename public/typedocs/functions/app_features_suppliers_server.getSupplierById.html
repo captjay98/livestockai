@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>getSupplierById | OpenLivestock API Reference</title>
+    <title>getSupplierById | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/suppliers/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">getSupplierById</a>
-            </li>
+            <li><a href="" aria-current="page">getSupplierById</a></li>
           </ul>
           <h1>Function getSupplierById</h1>
         </div>
@@ -104,99 +102,22 @@
             <li class="">
               <div class="tsd-signature tsd-anchor-link" id="getsupplierbyid">
                 <span class="tsd-kind-call-signature">getSupplierById</span
-                ><span class="tsd-signature-symbol">(</span><br />    <span
-                  class="tsd-kind-parameter"
-                  >supplierId</span
+                ><span class="tsd-signature-symbol">(</span
+                ><span class="tsd-kind-parameter">supplierId</span
                 ><span class="tsd-signature-symbol">:</span>
                 <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">,</span><br /><span
-                  class="tsd-signature-symbol"
-                  >)</span
+                ><span class="tsd-signature-symbol">)</span
                 ><span class="tsd-signature-symbol">:</span>
                 <span class="tsd-signature-type">Promise</span
-                ><span class="tsd-signature-symbol">&lt;</span><br />    <span
-                  class="tsd-signature-symbol"
-                  >|</span
+                ><span class="tsd-signature-symbol">&lt;</span
+                ><a
+                  href="../interfaces/app_features_suppliers_server.SupplierRecord.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >SupplierRecord</a
                 >
-                <span class="tsd-signature-symbol">{</span><br />        <span
-                  class="tsd-kind-property"
-                  >createdAt</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">Date</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >email</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">null</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >id</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >location</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span>
                 <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">null</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >name</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >phone</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >products</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">[]</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >supplierType</span
-                ><span class="tsd-signature-symbol">:</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;hatchery&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;feed_mill&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;pharmacy&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;equipment&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;fingerlings&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;cattle_dealer&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;goat_dealer&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;sheep_dealer&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;bee_supplier&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;other&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">null</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >updatedAt</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">Date</span
-                ><span class="tsd-signature-symbol">;</span><br />    <span
-                  class="tsd-signature-symbol"
-                  >}</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">undefined</span
-                ><span class="tsd-signature-symbol">,</span><br /><span
-                  class="tsd-signature-symbol"
-                  >&gt;</span
+                ><span class="tsd-signature-symbol">&gt;</span
                 ><a
                   href="#getsupplierbyid"
                   aria-label="Permalink"
@@ -207,7 +128,7 @@
               </div>
               <div class="tsd-description">
                 <div class="tsd-comment tsd-typography">
-                  <p>Retrieve a specific supplier record by its unique ID.</p>
+                  <p>Retrieve a single supplier record by its unique ID.</p>
                 </div>
                 <div class="tsd-parameters">
                   <h4 class="tsd-parameters-title">Parameters</h4>
@@ -217,100 +138,24 @@
                         ><span class="tsd-kind-parameter">supplierId</span>:
                         <span class="tsd-signature-type">string</span></span
                       >
-                      <div class="tsd-comment tsd-typography">
-                        <p>ID of the supplier to retrieve</p>
-                      </div>
                     </li>
                   </ul>
                 </div>
                 <h4 class="tsd-returns-title">
-                  Returns
-                  <span class="tsd-signature-type">Promise</span
-                  ><span class="tsd-signature-symbol">&lt;</span><br />    <span
-                    class="tsd-signature-symbol"
-                    >|</span
+                  Returns <span class="tsd-signature-type">Promise</span
+                  ><span class="tsd-signature-symbol">&lt;</span
+                  ><a
+                    href="../interfaces/app_features_suppliers_server.SupplierRecord.html"
+                    class="tsd-signature-type tsd-kind-interface"
+                    >SupplierRecord</a
                   >
-                  <span class="tsd-signature-symbol">{</span><br />        <span
-                    class="tsd-kind-property"
-                    >createdAt</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">Date</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">email</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">null</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">id</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">location</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span>
                   <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">null</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">name</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">phone</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">products</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">[]</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property"
-                    >supplierType</span
-                  ><span class="tsd-signature-symbol">:</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;hatchery&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;feed_mill&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;pharmacy&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;equipment&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;fingerlings&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type"
-                    >&quot;cattle_dealer&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;goat_dealer&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type"
-                    >&quot;sheep_dealer&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type"
-                    >&quot;bee_supplier&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;other&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">null</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">updatedAt</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">Date</span
-                  ><span class="tsd-signature-symbol">;</span><br />    <span
-                    class="tsd-signature-symbol"
-                    >}</span
-                  ><br />    <span class="tsd-signature-symbol">|</span>
                   <span class="tsd-signature-type">undefined</span
-                  ><span class="tsd-signature-symbol">,</span><br /><span
-                    class="tsd-signature-symbol"
-                    >&gt;</span
-                  >
+                  ><span class="tsd-signature-symbol">&gt;</span>
                 </h4>
-                <p>Promise resolving to the supplier or undefined</p>
                 <aside class="tsd-sources">
                   <ul>
-                    <li>Defined in app/features/suppliers/server.ts:122</li>
+                    <li>Defined in features/suppliers/server.ts:168</li>
                   </ul>
                 </aside>
               </div>
@@ -419,7 +264,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

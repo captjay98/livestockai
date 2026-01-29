@@ -139,29 +139,29 @@ export const generateReportFn = createServerFn({ method: 'POST' })
       } = await import('./metrics-service')
 
       const financial = calculateFinancialMetrics({
-        sales: financialData.sales as any,
+        sales: financialData.sales,
         expenses: financialData.expenses,
         startDate: data.startDate,
         endDate: data.endDate,
       })
 
       const operational = calculateOperationalMetrics({
-        batches: operationalData.batches as any,
-        feedRecords: operationalData.feedRecords as any,
-        weightSamples: operationalData.weightSamples as any,
+        batches: operationalData.batches,
+        feedRecords: operationalData.feedRecords,
+        weightSamples: operationalData.weightSamples,
       })
 
       const assets = calculateAssetSummary({
-        batches: assetData.batches as any,
-        structures: assetData.structures as any,
-        marketPrices: assetData.marketPrices as any,
+        batches: assetData.batches,
+        structures: assetData.structures,
+        marketPrices: assetData.marketPrices,
       })
 
       // Calculate track record from actual data
       const trackRecord = calculateTrackRecord({
         batches: trackRecordData.batches.map((b) => ({
           acquisitionDate: b.acquisitionDate,
-          status: b.status as 'active' | 'depleted' | 'sold',
+          status: b.status,
           initialQuantity: b.initialQuantity,
           target_weight_g: b.targetWeightG,
         })),
@@ -214,12 +214,12 @@ export const generateReportFn = createServerFn({ method: 'POST' })
       // Generate PDF
       const pdfElement = CreditPassportPDF({
         reportType: data.reportType,
-        metrics: metrics as any,
+        metrics: metrics,
         qrCodeDataUrl,
-        branding: data.whiteLabel ? 'white-label' : 'openlivestock',
+        branding: data.whiteLabel ? 'white-label' : 'livestockai',
         language: 'en', // TODO: Get from user settings
       })
-      const pdfBuffer = await renderToBuffer(pdfElement as any)
+      const pdfBuffer = await renderToBuffer(pdfElement)
 
       // Upload to R2 private storage
       const { uploadFile } = await import('~/features/integrations/storage')
@@ -244,18 +244,18 @@ export const generateReportFn = createServerFn({ method: 'POST' })
         .values({
           id: reportId,
           userId: session.user.id,
-          farmIds: data.farmIds as any,
-          batchIds: data.batchIds as any,
+          farmIds: data.farmIds,
+          batchIds: data.batchIds,
           reportType: data.reportType,
           startDate: data.startDate,
           endDate: data.endDate,
-          validityDays: data.validityDays as any,
+          validityDays: data.validityDays,
           expiresAt,
           reportHash: contentHash,
           signature,
           publicKey,
           pdfUrl,
-          metricsSnapshot: metrics as any,
+          metricsSnapshot: metrics,
           status: 'active',
           customNotes: data.customNotes || null,
           whiteLabel: data.whiteLabel || false,
@@ -564,7 +564,7 @@ export const verifyReportFn = createServerFn({ method: 'GET' })
     })
 
     // Return public metrics only (limited data for privacy)
-    const metrics = report.metricsSnapshot as any
+    const metrics = report.metricsSnapshot
 
     // Get verification count
     const verificationLogs = await db
@@ -584,10 +584,10 @@ export const verifyReportFn = createServerFn({ method: 'GET' })
       status: report.status,
       verificationCount: Number(verificationLogs?.count || 0),
       publicMetrics: {
-        creditScore: metrics?.creditScore?.score,
-        creditGrade: metrics?.creditScore?.grade,
-        productionCapacity: metrics?.trackRecord?.productionVolume,
-        sustainabilityScore: metrics?.operational?.growthPerformanceIndex,
+        creditScore: metrics.creditScore?.score,
+        creditGrade: metrics.creditScore?.grade,
+        productionCapacity: metrics.trackRecord?.productionVolume,
+        sustainabilityScore: metrics.operational?.growthPerformanceIndex,
       },
     }
   })

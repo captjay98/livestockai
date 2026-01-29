@@ -91,9 +91,7 @@ function VerificationPage() {
         <div className="text-center py-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Shield className="h-10 w-10 text-blue-600" />
-            <h1 className="text-3xl font-bold">
-              OpenLivestock Credit Passport
-            </h1>
+            <h1 className="text-3xl font-bold">LivestockAI Credit Passport</h1>
           </div>
           <p className="text-muted-foreground">
             Blockchain-verified livestock farming credentials
@@ -238,7 +236,7 @@ function VerificationPage() {
         <div className="text-center py-8 text-sm text-muted-foreground">
           <p>This report is cryptographically signed and tamper-proof.</p>
           <p>
-            Powered by OpenLivestock Manager - Open Source Livestock Management
+            Powered by LivestockAI Manager - Open Source Livestock Management
           </p>
         </div>
       </div>

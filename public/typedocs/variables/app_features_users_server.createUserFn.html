@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>createUserFn | OpenLivestock API Reference</title>
+    <title>createUserFn | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -105,79 +105,150 @@
             class="tsd-signature-type"
             >undefined</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-type"
+            >ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
             class="tsd-signature-symbol"
-            >(</span
-          ><br />        <span class="tsd-kind-parameter">data</span
+            >{</span
+          ><br />            <span class="tsd-kind-property">email</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span><br />            <span
-            class="tsd-kind-property"
-            >email</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
+          <span class="tsd-signature-type">ZodString</span
           ><span class="tsd-signature-symbol">;</span><br />            <span
             class="tsd-kind-property"
             >name</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
+          <span class="tsd-signature-type">ZodString</span
           ><span class="tsd-signature-symbol">;</span><br />            <span
             class="tsd-kind-property"
             >password</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
+          <span class="tsd-signature-type">ZodString</span
           ><span class="tsd-signature-symbol">;</span><br />            <span
             class="tsd-kind-property"
             >role</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">&quot;user&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">ZodDefault</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodEnum</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-symbol">[</span
+          ><span class="tsd-signature-type">&quot;user&quot;</span
+          ><span class="tsd-signature-symbol">,</span>
           <span class="tsd-signature-type">&quot;admin&quot;</span
+          ><span class="tsd-signature-symbol">]</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">;</span><br />        <span
             class="tsd-signature-symbol"
             >}</span
-          ><span class="tsd-signature-symbol">,</span><br />    <span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >&quot;strip&quot;</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >ZodTypeAny</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
             class="tsd-signature-symbol"
-            >)</span
+            >{</span
           >
-          <span class="tsd-signature-symbol">=&gt;</span>
-          <span class="tsd-signature-symbol">{</span><br />        <span
-            class="tsd-kind-property"
-            >email</span
+          <span class="tsd-kind-property">email</span
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-kind-property"
-            >name</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">name</span
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-kind-property"
-            >password</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">password</span
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-kind-property"
-            >role</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">role</span
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">&quot;user&quot;</span
           ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;admin&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />    <span
+          <span class="tsd-signature-type">&quot;admin&quot;</span>
+          <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
             class="tsd-signature-symbol"
-            >}</span
+            >{</span
+          >
+          <span class="tsd-kind-property">email</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">name</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">password</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">role</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">&quot;user&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;admin&quot;</span>
+          <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-symbol"
+            >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-type"
             >Promise</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">{}</span
+          ><span class="tsd-signature-type">CreatedUser</span
           ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">,</span><br /><span
             class="tsd-signature-symbol"
             >&gt;</span
-          ><span class="tsd-signature-symbol"> = createUser</span>
+          ><span class="tsd-signature-symbol"> = ...</span>
+        </div>
+        <div class="tsd-comment tsd-typography">
+          <p>Create a new user (admin only).</p>
+        </div>
+        <div class="tsd-comment tsd-typography">
+          <div class="tsd-tag-param">
+            <h4 class="tsd-anchor-link" id="param-data">
+              Param: data<a
+                href="#param-data"
+                aria-label="Permalink"
+                class="tsd-anchor-icon"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="../assets/icons.svg#icon-anchor"></use></svg
+              ></a>
+            </h4>
+            <p>User credentials and initial profile.</p>
+          </div>
+          <div class="tsd-tag-returns">
+            <h4 class="tsd-anchor-link" id="returns">
+              Returns<a
+                href="#returns"
+                aria-label="Permalink"
+                class="tsd-anchor-icon"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="../assets/icons.svg#icon-anchor"></use></svg
+              ></a>
+            </h4>
+            <p>A promise resolving to the created user result.</p>
+          </div>
+          <div class="tsd-tag-throws">
+            <h4 class="tsd-anchor-link" id="throws">
+              Throws<a
+                href="#throws"
+                aria-label="Permalink"
+                class="tsd-anchor-icon"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <use href="../assets/icons.svg#icon-anchor"></use></svg
+              ></a>
+            </h4>
+            <p>If the email already exists.</p>
+          </div>
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/users/server.ts:353</li>
+            <li>Defined in features/users/server.ts:122</li>
           </ul>
         </aside>
       </div>
@@ -282,7 +353,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

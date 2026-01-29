@@ -1,8 +1,8 @@
-[**OpenLivestock API Reference**](README.md)
+[**LivestockAI API Reference**](README.md)
 
 ---
 
-# OpenLivestock API Reference
+# LivestockAI API Reference
 
 ## Modules
 

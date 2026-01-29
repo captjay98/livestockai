@@ -92,7 +92,7 @@ export function TourStep() {
         </h2>
         <p className="text-muted-foreground">
           {t('tour.summary', {
-            defaultValue: 'Explore key features of OpenLivestock',
+            defaultValue: 'Explore key features of LivestockAI',
           })}
         </p>
       </div>

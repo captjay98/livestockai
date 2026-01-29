@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>UpdateBatchData | OpenLivestock API Reference</title>
+    <title>UpdateBatchData | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/batches/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">UpdateBatchData</a>
-            </li>
+            <li><a href="" aria-current="page">UpdateBatchData</a></li>
           </ul>
           <h1>Interface UpdateBatchData</h1>
         </div>
@@ -118,6 +116,12 @@
           <span class="tsd-signature-type">string</span>
           <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#expectedupdatedat"
+            >expectedUpdatedAt</a
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">Date</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#notes"
@@ -181,7 +185,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/batches/server.ts:85</li>
+            <li>Defined in features/batches/server.ts:162</li>
           </ul>
         </aside>
         <section class="tsd-panel-group tsd-index-group">
@@ -211,6 +215,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>batch<wbr />Name?</span></a
+                    >
+                    <a href="#expectedupdatedat" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>expected<wbr />Updated<wbr />At?</span></a
                     >
                     <a href="#notes" class="tsd-index-link"
                       ><svg
@@ -319,7 +332,36 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:96</li>
+                  <li>Defined in features/batches/server.ts:173</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="expectedupdatedat">
+                <code class="tsd-tag">Optional</code
+                ><span>expected<wbr />Updated<wbr />At</span
+                ><a
+                  href="#expectedupdatedat"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">expectedUpdatedAt</span
+                ><span class="tsd-signature-symbol">?:</span>
+                <span class="tsd-signature-type">Date</span>
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>
+                  Expected updatedAt timestamp for conflict detection (offline
+                  sync)
+                </p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in features/batches/server.ts:185</li>
                 </ul>
               </aside>
             </section>
@@ -343,7 +385,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:106</li>
+                  <li>Defined in features/batches/server.ts:183</li>
                 </ul>
               </aside>
             </section>
@@ -371,7 +413,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:98</li>
+                  <li>Defined in features/batches/server.ts:175</li>
                 </ul>
               </aside>
             </section>
@@ -398,7 +440,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:87</li>
+                  <li>Defined in features/batches/server.ts:164</li>
                 </ul>
               </aside>
             </section>
@@ -431,7 +473,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:94</li>
+                  <li>Defined in features/batches/server.ts:171</li>
                 </ul>
               </aside>
             </section>
@@ -461,7 +503,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:100</li>
+                  <li>Defined in features/batches/server.ts:177</li>
                 </ul>
               </aside>
             </section>
@@ -489,7 +531,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:104</li>
+                  <li>Defined in features/batches/server.ts:181</li>
                 </ul>
               </aside>
             </section>
@@ -517,7 +559,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:102</li>
+                  <li>Defined in features/batches/server.ts:179</li>
                 </ul>
               </aside>
             </section>
@@ -660,6 +702,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>batch<wbr />Name</span></a
+                  ><a href="#expectedupdatedat"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>expected<wbr />Updated<wbr />At</span></a
                   ><a href="#notes"
                     ><svg
                       class="tsd-kind-icon"
@@ -724,7 +774,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

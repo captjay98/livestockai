@@ -29,7 +29,7 @@ describe('Integrations Service', () => {
     })
 
     it('formats email subject', () => {
-      const subject = 'OpenLivestock Alert: High Mortality'
+      const subject = 'LivestockAI Alert: High Mortality'
       expect(subject.length).toBeGreaterThan(0)
       expect(subject.length).toBeLessThan(100)
     })

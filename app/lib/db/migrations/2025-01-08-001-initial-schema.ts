@@ -2,7 +2,7 @@ import { sql } from 'kysely'
 import type { Kysely } from 'kysely'
 
 /**
- * OpenLivestock Manager - Initial Database Schema
+ * LivestockAI Manager - Initial Database Schema
  *
  * TABLE OF CONTENTS (53 tables):
  * ─────────────────────────────────────────────────────────

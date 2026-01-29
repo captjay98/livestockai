@@ -12,7 +12,7 @@ export function DashboardWelcome() {
         <Building2 className="h-10 w-10 sm:h-12 sm:w-12 text-foreground mx-auto" />
       </div>
       <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
-        {t('welcome', { defaultValue: 'Welcome to OpenLivestock' })}
+        {t('welcome', { defaultValue: 'Welcome to LivestockAI' })}
       </h1>
       <p className="text-muted-foreground text-base max-w-md mb-6">
         {t('welcomeDescription', {

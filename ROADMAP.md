@@ -1,4 +1,4 @@
-# OpenLivestock Manager - Strategic Roadmap
+# Livestock AI Manager - Strategic Roadmap
 
 This document outlines the strategic direction for future feature development, focusing on high-impact capabilities that solve critical challenges for farmers in developing regions.
 
@@ -33,7 +33,7 @@ The following 5 features have been identified as high-priority differentiators.
 
 - **Metrics Engine:** Aggregates mortality risk, Feed Conversion Ratio (FCR), and historical cash flow.
 - **Verification:** Server generates a signed PDF containing a unique QR Code.
-- **Trust Chain:** Bank loan officer scans QR -> Redirects to `openlivestock.com/verify/{hash}` -> Confirms the paper record matches the immutable server data.
+- **Trust Chain:** Bank loan officer scans QR -> Redirects to `livestockai.com/verify/{hash}` -> Confirms the paper record matches the immutable server data.
 
 ### 3. 🌐 Offline-First Marketplace
 

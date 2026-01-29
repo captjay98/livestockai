@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>CreateBatchData | OpenLivestock API Reference</title>
+    <title>CreateBatchData | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/batches/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">CreateBatchData</a>
-            </li>
+            <li><a href="" aria-current="page">CreateBatchData</a></li>
           </ul>
           <h1>Interface CreateBatchData</h1>
         </div>
@@ -117,6 +115,14 @@
             class="tsd-kind-property"
             href="#batchname"
             >batchName</a
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#breedid"
+            >breedId</a
           ><span class="tsd-signature-symbol">?:</span>
           <span class="tsd-signature-type">string</span>
           <span class="tsd-signature-symbol">|</span>
@@ -202,6 +208,14 @@
           <span class="tsd-signature-type">Date</span>
           <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#targetpriceperunit"
+            >targetPricePerUnit</a
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
           ><span class="tsd-signature-symbol">;</span><br /><span
             class="tsd-signature-symbol"
             >}</span
@@ -209,7 +223,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/batches/server.ts:52</li>
+            <li>Defined in features/batches/server.ts:125</li>
           </ul>
         </aside>
         <section class="tsd-panel-group tsd-index-group">
@@ -248,6 +262,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>batch<wbr />Name?</span></a
+                    >
+                    <a href="#breedid" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>breed<wbr />Id?</span></a
                     >
                     <a href="#costperunit" class="tsd-index-link"
                       ><svg
@@ -348,6 +371,15 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>target<wbr />Harvest<wbr />Date?</span></a
                     >
+                    <a href="#targetpriceperunit" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>target<wbr />Price<wbr />Per<wbr />Unit?</span></a
+                    >
                   </div>
                 </section>
               </div>
@@ -389,7 +421,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:62</li>
+                  <li>Defined in features/batches/server.ts:137</li>
                 </ul>
               </aside>
             </section>
@@ -417,7 +449,34 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:66</li>
+                  <li>Defined in features/batches/server.ts:141</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="breedid">
+                <code class="tsd-tag">Optional</code><span>breed<wbr />Id</span
+                ><a
+                  href="#breedid"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">breedId</span
+                ><span class="tsd-signature-symbol">?:</span>
+                <span class="tsd-signature-type">string</span>
+                <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">null</span>
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Optional breed ID for breed-specific forecasting</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in features/batches/server.ts:133</li>
                 </ul>
               </aside>
             </section>
@@ -442,7 +501,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:64</li>
+                  <li>Defined in features/batches/server.ts:139</li>
                 </ul>
               </aside>
             </section>
@@ -467,7 +526,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:54</li>
+                  <li>Defined in features/batches/server.ts:127</li>
                 </ul>
               </aside>
             </section>
@@ -492,7 +551,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:60</li>
+                  <li>Defined in features/batches/server.ts:135</li>
                 </ul>
               </aside>
             </section>
@@ -521,7 +580,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:56</li>
+                  <li>Defined in features/batches/server.ts:129</li>
                 </ul>
               </aside>
             </section>
@@ -545,7 +604,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:78</li>
+                  <li>Defined in features/batches/server.ts:155</li>
                 </ul>
               </aside>
             </section>
@@ -573,7 +632,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:68</li>
+                  <li>Defined in features/batches/server.ts:143</li>
                 </ul>
               </aside>
             </section>
@@ -600,7 +659,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:58</li>
+                  <li>Defined in features/batches/server.ts:131</li>
                 </ul>
               </aside>
             </section>
@@ -630,7 +689,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:70</li>
+                  <li>Defined in features/batches/server.ts:145</li>
                 </ul>
               </aside>
             </section>
@@ -658,7 +717,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:76</li>
+                  <li>Defined in features/batches/server.ts:153</li>
                 </ul>
               </aside>
             </section>
@@ -686,7 +745,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:74</li>
+                  <li>Defined in features/batches/server.ts:149</li>
                 </ul>
               </aside>
             </section>
@@ -714,7 +773,37 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/batches/server.ts:72</li>
+                  <li>Defined in features/batches/server.ts:147</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="targetpriceperunit">
+                <code class="tsd-tag">Optional</code
+                ><span>target<wbr />Price<wbr />Per<wbr />Unit</span
+                ><a
+                  href="#targetpriceperunit"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">targetPricePerUnit</span
+                ><span class="tsd-signature-symbol">?:</span>
+                <span class="tsd-signature-type">number</span>
+                <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">null</span>
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>
+                  Optional expected sale price per unit for revenue forecasting
+                </p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in features/batches/server.ts:151</li>
                 </ul>
               </aside>
             </section>
@@ -865,6 +954,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>batch<wbr />Name</span></a
+                  ><a href="#breedid"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>breed<wbr />Id</span></a
                   ><a href="#costperunit"
                     ><svg
                       class="tsd-kind-icon"
@@ -953,6 +1050,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>target<wbr />Harvest<wbr />Date</span></a
+                  ><a href="#targetpriceperunit"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>target<wbr />Price<wbr />Per<wbr />Unit</span></a
                   >
                 </div>
               </details>
@@ -961,7 +1066,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

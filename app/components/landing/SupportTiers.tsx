@@ -141,7 +141,7 @@ export function SupportTiers() {
             GitHub.
           </p>
           <a
-            href="https://github.com/captjay98/open-livestock-manager/issues"
+            href="https://github.com/captjay98/livestock-ai/issues"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-emerald-500 hover:text-emerald-400 font-medium transition-colors"

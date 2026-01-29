@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>ExpenseTable | OpenLivestock API Reference</title>
+    <title>ExpenseTable | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -120,15 +120,13 @@
             class="tsd-signature-symbol"
             >|</span
           >
-          <span class="tsd-signature-type">&quot;maintenance&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;equipment&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;other&quot;</span
           ><br />        <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;feed&quot;</span
           ><br />        <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;medicine&quot;</span
+          ><br />        <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;equipment&quot;</span
           ><br />        <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;utilities&quot;</span
           ><br />        <span class="tsd-signature-symbol">|</span>
@@ -150,6 +148,8 @@
           ><br />        <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;livestock_bees&quot;</span
           ><br />        <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;maintenance&quot;</span
+          ><br />        <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;marketing&quot;</span
           ><br />        <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;insurance&quot;</span
@@ -170,6 +170,14 @@
             >date</a
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">Date</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#deletedat"
+            >deletedAt</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">Date</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#description"
@@ -199,6 +207,14 @@
           <span class="tsd-signature-type">boolean</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#receipturl"
+            >receiptUrl</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#supplierid"
             >supplierId</a
           ><span class="tsd-signature-symbol">:</span>
@@ -212,7 +228,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/lib/db/types.ts:479</li>
+            <li>Defined in lib/db/types.ts:611</li>
           </ul>
         </aside>
         <section class="tsd-panel-group tsd-index-group">
@@ -279,6 +295,15 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>date</span></a
                     >
+                    <a href="#deletedat" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>deleted<wbr />At</span></a
+                    >
                     <a href="#description" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -314,6 +339,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>is<wbr />Recurring</span></a
+                    >
+                    <a href="#receipturl" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>receipt<wbr />Url</span></a
                     >
                     <a href="#supplierid" class="tsd-index-link"
                       ><svg
@@ -362,7 +396,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:502</li>
+                  <li>Defined in lib/db/types.ts:634</li>
                 </ul>
               </aside>
             </section>
@@ -386,7 +420,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:482</li>
+                  <li>Defined in lib/db/types.ts:614</li>
                 </ul>
               </aside>
             </section>
@@ -407,15 +441,13 @@
                   class="tsd-signature-symbol"
                   >|</span
                 >
-                <span class="tsd-signature-type">&quot;maintenance&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;equipment&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;other&quot;</span
                 ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;feed&quot;</span
                 ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;medicine&quot;</span
+                ><br />    <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">&quot;equipment&quot;</span
                 ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;utilities&quot;</span
                 ><br />    <span class="tsd-signature-symbol">|</span>
@@ -443,6 +475,8 @@
                 <span class="tsd-signature-type"
                   >&quot;livestock_bees&quot;</span
                 ><br />    <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">&quot;maintenance&quot;</span
+                ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;marketing&quot;</span
                 ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;insurance&quot;</span
@@ -451,7 +485,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:483</li>
+                  <li>Defined in lib/db/types.ts:615</li>
                 </ul>
               </aside>
             </section>
@@ -476,7 +510,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:507</li>
+                  <li>Defined in lib/db/types.ts:640</li>
                 </ul>
               </aside>
             </section>
@@ -495,7 +529,31 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:503</li>
+                  <li>Defined in lib/db/types.ts:635</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="deletedat">
+                <span>deleted<wbr />At</span
+                ><a
+                  href="#deletedat"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">deletedAt</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">Date</span>
+                <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">null</span>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:641</li>
                 </ul>
               </aside>
             </section>
@@ -517,7 +575,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:504</li>
+                  <li>Defined in lib/db/types.ts:636</li>
                 </ul>
               </aside>
             </section>
@@ -539,7 +597,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:481</li>
+                  <li>Defined in lib/db/types.ts:613</li>
                 </ul>
               </aside>
             </section>
@@ -561,7 +619,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:480</li>
+                  <li>Defined in lib/db/types.ts:612</li>
                 </ul>
               </aside>
             </section>
@@ -583,7 +641,31 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:506</li>
+                  <li>Defined in lib/db/types.ts:638</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="receipturl">
+                <span>receipt<wbr />Url</span
+                ><a
+                  href="#receipturl"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">receiptUrl</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">string</span>
+                <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">null</span>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:639</li>
                 </ul>
               </aside>
             </section>
@@ -607,7 +689,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:505</li>
+                  <li>Defined in lib/db/types.ts:637</li>
                 </ul>
               </aside>
             </section>
@@ -782,6 +864,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>date</span></a
+                  ><a href="#deletedat"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>deleted<wbr />At</span></a
                   ><a href="#description"
                     ><svg
                       class="tsd-kind-icon"
@@ -814,6 +904,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>is<wbr />Recurring</span></a
+                  ><a href="#receipturl"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>receipt<wbr />Url</span></a
                   ><a href="#supplierid"
                     ><svg
                       class="tsd-kind-icon"
@@ -830,7 +928,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

@@ -1,5 +1,5 @@
 /**
- * Shared TypeScript types for OpenLivestock
+ * Shared TypeScript types for LivestockAI
  */
 
 /**

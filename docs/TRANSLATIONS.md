@@ -1,6 +1,6 @@
 # Translations
 
-OpenLivestock Manager supports multiple languages to serve a global user base. The internationalization (i18n) system is built using `i18next` and `react-i18next`.
+LivestockAI supports multiple languages to serve a global user base. The internationalization (i18n) system is built using `i18next` and `react-i18next`.
 
 ## Supported Languages
 

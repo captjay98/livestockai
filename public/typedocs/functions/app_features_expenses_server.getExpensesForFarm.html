@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>getExpensesForFarm | OpenLivestock API Reference</title>
+    <title>getExpensesForFarm | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/expenses/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">getExpensesForFarm</a>
-            </li>
+            <li><a href="" aria-current="page">getExpensesForFarm</a></li>
           </ul>
           <h1>Function getExpensesForFarm</h1>
         </div>
@@ -149,141 +147,13 @@
                   >)</span
                 ><span class="tsd-signature-symbol">:</span>
                 <span class="tsd-signature-type">Promise</span
-                ><span class="tsd-signature-symbol">&lt;</span><br />    <span
-                  class="tsd-signature-symbol"
-                  >{</span
-                ><br />        <span class="tsd-kind-property">amount</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >batchId</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">null</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >batchSpecies</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span>
-                <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">null</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >batchType</span
-                ><span class="tsd-signature-symbol">:</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;poultry&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;fish&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;cattle&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;goats&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;sheep&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;bees&quot;</span
-                ><br />            <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">null</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >category</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;maintenance&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;equipment&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;other&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;feed&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;medicine&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;utilities&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;labor&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;transport&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;livestock&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type"
-                  >&quot;livestock_chicken&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type"
-                  >&quot;livestock_fish&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type"
-                  >&quot;livestock_cattle&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type"
-                  >&quot;livestock_goats&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type"
-                  >&quot;livestock_sheep&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type"
-                  >&quot;livestock_bees&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;marketing&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;insurance&quot;</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;veterinary&quot;</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >createdAt</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">Date</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >date</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">Date</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >description</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >farmId</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >id</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >isRecurring</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">boolean</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >supplierId</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span
-                ><br />        <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">null</span
-                ><span class="tsd-signature-symbol">;</span><br />        <span
-                  class="tsd-kind-property"
-                  >supplierName</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span>
-                <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">null</span
-                ><span class="tsd-signature-symbol">;</span><br />    <span
-                  class="tsd-signature-symbol"
-                  >}</span
+                ><span class="tsd-signature-symbol">&lt;</span
+                ><a
+                  href="../interfaces/app_features_expenses_server.ExpenseWithJoins.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >ExpenseWithJoins</a
                 ><span class="tsd-signature-symbol">[]</span
-                ><span class="tsd-signature-symbol">,</span><br /><span
-                  class="tsd-signature-symbol"
-                  >&gt;</span
+                ><span class="tsd-signature-symbol">&gt;</span
                 ><a
                   href="#getexpensesforfarm"
                   aria-label="Permalink"
@@ -351,137 +221,14 @@
                   </ul>
                 </div>
                 <h4 class="tsd-returns-title">
-                  Returns
-                  <span class="tsd-signature-type">Promise</span
-                  ><span class="tsd-signature-symbol">&lt;</span><br />    <span
-                    class="tsd-signature-symbol"
-                    >{</span
-                  ><br />        <span class="tsd-kind-property">amount</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">batchId</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">null</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property"
-                    >batchSpecies</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span>
-                  <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">null</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">batchType</span
-                  ><span class="tsd-signature-symbol">:</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;poultry&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;fish&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;cattle&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;goats&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;sheep&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;bees&quot;</span
-                  ><br />            <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">null</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">category</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;maintenance&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;equipment&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;other&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;feed&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;medicine&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;utilities&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;labor&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;transport&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;livestock&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type"
-                    >&quot;livestock_chicken&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type"
-                    >&quot;livestock_fish&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type"
-                    >&quot;livestock_cattle&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type"
-                    >&quot;livestock_goats&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type"
-                    >&quot;livestock_sheep&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type"
-                    >&quot;livestock_bees&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;marketing&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;insurance&quot;</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">&quot;veterinary&quot;</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">createdAt</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">Date</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">date</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">Date</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property"
-                    >description</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">farmId</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property">id</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property"
-                    >isRecurring</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">boolean</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property"
-                    >supplierId</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span
-                  ><br />        <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">null</span
-                  ><span class="tsd-signature-symbol">;</span
-                  ><br />        <span class="tsd-kind-property"
-                    >supplierName</span
-                  ><span class="tsd-signature-symbol">:</span>
-                  <span class="tsd-signature-type">string</span>
-                  <span class="tsd-signature-symbol">|</span>
-                  <span class="tsd-signature-type">null</span
-                  ><span class="tsd-signature-symbol">;</span><br />    <span
-                    class="tsd-signature-symbol"
-                    >}</span
+                  Returns <span class="tsd-signature-type">Promise</span
+                  ><span class="tsd-signature-symbol">&lt;</span
+                  ><a
+                    href="../interfaces/app_features_expenses_server.ExpenseWithJoins.html"
+                    class="tsd-signature-type tsd-kind-interface"
+                    >ExpenseWithJoins</a
                   ><span class="tsd-signature-symbol">[]</span
-                  ><span class="tsd-signature-symbol">,</span><br /><span
-                    class="tsd-signature-symbol"
-                    >&gt;</span
-                  >
+                  ><span class="tsd-signature-symbol">&gt;</span>
                 </h4>
                 <p>Promise resolving to an array of expenses</p>
                 <div class="tsd-comment tsd-typography">
@@ -502,7 +249,7 @@
                 </div>
                 <aside class="tsd-sources">
                   <ul>
-                    <li>Defined in app/features/expenses/server.ts:372</li>
+                    <li>Defined in features/expenses/server.ts:392</li>
                   </ul>
                 </aside>
               </div>
@@ -611,7 +358,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

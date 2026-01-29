@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>CreateExpenseInput | OpenLivestock API Reference</title>
+    <title>CreateExpenseInput | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/expenses/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">CreateExpenseInput</a>
-            </li>
+            <li><a href="" aria-current="page">CreateExpenseInput</a></li>
           </ul>
           <h1>Interface CreateExpenseInput</h1>
         </div>
@@ -128,33 +126,8 @@
             class="tsd-kind-property"
             href="#category"
             >category</a
-          ><span class="tsd-signature-symbol">:</span><br />        <span
-            class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;maintenance&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;equipment&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;other&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;feed&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;medicine&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;utilities&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;labor&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;transport&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;livestock&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;livestock_chicken&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;livestock_fish&quot;</span
-          ><br />        <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;marketing&quot;</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ExpenseCategory</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#date"
@@ -184,14 +157,14 @@
             href="#feedtype"
             >feedType</a
           ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;starter&quot;</span
-          ><br />    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;grower&quot;</span
-          ><br />    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;finisher&quot;</span
-          ><br />    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;layer_mash&quot;</span
-          ><br />    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;starter&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;grower&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;finisher&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;layer_mash&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;fish_feed&quot;</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
@@ -214,7 +187,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/expenses/server.ts:13</li>
+            <li>Defined in features/expenses/types.ts:26</li>
           </ul>
         </aside>
         <section class="tsd-panel-group tsd-index-group">
@@ -367,7 +340,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:33</li>
+                  <li>Defined in features/expenses/types.ts:34</li>
                 </ul>
               </aside>
             </section>
@@ -396,7 +369,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:17</li>
+                  <li>Defined in features/expenses/types.ts:30</li>
                 </ul>
               </aside>
             </section>
@@ -413,42 +386,15 @@
               </h3>
               <div class="tsd-signature">
                 <span class="tsd-kind-property">category</span
-                ><span class="tsd-signature-symbol">:</span><br />    <span
-                  class="tsd-signature-symbol"
-                  >|</span
-                >
-                <span class="tsd-signature-type">&quot;maintenance&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;equipment&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;other&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;feed&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;medicine&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;utilities&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;labor&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;transport&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;livestock&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type"
-                  >&quot;livestock_chicken&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type"
-                  >&quot;livestock_fish&quot;</span
-                ><br />    <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">&quot;marketing&quot;</span>
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">ExpenseCategory</span>
               </div>
               <div class="tsd-comment tsd-typography">
                 <p>Specific expense classification</p>
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:19</li>
+                  <li>Defined in features/expenses/types.ts:32</li>
                 </ul>
               </aside>
             </section>
@@ -470,7 +416,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:35</li>
+                  <li>Defined in features/expenses/types.ts:36</li>
                 </ul>
               </aside>
             </section>
@@ -495,7 +441,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:37</li>
+                  <li>Defined in features/expenses/types.ts:38</li>
                 </ul>
               </aside>
             </section>
@@ -520,7 +466,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:15</li>
+                  <li>Defined in features/expenses/types.ts:28</li>
                 </ul>
               </aside>
             </section>
@@ -546,7 +492,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:45</li>
+                  <li>Defined in features/expenses/types.ts:46</li>
                 </ul>
               </aside>
             </section>
@@ -579,7 +525,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:43</li>
+                  <li>Defined in features/expenses/types.ts:44</li>
                 </ul>
               </aside>
             </section>
@@ -605,7 +551,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:41</li>
+                  <li>Defined in features/expenses/types.ts:42</li>
                 </ul>
               </aside>
             </section>
@@ -633,7 +579,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/expenses/server.ts:39</li>
+                  <li>Defined in features/expenses/types.ts:40</li>
                 </ul>
               </aside>
             </section>
@@ -856,7 +802,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

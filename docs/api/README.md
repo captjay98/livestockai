@@ -1,11 +1,11 @@
-**OpenLivestock API Reference**
+**LivestockAI API Reference**
 
 ---
 
-# OpenLivestock Manager
+# LivestockAI Manager
 
 <p align="center">
-  <img src="_media/logo-icon.png" alt="OpenLivestock Logo" width="120" />
+  <img src="_media/logo-icon.png" alt="LivestockAI Logo" width="120" />
 </p>
 
 <p align="center">
@@ -144,8 +144,8 @@
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/yourusername/open-livestock-manager.git
-cd open-livestock-manager
+git clone https://github.com/yourusername/livestock-ai.git
+cd livestock-ai
 bun install
 ```
 
@@ -178,16 +178,16 @@ After running the seeder, you can log in with these default accounts:
 
 #### Production Seeder (`bun run db:seed`)
 
-| Role  | Email                       | Password      |
-| ----- | --------------------------- | ------------- |
-| Admin | `admin@openlivestock.local` | `password123` |
+| Role  | Email                     | Password      |
+| ----- | ------------------------- | ------------- |
+| Admin | `admin@livestockai.local` | `password123` |
 
 #### Development Seeder (`bun run db:seed:dev`)
 
-| Role  | Email                       | Password      |
-| ----- | --------------------------- | ------------- |
-| Admin | `admin@openlivestock.local` | `password123` |
-| Demo  | `demo@openlivestock.local`  | `demo123`     |
+| Role  | Email                     | Password      |
+| ----- | ------------------------- | ------------- |
+| Admin | `admin@livestockai.local` | `password123` |
+| Demo  | `demo@livestockai.local`  | `demo123`     |
 
 **⚠️ Security Note**: Change these default passwords immediately in production environments. You can set custom credentials via environment variables:
 

@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>updateFeedRecordFn | OpenLivestock API Reference</title>
+    <title>updateFeedRecordFn | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/feed/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">updateFeedRecordFn</a>
-            </li>
+            <li><a href="" aria-current="page">updateFeedRecordFn</a></li>
           </ul>
           <h1>Variable updateFeedRecordFn<code class="tsd-tag">Const</code></h1>
         </div>
@@ -107,21 +105,616 @@
             class="tsd-signature-type"
             >undefined</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-type"
+            >ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
             class="tsd-signature-symbol"
-            >(</span
-          ><br />        <span class="tsd-kind-parameter">data</span
+            >{</span
+          ><br />            <span class="tsd-kind-property">data</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span><br />            <span
-            class="tsd-kind-property"
-            >data</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Partial</span
+          <span class="tsd-signature-type">ZodObject</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><a
-            href="../interfaces/app_features_feed_server.CreateFeedRecordInput.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >CreateFeedRecordInput</a
+          ><br />                <span class="tsd-signature-symbol">{</span
+          ><br />                    <span class="tsd-kind-property"
+            >bagSizeKg</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNullable</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNumber</span
           ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >batchId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >brandName</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNullable</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">cost</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNumber</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">date</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodDate</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >feedType</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                        <span class="tsd-signature-type"
+            >ZodEnum</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                            <span class="tsd-signature-symbol"
+            >[</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;starter&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;grower&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;finisher&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;layer_mash&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;fish_feed&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;cattle_feed&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;goat_feed&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;sheep_feed&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;hay&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;silage&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                                <span
+            class="tsd-signature-type"
+            >&quot;bee_feed&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                            <span class="tsd-signature-symbol"
+            >]</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                    <span class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >inventoryId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNullable</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">notes</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNullable</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >numberOfBags</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNullable</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNumber</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >quantityKg</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNumber</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >supplierId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNullable</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-type"
+            >&quot;strip&quot;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-type"
+            >ZodTypeAny</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-symbol">{</span
+          ><br />                    <span class="tsd-kind-property"
+            >bagSizeKg</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >brandName</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">cost</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">date</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">Date</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >feedType</span
+          ><span class="tsd-signature-symbol">?:</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;starter&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;grower&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;finisher&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;layer_mash&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;fish_feed&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;cattle_feed&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;goat_feed&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;sheep_feed&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;hay&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;silage&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;bee_feed&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >inventoryId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">notes</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >numberOfBags</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >quantityKg</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >supplierId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-symbol">{</span
+          ><br />                    <span class="tsd-kind-property"
+            >bagSizeKg</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >brandName</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">cost</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">date</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">Date</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >feedType</span
+          ><span class="tsd-signature-symbol">?:</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;starter&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;grower&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;finisher&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;layer_mash&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;fish_feed&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;cattle_feed&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;goat_feed&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;sheep_feed&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;hay&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;silage&quot;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >|</span
+          >
+          <span class="tsd-signature-type">&quot;bee_feed&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >inventoryId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">notes</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >numberOfBags</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >quantityKg</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >supplierId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span><br />            <span
+            class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >recordId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >&quot;strip&quot;</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >ZodTypeAny</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          ><br />            <span class="tsd-kind-property">data</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">{</span><br />                <span
+            class="tsd-kind-property"
+            >bagSizeKg</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">brandName</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">cost</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">date</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">Date</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">feedType</span
+          ><span class="tsd-signature-symbol">?:</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;starter&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;grower&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;finisher&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;layer_mash&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;fish_feed&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;cattle_feed&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;goat_feed&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;sheep_feed&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;hay&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;silage&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;bee_feed&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >inventoryId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">notes</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >numberOfBags</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >quantityKg</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >supplierId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >recordId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          ><br />            <span class="tsd-kind-property">data</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">{</span><br />                <span
+            class="tsd-kind-property"
+            >bagSizeKg</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">batchId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">brandName</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">cost</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">date</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">Date</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">feedType</span
+          ><span class="tsd-signature-symbol">?:</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;starter&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;grower&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;finisher&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;layer_mash&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;fish_feed&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;cattle_feed&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;goat_feed&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;sheep_feed&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;hay&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;silage&quot;</span
+          ><br />                    <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;bee_feed&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >inventoryId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">notes</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >numberOfBags</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >quantityKg</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property"
+            >supplierId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-signature-symbol"
+            >}</span
           ><span class="tsd-signature-symbol">;</span><br />            <span
             class="tsd-kind-property"
             >farmId</span
@@ -137,33 +730,7 @@
             >}</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
-            >)</span
-          >
-          <span class="tsd-signature-symbol">=&gt;</span>
-          <span class="tsd-signature-symbol">{</span><br />        <span
-            class="tsd-kind-property"
-            >data</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Partial</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><a
-            href="../interfaces/app_features_feed_server.CreateFeedRecordInput.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >CreateFeedRecordInput</a
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-kind-property"
-            >farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-kind-property"
-            >recordId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />    <span
-            class="tsd-signature-symbol"
-            >}</span
+            >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-type"
             >Promise</span
@@ -177,7 +744,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/feed/server.ts:346</li>
+            <li>Defined in features/feed/server.ts:432</li>
           </ul>
         </aside>
       </div>
@@ -282,7 +849,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

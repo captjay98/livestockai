@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>MortalityRecord | OpenLivestock API Reference</title>
+    <title>MortalityRecord | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,9 +93,7 @@
                 >app/features/mortality/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">MortalityRecord</a>
-            </li>
+            <li><a href="" aria-current="page">MortalityRecord</a></li>
           </ul>
           <h1>Interface MortalityRecord</h1>
         </div>
@@ -115,18 +113,16 @@
           <span class="tsd-signature-type">string</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
-            href="#batchspecies"
-            >batchSpecies</a
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span><br />    <a
-            class="tsd-kind-property"
             href="#cause"
             >cause</a
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#createdat"
+            >createdAt</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">Date</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#date"
@@ -135,8 +131,26 @@
           <span class="tsd-signature-type">Date</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
+            href="#farmid"
+            >farmId</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#farmname"
+            >farmName</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
             href="#id"
             >id</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#livestocktype"
+            >livestockType</a
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">string</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
@@ -153,6 +167,12 @@
             >quantity</a
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#species"
+            >species</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
           ><span class="tsd-signature-symbol">;</span><br /><span
             class="tsd-signature-symbol"
             >}</span
@@ -160,7 +180,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/mortality/server.ts:9</li>
+            <li>Defined in features/mortality/server.ts:11</li>
           </ul>
         </aside>
         <section class="tsd-panel-group tsd-index-group">
@@ -191,15 +211,6 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>batch<wbr />Id</span></a
                     >
-                    <a href="#batchspecies" class="tsd-index-link"
-                      ><svg
-                        class="tsd-kind-icon"
-                        viewBox="0 0 24 24"
-                        aria-label="Property"
-                      >
-                        <use href="../assets/icons.svg#icon-1024"></use></svg
-                      ><span>batch<wbr />Species</span></a
-                    >
                     <a href="#cause" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -208,6 +219,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>cause</span></a
+                    >
+                    <a href="#createdat" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>created<wbr />At</span></a
                     >
                     <a href="#date" class="tsd-index-link"
                       ><svg
@@ -218,6 +238,24 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>date</span></a
                     >
+                    <a href="#farmid" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>farm<wbr />Id</span></a
+                    >
+                    <a href="#farmname" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>farm<wbr />Name</span></a
+                    >
                     <a href="#id" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -226,6 +264,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>id</span></a
+                    >
+                    <a href="#livestocktype" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>livestock<wbr />Type</span></a
                     >
                     <a href="#notes" class="tsd-index-link"
                       ><svg
@@ -244,6 +291,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>quantity</span></a
+                    >
+                    <a href="#species" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>species</span></a
                     >
                   </div>
                 </section>
@@ -286,34 +342,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/mortality/server.ts:13</li>
-                </ul>
-              </aside>
-            </section>
-            <section class="tsd-panel tsd-member">
-              <h3 class="tsd-anchor-link" id="batchspecies">
-                <span>batch<wbr />Species</span
-                ><a
-                  href="#batchspecies"
-                  aria-label="Permalink"
-                  class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg
-                ></a>
-              </h3>
-              <div class="tsd-signature">
-                <span class="tsd-kind-property">batchSpecies</span
-                ><span class="tsd-signature-symbol">:</span>
-                <span class="tsd-signature-type">string</span>
-                <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">null</span>
-              </div>
-              <div class="tsd-comment tsd-typography">
-                <p>Species of the batch (joined)</p>
-              </div>
-              <aside class="tsd-sources">
-                <ul>
-                  <li>Defined in app/features/mortality/server.ts:15</li>
+                  <li>Defined in features/mortality/server.ts:15</li>
                 </ul>
               </aside>
             </section>
@@ -335,7 +364,32 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/mortality/server.ts:21</li>
+                  <li>Defined in features/mortality/server.ts:29</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="createdat">
+                <span>created<wbr />At</span
+                ><a
+                  href="#createdat"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">createdAt</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">Date</span>
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Record creation timestamp</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in features/mortality/server.ts:33</li>
                 </ul>
               </aside>
             </section>
@@ -357,7 +411,57 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/mortality/server.ts:19</li>
+                  <li>Defined in features/mortality/server.ts:27</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="farmid">
+                <span>farm<wbr />Id</span
+                ><a
+                  href="#farmid"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">farmId</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">string</span>
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Farm ID (joined from batch)</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in features/mortality/server.ts:23</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="farmname">
+                <span>farm<wbr />Name</span
+                ><a
+                  href="#farmname"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">farmName</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">string</span>
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Farm name (joined)</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in features/mortality/server.ts:21</li>
                 </ul>
               </aside>
             </section>
@@ -379,7 +483,32 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/mortality/server.ts:11</li>
+                  <li>Defined in features/mortality/server.ts:13</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="livestocktype">
+                <span>livestock<wbr />Type</span
+                ><a
+                  href="#livestocktype"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">livestockType</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">string</span>
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Livestock type (joined from batch)</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in features/mortality/server.ts:19</li>
                 </ul>
               </aside>
             </section>
@@ -403,7 +532,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/mortality/server.ts:23</li>
+                  <li>Defined in features/mortality/server.ts:31</li>
                 </ul>
               </aside>
             </section>
@@ -428,7 +557,32 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/mortality/server.ts:17</li>
+                  <li>Defined in features/mortality/server.ts:25</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="species">
+                <span>species</span
+                ><a
+                  href="#species"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">species</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">string</span>
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>Species of the batch (joined)</p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in features/mortality/server.ts:17</li>
                 </ul>
               </aside>
             </section>
@@ -571,14 +725,6 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>batch<wbr />Id</span></a
-                  ><a href="#batchspecies"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Property"
-                    >
-                      <use href="../assets/icons.svg#icon-1024"></use></svg
-                    ><span>batch<wbr />Species</span></a
                   ><a href="#cause"
                     ><svg
                       class="tsd-kind-icon"
@@ -587,6 +733,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>cause</span></a
+                  ><a href="#createdat"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>created<wbr />At</span></a
                   ><a href="#date"
                     ><svg
                       class="tsd-kind-icon"
@@ -595,6 +749,22 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>date</span></a
+                  ><a href="#farmid"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>farm<wbr />Id</span></a
+                  ><a href="#farmname"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>farm<wbr />Name</span></a
                   ><a href="#id"
                     ><svg
                       class="tsd-kind-icon"
@@ -603,6 +773,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>id</span></a
+                  ><a href="#livestocktype"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>livestock<wbr />Type</span></a
                   ><a href="#notes"
                     ><svg
                       class="tsd-kind-icon"
@@ -619,6 +797,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>quantity</span></a
+                  ><a href="#species"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>species</span></a
                   >
                 </div>
               </details>
@@ -627,7 +813,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

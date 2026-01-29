@@ -1,5 +1,5 @@
 /**
- * Database Reset Script - OpenLivestock Manager
+ * Database Reset Script - LivestockAI Manager
  *
  * Drops ALL tables and re-runs migrations from scratch.
  * Use with caution - this destroys all data!

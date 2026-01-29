@@ -91,7 +91,7 @@ export function CommunityStats() {
             </p>
           </div>
           <a
-            href="https://github.com/captjay98/open-livestock-manager/blob/main/CONTRIBUTING.md"
+            href="https://github.com/captjay98/livestock-ai/blob/main/CONTRIBUTING.md"
             className="px-6 py-3 rounded-lg border font-mono text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors whitespace-nowrap"
             style={{
               borderColor: 'var(--border-landing-subtle)',

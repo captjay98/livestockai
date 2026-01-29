@@ -1,6 +1,6 @@
 /**
  * Server functions for feed formulation with Zod validation
- * Follows OpenLivestock patterns: Server → Service → Repository
+ * Follows LivestockAI patterns: Server → Service → Repository
  */
 
 import { createServerFn } from '@tanstack/react-start'

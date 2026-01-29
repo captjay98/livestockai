@@ -106,7 +106,7 @@ export class AwsSesProvider implements EmailProvider {
         },
         // IMPORTANT: The 'Source' email must be verified in your AWS SES console
         Source:
-          process.env.EMAIL_FROM_ADDRESS || 'notifications@openlivestock.org',
+          process.env.EMAIL_FROM_ADDRESS || 'notifications@livestockai.app',
       })
 
       // 4. Execute the Command

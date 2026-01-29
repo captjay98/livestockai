@@ -62,7 +62,7 @@ export function WelcomeStep() {
         </div>
         <h1 className="text-3xl font-bold">
           {t('welcome.title', {
-            defaultValue: 'Welcome to OpenLivestock!',
+            defaultValue: 'Welcome to LivestockAI!',
           })}
         </h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto">

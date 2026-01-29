@@ -5,8 +5,8 @@ import type { QueryClient } from '@tanstack/react-query'
 /**
  * Storage key for persisting temp ID mappings to IndexedDB
  */
-const TEMP_ID_STORAGE_KEY = 'openlivestock-temp-id-mappings'
-const BLOCKED_MUTATIONS_KEY = 'openlivestock-blocked-mutations'
+const TEMP_ID_STORAGE_KEY = 'livestockai-temp-id-mappings'
+const BLOCKED_MUTATIONS_KEY = 'livestockai-blocked-mutations'
 
 /**
  * Entity types that can have temp IDs

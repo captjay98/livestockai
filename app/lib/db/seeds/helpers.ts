@@ -1,5 +1,5 @@
 /**
- * Seed Helpers - OpenLivestock Manager
+ * Seed Helpers - LivestockAI Manager
  *
  * Shared utilities for creating users in seeders that are compatible with Better Auth.
  *

@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>CustomerTable | OpenLivestock API Reference</title>
+    <title>CustomerTable | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -91,9 +91,7 @@
             <li>
               <a href="../modules/app_lib_db_types.html">app/lib/db/types</a>
             </li>
-            <li>
-              <a href="" aria-current="page">CustomerTable</a>
-            </li>
+            <li><a href="" aria-current="page">CustomerTable</a></li>
           </ul>
           <h1>Interface CustomerTable</h1>
         </div>
@@ -134,14 +132,28 @@
           <span class="tsd-signature-type">null</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
-            href="#email"
-            >email</a
+            href="#deletedat"
+            >deletedAt</a
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span><br />    <span
+          <span class="tsd-signature-type">Date</span><br />    <span
             class="tsd-signature-symbol"
             >|</span
           >
           <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#email"
+            >email</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#farmid"
+            >farmId</a
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#id"
@@ -187,7 +199,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/lib/db/types.ts:542</li>
+            <li>Defined in lib/db/types.ts:678</li>
           </ul>
         </aside>
         <section class="tsd-panel-group tsd-index-group">
@@ -227,6 +239,15 @@
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>customer<wbr />Type</span></a
                     >
+                    <a href="#deletedat" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>deleted<wbr />At</span></a
+                    >
                     <a href="#email" class="tsd-index-link"
                       ><svg
                         class="tsd-kind-icon"
@@ -235,6 +256,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>email</span></a
+                    >
+                    <a href="#farmid" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>farm<wbr />Id</span></a
                     >
                     <a href="#id" class="tsd-index-link"
                       ><svg
@@ -322,7 +352,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:557</li>
+                  <li>Defined in lib/db/types.ts:694</li>
                 </ul>
               </aside>
             </section>
@@ -361,7 +391,31 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:548</li>
+                  <li>Defined in lib/db/types.ts:685</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="deletedat">
+                <span>deleted<wbr />At</span
+                ><a
+                  href="#deletedat"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">deletedAt</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">Date</span>
+                <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">null</span>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:696</li>
                 </ul>
               </aside>
             </section>
@@ -382,7 +436,29 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:546</li>
+                  <li>Defined in lib/db/types.ts:683</li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="farmid">
+                <span>farm<wbr />Id</span
+                ><a
+                  href="#farmid"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">farmId</span
+                ><span class="tsd-signature-symbol">:</span>
+                <span class="tsd-signature-type">string</span>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>Defined in lib/db/types.ts:680</li>
                 </ul>
               </aside>
             </section>
@@ -404,7 +480,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:543</li>
+                  <li>Defined in lib/db/types.ts:679</li>
                 </ul>
               </aside>
             </section>
@@ -428,7 +504,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:547</li>
+                  <li>Defined in lib/db/types.ts:684</li>
                 </ul>
               </aside>
             </section>
@@ -447,7 +523,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:544</li>
+                  <li>Defined in lib/db/types.ts:681</li>
                 </ul>
               </aside>
             </section>
@@ -466,7 +542,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:545</li>
+                  <li>Defined in lib/db/types.ts:682</li>
                 </ul>
               </aside>
             </section>
@@ -491,7 +567,7 @@
               </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/lib/db/types.ts:558</li>
+                  <li>Defined in lib/db/types.ts:695</li>
                 </ul>
               </aside>
             </section>
@@ -642,6 +718,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>customer<wbr />Type</span></a
+                  ><a href="#deletedat"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>deleted<wbr />At</span></a
                   ><a href="#email"
                     ><svg
                       class="tsd-kind-icon"
@@ -650,6 +734,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>email</span></a
+                  ><a href="#farmid"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>farm<wbr />Id</span></a
                   ><a href="#id"
                     ><svg
                       class="tsd-kind-icon"
@@ -698,7 +790,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

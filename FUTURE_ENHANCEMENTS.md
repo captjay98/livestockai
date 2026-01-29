@@ -1,4 +1,4 @@
-# FUTURE ENHANCEMENTS - OpenLivestock Manager
+# FUTURE ENHANCEMENTS - LivestockAI
 
 This document tracks new features and enhancements that are NOT bug fixes.
 These are improvements to be implemented after critical audit remediation is complete.

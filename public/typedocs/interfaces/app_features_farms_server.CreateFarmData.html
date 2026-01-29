@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <title>CreateFarmData | OpenLivestock API Reference</title>
+    <title>CreateFarmData | Livestock AI API Reference</title>
     <meta
       name="description"
-      content="Documentation for OpenLivestock API Reference"
+      content="Documentation for Livestock AI API Reference"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../assets/style.css" />
@@ -37,7 +37,7 @@
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
-        <a href="../index.html" class="title">OpenLivestock API Reference</a>
+        <a href="../index.html" class="title">Livestock AI API Reference</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
           <svg
@@ -93,15 +93,16 @@
                 >app/features/farms/server</a
               >
             </li>
-            <li>
-              <a href="" aria-current="page">CreateFarmData</a>
-            </li>
+            <li><a href="" aria-current="page">CreateFarmData</a></li>
           </ul>
           <h1>Interface CreateFarmData</h1>
         </div>
         <section class="tsd-panel tsd-comment">
           <div class="tsd-comment tsd-typography">
-            <p>Data structure for creating a new farm.</p>
+            <p>
+              Pure business logic for farm operations. All functions are
+              side-effect-free and easily unit testable.
+            </p>
           </div>
         </section>
         <div class="tsd-signature">
@@ -149,7 +150,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in app/features/farms/server.ts:8</li>
+            <li>Defined in features/farms/service.ts:6</li>
           </ul>
         </aside>
         <section class="tsd-panel-group tsd-index-group">
@@ -234,12 +235,9 @@
                 ><span class="tsd-signature-symbol">:</span>
                 <span class="tsd-signature-type">string</span>
               </div>
-              <div class="tsd-comment tsd-typography">
-                <p>Physical or geographical location description</p>
-              </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/farms/server.ts:12</li>
+                  <li>Defined in features/farms/service.ts:8</li>
                 </ul>
               </aside>
             </section>
@@ -256,12 +254,9 @@
                 ><span class="tsd-signature-symbol">:</span>
                 <span class="tsd-signature-type">string</span>
               </div>
-              <div class="tsd-comment tsd-typography">
-                <p>Display name of the farm</p>
-              </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/farms/server.ts:10</li>
+                  <li>Defined in features/farms/service.ts:7</li>
                 </ul>
               </aside>
             </section>
@@ -295,15 +290,9 @@
                 ><br />    <span class="tsd-signature-symbol">|</span>
                 <span class="tsd-signature-type">&quot;multi&quot;</span>
               </div>
-              <div class="tsd-comment tsd-typography">
-                <p>
-                  Primary livestock focus of the farm. Helps determine which
-                  modules are enabled by default.
-                </p>
-              </div>
               <aside class="tsd-sources">
                 <ul>
-                  <li>Defined in app/features/farms/server.ts:17</li>
+                  <li>Defined in features/farms/service.ts:9</li>
                 </ul>
               </aside>
             </section>
@@ -470,7 +459,7 @@
         </div>
         <div class="site-menu">
           <nav class="tsd-navigation">
-            <a href="../modules.html">OpenLivestock API Reference</a>
+            <a href="../modules.html">Livestock AI API Reference</a>
             <ul class="tsd-small-nested-navigation" id="tsd-nav-container">
               <li>Loading...</li>
             </ul>

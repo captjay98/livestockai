@@ -53,7 +53,7 @@ export function CommunitySection() {
             </p>
 
             <a
-              href="https://github.com/captjay98/open-livestock-manager"
+              href="https://github.com/captjay98/livestock-ai"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-3 px-6 py-3 rounded-lg border hover:bg-black/5 dark:hover:bg-white/10 transition-colors group"
