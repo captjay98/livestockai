@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Open-source, offline-first livestock management supporting 6 livestock types in 15 languages.</strong>
+  <strong>Offline-first livestock management supporting 6 livestock types in 15 languages.</strong>
 </p>
 
 <p align="center">

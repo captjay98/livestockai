@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Gestion de bétail open-source, hors-ligne, supportant 6 types d'animaux.</strong>
+  <strong>Gestion de bétail hors-ligne, supportant 6 types d'animaux.</strong>
 </p>
 
 <p align="center">

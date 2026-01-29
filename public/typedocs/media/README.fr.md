@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Gestion de bétail open-source et hors ligne, prenant en charge 6 types d'élevage.</strong>
+  <strong>Gestion de bétail hors ligne, prenant en charge 6 types d'élevage.</strong>
 </p>
 
 <p align="center">

@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Mfumo wa usimamizi wa mifugo wa wazi (open-source), unaofanya kazi bila mtandao, unaosaidia aina 6 za mifugo.</strong>
+  <strong>Mfumo wa usimamizi wa mifugo unaofanya kazi bila mtandao, unaosaidia aina 6 za mifugo.</strong>
 </p>
 
 <p align="center">

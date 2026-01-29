@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <strong>Open-source, offline-first livestock management supporting 6 livestock types.</strong>
+  <strong>Offline-first livestock management supporting 6 livestock types.</strong>
 </p>
 
 <p align="center">

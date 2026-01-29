@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Gestão de pecuária open-source e offline-first, suportando 6 tipos de animais.</strong>
+  <strong>Gestão de pecuária offline-first, suportando 6 tipos de animais.</strong>
 </p>
 
 <p align="center">
