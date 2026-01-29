@@ -13,9 +13,9 @@ export class R2Provider implements StorageProvider {
         const { env } = await import('cloudflare:workers')
 
         if (access === 'public') {
-            return env.PUBLIC_STORAGE_BUCKET
+            return (env as any).PUBLIC_STORAGE_BUCKET
         }
-        return env.PRIVATE_STORAGE_BUCKET
+        return (env as any).PRIVATE_STORAGE_BUCKET
     }
 
     async upload(
@@ -45,7 +45,7 @@ export class R2Provider implements StorageProvider {
             const url =
                 options.access === 'public'
                     ? `${process.env.R2_PUBLIC_CDN_URL}/${key}`
-                    : this.getSignedUrl(key, 3600)
+                    : await this.getSignedUrl(key, 3600)
 
             return { success: true, url, key }
         } catch (error) {
@@ -61,7 +61,7 @@ export class R2Provider implements StorageProvider {
         try {
             const { env } = await import('cloudflare:workers')
             const bucket =
-                env.PRIVATE_STORAGE_BUCKET || env.PUBLIC_STORAGE_BUCKET
+                (env as any).PRIVATE_STORAGE_BUCKET || (env as any).PUBLIC_STORAGE_BUCKET
 
             if (!bucket) {
                 return { success: false, error: 'R2 bucket not configured' }
@@ -94,7 +94,7 @@ export class R2Provider implements StorageProvider {
         try {
             const { env } = await import('cloudflare:workers')
             const bucket =
-                env.PRIVATE_STORAGE_BUCKET || env.PUBLIC_STORAGE_BUCKET
+                (env as any).PRIVATE_STORAGE_BUCKET || (env as any).PUBLIC_STORAGE_BUCKET
 
             if (!bucket) {
                 return { success: false, error: 'R2 bucket not configured' }
@@ -112,7 +112,7 @@ export class R2Provider implements StorageProvider {
         }
     }
 
-    getSignedUrl(key: string, _expiresIn: number): string {
-        return `${process.env.R2_PRIVATE_URL}/${key}`
+    getSignedUrl(key: string, _expiresIn: number): Promise<string> {
+        return Promise.resolve(`${process.env.R2_PRIVATE_URL}/${key}`)
     }
 }

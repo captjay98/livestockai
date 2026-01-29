@@ -1,12 +1,38 @@
 import { sql } from 'kysely'
 import type { Kysely } from 'kysely'
 
+/**
+ * OpenLivestock Manager - Initial Database Schema
+ * 
+ * TABLE OF CONTENTS (53 tables):
+ * ─────────────────────────────────────────────────────────
+ * 1.  AUTH & USERS          users, user_settings, sessions, account, verification
+ * 2.  FARMS & CONTACTS      farms (with lat/lng), user_farms, farm_modules, customers, suppliers
+ * 3.  INFRASTRUCTURE        structures, breeds, breed_requests, feed_inventory, medication_inventory
+ * 4.  BATCHES & PRODUCTION  batches, mortality_records, feed_records, egg_records, weight_samples,
+ *                           water_quality, vaccinations, treatments
+ * 5.  FINANCE               invoices, invoice_items, sales, expenses
+ * 6.  ANALYTICS             audit_logs, market_prices, growth_standards, notifications
+ * 7.  INDEXES & TRIGGERS    (performance optimizations)
+ * 8.  TASKS & FORMULATION   tasks, task_completions, report_configs, feed_ingredients,
+ *                           nutritional_requirements, user_ingredient_prices, saved_formulations
+ * 9.  DIGITAL FOREMAN       worker_profiles, farm_geofences, worker_check_ins, task_assignments,
+ *                           task_photos, payroll_periods, wage_payments
+ * 10. IOT SENSORS           sensors, sensor_readings, sensor_aggregates, sensor_alerts, sensor_alert_config
+ * 11. CREDIT PASSPORT       credit_reports, report_requests, report_access_logs
+ * 12. MARKETPLACE           marketplace_listings, listing_contact_requests, listing_views
+ * 13. GEOGRAPHY & EXTENSION countries, regions, user_districts, access_requests, access_grants,
+ *                           species_thresholds, outbreak_alerts, outbreak_alert_farms, visit_records
+ *                           + farms.districtId (added via ALTER TABLE)
+ * ─────────────────────────────────────────────────────────
+ */
+
 export async function up(db: Kysely<any>): Promise<void> {
     // Enable UUID extension
     await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`.execute(db)
 
     // ============================================
-    // 1. Core Auth & Users
+    // 1. AUTH & USERS
     // ============================================
     await db.schema
         .createTable('users')
@@ -229,7 +255,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .execute()
 
     // ============================================
-    // 2. Core Entities (Farms, People)
+    // 2. FARMS & CONTACTS
     // ============================================
     await db.schema
         .createTable('farms')
@@ -238,6 +264,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         )
         .addColumn('name', 'varchar(255)', (col) => col.notNull())
         .addColumn('location', 'varchar(255)', (col) => col.notNull())
+        .addColumn('latitude', sql`decimal(10,8)`)
+        .addColumn('longitude', sql`decimal(11,8)`)
         .addColumn('type', 'varchar(20)', (col) => col.notNull())
         .addColumn('contactPhone', 'varchar(50)')
         .addColumn('notes', 'text')
@@ -367,7 +395,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
 
     // ============================================
-    // 3. Infrastructure & Inventory
+    // 3. INFRASTRUCTURE & INVENTORY
     // ============================================
     await db.schema
         .createTable('structures')
@@ -381,6 +409,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('type', 'varchar(20)', (col) => col.notNull())
         .addColumn('capacity', 'integer')
         .addColumn('areaSqm', sql`decimal(10,2)`)
+        .addColumn('latitude', sql`decimal(10,8)`)
+        .addColumn('longitude', sql`decimal(11,8)`)
         .addColumn('status', 'varchar(20)', (col) =>
             col.notNull().defaultTo('active'),
         )
@@ -389,6 +419,10 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('createdAt', 'timestamptz', (col) =>
             col.defaultTo(sql`now()`),
         )
+        .addColumn('updatedAt', 'timestamptz', (col) =>
+            col.defaultTo(sql`now()`),
+        )
+        .addColumn('deletedAt', 'timestamptz')
         .execute()
 
     await sql`ALTER TABLE structures ADD CONSTRAINT structures_type_check CHECK (type IN ('house', 'pond', 'pen', 'cage', 'barn', 'pasture', 'hive', 'milking_parlor', 'shearing_shed', 'tank', 'tarpaulin', 'raceway', 'feedlot', 'kraal'))`.execute(
@@ -424,6 +458,9 @@ export async function up(db: Kysely<any>): Promise<void> {
             col.notNull().defaultTo(true),
         )
         .addColumn('createdAt', 'timestamptz', (col) =>
+            col.notNull().defaultTo(sql`now()`),
+        )
+        .addColumn('updatedAt', 'timestamptz', (col) =>
             col.notNull().defaultTo(sql`now()`),
         )
         .execute()
@@ -479,6 +516,9 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('createdAt', 'timestamp', (col) =>
             col.defaultTo(sql`now()`).notNull(),
         )
+        .addColumn('updatedAt', 'timestamp', (col) =>
+            col.defaultTo(sql`now()`).notNull(),
+        )
         .execute()
 
     await db.schema
@@ -508,6 +548,9 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('minThreshold', 'integer', (col) =>
             col.notNull().defaultTo(1),
         )
+        .addColumn('createdAt', 'timestamptz', (col) =>
+            col.defaultTo(sql`now()`),
+        )
         .addColumn('updatedAt', 'timestamptz', (col) =>
             col.defaultTo(sql`now()`),
         )
@@ -532,6 +575,9 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('minThresholdKg', sql`decimal(10,2)`, (col) =>
             col.notNull().defaultTo(10),
         )
+        .addColumn('createdAt', 'timestamptz', (col) =>
+            col.defaultTo(sql`now()`),
+        )
         .addColumn('updatedAt', 'timestamptz', (col) =>
             col.defaultTo(sql`now()`),
         )
@@ -542,7 +588,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
 
     // ============================================
-    // 4. Batches & Production
+    // 4. BATCHES & PRODUCTION
     // ============================================
     await db.schema
         .createTable('batches')
@@ -739,6 +785,9 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('createdAt', 'timestamptz', (col) =>
             col.defaultTo(sql`now()`),
         )
+        .addColumn('updatedAt', 'timestamptz', (col) =>
+            col.defaultTo(sql`now()`),
+        )
         .execute()
 
     await db.schema
@@ -761,10 +810,13 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('createdAt', 'timestamptz', (col) =>
             col.defaultTo(sql`now()`),
         )
+        .addColumn('updatedAt', 'timestamptz', (col) =>
+            col.defaultTo(sql`now()`),
+        )
         .execute()
 
     // ============================================
-    // 5. Finance
+    // 5. FINANCE
     // ============================================
     await db.schema
         .createTable('invoices')
@@ -792,6 +844,10 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('createdAt', 'timestamptz', (col) =>
             col.defaultTo(sql`now()`),
         )
+        .addColumn('updatedAt', 'timestamptz', (col) =>
+            col.defaultTo(sql`now()`),
+        )
+        .addColumn('deletedAt', 'timestamptz')
         .execute()
 
     await sql`ALTER TABLE invoices ADD CONSTRAINT invoices_status_check CHECK (status IN ('unpaid', 'partial', 'paid'))`.execute(
@@ -843,6 +899,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('createdAt', 'timestamptz', (col) =>
             col.defaultTo(sql`now()`),
         )
+        .addColumn('deletedAt', 'timestamptz')
         .execute()
 
     await sql`ALTER TABLE sales ADD CONSTRAINT sales_livestock_type_check CHECK ("livestockType" IN ('poultry', 'fish', 'eggs', 'cattle', 'goats', 'sheep', 'honey', 'milk', 'wool', 'beeswax', 'propolis', 'royal_jelly', 'manure'))`.execute(
@@ -883,6 +940,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('createdAt', 'timestamptz', (col) =>
             col.defaultTo(sql`now()`),
         )
+        .addColumn('deletedAt', 'timestamptz')
         .execute()
 
     await sql`ALTER TABLE expenses ADD CONSTRAINT expenses_category_check CHECK (category IN ('feed', 'medicine', 'equipment', 'utilities', 'labor', 'transport', 'livestock', 'livestock_chicken', 'livestock_fish', 'livestock_cattle', 'livestock_goats', 'livestock_sheep', 'livestock_bees', 'maintenance', 'marketing', 'insurance', 'veterinary', 'other'))`.execute(
@@ -890,7 +948,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
 
     // ============================================
-    // 6. Logs & Forecasting
+    // 6. ANALYTICS & NOTIFICATIONS
     // ============================================
     await db.schema
         .createTable('audit_logs')
@@ -966,7 +1024,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .execute()
 
     // ============================================
-    // 7. Indexes & Triggers
+    // 7. INDEXES & TRIGGERS
     // ============================================
     // (Indices omitted for brevity but should be here? The file content I'm writing needs to be complete.)
     // I will add the key indexes back to ensure performance.
@@ -1028,8 +1086,45 @@ export async function up(db: Kysely<any>): Promise<void> {
         .column('deletedAt')
         .execute()
 
+    // Missing FK indexes for query performance
+    await db.schema
+        .createIndex('idx_invoice_items_invoice_id')
+        .on('invoice_items')
+        .column('invoiceId')
+        .execute()
+
+    await db.schema
+        .createIndex('idx_sales_invoice_id')
+        .on('sales')
+        .column('invoiceId')
+        .execute()
+
+    await db.schema
+        .createIndex('idx_feed_records_inventory_id')
+        .on('feed_records')
+        .column('inventoryId')
+        .execute()
+
+    await db.schema
+        .createIndex('idx_expenses_batch_id')
+        .on('expenses')
+        .column('batchId')
+        .execute()
+
+    await db.schema
+        .createIndex('idx_expenses_supplier_id')
+        .on('expenses')
+        .column('supplierId')
+        .execute()
+
+    await db.schema
+        .createIndex('idx_batches_supplier_id')
+        .on('batches')
+        .column('supplierId')
+        .execute()
+
     // ============================================
-    // 8. Tasks & Checklists
+    // 8. TASKS & FEED FORMULATION
     // ============================================
     await db.schema
         .createTable('tasks')
@@ -1046,6 +1141,9 @@ export async function up(db: Kysely<any>): Promise<void> {
             col.notNull().defaultTo(false),
         )
         .addColumn('createdAt', 'timestamptz', (col) =>
+            col.defaultTo(sql`now()`),
+        )
+        .addColumn('updatedAt', 'timestamptz', (col) =>
             col.defaultTo(sql`now()`),
         )
         .execute()
@@ -1498,7 +1596,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
 
     // ============================================
-    // 9. Digital Foreman (Worker Management)
+    // 9. DIGITAL FOREMAN (Workforce)
     // ============================================
 
     // Worker Profiles
@@ -1540,8 +1638,8 @@ export async function up(db: Kysely<any>): Promise<void> {
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
       "farmId" UUID NOT NULL UNIQUE REFERENCES farms(id) ON DELETE CASCADE,
       "geofenceType" VARCHAR(10) NOT NULL CHECK ("geofenceType" IN ('circle', 'polygon')),
-      "centerLat" DECIMAL(10,7),
-      "centerLng" DECIMAL(10,7),
+      "centerLat" DECIMAL(10,8),
+      "centerLng" DECIMAL(11,8),
       "radiusMeters" DECIMAL(10,2),
       vertices JSONB,
       "toleranceMeters" DECIMAL(10,2) NOT NULL DEFAULT 100,
@@ -1557,13 +1655,13 @@ export async function up(db: Kysely<any>): Promise<void> {
       "workerId" UUID NOT NULL REFERENCES worker_profiles(id) ON DELETE CASCADE,
       "farmId" UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE,
       "checkInTime" TIMESTAMPTZ NOT NULL,
-      "checkInLat" DECIMAL(10,7) NOT NULL,
-      "checkInLng" DECIMAL(10,7) NOT NULL,
+      "checkInLat" DECIMAL(10,8) NOT NULL,
+      "checkInLng" DECIMAL(11,8) NOT NULL,
       "checkInAccuracy" DECIMAL(10,2),
       "verificationStatus" VARCHAR(20) NOT NULL DEFAULT 'pending_sync' CHECK ("verificationStatus" IN ('verified', 'outside_geofence', 'manual', 'pending_sync')),
       "checkOutTime" TIMESTAMPTZ,
-      "checkOutLat" DECIMAL(10,7),
-      "checkOutLng" DECIMAL(10,7),
+      "checkOutLat" DECIMAL(10,8),
+      "checkOutLng" DECIMAL(11,8),
       "checkOutAccuracy" DECIMAL(10,2),
       "hoursWorked" DECIMAL(5,2),
       "syncStatus" VARCHAR(20) NOT NULL DEFAULT 'synced' CHECK ("syncStatus" IN ('synced', 'pending_sync', 'sync_failed')),
@@ -1628,8 +1726,8 @@ export async function up(db: Kysely<any>): Promise<void> {
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
       "assignmentId" UUID NOT NULL REFERENCES task_assignments(id) ON DELETE CASCADE,
       "photoUrl" TEXT NOT NULL,
-      "capturedLat" DECIMAL(10,7),
-      "capturedLng" DECIMAL(10,7),
+      "capturedLat" DECIMAL(10,8),
+      "capturedLng" DECIMAL(11,8),
       "capturedAt" TIMESTAMPTZ NOT NULL,
       "uploadedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
     )
@@ -1680,7 +1778,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
 
     // ============================================
-    // 10. IoT Sensor Hub
+    // 10. IOT SENSORS
     // ============================================
 
     // Sensors table
@@ -1878,7 +1976,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .execute()
 
     // ============================================
-    // 11. Credit Passport
+    // 11. CREDIT PASSPORT
     // ============================================
 
     // Credit Reports table
@@ -2034,10 +2132,556 @@ export async function up(db: Kysely<any>): Promise<void> {
     await sql`CREATE TRIGGER update_credit_reports_updated_at BEFORE UPDATE ON credit_reports FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`.execute(
         db,
     )
+
+    // ============================================
+    // 12. MARKETPLACE
+    // ============================================
+    await db.schema
+        .createTable('marketplace_listings')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('sellerId', 'uuid', (col) =>
+            col.notNull().references('users.id'),
+        )
+        .addColumn('livestockType', 'varchar(20)', (col) => col.notNull())
+        .addColumn('species', 'varchar(100)', (col) => col.notNull())
+        .addColumn('quantity', 'integer', (col) => col.notNull())
+        .addColumn('minPrice', sql`decimal(19,2)`, (col) => col.notNull())
+        .addColumn('maxPrice', sql`decimal(19,2)`, (col) => col.notNull())
+        .addColumn('currency', 'varchar(3)', (col) =>
+            col.notNull().defaultTo('NGN'),
+        )
+        .addColumn('latitude', sql`decimal(10,8)`, (col) => col.notNull())
+        .addColumn('longitude', sql`decimal(11,8)`, (col) => col.notNull())
+        .addColumn('country', 'varchar(100)', (col) => col.notNull())
+        .addColumn('region', 'varchar(100)', (col) => col.notNull())
+        .addColumn('locality', 'varchar(100)', (col) => col.notNull())
+        .addColumn('formattedAddress', 'text', (col) => col.notNull())
+        .addColumn('description', 'text')
+        .addColumn('photoUrls', sql`text[]`)
+        .addColumn('fuzzingLevel', 'varchar(10)', (col) =>
+            col.notNull().defaultTo('medium'),
+        )
+        .addColumn('contactPreference', 'varchar(10)', (col) =>
+            col.notNull().defaultTo('app'),
+        )
+        .addColumn('batchId', 'uuid', (col) =>
+            col.references('batches.id').onDelete('set null'),
+        )
+        .addColumn('status', 'varchar(20)', (col) =>
+            col.notNull().defaultTo('active'),
+        )
+        .addColumn('expiresAt', 'timestamptz', (col) => col.notNull())
+        .addColumn('viewCount', 'integer', (col) => col.notNull().defaultTo(0))
+        .addColumn('contactCount', 'integer', (col) =>
+            col.notNull().defaultTo(0),
+        )
+        .addColumn('createdAt', 'timestamptz', (col) =>
+            col.notNull().defaultTo(sql`now()`),
+        )
+        .addColumn('updatedAt', 'timestamptz', (col) =>
+            col.notNull().defaultTo(sql`now()`),
+        )
+        .addColumn('deletedAt', 'timestamptz')
+        .execute()
+
+    await db.schema
+        .createIndex('idx_marketplace_listings_seller')
+        .on('marketplace_listings')
+        .column('sellerId')
+        .execute()
+    await db.schema
+        .createIndex('idx_marketplace_listings_status')
+        .on('marketplace_listings')
+        .column('status')
+        .execute()
+    await db.schema
+        .createIndex('idx_marketplace_listings_expires')
+        .on('marketplace_listings')
+        .column('expiresAt')
+        .execute()
+    await db.schema
+        .createIndex('idx_marketplace_listings_type')
+        .on('marketplace_listings')
+        .column('livestockType')
+        .execute()
+    await db.schema
+        .createIndex('idx_marketplace_listings_lat')
+        .on('marketplace_listings')
+        .column('latitude')
+        .execute()
+    await db.schema
+        .createIndex('idx_marketplace_listings_lon')
+        .on('marketplace_listings')
+        .column('longitude')
+        .execute()
+
+    await db.schema
+        .createTable('listing_contact_requests')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('listingId', 'uuid', (col) =>
+            col
+                .notNull()
+                .references('marketplace_listings.id')
+                .onDelete('cascade'),
+        )
+        .addColumn('buyerId', 'uuid', (col) =>
+            col.notNull().references('users.id'),
+        )
+        .addColumn('message', 'text', (col) => col.notNull())
+        .addColumn('contactMethod', 'varchar(10)', (col) => col.notNull())
+        .addColumn('phoneNumber', 'varchar(20)')
+        .addColumn('email', 'varchar(255)')
+        .addColumn('status', 'varchar(20)', (col) =>
+            col.notNull().defaultTo('pending'),
+        )
+        .addColumn('responseMessage', 'text')
+        .addColumn('respondedAt', 'timestamptz')
+        .addColumn('createdAt', 'timestamptz', (col) =>
+            col.notNull().defaultTo(sql`now()`),
+        )
+        .addUniqueConstraint('uq_contact_request_listing_buyer', [
+            'listingId',
+            'buyerId',
+        ])
+        .execute()
+
+    await db.schema
+        .createIndex('idx_contact_requests_listing')
+        .on('listing_contact_requests')
+        .column('listingId')
+        .execute()
+    await db.schema
+        .createIndex('idx_contact_requests_buyer')
+        .on('listing_contact_requests')
+        .column('buyerId')
+        .execute()
+    await db.schema
+        .createIndex('idx_contact_requests_status')
+        .on('listing_contact_requests')
+        .column('status')
+        .execute()
+
+    await db.schema
+        .createTable('listing_views')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('listingId', 'uuid', (col) =>
+            col
+                .notNull()
+                .references('marketplace_listings.id')
+                .onDelete('cascade'),
+        )
+        .addColumn('viewerId', 'uuid', (col) => col.references('users.id'))
+        .addColumn('viewerIp', 'varchar(45)')
+        .addColumn('viewedAt', 'timestamptz', (col) =>
+            col.notNull().defaultTo(sql`now()`),
+        )
+        .execute()
+
+    await db.schema
+        .createIndex('idx_listing_views_listing')
+        .on('listing_views')
+        .column('listingId')
+        .execute()
+    await db.schema
+        .createIndex('idx_listing_views_date')
+        .on('listing_views')
+        .column('viewedAt')
+        .execute()
+    await sql`CREATE UNIQUE INDEX idx_listing_views_user_daily 
+        ON listing_views (listing_id, viewer_id, (viewed_at::date)) 
+        WHERE viewer_id IS NOT NULL`.execute(db)
+    await sql`CREATE UNIQUE INDEX idx_listing_views_ip_daily 
+        ON listing_views (listing_id, viewer_ip, (viewed_at::date)) 
+        WHERE viewer_id IS NULL AND viewer_ip IS NOT NULL`.execute(db)
+
+    // ============================================
+    // 13. GEOGRAPHY & EXTENSION WORKER MODE
+    // ============================================
+    await db.schema
+        .createTable('countries')
+        .addColumn('code', 'varchar(2)', (col) => col.primaryKey())
+        .addColumn('name', 'varchar(100)', (col) => col.notNull())
+        .addColumn('localizedNames', 'jsonb', (col) => col.defaultTo('{}'))
+        .addColumn('createdAt', 'timestamp', (col) => col.defaultTo(sql`NOW()`))
+        .execute()
+
+    await db.schema
+        .createTable('regions')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('countryCode', 'varchar(2)', (col) =>
+            col.notNull().references('countries.code'),
+        )
+        .addColumn('parentId', 'uuid', (col) => col.references('regions.id'))
+        .addColumn('level', 'integer', (col) => col.notNull())
+        .addColumn('name', 'varchar(200)', (col) => col.notNull())
+        .addColumn('slug', 'varchar(100)', (col) => col.notNull().unique())
+        .addColumn('localizedNames', 'jsonb', (col) => col.defaultTo('{}'))
+        .addColumn('isActive', 'boolean', (col) => col.defaultTo(true))
+        .addColumn('createdAt', 'timestamp', (col) => col.defaultTo(sql`NOW()`))
+        .addColumn('updatedAt', 'timestamp', (col) => col.defaultTo(sql`NOW()`))
+        .addUniqueConstraint('unique_region_name', [
+            'countryCode',
+            'parentId',
+            'name',
+        ])
+        .addCheckConstraint('check_region_level', sql`level IN (1, 2)`)
+        .execute()
+
+    await db.schema
+        .createIndex('idx_regions_country_level')
+        .on('regions')
+        .columns(['countryCode', 'level'])
+        .execute()
+    await db.schema
+        .createIndex('idx_regions_parent')
+        .on('regions')
+        .column('parentId')
+        .execute()
+    await sql`CREATE INDEX idx_regions_active ON regions(is_active) WHERE is_active = true`.execute(db)
+
+    // Seed countries
+    await sql`
+        INSERT INTO countries (code, name) VALUES
+        ('NG', 'Nigeria'),
+        ('KE', 'Kenya'),
+        ('IN', 'India'),
+        ('BR', 'Brazil'),
+        ('GH', 'Ghana'),
+        ('TZ', 'Tanzania'),
+        ('UG', 'Uganda'),
+        ('ET', 'Ethiopia'),
+        ('ZA', 'South Africa'),
+        ('EG', 'Egypt')
+    `.execute(db)
+
+    await db.schema
+        .createTable('user_districts')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('userId', 'uuid', (col) =>
+            col.notNull().references('users.id').onDelete('cascade'),
+        )
+        .addColumn('districtId', 'uuid', (col) =>
+            col.notNull().references('regions.id').onDelete('cascade'),
+        )
+        .addColumn('isSupervisor', 'boolean', (col) => col.defaultTo(false))
+        .addColumn('assignedAt', 'timestamp', (col) =>
+            col.defaultTo(sql`NOW()`),
+        )
+        .addColumn('assignedBy', 'uuid', (col) =>
+            col.references('users.id').onDelete('set null'),
+        )
+        .addUniqueConstraint('unique_user_district', ['userId', 'districtId'])
+        .execute()
+
+    await db.schema
+        .createIndex('idx_user_districts_user')
+        .on('user_districts')
+        .column('userId')
+        .execute()
+    await db.schema
+        .createIndex('idx_user_districts_district')
+        .on('user_districts')
+        .column('districtId')
+        .execute()
+
+    await db.schema
+        .createTable('access_requests')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('requesterId', 'uuid', (col) =>
+            col.notNull().references('users.id').onDelete('cascade'),
+        )
+        .addColumn('farmId', 'uuid', (col) =>
+            col.notNull().references('farms.id').onDelete('cascade'),
+        )
+        .addColumn('purpose', 'text', (col) => col.notNull())
+        .addColumn('requestedDurationDays', 'integer', (col) =>
+            col.defaultTo(90),
+        )
+        .addColumn('status', 'varchar(20)', (col) => col.defaultTo('pending'))
+        .addColumn('responderId', 'uuid', (col) =>
+            col.references('users.id').onDelete('set null'),
+        )
+        .addColumn('rejectionReason', 'text')
+        .addColumn('respondedAt', 'timestamp')
+        .addColumn('expiresAt', 'timestamp', (col) =>
+            col.defaultTo(sql`NOW() + INTERVAL '30 days'`),
+        )
+        .addColumn('createdAt', 'timestamp', (col) => col.defaultTo(sql`NOW()`))
+        .addCheckConstraint(
+            'check_request_status',
+            sql`status IN ('pending', 'approved', 'denied', 'expired')`,
+        )
+        .addCheckConstraint(
+            'check_duration_range',
+            sql`requested_duration_days BETWEEN 30 AND 365`,
+        )
+        .execute()
+
+    await db.schema
+        .createIndex('idx_access_requests_farm_status')
+        .on('access_requests')
+        .columns(['farmId', 'status'])
+        .execute()
+    await db.schema
+        .createIndex('idx_access_requests_requester')
+        .on('access_requests')
+        .columns(['requesterId', 'status'])
+        .execute()
+    await sql`CREATE INDEX idx_access_requests_pending ON access_requests(status, expires_at) WHERE status = 'pending'`.execute(db)
+
+    await db.schema
+        .createTable('access_grants')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('userId', 'uuid', (col) =>
+            col.notNull().references('users.id').onDelete('cascade'),
+        )
+        .addColumn('farmId', 'uuid', (col) =>
+            col.notNull().references('farms.id').onDelete('cascade'),
+        )
+        .addColumn('accessRequestId', 'uuid', (col) =>
+            col.references('access_requests.id').onDelete('set null'),
+        )
+        .addColumn('grantedBy', 'uuid', (col) =>
+            col.references('users.id').onDelete('set null'),
+        )
+        .addColumn('grantedAt', 'timestamp', (col) => col.defaultTo(sql`NOW()`))
+        .addColumn('expiresAt', 'timestamp', (col) => col.notNull())
+        .addColumn('financialVisibility', 'boolean', (col) =>
+            col.defaultTo(false),
+        )
+        .addColumn('revokedAt', 'timestamp')
+        .addColumn('revokedBy', 'uuid', (col) =>
+            col.references('users.id').onDelete('set null'),
+        )
+        .addColumn('revokedReason', 'text')
+        .execute()
+
+    await sql`CREATE UNIQUE INDEX idx_active_access_grant ON access_grants(user_id, farm_id) WHERE revoked_at IS NULL`.execute(db)
+    await db.schema
+        .createIndex('idx_access_grants_check')
+        .on('access_grants')
+        .columns(['userId', 'farmId', 'expiresAt', 'revokedAt'])
+        .execute()
+    await sql`CREATE INDEX idx_access_grants_expiring ON access_grants(expires_at) WHERE revoked_at IS NULL`.execute(db)
+    await db.schema
+        .createIndex('idx_access_grants_farm')
+        .on('access_grants')
+        .column('farmId')
+        .execute()
+
+    // Add districtId to farms
+    await db.schema
+        .alterTable('farms')
+        .addColumn('districtId', 'uuid', (col) =>
+            col.references('regions.id').onDelete('set null'),
+        )
+        .execute()
+    await sql`CREATE INDEX idx_farms_district ON farms(district_id) WHERE district_id IS NOT NULL`.execute(db)
+
+    // Triggers for farm district validation
+    await sql`
+        CREATE OR REPLACE FUNCTION validate_farm_district() RETURNS TRIGGER AS $$
+        BEGIN
+          IF NEW.district_id IS NOT NULL THEN
+            IF NOT EXISTS (SELECT 1 FROM regions WHERE id = NEW.district_id AND level = 2) THEN
+              RAISE EXCEPTION 'Farm district must be a level 2 region';
+            END IF;
+          END IF;
+          RETURN NEW;
+        END;
+        $$ LANGUAGE plpgsql
+    `.execute(db)
+    await sql`
+        CREATE TRIGGER check_farm_district
+          BEFORE INSERT OR UPDATE OF district_id ON farms
+          FOR EACH ROW EXECUTE FUNCTION validate_farm_district()
+    `.execute(db)
+
+    await sql`
+        CREATE OR REPLACE FUNCTION revoke_grants_on_district_change() RETURNS TRIGGER AS $$
+        BEGIN
+          IF OLD.district_id IS DISTINCT FROM NEW.district_id THEN
+            UPDATE access_grants
+            SET revoked_at = NOW(),
+                revoked_reason = 'Farm changed district'
+            WHERE farm_id = NEW.id
+              AND revoked_at IS NULL
+              AND expires_at > NOW();
+          END IF;
+          RETURN NEW;
+        END;
+        $$ LANGUAGE plpgsql
+    `.execute(db)
+    await sql`
+        CREATE TRIGGER revoke_grants_on_district_change
+          AFTER UPDATE OF district_id ON farms
+          FOR EACH ROW EXECUTE FUNCTION revoke_grants_on_district_change()
+    `.execute(db)
+
+    await db.schema
+        .createTable('species_thresholds')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('species', 'varchar(50)', (col) => col.notNull())
+        .addColumn('regionId', 'uuid', (col) =>
+            col.references('regions.id').onDelete('cascade'),
+        )
+        .addColumn('amberThreshold', sql`decimal(5,2)`, (col) => col.notNull())
+        .addColumn('redThreshold', sql`decimal(5,2)`, (col) => col.notNull())
+        .addColumn('createdAt', 'timestamp', (col) => col.defaultTo(sql`NOW()`))
+        .addUniqueConstraint('unique_species_region', ['species', 'regionId'])
+        .execute()
+
+    // Seed global defaults
+    await sql`
+        INSERT INTO species_thresholds (species, "regionId", "amberThreshold", "redThreshold")
+        VALUES 
+            ('broiler', NULL, '5.0', '10.0'),
+            ('layer', NULL, '3.0', '7.0'),
+            ('catfish', NULL, '8.0', '15.0'),
+            ('tilapia', NULL, '6.0', '12.0'),
+            ('cattle', NULL, '2.0', '5.0'),
+            ('goats', NULL, '3.0', '6.0'),
+            ('sheep', NULL, '3.0', '6.0')
+    `.execute(db)
+
+    await db.schema
+        .createTable('outbreak_alerts')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('districtId', 'varchar(100)', (col) => col.notNull())
+        .addColumn('species', 'varchar(100)', (col) => col.notNull())
+        .addColumn('livestockType', 'varchar(50)', (col) => col.notNull())
+        .addColumn('severity', 'varchar(20)', (col) => col.notNull())
+        .addColumn('status', 'varchar(20)', (col) =>
+            col.notNull().defaultTo('active'),
+        )
+        .addColumn('detectedAt', 'timestamptz', (col) =>
+            col.notNull().defaultTo(sql`now()`),
+        )
+        .addColumn('resolvedAt', 'timestamptz')
+        .addColumn('notes', 'text')
+        .addColumn('createdBy', 'uuid', (col) => col.notNull())
+        .addColumn('updatedAt', 'timestamptz', (col) =>
+            col.notNull().defaultTo(sql`now()`),
+        )
+        .addColumn('updatedBy', 'uuid', (col) => col.notNull())
+        .execute()
+
+    await sql`ALTER TABLE outbreak_alerts ADD CONSTRAINT outbreak_alerts_severity_check CHECK (severity IN ('watch', 'alert', 'critical'))`.execute(db)
+    await sql`ALTER TABLE outbreak_alerts ADD CONSTRAINT outbreak_alerts_status_check CHECK (status IN ('active', 'monitoring', 'resolved', 'false_positive'))`.execute(db)
+
+    await db.schema
+        .createTable('outbreak_alert_farms')
+        .addColumn('alertId', 'uuid', (col) =>
+            col.notNull().references('outbreak_alerts.id').onDelete('cascade'),
+        )
+        .addColumn('farmId', 'uuid', (col) =>
+            col.notNull().references('farms.id').onDelete('cascade'),
+        )
+        .addColumn('mortalityRate', sql`decimal(5,2)`, (col) => col.notNull())
+        .addColumn('reportedAt', 'timestamptz', (col) =>
+            col.notNull().defaultTo(sql`now()`),
+        )
+        .execute()
+    await db.schema
+        .alterTable('outbreak_alert_farms')
+        .addPrimaryKeyConstraint('outbreak_alert_farms_pkey', ['alertId', 'farmId'])
+        .execute()
+
+    await db.schema
+        .createIndex('idx_outbreak_alerts_district_status')
+        .on('outbreak_alerts')
+        .columns(['districtId', 'status'])
+        .execute()
+    await db.schema
+        .createIndex('idx_outbreak_alerts_species_type')
+        .on('outbreak_alerts')
+        .columns(['species', 'livestockType'])
+        .execute()
+    await db.schema
+        .createIndex('idx_outbreak_alerts_detected_at')
+        .on('outbreak_alerts')
+        .column('detectedAt')
+        .execute()
+    await db.schema
+        .createIndex('idx_outbreak_alert_farms_alert')
+        .on('outbreak_alert_farms')
+        .column('alertId')
+        .execute()
+
+    await db.schema
+        .createTable('visit_records')
+        .addColumn('id', 'uuid', (col) =>
+            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+        )
+        .addColumn('agentId', 'uuid', (col) =>
+            col.notNull().references('users.id'),
+        )
+        .addColumn('farmId', 'uuid', (col) =>
+            col.notNull().references('farms.id'),
+        )
+        .addColumn('visitDate', 'date', (col) => col.notNull())
+        .addColumn('visitType', 'text', (col) => col.notNull())
+        .addColumn('findings', 'text', (col) => col.notNull())
+        .addColumn('recommendations', 'text', (col) => col.notNull())
+        .addColumn('attachments', 'jsonb', (col) => col.defaultTo('[]'))
+        .addColumn('followUpDate', 'date')
+        .addColumn('farmerAcknowledged', 'boolean', (col) =>
+            col.defaultTo(false),
+        )
+        .addColumn('farmerAcknowledgedAt', 'timestamp')
+        .addColumn('createdAt', 'timestamp', (col) =>
+            col.defaultTo(sql`NOW()`).notNull(),
+        )
+        .addColumn('updatedAt', 'timestamp', (col) =>
+            col.defaultTo(sql`NOW()`).notNull(),
+        )
+        .execute()
+
+    await sql`ALTER TABLE visit_records ADD CONSTRAINT visit_records_visit_type_check CHECK (visit_type IN ('routine', 'emergency', 'follow_up'))`.execute(db)
+
+    await db.schema
+        .createIndex('visit_records_farm_id_idx')
+        .on('visit_records')
+        .column('farmId')
+        .execute()
+    await db.schema
+        .createIndex('visit_records_agent_id_idx')
+        .on('visit_records')
+        .column('agentId')
+        .execute()
+    await db.schema
+        .createIndex('visit_records_follow_up_date_idx')
+        .on('visit_records')
+        .column('followUpDate')
+        .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-    // Drop indexes first
+    // Drop triggers and functions first
+    await sql`DROP TRIGGER IF EXISTS revoke_grants_on_district_change ON farms`.execute(db)
+    await sql`DROP FUNCTION IF EXISTS revoke_grants_on_district_change()`.execute(db)
+    await sql`DROP TRIGGER IF EXISTS check_farm_district ON farms`.execute(db)
+    await sql`DROP FUNCTION IF EXISTS validate_farm_district()`.execute(db)
+
+    // Drop indexes
     await db.schema
         .dropIndex('idx_batches_acquisition_date')
         .ifExists()
@@ -2050,9 +2694,23 @@ export async function down(db: Kysely<any>): Promise<void> {
         db,
     )
 
-    // Drop all tables
+    // Drop all tables (order matters for FK dependencies)
     const tables = [
-        // Credit Passport tables (drop first due to FK dependencies)
+        // Extension Worker Mode tables (drop first due to FK dependencies)
+        'visit_records',
+        'outbreak_alert_farms',
+        'outbreak_alerts',
+        'species_thresholds',
+        'access_grants',
+        'access_requests',
+        'user_districts',
+        'regions',
+        'countries',
+        // Offline Marketplace tables
+        'listing_views',
+        'listing_contact_requests',
+        'marketplace_listings',
+        // Credit Passport tables
         'report_access_logs',
         'report_requests',
         'credit_reports',

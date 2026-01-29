@@ -5,7 +5,6 @@
 
 import type { Kysely } from 'kysely'
 import type {
-    ContactRequestStatus,
     Database,
     FuzzingLevel,
     ListingStatus,
@@ -558,11 +557,11 @@ export async function notifyContactRequestersOfDeletion(
 
     // Get all pending contact requests for this listing
     const requests = await db
-        .selectFrom('marketplace_contact_requests as mcr')
-        .innerJoin('marketplace_listings as ml', 'ml.id', 'mcr.listingId')
-        .select(['mcr.buyerId', 'ml.species'])
-        .where('mcr.listingId', '=', listingId)
-        .where('mcr.status', '=', 'pending')
+        .selectFrom('listing_contact_requests')
+        .innerJoin('marketplace_listings', 'marketplace_listings.id', 'listing_contact_requests.listingId')
+        .select(['listing_contact_requests.buyerId', 'marketplace_listings.species'])
+        .where('listing_contact_requests.listingId', '=', listingId)
+        .where('listing_contact_requests.status', '=', 'pending')
         .execute()
 
     // Create notifications for each requester

@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { AlertTriangle, Cow, Shield, TrendingUp, Users } from 'lucide-react'
+import { AlertTriangle, Shield, TrendingUp, Users } from 'lucide-react'
 import { getSupervisorDashboardFn } from '~/features/extension/server'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -7,7 +7,7 @@ import { Button } from '~/components/ui/button'
 
 export const Route = createFileRoute('/_auth/extension/supervisor')({
     loader: async () => {
-        return getSupervisorDashboardFn({ data: {} })
+        return getSupervisorDashboardFn({ data: undefined })
     },
     component: SupervisorDashboard,
 })
@@ -23,13 +23,13 @@ function SupervisorDashboard() {
                     <h1 className="text-2xl font-bold">Supervisor Dashboard</h1>
                     <p className="text-muted-foreground">
                         Managing {totalDistricts} district
-                        {totalDistricts !== 1 ? 's' : ''}
+                        {totalDistricts !== (1 as number) ? 's' : ''}
                     </p>
                 </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {districts.map((district) => (
+                {districts.map((district: any) => (
                     <Card key={district.id} className="relative">
                         <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
@@ -69,7 +69,7 @@ function SupervisorDashboard() {
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    <Cow className="h-4 w-4 text-green-600" />
+                                    <Users className="h-4 w-4 text-green-600" />
                                     <div>
                                         <p className="text-sm font-medium">
                                             {district.livestockCount.toLocaleString()}
@@ -116,10 +116,7 @@ function SupervisorDashboard() {
                                 variant="outline"
                                 className="w-full"
                             >
-                                <Link
-                                    to="/extension/district/$districtId"
-                                    params={{ districtId: district.id }}
-                                >
+                                <Link to="/dashboard">
                                     View District Details
                                 </Link>
                             </Button>
@@ -128,7 +125,7 @@ function SupervisorDashboard() {
                 ))}
             </div>
 
-            {districts.length === 0 && (
+            {(districts.length as number) === 0 && (
                 <Card>
                     <CardContent className="flex flex-col items-center justify-center py-12">
                         <Shield className="h-12 w-12 text-muted-foreground mb-4" />

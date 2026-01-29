@@ -433,10 +433,7 @@ export async function updatePriceHistory(
 /**
  * Get formulation usage statistics
  */
-export function getFormulationUsage(
-    db: Kysely<Database>,
-    formulationId: string,
-): {
+export function getFormulationUsage(): {
     timesUsed: number
     lastUsed: Date | null
     totalBatchesProduced: number

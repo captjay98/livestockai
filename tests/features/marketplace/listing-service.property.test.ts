@@ -36,7 +36,7 @@ describe('listing-service property tests', () => {
 
         fc.assert(
             fc.property(validListing, (listing) => {
-                const errors = validateListingInput(listing)
+                const errors = validateListingInput(listing as any)
                 expect(errors).toHaveLength(0)
             }),
             { numRuns: 100 },
@@ -49,8 +49,8 @@ describe('listing-service property tests', () => {
                 (listing, fieldToRemove) => {
                     const invalidListing = { ...listing }
                     delete invalidListing[fieldToRemove]
-                    const errors = validateListingInput(invalidListing)
-                    expect(errors.length).toBeGreaterThan(0)
+                    const errors = validateListingInput(invalidListing as any)
+                    expect((errors as any).length).toBeGreaterThan(0)
                 },
             ),
             { numRuns: 100 },
@@ -151,7 +151,7 @@ describe('listing-service property tests', () => {
 
         fc.assert(
             fc.property(batchArbitrary, (batch) => {
-                const listing = generateListingFromBatch(batch)
+                const listing = generateListingFromBatch(batch as any)
                 expect(listing.species).toBe(batch.species)
                 expect(listing.quantity).toBe(batch.quantity)
 

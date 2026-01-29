@@ -29,7 +29,7 @@ describe('Privacy Fuzzer Property Tests', () => {
                 (price1, price2) => {
                     const minPrice = Math.min(price1, price2)
                     const maxPrice = Math.max(price1, price2)
-                    const fuzzed = fuzzPrice(minPrice, maxPrice)
+                    const fuzzed = fuzzPrice(minPrice, maxPrice, 'NGN')
                     const [min, max] = fuzzed.split('-').map(Number)
                     expect(min).toBeLessThanOrEqual(minPrice)
                     expect(max).toBeGreaterThanOrEqual(maxPrice)
@@ -49,7 +49,10 @@ describe('Privacy Fuzzer Property Tests', () => {
                 }),
                 fc.constantFrom('low', 'medium', 'high'),
                 (location, level) => {
-                    const fuzzed = fuzzLocation(location, level)
+                    const fuzzed = fuzzLocation({
+                        ...location,
+                        country: 'Nigeria'
+                    }, level)
 
                     if (level === 'low') {
                         expect(fuzzed).toContain(location.locality)
@@ -84,9 +87,25 @@ describe('Privacy Fuzzer Property Tests', () => {
                     }),
                 }),
                 (listing) => {
-                    const result = fuzzListing(listing, listing.sellerId)
+                    const result = fuzzListing({
+                        ...listing,
+                        minPrice: listing.price.toString(),
+                        maxPrice: listing.price.toString(),
+                        currency: 'NGN' as const,
+                        livestockType: 'poultry' as const,
+                        species: 'broiler',
+                        description: 'Test description',
+                        farmId: 'test-farm',
+                        createdAt: new Date() as any,
+                        updatedAt: new Date() as any,
+                        status: 'active' as const,
+                        contactInfo: 'test@example.com',
+                        images: [],
+                        tags: [],
+                        deletedAt: null
+                    } as any, listing.sellerId)
                     expect(result.quantity).toBe(listing.quantity)
-                    expect(result.price).toBe(listing.price)
+                    expect((result as any).minPrice).toBe(listing.price.toString())
                     expect(result.location).toEqual(listing.location)
                 },
             ),
@@ -111,9 +130,25 @@ describe('Privacy Fuzzer Property Tests', () => {
                 fc.string(),
                 (listing, viewerId) => {
                     fc.pre(viewerId !== listing.sellerId)
-                    const result = fuzzListing(listing, viewerId)
+                    const result = fuzzListing({
+                        ...listing,
+                        minPrice: listing.price.toString(),
+                        maxPrice: listing.price.toString(),
+                        currency: 'NGN' as const,
+                        livestockType: 'poultry' as const,
+                        species: 'broiler',
+                        description: 'Test description',
+                        farmId: 'test-farm',
+                        createdAt: new Date() as any,
+                        updatedAt: new Date() as any,
+                        status: 'active' as const,
+                        contactInfo: 'test@example.com',
+                        images: [],
+                        tags: [],
+                        deletedAt: null
+                    } as any, viewerId)
                     expect(typeof result.quantity).toBe('string')
-                    expect(typeof result.price).toBe('string')
+                    expect(typeof (result as any).minPrice).toBe('string')
                     expect(typeof result.location).toBe('string')
                 },
             ),

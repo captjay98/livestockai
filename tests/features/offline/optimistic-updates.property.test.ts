@@ -217,7 +217,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                             const tempId = generateTempId()
                             const result = addOptimisticRecord<TestRecord>(
                                 undefined,
-                                newRecord,
+                                newRecord as unknown as Omit<TestRecord, 'id'>,
                                 tempId,
                             )
 
@@ -245,7 +245,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                             const tempId = generateTempId()
                             const result = addOptimisticRecord<TestRecord>(
                                 existingRecords,
-                                newRecord,
+                                newRecord as unknown as Omit<TestRecord, 'id'>,
                                 tempId,
                             )
 
@@ -284,7 +284,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
 
                             addOptimisticRecord<TestRecord>(
                                 existingRecords,
-                                newRecord,
+                                newRecord as unknown as Omit<TestRecord, 'id'>,
                                 tempId,
                             )
 
@@ -315,7 +315,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                                 targetId,
                                 {
                                     name: newName,
-                                },
+                                } as Partial<TestRecord>,
                             )
 
                             // Find the updated record
@@ -353,7 +353,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                             const result = updateById(
                                 records,
                                 targetId,
-                                updates,
+                                updates as Partial<TestRecord>,
                             )
 
                             expect(result).toHaveLength(records.length)
@@ -381,7 +381,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                             const result = updateById(
                                 records,
                                 nonExistentId,
-                                updates,
+                                updates as Partial<TestRecord>,
                             )
 
                             // All records should be unchanged
@@ -404,7 +404,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                             name: fc.string({ minLength: 1, maxLength: 50 }),
                         }),
                         (id, updates) => {
-                            const result = updateById(undefined, id, updates)
+                            const result = updateById(undefined, id, updates as Partial<TestRecord>)
                             expect(result).toEqual([])
                         },
                     ),
@@ -699,7 +699,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                             const tempId = generateTempId()
                             const recordsWithTemp = addOptimisticRecord(
                                 records,
-                                { name: 'Test', quantity: 100, amount: 50 },
+                                { name: 'Test', quantity: 100, amount: 50 } as unknown as Omit<TestRecord, 'id'>,
                                 tempId,
                             )
 
@@ -737,7 +737,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                             const tempId = generateTempId()
                             const recordsWithTemp = addOptimisticRecord(
                                 records,
-                                { name: 'New Record', quantity: 1, amount: 1 },
+                                { name: 'New Record', quantity: 1, amount: 1 } as unknown as Omit<TestRecord, 'id'>,
                                 tempId,
                             )
 
@@ -770,7 +770,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                             const tempId = generateTempId()
                             const records = addOptimisticRecord(
                                 [],
-                                { name: 'Original', quantity: 100, amount: 50 },
+                                { name: 'Original', quantity: 100, amount: 50 } as unknown as Omit<TestRecord, 'id'>,
                                 tempId,
                             )
 
@@ -841,7 +841,7 @@ describe('Optimistic Update Utilities - Property Tests', () => {
                             const tempId = generateTempId()
                             const recordsWithTemp = addOptimisticRecord(
                                 existingRecords,
-                                { name: 'Temp', quantity: 0, amount: 0 },
+                                { name: 'Temp', quantity: 0, amount: 0 } as unknown as Omit<TestRecord, 'id'>,
                                 tempId,
                             )
 

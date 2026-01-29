@@ -9,7 +9,6 @@ import {
     updateListingFn,
 } from '~/features/marketplace/server'
 import { MyListingsTable } from '~/components/marketplace/my-listings-table'
-import { ListingActions } from '~/components/marketplace/listing-actions'
 
 const myListingsSearchSchema = z.object({
     status: z
@@ -36,7 +35,7 @@ export const Route = createFileRoute('/_auth/marketplace/my-listings')({
 function MyListingsPage() {
     const { t } = useTranslation('marketplace')
     const queryClient = useQueryClient()
-    const { status, page } = Route.useSearch()
+    Route.useSearch()
     const data = Route.useLoaderData()
 
     const updateListingMutation = useMutation({
@@ -61,10 +60,10 @@ function MyListingsPage() {
         },
     })
 
-    const handleAction = (action: string, listingId: string, data?: any) => {
+    const handleAction = (action: string, listingId: string, actionData?: any) => {
         switch (action) {
             case 'edit':
-                updateListingMutation.mutate({ data: { listingId, ...data } })
+                updateListingMutation.mutate({ data: { listingId, ...actionData } })
                 break
             case 'pause':
                 updateListingMutation.mutate({
@@ -102,14 +101,8 @@ function MyListingsPage() {
             </div>
 
             <MyListingsTable
-                data={data}
-                currentStatus={status}
-                currentPage={page}
-                onAction={handleAction}
-                isLoading={
-                    updateListingMutation.isPending ||
-                    deleteListingMutation.isPending
-                }
+                listings={data.data as any}
+                onAction={(listingId, action) => handleAction(action, listingId)}
             />
         </div>
     )

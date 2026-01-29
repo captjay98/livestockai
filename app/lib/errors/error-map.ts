@@ -490,6 +490,12 @@ export const ErrorMap = {
     },
 
     // CONFLICT (409xx) - Start at 40906
+    CONFLICT: {
+        code: 40900,
+        httpStatus: 409,
+        category: 'CONFLICT',
+        message: 'Resource conflict detected',
+    },
     REGION_HAS_CHILDREN: {
         code: 40906,
         httpStatus: 409,

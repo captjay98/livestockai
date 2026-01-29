@@ -19,11 +19,3 @@ function GeofenceConfigPage() {
         </div>
     )
 }
-
-export const Route = createFileRoute('/_auth/farms/$farmId/geofence')({
-    component: RouteComponent,
-})
-
-function RouteComponent() {
-    return <div>Hello "/_auth/farms/$farmId/geofence"!</div>
-}

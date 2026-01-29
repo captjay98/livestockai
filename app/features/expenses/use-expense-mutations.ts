@@ -129,7 +129,18 @@ export function useExpenseMutations(): UseExpenseMutationsResult {
         OptimisticContext<Array<ExpenseRecord>>
     >({
         mutationFn: async ({ expense }) => {
-            return createExpenseFn({ data: { expense } })
+            return createExpenseFn({ 
+                data: { 
+                    expense: {
+                        farmId: expense.farmId,
+                        category: expense.category,
+                        description: expense.description,
+                        amount: expense.amount,
+                        date: expense.date,
+                        supplierId: expense.supplierId || undefined,
+                    }
+                } 
+            })
         },
 
         onMutate: async ({ expense }) => {
@@ -237,7 +248,18 @@ export function useExpenseMutations(): UseExpenseMutationsResult {
         OptimisticContext<Array<ExpenseRecord>>
     >({
         mutationFn: async ({ expenseId, data }) => {
-            return updateExpenseFn({ data: { expenseId, data } })
+            return updateExpenseFn({ 
+                data: { 
+                    expenseId, 
+                    data: {
+                        category: data.category,
+                        description: data.description,
+                        amount: data.amount,
+                        date: data.date,
+                        supplierId: data.supplierId || undefined,
+                    }
+                } 
+            })
         },
 
         onMutate: async ({ expenseId, data }) => {

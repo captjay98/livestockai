@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { Calendar, DollarSign, Users } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { getPayrollHistoryFn } from '~/features/digital-foreman/server-payroll'
 import { useFormatCurrency } from '~/features/settings'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -115,18 +115,17 @@ export function PayrollHistory({
                                 <TableCell>
                                     <Badge
                                         variant={
-                                            statusColors[period.status] ??
-                                            'secondary'
+                                            statusColors[period.status as keyof typeof statusColors]
                                         }
                                     >
                                         {period.status}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {formatCurrency(period.totalWages || 0)}
+                                    {formatCurrency((period as any).totalWages || 0)}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    {formatCurrency(period.totalPaid || 0)}
+                                    {formatCurrency((period as any).totalPaid || 0)}
                                 </TableCell>
                             </TableRow>
                         ))}

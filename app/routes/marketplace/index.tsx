@@ -49,8 +49,11 @@ export const Route = createFileRoute('/marketplace/')({
 
 function MarketplacePage() {
     const { t } = useTranslation('marketplace')
-    const { data: listings, totalPages, currentPage } = Route.useLoaderData()
+    const { data: listings, total } = Route.useLoaderData()
     const search = Route.useSearch()
+    
+    const totalPages = Math.ceil(total / search.pageSize)
+    const currentPage = search.page
 
     return (
         <div className="container mx-auto px-4 py-6">
@@ -61,7 +64,12 @@ function MarketplacePage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <div className="lg:col-span-1">
-                    <ListingFilters />
+                    <ListingFilters 
+                        filters={{...search, distanceRadius: String(search.radiusKm)} as any}
+                        onFiltersChange={() => {
+                            // Handle filter changes
+                        }}
+                    />
                 </div>
 
                 <div className="lg:col-span-3">

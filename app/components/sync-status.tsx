@@ -103,7 +103,9 @@ export function SyncStatus({
 
         failedMutationsList.forEach((mutation) => {
             // Reset the mutation state and retry
-            mutation.reset()
+            if ('reset' in mutation && typeof mutation.reset === 'function') {
+                mutation.reset()
+            }
         })
 
         // Trigger a refetch of all queries to sync state
@@ -184,7 +186,7 @@ export function SyncStatus({
             <div className={cn('flex items-center gap-3', className)}>
                 {/* Sync Status */}
                 <Tooltip>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                         <div
                             className={cn(
                                 'flex items-center gap-1.5',
@@ -230,7 +232,7 @@ export function SyncStatus({
                 {/* Storage Status */}
                 {showStorage && quota && (
                     <Tooltip>
-                        <TooltipTrigger asChild>
+                        <TooltipTrigger>
                             <div
                                 className={cn(
                                     'flex items-center gap-1',
@@ -319,7 +321,9 @@ export function useSyncStatus() {
                 .filter((m) => m.state.status === 'error')
 
             failedMutationsList.forEach((mutation) => {
-                mutation.reset()
+                if ('reset' in mutation && typeof mutation.reset === 'function') {
+                    mutation.reset()
+                }
             })
 
             queryClient.invalidateQueries()

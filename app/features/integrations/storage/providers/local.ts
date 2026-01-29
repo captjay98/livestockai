@@ -23,7 +23,7 @@ export class LocalProvider implements StorageProvider {
             const filePath = path.join(storageDir, key)
 
             await fs.mkdir(path.dirname(filePath), { recursive: true })
-            await fs.writeFile(filePath, Buffer.from(content))
+            await fs.writeFile(filePath, new Uint8Array(content))
 
             return {
                 success: true,

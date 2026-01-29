@@ -300,7 +300,7 @@ describe('Pending Count Accuracy - Property Tests', () => {
             it('failed count should be independent of pending count', () => {
                 fc.assert(
                     fc.property(mutationListArb, (mutations) => {
-                        const pendingCount = calculatePendingCount(mutations)
+                        // const pendingCount = calculatePendingCount(mutations)
                         const failedCount = calculateFailedCount(mutations)
 
                         // A mutation cannot be both pending and failed (status is exclusive)

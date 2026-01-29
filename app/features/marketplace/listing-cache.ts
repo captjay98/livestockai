@@ -1,6 +1,11 @@
 import { del, get, set } from 'idb-keyval'
-import type { FuzzedListing } from '../privacy-fuzzer'
-import type { ListingFilters } from './repository'
+import type { FuzzedListing } from './privacy-fuzzer'
+
+interface ListingFilters {
+    minPrice?: number
+    maxPrice?: number
+    location?: string
+}
 
 const CACHE_KEY = 'marketplace-listings-cache'
 const SYNC_KEY = 'marketplace-last-sync'
@@ -15,18 +20,21 @@ export async function getCachedListings(
     let listings = cached as Array<FuzzedListing>
 
     if (filters) {
-        if (filters.category) {
-            listings = listings.filter((l) => l.category === filters.category)
-        }
         if (filters.minPrice) {
-            listings = listings.filter((l) => l.price >= filters.minPrice!)
+            listings = listings.filter((l) => {
+                const price = parseFloat(l.priceRange.split('-')[0].replace(/[^\d.]/g, ''))
+                return price >= filters.minPrice!
+            })
         }
         if (filters.maxPrice) {
-            listings = listings.filter((l) => l.price <= filters.maxPrice!)
+            listings = listings.filter((l) => {
+                const price = parseFloat(l.priceRange.split('-')[1].split('/')[0].replace(/[^\d.]/g, ''))
+                return price <= filters.maxPrice!
+            })
         }
         if (filters.location) {
             listings = listings.filter((l) =>
-                l.location.includes(filters.location),
+                l.location.includes(filters.location!),
             )
         }
     }

@@ -12,7 +12,9 @@ import {
 } from '~/features/credit-passport/signature-service'
 
 // Set up SHA-512 for Ed25519 BEFORE importing signature-service
-utils.sha512Sync = (...m) => sha2.sha512(utils.concatBytes(...m))
+;
+
+(utils as any).sha512Sync = (...m: Array<any>) => (sha2 as any).sha512((utils as any).concatBytes(...m))
 
 describe('Credit Passport Security Properties', () => {
     // Property 16: Hash determinism

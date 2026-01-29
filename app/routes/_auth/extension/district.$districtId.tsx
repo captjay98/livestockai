@@ -25,26 +25,23 @@ const validateSearch = z.object({
 
 export const Route = createFileRoute('/_auth/extension/district/$districtId')({
     validateSearch,
-    loaderDeps: ({ search }) => ({
+    loaderDeps: ({ search, params }: any) => ({
         page: search.page,
         pageSize: search.pageSize,
         livestockType: search.livestockType,
         healthStatus: search.healthStatus,
         search: search.search,
+        districtId: params.districtId,
     }),
-    loader: async ({ params, deps }) => {
+    loader: async ({ deps }) => {
         return getDistrictDashboardFn({
-            data: {
-                districtId: params.districtId,
-                ...deps,
-            },
+            data: deps,
         })
     },
     component: DistrictDashboardPage,
 })
 
 function DistrictDashboardPage() {
-    const { districtId } = Route.useParams()
     const searchParams = Route.useSearch()
     const navigate = useNavigate({ from: Route.fullPath })
     const { district, stats, farms, pagination } = Route.useLoaderData()
@@ -134,7 +131,7 @@ function DistrictDashboardPage() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search farms..."
-                        value={searchParams.search || ''}
+                        value={(searchParams as any).search || ''}
                         onChange={(e) =>
                             updateSearch({ search: e.target.value, page: 1 })
                         }
@@ -142,7 +139,7 @@ function DistrictDashboardPage() {
                     />
                 </div>
                 <Select
-                    value={searchParams.livestockType || ''}
+                    value={(searchParams as any).livestockType || ''}
                     onValueChange={(value) =>
                         updateSearch({
                             livestockType: value || undefined,
@@ -160,7 +157,7 @@ function DistrictDashboardPage() {
                     </SelectContent>
                 </Select>
                 <Select
-                    value={searchParams.healthStatus || ''}
+                    value={(searchParams as any).healthStatus || ''}
                     onValueChange={(value) =>
                         updateSearch({
                             healthStatus: value || undefined,
@@ -182,7 +179,7 @@ function DistrictDashboardPage() {
 
             {/* Farm Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {farms.map((farm) => (
+                {farms.map((farm: any) => (
                     <Card key={farm.id}>
                         <CardHeader>
                             <div className="flex items-center justify-between">
@@ -229,7 +226,7 @@ function DistrictDashboardPage() {
             </div>
 
             {/* Pagination */}
-            {pagination.totalPages > 1 && (
+            {(pagination.totalPages as number) > 1 && (
                 <div className="flex justify-center gap-2">
                     {Array.from(
                         { length: pagination.totalPages },

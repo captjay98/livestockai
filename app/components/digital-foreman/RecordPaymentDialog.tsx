@@ -108,7 +108,7 @@ export function RecordPaymentDialog({
                 <div className="space-y-4">
                     <div>
                         <Label htmlFor="worker">Worker</Label>
-                        <Select value={workerId} onValueChange={setWorkerId}>
+                        <Select value={workerId} onValueChange={(value) => setWorkerId(value || '')}>
                             <SelectTrigger className="h-11">
                                 <SelectValue placeholder="Select worker" />
                             </SelectTrigger>

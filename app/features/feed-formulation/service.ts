@@ -48,9 +48,6 @@ export function buildOptimizationModel(
         pricePerKg: string
         isAvailable: boolean
     }>,
-    requirements: NutritionalRequirement,
-    batchSize: number,
-    safetyMargin: number = 0,
 ): Array<OptimizationIngredient> {
     const mapped = ingredients.map((ing) => {
         const userPrice = userPrices.find((p) => p.ingredientId === ing.id)
@@ -233,22 +230,6 @@ export function generateMixingInstructions(
         percentage: ing.percentage,
         notes: getMixingNotes(ing.name, ing.percentage),
     }))
-}
-
-/**
- * Get maximum inclusion limit based on ingredient category
- */
-function getMaxInclusionLimit(category: string): number {
-    const limits: Record<string, number> = {
-        cereal: 70, // Corn, wheat can be up to 70%
-        protein: 40, // Soybean meal, fish meal up to 40%
-        fat: 10, // Oils up to 10%
-        mineral: 5, // Mineral premixes up to 5%
-        vitamin: 1, // Vitamin premixes up to 1%
-        additive: 0.5, // Additives very limited
-    }
-
-    return limits[category] || 50 // Default 50% if category unknown
 }
 
 /**

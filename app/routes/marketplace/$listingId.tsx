@@ -10,7 +10,6 @@ import {
 import { ListingDetail } from '~/components/marketplace/listing-detail'
 import { ContactSellerDialog } from '~/components/marketplace/contact-seller-dialog'
 import { Button } from '~/components/ui/button'
-import { Alert, AlertDescription } from '~/components/ui/alert'
 
 const listingDetailSearchSchema = z.object({
     viewerLatitude: z.number().min(-90).max(90).optional(),
@@ -20,7 +19,7 @@ const listingDetailSearchSchema = z.object({
 export const Route = createFileRoute('/marketplace/$listingId')({
     validateSearch: listingDetailSearchSchema,
 
-    loaderDeps: ({ params, search }) => ({
+    loaderDeps: ({ params, search }: any) => ({
         listingId: params.listingId,
         viewerLatitude: search.viewerLatitude,
         viewerLongitude: search.viewerLongitude,
@@ -57,8 +56,7 @@ function ListingDetailPage() {
 
     const handleLoginRedirect = () => {
         router.navigate({
-            to: '/auth/login',
-            search: { redirect: `/marketplace/${listingId}` },
+            to: '/login',
         })
     }
 
@@ -75,7 +73,11 @@ function ListingDetailPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                    <ListingDetail listing={listing} />
+                    <ListingDetail 
+                        listing={listing} 
+                        isOwner={false}
+                        onContactClick={handleContactSeller}
+                    />
                 </div>
 
                 <div className="lg:col-span-1">
@@ -148,9 +150,10 @@ function ListingDetailPage() {
 
             {/* Contact Dialog - only shown if authenticated */}
             <ContactSellerDialog
+                listingId={listingId}
                 open={showContactDialog}
                 onOpenChange={setShowContactDialog}
-                listing={listing}
+                onSubmit={() => setShowContactDialog(false)}
             />
         </div>
     )

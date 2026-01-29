@@ -114,7 +114,7 @@ export function fuzzListing(
     // No fuzzing for the seller viewing their own listing
     if (viewerId === listing.sellerId) {
         return {
-            id: listing.id,
+            id: listing.id as unknown as string,
             sellerId: listing.sellerId,
             livestockType: listing.livestockType,
             species: listing.species,
@@ -125,18 +125,18 @@ export function fuzzListing(
             photoUrls: listing.photoUrls,
             contactPreference: listing.contactPreference,
             status: listing.status,
-            viewCount: listing.viewCount,
-            createdAt: listing.createdAt,
+            viewCount: listing.viewCount as unknown as number,
+            createdAt: listing.createdAt as unknown as Date,
         }
     }
 
     // Apply fuzzing for other viewers
     return {
-        id: listing.id,
+        id: listing.id as unknown as string,
         sellerId: listing.sellerId,
         livestockType: listing.livestockType,
         species: listing.species,
-        quantity: fuzzQuantity(listing.quantity),
+        quantity: fuzzQuantity(listing.quantity as unknown as number),
         priceRange: fuzzPrice(
             Number(listing.minPrice),
             Number(listing.maxPrice),
@@ -159,7 +159,7 @@ export function fuzzListing(
         photoUrls: listing.photoUrls,
         contactPreference: listing.contactPreference,
         status: listing.status,
-        viewCount: listing.viewCount,
-        createdAt: listing.createdAt,
+        viewCount: listing.viewCount as unknown as number,
+        createdAt: listing.createdAt as unknown as Date,
     }
 }

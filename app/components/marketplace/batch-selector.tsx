@@ -17,21 +17,18 @@ interface Batch {
 
 interface BatchSelectorProps {
     batches: Array<Batch>
-    onSelect: (batch: Batch) => void
+    onSelect: (batchId: string) => void
 }
 
 export function BatchSelector({ batches, onSelect }: BatchSelectorProps) {
     const { t } = useTranslation('marketplace')
 
     const handleSelect = (batchId: string) => {
-        const batch = batches.find((b) => b.id === batchId)
-        if (batch) {
-            onSelect(batch)
-        }
+        onSelect(batchId)
     }
 
     return (
-        <Select onValueChange={handleSelect}>
+        <Select onValueChange={(value) => value && handleSelect(value as string)}>
             <SelectTrigger>
                 <SelectValue
                     placeholder={t('selectBatch', {

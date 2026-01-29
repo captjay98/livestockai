@@ -17,7 +17,7 @@ export interface ExtensionNavState {
 }
 
 export function useExtensionNav(): ExtensionNavState {
-    const { data: districts = [] } = useQuery({
+    const { data: districts = [] as Array<District> } = useQuery({
         queryKey: ['user-districts'],
         queryFn: () => getUserDistrictsFn(),
     })
@@ -28,6 +28,6 @@ export function useExtensionNav(): ExtensionNavState {
     return {
         isExtensionWorker,
         isSupervisor,
-        districts: districts as Array<District>,
+        districts: districts,
     }
 }

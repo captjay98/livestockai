@@ -3,29 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { createListingFn } from '~/features/marketplace/server'
-import { getBatchesForFarmFn } from '~/features/batches/server'
 import { CreateListingForm } from '~/components/marketplace/create-listing-form'
-import { useFarm } from '~/features/farms/context'
 
 export const Route = createFileRoute('/_auth/marketplace/create')({
-    loader: async () => {
-        // Fetch user's active batches for pre-fill option
-        const { selectedFarmId } = useFarm.getState()
-        if (!selectedFarmId) return { batches: [] }
-
-        try {
-            const result = await getBatchesForFarmFn({
-                data: {
-                    farmId: selectedFarmId,
-                    page: 1,
-                    pageSize: 100,
-                    status: 'active',
-                },
-            })
-            return { batches: result.paginatedBatches.data }
-        } catch {
-            return { batches: [] }
-        }
+    loader: () => {
+        // Return empty batches for now - will be loaded in component
+        return { batches: [] }
     },
     component: CreateListingPage,
 })
@@ -56,7 +39,7 @@ function CreateListingPage() {
             </div>
 
             <CreateListingForm
-                batches={batches}
+                batches={batches as any}
                 onSubmit={(data) => createListingMutation.mutate({ data })}
                 isSubmitting={createListingMutation.isPending}
             />

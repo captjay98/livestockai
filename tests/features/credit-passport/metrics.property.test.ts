@@ -1,16 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
-import type {
-    BatchRecord,
-    ExpenseRecord,
-    FeedRecord,
-    MarketPriceRecord,
-    MetricsInput,
-    OperationalMetricsInput,
-    SaleRecord,
-    StructureRecord,
-    WeightRecord,
-} from '~/features/credit-passport/metrics-service'
 import {
     calculateAssetSummary,
     calculateCreditScore,
@@ -25,9 +14,6 @@ describe('Credit Passport Metrics Property Tests', () => {
         min: new Date('2020-01-01'),
         max: new Date('2024-12-31'),
     })
-    const positiveNumberArb = fc
-        .float({ min: Math.fround(0.01), max: Math.fround(100000) })
-        .map(Math.fround)
     const decimalStringArb = fc
         .float({ min: Math.fround(0), max: Math.fround(10000), noNaN: true })
         .map(Math.fround)
@@ -189,13 +175,6 @@ describe('Credit Passport Metrics Property Tests', () => {
             fc.property(
                 fc.array(saleRecordArb, { minLength: 1, maxLength: 10 }),
                 (sales) => {
-                    // Filter to only sales within the date range
-                    const filteredSales = sales.filter(
-                        (s) =>
-                            s.date >= new Date('2024-01-01') &&
-                            s.date <= new Date('2024-12-31'),
-                    )
-
                     const metrics = calculateFinancialMetrics({
                         sales,
                         expenses: [],

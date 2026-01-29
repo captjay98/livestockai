@@ -46,7 +46,7 @@ export class S3Provider implements StorageProvider {
                 new PutObjectCommand({
                     Bucket: bucket,
                     Key: key,
-                    Body: content,
+                    Body: new Uint8Array(content),
                     ContentType: contentType,
                     CacheControl: cacheControl,
                     ACL:
@@ -92,7 +92,7 @@ export class S3Provider implements StorageProvider {
 
             return {
                 success: true,
-                content: content?.buffer,
+                content: content ? content.buffer as ArrayBuffer : undefined,
                 contentType: response.ContentType,
             }
         } catch (error) {

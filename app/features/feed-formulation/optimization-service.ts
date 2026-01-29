@@ -71,7 +71,6 @@ async function getHiGHS() {
 export async function buildOptimizationModel(
     ingredients: Array<OptimizationIngredient>,
     requirements: NutritionalRequirement,
-    batchSizeKg: number = 100,
     safetyMargin: number = 0,
 ): Promise<OptimizationResult> {
     const solver = await getHiGHS()
@@ -144,7 +143,7 @@ export async function buildOptimizationModel(
             variables: variableBounds,
         })
 
-        return parseSolution(solution, ingredients, batchSizeKg)
+        return parseSolution(solution, ingredients)
     } catch (error) {
         return {
             feasible: false,
@@ -171,7 +170,6 @@ export async function buildOptimizationModel(
 function parseSolution(
     solution: HighsSolution,
     ingredients: Array<OptimizationIngredient>,
-    batchSizeKg: number,
 ): OptimizationResult {
     if (solution.Status !== 'Optimal') {
         return {

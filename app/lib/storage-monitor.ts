@@ -83,8 +83,8 @@ export async function getStorageQuota(): Promise<StorageQuota | null> {
         }
 
         const estimate = await storageManager.estimate()
-        const usage = estimate.usage
-        const quota = estimate.quota
+        const usage = estimate.usage ?? 0
+        const quota = estimate.quota ?? 0
         const percentage = quota > 0 ? (usage / quota) * 100 : 0
         const available = quota - usage
 

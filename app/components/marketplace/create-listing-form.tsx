@@ -86,13 +86,16 @@ export function CreateListingForm({
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
-    const handleBatchSelect = (batch: Batch) => {
-        setFormData((prev) => ({
-            ...prev,
-            livestockType: batch.livestockType,
-            species: batch.species,
-            quantity: batch.currentQuantity.toString(),
-        }))
+    const handleBatchSelect = (batchId: string) => {
+        const batch = batches.find(b => b.id === batchId)
+        if (batch) {
+            setFormData((prev) => ({
+                ...prev,
+                livestockType: batch.livestockType,
+                species: batch.species,
+                quantity: batch.currentQuantity.toString(),
+            }))
+        }
     }
 
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

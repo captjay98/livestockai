@@ -14,7 +14,7 @@ vi.mock('idb-keyval', () => ({
 }))
 
 describe('Cache Filter Property Tests', () => {
-  const listingArb: fc.Arbitrary<FuzzedListing> = fc.record({
+  const listingArb = fc.record({
     id: fc.uuid(),
     sellerId: fc.uuid(),
     livestockType: fc.constantFrom('poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'),
@@ -41,7 +41,7 @@ describe('Cache Filter Property Tests', () => {
     createdAt: fc.date(),
     updatedAt: fc.date(),
     deletedAt: fc.constant(null),
-  })
+  }) as unknown as fc.Arbitrary<FuzzedListing>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -60,7 +60,7 @@ describe('Cache Filter Property Tests', () => {
         async (listings, filterType) => {
           vi.mocked(get).mockResolvedValue(listings)
           
-          const result = await getCachedListings({ livestockType: filterType })
+          const result = await getCachedListings({ livestockType: filterType } as any)
           
           result.forEach(listing => {
             expect(listing.livestockType).toBe(filterType)
@@ -80,10 +80,10 @@ describe('Cache Filter Property Tests', () => {
         async (listings, minPrice) => {
           vi.mocked(get).mockResolvedValue(listings)
           
-          const result = await getCachedListings({ minPrice: minPrice.toString() })
+          const result = await getCachedListings({ minPrice })
           
           result.forEach(listing => {
-            expect(parseFloat(listing.minPrice)).toBeGreaterThanOrEqual(minPrice)
+            expect(parseFloat((listing as any).minPrice)).toBeGreaterThanOrEqual(minPrice)
           })
         }
       ),
@@ -100,10 +100,10 @@ describe('Cache Filter Property Tests', () => {
         async (listings, maxPrice) => {
           vi.mocked(get).mockResolvedValue(listings)
           
-          const result = await getCachedListings({ maxPrice: maxPrice.toString() })
+          const result = await getCachedListings({ maxPrice })
           
           result.forEach(listing => {
-            expect(parseFloat(listing.maxPrice)).toBeLessThanOrEqual(maxPrice)
+            expect(parseFloat((listing as any).maxPrice)).toBeLessThanOrEqual(maxPrice)
           })
         }
       ),
@@ -120,10 +120,10 @@ describe('Cache Filter Property Tests', () => {
         async (listings, region) => {
           vi.mocked(get).mockResolvedValue(listings)
           
-          const result = await getCachedListings({ region })
+          const result = await getCachedListings({ region } as any)
           
           result.forEach(listing => {
-            expect(listing.region).toContain(region)
+            expect((listing as any).region).toContain(region)
           })
         }
       ),

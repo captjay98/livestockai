@@ -35,7 +35,7 @@ export function FormulationComparison({
     })
 
     // Fetch comparison data for selected formulations
-    const { data: comparisonData, isLoading: loadingComparison } = useQuery({
+    const { data: comparisonData } = useQuery({
         queryKey: ['formulation-comparison', localSelection],
         queryFn: async () => {
             if (localSelection.length < 2) return null
@@ -63,7 +63,7 @@ export function FormulationComparison({
         const { exportComparisonPdfFn } =
             await import('~/features/feed-formulation/server')
         const pdfBlob = await exportComparisonPdfFn({
-            data: { comparisonData },
+            data: { comparisonData: comparisonData },
         })
 
         // Create download link
@@ -82,12 +82,10 @@ export function FormulationComparison({
 
         const { generateShareCodeFn } =
             await import('~/features/feed-formulation/server')
-        const shareCode = await generateShareCodeFn({
-            data: { comparisonData },
-        })
+        const result = await generateShareCodeFn({ data: { formulationId: localSelection[0] } })
 
         // Copy to clipboard
-        await navigator.clipboard.writeText(shareCode)
+        await navigator.clipboard.writeText(result.shareCode)
         // Could show toast notification here
     }
 
@@ -221,7 +219,7 @@ export function FormulationComparison({
                                 </h4>
                                 <div className="grid gap-4">
                                     {comparisonData.map(
-                                        (formulation: any, index: number) => (
+                                        (formulation: any) => (
                                             <div
                                                 key={formulation.id}
                                                 className={`p-4 rounded-lg border-2 ${

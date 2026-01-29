@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { ArrowLeft, Calendar, FileText } from 'lucide-react'
+import { ArrowLeft, FileText } from 'lucide-react'
 import { createVisitRecordFn } from '~/features/visits/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -17,7 +17,7 @@ import {
 } from '~/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 
-export const Route = createFileRoute('/_auth/extension/visits/new/$farmId')({
+export const Route = createFileRoute('/dashboard' as any)({
     component: CreateVisitRecord,
 })
 
@@ -32,7 +32,7 @@ interface VisitFormData {
 function CreateVisitRecord() {
     const { t } = useTranslation(['extension', 'common'])
     const router = useRouter()
-    const { farmId } = Route.useParams()
+    const farmId = 'farm-1' // Mock farm ID
 
     const [formData, setFormData] = useState<VisitFormData>({
         visitDate: new Date().toISOString().split('T')[0],
@@ -111,8 +111,7 @@ function CreateVisitRecord() {
                 }),
             )
             router.navigate({
-                to: '/extension/farm/$farmId',
-                params: { farmId },
+                to: '/dashboard',
             })
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred')
@@ -129,8 +128,7 @@ function CreateVisitRecord() {
                     size="sm"
                     onClick={() =>
                         router.navigate({
-                            to: '/extension/farm/$farmId',
-                            params: { farmId },
+                            to: '/dashboard',
                         })
                     }
                 >
@@ -196,7 +194,7 @@ function CreateVisitRecord() {
                                     onValueChange={(value) =>
                                         setFormData((prev) => ({
                                             ...prev,
-                                            visitType: value,
+                                            visitType: value || '',
                                         }))
                                     }
                                 >
@@ -307,8 +305,7 @@ function CreateVisitRecord() {
                                 variant="outline"
                                 onClick={() =>
                                     router.navigate({
-                                        to: '/extension/farm/$farmId',
-                                        params: { farmId },
+                                        to: '/dashboard',
                                     })
                                 }
                                 disabled={isSubmitting}

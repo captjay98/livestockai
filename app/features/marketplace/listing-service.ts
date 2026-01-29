@@ -30,8 +30,8 @@ export function validateListingInput(input: CreateListingInput): {
 } {
     const errors: Array<string> = []
 
-    if (!input.livestockType) errors.push('Livestock type is required')
-    if (!input.species?.trim()) errors.push('Species is required')
+    // Validate required fields
+    if (!input.species || !input.species.trim()) errors.push('Species is required')
     if (!input.quantity || input.quantity <= 0)
         errors.push('Quantity must be greater than 0')
     if (input.minPrice < 0) errors.push('Minimum price cannot be negative')
@@ -39,9 +39,9 @@ export function validateListingInput(input: CreateListingInput): {
         errors.push(
             'Maximum price must be greater than or equal to minimum price',
         )
-    if (!input.location?.state?.trim()) errors.push('State is required')
-    if (!input.location?.lga?.trim()) errors.push('LGA is required')
-    if (!input.location?.address?.trim()) errors.push('Address is required')
+    if (!input.location.state || !input.location.state.trim()) errors.push('State is required')
+    if (!input.location.lga || !input.location.lga.trim()) errors.push('LGA is required')
+    if (!input.location.address || !input.location.address.trim()) errors.push('Address is required')
 
     return { valid: errors.length === 0, errors }
 }
@@ -94,7 +94,7 @@ export function validateStatusTransition(
         sold: [],
     }
 
-    return validTransitions[currentStatus]?.includes(newStatus) ?? false
+    return validTransitions[currentStatus].includes(newStatus)
 }
 
 /**

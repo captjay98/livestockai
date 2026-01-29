@@ -316,6 +316,8 @@ export interface FarmTable {
     id: Generated<string>
     name: string
     location: string
+    latitude: string | null // DECIMAL(10,8)
+    longitude: string | null // DECIMAL(11,8)
     type:
         | 'poultry'
         | 'aquaculture'
@@ -371,10 +373,14 @@ export interface StructureTable {
         | 'kraal' // Traditional African livestock enclosure
     capacity: number | null // Max animals
     areaSqm: string | null // DECIMAL(10,2) - Size in square meters
+    latitude: string | null // DECIMAL(10,8)
+    longitude: string | null // DECIMAL(11,8)
     status: 'active' | 'empty' | 'maintenance'
     notes: string | null
     photos: Array<string> | null // PUBLIC storage - array of photo URLs
     createdAt: Generated<Date>
+    updatedAt: Generated<Date>
+    deletedAt: Date | null
 }
 
 // Livestock Breeds
@@ -392,6 +398,7 @@ export interface BreedTable {
     isDefault: Generated<boolean>
     isActive: Generated<boolean>
     createdAt: Generated<Date>
+    updatedAt: Generated<Date>
 }
 
 // Breed Requests
@@ -410,6 +417,7 @@ export interface BreedRequestTable {
     photoUrl: string | null // PUBLIC storage - reference photo
     status: string // 'pending' | 'approved' | 'rejected'
     createdAt: Generated<Date>
+    updatedAt: Generated<Date>
 }
 
 // Livestock
@@ -520,6 +528,7 @@ export interface VaccinationTable {
     notes: string | null
     certificateUrl: string | null // PRIVATE storage - vaccination certificate PDF
     createdAt: Generated<Date>
+    updatedAt: Generated<Date>
 }
 
 export interface TreatmentTable {
@@ -533,6 +542,7 @@ export interface TreatmentTable {
     notes: string | null
     prescriptionUrl: string | null // PRIVATE storage - prescription/vet report PDF
     createdAt: Generated<Date>
+    updatedAt: Generated<Date>
 }
 
 export interface WaterQualityTable {
@@ -595,6 +605,7 @@ export interface SaleTable {
     date: Date
     notes: string | null
     createdAt: Generated<Date>
+    deletedAt: Date | null
 }
 
 export interface ExpenseTable {
@@ -627,6 +638,7 @@ export interface ExpenseTable {
     isRecurring: boolean
     receiptUrl: string | null // PRIVATE storage - receipt photo/PDF
     createdAt: Generated<Date>
+    deletedAt: Date | null
 }
 
 export interface FeedInventoryTable {
@@ -646,6 +658,7 @@ export interface FeedInventoryTable {
         | 'bee_feed'
     quantityKg: string // DECIMAL(10,2)
     minThresholdKg: string // DECIMAL(10,2)
+    createdAt: Generated<Date>
     updatedAt: Generated<Date>
 }
 
@@ -657,6 +670,7 @@ export interface MedicationInventoryTable {
     unit: 'vial' | 'bottle' | 'sachet' | 'ml' | 'g' | 'tablet' | 'kg' | 'liter'
     expiryDate: Date | null
     minThreshold: number
+    createdAt: Generated<Date>
     updatedAt: Generated<Date>
 }
 
@@ -720,6 +734,8 @@ export interface InvoiceTable {
     notes: string | null
     attachments: Array<string> | null // PRIVATE storage - receipts, proofs
     createdAt: Generated<Date>
+    updatedAt: Generated<Date>
+    deletedAt: Date | null
 }
 
 export interface InvoiceItemTable {
@@ -808,6 +824,7 @@ export interface TaskTable {
     /** Whether this is a system-generated default task */
     isDefault: Generated<boolean>
     createdAt: Generated<Date>
+    updatedAt: Generated<Date>
 }
 
 /**
@@ -1155,9 +1172,9 @@ export interface FarmGeofenceTable {
     /** Geofence type */
     geofenceType: 'circle' | 'polygon'
     /** Center latitude (for circle) */
-    centerLat: string | null // DECIMAL(10,7)
+    centerLat: string | null // DECIMAL(10,8)
     /** Center longitude (for circle) */
-    centerLng: string | null // DECIMAL(10,7)
+    centerLng: string | null // DECIMAL(11,8)
     /** Radius in meters (for circle) */
     radiusMeters: string | null // DECIMAL(10,2)
     /** Polygon vertices (for polygon) */
@@ -1181,9 +1198,9 @@ export interface WorkerCheckInTable {
     /** Check-in timestamp */
     checkInTime: Date
     /** Check-in latitude */
-    checkInLat: string // DECIMAL(10,7)
+    checkInLat: string // DECIMAL(10,8)
     /** Check-in longitude */
-    checkInLng: string // DECIMAL(10,7)
+    checkInLng: string // DECIMAL(11,8)
     /** Check-in GPS accuracy in meters */
     checkInAccuracy: string | null // DECIMAL(10,2)
     /** Location verification status */
@@ -1195,9 +1212,9 @@ export interface WorkerCheckInTable {
     /** Check-out timestamp */
     checkOutTime: Date | null
     /** Check-out latitude */
-    checkOutLat: string | null // DECIMAL(10,7)
+    checkOutLat: string | null // DECIMAL(10,8)
     /** Check-out longitude */
-    checkOutLng: string | null // DECIMAL(10,7)
+    checkOutLng: string | null // DECIMAL(11,8)
     /** Check-out GPS accuracy in meters */
     checkOutAccuracy: string | null // DECIMAL(10,2)
     /** Hours worked (calculated on check-out) */
@@ -1264,9 +1281,9 @@ export interface TaskPhotoTable {
     /** Photo URL (Cloudflare R2) */
     photoUrl: string
     /** Capture latitude */
-    capturedLat: string | null // DECIMAL(10,7)
+    capturedLat: string | null // DECIMAL(10,8)
     /** Capture longitude */
-    capturedLng: string | null // DECIMAL(10,7)
+    capturedLng: string | null // DECIMAL(11,8)
     /** Capture timestamp */
     capturedAt: Date
     /** Upload timestamp */

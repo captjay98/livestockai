@@ -78,9 +78,17 @@ export async function seedDev() {
         // ============ CLEANUP ============
         console.log('🧹 Clearing existing data...')
         const tables = [
+            'outbreak_alert_farms',
+            'outbreak_alerts',
+            'visit_records',
+            'sensor_alerts',
+            'sensor_readings',
+            'task_assignments',
+            'task_completions',
+            'tasks',
             'notifications',
             'invoice_items',
-            'sales', // Must be before invoices (sales.invoiceId references invoices)
+            'sales',
             'invoices',
             'water_quality',
             'weight_samples',
@@ -1413,6 +1421,92 @@ export async function seedDev() {
             ])
             .execute()
         console.log('  ✅ Notifications added\n')
+
+        // ============ TASKS & ASSIGNMENTS ============
+        console.log('📋 Creating tasks and assignments...')
+        const tasks = await db
+            .insertInto('tasks')
+            .values([
+                {
+                    farmId: farm1.id,
+                    title: 'Vaccinate Batch BR-JAN-001',
+                    description: 'Administer Lasota vaccine',
+                    priority: 'high',
+                    status: 'open',
+                    category: 'health',
+                    dueDate: daysAgo(-1),
+                },
+                {
+                    farmId: farm2.id,
+                    title: 'Check Water pH',
+                    description: 'Daily pH check for Pond 1',
+                    priority: 'medium',
+                    status: 'completed',
+                    category: 'maintenance',
+                    dueDate: daysAgo(1),
+                },
+            ])
+            .returningAll()
+            .execute()
+
+        // Create a worker profile for the admin user to test assignments
+        const workerProfile = await db
+            .insertInto('worker_profiles')
+            .values({
+                userId: user.userId,
+                farmId: farm1.id,
+                fullName: 'Main Worker',
+                status: 'active',
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow()
+
+        await db
+            .insertInto('task_assignments')
+            .values({
+                taskId: tasks[0].id,
+                workerId: workerProfile.id,
+                assignedAt: daysAgo(2),
+            })
+            .execute()
+        console.log('  ✅ Tasks created\n')
+
+        // ============ OUTBREAKS & VISITS ============
+        console.log('⛑️ Creating veterinary visits and alerts...')
+        await db
+            .insertInto('visit_records')
+            .values({
+                farmId: farm1.id,
+                visitorName: 'Dr. Ibrahim Yusuf',
+                visitorOrganization: 'Kaduna Vet Services',
+                purpose: 'Routine checkup',
+                visitDate: daysAgo(14),
+                summary: 'All birds healthy. Ventilation check recommended.',
+            })
+            .execute()
+
+        const alert = await db
+            .insertInto('outbreak_alerts')
+            .values({
+                title: 'High Humidity Warning - Kaduna Region',
+                description: 'Increased risk of fungal infections due to seasonal humidity.',
+                severity: 'medium',
+                status: 'active',
+                regionId: 1, // Kaduna
+                startTime: daysAgo(7),
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow()
+
+        await db
+            .insertInto('outbreak_alert_farms')
+            .values({
+                alertId: alert.id,
+                farmId: farm1.id,
+                notifiedAt: daysAgo(7),
+            })
+            .execute()
+        console.log('  ✅ Outbreaks and visits created\n')
 
         console.log('✅ Seeding complete!\n')
         console.log('📊 Summary:')

@@ -3,12 +3,6 @@
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { Button } from '~/components/ui/button'
-import { Calendar } from '~/components/ui/calendar'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '~/components/ui/popover'
 import {
     Select,
     SelectContent,
@@ -119,65 +113,31 @@ export function TaskFilters({
                 </SelectContent>
             </Select>
 
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="outline"
-                        className={cn(
-                            'h-11 min-w-[140px] justify-start text-left font-normal',
-                            !filters.dueDateFrom && 'text-muted-foreground',
-                        )}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {filters.dueDateFrom
-                            ? format(filters.dueDateFrom, 'MMM d')
-                            : 'From'}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        mode="single"
-                        selected={filters.dueDateFrom || undefined}
-                        onSelect={(date) =>
-                            onFiltersChange({
-                                ...filters,
-                                dueDateFrom: date || null,
-                            })
-                        }
-                        initialFocus
-                    />
-                </PopoverContent>
-            </Popover>
+            <Button
+                variant="outline"
+                className={cn(
+                    'h-11 min-w-[140px] justify-start text-left font-normal',
+                    !filters.dueDateFrom && 'text-muted-foreground',
+                )}
+            >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {filters.dueDateFrom
+                    ? format(filters.dueDateFrom, 'MMM d')
+                    : 'From'}
+            </Button>
 
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="outline"
-                        className={cn(
-                            'h-11 min-w-[140px] justify-start text-left font-normal',
-                            !filters.dueDateTo && 'text-muted-foreground',
-                        )}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {filters.dueDateTo
-                            ? format(filters.dueDateTo, 'MMM d')
-                            : 'To'}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        mode="single"
-                        selected={filters.dueDateTo || undefined}
-                        onSelect={(date) =>
-                            onFiltersChange({
-                                ...filters,
-                                dueDateTo: date || null,
-                            })
-                        }
-                        initialFocus
-                    />
-                </PopoverContent>
-            </Popover>
+            <Button
+                variant="outline"
+                className={cn(
+                    'h-11 min-w-[140px] justify-start text-left font-normal',
+                    !filters.dueDateTo && 'text-muted-foreground',
+                )}
+            >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {filters.dueDateTo
+                    ? format(filters.dueDateTo, 'MMM d')
+                    : 'To'}
+            </Button>
 
             {(filters.workerId ||
                 filters.status !== 'all' ||

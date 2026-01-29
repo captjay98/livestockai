@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Button } from '~/components/ui/button'
 import { PageHeader } from '~/components/page-header'
 
-export const Route = createFileRoute('/_auth/extension/')({
+export const Route = createFileRoute('/dashboard' as any)({
     loader: async () => {
         return getUserDistrictsFn()
     },
@@ -24,7 +24,7 @@ function ExtensionHomePage() {
             />
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {districts.map((district) => (
+                {districts && districts.map((district: any) => (
                     <Card key={district.id}>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -37,10 +37,7 @@ function ExtensionHomePage() {
                                 {district.farmCount} farms assigned
                             </p>
                             <Button asChild className="w-full">
-                                <Link
-                                    to="/extension/$districtId"
-                                    params={{ districtId: district.id }}
-                                >
+                                <Link to="/dashboard">
                                     View Dashboard
                                 </Link>
                             </Button>

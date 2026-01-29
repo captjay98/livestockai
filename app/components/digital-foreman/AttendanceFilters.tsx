@@ -3,12 +3,6 @@
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { Button } from '~/components/ui/button'
-import { Calendar } from '~/components/ui/calendar'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '~/components/ui/popover'
 import {
     Select,
     SelectContent,
@@ -42,29 +36,15 @@ export function AttendanceFilters({
 }: AttendanceFiltersProps) {
     return (
         <div className="flex flex-wrap gap-3 mb-4">
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="outline"
-                        className={cn(
-                            'h-11 min-w-[180px] justify-start text-left font-normal',
-                        )}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {format(filters.date, 'PPP')}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        mode="single"
-                        selected={filters.date}
-                        onSelect={(date) =>
-                            date && onFiltersChange({ ...filters, date })
-                        }
-                        initialFocus
-                    />
-                </PopoverContent>
-            </Popover>
+            <Button
+                variant="outline"
+                className={cn(
+                    'h-11 min-w-[180px] justify-start text-left font-normal',
+                )}
+            >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {format(filters.date, 'PPP')}
+            </Button>
 
             <Select
                 value={filters.workerId || 'all'}

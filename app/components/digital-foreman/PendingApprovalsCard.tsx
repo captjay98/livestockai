@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { CheckCircle, Clock, Image as ImageIcon, XCircle } from 'lucide-react'
+import { CheckCircle, Clock, Image as ImageIcon } from 'lucide-react'
 import { TaskApprovalDialog } from './TaskApprovalDialog'
 import { getPendingApprovalsFn } from '~/features/digital-foreman/server-tasks'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -66,10 +66,10 @@ export function PendingApprovalsCard({ farmId }: PendingApprovalsCardProps) {
                                         <span className="font-medium truncate">
                                             {task.workerName || 'Unknown'}
                                         </span>
-                                        {task.photoCount > 0 && (
+                                        {(task as any).photoCount > 0 && (
                                             <span className="flex items-center gap-1 text-xs text-muted-foreground">
                                                 <ImageIcon className="h-3 w-3" />
-                                                {task.photoCount}
+                                                {(task as any).photoCount}
                                             </span>
                                         )}
                                     </div>

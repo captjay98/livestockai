@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+import { sql } from 'kysely'
 import {
     canChangeUserRole,
     canDeleteFarm,
@@ -115,7 +116,6 @@ export async function getFarmsForUser(
 ): Promise<Array<FarmRecord>> {
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
-    const { getUserFarms } = await import('../auth/utils')
 
     try {
         const isAdmin = await getIsAdmin(db, userId)
@@ -126,7 +126,8 @@ export async function getFarmsForUser(
         }
 
         // Regular users get their assigned farms
-        const farmIds = await getUserFarms(userId)
+        const userFarms = await getUserFarmsWithRoles(db, userId)
+        const farmIds = userFarms.map(f => f.id)
 
         if (farmIds.length === 0) {
             return []
@@ -715,7 +716,7 @@ export const getFarmHealthComparisonFn = createServerFn({ method: 'GET' })
                 'batches.species',
                 'batches.initialQuantity',
                 db.fn
-                    .coalesce(db.fn.sum('mortality_records.quantity'), 0)
+                    .coalesce(db.fn.sum('mortality_records.quantity'), sql`0`)
                     .as('totalMortality'),
             ])
             .where('batches.farmId', '=', data.farmId)
@@ -760,7 +761,7 @@ export const getFarmHealthComparisonFn = createServerFn({ method: 'GET' })
                 'batches.species',
                 'batches.initialQuantity',
                 db.fn
-                    .coalesce(db.fn.sum('mortality_records.quantity'), 0)
+                    .coalesce(db.fn.sum('mortality_records.quantity'), sql`0`)
                     .as('totalMortality'),
             ])
             .where('farms.districtId', '=', farm.districtId)
@@ -784,7 +785,7 @@ export const getFarmHealthComparisonFn = createServerFn({ method: 'GET' })
 
         districtFarms.forEach((districtFarm) => {
             const rate =
-                districtFarm.initialQuantity > 0
+                districtFarm.initialQuantity && districtFarm.initialQuantity > 0
                     ? (Number(districtFarm.totalMortality) /
                           districtFarm.initialQuantity) *
                       100

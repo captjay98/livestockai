@@ -59,7 +59,7 @@ export function ListingFilters({
                 <Select
                     value={filters.livestockType}
                     onValueChange={(value) =>
-                        updateFilter('livestockType', value)
+                        updateFilter('livestockType', value || '')
                     }
                 >
                     <SelectTrigger>
@@ -132,7 +132,7 @@ export function ListingFilters({
                 <Select
                     value={filters.distanceRadius}
                     onValueChange={(value) =>
-                        updateFilter('distanceRadius', value)
+                        updateFilter('distanceRadius', value || '')
                     }
                 >
                     <SelectTrigger>

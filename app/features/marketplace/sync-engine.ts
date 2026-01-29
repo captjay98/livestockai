@@ -117,7 +117,7 @@ export async function syncPendingItems(): Promise<{
 /**
  * Placeholder for actual API sync
  */
-async function syncItem(item: PendingItem): Promise<void> {
+function syncItem(_item: PendingItem): void {
     // TODO: Implement actual API calls based on item.type and item.action
     // This would use the existing server functions pattern
     throw new Error('Sync not implemented')

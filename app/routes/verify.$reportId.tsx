@@ -62,7 +62,7 @@ function VerificationPage() {
         return 'bg-red-100 text-red-800'
     }
 
-    const formatDate = (date: string) => {
+    const formatDate = (date: string | Date) => {
         return new Date(date).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',

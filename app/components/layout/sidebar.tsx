@@ -33,10 +33,10 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
     const { t } = useTranslation(['common'])
     const { enabledModules, isLoading } = useModules()
     const { isExtensionWorker, isSupervisor } = useExtensionNav()
-    const { farms } = useFarm()
+    const { selectedFarmId } = useFarm()
 
     // Check if user has both farm ownership and extension access
-    const hasFarmAccess = farms.length > 0
+    const hasFarmAccess = !!selectedFarmId
     const hasExtensionAccess = isExtensionWorker
 
     const sections = useMemo(() => getNavigationSections(t), [t])

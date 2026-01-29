@@ -1,5 +1,5 @@
 import * as fc from 'fast-check'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { MutationCache } from '@tanstack/react-query'
 import type { QueryClient } from '@tanstack/react-query'
 
@@ -36,31 +36,31 @@ describe('Offline Mutation Queuing - Property Tests', () => {
      */
     describe('Property 1: Offline Mutation Queuing', () => {
         // Arbitrary for mutation types
-        const mutationTypeArb = fc.constantFrom('create', 'update', 'delete')
+        // const mutationTypeArb = fc.constantFrom('create', 'update', 'delete')
 
         // Arbitrary for entity types that can be mutated offline
-        const entityTypeArb = fc.constantFrom(
-            'batch',
-            'feed',
-            'mortality',
-            'weight',
-            'sale',
-            'expense',
-            'customer',
-            'supplier',
-        )
+        // const entityTypeArb = fc.constantFrom(
+        //     'batch',
+        //     'feed',
+        //     'mortality',
+        //     'weight',
+        //     'sale',
+        //     'expense',
+        //     'customer',
+        //     'supplier',
+        // )
 
         // Arbitrary for mutation data
-        const mutationDataArb = fc.record({
-            id: fc.uuid(),
-            name: fc.string({ minLength: 1, maxLength: 100 }),
-            quantity: fc.integer({ min: 0, max: 10000 }),
-            amount: fc.float({ min: 0, max: 1000000 }),
-            timestamp: fc.date({
-                min: new Date('2020-01-01'),
-                max: new Date('2030-12-31'),
-            }),
-        })
+        // const mutationDataArb = fc.record({
+        //     id: fc.uuid(),
+        //     name: fc.string({ minLength: 1, maxLength: 100 }),
+        //     quantity: fc.integer({ min: 0, max: 10000 }),
+        //     amount: fc.float({ min: 0, max: 1000000 }),
+        //     timestamp: fc.date({
+        //         min: new Date('2020-01-01'),
+        //         max: new Date('2030-12-31'),
+        //     }),
+        // })
 
         it('should configure query client with offlineFirst network mode', () => {
             fc.assert(

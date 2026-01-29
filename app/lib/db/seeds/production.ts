@@ -280,73 +280,94 @@ export async function seed() {
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 
     try {
-        // Check if admin user already exists
+        // 1. ADMIN USER
+        console.log('👤 Checking admin user...')
         const existingAdmin = await db
             .selectFrom('users')
             .where('email', '=', ADMIN_EMAIL)
             .selectAll()
             .executeTakeFirst()
 
+        let adminUserId: string
+
         if (existingAdmin) {
-            console.log(`⚠️  Admin user already exists: ${ADMIN_EMAIL}`)
-            console.log(
-                '   Skipping user creation. Updating reference data only.\n',
-            )
+            console.log(`   ⚠️  Admin user already exists: ${ADMIN_EMAIL}`)
+            adminUserId = existingAdmin.id
         } else {
-            // CREATE ADMIN USER
-            // Uses Better Auth-compatible user creation helper that:
-            // - Creates entry in users table (without password)
-            // - Creates entry in account table with hashed password
-            // - Sets providerId='credential' and accountId=email
-            // Reference: https://www.better-auth.com/docs/concepts/users-accounts
-            console.log('👤 Creating admin user...')
+            console.log('   Creating new admin user...')
             const result = await createUserWithAuth(db, {
                 email: ADMIN_EMAIL,
                 password: ADMIN_PASSWORD,
                 name: ADMIN_NAME,
                 role: 'admin',
             })
-
+            adminUserId = result.userId
             console.log(`   ✅ Admin: ${ADMIN_EMAIL}`)
+        }
 
-            // USER SETTINGS
-            console.log('⚙️  Creating user settings...')
+        // 2. USER SETTINGS
+        console.log('⚙️  Checking user settings...')
+        const existingSettings = await db
+            .selectFrom('user_settings')
+            .where('userId', '=', adminUserId)
+            .executeTakeFirst()
+
+        if (!existingSettings) {
             await db
                 .insertInto('user_settings')
                 .values({
-                    userId: result.userId,
+                    userId: adminUserId,
                     ...DEFAULT_SETTINGS,
                 })
                 .execute()
-            console.log('   ✅ User settings created\n')
+            console.log('   ✅ User settings created')
+        } else {
+            console.log('   ⚠️  Settings already exist')
         }
 
-        // BREEDS
+        // 3. COUNTRIES & REGIONS (Bootstrap if missing)
+        // These are usually seeded by migrations but we ensure they exist
+        console.log('🌍 Checking baseline geography...')
+        const countryCount = await db
+            .selectFrom('countries')
+            .select(db.fn.count('id').as('count'))
+            .executeTakeFirst()
+
+        if (Number(countryCount?.count) === 0) {
+            console.log('   ⚠️  No countries found. Ensure migrations have run.')
+        }
+
+        // 4. BREEDS (Idempotent update)
         console.log('🐄 Seeding breeds...')
-
-        // Clear existing breeds
-        await db.deleteFrom('breeds').execute()
-
         const { ALL_BREEDS } = await import('./breeds-data')
-        // Convert arrays to JSON strings for JSONB columns
-        const breedsWithJsonb = ALL_BREEDS.map((breed) => ({
-            ...breed,
-            sourceSizes: JSON.stringify(breed.sourceSizes) as any,
-            regions: JSON.stringify(breed.regions) as any,
-        }))
-        await db.insertInto('breeds').values(breedsWithJsonb).execute()
-        console.log(`   ✅ ${ALL_BREEDS.length} breeds seeded`)
-        console.log(`      • Poultry: 5 breeds`)
-        console.log(`      • Aquaculture: 4 breeds`)
-        console.log(`      • Cattle: 5 breeds`)
-        console.log(`      • Goats: 4 breeds`)
-        console.log(`      • Sheep: 4 breeds`)
-        console.log(`      • Bees: 2 breeds\n`)
 
-        // GROWTH STANDARDS
-        console.log('📈 Seeding growth standards...')
+        for (const breed of ALL_BREEDS) {
+            const existing = await db
+                .selectFrom('breeds')
+                .where('breedName', '=', breed.breedName)
+                .where('moduleKey', '=', breed.moduleKey)
+                .select('id')
+                .executeTakeFirst()
 
-        // Clear existing growth standards
+            const breedData = {
+                ...breed,
+                sourceSizes: JSON.stringify(breed.sourceSizes) as any,
+                regions: JSON.stringify(breed.regions) as any,
+            }
+
+            if (existing) {
+                await db.updateTable('breeds')
+                    .set(breedData)
+                    .where('id', '=', existing.id)
+                    .execute()
+            } else {
+                await db.insertInto('breeds').values(breedData).execute()
+            }
+        }
+        console.log(`   ✅ ${ALL_BREEDS.length} breeds synced`)
+
+        // 5. GROWTH STANDARDS (Full Refresh)
+        console.log('📈 Refreshing growth standards...')
         await db.deleteFrom('growth_standards').execute()
 
         const broilerStandards = generateBroilerGrowthStandards()
@@ -368,39 +389,16 @@ export async function seed() {
         ]
 
         await db.insertInto('growth_standards').values(allStandards).execute()
-        console.log(
-            `   ✅ ${allStandards.length} species-level growth standards`,
-        )
-        console.log(`      • Broiler: ${broilerStandards.length} days`)
-        console.log(`      • Layer: ${layerStandards.length} days`)
-        console.log(`      • Catfish: ${catfishStandards.length} days`)
-        console.log(`      • Tilapia: ${tilapiaStandards.length} days`)
-        console.log(`      • Cattle: ${cattleStandards.length} weeks`)
-        console.log(`      • Goat: ${goatStandards.length} weeks`)
-        console.log(`      • Sheep: ${sheepStandards.length} weeks\n`)
 
-        // BREED-SPECIFIC GROWTH CURVES
+        // 6. BREED-SPECIFIC GROWTH CURVES
         console.log('📊 Seeding breed-specific growth curves...')
-
         const { BREED_GROWTH_CURVES } = await import('./breed-growth-curves')
+        const breeds = await db.selectFrom('breeds').select(['id', 'breedName']).execute()
+        const breedMap = Object.fromEntries(breeds.map((b) => [b.breedName, b.id]))
 
-        // Get breed IDs
-        const breeds = await db
-            .selectFrom('breeds')
-            .select(['id', 'breedName'])
-            .execute()
-
-        const breedMap = Object.fromEntries(
-            breeds.map((b) => [b.breedName, b.id]),
-        )
-
-        let breedCurveCount = 0
         for (const curve of BREED_GROWTH_CURVES) {
             const breedId = breedMap[curve.breedName]
-            if (!breedId) {
-                console.log(`   ⚠️  Breed not found: ${curve.breedName}`)
-                continue
-            }
+            if (!breedId) continue
 
             const curveData = curve.data.map((point) => ({
                 species: curve.species,
@@ -410,38 +408,13 @@ export async function seed() {
             }))
 
             await db.insertInto('growth_standards').values(curveData).execute()
-            breedCurveCount += curveData.length
-            console.log(
-                `   ✅ ${curve.breedName}: ${curveData.length} data points`,
-            )
         }
-
-        console.log(
-            `   ✅ Total: ${breedCurveCount} breed-specific data points\n`,
-        )
-
-        // NOTE: Market prices removed - users enter their own target prices per batch
-        // This makes the app international (not Nigeria-specific)
-        // Regional market data packages can be added as a future enhancement
+        console.log('   ✅ Growth standards refreshed\n')
 
         // SUMMARY
         console.log('═'.repeat(50))
         console.log('🎉 PRODUCTION SEED COMPLETE!')
         console.log('═'.repeat(50))
-        console.log('\n📋 What was seeded:')
-        console.log(`   • Admin user: ${ADMIN_EMAIL}`)
-        console.log('   • Breeds: 24 breeds across 6 modules')
-        console.log(
-            '   • Species-level growth standards: Broiler, Layer, Catfish, Tilapia, Cattle, Goat, Sheep',
-        )
-        console.log(
-            `   • Breed-specific growth curves: ${BREED_GROWTH_CURVES.length} breeds`,
-        )
-        console.log('\n🔐 Login credentials:')
-        console.log(`   Email: ${ADMIN_EMAIL}`)
-        console.log('   Password: (from ADMIN_PASSWORD env var)')
-        console.log('\n💡 For demo data with farms, batches, and transactions:')
-        console.log('   bun run db:seed:dev\n')
     } catch (error) {
         console.error('❌ Seed failed:', error)
         throw error

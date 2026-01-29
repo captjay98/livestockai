@@ -104,11 +104,12 @@ function CreditPassportWizard() {
             await generateReportFn({
                 data: {
                     farmIds: [selectedFarmId],
-                    reportType: formData.reportType as any,
-                    ...dateRange,
+                    reportType: formData.reportType as 'credit_assessment' | 'production_certificate' | 'impact_report',
+                    startDate: dateRange.startDate ?? new Date(),
+                    endDate: dateRange.endDate ?? new Date(),
                     batchIds: formData.selectedBatches,
                     customNotes: formData.notes || undefined,
-                },
+                } as any,
             })
 
             toast.success('Report generated successfully')

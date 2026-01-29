@@ -23,7 +23,7 @@ function WorkersListPage() {
     const farmId = settings.defaultFarmId
     const { data: workers = [], isLoading } = useQuery({
         queryKey: ['workers', farmId],
-        queryFn: () => getWorkersByFarmFn({ data: { farmId } }),
+        queryFn: () => getWorkersByFarmFn({ data: { farmId: farmId! } }),
         enabled: !!farmId,
     })
 

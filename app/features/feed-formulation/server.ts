@@ -9,7 +9,6 @@ import { buildOptimizationModel as buildOptModel } from './optimization-service'
 import {
     applySafetyMargin,
     buildOptimizationModel,
-    calculateNutritionalValues,
     generateMixingInstructions,
     scaleToBatchSize,
     suggestSubstitutions,
@@ -22,7 +21,6 @@ import {
     getUserIngredientPrices,
     saveFormulation,
     updateIngredientPrice,
-    updatePriceHistory,
 } from './repository'
 import { AppError } from '~/lib/errors'
 import { toDbString } from '~/features/settings/currency'
@@ -131,25 +129,6 @@ export const runOptimizationFn = createServerFn({ method: 'POST' })
                     pricePerKg: toDbString(p.pricePerKg),
                     isAvailable: p.isAvailable,
                 })),
-                {
-                    minProteinPercent: parseFloat(
-                        requirements.minProteinPercent,
-                    ),
-                    minEnergyKcalKg: requirements.minEnergyKcalKg,
-                    maxFiberPercent: parseFloat(requirements.maxFiberPercent),
-                    minCalciumPercent: parseFloat(
-                        requirements.minCalciumPercent,
-                    ),
-                    minPhosphorusPercent: parseFloat(
-                        requirements.minPhosphorusPercent,
-                    ),
-                    minLysinePercent: parseFloat(requirements.minLysinePercent),
-                    minMethioninePercent: parseFloat(
-                        requirements.minMethioninePercent,
-                    ),
-                },
-                data.batchSizeKg,
-                data.safetyMargin,
             )
 
             if (optimizationIngredients.length === 0) {
@@ -185,8 +164,6 @@ export const runOptimizationFn = createServerFn({ method: 'POST' })
                     },
                     data.safetyMargin,
                 ),
-                data.batchSizeKg,
-                data.safetyMargin,
             )
 
             if (!result.feasible) {
@@ -672,8 +649,6 @@ export const reOptimizeFormulationFn = createServerFn({ method: 'POST' })
                         requirements.minMethioninePercent,
                     ),
                 },
-                Number(formulation.batchSizeKg),
-                0,
             )
 
             // Scale and generate mixing instructions
