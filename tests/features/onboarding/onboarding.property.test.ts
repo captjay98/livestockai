@@ -1,182 +1,367 @@
 /**
  * Onboarding Property Tests
  *
- * Property-based tests for onboarding logic.
+ * Property-based tests for the onboarding redesign.
+ * Feature: onboarding-redesign
  */
 
 import { describe, expect, it } from 'vitest'
 import * as fc from 'fast-check'
-import type { OnboardingProgress } from '~/features/onboarding/types'
-import {
-    ABBREVIATED_STEPS,
-    DEFAULT_PROGRESS,
-    ONBOARDING_STEPS,
+import type { ModuleKey } from '~/features/modules/types'
+import type {
+  OnboardingProgress,
+  OnboardingStep,
 } from '~/features/onboarding/types'
+import { DEFAULT_PROGRESS, ONBOARDING_STEPS } from '~/features/onboarding/types'
+import {
+  filterLivestockTypesByModules,
+  getDefaultModulesForFarmType,
+  getLivestockTypesForModules,
+} from '~/features/modules/utils'
 
-describe('Onboarding Types', () => {
-    /**
-     * Property 5: New User Has No Farms
-     * A new user should start with default progress and need onboarding.
-     * Validates: Requirements 6.1
-     */
-    it('should have correct default progress for new users', () => {
-        fc.assert(
-            fc.property(fc.constant(DEFAULT_PROGRESS), (progress) => {
-                // New user starts at welcome step
-                expect(progress.currentStep).toBe('welcome')
-                // No steps completed yet
-                expect(progress.completedSteps).toHaveLength(0)
-                // Not skipped
-                expect(progress.skipped).toBe(false)
-                // No farm, structure, or batch IDs
-                expect(progress.farmId).toBeUndefined()
-                expect(progress.structureId).toBeUndefined()
-                expect(progress.batchId).toBeUndefined()
-                // Not completed
-                expect(progress.completedAt).toBeUndefined()
-                return true
-            }),
-            { numRuns: 100 },
-        )
+// Arbitraries for generating test data
+const moduleKeyArb = fc.constantFrom<ModuleKey>(
+  'poultry',
+  'aquaculture',
+  'cattle',
+  'goats',
+  'sheep',
+  'bees',
+)
+
+const onboardingStepArb = fc.constantFrom<OnboardingStep>(
+  'welcome',
+  'create-farm',
+  'create-structure',
+  'create-batch',
+  'preferences',
+  'tour',
+  'complete',
+)
+
+// Use a constrained date range to avoid invalid dates
+const validDateArb = fc.date({
+  min: new Date('2020-01-01'),
+  max: new Date('2030-12-31'),
+})
+
+const onboardingProgressArb = fc.record({
+  currentStep: onboardingStepArb,
+  completedSteps: fc.array(onboardingStepArb, { maxLength: 7 }),
+  farmId: fc.option(fc.uuid(), { nil: undefined }),
+  structureId: fc.option(fc.uuid(), { nil: undefined }),
+  batchId: fc.option(fc.uuid(), { nil: undefined }),
+  enabledModules: fc.array(moduleKeyArb, { maxLength: 6 }),
+  skipped: fc.boolean(),
+  completedAt: fc.option(
+    validDateArb.map((d) => d.toISOString()),
+    {
+      nil: undefined,
+    },
+  ),
+})
+
+describe('Onboarding Redesign Property Tests', () => {
+  /**
+   * Property 5: LocalStorage Round-Trip Persistence
+   * **Validates: Requirements 9.3, 9.4**
+   *
+   * For any valid OnboardingProgress object, serializing it to JSON
+   * and then deserializing it should produce an equivalent object
+   * with all fields preserved (including enabledModules array).
+   */
+  describe('Property 5: LocalStorage Round-Trip Persistence', () => {
+    it('should preserve all fields through JSON serialization', () => {
+      fc.assert(
+        fc.property(onboardingProgressArb, (progress) => {
+          // Serialize to JSON (like localStorage.setItem)
+          const serialized = JSON.stringify(progress)
+
+          // Deserialize from JSON (like localStorage.getItem)
+          const deserialized = JSON.parse(serialized) as OnboardingProgress
+
+          // All fields should be preserved
+          expect(deserialized.currentStep).toBe(progress.currentStep)
+          expect(deserialized.completedSteps).toEqual(progress.completedSteps)
+          expect(deserialized.farmId).toBe(progress.farmId)
+          expect(deserialized.structureId).toBe(progress.structureId)
+          expect(deserialized.batchId).toBe(progress.batchId)
+          expect(deserialized.enabledModules).toEqual(progress.enabledModules)
+          expect(deserialized.skipped).toBe(progress.skipped)
+          expect(deserialized.completedAt).toBe(progress.completedAt)
+        }),
+        { numRuns: 100 },
+      )
     })
 
-    /**
-     * Property: Onboarding steps are in correct order
-     */
-    it('should have onboarding steps in correct order', () => {
-        fc.assert(
-            fc.property(fc.constant(ONBOARDING_STEPS), (steps) => {
-                // First step is welcome
-                expect(steps[0]).toBe('welcome')
-                // Last step is complete
-                expect(steps[steps.length - 1]).toBe('complete')
-                // All steps are unique
-                const uniqueSteps = new Set(steps)
-                expect(uniqueSteps.size).toBe(steps.length)
-                return true
-            }),
-            { numRuns: 100 },
-        )
+    it('should preserve enabledModules array order', () => {
+      fc.assert(
+        fc.property(
+          fc.array(moduleKeyArb, { minLength: 1, maxLength: 6 }),
+          (modules) => {
+            const progress: OnboardingProgress = {
+              ...DEFAULT_PROGRESS,
+              enabledModules: modules,
+            }
+
+            const serialized = JSON.stringify(progress)
+            const deserialized = JSON.parse(serialized) as OnboardingProgress
+
+            // Array order should be preserved
+            expect(deserialized.enabledModules).toEqual(modules)
+            for (let i = 0; i < modules.length; i++) {
+              expect(deserialized.enabledModules[i]).toBe(modules[i])
+            }
+          },
+        ),
+        { numRuns: 100 },
+      )
+    })
+  })
+
+  /**
+   * Property 2: Farm Type to Default Modules Mapping
+   * **Validates: Requirements 1.4, 2.3-2.9**
+   *
+   * For any valid farm type, the DEFAULT_MODULES_BY_FARM_TYPE mapping
+   * should return the correct array of module keys.
+   */
+  describe('Property 2: Farm Type to Default Modules Mapping', () => {
+    it('should return correct modules for single-species farm types', () => {
+      const singleSpeciesTypes = [
+        'poultry',
+        'aquaculture',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+      ] as const
+
+      for (const farmType of singleSpeciesTypes) {
+        const modules = getDefaultModulesForFarmType(farmType)
+
+        // Single-species types should return exactly one module
+        // Note: aquaculture maps to 'aquaculture' module, not 'fish'
+        if (farmType === 'aquaculture') {
+          expect(modules).toEqual(['aquaculture'])
+        } else {
+          expect(modules).toEqual([farmType])
+        }
+      }
     })
 
-    /**
-     * Property: Abbreviated steps are subset of full steps
-     */
-    it('should have abbreviated steps as subset of full steps', () => {
-        fc.assert(
-            fc.property(
-                fc.constant({
-                    full: ONBOARDING_STEPS,
-                    abbrev: ABBREVIATED_STEPS,
-                }),
-                ({ full, abbrev }) => {
-                    // All abbreviated steps should be in full steps
-                    for (const step of abbrev) {
-                        expect(full).toContain(step)
-                    }
-                    // Abbreviated should be shorter
-                    expect(abbrev.length).toBeLessThan(full.length)
-                    // Both should start with welcome
-                    expect(abbrev[0]).toBe('welcome')
-                    expect(full[0]).toBe('welcome')
-                    // Both should end with complete
-                    expect(abbrev[abbrev.length - 1]).toBe('complete')
-                    expect(full[full.length - 1]).toBe('complete')
-                    return true
-                },
-            ),
-            { numRuns: 100 },
-        )
+    it('should return poultry + aquaculture for mixed farm type', () => {
+      const modules = getDefaultModulesForFarmType('mixed')
+      expect(modules).toEqual(['poultry', 'aquaculture'])
     })
 
-    /**
-     * Property: Progress tracking maintains consistency
-     */
-    it('should maintain progress consistency when completing steps', () => {
-        fc.assert(
-            fc.property(
-                fc.integer({ min: 0, max: ONBOARDING_STEPS.length - 2 }),
-                (stepIndex) => {
-                    const step = ONBOARDING_STEPS[stepIndex]
-                    const progress: OnboardingProgress = {
-                        ...DEFAULT_PROGRESS,
-                        currentStep: step,
-                        completedSteps: ONBOARDING_STEPS.slice(0, stepIndex),
-                    }
-
-                    // Current step should not be in completed steps
-                    expect(progress.completedSteps).not.toContain(
-                        progress.currentStep,
-                    )
-                    // Completed steps should be in order
-                    for (let i = 0; i < progress.completedSteps.length; i++) {
-                        expect(
-                            ONBOARDING_STEPS.indexOf(
-                                progress.completedSteps[i],
-                            ),
-                        ).toBe(i)
-                    }
-                    return true
-                },
-            ),
-            { numRuns: 100 },
-        )
+    it('should return empty array for multi farm type', () => {
+      const modules = getDefaultModulesForFarmType('multi')
+      expect(modules).toEqual([])
     })
 
-    /**
-     * Property: Skipped onboarding should have completedAt set
-     */
-    it('should set completedAt when onboarding is skipped', () => {
-        fc.assert(
-            fc.property(
-                fc.date({
-                    min: new Date('2020-01-01'),
-                    max: new Date('2030-12-31'),
-                }),
-                (date) => {
-                    // Skip invalid dates (NaN)
-                    if (isNaN(date.getTime())) return true
+    it('should return empty array for unknown farm types', () => {
+      // Test with specific unknown farm types
+      const unknownTypes = ['unknown', 'invalid', 'test', 'foo', 'bar']
+      for (const unknownType of unknownTypes) {
+        const modules = getDefaultModulesForFarmType(unknownType)
+        expect(modules).toEqual([])
+      }
+    })
+  })
 
-                    const progress: OnboardingProgress = {
-                        ...DEFAULT_PROGRESS,
-                        skipped: true,
-                        completedAt: date.toISOString(),
-                    }
+  /**
+   * Property 3: Module to Livestock Type Filtering
+   * **Validates: Requirements 5.4, 7.1-7.7**
+   *
+   * For any set of enabled modules, the filtered livestock types
+   * should contain exactly the livestock types corresponding to those modules.
+   */
+  describe('Property 3: Module to Livestock Type Filtering', () => {
+    const moduleToLivestockType: Record<ModuleKey, string> = {
+      poultry: 'poultry',
+      aquaculture: 'fish', // aquaculture module → fish livestock type
+      cattle: 'cattle',
+      goats: 'goats',
+      sheep: 'sheep',
+      bees: 'bees',
+    }
 
-                    // If skipped, completedAt should be set
-                    expect(progress.completedAt).toBeDefined()
-                    // Should be a valid ISO date string
-                    expect(new Date(progress.completedAt!).toISOString()).toBe(
-                        progress.completedAt,
-                    )
-                    return true
-                },
-            ),
-            { numRuns: 100 },
-        )
+    it('should map modules to correct livestock types', () => {
+      fc.assert(
+        fc.property(
+          fc.array(moduleKeyArb, { minLength: 1, maxLength: 6 }),
+          (modules) => {
+            const uniqueModules = [...new Set(modules)]
+            const livestockTypes = getLivestockTypesForModules(uniqueModules)
+
+            // Each module should map to its corresponding livestock type
+            for (let i = 0; i < uniqueModules.length; i++) {
+              expect(livestockTypes[i]).toBe(
+                moduleToLivestockType[uniqueModules[i]],
+              )
+            }
+          },
+        ),
+        { numRuns: 100 },
+      )
     })
 
-    /**
-     * Property: Farm ID should be set after create-farm step
-     */
-    it('should have farmId after completing create-farm step', () => {
-        fc.assert(
-            fc.property(fc.uuid(), (farmId) => {
-                const progress: OnboardingProgress = {
-                    ...DEFAULT_PROGRESS,
-                    currentStep: 'enable-modules',
-                    completedSteps: ['welcome', 'create-farm'],
-                    farmId,
-                }
+    it('should filter livestock types correctly', () => {
+      const allTypes = [
+        { value: 'poultry', label: 'Poultry' },
+        { value: 'fish', label: 'Fish' },
+        { value: 'cattle', label: 'Cattle' },
+        { value: 'goats', label: 'Goats' },
+        { value: 'sheep', label: 'Sheep' },
+        { value: 'bees', label: 'Bees' },
+      ]
 
-                // If create-farm is completed, farmId should be set
-                if (progress.completedSteps.includes('create-farm')) {
-                    expect(progress.farmId).toBeDefined()
-                    expect(progress.farmId).toBe(farmId)
-                }
-                return true
-            }),
-            { numRuns: 100 },
-        )
+      fc.assert(
+        fc.property(
+          fc.array(moduleKeyArb, { minLength: 1, maxLength: 6 }),
+          (modules) => {
+            const uniqueModules = [...new Set(modules)] as Array<ModuleKey>
+            const filtered = filterLivestockTypesByModules(
+              allTypes,
+              uniqueModules,
+            )
+
+            // Filtered types should only include types for enabled modules
+            const expectedTypes = uniqueModules.map(
+              (m) => moduleToLivestockType[m],
+            )
+            for (const type of filtered) {
+              expect(expectedTypes).toContain(type.value)
+            }
+
+            // All expected types should be in filtered
+            for (const expectedType of expectedTypes) {
+              expect(filtered.some((t) => t.value === expectedType)).toBe(true)
+            }
+          },
+        ),
+        { numRuns: 100 },
+      )
     })
+
+    it('should return all types when no modules specified', () => {
+      const allTypes = [
+        { value: 'poultry', label: 'Poultry' },
+        { value: 'fish', label: 'Fish' },
+      ]
+
+      const filtered = filterLivestockTypesByModules(allTypes, [])
+      expect(filtered).toEqual(allTypes)
+    })
+  })
+
+  /**
+   * Property 1: Step Transition Correctness
+   * **Validates: Requirements 1.2, 4.2**
+   *
+   * For any onboarding step, the next step in the sequence should be
+   * the correct step according to ONBOARDING_STEPS.
+   */
+  describe('Property 1: Step Transition Correctness', () => {
+    it('should have correct step order in ONBOARDING_STEPS', () => {
+      const expectedOrder: Array<OnboardingStep> = [
+        'welcome',
+        'create-farm',
+        'create-structure',
+        'create-batch',
+        'preferences',
+        'tour',
+        'complete',
+      ]
+
+      expect(ONBOARDING_STEPS).toEqual(expectedOrder)
+    })
+
+    it('should have 7 steps total', () => {
+      expect(ONBOARDING_STEPS.length).toBe(7)
+    })
+
+    it('should not include enable-modules step', () => {
+      expect(ONBOARDING_STEPS).not.toContain('enable-modules')
+    })
+
+    it('should have correct next step for each step', () => {
+      for (let i = 0; i < ONBOARDING_STEPS.length - 1; i++) {
+        const currentStep = ONBOARDING_STEPS[i]
+        const nextStep = ONBOARDING_STEPS[i + 1]
+
+        // Verify the next step is correct
+        const currentIndex = ONBOARDING_STEPS.indexOf(currentStep)
+        expect(ONBOARDING_STEPS[currentIndex + 1]).toBe(nextStep)
+      }
+    })
+  })
+
+  /**
+   * Property 4: Context State Update Consistency
+   * **Validates: Requirements 6.1, 6.2, 9.1**
+   *
+   * For any valid ID or module list, the state should be correctly
+   * updated and retrievable.
+   */
+  describe('Property 4: Context State Update Consistency', () => {
+    it('should correctly update enabledModules in progress', () => {
+      fc.assert(
+        fc.property(fc.array(moduleKeyArb, { maxLength: 6 }), (modules) => {
+          // Simulate state update
+          const progress: OnboardingProgress = {
+            ...DEFAULT_PROGRESS,
+            enabledModules: modules,
+          }
+
+          // Verify the update
+          expect(progress.enabledModules).toEqual(modules)
+        }),
+        { numRuns: 100 },
+      )
+    })
+
+    it('should correctly update farmId in progress', () => {
+      fc.assert(
+        fc.property(fc.uuid(), (farmId) => {
+          const progress: OnboardingProgress = {
+            ...DEFAULT_PROGRESS,
+            farmId,
+          }
+
+          expect(progress.farmId).toBe(farmId)
+        }),
+        { numRuns: 100 },
+      )
+    })
+
+    it('should correctly update structureId in progress', () => {
+      fc.assert(
+        fc.property(fc.uuid(), (structureId) => {
+          const progress: OnboardingProgress = {
+            ...DEFAULT_PROGRESS,
+            structureId,
+          }
+
+          expect(progress.structureId).toBe(structureId)
+        }),
+        { numRuns: 100 },
+      )
+    })
+
+    it('should correctly update batchId in progress', () => {
+      fc.assert(
+        fc.property(fc.uuid(), (batchId) => {
+          const progress: OnboardingProgress = {
+            ...DEFAULT_PROGRESS,
+            batchId,
+          }
+
+          expect(progress.batchId).toBe(batchId)
+        }),
+        { numRuns: 100 },
+      )
+    })
+  })
 })

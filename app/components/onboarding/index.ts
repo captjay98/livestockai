@@ -1,6 +1,5 @@
 export * from './welcome-step'
 export * from './create-farm-step'
-export * from './enable-modules-step'
 export * from './create-structure-step'
 export * from './create-batch-step'
 export * from './preferences-step'

@@ -1,84 +1,48 @@
-import { MODULE_METADATA } from './constants'
+/**
+ * Module Utility Functions
+ *
+ * Utilities for mapping between farm types, modules, and livestock types.
+ * Uses MODULE_METADATA for livestock type lookups.
+ */
 
-import type {
-    FeedType,
-    LivestockType,
-    ModuleKey,
-    ModuleMetadata,
-    StructureType,
-} from './types'
+import { DEFAULT_MODULES_BY_FARM_TYPE, MODULE_METADATA } from './constants'
+import type { ModuleKey } from './types'
 
 /**
- * Get metadata for enabled modules
+ * Get default modules for a farm type.
+ * Single-species types return their corresponding module.
+ * 'mixed' returns poultry + aquaculture.
+ * 'multi' returns empty array (user selects manually).
  */
-export function getEnabledModuleMetadata(
-    enabledModules: Array<ModuleKey>,
-): Array<ModuleMetadata> {
-    return enabledModules.map((key) => MODULE_METADATA[key])
+export function getDefaultModulesForFarmType(
+  farmType: string,
+): Array<ModuleKey> {
+  return DEFAULT_MODULES_BY_FARM_TYPE[farmType] ?? []
 }
 
 /**
- * Get all livestock types for enabled modules
+ * Get livestock types for a set of enabled modules.
+ * Uses MODULE_METADATA[moduleKey].livestockTypes[0] for mapping.
+ * Example: ['poultry', 'aquaculture'] → ['poultry', 'fish']
  */
 export function getLivestockTypesForModules(
-    enabledModules: Array<ModuleKey>,
-): Array<LivestockType> {
-    const metadata = getEnabledModuleMetadata(enabledModules)
-    const allTypes = metadata.flatMap((m) => m.livestockTypes)
-
-    // Remove duplicates
-    return Array.from(new Set(allTypes))
+  modules: Array<ModuleKey>,
+): Array<string> {
+  return modules.map((m) => MODULE_METADATA[m].livestockTypes[0])
 }
 
 /**
- * Get all feed types for enabled modules
+ * Filter livestock type options based on enabled modules.
+ * Used in BatchDialog to show only relevant livestock types.
  */
-export function getFeedTypesForModules(
-    enabledModules: Array<ModuleKey>,
-): Array<FeedType> {
-    const metadata = getEnabledModuleMetadata(enabledModules)
-    const allFeedTypes = metadata.flatMap((m) => m.feedTypes)
-
-    // Remove duplicates
-    return Array.from(new Set(allFeedTypes))
-}
-
-/**
- * Get all structure types for enabled modules
- */
-export function getStructureTypesForModules(
-    enabledModules: Array<ModuleKey>,
-): Array<StructureType> {
-    const metadata = getEnabledModuleMetadata(enabledModules)
-    const allStructureTypes = metadata.flatMap((m) => m.structureTypes)
-
-    // Remove duplicates
-    return Array.from(new Set(allStructureTypes))
-}
-
-/**
- * Get source size options for a specific livestock type
- */
-export function getSourceSizeForLivestockType(
-    livestockType: LivestockType,
+export function filterLivestockTypesByModules(
+  allTypes: Array<{ value: string; label: string }>,
+  enabledModules: Array<ModuleKey>,
 ): Array<{ value: string; label: string }> {
-    // Find the module that handles this livestock type
-    const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
-        metadata.livestockTypes.includes(livestockType),
-    )
-
-    return moduleEntry ? moduleEntry[1].sourceSizeOptions : []
-}
-
-/**
- * Get module key for a livestock type
- */
-export function getModuleKeyForLivestockType(
-    livestockType: LivestockType,
-): ModuleKey | undefined {
-    const moduleEntry = Object.entries(MODULE_METADATA).find(([_, metadata]) =>
-        metadata.livestockTypes.includes(livestockType),
-    )
-
-    return moduleEntry ? (moduleEntry[0] as ModuleKey) : undefined
+  // If no modules specified, return all types
+  if (enabledModules.length === 0) {
+    return allTypes
+  }
+  const allowedTypes = getLivestockTypesForModules(enabledModules)
+  return allTypes.filter((t) => allowedTypes.includes(t.value))
 }
