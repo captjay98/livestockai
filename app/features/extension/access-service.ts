@@ -4,21 +4,21 @@
  */
 
 export interface AccessGrant {
-    id: string
-    farmId: string
-    grantedBy: string
-    grantedTo: string
-    expiresAt: Date
-    createdAt: Date
-    revokedAt?: Date | null
+  id: string
+  farmId: string
+  grantedBy: string
+  grantedTo: string
+  expiresAt: Date
+  createdAt: Date
+  revokedAt?: Date | null
 }
 
 export interface AccessRequest {
-    id: string
-    farmId: string
-    requesterId: string
-    status: 'pending' | 'approved' | 'denied'
-    createdAt: Date
+  id: string
+  farmId: string
+  requesterId: string
+  status: 'pending' | 'approved' | 'denied'
+  createdAt: Date
 }
 
 /**
@@ -30,26 +30,26 @@ export interface AccessRequest {
  * @returns Error message or null if valid
  */
 export function validateAccessRequest(
-    requesterId: string,
-    farmId: string,
-    existingRequests: Array<AccessRequest>,
+  requesterId: string,
+  farmId: string,
+  existingRequests: Array<AccessRequest>,
 ): string | null {
-    if (!requesterId || !farmId) {
-        return 'Requester ID and Farm ID are required'
-    }
+  if (!requesterId || !farmId) {
+    return 'Requester ID and Farm ID are required'
+  }
 
-    const pendingRequest = existingRequests.find(
-        (req) =>
-            req.requesterId === requesterId &&
-            req.farmId === farmId &&
-            req.status === 'pending',
-    )
+  const pendingRequest = existingRequests.find(
+    (req) =>
+      req.requesterId === requesterId &&
+      req.farmId === farmId &&
+      req.status === 'pending',
+  )
 
-    if (pendingRequest) {
-        return 'You already have a pending request for this farm'
-    }
+  if (pendingRequest) {
+    return 'You already have a pending request for this farm'
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -59,9 +59,9 @@ export function validateAccessRequest(
  * @returns Future date
  */
 export function calculateExpirationDate(durationDays: number): Date {
-    const date = new Date()
-    date.setDate(date.getDate() + durationDays)
-    return date
+  const date = new Date()
+  date.setDate(date.getDate() + durationDays)
+  return date
 }
 
 /**
@@ -71,8 +71,8 @@ export function calculateExpirationDate(durationDays: number): Date {
  * @returns True if grant is active (not expired or revoked)
  */
 export function isAccessActive(grant: AccessGrant): boolean {
-    if (grant.revokedAt) return false
-    return new Date() < grant.expiresAt
+  if (grant.revokedAt) return false
+  return new Date() < grant.expiresAt
 }
 
 /**
@@ -83,7 +83,7 @@ export function isAccessActive(grant: AccessGrant): boolean {
  * @returns True if user can revoke (is the grantor)
  */
 export function canRevokeAccess(grant: AccessGrant, userId: string): boolean {
-    return grant.grantedBy === userId && !grant.revokedAt
+  return grant.grantedBy === userId && !grant.revokedAt
 }
 
 /**
@@ -94,10 +94,10 @@ export function canRevokeAccess(grant: AccessGrant, userId: string): boolean {
  * @returns True if within edit window
  */
 export function isWithinEditWindow(
-    createdAt: Date,
-    windowHours: number,
+  createdAt: Date,
+  windowHours: number,
 ): boolean {
-    const now = new Date()
-    const windowMs = windowHours * 60 * 60 * 1000
-    return now.getTime() - createdAt.getTime() <= windowMs
+  const now = new Date()
+  const windowMs = windowHours * 60 * 60 * 1000
+  return now.getTime() - createdAt.getTime() <= windowMs
 }

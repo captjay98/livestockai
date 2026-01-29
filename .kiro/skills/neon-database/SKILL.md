@@ -17,11 +17,11 @@ The database connection is managed through `app/lib/db/index.ts` with two access
 
 ```typescript
 export const myServerFn = createServerFn({ method: 'GET' }).handler(
-    async () => {
-        const { getDb } = await import('~/lib/db')
-        const db = await getDb()
-        return db.selectFrom('batches').execute()
-    },
+  async () => {
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    return db.selectFrom('batches').execute()
+  },
 )
 ```
 
@@ -48,7 +48,7 @@ Cloudflare Workers doesn't support `process.env`. Environment variables come fro
 // ❌ WRONG - breaks on Cloudflare Workers
 import { db } from '~/lib/db'
 export const fn = createServerFn().handler(async () => {
-    return db.selectFrom('users').execute()
+  return db.selectFrom('users').execute()
 })
 
 // ❌ WRONG - old pattern, doesn't work
@@ -112,32 +112,32 @@ Migration naming: `YYYY-MM-DD-NNN-description.ts`
 ```typescript
 // Select with joins
 const batches = await db
-    .selectFrom('batches')
-    .leftJoin('farms', 'farms.id', 'batches.farmId')
-    .select(['batches.id', 'batches.species', 'farms.name as farmName'])
-    .where('batches.status', '=', 'active')
-    .execute()
+  .selectFrom('batches')
+  .leftJoin('farms', 'farms.id', 'batches.farmId')
+  .select(['batches.id', 'batches.species', 'farms.name as farmName'])
+  .where('batches.status', '=', 'active')
+  .execute()
 
 // Insert with returning
 const result = await db
-    .insertInto('batches')
-    .values({ farmId, species, initialQuantity })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+  .insertInto('batches')
+  .values({ farmId, species, initialQuantity })
+  .returning('id')
+  .executeTakeFirstOrThrow()
 
 // Update
 await db
-    .updateTable('batches')
-    .set({ status: 'depleted' })
-    .where('id', '=', batchId)
-    .execute()
+  .updateTable('batches')
+  .set({ status: 'depleted' })
+  .where('id', '=', batchId)
+  .execute()
 
 // Aggregate
 const stats = await db
-    .selectFrom('sales')
-    .select(sql<number>`sum(quantity)`.as('totalSold'))
-    .where('batchId', '=', batchId)
-    .executeTakeFirst()
+  .selectFrom('sales')
+  .select(sql<number>`sum(quantity)`.as('totalSold'))
+  .where('batchId', '=', batchId)
+  .executeTakeFirst()
 ```
 
 ## Related Skills

@@ -243,23 +243,23 @@ bun run db:seed:dev  # Weka data kamili ya majaribio
 
 1. Sakinisha Wrangler CLI:
 
-    ```bash
-    bun add -g wrangler
-    wrangler login
-    ```
+   ```bash
+   bun add -g wrangler
+   wrangler login
+   ```
 
 2. Weka siri zako:
 
-    ```bash
-    wrangler secret put DATABASE_URL
-    wrangler secret put BETTER_AUTH_SECRET
-    wrangler secret put BETTER_AUTH_URL
-    ```
+   ```bash
+   wrangler secret put DATABASE_URL
+   wrangler secret put BETTER_AUTH_SECRET
+   wrangler secret put BETTER_AUTH_URL
+   ```
 
 3. Sambaza:
-    ```bash
-    bun run deploy
-    ```
+   ```bash
+   bun run deploy
+   ```
 
 ### Majukwaa Mengine
 

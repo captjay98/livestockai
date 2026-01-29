@@ -243,23 +243,23 @@ bun run db:seed:dev  # Tam demo verilerini ekle
 
 1. Wrangler CLI'yı yükleyin:
 
-    ```bash
-    bun add -g wrangler
-    wrangler login
-    ```
+   ```bash
+   bun add -g wrangler
+   wrangler login
+   ```
 
 2. Sırlarınızı ayarlayın:
 
-    ```bash
-    wrangler secret put DATABASE_URL
-    wrangler secret put BETTER_AUTH_SECRET
-    wrangler secret put BETTER_AUTH_URL
-    ```
+   ```bash
+   wrangler secret put DATABASE_URL
+   wrangler secret put BETTER_AUTH_SECRET
+   wrangler secret put BETTER_AUTH_URL
+   ```
 
 3. Dağıtın:
-    ```bash
-    bun run deploy
-    ```
+   ```bash
+   bun run deploy
+   ```
 
 ### Diğer Platformlar
 

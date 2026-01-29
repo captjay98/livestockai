@@ -40,13 +40,13 @@ Use `fast-check` to prove financial laws hold true for **all** inputs.
 
 ```typescript
 test('Profit Invariant', () => {
-    fc.assert(
-        fc.property(fc.integer(), fc.integer(), (revenue, cost) => {
-            const profit = calculateProfit(revenue, cost)
-            // Profit + Cost must always exactly equal Revenue
-            return profit.add(cost).equals(revenue)
-        }),
-    )
+  fc.assert(
+    fc.property(fc.integer(), fc.integer(), (revenue, cost) => {
+      const profit = calculateProfit(revenue, cost)
+      // Profit + Cost must always exactly equal Revenue
+      return profit.add(cost).equals(revenue)
+    }),
+  )
 })
 ```
 

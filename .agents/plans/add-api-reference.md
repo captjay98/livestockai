@@ -68,14 +68,14 @@ Use TypeDoc to auto-generate API documentation from TypeScript code:
 ### Relevant Documentation - YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [TypeDoc Documentation](https://typedoc.org/)
-    - Specific section: Configuration, JSDoc Tags
-    - Why: Learn TypeDoc configuration and JSDoc syntax
+  - Specific section: Configuration, JSDoc Tags
+  - Why: Learn TypeDoc configuration and JSDoc syntax
 - [TSDoc Standard](https://tsdoc.org/)
-    - Specific section: Tag Reference
-    - Why: Standard JSDoc tags for TypeScript
+  - Specific section: Tag Reference
+  - Why: Standard JSDoc tags for TypeScript
 - [TypeDoc GitHub Pages](https://typedoc.org/guides/installation/)
-    - Specific section: Installation and Usage
-    - Why: Setup instructions
+  - Specific section: Installation and Usage
+  - Why: Setup instructions
 
 ### Patterns to Follow
 
@@ -103,10 +103,10 @@ Use TypeDoc to auto-generate API documentation from TypeScript code:
  * ```
  */
 export async function createBatch(
-    userId: string,
-    data: CreateBatchData,
+  userId: string,
+  data: CreateBatchData,
 ): Promise<string> {
-    // Implementation
+  // Implementation
 }
 ````
 
@@ -117,23 +117,23 @@ export async function createBatch(
  * Data required to create a new batch
  */
 export interface CreateBatchData {
-    /** The farm ID where the batch will be created */
-    farmId: string
+  /** The farm ID where the batch will be created */
+  farmId: string
 
-    /** Type of livestock (poultry, fish, cattle, goats, sheep, bees) */
-    livestockType: LivestockType
+  /** Type of livestock (poultry, fish, cattle, goats, sheep, bees) */
+  livestockType: LivestockType
 
-    /** Specific species (e.g., broiler, catfish, angus) */
-    species: string
+  /** Specific species (e.g., broiler, catfish, angus) */
+  species: string
 
-    /** Initial number of animals in the batch */
-    initialQuantity: number
+  /** Initial number of animals in the batch */
+  initialQuantity: number
 
-    /** Date the batch was acquired */
-    acquisitionDate: Date
+  /** Date the batch was acquired */
+  acquisitionDate: Date
 
-    /** Cost per animal unit in user's currency */
-    costPerUnit: number
+  /** Cost per animal unit in user's currency */
+  costPerUnit: number
 }
 ```
 
@@ -159,10 +159,10 @@ export interface CreateBatchData {
  * ```
  */
 export function formatCurrency(
-    amount: number,
-    settings: CurrencySettings,
+  amount: number,
+  settings: CurrencySettings,
 ): string {
-    // Implementation
+  // Implementation
 }
 ````
 
@@ -213,12 +213,12 @@ Automate documentation generation:
 
 - **IMPLEMENT**: TypeDoc configuration file
 - **OPTIONS**:
-    - entryPoints: ["app/features/*/server.ts", "app/hooks/*.ts", "app/features/*/utils.ts"]
-    - out: "docs/api"
-    - exclude: ["**/*.test.ts", "**/*.spec.ts", "**/node_modules/**"]
-    - excludePrivate: true
-    - excludeProtected: true
-    - plugin: ["typedoc-plugin-markdown"] (optional)
+  - entryPoints: ["app/features/*/server.ts", "app/hooks/*.ts", "app/features/*/utils.ts"]
+  - out: "docs/api"
+  - exclude: ["**/*.test.ts", "**/*.spec.ts", "**/node_modules/**"]
+  - excludePrivate: true
+  - excludeProtected: true
+  - plugin: ["typedoc-plugin-markdown"] (optional)
 - **VALIDATE**: `cat typedoc.json`
 
 ### Task 2: UPDATE package.json - Add TypeDoc Dependency
@@ -288,10 +288,10 @@ Automate documentation generation:
 
 - **IMPLEMENT**: Script to generate documentation with custom processing
 - **FEATURES**:
-    - Run TypeDoc
-    - Copy to docs/api/
-    - Generate index.html with navigation
-    - Add search functionality
+  - Run TypeDoc
+  - Copy to docs/api/
+  - Generate index.html with navigation
+  - Add search functionality
 - **VALIDATE**: `bun run scripts/generate-docs.ts`
 
 ### Task 12: CREATE .github/workflows/docs.yml
@@ -299,10 +299,10 @@ Automate documentation generation:
 - **IMPLEMENT**: CI workflow to regenerate docs on push
 - **TRIGGER**: On push to main branch
 - **STEPS**:
-    - Checkout code
-    - Install dependencies
-    - Generate docs
-    - Commit and push to gh-pages branch (optional)
+  - Checkout code
+  - Install dependencies
+  - Generate docs
+  - Commit and push to gh-pages branch (optional)
 - **VALIDATE**: Push to trigger workflow
 
 ### Task 13: UPDATE docs/INDEX.md - Link to API Reference
@@ -316,10 +316,10 @@ Automate documentation generation:
 
 - **IMPLEMENT**: README explaining API documentation
 - **SECTIONS**:
-    - Overview
-    - How to navigate
-    - How to regenerate
-    - Contributing (adding JSDoc comments)
+  - Overview
+  - How to navigate
+  - How to regenerate
+  - Contributing (adding JSDoc comments)
 - **VALIDATE**: `cat docs/api/README.md`
 
 ---

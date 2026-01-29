@@ -198,9 +198,9 @@ Based on comprehensive audit (see `.agents/constants-audit.md`), expand 8 enum t
 
 ```typescript
 export const DEFAULT_SETTINGS = {
-    currencyCode: 'NGN',
-    currencySymbol: '₦',
-    // ... rest
+  currencyCode: 'NGN',
+  currencySymbol: '₦',
+  // ... rest
 }
 ```
 
@@ -221,35 +221,35 @@ export const DEFAULT_SETTINGS = {
 
 ```typescript
 async function createFarmWithModules(
-    userId: string,
-    farmData: { name: string; location: string; type: string },
-    modules: Array<
-        'poultry' | 'aquaculture' | 'cattle' | 'goats' | 'sheep' | 'bees'
-    >,
+  userId: string,
+  farmData: { name: string; location: string; type: string },
+  modules: Array<
+    'poultry' | 'aquaculture' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  >,
 ) {
-    const farm = await db
-        .insertInto('farms')
-        .values(farmData)
-        .returningAll()
-        .executeTakeFirstOrThrow()
+  const farm = await db
+    .insertInto('farms')
+    .values(farmData)
+    .returningAll()
+    .executeTakeFirstOrThrow()
 
-    await db
-        .insertInto('user_farms')
-        .values({ userId, farmId: farm.id, role: 'owner' })
-        .execute()
+  await db
+    .insertInto('user_farms')
+    .values({ userId, farmId: farm.id, role: 'owner' })
+    .execute()
 
-    await db
-        .insertInto('farm_modules')
-        .values(
-            modules.map((moduleKey) => ({
-                farmId: farm.id,
-                moduleKey,
-                enabled: true,
-            })),
-        )
-        .execute()
+  await db
+    .insertInto('farm_modules')
+    .values(
+      modules.map((moduleKey) => ({
+        farmId: farm.id,
+        moduleKey,
+        enabled: true,
+      })),
+    )
+    .execute()
 
-    return farm
+  return farm
 }
 ```
 
@@ -271,11 +271,11 @@ async function createFarmWithModules(
 
 - **FILE**: `app/lib/db/seed-dev.ts`
 - **ADD**: Structures for each farm
-    - Poultry: Houses
-    - Fish: Ponds
-    - Cattle: Barns, Pastures
-    - Goats/Sheep: Pens
-    - Bees: Hives
+  - Poultry: Houses
+  - Fish: Ponds
+  - Cattle: Barns, Pastures
+  - Goats/Sheep: Pens
+  - Bees: Hives
 
 ### Task 7: Validate and test
 

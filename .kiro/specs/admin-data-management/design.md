@@ -76,28 +76,28 @@ Client Request
 ```typescript
 // app/routes/_auth.settings.growth-standards.tsx
 export const Route = createFileRoute('/_auth/settings/growth-standards')({
-    loader: async ({ context }) => {
-        // Admin check
-        const session = context.session
-        if (session?.user.role !== 'admin') {
-            throw redirect({ to: '/settings' })
-        }
-        return getGrowthStandards()
-    },
-    component: GrowthStandardsPage,
+  loader: async ({ context }) => {
+    // Admin check
+    const session = context.session
+    if (session?.user.role !== 'admin') {
+      throw redirect({ to: '/settings' })
+    }
+    return getGrowthStandards()
+  },
+  component: GrowthStandardsPage,
 })
 
 // app/routes/_auth.settings.market-prices.tsx
 export const Route = createFileRoute('/_auth/settings/market-prices')({
-    loader: async ({ context }) => {
-        // Admin check
-        const session = context.session
-        if (session?.user.role !== 'admin') {
-            throw redirect({ to: '/settings' })
-        }
-        return getMarketPrices()
-    },
-    component: MarketPricesPage,
+  loader: async ({ context }) => {
+    // Admin check
+    const session = context.session
+    if (session?.user.role !== 'admin') {
+      throw redirect({ to: '/settings' })
+    }
+    return getMarketPrices()
+  },
+  component: MarketPricesPage,
 })
 ```
 
@@ -110,78 +110,75 @@ import { z } from 'zod'
 
 // Get all growth standards
 export const getGrowthStandards = createServerFn({ method: 'GET' }).handler(
-    async () => {
-        const { requireAdmin } = await import('../auth/server-middleware')
-        await requireAdmin()
+  async () => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    await requireAdmin()
 
-        const { db } = await import('../db')
-        return db
-            .selectFrom('growth_standards')
-            .selectAll()
-            .orderBy('species', 'asc')
-            .orderBy('day', 'asc')
-            .execute()
-    },
+    const { db } = await import('../db')
+    return db
+      .selectFrom('growth_standards')
+      .selectAll()
+      .orderBy('species', 'asc')
+      .orderBy('day', 'asc')
+      .execute()
+  },
 )
 
 // Update growth standard entry
 export const updateGrowthStandard = createServerFn({ method: 'POST' })
-    .validator(
-        z.object({
-            id: z.string().uuid(),
-            expectedWeightG: z.number().positive(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAdmin } = await import('../auth/server-middleware')
-        await requireAdmin()
+  .validator(
+    z.object({
+      id: z.string().uuid(),
+      expectedWeightG: z.number().positive(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    await requireAdmin()
 
-        const { db } = await import('../db')
-        await db
-            .updateTable('growth_standards')
-            .set({ expected_weight_g: data.expectedWeightG })
-            .where('id', '=', data.id)
-            .execute()
-    })
+    const { db } = await import('../db')
+    await db
+      .updateTable('growth_standards')
+      .set({ expected_weight_g: data.expectedWeightG })
+      .where('id', '=', data.id)
+      .execute()
+  })
 
 // Add growth standard entry
 export const addGrowthStandard = createServerFn({ method: 'POST' })
-    .validator(
-        z.object({
-            species: z.string().min(1),
-            day: z.number().int().positive(),
-            expectedWeightG: z.number().positive(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAdmin } = await import('../auth/server-middleware')
-        await requireAdmin()
+  .validator(
+    z.object({
+      species: z.string().min(1),
+      day: z.number().int().positive(),
+      expectedWeightG: z.number().positive(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    await requireAdmin()
 
-        const { db } = await import('../db')
-        return db
-            .insertInto('growth_standards')
-            .values({
-                species: data.species,
-                day: data.day,
-                expected_weight_g: data.expectedWeightG,
-            })
-            .returning('id')
-            .executeTakeFirstOrThrow()
-    })
+    const { db } = await import('../db')
+    return db
+      .insertInto('growth_standards')
+      .values({
+        species: data.species,
+        day: data.day,
+        expected_weight_g: data.expectedWeightG,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow()
+  })
 
 // Delete growth standard entry
 export const deleteGrowthStandard = createServerFn({ method: 'POST' })
-    .validator(z.object({ id: z.string().uuid() }))
-    .handler(async ({ data }) => {
-        const { requireAdmin } = await import('../auth/server-middleware')
-        await requireAdmin()
+  .validator(z.object({ id: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    await requireAdmin()
 
-        const { db } = await import('../db')
-        await db
-            .deleteFrom('growth_standards')
-            .where('id', '=', data.id)
-            .execute()
-    })
+    const { db } = await import('../db')
+    await db.deleteFrom('growth_standards').where('id', '=', data.id).execute()
+  })
 
 // Similar functions for market_prices...
 ```
@@ -193,14 +190,14 @@ export const deleteGrowthStandard = createServerFn({ method: 'POST' })
 import type { Permission } from './utils'
 
 export class PermissionError extends Error {
-    public statusCode = 403
-    public permission: Permission
+  public statusCode = 403
+  public permission: Permission
 
-    constructor(permission: Permission, message?: string) {
-        super(message || `Permission denied: ${permission} required`)
-        this.permission = permission
-        this.name = 'PermissionError'
-    }
+  constructor(permission: Permission, message?: string) {
+    super(message || `Permission denied: ${permission} required`)
+    this.permission = permission
+    this.name = 'PermissionError'
+  }
 }
 
 /**
@@ -208,36 +205,36 @@ export class PermissionError extends Error {
  * Throws PermissionError if denied
  */
 export async function requirePermission(
-    userId: string,
-    farmId: string,
-    permission: Permission,
+  userId: string,
+  farmId: string,
+  permission: Permission,
 ): Promise<void> {
-    const { hasPermission } = await import('./utils')
+  const { hasPermission } = await import('./utils')
 
-    const allowed = await hasPermission(userId, farmId, permission)
-    if (!allowed) {
-        throw new PermissionError(permission)
-    }
+  const allowed = await hasPermission(userId, farmId, permission)
+  if (!allowed) {
+    throw new PermissionError(permission)
+  }
 }
 
 /**
  * Require write access to a farm (owner or manager)
  */
 export async function requireWriteAccess(
-    userId: string,
-    farmId: string,
+  userId: string,
+  farmId: string,
 ): Promise<void> {
-    return requirePermission(userId, farmId, 'batch:create')
+  return requirePermission(userId, farmId, 'batch:create')
 }
 
 /**
  * Require delete access to a farm (owner only)
  */
 export async function requireDeleteAccess(
-    userId: string,
-    farmId: string,
+  userId: string,
+  farmId: string,
 ): Promise<void> {
-    return requirePermission(userId, farmId, 'batch:delete')
+  return requirePermission(userId, farmId, 'batch:delete')
 }
 ```
 
@@ -247,62 +244,62 @@ export async function requireDeleteAccess(
 // app/lib/batches/server.ts (updated)
 
 export const createBatch = createServerFn({ method: 'POST' })
-    .validator(createBatchSchema)
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const { requirePermission } = await import('../auth/permissions')
+  .validator(createBatchSchema)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const { requirePermission } = await import('../auth/permissions')
 
-        const session = await requireAuth()
-        await requirePermission(session.user.id, data.farmId, 'batch:create')
+    const session = await requireAuth()
+    await requirePermission(session.user.id, data.farmId, 'batch:create')
 
-        // ... existing implementation
-    })
+    // ... existing implementation
+  })
 
 export const updateBatch = createServerFn({ method: 'POST' })
-    .validator(updateBatchSchema)
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const { requirePermission } = await import('../auth/permissions')
-        const { db } = await import('../db')
+  .validator(updateBatchSchema)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const { requirePermission } = await import('../auth/permissions')
+    const { db } = await import('../db')
 
-        const session = await requireAuth()
+    const session = await requireAuth()
 
-        // Get batch to find farmId
-        const batch = await db
-            .selectFrom('batches')
-            .select(['farmId'])
-            .where('id', '=', data.id)
-            .executeTakeFirst()
+    // Get batch to find farmId
+    const batch = await db
+      .selectFrom('batches')
+      .select(['farmId'])
+      .where('id', '=', data.id)
+      .executeTakeFirst()
 
-        if (!batch) throw new Error('Batch not found')
+    if (!batch) throw new Error('Batch not found')
 
-        await requirePermission(session.user.id, batch.farmId, 'batch:update')
+    await requirePermission(session.user.id, batch.farmId, 'batch:update')
 
-        // ... existing implementation
-    })
+    // ... existing implementation
+  })
 
 export const deleteBatch = createServerFn({ method: 'POST' })
-    .validator(z.object({ id: z.string().uuid() }))
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const { requirePermission } = await import('../auth/permissions')
-        const { db } = await import('../db')
+  .validator(z.object({ id: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const { requirePermission } = await import('../auth/permissions')
+    const { db } = await import('../db')
 
-        const session = await requireAuth()
+    const session = await requireAuth()
 
-        // Get batch to find farmId
-        const batch = await db
-            .selectFrom('batches')
-            .select(['farmId'])
-            .where('id', '=', data.id)
-            .executeTakeFirst()
+    // Get batch to find farmId
+    const batch = await db
+      .selectFrom('batches')
+      .select(['farmId'])
+      .where('id', '=', data.id)
+      .executeTakeFirst()
 
-        if (!batch) throw new Error('Batch not found')
+    if (!batch) throw new Error('Batch not found')
 
-        await requirePermission(session.user.id, batch.farmId, 'batch:delete')
+    await requirePermission(session.user.id, batch.farmId, 'batch:delete')
 
-        // ... existing implementation
-    })
+    // ... existing implementation
+  })
 ```
 
 ### Client-Side Permission Hook
@@ -314,25 +311,25 @@ import { getUserPermissionsFn } from '~/lib/auth/server'
 import type { Permission } from '~/lib/auth/utils'
 
 export function usePermissions(farmId: string | undefined) {
-    const { data: permissions = [], isLoading } = useQuery({
-        queryKey: ['permissions', farmId],
-        queryFn: () => (farmId ? getUserPermissionsFn({ farmId }) : []),
-        enabled: !!farmId,
-        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    })
+  const { data: permissions = [], isLoading } = useQuery({
+    queryKey: ['permissions', farmId],
+    queryFn: () => (farmId ? getUserPermissionsFn({ farmId }) : []),
+    enabled: !!farmId,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  })
 
-    const can = (permission: Permission) => permissions.includes(permission)
+  const can = (permission: Permission) => permissions.includes(permission)
 
-    return {
-        permissions,
-        isLoading,
-        can,
-        canCreateBatch: can('batch:create'),
-        canDeleteBatch: can('batch:delete'),
-        canCreateFinance: can('finance:create'),
-        canDeleteFinance: can('finance:delete'),
-        canManageMembers: can('member:invite'),
-    }
+  return {
+    permissions,
+    isLoading,
+    can,
+    canCreateBatch: can('batch:create'),
+    canDeleteBatch: can('batch:delete'),
+    canCreateFinance: can('finance:create'),
+    canDeleteFinance: can('finance:delete'),
+    canManageMembers: can('member:invite'),
+  }
 }
 ```
 
@@ -347,18 +344,18 @@ The `growth_standards` and `market_prices` tables already exist with the correct
 ```typescript
 // app/lib/reference-data/types.ts
 export interface GrowthStandard {
-    id: string
-    species: string
-    day: number
-    expectedWeightG: number
+  id: string
+  species: string
+  day: number
+  expectedWeightG: number
 }
 
 export interface MarketPrice {
-    id: string
-    species: string
-    sizeCategory: string
-    pricePerKg: number
-    updatedAt: Date
+  id: string
+  species: string
+  sizeCategory: string
+  pricePerKg: number
+  updatedAt: Date
 }
 ```
 
@@ -481,32 +478,32 @@ Add two new admin-only nav items to `settingsNav` in `_auth.settings.tsx`:
 
 ```typescript
 const settingsNav = [
-    { name: 'Regional', href: '/settings', icon: Settings, adminOnly: false },
-    {
-        name: 'Modules',
-        href: '/settings/modules',
-        icon: Boxes,
-        adminOnly: false,
-    },
-    { name: 'Users', href: '/settings/users', icon: Users, adminOnly: true },
-    {
-        name: 'Audit Log',
-        href: '/settings/audit',
-        icon: ClipboardList,
-        adminOnly: true,
-    },
-    {
-        name: 'Growth Standards',
-        href: '/settings/growth-standards',
-        icon: TrendingUp,
-        adminOnly: true,
-    },
-    {
-        name: 'Market Prices',
-        href: '/settings/market-prices',
-        icon: DollarSign,
-        adminOnly: true,
-    },
+  { name: 'Regional', href: '/settings', icon: Settings, adminOnly: false },
+  {
+    name: 'Modules',
+    href: '/settings/modules',
+    icon: Boxes,
+    adminOnly: false,
+  },
+  { name: 'Users', href: '/settings/users', icon: Users, adminOnly: true },
+  {
+    name: 'Audit Log',
+    href: '/settings/audit',
+    icon: ClipboardList,
+    adminOnly: true,
+  },
+  {
+    name: 'Growth Standards',
+    href: '/settings/growth-standards',
+    icon: TrendingUp,
+    adminOnly: true,
+  },
+  {
+    name: 'Market Prices',
+    href: '/settings/market-prices',
+    icon: DollarSign,
+    adminOnly: true,
+  },
 ]
 ```
 

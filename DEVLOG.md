@@ -309,11 +309,11 @@ The most important technical decision was using dynamic imports for Cloudflare W
 ```typescript
 // This pattern is REQUIRED for Cloudflare Workers
 export const getBatches = createServerFn({ method: 'GET' })
-    .validator(schema)
-    .handler(async ({ data }) => {
-        const { db } = await import('../db')
-        return db.selectFrom('batches').execute()
-    })
+  .validator(schema)
+  .handler(async ({ data }) => {
+    const { db } = await import('../db')
+    return db.selectFrom('batches').execute()
+  })
 ```
 
 Static imports break at runtime on Workers—this took significant debugging to discover.
@@ -676,12 +676,12 @@ Created comprehensive test suite in `app/hooks/useModuleNavigation.property.test
 - Added `useModules` hook to DashboardPage component
 - Replaced hardcoded inventory cards with conditional rendering based on `enabledModules`
 - Added inventory cards for all 6 livestock types:
-    - Poultry (Bird icon, primary color)
-    - Aquaculture/Fish (Fish icon, blue)
-    - Cattle (Beef icon, orange)
-    - Goats (Rabbit icon, green)
-    - Sheep (Cloud icon, purple)
-    - Bees (Hexagon icon, amber)
+  - Poultry (Bird icon, primary color)
+  - Aquaculture/Fish (Fish icon, blue)
+  - Cattle (Beef icon, orange)
+  - Goats (Rabbit icon, green)
+  - Sheep (Cloud icon, purple)
+  - Bees (Hexagon icon, amber)
 
 **Next Steps**:
 
@@ -700,12 +700,12 @@ Created comprehensive test suite in `app/hooks/useModuleNavigation.property.test
 ### Time Tracking
 
 - Task 7 (Navigation): ~45 minutes
-    - Component updates: 15 minutes
-    - Property test creation: 20 minutes
-    - Test debugging and fixes: 10 minutes
+  - Component updates: 15 minutes
+  - Property test creation: 20 minutes
+  - Test debugging and fixes: 10 minutes
 - Task 8 (Dashboard): ~15 minutes (in progress)
-    - Icon imports and hook integration: 10 minutes
-    - Dynamic inventory cards: 5 minutes
+  - Icon imports and hook integration: 10 minutes
+  - Dynamic inventory cards: 5 minutes
 
 ### Technical Insights
 
@@ -1255,11 +1255,11 @@ Resolved persistent OAuth re-authentication issue when switching between agents.
 **Solution:**
 
 1. Fixed callback ports for all MCP servers:
-    - Neon: 3334
-    - Cloudflare-bindings: 3335
-    - Cloudflare-builds: 3336
-    - Cloudflare-observability: 3337
-    - Cloudflare-docs: 3338
+   - Neon: 3334
+   - Cloudflare-bindings: 3335
+   - Cloudflare-builds: 3336
+   - Cloudflare-observability: 3337
+   - Cloudflare-docs: 3338
 
 2. Per-agent MCP configuration:
    | Agent | MCP Access |
@@ -1387,11 +1387,11 @@ Eliminated ALL remaining `any` types in the codebase.
 ```typescript
 // Local interface matching server response
 interface Batch {
-    id: string
-    species: string
-    livestockType: string
-    currentQuantity: number
-    status: string
+  id: string
+  species: string
+  livestockType: string
+  currentQuantity: number
+  status: string
 }
 
 // Cast with eslint-disable (required for TanStack Router)
@@ -2117,14 +2117,14 @@ Created 6 detailed implementation plans:
 **Solution**: Database and build optimizations
 
 - **8 Composite Indexes**: Added for common query patterns
-    - batches(farmId, status)
-    - sales(farmId, date)
-    - expenses(farmId, date)
-    - feed_records(batchId, date)
-    - mortality_records(batchId, date)
-    - notifications(userId, read)
-    - weight_samples(batchId, date)
-    - egg_records(batchId, date)
+  - batches(farmId, status)
+  - sales(farmId, date)
+  - expenses(farmId, date)
+  - feed_records(batchId, date)
+  - mortality_records(batchId, date)
+  - notifications(userId, read)
+  - weight_samples(batchId, date)
+  - egg_records(batchId, date)
 - **Query Audit**: Verified no N+1 patterns (dashboard uses efficient joins)
 - **Bundle Analyzer**: Installed rollup-plugin-visualizer
 
@@ -2354,9 +2354,9 @@ Continued from Day 8 (Evening Part 1) with focus on expanding database capabilit
 
 - Created `app/lib/db/seeds/` directory
 - Renamed files for clarity:
-    - `seed.ts` → `production.ts`
-    - `seed-dev.ts` → `development.ts`
-    - `seed-helpers.ts` → `helpers.ts`
+  - `seed.ts` → `production.ts`
+  - `seed-dev.ts` → `development.ts`
+  - `seed-helpers.ts` → `helpers.ts`
 - Updated all imports and package.json scripts
 - Moved backup file to seeds directory
 
@@ -2436,23 +2436,23 @@ Continued from Day 8 (Evening Part 1) with focus on expanding database capabilit
 **Planning Phase** (~2 hours):
 
 - Used `@plan-feature` prompt to generate 21 comprehensive plans (234KB total):
-    - Settings: `implement-missing-settings-features` (28KB), `complete-settings-wiring` (13KB), `fix-settings-and-onboarding-system` (17KB)
-    - UX: `consolidate-creation-to-dialogs` (16KB), `toast-and-confirmation-standardization` (14KB)
-    - Testing: `add-notification-tests` (7.3KB), `add-property-tests` (4.6KB)
-    - Database: `database-schema-improvements-and-seeder-enhancement` (14KB), `update-seeders-production-ready` (10KB)
-    - Type Safety: `fix-loader-data-any-types` (13KB), `codebase-type-safety-cleanup` (11KB)
-    - Quality: `codebase-consistency-cleanup` (12KB), `performance-optimization` (4.6KB)
-    - Plus 8 more plans covering dashboard, i18n, documentation
+  - Settings: `implement-missing-settings-features` (28KB), `complete-settings-wiring` (13KB), `fix-settings-and-onboarding-system` (17KB)
+  - UX: `consolidate-creation-to-dialogs` (16KB), `toast-and-confirmation-standardization` (14KB)
+  - Testing: `add-notification-tests` (7.3KB), `add-property-tests` (4.6KB)
+  - Database: `database-schema-improvements-and-seeder-enhancement` (14KB), `update-seeders-production-ready` (10KB)
+  - Type Safety: `fix-loader-data-any-types` (13KB), `codebase-type-safety-cleanup` (11KB)
+  - Quality: `codebase-consistency-cleanup` (12KB), `performance-optimization` (4.6KB)
+  - Plus 8 more plans covering dashboard, i18n, documentation
 - **Time saved**: ~6 hours (vs manual planning and architecture design)
 
 **Implementation Phase** (~8 hours):
 
 - Used `@execute` prompt with plan references for all 47 commits
 - Delegated work to specialized subagents:
-    - `@backend-engineer` - Settings system (10 new settings), database (28 enum values, 5 farms seeder), performance indexes
-    - `@frontend-engineer` - Dashboard cards, UI polish, dialog consolidation
-    - `@qa-engineer` - Test suites (48 tests: 24 notification + 24 property tests)
-    - `@i18n-engineer` - Hausa translations (deferred), translation key fixes
+  - `@backend-engineer` - Settings system (10 new settings), database (28 enum values, 5 farms seeder), performance indexes
+  - `@frontend-engineer` - Dashboard cards, UI polish, dialog consolidation
+  - `@qa-engineer` - Test suites (48 tests: 24 notification + 24 property tests)
+  - `@i18n-engineer` - Hausa translations (deferred), translation key fixes
 - Worked in 4 parallel sessions (Morning, Afternoon, Evening 1, Evening 2)
 - **Time saved**: ~28 hours (vs sequential manual coding)
 
@@ -2708,9 +2708,9 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 - Problem: Skipping onboarding caused infinite redirect loop
 - Root cause: `skipOnboarding()` didn't persist to database, `navigate()` called during render
 - Solution:
-    - Call `markOnboardingCompleteFn()` to persist skip to DB
-    - Move `navigate()` to `useEffect` to avoid render-time navigation
-    - Expanded farm type options from 3 to 7 (poultry, fishery, cattle, goats, sheep, bees, mixed)
+  - Call `markOnboardingCompleteFn()` to persist skip to DB
+  - Move `navigate()` to `useEffect` to avoid render-time navigation
+  - Expanded farm type options from 3 to 7 (poultry, fishery, cattle, goats, sheep, bees, mixed)
 - Files: `onboarding/context.tsx`, `onboarding/index.tsx`
 
 **2. Settings Merge Bug**
@@ -2745,9 +2745,9 @@ Documented regional market data packages in `.agents/plans/regional-market-packa
 
 - Objective: Maximize screen real estate on mobile devices
 - Changes:
-    - Shell layout: `p-6` → `p-4`
-    - Card components: `p-6` → `p-4`
-    - Select/Switch/Tabs: Reduced internal padding
+  - Shell layout: `p-6` → `p-4`
+  - Card components: `p-6` → `p-4`
+  - Select/Switch/Tabs: Reduced internal padding
 - Impact: ~15% more content visible on mobile screens
 - Files: 5 UI components
 
@@ -3220,9 +3220,9 @@ Initially considered hardcoding Termii (Nigeria) and Resend, but realized this w
 **AI-Accelerated Workflow**:
 
 - Used **Kiro CLI** `@execute` prompt with integration plans:
-    - `provider-agnostic-integrations` (23KB)
-    - `optional-integrations-system` (5.5KB)
-    - `settings-ux-improvements` (12KB)
+  - `provider-agnostic-integrations` (23KB)
+  - `optional-integrations-system` (5.5KB)
+  - `settings-ux-improvements` (12KB)
 - Delegated to `@backend-engineer` for integration infrastructure
 - Delegated to `@frontend-engineer` for settings UX consolidation (8→6 tabs)
 - **Time saved**: ~9 hours (75% reduction)
@@ -3473,10 +3473,10 @@ Major push to create a professional public-facing presence for OpenLivestock. Bu
 **Planning Phase** (~1.5 hours):
 
 - Used `@plan-feature` prompt to generate 4 comprehensive plans:
-    - `reorganize-project-structure.md` (25KB) - Project structure refactoring
-    - `codebase-cleanup-final-organization.md` (20KB) - Final cleanup strategy
-    - `consolidate-codebase-organization.md` (19KB) - Organization consolidation
-    - `refactor-routing-to-directory-structure.md` (15KB) - Routing refactor
+  - `reorganize-project-structure.md` (25KB) - Project structure refactoring
+  - `codebase-cleanup-final-organization.md` (20KB) - Final cleanup strategy
+  - `consolidate-codebase-organization.md` (19KB) - Organization consolidation
+  - `refactor-routing-to-directory-structure.md` (15KB) - Routing refactor
 - Plans covered marketing site, brand refresh, error handling, i18n
 - **Time saved**: ~3 hours (vs manual planning and design)
 
@@ -3484,10 +3484,10 @@ Major push to create a professional public-facing presence for OpenLivestock. Bu
 
 - Used `@execute` prompt with plan references for all 15 commits
 - Delegated work to specialized subagents:
-    - `@frontend-engineer` - Marketing site (27 components, 8 routes), brand refresh
-    - `@backend-engineer` - Error handling system (AppError, 50+ codes, 27 server functions)
-    - `@i18n-engineer` - Translation completion (15 languages, 1,005 keys each)
-    - `@plan-structure` - Project reorganization and cleanup
+  - `@frontend-engineer` - Marketing site (27 components, 8 routes), brand refresh
+  - `@backend-engineer` - Error handling system (AppError, 50+ codes, 27 server functions)
+  - `@i18n-engineer` - Translation completion (15 languages, 1,005 keys each)
+  - `@plan-structure` - Project reorganization and cleanup
 - Built complete marketing site with parallax effects and animations
 - **Time saved**: ~20 hours (vs sequential manual coding)
 
@@ -3618,10 +3618,10 @@ Previous commits (15 from January 19-20):
 
 - Used `@execute` prompt for implementation
 - Delegated work to specialized subagents:
-    - `@backend-engineer` - Error handling system (AppError with 50+ codes)
-    - `@frontend-engineer` - UI enhancements (38 components), brand refresh
-    - `@i18n-engineer` - Translation updates (9 languages)
-    - `@devops-engineer` - Agent configuration system (65 files, 29 skills)
+  - `@backend-engineer` - Error handling system (AppError with 50+ codes)
+  - `@frontend-engineer` - UI enhancements (38 components), brand refresh
+  - `@i18n-engineer` - Translation updates (9 languages)
+  - `@devops-engineer` - Agent configuration system (65 files, 29 skills)
 - Agent configuration system created foundation for improved AI workflows
 - **Time saved**: ~20 hours (vs sequential manual coding)
 
@@ -3679,10 +3679,10 @@ import { config } from 'dotenv'
 config() // Load .env BEFORE defineConfig
 
 export default defineConfig({
-    define: {
-        'process.env.DATABASE_URL': JSON.stringify(process.env.DATABASE_URL),
-        // ... other env vars
-    },
+  define: {
+    'process.env.DATABASE_URL': JSON.stringify(process.env.DATABASE_URL),
+    // ... other env vars
+  },
 })
 ```
 
@@ -3907,13 +3907,13 @@ Comprehensive enhancement of all 27 Kiro CLI prompts to add interactive workflow
 **Planning Phase** (~1 hour):
 
 - Used `@plan-feature` prompt to generate 7 comprehensive plans:
-    - `provider-agnostic-integrations.md` (23KB) - SMS/email integration system
-    - `daily-operations-crud-completion.md` (22KB) - CRUD operations
-    - `ux-sidebar-navigation-redesign.md` (18KB) - Navigation UX
-    - `optional-integrations-implementation.md` (16KB) - Integration features
-    - `settings-ux-improvements.md` (12KB) - Settings polish
-    - `optional-integrations-system.md` (5.5KB) - Integration architecture
-    - `commit-plan-day11.md` (4.3KB) - Commit strategy
+  - `provider-agnostic-integrations.md` (23KB) - SMS/email integration system
+  - `daily-operations-crud-completion.md` (22KB) - CRUD operations
+  - `ux-sidebar-navigation-redesign.md` (18KB) - Navigation UX
+  - `optional-integrations-implementation.md` (16KB) - Integration features
+  - `settings-ux-improvements.md` (12KB) - Settings polish
+  - `optional-integrations-system.md` (5.5KB) - Integration architecture
+  - `commit-plan-day11.md` (4.3KB) - Commit strategy
 - Plans covered integrations, UX, CRUD, batches refactor
 - **Time saved**: ~3 hours (vs manual planning)
 
@@ -3921,9 +3921,9 @@ Comprehensive enhancement of all 27 Kiro CLI prompts to add interactive workflow
 
 - Used `@execute` prompt with plan references for all 12 commits
 - Delegated work to specialized subagents:
-    - `@backend-engineer` - Batches service/repository layers, database schema
-    - `@frontend-engineer` - Prompt system enhancement (27 prompts)
-    - `@qa-engineer` - Test infrastructure reorganization
+  - `@backend-engineer` - Batches service/repository layers, database schema
+  - `@frontend-engineer` - Prompt system enhancement (27 prompts)
+  - `@qa-engineer` - Test infrastructure reorganization
 - Enhanced all 27 prompts with interactive workflows, agent delegation, error handling
 - Established three-layer architecture pattern (foundation for Day 16-18)
 - **Time saved**: ~12 hours (vs sequential manual coding)
@@ -4062,16 +4062,16 @@ Following Day 15's batches service layer refactoring, a massive 3-day architectu
 **Implementation**:
 
 - **Tasks System**: Added tasks and task_completions tables to database
-    - Daily/weekly/monthly farm checklists
-    - Task completion tracking with deduplication
-    - Three-layer architecture (server → service → repository)
+  - Daily/weekly/monthly farm checklists
+  - Task completion tracking with deduplication
+  - Three-layer architecture (server → service → repository)
 - **Mobile UI**: Added bottom navigation and floating action button (FAB)
-    - Quick actions for common tasks
-    - Mobile-optimized navigation
+  - Quick actions for common tasks
+  - Mobile-optimized navigation
 - **Stepper Input**: Created stepper component for quantity inputs
 - **Command Center**: Built batch operations command center
-    - Quick actions for feed, mortality, sales, weight
-    - Integrated into batch details page
+  - Quick actions for feed, mortality, sales, weight
+  - Integrated into batch details page
 - **Navigation Refactor**: Reorganized navigation structure for better UX
 
 **Files Changed**: ~30 files
@@ -4094,15 +4094,15 @@ Following Day 15's batches service layer refactoring, a massive 3-day architectu
 **Implementation**:
 
 - **Infrastructure Extraction**: Moved shared code to `lib/` directory
-    - `lib/auth/`, `lib/db/`, `lib/errors/`, `lib/i18n/`, `lib/query-client/`, `lib/theme/`, `lib/validation/`
-    - Enables code reuse across features
+  - `lib/auth/`, `lib/db/`, `lib/errors/`, `lib/i18n/`, `lib/query-client/`, `lib/theme/`, `lib/validation/`
+  - Enables code reuse across features
 - **Service/Repository Implementation**: Created service.ts and repository.ts for:
-    - **Batch 1**: customers, eggs, expenses, farms
-    - **Batch 2**: feed, invoices, modules, mortality
-    - **Batch 3**: notifications, reports, sales, settings
-    - **Batch 4**: structures, suppliers, users
-    - **Batch 5**: vaccinations, water-quality, weight
-    - **Batch 6**: inventory, monitoring
+  - **Batch 1**: customers, eggs, expenses, farms
+  - **Batch 2**: feed, invoices, modules, mortality
+  - **Batch 3**: notifications, reports, sales, settings
+  - **Batch 4**: structures, suppliers, users
+  - **Batch 5**: vaccinations, water-quality, weight
+  - **Batch 6**: inventory, monitoring
 - **Route Refactoring**: Updated all routes to use new service/repository layers
 - **Import Updates**: Fixed all imports after lib/ extraction
 - **Test Updates**: Added service tests for all features
@@ -4149,9 +4149,9 @@ Server Layer (server.ts)
 **Implementation**:
 
 - **Service Tests**: Added unit tests for all 25 features
-    - Pure function testing (no database)
-    - Business logic validation
-    - Edge case coverage
+  - Pure function testing (no database)
+  - Business logic validation
+  - Edge case coverage
 - **Database Migrations**: Added missing migrations for new features
 - **Infrastructure Tests**: Added tests for lib/ utilities
 - **Documentation**: Updated architecture docs with three-layer pattern
@@ -4175,12 +4175,12 @@ Server Layer (server.ts)
 - **Feed Precision Fix**: Resolved floating-point precision issues in feed statistics
 - **Pricing Page**: Simplified to placeholder (to be redesigned)
 - **Landing Components**: Added comprehensive marketing page components
-    - Hero sections, feature grids, pricing cards
-    - Community stats, roadmap timeline, changelog
-    - 28 marketing components total
+  - Hero sections, feature grids, pricing cards
+  - Community stats, roadmap timeline, changelog
+  - 28 marketing components total
 - **Component Refactor**: Moved landing components from `features/` to `components/`
-    - Updated all import paths across 6 route files
-    - Preserved original designs
+  - Updated all import paths across 6 route files
+  - Preserved original designs
 
 **Files Changed**: ~35 files
 
@@ -4199,10 +4199,10 @@ Server Layer (server.ts)
 **Implementation**:
 
 - **Comprehensive Audit**: Created detailed audit report with 28 tasks across 4 phases
-    - Phase 1: Security fixes, FCR calculation, SQL injection prevention
-    - Phase 2: Route bloat, type drift, circular dependencies
-    - Phase 3: React performance, testing gaps, KPIs
-    - Phase 4: Component tests, E2E, PWA, accessibility
+  - Phase 1: Security fixes, FCR calculation, SQL injection prevention
+  - Phase 2: Route bloat, type drift, circular dependencies
+  - Phase 3: React performance, testing gaps, KPIs
+  - Phase 4: Component tests, E2E, PWA, accessibility
 - **UI Standards**: Created UI compliance plans and button size audits
 - **Architecture Audit**: Documented codebase structure and patterns
 - **Future Enhancements**: Separated new features from technical debt
@@ -4220,25 +4220,25 @@ Server Layer (server.ts)
 **Implementation**:
 
 - **Custom Hooks**: Created 25+ feature-specific hooks for business logic
-    - `use-batch-page.ts`, `use-batch-details.ts` - Batch management
-    - `use-dashboard.ts` - Dashboard data orchestration
-    - `use-egg-page.ts` - Egg production tracking
-    - `use-expense-page.ts` - Expense management
-    - `use-feed-page.ts` - Feed inventory
-    - `use-invoice-page.ts` - Invoice generation
-    - `use-mortality-page.ts` - Mortality tracking
-    - `use-sales-page.ts` - Sales transactions
-    - `use-vaccination-page.ts` - Vaccination schedules
-    - `use-water-quality-page.ts` - Water quality monitoring
-    - `use-weight-page.ts` - Weight sampling
+  - `use-batch-page.ts`, `use-batch-details.ts` - Batch management
+  - `use-dashboard.ts` - Dashboard data orchestration
+  - `use-egg-page.ts` - Egg production tracking
+  - `use-expense-page.ts` - Expense management
+  - `use-feed-page.ts` - Feed inventory
+  - `use-invoice-page.ts` - Invoice generation
+  - `use-mortality-page.ts` - Mortality tracking
+  - `use-sales-page.ts` - Sales transactions
+  - `use-vaccination-page.ts` - Vaccination schedules
+  - `use-water-quality-page.ts` - Water quality monitoring
+  - `use-weight-page.ts` - Weight sampling
 - **Type Definitions**: Added 20+ TypeScript type definition files
-    - Explicit interfaces for all domain entities
-    - Type-safe API contracts
-    - Improved IDE autocomplete and type checking
+  - Explicit interfaces for all domain entities
+  - Type-safe API contracts
+  - Improved IDE autocomplete and type checking
 - **Validation Schemas**: Created 15+ Zod validation files
-    - Input validation for all forms
-    - Search parameter validation
-    - Type coercion and sanitization
+  - Input validation for all forms
+  - Search parameter validation
+  - Type coercion and sanitization
 
 **Route Slimming**: Reduced 21 route files from ~280 to ~105 lines average
 
@@ -4284,19 +4284,19 @@ Server Layer (server.ts)
 - Implemented automatic error responses for malformed data
 - Added input sanitization for security (XSS prevention, SQL injection protection)
 - **Pattern**:
-    ```typescript
-    export const myServerFn = createServerFn({ method: 'POST' })
-        .inputValidator(
-            z.object({
-                farmId: z.string().uuid(),
-                quantity: z.number().int().positive(),
-                date: z.coerce.date(),
-            }),
-        )
-        .handler(async ({ data }) => {
-            // Type-safe data access
-        })
-    ```
+  ```typescript
+  export const myServerFn = createServerFn({ method: 'POST' })
+    .inputValidator(
+      z.object({
+        farmId: z.string().uuid(),
+        quantity: z.number().int().positive(),
+        date: z.coerce.date(),
+      }),
+    )
+    .handler(async ({ data }) => {
+      // Type-safe data access
+    })
+  ```
 
 **Files Changed**: 16 server files
 
@@ -4316,10 +4316,10 @@ Server Layer (server.ts)
 - Preserved referential integrity
 - Enabled undo capability for accidental deletions
 - **Benefits**:
-    - Audit trail preservation
-    - Data recovery capability
-    - Compliance with data retention policies
-    - Historical reporting accuracy
+  - Audit trail preservation
+  - Data recovery capability
+  - Compliance with data retention policies
+  - Historical reporting accuracy
 
 **Files Changed**: 16 repository files
 
@@ -4353,13 +4353,13 @@ Server Layer (server.ts)
 
 - Merged `report_configs` migration into initial schema
 - Added growth standards for 7 species (1,400+ data points):
-    - Broiler chickens (0-56 days)
-    - Layer chickens (0-72 weeks)
-    - Catfish (0-180 days)
-    - Tilapia (0-180 days)
-    - Angus cattle (0-730 days)
-    - Boer goats (0-365 days)
-    - Merino sheep (0-365 days)
+  - Broiler chickens (0-56 days)
+  - Layer chickens (0-72 weeks)
+  - Catfish (0-180 days)
+  - Tilapia (0-180 days)
+  - Angus cattle (0-730 days)
+  - Boer goats (0-365 days)
+  - Merino sheep (0-365 days)
 - Removed Nigeria-specific market prices (for international deployment)
 - Added international currency support
 - Improved production seeder security (environment-based credentials)
@@ -4452,15 +4452,15 @@ Server Layer (server.ts)
 - Added agent prompt templates for consistent behavior
 - Created agent schema update specifications
 - **Agents with Database Access**:
-    1. backend-engineer
-    2. data-analyst
-    3. devops-engineer
-    4. frontend-engineer
-    5. fullstack-engineer
-    6. i18n-engineer
-    7. livestock-specialist
-    8. qa-engineer
-    9. security-engineer
+  1. backend-engineer
+  2. data-analyst
+  3. devops-engineer
+  4. frontend-engineer
+  5. fullstack-engineer
+  6. i18n-engineer
+  7. livestock-specialist
+  8. qa-engineer
+  9. security-engineer
 
 **Files Changed**: 26 agent config files
 
@@ -4516,33 +4516,33 @@ Server Layer (server.ts)
 **Implementation**:
 
 - **Complete Audit Report** (Jan 24) - 547 lines
-    - Code quality assessment
-    - Architecture review
-    - Security audit
-    - Performance analysis
+  - Code quality assessment
+  - Architecture review
+  - Security audit
+  - Performance analysis
 - **Commit Strategy Documentation** - 93 lines
-    - Conventional commit guidelines
-    - Branching strategy
-    - Release workflow
+  - Conventional commit guidelines
+  - Branching strategy
+  - Release workflow
 - **MCP Audit Report** - 258 lines
-    - Model Context Protocol usage
-    - Agent capabilities
-    - Integration patterns
+  - Model Context Protocol usage
+  - Agent capabilities
+  - Integration patterns
 - **TypeScript Error Analysis** - 104 lines
-    - Type suppression audit
-    - Error categorization
-    - Remediation priorities
+  - Type suppression audit
+  - Error categorization
+  - Remediation priorities
 - **10 Refactoring Plans**:
-    1. Add missing server function tests (572 lines)
-    2. Add soft delete implementation (215 lines)
-    3. Comprehensive audit remediation (395 lines)
-    4. Fix code review violations (721 lines)
-    5. Fix race conditions with atomic updates (302 lines)
-    6. i18n debt documentation (409 lines)
-    7. Optimize dashboard queries (443 lines)
-    8. Refactor large routes (547 lines)
-    9. Refactor SELECT \* to explicit columns (438 lines)
-    10. Slim remaining routes (34 lines)
+  1. Add missing server function tests (572 lines)
+  2. Add soft delete implementation (215 lines)
+  3. Comprehensive audit remediation (395 lines)
+  4. Fix code review violations (721 lines)
+  5. Fix race conditions with atomic updates (302 lines)
+  6. i18n debt documentation (409 lines)
+  7. Optimize dashboard queries (443 lines)
+  8. Refactor large routes (547 lines)
+  9. Refactor SELECT \* to explicit columns (438 lines)
+  10. Slim remaining routes (34 lines)
 
 **Files Changed**: 18 documentation files
 
@@ -4633,14 +4633,14 @@ Server Layer (server.ts)
 **Planning Phase** (~2 hours):
 
 - Used `@plan-feature` prompt in Kiro CLI to generate 8 comprehensive plans:
-    - `service-layer-refactoring.md` (20KB) - Three-layer architecture pattern
-    - `comprehensive-codebase-audit-2026-01-22.md` (43KB) - Full codebase analysis
-    - `complete-ui-audit-remediation.md` (14KB) - UI standards compliance
-    - `ui-standards-implementation.md` (16KB) - Component extraction strategy
-    - `enhanced-tasks-system.md` (9KB) - Tasks/checklists feature
-    - `security-and-maintainability-audit-remediation.md` (3.3KB) - Security fixes
-    - `audit-button-sizes.md` (9.8KB) - UI consistency audit
-    - `ui-standards-compliance.md` (7.7KB) - Design system compliance
+  - `service-layer-refactoring.md` (20KB) - Three-layer architecture pattern
+  - `comprehensive-codebase-audit-2026-01-22.md` (43KB) - Full codebase analysis
+  - `complete-ui-audit-remediation.md` (14KB) - UI standards compliance
+  - `ui-standards-implementation.md` (16KB) - Component extraction strategy
+  - `enhanced-tasks-system.md` (9KB) - Tasks/checklists feature
+  - `security-and-maintainability-audit-remediation.md` (3.3KB) - Security fixes
+  - `audit-button-sizes.md` (9.8KB) - UI consistency audit
+  - `ui-standards-compliance.md` (7.7KB) - Design system compliance
 - Plans included task breakdowns, file-by-file changes, and validation checkpoints
 - **Time saved**: ~6 hours (vs manual planning and architecture design)
 
@@ -4648,11 +4648,11 @@ Server Layer (server.ts)
 
 - Used `@execute` prompt with plan references for all 50 commits
 - Delegated work to specialized subagents:
-    - `@backend-engineer` - Service/repository layers (25 features), database migrations, soft delete
-    - `@frontend-engineer` - Component extraction (113 components), mobile UI, route slimming
-    - `@qa-engineer` - Service tests (25 features), test infrastructure
-    - `@i18n-engineer` - 14,225 translations across 15 languages
-    - `@devops-engineer` - Cloudflare Workers config, dynamic imports
+  - `@backend-engineer` - Service/repository layers (25 features), database migrations, soft delete
+  - `@frontend-engineer` - Component extraction (113 components), mobile UI, route slimming
+  - `@qa-engineer` - Service tests (25 features), test infrastructure
+  - `@i18n-engineer` - 14,225 translations across 15 languages
+  - `@devops-engineer` - Cloudflare Workers config, dynamic imports
 - Subagents worked in parallel on independent modules (e.g., customers + eggs + expenses simultaneously)
 - **Time saved**: ~50 hours (vs sequential manual coding)
 
@@ -4724,20 +4724,20 @@ Following the massive 3-day architectural transformation (Day 15-17), Day 18 foc
 **Changes**:
 
 - **Hooks (7 files)**: Added `useRouter`, replaced reload with `router.invalidate()`
-    - `customers/hooks.ts` - Customer CRUD operations
-    - `eggs/use-egg-page.ts` - Egg production tracking
-    - `inventory/use-feed-inventory.ts` - Feed stock management
-    - `inventory/use-medication-inventory.ts` - Medication tracking
-    - `mortality/use-mortality-page.ts` - Mortality recording
-    - `sales/use-sales-page.ts` - Sales transactions
-    - `water-quality/use-water-quality-page.ts` - Water quality monitoring
+  - `customers/hooks.ts` - Customer CRUD operations
+  - `eggs/use-egg-page.ts` - Egg production tracking
+  - `inventory/use-feed-inventory.ts` - Feed stock management
+  - `inventory/use-medication-inventory.ts` - Medication tracking
+  - `mortality/use-mortality-page.ts` - Mortality recording
+  - `sales/use-sales-page.ts` - Sales transactions
+  - `water-quality/use-water-quality-page.ts` - Water quality monitoring
 - **Routes (6 files)**: Replaced `queryClient` + reload with `router.invalidate()`
-    - `batches/index.tsx` - Batch listing
-    - `expenses/index.tsx` - Expense tracking
-    - `feed/index.tsx` - Feed records
-    - `invoices/$invoiceId.tsx` - Invoice details
-    - `suppliers/index.tsx` - Supplier management
-    - `vaccinations/index.tsx` - Vaccination schedules
+  - `batches/index.tsx` - Batch listing
+  - `expenses/index.tsx` - Expense tracking
+  - `feed/index.tsx` - Feed records
+  - `invoices/$invoiceId.tsx` - Invoice details
+  - `suppliers/index.tsx` - Supplier management
+  - `vaccinations/index.tsx` - Vaccination schedules
 - Removed `useQueryClient` imports where no longer needed
 
 **Benefits**:
@@ -4776,20 +4776,20 @@ Following the massive 3-day architectural transformation (Day 15-17), Day 18 foc
 - Matches actual layout structure for reduced layout shift
 - Smooth loading transitions
 - **Skeletons Created**:
-    - `batch-detail-skeleton.tsx` - Batch details page
-    - `batches-skeleton.tsx` - Batch listing
-    - `customer-detail-skeleton.tsx` - Customer details
-    - `customers-skeleton.tsx` - Customer listing
-    - `dashboard-skeleton.tsx` - Dashboard overview
-    - `eggs-skeleton.tsx` - Egg production
-    - `expenses-skeleton.tsx` - Expense tracking
-    - `farm-detail-skeleton.tsx` - Farm details
-    - `farms-skeleton.tsx` - Farm listing
-    - `feed-skeleton.tsx` - Feed records
-    - `inventory-skeleton.tsx` - Inventory management
-    - `invoice-detail-skeleton.tsx` - Invoice details
-    - `invoices-skeleton.tsx` - Invoice listing
-    - Plus: mortality, onboarding, reports, sales, settings, suppliers, tasks, vaccinations, water-quality, weight skeletons
+  - `batch-detail-skeleton.tsx` - Batch details page
+  - `batches-skeleton.tsx` - Batch listing
+  - `customer-detail-skeleton.tsx` - Customer details
+  - `customers-skeleton.tsx` - Customer listing
+  - `dashboard-skeleton.tsx` - Dashboard overview
+  - `eggs-skeleton.tsx` - Egg production
+  - `expenses-skeleton.tsx` - Expense tracking
+  - `farm-detail-skeleton.tsx` - Farm details
+  - `farms-skeleton.tsx` - Farm listing
+  - `feed-skeleton.tsx` - Feed records
+  - `inventory-skeleton.tsx` - Inventory management
+  - `invoice-detail-skeleton.tsx` - Invoice details
+  - `invoices-skeleton.tsx` - Invoice listing
+  - Plus: mortality, onboarding, reports, sales, settings, suppliers, tasks, vaccinations, water-quality, weight skeletons
 
 **Route Integration**:
 
@@ -4834,11 +4834,11 @@ Following the massive 3-day architectural transformation (Day 15-17), Day 18 foc
 ```typescript
 // ✅ CORRECT - Works on Cloudflare Workers
 export const myServerFn = createServerFn({ method: 'GET' }).handler(
-    async () => {
-        const { getDb } = await import('~/lib/db')
-        const db = await getDb()
-        return db.selectFrom('users').execute()
-    },
+  async () => {
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    return db.selectFrom('users').execute()
+  },
 )
 
 // ❌ WRONG - Breaks on Cloudflare Workers
@@ -4848,15 +4848,15 @@ import { db } from '~/lib/db'
 **Changes**:
 
 - **`app/lib/db/index.ts`**: Added `getDb()` function with runtime detection
-    - Tries `process.env.DATABASE_URL` first (Node.js/Bun)
-    - Falls back to `cloudflare:workers` env binding
-    - Lazy initialization (creates connection when needed)
+  - Tries `process.env.DATABASE_URL` first (Node.js/Bun)
+  - Falls back to `cloudflare:workers` env binding
+  - Lazy initialization (creates connection when needed)
 - **Updated 33 files**: All server functions migrated to lazy pattern
-    - All feature server functions (batches, sales, eggs, expenses, feed, etc.)
-    - Auth utilities (`app/features/auth/utils.ts`)
-    - Inventory servers (feed, medication)
-    - Notification schedulers
-    - Logging audit
+  - All feature server functions (batches, sales, eggs, expenses, feed, etc.)
+  - Auth utilities (`app/features/auth/utils.ts`)
+  - Inventory servers (feed, medication)
+  - Notification schedulers
+  - Logging audit
 
 **Benefits**:
 
@@ -4893,10 +4893,10 @@ import { db } from '~/lib/db'
 **User Management** (`app/features/users/server.ts`):
 
 - Replaced `auth.api.admin.createUser` with `createUserWithAuth` helper
-    - Direct insertion into `users` and `account` tables
-    - Proper password hashing (PBKDF2, 100k iterations)
+  - Direct insertion into `users` and `account` tables
+  - Proper password hashing (PBKDF2, 100k iterations)
 - Replaced `auth.api.admin.setPassword` with direct database update
-    - More secure and compatible with Better Auth v2
+  - More secure and compatible with Better Auth v2
 
 **Type Safety**:
 
@@ -4937,8 +4937,8 @@ import { db } from '~/lib/db'
 **Repository Optimization** (2 files):
 
 - **`batches/repository.ts`**: Single query with JOINs vs 4 separate queries
-    - Reduced database round trips
-    - Better performance
+  - Reduced database round trips
+  - Better performance
 - **`invoices/repository.ts`**: Query optimization
 
 **Hook Simplification** (8 files):
@@ -5247,18 +5247,18 @@ import { db } from '~/lib/db'
 **Planning Phase** (~1 hour):
 
 - Used `@plan-feature` prompt in Kiro CLI to generate 12 comprehensive plans:
-    - `refactor-tanstack-router-patterns.md` (25KB) - Router optimization strategy
-    - `slim-route-files.md` (13KB) - Component extraction plan
-    - `refactor-large-routes.md` (17KB) - Route slimming strategy
-    - `fix-code-review-violations.md` (17KB) - Code quality improvements
-    - `comprehensive-audit-remediation.md` (30KB) - Full audit remediation
-    - `optimize-dashboard-queries.md` (12KB) - Performance optimization
-    - `fix-race-conditions-atomic-updates.md` (7.3KB) - Concurrency fixes
-    - `refactor-selectall-to-explicit-columns.md` (11KB) - Query optimization
-    - `add-soft-delete.md` (5.4KB) - Soft delete implementation
-    - `sisyphus-fix.md` (16KB) - Landing page restoration
-    - `i18n-debt-documentation.md` (10KB) - i18n technical debt
-    - `slim-remaining-routes.md` (1.7KB) - Final route cleanup
+  - `refactor-tanstack-router-patterns.md` (25KB) - Router optimization strategy
+  - `slim-route-files.md` (13KB) - Component extraction plan
+  - `refactor-large-routes.md` (17KB) - Route slimming strategy
+  - `fix-code-review-violations.md` (17KB) - Code quality improvements
+  - `comprehensive-audit-remediation.md` (30KB) - Full audit remediation
+  - `optimize-dashboard-queries.md` (12KB) - Performance optimization
+  - `fix-race-conditions-atomic-updates.md` (7.3KB) - Concurrency fixes
+  - `refactor-selectall-to-explicit-columns.md` (11KB) - Query optimization
+  - `add-soft-delete.md` (5.4KB) - Soft delete implementation
+  - `sisyphus-fix.md` (16KB) - Landing page restoration
+  - `i18n-debt-documentation.md` (10KB) - i18n technical debt
+  - `slim-remaining-routes.md` (1.7KB) - Final route cleanup
 - Plans included breaking change analysis, migration strategies, and rollback procedures
 - **Time saved**: ~3 hours (vs manual planning and risk analysis)
 
@@ -5266,10 +5266,10 @@ import { db } from '~/lib/db'
 
 - Used `@execute` prompt with plan references for all 9 commits
 - Delegated work to specialized subagents:
-    - `@frontend-engineer` - Router refactoring, skeleton components (28), landing page redesign
-    - `@backend-engineer` - Database lazy connection (33 files), Better Auth fixes, loader pattern
-    - `@qa-engineer` - Test formatting (17 files), integration test updates
-    - `@devops-engineer` - Cloudflare Workers compatibility, dynamic imports
+  - `@frontend-engineer` - Router refactoring, skeleton components (28), landing page redesign
+  - `@backend-engineer` - Database lazy connection (33 files), Better Auth fixes, loader pattern
+  - `@qa-engineer` - Test formatting (17 files), integration test updates
+  - `@devops-engineer` - Cloudflare Workers compatibility, dynamic imports
 - Breaking change: Replaced all `window.location.reload()` with `router.invalidate()` across 13 files
 - **Time saved**: ~12 hours (vs sequential manual refactoring)
 
@@ -5329,12 +5329,12 @@ Following Day 18's TanStack Router optimization and Cloudflare Workers compatibi
 **Database**:
 
 - Added `breeds` table with 24 pre-seeded breeds across 6 livestock modules
-    - Poultry: Cobb 500, Ross 308, Arbor Acres, Hubbard, Lohmann Brown, ISA Brown, Hy-Line, Kuroiler
-    - Fish: Clarias gariepinus (African catfish), Oreochromis niloticus (Nile tilapia)
-    - Cattle: Angus, Hereford, Holstein, White Fulani, N'Dama, Sokoto Gudali
-    - Goats: Boer, Saanen, Red Sokoto, West African Dwarf
-    - Sheep: Merino, Dorper, Yankasa, Uda
-    - Bees: Italian, Carniolan
+  - Poultry: Cobb 500, Ross 308, Arbor Acres, Hubbard, Lohmann Brown, ISA Brown, Hy-Line, Kuroiler
+  - Fish: Clarias gariepinus (African catfish), Oreochromis niloticus (Nile tilapia)
+  - Cattle: Angus, Hereford, Holstein, White Fulani, N'Dama, Sokoto Gudali
+  - Goats: Boer, Saanen, Red Sokoto, West African Dwarf
+  - Sheep: Merino, Dorper, Yankasa, Uda
+  - Bees: Italian, Carniolan
 - Added `breed_requests` table for user-submitted breed suggestions
 - Added `breedId` column to `batches` and `growth_standards` tables
 - Seeded 113 breed-specific growth curves from official sources (Cobb, Ross, etc.)
@@ -5372,13 +5372,13 @@ Following Day 18's TanStack Router optimization and Cloudflare Workers compatibi
 **Core Features**:
 
 - **ADG Calculation** (Average Daily Gain) with 3 methods:
-    1. Two samples method (most accurate)
-    2. Single sample method (estimates from acquisition)
-    3. Growth curve estimation (when no weight data)
+  1. Two samples method (most accurate)
+  2. Single sample method (estimates from acquisition)
+  3. Growth curve estimation (when no weight data)
 - **Performance Index**: `(actual weight / expected weight) × 100`
-    - Behind: PI < 95 (red alert)
-    - On Track: PI 95-105 (green)
-    - Ahead: PI > 110 (blue info)
+  - Behind: PI < 95 (red alert)
+  - On Track: PI 95-105 (green)
+  - Ahead: PI > 110 (blue info)
 - **Status Classification**: Automatic categorization based on PI
 - **Harvest Date Projection**: Based on target weight and current growth rate
 - **Growth Chart Visualization**: Expected vs actual weight with deviation zones
@@ -5434,11 +5434,11 @@ Following Day 18's TanStack Router optimization and Cloudflare Workers compatibi
 
 - Consolidated 3 migrations into initial schema
 - Added 5 new tables:
-    1. `feed_ingredients` - Master ingredient data (31 ingredients)
-    2. `nutritional_requirements` - Species/stage requirements (32 requirements for 10 species)
-    3. `user_ingredient_prices` - User-specific pricing with history
-    4. `saved_formulations` - Saved formulations with share codes
-    5. `formulation_usage` - Usage tracking for batches
+  1. `feed_ingredients` - Master ingredient data (31 ingredients)
+  2. `nutritional_requirements` - Species/stage requirements (32 requirements for 10 species)
+  3. `user_ingredient_prices` - User-specific pricing with history
+  4. `saved_formulations` - Saved formulations with share codes
+  5. `formulation_usage` - Usage tracking for batches
 - Organized seed data in `app/lib/db/seeds/data/` directory
 - **31 ingredients** across 5 categories (cereals, proteins, fats, minerals, vitamins)
 - **32 nutritional requirements** for 10 species × production stages
@@ -5679,9 +5679,9 @@ Following Day 18's TanStack Router optimization and Cloudflare Workers compatibi
 - Used Kiro IDE in spec mode
 - Interactive discussion to refine requirements
 - Generated 3 comprehensive specs (1,959 lines total):
-    - Reference Data Foundation (breeds, growth curves)
-    - Intelligent Forecasting (ADG, PI, alerts)
-    - Feed Formulation Calculator (LP optimization)
+  - Reference Data Foundation (breeds, growth curves)
+  - Intelligent Forecasting (ADG, PI, alerts)
+  - Feed Formulation Calculator (LP optimization)
 - Specs included requirements, design, and task breakdown
 - **Time saved**: ~4 hours (vs manual spec writing)
 
@@ -5689,9 +5689,9 @@ Following Day 18's TanStack Router optimization and Cloudflare Workers compatibi
 
 - Used `@execute` prompt with spec references
 - Delegated to specialized subagents:
-    - `@backend-engineer` - Database schema, server functions, optimization engine
-    - `@frontend-engineer` - UI components, routes, forms
-    - `@qa-engineer` - Property tests, integration test framework
+  - `@backend-engineer` - Database schema, server functions, optimization engine
+  - `@frontend-engineer` - UI components, routes, forms
+  - `@qa-engineer` - Property tests, integration test framework
 - Subagents worked in parallel on independent modules
 - **Time saved**: ~8 hours (vs sequential manual coding)
 

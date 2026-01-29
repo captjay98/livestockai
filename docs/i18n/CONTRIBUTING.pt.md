@@ -53,9 +53,9 @@ Usamos `bun` para gerenciamento de pacotes e scripts.
 - **Lint & Format**: `bun check` (Roda Prettier & ESLint)
 - **Rodar Testes**: `bun run test`
 - **Banco de Dados**:
-    - Migrar: `bun run db:migrate`
-    - Seed (produção): `bun run db:seed` - Usuário Admin + dados de referência
-    - Seed (desenvolvimento): `bun run db:seed:dev` - Dados de demonstração completos com fazendas, lotes, transações
+  - Migrar: `bun run db:migrate`
+  - Seed (produção): `bun run db:seed` - Usuário Admin + dados de referência
+  - Seed (desenvolvimento): `bun run db:seed:dev` - Dados de demonstração completos com fazendas, lotes, transações
 
 ## Licença
 

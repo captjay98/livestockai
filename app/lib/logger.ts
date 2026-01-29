@@ -12,16 +12,16 @@ import { AppError } from './errors'
  * @param errorCode - AppError code to throw
  */
 export function logAndThrow(
-    context: string,
-    error: unknown,
-    errorCode:
-        | 'DATABASE_ERROR'
-        | 'UNAUTHORIZED'
-        | 'ACCESS_DENIED' = 'DATABASE_ERROR',
+  context: string,
+  error: unknown,
+  errorCode:
+    | 'DATABASE_ERROR'
+    | 'UNAUTHORIZED'
+    | 'ACCESS_DENIED' = 'DATABASE_ERROR',
 ): never {
-    throw new AppError(errorCode, {
-        message: `Error in ${context}`,
-        metadata: { context },
-        cause: error,
-    })
+  throw new AppError(errorCode, {
+    message: `Error in ${context}`,
+    metadata: { context },
+    cause: error,
+  })
 }

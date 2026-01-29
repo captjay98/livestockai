@@ -94,13 +94,13 @@ Edite `wrangler.jsonc`:
 
 ```jsonc
 {
-    "name": "openlivestock-production",
-    "main": "./.output/server/index.mjs",
-    "compatibility_date": "2024-01-01",
-    "compatibility_flags": ["nodejs_compat"],
-    "vars": {
-        "NODE_ENV": "production",
-    },
+  "name": "openlivestock-production",
+  "main": "./.output/server/index.mjs",
+  "compatibility_date": "2024-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "NODE_ENV": "production",
+  },
 }
 ```
 
@@ -209,32 +209,32 @@ O Cloudflare configura automaticamente os registros DNS.
 name: Deploy to Cloudflare
 
 on:
-    push:
-        branches: [main]
+  push:
+    branches: [main]
 
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-            - uses: oven-sh/setup-bun@v1
-              with:
-                  bun-version: latest
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
-            - name: Install dependencies
-              run: bun install
+      - name: Install dependencies
+        run: bun install
 
-            - name: Run tests
-              run: bun run test
+      - name: Run tests
+        run: bun run test
 
-            - name: Build
-              run: bun run build
+      - name: Build
+        run: bun run build
 
-            - name: Deploy to Cloudflare
-              uses: cloudflare/wrangler-action@v3
-              with:
-                  apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 ```
 
 ### Adicionar Segredos ao GitHub

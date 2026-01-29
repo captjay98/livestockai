@@ -1,15 +1,15 @@
 {
-    "hooks": {
-        "agentSpawn": [
-            {
-                "command": "git status --short 2>/dev/null || true"
-            }
-        ],
-        "postToolUse": [
-            {
-                "matcher": "write",
-                "command": "bun run lint --fix 2>/dev/null || true"
-            }
-        ]
-    }
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "git status --short 2>/dev/null || true"
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "bun run lint --fix 2>/dev/null || true"
+      }
+    ]
+  }
 }

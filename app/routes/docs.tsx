@@ -5,15 +5,15 @@ import { DocsGrid } from '~/components/landing/DocsGrid'
 import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/docs')({
-    component: DocsPage,
+  component: DocsPage,
 })
 
 function DocsPage() {
-    return (
-        <LandingLayout>
-            <DocsHero />
-            <DocsGrid />
-            <CTASection />
-        </LandingLayout>
-    )
+  return (
+    <LandingLayout>
+      <DocsHero />
+      <DocsGrid />
+      <CTASection />
+    </LandingLayout>
+  )
 }

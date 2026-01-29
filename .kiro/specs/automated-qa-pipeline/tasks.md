@@ -1,0 +1,241 @@
+# Implementation Plan: Automated QA Pipeline
+
+## Overview
+
+This implementation plan sets up a comprehensive E2E testing infrastructure using Playwright, integrated with GitHub Actions for CI/CD. The tasks are organized to build incrementally, starting with core infrastructure and progressing through page objects, test specs, visual regression, and CI integration.
+
+## Tasks
+
+- [ ] 1. Set up Playwright infrastructure
+  - [ ] 1.1 Install Playwright and dependencies
+    - Add `@playwright/test` as dev dependency
+    - Install Playwright browsers (chromium, firefox, webkit)
+    - _Requirements: 1.1, 1.2_
+  - [ ] 1.2 Create Playwright configuration file
+    - Create `playwright.config.ts` with browser targets, timeouts, retries
+    - Configure base URL for TanStack Start dev server
+    - Set up parallel execution and reporter options
+    - _Requirements: 1.2, 1.3, 1.6_
+  - [ ] 1.3 Create E2E test directory structure
+    - Create `tests/e2e/` directory with subdirectories: fixtures, pages, specs, types, visual
+    - Add `.gitignore` entries for auth state and test artifacts
+    - _Requirements: 1.5_
+  - [ ] 1.4 Add npm scripts for E2E testing
+    - Add `test:e2e`, `test:e2e:critical`, `test:e2e:visual`, `test:e2e:headed`, `test:e2e:debug` scripts
+    - Add `test:e2e:update-snapshots` and `test:e2e:report` scripts
+    - _Requirements: 1.4_
+
+- [ ] 2. Implement authentication fixtures
+  - [ ] 2.1 Create test user definitions
+    - Create `tests/e2e/fixtures/auth.fixture.ts` with TestUser interface
+    - Define test users for admin, owner, and worker roles
+    - _Requirements: 2.2_
+  - [ ] 2.2 Create global setup for auth state generation
+    - Create `tests/e2e/global-setup.ts` to generate auth states
+    - Implement login flow for each user role
+    - Save storage state to `.auth/` directory
+    - _Requirements: 2.1, 2.4_
+  - [ ] 2.3 Create authenticated page fixtures
+    - Extend Playwright test with `authenticatedPage`, `adminPage`, `ownerPage` fixtures
+    - Load storage state from saved auth files
+    - _Requirements: 2.1, 2.3_
+  - [ ]\* 2.4 Write property test for auth fixture role coverage
+    - **Property 1: Auth Fixture Role Coverage**
+    - Verify all defined roles have valid auth configuration
+    - **Validates: Requirements 2.1, 2.2, 2.3**
+
+- [ ] 3. Checkpoint - Verify infrastructure setup
+  - Ensure Playwright installs and runs successfully
+  - Verify auth fixtures generate storage state
+  - Ask the user if questions arise
+
+- [ ] 4. Implement Page Object Model
+  - [ ] 4.1 Create base page class
+    - Create `tests/e2e/pages/base.page.ts` with common methods
+    - Implement `goto`, `waitForPageLoad`, `getByTestId`, `waitForToast`
+    - _Requirements: 12.5_
+  - [ ] 4.2 Create login page object
+    - Create `tests/e2e/pages/login.page.ts`
+    - Implement methods for email input, password input, submit, error handling
+    - _Requirements: 12.1_
+  - [ ] 4.3 Create dashboard page object
+    - Create `tests/e2e/pages/dashboard.page.ts`
+    - Implement selectors for batch summary, health pulse, action grid
+    - Add methods for navigation and action button clicks
+    - _Requirements: 12.2_
+  - [ ] 4.4 Create batch page object
+    - Create `tests/e2e/pages/batch.page.ts`
+    - Implement methods for list navigation, create dialog, form filling, CRUD operations
+    - _Requirements: 12.3_
+  - [ ] 4.5 Create sales page object
+    - Create `tests/e2e/pages/sales.page.ts`
+    - Implement methods for sales list, create dialog, form filling
+    - _Requirements: 12.4_
+  - [ ] 4.6 Create feed and mortality page objects
+    - Create `tests/e2e/pages/feed.page.ts` and `tests/e2e/pages/mortality.page.ts`
+    - Implement methods for logging feed and mortality records
+    - _Requirements: 12.3_
+  - [ ]\* 4.7 Write property test for page object selector consistency
+    - **Property 3: Page Object Selector Consistency**
+    - Verify all page objects use data-testid selectors
+    - **Validates: Requirements 12.5**
+
+- [ ] 5. Implement critical path E2E tests
+  - [ ] 5.1 Create onboarding flow tests
+    - Create `tests/e2e/specs/critical/onboarding.spec.ts`
+    - Test registration form validation and account creation
+    - Test farm creation during onboarding
+    - Test module selection persistence
+    - Tag tests with `@critical`
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+  - [ ] 5.2 Create dashboard tests
+    - Create `tests/e2e/specs/critical/dashboard.spec.ts`
+    - Test page load time and batch summary display
+    - Test health pulse status indicators
+    - Test action grid visibility and clickability
+    - Tag tests with `@critical`
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
+  - [ ] 5.3 Create batch CRUD tests
+    - Create `tests/e2e/specs/critical/batch-crud.spec.ts`
+    - Test batch creation with different livestock types
+    - Test batch detail view and update
+    - Test batch deletion
+    - Test validation error display
+    - Tag tests with `@critical`
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
+  - [ ] 5.4 Create sales flow tests
+    - Create `tests/e2e/specs/critical/sales-flow.spec.ts`
+    - Test sale creation and list display
+    - Test batch quantity decrease after sale
+    - Test invoice generation
+    - Test revenue totals
+    - Tag tests with `@critical`
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+
+- [ ] 6. Checkpoint - Verify critical path tests
+  - Run critical path tests locally
+  - Ensure all tests pass with auth fixtures
+  - Ask the user if questions arise
+
+- [ ] 7. Implement feature E2E tests
+  - [ ] 7.1 Create feed logging tests
+    - Create `tests/e2e/specs/features/feed-logging.spec.ts`
+    - Test feed record creation and history display
+    - Test batch feed total updates
+    - Test FCR calculation updates
+    - Test validation error handling
+    - _Requirements: 7.1, 7.2, 7.3, 7.4_
+  - [ ] 7.2 Create mortality tracking tests
+    - Create `tests/e2e/specs/features/mortality.spec.ts`
+    - Test mortality record creation and history
+    - Test batch quantity decrease
+    - Test mortality rate calculations
+    - Test cause selection and notes
+    - _Requirements: 8.1, 8.2, 8.3, 8.4_
+
+- [ ] 8. Implement visual regression testing
+  - [ ] 8.1 Create visual test configuration
+    - Create `tests/e2e/visual/visual.config.ts` with viewports and comparison settings
+    - Define pages to capture (dashboard, batches, sales)
+    - _Requirements: 9.1, 9.2, 9.3, 9.7_
+  - [ ] 8.2 Create visual regression test specs
+    - Create `tests/e2e/specs/visual/visual.spec.ts`
+    - Implement screenshot tests for each viewport (mobile, tablet, desktop)
+    - Tag tests with `@visual`
+    - _Requirements: 9.4, 9.5, 9.6_
+  - [ ] 8.3 Generate initial baseline screenshots
+    - Run visual tests with `--update-snapshots` to create baselines
+    - Commit baseline screenshots to version control
+    - _Requirements: 9.1, 9.2, 9.3_
+  - [ ]\* 8.4 Write property test for visual regression viewport coverage
+    - **Property 2: Visual Regression Viewport Coverage**
+    - Verify all viewports have configuration
+    - **Validates: Requirements 9.4, 9.7**
+
+- [ ] 9. Implement mobile and responsive tests
+  - [ ] 9.1 Create mobile viewport tests
+    - Create `tests/e2e/specs/features/mobile.spec.ts`
+    - Test critical paths on mobile viewport (375x667)
+    - Test action grid usability on mobile
+    - Test navigation (hamburger menu)
+    - Tag tests with `@mobile`
+    - _Requirements: 13.1, 13.3, 13.4_
+  - [ ] 9.2 Create touch target size tests
+    - Test that buttons meet 48px minimum height
+    - Test that action grid items meet 64px minimum
+    - Test form input heights
+    - _Requirements: 13.2, 13.5_
+
+- [ ] 10. Checkpoint - Verify all E2E tests
+  - Run full E2E test suite locally
+  - Verify visual baselines are captured
+  - Verify mobile tests pass
+  - Ask the user if questions arise
+
+- [ ] 11. Implement CI/CD integration
+  - [ ] 11.1 Create E2E test GitHub Actions workflow
+    - Create `.github/workflows/e2e.yml`
+    - Configure Bun setup and dependency installation
+    - Add Playwright browser caching
+    - Configure test execution with artifact upload
+    - _Requirements: 10.1, 10.2, 10.4, 10.6, 10.7_
+  - [ ] 11.2 Create critical path test job
+    - Add separate job for critical path tests
+    - Configure as required check for PR merge
+    - Run only Chromium for faster feedback
+    - _Requirements: 10.3, 10.5_
+  - [ ] 11.3 Configure test reporting
+    - Add HTML reporter configuration
+    - Add GitHub reporter for PR annotations
+    - Configure video and trace capture on failure
+    - _Requirements: 11.1, 11.2, 11.3_
+  - [ ] 11.4 Update existing CI workflow
+    - Ensure E2E tests run after unit tests pass
+    - Add E2E job dependency on quality job
+    - _Requirements: 10.1, 10.2_
+
+- [ ] 12. Implement test utilities and helpers
+  - [ ] 12.1 Create test data generators
+    - Create `tests/e2e/fixtures/test-data.fixture.ts`
+    - Implement `generateTestBatch`, `generateTestSale`, `generateTestFeedRecord`
+    - _Requirements: 5.5, 6.3_
+  - [ ] 12.2 Create TypeScript types for E2E tests
+    - Create `tests/e2e/types/config.types.ts`
+    - Create `tests/e2e/types/test-data.types.ts`
+    - Create `tests/e2e/types/visual.types.ts`
+    - _Requirements: 1.1_
+  - [ ] 12.3 Create global teardown
+    - Create `tests/e2e/global-teardown.ts` for cleanup
+    - Clean up test data if needed
+    - _Requirements: 2.5_
+
+- [ ] 13. Add data-testid attributes to application components
+  - [ ] 13.1 Add data-testid to login page components
+    - Add testids to email input, password input, login button
+    - _Requirements: 12.1_
+  - [ ] 13.2 Add data-testid to dashboard components
+    - Add testids to batch summary cards, health pulse, action grid buttons
+    - _Requirements: 12.2_
+  - [ ] 13.3 Add data-testid to batch components
+    - Add testids to batch list, create button, form fields, dialog
+    - _Requirements: 12.3_
+  - [ ] 13.4 Add data-testid to sales components
+    - Add testids to sales list, create button, form fields
+    - _Requirements: 12.4_
+  - [ ] 13.5 Add data-testid to feed and mortality components
+    - Add testids to feed and mortality forms and lists
+    - _Requirements: 12.3_
+
+- [ ] 14. Final checkpoint - Full E2E pipeline verification
+  - Run complete E2E test suite
+  - Verify CI workflow executes correctly
+  - Verify PR blocking works for critical path failures
+  - Ensure all tests pass, ask the user if questions arise
+
+## Notes
+
+- Tasks marked with `*` are optional property tests for the test infrastructure
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation of the E2E pipeline
+- The implementation builds incrementally: infrastructure → fixtures → page objects → tests → CI
+- Data-testid attributes must be added to application components for reliable selectors

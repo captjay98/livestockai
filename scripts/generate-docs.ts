@@ -10,26 +10,26 @@ import { execSync } from 'node:child_process'
 const DOCS_DIR = 'public/docs'
 
 async function generateDocs() {
-    console.log('🚀 Starting API documentation generation...')
+  console.log('🚀 Starting API documentation generation...')
 
-    try {
-        // Generate the documentation
-        console.log('📝 Running TypeDoc...')
-        // Use await with a promise-wrapped exec to satisfy require-await
-        await new Promise((resolve, reject) => {
-            try {
-                execSync('bunx typedoc', { stdio: 'inherit' })
-                resolve(true)
-            } catch (e) {
-                reject(e)
-            }
-        })
+  try {
+    // Generate the documentation
+    console.log('📝 Running TypeDoc...')
+    // Use await with a promise-wrapped exec to satisfy require-await
+    await new Promise((resolve, reject) => {
+      try {
+        execSync('bunx typedoc', { stdio: 'inherit' })
+        resolve(true)
+      } catch (e) {
+        reject(e)
+      }
+    })
 
-        console.log(`✅ Documentation successfully generated in ${DOCS_DIR}`)
-    } catch (error) {
-        console.error('❌ Failed to generate documentation:', error)
-        process.exit(1)
-    }
+    console.log(`✅ Documentation successfully generated in ${DOCS_DIR}`)
+  } catch (error) {
+    console.error('❌ Failed to generate documentation:', error)
+    process.exit(1)
+  }
 }
 
 generateDocs()

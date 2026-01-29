@@ -57,7 +57,7 @@ OpenLivestock currently supports 15 languages but lacks Arabic, which is the pri
 
 - [i18next RTL Support](https://www.i18next.com/overview/configuration-options)
 - [Tailwind RTL Plugin](https://tailwindcss.com/docs/hover-focus-and-other-states#rtl-support)
-    - Tailwind has built-in `rtl:` and `ltr:` variants
+  - Tailwind has built-in `rtl:` and `ltr:` variants
 
 ### Patterns to Follow
 
@@ -86,7 +86,7 @@ export const ar = {
 
 ```typescript
 useEffect(() => {
-    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr'
+  document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr'
 }, [i18n.language])
 ```
 

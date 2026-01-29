@@ -348,15 +348,15 @@ git commit -m "docs: update DEVLOG with Day 8 progress"
 **Validate DEVLOG entry:**
 
 1. **Check accuracy:**
-    - All commits included
-    - Correct day number
-    - Accurate metrics
-    - Proper categorization
+   - All commits included
+   - Correct day number
+   - Accurate metrics
+   - Proper categorization
 
 2. **Review formatting:**
-    - Markdown syntax correct
-    - Tables formatted properly
-    - Links working
+   - Markdown syntax correct
+   - Tables formatted properly
+   - Links working
 
 **Ask user:**
 

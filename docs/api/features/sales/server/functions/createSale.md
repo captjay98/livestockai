@@ -40,10 +40,10 @@ If user lacks access to the farm or batch
 
 ```typescript
 const saleId = await createSale('user_1', {
-    farmId: 'farm_A',
-    livestockType: 'poultry',
-    quantity: 50,
-    unitPrice: 2500,
-    date: new Date(),
+  farmId: 'farm_A',
+  livestockType: 'poultry',
+  quantity: 50,
+  unitPrice: 2500,
+  date: new Date(),
 })
 ```

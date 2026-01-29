@@ -73,17 +73,17 @@ So that **I can quickly find and use the features I need without confusion**
 
 ```typescript
 interface NavSectionProps {
-    title: string
-    items: Array<NavigationItem>
-    defaultOpen?: boolean
+  title: string
+  items: Array<NavigationItem>
+  defaultOpen?: boolean
 }
 
 export function NavSection({
-    title,
-    items,
-    defaultOpen = true,
+  title,
+  items,
+  defaultOpen = true,
 }: NavSectionProps) {
-    // Use Collapsible from ~/components/ui/collapsible
+  // Use Collapsible from ~/components/ui/collapsible
 }
 ```
 
@@ -216,52 +216,52 @@ Restructure navigation into grouped sections.
 ```typescript
 // Replace flat navigation array with grouped structure
 export const NAVIGATION_SECTIONS = [
-    {
-        title: 'Overview',
-        items: [
-            { name: 'Dashboard', href: '/dashboard', icon: Home },
-            { name: 'Reports', href: '/reports', icon: BarChart3 },
-        ],
-    },
-    {
-        title: 'Daily Operations',
-        items: [
-            { name: 'Batches', href: '/batches', icon: Package },
-            { name: 'Feed', href: '/feed', icon: Wheat },
-            { name: 'Mortality', href: '/mortality', icon: TrendingDown },
-            { name: 'Weight', href: '/weight', icon: Scale },
-            { name: 'Health', href: '/vaccinations', icon: Syringe },
-            { name: 'Water', href: '/water-quality', icon: Droplets },
-            { name: 'Inventory', href: '/inventory', icon: Warehouse },
-        ],
-    },
-    {
-        title: 'Finance',
-        items: [
-            { name: 'Sales', href: '/sales', icon: ShoppingCart },
-            { name: 'Expenses', href: '/expenses', icon: Receipt },
-            { name: 'Invoices', href: '/invoices', icon: FileText },
-        ],
-    },
-    {
-        title: 'Contacts',
-        items: [
-            { name: 'Customers', href: '/customers', icon: UserCircle },
-            { name: 'Suppliers', href: '/suppliers', icon: Truck },
-        ],
-    },
-    {
-        title: 'Setup',
-        items: [
-            { name: 'Farms', href: '/farms', icon: Building2 },
-            { name: 'Settings', href: '/settings', icon: Settings },
-        ],
-    },
+  {
+    title: 'Overview',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: Home },
+      { name: 'Reports', href: '/reports', icon: BarChart3 },
+    ],
+  },
+  {
+    title: 'Daily Operations',
+    items: [
+      { name: 'Batches', href: '/batches', icon: Package },
+      { name: 'Feed', href: '/feed', icon: Wheat },
+      { name: 'Mortality', href: '/mortality', icon: TrendingDown },
+      { name: 'Weight', href: '/weight', icon: Scale },
+      { name: 'Health', href: '/vaccinations', icon: Syringe },
+      { name: 'Water', href: '/water-quality', icon: Droplets },
+      { name: 'Inventory', href: '/inventory', icon: Warehouse },
+    ],
+  },
+  {
+    title: 'Finance',
+    items: [
+      { name: 'Sales', href: '/sales', icon: ShoppingCart },
+      { name: 'Expenses', href: '/expenses', icon: Receipt },
+      { name: 'Invoices', href: '/invoices', icon: FileText },
+    ],
+  },
+  {
+    title: 'Contacts',
+    items: [
+      { name: 'Customers', href: '/customers', icon: UserCircle },
+      { name: 'Suppliers', href: '/suppliers', icon: Truck },
+    ],
+  },
+  {
+    title: 'Setup',
+    items: [
+      { name: 'Farms', href: '/farms', icon: Building2 },
+      { name: 'Settings', href: '/settings', icon: Settings },
+    ],
+  },
 ]
 
 // Keep flat navigation for backward compatibility and module filtering
 export const navigation = NAVIGATION_SECTIONS.flatMap(
-    (section) => section.items,
+  (section) => section.items,
 )
 ```
 
@@ -275,15 +275,15 @@ Update CORE_NAVIGATION to match new structure.
 ```typescript
 // Update CORE_NAVIGATION to include all non-livestock-specific items
 export const CORE_NAVIGATION = [
-    'Dashboard',
-    'Reports',
-    'Sales',
-    'Expenses',
-    'Invoices',
-    'Customers',
-    'Suppliers',
-    'Farms',
-    'Settings',
+  'Dashboard',
+  'Reports',
+  'Sales',
+  'Expenses',
+  'Invoices',
+  'Customers',
+  'Suppliers',
+  'Farms',
+  'Settings',
 ]
 ```
 
@@ -370,79 +370,77 @@ Create a constants file for page metadata.
 // Add to app/components/page-header.tsx or create app/lib/page-metadata.ts
 
 export const PAGE_METADATA: Record<
-    string,
-    { title: string; description: string }
+  string,
+  { title: string; description: string }
 > = {
-    '/batches': {
-        title: 'Livestock Batches',
-        description:
-            'Track groups of animals from acquisition to sale. Each batch represents a cohort you manage together.',
-    },
-    '/feed': {
-        title: 'Feed Records',
-        description:
-            'Log daily feed consumption to track costs and calculate feed conversion ratios.',
-    },
-    '/mortality': {
-        title: 'Mortality Records',
-        description:
-            'Record deaths to monitor flock health and identify potential issues early.',
-    },
-    '/weight': {
-        title: 'Weight Samples',
-        description:
-            'Track growth by recording periodic weight samples. Compare against industry standards.',
-    },
-    '/vaccinations': {
-        title: 'Health Records',
-        description:
-            'Log vaccinations and treatments to maintain health schedules and compliance.',
-    },
-    '/water-quality': {
-        title: 'Water Quality',
-        description:
-            'Monitor pond conditions (pH, temperature, oxygen) to ensure optimal fish health.',
-    },
-    '/sales': {
-        title: 'Sales',
-        description:
-            'Record sales transactions and track revenue by customer and product type.',
-    },
-    '/expenses': {
-        title: 'Expenses',
-        description:
-            'Track all farm costs to understand profitability and manage cash flow.',
-    },
-    '/invoices': {
-        title: 'Invoices',
-        description:
-            'Generate and manage customer invoices. Track payment status.',
-    },
-    '/customers': {
-        title: 'Customers',
-        description:
-            'Manage your buyer contacts and view their purchase history.',
-    },
-    '/suppliers': {
-        title: 'Suppliers',
-        description:
-            'Track vendors for feed, chicks, fingerlings, and other supplies.',
-    },
-    '/inventory': {
-        title: 'Inventory',
-        description:
-            'Monitor feed and medication stock levels. Get alerts when running low.',
-    },
-    '/farms': {
-        title: 'Farms',
-        description:
-            'Manage your farm locations and configure which livestock types each supports.',
-    },
-    '/reports': {
-        title: 'Reports',
-        description:
-            'Generate profit/loss statements, inventory reports, and performance analytics.',
-    },
+  '/batches': {
+    title: 'Livestock Batches',
+    description:
+      'Track groups of animals from acquisition to sale. Each batch represents a cohort you manage together.',
+  },
+  '/feed': {
+    title: 'Feed Records',
+    description:
+      'Log daily feed consumption to track costs and calculate feed conversion ratios.',
+  },
+  '/mortality': {
+    title: 'Mortality Records',
+    description:
+      'Record deaths to monitor flock health and identify potential issues early.',
+  },
+  '/weight': {
+    title: 'Weight Samples',
+    description:
+      'Track growth by recording periodic weight samples. Compare against industry standards.',
+  },
+  '/vaccinations': {
+    title: 'Health Records',
+    description:
+      'Log vaccinations and treatments to maintain health schedules and compliance.',
+  },
+  '/water-quality': {
+    title: 'Water Quality',
+    description:
+      'Monitor pond conditions (pH, temperature, oxygen) to ensure optimal fish health.',
+  },
+  '/sales': {
+    title: 'Sales',
+    description:
+      'Record sales transactions and track revenue by customer and product type.',
+  },
+  '/expenses': {
+    title: 'Expenses',
+    description:
+      'Track all farm costs to understand profitability and manage cash flow.',
+  },
+  '/invoices': {
+    title: 'Invoices',
+    description: 'Generate and manage customer invoices. Track payment status.',
+  },
+  '/customers': {
+    title: 'Customers',
+    description: 'Manage your buyer contacts and view their purchase history.',
+  },
+  '/suppliers': {
+    title: 'Suppliers',
+    description:
+      'Track vendors for feed, chicks, fingerlings, and other supplies.',
+  },
+  '/inventory': {
+    title: 'Inventory',
+    description:
+      'Monitor feed and medication stock levels. Get alerts when running low.',
+  },
+  '/farms': {
+    title: 'Farms',
+    description:
+      'Manage your farm locations and configure which livestock types each supports.',
+  },
+  '/reports': {
+    title: 'Reports',
+    description:
+      'Generate profit/loss statements, inventory reports, and performance analytics.',
+  },
 }
 ```
 
@@ -526,10 +524,10 @@ import { useMemo } from 'react'
 const { enabledModules } = useModules()
 
 const filteredSections = useMemo(() => {
-    return NAVIGATION_SECTIONS.map((section) => ({
-        ...section,
-        items: filterNavigationByModules(section.items, enabledModules),
-    })).filter((section) => section.items.length > 0)
+  return NAVIGATION_SECTIONS.map((section) => ({
+    ...section,
+    items: filterNavigationByModules(section.items, enabledModules),
+  })).filter((section) => section.items.length > 0)
 }, [enabledModules])
 ```
 

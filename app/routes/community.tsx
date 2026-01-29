@@ -5,15 +5,15 @@ import { CommunityStats } from '~/components/landing/CommunityStats'
 import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/community')({
-    component: CommunityPage,
+  component: CommunityPage,
 })
 
 function CommunityPage() {
-    return (
-        <LandingLayout variant="neon">
-            <CommunityHero />
-            <CommunityStats />
-            <CTASection />
-        </LandingLayout>
-    )
+  return (
+    <LandingLayout variant="neon">
+      <CommunityHero />
+      <CommunityStats />
+      <CTASection />
+    </LandingLayout>
+  )
 }

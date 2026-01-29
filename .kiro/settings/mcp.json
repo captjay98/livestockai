@@ -1,10 +1,10 @@
 {
-    "mcpServers": {
-        "sequential-thinking": {
-            "command": "npx",
-            "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-            "disabled": false,
-            "autoApprove": ["sequentialthinking"]
-        }
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "disabled": false,
+      "autoApprove": ["sequentialthinking"]
     }
+  }
 }

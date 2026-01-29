@@ -20,14 +20,14 @@ import type { CreateExpenseInput, UpdateExpenseInput } from './types'
  * ```
  */
 export function calculateNewFeedInventory(
-    existingQty: string,
-    addedQty: number,
+  existingQty: string,
+  addedQty: number,
 ): number {
-    const current = parseFloat(existingQty)
-    if (current < 0 || addedQty < 0) {
-        return 0
-    }
-    return current + addedQty
+  const current = parseFloat(existingQty)
+  if (current < 0 || addedQty < 0) {
+    return 0
+  }
+  return current + addedQty
 }
 
 /**
@@ -56,30 +56,30 @@ export function calculateNewFeedInventory(
  * ```
  */
 export function validateExpenseData(data: CreateExpenseInput): string | null {
-    if (!data.farmId || data.farmId.trim() === '') {
-        return 'Farm ID is required'
-    }
+  if (!data.farmId || data.farmId.trim() === '') {
+    return 'Farm ID is required'
+  }
 
-    if (!data.description || data.description.trim() === '') {
-        return 'Description is required'
-    }
+  if (!data.description || data.description.trim() === '') {
+    return 'Description is required'
+  }
 
-    if (data.amount < 0) {
-        return 'Amount cannot be negative'
-    }
+  if (data.amount < 0) {
+    return 'Amount cannot be negative'
+  }
 
-    if (isNaN(data.date.getTime())) {
-        return 'Date is required'
-    }
+  if (isNaN(data.date.getTime())) {
+    return 'Date is required'
+  }
 
-    // Validate feed-specific fields
-    if (data.category === 'feed') {
-        if (data.feedQuantityKg !== undefined && data.feedQuantityKg < 0) {
-            return 'Feed quantity cannot be negative'
-        }
+  // Validate feed-specific fields
+  if (data.category === 'feed') {
+    if (data.feedQuantityKg !== undefined && data.feedQuantityKg < 0) {
+      return 'Feed quantity cannot be negative'
     }
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -103,39 +103,39 @@ export function validateExpenseData(data: CreateExpenseInput): string | null {
  * ```
  */
 export function buildExpensesSummary(
-    expenses: Array<{
-        category: string
-        amount: string
-        count?: string | number
-    }>,
+  expenses: Array<{
+    category: string
+    amount: string
+    count?: string | number
+  }>,
 ): {
-    byCategory: Record<string, { count: number; amount: number }>
-    total: { count: number; amount: number }
+  byCategory: Record<string, { count: number; amount: number }>
+  total: { count: number; amount: number }
 } {
-    const summary: Record<string, { count: number; amount: number }> = {}
-    let totalCount = 0
-    let totalAmount = 0
+  const summary: Record<string, { count: number; amount: number }> = {}
+  let totalCount = 0
+  let totalAmount = 0
 
-    for (const expense of expenses) {
-        const count = expense.count ? Number(expense.count) : 1
-        const amount = parseFloat(expense.amount)
+  for (const expense of expenses) {
+    const count = expense.count ? Number(expense.count) : 1
+    const amount = parseFloat(expense.amount)
 
-        const key = expense.category
-        if (!(key in summary)) {
-            summary[key] = { count: 0, amount: 0 }
-        }
-
-        const entry = summary[key]
-        entry.count += count
-        entry.amount += amount
-        totalCount += count
-        totalAmount += amount
+    const key = expense.category
+    if (!(key in summary)) {
+      summary[key] = { count: 0, amount: 0 }
     }
 
-    return {
-        byCategory: summary,
-        total: { count: totalCount, amount: totalAmount },
-    }
+    const entry = summary[key]
+    entry.count += count
+    entry.amount += amount
+    totalCount += count
+    totalAmount += amount
+  }
+
+  return {
+    byCategory: summary,
+    total: { count: totalCount, amount: totalAmount },
+  }
 }
 
 /**
@@ -146,15 +146,15 @@ export function buildExpensesSummary(
  * @returns Database column name for sorting
  */
 export function mapSortColumnToDbColumn(sortBy: string): string {
-    const columnMap: Record<string, string> = {
-        amount: 'expenses.amount',
-        category: 'expenses.category',
-        description: 'expenses.description',
-        supplierName: 'suppliers.name',
-        date: 'expenses.date',
-    }
+  const columnMap: Record<string, string> = {
+    amount: 'expenses.amount',
+    category: 'expenses.category',
+    description: 'expenses.description',
+    supplierName: 'suppliers.name',
+    date: 'expenses.date',
+  }
 
-    return columnMap[sortBy] || 'expenses.date'
+  return columnMap[sortBy] || 'expenses.date'
 }
 
 /**
@@ -165,20 +165,7 @@ export function mapSortColumnToDbColumn(sortBy: string): string {
  * @returns Transformed expenses with null-safe fields
  */
 export function transformPaginatedResults(
-    expenses: Array<{
-        id: string
-        farmId: string
-        category: string
-        amount: string
-        date: Date
-        description: string
-        isRecurring: boolean
-        supplierName?: string | null
-        batchSpecies?: string | null
-        batchType?: string | null
-        farmName?: string | null
-    }>,
-): Array<{
+  expenses: Array<{
     id: string
     farmId: string
     category: string
@@ -186,18 +173,31 @@ export function transformPaginatedResults(
     date: Date
     description: string
     isRecurring: boolean
-    farmName: string | null
-    supplierName: string | null
-    batchSpecies: string | null
-    batchType: string | null
+    supplierName?: string | null
+    batchSpecies?: string | null
+    batchType?: string | null
+    farmName?: string | null
+  }>,
+): Array<{
+  id: string
+  farmId: string
+  category: string
+  amount: string
+  date: Date
+  description: string
+  isRecurring: boolean
+  farmName: string | null
+  supplierName: string | null
+  batchSpecies: string | null
+  batchType: string | null
 }> {
-    return expenses.map((expense) => ({
-        ...expense,
-        farmName: expense.farmName ?? null,
-        supplierName: expense.supplierName ?? null,
-        batchSpecies: expense.batchSpecies ?? null,
-        batchType: expense.batchType ?? null,
-    }))
+  return expenses.map((expense) => ({
+    ...expense,
+    farmName: expense.farmName ?? null,
+    supplierName: expense.supplierName ?? null,
+    batchSpecies: expense.batchSpecies ?? null,
+    batchType: expense.batchType ?? null,
+  }))
 }
 
 /**
@@ -208,19 +208,19 @@ export function transformPaginatedResults(
  * @returns Validation error message, or null if data is valid
  */
 export function validateUpdateData(data: UpdateExpenseInput): string | null {
-    if (data.amount !== undefined && data.amount < 0) {
-        return 'Amount cannot be negative'
-    }
+  if (data.amount !== undefined && data.amount < 0) {
+    return 'Amount cannot be negative'
+  }
 
-    if (data.date !== undefined && isNaN(data.date.getTime())) {
-        return 'Date is invalid'
-    }
+  if (data.date !== undefined && isNaN(data.date.getTime())) {
+    return 'Date is invalid'
+  }
 
-    if (data.description !== undefined && data.description.trim() === '') {
-        return 'Description cannot be empty'
-    }
+  if (data.description !== undefined && data.description.trim() === '') {
+    return 'Description cannot be empty'
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -233,14 +233,14 @@ export function validateUpdateData(data: UpdateExpenseInput): string | null {
  * @returns True if inventory should be updated
  */
 export function shouldUpdateFeedInventory(
-    category: string,
-    feedType?: string,
-    feedQuantityKg?: number,
+  category: string,
+  feedType?: string,
+  feedQuantityKg?: number,
 ): boolean {
-    return (
-        category === 'feed' &&
-        feedType !== undefined &&
-        feedQuantityKg !== undefined &&
-        feedQuantityKg > 0
-    )
+  return (
+    category === 'feed' &&
+    feedType !== undefined &&
+    feedQuantityKg !== undefined &&
+    feedQuantityKg > 0
+  )
 }

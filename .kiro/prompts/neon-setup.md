@@ -544,10 +544,10 @@ bun run test tests/
 
 1. **Check current state** (Step 0) - Ask about their database situation
 2. **Route appropriately**:
-    - `none` → Offer quickstart or manual setup
-    - `partial` → Assess what exists, offer to continue
-    - `complete` → Ask which advanced features they want
-    - `issues` → Troubleshoot specific problems
+   - `none` → Offer quickstart or manual setup
+   - `partial` → Assess what exists, offer to continue
+   - `complete` → Ask which advanced features they want
+   - `issues` → Troubleshoot specific problems
 3. **Execute chosen path** - Guide through setup or advanced features
 4. **Validate each step** - Test before proceeding
 5. **Document changes** - Update environment files

@@ -40,15 +40,15 @@ Add three layers of testing:
 ### Relevant Codebase Files - MUST READ!
 
 - `app/features/notifications/server.ts` (lines 1-120) - Server functions to test
-    - Why: Contains all CRUD operations that need unit tests
+  - Why: Contains all CRUD operations that need unit tests
 - `app/features/notifications/types.ts` (lines 1-30) - Type definitions
-    - Why: Defines NotificationType and interfaces for test data generation
+  - Why: Defines NotificationType and interfaces for test data generation
 - `app/features/monitoring/alerts.ts` (lines 40-80) - Alert → notification integration
-    - Why: Integration point to test end-to-end
+  - Why: Integration point to test end-to-end
 - `tests/features/batches/batches.property.test.ts` - Property test pattern
-    - Why: Shows fast-check patterns used in this project
+  - Why: Shows fast-check patterns used in this project
 - `app/lib/db/seed-helpers.ts` (lines 1-50) - Test user creation
-    - Why: Pattern for creating test users with auth
+  - Why: Pattern for creating test users with auth
 
 ### New Files to Create
 
@@ -65,17 +65,17 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { db } from '~/lib/db'
 
 describe('Feature Name', () => {
-    beforeEach(async () => {
-        // Setup
-    })
+  beforeEach(async () => {
+    // Setup
+  })
 
-    afterEach(async () => {
-        // Cleanup
-    })
+  afterEach(async () => {
+    // Cleanup
+  })
 
-    it('should do something', async () => {
-        // Test
-    })
+  it('should do something', async () => {
+    // Test
+  })
 })
 ```
 
@@ -85,9 +85,9 @@ describe('Feature Name', () => {
 import * as fc from 'fast-check'
 
 fc.assert(
-    fc.property(fc.string(), fc.nat(), (str, num) => {
-        // Property assertion
-    }),
+  fc.property(fc.string(), fc.nat(), (str, num) => {
+    // Property assertion
+  }),
 )
 ```
 
@@ -99,13 +99,13 @@ fc.assert(
 
 - **FILE**: `tests/features/notifications/notifications.test.ts`
 - **IMPLEMENT**: Test all CRUD operations
-    - createNotification - creates record with correct fields
-    - getNotifications - returns user's notifications only
-    - getNotifications with unreadOnly - filters correctly
-    - getNotifications with limit - respects limit
-    - markAsRead - updates read status
-    - markAllAsRead - updates all unread
-    - deleteNotification - removes record
+  - createNotification - creates record with correct fields
+  - getNotifications - returns user's notifications only
+  - getNotifications with unreadOnly - filters correctly
+  - getNotifications with limit - respects limit
+  - markAsRead - updates read status
+  - markAllAsRead - updates all unread
+  - deleteNotification - removes record
 - **PATTERN**: Mirror `tests/features/batches/batches.property.test.ts` structure
 - **IMPORTS**: `{ describe, it, expect, beforeEach, afterEach }` from vitest
 - **VALIDATE**: `bun test notifications.test.ts`
@@ -114,11 +114,11 @@ fc.assert(
 
 - **FILE**: `tests/features/notifications/notifications.property.test.ts`
 - **IMPLEMENT**: Property-based tests
-    - Property 1: User only sees their own notifications
-    - Property 2: unreadOnly filter works correctly
-    - Property 3: Notification preferences filter correctly
-    - Property 4: Mark as read is idempotent
-    - Property 5: Limit parameter works for any valid number
+  - Property 1: User only sees their own notifications
+  - Property 2: unreadOnly filter works correctly
+  - Property 3: Notification preferences filter correctly
+  - Property 4: Mark as read is idempotent
+  - Property 5: Limit parameter works for any valid number
 - **PATTERN**: Use fast-check arbitraries for test data generation
 - **VALIDATE**: `bun test notifications.property.test.ts`
 
@@ -126,12 +126,12 @@ fc.assert(
 
 - **FILE**: `tests/features/notifications/notifications.integration.test.ts`
 - **IMPLEMENT**: End-to-end test
-    - Create user with notification preferences enabled
-    - Create farm and batch
-    - Create high mortality record
-    - Call getAllBatchAlerts
-    - Verify notification was created
-    - Verify notification has correct type, title, message, actionUrl
+  - Create user with notification preferences enabled
+  - Create farm and batch
+  - Create high mortality record
+  - Call getAllBatchAlerts
+  - Verify notification was created
+  - Verify notification has correct type, title, message, actionUrl
 - **PATTERN**: Use seed-helpers for test data setup
 - **VALIDATE**: `bun test notifications.integration.test.ts`
 

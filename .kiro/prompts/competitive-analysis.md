@@ -382,14 +382,14 @@ Remember: Focus on actionable insights that directly inform product development 
 **Validate analysis findings:**
 
 1. **Verify accuracy:**
-    - Cross-check competitor information
-    - Confirm pricing and features
-    - Validate market data
+   - Cross-check competitor information
+   - Confirm pricing and features
+   - Validate market data
 
 2. **Assess actionability:**
-    - Are recommendations specific?
-    - Can they be implemented?
-    - What's the priority?
+   - Are recommendations specific?
+   - Can they be implemented?
+   - What's the priority?
 
 **Ask user:**
 

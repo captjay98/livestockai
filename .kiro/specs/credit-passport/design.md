@@ -38,48 +38,47 @@ import { z } from 'zod'
 import { AppError } from '~/lib/errors'
 
 export const generateReportFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            reportType: z.enum([
-                'credit_assessment',
-                'production_certificate',
-                'impact_report',
-            ]),
-            farmIds: z.array(z.string().uuid()).min(1),
-            dateRange: z.object({
-                startDate: z.coerce.date(),
-                endDate: z.coerce.date(),
-            }),
-        }),
-    )
-    .handler(async ({ data }) => {
-        try {
-            // 1. Auth middleware (dynamic import for Cloudflare Workers)
-            const { requireAuth } =
-                await import('~/features/auth/server-middleware')
-            const session = await requireAuth()
+  .inputValidator(
+    z.object({
+      reportType: z.enum([
+        'credit_assessment',
+        'production_certificate',
+        'impact_report',
+      ]),
+      farmIds: z.array(z.string().uuid()).min(1),
+      dateRange: z.object({
+        startDate: z.coerce.date(),
+        endDate: z.coerce.date(),
+      }),
+    }),
+  )
+  .handler(async ({ data }) => {
+    try {
+      // 1. Auth middleware (dynamic import for Cloudflare Workers)
+      const { requireAuth } = await import('~/features/auth/server-middleware')
+      const session = await requireAuth()
 
-            // 2. Database access (MUST use getDb() for Cloudflare Workers)
-            const { getDb } = await import('~/lib/db')
-            const db = await getDb()
+      // 2. Database access (MUST use getDb() for Cloudflare Workers)
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
-            // 3. Repository layer for database operations
-            const { getFinancialData, getOperationalData } =
-                await import('./repository')
+      // 3. Repository layer for database operations
+      const { getFinancialData, getOperationalData } =
+        await import('./repository')
 
-            // 4. Service layer for business logic
-            const { calculateFinancialMetrics, calculateCreditScore } =
-                await import('./metrics-service')
+      // 4. Service layer for business logic
+      const { calculateFinancialMetrics, calculateCreditScore } =
+        await import('./metrics-service')
 
-            // ... implementation
-        } catch (error) {
-            if (error instanceof AppError) throw error
-            throw new AppError('DATABASE_ERROR', {
-                message: 'Failed to generate report',
-                cause: error,
-            })
-        }
-    })
+      // ... implementation
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to generate report',
+        cause: error,
+      })
+    }
+  })
 ```
 
 ### Repository Layer Pattern
@@ -90,32 +89,32 @@ import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 export async function insertCreditReport(
-    db: Kysely<Database>,
-    report: CreditReportInsert,
+  db: Kysely<Database>,
+  report: CreditReportInsert,
 ): Promise<string> {
-    const result = await db
-        .insertInto('credit_reports')
-        .values(report)
-        .returning('id')
-        .executeTakeFirstOrThrow()
-    return result.id
+  const result = await db
+    .insertInto('credit_reports')
+    .values(report)
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
 }
 
 export async function getFinancialData(
-    db: Kysely<Database>,
-    farmIds: string[],
-    dateRange: { startDate: Date; endDate: Date },
+  db: Kysely<Database>,
+  farmIds: string[],
+  dateRange: { startDate: Date; endDate: Date },
 ) {
-    const sales = await db
-        .selectFrom('sales')
-        .selectAll()
-        .where('farmId', 'in', farmIds)
-        .where('saleDate', '>=', dateRange.startDate)
-        .where('saleDate', '<=', dateRange.endDate)
-        .execute()
+  const sales = await db
+    .selectFrom('sales')
+    .selectAll()
+    .where('farmId', 'in', farmIds)
+    .where('saleDate', '>=', dateRange.startDate)
+    .where('saleDate', '<=', dateRange.endDate)
+    .execute()
 
-    // ... more queries
-    return { sales, expenses }
+  // ... more queries
+  return { sales, expenses }
 }
 ```
 
@@ -342,73 +341,73 @@ Pure functions for calculating all report metrics. No side effects, easily testa
 ```typescript
 // Financial Health Metrics
 interface FinancialMetrics {
-    totalRevenue: number
-    totalExpenses: number
-    profit: number
-    profitMargin: number // percentage
-    averageMonthlyRevenue: number
-    cashFlowTrend: Array<{ month: string; revenue: number; expenses: number }>
-    revenueByType: Array<{ type: string; amount: number }>
-    expensesByCategory: Array<{ category: string; amount: number }>
+  totalRevenue: number
+  totalExpenses: number
+  profit: number
+  profitMargin: number // percentage
+  averageMonthlyRevenue: number
+  cashFlowTrend: Array<{ month: string; revenue: number; expenses: number }>
+  revenueByType: Array<{ type: string; amount: number }>
+  expensesByCategory: Array<{ category: string; amount: number }>
 }
 
 // Operational Efficiency Metrics
 interface OperationalMetrics {
-    averageFCR: number | null // null if no data
-    averageMortalityRate: number
-    growthPerformanceIndex: number // percentage vs standards
-    batchSuccessRate: number // percentage reaching target
-    completedBatches: number
-    activeBatches: number
+  averageFCR: number | null // null if no data
+  averageMortalityRate: number
+  growthPerformanceIndex: number // percentage vs standards
+  batchSuccessRate: number // percentage reaching target
+  completedBatches: number
+  activeBatches: number
 }
 
 // Asset Summary
 interface AssetSummary {
-    activeBatchCount: number
-    totalLivestockCount: number
-    estimatedInventoryValue: number
-    structureCount: number
-    batchesByType: Array<{ type: string; count: number; quantity: number }>
+  activeBatchCount: number
+  totalLivestockCount: number
+  estimatedInventoryValue: number
+  structureCount: number
+  batchesByType: Array<{ type: string; count: number; quantity: number }>
 }
 
 // Track Record
 interface TrackRecord {
-    monthsOperating: number
-    totalBatchesCompleted: number
-    totalProductionVolume: number
-    uniqueCustomersServed: number
-    averageBatchSuccessRate: number
+  monthsOperating: number
+  totalBatchesCompleted: number
+  totalProductionVolume: number
+  uniqueCustomersServed: number
+  averageBatchSuccessRate: number
 }
 
 // Service Functions
 function calculateFinancialMetrics(
-    sales: SaleRecord[],
-    expenses: ExpenseRecord[],
-    dateRange: DateRange,
+  sales: SaleRecord[],
+  expenses: ExpenseRecord[],
+  dateRange: DateRange,
 ): FinancialMetrics
 
 function calculateOperationalMetrics(
-    batches: BatchWithRecords[],
-    growthStandards: GrowthStandard[],
+  batches: BatchWithRecords[],
+  growthStandards: GrowthStandard[],
 ): OperationalMetrics
 
 function calculateAssetSummary(
-    batches: BatchRecord[],
-    structures: StructureRecord[],
-    marketPrices: MarketPrice[],
+  batches: BatchRecord[],
+  structures: StructureRecord[],
+  marketPrices: MarketPrice[],
 ): AssetSummary
 
 function calculateTrackRecord(
-    batches: BatchRecord[],
-    customers: CustomerRecord[],
-    earliestBatchDate: Date,
+  batches: BatchRecord[],
+  customers: CustomerRecord[],
+  earliestBatchDate: Date,
 ): TrackRecord
 
 function calculateCreditScore(
-    financial: FinancialMetrics,
-    operational: OperationalMetrics,
-    assets: AssetSummary,
-    trackRecord: TrackRecord,
+  financial: FinancialMetrics,
+  operational: OperationalMetrics,
+  assets: AssetSummary,
+  trackRecord: TrackRecord,
 ): { score: number; grade: 'A' | 'B' | 'C' | 'D' | 'F'; factors: ScoreFactor[] }
 ```
 
@@ -420,34 +419,34 @@ Cryptographic operations for report signing and verification.
 import { ed25519 } from '@noble/ed25519'
 
 interface SignatureResult {
-    hash: string // SHA-256 hex string
-    signature: string // Ed25519 signature hex string
-    publicKey: string // Public key for verification
-    timestamp: Date
+  hash: string // SHA-256 hex string
+  signature: string // Ed25519 signature hex string
+  publicKey: string // Public key for verification
+  timestamp: Date
 }
 
 interface VerificationResult {
-    valid: boolean
-    tampered: boolean
-    hashMatch: boolean
-    signatureValid: boolean
-    expired: boolean
-    expirationDate: Date | null
+  valid: boolean
+  tampered: boolean
+  hashMatch: boolean
+  signatureValid: boolean
+  expired: boolean
+  expirationDate: Date | null
 }
 
 // Sign a report (server-side only)
 async function signReport(
-    pdfBuffer: ArrayBuffer,
-    privateKey: Uint8Array,
+  pdfBuffer: ArrayBuffer,
+  privateKey: Uint8Array,
 ): Promise<SignatureResult>
 
 // Verify a report signature
 async function verifyReport(
-    pdfBuffer: ArrayBuffer,
-    storedHash: string,
-    signature: string,
-    publicKey: string,
-    expirationDate: Date | null,
+  pdfBuffer: ArrayBuffer,
+  storedHash: string,
+  signature: string,
+  publicKey: string,
+  expirationDate: Date | null,
 ): Promise<VerificationResult>
 
 // Generate hash for content
@@ -462,12 +461,12 @@ React PDF components for report generation.
 import { Document, Page, Text, View, Image } from '@react-pdf/renderer'
 
 interface ReportPDFProps {
-    reportType: 'credit_assessment' | 'production_certificate' | 'impact_report'
-    metrics: ReportMetrics
-    config: ReportConfig
-    qrCodeDataUrl: string
-    language: 'en' | 'fr' | 'sw' | 'ha'
-    branding: 'openlivestock' | 'whitelabel'
+  reportType: 'credit_assessment' | 'production_certificate' | 'impact_report'
+  metrics: ReportMetrics
+  config: ReportConfig
+  qrCodeDataUrl: string
+  language: 'en' | 'fr' | 'sw' | 'ha'
+  branding: 'openlivestock' | 'whitelabel'
 }
 
 // Main PDF document component
@@ -493,10 +492,10 @@ QR code generation for verification URLs.
 import QRCode from 'qrcode'
 
 interface QRCodeOptions {
-    reportId: string
-    baseUrl: string
-    size?: number // default 150
-    errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H' // default 'M'
+  reportId: string
+  baseUrl: string
+  size?: number // default 150
+  errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H' // default 'M'
 }
 
 // Generate QR code as data URL for embedding in PDF
@@ -513,114 +512,110 @@ Server functions following the three-layer architecture pattern.
 ```typescript
 // Generate a new credit report
 export const generateReportFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            reportType: z.enum([
-                'credit_assessment',
-                'production_certificate',
-                'impact_report',
-            ]),
-            farmIds: z.array(z.string().uuid()).min(1),
-            batchIds: z.array(z.string().uuid()).optional(),
-            dateRange: z.object({
-                startDate: z.coerce.date(),
-                endDate: z.coerce.date(),
-            }),
-            validityDays: z.enum(['30', '60', '90']).default('30'),
-            language: z.enum(['en', 'fr', 'sw', 'ha']).default('en'),
-            branding: z
-                .enum(['openlivestock', 'whitelabel'])
-                .default('openlivestock'),
-            notes: z.string().max(1000).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      reportType: z.enum([
+        'credit_assessment',
+        'production_certificate',
+        'impact_report',
+      ]),
+      farmIds: z.array(z.string().uuid()).min(1),
+      batchIds: z.array(z.string().uuid()).optional(),
+      dateRange: z.object({
+        startDate: z.coerce.date(),
+        endDate: z.coerce.date(),
+      }),
+      validityDays: z.enum(['30', '60', '90']).default('30'),
+      language: z.enum(['en', 'fr', 'sw', 'ha']).default('en'),
+      branding: z
+        .enum(['openlivestock', 'whitelabel'])
+        .default('openlivestock'),
+      notes: z.string().max(1000).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 
 // Verify a report (public, no auth required)
 export const verifyReportFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            reportId: z.string().uuid(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        // No auth required - public verification
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      reportId: z.string().uuid(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    // No auth required - public verification
+    // ... implementation
+  })
 
 // List user's reports
 export const listReportsFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            page: z.number().int().positive().default(1),
-            pageSize: z.number().int().positive().max(50).default(10),
-            reportType: z
-                .enum([
-                    'credit_assessment',
-                    'production_certificate',
-                    'impact_report',
-                ])
-                .optional(),
-            status: z.enum(['active', 'expired', 'pending']).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      page: z.number().int().positive().default(1),
+      pageSize: z.number().int().positive().max(50).default(10),
+      reportType: z
+        .enum(['credit_assessment', 'production_certificate', 'impact_report'])
+        .optional(),
+      status: z.enum(['active', 'expired', 'pending']).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 
 // Request access to a farmer's report (for third parties)
 export const requestReportFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            farmerId: z.string().uuid(),
-            reportType: z.enum([
-                'credit_assessment',
-                'production_certificate',
-                'impact_report',
-            ]),
-            requesterName: z.string().min(1).max(200),
-            requesterOrganization: z.string().min(1).max(200),
-            requesterEmail: z.string().email(),
-            purpose: z.string().min(10).max(500),
-        }),
-    )
-    .handler(async ({ data }) => {
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      farmerId: z.string().uuid(),
+      reportType: z.enum([
+        'credit_assessment',
+        'production_certificate',
+        'impact_report',
+      ]),
+      requesterName: z.string().min(1).max(200),
+      requesterOrganization: z.string().min(1).max(200),
+      requesterEmail: z.string().email(),
+      purpose: z.string().min(10).max(500),
+    }),
+  )
+  .handler(async ({ data }) => {
+    // ... implementation
+  })
 
 // Approve or deny a report request
 export const respondToRequestFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            requestId: z.string().uuid(),
-            approved: z.boolean(),
-            denialReason: z.string().max(500).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      requestId: z.string().uuid(),
+      approved: z.boolean(),
+      denialReason: z.string().max(500).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 
 // Download report PDF
 export const downloadReportFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            reportId: z.string().uuid(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      reportId: z.string().uuid(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 ```
 
 ### 6. Repository Layer (`app/features/credit-passport/repository.ts`)
@@ -633,77 +628,77 @@ import type { Database } from '~/lib/db/types'
 
 // Credit Reports
 async function insertCreditReport(
-    db: Kysely<Database>,
-    report: CreditReportInsert,
+  db: Kysely<Database>,
+  report: CreditReportInsert,
 ): Promise<string>
 
 async function getCreditReportById(
-    db: Kysely<Database>,
-    reportId: string,
+  db: Kysely<Database>,
+  reportId: string,
 ): Promise<CreditReport | null>
 
 async function getCreditReportsByUser(
-    db: Kysely<Database>,
-    userId: string,
-    options: ListOptions,
+  db: Kysely<Database>,
+  userId: string,
+  options: ListOptions,
 ): Promise<PaginatedResult<CreditReport>>
 
 async function updateCreditReportStatus(
-    db: Kysely<Database>,
-    reportId: string,
-    status: 'active' | 'expired' | 'deleted',
+  db: Kysely<Database>,
+  reportId: string,
+  status: 'active' | 'expired' | 'deleted',
 ): Promise<void>
 
 // Report Requests
 async function insertReportRequest(
-    db: Kysely<Database>,
-    request: ReportRequestInsert,
+  db: Kysely<Database>,
+  request: ReportRequestInsert,
 ): Promise<string>
 
 async function getReportRequestById(
-    db: Kysely<Database>,
-    requestId: string,
+  db: Kysely<Database>,
+  requestId: string,
 ): Promise<ReportRequest | null>
 
 async function getPendingRequestsForUser(
-    db: Kysely<Database>,
-    userId: string,
+  db: Kysely<Database>,
+  userId: string,
 ): Promise<ReportRequest[]>
 
 async function updateReportRequestStatus(
-    db: Kysely<Database>,
-    requestId: string,
-    status: 'approved' | 'denied',
-    responseNote?: string,
+  db: Kysely<Database>,
+  requestId: string,
+  status: 'approved' | 'denied',
+  responseNote?: string,
 ): Promise<void>
 
 // Access Logs
 async function logReportAccess(
-    db: Kysely<Database>,
-    log: ReportAccessLogInsert,
+  db: Kysely<Database>,
+  log: ReportAccessLogInsert,
 ): Promise<void>
 
 async function getAccessLogsForReport(
-    db: Kysely<Database>,
-    reportId: string,
+  db: Kysely<Database>,
+  reportId: string,
 ): Promise<ReportAccessLog[]>
 
 // Metrics Data Queries
 async function getFinancialData(
-    db: Kysely<Database>,
-    farmIds: string[],
-    dateRange: DateRange,
+  db: Kysely<Database>,
+  farmIds: string[],
+  dateRange: DateRange,
 ): Promise<{ sales: SaleRecord[]; expenses: ExpenseRecord[] }>
 
 async function getOperationalData(
-    db: Kysely<Database>,
-    farmIds: string[],
-    batchIds?: string[],
+  db: Kysely<Database>,
+  farmIds: string[],
+  batchIds?: string[],
 ): Promise<BatchWithRecords[]>
 
 async function getAssetData(
-    db: Kysely<Database>,
-    farmIds: string[],
+  db: Kysely<Database>,
+  farmIds: string[],
 ): Promise<{ batches: BatchRecord[]; structures: StructureRecord[] }>
 ```
 
@@ -832,67 +827,67 @@ CREATE INDEX idx_report_access_logs_accessed_at ON report_access_logs(accessed_a
 ```typescript
 // Credit Report
 interface CreditReportTable {
-    id: Generated<string>
-    userId: string
-    farmIds: string[]
-    batchIds: string[] | null
-    reportType: 'credit_assessment' | 'production_certificate' | 'impact_report'
-    startDate: Date
-    endDate: Date
-    contentHash: string
-    signature: string
-    publicKey: string
-    pdfUrl: string
-    pdfSizeBytes: number
-    language: 'en' | 'fr' | 'sw' | 'ha'
-    branding: 'openlivestock' | 'whitelabel'
-    notes: string | null
-    status: 'active' | 'expired' | 'pending' | 'deleted'
-    validityDays: number
-    expiresAt: Date
-    metricsSnapshot: ReportMetricsSnapshot
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
-    deletedAt: Date | null
+  id: Generated<string>
+  userId: string
+  farmIds: string[]
+  batchIds: string[] | null
+  reportType: 'credit_assessment' | 'production_certificate' | 'impact_report'
+  startDate: Date
+  endDate: Date
+  contentHash: string
+  signature: string
+  publicKey: string
+  pdfUrl: string
+  pdfSizeBytes: number
+  language: 'en' | 'fr' | 'sw' | 'ha'
+  branding: 'openlivestock' | 'whitelabel'
+  notes: string | null
+  status: 'active' | 'expired' | 'pending' | 'deleted'
+  validityDays: number
+  expiresAt: Date
+  metricsSnapshot: ReportMetricsSnapshot
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
+  deletedAt: Date | null
 }
 
 // Report Request
 interface ReportRequestTable {
-    id: Generated<string>
-    farmerId: string
-    reportType: 'credit_assessment' | 'production_certificate' | 'impact_report'
-    requesterName: string
-    requesterOrganization: string
-    requesterEmail: string
-    purpose: string
-    status: 'pending' | 'approved' | 'denied'
-    responseNote: string | null
-    respondedAt: Date | null
-    reportId: string | null
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
+  id: Generated<string>
+  farmerId: string
+  reportType: 'credit_assessment' | 'production_certificate' | 'impact_report'
+  requesterName: string
+  requesterOrganization: string
+  requesterEmail: string
+  purpose: string
+  status: 'pending' | 'approved' | 'denied'
+  responseNote: string | null
+  respondedAt: Date | null
+  reportId: string | null
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
 
 // Report Access Log
 interface ReportAccessLogTable {
-    id: Generated<string>
-    reportId: string
-    accessType: 'verification' | 'download' | 'view'
-    accessorUserId: string | null
-    accessorIp: string | null
-    accessorUserAgent: string | null
-    verificationResult: VerificationResult | null
-    accessedAt: Generated<Date>
+  id: Generated<string>
+  reportId: string
+  accessType: 'verification' | 'download' | 'view'
+  accessorUserId: string | null
+  accessorIp: string | null
+  accessorUserAgent: string | null
+  verificationResult: VerificationResult | null
+  accessedAt: Generated<Date>
 }
 
 // Metrics Snapshot (stored as JSONB)
 interface ReportMetricsSnapshot {
-    financial: FinancialMetrics
-    operational: OperationalMetrics
-    assets: AssetSummary
-    trackRecord: TrackRecord
-    creditScore?: CreditScoreResult
-    dataFreshnessDate: string // ISO date of most recent data
+  financial: FinancialMetrics
+  operational: OperationalMetrics
+  assets: AssetSummary
+  trackRecord: TrackRecord
+  creditScore?: CreditScoreResult
+  dataFreshnessDate: string // ISO date of most recent data
 }
 ```
 
@@ -1128,121 +1123,121 @@ tests/features/credit-passport/
 ```typescript
 // Property 2: Profit Margin Formula
 describe('Profit Margin Calculation', () => {
-    it('Property 2: Profit margin equals ((revenue - expenses) / revenue) * 100', () => {
-        fc.assert(
-            fc.property(
-                fc.float({ min: 0.01, max: 1000000 }), // revenue > 0
-                fc.float({ min: 0, max: 1000000 }), // expenses >= 0
-                (revenue, expenses) => {
-                    const result = calculateProfitMargin(revenue, expenses)
-                    const expected = ((revenue - expenses) / revenue) * 100
-                    expect(result).toBeCloseTo(expected, 5)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 2: Profit margin equals ((revenue - expenses) / revenue) * 100', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: 0.01, max: 1000000 }), // revenue > 0
+        fc.float({ min: 0, max: 1000000 }), // expenses >= 0
+        (revenue, expenses) => {
+          const result = calculateProfitMargin(revenue, expenses)
+          const expected = ((revenue - expenses) / revenue) * 100
+          expect(result).toBeCloseTo(expected, 5)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-    it('Property 2: Zero revenue returns zero profit margin', () => {
-        fc.assert(
-            fc.property(
-                fc.float({ min: 0, max: 1000000 }), // any expenses
-                (expenses) => {
-                    const result = calculateProfitMargin(0, expenses)
-                    expect(result).toBe(0)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 2: Zero revenue returns zero profit margin', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: 0, max: 1000000 }), // any expenses
+        (expenses) => {
+          const result = calculateProfitMargin(0, expenses)
+          expect(result).toBe(0)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 
 // Property 5: FCR Calculation
 describe('FCR Calculation', () => {
-    it('Property 5: FCR equals totalFeed / weightGain for positive weight gain', () => {
-        fc.assert(
-            fc.property(
-                fc.float({ min: 0.1, max: 10000 }), // totalFeedKg
-                fc.float({ min: 0.01, max: 5000 }), // weightGainKg > 0
-                (totalFeedKg, weightGainKg) => {
-                    const result = calculateFCR(totalFeedKg, weightGainKg)
-                    expect(result).toBeCloseTo(totalFeedKg / weightGainKg, 5)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 5: FCR equals totalFeed / weightGain for positive weight gain', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: 0.1, max: 10000 }), // totalFeedKg
+        fc.float({ min: 0.01, max: 5000 }), // weightGainKg > 0
+        (totalFeedKg, weightGainKg) => {
+          const result = calculateFCR(totalFeedKg, weightGainKg)
+          expect(result).toBeCloseTo(totalFeedKg / weightGainKg, 5)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-    it('Property 5: Zero weight gain returns null FCR', () => {
-        fc.assert(
-            fc.property(
-                fc.float({ min: 0, max: 10000 }), // any feed amount
-                (totalFeedKg) => {
-                    const result = calculateFCR(totalFeedKg, 0)
-                    expect(result).toBeNull()
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 5: Zero weight gain returns null FCR', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: 0, max: 10000 }), // any feed amount
+        (totalFeedKg) => {
+          const result = calculateFCR(totalFeedKg, 0)
+          expect(result).toBeNull()
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 
 // Property 17: Signature Round-Trip
 describe('Signature Verification', () => {
-    it('Property 17: Sign then verify returns valid for unmodified content', () => {
-        fc.assert(
-            fc.property(
-                fc.uint8Array({ minLength: 100, maxLength: 10000 }), // PDF content
-                async (content) => {
-                    const { privateKey, publicKey } = generateKeyPair()
-                    const { signature, hash } = await signReport(
-                        content.buffer,
-                        privateKey,
-                    )
-                    const result = await verifyReport(
-                        content.buffer,
-                        hash,
-                        signature,
-                        publicKey,
-                        null,
-                    )
-                    expect(result.valid).toBe(true)
-                    expect(result.tampered).toBe(false)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 17: Sign then verify returns valid for unmodified content', () => {
+    fc.assert(
+      fc.property(
+        fc.uint8Array({ minLength: 100, maxLength: 10000 }), // PDF content
+        async (content) => {
+          const { privateKey, publicKey } = generateKeyPair()
+          const { signature, hash } = await signReport(
+            content.buffer,
+            privateKey,
+          )
+          const result = await verifyReport(
+            content.buffer,
+            hash,
+            signature,
+            publicKey,
+            null,
+          )
+          expect(result.valid).toBe(true)
+          expect(result.tampered).toBe(false)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-    it('Property 17: Modified content returns tampered=true', () => {
-        fc.assert(
-            fc.property(
-                fc.uint8Array({ minLength: 100, maxLength: 10000 }),
-                fc.nat({ max: 99 }), // index to modify
-                async (content, modifyIndex) => {
-                    const { privateKey, publicKey } = generateKeyPair()
-                    const { signature, hash } = await signReport(
-                        content.buffer,
-                        privateKey,
-                    )
+  it('Property 17: Modified content returns tampered=true', () => {
+    fc.assert(
+      fc.property(
+        fc.uint8Array({ minLength: 100, maxLength: 10000 }),
+        fc.nat({ max: 99 }), // index to modify
+        async (content, modifyIndex) => {
+          const { privateKey, publicKey } = generateKeyPair()
+          const { signature, hash } = await signReport(
+            content.buffer,
+            privateKey,
+          )
 
-                    // Modify content
-                    const modified = new Uint8Array(content)
-                    modified[modifyIndex] = (modified[modifyIndex] + 1) % 256
+          // Modify content
+          const modified = new Uint8Array(content)
+          modified[modifyIndex] = (modified[modifyIndex] + 1) % 256
 
-                    const result = await verifyReport(
-                        modified.buffer,
-                        hash,
-                        signature,
-                        publicKey,
-                        null,
-                    )
-                    expect(result.tampered).toBe(true)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          const result = await verifyReport(
+            modified.buffer,
+            hash,
+            signature,
+            publicKey,
+            null,
+          )
+          expect(result.tampered).toBe(true)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 ```
 

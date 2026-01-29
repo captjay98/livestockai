@@ -88,49 +88,49 @@
 
 1. **Hardcoded Database Credentials in `.env`**
 
-    ```
-    DATABASE_URL=postgresql://jayfarms_user:JayFarms2026%21Secure@...
-    ```
+   ```
+   DATABASE_URL=postgresql://jayfarms_user:JayFarms2026%21Secure@...
+   ```
 
-    - Rotate password immediately
-    - Remove from git history
-    - Use secrets manager
+   - Rotate password immediately
+   - Remove from git history
+   - Use secrets manager
 
 2. **Secrets in Client Bundle (`vite.config.ts`)**
 
-    ```typescript
-    define: {
-      'process.env.DATABASE_URL': JSON.stringify(process.env.DATABASE_URL),
-      'process.env.BETTER_AUTH_SECRET': JSON.stringify(...)
-    }
-    ```
+   ```typescript
+   define: {
+     'process.env.DATABASE_URL': JSON.stringify(process.env.DATABASE_URL),
+     'process.env.BETTER_AUTH_SECRET': JSON.stringify(...)
+   }
+   ```
 
-    - Remove DATABASE_URL and BETTER_AUTH_SECRET from define
-    - Only public vars should be client-side
+   - Remove DATABASE_URL and BETTER_AUTH_SECRET from define
+   - Only public vars should be client-side
 
 3. **Weak Auth Secret**
 
-    ```
-    BETTER_AUTH_SECRET=jayfarms-super-secret-key-change-in-production-32chars
-    ```
+   ```
+   BETTER_AUTH_SECRET=jayfarms-super-secret-key-change-in-production-32chars
+   ```
 
-    - Generate with `openssl rand -base64 48`
+   - Generate with `openssl rand -base64 48`
 
 4. **Insecure Cookies**
 
-    ```typescript
-    useSecureCookies: process.env.NODE_ENV === 'production'
-    ```
+   ```typescript
+   useSecureCookies: process.env.NODE_ENV === 'production'
+   ```
 
-    - Change to `useSecureCookies: true`
+   - Change to `useSecureCookies: true`
 
 5. **No Email Verification**
 
-    ```typescript
-    requireEmailVerification: false
-    ```
+   ```typescript
+   requireEmailVerification: false
+   ```
 
-    - Change to `true`
+   - Change to `true`
 
 ### High (5) - Important Security Fixes
 
@@ -167,23 +167,23 @@
 ### Critical (4)
 
 1. **Massive Files** - 6 files > 500 lines:
-    - `settings/index.tsx`: 1,402 lines
-    - `inventory/index.tsx`: 1,376 lines
-    - `batches/server.ts`: 865 lines
-    - `vaccinations/repository.ts`: 765 lines
+   - `settings/index.tsx`: 1,402 lines
+   - `inventory/index.tsx`: 1,376 lines
+   - `batches/server.ts`: 865 lines
+   - `vaccinations/repository.ts`: 765 lines
 
 2. **Type Safety Violations** - 31 files with `any`:
-    - `settings/server.ts:183` - `data as any`
-    - `feed/service.ts:120, 326` - `as any`
+   - `settings/server.ts:183` - `data as any`
+   - `feed/service.ts:120, 326` - `as any`
 
 3. **Error Swallowing** - Silent failures:
 
-    ```typescript
-    } catch (error) {
-      console.error('Error:', error)
-      return false  // Silent failure
-    }
-    ```
+   ```typescript
+   } catch (error) {
+     console.error('Error:', error)
+     return false  // Silent failure
+   }
+   ```
 
 4. **Console Logging** - 50+ instances in production code
 
@@ -217,26 +217,26 @@
 ### Critical (2)
 
 1. **Monitoring Service - 0% Coverage**
-    - `monitoring/service.ts`: 466 lines of alerting logic, ZERO tests
-    - Functions like `analyzeBatchHealth()` completely untested
+   - `monitoring/service.ts`: 466 lines of alerting logic, ZERO tests
+   - Functions like `analyzeBatchHealth()` completely untested
 
 2. **Auth Tests Are Placeholders**
-    ```typescript
-    it('should be tested with integration tests', () => {
-        expect(true).toBe(true)
-    })
-    ```
+   ```typescript
+   it('should be tested with integration tests', () => {
+     expect(true).toBe(true)
+   })
+   ```
 
 ### High (3)
 
 3. **Inventory Service - Untested**
-    - Stock calculations, expiry logic untested
+   - Stock calculations, expiry logic untested
 
 4. **Missing Integration Tests**
-    - mortality_records, feed_records, egg_records
+   - mortality_records, feed_records, egg_records
 
 5. **No Server Function Tests**
-    - API endpoints untested
+   - API endpoints untested
 
 ### Medium (4)
 
@@ -269,34 +269,34 @@
 
 1. **FCR Calculation is WRONG**
 
-    ```typescript
-    // Current (WRONG):
-    return totalFeedKg / currentQuantityKg
+   ```typescript
+   // Current (WRONG):
+   return totalFeedKg / currentQuantityKg
 
-    // Should be:
-    return totalFeedKg / (currentWeightKg - initialWeightKg)
-    ```
+   // Should be:
+   return totalFeedKg / (currentWeightKg - initialWeightKg)
+   ```
 
-    - FCR = Feed / Weight GAIN, not current weight
+   - FCR = Feed / Weight GAIN, not current weight
 
 2. **Water Quality Not Species-Specific**
-    - Catfish need different pH/DO than Tilapia
-    - Single threshold causes false alarms
+   - Catfish need different pH/DO than Tilapia
+   - Single threshold causes false alarms
 
 3. **No Growth Standards for Cattle/Goats/Sheep**
-    - Only poultry and fish have ADG benchmarks
+   - Only poultry and fish have ADG benchmarks
 
 4. **No Built-in Vaccination Schedules**
-    - Farmers don't know WHAT to vaccinate or WHEN
+   - Farmers don't know WHAT to vaccinate or WHEN
 
 5. **No Stocking Density Validation**
-    - Can overstock structures without warning
+   - Can overstock structures without warning
 
 6. **No Biosecurity/Contact Tracking**
-    - Can't trace disease exposure
+   - Can't trace disease exposure
 
 7. **Egg Laying Ignores Age Decline**
-    - Doesn't account for production drop after 35 weeks
+   - Doesn't account for production drop after 35 weeks
 
 ### High (8)
 
@@ -337,45 +337,45 @@
 
 1. **Missing Foreign Key Constraints**
 
-    ```sql
-    -- Missing FKs:
-    batches.supplierId -> suppliers.id
-    batches.structureId -> structures.id
-    feed_records.supplierId -> suppliers.id
-    sales.customerId -> customers.id
-    sales.invoiceId -> invoices.id
-    expenses.supplierId -> suppliers.id
-    ```
+   ```sql
+   -- Missing FKs:
+   batches.supplierId -> suppliers.id
+   batches.structureId -> structures.id
+   feed_records.supplierId -> suppliers.id
+   sales.customerId -> customers.id
+   sales.invoiceId -> invoices.id
+   expenses.supplierId -> suppliers.id
+   ```
 
 2. **Missing Indexes**
 
-    ```sql
-    -- Create these indexes:
-    CREATE INDEX idx_batches_farmId ON batches(farmId);
-    CREATE INDEX idx_batches_species ON batches(species);
-    CREATE INDEX idx_feed_records_batchId_date ON feed_records(batchId, date);
-    CREATE INDEX idx_mortality_records_batchId_date ON mortality_records(batchId, date);
-    CREATE INDEX idx_sales_farmId_date ON sales(farmId, date);
-    CREATE INDEX idx_vaccinations_nextDueDate ON vaccinations(nextDueDate);
-    ```
+   ```sql
+   -- Create these indexes:
+   CREATE INDEX idx_batches_farmId ON batches(farmId);
+   CREATE INDEX idx_batches_species ON batches(species);
+   CREATE INDEX idx_feed_records_batchId_date ON feed_records(batchId, date);
+   CREATE INDEX idx_mortality_records_batchId_date ON mortality_records(batchId, date);
+   CREATE INDEX idx_sales_farmId_date ON sales(farmId, date);
+   CREATE INDEX idx_vaccinations_nextDueDate ON vaccinations(nextDueDate);
+   ```
 
 3. **Dashboard N+1 Query**
-    - Multiple sequential queries in `dashboard/server.ts:139-169`
-    - Should combine into single CTE
+   - Multiple sequential queries in `dashboard/server.ts:139-169`
+   - Should combine into single CTE
 
 ### High (3)
 
 4. **26 instances of `selectAll()`**
-    - Files: customers, settings, suppliers, expenses, feed, vaccinations, modules, notifications, reports repositories
-    - Should use explicit column selection
+   - Files: customers, settings, suppliers, expenses, feed, vaccinations, modules, notifications, reports repositories
+   - Should use explicit column selection
 
 5. **Migrations not in transactions**
-    - No atomicity for multi-step migrations
-    - Risk of partial schema updates
+   - No atomicity for multi-step migrations
+   - Risk of partial schema updates
 
 6. **No zero-downtime migration patterns**
-    - Adding columns without defaults blocks writes
-    - Should use nullable → backfill → NOT NULL pattern
+   - Adding columns without defaults blocks writes
+   - Should use nullable → backfill → NOT NULL pattern
 
 ### Medium (4)
 
@@ -404,40 +404,40 @@
 ### Critical (4)
 
 1. **Missing ARIA Labels**
-    - Only 1 `aria-label` found in entire codebase
-    - All icon-only buttons need labels
+   - Only 1 `aria-label` found in entire codebase
+   - All icon-only buttons need labels
 
 2. **No Service Worker**
-    - PWA is mocked, not functional
-    - `useRegisterSW` returns mock implementation
+   - PWA is mocked, not functional
+   - `useRegisterSW` returns mock implementation
 
 3. **No Live Regions**
-    - Dynamic updates not announced to screen readers
-    - Need `aria-live` for toasts, sync status
+   - Dynamic updates not announced to screen readers
+   - Need `aria-live` for toasts, sync status
 
 4. **No TanStack Router Loaders**
-    - Routes use `useEffect` + `useState` instead
-    - Poor initial load performance
+   - Routes use `useEffect` + `useState` instead
+   - Poor initial load performance
 
 ### High (17)
 
 5. **Large route components**
-    - dashboard: 1,106 lines
-    - batches: 809 lines
+   - dashboard: 1,106 lines
+   - batches: 809 lines
 
 6. **Button size inconsistencies**
-    - StepperInput: `h-14 w-14`
-    - ActionGrid: `min-h-[64px] min-w-[64px]`
+   - StepperInput: `h-14 w-14`
+   - ActionGrid: `min-h-[64px] min-w-[64px]`
 
 7. **No focus management**
-    - Missing `focus-visible` styling
-    - No focus trap in dialogs
+   - Missing `focus-visible` styling
+   - No focus trap in dialogs
 
 8. **No skip links**
-    - Keyboard users can't skip to content
+   - Keyboard users can't skip to content
 
 9. **Status indicators not announced**
-    - Sync status changes not accessible
+   - Sync status changes not accessible
 
 10. **Unsafe type assertions**
     - `as any` in navigation.tsx line 307

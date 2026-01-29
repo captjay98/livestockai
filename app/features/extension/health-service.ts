@@ -5,34 +5,34 @@
 
 export type HealthStatus = 'green' | 'amber' | 'red'
 export type Species =
-    | 'broiler'
-    | 'layer'
-    | 'catfish'
-    | 'tilapia'
-    | 'cattle'
-    | 'goats'
-    | 'sheep'
+  | 'broiler'
+  | 'layer'
+  | 'catfish'
+  | 'tilapia'
+  | 'cattle'
+  | 'goats'
+  | 'sheep'
 
 export interface HealthThresholds {
-    amber: number
-    red: number
+  amber: number
+  red: number
 }
 
 export interface CustomThresholds {
-    [species: string]: HealthThresholds
+  [species: string]: HealthThresholds
 }
 
 /**
  * Default mortality thresholds by species (percentages)
  */
 export const DEFAULT_THRESHOLDS: Record<Species, HealthThresholds> = {
-    broiler: { amber: 5, red: 10 },
-    layer: { amber: 3, red: 7 },
-    catfish: { amber: 12, red: 18 },
-    tilapia: { amber: 10, red: 15 },
-    cattle: { amber: 2, red: 5 },
-    goats: { amber: 3, red: 6 },
-    sheep: { amber: 3, red: 6 },
+  broiler: { amber: 5, red: 10 },
+  layer: { amber: 3, red: 7 },
+  catfish: { amber: 12, red: 18 },
+  tilapia: { amber: 10, red: 15 },
+  cattle: { amber: 2, red: 5 },
+  goats: { amber: 3, red: 6 },
+  sheep: { amber: 3, red: 6 },
 }
 
 /**
@@ -43,12 +43,12 @@ export const DEFAULT_THRESHOLDS: Record<Species, HealthThresholds> = {
  * @returns Mortality rate as percentage (0-100)
  */
 export function calculateMortalityRate(
-    initialQuantity: number,
-    currentQuantity: number,
+  initialQuantity: number,
+  currentQuantity: number,
 ): number {
-    if (initialQuantity <= 0) return 0
-    const mortality = initialQuantity - currentQuantity
-    return (mortality / initialQuantity) * 100
+  if (initialQuantity <= 0) return 0
+  const mortality = initialQuantity - currentQuantity
+  return (mortality / initialQuantity) * 100
 }
 
 /**
@@ -60,14 +60,13 @@ export function calculateMortalityRate(
  * @returns Health status: 'green', 'amber', or 'red'
  */
 export function calculateHealthStatus(
-    mortalityRate: number,
-    species: Species,
-    customThresholds?: CustomThresholds,
+  mortalityRate: number,
+  species: Species,
+  customThresholds?: CustomThresholds,
 ): HealthStatus {
-    const thresholds =
-        customThresholds?.[species] ?? DEFAULT_THRESHOLDS[species]
+  const thresholds = customThresholds?.[species] ?? DEFAULT_THRESHOLDS[species]
 
-    if (mortalityRate >= thresholds.red) return 'red'
-    if (mortalityRate >= thresholds.amber) return 'amber'
-    return 'green'
+  if (mortalityRate >= thresholds.red) return 'red'
+  if (mortalityRate >= thresholds.amber) return 'amber'
+  return 'green'
 }

@@ -5,15 +5,15 @@ import { ChangelogList } from '~/components/landing/ChangelogList'
 import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/changelog')({
-    component: ChangelogPage,
+  component: ChangelogPage,
 })
 
 function ChangelogPage() {
-    return (
-        <LandingLayout>
-            <ChangelogHero />
-            <ChangelogList />
-            <CTASection />
-        </LandingLayout>
-    )
+  return (
+    <LandingLayout>
+      <ChangelogHero />
+      <ChangelogList />
+      <CTASection />
+    </LandingLayout>
+  )
 }

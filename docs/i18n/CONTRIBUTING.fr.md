@@ -53,9 +53,9 @@ Nous utilisons `bun` pour la gestion des paquets et les scripts.
 - **Lint & Format** : `bun check` (Exécute Prettier & ESLint)
 - **Lancer les Tests** : `bun run test`
 - **Base de Données** :
-    - Migrer : `bun run db:migrate`
-    - Seeder (production) : `bun run db:seed` - Utilisateur Admin + données de référence
-    - Seeder (développement) : `bun run db:seed:dev` - Données de démonstration complètes avec fermes, lots, transactions
+  - Migrer : `bun run db:migrate`
+  - Seeder (production) : `bun run db:seed` - Utilisateur Admin + données de référence
+  - Seeder (développement) : `bun run db:seed:dev` - Données de démonstration complètes avec fermes, lots, transactions
 
 ## Licence
 

@@ -4,10 +4,10 @@
  */
 
 import type {
-    CreateTreatmentInput,
-    CreateVaccinationInput,
-    UpdateTreatmentInput,
-    UpdateVaccinationInput,
+  CreateTreatmentInput,
+  CreateVaccinationInput,
+  UpdateTreatmentInput,
+  UpdateVaccinationInput,
 } from './server'
 
 /**
@@ -27,20 +27,20 @@ import type {
  * ```
  */
 export function calculateNextVaccinationDate(
-    lastDate: Date,
-    intervalDays: number,
+  lastDate: Date,
+  intervalDays: number,
 ): Date | null {
-    if (intervalDays <= 0) {
-        return null
-    }
+  if (intervalDays <= 0) {
+    return null
+  }
 
-    if (isNaN(lastDate.getTime())) {
-        return null
-    }
+  if (isNaN(lastDate.getTime())) {
+    return null
+  }
 
-    const nextDate = new Date(lastDate)
-    nextDate.setDate(nextDate.getDate() + intervalDays)
-    return nextDate
+  const nextDate = new Date(lastDate)
+  nextDate.setDate(nextDate.getDate() + intervalDays)
+  return nextDate
 }
 
 /**
@@ -69,37 +69,37 @@ export function calculateNextVaccinationDate(
  * ```
  */
 export function validateVaccinationData(
-    data: CreateVaccinationInput,
-    batchId: string,
+  data: CreateVaccinationInput,
+  batchId: string,
 ): string | null {
-    if (!data.batchId || data.batchId.trim() === '') {
-        return 'Batch ID is required'
-    }
+  if (!data.batchId || data.batchId.trim() === '') {
+    return 'Batch ID is required'
+  }
 
-    if (data.batchId !== batchId) {
-        return 'Batch ID mismatch'
-    }
+  if (data.batchId !== batchId) {
+    return 'Batch ID mismatch'
+  }
 
-    if (!data.vaccineName || data.vaccineName.trim() === '') {
-        return 'Vaccine name is required'
-    }
+  if (!data.vaccineName || data.vaccineName.trim() === '') {
+    return 'Vaccine name is required'
+  }
 
-    if (!data.dosage || data.dosage.trim() === '') {
-        return 'Dosage is required'
-    }
+  if (!data.dosage || data.dosage.trim() === '') {
+    return 'Dosage is required'
+  }
 
-    if (isNaN(data.dateAdministered.getTime())) {
-        return 'Administration date is required'
-    }
+  if (isNaN(data.dateAdministered.getTime())) {
+    return 'Administration date is required'
+  }
 
-    // Validate next due date is after administration date if provided
-    if (data.nextDueDate !== null && data.nextDueDate !== undefined) {
-        if (data.nextDueDate <= data.dateAdministered) {
-            return 'Next due date must be after administration date'
-        }
+  // Validate next due date is after administration date if provided
+  if (data.nextDueDate !== null && data.nextDueDate !== undefined) {
+    if (data.nextDueDate <= data.dateAdministered) {
+      return 'Next due date must be after administration date'
     }
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -117,15 +117,15 @@ export function validateVaccinationData(
  * ```
  */
 export function calculateComplianceRate(
-    scheduled: number,
-    completed: number,
+  scheduled: number,
+  completed: number,
 ): number {
-    if (scheduled <= 0) {
-        return 100 // No scheduled vaccinations means 100% compliant
-    }
+  if (scheduled <= 0) {
+    return 100 // No scheduled vaccinations means 100% compliant
+  }
 
-    const rate = (completed / scheduled) * 100
-    return Math.min(100, Math.max(0, rate))
+  const rate = (completed / scheduled) * 100
+  return Math.min(100, Math.max(0, rate))
 }
 
 /**
@@ -151,24 +151,24 @@ export function calculateComplianceRate(
  * ```
  */
 export function determineVaccinationStatus(
-    scheduledDate: Date,
-    completedDate: Date | null,
+  scheduledDate: Date,
+  completedDate: Date | null,
 ): 'pending' | 'completed' | 'overdue' {
-    if (completedDate !== null) {
-        return 'completed'
-    }
+  if (completedDate !== null) {
+    return 'completed'
+  }
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-    const scheduled = new Date(scheduledDate)
-    scheduled.setHours(0, 0, 0, 0)
+  const scheduled = new Date(scheduledDate)
+  scheduled.setHours(0, 0, 0, 0)
 
-    if (scheduled < today) {
-        return 'overdue'
-    }
+  if (scheduled < today) {
+    return 'overdue'
+  }
 
-    return 'pending'
+  return 'pending'
 }
 
 /**
@@ -187,52 +187,52 @@ export function determineVaccinationStatus(
  * ```
  */
 export function buildVaccinationSummary(
-    records: Array<{
-        nextDueDate: Date | null
-        dateAdministered: Date
-    }>,
+  records: Array<{
+    nextDueDate: Date | null
+    dateAdministered: Date
+  }>,
 ): {
-    total: number
-    completed: number
-    scheduled: number
-    overdue: number
-    upcoming: number
-    complianceRate: number
+  total: number
+  completed: number
+  scheduled: number
+  overdue: number
+  upcoming: number
+  complianceRate: number
 } {
-    const total = records.length
-    let completed = 0
-    let overdue = 0
-    let upcoming = 0
+  const total = records.length
+  let completed = 0
+  let overdue = 0
+  let upcoming = 0
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-    for (const record of records) {
-        if (record.nextDueDate === null) {
-            completed++
-        } else {
-            const dueDate = new Date(record.nextDueDate)
-            dueDate.setHours(0, 0, 0, 0)
+  for (const record of records) {
+    if (record.nextDueDate === null) {
+      completed++
+    } else {
+      const dueDate = new Date(record.nextDueDate)
+      dueDate.setHours(0, 0, 0, 0)
 
-            if (dueDate < today) {
-                overdue++
-            } else {
-                upcoming++
-            }
-        }
+      if (dueDate < today) {
+        overdue++
+      } else {
+        upcoming++
+      }
     }
+  }
 
-    const scheduled = overdue + upcoming
-    const complianceRate = calculateComplianceRate(total, completed)
+  const scheduled = overdue + upcoming
+  const complianceRate = calculateComplianceRate(total, completed)
 
-    return {
-        total,
-        completed,
-        scheduled,
-        overdue,
-        upcoming,
-        complianceRate,
-    }
+  return {
+    total,
+    completed,
+    scheduled,
+    overdue,
+    upcoming,
+    complianceRate,
+  }
 }
 
 /**
@@ -249,30 +249,30 @@ export function buildVaccinationSummary(
  * ```
  */
 export function getUpcomingVaccinations<T extends { nextDueDate: Date | null }>(
-    records: Array<T>,
-    daysAhead: number,
+  records: Array<T>,
+  daysAhead: number,
 ): Array<T> {
-    if (daysAhead <= 0) {
-        return []
+  if (daysAhead <= 0) {
+    return []
+  }
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const futureDate = new Date(today)
+  futureDate.setDate(futureDate.getDate() + daysAhead)
+  futureDate.setHours(23, 59, 59, 999)
+
+  return records.filter((record) => {
+    if (record.nextDueDate === null) {
+      return false
     }
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const dueDate = new Date(record.nextDueDate)
+    dueDate.setHours(0, 0, 0, 0)
 
-    const futureDate = new Date(today)
-    futureDate.setDate(futureDate.getDate() + daysAhead)
-    futureDate.setHours(23, 59, 59, 999)
-
-    return records.filter((record) => {
-        if (record.nextDueDate === null) {
-            return false
-        }
-
-        const dueDate = new Date(record.nextDueDate)
-        dueDate.setHours(0, 0, 0, 0)
-
-        return dueDate >= today && dueDate <= futureDate
-    })
+    return dueDate >= today && dueDate <= futureDate
+  })
 }
 
 /**
@@ -288,55 +288,55 @@ export function getUpcomingVaccinations<T extends { nextDueDate: Date | null }>(
  * ```
  */
 export function buildComplianceStats(
-    records: Array<{
-        nextDueDate: Date | null
-        dateAdministered: Date
-    }>,
+  records: Array<{
+    nextDueDate: Date | null
+    dateAdministered: Date
+  }>,
 ): {
-    onTimeRate: number
-    overdueRate: number
-    completedRate: number
-    pendingRate: number
+  onTimeRate: number
+  overdueRate: number
+  completedRate: number
+  pendingRate: number
 } {
-    let completedOnTime = 0
-    let pending = 0
-    let overdue = 0
+  let completedOnTime = 0
+  let pending = 0
+  let overdue = 0
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-    for (const record of records) {
-        if (record.nextDueDate === null) {
-            // Completed - check if on time
-            completedOnTime++
-        } else {
-            const dueDate = new Date(record.nextDueDate)
-            dueDate.setHours(0, 0, 0, 0)
+  for (const record of records) {
+    if (record.nextDueDate === null) {
+      // Completed - check if on time
+      completedOnTime++
+    } else {
+      const dueDate = new Date(record.nextDueDate)
+      dueDate.setHours(0, 0, 0, 0)
 
-            if (dueDate < today) {
-                overdue++
-            } else {
-                pending++
-            }
-        }
+      if (dueDate < today) {
+        overdue++
+      } else {
+        pending++
+      }
     }
+  }
 
-    const total = records.length
-    if (total === 0) {
-        return {
-            onTimeRate: 100,
-            overdueRate: 0,
-            completedRate: 100,
-            pendingRate: 0,
-        }
-    }
-
+  const total = records.length
+  if (total === 0) {
     return {
-        onTimeRate: (completedOnTime / total) * 100,
-        overdueRate: (overdue / total) * 100,
-        completedRate: (completedOnTime / total) * 100,
-        pendingRate: (pending / total) * 100,
+      onTimeRate: 100,
+      overdueRate: 0,
+      completedRate: 100,
+      pendingRate: 0,
     }
+  }
+
+  return {
+    onTimeRate: (completedOnTime / total) * 100,
+    overdueRate: (overdue / total) * 100,
+    completedRate: (completedOnTime / total) * 100,
+    pendingRate: (pending / total) * 100,
+  }
 }
 
 /**
@@ -352,16 +352,16 @@ export function buildComplianceStats(
  * ```
  */
 export function mapSortColumnToDbColumn(sortBy: string): string {
-    const columnMap: Record<string, string> = {
-        date: 'dateAdministered',
-        vaccineName: 'vaccineName',
-        dosage: 'dosage',
-        nextDueDate: 'nextDueDate',
-        species: 'species',
-        farmName: 'farmName',
-    }
+  const columnMap: Record<string, string> = {
+    date: 'dateAdministered',
+    vaccineName: 'vaccineName',
+    dosage: 'dosage',
+    nextDueDate: 'nextDueDate',
+    species: 'species',
+    farmName: 'farmName',
+  }
 
-    return columnMap[sortBy] || 'dateAdministered'
+  return columnMap[sortBy] || 'dateAdministered'
 }
 
 /**
@@ -377,23 +377,23 @@ export function mapSortColumnToDbColumn(sortBy: string): string {
  * ```
  */
 export function validateVaccinationUpdateData(
-    data: UpdateVaccinationInput,
+  data: UpdateVaccinationInput,
 ): string | null {
-    if (data.vaccineName !== undefined && data.vaccineName.trim() === '') {
-        return 'Vaccine name cannot be empty'
-    }
+  if (data.vaccineName !== undefined && data.vaccineName.trim() === '') {
+    return 'Vaccine name cannot be empty'
+  }
 
-    if (data.dosage !== undefined && data.dosage.trim() === '') {
-        return 'Dosage cannot be empty'
-    }
+  if (data.dosage !== undefined && data.dosage.trim() === '') {
+    return 'Dosage cannot be empty'
+  }
 
-    if (data.dateAdministered !== undefined) {
-        if (isNaN(data.dateAdministered.getTime())) {
-            return 'Administration date is invalid'
-        }
+  if (data.dateAdministered !== undefined) {
+    if (isNaN(data.dateAdministered.getTime())) {
+      return 'Administration date is invalid'
     }
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -409,36 +409,33 @@ export function validateVaccinationUpdateData(
  * ```
  */
 export function validateTreatmentUpdateData(
-    data: UpdateTreatmentInput,
+  data: UpdateTreatmentInput,
 ): string | null {
-    if (
-        data.medicationName !== undefined &&
-        data.medicationName.trim() === ''
-    ) {
-        return 'Medication name cannot be empty'
-    }
+  if (data.medicationName !== undefined && data.medicationName.trim() === '') {
+    return 'Medication name cannot be empty'
+  }
 
-    if (data.reason !== undefined && data.reason.trim() === '') {
-        return 'Reason cannot be empty'
-    }
+  if (data.reason !== undefined && data.reason.trim() === '') {
+    return 'Reason cannot be empty'
+  }
 
-    if (data.dosage !== undefined && data.dosage.trim() === '') {
-        return 'Dosage cannot be empty'
-    }
+  if (data.dosage !== undefined && data.dosage.trim() === '') {
+    return 'Dosage cannot be empty'
+  }
 
-    if (data.date !== undefined) {
-        if (isNaN(data.date.getTime())) {
-            return 'Treatment date is invalid'
-        }
+  if (data.date !== undefined) {
+    if (isNaN(data.date.getTime())) {
+      return 'Treatment date is invalid'
     }
+  }
 
-    if (data.withdrawalDays !== undefined) {
-        if (data.withdrawalDays < 0) {
-            return 'Withdrawal days cannot be negative'
-        }
+  if (data.withdrawalDays !== undefined) {
+    if (data.withdrawalDays < 0) {
+      return 'Withdrawal days cannot be negative'
     }
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -462,38 +459,38 @@ export function validateTreatmentUpdateData(
  * ```
  */
 export function validateTreatmentData(
-    data: CreateTreatmentInput,
-    batchId: string,
+  data: CreateTreatmentInput,
+  batchId: string,
 ): string | null {
-    if (!data.batchId || data.batchId.trim() === '') {
-        return 'Batch ID is required'
-    }
+  if (!data.batchId || data.batchId.trim() === '') {
+    return 'Batch ID is required'
+  }
 
-    if (data.batchId !== batchId) {
-        return 'Batch ID mismatch'
-    }
+  if (data.batchId !== batchId) {
+    return 'Batch ID mismatch'
+  }
 
-    if (!data.medicationName || data.medicationName.trim() === '') {
-        return 'Medication name is required'
-    }
+  if (!data.medicationName || data.medicationName.trim() === '') {
+    return 'Medication name is required'
+  }
 
-    if (!data.reason || data.reason.trim() === '') {
-        return 'Reason is required'
-    }
+  if (!data.reason || data.reason.trim() === '') {
+    return 'Reason is required'
+  }
 
-    if (!data.dosage || data.dosage.trim() === '') {
-        return 'Dosage is required'
-    }
+  if (!data.dosage || data.dosage.trim() === '') {
+    return 'Dosage is required'
+  }
 
-    if (isNaN(data.date.getTime())) {
-        return 'Treatment date is required'
-    }
+  if (isNaN(data.date.getTime())) {
+    return 'Treatment date is required'
+  }
 
-    if (data.withdrawalDays < 0) {
-        return 'Withdrawal days cannot be negative'
-    }
+  if (data.withdrawalDays < 0) {
+    return 'Withdrawal days cannot be negative'
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -513,22 +510,22 @@ export function validateTreatmentData(
  * ```
  */
 export function isInWithdrawalPeriod(
-    treatmentDate: Date,
-    withdrawalDays: number,
+  treatmentDate: Date,
+  withdrawalDays: number,
 ): boolean {
-    if (withdrawalDays <= 0) {
-        return false
-    }
+  if (withdrawalDays <= 0) {
+    return false
+  }
 
-    if (isNaN(treatmentDate.getTime())) {
-        return false
-    }
+  if (isNaN(treatmentDate.getTime())) {
+    return false
+  }
 
-    const today = new Date()
-    const endDate = new Date(treatmentDate)
-    endDate.setDate(endDate.getDate() + withdrawalDays)
+  const today = new Date()
+  const endDate = new Date(treatmentDate)
+  endDate.setDate(endDate.getDate() + withdrawalDays)
 
-    return today <= endDate
+  return today <= endDate
 }
 
 /**
@@ -548,23 +545,23 @@ export function isInWithdrawalPeriod(
  * ```
  */
 export function calculateWithdrawalDaysRemaining(
-    treatmentDate: Date,
-    withdrawalDays: number,
+  treatmentDate: Date,
+  withdrawalDays: number,
 ): number {
-    if (withdrawalDays <= 0) {
-        return 0
-    }
+  if (withdrawalDays <= 0) {
+    return 0
+  }
 
-    if (isNaN(treatmentDate.getTime())) {
-        return 0
-    }
+  if (isNaN(treatmentDate.getTime())) {
+    return 0
+  }
 
-    const today = new Date()
-    const endDate = new Date(treatmentDate)
-    endDate.setDate(endDate.getDate() + withdrawalDays)
+  const today = new Date()
+  const endDate = new Date(treatmentDate)
+  endDate.setDate(endDate.getDate() + withdrawalDays)
 
-    const diffTime = endDate.getTime() - today.getTime()
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  const diffTime = endDate.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-    return Math.max(0, diffDays)
+  return Math.max(0, diffDays)
 }

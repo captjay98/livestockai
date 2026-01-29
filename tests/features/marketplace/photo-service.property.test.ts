@@ -7,7 +7,7 @@ describe('Photo Service Property Tests', () => {
   describe('Property 21: Photo Validation', () => {
     it('should accept valid image types', () => {
       const validTypes = ['image/jpeg', 'image/png', 'image/webp']
-      
+
       fc.assert(
         fc.property(
           fc.constantFrom(...validTypes),
@@ -16,15 +16,20 @@ describe('Photo Service Property Tests', () => {
             const file = { type, size } as File
             const result = validatePhotoFile(file)
             expect(result.valid).toBe(true)
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       )
     })
 
     it('should reject invalid image types', () => {
-      const invalidTypes = ['image/gif', 'image/bmp', 'application/pdf', 'text/plain']
-      
+      const invalidTypes = [
+        'image/gif',
+        'image/bmp',
+        'application/pdf',
+        'text/plain',
+      ]
+
       fc.assert(
         fc.property(
           fc.constantFrom(...invalidTypes),
@@ -34,9 +39,9 @@ describe('Photo Service Property Tests', () => {
             const result = validatePhotoFile(file)
             expect(result.valid).toBe(false)
             expect(result.error).toBeDefined()
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       )
     })
 
@@ -50,9 +55,9 @@ describe('Photo Service Property Tests', () => {
             const result = validatePhotoFile(file)
             expect(result.valid).toBe(false)
             expect(result.error).toBeDefined()
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       )
     })
   })

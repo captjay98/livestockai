@@ -94,10 +94,10 @@ const ALLOWED_SORT_COLUMNS = ['date', 'cost', 'quantity', 'createdAt'] as const
 type SortColumn = (typeof ALLOWED_SORT_COLUMNS)[number]
 
 function validateSortColumn(col: string): SortColumn {
-    if (!ALLOWED_SORT_COLUMNS.includes(col as SortColumn)) {
-        return 'createdAt' // Safe default
-    }
-    return col as SortColumn
+  if (!ALLOWED_SORT_COLUMNS.includes(col as SortColumn)) {
+    return 'createdAt' // Safe default
+  }
+  return col as SortColumn
 }
 ```
 
@@ -107,11 +107,11 @@ function validateSortColumn(col: string): SortColumn {
 // FCR = Total Feed (kg) / Weight GAIN (kg)
 // Weight Gain = Current Weight - Initial Weight
 export function calculateFCR(
-    totalFeedKg: number,
-    weightGainKg: number,
+  totalFeedKg: number,
+  weightGainKg: number,
 ): number | null {
-    if (totalFeedKg <= 0 || weightGainKg <= 0) return null
-    return Math.round((totalFeedKg / weightGainKg) * 100) / 100
+  if (totalFeedKg <= 0 || weightGainKg <= 0) return null
+  return Math.round((totalFeedKg / weightGainKg) * 100) / 100
 }
 ```
 
@@ -211,11 +211,11 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 
 // Add validation at start of seed() function (after line 27):
 if (!ADMIN_PASSWORD) {
-    console.error('❌ ADMIN_PASSWORD environment variable is required')
-    console.error(
-        '   Set it before running: ADMIN_PASSWORD=your-secure-password bun run db:seed',
-    )
-    process.exit(1)
+  console.error('❌ ADMIN_PASSWORD environment variable is required')
+  console.error(
+    '   Set it before running: ADMIN_PASSWORD=your-secure-password bun run db:seed',
+  )
+  process.exit(1)
 }
 ```
 
@@ -232,13 +232,13 @@ if (!ADMIN_PASSWORD) {
 ```typescript
 // BEFORE (WRONG):
 export function calculateFCR(
-    totalFeedKg: number,
-    currentQuantityKg: number,
+  totalFeedKg: number,
+  currentQuantityKg: number,
 ): number | null {
-    if (totalFeedKg <= 0 || currentQuantityKg <= 0) {
-        return null
-    }
-    return totalFeedKg / currentQuantityKg
+  if (totalFeedKg <= 0 || currentQuantityKg <= 0) {
+    return null
+  }
+  return totalFeedKg / currentQuantityKg
 }
 
 // AFTER (CORRECT):
@@ -251,13 +251,13 @@ export function calculateFCR(
  * @returns FCR rounded to 2 decimals, or null if invalid inputs
  */
 export function calculateFCR(
-    totalFeedKg: number,
-    weightGainKg: number,
+  totalFeedKg: number,
+  weightGainKg: number,
 ): number | null {
-    if (totalFeedKg <= 0 || weightGainKg <= 0) {
-        return null
-    }
-    return Math.round((totalFeedKg / weightGainKg) * 100) / 100
+  if (totalFeedKg <= 0 || weightGainKg <= 0) {
+    return null
+  }
+  return Math.round((totalFeedKg / weightGainKg) * 100) / 100
 }
 ```
 
@@ -277,46 +277,46 @@ Add these indexes after the existing `createIndex` calls (around line 781):
 ```typescript
 // Performance indexes for common query patterns
 await db.schema
-    .createIndex('idx_batches_farm_status')
-    .on('batches')
-    .columns(['farmId', 'status'])
-    .execute()
+  .createIndex('idx_batches_farm_status')
+  .on('batches')
+  .columns(['farmId', 'status'])
+  .execute()
 
 await db.schema
-    .createIndex('idx_sales_farm_date')
-    .on('sales')
-    .columns(['farmId', 'date'])
-    .execute()
+  .createIndex('idx_sales_farm_date')
+  .on('sales')
+  .columns(['farmId', 'date'])
+  .execute()
 
 await db.schema
-    .createIndex('idx_expenses_farm_date')
-    .on('expenses')
-    .columns(['farmId', 'date'])
-    .execute()
+  .createIndex('idx_expenses_farm_date')
+  .on('expenses')
+  .columns(['farmId', 'date'])
+  .execute()
 
 await db.schema
-    .createIndex('idx_feed_records_batch_date')
-    .on('feed_records')
-    .columns(['batchId', 'date'])
-    .execute()
+  .createIndex('idx_feed_records_batch_date')
+  .on('feed_records')
+  .columns(['batchId', 'date'])
+  .execute()
 
 await db.schema
-    .createIndex('idx_mortality_batch_date')
-    .on('mortality_records')
-    .columns(['batchId', 'date'])
-    .execute()
+  .createIndex('idx_mortality_batch_date')
+  .on('mortality_records')
+  .columns(['batchId', 'date'])
+  .execute()
 
 await db.schema
-    .createIndex('idx_weight_batch_date')
-    .on('weight_samples')
-    .columns(['batchId', 'date'])
-    .execute()
+  .createIndex('idx_weight_batch_date')
+  .on('weight_samples')
+  .columns(['batchId', 'date'])
+  .execute()
 
 await db.schema
-    .createIndex('idx_notifications_user_read')
-    .on('notifications')
-    .columns(['userId', 'read'])
-    .execute()
+  .createIndex('idx_notifications_user_read')
+  .on('notifications')
+  .columns(['userId', 'read'])
+  .execute()
 ```
 
 - **ALSO UPDATE** the `down()` function to drop these indexes
@@ -336,92 +336,92 @@ await db.schema
 
 // Feed records allowed columns
 export const FEED_SORT_COLUMNS = [
-    'date',
-    'cost',
-    'quantityKg',
-    'feedType',
-    'createdAt',
+  'date',
+  'cost',
+  'quantityKg',
+  'feedType',
+  'createdAt',
 ] as const
 export type FeedSortColumn = (typeof FEED_SORT_COLUMNS)[number]
 
 // Weight samples allowed columns
 export const WEIGHT_SORT_COLUMNS = [
-    'date',
-    'averageWeightKg',
-    'sampleSize',
-    'createdAt',
+  'date',
+  'averageWeightKg',
+  'sampleSize',
+  'createdAt',
 ] as const
 export type WeightSortColumn = (typeof WEIGHT_SORT_COLUMNS)[number]
 
 // Water quality allowed columns
 export const WATER_QUALITY_SORT_COLUMNS = [
-    'date',
-    'ph',
-    'temperatureCelsius',
-    'dissolvedOxygenMgL',
-    'ammoniaMgL',
-    'createdAt',
+  'date',
+  'ph',
+  'temperatureCelsius',
+  'dissolvedOxygenMgL',
+  'ammoniaMgL',
+  'createdAt',
 ] as const
 export type WaterQualitySortColumn = (typeof WATER_QUALITY_SORT_COLUMNS)[number]
 
 // Mortality records allowed columns
 export const MORTALITY_SORT_COLUMNS = [
-    'date',
-    'quantity',
-    'cause',
-    'createdAt',
+  'date',
+  'quantity',
+  'cause',
+  'createdAt',
 ] as const
 export type MortalitySortColumn = (typeof MORTALITY_SORT_COLUMNS)[number]
 
 // Customers allowed columns
 export const CUSTOMER_SORT_COLUMNS = [
-    'name',
-    'phone',
-    'email',
-    'location',
-    'customerType',
-    'createdAt',
+  'name',
+  'phone',
+  'email',
+  'location',
+  'customerType',
+  'createdAt',
 ] as const
 export type CustomerSortColumn = (typeof CUSTOMER_SORT_COLUMNS)[number]
 
 // Suppliers allowed columns
 export const SUPPLIER_SORT_COLUMNS = [
-    'name',
-    'phone',
-    'email',
-    'location',
-    'supplierType',
-    'createdAt',
+  'name',
+  'phone',
+  'email',
+  'location',
+  'supplierType',
+  'createdAt',
 ] as const
 export type SupplierSortColumn = (typeof SUPPLIER_SORT_COLUMNS)[number]
 
 // Eggs allowed columns
 export const EGG_SORT_COLUMNS = [
-    'date',
-    'quantityCollected',
-    'quantityBroken',
-    'quantitySold',
-    'createdAt',
+  'date',
+  'quantityCollected',
+  'quantityBroken',
+  'quantitySold',
+  'createdAt',
 ] as const
 export type EggSortColumn = (typeof EGG_SORT_COLUMNS)[number]
 
 // Invoices allowed columns
 export const INVOICE_SORT_COLUMNS = [
-    'date',
-    'dueDate',
-    'totalAmount',
-    'status',
-    'invoiceNumber',
-    'createdAt',
+  'date',
+  'dueDate',
+  'totalAmount',
+  'status',
+  'invoiceNumber',
+  'createdAt',
 ] as const
 export type InvoiceSortColumn = (typeof INVOICE_SORT_COLUMNS)[number]
 
 // Vaccinations allowed columns
 export const VACCINATION_SORT_COLUMNS = [
-    'dateAdministered',
-    'vaccineName',
-    'nextDueDate',
-    'createdAt',
+  'dateAdministered',
+  'vaccineName',
+  'nextDueDate',
+  'createdAt',
 ] as const
 export type VaccinationSortColumn = (typeof VACCINATION_SORT_COLUMNS)[number]
 
@@ -429,47 +429,47 @@ export type VaccinationSortColumn = (typeof VACCINATION_SORT_COLUMNS)[number]
  * Generic sort column validator factory
  */
 export function createSortValidator<T extends readonly string[]>(
-    allowedColumns: T,
-    defaultColumn: T[number],
+  allowedColumns: T,
+  defaultColumn: T[number],
 ): (column: string) => T[number] {
-    return (column: string): T[number] => {
-        if (allowedColumns.includes(column as T[number])) {
-            return column as T[number]
-        }
-        return defaultColumn
+  return (column: string): T[number] => {
+    if (allowedColumns.includes(column as T[number])) {
+      return column as T[number]
     }
+    return defaultColumn
+  }
 }
 
 // Pre-built validators
 export const validateFeedSort = createSortValidator(FEED_SORT_COLUMNS, 'date')
 export const validateWeightSort = createSortValidator(
-    WEIGHT_SORT_COLUMNS,
-    'date',
+  WEIGHT_SORT_COLUMNS,
+  'date',
 )
 export const validateWaterQualitySort = createSortValidator(
-    WATER_QUALITY_SORT_COLUMNS,
-    'date',
+  WATER_QUALITY_SORT_COLUMNS,
+  'date',
 )
 export const validateMortalitySort = createSortValidator(
-    MORTALITY_SORT_COLUMNS,
-    'date',
+  MORTALITY_SORT_COLUMNS,
+  'date',
 )
 export const validateCustomerSort = createSortValidator(
-    CUSTOMER_SORT_COLUMNS,
-    'createdAt',
+  CUSTOMER_SORT_COLUMNS,
+  'createdAt',
 )
 export const validateSupplierSort = createSortValidator(
-    SUPPLIER_SORT_COLUMNS,
-    'createdAt',
+  SUPPLIER_SORT_COLUMNS,
+  'createdAt',
 )
 export const validateEggSort = createSortValidator(EGG_SORT_COLUMNS, 'date')
 export const validateInvoiceSort = createSortValidator(
-    INVOICE_SORT_COLUMNS,
-    'date',
+  INVOICE_SORT_COLUMNS,
+  'date',
 )
 export const validateVaccinationSort = createSortValidator(
-    VACCINATION_SORT_COLUMNS,
-    'dateAdministered',
+  VACCINATION_SORT_COLUMNS,
+  'dateAdministered',
 )
 ```
 
@@ -489,8 +489,8 @@ dataQuery = dataQuery.orderBy(sql.raw(sortColumn), order)
 // AFTER:
 const safeSortColumn = validateFeedSort(sortColumn.replace('feed_records.', ''))
 dataQuery = dataQuery.orderBy(
-    sql.raw(`feed_records."${safeSortColumn}"`),
-    order,
+  sql.raw(`feed_records."${safeSortColumn}"`),
+  order,
 )
 ```
 
@@ -543,37 +543,37 @@ Add property test for sort column validation:
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 import {
-    validateFeedSort,
-    FEED_SORT_COLUMNS,
+  validateFeedSort,
+  FEED_SORT_COLUMNS,
 } from '~/lib/validation/sort-columns'
 
 describe('Sort Column Validation', () => {
-    it('should return valid column unchanged', () => {
-        for (const col of FEED_SORT_COLUMNS) {
-            expect(validateFeedSort(col)).toBe(col)
-        }
-    })
+  it('should return valid column unchanged', () => {
+    for (const col of FEED_SORT_COLUMNS) {
+      expect(validateFeedSort(col)).toBe(col)
+    }
+  })
 
-    it('should return default for invalid columns', () => {
-        fc.assert(
-            fc.property(fc.string(), (randomString) => {
-                const result = validateFeedSort(randomString)
-                expect(FEED_SORT_COLUMNS).toContain(result)
-            }),
-        )
-    })
+  it('should return default for invalid columns', () => {
+    fc.assert(
+      fc.property(fc.string(), (randomString) => {
+        const result = validateFeedSort(randomString)
+        expect(FEED_SORT_COLUMNS).toContain(result)
+      }),
+    )
+  })
 
-    it('should prevent SQL injection attempts', () => {
-        const attacks = [
-            "'; DROP TABLE users; --",
-            '1; DELETE FROM batches',
-            'date OR 1=1',
-            'createdAt; SELECT * FROM users',
-        ]
-        for (const attack of attacks) {
-            expect(validateFeedSort(attack)).toBe('date')
-        }
-    })
+  it('should prevent SQL injection attempts', () => {
+    const attacks = [
+      "'; DROP TABLE users; --",
+      '1; DELETE FROM batches',
+      'date OR 1=1',
+      'createdAt; SELECT * FROM users',
+    ]
+    for (const attack of attacks) {
+      expect(validateFeedSort(attack)).toBe('date')
+    }
+  })
 })
 ```
 
@@ -764,10 +764,10 @@ These issues are HIGH priority but can be addressed after the CRITICAL fixes abo
 **Recommended Approach**:
 
 1. Extract tab content into separate components:
-    - `FarmOverviewTab.tsx`
-    - `FarmBatchesTab.tsx`
-    - `FarmFinancialsTab.tsx`
-    - `FarmActivityTab.tsx`
+   - `FarmOverviewTab.tsx`
+   - `FarmBatchesTab.tsx`
+   - `FarmFinancialsTab.tsx`
+   - `FarmActivityTab.tsx`
 2. Move data fetching to TanStack Query hooks
 3. Target: Main route file < 300 lines
 
@@ -801,8 +801,8 @@ These issues are HIGH priority but can be addressed after the CRITICAL fixes abo
 ```typescript
 // BEFORE (in route file):
 interface Sale {
-    id: string
-    // ... manually defined
+  id: string
+  // ... manually defined
 }
 
 // AFTER (in route file):
@@ -867,18 +867,18 @@ const feedStats = await feedService.getFeedStatsForBatch(batchId)
 
 ```typescript
 export const WATER_QUALITY_THRESHOLDS = {
-    catfish: {
-        ph: { min: 6.5, max: 8.5 },
-        temperature: { min: 25, max: 32 },
-        dissolvedOxygen: { min: 3, max: 8 },
-        ammonia: { max: 0.5 },
-    },
-    tilapia: {
-        ph: { min: 6.0, max: 9.0 },
-        temperature: { min: 22, max: 30 },
-        dissolvedOxygen: { min: 4, max: 8 },
-        ammonia: { max: 0.3 },
-    },
+  catfish: {
+    ph: { min: 6.5, max: 8.5 },
+    temperature: { min: 25, max: 32 },
+    dissolvedOxygen: { min: 3, max: 8 },
+    ammonia: { max: 0.5 },
+  },
+  tilapia: {
+    ph: { min: 6.0, max: 9.0 },
+    temperature: { min: 22, max: 30 },
+    dissolvedOxygen: { min: 4, max: 8 },
+    ammonia: { max: 0.3 },
+  },
 }
 ```
 
@@ -1030,10 +1030,10 @@ catch (error) {
 **Recommended Approach**:
 
 1. Add staleTime configs per query type:
-    - Static data (growth standards): 24 hours
-    - Farm data: 5 minutes
-    - Dashboard stats: 1 minute
-    - Notifications: 30 seconds (current)
+   - Static data (growth standards): 24 hours
+   - Farm data: 5 minutes
+   - Dashboard stats: 1 minute
+   - Notifications: 30 seconds (current)
 
 ---
 

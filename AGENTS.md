@@ -27,72 +27,72 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
 
 1. **Three-Layer Architecture**: Features use Server → Service → Repository pattern:
 
-    ```
-    app/features/batches/
-    ├── server.ts      # Auth, validation, orchestration
-    ├── service.ts     # Pure business logic (calculations, validations)
-    ├── repository.ts  # Database operations (CRUD, queries)
-    └── types.ts       # TypeScript interfaces
-    ```
+   ```
+   app/features/batches/
+   ├── server.ts      # Auth, validation, orchestration
+   ├── service.ts     # Pure business logic (calculations, validations)
+   ├── repository.ts  # Database operations (CRUD, queries)
+   └── types.ts       # TypeScript interfaces
+   ```
 
 2. **Server Functions**: Orchestrate auth, validation, and call service/repository:
 
-    ```typescript
-    // app/features/batches/server.ts
-    export const createBatchFn = createServerFn({ method: 'POST' })
-        .inputValidator(schema)
-        .handler(async ({ data }) => {
-            const { requireAuth } = await import('./server-middleware')
-            const session = await requireAuth()
+   ```typescript
+   // app/features/batches/server.ts
+   export const createBatchFn = createServerFn({ method: 'POST' })
+     .inputValidator(schema)
+     .handler(async ({ data }) => {
+       const { requireAuth } = await import('./server-middleware')
+       const session = await requireAuth()
 
-            // Service layer for business logic
-            const error = validateBatchData(data)
-            if (error) throw new AppError('VALIDATION_ERROR')
+       // Service layer for business logic
+       const error = validateBatchData(data)
+       if (error) throw new AppError('VALIDATION_ERROR')
 
-            // Repository layer for database (use getDb() for Cloudflare Workers)
-            const { getDb } = await import('~/lib/db')
-            const db = await getDb()
-            return insertBatch(db, data)
-        })
-    ```
+       // Repository layer for database (use getDb() for Cloudflare Workers)
+       const { getDb } = await import('~/lib/db')
+       const db = await getDb()
+       return insertBatch(db, data)
+     })
+   ```
 
 3. **Dynamic Imports & Async DB**: Database access MUST use `getDb()` inside server functions for Cloudflare Workers compatibility:
 
-    ```typescript
-    // ✅ Correct - works on Cloudflare Workers
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
+   ```typescript
+   // ✅ Correct - works on Cloudflare Workers
+   const { getDb } = await import('~/lib/db')
+   const db = await getDb()
 
-    // ❌ Wrong - will break on Cloudflare Workers
-    import { db } from '~/lib/db'
+   // ❌ Wrong - will break on Cloudflare Workers
+   import { db } from '~/lib/db'
 
-    // ❌ Also wrong - old pattern, doesn't work
-    const { db } = await import('~/lib/db')
-    ```
+   // ❌ Also wrong - old pattern, doesn't work
+   const { db } = await import('~/lib/db')
+   ```
 
-    **Why?** Cloudflare Workers doesn't support `process.env`. Environment variables are only available through the `env` binding from `cloudflare:workers`, and that binding is only accessible during request handling, not at module load time. The `getDb()` function handles this by trying `process.env` first (for Node.js/Bun), then falling back to `cloudflare:workers`.
+   **Why?** Cloudflare Workers doesn't support `process.env`. Environment variables are only available through the `env` binding from `cloudflare:workers`, and that binding is only accessible during request handling, not at module load time. The `getDb()` function handles this by trying `process.env` first (for Node.js/Bun), then falling back to `cloudflare:workers`.
 
 4. **Service Layer**: Pure functions for business logic (easy to test):
 
-    ```typescript
-    // service.ts
-    export function calculateFCR(feedKg: number, weightGain: number): number {
-        if (weightGain <= 0) return 0
-        return Number((feedKg / weightGain).toFixed(2))
-    }
-    ```
+   ```typescript
+   // service.ts
+   export function calculateFCR(feedKg: number, weightGain: number): number {
+     if (weightGain <= 0) return 0
+     return Number((feedKg / weightGain).toFixed(2))
+   }
+   ```
 
 5. **Repository Layer**: Database operations only:
-    ```typescript
-    // repository.ts
-    export async function insertBatch(db: Kysely<Database>, data: BatchInsert) {
-        return db
-            .insertInto('batches')
-            .values(data)
-            .returning('id')
-            .executeTakeFirstOrThrow()
-    }
-    ```
+   ```typescript
+   // repository.ts
+   export async function insertBatch(db: Kysely<Database>, data: BatchInsert) {
+     return db
+       .insertInto('batches')
+       .values(data)
+       .returning('id')
+       .executeTakeFirstOrThrow()
+   }
+   ```
 
 ---
 
@@ -196,17 +196,17 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 export const myFunction = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            // Define input schema
-        }),
-    )
-    .handler(async ({ data }) => {
-        // Get database connection (works on both Node.js and Cloudflare Workers)
-        const { getDb } = await import('~/lib/db')
-        const db = await getDb()
-        // Database operations
-    })
+  .inputValidator(
+    z.object({
+      // Define input schema
+    }),
+  )
+  .handler(async ({ data }) => {
+    // Get database connection (works on both Node.js and Cloudflare Workers)
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    // Database operations
+  })
 ```
 
 ### Adding a New Route
@@ -322,23 +322,23 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            farmId: z.string().uuid().optional(),
-            page: z.number().int().positive().optional(),
-            pageSize: z.number().int().positive().optional(),
-            sortBy: z.string().optional(),
-            sortOrder: z.enum(['asc', 'desc']).optional(),
-            search: z.string().optional(),
-            status: z.string().optional(),
-            livestockType: z.string().optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid().optional(),
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      status: z.string().optional(),
+      livestockType: z.string().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 ```
 
 #### ❌ Wrong Pattern - Identity Validators
@@ -346,10 +346,10 @@ export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
 ```typescript
 // DON'T DO THIS - No runtime validation
 export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
-    .inputValidator((data: { farmId?: string }) => data)
-    .handler(async ({ data }) => {
-        // ... implementation
-    })
+  .inputValidator((data: { farmId?: string }) => data)
+  .handler(async ({ data }) => {
+    // ... implementation
+  })
 ```
 
 ### Common Zod Patterns
@@ -413,8 +413,8 @@ Configure router cache for prefetching:
 ```typescript
 // app/router.tsx
 export const router = createRouter({
-    routeTree,
-    defaultPreloadStaleTime: 30_000, // Cache prefetched data for 30 seconds
+  routeTree,
+  defaultPreloadStaleTime: 30_000, // Cache prefetched data for 30 seconds
 })
 ```
 
@@ -431,21 +431,21 @@ After refactoring to loaders, custom hooks should only handle:
 ```typescript
 // app/features/batches/use-batch-page.ts
 export function useBatchPage() {
-    const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
 
-    // Mutation for creating batch
-    const createBatch = useMutation({
-        mutationFn: (data: CreateBatchData) =>
-            createBatchFn({ data: { batch: data } }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['batches'] })
-        },
-    })
+  // Mutation for creating batch
+  const createBatch = useMutation({
+    mutationFn: (data: CreateBatchData) =>
+      createBatchFn({ data: { batch: data } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['batches'] })
+    },
+  })
 
-    // Local UI state
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
+  // Local UI state
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-    return { createBatch, isDialogOpen, setIsDialogOpen }
+  return { createBatch, isDialogOpen, setIsDialogOpen }
 }
 ```
 
@@ -454,14 +454,14 @@ export function useBatchPage() {
 ```typescript
 // DON'T DO THIS
 export function useBatchPage() {
-    const [data, setData] = useState(null)
+  const [data, setData] = useState(null)
 
-    useEffect(() => {
-        // Data fetching should be in loader
-        getBatchesForFarmFn({ data: {} }).then(setData)
-    }, [])
+  useEffect(() => {
+    // Data fetching should be in loader
+    getBatchesForFarmFn({ data: {} }).then(setData)
+  }, [])
 
-    return { data }
+  return { data }
 }
 ```
 
@@ -489,10 +489,10 @@ import { db } from '~/lib/db'
 
 // Create a user with authentication
 const result = await createUserWithAuth(db, {
-    email: 'user@example.com',
-    password: 'securepassword',
-    name: 'John Doe',
-    role: 'user', // or 'admin'
+  email: 'user@example.com',
+  password: 'securepassword',
+  name: 'John Doe',
+  role: 'user', // or 'admin'
 })
 
 // Returns: { userId, email, name, role }
@@ -504,23 +504,23 @@ console.log(`Created user: ${result.email}`)
 1. Hashes the password using PBKDF2 (100,000 iterations, SHA-256)
 2. Creates an entry in the `users` table (profile data only)
 3. Creates an entry in the `account` table with:
-    - `userId`: Links to the users table
-    - `providerId`: Set to `'credential'` for email/password auth
-    - `accountId`: Set to the user's email
-    - `password`: The hashed password
+   - `userId`: Links to the users table
+   - `providerId`: Set to `'credential'` for email/password auth
+   - `accountId`: Set to the user's email
+   - `password`: The hashed password
 
 #### ❌ WRONG - Don't Do This
 
 ```typescript
 // This will NOT work for authentication!
 await db
-    .insertInto('users')
-    .values({
-        email: 'user@example.com',
-        password: 'hashedpassword', // ❌ users table has no password field!
-        name: 'John Doe',
-    })
-    .execute()
+  .insertInto('users')
+  .values({
+    email: 'user@example.com',
+    password: 'hashedpassword', // ❌ users table has no password field!
+    name: 'John Doe',
+  })
+  .execute()
 ```
 
 ---
@@ -591,30 +591,30 @@ Located in `tests/helpers/db-integration.ts`:
 
 ```typescript
 import {
-    getTestDb, // Get test database connection
-    truncateAllTables, // Clean slate (respects FK order)
-    seedTestUser, // Create user + account + settings
-    seedTestFarm, // Create farm + modules + user association
-    seedTestBatch, // Create batch with defaults
-    closeTestDb, // Cleanup connection
+  getTestDb, // Get test database connection
+  truncateAllTables, // Clean slate (respects FK order)
+  seedTestUser, // Create user + account + settings
+  seedTestFarm, // Create farm + modules + user association
+  seedTestBatch, // Create batch with defaults
+  closeTestDb, // Cleanup connection
 } from '../helpers/db-integration'
 
 // Example test
 beforeEach(async () => {
-    await truncateAllTables()
+  await truncateAllTables()
 })
 
 it('should create batch', async () => {
-    const { userId } = await seedTestUser({ email: 'test@example.com' })
-    const { farmId } = await seedTestFarm(userId)
-    const { batchId } = await seedTestBatch(farmId, { species: 'broiler' })
+  const { userId } = await seedTestUser({ email: 'test@example.com' })
+  const { farmId } = await seedTestFarm(userId)
+  const { batchId } = await seedTestBatch(farmId, { species: 'broiler' })
 
-    const db = getTestDb()
-    const batch = await db
-        .selectFrom('batches')
-        .where('id', '=', batchId)
-        .executeTakeFirst()
-    expect(batch).toBeDefined()
+  const db = getTestDb()
+  const batch = await db
+    .selectFrom('batches')
+    .where('id', '=', batchId)
+    .executeTakeFirst()
+  expect(batch).toBeDefined()
 })
 ```
 

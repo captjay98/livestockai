@@ -128,15 +128,15 @@ This specification standardizes all "Add/Create" actions across the application 
 #### Acceptance Criteria
 
 1. WHEN all dialogs are implemented and tested, THE System SHALL have the following route files removed:
-    - `_auth.invoices.new.tsx`
-    - `_auth.batches.new.tsx`
-    - `_auth.customers.new.tsx`
-    - `_auth.suppliers.new.tsx`
-    - `_auth.expenses.new.tsx`
-    - `_auth.feed.new.tsx`
-    - `_auth.eggs.new.tsx`
-    - `_auth.vaccinations.new.tsx`
-    - `_auth.farms.new.tsx`
+   - `_auth.invoices.new.tsx`
+   - `_auth.batches.new.tsx`
+   - `_auth.customers.new.tsx`
+   - `_auth.suppliers.new.tsx`
+   - `_auth.expenses.new.tsx`
+   - `_auth.feed.new.tsx`
+   - `_auth.eggs.new.tsx`
+   - `_auth.vaccinations.new.tsx`
+   - `_auth.farms.new.tsx`
 2. WHEN redundant routes are removed, THE System SHALL update any remaining links that pointed to those routes
 3. WHEN the cleanup is complete, THE System SHALL pass all existing tests
 

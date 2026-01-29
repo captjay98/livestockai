@@ -93,20 +93,20 @@ None - this is a refactoring task
 ### Relevant Documentation YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [TanStack Router Data Loading](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading)
-    - Specific sections: "Route loaders", "Consuming data from loaders", "Using loaderDeps", "Showing a pending component"
-    - Why: Official guide for loader patterns and best practices
+  - Specific sections: "Route loaders", "Consuming data from loaders", "Using loaderDeps", "Showing a pending component"
+  - Why: Official guide for loader patterns and best practices
 
 - [TanStack Start Server Functions](https://tanstack.com/start/latest/docs/framework/react/guide/server-functions)
-    - Specific section: "Server functions let you define server-only logic"
-    - Why: Understanding server function execution model
+  - Specific section: "Server functions let you define server-only logic"
+  - Why: Understanding server function execution model
 
 - [TanStack Router Deferred Data Loading](https://tanstack.com/router/latest/docs/framework/react/guide/deferred-data-loading)
-    - Specific section: "Deferred data loading pattern"
-    - Why: For handling slow loaders without blocking navigation
+  - Specific section: "Deferred data loading pattern"
+  - Why: For handling slow loaders without blocking navigation
 
 - [CodeStandUp TanStack Tutorial](https://codestandup.com/posts/2026/tanstack-tutorial-loader-and-server-functions/)
-    - Specific sections: "Loader Functions", "Handling Errors", "Showing Loading States"
-    - Why: Practical examples of loader patterns
+  - Specific sections: "Loader Functions", "Handling Errors", "Showing Loading States"
+  - Why: Practical examples of loader patterns
 
 ### Patterns to Follow
 
@@ -134,16 +134,16 @@ function FarmsPage() {
 ```typescript
 // app/routes/_auth/reports/index.tsx
 export const Route = createFileRoute('/_auth/reports/')({
-    validateSearch: validateReportSearch,
-    loaderDeps: ({ search }) => ({
-        reportType: search.reportType,
-        dateRange: search.dateRange,
-    }),
-    loader: async ({ deps }) => {
-        return getReportDataFn({ data: deps })
-    },
-    pendingComponent: ReportSkeleton,
-    component: ReportsPage,
+  validateSearch: validateReportSearch,
+  loaderDeps: ({ search }) => ({
+    reportType: search.reportType,
+    dateRange: search.dateRange,
+  }),
+  loader: async ({ deps }) => {
+    return getReportDataFn({ data: deps })
+  },
+  pendingComponent: ReportSkeleton,
+  component: ReportsPage,
 })
 ```
 
@@ -152,19 +152,19 @@ export const Route = createFileRoute('/_auth/reports/')({
 ```typescript
 // app/features/*/server.ts
 export const getDataFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            farmId: z.string().uuid().optional(),
-            page: z.number().int().positive().optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid().optional(),
+      page: z.number().int().positive().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
 
-        const { db } = await import('~/lib/db')
-        // Implementation
-    })
+    const { db } = await import('~/lib/db')
+    // Implementation
+  })
 ```
 
 **pendingComponent Pattern**:
@@ -424,23 +424,23 @@ function BatchDetailsPage() {
 ```typescript
 // app/routes/_auth/dashboard/index.tsx
 export const Route = createFileRoute('/_auth/dashboard/')({
-    validateSearch: validateDashboardSearch,
-    loaderDeps: ({ search }) => ({
-        farmId: search.farmId,
-        dateRange: search.dateRange,
-    }),
-    loader: async ({ deps }) => {
-        // Fetch multiple data sources in parallel
-        const [stats, alerts, recentActivity] = await Promise.all([
-            getDashboardStatsFn({ data: deps }),
-            getDashboardAlertsFn({ data: deps }),
-            getRecentActivityFn({ data: deps }),
-        ])
+  validateSearch: validateDashboardSearch,
+  loaderDeps: ({ search }) => ({
+    farmId: search.farmId,
+    dateRange: search.dateRange,
+  }),
+  loader: async ({ deps }) => {
+    // Fetch multiple data sources in parallel
+    const [stats, alerts, recentActivity] = await Promise.all([
+      getDashboardStatsFn({ data: deps }),
+      getDashboardAlertsFn({ data: deps }),
+      getRecentActivityFn({ data: deps }),
+    ])
 
-        return { stats, alerts, recentActivity }
-    },
-    pendingComponent: DashboardSkeleton,
-    component: DashboardPage,
+    return { stats, alerts, recentActivity }
+  },
+  pendingComponent: DashboardSkeleton,
+  component: DashboardPage,
 })
 ```
 
@@ -462,9 +462,9 @@ export const Route = createFileRoute('/_auth/dashboard/')({
 
 - **IMPLEMENT**: Remove or simplify hooks that are no longer needed
 - **FILES**:
-    - `app/features/batches/use-batch-page.ts`
-    - `app/features/batches/use-batch-details.ts`
-    - `app/features/dashboard/use-dashboard.ts`
+  - `app/features/batches/use-batch-page.ts`
+  - `app/features/batches/use-batch-details.ts`
+  - `app/features/dashboard/use-dashboard.ts`
 - **GOTCHA**: Check if hooks have other responsibilities (mutations, local state) before removing
 - **DECISION**: If hooks only handle data fetching, remove them. If they handle mutations/local state, keep but remove data fetching logic
 - **VALIDATE**: `bun run check` passes, no unused imports
@@ -479,10 +479,10 @@ export const Route = createFileRoute('/_auth/dashboard/')({
 ```typescript
 // app/router.tsx
 const router = createRouter({
-    routeTree,
-    defaultPreloadStaleTime: 30_000, // 30 seconds for preloads
-    defaultStaleTime: 0, // Always revalidate on navigation (current behavior)
-    // Or set to 10_000 for 10 second cache
+  routeTree,
+  defaultPreloadStaleTime: 30_000, // 30 seconds for preloads
+  defaultStaleTime: 0, // Always revalidate on navigation (current behavior)
+  // Or set to 10_000 for 10 second cache
 })
 ```
 
@@ -491,38 +491,38 @@ const router = createRouter({
 - **IMPLEMENT**: Verify routes render on server
 - **COMMAND**: `bun run build && bun run preview`
 - **VALIDATE**:
-    - View page source for `/batches` - should contain data
-    - View page source for `/dashboard` - should contain data
-    - View page source for `/batches/[id]` - should contain data
+  - View page source for `/batches` - should contain data
+  - View page source for `/dashboard` - should contain data
+  - View page source for `/batches/[id]` - should contain data
 
 ### Task 15: TEST prefetching on hover
 
 - **IMPLEMENT**: Verify prefetching works
 - **MANUAL TEST**:
-    1. Navigate to a page with links to batches
-    2. Hover over a batch link (don't click)
-    3. Open Network tab - should see prefetch request
-    4. Click link - should navigate instantly
+  1. Navigate to a page with links to batches
+  2. Hover over a batch link (don't click)
+  3. Open Network tab - should see prefetch request
+  4. Click link - should navigate instantly
 - **VALIDATE**: Prefetch requests appear in Network tab
 
 ### Task 16: TEST loading states
 
 - **IMPLEMENT**: Verify pendingComponent displays correctly
 - **MANUAL TEST**:
-    1. Throttle network to "Slow 3G" in DevTools
-    2. Navigate to `/batches`
-    3. Should see BatchesSkeleton for ~1 second
-    4. Then see actual content
+  1. Throttle network to "Slow 3G" in DevTools
+  2. Navigate to `/batches`
+  3. Should see BatchesSkeleton for ~1 second
+  4. Then see actual content
 - **VALIDATE**: Skeleton displays, then content loads
 
 ### Task 17: TEST error states
 
 - **IMPLEMENT**: Verify errorComponent displays correctly
 - **MANUAL TEST**:
-    1. Temporarily break a server function (throw error)
-    2. Navigate to that route
-    3. Should see error message
-    4. Click retry button - should reload
+  1. Temporarily break a server function (throw error)
+  2. Navigate to that route
+  3. Should see error message
+  4. Click retry button - should reload
 - **VALIDATE**: Error displays, retry works
 
 ### Task 18: RUN full test suite
@@ -567,24 +567,24 @@ import { describe, it, expect } from 'vitest'
 import { getBatchesForFarmFn } from '~/features/batches/server'
 
 describe('getBatchesForFarmFn validator', () => {
-    it('should accept valid input', () => {
-        const input = {
-            farmId: '123e4567-e89b-12d3-a456-426614174000',
-            page: 1,
-            pageSize: 10,
-        }
-        // Validator should not throw
-        expect(() => getBatchesForFarmFn({ data: input })).not.toThrow()
-    })
+  it('should accept valid input', () => {
+    const input = {
+      farmId: '123e4567-e89b-12d3-a456-426614174000',
+      page: 1,
+      pageSize: 10,
+    }
+    // Validator should not throw
+    expect(() => getBatchesForFarmFn({ data: input })).not.toThrow()
+  })
 
-    it('should reject invalid UUID', () => {
-        const input = {
-            farmId: 'invalid-uuid',
-            page: 1,
-        }
-        // Validator should throw
-        expect(() => getBatchesForFarmFn({ data: input })).toThrow()
-    })
+  it('should reject invalid UUID', () => {
+    const input = {
+      farmId: 'invalid-uuid',
+      page: 1,
+    }
+    // Validator should throw
+    expect(() => getBatchesForFarmFn({ data: input })).toThrow()
+  })
 })
 ```
 
@@ -602,19 +602,19 @@ import { createMemoryHistory, createRouter } from '@tanstack/react-router'
 import { routeTree } from '~/routeTree.gen'
 
 describe('Batches route loader', () => {
-    it('should load batch data', async () => {
-        const router = createRouter({
-            routeTree,
-            history: createMemoryHistory(),
-        })
-
-        await router.navigate({ to: '/batches' })
-        await router.load()
-
-        const loaderData = router.state.matches[0]?.loaderData
-        expect(loaderData).toBeDefined()
-        expect(loaderData.paginatedBatches).toBeDefined()
+  it('should load batch data', async () => {
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory(),
     })
+
+    await router.navigate({ to: '/batches' })
+    await router.load()
+
+    const loaderData = router.state.matches[0]?.loaderData
+    expect(loaderData).toBeDefined()
+    expect(loaderData.paginatedBatches).toBeDefined()
+  })
 })
 ```
 
@@ -707,14 +707,14 @@ bun run check && bun run test --run && bun run build
 - [ ] All validation commands pass: `bun run check && bun run test --run && bun run build`
 - [ ] No regressions in existing functionality (all 1,306 tests pass)
 - [ ] Code follows OpenLivestock patterns:
-    - [ ] Dynamic imports in server functions
-    - [ ] AppError for error handling
-    - [ ] Zod validation on all server function inputs
-    - [ ] Type-safe loaders with Route.useLoaderData()
+  - [ ] Dynamic imports in server functions
+  - [ ] AppError for error handling
+  - [ ] Zod validation on all server function inputs
+  - [ ] Type-safe loaders with Route.useLoaderData()
 - [ ] Performance improved:
-    - [ ] Faster initial page loads (SSR)
-    - [ ] Instant navigation with prefetching
-    - [ ] Better perceived performance (skeleton loaders)
+  - [ ] Faster initial page loads (SSR)
+  - [ ] Instant navigation with prefetching
+  - [ ] Better perceived performance (skeleton loaders)
 
 ---
 

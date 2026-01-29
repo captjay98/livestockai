@@ -18,36 +18,37 @@ The migration from `NeonDialect` (HTTP driver) to `PostgresDialect` with `pg` dr
 
 ### Environment-Specific Behavior
 
-| Environment | Connection Source | Transaction Support |
-|-------------|-------------------|---------------------|
-| Cloudflare Workers (production) | `env.HYPERDRIVE.connectionString` | ✅ Full |
-| wrangler dev (local preview) | `localConnectionString` from wrangler.jsonc | ✅ Full |
-| Node.js/Bun (CLI, tests, migrations) | `process.env.DATABASE_URL` | ✅ Full |
+| Environment                          | Connection Source                           | Transaction Support |
+| ------------------------------------ | ------------------------------------------- | ------------------- |
+| Cloudflare Workers (production)      | `env.HYPERDRIVE.connectionString`           | ✅ Full             |
+| wrangler dev (local preview)         | `localConnectionString` from wrangler.jsonc | ✅ Full             |
+| Node.js/Bun (CLI, tests, migrations) | `process.env.DATABASE_URL`                  | ✅ Full             |
 
 ## Transaction Support Summary
 
-| Driver Type | Interactive Transactions | Non-Interactive Transactions | Use Case |
-|-------------|-------------------------|------------------------------|----------|
-| HTTP (`NeonDialect` + `neon()`) | ❌ Not supported | ✅ Via `sql.transaction([])` | Single queries, batch operations |
-| WebSocket (`Pool`/`Client`) | ✅ Fully supported | ✅ Supported | Sessions, interactive transactions |
-| **Cloudflare Hyperdrive + `pg`** | ✅ Fully supported | ✅ Supported | **Cloudflare Workers (current)** |
+| Driver Type                      | Interactive Transactions | Non-Interactive Transactions | Use Case                           |
+| -------------------------------- | ------------------------ | ---------------------------- | ---------------------------------- |
+| HTTP (`NeonDialect` + `neon()`)  | ❌ Not supported         | ✅ Via `sql.transaction([])` | Single queries, batch operations   |
+| WebSocket (`Pool`/`Client`)      | ✅ Fully supported       | ✅ Supported                 | Sessions, interactive transactions |
+| **Cloudflare Hyperdrive + `pg`** | ✅ Fully supported       | ✅ Supported                 | **Cloudflare Workers (current)**   |
 
 ## Database Access Patterns
 
 ### In Server Functions (Required Pattern)
 
 ```typescript
-export const myServerFn = createServerFn({ method: 'POST' })
-  .handler(async ({ data }) => {
+export const myServerFn = createServerFn({ method: 'POST' }).handler(
+  async ({ data }) => {
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
-    
+
     // Transactions now work!
     await db.transaction().execute(async (trx) => {
       await trx.insertInto('mortality_records').values(data).execute()
       await trx.updateTable('batches').set({ quantity: newQty }).execute()
     })
-  })
+  },
+)
 ```
 
 ### In CLI Scripts (Seeders, Migrations)
@@ -77,9 +78,9 @@ await db.insertInto('users').values({...}).execute()
     {
       "binding": "HYPERDRIVE",
       "id": "<your-hyperdrive-configuration-id>",
-      "localConnectionString": "env:DATABASE_URL"
-    }
-  ]
+      "localConnectionString": "env:DATABASE_URL",
+    },
+  ],
 }
 ```
 
@@ -106,12 +107,12 @@ The `getConnectionString()` function in `app/lib/db/index.ts` resolves the conne
 async function getConnectionString(): Promise<string> {
   // 1. Try process.env first (Node.js/Bun)
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL
-  
+
   // 2. Try Cloudflare Workers env
   const { env } = await import('cloudflare:workers')
   if (env.HYPERDRIVE?.connectionString) return env.HYPERDRIVE.connectionString
   if (env.DATABASE_URL) return env.DATABASE_URL
-  
+
   throw new Error('DATABASE_URL not configured')
 }
 ```
@@ -136,24 +137,25 @@ Error: NeonDialect doesn't support interactive transactions
 ### Official Neon Guidance
 
 From [Neon's Hyperdrive FAQ](https://neon.tech/blog/hyperdrive-neon-faq):
+
 > Hyperdrive relies on TCP connections between the client and the database. **You should use Hyperdrive directly with standard Postgres drivers, like node-postgres.**
 
 ## Operations Using Transactions
 
 These operations now work correctly with full atomicity:
 
-| File | Function | Operations |
-|------|----------|------------|
-| `app/features/batches/repository.ts` | `updateBatch` | Update batch + related records |
-| `app/features/mortality/server.ts` | `recordMortality` | Insert record + update batch quantity |
-| `app/features/mortality/server.ts` | `updateMortalityRecord` | Update record + adjust batch quantity |
-| `app/features/mortality/server.ts` | `deleteMortalityRecord` | Delete record + restore batch quantity |
-| `app/features/feed/server.ts` | `recordFeed` | Insert record + update inventory |
-| `app/features/feed/server.ts` | `updateFeedRecord` | Update record + adjust inventory |
-| `app/features/feed/server.ts` | `deleteFeedRecord` | Delete record + restore inventory |
-| `app/features/expenses/server.ts` | `recordExpense` | Insert expense + update related |
-| `app/features/sales/server.ts` | `recordSale` | Insert sale + update batch quantity |
-| `app/features/sales/server.ts` | `updateSale` | Update sale + adjust batch quantity |
+| File                                 | Function                | Operations                             |
+| ------------------------------------ | ----------------------- | -------------------------------------- |
+| `app/features/batches/repository.ts` | `updateBatch`           | Update batch + related records         |
+| `app/features/mortality/server.ts`   | `recordMortality`       | Insert record + update batch quantity  |
+| `app/features/mortality/server.ts`   | `updateMortalityRecord` | Update record + adjust batch quantity  |
+| `app/features/mortality/server.ts`   | `deleteMortalityRecord` | Delete record + restore batch quantity |
+| `app/features/feed/server.ts`        | `recordFeed`            | Insert record + update inventory       |
+| `app/features/feed/server.ts`        | `updateFeedRecord`      | Update record + adjust inventory       |
+| `app/features/feed/server.ts`        | `deleteFeedRecord`      | Delete record + restore inventory      |
+| `app/features/expenses/server.ts`    | `recordExpense`         | Insert expense + update related        |
+| `app/features/sales/server.ts`       | `recordSale`            | Insert sale + update batch quantity    |
+| `app/features/sales/server.ts`       | `updateSale`            | Update sale + adjust batch quantity    |
 
 ## Troubleshooting
 
@@ -166,6 +168,7 @@ These operations now work correctly with full atomicity:
 ### Transaction Failures
 
 If transactions fail in production:
+
 1. Verify Hyperdrive is properly configured in Cloudflare dashboard
 2. Check the Hyperdrive configuration ID matches `wrangler.jsonc`
 3. Ensure the Neon connection string in Hyperdrive is correct
@@ -173,10 +176,12 @@ If transactions fail in production:
 ### Local Development Issues
 
 For `wrangler dev`:
+
 - Uses `localConnectionString` which references `env:DATABASE_URL`
 - Ensure `.dev.vars` has the correct `DATABASE_URL`
 
 For `bun dev`:
+
 - Uses `process.env.DATABASE_URL` directly
 - Ensure `.env` or environment has `DATABASE_URL`
 

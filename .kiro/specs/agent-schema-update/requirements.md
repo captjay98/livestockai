@@ -46,16 +46,16 @@ This specification covers updating all 10 Kiro agent configuration files in `.ki
 2. EACH agent SHALL have a unique keyboard shortcut
 3. THE keyboard shortcuts SHALL follow the pattern `ctrl+shift+{number}` where number is 0-9
 4. THE shortcut assignments SHALL be:
-    - backend-engineer: ctrl+shift+1
-    - frontend-engineer: ctrl+shift+2
-    - fullstack-engineer: ctrl+shift+3
-    - devops-engineer: ctrl+shift+4
-    - qa-engineer: ctrl+shift+5
-    - security-engineer: ctrl+shift+6
-    - data-analyst: ctrl+shift+7
-    - i18n-engineer: ctrl+shift+8
-    - livestock-specialist: ctrl+shift+9
-    - product-architect: ctrl+shift+0
+   - backend-engineer: ctrl+shift+1
+   - frontend-engineer: ctrl+shift+2
+   - fullstack-engineer: ctrl+shift+3
+   - devops-engineer: ctrl+shift+4
+   - qa-engineer: ctrl+shift+5
+   - security-engineer: ctrl+shift+6
+   - data-analyst: ctrl+shift+7
+   - i18n-engineer: ctrl+shift+8
+   - livestock-specialist: ctrl+shift+9
+   - product-architect: ctrl+shift+0
 
 ### Requirement 4: Welcome Message Addition
 
@@ -104,9 +104,9 @@ This specification covers updating all 10 Kiro agent configuration files in `.ki
 2. THE MCP server configurations SHALL include `--cache-dir` parameter for OAuth token caching
 3. WHEN an agent sets `useLegacyMcpJson: true`, THE Agent SHALL inherit MCP servers from the global `.kiro/settings/mcp.json`
 4. THE OAuth-based MCP servers (Neon, Cloudflare) SHALL use their respective OAuth endpoints:
-    - Neon: `https://mcp.neon.tech/mcp`
-    - Cloudflare Bindings: `https://bindings.mcp.cloudflare.com/mcp`
-    - Cloudflare Builds: `https://builds.mcp.cloudflare.com/mcp`
-    - Cloudflare Observability: `https://observability.mcp.cloudflare.com/mcp`
-    - Cloudflare Docs: `https://docs.mcp.cloudflare.com/mcp`
+   - Neon: `https://mcp.neon.tech/mcp`
+   - Cloudflare Bindings: `https://bindings.mcp.cloudflare.com/mcp`
+   - Cloudflare Builds: `https://builds.mcp.cloudflare.com/mcp`
+   - Cloudflare Observability: `https://observability.mcp.cloudflare.com/mcp`
+   - Cloudflare Docs: `https://docs.mcp.cloudflare.com/mcp`
 5. WHEN updating inline MCP server configs, THE Migration SHALL add `--cache-dir` parameter if missing

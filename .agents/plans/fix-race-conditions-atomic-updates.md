@@ -76,19 +76,19 @@ From `app/features/sales/repository.ts` (lines 570-580):
 
 ```typescript
 export async function restoreBatchQuantityOnDelete(
-    db: Kysely<Database>,
-    batchId: string,
-    quantity: number,
+  db: Kysely<Database>,
+  batchId: string,
+  quantity: number,
 ): Promise<void> {
-    await db
-        .updateTable('batches')
-        .set((eb) => ({
-            currentQuantity: eb('currentQuantity', '+', quantity),
-            status: 'active',
-            updatedAt: new Date(),
-        }))
-        .where('id', '=', batchId)
-        .execute()
+  await db
+    .updateTable('batches')
+    .set((eb) => ({
+      currentQuantity: eb('currentQuantity', '+', quantity),
+      status: 'active',
+      updatedAt: new Date(),
+    }))
+    .where('id', '=', batchId)
+    .execute()
 }
 ```
 
@@ -104,7 +104,7 @@ export async function restoreBatchQuantityOnDelete(
 const currentQty = parseFloat(existing.quantityKg) || 0
 const newQuantity = currentQty + quantityKg
 await updateFeedInventory(db, existing.id, {
-    quantityKg: newQuantity.toFixed(2),
+  quantityKg: newQuantity.toFixed(2),
 })
 ```
 
@@ -112,13 +112,13 @@ await updateFeedInventory(db, existing.id, {
 
 ```typescript
 await db
-    .updateTable('feed_inventory')
-    .set((eb) => ({
-        quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) + ${quantityKg} AS TEXT)`,
-        updatedAt: new Date(),
-    }))
-    .where('id', '=', existing.id)
-    .execute()
+  .updateTable('feed_inventory')
+  .set((eb) => ({
+    quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) + ${quantityKg} AS TEXT)`,
+    updatedAt: new Date(),
+  }))
+  .where('id', '=', existing.id)
+  .execute()
 ```
 
 **VALIDATE**: `npx tsc --noEmit`
@@ -132,7 +132,7 @@ const currentQty = parseFloat(existing.quantityKg) || 0
 // ... validation ...
 const newQuantity = currentQty - quantityKg
 await updateFeedInventory(db, existing.id, {
-    quantityKg: newQuantity.toFixed(2),
+  quantityKg: newQuantity.toFixed(2),
 })
 ```
 
@@ -167,27 +167,27 @@ await db
 ```typescript
 const newQuantity = batch.currentQuantity - data.quantity
 await trx
-    .updateTable('batches')
-    .set({
-        currentQuantity: newQuantity,
-        status: newQuantity <= 0 ? 'depleted' : 'active',
-    })
-    .where('id', '=', data.batchId)
-    .execute()
+  .updateTable('batches')
+  .set({
+    currentQuantity: newQuantity,
+    status: newQuantity <= 0 ? 'depleted' : 'active',
+  })
+  .where('id', '=', data.batchId)
+  .execute()
 ```
 
 **REPLACE WITH**:
 
 ```typescript
 await trx
-    .updateTable('batches')
-    .set((eb) => ({
-        currentQuantity: eb('currentQuantity', '-', data.quantity),
-        status: sql`CASE WHEN "currentQuantity" - ${data.quantity} <= 0 THEN 'depleted' ELSE 'active' END`,
-        updatedAt: new Date(),
-    }))
-    .where('id', '=', data.batchId)
-    .execute()
+  .updateTable('batches')
+  .set((eb) => ({
+    currentQuantity: eb('currentQuantity', '-', data.quantity),
+    status: sql`CASE WHEN "currentQuantity" - ${data.quantity} <= 0 THEN 'depleted' ELSE 'active' END`,
+    updatedAt: new Date(),
+  }))
+  .where('id', '=', data.batchId)
+  .execute()
 ```
 
 **VALIDATE**: `npx tsc --noEmit`
@@ -213,36 +213,36 @@ Find the RMW pattern around line 743 and replace with atomic update (restore qua
  * Atomically add to feed inventory quantity
  */
 export async function atomicAddFeedQuantity(
-    db: Kysely<Database>,
-    id: string,
-    quantityKg: number,
+  db: Kysely<Database>,
+  id: string,
+  quantityKg: number,
 ): Promise<void> {
-    await db
-        .updateTable('feed_inventory')
-        .set((eb) => ({
-            quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) + ${quantityKg} AS TEXT)`,
-            updatedAt: new Date(),
-        }))
-        .where('id', '=', id)
-        .execute()
+  await db
+    .updateTable('feed_inventory')
+    .set((eb) => ({
+      quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) + ${quantityKg} AS TEXT)`,
+      updatedAt: new Date(),
+    }))
+    .where('id', '=', id)
+    .execute()
 }
 
 /**
  * Atomically subtract from feed inventory quantity
  */
 export async function atomicSubtractFeedQuantity(
-    db: Kysely<Database>,
-    id: string,
-    quantityKg: number,
+  db: Kysely<Database>,
+  id: string,
+  quantityKg: number,
 ): Promise<void> {
-    await db
-        .updateTable('feed_inventory')
-        .set((eb) => ({
-            quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) - ${quantityKg} AS TEXT)`,
-            updatedAt: new Date(),
-        }))
-        .where('id', '=', id)
-        .execute()
+  await db
+    .updateTable('feed_inventory')
+    .set((eb) => ({
+      quantityKg: sql`CAST(CAST("quantityKg" AS DECIMAL) - ${quantityKg} AS TEXT)`,
+      updatedAt: new Date(),
+    }))
+    .where('id', '=', id)
+    .execute()
 }
 ```
 

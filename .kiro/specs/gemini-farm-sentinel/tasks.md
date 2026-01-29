@@ -1,0 +1,314 @@
+# Implementation Plan: Farm Sentinel
+
+## Overview
+
+This implementation plan breaks down the Farm Sentinel autonomous monitoring agent into discrete coding tasks. The plan follows a bottom-up approach: database schema first, then core services, then Gemini integration, and finally the orchestration layer and UI.
+
+The implementation uses TypeScript throughout, following the existing OpenLivestock patterns with the three-layer architecture (server → service → repository).
+
+## Tasks
+
+- [ ] 1. Database Schema and Types
+  - [ ] 1.1 Create database migration for sentinel tables
+    - Create `sentinel_state` table with JSONB columns for flexible state storage
+    - Create `sentinel_alerts` table for tracking alerts and feedback
+    - Create `sentinel_execution_log` table for monitoring metrics
+    - Add appropriate indexes for farm_id, batch_id, and timestamps
+    - _Requirements: 8.1, 8.2, 8.5_
+  - [ ] 1.2 Add TypeScript types to database types file
+    - Add `SentinelStateTable`, `SentinelAlertTable`, `SentinelExecutionLogTable` interfaces
+    - Add to Database interface
+    - _Requirements: 8.1, 8.2_
+  - [ ] 1.3 Run migration and verify schema
+    - Execute migration on development database
+    - Verify tables created correctly
+    - _Requirements: 8.1_
+
+- [ ] 2. Core Data Types and Interfaces
+  - [ ] 2.1 Create sentinel types file
+    - Define `SentinelState`, `DetectedAnomaly`, `CausalAnalysis` interfaces
+    - Define `ThoughtSignature`, `AnomalyThresholds`, `ProbableCause` interfaces
+    - Define `BatchSnapshot`, `FarmDataSnapshot`, `FarmEvent` interfaces
+    - Define severity levels, anomaly types, and action types
+    - _Requirements: 2.5, 2.6, 3.7, 4.3_
+  - [ ]\* 2.2 Write property tests for type validation
+    - **Property 6: Confidence Score Validity**
+    - **Validates: Requirements 2.6**
+
+- [ ] 3. Data Collector Service
+  - [ ] 3.1 Create data collector repository
+    - Implement `getBatchesForFarm()` - fetch active batches with related data
+    - Implement `getMortalityRecords()` - fetch mortality within time window
+    - Implement `getFeedRecords()` - fetch feed consumption within time window
+    - Implement `getWeightSamples()` - fetch weight samples within time window
+    - Implement `getWaterQualityRecords()` - fetch water quality for fish batches
+    - Implement `getRecentEvents()` - fetch vaccinations, treatments, feed changes
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 12.1_
+  - [ ] 3.2 Create data collector service
+    - Implement `collectFarmData()` - orchestrate data collection for a farm
+    - Implement `buildBatchSnapshot()` - aggregate batch data into snapshot
+    - Calculate derived metrics (mortality rate, FCR, growth deviation)
+    - Handle time window configuration (24h data, 7-day context)
+    - _Requirements: 1.6, 1.7_
+  - [ ]\* 3.3 Write property tests for data collection
+    - **Property 1: Data Collection Completeness**
+    - **Property 2: Aquaculture Water Quality Collection**
+    - **Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.6**
+
+- [ ] 4. Anomaly Detection Service
+  - [ ] 4.1 Create species-specific threshold configurations
+    - Define default thresholds for poultry (broiler, layer)
+    - Define default thresholds for fish (catfish, tilapia)
+    - Define default thresholds for cattle, goats, sheep
+    - Store in constants file with species mapping
+    - _Requirements: 11.1, 11.2, 11.4_
+  - [ ] 4.2 Create anomaly detector service
+    - Implement `detectMortalityAnomalies()` - spike and trend detection
+    - Implement `detectFeedAnomalies()` - high/low consumption detection
+    - Implement `detectGrowthAnomalies()` - deviation from growth standards
+    - Implement `detectWaterQualityAnomalies()` - pH, temp, DO, ammonia
+    - Implement `calculateSeverity()` - map deviation to severity level
+    - Implement `calculateConfidence()` - confidence based on data quality
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
+  - [ ] 4.3 Implement spike vs trend classification
+    - Detect single-day spikes vs multi-day trends
+    - Track anomaly duration for trend detection
+    - _Requirements: 2.7_
+  - [ ]\* 4.4 Write property tests for anomaly detection
+    - **Property 4: Anomaly Detection Threshold Compliance**
+    - **Property 5: Anomaly Severity Assignment**
+    - **Property 7: Spike vs Trend Classification**
+    - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.7**
+
+- [ ] 5. Checkpoint - Core Services
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 6. Sentinel State Management
+  - [ ] 6.1 Create state repository
+    - Implement `getState()` - load state from database
+    - Implement `setState()` - save state to database
+    - Implement `getThoughtHistory()` - retrieve thought signatures
+    - Implement `addThoughtSignature()` - append new thought
+    - Handle state versioning for optimistic locking
+    - _Requirements: 8.1, 8.2, 8.3_
+  - [ ] 6.2 Create state service
+    - Implement `loadOrCreateState()` - load existing or create default
+    - Implement `handleCorruptedState()` - reset to defaults on corruption
+    - Implement `archiveOldState()` - archive thoughts older than 30 days
+    - Implement `resetState()` - manual state reset
+    - _Requirements: 8.3, 8.4, 8.6, 8.7_
+  - [ ] 6.3 Implement threshold management
+    - Implement `getThresholds()` - get farm-specific thresholds
+    - Implement `updateThreshold()` - adjust threshold from feedback
+    - Implement `recordFalsePositive()` - track false positives
+    - Calculate threshold adjustment factor
+    - _Requirements: 7.2, 7.7_
+  - [ ]\* 6.4 Write property tests for state management
+    - **Property 29: State Persistence Round-Trip**
+    - **Property 30: State Corruption Recovery**
+    - **Property 31: Per-Farm State Isolation**
+    - **Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5**
+
+- [ ] 7. Gemini Integration
+  - [ ] 7.1 Create Gemini client wrapper
+    - Implement `GeminiClient` class with API configuration
+    - Handle authentication with API key
+    - Implement request/response serialization
+    - Handle rate limiting with exponential backoff
+    - _Requirements: 13.2, 13.4_
+  - [ ] 7.2 Define Sentinel tools for Gemini
+    - Define `create_alert` tool schema
+    - Define `create_task` tool schema
+    - Define `query_historical_data` tool schema
+    - Define `update_hypothesis` tool schema
+    - _Requirements: 6.1, 5.1_
+  - [ ] 7.3 Create causal analyzer service
+    - Implement `analyzeAnomalies()` - send context to Gemini for analysis
+    - Build system prompt with farm context and thought history
+    - Parse Gemini response for probable causes and recommendations
+    - Extract thought signature from response
+    - Handle tool calls from Gemini
+    - _Requirements: 3.1, 3.7, 4.1_
+  - [ ] 7.4 Implement thinking level selection
+    - Select 'basic' for simple anomalies
+    - Select 'standard' for moderate complexity
+    - Select 'deep' for complex multi-factor analysis
+    - _Requirements: 7.4_
+  - [ ]\* 7.5 Write property tests for causal analysis
+    - **Property 8: Event Correlation Window**
+    - **Property 9: Probable Causes Ranking**
+    - **Validates: Requirements 3.1, 3.7**
+
+- [ ] 8. Action Executor
+  - [ ] 8.1 Create alert generator
+    - Implement `createAlert()` - create notification in database
+    - Implement `checkDuplicateAlert()` - prevent duplicates within 24h
+    - Implement `escalateAlert()` - update severity on worsening
+    - Implement `consolidateAlerts()` - merge related anomalies
+    - _Requirements: 5.1, 5.5, 5.6, 5.8_
+  - [ ] 8.2 Create task creator
+    - Implement `createTask()` - create task in existing tasks table
+    - Map anomaly severity to task priority
+    - Link task to batch
+    - Set appropriate due dates
+    - _Requirements: 6.1, 6.2, 6.3_
+  - [ ] 8.3 Create audit logger
+    - Implement `logAction()` - log to audit_logs table
+    - Include action type, details, and context
+    - _Requirements: 6.5_
+  - [ ] 8.4 Implement action restrictions
+    - Define restricted action types (modify mortality, sales)
+    - Mark high-impact actions as requiring approval
+    - _Requirements: 6.6, 6.7_
+  - [ ]\* 8.5 Write property tests for action execution
+    - **Property 14: High Severity Alert Creation**
+    - **Property 17: Alert Deduplication**
+    - **Property 21: Task Priority Mapping**
+    - **Property 23: Audit Logging Completeness**
+    - **Validates: Requirements 5.1, 5.5, 6.2, 6.5**
+
+- [ ] 9. Checkpoint - Gemini Integration
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 10. Sentinel Orchestrator
+  - [ ] 10.1 Create orchestrator service
+    - Implement `runScheduledCycle()` - process all eligible farms
+    - Implement `runManualCycle()` - process single farm on demand
+    - Implement `processFarm()` - full monitoring pipeline for one farm
+    - Handle farm filtering (active batches, not opted out)
+    - _Requirements: 1.8, 9.3, 14.7_
+  - [ ] 10.2 Implement monitoring pipeline
+    - Collect data → Detect anomalies → Analyze causes → Execute actions
+    - Update state with new thought signature
+    - Track active anomalies and resolutions
+    - _Requirements: 4.1, 4.4, 4.7_
+  - [ ] 10.3 Implement error handling and isolation
+    - Isolate failures per farm
+    - Continue processing other farms on failure
+    - Track consecutive failures
+    - Alert administrators on 3+ failures
+    - _Requirements: 9.7, 13.3, 13.7_
+  - [ ] 10.4 Implement execution logging
+    - Log cycle start/end times
+    - Track metrics (farms processed, anomalies, alerts, tasks)
+    - Log token usage
+    - _Requirements: 9.6_
+  - [ ]\* 10.5 Write property tests for orchestrator
+    - **Property 3: Empty Farm Skipping**
+    - **Property 33: Execution Failure Isolation**
+    - **Property 35: Consecutive Failure Alerting**
+    - **Validates: Requirements 1.8, 9.7, 13.3, 13.7**
+
+- [ ] 11. Cloudflare Workers Integration
+  - [ ] 11.1 Create cron trigger handler
+    - Add scheduled handler to worker
+    - Configure cron schedule (default: every 4 hours)
+    - Call orchestrator.runScheduledCycle()
+    - _Requirements: 9.1, 9.5_
+  - [ ] 11.2 Create manual trigger endpoint
+    - Add API endpoint for manual cycle trigger
+    - Require admin authentication
+    - Support farm-specific triggering
+    - _Requirements: 9.8_
+  - [ ] 11.3 Update wrangler configuration
+    - Add cron trigger configuration
+    - Configure environment variables for Gemini API
+    - _Requirements: 9.1_
+
+- [ ] 12. Server Functions
+  - [ ] 12.1 Create sentinel server functions
+    - `getSentinelStatusFn` - get current monitoring status for farm
+    - `getSentinelAlertsFn` - get alerts with pagination
+    - `markAlertFalsePositiveFn` - mark alert as false positive
+    - `resolveAlertFn` - mark alert as resolved
+    - `getSentinelStateFn` - get current state for debugging
+    - `resetSentinelStateFn` - admin reset state
+    - `triggerManualCycleFn` - trigger manual monitoring cycle
+    - _Requirements: 7.1, 10.1, 10.3, 10.4_
+  - [ ] 12.2 Create threshold management functions
+    - `getThresholdsFn` - get current thresholds for farm
+    - `updateThresholdFn` - update specific threshold
+    - `resetThresholdsFn` - reset to defaults
+    - _Requirements: 10.7_
+
+- [ ] 13. Checkpoint - Backend Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 14. Dashboard UI Components
+  - [ ] 14.1 Create Sentinel status card component
+    - Show last run time and status
+    - Show active anomalies count
+    - Show success rate
+    - Color-coded health indicator
+    - _Requirements: 10.1, 10.8_
+  - [ ] 14.2 Create active anomalies list component
+    - Display anomalies with severity badges
+    - Show age (days since first detected)
+    - Show affected batch name
+    - Link to batch detail page
+    - _Requirements: 10.2_
+  - [ ] 14.3 Create alerts list component
+    - Display recent alerts with status
+    - Show resolution status
+    - Allow marking as false positive
+    - Allow marking as resolved
+    - Expandable reasoning section
+    - _Requirements: 10.3, 10.6_
+  - [ ] 14.4 Create hypotheses display component
+    - Show current hypotheses with confidence
+    - Show status (investigating, confirmed, refuted)
+    - Show evidence list
+    - _Requirements: 10.4_
+  - [ ] 14.5 Create threshold settings component
+    - Display current thresholds
+    - Allow adjustment with sliders
+    - Show adjustment history
+    - Reset to defaults button
+    - _Requirements: 10.7_
+
+- [ ] 15. Dashboard Route
+  - [ ] 15.1 Create Sentinel dashboard route
+    - Add route at `/_auth/sentinel/`
+    - Load sentinel status, alerts, and state
+    - Compose dashboard components
+    - Add to navigation
+    - _Requirements: 10.1_
+  - [ ] 15.2 Create alert detail modal
+    - Show full alert details
+    - Display probable causes with confidence
+    - Show recommendations
+    - Display reasoning explanation
+    - Action buttons (false positive, resolve)
+    - _Requirements: 10.6_
+  - [ ] 15.3 Create timeline component
+    - Show chronological Sentinel actions
+    - Filter by action type
+    - Paginate for performance
+    - _Requirements: 10.5_
+
+- [ ] 16. Integration with Existing Pages
+  - [ ] 16.1 Add Sentinel status to farm dashboard
+    - Show mini status card on farm overview
+    - Link to full Sentinel dashboard
+    - _Requirements: 10.1_
+  - [ ] 16.2 Add Sentinel alerts to batch detail
+    - Show relevant alerts for the batch
+    - Show active anomalies for the batch
+    - _Requirements: 10.2, 10.3_
+
+- [ ] 17. Final Checkpoint
+  - Ensure all tests pass, ask the user if questions arise.
+  - Verify cron trigger works in development
+  - Test manual cycle trigger
+  - Verify alert creation and notification delivery
+  - Test false positive feedback loop
+
+## Notes
+
+- Tasks marked with `*` are optional property-based tests that can be skipped for faster MVP
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases
+- The implementation follows the existing three-layer architecture (server → service → repository)
+- All database operations use dynamic imports for Cloudflare Workers compatibility

@@ -9,27 +9,27 @@ import type { CreateFeedRecordInput } from './server'
  * Feed summary statistics by type
  */
 export interface FeedSummaryByType {
-    quantityKg: number
-    cost: number
+  quantityKg: number
+  cost: number
 }
 
 /**
  * Feed summary result
  */
 export interface FeedSummary {
-    totalQuantityKg: number
-    totalCost: number
-    byType: Record<string, FeedSummaryByType>
-    recordCount: number
+  totalQuantityKg: number
+  totalCost: number
+  byType: Record<string, FeedSummaryByType>
+  recordCount: number
 }
 
 /**
  * Feed statistics result
  */
 export interface FeedStats {
-    totalQuantityKg: number
-    totalCost: number
-    recordCount: number
+  totalQuantityKg: number
+  totalCost: number
+  recordCount: number
 }
 
 /**
@@ -46,12 +46,12 @@ export interface FeedStats {
  * ```
  */
 export function calculateNewInventoryQuantity(
-    existing: string,
-    deducted: number,
+  existing: string,
+  deducted: number,
 ): number {
-    const current = parseFloat(existing)
-    const newQuantity = current - deducted
-    return Math.max(0, newQuantity)
+  const current = parseFloat(existing)
+  const newQuantity = current - deducted
+  return Math.max(0, newQuantity)
 }
 
 /**
@@ -80,48 +80,48 @@ export function calculateNewInventoryQuantity(
  * ```
  */
 export function validateFeedRecord(
-    data: CreateFeedRecordInput,
-    batchId?: string,
+  data: CreateFeedRecordInput,
+  batchId?: string,
 ): string | null {
-    if (batchId === '' || batchId?.trim() === '') {
-        return 'Batch ID is required'
-    }
+  if (batchId === '' || batchId?.trim() === '') {
+    return 'Batch ID is required'
+  }
 
-    if (data.batchId === '' || data.batchId.trim() === '') {
-        return 'Batch ID is required'
-    }
+  if (data.batchId === '' || data.batchId.trim() === '') {
+    return 'Batch ID is required'
+  }
 
-    if (data.quantityKg <= 0) {
-        return 'Quantity must be greater than 0'
-    }
+  if (data.quantityKg <= 0) {
+    return 'Quantity must be greater than 0'
+  }
 
-    if (data.cost < 0) {
-        return 'Cost cannot be negative'
-    }
+  if (data.cost < 0) {
+    return 'Cost cannot be negative'
+  }
 
-    if (isNaN(data.date.getTime())) {
-        return 'Date is required'
-    }
+  if (isNaN(data.date.getTime())) {
+    return 'Date is required'
+  }
 
-    const validFeedTypes = [
-        'starter',
-        'grower',
-        'finisher',
-        'layer_mash',
-        'fish_feed',
-        'cattle_feed',
-        'goat_feed',
-        'sheep_feed',
-        'hay',
-        'silage',
-        'bee_feed',
-    ] as const
+  const validFeedTypes = [
+    'starter',
+    'grower',
+    'finisher',
+    'layer_mash',
+    'fish_feed',
+    'cattle_feed',
+    'goat_feed',
+    'sheep_feed',
+    'hay',
+    'silage',
+    'bee_feed',
+  ] as const
 
-    if (!validFeedTypes.includes(data.feedType as any)) {
-        return 'Invalid feed type'
-    }
+  if (!validFeedTypes.includes(data.feedType as any)) {
+    return 'Invalid feed type'
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -145,35 +145,35 @@ export function validateFeedRecord(
  * ```
  */
 export function buildFeedSummary(
-    records: Array<{ feedType: string; quantityKg: string; cost: string }>,
+  records: Array<{ feedType: string; quantityKg: string; cost: string }>,
 ): FeedSummary {
-    const totalQuantityKg = records.reduce(
-        (sum, r) => sum + parseFloat(r.quantityKg),
-        0,
-    )
-    const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
+  const totalQuantityKg = records.reduce(
+    (sum, r) => sum + parseFloat(r.quantityKg),
+    0,
+  )
+  const totalCost = records.reduce((sum, r) => sum + parseFloat(r.cost), 0)
 
-    const byType: Record<string, FeedSummaryByType> = {}
-    for (const record of records) {
-        const key = record.feedType
-        if (!(key in byType)) {
-            byType[key] = {
-                quantityKg: parseFloat(record.quantityKg),
-                cost: parseFloat(record.cost),
-            }
-        } else {
-            const entry = byType[key]
-            entry.quantityKg += parseFloat(record.quantityKg)
-            entry.cost += parseFloat(record.cost)
-        }
+  const byType: Record<string, FeedSummaryByType> = {}
+  for (const record of records) {
+    const key = record.feedType
+    if (!(key in byType)) {
+      byType[key] = {
+        quantityKg: parseFloat(record.quantityKg),
+        cost: parseFloat(record.cost),
+      }
+    } else {
+      const entry = byType[key]
+      entry.quantityKg += parseFloat(record.quantityKg)
+      entry.cost += parseFloat(record.cost)
     }
+  }
 
-    return {
-        totalQuantityKg,
-        totalCost,
-        byType,
-        recordCount: records.length,
-    }
+  return {
+    totalQuantityKg,
+    totalCost,
+    byType,
+    recordCount: records.length,
+  }
 }
 
 /**
@@ -196,15 +196,15 @@ export function buildFeedSummary(
  * ```
  */
 export function calculateFCR(
-    totalFeedKg: number,
-    weightGainKg: number,
-    initialQuantity: number,
+  totalFeedKg: number,
+  weightGainKg: number,
+  initialQuantity: number,
 ): number | null {
-    if (totalFeedKg <= 0 || weightGainKg <= 0 || initialQuantity <= 0) {
-        return null
-    }
-    const fcr = totalFeedKg / weightGainKg
-    return Math.round(fcr * 100) / 100
+  if (totalFeedKg <= 0 || weightGainKg <= 0 || initialQuantity <= 0) {
+    return null
+  }
+  const fcr = totalFeedKg / weightGainKg
+  return Math.round(fcr * 100) / 100
 }
 
 /**
@@ -227,24 +227,24 @@ export function calculateFCR(
  * ```
  */
 export function buildFeedStats(
-    records: Array<{ quantityKg: string; cost: string }>,
+  records: Array<{ quantityKg: string; cost: string }>,
 ): FeedStats {
-    // Use integer arithmetic to avoid floating-point precision issues
-    // Multiply by 100, sum, then divide by 100
-    const totalQuantityCents = records.reduce(
-        (sum, r) => sum + Math.round(parseFloat(r.quantityKg) * 100),
-        0,
-    )
-    const totalCostCents = records.reduce(
-        (sum, r) => sum + Math.round(parseFloat(r.cost) * 100),
-        0,
-    )
+  // Use integer arithmetic to avoid floating-point precision issues
+  // Multiply by 100, sum, then divide by 100
+  const totalQuantityCents = records.reduce(
+    (sum, r) => sum + Math.round(parseFloat(r.quantityKg) * 100),
+    0,
+  )
+  const totalCostCents = records.reduce(
+    (sum, r) => sum + Math.round(parseFloat(r.cost) * 100),
+    0,
+  )
 
-    return {
-        totalQuantityKg: totalQuantityCents / 100,
-        totalCost: totalCostCents / 100,
-        recordCount: records.length,
-    }
+  return {
+    totalQuantityKg: totalQuantityCents / 100,
+    totalCost: totalCostCents / 100,
+    recordCount: records.length,
+  }
 }
 
 /**
@@ -263,13 +263,13 @@ export function buildFeedStats(
  * ```
  */
 export function mapSortColumnToDbColumn(sortBy: string): string {
-    const sortMap: Record<string, string> = {
-        date: 'feed_records.date',
-        cost: 'feed_records.cost',
-        quantityKg: 'feed_records.quantityKg',
-        feedType: 'feed_records.feedType',
-    }
-    return sortMap[sortBy] || `feed_records.${sortBy}`
+  const sortMap: Record<string, string> = {
+    date: 'feed_records.date',
+    cost: 'feed_records.cost',
+    quantityKg: 'feed_records.quantityKg',
+    feedType: 'feed_records.feedType',
+  }
+  return sortMap[sortBy] || `feed_records.${sortBy}`
 }
 
 /**
@@ -293,40 +293,40 @@ export function mapSortColumnToDbColumn(sortBy: string): string {
  * ```
  */
 export function validateUpdateData(
-    data: Partial<CreateFeedRecordInput>,
+  data: Partial<CreateFeedRecordInput>,
 ): string | null {
-    if (data.quantityKg !== undefined && data.quantityKg <= 0) {
-        return 'Quantity must be greater than 0'
-    }
+  if (data.quantityKg !== undefined && data.quantityKg <= 0) {
+    return 'Quantity must be greater than 0'
+  }
 
-    if (data.cost !== undefined && data.cost < 0) {
-        return 'Cost cannot be negative'
-    }
+  if (data.cost !== undefined && data.cost < 0) {
+    return 'Cost cannot be negative'
+  }
 
-    if (data.date !== undefined && isNaN(data.date.getTime())) {
-        return 'Date is invalid'
-    }
+  if (data.date !== undefined && isNaN(data.date.getTime())) {
+    return 'Date is invalid'
+  }
 
-    const validFeedTypes = [
-        'starter',
-        'grower',
-        'finisher',
-        'layer_mash',
-        'fish_feed',
-        'cattle_feed',
-        'goat_feed',
-        'sheep_feed',
-        'hay',
-        'silage',
-        'bee_feed',
-    ] as const
+  const validFeedTypes = [
+    'starter',
+    'grower',
+    'finisher',
+    'layer_mash',
+    'fish_feed',
+    'cattle_feed',
+    'goat_feed',
+    'sheep_feed',
+    'hay',
+    'silage',
+    'bee_feed',
+  ] as const
 
-    if (
-        data.feedType !== undefined &&
-        !validFeedTypes.includes(data.feedType as any)
-    ) {
-        return 'Invalid feed type'
-    }
+  if (
+    data.feedType !== undefined &&
+    !validFeedTypes.includes(data.feedType as any)
+  ) {
+    return 'Invalid feed type'
+  }
 
-    return null
+  return null
 }

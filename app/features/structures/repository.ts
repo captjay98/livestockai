@@ -11,66 +11,66 @@ import type { Database } from '~/lib/db/types'
  * Data for inserting a new structure
  */
 export interface StructureInsert {
-    farmId: string
-    name: string
-    type: string
-    capacity: number | null
-    areaSqm: string | null
-    status: string
-    notes: string | null
+  farmId: string
+  name: string
+  type: string
+  capacity: number | null
+  areaSqm: string | null
+  status: string
+  notes: string | null
 }
 
 /**
  * Data for updating a structure
  */
 export interface StructureUpdate {
-    name?: string
-    type?: string
-    capacity?: number | null
-    areaSqm?: string | null
-    status?: string
-    notes?: string | null
+  name?: string
+  type?: string
+  capacity?: number | null
+  areaSqm?: string | null
+  status?: string
+  notes?: string | null
 }
 
 /**
  * Structure with farm name
  */
 export interface StructureWithFarmName {
-    id: string
-    farmId: string
-    name: string
-    type: string
-    capacity: number | null
-    areaSqm: string | null
-    status: string
-    notes: string | null
-    createdAt: Date
-    farmName: string | null
+  id: string
+  farmId: string
+  name: string
+  type: string
+  capacity: number | null
+  areaSqm: string | null
+  status: string
+  notes: string | null
+  createdAt: Date
+  farmName: string | null
 }
 
 /**
  * Structure with batch counts and totals
  */
 export interface StructureWithCounts {
-    id: string
-    farmId: string
-    name: string
-    type: string
-    capacity: number | null
-    areaSqm: string | null
-    status: string
-    notes: string | null
-    createdAt: Date
-    batchCount: number
-    totalAnimals: number
+  id: string
+  farmId: string
+  name: string
+  type: string
+  capacity: number | null
+  areaSqm: string | null
+  status: string
+  notes: string | null
+  createdAt: Date
+  batchCount: number
+  totalAnimals: number
 }
 
 /**
  * Filters for structure queries
  */
 export interface StructureFilters {
-    status?: string
-    type?: string
+  status?: string
+  type?: string
 }
 
 /**
@@ -92,15 +92,15 @@ export interface StructureFilters {
  * ```
  */
 export async function insertStructure(
-    db: Kysely<Database>,
-    data: StructureInsert,
+  db: Kysely<Database>,
+  data: StructureInsert,
 ): Promise<string> {
-    const result = await db
-        .insertInto('structures')
-        .values(data as any)
-        .returning('id')
-        .executeTakeFirstOrThrow()
-    return result.id
+  const result = await db
+    .insertInto('structures')
+    .values(data as any)
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
 }
 
 /**
@@ -111,28 +111,28 @@ export async function insertStructure(
  * @returns The structure data or null if not found
  */
 export async function getStructureById(
-    db: Kysely<Database>,
-    structureId: string,
+  db: Kysely<Database>,
+  structureId: string,
 ): Promise<StructureWithFarmName | null> {
-    const structure = await db
-        .selectFrom('structures')
-        .leftJoin('farms', 'farms.id', 'structures.farmId')
-        .select([
-            'structures.id',
-            'structures.farmId',
-            'structures.name',
-            'structures.type',
-            'structures.capacity',
-            'structures.areaSqm',
-            'structures.status',
-            'structures.notes',
-            'structures.createdAt',
-            'farms.name as farmName',
-        ])
-        .where('structures.id', '=', structureId)
-        .executeTakeFirst()
+  const structure = await db
+    .selectFrom('structures')
+    .leftJoin('farms', 'farms.id', 'structures.farmId')
+    .select([
+      'structures.id',
+      'structures.farmId',
+      'structures.name',
+      'structures.type',
+      'structures.capacity',
+      'structures.areaSqm',
+      'structures.status',
+      'structures.notes',
+      'structures.createdAt',
+      'farms.name as farmName',
+    ])
+    .where('structures.id', '=', structureId)
+    .executeTakeFirst()
 
-    return (structure as StructureWithFarmName | null) ?? null
+  return (structure as StructureWithFarmName | null) ?? null
 }
 
 /**
@@ -143,27 +143,27 @@ export async function getStructureById(
  * @returns Array of structures for the farm
  */
 export async function getStructuresByFarm(
-    db: Kysely<Database>,
-    farmId: string,
+  db: Kysely<Database>,
+  farmId: string,
 ): Promise<Array<StructureWithFarmName>> {
-    return await db
-        .selectFrom('structures')
-        .leftJoin('farms', 'farms.id', 'structures.farmId')
-        .select([
-            'structures.id',
-            'structures.farmId',
-            'structures.name',
-            'structures.type',
-            'structures.capacity',
-            'structures.areaSqm',
-            'structures.status',
-            'structures.notes',
-            'structures.createdAt',
-            'farms.name as farmName',
-        ])
-        .where('structures.farmId', '=', farmId)
-        .orderBy('structures.name', 'asc')
-        .execute()
+  return await db
+    .selectFrom('structures')
+    .leftJoin('farms', 'farms.id', 'structures.farmId')
+    .select([
+      'structures.id',
+      'structures.farmId',
+      'structures.name',
+      'structures.type',
+      'structures.capacity',
+      'structures.areaSqm',
+      'structures.status',
+      'structures.notes',
+      'structures.createdAt',
+      'farms.name as farmName',
+    ])
+    .where('structures.farmId', '=', farmId)
+    .orderBy('structures.name', 'asc')
+    .execute()
 }
 
 /**
@@ -175,29 +175,29 @@ export async function getStructuresByFarm(
  * @returns Array of structures of the specified type
  */
 export async function getStructuresByType(
-    db: Kysely<Database>,
-    farmId: string,
-    type: string,
+  db: Kysely<Database>,
+  farmId: string,
+  type: string,
 ): Promise<Array<StructureWithFarmName>> {
-    return await db
-        .selectFrom('structures')
-        .leftJoin('farms', 'farms.id', 'structures.farmId')
-        .select([
-            'structures.id',
-            'structures.farmId',
-            'structures.name',
-            'structures.type',
-            'structures.capacity',
-            'structures.areaSqm',
-            'structures.status',
-            'structures.notes',
-            'structures.createdAt',
-            'farms.name as farmName',
-        ])
-        .where('structures.farmId', '=', farmId)
-        .where('structures.type', '=', type as any)
-        .orderBy('structures.name', 'asc')
-        .execute()
+  return await db
+    .selectFrom('structures')
+    .leftJoin('farms', 'farms.id', 'structures.farmId')
+    .select([
+      'structures.id',
+      'structures.farmId',
+      'structures.name',
+      'structures.type',
+      'structures.capacity',
+      'structures.areaSqm',
+      'structures.status',
+      'structures.notes',
+      'structures.createdAt',
+      'farms.name as farmName',
+    ])
+    .where('structures.farmId', '=', farmId)
+    .where('structures.type', '=', type as any)
+    .orderBy('structures.name', 'asc')
+    .execute()
 }
 
 /**
@@ -208,43 +208,43 @@ export async function getStructuresByType(
  * @returns Capacity info with batch counts or null if not found
  */
 export async function getStructureCapacity(
-    db: Kysely<Database>,
-    structureId: string,
+  db: Kysely<Database>,
+  structureId: string,
 ): Promise<{
-    structureId: string
-    capacity: number | null
-    batchCount: number
-    totalAnimals: number
+  structureId: string
+  capacity: number | null
+  batchCount: number
+  totalAnimals: number
 } | null> {
-    const result = await db
-        .selectFrom('structures')
-        .leftJoin('batches', (join) =>
-            join
-                .onRef('batches.structureId', '=', 'structures.id')
-                .on('batches.status', '=', 'active'),
-        )
-        .select([
-            'structures.id as structureId',
-            'structures.capacity',
-            sql<number>`count(batches.id)`.as('batchCount'),
-            sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
-                'totalAnimals',
-            ),
-        ])
-        .where('structures.id', '=', structureId)
-        .groupBy('structures.id')
-        .executeTakeFirst()
+  const result = await db
+    .selectFrom('structures')
+    .leftJoin('batches', (join) =>
+      join
+        .onRef('batches.structureId', '=', 'structures.id')
+        .on('batches.status', '=', 'active'),
+    )
+    .select([
+      'structures.id as structureId',
+      'structures.capacity',
+      sql<number>`count(batches.id)`.as('batchCount'),
+      sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
+        'totalAnimals',
+      ),
+    ])
+    .where('structures.id', '=', structureId)
+    .groupBy('structures.id')
+    .executeTakeFirst()
 
-    if (!result) {
-        return null
-    }
+  if (!result) {
+    return null
+  }
 
-    return {
-        structureId: result.structureId,
-        capacity: result.capacity,
-        batchCount: Number(result.batchCount),
-        totalAnimals: Number(result.totalAnimals),
-    }
+  return {
+    structureId: result.structureId,
+    capacity: result.capacity,
+    batchCount: Number(result.batchCount),
+    totalAnimals: Number(result.totalAnimals),
+  }
 }
 
 /**
@@ -255,15 +255,15 @@ export async function getStructureCapacity(
  * @param data - Fields to update
  */
 export async function updateStructure(
-    db: Kysely<Database>,
-    structureId: string,
-    data: StructureUpdate,
+  db: Kysely<Database>,
+  structureId: string,
+  data: StructureUpdate,
 ): Promise<void> {
-    await db
-        .updateTable('structures')
-        .set(data as any)
-        .where('id', '=', structureId)
-        .execute()
+  await db
+    .updateTable('structures')
+    .set(data as any)
+    .where('id', '=', structureId)
+    .execute()
 }
 
 /**
@@ -273,10 +273,10 @@ export async function updateStructure(
  * @param structureId - ID of the structure to delete
  */
 export async function deleteStructure(
-    db: Kysely<Database>,
-    structureId: string,
+  db: Kysely<Database>,
+  structureId: string,
 ): Promise<void> {
-    await db.deleteFrom('structures').where('id', '=', structureId).execute()
+  await db.deleteFrom('structures').where('id', '=', structureId).execute()
 }
 
 /**
@@ -290,67 +290,63 @@ export async function deleteStructure(
  * @returns Paginated result with structures
  */
 export async function getStructuresPaginated(
-    db: Kysely<Database>,
-    farmId: string,
-    filters?: StructureFilters,
-    page = 1,
-    pageSize = 20,
+  db: Kysely<Database>,
+  farmId: string,
+  filters?: StructureFilters,
+  page = 1,
+  pageSize = 20,
 ): Promise<{
-    data: Array<StructureWithFarmName>
-    total: number
-    page: number
-    pageSize: number
-    totalPages: number
+  data: Array<StructureWithFarmName>
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }> {
-    let baseQuery = db
-        .selectFrom('structures')
-        .leftJoin('farms', 'farms.id', 'structures.farmId')
-        .select([
-            'structures.id',
-            'structures.farmId',
-            'structures.name',
-            'structures.type',
-            'structures.capacity',
-            'structures.areaSqm',
-            'structures.status',
-            'structures.notes',
-            'structures.createdAt',
-            'farms.name as farmName',
-        ])
-        .where('structures.farmId', '=', farmId)
+  let baseQuery = db
+    .selectFrom('structures')
+    .leftJoin('farms', 'farms.id', 'structures.farmId')
+    .select([
+      'structures.id',
+      'structures.farmId',
+      'structures.name',
+      'structures.type',
+      'structures.capacity',
+      'structures.areaSqm',
+      'structures.status',
+      'structures.notes',
+      'structures.createdAt',
+      'farms.name as farmName',
+    ])
+    .where('structures.farmId', '=', farmId)
 
-    if (filters?.status) {
-        baseQuery = baseQuery.where(
-            'structures.status',
-            '=',
-            filters.status as any,
-        )
-    }
+  if (filters?.status) {
+    baseQuery = baseQuery.where('structures.status', '=', filters.status as any)
+  }
 
-    if (filters?.type) {
-        baseQuery = baseQuery.where('structures.type', '=', filters.type as any)
-    }
+  if (filters?.type) {
+    baseQuery = baseQuery.where('structures.type', '=', filters.type as any)
+  }
 
-    // Get total count
-    const totalResult = await baseQuery
-        .select(sql<number>`count(*)`.as('count'))
-        .executeTakeFirst()
-    const total = Number(totalResult?.count ?? 0)
+  // Get total count
+  const totalResult = await baseQuery
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+  const total = Number(totalResult?.count ?? 0)
 
-    // Get paginated data
-    const data = await baseQuery
-        .orderBy('structures.name', 'asc')
-        .limit(pageSize)
-        .offset((page - 1) * pageSize)
-        .execute()
+  // Get paginated data
+  const data = await baseQuery
+    .orderBy('structures.name', 'asc')
+    .limit(pageSize)
+    .offset((page - 1) * pageSize)
+    .execute()
 
-    return {
-        data: data as Array<StructureWithFarmName>,
-        total,
-        page,
-        pageSize,
-        totalPages: Math.ceil(total / pageSize),
-    }
+  return {
+    data: data as Array<StructureWithFarmName>,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  }
 }
 
 /**
@@ -361,41 +357,41 @@ export async function getStructuresPaginated(
  * @returns Array of structures with batch and animal totals
  */
 export async function getStructuresWithCounts(
-    db: Kysely<Database>,
-    farmId: string,
+  db: Kysely<Database>,
+  farmId: string,
 ): Promise<Array<StructureWithCounts>> {
-    const structures = await db
-        .selectFrom('structures')
-        .leftJoin('batches', (join) =>
-            join
-                .onRef('batches.structureId', '=', 'structures.id')
-                .on('batches.status', '=', 'active'),
-        )
-        .select([
-            'structures.id',
-            'structures.farmId',
-            'structures.name',
-            'structures.type',
-            'structures.capacity',
-            'structures.areaSqm',
-            'structures.status',
-            'structures.notes',
-            'structures.createdAt',
-            sql<number>`count(batches.id)`.as('batchCount'),
-            sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
-                'totalAnimals',
-            ),
-        ])
-        .where('structures.farmId', '=', farmId)
-        .groupBy('structures.id')
-        .orderBy('structures.name', 'asc')
-        .execute()
+  const structures = await db
+    .selectFrom('structures')
+    .leftJoin('batches', (join) =>
+      join
+        .onRef('batches.structureId', '=', 'structures.id')
+        .on('batches.status', '=', 'active'),
+    )
+    .select([
+      'structures.id',
+      'structures.farmId',
+      'structures.name',
+      'structures.type',
+      'structures.capacity',
+      'structures.areaSqm',
+      'structures.status',
+      'structures.notes',
+      'structures.createdAt',
+      sql<number>`count(batches.id)`.as('batchCount'),
+      sql<number>`coalesce(sum(batches."currentQuantity"), 0)`.as(
+        'totalAnimals',
+      ),
+    ])
+    .where('structures.farmId', '=', farmId)
+    .groupBy('structures.id')
+    .orderBy('structures.name', 'asc')
+    .execute()
 
-    return structures.map((s) => ({
-        ...s,
-        batchCount: Number(s.batchCount),
-        totalAnimals: Number(s.totalAnimals),
-    })) as Array<StructureWithCounts>
+  return structures.map((s) => ({
+    ...s,
+    batchCount: Number(s.batchCount),
+    totalAnimals: Number(s.totalAnimals),
+  })) as Array<StructureWithCounts>
 }
 
 /**
@@ -406,15 +402,15 @@ export async function getStructuresWithCounts(
  * @returns Number of active batches assigned
  */
 export async function countActiveBatches(
-    db: Kysely<Database>,
-    structureId: string,
+  db: Kysely<Database>,
+  structureId: string,
 ): Promise<number> {
-    const result = await db
-        .selectFrom('batches')
-        .select(sql<number>`count(*)`.as('count'))
-        .where('structureId', '=', structureId)
-        .where('status', '=', 'active')
-        .executeTakeFirst()
+  const result = await db
+    .selectFrom('batches')
+    .select(sql<number>`count(*)`.as('count'))
+    .where('structureId', '=', structureId)
+    .where('status', '=', 'active')
+    .executeTakeFirst()
 
-    return Number(result?.count ?? 0)
+  return Number(result?.count ?? 0)
 }

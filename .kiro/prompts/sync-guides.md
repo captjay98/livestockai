@@ -17,28 +17,28 @@
 ## What This Prompt Does
 
 1. **Audits Documentation Accuracy**
-    - Checks for outdated patterns and paths
-    - Identifies missing features in docs
-    - Verifies code examples still work
-    - Detects stale statistics
+   - Checks for outdated patterns and paths
+   - Identifies missing features in docs
+   - Verifies code examples still work
+   - Detects stale statistics
 
 2. **Identifies Documentation Debt**
-    - New features not documented
-    - Deprecated patterns still referenced
-    - Inconsistent examples
-    - Missing best practices
+   - New features not documented
+   - Deprecated patterns still referenced
+   - Inconsistent examples
+   - Missing best practices
 
 3. **Updates Documentation**
-    - README.md
-    - AGENTS.md
-    - docs/ guides (ARCHITECTURE, DEPLOYMENT, TESTING, DATABASE)
-    - Steering files (coding-standards, structure, tech)
-    - DEVLOG.md (if needed)
+   - README.md
+   - AGENTS.md
+   - docs/ guides (ARCHITECTURE, DEPLOYMENT, TESTING, DATABASE)
+   - Steering files (coding-standards, structure, tech)
+   - DEVLOG.md (if needed)
 
 4. **Validates Changes**
-    - Checks all links work
-    - Verifies code examples compile
-    - Ensures consistency across docs
+   - Checks all links work
+   - Verifies code examples compile
+   - Ensures consistency across docs
 
 ---
 
@@ -265,7 +265,7 @@ Next Steps:
  * ```
  */
 export async function myFunction(userId: string, data: MyData) {
-    // Implementation
+  // Implementation
 }
 ````
 
@@ -291,8 +291,8 @@ function MyComponent() {
 ```typescript
 // ✅ Correct - Dynamic import for Cloudflare Workers
 export const getData = createServerFn({ method: 'GET' }).handler(async () => {
-    const { db } = await import('~/lib/db')
-    return db.selectFrom('table').execute()
+  const { db } = await import('~/lib/db')
+  return db.selectFrom('table').execute()
 })
 ```
 

@@ -277,8 +277,8 @@ const ReportsModule = lazy(() => import('./lib/reports'))
 ```javascript
 // Responsive images with WebP
 <picture>
-    <source srcSet="image.webp" type="image/webp" />
-    <img src="image.jpg" alt="Description" loading="lazy" />
+  <source srcSet="image.webp" type="image/webp" />
+  <img src="image.jpg" alt="Description" loading="lazy" />
 </picture>
 ```
 
@@ -287,15 +287,15 @@ const ReportsModule = lazy(() => import('./lib/reports'))
 ```typescript
 // Batch queries instead of N+1
 const batchesWithCounts = await db
-    .selectFrom('batches')
-    .leftJoin('mortality_records', 'mortality_records.batchId', 'batches.id')
-    .select([
-        'batches.id',
-        'batches.batchName',
-        db.fn.count('mortality_records.id').as('mortalityCount'),
-    ])
-    .groupBy('batches.id')
-    .execute()
+  .selectFrom('batches')
+  .leftJoin('mortality_records', 'mortality_records.batchId', 'batches.id')
+  .select([
+    'batches.id',
+    'batches.batchName',
+    db.fn.count('mortality_records.id').as('mortalityCount'),
+  ])
+  .groupBy('batches.id')
+  .execute()
 ```
 
 ### Service Worker Optimization
@@ -303,10 +303,10 @@ const batchesWithCounts = await db
 ```javascript
 // Efficient caching strategy
 const CACHE_STRATEGY = {
-    documents: 'networkFirst',
-    assets: 'cacheFirst',
-    api: 'networkFirst',
-    images: 'cacheFirst',
+  documents: 'networkFirst',
+  assets: 'cacheFirst',
+  api: 'networkFirst',
+  images: 'cacheFirst',
 }
 ```
 
@@ -389,21 +389,21 @@ Remember: Performance directly impacts farmer productivity and app adoption in r
 **Validate performance improvements:**
 
 1. **Re-run tests:**
-    - Lighthouse audit after changes
-    - Bundle size comparison
-    - Core Web Vitals measurement
-    - Real device testing
+   - Lighthouse audit after changes
+   - Bundle size comparison
+   - Core Web Vitals measurement
+   - Real device testing
 
 2. **Verify targets met:**
-    - LCP < 2.5s
-    - FID < 100ms
-    - CLS < 0.1
-    - Bundle < 500KB
+   - LCP < 2.5s
+   - FID < 100ms
+   - CLS < 0.1
+   - Bundle < 500KB
 
 3. **Test on real conditions:**
-    - 3G network simulation
-    - Low-end Android device
-    - Rural connectivity patterns
+   - 3G network simulation
+   - Low-end Android device
+   - Rural connectivity patterns
 
 **Ask user:**
 

@@ -9,216 +9,203 @@ import type { IngredientWithPrice } from '~/features/feed-formulation/repository
 import { buildOptimizationModel } from '~/features/feed-formulation/service'
 
 describe('Feed Formulation - Property Tests', () => {
-    // Helper to create valid ingredient
-    const ingredientArb = fc.record({
-        id: fc.uuid(),
-        name: fc.string({ minLength: 1, maxLength: 50 }),
-        category: fc.constantFrom(
-            'cereal',
-            'protein',
-            'fat',
-            'mineral',
-            'vitamin',
-            'additive',
+  // Helper to create valid ingredient
+  const ingredientArb = fc.record({
+    id: fc.uuid(),
+    name: fc.string({ minLength: 1, maxLength: 50 }),
+    category: fc.constantFrom(
+      'cereal',
+      'protein',
+      'fat',
+      'mineral',
+      'vitamin',
+      'additive',
+    ),
+    proteinPercent: fc.double({ min: 0, max: 100 }).map((n) => n.toFixed(2)),
+    energyKcalKg: fc.integer({ min: 0, max: 5000 }),
+    fatPercent: fc.double({ min: 0, max: 100 }).map((n) => n.toFixed(2)),
+    fiberPercent: fc.double({ min: 0, max: 100 }).map((n) => n.toFixed(2)),
+    calciumPercent: fc.double({ min: 0, max: 10 }).map((n) => n.toFixed(2)),
+    phosphorusPercent: fc.double({ min: 0, max: 10 }).map((n) => n.toFixed(2)),
+    lysinePercent: fc.double({ min: 0, max: 5 }).map((n) => n.toFixed(2)),
+    methioninePercent: fc.double({ min: 0, max: 5 }).map((n) => n.toFixed(2)),
+    maxInclusionPercent: fc
+      .double({ min: 0, max: 100 })
+      .map((n) => n.toFixed(2)),
+  })
+
+  const requirementsArb = fc.record({
+    minProteinPercent: fc.double({ min: 10, max: 30 }),
+    minEnergyKcalKg: fc.integer({ min: 2000, max: 3500 }),
+    maxFiberPercent: fc.double({ min: 3, max: 8 }),
+    minCalciumPercent: fc.double({ min: 0.5, max: 2 }),
+    minPhosphorusPercent: fc.double({ min: 0.3, max: 1 }),
+    minLysinePercent: fc.double({ min: 0.5, max: 2 }),
+    minMethioninePercent: fc.double({ min: 0.2, max: 1 }),
+  })
+
+  it('should filter out unavailable ingredients', () => {
+    fc.assert(
+      fc.property(
+        fc.array(ingredientArb, { minLength: 1, maxLength: 10 }),
+        fc.array(
+          fc.record({
+            ingredientId: fc.uuid(),
+            pricePerKg: fc
+              .double({ min: 0, max: 100 })
+              .map((n) => n.toFixed(2)),
+            isAvailable: fc.boolean(),
+          }),
         ),
-        proteinPercent: fc
-            .double({ min: 0, max: 100 })
-            .map((n) => n.toFixed(2)),
-        energyKcalKg: fc.integer({ min: 0, max: 5000 }),
-        fatPercent: fc.double({ min: 0, max: 100 }).map((n) => n.toFixed(2)),
-        fiberPercent: fc.double({ min: 0, max: 100 }).map((n) => n.toFixed(2)),
-        calciumPercent: fc.double({ min: 0, max: 10 }).map((n) => n.toFixed(2)),
-        phosphorusPercent: fc
-            .double({ min: 0, max: 10 })
-            .map((n) => n.toFixed(2)),
-        lysinePercent: fc.double({ min: 0, max: 5 }).map((n) => n.toFixed(2)),
-        methioninePercent: fc
-            .double({ min: 0, max: 5 })
-            .map((n) => n.toFixed(2)),
-        maxInclusionPercent: fc
-            .double({ min: 0, max: 100 })
-            .map((n) => n.toFixed(2)),
-    })
+        requirementsArb,
+        (ingredients, prices, _requirements) => {
+          const result = buildOptimizationModel(
+            ingredients as Array<IngredientWithPrice>,
+            prices,
+          )
 
-    const requirementsArb = fc.record({
-        minProteinPercent: fc.double({ min: 10, max: 30 }),
-        minEnergyKcalKg: fc.integer({ min: 2000, max: 3500 }),
-        maxFiberPercent: fc.double({ min: 3, max: 8 }),
-        minCalciumPercent: fc.double({ min: 0.5, max: 2 }),
-        minPhosphorusPercent: fc.double({ min: 0.3, max: 1 }),
-        minLysinePercent: fc.double({ min: 0.5, max: 2 }),
-        minMethioninePercent: fc.double({ min: 0.2, max: 1 }),
-    })
+          // All unavailable ingredients should be filtered out
+          const unavailableIds = prices
+            .filter((p) => !p.isAvailable)
+            .map((p) => p.ingredientId)
 
-    it('should filter out unavailable ingredients', () => {
-        fc.assert(
-            fc.property(
-                fc.array(ingredientArb, { minLength: 1, maxLength: 10 }),
-                fc.array(
-                    fc.record({
-                        ingredientId: fc.uuid(),
-                        pricePerKg: fc
-                            .double({ min: 0, max: 100 })
-                            .map((n) => n.toFixed(2)),
-                        isAvailable: fc.boolean(),
-                    }),
-                ),
-                requirementsArb,
-                (ingredients, prices, _requirements) => {
-                    const result = buildOptimizationModel(
-                        ingredients as Array<IngredientWithPrice>,
-                        prices,
-                    )
+          const resultIds = result.map((r) => r.id)
+          const hasUnavailable = unavailableIds.some((id) =>
+            resultIds.includes(id),
+          )
 
-                    // All unavailable ingredients should be filtered out
-                    const unavailableIds = prices
-                        .filter((p) => !p.isAvailable)
-                        .map((p) => p.ingredientId)
+          expect(hasUnavailable).toBe(false)
+        },
+      ),
+      { numRuns: 50 },
+    )
+  })
 
-                    const resultIds = result.map((r) => r.id)
-                    const hasUnavailable = unavailableIds.some((id) =>
-                        resultIds.includes(id),
-                    )
+  it('should convert all string percentages to numbers', () => {
+    fc.assert(
+      fc.property(
+        fc.array(ingredientArb, { minLength: 1, maxLength: 10 }),
+        requirementsArb,
+        (ingredients, _requirements) => {
+          const prices = ingredients.map((ing) => ({
+            ingredientId: ing.id,
+            pricePerKg: '10.00',
+            isAvailable: true,
+          }))
 
-                    expect(hasUnavailable).toBe(false)
-                },
-            ),
-            { numRuns: 50 },
-        )
-    })
+          const result = buildOptimizationModel(
+            ingredients as Array<IngredientWithPrice>,
+            prices,
+          )
 
-    it('should convert all string percentages to numbers', () => {
-        fc.assert(
-            fc.property(
-                fc.array(ingredientArb, { minLength: 1, maxLength: 10 }),
-                requirementsArb,
-                (ingredients, _requirements) => {
-                    const prices = ingredients.map((ing) => ({
-                        ingredientId: ing.id,
-                        pricePerKg: '10.00',
-                        isAvailable: true,
-                    }))
+          // All numeric fields should be numbers, not strings
+          result.forEach((ing) => {
+            expect(typeof ing.proteinPercent).toBe('number')
+            expect(typeof ing.fatPercent).toBe('number')
+            expect(typeof ing.fiberPercent).toBe('number')
+            expect(typeof ing.calciumPercent).toBe('number')
+            expect(typeof ing.phosphorusPercent).toBe('number')
+            expect(typeof ing.lysinePercent).toBe('number')
+            expect(typeof ing.methioninePercent).toBe('number')
+            expect(typeof ing.maxInclusionPercent).toBe('number')
+            expect(typeof ing.pricePerKg).toBe('number')
+          })
+        },
+      ),
+      { numRuns: 50 },
+    )
+  })
 
-                    const result = buildOptimizationModel(
-                        ingredients as Array<IngredientWithPrice>,
-                        prices,
-                    )
+  it('should use user prices when available, otherwise 0', () => {
+    fc.assert(
+      fc.property(
+        fc.array(ingredientArb, { minLength: 2, maxLength: 5 }),
+        requirementsArb,
+        (ingredients, _requirements) => {
+          // Only provide prices for half the ingredients
+          const prices = ingredients
+            .slice(0, Math.floor(ingredients.length / 2))
+            .map((ing) => ({
+              ingredientId: ing.id,
+              pricePerKg: '15.50',
+              isAvailable: true,
+            }))
 
-                    // All numeric fields should be numbers, not strings
-                    result.forEach((ing) => {
-                        expect(typeof ing.proteinPercent).toBe('number')
-                        expect(typeof ing.fatPercent).toBe('number')
-                        expect(typeof ing.fiberPercent).toBe('number')
-                        expect(typeof ing.calciumPercent).toBe('number')
-                        expect(typeof ing.phosphorusPercent).toBe('number')
-                        expect(typeof ing.lysinePercent).toBe('number')
-                        expect(typeof ing.methioninePercent).toBe('number')
-                        expect(typeof ing.maxInclusionPercent).toBe('number')
-                        expect(typeof ing.pricePerKg).toBe('number')
-                    })
-                },
-            ),
-            { numRuns: 50 },
-        )
-    })
+          const result = buildOptimizationModel(
+            ingredients as Array<IngredientWithPrice>,
+            prices,
+          )
 
-    it('should use user prices when available, otherwise 0', () => {
-        fc.assert(
-            fc.property(
-                fc.array(ingredientArb, { minLength: 2, maxLength: 5 }),
-                requirementsArb,
-                (ingredients, _requirements) => {
-                    // Only provide prices for half the ingredients
-                    const prices = ingredients
-                        .slice(0, Math.floor(ingredients.length / 2))
-                        .map((ing) => ({
-                            ingredientId: ing.id,
-                            pricePerKg: '15.50',
-                            isAvailable: true,
-                        }))
+          result.forEach((ing) => {
+            const hasPrice = prices.some((p) => p.ingredientId === ing.id)
+            if (hasPrice) {
+              expect(ing.pricePerKg).toBe(15.5)
+            } else {
+              expect(ing.pricePerKg).toBe(0)
+            }
+          })
+        },
+      ),
+      { numRuns: 50 },
+    )
+  })
 
-                    const result = buildOptimizationModel(
-                        ingredients as Array<IngredientWithPrice>,
-                        prices,
-                    )
+  it('should preserve ingredient IDs and names', () => {
+    fc.assert(
+      fc.property(
+        fc.array(ingredientArb, { minLength: 1, maxLength: 10 }),
+        requirementsArb,
+        (ingredients, _requirements) => {
+          const prices = ingredients.map((ing) => ({
+            ingredientId: ing.id,
+            pricePerKg: '10.00',
+            isAvailable: true,
+          }))
 
-                    result.forEach((ing) => {
-                        const hasPrice = prices.some(
-                            (p) => p.ingredientId === ing.id,
-                        )
-                        if (hasPrice) {
-                            expect(ing.pricePerKg).toBe(15.5)
-                        } else {
-                            expect(ing.pricePerKg).toBe(0)
-                        }
-                    })
-                },
-            ),
-            { numRuns: 50 },
-        )
-    })
+          const result = buildOptimizationModel(
+            ingredients as Array<IngredientWithPrice>,
+            prices,
+          )
 
-    it('should preserve ingredient IDs and names', () => {
-        fc.assert(
-            fc.property(
-                fc.array(ingredientArb, { minLength: 1, maxLength: 10 }),
-                requirementsArb,
-                (ingredients, _requirements) => {
-                    const prices = ingredients.map((ing) => ({
-                        ingredientId: ing.id,
-                        pricePerKg: '10.00',
-                        isAvailable: true,
-                    }))
+          // All result IDs should exist in input
+          result.forEach((resultIng) => {
+            const original = ingredients.find((i) => i.id === resultIng.id)
+            expect(original).toBeDefined()
+            expect(resultIng.name).toBe(original!.name)
+          })
+        },
+      ),
+      { numRuns: 50 },
+    )
+  })
 
-                    const result = buildOptimizationModel(
-                        ingredients as Array<IngredientWithPrice>,
-                        prices,
-                    )
+  it('should handle empty ingredient list', () => {
+    const result = buildOptimizationModel([], [])
 
-                    // All result IDs should exist in input
-                    result.forEach((resultIng) => {
-                        const original = ingredients.find(
-                            (i) => i.id === resultIng.id,
-                        )
-                        expect(original).toBeDefined()
-                        expect(resultIng.name).toBe(original!.name)
-                    })
-                },
-            ),
-            { numRuns: 50 },
-        )
-    })
+    expect(result).toEqual([])
+  })
 
-    it('should handle empty ingredient list', () => {
-        const result = buildOptimizationModel(
-            [],
-            [],
-        )
+  it('should handle all ingredients unavailable', () => {
+    fc.assert(
+      fc.property(
+        fc.array(ingredientArb, { minLength: 1, maxLength: 5 }),
+        requirementsArb,
+        (ingredients, _requirements) => {
+          const prices = ingredients.map((ing) => ({
+            ingredientId: ing.id,
+            pricePerKg: '10.00',
+            isAvailable: false, // All unavailable
+          }))
 
-        expect(result).toEqual([])
-    })
+          const result = buildOptimizationModel(
+            ingredients as Array<IngredientWithPrice>,
+            prices,
+          )
 
-    it('should handle all ingredients unavailable', () => {
-        fc.assert(
-            fc.property(
-                fc.array(ingredientArb, { minLength: 1, maxLength: 5 }),
-                requirementsArb,
-                (ingredients, _requirements) => {
-                    const prices = ingredients.map((ing) => ({
-                        ingredientId: ing.id,
-                        pricePerKg: '10.00',
-                        isAvailable: false, // All unavailable
-                    }))
-
-                    const result = buildOptimizationModel(
-                        ingredients as Array<IngredientWithPrice>,
-                        prices,
-                    )
-
-                    expect(result).toEqual([])
-                },
-            ),
-            { numRuns: 20 },
-        )
-    })
+          expect(result).toEqual([])
+        },
+      ),
+      { numRuns: 20 },
+    )
+  })
 })

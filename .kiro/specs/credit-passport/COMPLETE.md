@@ -13,33 +13,33 @@ A complete **Financial Credit Passport** system that enables farmers to generate
 ### Core Features
 
 1. **3 Report Types**
-    - Credit Assessment (credit score, financial health)
-    - Production Certificate (volume, sales records)
-    - Impact Report (growth metrics, efficiency improvements)
+   - Credit Assessment (credit score, financial health)
+   - Production Certificate (volume, sales records)
+   - Impact Report (growth metrics, efficiency improvements)
 
 2. **Cryptographic Verification**
-    - Ed25519 digital signatures
-    - SHA-256 content hashing
-    - QR code verification URLs
-    - Tamper detection
+   - Ed25519 digital signatures
+   - SHA-256 content hashing
+   - QR code verification URLs
+   - Tamper detection
 
 3. **Multi-Language PDFs**
-    - React-PDF based generation
-    - i18n support (15 languages ready)
-    - User currency formatting
-    - White-label branding option
+   - React-PDF based generation
+   - i18n support (15 languages ready)
+   - User currency formatting
+   - White-label branding option
 
 4. **Security & Privacy**
-    - Rate limiting (10/hour per user, 100/day per farm)
-    - Public verification with limited data exposure
-    - Private PDF storage in R2
-    - Access logging and audit trails
+   - Rate limiting (10/hour per user, 100/day per farm)
+   - Public verification with limited data exposure
+   - Private PDF storage in R2
+   - Access logging and audit trails
 
 5. **Complete UI**
-    - 5-step report wizard
-    - Report history with filters
-    - Request management (approve/deny)
-    - Public verification portal
+   - 5-step report wizard
+   - Report history with filters
+   - Request management (approve/deny)
+   - Public verification portal
 
 ---
 

@@ -1,0 +1,658 @@
+# Implementation Plan: Gemini Vision Assistant
+
+## Overview
+
+This implementation plan breaks down the Vision Assistant feature into discrete coding tasks. The feature operates in two complementary modes:
+
+1. **Live Mode**: Integrates Google Gemini 3 Flash's standard API for real-time frame-by-frame video analysis, enabling farmers to assess livestock health, estimate weights, count animals, and receive adaptive guidance through their phone camera.
+
+2. **Vet Assist Mode**: Provides offline-capable diagnostic tools combining an embedded decision tree expert system for instant triage with optional AI-powered photo analysis for detailed diagnosis.
+
+The implementation follows the three-layer architecture (server → service → repository) and uses TypeScript throughout.
+
+## Tasks
+
+- [ ] 1. Database Schema and Types
+  - [ ] 1.1 Create database migration for vision_sessions table
+    - Add columns: id, user_id, farm_id, batch_id, status, started_at, ended_at, summary
+    - Add indexes on user_id, batch_id
+    - _Requirements: 13.1, 13.6_
+  - [ ] 1.2 Create database migration for vision_observations table
+    - Add columns: id, session_id, batch_id, farm_id, user_id, type, timestamp, data (JSONB), confidence, screenshot, notes, task_id
+    - Add indexes on batch_id, farm_id, session_id
+    - _Requirements: 10.2, 10.3_
+  - [ ] 1.3 Create database migration for diagnosis_history table
+    - Add columns: id, batch_id, farm_id, user_id, mode, selected_symptoms, photos, triage_result, photo_result, actions_taken, outcome, notes, escalated_to_vet, vet_response, created_at, updated_at
+    - Add indexes on batch_id, farm_id, user_id, created_at
+    - _Requirements: 22.1, 22.2_
+  - [ ] 1.4 Create database migration for diagnosis_queue table
+    - Add columns: id, farm_id, user_id, batch_id, photos, selected_symptoms, farm_context, status, retry_count, estimated_data_kb, queued_at, expires_at, processed_at, result, error
+    - Add indexes on user_id, status, expires_at
+    - _Requirements: 20.1, 20.5_
+  - [ ] 1.5 Create database migration for vet_escalations table
+    - Add columns: id, diagnosis_id, farm_id, user_id, status, channel, recipient_info, packaged_data, sent_at, viewed_at, response, responded_at, created_at
+    - Add indexes on diagnosis_id, farm_id, status
+    - _Requirements: 23.2, 23.6_
+  - [ ] 1.6 Create database migration for decision_tree_data table
+    - Add columns: id, species, version, data, is_active, source_references, regional_variant, created_at, updated_at
+    - Add unique constraint on (species, version, regional_variant)
+    - _Requirements: 24.1, 24.2, 24.4_
+  - [ ] 1.7 Create database migration for care_protocols table
+    - Add columns: id, condition_id, species, version, protocol_data, is_active, source_references, created_at, updated_at
+    - Add unique constraint on (condition_id, version)
+    - _Requirements: 21.3_
+  - [ ] 1.8 Update app/lib/db/types.ts with TypeScript interfaces
+    - Add VisionSessionTable, VisionObservationTable interfaces
+    - Add DiagnosisHistoryTable, DiagnosisQueueTable, VetEscalationTable interfaces
+    - Add DecisionTreeDataTable, CareProtocolTable interfaces
+    - Update Database interface to include all new tables
+    - _Requirements: 10.2, 13.6, 22.2_
+
+- [ ] 2. Vision Feature Core Structure
+  - [ ] 2.1 Create app/features/vision directory structure
+    - Create server.ts, service.ts, repository.ts, types.ts
+    - Create vet-assist/ subdirectory with decision-tree.ts, diagnosis.ts, care-protocols.ts
+    - Follow existing feature patterns (batches, tasks)
+    - _Requirements: All_
+  - [ ] 2.2 Define TypeScript types for vision feature (Live Mode)
+    - VisionSession, VisionSessionConfig interfaces
+    - VisionObservation, CreateObservationInput interfaces
+    - HealthAssessment, WeightEstimate, FlockCount, BehaviorAnalysis interfaces
+    - FarmContext interface
+    - _Requirements: 4.6, 5.2, 6.2, 7.4_
+  - [ ] 2.3 Define TypeScript types for Vet Assist Mode
+    - Symptom, SymptomCategory, SymptomChecklist interfaces
+    - TriageResult, DecisionTreeNode, DecisionTreeData interfaces
+    - PhotoDiagnosis, DiagnosisPhoto, PhotoDiagnosisResult interfaces
+    - CareProtocol, CareAction, MedicationRecommendation interfaces
+    - DiagnosisHistoryEntry, DiagnosisOutcome interfaces
+    - VetEscalation, EscalationPackage interfaces
+    - _Requirements: 17.4, 18.1, 19.1, 21.2, 22.2, 23.2_
+  - [ ]\* 2.4 Write property tests for type validation
+    - **Property 2: Health Assessment Structure Validity**
+    - **Property 3: Weight Estimate Validity**
+    - **Property 4: Flock Count Validity**
+    - **Validates: Requirements 4.7, 4.8, 5.2, 6.4**
+
+- [ ] 3. Repository Layer
+  - [ ] 3.1 Implement vision session repository functions
+    - insertSession, getSessionById, updateSession, getActiveSessions
+    - Use dynamic imports for Cloudflare Workers compatibility
+    - _Requirements: 13.1, 13.7_
+  - [ ] 3.2 Implement vision observation repository functions
+    - insertObservation, getObservationsBySession, getObservationsByBatch, deleteObservation
+    - _Requirements: 10.2, 10.7, 15.4_
+  - [ ] 3.3 Implement diagnosis history repository functions
+    - insertDiagnosis, getDiagnosisById, getDiagnosesByBatch, getDiagnosesByFarm, updateDiagnosis, deleteDiagnosis
+    - _Requirements: 22.1, 22.3, 22.4_
+  - [ ] 3.4 Implement diagnosis queue repository functions
+    - insertQueueEntry, getQueueByUser, getPendingQueue, updateQueueStatus, deleteQueueEntry, removeExpiredEntries
+    - _Requirements: 20.1, 20.2, 20.5, 20.6_
+  - [ ] 3.5 Implement vet escalation repository functions
+    - insertEscalation, getEscalationById, getEscalationsByFarm, updateEscalationStatus
+    - _Requirements: 23.2, 23.6_
+  - [ ] 3.6 Implement decision tree data repository functions
+    - getActiveDecisionTree, getDecisionTreeBySpecies, insertDecisionTree, updateDecisionTree
+    - _Requirements: 24.1, 24.2_
+  - [ ] 3.7 Implement care protocol repository functions
+    - getProtocolByCondition, getProtocolsForConditions, insertProtocol, updateProtocol
+    - _Requirements: 21.3_
+  - [ ]\* 3.8 Write property tests for repository layer
+    - **Property 9: Single Active Session Constraint**
+    - **Property 19: Diagnosis Queue Persistence**
+    - **Validates: Requirements 13.7, 20.1, 20.5**
+
+- [ ] 4. Service Layer - Context Building
+  - [ ] 4.1 Implement farm context builder service
+    - buildFarmContext function to load batch data, mortality, weights, growth standards
+    - formatContextForPrompt function to create Gemini-ready context string
+    - _Requirements: 3.2, 3.3, 3.4, 3.5_
+  - [ ]\* 4.2 Write property tests for context building
+    - **Property 1: Farm Context Completeness**
+    - **Validates: Requirements 3.2, 3.3, 3.4, 3.5**
+
+- [ ] 5. Service Layer - Analysis Processing
+  - [ ] 5.1 Implement analysis parsing service
+    - parseHealthAssessment, parseWeightEstimate, parseFlockCount, parseBehaviorAnalysis
+    - Validate and structure Gemini responses
+    - _Requirements: 4.6, 5.2, 6.2, 7.4_
+  - [ ] 5.2 Implement observation logging service
+    - validateObservation, shouldCreateNotification, shouldOfferTask
+    - Calculate severity and determine actions
+    - _Requirements: 10.1, 10.5, 11.1_
+  - [ ]\* 5.3 Write property tests for analysis processing
+    - **Property 5: Behavior Analysis Structure**
+    - **Property 6: Observation Logging Completeness**
+    - **Validates: Requirements 7.4, 7.6, 7.7, 10.2, 10.5, 10.6**
+
+- [ ] 6. Service Layer - Task Integration
+  - [ ] 6.1 Implement task creation service
+    - createTaskFromObservation function
+    - Map observation severity to task priority
+    - Generate task titles from observation data
+    - _Requirements: 11.2, 11.3, 11.4, 11.7_
+  - [ ]\* 6.2 Write property tests for task creation
+    - **Property 7: Task Creation Validity**
+    - **Validates: Requirements 11.2, 11.3, 11.4**
+
+- [ ] 7. Service Layer - Session Management
+  - [ ] 7.1 Implement session lifecycle service
+    - startSession, pauseSession, resumeSession, endSession
+    - generateSessionSummary function
+    - calculateSessionDuration function
+    - _Requirements: 13.1, 13.2, 13.3, 13.5_
+  - [ ]\* 7.2 Write property tests for session management
+    - **Property 8: Session Lifecycle Consistency**
+    - **Validates: Requirements 13.2, 13.3, 13.6**
+
+- [ ] 8. Service Layer - Decision Tree Engine (Vet Assist)
+  - [ ] 8.1 Implement decision tree engine service
+    - loadDecisionTree, evaluateSymptoms, getTriageResult functions
+    - Ensure completely offline operation (no network requests)
+    - _Requirements: 17.1, 17.4, 17.8_
+  - [ ] 8.2 Implement symptom checklist service
+    - getSymptomsBySpecies, getSymptomsByCategory, getRedFlagSymptoms
+    - getSuggestedSymptoms based on co-occurrence
+    - _Requirements: 18.1, 18.5, 18.6, 18.7_
+  - [ ]\* 8.3 Write property tests for decision tree
+    - **Property 16: Decision Tree Offline Operation**
+    - **Property 17: Symptom Checklist Completeness**
+    - **Validates: Requirements 17.4, 17.5, 17.8, 18.1, 18.7**
+
+- [ ] 9. Service Layer - Photo Diagnosis (Vet Assist)
+  - [ ] 9.1 Implement photo capture and compression service
+    - capturePhoto, compressPhoto (target <100KB), validatePhotoQuality
+    - _Requirements: 19.1, 19.2, 19.3_
+  - [ ] 9.2 Implement photo diagnosis service
+    - submitForAnalysis, combineWithSymptoms, parsePhotoResult
+    - _Requirements: 19.4, 19.6, 19.7_
+  - [ ]\* 9.3 Write property tests for photo handling
+    - **Property 18: Photo Compression Validity**
+    - **Validates: Requirements 19.2**
+
+- [ ] 10. Service Layer - Diagnosis Queue (Vet Assist)
+  - [ ] 10.1 Implement diagnosis queue service
+    - addToQueue, removeFromQueue, getQueueStatus, processQueue
+    - Handle 7-day expiration, retry logic
+    - _Requirements: 20.1, 20.3, 20.5, 20.6_
+  - [ ] 10.2 Implement queue sync service
+    - detectConnectivity, processNextInQueue, notifyOnComplete
+    - _Requirements: 20.3, 20.4_
+  - [ ]\* 10.3 Write property tests for queue management
+    - **Property 19: Diagnosis Queue Persistence**
+    - **Property 20: Queue Processing Order**
+    - **Validates: Requirements 20.1, 20.3, 20.5**
+
+- [ ] 11. Service Layer - Care Protocols (Vet Assist)
+  - [ ] 11.1 Implement care protocol service
+    - getProtocolForCondition, calculateDosage, formatInstructions
+    - _Requirements: 21.1, 21.2, 21.4_
+  - [ ] 11.2 Implement monitoring task creation service
+    - createMonitoringTasks, mapProtocolToTasks
+    - _Requirements: 21.6_
+  - [ ]\* 11.3 Write property tests for care protocols
+    - **Property 21: Care Protocol Completeness**
+    - **Property 22: Dosage Calculation Accuracy**
+    - **Validates: Requirements 21.2, 21.4, 21.5, 21.7**
+
+- [ ] 12. Service Layer - Diagnosis History (Vet Assist)
+  - [ ] 12.1 Implement diagnosis history service
+    - saveDiagnosis, updateOutcome, getRecurringConditions
+    - _Requirements: 22.1, 22.6, 22.7_
+  - [ ] 12.2 Implement vet summary generation service
+    - generateVetSummary, formatForPDF, packageDiagnosisData
+    - _Requirements: 22.5_
+  - [ ]\* 12.3 Write property tests for diagnosis history
+    - **Property 23: Diagnosis History Completeness**
+    - **Validates: Requirements 22.1, 22.2**
+
+- [ ] 13. Service Layer - Vet Escalation (Vet Assist)
+  - [ ] 13.1 Implement escalation package service
+    - createEscalationPackage, generateShareableLink, generatePDF
+    - _Requirements: 23.2, 23.4_
+  - [ ] 13.2 Implement escalation sending service
+    - sendViaWhatsApp, sendViaEmail, sendViaSMS
+    - _Requirements: 23.3_
+  - [ ] 13.3 Implement escalation tracking service
+    - markAsViewed, recordResponse, getEscalationHistory
+    - _Requirements: 23.6_
+  - [ ]\* 13.4 Write property tests for escalation
+    - **Property 24: Vet Escalation Package Validity**
+    - **Validates: Requirements 23.2, 23.4**
+
+- [ ] 14. Service Layer - Cross-System Integration
+  - [ ] 14.1 Implement Farm Sentinel integration service
+    - notifyDiagnosis, correlateWithMortality, calculateDiseaseRisk
+    - _Requirements: 25.1, 25.2, 25.6_
+  - [ ] 14.2 Implement Farm Optimizer integration service
+    - sendDiagnosisData, correlateWithEnvironment, trackStrategyEffectiveness
+    - _Requirements: 26.1, 26.2, 26.7_
+  - [ ]\* 14.3 Write property tests for integrations
+    - **Property 26: Farm Sentinel Integration**
+    - **Property 27: Farm Optimizer Integration**
+    - **Validates: Requirements 25.1, 25.3, 26.1, 26.2**
+
+- [ ] 15. Checkpoint - Core Services Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 16. Server Functions - Live Mode
+  - [ ] 16.1 Implement session server functions
+    - startSessionFn, pauseSessionFn, resumeSessionFn, endSessionFn
+    - getActiveSessionFn, getSessionSummaryFn
+    - Use Zod validators for input validation
+    - _Requirements: 13.1, 13.5, 13.7_
+  - [ ] 16.2 Implement observation server functions
+    - logObservationFn, getObservationsFn, deleteObservationFn
+    - Include audit logging integration
+    - _Requirements: 10.2, 10.6, 10.7, 15.4_
+  - [ ] 16.3 Implement context server functions
+    - getFarmContextFn to load batch context for Gemini
+    - _Requirements: 3.1, 3.2_
+  - [ ] 16.4 Implement task creation server function
+    - createTaskFromObservationFn
+    - Integrate with existing tasks feature
+    - _Requirements: 11.1, 11.6_
+
+- [ ] 17. Server Functions - Vet Assist Mode
+  - [ ] 17.1 Implement diagnosis server functions
+    - saveDiagnosisFn, getDiagnosisFn, getDiagnosesByBatchFn, updateDiagnosisOutcomeFn
+    - _Requirements: 22.1, 22.3_
+  - [ ] 17.2 Implement diagnosis queue server functions
+    - addToQueueFn, getQueueStatusFn, processQueueFn, cancelQueuedDiagnosisFn
+    - _Requirements: 20.1, 20.2, 20.6_
+  - [ ] 17.3 Implement care protocol server functions
+    - getProtocolFn, calculateDosageFn, createMonitoringTasksFn
+    - _Requirements: 21.1, 21.4, 21.6_
+  - [ ] 17.4 Implement vet escalation server functions
+    - createEscalationFn, sendEscalationFn, getEscalationStatusFn, recordVetResponseFn
+    - _Requirements: 23.1, 23.3, 23.6_
+  - [ ] 17.5 Implement decision tree server functions
+    - getDecisionTreeFn, evaluateSymptomsFn (note: evaluation also works client-side offline)
+    - _Requirements: 17.1, 17.4_
+
+- [ ] 18. Gemini 3 Flash Vision Client
+  - [ ] 18.1 Create Gemini 3 Flash vision client module
+    - Frame-by-frame analysis via standard API
+    - Image encoding with base64
+    - Response parsing and event handling
+    - Thinking configuration with thinkingLevel: 'low' for fast response
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [ ] 18.2 Implement request resilience
+    - Automatic retry with exponential backoff
+    - Request status tracking
+    - Rate limit handling with frame rate reduction
+    - _Requirements: 2.4, 2.5, 2.6, 2.7_
+  - [ ]\* 18.3 Write property tests for request handling
+    - **Property 13: Request Status Accuracy**
+    - **Property 14: Retry Behavior**
+    - **Validates: Requirements 2.4, 2.5, 2.6**
+  - [ ] 18.4 Create Gemini system prompt for livestock analysis
+    - Include context injection points
+    - Define tool schemas for task creation, observation logging
+    - Configure for health assessment, weight estimation, counting, behavior analysis
+    - _Requirements: 4.1-4.8, 5.1-5.7, 6.1-6.7, 7.1-7.7_
+
+- [ ] 19. Gemini Photo Analysis Client (Vet Assist)
+  - [ ] 19.1 Create Gemini photo analysis client module
+    - REST API integration for single photo analysis
+    - Combine photo with symptom context
+    - _Requirements: 19.4, 19.6_
+  - [ ] 19.2 Create Gemini system prompt for photo diagnosis
+    - Include symptom context injection
+    - Configure for condition identification, confidence scoring
+    - _Requirements: 19.6, 19.7_
+
+- [ ] 20. Checkpoint - API Integration Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 21. Camera Manager Hook
+  - [ ] 21.1 Create useCamera React hook
+    - Camera permission request and status
+    - MediaStream management
+    - Frame capture at configurable rate
+    - Camera switching (front/back)
+    - _Requirements: 1.1, 1.2, 1.3, 1.4_
+  - [ ]\* 21.2 Write property tests for camera manager
+    - **Property 15: Frame Rate Compliance**
+    - **Validates: Requirements 1.3**
+  - [ ] 21.3 Handle camera errors and edge cases
+    - Permission denied handling
+    - Camera not available handling
+    - Stream interruption recovery
+    - _Requirements: 1.6, 1.7_
+
+- [ ] 22. Voice Interface Hook
+  - [ ] 22.1 Create useVoice React hook
+    - Web Speech API integration for recognition
+    - Text-to-speech for responses
+    - Voice command parsing
+    - _Requirements: 9.1, 9.2, 9.3_
+  - [ ]\* 22.2 Write property tests for voice commands
+    - **Property 12: Voice Command Recognition**
+    - **Validates: Requirements 9.3**
+  - [ ] 22.3 Handle voice interface fallbacks
+    - Text input fallback when voice fails
+    - Voice disable option
+    - _Requirements: 9.6, 9.7_
+
+- [ ] 23. Vision Session Hook (Live Mode)
+  - [ ] 23.1 Create useVisionSession React hook
+    - Session lifecycle management
+    - Gemini 3 Flash API frame analysis
+    - Frame capture and analysis coordination
+    - Response handling and state updates
+    - _Requirements: 2.1, 13.1, 13.4, 13.5_
+  - [ ] 23.2 Implement offline queue management
+    - Queue observations when offline
+    - Auto-sync on connectivity restore
+    - _Requirements: 14.2, 14.6_
+  - [ ]\* 23.3 Write property tests for offline handling
+    - **Property 10: Offline Resilience**
+    - **Validates: Requirements 14.2, 14.6**
+
+- [ ] 24. Vet Assist Mode Hooks
+  - [ ] 24.1 Create useDecisionTree React hook
+    - Load decision tree data on mount
+    - evaluateSymptoms function
+    - Offline-first operation
+    - _Requirements: 17.1, 17.4, 17.8_
+  - [ ] 24.2 Create useSymptomChecklist React hook
+    - Symptom selection state management
+    - Category filtering
+    - Red flag highlighting
+    - _Requirements: 18.1, 18.4, 18.7_
+  - [ ] 24.3 Create usePhotoDiagnosis React hook
+    - Photo capture and compression
+    - Queue management for offline
+    - Analysis status tracking
+    - _Requirements: 19.1, 19.5, 20.1_
+  - [ ] 24.4 Create useDiagnosisQueue React hook
+    - IndexedDB persistence
+    - Auto-sync on connectivity
+    - Queue status display
+    - _Requirements: 20.1, 20.3, 20.4_
+  - [ ] 24.5 Create useCareProtocol React hook
+    - Protocol retrieval
+    - Dosage calculation
+    - Task creation integration
+    - _Requirements: 21.1, 21.4, 21.6_
+  - [ ] 24.6 Create useVetEscalation React hook
+    - Package creation
+    - Sharing via WhatsApp/email/SMS
+    - Status tracking
+    - _Requirements: 23.1, 23.3, 23.6_
+
+- [ ] 25. Checkpoint - Hooks Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 26. UI Components - Core
+  - [ ] 26.1 Create VisionAssistant main component
+    - Mode selector (Live Mode / Vet Assist Mode)
+    - Camera preview with overlay canvas
+    - Session controls (start/stop/pause)
+    - Connection status indicator
+    - Batch selector integration
+    - _Requirements: 1.2, 2.6, 3.6, 13.1, 16.1_
+  - [ ] 26.2 Create VisualOverlay component
+    - Render health concern markers
+    - Render count markers with tracking
+    - Render weight estimate display
+    - Status bar with current analysis
+    - _Requirements: 4.6, 6.3_
+  - [ ] 26.3 Create VoiceControls component
+    - Microphone button with listening indicator
+    - Voice enable/disable toggle
+    - Transcript display
+    - _Requirements: 9.1, 9.5, 9.7_
+
+- [ ] 27. UI Components - Analysis Display (Live Mode)
+  - [ ] 27.1 Create HealthAssessmentCard component
+    - Display overall status with color coding
+    - List concerns with severity indicators
+    - Show visual cue explanations
+    - Action buttons (create task, log observation)
+    - _Requirements: 4.7, 4.8, 8.1, 8.3_
+  - [ ] 27.2 Create WeightEstimateCard component
+    - Display weight with confidence interval
+    - Show comparison to growth standard
+    - Display days to target
+    - Log weight sample button
+    - _Requirements: 5.2, 5.3, 5.4, 5.5_
+  - [ ] 27.3 Create FlockCountCard component
+    - Display count with confidence
+    - Show comparison to batch records
+    - Highlight discrepancies
+    - _Requirements: 6.3, 6.4, 6.5_
+  - [ ] 27.4 Create BehaviorAnalysisCard component
+    - Display detected patterns
+    - Show severity and affected count
+    - List possible causes and correlations
+    - _Requirements: 7.4, 7.5, 7.6, 7.7_
+
+- [ ] 28. UI Components - Vet Assist Mode
+  - [ ] 28.1 Create VetAssistMain component
+    - Species selector
+    - Symptom checklist integration
+    - Photo capture button
+    - Triage result display
+    - _Requirements: 16.3, 17.3, 18.1_
+  - [ ] 28.2 Create SymptomChecklist component
+    - Category tabs (respiratory, digestive, skin, etc.)
+    - Symptom cards with icons and descriptions
+    - Multi-select with visual feedback
+    - Red flag symptom highlighting
+    - Example photo modal on tap
+    - _Requirements: 18.1, 18.2, 18.3, 18.4, 18.5, 18.7_
+  - [ ] 28.3 Create TriageResultCard component
+    - Urgency level with color coding (critical=red, urgent=amber, monitor=yellow, normal=green)
+    - Immediate actions list
+    - Possible conditions with confidence bars
+    - "Call Vet" button for critical/urgent
+    - _Requirements: 17.5, 27.1, 27.2_
+  - [ ] 28.4 Create PhotoCaptureDialog component
+    - Camera preview
+    - Capture button with angle selector (front, side, close-up)
+    - Photo preview with retake option
+    - Compression indicator
+    - _Requirements: 19.1, 19.3_
+  - [ ] 28.5 Create DiagnosisQueueCard component
+    - Pending diagnoses list
+    - Capture time and estimated data usage
+    - Cancel button per entry
+    - Connectivity status indicator
+    - _Requirements: 20.2, 20.6, 20.7_
+  - [ ] 28.6 Create CareProtocolCard component
+    - Immediate actions checklist
+    - Medication recommendations with dosage calculator
+    - Isolation guidance
+    - Monitoring schedule
+    - "When to call vet" criteria
+    - Create monitoring tasks button
+    - _Requirements: 21.2, 21.4, 21.5, 21.6, 21.7_
+  - [ ] 28.7 Create MedicalDisclaimer component
+    - Prominent disclaimer text
+    - Acknowledgment checkbox for first use
+    - Always visible in results
+    - _Requirements: 27.1, 27.7_
+
+- [ ] 29. UI Components - Vet Escalation
+  - [ ] 29.1 Create VetEscalationDialog component
+    - Diagnosis summary preview
+    - Recipient input (phone/email)
+    - Channel selector (WhatsApp, Email, SMS)
+    - Send button with confirmation
+    - _Requirements: 23.1, 23.3_
+  - [ ] 29.2 Create EscalationStatusCard component
+    - Status indicator (sent, viewed, responded)
+    - Vet response display
+    - Resend option
+    - _Requirements: 23.6_
+
+- [ ] 30. UI Components - Diagnosis History
+  - [ ] 30.1 Create DiagnosisHistoryList component
+    - List of past diagnoses
+    - Filter by condition type and date
+    - Outcome status indicators
+    - _Requirements: 22.3, 22.4_
+  - [ ] 30.2 Create DiagnosisDetailDialog component
+    - Full diagnosis details
+    - Photos gallery
+    - Actions taken checklist
+    - Outcome recording form
+    - _Requirements: 22.2_
+  - [ ] 30.3 Create RecurringConditionAlert component
+    - Alert for recurring conditions
+    - Pattern explanation
+    - Systemic cause suggestions
+    - _Requirements: 22.6, 22.7_
+
+- [ ] 31. UI Components - Session Management
+  - [ ] 31.1 Create SessionSummary component
+    - Display session duration
+    - List observations made
+    - Show tasks created
+    - Review past observations link
+    - _Requirements: 13.2, 13.6, 10.7_
+  - [ ] 31.2 Create ObservationLogDialog component
+    - Preview observation data
+    - Add notes field
+    - Screenshot preview with overlay
+    - Confirm/cancel buttons
+    - _Requirements: 10.3, 10.4_
+  - [ ] 31.3 Create TaskCreationDialog component
+    - Pre-filled task title from observation
+    - Priority selector (mapped from severity)
+    - Batch link confirmation
+    - Frequency selector
+    - _Requirements: 11.2, 11.3, 11.5, 11.7_
+
+- [ ] 32. UI Components - Privacy and Settings
+  - [ ] 32.1 Create PrivacyNotice component
+    - First-use privacy explanation
+    - Data handling description
+    - Consent acknowledgment
+    - _Requirements: 15.3_
+  - [ ] 32.2 Create VisionSettings component
+    - Screenshot enable/disable toggle
+    - Voice enable/disable toggle
+    - Frame rate selector
+    - Data usage display
+    - Default mode selector (Live/Vet Assist)
+    - _Requirements: 14.7, 15.7, 9.7, 16.2_
+
+- [ ] 33. Checkpoint - UI Components Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 34. Route Integration
+  - [ ] 34.1 Create vision assistant route
+    - app/routes/\_auth/vision/index.tsx
+    - Mode selector (Live/Vet Assist)
+    - Batch selection before starting
+    - Full-screen camera view option
+    - _Requirements: 3.6, 13.1, 16.1_
+  - [ ] 34.2 Create vet assist route
+    - app/routes/\_auth/vision/vet-assist.tsx
+    - Symptom checklist view
+    - Photo capture integration
+    - Diagnosis history access
+    - _Requirements: 16.3, 17.3, 22.3_
+  - [ ] 34.3 Add vision entry point to batch detail page
+    - "Analyze with AI" button on batch detail
+    - Pre-select batch when launching from batch page
+    - _Requirements: 3.6_
+  - [ ] 34.4 Add observations tab to batch detail page
+    - List past vision observations for batch
+    - View observation details
+    - Delete observation option
+    - _Requirements: 10.7, 15.4_
+  - [ ] 34.5 Add diagnosis history tab to batch detail page
+    - List past diagnoses for batch
+    - View diagnosis details
+    - Record outcomes
+    - _Requirements: 22.3_
+
+- [ ] 35. Navigation and Access
+  - [ ] 35.1 Add Vision Assistant to main navigation
+    - Add to sidebar/action grid
+    - Use appropriate icon (camera/eye)
+    - _Requirements: 1.1_
+  - [ ] 35.2 Add quick access from dashboard
+    - Action grid button for vision
+    - Recent observations widget (optional)
+    - Pending diagnoses indicator
+    - _Requirements: 1.1, 20.2_
+  - [ ] 35.3 Add offline mode indicator
+    - Show when Vet Assist is available offline
+    - Suggest Vet Assist when connectivity lost
+    - _Requirements: 16.5, 16.6_
+
+- [ ] 36. Privacy and Audit Integration
+  - [ ] 36.1 Implement privacy compliance
+    - Ensure no raw video persistence
+    - Verify frame transmission only to Gemini API
+    - Implement observation deletion
+    - _Requirements: 15.1, 15.2, 15.4_
+  - [ ]\* 36.2 Write property tests for privacy compliance
+    - **Property 11: Privacy Compliance**
+    - **Property 25: Medical Disclaimer Presence**
+    - **Validates: Requirements 15.1, 15.2, 15.4, 27.1, 27.7**
+  - [ ] 36.3 Integrate with audit logging
+    - Log observation creation
+    - Log task creation from vision
+    - Log session start/end
+    - Log all diagnoses for liability
+    - _Requirements: 10.6, 15.6, 27.4_
+
+- [ ] 37. Decision Tree Data Seeding
+  - [ ] 37.1 Create decision tree seed data for poultry
+    - Common poultry diseases and symptoms
+    - At least 50 symptom combinations
+    - Source references from veterinary literature
+    - _Requirements: 17.2, 17.6, 24.3_
+  - [ ] 37.2 Create decision tree seed data for fish
+    - Common fish diseases and symptoms
+    - At least 50 symptom combinations
+    - _Requirements: 17.2, 17.6_
+  - [ ] 37.3 Create care protocol seed data
+    - Treatment protocols for common conditions
+    - Dosage calculations
+    - Monitoring schedules
+    - _Requirements: 21.2, 21.3_
+
+- [ ] 38. Final Checkpoint - Feature Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 39. Demo Preparation
+  - [ ] 39.1 Create demo seed data
+    - Sample batches with varied health states
+    - Historical mortality and weight data
+    - Growth standards for demo species
+    - Sample diagnosis history entries
+    - _Requirements: All_
+  - [ ] 39.2 Create demo script documentation
+    - Step-by-step demo flow for Live Mode
+    - Step-by-step demo flow for Vet Assist Mode
+    - Offline demo scenario
+    - Key talking points for hackathon judges
+    - Fallback scenarios if live demo fails
+    - _Requirements: All_
+  - [ ] 39.3 Create hackathon submission materials
+    - Feature overview video script
+    - Screenshots of key features
+    - Integration diagram showing Sentinel/Optimizer connection
+    - _Requirements: All_
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for faster MVP
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases
+- The implementation follows the three-layer architecture (server → service → repository)
+- All database imports use dynamic imports for Cloudflare Workers compatibility
+- The Gemini 3 Flash API requires a valid API key configured in environment variables
+- Uses frame-by-frame analysis via standard API (not Live API) for Gemini 3 compatibility
+- Decision tree data is bundled with the app for offline operation
+- Vet Assist Mode prioritizes offline-first design for rural areas with poor connectivity
+- Medical disclaimers are required on all diagnosis outputs

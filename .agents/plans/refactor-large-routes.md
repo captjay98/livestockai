@@ -264,24 +264,24 @@ Extract summary cards and inline edit/delete dialogs.
 - **IMPLEMENT**: Extract lines 201-494 (regional tab content) from settings route
 - **PATTERN**: Follow tab content pattern above
 - **IMPORTS**:
-    ```typescript
-    import { useTranslation } from 'react-i18next'
-    import { DollarSign, Calendar, Ruler } from 'lucide-react'
-    import { Card } from '~/components/ui/card'
-    import { Label } from '~/components/ui/label'
-    import {
-        Select,
-        SelectContent,
-        SelectItem,
-        SelectTrigger,
-        SelectValue,
-    } from '~/components/ui/select'
-    import { Button } from '~/components/ui/button'
-    import { CURRENCY_PRESETS, getCurrencyPreset } from '~/features/settings'
-    import { formatCurrency } from '~/features/settings/currency-formatter'
-    import { formatDate, formatTime } from '~/features/settings/date-formatter'
-    import type { UserSettings } from '~/features/settings'
-    ```
+  ```typescript
+  import { useTranslation } from 'react-i18next'
+  import { DollarSign, Calendar, Ruler } from 'lucide-react'
+  import { Card } from '~/components/ui/card'
+  import { Label } from '~/components/ui/label'
+  import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from '~/components/ui/select'
+  import { Button } from '~/components/ui/button'
+  import { CURRENCY_PRESETS, getCurrencyPreset } from '~/features/settings'
+  import { formatCurrency } from '~/features/settings/currency-formatter'
+  import { formatDate, formatTime } from '~/features/settings/date-formatter'
+  import type { UserSettings } from '~/features/settings'
+  ```
 - **PROPS**: `settings`, `onSettingsChange`, `onSave`, `onReset`, `isSaving`
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -332,14 +332,14 @@ Extract summary cards and inline edit/delete dialogs.
 - **IMPLEMENT**: Extract feed inventory section with create/edit/delete dialogs
 - **PATTERN**: Mirror `structures-card.tsx` pattern exactly
 - **IMPORTS**:
-    ```typescript
-    import {
-        FEED_TYPES,
-        createFeedInventoryFn,
-        deleteFeedInventoryFn,
-        updateFeedInventoryFn,
-    } from '~/features/inventory/feed-server'
-    ```
+  ```typescript
+  import {
+    FEED_TYPES,
+    createFeedInventoryFn,
+    deleteFeedInventoryFn,
+    updateFeedInventoryFn,
+  } from '~/features/inventory/feed-server'
+  ```
 - **PROPS**: `farmId`, `initialFeedInventory`, `onUpdate`
 - **GOTCHA**: Include all 3 dialogs (create, edit, delete) in the component
 - **VALIDATE**: `npx tsc --noEmit`
@@ -349,14 +349,14 @@ Extract summary cards and inline edit/delete dialogs.
 - **IMPLEMENT**: Extract medication inventory section with create/edit/delete dialogs
 - **PATTERN**: Mirror `structures-card.tsx` pattern exactly
 - **IMPORTS**:
-    ```typescript
-    import {
-        MEDICATION_UNITS,
-        createMedicationFn,
-        deleteMedicationFn,
-        updateMedicationFn,
-    } from '~/features/inventory/medication-server'
-    ```
+  ```typescript
+  import {
+    MEDICATION_UNITS,
+    createMedicationFn,
+    deleteMedicationFn,
+    updateMedicationFn,
+  } from '~/features/inventory/medication-server'
+  ```
 - **PROPS**: `farmId`, `initialMedications`, `onUpdate`
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -373,14 +373,14 @@ Extract summary cards and inline edit/delete dialogs.
 #### Task 3.1: CREATE `app/components/onboarding/` directory and step files
 
 - **IMPLEMENT**: Create 8 step component files:
-    - `welcome-step.tsx` (lines 245-339)
-    - `create-farm-step.tsx` (lines 341-513)
-    - `enable-modules-step.tsx` (lines 516-630)
-    - `create-structure-step.tsx` (lines 633-780)
-    - `create-batch-step.tsx` (lines 783-950)
-    - `preferences-step.tsx` (lines 953-1100)
-    - `tour-step.tsx` (lines 1103-1200)
-    - `complete-step.tsx` (lines 1203-1374)
+  - `welcome-step.tsx` (lines 245-339)
+  - `create-farm-step.tsx` (lines 341-513)
+  - `enable-modules-step.tsx` (lines 516-630)
+  - `create-structure-step.tsx` (lines 633-780)
+  - `create-batch-step.tsx` (lines 783-950)
+  - `preferences-step.tsx` (lines 953-1100)
+  - `tour-step.tsx` (lines 1103-1200)
+  - `complete-step.tsx` (lines 1203-1374)
 - **PATTERN**: Each step uses `useOnboarding()` hook for context
 - **IMPORTS**: Each step imports only what it needs
 - **VALIDATE**: `npx tsc --noEmit` after each file
@@ -388,11 +388,11 @@ Extract summary cards and inline edit/delete dialogs.
 #### Task 3.2: CREATE `app/components/onboarding/index.ts` barrel export
 
 - **IMPLEMENT**:
-    ```typescript
-    export { WelcomeStep } from './welcome-step'
-    export { CreateFarmStep } from './create-farm-step'
-    // ... etc
-    ```
+  ```typescript
+  export { WelcomeStep } from './welcome-step'
+  export { CreateFarmStep } from './create-farm-step'
+  // ... etc
+  ```
 - **VALIDATE**: `npx tsc --noEmit`
 
 #### Task 3.3: UPDATE `app/routes/_auth/onboarding/index.tsx`
@@ -438,16 +438,16 @@ Extract summary cards and inline edit/delete dialogs.
 #### Task 5.1: Run full validation suite
 
 - **VALIDATE**:
-    ```bash
-    bun run check && bun run lint && bun run test --run && bun run build
-    ```
+  ```bash
+  bun run check && bun run lint && bun run test --run && bun run build
+  ```
 
 #### Task 5.2: Verify line counts
 
 - **VALIDATE**:
-    ```bash
-    wc -l app/routes/_auth/*/index.tsx app/routes/_auth/*/*/index.tsx | sort -rn | head -20
-    ```
+  ```bash
+  wc -l app/routes/_auth/*/index.tsx app/routes/_auth/*/*/index.tsx | sort -rn | head -20
+  ```
 - **EXPECTED**: All routes under 600 lines, most under 400
 
 ---

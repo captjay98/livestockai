@@ -134,33 +134,33 @@ Pure business logic for growth calculations. **Note: This is a NEW file for pure
 
 ```typescript
 interface EnhancedProjection {
-    // Weight data
-    currentWeightG: number
-    expectedWeightG: number
-    performanceIndex: number // (actual/expected) * 100
+  // Weight data
+  currentWeightG: number
+  expectedWeightG: number
+  performanceIndex: number // (actual/expected) * 100
 
-    // ADG data
-    currentADG: number // grams per day
-    expectedADG: number // grams per day from growth curve
+  // ADG data
+  currentADG: number // grams per day
+  expectedADG: number // grams per day from growth curve
 
-    // Harvest projection
-    projectedHarvestDate: Date
-    daysRemaining: number
-    targetWeightG: number
+  // Harvest projection
+  projectedHarvestDate: Date
+  daysRemaining: number
+  targetWeightG: number
 
-    // Status
-    status: 'on_track' | 'behind' | 'ahead'
-    deviationPercent: number
+  // Status
+  status: 'on_track' | 'behind' | 'ahead'
+  deviationPercent: number
 
-    // Financial
-    projectedRevenue: number
-    projectedFeedCost: number
-    estimatedProfit: number
+  // Financial
+  projectedRevenue: number
+  projectedFeedCost: number
+  estimatedProfit: number
 
-    // Metadata
-    hasWeightSamples: boolean
-    lastSampleDate: Date | null
-    dataSource: 'weight_samples' | 'growth_curve_estimate'
+  // Metadata
+  hasWeightSamples: boolean
+  lastSampleDate: Date | null
+  dataSource: 'weight_samples' | 'growth_curve_estimate'
 }
 
 // ... rest of interface definitions
@@ -168,37 +168,37 @@ interface EnhancedProjection {
 // Service functions (pure, no side effects)
 // IMPORTANT: Input weights from DB are in kg, convert to grams internally
 function calculateADG(
-    samples: WeightSample[], // samples have averageWeightKg in kg
-    acquisitionDate: Date,
-    initialWeightG: number,
+  samples: WeightSample[], // samples have averageWeightKg in kg
+  acquisitionDate: Date,
+  initialWeightG: number,
 ): { currentADG: number; method: 'two_samples' | 'single_sample' | 'estimated' }
 
 function calculatePerformanceIndex(
-    actualWeightG: number,
-    expectedWeightG: number,
+  actualWeightG: number,
+  expectedWeightG: number,
 ): number
 
 function classifyStatus(
-    performanceIndex: number,
+  performanceIndex: number,
 ): 'on_track' | 'behind' | 'ahead'
 
 function projectHarvestDate(
-    currentWeightG: number,
-    targetWeightG: number,
-    currentADG: number,
-    today: Date,
+  currentWeightG: number,
+  targetWeightG: number,
+  currentADG: number,
+  today: Date,
 ): { harvestDate: Date; daysRemaining: number }
 
 function calculateExpectedADG(
-    growthStandards: GrowthStandard[],
-    currentDay: number,
+  growthStandards: GrowthStandard[],
+  currentDay: number,
 ): number
 
 function generateChartData(
-    growthStandards: GrowthStandard[],
-    weightSamples: WeightSample[],
-    acquisitionDate: Date,
-    currentDay: number,
+  growthStandards: GrowthStandard[],
+  weightSamples: WeightSample[],
+  acquisitionDate: Date,
+  currentDay: number,
 ): GrowthChartDataPoint[]
 ```
 
@@ -309,15 +309,15 @@ export const getBatchesNeedingAttentionFn = createServerFn({ method: 'GET' })
 ```typescript
 // EXISTING component structure - enhance, don't replace
 export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
-    // CHANGE: Use new enhanced projection endpoint
-    const { data: projection, isLoading } = useQuery({
-        queryKey: ['batch', batchId, 'enhanced-projection'],
-        queryFn: () => getEnhancedProjectionFn({ data: { batchId } }),
-    })
+  // CHANGE: Use new enhanced projection endpoint
+  const { data: projection, isLoading } = useQuery({
+    queryKey: ['batch', batchId, 'enhanced-projection'],
+    queryFn: () => getEnhancedProjectionFn({ data: { batchId } }),
+  })
 
-    // ... existing loading and null states ...
+  // ... existing loading and null states ...
 
-    // ADD: New sections for weight comparison, Performance Index, ADG
+  // ADD: New sections for weight comparison, Performance Index, ADG
 }
 ```
 
@@ -327,23 +327,23 @@ Visual growth comparison using Recharts:
 
 ```typescript
 interface GrowthChartProps {
-    batchId: string
+  batchId: string
 }
 
 export function GrowthChart({ batchId }: GrowthChartProps) {
-    const { data: chartData, isLoading } = useQuery({
-        queryKey: ['batch', batchId, 'growth-chart'],
-        queryFn: () => getGrowthChartDataFn({ data: { batchId } }),
-    })
+  const { data: chartData, isLoading } = useQuery({
+    queryKey: ['batch', batchId, 'growth-chart'],
+    queryFn: () => getGrowthChartDataFn({ data: { batchId } }),
+  })
 
-    // Render LineChart with:
-    //   - X-axis: Days from acquisition
-    //   - Y-axis: Weight (converted to user's unit preference)
-    //   - Expected growth curve line (dashed, gray)
-    //   - Actual weight samples line (solid, primary color)
-    //   - Deviation zone shading (±10%)
-    //   - Interactive tooltips
-    //   - Legend
+  // Render LineChart with:
+  //   - X-axis: Days from acquisition
+  //   - Y-axis: Weight (converted to user's unit preference)
+  //   - Expected growth curve line (dashed, gray)
+  //   - Actual weight samples line (solid, primary color)
+  //   - Deviation zone shading (±10%)
+  //   - Interactive tooltips
+  //   - Legend
 }
 ```
 
@@ -351,20 +351,20 @@ export function GrowthChart({ batchId }: GrowthChartProps) {
 
 ```typescript
 interface BatchesAttentionProps {
-    limit?: number
+  limit?: number
 }
 
 export function BatchesAttention({ limit = 5 }: BatchesAttentionProps) {
-    const { data: batches, isLoading } = useQuery({
-        queryKey: ['batches', 'needing-attention'],
-        queryFn: () => getBatchesNeedingAttentionFn({ data: { limit } }),
-    })
+  const { data: batches, isLoading } = useQuery({
+    queryKey: ['batches', 'needing-attention'],
+    queryFn: () => getBatchesNeedingAttentionFn({ data: { limit } }),
+  })
 
-    // Render list of batches with:
-    //   - Batch name and species
-    //   - Performance Index with color
-    //   - Deviation indicator (behind/ahead)
-    //   - Link to batch detail
+  // Render list of batches with:
+  //   - Batch name and species
+  //   - Performance Index with color
+  //   - Deviation indicator (behind/ahead)
+  //   - Link to batch detail
 }
 ```
 
@@ -374,36 +374,36 @@ export function BatchesAttention({ limit = 5 }: BatchesAttentionProps) {
 
 ```typescript
 interface EnhancedProjection {
-    // Core metrics
-    currentWeightG: number
-    expectedWeightG: number
-    performanceIndex: number
+  // Core metrics
+  currentWeightG: number
+  expectedWeightG: number
+  performanceIndex: number
 
-    // ADG metrics
-    currentADG: number
-    expectedADG: number
-    adgDeviation: number // (current - expected) / expected * 100
+  // ADG metrics
+  currentADG: number
+  expectedADG: number
+  adgDeviation: number // (current - expected) / expected * 100
 
-    // Harvest projection
-    projectedHarvestDate: Date
-    daysRemaining: number
-    targetWeightG: number
+  // Harvest projection
+  projectedHarvestDate: Date
+  daysRemaining: number
+  targetWeightG: number
 
-    // Status classification
-    status: 'on_track' | 'behind' | 'ahead'
-    deviationPercent: number
-    severity: 'normal' | 'warning' | 'critical'
+  // Status classification
+  status: 'on_track' | 'behind' | 'ahead'
+  deviationPercent: number
+  severity: 'normal' | 'warning' | 'critical'
 
-    // Financial projections
-    projectedRevenue: number
-    projectedFeedCost: number
-    estimatedProfit: number
+  // Financial projections
+  projectedRevenue: number
+  projectedFeedCost: number
+  estimatedProfit: number
 
-    // Data quality indicators
-    hasWeightSamples: boolean
-    sampleCount: number
-    lastSampleDate: Date | null
-    dataSource: 'weight_samples' | 'growth_curve_estimate'
+  // Data quality indicators
+  hasWeightSamples: boolean
+  sampleCount: number
+  lastSampleDate: Date | null
+  dataSource: 'weight_samples' | 'growth_curve_estimate'
 }
 ```
 
@@ -411,12 +411,12 @@ interface EnhancedProjection {
 
 ```typescript
 interface GrowthChartDataPoint {
-    day: number // Days from acquisition
-    date: Date // Actual date
-    expectedWeightG: number // From growth standards
-    actualWeightG: number | null // From weight samples (null if no sample)
-    deviationPercent: number | null // Calculated deviation
-    isProjected: boolean // True for future days
+  day: number // Days from acquisition
+  date: Date // Actual date
+  expectedWeightG: number // From growth standards
+  actualWeightG: number | null // From weight samples (null if no sample)
+  deviationPercent: number | null // Calculated deviation
+  isProjected: boolean // True for future days
 }
 ```
 
@@ -424,14 +424,14 @@ interface GrowthChartDataPoint {
 
 ```typescript
 interface DeviationAlert {
-    batchId: string
-    batchName: string
-    farmId: string
-    performanceIndex: number
-    deviationType: 'behind' | 'ahead'
-    severity: 'warning' | 'critical' | 'info'
-    recommendation: string
-    createdAt: Date
+  batchId: string
+  batchName: string
+  farmId: string
+  performanceIndex: number
+  deviationType: 'behind' | 'ahead'
+  severity: 'warning' | 'critical' | 'info'
+  recommendation: string
+  createdAt: Date
 }
 ```
 
@@ -442,12 +442,12 @@ Add new notification types to support growth alerts:
 ```typescript
 // Extend NotificationType in app/features/notifications/types.ts
 export type NotificationType =
-    | 'lowStock'
-    | 'highMortality'
-    | 'invoiceDue'
-    | 'batchHarvest'
-    | 'growthDeviation' // NEW: Batch behind schedule
-    | 'earlyHarvest' // NEW: Batch ahead of schedule
+  | 'lowStock'
+  | 'highMortality'
+  | 'invoiceDue'
+  | 'batchHarvest'
+  | 'growthDeviation' // NEW: Batch behind schedule
+  | 'earlyHarvest' // NEW: Batch ahead of schedule
 ```
 
 ## Correctness Properties
@@ -625,75 +625,75 @@ tests/features/forecasting/
 ```typescript
 // Property 4: Performance Index Formula
 describe('Performance Index Calculation', () => {
-    it('Property 4: Performance Index equals (actual/expected) * 100', () => {
-        fc.assert(
-            fc.property(
-                fc.float({ min: 1, max: 100000 }), // actualWeightG
-                fc.float({ min: 1, max: 100000 }), // expectedWeightG
-                (actualWeightG, expectedWeightG) => {
-                    const result = calculatePerformanceIndex(
-                        actualWeightG,
-                        expectedWeightG,
-                    )
-                    const expected = (actualWeightG / expectedWeightG) * 100
-                    expect(result).toBeCloseTo(expected, 5)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 4: Performance Index equals (actual/expected) * 100', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: 1, max: 100000 }), // actualWeightG
+        fc.float({ min: 1, max: 100000 }), // expectedWeightG
+        (actualWeightG, expectedWeightG) => {
+          const result = calculatePerformanceIndex(
+            actualWeightG,
+            expectedWeightG,
+          )
+          const expected = (actualWeightG / expectedWeightG) * 100
+          expect(result).toBeCloseTo(expected, 5)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 
 // Property 5: Status Classification Consistency
 describe('Status Classification', () => {
-    it('Property 5: Status classification is consistent with thresholds', () => {
-        fc.assert(
-            fc.property(
-                fc.float({ min: 0, max: 200 }), // performanceIndex
-                (performanceIndex) => {
-                    const status = classifyStatus(performanceIndex)
-                    if (performanceIndex < 95) {
-                        expect(status).toBe('behind')
-                    } else if (performanceIndex > 105) {
-                        expect(status).toBe('ahead')
-                    } else {
-                        expect(status).toBe('on_track')
-                    }
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 5: Status classification is consistent with thresholds', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: 0, max: 200 }), // performanceIndex
+        (performanceIndex) => {
+          const status = classifyStatus(performanceIndex)
+          if (performanceIndex < 95) {
+            expect(status).toBe('behind')
+          } else if (performanceIndex > 105) {
+            expect(status).toBe('ahead')
+          } else {
+            expect(status).toBe('on_track')
+          }
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 
 // Property 10: Alert Severity Classification
 describe('Alert Severity', () => {
-    it('Property 10: Alert severity matches Performance Index thresholds', () => {
-        fc.assert(
-            fc.property(fc.float({ min: 0, max: 200 }), (performanceIndex) => {
-                const alert = determineAlertSeverity(performanceIndex)
-                if (performanceIndex < 80) {
-                    expect(alert).toEqual({
-                        severity: 'critical',
-                        type: 'growthDeviation',
-                    })
-                } else if (performanceIndex < 90) {
-                    expect(alert).toEqual({
-                        severity: 'warning',
-                        type: 'growthDeviation',
-                    })
-                } else if (performanceIndex > 110) {
-                    expect(alert).toEqual({
-                        severity: 'info',
-                        type: 'earlyHarvest',
-                    })
-                } else {
-                    expect(alert).toBeNull()
-                }
-            }),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 10: Alert severity matches Performance Index thresholds', () => {
+    fc.assert(
+      fc.property(fc.float({ min: 0, max: 200 }), (performanceIndex) => {
+        const alert = determineAlertSeverity(performanceIndex)
+        if (performanceIndex < 80) {
+          expect(alert).toEqual({
+            severity: 'critical',
+            type: 'growthDeviation',
+          })
+        } else if (performanceIndex < 90) {
+          expect(alert).toEqual({
+            severity: 'warning',
+            type: 'growthDeviation',
+          })
+        } else if (performanceIndex > 110) {
+          expect(alert).toEqual({
+            severity: 'info',
+            type: 'earlyHarvest',
+          })
+        } else {
+          expect(alert).toBeNull()
+        }
+      }),
+      { numRuns: 100 },
+    )
+  })
 })
 ```
 

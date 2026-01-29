@@ -27,13 +27,13 @@ Server functions that handle auth, validation, and orchestration:
 
 ```typescript
 export const createBatchFn = createServerFn({ method: 'POST' })
-    .inputValidator(schema)
-    .handler(async ({ data }) => {
-        const session = await requireAuth()
-        const error = validateBatchData(data)
-        if (error) throw new AppError('VALIDATION_ERROR')
-        return insertBatch(db, data)
-    })
+  .inputValidator(schema)
+  .handler(async ({ data }) => {
+    const session = await requireAuth()
+    const error = validateBatchData(data)
+    if (error) throw new AppError('VALIDATION_ERROR')
+    return insertBatch(db, data)
+  })
 ```
 
 ### service.ts
@@ -42,16 +42,16 @@ Pure business logic functions (no side effects):
 
 ```typescript
 export function calculateFCR(
-    feedKg: number,
-    weightGain: number,
+  feedKg: number,
+  weightGain: number,
 ): number | null {
-    if (feedKg <= 0 || weightGain <= 0) return null
-    return Math.round((feedKg / weightGain) * 100) / 100
+  if (feedKg <= 0 || weightGain <= 0) return null
+  return Math.round((feedKg / weightGain) * 100) / 100
 }
 
 export function validateBatchData(data: CreateBatchData): string | null {
-    if (data.initialQuantity <= 0) return 'Quantity must be positive'
-    return null
+  if (data.initialQuantity <= 0) return 'Quantity must be positive'
+  return null
 }
 ```
 
@@ -61,15 +61,15 @@ Database operations only:
 
 ```typescript
 export async function insertBatch(
-    db: Kysely<Database>,
-    data: BatchInsert,
+  db: Kysely<Database>,
+  data: BatchInsert,
 ): Promise<string> {
-    const result = await db
-        .insertInto('batches')
-        .values(data)
-        .returning('id')
-        .executeTakeFirstOrThrow()
-    return result.id
+  const result = await db
+    .insertInto('batches')
+    .values(data)
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
 }
 ```
 
@@ -79,16 +79,16 @@ TypeScript interfaces:
 
 ```typescript
 export interface CreateBatchData {
-    farmId: string
-    species: string
-    initialQuantity: number
-    costPerUnit: number
+  farmId: string
+  species: string
+  initialQuantity: number
+  costPerUnit: number
 }
 
 export interface BatchStats {
-    mortality: { rate: number; total: number }
-    feed: { totalKg: number; fcr: number | null }
-    sales: { totalRevenue: number }
+  mortality: { rate: number; total: number }
+  feed: { totalKg: number; fcr: number | null }
+  sales: { totalRevenue: number }
 }
 ```
 

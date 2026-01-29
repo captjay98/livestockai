@@ -57,17 +57,17 @@ tests/
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 describe('calculateFCR', () => {
-    it('returns correct FCR for valid inputs', () => {
-        expect(calculateFCR(150, 100)).toBe(1.5)
-    })
+  it('returns correct FCR for valid inputs', () => {
+    expect(calculateFCR(150, 100)).toBe(1.5)
+  })
 
-    it('returns null for zero weight gain', () => {
-        expect(calculateFCR(150, 0)).toBeNull()
-    })
+  it('returns null for zero weight gain', () => {
+    expect(calculateFCR(150, 0)).toBeNull()
+  })
 
-    it('returns null for negative inputs', () => {
-        expect(calculateFCR(-150, 100)).toBeNull()
-    })
+  it('returns null for negative inputs', () => {
+    expect(calculateFCR(-150, 100)).toBeNull()
+  })
 })
 ```
 
@@ -78,7 +78,7 @@ import { vi } from 'vitest'
 
 // Mock a module
 vi.mock('~/lib/db', () => ({
-    getDb: vi.fn().mockResolvedValue(mockDb),
+  getDb: vi.fn().mockResolvedValue(mockDb),
 }))
 
 // Mock a function
@@ -96,14 +96,14 @@ Service functions are pure and easy to test:
 import { calculateBatchTotalCost, validateBatchData } from './service'
 
 describe('calculateBatchTotalCost', () => {
-    it('multiplies quantity by cost', () => {
-        expect(calculateBatchTotalCost(100, 5.5)).toBe('550.00')
-    })
+  it('multiplies quantity by cost', () => {
+    expect(calculateBatchTotalCost(100, 5.5)).toBe('550.00')
+  })
 
-    it('returns zero for invalid inputs', () => {
-        expect(calculateBatchTotalCost(0, 5.5)).toBe('0.00')
-        expect(calculateBatchTotalCost(100, -5)).toBe('0.00')
-    })
+  it('returns zero for invalid inputs', () => {
+    expect(calculateBatchTotalCost(0, 5.5)).toBe('0.00')
+    expect(calculateBatchTotalCost(100, -5)).toBe('0.00')
+  })
 })
 ```
 

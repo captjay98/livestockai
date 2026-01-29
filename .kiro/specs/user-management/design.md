@@ -49,20 +49,20 @@ import { betterAuth } from 'better-auth'
 import { admin } from 'better-auth/plugins'
 
 export const auth = betterAuth({
-    // ... existing config
-    plugins: [
-        admin({
-            defaultRole: 'user',
-            adminRoles: ['admin'],
-        }),
-    ],
-    user: {
-        additionalFields: {
-            banned: { type: 'boolean', defaultValue: false },
-            banReason: { type: 'string', required: false },
-            banExpires: { type: 'date', required: false },
-        },
+  // ... existing config
+  plugins: [
+    admin({
+      defaultRole: 'user',
+      adminRoles: ['admin'],
+    }),
+  ],
+  user: {
+    additionalFields: {
+      banned: { type: 'boolean', defaultValue: false },
+      banReason: { type: 'string', required: false },
+      banExpires: { type: 'date', required: false },
     },
+  },
 })
 ```
 
@@ -74,7 +74,7 @@ import { createAuthClient } from 'better-auth/react'
 import { adminClient } from 'better-auth/client/plugins'
 
 export const authClient = createAuthClient({
-    plugins: [adminClient()],
+  plugins: [adminClient()],
 })
 
 export const { admin } = authClient
@@ -89,78 +89,70 @@ import { z } from 'zod'
 
 // List all users (admin only)
 export const listUsers = createServerFn({ method: 'GET' }).handler(async () => {
-    const { requireAdmin } = await import('../auth/server-middleware')
-    await requireAdmin()
+  const { requireAdmin } = await import('../auth/server-middleware')
+  await requireAdmin()
 
-    const { db } = await import('../db')
-    return db
-        .selectFrom('users')
-        .select([
-            'id',
-            'name',
-            'email',
-            'role',
-            'banned',
-            'banReason',
-            'createdAt',
-        ])
-        .orderBy('createdAt', 'desc')
-        .execute()
+  const { db } = await import('../db')
+  return db
+    .selectFrom('users')
+    .select(['id', 'name', 'email', 'role', 'banned', 'banReason', 'createdAt'])
+    .orderBy('createdAt', 'desc')
+    .execute()
 })
 
 // Create user (admin only)
 export const createUser = createServerFn({ method: 'POST' })
-    .validator(
-        z.object({
-            email: z.string().email(),
-            password: z.string().min(8),
-            name: z.string().min(1),
-            role: z.enum(['user', 'admin']).default('user'),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAdmin } = await import('../auth/server-middleware')
-        await requireAdmin()
+  .validator(
+    z.object({
+      email: z.string().email(),
+      password: z.string().min(8),
+      name: z.string().min(1),
+      role: z.enum(['user', 'admin']).default('user'),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    await requireAdmin()
 
-        const { auth } = await import('../auth/config')
-        return auth.api.createUser({
-            body: {
-                email: data.email,
-                password: data.password,
-                name: data.name,
-                role: data.role,
-            },
-        })
+    const { auth } = await import('../auth/config')
+    return auth.api.createUser({
+      body: {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        role: data.role,
+      },
     })
+  })
 
 // Ban user (admin only)
 export const banUser = createServerFn({ method: 'POST' })
-    .validator(
-        z.object({
-            userId: z.string().uuid(),
-            reason: z.string().optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAdmin } = await import('../auth/server-middleware')
-        await requireAdmin()
+  .validator(
+    z.object({
+      userId: z.string().uuid(),
+      reason: z.string().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    await requireAdmin()
 
-        const { auth } = await import('../auth/config')
-        return auth.api.banUser({
-            body: { userId: data.userId, banReason: data.reason },
-        })
+    const { auth } = await import('../auth/config')
+    return auth.api.banUser({
+      body: { userId: data.userId, banReason: data.reason },
     })
+  })
 
 // Unban user (admin only)
 export const unbanUser = createServerFn({ method: 'POST' })
-    .validator(z.object({ userId: z.string().uuid() }))
-    .handler(async ({ data }) => {
-        const { requireAdmin } = await import('../auth/server-middleware')
-        await requireAdmin()
+  .validator(z.object({ userId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    await requireAdmin()
 
-        const { auth } = await import('../auth/config')
-        return auth.api.unbanUser({ body: { userId: data.userId } })
-    })
+    const { auth } = await import('../auth/config')
+    return auth.api.unbanUser({ body: { userId: data.userId } })
+  })
 ```
 
 ### Farm Role Management
@@ -170,67 +162,64 @@ export const unbanUser = createServerFn({ method: 'POST' })
 
 // Assign user to farm with role
 export const assignUserToFarm = createServerFn({ method: 'POST' })
-    .validator(
-        z.object({
-            userId: z.string().uuid(),
-            farmId: z.string().uuid(),
-            role: z.enum(['owner', 'manager', 'viewer']),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAdmin } = await import('../auth/server-middleware')
-        await requireAdmin()
+  .validator(
+    z.object({
+      userId: z.string().uuid(),
+      farmId: z.string().uuid(),
+      role: z.enum(['owner', 'manager', 'viewer']),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    await requireAdmin()
 
-        const { db } = await import('../db')
-        await db
-            .insertInto('user_farms')
-            .values({
-                userId: data.userId,
-                farmId: data.farmId,
-                role: data.role,
-            })
-            .onConflict((oc) =>
-                oc
-                    .columns(['userId', 'farmId'])
-                    .doUpdateSet({ role: data.role }),
-            )
-            .execute()
-    })
+    const { db } = await import('../db')
+    await db
+      .insertInto('user_farms')
+      .values({
+        userId: data.userId,
+        farmId: data.farmId,
+        role: data.role,
+      })
+      .onConflict((oc) =>
+        oc.columns(['userId', 'farmId']).doUpdateSet({ role: data.role }),
+      )
+      .execute()
+  })
 
 // Remove user from farm (with owner protection)
 export const removeUserFromFarm = createServerFn({ method: 'POST' })
-    .validator(
-        z.object({
-            userId: z.string().uuid(),
-            farmId: z.string().uuid(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAdmin } = await import('../auth/server-middleware')
-        await requireAdmin()
+  .validator(
+    z.object({
+      userId: z.string().uuid(),
+      farmId: z.string().uuid(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await import('../auth/server-middleware')
+    await requireAdmin()
 
-        const { db } = await import('../db')
+    const { db } = await import('../db')
 
-        // Check if this is the last owner
-        const owners = await db
-            .selectFrom('user_farms')
-            .select(['userId'])
-            .where('farmId', '=', data.farmId)
-            .where('role', '=', 'owner')
-            .execute()
+    // Check if this is the last owner
+    const owners = await db
+      .selectFrom('user_farms')
+      .select(['userId'])
+      .where('farmId', '=', data.farmId)
+      .where('role', '=', 'owner')
+      .execute()
 
-        const isLastOwner =
-            owners.length === 1 && owners[0].userId === data.userId
-        if (isLastOwner) {
-            throw new Error('Cannot remove the last owner from a farm')
-        }
+    const isLastOwner = owners.length === 1 && owners[0].userId === data.userId
+    if (isLastOwner) {
+      throw new Error('Cannot remove the last owner from a farm')
+    }
 
-        await db
-            .deleteFrom('user_farms')
-            .where('userId', '=', data.userId)
-            .where('farmId', '=', data.farmId)
-            .execute()
-    })
+    await db
+      .deleteFrom('user_farms')
+      .where('userId', '=', data.userId)
+      .where('farmId', '=', data.farmId)
+      .execute()
+  })
 ```
 
 ## Data Models
@@ -260,24 +249,24 @@ UPDATE user_farms SET role = 'owner' WHERE role IS NULL;
 // app/lib/db/types.ts (updates)
 
 export interface UserTable {
-    id: Generated<string>
-    email: string
-    password: string | null
-    name: string
-    role: 'admin' | 'user' // Changed from 'admin' | 'staff'
-    emailVerified: Generated<boolean>
-    image: string | null
-    banned: Generated<boolean>
-    banReason: string | null
-    banExpires: Date | null
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
+  id: Generated<string>
+  email: string
+  password: string | null
+  name: string
+  role: 'admin' | 'user' // Changed from 'admin' | 'staff'
+  emailVerified: Generated<boolean>
+  image: string | null
+  banned: Generated<boolean>
+  banReason: string | null
+  banExpires: Date | null
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
 
 export interface UserFarmTable {
-    userId: string
-    farmId: string
-    role: 'owner' | 'manager' | 'viewer'
+  userId: string
+  farmId: string
+  role: 'owner' | 'manager' | 'viewer'
 }
 
 export type FarmRole = 'owner' | 'manager' | 'viewer'
@@ -410,13 +399,13 @@ Welcome → Feature Tour → Complete
 
 ```typescript
 interface OnboardingState {
-    currentStep: number
-    completedSteps: number[]
-    skippedSteps: number[]
-    farmId?: string // Created in step 2
-    structureId?: string // Created in step 4
-    batchId?: string // Created in step 5
-    isComplete: boolean
+  currentStep: number
+  completedSteps: number[]
+  skippedSteps: number[]
+  farmId?: string // Created in step 2
+  structureId?: string // Created in step 4
+  batchId?: string // Created in step 5
+  isComplete: boolean
 }
 ```
 

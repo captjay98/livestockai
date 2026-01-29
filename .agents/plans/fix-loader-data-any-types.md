@@ -88,11 +88,11 @@ batches.map((batch) => ...)  // Type inferred from LoaderData
 
 ```typescript
 interface Batch {
-    id: string
-    species: string
-    livestockType: string
-    currentQuantity: number
-    status: string
+  id: string
+  species: string
+  livestockType: string
+  currentQuantity: number
+  status: string
 }
 ```
 
@@ -100,9 +100,9 @@ interface Batch {
 
 ```typescript
 interface Customer {
-    id: string
-    name: string
-    phone: string
+  id: string
+  name: string
+  phone: string
 }
 ```
 
@@ -110,9 +110,9 @@ interface Customer {
 
 ```typescript
 interface Supplier {
-    id: string
-    name: string
-    phone: string
+  id: string
+  name: string
+  phone: string
 }
 ```
 
@@ -124,8 +124,8 @@ const batches = Route.useLoaderData() as Array<Batch>
 
 // For complex loaders returning object
 interface LoaderData {
-    batches: Array<Batch>
-    customers: Array<Customer>
+  batches: Array<Batch>
+  customers: Array<Customer>
 }
 const { batches, customers } = Route.useLoaderData() as LoaderData
 ```
@@ -216,8 +216,8 @@ batches.map((batch) => ...)
 
 ```typescript
 interface Supplier {
-    id: string
-    name: string
+  id: string
+  name: string
 }
 ```
 
@@ -233,8 +233,8 @@ interface Supplier {
 
 ```typescript
 interface LoaderData {
-    batches: Array<Batch>
-    customers: Array<Customer>
+  batches: Array<Batch>
+  customers: Array<Customer>
 }
 
 const { batches, customers } = Route.useLoaderData() as LoaderData
@@ -251,8 +251,8 @@ const { batches, customers } = Route.useLoaderData() as LoaderData
 ```typescript
 // Find the Customer type used in state
 const handleEditCustomer = (customer: Customer) => {
-    setSelectedCustomer(customer)
-    // ...
+  setSelectedCustomer(customer)
+  // ...
 }
 ```
 
@@ -267,10 +267,10 @@ const handleEditCustomer = (customer: Customer) => {
 
 ```typescript
 interface VaccinationAlert {
-    batchId: string
-    species: string
-    vaccineName: string
-    dueDate: Date
+  batchId: string
+  species: string
+  vaccineName: string
+  dueDate: Date
 }
 
 // In component, cast alerts state or loader data
@@ -325,11 +325,11 @@ const updateData: any = {}
 
 // After
 const updateData: Partial<{
-    category?: string
-    amount?: string
-    date?: Date
-    description?: string
-    // ... other fields
+  category?: string
+  amount?: string
+  date?: Date
+  description?: string
+  // ... other fields
 }> = {}
 ```
 

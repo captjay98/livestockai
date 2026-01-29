@@ -14,21 +14,21 @@ Instead of testing specific examples, property tests verify that properties hold
 ```typescript
 // Example-based test
 it('calculates FCR correctly', () => {
-    expect(calculateFCR(150, 100)).toBe(1.5)
+  expect(calculateFCR(150, 100)).toBe(1.5)
 })
 
 // Property-based test
 it('FCR is always positive when inputs are positive', () => {
-    fc.assert(
-        fc.property(
-            fc.float({ min: 0.1, max: 10000 }),
-            fc.float({ min: 0.1, max: 10000 }),
-            (feed, weight) => {
-                const fcr = calculateFCR(feed, weight)
-                return fcr === null || fcr > 0
-            },
-        ),
-    )
+  fc.assert(
+    fc.property(
+      fc.float({ min: 0.1, max: 10000 }),
+      fc.float({ min: 0.1, max: 10000 }),
+      (feed, weight) => {
+        const fcr = calculateFCR(feed, weight)
+        return fcr === null || fcr > 0
+      },
+    ),
+  )
 })
 ```
 
@@ -39,15 +39,15 @@ import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 
 describe('Property Tests', () => {
-    it('property holds for all inputs', () => {
-        fc.assert(
-            fc.property(fc.integer({ min: 1, max: 100000 }), (quantity) => {
-                // Property must return true or throw
-                return quantity > 0
-            }),
-            { numRuns: 100 },
-        )
-    })
+  it('property holds for all inputs', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 100000 }), (quantity) => {
+        // Property must return true or throw
+        return quantity > 0
+      }),
+      { numRuns: 100 },
+    )
+  })
 })
 ```
 
@@ -70,8 +70,8 @@ fc.array(fc.integer(), { minLength: 0, maxLength: 20 })
 
 // Objects
 fc.record({
-    quantity: fc.integer({ min: 1, max: 1000 }),
-    price: fc.float({ min: 0, max: 10000 }),
+  quantity: fc.integer({ min: 1, max: 1000 }),
+  price: fc.float({ min: 0, max: 10000 }),
 })
 ```
 
@@ -86,30 +86,27 @@ From `tests/features/batches/batches.property.test.ts`:
  * initial_quantity - sum(mortality) - sum(sales)
  */
 describe('Property 4: Inventory Invariant', () => {
-    it('current_quantity equals initial - mortalities - sales', () => {
-        fc.assert(
-            fc.property(
-                fc.integer({ min: 1, max: 100000 }),
-                fc.array(fc.integer({ min: 1, max: 1000 })),
-                fc.array(fc.integer({ min: 1, max: 1000 })),
-                (initial, mortalities, sales) => {
-                    const { constrained } = constrainQuantities(
-                        initial,
-                        mortalities,
-                        sales,
-                    )
-                    const current = calculateCurrentQuantity(
-                        initial,
-                        constrained,
-                    )
+  it('current_quantity equals initial - mortalities - sales', () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 1, max: 100000 }),
+        fc.array(fc.integer({ min: 1, max: 1000 })),
+        fc.array(fc.integer({ min: 1, max: 1000 })),
+        (initial, mortalities, sales) => {
+          const { constrained } = constrainQuantities(
+            initial,
+            mortalities,
+            sales,
+          )
+          const current = calculateCurrentQuantity(initial, constrained)
 
-                    expect(current).toBeGreaterThanOrEqual(0)
-                    expect(current).toBeLessThanOrEqual(initial)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          expect(current).toBeGreaterThanOrEqual(0)
+          expect(current).toBeLessThanOrEqual(initial)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 ```
 
@@ -122,7 +119,7 @@ Annotate tests with requirement links:
  * **Validates: Requirements 3.2, 4.2, 8.2**
  */
 it('inventory invariant holds', () => {
-    // ...
+  // ...
 })
 ```
 

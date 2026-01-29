@@ -15,16 +15,16 @@ import { AppError } from '~/lib/errors'
  * Contains both the server and client versions for resolution.
  */
 export interface ConflictResponse<T> {
-    /** The error reason code */
-    reason: 'CONFLICT'
-    /** HTTP status code (409) */
-    httpStatus: 409
-    /** The current server version of the record */
-    serverVersion: T & { updatedAt: Date }
-    /** The client version that was attempted to be saved */
-    clientVersion: T & { updatedAt: Date }
-    /** Which version should win based on timestamps */
-    resolution: 'server-wins' | 'client-wins'
+  /** The error reason code */
+  reason: 'CONFLICT'
+  /** HTTP status code (409) */
+  httpStatus: 409
+  /** The current server version of the record */
+  serverVersion: T & { updatedAt: Date }
+  /** The client version that was attempted to be saved */
+  clientVersion: T & { updatedAt: Date }
+  /** Which version should win based on timestamps */
+  resolution: 'server-wins' | 'client-wins'
 }
 
 /**
@@ -34,10 +34,10 @@ export interface ConflictResponse<T> {
  * @returns True if the error is a conflict error
  */
 export function isConflictError(error: unknown): error is AppError {
-    if (AppError.isAppError(error)) {
-        return error.httpStatus === 409 && error.reason === 'CONFLICT'
-    }
-    return false
+  if (AppError.isAppError(error)) {
+    return error.httpStatus === 409 && error.reason === 'CONFLICT'
+  }
+  return false
 }
 
 /**
@@ -48,10 +48,10 @@ export function isConflictError(error: unknown): error is AppError {
  * @returns True if the error is a not found error
  */
 export function isNotFoundError(error: unknown): error is AppError {
-    if (AppError.isAppError(error)) {
-        return error.httpStatus === 404
-    }
-    return false
+  if (AppError.isAppError(error)) {
+    return error.httpStatus === 404
+  }
+  return false
 }
 
 /**
@@ -63,14 +63,14 @@ export function isNotFoundError(error: unknown): error is AppError {
  * @returns 'server-wins' if server is newer, 'client-wins' if client is newer
  */
 export function resolveConflict(
-    serverUpdatedAt: Date | string,
-    clientUpdatedAt: Date | string,
+  serverUpdatedAt: Date | string,
+  clientUpdatedAt: Date | string,
 ): 'server-wins' | 'client-wins' {
-    const serverTime = new Date(serverUpdatedAt).getTime()
-    const clientTime = new Date(clientUpdatedAt).getTime()
+  const serverTime = new Date(serverUpdatedAt).getTime()
+  const clientTime = new Date(clientUpdatedAt).getTime()
 
-    // If timestamps are equal, server wins (conservative approach)
-    return clientTime > serverTime ? 'client-wins' : 'server-wins'
+  // If timestamps are equal, server wins (conservative approach)
+  return clientTime > serverTime ? 'client-wins' : 'server-wins'
 }
 
 /**
@@ -83,14 +83,14 @@ export function resolveConflict(
  * @returns True if there's a conflict (server was modified)
  */
 export function hasConflict(
-    serverUpdatedAt: Date | string,
-    clientExpectedUpdatedAt: Date | string,
+  serverUpdatedAt: Date | string,
+  clientExpectedUpdatedAt: Date | string,
 ): boolean {
-    const serverTime = new Date(serverUpdatedAt).getTime()
-    const clientExpectedTime = new Date(clientExpectedUpdatedAt).getTime()
+  const serverTime = new Date(serverUpdatedAt).getTime()
+  const clientExpectedTime = new Date(clientExpectedUpdatedAt).getTime()
 
-    // Conflict exists if server version is newer than what client expected
-    return serverTime > clientExpectedTime
+  // Conflict exists if server version is newer than what client expected
+  return serverTime > clientExpectedTime
 }
 
 /**
@@ -102,22 +102,22 @@ export function hasConflict(
  * @returns An AppError with conflict metadata
  */
 export function createConflictError<T extends { updatedAt: Date }>(
-    serverVersion: T,
-    clientVersion: T,
+  serverVersion: T,
+  clientVersion: T,
 ): AppError {
-    const resolution = resolveConflict(
-        serverVersion.updatedAt,
-        clientVersion.updatedAt,
-    )
+  const resolution = resolveConflict(
+    serverVersion.updatedAt,
+    clientVersion.updatedAt,
+  )
 
-    return new AppError('CONFLICT', {
-        message: 'Resource was modified by another client',
-        metadata: {
-            serverVersion,
-            clientVersion,
-            resolution,
-        },
-    })
+  return new AppError('CONFLICT', {
+    message: 'Resource was modified by another client',
+    metadata: {
+      serverVersion,
+      clientVersion,
+      resolution,
+    },
+  })
 }
 
 /**
@@ -128,29 +128,29 @@ export function createConflictError<T extends { updatedAt: Date }>(
  * @returns The conflict response with both versions, or null if not a conflict error
  */
 export function extractConflictData<T>(
-    error: AppError,
+  error: AppError,
 ): ConflictResponse<T> | null {
-    if (error.reason !== 'CONFLICT') {
-        return null
-    }
+  if (error.reason !== 'CONFLICT') {
+    return null
+  }
 
-    const metadata = error.metadata as {
-        serverVersion?: T & { updatedAt: Date }
-        clientVersion?: T & { updatedAt: Date }
-        resolution?: 'server-wins' | 'client-wins'
-    }
+  const metadata = error.metadata as {
+    serverVersion?: T & { updatedAt: Date }
+    clientVersion?: T & { updatedAt: Date }
+    resolution?: 'server-wins' | 'client-wins'
+  }
 
-    if (!metadata.serverVersion || !metadata.clientVersion) {
-        return null
-    }
+  if (!metadata.serverVersion || !metadata.clientVersion) {
+    return null
+  }
 
-    return {
-        reason: 'CONFLICT',
-        httpStatus: 409,
-        serverVersion: metadata.serverVersion,
-        clientVersion: metadata.clientVersion,
-        resolution: metadata.resolution || 'server-wins',
-    }
+  return {
+    reason: 'CONFLICT',
+    httpStatus: 409,
+    serverVersion: metadata.serverVersion,
+    clientVersion: metadata.clientVersion,
+    resolution: metadata.resolution || 'server-wins',
+  }
 }
 
 /**
@@ -164,15 +164,15 @@ export function extractConflictData<T>(
  * @returns Merged data ready for retry
  */
 export function mergeForRetry<T extends Record<string, unknown>>(
-    serverVersion: T,
-    clientUpdates: Partial<T>,
+  serverVersion: T,
+  clientUpdates: Partial<T>,
 ): T {
-    return {
-        ...serverVersion,
-        ...clientUpdates,
-        // Always use the server's updatedAt as the base for the next update
-        // The server will set a new updatedAt on successful save
-    }
+  return {
+    ...serverVersion,
+    ...clientUpdates,
+    // Always use the server's updatedAt as the base for the next update
+    // The server will set a new updatedAt on successful save
+  }
 }
 
 /**
@@ -182,17 +182,17 @@ export function mergeForRetry<T extends Record<string, unknown>>(
  * @returns True if the response is a conflict response
  */
 export function isConflictResponse<T>(
-    response: unknown,
+  response: unknown,
 ): response is ConflictResponse<T> {
-    if (typeof response !== 'object' || response === null) {
-        return false
-    }
+  if (typeof response !== 'object' || response === null) {
+    return false
+  }
 
-    const obj = response as Record<string, unknown>
-    return (
-        obj.reason === 'CONFLICT' &&
-        obj.httpStatus === 409 &&
-        typeof obj.serverVersion === 'object' &&
-        typeof obj.clientVersion === 'object'
-    )
+  const obj = response as Record<string, unknown>
+  return (
+    obj.reason === 'CONFLICT' &&
+    obj.httpStatus === 409 &&
+    typeof obj.serverVersion === 'object' &&
+    typeof obj.clientVersion === 'object'
+  )
 }

@@ -1,133 +1,133 @@
 {
-    "name": "qa-engineer",
-    "description": "QA specialist for testing and quality assurance - guardian of code reliability",
-    "keyboardShortcut": "ctrl+shift+5",
-    "welcomeMessage": "🧪 QA Engineer ready. I write property tests, unit tests, and integration tests.",
-    "prompt": "file://../prompts/agents/qa-engineer.md",
-    "tools": [
-        "read",
-        "write",
-        "shell",
-        "grep",
-        "glob",
-        "aws",
-        "code",
-        "web_search",
-        "web_fetch",
-        "knowledge",
-        "todo_list",
-        "thinking",
-        "introspect",
-        "subagent",
-        "@sequential-thinking"
-    ],
-    "allowedTools": [
-        "read",
-        "write",
-        "shell",
-        "grep",
-        "glob",
-        "aws",
-        "code",
-        "web_search",
-        "web_fetch",
-        "knowledge",
-        "todo_list",
-        "thinking",
-        "introspect",
-        "subagent",
-        "@sequential-thinking"
-    ],
-    "toolsSettings": {
-        "write": {
-            "allowedPaths": [
-                "app/**/*.test.ts",
-                "app/**/*.test.tsx",
-                "tests/**",
-                "*.md"
-            ]
-        },
-        "shell": {
-            "allowedCommands": [
-                "bun run test",
-                "bun run test *",
-                "bun test:integration",
-                "bun test:integration *",
-                "bun run test --run",
-                "bun run test --coverage",
-                "bun run test --reporter=verbose",
-                "bun run test *",
-                "bun run check",
-                "npx tsc --noEmit",
-                "cat *",
-                "ls *",
-                "grep *",
-                "find *",
-                "git status",
-                "git diff *"
-            ],
-            "autoAllowReadonly": true,
-            "deniedCommands": ["rm -rf *", "sudo *"]
-        }
+  "name": "qa-engineer",
+  "description": "QA specialist for testing and quality assurance - guardian of code reliability",
+  "keyboardShortcut": "ctrl+shift+5",
+  "welcomeMessage": "🧪 QA Engineer ready. I write property tests, unit tests, and integration tests.",
+  "prompt": "file://../prompts/agents/qa-engineer.md",
+  "tools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking"
+  ],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": [
+        "app/**/*.test.ts",
+        "app/**/*.test.tsx",
+        "tests/**",
+        "*.md"
+      ]
     },
-    "resources": [
-        "file://AGENTS.md",
-        "file://README.md",
-        "file://vitest.config.ts",
-        "file://vitest.integration.config.ts",
-        {
-            "type": "knowledgeBase",
-            "source": "file://./docs",
-            "name": "ProjectDocs",
-            "description": "Architecture, database, deployment, testing, and API documentation",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        {
-            "type": "knowledgeBase",
-            "source": "file://./DEVLOG.md",
-            "name": "DevLog",
-            "description": "Development history, decisions, and progress tracking",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        {
-            "type": "knowledgeBase",
-            "source": "file://./tests",
-            "name": "TestSuite",
-            "description": "All test files - property tests, unit tests, integration tests",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        {
-            "type": "knowledgeBase",
-            "source": "file://./app/features",
-            "name": "FeatureCode",
-            "description": "All feature implementations - services, repositories, server functions",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        "skill://.kiro/skills/property-testing/SKILL.md",
-        "skill://.kiro/skills/vitest-patterns/SKILL.md",
-        "skill://.kiro/skills/integration-testing/SKILL.md",
-        "skill://.kiro/skills/three-layer-architecture/SKILL.md",
-        "skill://.kiro/skills/financial-integrity/SKILL.md"
-    ],
-    "hooks": {
-        "agentSpawn": [
-            {
-                "command": "echo '🧪 QA Engineer ready.' && find app tests -name '*.test.ts' -o -name '*.test.tsx' 2>/dev/null | wc -l | xargs -I {} echo '{} test files found'",
-                "timeout_ms": 5000
-            }
-        ],
-        "postToolUse": [
-            {
-                "matcher": "fs_write",
-                "command": "bun run lint --fix 2>/dev/null || true",
-                "timeout_ms": 30000
-            }
-        ]
+    "shell": {
+      "allowedCommands": [
+        "bun run test",
+        "bun run test *",
+        "bun test:integration",
+        "bun test:integration *",
+        "bun run test --run",
+        "bun run test --coverage",
+        "bun run test --reporter=verbose",
+        "bun run test *",
+        "bun run check",
+        "npx tsc --noEmit",
+        "cat *",
+        "ls *",
+        "grep *",
+        "find *",
+        "git status",
+        "git diff *"
+      ],
+      "autoAllowReadonly": true,
+      "deniedCommands": ["rm -rf *", "sudo *"]
+    }
+  },
+  "resources": [
+    "file://AGENTS.md",
+    "file://README.md",
+    "file://vitest.config.ts",
+    "file://vitest.integration.config.ts",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
     },
-    "includeMcpJson": true,
-    "model": "claude-sonnet-4.5"
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./tests",
+      "name": "TestSuite",
+      "description": "All test files - property tests, unit tests, integration tests",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/features",
+      "name": "FeatureCode",
+      "description": "All feature implementations - services, repositories, server functions",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    "skill://.kiro/skills/property-testing/SKILL.md",
+    "skill://.kiro/skills/vitest-patterns/SKILL.md",
+    "skill://.kiro/skills/integration-testing/SKILL.md",
+    "skill://.kiro/skills/three-layer-architecture/SKILL.md",
+    "skill://.kiro/skills/financial-integrity/SKILL.md"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "echo '🧪 QA Engineer ready.' && find app tests -name '*.test.ts' -o -name '*.test.tsx' 2>/dev/null | wc -l | xargs -I {} echo '{} test files found'",
+        "timeout_ms": 5000
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "fs_write",
+        "command": "bun run lint --fix 2>/dev/null || true",
+        "timeout_ms": 30000
+      }
+    ]
+  },
+  "includeMcpJson": true,
+  "model": "claude-sonnet-4.5"
 }

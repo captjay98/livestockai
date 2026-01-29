@@ -77,9 +77,9 @@ None - all changes are updates to existing files
 ### Relevant Documentation
 
 - [React Context API](https://react.dev/reference/react/useContext)
-    - Why: FarmProvider and ThemeProvider use context
+  - Why: FarmProvider and ThemeProvider use context
 - [TanStack Query](https://tanstack.com/query/latest/docs/framework/react/guides/queries)
-    - Why: Settings are loaded via useQuery in SettingsProvider
+  - Why: Settings are loaded via useQuery in SettingsProvider
 
 ### Patterns to Follow
 
@@ -88,8 +88,8 @@ None - all changes are updates to existing files
 ```typescript
 // From app/features/farms/context.tsx
 export function FarmProvider({ children }: { children: ReactNode }) {
-    const [selectedFarmId, setSelectedFarmId] = useState<string | null>(null)
-    // ... provider logic
+  const [selectedFarmId, setSelectedFarmId] = useState<string | null>(null)
+  // ... provider logic
 }
 ```
 
@@ -98,12 +98,12 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 ```typescript
 // From app/features/settings/hooks.ts
 export function usePreferences() {
-    const settings = useSettingsValue()
-    return {
-        defaultFarmId: settings.defaultFarmId,
-        language: settings.language,
-        theme: settings.theme,
-    }
+  const settings = useSettingsValue()
+  return {
+    defaultFarmId: settings.defaultFarmId,
+    language: settings.language,
+    theme: settings.theme,
+  }
 }
 ```
 
@@ -184,18 +184,18 @@ Ensure language setting is stored (translations deferred).
 - **IMPORTS**: `import { usePreferences } from '~/features/settings'`
 - **LOGIC**:
 
-    ```typescript
-    const { defaultFarmId } = usePreferences()
+  ```typescript
+  const { defaultFarmId } = usePreferences()
 
-    useEffect(() => {
-        if (!selectedFarmId && defaultFarmId && farms.length > 0) {
-            const farmExists = farms.some((f) => f.id === defaultFarmId)
-            if (farmExists) {
-                setSelectedFarmId(defaultFarmId)
-            }
-        }
-    }, [defaultFarmId, farms, selectedFarmId])
-    ```
+  useEffect(() => {
+    if (!selectedFarmId && defaultFarmId && farms.length > 0) {
+      const farmExists = farms.some((f) => f.id === defaultFarmId)
+      if (farmExists) {
+        setSelectedFarmId(defaultFarmId)
+      }
+    }
+  }, [defaultFarmId, farms, selectedFarmId])
+  ```
 
 - **GOTCHA**: Only auto-select if farm exists in user's accessible farms
 - **VALIDATE**: `npx tsc --noEmit`
@@ -205,31 +205,31 @@ Ensure language setting is stored (translations deferred).
 - **IMPLEMENT**: ThemeProvider that reads from settings and applies theme
 - **PATTERN**: Context provider pattern from farms/context.tsx
 - **IMPORTS**:
-    ```typescript
-    import { createContext, useContext, useEffect } from 'react'
-    import { usePreferences } from '~/features/settings'
-    ```
+  ```typescript
+  import { createContext, useContext, useEffect } from 'react'
+  import { usePreferences } from '~/features/settings'
+  ```
 - **LOGIC**:
 
-    ```typescript
-    export function ThemeProvider({ children }: { children: ReactNode }) {
-      const { theme } = usePreferences()
+  ```typescript
+  export function ThemeProvider({ children }: { children: ReactNode }) {
+    const { theme } = usePreferences()
 
-      useEffect(() => {
-        const root = document.documentElement
-        root.classList.remove('light', 'dark')
+    useEffect(() => {
+      const root = document.documentElement
+      root.classList.remove('light', 'dark')
 
-        if (theme === 'system') {
-          const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-          root.classList.add(systemTheme)
-        } else {
-          root.classList.add(theme)
-        }
-      }, [theme])
+      if (theme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        root.classList.add(systemTheme)
+      } else {
+        root.classList.add(theme)
+      }
+    }, [theme])
 
-      return <>{children}</>
-    }
-    ```
+    return <>{children}</>
+  }
+  ```
 
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -257,15 +257,15 @@ Ensure language setting is stored (translations deferred).
 - **IMPORTS**: `import { useAlertThresholds } from '~/features/settings'`
 - **LOGIC**:
 
-    ```typescript
-    const { lowStockPercent } = useAlertThresholds()
+  ```typescript
+  const { lowStockPercent } = useAlertThresholds()
 
-    const lowStockFeedCount = feedInventory.filter((f) => {
-        const qty = parseFloat(f.quantityKg)
-        const threshold = parseFloat(f.minThresholdKg) * (lowStockPercent / 100)
-        return qty <= threshold
-    }).length
-    ```
+  const lowStockFeedCount = feedInventory.filter((f) => {
+    const qty = parseFloat(f.quantityKg)
+    const threshold = parseFloat(f.minThresholdKg) * (lowStockPercent / 100)
+    return qty <= threshold
+  }).length
+  ```
 
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -276,14 +276,14 @@ Ensure language setting is stored (translations deferred).
 - **IMPORTS**: `import { useDashboardPreferences } from '~/features/settings'`
 - **LOGIC**:
 
-    ```typescript
-    const { cards } = useDashboardPreferences()
+  ```typescript
+  const { cards } = useDashboardPreferences()
 
-    // Wrap each card section:
-    {cards.inventory && summary && (
-      <Card>...</Card>
-    )}
-    ```
+  // Wrap each card section:
+  {cards.inventory && summary && (
+    <Card>...</Card>
+  )}
+  ```
 
 - **CARDS TO WRAP**: inventory, revenue, expenses, profit, mortality, feed
 - **VALIDATE**: `npx tsc --noEmit`
@@ -292,9 +292,9 @@ Ensure language setting is stored (translations deferred).
 
 - **IMPLEMENT**: Export ThemeProvider
 - **CONTENT**:
-    ```typescript
-    export { ThemeProvider } from './provider'
-    ```
+  ```typescript
+  export { ThemeProvider } from './provider'
+  ```
 - **VALIDATE**: `npx tsc --noEmit`
 
 ### Task 8: VERIFY language setting persistence

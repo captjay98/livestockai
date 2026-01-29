@@ -63,22 +63,22 @@ Hardcoded strings make translations incomplete and create inconsistent UX for no
 
 ```typescript
 export const en = {
-    common: {
-        /* shared strings */
-    },
-    eggs: {
-        /* egg production */
-    },
-    batches: {
-        /* batch management */
-    },
-    dashboard: {
-        /* dashboard */
-    },
-    settings: {
-        /* settings */
-    },
-    // ... other namespaces
+  common: {
+    /* shared strings */
+  },
+  eggs: {
+    /* egg production */
+  },
+  batches: {
+    /* batch management */
+  },
+  dashboard: {
+    /* dashboard */
+  },
+  settings: {
+    /* settings */
+  },
+  // ... other namespaces
 }
 ```
 

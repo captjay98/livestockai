@@ -6,7 +6,7 @@
  */
 
 import { DEFAULT_MODULES_BY_FARM_TYPE, MODULE_METADATA } from './constants'
-import type { ModuleKey } from './types'
+import type { LivestockType, ModuleKey, ModuleMetadata } from './types'
 
 /**
  * Get default modules for a farm type.
@@ -45,4 +45,59 @@ export function filterLivestockTypesByModules(
   }
   const allowedTypes = getLivestockTypesForModules(enabledModules)
   return allTypes.filter((t) => allowedTypes.includes(t.value))
+}
+
+/**
+ * Get module metadata for enabled modules.
+ * Returns metadata in the same order as the input modules array.
+ */
+export function getEnabledModuleMetadata(
+  enabledModules: Array<ModuleKey>,
+): Array<ModuleMetadata> {
+  return enabledModules.map((key) => MODULE_METADATA[key])
+}
+
+/**
+ * Get feed types for a set of enabled modules.
+ * Returns unique feed types from all enabled modules.
+ */
+export function getFeedTypesForModules(
+  enabledModules: Array<ModuleKey>,
+): Array<string> {
+  const feedTypes = new Set<string>()
+  for (const key of enabledModules) {
+    for (const feedType of MODULE_METADATA[key].feedTypes) {
+      feedTypes.add(feedType)
+    }
+  }
+  return Array.from(feedTypes)
+}
+
+/**
+ * Get source size options for a livestock type.
+ * Finds the module that contains this livestock type and returns its source sizes.
+ */
+export function getSourceSizeForLivestockType(
+  livestockType: LivestockType,
+): Array<{ value: string; label: string }> {
+  const moduleEntry = Object.values(MODULE_METADATA).find((metadata) =>
+    metadata.livestockTypes.includes(livestockType),
+  )
+  return moduleEntry?.sourceSizeOptions ?? []
+}
+
+/**
+ * Get structure types for a set of enabled modules.
+ * Returns unique structure types from all enabled modules.
+ */
+export function getStructureTypesForModules(
+  enabledModules: Array<ModuleKey>,
+): Array<string> {
+  const structureTypes = new Set<string>()
+  for (const key of enabledModules) {
+    for (const structureType of MODULE_METADATA[key].structureTypes) {
+      structureTypes.add(structureType)
+    }
+  }
+  return Array.from(structureTypes)
 }

@@ -127,9 +127,9 @@ The codebase has grown organically, resulting in:
 
 ```typescript
 export const EXPENSE_CATEGORIES = [
-    'feed',
-    'medicine',
-    // ...
+  'feed',
+  'medicine',
+  // ...
 ] as const
 
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number]
@@ -139,21 +139,21 @@ export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number]
 
 ```typescript
 export interface CreateBatchData {
-    farmId: string
-    batchName: string
-    // ...
+  farmId: string
+  batchName: string
+  // ...
 }
 
 export interface PaginatedQuery {
-    page?: number
-    limit?: number
+  page?: number
+  limit?: number
 }
 
 export interface PaginatedResult<T> {
-    data: T[]
-    total: number
-    page: number
-    limit: number
+  data: T[]
+  total: number
+  page: number
+  limit: number
 }
 ```
 
@@ -164,10 +164,10 @@ import type { CreateBatchData } from './types'
 import { BATCH_STATUSES } from './constants'
 
 export const createBatchFn = createServerFn({ method: 'POST' })
-    .validator(schema)
-    .handler(async ({ data }) => {
-        // ...
-    })
+  .validator(schema)
+  .handler(async ({ data }) => {
+    // ...
+  })
 ```
 
 ---
@@ -238,15 +238,15 @@ Remove duplicate files and consolidate settings structure.
 
 ```typescript
 export interface PaginatedQuery {
-    page?: number
-    limit?: number
+  page?: number
+  limit?: number
 }
 
 export interface PaginatedResult<T> {
-    data: T[]
-    total: number
-    page: number
-    limit: number
+  data: T[]
+  total: number
+  page: number
+  limit: number
 }
 ```
 
@@ -609,11 +609,11 @@ bun dev
 3. **Keep server.ts clean**: Server files should only contain server functions, importing types and constants from dedicated files
 
 4. **Component organization**:
-    - `ui/` - Reusable UI primitives
-    - `providers/` - React context providers
-    - `layout/` - Layout components
-    - `dialogs/` - Modal dialogs
-    - Feature-specific directories for feature components
+   - `ui/` - Reusable UI primitives
+   - `providers/` - React context providers
+   - `layout/` - Layout components
+   - `dialogs/` - Modal dialogs
+   - Feature-specific directories for feature components
 
 ### Risks
 

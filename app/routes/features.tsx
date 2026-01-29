@@ -7,17 +7,17 @@ import { AdvancedFeatures } from '~/components/landing/AdvancedFeatures'
 import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/features')({
-    component: FeaturesPage,
+  component: FeaturesPage,
 })
 
 function FeaturesPage() {
-    return (
-        <LandingLayout>
-            <FeaturesHero />
-            <FeaturesBentoGrid />
-            <AdvancedFeatures />
-            <SpeciesSupport />
-            <CTASection />
-        </LandingLayout>
-    )
+  return (
+    <LandingLayout>
+      <FeaturesHero />
+      <FeaturesBentoGrid />
+      <AdvancedFeatures />
+      <SpeciesSupport />
+      <CTASection />
+    </LandingLayout>
+  )
 }

@@ -126,7 +126,7 @@ describe('Module Constants Property Tests', () => {
           expect(feedTypes.length).toBeGreaterThan(0)
 
           // All feed types should come from enabled modules
-          const expectedFeedTypes = new Set(
+          const expectedFeedTypes = new Set<string>(
             enabledModules.flatMap((key) => MODULE_METADATA[key].feedTypes),
           )
 
@@ -160,7 +160,7 @@ describe('Module Constants Property Tests', () => {
           if (disabledModules.length === 0) return true // Skip if all modules enabled
 
           const feedTypes = getFeedTypesForModules(enabledModules)
-          const disabledFeedTypes = new Set(
+          const disabledFeedTypes = new Set<string>(
             disabledModules.flatMap((key) => MODULE_METADATA[key].feedTypes),
           )
 
@@ -168,7 +168,7 @@ describe('Module Constants Property Tests', () => {
           feedTypes.forEach((feedType) => {
             // If this feed type is in disabled modules, it must also be in enabled modules
             if (disabledFeedTypes.has(feedType)) {
-              const enabledFeedTypes = new Set(
+              const enabledFeedTypes = new Set<string>(
                 enabledModules.flatMap((key) => MODULE_METADATA[key].feedTypes),
               )
               expect(enabledFeedTypes.has(feedType)).toBe(true)
@@ -214,7 +214,7 @@ describe('Module Constants Property Tests', () => {
           expect(livestockTypes.length).toBeGreaterThan(0)
 
           // All livestock types should come from enabled modules
-          const expectedTypes = new Set(
+          const expectedTypes = new Set<string>(
             enabledModules.flatMap(
               (key) => MODULE_METADATA[key].livestockTypes,
             ),
@@ -241,7 +241,7 @@ describe('Module Constants Property Tests', () => {
           expect(structureTypes.length).toBeGreaterThan(0)
 
           // All structure types should come from enabled modules
-          const expectedTypes = new Set(
+          const expectedTypes = new Set<string>(
             enabledModules.flatMap(
               (key) => MODULE_METADATA[key].structureTypes,
             ),

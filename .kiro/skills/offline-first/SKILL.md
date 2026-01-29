@@ -30,11 +30,11 @@ The PWA manifest is in `public/manifest.json`:
 
 ```json
 {
-    "name": "OpenLivestock Manager",
-    "short_name": "OpenLivestock",
-    "start_url": "/",
-    "display": "standalone",
-    "theme_color": "#10b981"
+  "name": "OpenLivestock Manager",
+  "short_name": "OpenLivestock",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#10b981"
 }
 ```
 
@@ -51,12 +51,12 @@ import { persistQueryClient } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 
 const persister = createSyncStoragePersister({
-    storage: window.localStorage,
+  storage: window.localStorage,
 })
 
 persistQueryClient({
-    queryClient,
-    persister,
+  queryClient,
+  persister,
 })
 ```
 

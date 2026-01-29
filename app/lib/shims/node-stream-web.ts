@@ -4,9 +4,9 @@ export const TransformStream = globalThis.TransformStream
 export const TextEncoderStream = globalThis.TextEncoderStream
 export const TextDecoderStream = globalThis.TextDecoderStream
 export default {
-    ReadableStream,
-    WritableStream,
-    TransformStream,
-    TextEncoderStream,
-    TextDecoderStream,
+  ReadableStream,
+  WritableStream,
+  TransformStream,
+  TextEncoderStream,
+  TextDecoderStream,
 }

@@ -18,108 +18,108 @@ import type { MoneyInput } from './currency-core'
  * @returns Validation error message, or null if valid
  */
 export function validateSettingData(
-    key: string,
-    value: unknown,
+  key: string,
+  value: unknown,
 ): string | null {
-    // Currency validations
-    if (key === 'currencyDecimals') {
-        const num = typeof value === 'number' ? value : Number(value)
-        if (isNaN(num) || num < 0 || num > 4) {
-            return 'Currency decimals must be between 0 and 4'
-        }
+  // Currency validations
+  if (key === 'currencyDecimals') {
+    const num = typeof value === 'number' ? value : Number(value)
+    if (isNaN(num) || num < 0 || num > 4) {
+      return 'Currency decimals must be between 0 and 4'
     }
+  }
 
-    if (key === 'currencySymbolPosition') {
-        if (value !== 'before' && value !== 'after') {
-            return 'Currency symbol position must be "before" or "after"'
-        }
+  if (key === 'currencySymbolPosition') {
+    if (value !== 'before' && value !== 'after') {
+      return 'Currency symbol position must be "before" or "after"'
     }
+  }
 
-    // Date/Time validations
-    if (key === 'dateFormat') {
-        const validFormats = ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD']
-        if (!validFormats.includes(value as string)) {
-            return 'Invalid date format'
-        }
+  // Date/Time validations
+  if (key === 'dateFormat') {
+    const validFormats = ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD']
+    if (!validFormats.includes(value as string)) {
+      return 'Invalid date format'
     }
+  }
 
-    if (key === 'timeFormat') {
-        if (value !== '12h' && value !== '24h') {
-            return 'Time format must be "12h" or "24h"'
-        }
+  if (key === 'timeFormat') {
+    if (value !== '12h' && value !== '24h') {
+      return 'Time format must be "12h" or "24h"'
     }
+  }
 
-    if (key === 'firstDayOfWeek') {
-        const num = typeof value === 'number' ? value : Number(value)
-        if (isNaN(num) || num < 0 || num > 6) {
-            return 'First day of week must be between 0 and 6'
-        }
+  if (key === 'firstDayOfWeek') {
+    const num = typeof value === 'number' ? value : Number(value)
+    if (isNaN(num) || num < 0 || num > 6) {
+      return 'First day of week must be between 0 and 6'
     }
+  }
 
-    // Unit validations
-    if (key === 'weightUnit') {
-        if (value !== 'kg' && value !== 'lbs') {
-            return 'Weight unit must be "kg" or "lbs"'
-        }
+  // Unit validations
+  if (key === 'weightUnit') {
+    if (value !== 'kg' && value !== 'lbs') {
+      return 'Weight unit must be "kg" or "lbs"'
     }
+  }
 
-    if (key === 'areaUnit') {
-        if (value !== 'sqm' && value !== 'sqft') {
-            return 'Area unit must be "sqm" or "sqft"'
-        }
+  if (key === 'areaUnit') {
+    if (value !== 'sqm' && value !== 'sqft') {
+      return 'Area unit must be "sqm" or "sqft"'
     }
+  }
 
-    if (key === 'temperatureUnit') {
-        if (value !== 'celsius' && value !== 'fahrenheit') {
-            return 'Temperature unit must be "celsius" or "fahrenheit"'
-        }
+  if (key === 'temperatureUnit') {
+    if (value !== 'celsius' && value !== 'fahrenheit') {
+      return 'Temperature unit must be "celsius" or "fahrenheit"'
     }
+  }
 
-    // Alert threshold validations
-    if (key === 'lowStockThresholdPercent') {
-        const num = typeof value === 'number' ? value : Number(value)
-        if (isNaN(num) || num < 1 || num > 100) {
-            return 'Low stock threshold must be between 1 and 100'
-        }
+  // Alert threshold validations
+  if (key === 'lowStockThresholdPercent') {
+    const num = typeof value === 'number' ? value : Number(value)
+    if (isNaN(num) || num < 1 || num > 100) {
+      return 'Low stock threshold must be between 1 and 100'
     }
+  }
 
-    if (key === 'mortalityAlertPercent') {
-        const num = typeof value === 'number' ? value : Number(value)
-        if (isNaN(num) || num < 1 || num > 100) {
-            return 'Mortality alert percent must be between 1 and 100'
-        }
+  if (key === 'mortalityAlertPercent') {
+    const num = typeof value === 'number' ? value : Number(value)
+    if (isNaN(num) || num < 1 || num > 100) {
+      return 'Mortality alert percent must be between 1 and 100'
     }
+  }
 
-    if (key === 'mortalityAlertQuantity') {
-        const num = typeof value === 'number' ? value : Number(value)
-        if (isNaN(num) || num < 1) {
-            return 'Mortality alert quantity must be at least 1'
-        }
+  if (key === 'mortalityAlertQuantity') {
+    const num = typeof value === 'number' ? value : Number(value)
+    if (isNaN(num) || num < 1) {
+      return 'Mortality alert quantity must be at least 1'
     }
+  }
 
-    // Business setting validations
-    if (key === 'defaultPaymentTermsDays') {
-        const num = typeof value === 'number' ? value : Number(value)
-        if (isNaN(num) || num < 0) {
-            return 'Default payment terms must be non-negative'
-        }
+  // Business setting validations
+  if (key === 'defaultPaymentTermsDays') {
+    const num = typeof value === 'number' ? value : Number(value)
+    if (isNaN(num) || num < 0) {
+      return 'Default payment terms must be non-negative'
     }
+  }
 
-    if (key === 'fiscalYearStartMonth') {
-        const num = typeof value === 'number' ? value : Number(value)
-        if (isNaN(num) || num < 1 || num > 12) {
-            return 'Fiscal year start must be between 1 and 12'
-        }
+  if (key === 'fiscalYearStartMonth') {
+    const num = typeof value === 'number' ? value : Number(value)
+    if (isNaN(num) || num < 1 || num > 12) {
+      return 'Fiscal year start must be between 1 and 12'
     }
+  }
 
-    // Theme validation
-    if (key === 'theme') {
-        if (value !== 'light' && value !== 'dark' && value !== 'system') {
-            return 'Theme must be "light", "dark", or "system"'
-        }
+  // Theme validation
+  if (key === 'theme') {
+    if (value !== 'light' && value !== 'dark' && value !== 'system') {
+      return 'Theme must be "light", "dark", or "system"'
     }
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -130,29 +130,29 @@ export function validateSettingData(
  * @returns Formatted currency string
  */
 export function formatCurrencyValue(
-    amount: MoneyInput,
-    currencyCode: string,
+  amount: MoneyInput,
+  currencyCode: string,
 ): string {
-    const preset = CURRENCY_PRESETS.find((p) => p.code === currencyCode)
+  const preset = CURRENCY_PRESETS.find((p) => p.code === currencyCode)
 
-    if (!preset) {
-        // Fallback to USD formatting if currency not found
-        return formatCurrency(amount, {
-            currencySymbol: '$',
-            currencySymbolPosition: 'before',
-            currencyDecimals: 2,
-            thousandSeparator: ',',
-            decimalSeparator: '.',
-        })
-    }
-
+  if (!preset) {
+    // Fallback to USD formatting if currency not found
     return formatCurrency(amount, {
-        currencySymbol: preset.symbol,
-        currencySymbolPosition: preset.symbolPosition,
-        currencyDecimals: preset.decimals,
-        thousandSeparator: preset.thousandSeparator,
-        decimalSeparator: preset.decimalSeparator,
+      currencySymbol: '$',
+      currencySymbolPosition: 'before',
+      currencyDecimals: 2,
+      thousandSeparator: ',',
+      decimalSeparator: '.',
     })
+  }
+
+  return formatCurrency(amount, {
+    currencySymbol: preset.symbol,
+    currencySymbolPosition: preset.symbolPosition,
+    currencyDecimals: preset.decimals,
+    thousandSeparator: preset.thousandSeparator,
+    decimalSeparator: preset.decimalSeparator,
+  })
 }
 
 /**
@@ -164,32 +164,32 @@ export function formatCurrencyValue(
  * @returns Parsed value
  */
 export function parseSettingValue(key: string, value: unknown): unknown {
-    // Numbers
-    if (
-        [
-            'currencyDecimals',
-            'firstDayOfWeek',
-            'lowStockThresholdPercent',
-            'mortalityAlertPercent',
-            'mortalityAlertQuantity',
-            'defaultPaymentTermsDays',
-            'fiscalYearStartMonth',
-        ].includes(key)
-    ) {
-        return typeof value === 'number' ? value : Number(value)
-    }
+  // Numbers
+  if (
+    [
+      'currencyDecimals',
+      'firstDayOfWeek',
+      'lowStockThresholdPercent',
+      'mortalityAlertPercent',
+      'mortalityAlertQuantity',
+      'defaultPaymentTermsDays',
+      'fiscalYearStartMonth',
+    ].includes(key)
+  ) {
+    return typeof value === 'number' ? value : Number(value)
+  }
 
-    // Booleans in nested objects
-    if (key.startsWith('notifications.')) {
-        return Boolean(value)
-    }
+  // Booleans in nested objects
+  if (key.startsWith('notifications.')) {
+    return Boolean(value)
+  }
 
-    if (key.startsWith('dashboardCards.')) {
-        return Boolean(value)
-    }
+  if (key.startsWith('dashboardCards.')) {
+    return Boolean(value)
+  }
 
-    // Strings
-    return value
+  // Strings
+  return value
 }
 
 /**
@@ -200,22 +200,22 @@ export function parseSettingValue(key: string, value: unknown): unknown {
  * @returns Validation error message, or null if valid
  */
 export function validateCurrencyChange(
-    oldCurrencyCode: string,
-    newCurrencyCode: string,
+  oldCurrencyCode: string,
+  newCurrencyCode: string,
 ): string | null {
-    // Check if new currency code exists in presets
-    const preset = CURRENCY_PRESETS.find((p) => p.code === newCurrencyCode)
+  // Check if new currency code exists in presets
+  const preset = CURRENCY_PRESETS.find((p) => p.code === newCurrencyCode)
 
-    if (!preset) {
-        return `Currency code "${newCurrencyCode}" is not supported`
-    }
+  if (!preset) {
+    return `Currency code "${newCurrencyCode}" is not supported`
+  }
 
-    // No change is valid
-    if (oldCurrencyCode === newCurrencyCode) {
-        return null
-    }
-
+  // No change is valid
+  if (oldCurrencyCode === newCurrencyCode) {
     return null
+  }
+
+  return null
 }
 
 /**
@@ -225,47 +225,47 @@ export function validateCurrencyChange(
  * @returns Summary object with key settings
  */
 export function buildSettingsSummary(settings: UserSettings): {
-    currency: {
-        code: string
-        symbol: string
-        position: 'before' | 'after'
-    }
-    region: {
-        dateFormat: string
-        timeFormat: string
-        language: string
-    }
-    units: {
-        weight: 'kg' | 'lbs'
-        area: 'sqm' | 'sqft'
-        temperature: 'celsius' | 'fahrenheit'
-    }
-    business: {
-        paymentTermsDays: number
-        fiscalYearStart: number
-    }
+  currency: {
+    code: string
+    symbol: string
+    position: 'before' | 'after'
+  }
+  region: {
+    dateFormat: string
+    timeFormat: string
+    language: string
+  }
+  units: {
+    weight: 'kg' | 'lbs'
+    area: 'sqm' | 'sqft'
+    temperature: 'celsius' | 'fahrenheit'
+  }
+  business: {
+    paymentTermsDays: number
+    fiscalYearStart: number
+  }
 } {
-    return {
-        currency: {
-            code: settings.currencyCode,
-            symbol: settings.currencySymbol,
-            position: settings.currencySymbolPosition,
-        },
-        region: {
-            dateFormat: settings.dateFormat,
-            timeFormat: settings.timeFormat,
-            language: settings.language,
-        },
-        units: {
-            weight: settings.weightUnit,
-            area: settings.areaUnit,
-            temperature: settings.temperatureUnit,
-        },
-        business: {
-            paymentTermsDays: settings.defaultPaymentTermsDays,
-            fiscalYearStart: settings.fiscalYearStartMonth,
-        },
-    }
+  return {
+    currency: {
+      code: settings.currencyCode,
+      symbol: settings.currencySymbol,
+      position: settings.currencySymbolPosition,
+    },
+    region: {
+      dateFormat: settings.dateFormat,
+      timeFormat: settings.timeFormat,
+      language: settings.language,
+    },
+    units: {
+      weight: settings.weightUnit,
+      area: settings.areaUnit,
+      temperature: settings.temperatureUnit,
+    },
+    business: {
+      paymentTermsDays: settings.defaultPaymentTermsDays,
+      fiscalYearStart: settings.fiscalYearStartMonth,
+    },
+  }
 }
 
 /**
@@ -278,15 +278,15 @@ export function buildSettingsSummary(settings: UserSettings): {
  * @returns Merged notification settings
  */
 export function mergeNotificationSettings(
-    defaults: UserSettings['notifications'],
-    existing?: UserSettings['notifications'] | null,
-    updates?: Partial<UserSettings['notifications']>,
+  defaults: UserSettings['notifications'],
+  existing?: UserSettings['notifications'] | null,
+  updates?: Partial<UserSettings['notifications']>,
 ): UserSettings['notifications'] {
-    return {
-        ...defaults,
-        ...(existing || {}),
-        ...(updates || {}),
-    } as UserSettings['notifications']
+  return {
+    ...defaults,
+    ...(existing || {}),
+    ...(updates || {}),
+  } as UserSettings['notifications']
 }
 
 /**
@@ -299,15 +299,15 @@ export function mergeNotificationSettings(
  * @returns Merged dashboard card settings
  */
 export function mergeDashboardCardSettings(
-    defaults: UserSettings['dashboardCards'],
-    existing?: UserSettings['dashboardCards'] | null,
-    updates?: Partial<UserSettings['dashboardCards']>,
+  defaults: UserSettings['dashboardCards'],
+  existing?: UserSettings['dashboardCards'] | null,
+  updates?: Partial<UserSettings['dashboardCards']>,
 ): UserSettings['dashboardCards'] {
-    return {
-        ...defaults,
-        ...(existing || {}),
-        ...(updates || {}),
-    } as UserSettings['dashboardCards']
+  return {
+    ...defaults,
+    ...(existing || {}),
+    ...(updates || {}),
+  } as UserSettings['dashboardCards']
 }
 
 /**
@@ -319,14 +319,14 @@ export function mergeDashboardCardSettings(
  * @returns True if alert should be triggered
  */
 export function shouldTriggerLowStockAlert(
-    currentQuantity: number,
-    initialQuantity: number,
-    thresholdPercent: number,
+  currentQuantity: number,
+  initialQuantity: number,
+  thresholdPercent: number,
 ): boolean {
-    if (initialQuantity <= 0) return false
+  if (initialQuantity <= 0) return false
 
-    const remainingPercent = (currentQuantity / initialQuantity) * 100
-    return remainingPercent <= thresholdPercent
+  const remainingPercent = (currentQuantity / initialQuantity) * 100
+  return remainingPercent <= thresholdPercent
 }
 
 /**
@@ -339,18 +339,18 @@ export function shouldTriggerLowStockAlert(
  * @returns True if alert should be triggered
  */
 export function shouldTriggerMortalityAlert(
-    currentQuantity: number,
-    initialQuantity: number,
-    alertPercent: number,
-    alertQuantity: number,
+  currentQuantity: number,
+  initialQuantity: number,
+  alertPercent: number,
+  alertQuantity: number,
 ): boolean {
-    if (initialQuantity <= 0) return false
+  if (initialQuantity <= 0) return false
 
-    const deaths = initialQuantity - currentQuantity
-    const deathPercent = (deaths / initialQuantity) * 100
+  const deaths = initialQuantity - currentQuantity
+  const deathPercent = (deaths / initialQuantity) * 100
 
-    // Trigger if death percent exceeds threshold AND absolute deaths exceed minimum
-    return deathPercent >= alertPercent && deaths >= alertQuantity
+  // Trigger if death percent exceeds threshold AND absolute deaths exceed minimum
+  return deathPercent >= alertPercent && deaths >= alertQuantity
 }
 
 /**
@@ -361,10 +361,10 @@ export function shouldTriggerMortalityAlert(
  * @returns Formatted date string
  */
 export function formatSettingDate(
-    date: Date | string,
-    settings: Pick<UserSettings, 'dateFormat'>,
+  date: Date | string,
+  settings: Pick<UserSettings, 'dateFormat'>,
 ): string {
-    return formatDate(date, settings)
+  return formatDate(date, settings)
 }
 
 /**
@@ -375,10 +375,10 @@ export function formatSettingDate(
  * @returns Formatted time string
  */
 export function formatSettingTime(
-    date: Date | string,
-    settings: Pick<UserSettings, 'timeFormat'>,
+  date: Date | string,
+  settings: Pick<UserSettings, 'timeFormat'>,
 ): string {
-    return formatTime(date, settings)
+  return formatTime(date, settings)
 }
 
 /**
@@ -389,10 +389,10 @@ export function formatSettingTime(
  * @returns Formatted date-time string
  */
 export function formatSettingDateTime(
-    date: Date | string,
-    settings: Pick<UserSettings, 'dateFormat' | 'timeFormat'>,
+  date: Date | string,
+  settings: Pick<UserSettings, 'dateFormat' | 'timeFormat'>,
 ): string {
-    return formatDateTime(date, settings)
+  return formatDateTime(date, settings)
 }
 
 /**
@@ -403,17 +403,17 @@ export function formatSettingDateTime(
  * @returns Compact formatted currency string
  */
 export function formatCompactSettingCurrency(
-    amount: MoneyInput,
-    settings: Pick<
-        UserSettings,
-        | 'currencySymbol'
-        | 'currencySymbolPosition'
-        | 'currencyDecimals'
-        | 'thousandSeparator'
-        | 'decimalSeparator'
-    >,
+  amount: MoneyInput,
+  settings: Pick<
+    UserSettings,
+    | 'currencySymbol'
+    | 'currencySymbolPosition'
+    | 'currencyDecimals'
+    | 'thousandSeparator'
+    | 'decimalSeparator'
+  >,
 ): string {
-    return formatCompactCurrency(amount, settings)
+  return formatCompactCurrency(amount, settings)
 }
 
 /**
@@ -423,23 +423,23 @@ export function formatCompactSettingCurrency(
  * @returns Array of validation errors (empty if valid)
  */
 export function validatePartialSettings(
-    data: Partial<Record<string, unknown>>,
+  data: Partial<Record<string, unknown>>,
 ): Array<string> {
-    const errors: Array<string> = []
+  const errors: Array<string> = []
 
-    for (const [key, value] of Object.entries(data)) {
-        // Skip nested objects - they're validated separately
-        if (key === 'notifications' || key === 'dashboardCards') {
-            continue
-        }
-
-        const error = validateSettingData(key, value)
-        if (error) {
-            errors.push(`${key}: ${error}`)
-        }
+  for (const [key, value] of Object.entries(data)) {
+    // Skip nested objects - they're validated separately
+    if (key === 'notifications' || key === 'dashboardCards') {
+      continue
     }
 
-    return errors
+    const error = validateSettingData(key, value)
+    if (error) {
+      errors.push(`${key}: ${error}`)
+    }
+  }
+
+  return errors
 }
 
 /**
@@ -449,7 +449,7 @@ export function validatePartialSettings(
  * @returns Currency preset or undefined
  */
 export function getCurrencyPresetByCode(code: string) {
-    return CURRENCY_PRESETS.find((p) => p.code === code)
+  return CURRENCY_PRESETS.find((p) => p.code === code)
 }
 
 /**
@@ -461,21 +461,21 @@ export function getCurrencyPresetByCode(code: string) {
  * @returns Converted weight
  */
 export function convertWeight(
-    weight: number,
-    fromUnit: 'kg' | 'lbs',
-    toUnit: 'kg' | 'lbs',
+  weight: number,
+  fromUnit: 'kg' | 'lbs',
+  toUnit: 'kg' | 'lbs',
 ): number {
-    if (fromUnit === toUnit) return weight
+  if (fromUnit === toUnit) return weight
 
-    // 1 kg = 2.20462 lbs
-    const KG_TO_LBS = 2.20462
+  // 1 kg = 2.20462 lbs
+  const KG_TO_LBS = 2.20462
 
-    if (fromUnit === 'kg' && toUnit === 'lbs') {
-        return weight * KG_TO_LBS
-    }
+  if (fromUnit === 'kg' && toUnit === 'lbs') {
+    return weight * KG_TO_LBS
+  }
 
-    // lbs to kg
-    return weight / KG_TO_LBS
+  // lbs to kg
+  return weight / KG_TO_LBS
 }
 
 /**
@@ -487,21 +487,21 @@ export function convertWeight(
  * @returns Converted area
  */
 export function convertArea(
-    area: number,
-    fromUnit: 'sqm' | 'sqft',
-    toUnit: 'sqm' | 'sqft',
+  area: number,
+  fromUnit: 'sqm' | 'sqft',
+  toUnit: 'sqm' | 'sqft',
 ): number {
-    if (fromUnit === toUnit) return area
+  if (fromUnit === toUnit) return area
 
-    // 1 sqm = 10.7639 sqft
-    const SQM_TO_SQFT = 10.7639
+  // 1 sqm = 10.7639 sqft
+  const SQM_TO_SQFT = 10.7639
 
-    if (fromUnit === 'sqm' && toUnit === 'sqft') {
-        return area * SQM_TO_SQFT
-    }
+  if (fromUnit === 'sqm' && toUnit === 'sqft') {
+    return area * SQM_TO_SQFT
+  }
 
-    // sqft to sqm
-    return area / SQM_TO_SQFT
+  // sqft to sqm
+  return area / SQM_TO_SQFT
 }
 
 /**
@@ -513,16 +513,16 @@ export function convertArea(
  * @returns Converted temperature
  */
 export function convertTemperature(
-    temp: number,
-    fromUnit: 'celsius' | 'fahrenheit',
-    toUnit: 'celsius' | 'fahrenheit',
+  temp: number,
+  fromUnit: 'celsius' | 'fahrenheit',
+  toUnit: 'celsius' | 'fahrenheit',
 ): number {
-    if (fromUnit === toUnit) return temp
+  if (fromUnit === toUnit) return temp
 
-    if (fromUnit === 'celsius' && toUnit === 'fahrenheit') {
-        return (temp * 9) / 5 + 32
-    }
+  if (fromUnit === 'celsius' && toUnit === 'fahrenheit') {
+    return (temp * 9) / 5 + 32
+  }
 
-    // fahrenheit to celsius
-    return ((temp - 32) * 5) / 9
+  // fahrenheit to celsius
+  return ((temp - 32) * 5) / 9
 }

@@ -22,20 +22,20 @@ const webCrypto = globalThis.crypto
  * Parameters for creating a user with authentication
  */
 export interface CreateUserParams {
-    email: string
-    password: string
-    name: string
-    role?: 'admin' | 'user'
+  email: string
+  password: string
+  name: string
+  role?: 'admin' | 'user'
 }
 
 /**
  * Information about a created user
  */
 export interface CreatedUser {
-    userId: string
-    email: string
-    name: string
-    role: string
+  userId: string
+  email: string
+  name: string
+  role: string
 }
 
 /**
@@ -52,37 +52,37 @@ export interface CreatedUser {
  * @returns Base64-encoded string containing salt and hash (64 characters)
  */
 export async function hashPassword(password: string): Promise<string> {
-    const encoder = new TextEncoder()
-    const salt = webCrypto.getRandomValues(new Uint8Array(16))
+  const encoder = new TextEncoder()
+  const salt = webCrypto.getRandomValues(new Uint8Array(16))
 
-    // Import password as key material (using Web Crypto API)
-    const keyMaterial = await webCrypto.subtle.importKey(
-        'raw',
-        encoder.encode(password),
-        'PBKDF2',
-        false,
-        ['deriveBits'],
-    )
+  // Import password as key material (using Web Crypto API)
+  const keyMaterial = await webCrypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits'],
+  )
 
-    // Derive hash using PBKDF2
-    const hash = await webCrypto.subtle.deriveBits(
-        {
-            name: 'PBKDF2',
-            salt,
-            iterations: 100000,
-            hash: 'SHA-256',
-        },
-        keyMaterial,
-        256, // 32 bytes = 256 bits
-    )
+  // Derive hash using PBKDF2
+  const hash = await webCrypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    256, // 32 bytes = 256 bits
+  )
 
-    // Combine salt + hash and encode as base64
-    const hashArray = new Uint8Array(hash)
-    const combined = new Uint8Array(salt.length + hashArray.length)
-    combined.set(salt)
-    combined.set(hashArray, salt.length)
+  // Combine salt + hash and encode as base64
+  const hashArray = new Uint8Array(hash)
+  const combined = new Uint8Array(salt.length + hashArray.length)
+  combined.set(salt)
+  combined.set(hashArray, salt.length)
 
-    return btoa(String.fromCharCode(...combined))
+  return btoa(String.fromCharCode(...combined))
 }
 
 /**
@@ -101,43 +101,43 @@ export async function hashPassword(password: string): Promise<string> {
  * @throws Error if user creation fails
  */
 export async function createUserWithAuth(
-    db: Kysely<Database>,
-    params: CreateUserParams,
+  db: Kysely<Database>,
+  params: CreateUserParams,
 ): Promise<CreatedUser> {
-    const { email, password, name, role = 'user' } = params
+  const { email, password, name, role = 'user' } = params
 
-    // Hash the password
-    const passwordHash = await hashPassword(password)
+  // Hash the password
+  const passwordHash = await hashPassword(password)
 
-    // Create user in users table (without password)
-    const user = await db
-        .insertInto('users')
-        .values({
-            email,
-            name,
-            role,
-            emailVerified: true, // Mark seeded users as verified
-            // Note: password is NOT stored here - it goes in the account table
-        })
-        .returningAll()
-        .executeTakeFirstOrThrow()
+  // Create user in users table (without password)
+  const user = await db
+    .insertInto('users')
+    .values({
+      email,
+      name,
+      role,
+      emailVerified: true, // Mark seeded users as verified
+      // Note: password is NOT stored here - it goes in the account table
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow()
 
-    // Create account entry for Better Auth credential provider
-    await db
-        .insertInto('account')
-        .values({
-            id: randomUUID(), // Generate unique ID for account
-            userId: user.id,
-            accountId: email, // For credential provider, accountId = email
-            providerId: 'credential', // Better Auth credential provider
-            password: passwordHash, // Password stored here, not in users table
-        })
-        .execute()
+  // Create account entry for Better Auth credential provider
+  await db
+    .insertInto('account')
+    .values({
+      id: randomUUID(), // Generate unique ID for account
+      userId: user.id,
+      accountId: email, // For credential provider, accountId = email
+      providerId: 'credential', // Better Auth credential provider
+      password: passwordHash, // Password stored here, not in users table
+    })
+    .execute()
 
-    return {
-        userId: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-    }
+  return {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  }
 }

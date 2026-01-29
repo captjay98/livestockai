@@ -16,11 +16,11 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
 i18n.use(initReactI18next).init({
-    lng: 'en',
-    fallbackLng: 'en',
-    interpolation: {
-        escapeValue: false,
-    },
+  lng: 'en',
+  fallbackLng: 'en',
+  interpolation: {
+    escapeValue: false,
+  },
 })
 ```
 
@@ -71,19 +71,19 @@ locales/
 
 ```json
 {
-    "common": {
-        "save": "Save",
-        "cancel": "Cancel",
-        "delete": "Delete"
-    },
-    "dashboard": {
-        "title": "Dashboard",
-        "welcome": "Welcome, {{name}}"
-    },
-    "batches": {
-        "title": "Batches",
-        "create": "Create Batch"
-    }
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {{name}}"
+  },
+  "batches": {
+    "title": "Batches",
+    "create": "Create Batch"
+  }
 }
 ```
 

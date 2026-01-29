@@ -4,20 +4,20 @@ import type { LucideIcon } from 'lucide-react'
 import type { ModuleKey } from '~/features/modules/types'
 import { useModules } from '~/features/modules/context'
 import {
-    CORE_NAVIGATION,
-    MODULE_NAVIGATION,
+  CORE_NAVIGATION,
+  MODULE_NAVIGATION,
 } from '~/features/modules/constants'
 
 /**
  * Navigation menu item structure
  */
 export interface NavigationItem {
-    /** Display name of the navigation item */
-    name: string
-    /** Route path */
-    href: string
-    /** Lucide icon component */
-    icon: LucideIcon
+  /** Display name of the navigation item */
+  name: string
+  /** Route path */
+  href: string
+  /** Lucide icon component */
+  icon: LucideIcon
 }
 
 /**
@@ -39,29 +39,29 @@ export interface NavigationItem {
  * ```
  */
 export function filterNavigationByModules<T extends { name: string }>(
-    navigation: Array<T>,
-    enabledModules: Array<ModuleKey>,
+  navigation: Array<T>,
+  enabledModules: Array<ModuleKey>,
 ): Array<T> {
-    const filtered = navigation.filter((item) => {
-        // Core navigation items are always visible
-        if (CORE_NAVIGATION.includes(item.name)) {
-            return true
-        }
+  const filtered = navigation.filter((item) => {
+    // Core navigation items are always visible
+    if (CORE_NAVIGATION.includes(item.name)) {
+      return true
+    }
 
-        // Check if item belongs to any enabled module
-        return enabledModules.some((moduleKey) => {
-            const moduleNav = MODULE_NAVIGATION[moduleKey]
-            return moduleNav.includes(item.name)
-        })
+    // Check if item belongs to any enabled module
+    return enabledModules.some((moduleKey) => {
+      const moduleNav = MODULE_NAVIGATION[moduleKey]
+      return moduleNav.includes(item.name)
     })
+  })
 
-    // Remove duplicates while preserving order
-    const seen = new Set<string>()
-    return filtered.filter((item) => {
-        if (seen.has(item.name)) return false
-        seen.add(item.name)
-        return true
-    })
+  // Remove duplicates while preserving order
+  const seen = new Set<string>()
+  return filtered.filter((item) => {
+    if (seen.has(item.name)) return false
+    seen.add(item.name)
+    return true
+  })
 }
 
 /**
@@ -96,11 +96,11 @@ export function filterNavigationByModules<T extends { name: string }>(
  * ```
  */
 export function useModuleNavigation<T extends { name: string }>(
-    navigation: Array<T>,
+  navigation: Array<T>,
 ): Array<T> {
-    const { enabledModules } = useModules()
+  const { enabledModules } = useModules()
 
-    return useMemo(() => {
-        return filterNavigationByModules(navigation, enabledModules)
-    }, [navigation, enabledModules])
+  return useMemo(() => {
+    return filterNavigationByModules(navigation, enabledModules)
+  }, [navigation, enabledModules])
 }

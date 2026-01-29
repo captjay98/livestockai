@@ -4,14 +4,14 @@
  */
 
 export interface AttendanceRecord {
-    checkIn: Date
-    checkOut?: Date | null
+  checkIn: Date
+  checkOut?: Date | null
 }
 
 export interface AttendanceSummary {
-    totalHours: number
-    totalDays: number
-    flaggedCheckIns: number
+  totalHours: number
+  totalDays: number
+  flaggedCheckIns: number
 }
 
 /**
@@ -22,9 +22,9 @@ export interface AttendanceSummary {
  * @returns Hours worked rounded to 2 decimal places
  */
 export function calculateHoursWorked(checkIn: Date, checkOut: Date): number {
-    const diffMs = checkOut.getTime() - checkIn.getTime()
-    const hours = diffMs / (1000 * 60 * 60)
-    return Math.round(hours * 100) / 100
+  const diffMs = checkOut.getTime() - checkIn.getTime()
+  const hours = diffMs / (1000 * 60 * 60)
+  return Math.round(hours * 100) / 100
 }
 
 /**
@@ -36,15 +36,13 @@ export function calculateHoursWorked(checkIn: Date, checkOut: Date): number {
  * @returns True if within duplicate threshold
  */
 export function isDuplicateCheckIn(
-    lastCheckInTime: Date,
-    newCheckInTime: Date,
-    thresholdMinutes: number = 5,
+  lastCheckInTime: Date,
+  newCheckInTime: Date,
+  thresholdMinutes: number = 5,
 ): boolean {
-    const diffMs = Math.abs(
-        newCheckInTime.getTime() - lastCheckInTime.getTime(),
-    )
-    const diffMinutes = diffMs / (1000 * 60)
-    return diffMinutes < thresholdMinutes
+  const diffMs = Math.abs(newCheckInTime.getTime() - lastCheckInTime.getTime())
+  const diffMinutes = diffMs / (1000 * 60)
+  return diffMinutes < thresholdMinutes
 }
 
 /**
@@ -55,20 +53,20 @@ export function isDuplicateCheckIn(
  * @returns True if check-in and current time are on different days
  */
 export function shouldAutoCheckOut(
-    checkInTime: Date,
-    currentTime: Date,
+  checkInTime: Date,
+  currentTime: Date,
 ): boolean {
-    const checkInDate = new Date(
-        checkInTime.getFullYear(),
-        checkInTime.getMonth(),
-        checkInTime.getDate(),
-    )
-    const currentDate = new Date(
-        currentTime.getFullYear(),
-        currentTime.getMonth(),
-        currentTime.getDate(),
-    )
-    return checkInDate.getTime() !== currentDate.getTime()
+  const checkInDate = new Date(
+    checkInTime.getFullYear(),
+    checkInTime.getMonth(),
+    checkInTime.getDate(),
+  )
+  const currentDate = new Date(
+    currentTime.getFullYear(),
+    currentTime.getMonth(),
+    currentTime.getDate(),
+  )
+  return checkInDate.getTime() !== currentDate.getTime()
 }
 
 /**
@@ -80,33 +78,32 @@ export function shouldAutoCheckOut(
  * @returns Summary with total hours, days, and flagged check-ins
  */
 export function calculateAttendanceSummary(
-    checkIns: Array<AttendanceRecord>,
-    periodStart: Date,
-    periodEnd: Date,
+  checkIns: Array<AttendanceRecord>,
+  periodStart: Date,
+  periodEnd: Date,
 ): AttendanceSummary {
-    const periodRecords = checkIns.filter(
-        (record) =>
-            record.checkIn >= periodStart && record.checkIn <= periodEnd,
-    )
+  const periodRecords = checkIns.filter(
+    (record) => record.checkIn >= periodStart && record.checkIn <= periodEnd,
+  )
 
-    let totalHours = 0
-    let flaggedCheckIns = 0
-    const workDays = new Set<string>()
+  let totalHours = 0
+  let flaggedCheckIns = 0
+  const workDays = new Set<string>()
 
-    for (const record of periodRecords) {
-        const dayKey = record.checkIn.toDateString()
-        workDays.add(dayKey)
+  for (const record of periodRecords) {
+    const dayKey = record.checkIn.toDateString()
+    workDays.add(dayKey)
 
-        if (record.checkOut) {
-            totalHours += calculateHoursWorked(record.checkIn, record.checkOut)
-        } else {
-            flaggedCheckIns++
-        }
+    if (record.checkOut) {
+      totalHours += calculateHoursWorked(record.checkIn, record.checkOut)
+    } else {
+      flaggedCheckIns++
     }
+  }
 
-    return {
-        totalHours: Math.round(totalHours * 100) / 100,
-        totalDays: workDays.size,
-        flaggedCheckIns,
-    }
+  return {
+    totalHours: Math.round(totalHours * 100) / 100,
+    totalDays: workDays.size,
+    flaggedCheckIns,
+  }
 }

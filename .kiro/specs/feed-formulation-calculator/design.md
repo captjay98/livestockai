@@ -42,38 +42,36 @@ import { z } from 'zod'
 import { AppError } from '~/lib/errors'
 
 export const getIngredientsWithPricesFn = createServerFn({ method: 'GET' })
-    .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
-    .handler(async ({ data }) => {
-        try {
-            // 1. Auth middleware (dynamic import for Cloudflare Workers)
-            const { requireAuth } =
-                await import('~/features/auth/server-middleware')
-            const session = await requireAuth()
+  .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
+  .handler(async ({ data }) => {
+    try {
+      // 1. Auth middleware (dynamic import for Cloudflare Workers)
+      const { requireAuth } = await import('~/features/auth/server-middleware')
+      const session = await requireAuth()
 
-            // 2. Database access (MUST use getDb() for Cloudflare Workers)
-            const { getDb } = await import('~/lib/db')
-            const db = await getDb()
+      // 2. Database access (MUST use getDb() for Cloudflare Workers)
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
-            // 3. Repository layer for database operations
-            const { getAllIngredients, getUserPrices } =
-                await import('./repository')
+      // 3. Repository layer for database operations
+      const { getAllIngredients, getUserPrices } = await import('./repository')
 
-            const [ingredients, prices] = await Promise.all([
-                getAllIngredients(db),
-                getUserPrices(db, session.user.id),
-            ])
+      const [ingredients, prices] = await Promise.all([
+        getAllIngredients(db),
+        getUserPrices(db, session.user.id),
+      ])
 
-            // 4. Service layer for business logic (if needed)
-            const { mergeIngredientsWithPrices } = await import('./service')
-            return mergeIngredientsWithPrices(ingredients, prices)
-        } catch (error) {
-            if (error instanceof AppError) throw error
-            throw new AppError('DATABASE_ERROR', {
-                message: 'Failed to fetch ingredients',
-                cause: error,
-            })
-        }
-    })
+      // 4. Service layer for business logic (if needed)
+      const { mergeIngredientsWithPrices } = await import('./service')
+      return mergeIngredientsWithPrices(ingredients, prices)
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to fetch ingredients',
+        cause: error,
+      })
+    }
+  })
 ```
 
 ### Repository Layer Pattern
@@ -84,44 +82,44 @@ import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 export async function getAllIngredients(db: Kysely<Database>) {
-    return db
-        .selectFrom('feed_ingredients')
-        .selectAll()
-        .where('isActive', '=', true)
-        .orderBy('category')
-        .orderBy('name')
-        .execute()
+  return db
+    .selectFrom('feed_ingredients')
+    .selectAll()
+    .where('isActive', '=', true)
+    .orderBy('category')
+    .orderBy('name')
+    .execute()
 }
 
 export async function getUserPrices(db: Kysely<Database>, userId: string) {
-    return db
-        .selectFrom('user_ingredient_prices')
-        .selectAll()
-        .where('userId', '=', userId)
-        .execute()
+  return db
+    .selectFrom('user_ingredient_prices')
+    .selectAll()
+    .where('userId', '=', userId)
+    .execute()
 }
 
 export async function upsertUserPrice(
-    db: Kysely<Database>,
-    userId: string,
-    ingredientId: string,
-    pricePerKg: string,
+  db: Kysely<Database>,
+  userId: string,
+  ingredientId: string,
+  pricePerKg: string,
 ) {
-    return db
-        .insertInto('user_ingredient_prices')
-        .values({
-            userId,
-            ingredientId,
-            pricePerKg,
-            isAvailable: true,
-        })
-        .onConflict((oc) =>
-            oc.columns(['userId', 'ingredientId']).doUpdateSet({
-                pricePerKg,
-                lastUpdated: new Date(),
-            }),
-        )
-        .execute()
+  return db
+    .insertInto('user_ingredient_prices')
+    .values({
+      userId,
+      ingredientId,
+      pricePerKg,
+      isAvailable: true,
+    })
+    .onConflict((oc) =>
+      oc.columns(['userId', 'ingredientId']).doUpdateSet({
+        pricePerKg,
+        lastUpdated: new Date(),
+      }),
+    )
+    .execute()
 }
 ```
 
@@ -132,34 +130,34 @@ export async function upsertUserPrice(
 
 // Pure function - no database access, easy to test
 export function calculateNutritionalValues(
-    ingredients: FormulationIngredient[],
-    allIngredients: FeedIngredient[],
+  ingredients: FormulationIngredient[],
+  allIngredients: FeedIngredient[],
 ): NutritionalValues {
-    const ingredientMap = new Map(allIngredients.map((i) => [i.id, i]))
+  const ingredientMap = new Map(allIngredients.map((i) => [i.id, i]))
 
-    let totalProtein = 0
-    let totalEnergy = 0
-    // ... calculate weighted averages
+  let totalProtein = 0
+  let totalEnergy = 0
+  // ... calculate weighted averages
 
-    return {
-        proteinPercent: totalProtein,
-        energyKcalKg: totalEnergy,
-        // ...
-    }
+  return {
+    proteinPercent: totalProtein,
+    energyKcalKg: totalEnergy,
+    // ...
+  }
 }
 
 // Validation function - returns error message or null
 export function validateOptimizationInput(
-    ingredients: IngredientWithPrice[],
-    requirements: NutritionalRequirement,
+  ingredients: IngredientWithPrice[],
+  requirements: NutritionalRequirement,
 ): string | null {
-    if (ingredients.length === 0) {
-        return 'No ingredients with prices available'
-    }
-    if (!requirements) {
-        return 'Nutritional requirements not found for species/stage'
-    }
-    return null
+  if (ingredients.length === 0) {
+    return 'No ingredients with prices available'
+  }
+  if (!requirements) {
+    return 'Nutritional requirements not found for species/stage'
+  }
+  return null
 }
 ```
 
@@ -215,10 +213,10 @@ import { AppError } from '~/lib/errors'
 
 // Example usage:
 if (!requirements) {
-    throw new AppError('NOT_FOUND', {
-        message: 'Nutritional requirements not found for this species/stage',
-        metadata: { species, productionStage },
-    })
+  throw new AppError('NOT_FOUND', {
+    message: 'Nutritional requirements not found for this species/stage',
+    metadata: { species, productionStage },
+  })
 }
 ```
 
@@ -229,23 +227,23 @@ Query existing `feed_inventory` table for stock levels:
 ```typescript
 // In repository.ts
 export async function getIngredientStockLevels(
-    db: Kysely<Database>,
-    farmId: string,
+  db: Kysely<Database>,
+  farmId: string,
 ) {
-    // Map feed_inventory.feedType to ingredient categories
-    return db
-        .selectFrom('feed_inventory')
-        .select(['feedType', 'quantityKg'])
-        .where('farmId', '=', farmId)
-        .execute()
+  // Map feed_inventory.feedType to ingredient categories
+  return db
+    .selectFrom('feed_inventory')
+    .select(['feedType', 'quantityKg'])
+    .where('farmId', '=', farmId)
+    .execute()
 }
 
 // In server.ts - combine with ingredients
 const inventory = await getIngredientStockLevels(db, farmId)
 const ingredientsWithStock = ingredients.map((ing) => ({
-    ...ing,
-    stockKg:
-        inventory.find((i) => i.feedType === ing.category)?.quantityKg ?? '0',
+  ...ing,
+  stockKg:
+    inventory.find((i) => i.feedType === ing.category)?.quantityKg ?? '0',
 }))
 ```
 
@@ -349,33 +347,33 @@ sequenceDiagram
 
 ```typescript
 interface FeedIngredient {
-    id: string
-    name: string
-    category: 'grain' | 'protein' | 'mineral' | 'vitamin' | 'additive'
-    proteinPercent: string // DECIMAL
-    energyKcalKg: number
-    fatPercent: string
-    fiberPercent: string
-    calciumPercent: string
-    phosphorusPercent: string
-    lysinePercent: string
-    methioninePercent: string
-    maxInclusionPercent: string
-    isActive: boolean
-    createdAt: Date
+  id: string
+  name: string
+  category: 'grain' | 'protein' | 'mineral' | 'vitamin' | 'additive'
+  proteinPercent: string // DECIMAL
+  energyKcalKg: number
+  fatPercent: string
+  fiberPercent: string
+  calciumPercent: string
+  phosphorusPercent: string
+  lysinePercent: string
+  methioninePercent: string
+  maxInclusionPercent: string
+  isActive: boolean
+  createdAt: Date
 }
 
 // Repository functions
 async function getAllIngredients(
-    db: Kysely<Database>,
+  db: Kysely<Database>,
 ): Promise<FeedIngredient[]>
 async function getIngredientsByCategory(
-    db: Kysely<Database>,
-    category: string,
+  db: Kysely<Database>,
+  category: string,
 ): Promise<FeedIngredient[]>
 async function getIngredientById(
-    db: Kysely<Database>,
-    id: string,
+  db: Kysely<Database>,
+  id: string,
 ): Promise<FeedIngredient | undefined>
 ```
 
@@ -383,28 +381,28 @@ async function getIngredientById(
 
 ```typescript
 interface NutritionalRequirement {
-    id: string
-    species: string
-    productionStage: string
-    minProteinPercent: string
-    minEnergyKcalKg: number
-    maxFiberPercent: string
-    minCalciumPercent: string
-    minPhosphorusPercent: string
-    minLysinePercent: string
-    minMethioninePercent: string
-    createdAt: Date
+  id: string
+  species: string
+  productionStage: string
+  minProteinPercent: string
+  minEnergyKcalKg: number
+  maxFiberPercent: string
+  minCalciumPercent: string
+  minPhosphorusPercent: string
+  minLysinePercent: string
+  minMethioninePercent: string
+  createdAt: Date
 }
 
 // Repository functions
 async function getRequirements(
-    db: Kysely<Database>,
-    species: string,
-    stage: string,
+  db: Kysely<Database>,
+  species: string,
+  stage: string,
 ): Promise<NutritionalRequirement | undefined>
 
 async function getAllRequirements(
-    db: Kysely<Database>,
+  db: Kysely<Database>,
 ): Promise<NutritionalRequirement[]>
 ```
 
@@ -412,30 +410,30 @@ async function getAllRequirements(
 
 ```typescript
 interface UserIngredientPrice {
-    id: string
-    userId: string
-    ingredientId: string
-    pricePerKg: string // DECIMAL
-    isAvailable: boolean
-    lastUpdated: Date
+  id: string
+  userId: string
+  ingredientId: string
+  pricePerKg: string // DECIMAL
+  isAvailable: boolean
+  lastUpdated: Date
 }
 
 // Repository functions
 async function getUserPrices(
-    db: Kysely<Database>,
-    userId: string,
+  db: Kysely<Database>,
+  userId: string,
 ): Promise<UserIngredientPrice[]>
 async function upsertUserPrice(
-    db: Kysely<Database>,
-    userId: string,
-    ingredientId: string,
-    pricePerKg: string,
+  db: Kysely<Database>,
+  userId: string,
+  ingredientId: string,
+  pricePerKg: string,
 ): Promise<void>
 async function setIngredientAvailability(
-    db: Kysely<Database>,
-    userId: string,
-    ingredientId: string,
-    isAvailable: boolean,
+  db: Kysely<Database>,
+  userId: string,
+  ingredientId: string,
+  isAvailable: boolean,
 ): Promise<void>
 ```
 
@@ -443,58 +441,58 @@ async function setIngredientAvailability(
 
 ```typescript
 interface SavedFormulation {
-    id: string
-    userId: string
-    name: string
-    species: string
-    productionStage: string
-    ingredients: FormulationIngredient[] // JSONB
-    totalCostPerKg: string
-    nutritionalValues: NutritionalValues // JSONB
-    shareCode: string | null
-    createdAt: Date
-    updatedAt: Date
+  id: string
+  userId: string
+  name: string
+  species: string
+  productionStage: string
+  ingredients: FormulationIngredient[] // JSONB
+  totalCostPerKg: string
+  nutritionalValues: NutritionalValues // JSONB
+  shareCode: string | null
+  createdAt: Date
+  updatedAt: Date
 }
 
 interface FormulationIngredient {
-    ingredientId: string
-    ingredientName: string
-    quantityKg: number
-    pricePerKg: number
-    totalCost: number
+  ingredientId: string
+  ingredientName: string
+  quantityKg: number
+  pricePerKg: number
+  totalCost: number
 }
 
 interface NutritionalValues {
-    proteinPercent: number
-    energyKcalKg: number
-    fatPercent: number
-    fiberPercent: number
-    calciumPercent: number
-    phosphorusPercent: number
-    lysinePercent: number
-    methioninePercent: number
+  proteinPercent: number
+  energyKcalKg: number
+  fatPercent: number
+  fiberPercent: number
+  calciumPercent: number
+  phosphorusPercent: number
+  lysinePercent: number
+  methioninePercent: number
 }
 
 // Repository functions
 async function saveFormulation(
-    db: Kysely<Database>,
-    formulation: SavedFormulation,
+  db: Kysely<Database>,
+  formulation: SavedFormulation,
 ): Promise<string>
 async function getUserFormulations(
-    db: Kysely<Database>,
-    userId: string,
+  db: Kysely<Database>,
+  userId: string,
 ): Promise<SavedFormulation[]>
 async function getFormulationById(
-    db: Kysely<Database>,
-    id: string,
+  db: Kysely<Database>,
+  id: string,
 ): Promise<SavedFormulation | undefined>
 async function getFormulationByShareCode(
-    db: Kysely<Database>,
-    code: string,
+  db: Kysely<Database>,
+  code: string,
 ): Promise<SavedFormulation | undefined>
 async function deleteFormulation(
-    db: Kysely<Database>,
-    id: string,
+  db: Kysely<Database>,
+  id: string,
 ): Promise<void>
 ```
 
@@ -502,41 +500,41 @@ async function deleteFormulation(
 
 ```typescript
 interface OptimizationInput {
-    ingredients: IngredientWithPrice[]
-    requirements: NutritionalRequirement
-    excludeIngredients?: string[]
-    maxQuantities?: Record<string, number> // ingredient ID -> max kg
+  ingredients: IngredientWithPrice[]
+  requirements: NutritionalRequirement
+  excludeIngredients?: string[]
+  maxQuantities?: Record<string, number> // ingredient ID -> max kg
 }
 
 interface OptimizationResult {
-    success: boolean
-    ingredients: FormulationIngredient[]
-    totalCostPerKg: number
-    nutritionalValues: NutritionalValues
-    infeasibilityReport?: InfeasibilityReport
+  success: boolean
+  ingredients: FormulationIngredient[]
+  totalCostPerKg: number
+  nutritionalValues: NutritionalValues
+  infeasibilityReport?: InfeasibilityReport
 }
 
 interface InfeasibilityReport {
-    constraintsViolated: string[]
-    suggestions: string[]
+  constraintsViolated: string[]
+  suggestions: string[]
 }
 
 // Service functions
 async function runOptimization(
-    input: OptimizationInput,
+  input: OptimizationInput,
 ): Promise<OptimizationResult>
 function buildLPModel(input: OptimizationInput): LPModel
 function parseOptimizationResult(
-    solution: HighsSolution,
-    ingredients: IngredientWithPrice[],
+  solution: HighsSolution,
+  ingredients: IngredientWithPrice[],
 ): OptimizationResult
 function calculateNutritionalValues(
-    ingredients: FormulationIngredient[],
-    allIngredients: FeedIngredient[],
+  ingredients: FormulationIngredient[],
+  allIngredients: FeedIngredient[],
 ): NutritionalValues
 function generateInfeasibilityReport(
-    model: LPModel,
-    requirements: NutritionalRequirement,
+  model: LPModel,
+  requirements: NutritionalRequirement,
 ): InfeasibilityReport
 ```
 
@@ -545,102 +543,102 @@ function generateInfeasibilityReport(
 ```typescript
 // Get all ingredients with user prices
 export const getIngredientsWithPricesFn = createServerFn({ method: 'GET' })
-    .validator(z.object({}))
-    .handler(async () => {
-        /* ... */
-    })
+  .validator(z.object({}))
+  .handler(async () => {
+    /* ... */
+  })
 
 // Get nutritional requirements for species/stage
 export const getRequirementsFn = createServerFn({ method: 'GET' })
-    .validator(
-        z.object({
-            species: z.string(),
-            productionStage: z.string(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .validator(
+    z.object({
+      species: z.string(),
+      productionStage: z.string(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // Update user ingredient price
 export const updateIngredientPriceFn = createServerFn({ method: 'POST' })
-    .validator(
-        z.object({
-            ingredientId: z.string().uuid(),
-            pricePerKg: z.number().nonnegative(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .validator(
+    z.object({
+      ingredientId: z.string().uuid(),
+      pricePerKg: z.number().nonnegative(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // Run optimization
 export const runOptimizationFn = createServerFn({ method: 'POST' })
-    .validator(
-        z.object({
-            species: z.string(),
-            productionStage: z.string(),
-            excludeIngredients: z.array(z.string().uuid()).optional(),
-            useInventoryLimits: z.boolean().optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .validator(
+    z.object({
+      species: z.string(),
+      productionStage: z.string(),
+      excludeIngredients: z.array(z.string().uuid()).optional(),
+      useInventoryLimits: z.boolean().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // Save formulation
 export const saveFormulationFn = createServerFn({ method: 'POST' })
-    .validator(
+  .validator(
+    z.object({
+      name: z.string().min(1).max(100),
+      species: z.string(),
+      productionStage: z.string(),
+      ingredients: z.array(
         z.object({
-            name: z.string().min(1).max(100),
-            species: z.string(),
-            productionStage: z.string(),
-            ingredients: z.array(
-                z.object({
-                    ingredientId: z.string().uuid(),
-                    ingredientName: z.string(),
-                    quantityKg: z.number(),
-                    pricePerKg: z.number(),
-                    totalCost: z.number(),
-                }),
-            ),
-            totalCostPerKg: z.number(),
-            nutritionalValues: z.object({
-                proteinPercent: z.number(),
-                energyKcalKg: z.number(),
-                fatPercent: z.number(),
-                fiberPercent: z.number(),
-                calciumPercent: z.number(),
-                phosphorusPercent: z.number(),
-                lysinePercent: z.number(),
-                methioninePercent: z.number(),
-            }),
+          ingredientId: z.string().uuid(),
+          ingredientName: z.string(),
+          quantityKg: z.number(),
+          pricePerKg: z.number(),
+          totalCost: z.number(),
         }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+      ),
+      totalCostPerKg: z.number(),
+      nutritionalValues: z.object({
+        proteinPercent: z.number(),
+        energyKcalKg: z.number(),
+        fatPercent: z.number(),
+        fiberPercent: z.number(),
+        calciumPercent: z.number(),
+        phosphorusPercent: z.number(),
+        lysinePercent: z.number(),
+        methioninePercent: z.number(),
+      }),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // Get user's saved formulations
 export const getUserFormulationsFn = createServerFn({ method: 'GET' })
-    .validator(z.object({}))
-    .handler(async () => {
-        /* ... */
-    })
+  .validator(z.object({}))
+  .handler(async () => {
+    /* ... */
+  })
 
 // Generate share code
 export const generateShareCodeFn = createServerFn({ method: 'POST' })
-    .validator(z.object({ formulationId: z.string().uuid() }))
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .validator(z.object({ formulationId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // Load formulation by share code
 export const loadSharedFormulationFn = createServerFn({ method: 'GET' })
-    .validator(z.object({ shareCode: z.string() }))
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .validator(z.object({ shareCode: z.string() }))
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 ```
 
 ## Data Models
@@ -771,84 +769,84 @@ CREATE INDEX idx_saved_formulations_share_code ON saved_formulations(share_code)
 // app/lib/db/types.ts additions
 
 export interface FeedIngredientTable {
-    id: Generated<string>
-    name: string
-    category: 'grain' | 'protein' | 'mineral' | 'vitamin' | 'additive'
-    proteinPercent: string // DECIMAL(5,2)
-    energyKcalKg: number
-    fatPercent: string
-    fiberPercent: string
-    calciumPercent: string
-    phosphorusPercent: string
-    lysinePercent: string
-    methioninePercent: string
-    maxInclusionPercent: string
-    isActive: Generated<boolean>
-    createdAt: Generated<Date>
+  id: Generated<string>
+  name: string
+  category: 'grain' | 'protein' | 'mineral' | 'vitamin' | 'additive'
+  proteinPercent: string // DECIMAL(5,2)
+  energyKcalKg: number
+  fatPercent: string
+  fiberPercent: string
+  calciumPercent: string
+  phosphorusPercent: string
+  lysinePercent: string
+  methioninePercent: string
+  maxInclusionPercent: string
+  isActive: Generated<boolean>
+  createdAt: Generated<Date>
 }
 
 export interface NutritionalRequirementTable {
-    id: Generated<string>
-    species: string
-    productionStage:
-        | 'starter'
-        | 'grower'
-        | 'finisher'
-        | 'layer'
-        | 'maintenance'
-        | 'lactating'
-        | 'dry'
-    minProteinPercent: string
-    minEnergyKcalKg: number
-    maxFiberPercent: string
-    minCalciumPercent: string
-    minPhosphorusPercent: string
-    minLysinePercent: string
-    minMethioninePercent: string
-    createdAt: Generated<Date>
+  id: Generated<string>
+  species: string
+  productionStage:
+    | 'starter'
+    | 'grower'
+    | 'finisher'
+    | 'layer'
+    | 'maintenance'
+    | 'lactating'
+    | 'dry'
+  minProteinPercent: string
+  minEnergyKcalKg: number
+  maxFiberPercent: string
+  minCalciumPercent: string
+  minPhosphorusPercent: string
+  minLysinePercent: string
+  minMethioninePercent: string
+  createdAt: Generated<Date>
 }
 
 export interface UserIngredientPriceTable {
-    id: Generated<string>
-    userId: string
-    ingredientId: string
-    pricePerKg: string
-    isAvailable: Generated<boolean>
-    lastUpdated: Generated<Date>
+  id: Generated<string>
+  userId: string
+  ingredientId: string
+  pricePerKg: string
+  isAvailable: Generated<boolean>
+  lastUpdated: Generated<Date>
 }
 
 export interface IngredientPriceHistoryTable {
-    id: Generated<string>
-    userId: string
-    ingredientId: string
-    pricePerKg: string
-    recordedAt: Generated<Date>
+  id: Generated<string>
+  userId: string
+  ingredientId: string
+  pricePerKg: string
+  recordedAt: Generated<Date>
 }
 
 export interface SavedFormulationTable {
-    id: Generated<string>
-    userId: string
-    name: string
-    species: string
-    productionStage: string
-    batchSizeKg: Generated<number>
-    safetyMarginPercent: Generated<string>
-    ingredients: FormulationIngredient[] // JSONB
-    totalCostPerKg: string
-    nutritionalValues: NutritionalValues // JSONB
-    mixingNotes: string | null
-    shareCode: string | null
-    usageCount: Generated<number>
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
+  id: Generated<string>
+  userId: string
+  name: string
+  species: string
+  productionStage: string
+  batchSizeKg: Generated<number>
+  safetyMarginPercent: Generated<string>
+  ingredients: FormulationIngredient[] // JSONB
+  totalCostPerKg: string
+  nutritionalValues: NutritionalValues // JSONB
+  mixingNotes: string | null
+  shareCode: string | null
+  usageCount: Generated<number>
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
 
 export interface FormulationUsageTable {
-    id: Generated<string>
-    formulationId: string
-    batchId: string
-    usedAt: Generated<Date>
-    notes: string | null
+  id: Generated<string>
+  formulationId: string
+  batchId: string
+  usedAt: Generated<Date>
+  notes: string | null
 }
 ```
 
@@ -857,60 +855,60 @@ export interface FormulationUsageTable {
 ```typescript
 // Example ingredient seed data
 const GRAIN_INGREDIENTS: IngredientSeedData[] = [
-    {
-        name: 'Yellow Maize',
-        category: 'grain',
-        proteinPercent: '8.5',
-        energyKcalKg: 3350,
-        fatPercent: '3.8',
-        fiberPercent: '2.2',
-        calciumPercent: '0.02',
-        phosphorusPercent: '0.28',
-        lysinePercent: '0.25',
-        methioninePercent: '0.18',
-        maxInclusionPercent: '70',
-    },
-    {
-        name: 'Wheat',
-        category: 'grain',
-        proteinPercent: '12.0',
-        energyKcalKg: 3150,
-        fatPercent: '1.8',
-        fiberPercent: '2.5',
-        calciumPercent: '0.05',
-        phosphorusPercent: '0.35',
-        lysinePercent: '0.35',
-        methioninePercent: '0.17',
-        maxInclusionPercent: '50',
-    },
-    // ... more ingredients
+  {
+    name: 'Yellow Maize',
+    category: 'grain',
+    proteinPercent: '8.5',
+    energyKcalKg: 3350,
+    fatPercent: '3.8',
+    fiberPercent: '2.2',
+    calciumPercent: '0.02',
+    phosphorusPercent: '0.28',
+    lysinePercent: '0.25',
+    methioninePercent: '0.18',
+    maxInclusionPercent: '70',
+  },
+  {
+    name: 'Wheat',
+    category: 'grain',
+    proteinPercent: '12.0',
+    energyKcalKg: 3150,
+    fatPercent: '1.8',
+    fiberPercent: '2.5',
+    calciumPercent: '0.05',
+    phosphorusPercent: '0.35',
+    lysinePercent: '0.35',
+    methioninePercent: '0.17',
+    maxInclusionPercent: '50',
+  },
+  // ... more ingredients
 ]
 
 // Example nutritional requirements seed data
 const BROILER_REQUIREMENTS: RequirementSeedData[] = [
-    {
-        species: 'Broiler',
-        productionStage: 'starter',
-        minProteinPercent: '23.0',
-        minEnergyKcalKg: 3000,
-        maxFiberPercent: '5.0',
-        minCalciumPercent: '1.0',
-        minPhosphorusPercent: '0.45',
-        minLysinePercent: '1.35',
-        minMethioninePercent: '0.50',
-    },
-    {
-        species: 'Broiler',
-        productionStage: 'grower',
-        minProteinPercent: '21.0',
-        minEnergyKcalKg: 3100,
-        maxFiberPercent: '5.5',
-        minCalciumPercent: '0.90',
-        minPhosphorusPercent: '0.40',
-        minLysinePercent: '1.20',
-        minMethioninePercent: '0.45',
-    },
-    // ... more requirements
+  {
+    species: 'Broiler',
+    productionStage: 'starter',
+    minProteinPercent: '23.0',
+    minEnergyKcalKg: 3000,
+    maxFiberPercent: '5.0',
+    minCalciumPercent: '1.0',
+    minPhosphorusPercent: '0.45',
+    minLysinePercent: '1.35',
+    minMethioninePercent: '0.50',
+  },
+  {
+    species: 'Broiler',
+    productionStage: 'grower',
+    minProteinPercent: '21.0',
+    minEnergyKcalKg: 3100,
+    maxFiberPercent: '5.5',
+    minCalciumPercent: '0.90',
+    minPhosphorusPercent: '0.40',
+    minLysinePercent: '1.20',
+    minMethioninePercent: '0.45',
+  },
+  // ... more requirements
 ]
 ```
 
@@ -1145,50 +1143,48 @@ tests/features/formulation/
 ```typescript
 // Property 9: Optimization Constraint Satisfaction
 describe('Optimization Service', () => {
-    it('Property 9: optimization results satisfy all nutritional constraints', () => {
-        fc.assert(
-            fc.property(arbitraryFeasibleOptimizationInput(), async (input) => {
-                const result = await runOptimization(input)
-                if (result.success) {
-                    const { nutritionalValues } = result
-                    const { requirements } = input
+  it('Property 9: optimization results satisfy all nutritional constraints', () => {
+    fc.assert(
+      fc.property(arbitraryFeasibleOptimizationInput(), async (input) => {
+        const result = await runOptimization(input)
+        if (result.success) {
+          const { nutritionalValues } = result
+          const { requirements } = input
 
-                    expect(
-                        nutritionalValues.proteinPercent,
-                    ).toBeGreaterThanOrEqual(
-                        parseFloat(requirements.minProteinPercent),
-                    )
-                    expect(
-                        nutritionalValues.energyKcalKg,
-                    ).toBeGreaterThanOrEqual(requirements.minEnergyKcalKg)
-                    expect(nutritionalValues.fiberPercent).toBeLessThanOrEqual(
-                        parseFloat(requirements.maxFiberPercent),
-                    )
-                    // ... other constraints
-                }
-            }),
-            { numRuns: 100 },
-        )
-    })
+          expect(nutritionalValues.proteinPercent).toBeGreaterThanOrEqual(
+            parseFloat(requirements.minProteinPercent),
+          )
+          expect(nutritionalValues.energyKcalKg).toBeGreaterThanOrEqual(
+            requirements.minEnergyKcalKg,
+          )
+          expect(nutritionalValues.fiberPercent).toBeLessThanOrEqual(
+            parseFloat(requirements.maxFiberPercent),
+          )
+          // ... other constraints
+        }
+      }),
+      { numRuns: 100 },
+    )
+  })
 })
 
 // Property 11: Optimization Total Sum Constraint
 describe('Optimization Service', () => {
-    it('Property 11: ingredient quantities sum to 100kg', () => {
-        fc.assert(
-            fc.property(arbitraryFeasibleOptimizationInput(), async (input) => {
-                const result = await runOptimization(input)
-                if (result.success) {
-                    const totalQuantity = result.ingredients.reduce(
-                        (sum, ing) => sum + ing.quantityKg,
-                        0,
-                    )
-                    expect(totalQuantity).toBeCloseTo(100, 2)
-                }
-            }),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 11: ingredient quantities sum to 100kg', () => {
+    fc.assert(
+      fc.property(arbitraryFeasibleOptimizationInput(), async (input) => {
+        const result = await runOptimization(input)
+        if (result.success) {
+          const totalQuantity = result.ingredients.reduce(
+            (sum, ing) => sum + ing.quantityKg,
+            0,
+          )
+          expect(totalQuantity).toBeCloseTo(100, 2)
+        }
+      }),
+      { numRuns: 100 },
+    )
+  })
 })
 ```
 

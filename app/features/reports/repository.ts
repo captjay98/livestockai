@@ -11,46 +11,46 @@ import type { DateRange } from './server'
  * Data for inserting a new report configuration
  */
 export interface ReportConfigInsert {
-    name: string
-    farmId: string
-    reportType: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
-    dateRangeType: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
-    customStartDate?: Date | null
-    customEndDate?: Date | null
-    includeCharts: boolean
-    includeDetails: boolean
-    createdBy: string
+  name: string
+  farmId: string
+  reportType: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
+  dateRangeType: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
+  customStartDate?: Date | null
+  customEndDate?: Date | null
+  includeCharts: boolean
+  includeDetails: boolean
+  createdBy: string
 }
 
 /**
  * Data for updating a report configuration
  */
 export interface ReportConfigUpdate {
-    name?: string
-    reportType?: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
-    dateRangeType?: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
-    customStartDate?: Date | null
-    customEndDate?: Date | null
-    includeCharts?: boolean
-    includeDetails?: boolean
+  name?: string
+  reportType?: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
+  dateRangeType?: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
+  customStartDate?: Date | null
+  customEndDate?: Date | null
+  includeCharts?: boolean
+  includeDetails?: boolean
 }
 
 /**
  * Report configuration with metadata
  */
 export interface ReportConfig {
-    id: string
-    name: string
-    farmId: string
-    reportType: string
-    dateRangeType: string
-    customStartDate: Date | null
-    customEndDate: Date | null
-    includeCharts: boolean
-    includeDetails: boolean
-    createdBy: string
-    createdAt: Date
-    updatedAt: Date
+  id: string
+  name: string
+  farmId: string
+  reportType: string
+  dateRangeType: string
+  customStartDate: Date | null
+  customEndDate: Date | null
+  includeCharts: boolean
+  includeDetails: boolean
+  createdBy: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 /**
@@ -74,16 +74,16 @@ export interface ReportConfig {
  * ```
  */
 export async function insertReportConfig(
-    db: Kysely<Database>,
-    data: ReportConfigInsert,
+  db: Kysely<Database>,
+  data: ReportConfigInsert,
 ): Promise<string> {
-    const result = await db
-        .insertInto('report_configs')
-        .values(data)
-        .returning('id')
-        .executeTakeFirstOrThrow()
+  const result = await db
+    .insertInto('report_configs')
+    .values(data)
+    .returning('id')
+    .executeTakeFirstOrThrow()
 
-    return result.id
+  return result.id
 }
 
 /**
@@ -94,29 +94,29 @@ export async function insertReportConfig(
  * @returns The report configuration or null if not found
  */
 export async function getReportConfigById(
-    db: Kysely<Database>,
-    id: string,
+  db: Kysely<Database>,
+  id: string,
 ): Promise<ReportConfig | null> {
-    const config = await db
-        .selectFrom('report_configs')
-        .select([
-            'id',
-            'name',
-            'farmId',
-            'reportType',
-            'dateRangeType',
-            'customStartDate',
-            'customEndDate',
-            'includeCharts',
-            'includeDetails',
-            'createdBy',
-            'createdAt',
-            'updatedAt',
-        ])
-        .where('id', '=', id)
-        .executeTakeFirst()
+  const config = await db
+    .selectFrom('report_configs')
+    .select([
+      'id',
+      'name',
+      'farmId',
+      'reportType',
+      'dateRangeType',
+      'customStartDate',
+      'customEndDate',
+      'includeCharts',
+      'includeDetails',
+      'createdBy',
+      'createdAt',
+      'updatedAt',
+    ])
+    .where('id', '=', id)
+    .executeTakeFirst()
 
-    return (config as ReportConfig | null) ?? null
+  return (config as ReportConfig | null) ?? null
 }
 
 /**
@@ -127,15 +127,15 @@ export async function getReportConfigById(
  * @param data - Fields to update
  */
 export async function updateReportConfig(
-    db: Kysely<Database>,
-    id: string,
-    data: ReportConfigUpdate,
+  db: Kysely<Database>,
+  id: string,
+  data: ReportConfigUpdate,
 ): Promise<void> {
-    await db
-        .updateTable('report_configs')
-        .set(data)
-        .where('id', '=', id)
-        .execute()
+  await db
+    .updateTable('report_configs')
+    .set(data)
+    .where('id', '=', id)
+    .execute()
 }
 
 /**
@@ -145,10 +145,10 @@ export async function updateReportConfig(
  * @param id - ID of the report configuration to delete
  */
 export async function deleteReportConfig(
-    db: Kysely<Database>,
-    id: string,
+  db: Kysely<Database>,
+  id: string,
 ): Promise<void> {
-    await db.deleteFrom('report_configs').where('id', '=', id).execute()
+  await db.deleteFrom('report_configs').where('id', '=', id).execute()
 }
 
 /**
@@ -159,28 +159,28 @@ export async function deleteReportConfig(
  * @returns Array of report configurations for the farm
  */
 export async function getReportConfigsByFarm(
-    db: Kysely<Database>,
-    farmId: string,
+  db: Kysely<Database>,
+  farmId: string,
 ): Promise<Array<ReportConfig>> {
-    return await db
-        .selectFrom('report_configs')
-        .select([
-            'id',
-            'name',
-            'farmId',
-            'reportType',
-            'dateRangeType',
-            'customStartDate',
-            'customEndDate',
-            'includeCharts',
-            'includeDetails',
-            'createdBy',
-            'createdAt',
-            'updatedAt',
-        ])
-        .where('farmId', '=', farmId)
-        .orderBy('createdAt', 'desc')
-        .execute()
+  return await db
+    .selectFrom('report_configs')
+    .select([
+      'id',
+      'name',
+      'farmId',
+      'reportType',
+      'dateRangeType',
+      'customStartDate',
+      'customEndDate',
+      'includeCharts',
+      'includeDetails',
+      'createdBy',
+      'createdAt',
+      'updatedAt',
+    ])
+    .where('farmId', '=', farmId)
+    .orderBy('createdAt', 'desc')
+    .execute()
 }
 
 /**
@@ -192,31 +192,31 @@ export async function getReportConfigsByFarm(
  * @returns Sales data with customer information
  */
 export async function getSalesData(
-    db: Kysely<Database>,
-    farmId: string | undefined,
-    dateRange: DateRange,
+  db: Kysely<Database>,
+  farmId: string | undefined,
+  dateRange: DateRange,
 ) {
-    let query = db
-        .selectFrom('sales')
-        .leftJoin('customers', 'customers.id', 'sales.customerId')
-        .select([
-            'sales.id',
-            'sales.date',
-            'sales.livestockType',
-            'sales.quantity',
-            'sales.unitPrice',
-            'sales.totalAmount',
-            'customers.name as customerName',
-        ])
-        .where('sales.date', '>=', dateRange.startDate)
-        .where('sales.date', '<=', dateRange.endDate)
-        .orderBy('sales.date', 'desc')
+  let query = db
+    .selectFrom('sales')
+    .leftJoin('customers', 'customers.id', 'sales.customerId')
+    .select([
+      'sales.id',
+      'sales.date',
+      'sales.livestockType',
+      'sales.quantity',
+      'sales.unitPrice',
+      'sales.totalAmount',
+      'customers.name as customerName',
+    ])
+    .where('sales.date', '>=', dateRange.startDate)
+    .where('sales.date', '<=', dateRange.endDate)
+    .orderBy('sales.date', 'desc')
 
-    if (farmId) {
-        query = query.where('sales.farmId', '=', farmId)
-    }
+  if (farmId) {
+    query = query.where('sales.farmId', '=', farmId)
+  }
 
-    return await query.execute()
+  return await query.execute()
 }
 
 /**
@@ -228,33 +228,31 @@ export async function getSalesData(
  * @returns Aggregated sales by livestock type
  */
 export async function getSalesByType(
-    db: Kysely<Database>,
-    farmId: string | undefined,
-    dateRange: DateRange,
+  db: Kysely<Database>,
+  farmId: string | undefined,
+  dateRange: DateRange,
 ) {
-    let query = db
-        .selectFrom('sales')
-        .select([
-            'livestockType',
-            (eb) =>
-                eb.fn
-                    .coalesce(
-                        eb.fn.sum<number>(
-                            eb.cast(eb.ref('totalAmount'), 'decimal'),
-                        ),
-                        eb.val(0),
-                    )
-                    .as('total'),
-        ])
-        .where('date', '>=', dateRange.startDate)
-        .where('date', '<=', dateRange.endDate)
-        .groupBy('livestockType')
+  let query = db
+    .selectFrom('sales')
+    .select([
+      'livestockType',
+      (eb) =>
+        eb.fn
+          .coalesce(
+            eb.fn.sum<number>(eb.cast(eb.ref('totalAmount'), 'decimal')),
+            eb.val(0),
+          )
+          .as('total'),
+    ])
+    .where('date', '>=', dateRange.startDate)
+    .where('date', '<=', dateRange.endDate)
+    .groupBy('livestockType')
 
-    if (farmId) {
-        query = query.where('farmId', '=', farmId)
-    }
+  if (farmId) {
+    query = query.where('farmId', '=', farmId)
+  }
 
-    return await query.execute()
+  return await query.execute()
 }
 
 /**
@@ -266,28 +264,28 @@ export async function getSalesByType(
  * @returns Aggregated expenses by category
  */
 export async function getExpensesByCategory(
-    db: Kysely<Database>,
-    farmId: string | undefined,
-    dateRange: DateRange,
+  db: Kysely<Database>,
+  farmId: string | undefined,
+  dateRange: DateRange,
 ) {
-    let query = db
-        .selectFrom('expenses')
-        .select([
-            'category',
-            (eb) =>
-                eb.fn
-                    .coalesce(eb.fn.sum<number>(eb.ref('amount')), eb.val(0))
-                    .as('total'),
-        ])
-        .where('date', '>=', dateRange.startDate)
-        .where('date', '<=', dateRange.endDate)
-        .groupBy('category')
+  let query = db
+    .selectFrom('expenses')
+    .select([
+      'category',
+      (eb) =>
+        eb.fn
+          .coalesce(eb.fn.sum<number>(eb.ref('amount')), eb.val(0))
+          .as('total'),
+    ])
+    .where('date', '>=', dateRange.startDate)
+    .where('date', '<=', dateRange.endDate)
+    .groupBy('category')
 
-    if (farmId) {
-        query = query.where('farmId', '=', farmId)
-    }
+  if (farmId) {
+    query = query.where('farmId', '=', farmId)
+  }
 
-    return await query.execute()
+  return await query.execute()
 }
 
 /**
@@ -298,45 +296,41 @@ export async function getExpensesByCategory(
  * @returns Batch data with mortality counts
  */
 export async function getBatchData(
-    db: Kysely<Database>,
-    farmId: string | undefined,
+  db: Kysely<Database>,
+  farmId: string | undefined,
 ) {
-    let query = db
-        .selectFrom('batches')
-        .leftJoin(
-            'mortality_records',
-            'mortality_records.batchId',
-            'batches.id',
-        )
-        .select([
-            'batches.id',
-            'batches.species',
-            'batches.livestockType',
-            'batches.initialQuantity',
-            'batches.currentQuantity',
-            'batches.status',
-            (eb) =>
-                eb.fn
-                    .coalesce(
-                        eb.fn.sum<number>(eb.ref('mortality_records.quantity')),
-                        eb.val(0),
-                    )
-                    .as('mortalityCount'),
-        ])
-        .groupBy([
-            'batches.id',
-            'batches.species',
-            'batches.livestockType',
-            'batches.initialQuantity',
-            'batches.currentQuantity',
-            'batches.status',
-        ])
+  let query = db
+    .selectFrom('batches')
+    .leftJoin('mortality_records', 'mortality_records.batchId', 'batches.id')
+    .select([
+      'batches.id',
+      'batches.species',
+      'batches.livestockType',
+      'batches.initialQuantity',
+      'batches.currentQuantity',
+      'batches.status',
+      (eb) =>
+        eb.fn
+          .coalesce(
+            eb.fn.sum<number>(eb.ref('mortality_records.quantity')),
+            eb.val(0),
+          )
+          .as('mortalityCount'),
+    ])
+    .groupBy([
+      'batches.id',
+      'batches.species',
+      'batches.livestockType',
+      'batches.initialQuantity',
+      'batches.currentQuantity',
+      'batches.status',
+    ])
 
-    if (farmId) {
-        query = query.where('batches.farmId', '=', farmId)
-    }
+  if (farmId) {
+    query = query.where('batches.farmId', '=', farmId)
+  }
 
-    return await query.execute()
+  return await query.execute()
 }
 
 /**
@@ -347,28 +341,25 @@ export async function getBatchData(
  * @returns Total count of active layer birds
  */
 export async function getLayerBirdCount(
-    db: Kysely<Database>,
-    farmId: string | undefined,
+  db: Kysely<Database>,
+  farmId: string | undefined,
 ): Promise<number> {
-    let query = db
-        .selectFrom('batches')
-        .select((eb) =>
-            eb.fn
-                .coalesce(
-                    eb.fn.sum<number>(eb.ref('currentQuantity')),
-                    eb.val(0),
-                )
-                .as('total'),
-        )
-        .where('species', 'ilike', '%layer%')
-        .where('status', '=', 'active')
+  let query = db
+    .selectFrom('batches')
+    .select((eb) =>
+      eb.fn
+        .coalesce(eb.fn.sum<number>(eb.ref('currentQuantity')), eb.val(0))
+        .as('total'),
+    )
+    .where('species', 'ilike', '%layer%')
+    .where('status', '=', 'active')
 
-    if (farmId) {
-        query = query.where('farmId', '=', farmId)
-    }
+  if (farmId) {
+    query = query.where('farmId', '=', farmId)
+  }
 
-    const result = await query.executeTakeFirst()
-    return Number(result?.total || 0)
+  const result = await query.executeTakeFirst()
+  return Number(result?.total || 0)
 }
 
 /**
@@ -380,38 +371,33 @@ export async function getLayerBirdCount(
  * @returns Aggregated egg records by date
  */
 export async function getEggRecords(
-    db: Kysely<Database>,
-    farmId: string | undefined,
-    dateRange: DateRange,
+  db: Kysely<Database>,
+  farmId: string | undefined,
+  dateRange: DateRange,
 ) {
-    let query = db
-        .selectFrom('egg_records')
-        .innerJoin('batches', 'batches.id', 'egg_records.batchId')
-        .select([
-            'egg_records.date',
-            (eb) =>
-                eb.fn
-                    .sum<number>(eb.ref('egg_records.quantityCollected'))
-                    .as('collected'),
-            (eb) =>
-                eb.fn
-                    .sum<number>(eb.ref('egg_records.quantityBroken'))
-                    .as('broken'),
-            (eb) =>
-                eb.fn
-                    .sum<number>(eb.ref('egg_records.quantitySold'))
-                    .as('sold'),
-        ])
-        .where('egg_records.date', '>=', dateRange.startDate)
-        .where('egg_records.date', '<=', dateRange.endDate)
-        .groupBy('egg_records.date')
-        .orderBy('egg_records.date', 'desc')
+  let query = db
+    .selectFrom('egg_records')
+    .innerJoin('batches', 'batches.id', 'egg_records.batchId')
+    .select([
+      'egg_records.date',
+      (eb) =>
+        eb.fn
+          .sum<number>(eb.ref('egg_records.quantityCollected'))
+          .as('collected'),
+      (eb) =>
+        eb.fn.sum<number>(eb.ref('egg_records.quantityBroken')).as('broken'),
+      (eb) => eb.fn.sum<number>(eb.ref('egg_records.quantitySold')).as('sold'),
+    ])
+    .where('egg_records.date', '>=', dateRange.startDate)
+    .where('egg_records.date', '<=', dateRange.endDate)
+    .groupBy('egg_records.date')
+    .orderBy('egg_records.date', 'desc')
 
-    if (farmId) {
-        query = query.where('batches.farmId', '=', farmId)
-    }
+  if (farmId) {
+    query = query.where('batches.farmId', '=', farmId)
+  }
 
-    return await query.execute()
+  return await query.execute()
 }
 
 /**
@@ -423,41 +409,37 @@ export async function getEggRecords(
  * @returns Aggregated feed records by batch and type
  */
 export async function getFeedRecords(
-    db: Kysely<Database>,
-    farmId: string | undefined,
-    dateRange: DateRange,
+  db: Kysely<Database>,
+  farmId: string | undefined,
+  dateRange: DateRange,
 ) {
-    let query = db
-        .selectFrom('feed_records')
-        .innerJoin('batches', 'batches.id', 'feed_records.batchId')
-        .select([
-            'feed_records.batchId',
-            'batches.species',
-            'feed_records.feedType',
-            (eb) =>
-                eb.fn
-                    .sum<number>(
-                        eb.cast(eb.ref('feed_records.quantityKg'), 'decimal'),
-                    )
-                    .as('totalQuantityKg'),
-            (eb) =>
-                eb.fn
-                    .sum<number>(
-                        eb.cast(eb.ref('feed_records.cost'), 'decimal'),
-                    )
-                    .as('totalCost'),
-        ])
-        .where('feed_records.date', '>=', dateRange.startDate)
-        .where('feed_records.date', '<=', dateRange.endDate)
-        .groupBy([
-            'feed_records.batchId',
-            'batches.species',
-            'feed_records.feedType',
-        ])
+  let query = db
+    .selectFrom('feed_records')
+    .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+    .select([
+      'feed_records.batchId',
+      'batches.species',
+      'feed_records.feedType',
+      (eb) =>
+        eb.fn
+          .sum<number>(eb.cast(eb.ref('feed_records.quantityKg'), 'decimal'))
+          .as('totalQuantityKg'),
+      (eb) =>
+        eb.fn
+          .sum<number>(eb.cast(eb.ref('feed_records.cost'), 'decimal'))
+          .as('totalCost'),
+    ])
+    .where('feed_records.date', '>=', dateRange.startDate)
+    .where('feed_records.date', '<=', dateRange.endDate)
+    .groupBy([
+      'feed_records.batchId',
+      'batches.species',
+      'feed_records.feedType',
+    ])
 
-    if (farmId) {
-        query = query.where('batches.farmId', '=', farmId)
-    }
+  if (farmId) {
+    query = query.where('batches.farmId', '=', farmId)
+  }
 
-    return await query.execute()
+  return await query.execute()
 }

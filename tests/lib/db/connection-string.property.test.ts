@@ -102,7 +102,9 @@ describe('Connection String Resolution', () => {
       await fc.assert(
         fc.asyncProperty(
           // Generate arbitrary strings that look like connection strings
-          fc.stringMatching(/^postgresql:\/\/[a-z0-9]+:[a-z0-9]+@[a-z0-9.]+\/[a-z0-9]+$/),
+          fc.stringMatching(
+            /^postgresql:\/\/[a-z0-9]+:[a-z0-9]+@[a-z0-9.]+\/[a-z0-9]+$/,
+          ),
           async (connectionString) => {
             process.env.DATABASE_URL = connectionString
             vi.resetModules()
@@ -117,7 +119,6 @@ describe('Connection String Resolution', () => {
     })
   })
 })
-
 
 /**
  * Property 3: Missing Configuration Error

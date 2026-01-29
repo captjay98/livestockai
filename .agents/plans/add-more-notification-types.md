@@ -57,26 +57,26 @@ Wire up the 3 missing notification types:
 
 - **FILE**: `app/features/notifications/schedulers.ts`
 - **IMPLEMENT**: `checkLowStockNotifications(userId: string)`
-    - Query feed_inventory and medication_inventory
-    - Compare quantity vs minThreshold
-    - Create notification if below threshold and user preference enabled
+  - Query feed_inventory and medication_inventory
+  - Compare quantity vs minThreshold
+  - Create notification if below threshold and user preference enabled
 - **PATTERN**: Mirror alerts.ts structure
 - **VALIDATE**: `npx tsc --noEmit`
 
 ### Task 2: CREATE invoice due notification checker
 
 - **IMPLEMENT**: `checkInvoiceDueNotifications(userId: string)`
-    - Query invoices with status 'unpaid' or 'partial'
-    - Check if dueDate is within 7 days
-    - Create notification if user preference enabled
+  - Query invoices with status 'unpaid' or 'partial'
+  - Check if dueDate is within 7 days
+  - Create notification if user preference enabled
 - **VALIDATE**: `npx tsc --noEmit`
 
 ### Task 3: CREATE batch harvest notification checker
 
 - **IMPLEMENT**: `checkBatchHarvestNotifications(userId: string)`
-    - Query batches with targetHarvestDate
-    - Check if date is within 7 days
-    - Create notification if user preference enabled
+  - Query batches with targetHarvestDate
+  - Check if date is within 7 days
+  - Create notification if user preference enabled
 - **VALIDATE**: `npx tsc --noEmit`
 
 ### Task 4: EXPORT scheduler functions

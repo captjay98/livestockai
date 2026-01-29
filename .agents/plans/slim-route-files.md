@@ -82,12 +82,12 @@ Keep in route:
 ```typescript
 // features/batches/server.ts - ADD here
 export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
-    .inputValidator((data: GetBatchesForFarmInput) => data)
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator((data: GetBatchesForFarmInput) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 ```
 
 **Types Pattern**:
@@ -95,17 +95,17 @@ export const getBatchesForFarmFn = createServerFn({ method: 'GET' })
 ```typescript
 // features/batches/types.ts - ADD here
 export interface BatchSearchParams {
-    page?: number
-    pageSize?: number
-    sortBy?: string
-    sortOrder?: 'asc' | 'desc'
-    q?: string
-    status?: 'active' | 'depleted' | 'sold'
-    livestockType?: 'poultry' | 'fish'
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  q?: string
+  status?: 'active' | 'depleted' | 'sold'
+  livestockType?: 'poultry' | 'fish'
 }
 
 export const batchSearchSchema = {
-    // Zod schema for validateSearch
+  // Zod schema for validateSearch
 }
 ```
 
@@ -121,15 +121,15 @@ import { BatchFilters } from '~/components/batches/batch-filters'
 // ... other imports
 
 export const Route = createFileRoute('/_auth/batches/')({
-    component: BatchesPage,
-    validateSearch: (search): BatchSearchParams => ({
-        /* validation */
-    }),
+  component: BatchesPage,
+  validateSearch: (search): BatchSearchParams => ({
+    /* validation */
+  }),
 })
 
 function BatchesPage() {
-    // State, effects, handlers (~40 lines)
-    // JSX composition (~60 lines)
+  // State, effects, handlers (~40 lines)
+  // JSX composition (~60 lines)
 }
 ```
 

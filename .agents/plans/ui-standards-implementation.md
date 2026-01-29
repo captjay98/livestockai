@@ -67,11 +67,11 @@ Create 5 new/enhanced components following ui-standards.md:
 ### Relevant Documentation
 
 - [WCAG 2.5.8 Target Size](https://www.w3.org/WAI/WCAG21/Understanding/target-size.html)
-    - Minimum 24px, recommended 44-48px for mobile
+  - Minimum 24px, recommended 44-48px for mobile
 - [TanStack Query Network Mode](https://tanstack.com/query/latest/docs/framework/react/guides/network-mode)
-    - Pending/paused states for offline mutations
+  - Pending/paused states for offline mutations
 - [Google web.dev Touch Targets](https://web.dev/articles/accessible-tap-targets)
-    - Recommends 48px minimum for touch
+  - Recommends 48px minimum for touch
 
 ### Patterns to Follow
 
@@ -104,18 +104,18 @@ variant: {
 
 ```typescript
 function useOnlineStatus() {
-    const isOnline = useSyncExternalStore(
-        (callback) => {
-            window.addEventListener('online', callback)
-            window.addEventListener('offline', callback)
-            return () => {
-                /* cleanup */
-            }
-        },
-        () => navigator.onLine,
-        () => true,
-    )
-    return isOnline
+  const isOnline = useSyncExternalStore(
+    (callback) => {
+      window.addEventListener('online', callback)
+      window.addEventListener('offline', callback)
+      return () => {
+        /* cleanup */
+      }
+    },
+    () => navigator.onLine,
+    () => true,
+  )
+  return isOnline
 }
 ```
 
@@ -197,18 +197,18 @@ field: 'h-12 gap-2 px-5 text-sm has-data-[icon=inline-end]:pr-4 has-data-[icon=i
 
 ```typescript
 interface ActionGridAction {
-    icon: LucideIcon
-    label: string
-    onClick?: () => void
-    href?: string
-    disabled?: boolean
-    variant?: 'default' | 'success' | 'warning' | 'destructive'
+  icon: LucideIcon
+  label: string
+  onClick?: () => void
+  href?: string
+  disabled?: boolean
+  variant?: 'default' | 'success' | 'warning' | 'destructive'
 }
 
 interface ActionGridProps {
-    actions: ActionGridAction[]
-    columns?: 2 | 3 | 4 | 6
-    className?: string
+  actions: ActionGridAction[]
+  columns?: 2 | 3 | 4 | 6
+  className?: string
 }
 ```
 
@@ -234,19 +234,19 @@ interface ActionGridProps {
 
 ```typescript
 interface BatchHeaderProps {
-    batch: {
-        id: string
-        batchName: string | null
-        species: string
-        livestockType: string
-        status: 'active' | 'depleted' | 'sold'
-        currentQuantity: number
-        initialQuantity: number
-        acquisitionDate: Date
-    }
-    farmName?: string
-    onBack?: () => void
-    actions?: React.ReactNode
+  batch: {
+    id: string
+    batchName: string | null
+    species: string
+    livestockType: string
+    status: 'active' | 'depleted' | 'sold'
+    currentQuantity: number
+    initialQuantity: number
+    acquisitionDate: Date
+  }
+  farmName?: string
+  onBack?: () => void
+  actions?: React.ReactNode
 }
 ```
 
@@ -273,15 +273,15 @@ interface BatchHeaderProps {
 type HealthStatus = 'healthy' | 'attention' | 'critical'
 
 interface HealthPulseProps {
-    status: HealthStatus
-    title?: string
-    metrics?: {
-        label: string
-        value: string | number
-        unit?: string
-    }[]
-    message?: string
-    className?: string
+  status: HealthStatus
+  title?: string
+  metrics?: {
+    label: string
+    value: string | number
+    unit?: string
+  }[]
+  message?: string
+  className?: string
 }
 ```
 
@@ -314,9 +314,9 @@ interface HealthPulseProps {
 type SyncState = 'synced' | 'syncing' | 'pending' | 'offline'
 
 interface SyncStatusProps {
-    className?: string
-    showLabel?: boolean
-    size?: 'sm' | 'default'
+  className?: string
+  showLabel?: boolean
+  size?: 'sm' | 'default'
 }
 ```
 
@@ -327,7 +327,7 @@ interface SyncStatusProps {
 const isOnline = useOnlineStatus()
 const queryClient = useQueryClient()
 const pendingMutations = useMutationState({
-    filters: { status: 'pending' },
+  filters: { status: 'pending' },
 })
 const pendingCount = pendingMutations.length
 
@@ -470,13 +470,13 @@ import { SyncStatus } from '~/components/sync-status'
 ### Visual Verification
 
 1. **Touch targets**: Use browser dev tools to measure button heights
-    - `field` size buttons should be 48px
-    - ActionGrid cells should be 64px minimum
+   - `field` size buttons should be 48px
+   - ActionGrid cells should be 64px minimum
 
 2. **Sync status states**: Test by:
-    - Disconnecting network → should show "Offline"
-    - Reconnecting → should show "Synced"
-    - Making mutation while offline → should show pending count
+   - Disconnecting network → should show "Offline"
+   - Reconnecting → should show "Synced"
+   - Making mutation while offline → should show pending count
 
 3. **Mobile responsiveness**: Test at 375px width (iPhone SE)
 

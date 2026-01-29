@@ -10,258 +10,239 @@ import * as fc from 'fast-check'
  * sum(sales.total_amount) where sales.customer_id = customer.id
  */
 describe('Property 15: Customer Revenue Aggregation', () => {
-    // Arbitrary for customer ID
-    const customerIdArb = fc.uuid()
+  // Arbitrary for customer ID
+  const customerIdArb = fc.uuid()
 
-    // Arbitrary for sale amount (in Naira)
-    const saleAmountArb = fc
-        .double({ min: 100, max: 10000000, noNaN: true })
-        .map((n) => Math.round(n * 100) / 100) // Round to 2 decimal places
+  // Arbitrary for sale amount (in Naira)
+  const saleAmountArb = fc
+    .double({ min: 100, max: 10000000, noNaN: true })
+    .map((n) => Math.round(n * 100) / 100) // Round to 2 decimal places
 
-    // Arbitrary for sale record
-    const saleRecordArb = fc.record({
-        id: fc.uuid(),
-        customerId: fc.uuid(),
-        totalAmount: saleAmountArb,
-    })
+  // Arbitrary for sale record
+  const saleRecordArb = fc.record({
+    id: fc.uuid(),
+    customerId: fc.uuid(),
+    totalAmount: saleAmountArb,
+  })
 
-    /**
-     * Calculate total spent by a customer
-     */
-    function calculateCustomerTotalSpent(
-        sales: Array<{ customerId: string; totalAmount: number }>,
-        customerId: string,
-    ): number {
-        return sales
-            .filter((sale) => sale.customerId === customerId)
-            .reduce((sum, sale) => sum + sale.totalAmount, 0)
+  /**
+   * Calculate total spent by a customer
+   */
+  function calculateCustomerTotalSpent(
+    sales: Array<{ customerId: string; totalAmount: number }>,
+    customerId: string,
+  ): number {
+    return sales
+      .filter((sale) => sale.customerId === customerId)
+      .reduce((sum, sale) => sum + sale.totalAmount, 0)
+  }
+
+  /**
+   * Get top customers by revenue
+   */
+  function getTopCustomers(
+    sales: Array<{ customerId: string; totalAmount: number }>,
+    limit: number,
+  ): Array<{ customerId: string; totalSpent: number }> {
+    const customerTotals = new Map<string, number>()
+
+    for (const sale of sales) {
+      const current = customerTotals.get(sale.customerId) || 0
+      customerTotals.set(sale.customerId, current + sale.totalAmount)
     }
 
-    /**
-     * Get top customers by revenue
-     */
-    function getTopCustomers(
-        sales: Array<{ customerId: string; totalAmount: number }>,
-        limit: number,
-    ): Array<{ customerId: string; totalSpent: number }> {
-        const customerTotals = new Map<string, number>()
+    return Array.from(customerTotals.entries())
+      .map(([customerId, totalSpent]) => ({ customerId, totalSpent }))
+      .sort((a, b) => b.totalSpent - a.totalSpent)
+      .slice(0, limit)
+  }
 
-        for (const sale of sales) {
-            const current = customerTotals.get(sale.customerId) || 0
-            customerTotals.set(sale.customerId, current + sale.totalAmount)
-        }
+  it('total_spent equals sum of sales for customer', () => {
+    fc.assert(
+      fc.property(
+        fc.array(saleRecordArb, { minLength: 0, maxLength: 100 }),
+        customerIdArb,
+        (sales, customerId) => {
+          const totalSpent = calculateCustomerTotalSpent(sales, customerId)
 
-        return Array.from(customerTotals.entries())
-            .map(([customerId, totalSpent]) => ({ customerId, totalSpent }))
-            .sort((a, b) => b.totalSpent - a.totalSpent)
-            .slice(0, limit)
-    }
+          // Manual calculation
+          const expected = sales
+            .filter((s) => s.customerId === customerId)
+            .reduce((sum, s) => sum + s.totalAmount, 0)
 
-    it('total_spent equals sum of sales for customer', () => {
-        fc.assert(
-            fc.property(
-                fc.array(saleRecordArb, { minLength: 0, maxLength: 100 }),
-                customerIdArb,
-                (sales, customerId) => {
-                    const totalSpent = calculateCustomerTotalSpent(
-                        sales,
-                        customerId,
-                    )
+          expect(totalSpent).toBeCloseTo(expected, 2)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-                    // Manual calculation
-                    const expected = sales
-                        .filter((s) => s.customerId === customerId)
-                        .reduce((sum, s) => sum + s.totalAmount, 0)
+  it('total_spent is 0 for customer with no sales', () => {
+    fc.assert(
+      fc.property(
+        fc.array(saleRecordArb, { minLength: 0, maxLength: 50 }),
+        customerIdArb,
+        (sales, customerId) => {
+          // Ensure no sales have this customer ID
+          const salesWithoutCustomer = sales.map((s) => ({
+            ...s,
+            customerId:
+              s.customerId === customerId
+                ? `other-${s.customerId}`
+                : s.customerId,
+          }))
 
-                    expect(totalSpent).toBeCloseTo(expected, 2)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          const totalSpent = calculateCustomerTotalSpent(
+            salesWithoutCustomer,
+            customerId,
+          )
+          expect(totalSpent).toBe(0)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-    it('total_spent is 0 for customer with no sales', () => {
-        fc.assert(
-            fc.property(
-                fc.array(saleRecordArb, { minLength: 0, maxLength: 50 }),
-                customerIdArb,
-                (sales, customerId) => {
-                    // Ensure no sales have this customer ID
-                    const salesWithoutCustomer = sales.map((s) => ({
-                        ...s,
-                        customerId:
-                            s.customerId === customerId
-                                ? `other-${s.customerId}`
-                                : s.customerId,
-                    }))
+  it('total_spent is non-negative', () => {
+    fc.assert(
+      fc.property(
+        fc.array(saleRecordArb, { minLength: 0, maxLength: 50 }),
+        customerIdArb,
+        (sales, customerId) => {
+          const totalSpent = calculateCustomerTotalSpent(sales, customerId)
+          expect(totalSpent).toBeGreaterThanOrEqual(0)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-                    const totalSpent = calculateCustomerTotalSpent(
-                        salesWithoutCustomer,
-                        customerId,
-                    )
-                    expect(totalSpent).toBe(0)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('total_spent increases with each sale', () => {
+    fc.assert(
+      fc.property(
+        customerIdArb,
+        fc.array(saleAmountArb, { minLength: 1, maxLength: 20 }),
+        (customerId, amounts) => {
+          let runningTotal = 0
+          const sales: Array<{
+            customerId: string
+            totalAmount: number
+          }> = []
 
-    it('total_spent is non-negative', () => {
-        fc.assert(
-            fc.property(
-                fc.array(saleRecordArb, { minLength: 0, maxLength: 50 }),
-                customerIdArb,
-                (sales, customerId) => {
-                    const totalSpent = calculateCustomerTotalSpent(
-                        sales,
-                        customerId,
-                    )
-                    expect(totalSpent).toBeGreaterThanOrEqual(0)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          for (const amount of amounts) {
+            sales.push({ customerId, totalAmount: amount })
+            const newTotal = calculateCustomerTotalSpent(sales, customerId)
 
-    it('total_spent increases with each sale', () => {
-        fc.assert(
-            fc.property(
-                customerIdArb,
-                fc.array(saleAmountArb, { minLength: 1, maxLength: 20 }),
-                (customerId, amounts) => {
-                    let runningTotal = 0
-                    const sales: Array<{
-                        customerId: string
-                        totalAmount: number
-                    }> = []
+            expect(newTotal).toBeGreaterThanOrEqual(runningTotal)
+            runningTotal = newTotal
+          }
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-                    for (const amount of amounts) {
-                        sales.push({ customerId, totalAmount: amount })
-                        const newTotal = calculateCustomerTotalSpent(
-                            sales,
-                            customerId,
-                        )
+  it('top customers are sorted by total spent descending', () => {
+    fc.assert(
+      fc.property(
+        fc.array(saleRecordArb, { minLength: 1, maxLength: 100 }),
+        fc.integer({ min: 1, max: 10 }),
+        (sales, limit) => {
+          const topCustomers = getTopCustomers(sales, limit)
 
-                        expect(newTotal).toBeGreaterThanOrEqual(runningTotal)
-                        runningTotal = newTotal
-                    }
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          // Verify sorted in descending order
+          for (let i = 1; i < topCustomers.length; i++) {
+            expect(topCustomers[i - 1].totalSpent).toBeGreaterThanOrEqual(
+              topCustomers[i].totalSpent,
+            )
+          }
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-    it('top customers are sorted by total spent descending', () => {
-        fc.assert(
-            fc.property(
-                fc.array(saleRecordArb, { minLength: 1, maxLength: 100 }),
-                fc.integer({ min: 1, max: 10 }),
-                (sales, limit) => {
-                    const topCustomers = getTopCustomers(sales, limit)
+  it('top customers list respects limit', () => {
+    fc.assert(
+      fc.property(
+        fc.array(saleRecordArb, { minLength: 1, maxLength: 100 }),
+        fc.integer({ min: 1, max: 20 }),
+        (sales, limit) => {
+          const topCustomers = getTopCustomers(sales, limit)
 
-                    // Verify sorted in descending order
-                    for (let i = 1; i < topCustomers.length; i++) {
-                        expect(
-                            topCustomers[i - 1].totalSpent,
-                        ).toBeGreaterThanOrEqual(topCustomers[i].totalSpent)
-                    }
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          // Should not exceed limit
+          expect(topCustomers.length).toBeLessThanOrEqual(limit)
 
-    it('top customers list respects limit', () => {
-        fc.assert(
-            fc.property(
-                fc.array(saleRecordArb, { minLength: 1, maxLength: 100 }),
-                fc.integer({ min: 1, max: 20 }),
-                (sales, limit) => {
-                    const topCustomers = getTopCustomers(sales, limit)
+          // Should include all unique customers if fewer than limit
+          const uniqueCustomers = new Set(sales.map((s) => s.customerId))
+          expect(topCustomers.length).toBeLessThanOrEqual(uniqueCustomers.size)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-                    // Should not exceed limit
-                    expect(topCustomers.length).toBeLessThanOrEqual(limit)
+  it('all sales are accounted for in customer totals', () => {
+    fc.assert(
+      fc.property(
+        fc.array(saleRecordArb, { minLength: 1, maxLength: 50 }),
+        (sales) => {
+          // Get all unique customer IDs
+          const customerIds = [...new Set(sales.map((s) => s.customerId))]
 
-                    // Should include all unique customers if fewer than limit
-                    const uniqueCustomers = new Set(
-                        sales.map((s) => s.customerId),
-                    )
-                    expect(topCustomers.length).toBeLessThanOrEqual(
-                        uniqueCustomers.size,
-                    )
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          // Sum of all customer totals should equal sum of all sales
+          const totalFromCustomers = customerIds.reduce(
+            (sum, customerId) =>
+              sum + calculateCustomerTotalSpent(sales, customerId),
+            0,
+          )
 
-    it('all sales are accounted for in customer totals', () => {
-        fc.assert(
-            fc.property(
-                fc.array(saleRecordArb, { minLength: 1, maxLength: 50 }),
-                (sales) => {
-                    // Get all unique customer IDs
-                    const customerIds = [
-                        ...new Set(sales.map((s) => s.customerId)),
-                    ]
+          const totalFromSales = sales.reduce(
+            (sum, s) => sum + s.totalAmount,
+            0,
+          )
 
-                    // Sum of all customer totals should equal sum of all sales
-                    const totalFromCustomers = customerIds.reduce(
-                        (sum, customerId) =>
-                            sum +
-                            calculateCustomerTotalSpent(sales, customerId),
-                        0,
-                    )
+          expect(totalFromCustomers).toBeCloseTo(totalFromSales, 2)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 
-                    const totalFromSales = sales.reduce(
-                        (sum, s) => sum + s.totalAmount,
-                        0,
-                    )
+  it('customer with single large sale ranks higher than multiple small sales', () => {
+    fc.assert(
+      fc.property(
+        fc.uuid(), // customer A
+        fc.uuid(), // customer B
+        fc.double({ min: 10000, max: 100000, noNaN: true }), // large sale
+        fc.array(fc.double({ min: 100, max: 500, noNaN: true }), {
+          minLength: 1,
+          maxLength: 10,
+        }), // small sales
+        (customerA, customerB, largeSale, smallSales) => {
+          // Ensure different customers
+          if (customerA === customerB) return
 
-                    expect(totalFromCustomers).toBeCloseTo(totalFromSales, 2)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          const smallSalesTotal = smallSales.reduce((sum, s) => sum + s, 0)
 
-    it('customer with single large sale ranks higher than multiple small sales', () => {
-        fc.assert(
-            fc.property(
-                fc.uuid(), // customer A
-                fc.uuid(), // customer B
-                fc.double({ min: 10000, max: 100000, noNaN: true }), // large sale
-                fc.array(fc.double({ min: 100, max: 500, noNaN: true }), {
-                    minLength: 1,
-                    maxLength: 10,
-                }), // small sales
-                (customerA, customerB, largeSale, smallSales) => {
-                    // Ensure different customers
-                    if (customerA === customerB) return
+          // Only test when large sale is actually larger
+          if (largeSale <= smallSalesTotal) return
 
-                    const smallSalesTotal = smallSales.reduce(
-                        (sum, s) => sum + s,
-                        0,
-                    )
+          const sales = [
+            { customerId: customerA, totalAmount: largeSale },
+            ...smallSales.map((amount) => ({
+              customerId: customerB,
+              totalAmount: amount,
+            })),
+          ]
 
-                    // Only test when large sale is actually larger
-                    if (largeSale <= smallSalesTotal) return
+          const topCustomers = getTopCustomers(sales, 2)
 
-                    const sales = [
-                        { customerId: customerA, totalAmount: largeSale },
-                        ...smallSales.map((amount) => ({
-                            customerId: customerB,
-                            totalAmount: amount,
-                        })),
-                    ]
-
-                    const topCustomers = getTopCustomers(sales, 2)
-
-                    expect(topCustomers[0].customerId).toBe(customerA)
-                    expect(topCustomers[0].totalSpent).toBeCloseTo(largeSale, 2)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          expect(topCustomers[0].customerId).toBe(customerA)
+          expect(topCustomers[0].totalSpent).toBeCloseTo(largeSale, 2)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })

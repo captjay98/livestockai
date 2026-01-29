@@ -65,72 +65,72 @@ Systematically migrate components to use `useTranslation()` hook and `t()` funct
 ```typescript
 // app/features/i18n/locales/en.ts structure
 export const en = {
-    common: {
-        /* 85 keys - shared across app */
-    },
-    eggs: {
-        /* 23 keys */
-    },
-    feed: {
-        /* 47 keys */
-    },
-    mortality: {
-        /* 28 keys */
-    },
-    vaccinations: {
-        /* 65 keys */
-    },
-    weight: {
-        /* 21 keys */
-    },
-    waterQuality: {
-        /* 23 keys */
-    },
-    dashboard: {
-        /* 16 keys */
-    },
-    farms: {
-        /* 29 keys */
-    },
-    batches: {
-        /* 139 keys */
-    },
-    inventory: {
-        /* 57 keys */
-    },
-    sales: {
-        /* 45 keys */
-    },
-    expenses: {
-        /* 64 keys */
-    },
-    invoices: {
-        /* 52 keys */
-    },
-    reports: {
-        /* 107 keys */
-    },
-    settings: {
-        /* 229 keys */
-    },
-    auth: {
-        /* 38 keys */
-    },
-    suppliers: {
-        /* 74 keys */
-    },
-    customers: {
-        /* 75 keys */
-    },
-    validation: {
-        /* 8 keys */
-    },
-    errors: {
-        /* 33 keys */
-    },
-    onboarding: {
-        /* 125 keys */
-    },
+  common: {
+    /* 85 keys - shared across app */
+  },
+  eggs: {
+    /* 23 keys */
+  },
+  feed: {
+    /* 47 keys */
+  },
+  mortality: {
+    /* 28 keys */
+  },
+  vaccinations: {
+    /* 65 keys */
+  },
+  weight: {
+    /* 21 keys */
+  },
+  waterQuality: {
+    /* 23 keys */
+  },
+  dashboard: {
+    /* 16 keys */
+  },
+  farms: {
+    /* 29 keys */
+  },
+  batches: {
+    /* 139 keys */
+  },
+  inventory: {
+    /* 57 keys */
+  },
+  sales: {
+    /* 45 keys */
+  },
+  expenses: {
+    /* 64 keys */
+  },
+  invoices: {
+    /* 52 keys */
+  },
+  reports: {
+    /* 107 keys */
+  },
+  settings: {
+    /* 229 keys */
+  },
+  auth: {
+    /* 38 keys */
+  },
+  suppliers: {
+    /* 74 keys */
+  },
+  customers: {
+    /* 75 keys */
+  },
+  validation: {
+    /* 8 keys */
+  },
+  errors: {
+    /* 33 keys */
+  },
+  onboarding: {
+    /* 125 keys */
+  },
 }
 ```
 
@@ -350,32 +350,32 @@ const { t } = useTranslation(['common'])
 **Manual Testing Required:**
 
 1. **Language Switching Test:**
-    - Switch to each of 15 languages
-    - Verify all UI text updates
-    - Check for missing translation keys (shows key name if missing)
+   - Switch to each of 15 languages
+   - Verify all UI text updates
+   - Check for missing translation keys (shows key name if missing)
 
 2. **Nigerian Languages Test:**
-    - Switch to Hausa (ha)
-    - Switch to Yoruba (yo)
-    - Switch to Igbo (ig)
-    - Verify proper diacritics display (Yorùbá)
+   - Switch to Hausa (ha)
+   - Switch to Yoruba (yo)
+   - Switch to Igbo (ig)
+   - Verify proper diacritics display (Yorùbá)
 
 3. **Persistence Test:**
-    - Select language
-    - Refresh page
-    - Verify language persists (localStorage)
+   - Select language
+   - Refresh page
+   - Verify language persists (localStorage)
 
 ### Edge Cases
 
 1. **Missing Translation Keys:**
-    - If key doesn't exist, shows key name
-    - Add defaultValue for safety: `t('key', { defaultValue: 'Fallback' })`
+   - If key doesn't exist, shows key name
+   - Add defaultValue for safety: `t('key', { defaultValue: 'Fallback' })`
 
 2. **Namespace Not Loaded:**
-    - Ensure all required namespaces in `useTranslation([...])`
+   - Ensure all required namespaces in `useTranslation([...])`
 
 3. **Pluralization:**
-    - Test with count=0, count=1, count=2+ for plural forms
+   - Test with count=0, count=1, count=2+ for plural forms
 
 ---
 

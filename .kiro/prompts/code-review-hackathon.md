@@ -32,27 +32,27 @@ Wait for response before proceeding.
 ## Judging Criteria (100 Points Total)
 
 1. **Application Quality (40 points)**
-    - Functionality & Completeness (15 points)
-    - Real-World Value (15 points)
-    - Code Quality (10 points)
+   - Functionality & Completeness (15 points)
+   - Real-World Value (15 points)
+   - Code Quality (10 points)
 
 2. **Kiro CLI Usage (20 points)**
-    - Effective Use of Features (10 points)
-    - Custom Commands Quality (7 points)
-    - Workflow Innovation (3 points)
+   - Effective Use of Features (10 points)
+   - Custom Commands Quality (7 points)
+   - Workflow Innovation (3 points)
 
 3. **Documentation (20 points)**
-    - Completeness (9 points)
-    - Clarity (7 points)
-    - Process Transparency (4 points)
+   - Completeness (9 points)
+   - Clarity (7 points)
+   - Process Transparency (4 points)
 
 4. **Innovation (15 points)**
-    - Uniqueness (8 points)
-    - Creative Problem-Solving (7 points)
+   - Uniqueness (8 points)
+   - Creative Problem-Solving (7 points)
 
 5. **Presentation (5 points)**
-    - Demo Video (3 points)
-    - README (2 points)
+   - Demo Video (3 points)
+   - README (2 points)
 
 ## Step 1: Project Discovery
 
@@ -235,14 +235,14 @@ For each criterion, provide:
 **Validate review findings:**
 
 1. **Score accuracy:**
-    - All criteria evaluated
-    - Scores justified with evidence
-    - No bias or assumptions
+   - All criteria evaluated
+   - Scores justified with evidence
+   - No bias or assumptions
 
 2. **Recommendations feasibility:**
-    - Improvements are actionable
-    - Effort estimates realistic
-    - Prioritization clear
+   - Improvements are actionable
+   - Effort estimates realistic
+   - Prioritization clear
 
 **Ask user:**
 

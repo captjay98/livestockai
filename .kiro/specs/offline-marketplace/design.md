@@ -70,40 +70,40 @@ Distance filtering uses Haversine formula in the service layer rather than Postg
 ```typescript
 // app/features/marketplace/distance-service.ts
 function calculateDistance(
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number,
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
 ): number {
-    const R = 6371 // Earth's radius in km
-    const dLat = toRad(lat2 - lat1)
-    const dLon = toRad(lon2 - lon1)
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) *
-            Math.cos(toRad(lat2)) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    return R * c
+  const R = 6371 // Earth's radius in km
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
 }
 
 // Filter listings by distance in memory after fetching from DB
 function filterByDistance(
-    listings: Listing[],
-    viewerLat: number,
-    viewerLon: number,
-    radiusKm: number,
+  listings: Listing[],
+  viewerLat: number,
+  viewerLon: number,
+  radiusKm: number,
 ): Listing[] {
-    return listings.filter((listing) => {
-        const distance = calculateDistance(
-            viewerLat,
-            viewerLon,
-            listing.latitude,
-            listing.longitude,
-        )
-        return distance <= radiusKm
-    })
+  return listings.filter((listing) => {
+    const distance = calculateDistance(
+      viewerLat,
+      viewerLon,
+      listing.latitude,
+      listing.longitude,
+    )
+    return distance <= radiusKm
+  })
 }
 ```
 
@@ -112,34 +112,34 @@ function filterByDistance(
 ```typescript
 // Calculate bounding box for radius (approximate)
 function getBoundingBox(lat: number, lon: number, radiusKm: number) {
-    const latDelta = radiusKm / 111 // ~111km per degree latitude
-    const lonDelta = radiusKm / (111 * Math.cos((lat * Math.PI) / 180))
-    return {
-        minLat: lat - latDelta,
-        maxLat: lat + latDelta,
-        minLon: lon - lonDelta,
-        maxLon: lon + lonDelta,
-    }
+  const latDelta = radiusKm / 111 // ~111km per degree latitude
+  const lonDelta = radiusKm / (111 * Math.cos((lat * Math.PI) / 180))
+  return {
+    minLat: lat - latDelta,
+    maxLat: lat + latDelta,
+    minLon: lon - lonDelta,
+    maxLon: lon + lonDelta,
+  }
 }
 
 // In repository - pre-filter with bounding box
 async function getListingsNearLocation(
-    db: Kysely<Database>,
-    lat: number,
-    lon: number,
-    radiusKm: number,
+  db: Kysely<Database>,
+  lat: number,
+  lon: number,
+  radiusKm: number,
 ) {
-    const box = getBoundingBox(lat, lon, radiusKm * 1.2) // 20% buffer
+  const box = getBoundingBox(lat, lon, radiusKm * 1.2) // 20% buffer
 
-    return db
-        .selectFrom('marketplace_listings')
-        .selectAll()
-        .where('latitude', '>=', box.minLat)
-        .where('latitude', '<=', box.maxLat)
-        .where('longitude', '>=', box.minLon)
-        .where('longitude', '<=', box.maxLon)
-        .where('status', '=', 'active')
-        .execute()
+  return db
+    .selectFrom('marketplace_listings')
+    .selectAll()
+    .where('latitude', '>=', box.minLat)
+    .where('latitude', '<=', box.maxLat)
+    .where('longitude', '>=', box.minLon)
+    .where('longitude', '<=', box.maxLon)
+    .where('status', '=', 'active')
+    .execute()
 }
 ```
 
@@ -217,72 +217,71 @@ import { z } from 'zod'
 import { AppError } from '~/lib/errors'
 
 export const createListingFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            livestockType: z.enum([
-                'poultry',
-                'fish',
-                'cattle',
-                'goats',
-                'sheep',
-                'bees',
-            ]),
-            species: z.string().min(1).max(100),
-            quantity: z.number().int().positive(),
-            minPrice: z.number().nonnegative(),
-            maxPrice: z.number().nonnegative(),
-            // ... other fields
-        }),
-    )
-    .handler(async ({ data }) => {
-        try {
-            // 1. Auth middleware (dynamic import for Cloudflare Workers)
-            const { requireAuth } =
-                await import('~/features/auth/server-middleware')
-            const session = await requireAuth()
+  .inputValidator(
+    z.object({
+      livestockType: z.enum([
+        'poultry',
+        'fish',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+      ]),
+      species: z.string().min(1).max(100),
+      quantity: z.number().int().positive(),
+      minPrice: z.number().nonnegative(),
+      maxPrice: z.number().nonnegative(),
+      // ... other fields
+    }),
+  )
+  .handler(async ({ data }) => {
+    try {
+      // 1. Auth middleware (dynamic import for Cloudflare Workers)
+      const { requireAuth } = await import('~/features/auth/server-middleware')
+      const session = await requireAuth()
 
-            // 2. Database access (MUST use getDb() for Cloudflare Workers)
-            const { getDb } = await import('~/lib/db')
-            const db = await getDb()
+      // 2. Database access (MUST use getDb() for Cloudflare Workers)
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
-            // 3. Repository layer for database operations
-            const { insertListing } = await import('./repository')
+      // 3. Repository layer for database operations
+      const { insertListing } = await import('./repository')
 
-            // 4. Service layer for business logic
-            const { validateListingInput, calculateExpirationDate } =
-                await import('./listing-service')
+      // 4. Service layer for business logic
+      const { validateListingInput, calculateExpirationDate } =
+        await import('./listing-service')
 
-            // ... implementation
-        } catch (error) {
-            if (error instanceof AppError) throw error
-            throw new AppError('DATABASE_ERROR', {
-                message: 'Failed to create listing',
-                cause: error,
-            })
-        }
-    })
+      // ... implementation
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to create listing',
+        cause: error,
+      })
+    }
+  })
 
 // Public endpoint - no auth required
 export const getListingsFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            page: z.number().int().positive().default(1),
-            pageSize: z.number().int().positive().max(50).default(20),
-            livestockType: z
-                .enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'])
-                .optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        // No auth required - public access
-        const { getDb } = await import('~/lib/db')
-        const db = await getDb()
+  .inputValidator(
+    z.object({
+      page: z.number().int().positive().default(1),
+      pageSize: z.number().int().positive().max(50).default(20),
+      livestockType: z
+        .enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'])
+        .optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    // No auth required - public access
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
-        const { getListings } = await import('./repository')
-        const { fuzzListing } = await import('./privacy-fuzzer')
+    const { getListings } = await import('./repository')
+    const { fuzzListing } = await import('./privacy-fuzzer')
 
-        // ... implementation with fuzzing applied
-    })
+    // ... implementation with fuzzing applied
+  })
 ```
 
 ### Repository Layer Pattern
@@ -293,39 +292,39 @@ import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 export async function insertListing(
-    db: Kysely<Database>,
-    listing: ListingInsert,
+  db: Kysely<Database>,
+  listing: ListingInsert,
 ): Promise<string> {
-    const result = await db
-        .insertInto('marketplace_listings')
-        .values(listing)
-        .returning('id')
-        .executeTakeFirstOrThrow()
-    return result.id
+  const result = await db
+    .insertInto('marketplace_listings')
+    .values(listing)
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
 }
 
 export async function getListings(
-    db: Kysely<Database>,
-    filters: ListingFilters,
-    pagination: { page: number; pageSize: number },
+  db: Kysely<Database>,
+  filters: ListingFilters,
+  pagination: { page: number; pageSize: number },
 ) {
-    let query = db
-        .selectFrom('marketplace_listings')
-        .selectAll()
-        .where('status', '=', 'active')
-        .where('deletedAt', 'is', null)
+  let query = db
+    .selectFrom('marketplace_listings')
+    .selectAll()
+    .where('status', '=', 'active')
+    .where('deletedAt', 'is', null)
 
-    if (filters.livestockType) {
-        query = query.where('livestockType', '=', filters.livestockType)
-    }
+  if (filters.livestockType) {
+    query = query.where('livestockType', '=', filters.livestockType)
+  }
 
-    // ... more filters
+  // ... more filters
 
-    return query
-        .orderBy('createdAt', 'desc')
-        .limit(pagination.pageSize)
-        .offset((pagination.page - 1) * pagination.pageSize)
-        .execute()
+  return query
+    .orderBy('createdAt', 'desc')
+    .limit(pagination.pageSize)
+    .offset((pagination.page - 1) * pagination.pageSize)
+    .execute()
 }
 ```
 
@@ -580,28 +579,28 @@ Pure functions for listing business logic.
 ```typescript
 // Listing creation and validation
 interface CreateListingInput {
-    sellerId: string
-    livestockType: LivestockType
-    species: string
-    quantity: number
-    minPrice: number
-    maxPrice: number
-    location: ListingLocation
-    description?: string
-    photoUrls?: string[]
-    batchId?: string // Link to existing batch
-    expirationDays: 7 | 14 | 30 | 60
-    fuzzingLevel: 'low' | 'medium' | 'high'
-    contactPreference: 'app' | 'phone' | 'both'
+  sellerId: string
+  livestockType: LivestockType
+  species: string
+  quantity: number
+  minPrice: number
+  maxPrice: number
+  location: ListingLocation
+  description?: string
+  photoUrls?: string[]
+  batchId?: string // Link to existing batch
+  expirationDays: 7 | 14 | 30 | 60
+  fuzzingLevel: 'low' | 'medium' | 'high'
+  contactPreference: 'app' | 'phone' | 'both'
 }
 
 interface ListingLocation {
-    latitude: number
-    longitude: number
-    country: string
-    region: string // State/Province
-    locality: string // City/District/LGA
-    formattedAddress: string
+  latitude: number
+  longitude: number
+  country: string
+  region: string // State/Province
+  locality: string // City/District/LGA
+  formattedAddress: string
 }
 
 // Service functions
@@ -614,8 +613,8 @@ function isListingExpired(expiresAt: Date): boolean
 function shouldNotifyExpiration(expiresAt: Date): boolean // 3 days before
 
 function generateListingFromBatch(
-    batch: BatchRecord,
-    marketPrices: MarketPrice[],
+  batch: BatchRecord,
+  marketPrices: MarketPrice[],
 ): Partial<CreateListingInput>
 ```
 
@@ -627,21 +626,21 @@ Pure functions for applying privacy fuzzing at display time.
 type FuzzingLevel = 'low' | 'medium' | 'high'
 
 interface FuzzedListing {
-    id: string
-    sellerId: string
-    livestockType: string
-    species: string
-    quantityRange: string // "50-100 birds"
-    priceRange: string // "₦4,500-5,500/bird"
-    locationDisplay: string // "Kano State" or "Within 50km of Lagos"
-    distanceKm?: number // If buyer location known
-    description?: string
-    photoUrls: string[]
-    expiresAt: Date
-    createdAt: Date
-    isVerifiedSeller: boolean
-    viewCount: number
-    contactCount: number
+  id: string
+  sellerId: string
+  livestockType: string
+  species: string
+  quantityRange: string // "50-100 birds"
+  priceRange: string // "₦4,500-5,500/bird"
+  locationDisplay: string // "Kano State" or "Within 50km of Lagos"
+  distanceKm?: number // If buyer location known
+  description?: string
+  photoUrls: string[]
+  expiresAt: Date
+  createdAt: Date
+  isVerifiedSeller: boolean
+  viewCount: number
+  contactCount: number
 }
 
 // Fuzzing functions
@@ -655,18 +654,18 @@ function fuzzLocation(location: ListingLocation, level: FuzzingLevel): string
 // low: locality (district), medium: region (state), high: distance from reference
 
 function calculateDistance(
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number,
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
 ): number
 // Haversine formula for distance in km
 
 function fuzzListing(
-    listing: ListingRecord,
-    fuzzingLevel: FuzzingLevel,
-    viewerLocation?: { lat: number; lon: number },
-    currency?: CurrencySettings,
+  listing: ListingRecord,
+  fuzzingLevel: FuzzingLevel,
+  viewerLocation?: { lat: number; lon: number },
+  currency?: CurrencySettings,
 ): FuzzedListing
 ```
 
@@ -683,79 +682,79 @@ import { generateTempId, createOptimisticUpdate } from '~/lib/optimistic-utils'
  * Uses TanStack Query's built-in offline capabilities from offline-writes-v1
  */
 export function useMarketplaceMutations() {
-    const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
 
-    const createListing = useMutation({
-        mutationFn: createListingFn,
-        // Optimistic update - add listing immediately with temp ID
-        onMutate: async (newListing) => {
-            await queryClient.cancelQueries({ queryKey: ['my-listings'] })
-            const previousListings = queryClient.getQueryData(['my-listings'])
-            const tempId = generateTempId('listing')
+  const createListing = useMutation({
+    mutationFn: createListingFn,
+    // Optimistic update - add listing immediately with temp ID
+    onMutate: async (newListing) => {
+      await queryClient.cancelQueries({ queryKey: ['my-listings'] })
+      const previousListings = queryClient.getQueryData(['my-listings'])
+      const tempId = generateTempId('listing')
 
-            queryClient.setQueryData(['my-listings'], (old: Listing[] = []) => [
-                {
-                    ...newListing,
-                    id: tempId,
-                    _isOptimistic: true,
-                    status: 'active',
-                },
-                ...old,
-            ])
-
-            return { previousListings, tempId }
+      queryClient.setQueryData(['my-listings'], (old: Listing[] = []) => [
+        {
+          ...newListing,
+          id: tempId,
+          _isOptimistic: true,
+          status: 'active',
         },
-        onError: (err, newListing, context) => {
-            // Rollback on error
-            queryClient.setQueryData(['my-listings'], context?.previousListings)
-        },
-        onSuccess: (data, variables, context) => {
-            // Replace temp data with server data
-            queryClient.setQueryData(['my-listings'], (old: Listing[] = []) =>
-                old.map((l) => (l.id === context?.tempId ? data : l)),
-            )
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ['my-listings'] })
-        },
-    })
+        ...old,
+      ])
 
-    const createContactRequest = useMutation({
-        mutationFn: createContactRequestFn,
-        onMutate: async (request) => {
-            // Optimistic: show request as pending immediately
-            await queryClient.cancelQueries({
-                queryKey: ['my-contact-requests'],
-            })
-            const previous = queryClient.getQueryData(['my-contact-requests'])
-            const tempId = generateTempId('contact')
+      return { previousListings, tempId }
+    },
+    onError: (err, newListing, context) => {
+      // Rollback on error
+      queryClient.setQueryData(['my-listings'], context?.previousListings)
+    },
+    onSuccess: (data, variables, context) => {
+      // Replace temp data with server data
+      queryClient.setQueryData(['my-listings'], (old: Listing[] = []) =>
+        old.map((l) => (l.id === context?.tempId ? data : l)),
+      )
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] })
+    },
+  })
 
-            queryClient.setQueryData(
-                ['my-contact-requests'],
-                (old: ContactRequest[] = []) => [
-                    {
-                        ...request,
-                        id: tempId,
-                        status: 'pending',
-                        _isOptimistic: true,
-                    },
-                    ...old,
-                ],
-            )
+  const createContactRequest = useMutation({
+    mutationFn: createContactRequestFn,
+    onMutate: async (request) => {
+      // Optimistic: show request as pending immediately
+      await queryClient.cancelQueries({
+        queryKey: ['my-contact-requests'],
+      })
+      const previous = queryClient.getQueryData(['my-contact-requests'])
+      const tempId = generateTempId('contact')
 
-            return { previous, tempId }
-        },
-        onError: (err, request, context) => {
-            queryClient.setQueryData(['my-contact-requests'], context?.previous)
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ['my-contact-requests'] })
-        },
-    })
+      queryClient.setQueryData(
+        ['my-contact-requests'],
+        (old: ContactRequest[] = []) => [
+          {
+            ...request,
+            id: tempId,
+            status: 'pending',
+            _isOptimistic: true,
+          },
+          ...old,
+        ],
+      )
 
-    // ... similar patterns for updateListing, respondToRequest, etc.
+      return { previous, tempId }
+    },
+    onError: (err, request, context) => {
+      queryClient.setQueryData(['my-contact-requests'], context?.previous)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-contact-requests'] })
+    },
+  })
 
-    return { createListing, createContactRequest /* ... */ }
+  // ... similar patterns for updateListing, respondToRequest, etc.
+
+  return { createListing, createContactRequest /* ... */ }
 }
 
 /**
@@ -763,18 +762,18 @@ export function useMarketplaceMutations() {
  * Listings are cached via TanStack Query's persistence (idb-keyval)
  */
 export function useListingCache() {
-    const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
 
-    // Check if cached listings are stale (> 24 hours)
-    const isCacheStale = (queryKey: QueryKey): boolean => {
-        const state = queryClient.getQueryState(queryKey)
-        if (!state?.dataUpdatedAt) return true
-        const hoursSinceUpdate =
-            (Date.now() - state.dataUpdatedAt) / (1000 * 60 * 60)
-        return hoursSinceUpdate > 24
-    }
+  // Check if cached listings are stale (> 24 hours)
+  const isCacheStale = (queryKey: QueryKey): boolean => {
+    const state = queryClient.getQueryState(queryKey)
+    if (!state?.dataUpdatedAt) return true
+    const hoursSinceUpdate =
+      (Date.now() - state.dataUpdatedAt) / (1000 * 60 * 60)
+    return hoursSinceUpdate > 24
+  }
 
-    return { isCacheStale }
+  return { isCacheStale }
 }
 ```
 
@@ -794,9 +793,9 @@ export function useListingCache() {
  */
 
 import {
-    deleteFile,
-    isStorageConfigured,
-    uploadFile,
+  deleteFile,
+  isStorageConfigured,
+  uploadFile,
 } from '~/features/integrations/storage'
 
 /**
@@ -808,67 +807,67 @@ import {
  * @returns URL of uploaded photo or base64 fallback if storage not configured
  */
 export async function uploadListingPhoto(
-    listingId: string,
-    base64Data: string,
-    photoIndex: number,
+  listingId: string,
+  base64Data: string,
+  photoIndex: number,
 ): Promise<string> {
-    if (!isStorageConfigured()) {
-        // Return base64 data as fallback when storage not configured
-        return base64Data
-    }
-
-    // Remove data URL prefix if present
-    const base64Content = base64Data.replace(/^data:image\/\w+;base64,/, '')
-
-    // Convert base64 to ArrayBuffer
-    const binaryString = atob(base64Content)
-    const bytes = new Uint8Array(binaryString.length)
-    for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i)
-    }
-
-    // Detect content type from base64 prefix or default to jpeg
-    let contentType = 'image/jpeg'
-    if (base64Data.startsWith('data:image/png')) {
-        contentType = 'image/png'
-    } else if (base64Data.startsWith('data:image/webp')) {
-        contentType = 'image/webp'
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now()
-    const extension = contentType.split('/')[1]
-    const key = `private/marketplace-photos/${listingId}/${photoIndex}-${timestamp}.${extension}`
-
-    const result = await uploadFile(key, bytes, contentType, {
-        access: 'private',
-    })
-
-    if (result.success && result.url) {
-        return result.url
-    }
-
-    // Fallback to base64 if upload fails
-    console.error('Failed to upload listing photo:', result.error)
+  if (!isStorageConfigured()) {
+    // Return base64 data as fallback when storage not configured
     return base64Data
+  }
+
+  // Remove data URL prefix if present
+  const base64Content = base64Data.replace(/^data:image\/\w+;base64,/, '')
+
+  // Convert base64 to ArrayBuffer
+  const binaryString = atob(base64Content)
+  const bytes = new Uint8Array(binaryString.length)
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+
+  // Detect content type from base64 prefix or default to jpeg
+  let contentType = 'image/jpeg'
+  if (base64Data.startsWith('data:image/png')) {
+    contentType = 'image/png'
+  } else if (base64Data.startsWith('data:image/webp')) {
+    contentType = 'image/webp'
+  }
+
+  // Generate unique filename
+  const timestamp = Date.now()
+  const extension = contentType.split('/')[1]
+  const key = `private/marketplace-photos/${listingId}/${photoIndex}-${timestamp}.${extension}`
+
+  const result = await uploadFile(key, bytes, contentType, {
+    access: 'private',
+  })
+
+  if (result.success && result.url) {
+    return result.url
+  }
+
+  // Fallback to base64 if upload fails
+  console.error('Failed to upload listing photo:', result.error)
+  return base64Data
 }
 
 /**
  * Delete listing photos from storage
  */
 export async function deleteListingPhotos(photoUrls: string[]): Promise<void> {
-    if (!isStorageConfigured()) return
+  if (!isStorageConfigured()) return
 
-    for (const url of photoUrls) {
-        if (url.startsWith('data:')) continue // Skip base64 URLs
+  for (const url of photoUrls) {
+    if (url.startsWith('data:')) continue // Skip base64 URLs
 
-        try {
-            const key = extractKeyFromUrl(url)
-            if (key) await deleteFile(key)
-        } catch (error) {
-            console.error('Failed to delete photo:', error)
-        }
+    try {
+      const key = extractKeyFromUrl(url)
+      if (key) await deleteFile(key)
+    } catch (error) {
+      console.error('Failed to delete photo:', error)
     }
+  }
 }
 
 /**
@@ -876,85 +875,85 @@ export async function deleteListingPhotos(photoUrls: string[]): Promise<void> {
  * Call this in the browser before sending to server function
  */
 export async function compressImageForUpload(
-    file: File,
-    maxSizeMB: number = 1,
-    maxWidthOrHeight: number = 1920,
+  file: File,
+  maxSizeMB: number = 1,
+  maxWidthOrHeight: number = 1920,
 ): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-            const img = new Image()
-            img.onload = () => {
-                const canvas = document.createElement('canvas')
-                let { width, height } = img
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let { width, height } = img
 
-                // Scale down if needed
-                if (width > maxWidthOrHeight || height > maxWidthOrHeight) {
-                    if (width > height) {
-                        height = (height / width) * maxWidthOrHeight
-                        width = maxWidthOrHeight
-                    } else {
-                        width = (width / height) * maxWidthOrHeight
-                        height = maxWidthOrHeight
-                    }
-                }
-
-                canvas.width = width
-                canvas.height = height
-
-                const ctx = canvas.getContext('2d')
-                if (!ctx) {
-                    reject(new Error('Failed to get canvas context'))
-                    return
-                }
-
-                ctx.drawImage(img, 0, 0, width, height)
-
-                // Start with high quality and reduce if needed
-                let quality = 0.9
-                let result = canvas.toDataURL('image/jpeg', quality)
-
-                // Reduce quality until under size limit
-                while (
-                    result.length > maxSizeMB * 1024 * 1024 * 1.37 &&
-                    quality > 0.1
-                ) {
-                    quality -= 0.1
-                    result = canvas.toDataURL('image/jpeg', quality)
-                }
-
-                resolve(result)
-            }
-            img.onerror = () => reject(new Error('Failed to load image'))
-            img.src = e.target?.result as string
+        // Scale down if needed
+        if (width > maxWidthOrHeight || height > maxWidthOrHeight) {
+          if (width > height) {
+            height = (height / width) * maxWidthOrHeight
+            width = maxWidthOrHeight
+          } else {
+            width = (width / height) * maxWidthOrHeight
+            height = maxWidthOrHeight
+          }
         }
-        reader.onerror = () => reject(new Error('Failed to read file'))
-        reader.readAsDataURL(file)
-    })
+
+        canvas.width = width
+        canvas.height = height
+
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'))
+          return
+        }
+
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Start with high quality and reduce if needed
+        let quality = 0.9
+        let result = canvas.toDataURL('image/jpeg', quality)
+
+        // Reduce quality until under size limit
+        while (
+          result.length > maxSizeMB * 1024 * 1024 * 1.37 &&
+          quality > 0.1
+        ) {
+          quality -= 0.1
+          result = canvas.toDataURL('image/jpeg', quality)
+        }
+
+        resolve(result)
+      }
+      img.onerror = () => reject(new Error('Failed to load image'))
+      img.src = e.target?.result as string
+    }
+    reader.onerror = () => reject(new Error('Failed to read file'))
+    reader.readAsDataURL(file)
+  })
 }
 
 function validatePhotoFile(file: File): { valid: boolean; error?: string } {
-    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-    const MAX_SIZE_MB = 5
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+  const MAX_SIZE_MB = 5
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-        return { valid: false, error: 'File must be JPEG, PNG, or WebP' }
-    }
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return { valid: false, error: 'File must be JPEG, PNG, or WebP' }
+  }
 
-    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        return { valid: false, error: `File must be under ${MAX_SIZE_MB}MB` }
-    }
+  if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+    return { valid: false, error: `File must be under ${MAX_SIZE_MB}MB` }
+  }
 
-    return { valid: true }
+  return { valid: true }
 }
 
 function extractKeyFromUrl(url: string): string | null {
-    try {
-        const urlObj = new URL(url)
-        return urlObj.pathname.replace(/^\//, '')
-    } catch {
-        return null
-    }
+  try {
+    const urlObj = new URL(url)
+    return urlObj.pathname.replace(/^\//, '')
+  } catch {
+    return null
+  }
 }
 ```
 
@@ -965,176 +964,176 @@ Server functions following the three-layer architecture.
 ```typescript
 // Create a new listing
 export const createListingFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            livestockType: z.enum([
-                'poultry',
-                'fish',
-                'cattle',
-                'goats',
-                'sheep',
-                'bees',
-            ]),
-            species: z.string().min(1).max(100),
-            quantity: z.number().int().positive(),
-            minPrice: z.number().nonnegative(),
-            maxPrice: z.number().nonnegative(),
-            location: z.object({
-                latitude: z.number().min(-90).max(90),
-                longitude: z.number().min(-180).max(180),
-                country: z.string().min(1),
-                region: z.string().min(1),
-                locality: z.string().min(1),
-                formattedAddress: z.string().min(1),
-            }),
-            description: z.string().max(2000).optional(),
-            photoUrls: z.array(z.string().url()).max(5).optional(),
-            batchId: z.string().uuid().optional(),
-            expirationDays: z.enum(['7', '14', '30', '60']).default('30'),
-            fuzzingLevel: z.enum(['low', 'medium', 'high']).default('medium'),
-            contactPreference: z.enum(['app', 'phone', 'both']).default('app'),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      livestockType: z.enum([
+        'poultry',
+        'fish',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+      ]),
+      species: z.string().min(1).max(100),
+      quantity: z.number().int().positive(),
+      minPrice: z.number().nonnegative(),
+      maxPrice: z.number().nonnegative(),
+      location: z.object({
+        latitude: z.number().min(-90).max(90),
+        longitude: z.number().min(-180).max(180),
+        country: z.string().min(1),
+        region: z.string().min(1),
+        locality: z.string().min(1),
+        formattedAddress: z.string().min(1),
+      }),
+      description: z.string().max(2000).optional(),
+      photoUrls: z.array(z.string().url()).max(5).optional(),
+      batchId: z.string().uuid().optional(),
+      expirationDays: z.enum(['7', '14', '30', '60']).default('30'),
+      fuzzingLevel: z.enum(['low', 'medium', 'high']).default('medium'),
+      contactPreference: z.enum(['app', 'phone', 'both']).default('app'),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 
 // Get listings (public, no auth required)
 export const getListingsFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            page: z.number().int().positive().default(1),
-            pageSize: z.number().int().positive().max(50).default(20),
-            livestockType: z
-                .enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'])
-                .optional(),
-            species: z.string().optional(),
-            minPrice: z.number().nonnegative().optional(),
-            maxPrice: z.number().nonnegative().optional(),
-            radiusKm: z.enum(['25', '50', '100', '200']).optional(),
-            latitude: z.number().min(-90).max(90).optional(),
-            longitude: z.number().min(-180).max(180).optional(),
-            sortBy: z.enum(['distance', 'price', 'recency']).default('recency'),
-        }),
-    )
-    .handler(async ({ data }) => {
-        // No auth required - public access
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      page: z.number().int().positive().default(1),
+      pageSize: z.number().int().positive().max(50).default(20),
+      livestockType: z
+        .enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'])
+        .optional(),
+      species: z.string().optional(),
+      minPrice: z.number().nonnegative().optional(),
+      maxPrice: z.number().nonnegative().optional(),
+      radiusKm: z.enum(['25', '50', '100', '200']).optional(),
+      latitude: z.number().min(-90).max(90).optional(),
+      longitude: z.number().min(-180).max(180).optional(),
+      sortBy: z.enum(['distance', 'price', 'recency']).default('recency'),
+    }),
+  )
+  .handler(async ({ data }) => {
+    // No auth required - public access
+    // ... implementation
+  })
 
 // Get listing detail (public, no auth required)
 export const getListingDetailFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            listingId: z.string().uuid(),
-            viewerLatitude: z.number().min(-90).max(90).optional(),
-            viewerLongitude: z.number().min(-180).max(180).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        // No auth required - public access
-        // Apply fuzzing based on viewer (owner sees exact, others see fuzzed)
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      listingId: z.string().uuid(),
+      viewerLatitude: z.number().min(-90).max(90).optional(),
+      viewerLongitude: z.number().min(-180).max(180).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    // No auth required - public access
+    // Apply fuzzing based on viewer (owner sees exact, others see fuzzed)
+    // ... implementation
+  })
 
 // Submit contact request (auth required)
 export const createContactRequestFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            listingId: z.string().uuid(),
-            message: z.string().min(10).max(1000),
-            contactMethod: z.enum(['app', 'phone', 'email']),
-            phoneNumber: z.string().optional(),
-            email: z.string().email().optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      listingId: z.string().uuid(),
+      message: z.string().min(10).max(1000),
+      contactMethod: z.enum(['app', 'phone', 'email']),
+      phoneNumber: z.string().optional(),
+      email: z.string().email().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 
 // Respond to contact request (auth required)
 export const respondToRequestFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            requestId: z.string().uuid(),
-            approved: z.boolean(),
-            responseMessage: z.string().max(500).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      requestId: z.string().uuid(),
+      approved: z.boolean(),
+      responseMessage: z.string().max(500).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 
 // Update listing (auth required, owner only)
 export const updateListingFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            listingId: z.string().uuid(),
-            quantity: z.number().int().positive().optional(),
-            minPrice: z.number().nonnegative().optional(),
-            maxPrice: z.number().nonnegative().optional(),
-            description: z.string().max(2000).optional(),
-            status: z.enum(['active', 'paused', 'sold', 'expired']).optional(),
-            expirationDays: z.enum(['7', '14', '30', '60']).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      listingId: z.string().uuid(),
+      quantity: z.number().int().positive().optional(),
+      minPrice: z.number().nonnegative().optional(),
+      maxPrice: z.number().nonnegative().optional(),
+      description: z.string().max(2000).optional(),
+      status: z.enum(['active', 'paused', 'sold', 'expired']).optional(),
+      expirationDays: z.enum(['7', '14', '30', '60']).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 
 // Get my listings (auth required)
 export const getMyListingsFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            status: z
-                .enum(['active', 'paused', 'sold', 'expired', 'all'])
-                .default('all'),
-            page: z.number().int().positive().default(1),
-            pageSize: z.number().int().positive().max(50).default(20),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      status: z
+        .enum(['active', 'paused', 'sold', 'expired', 'all'])
+        .default('all'),
+      page: z.number().int().positive().default(1),
+      pageSize: z.number().int().positive().max(50).default(20),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 
 // Get contact requests (auth required)
 export const getContactRequestsFn = createServerFn({ method: 'GET' })
-    .inputValidator(
-        z.object({
-            status: z
-                .enum(['pending', 'approved', 'denied', 'all'])
-                .default('pending'),
-            page: z.number().int().positive().default(1),
-            pageSize: z.number().int().positive().max(50).default(20),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      status: z
+        .enum(['pending', 'approved', 'denied', 'all'])
+        .default('pending'),
+      page: z.number().int().positive().default(1),
+      pageSize: z.number().int().positive().max(50).default(20),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    // ... implementation
+  })
 
 // Record listing view (public)
 export const recordListingViewFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            listingId: z.string().uuid(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        // No auth required - track anonymous views
-        // ... implementation
-    })
+  .inputValidator(
+    z.object({
+      listingId: z.string().uuid(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    // No auth required - track anonymous views
+    // ... implementation
+  })
 ```
 
 ### 6. Repository Layer (`app/features/marketplace/repository.ts`)
@@ -1147,46 +1146,46 @@ import type { Database } from '~/lib/db/types'
 
 // Listings
 async function insertListing(
-    db: Kysely<Database>,
-    listing: ListingInsert,
+  db: Kysely<Database>,
+  listing: ListingInsert,
 ): Promise<string>
 
 async function getListingById(
-    db: Kysely<Database>,
-    listingId: string,
+  db: Kysely<Database>,
+  listingId: string,
 ): Promise<ListingRecord | null>
 
 async function getListings(
-    db: Kysely<Database>,
-    filters: ListingFilters,
-    pagination: PaginationOptions,
+  db: Kysely<Database>,
+  filters: ListingFilters,
+  pagination: PaginationOptions,
 ): Promise<PaginatedResult<ListingRecord>>
 
 // Bounding box pre-filter for distance queries (scalability fix)
 async function getListingsInBoundingBox(
-    db: Kysely<Database>,
-    minLat: number,
-    maxLat: number,
-    minLon: number,
-    maxLon: number,
-    filters: ListingFilters,
+  db: Kysely<Database>,
+  minLat: number,
+  maxLat: number,
+  minLon: number,
+  maxLon: number,
+  filters: ListingFilters,
 ): Promise<ListingRecord[]>
 
 async function getListingsBySeller(
-    db: Kysely<Database>,
-    sellerId: string,
-    filters: SellerListingFilters,
+  db: Kysely<Database>,
+  sellerId: string,
+  filters: SellerListingFilters,
 ): Promise<PaginatedResult<ListingRecord>>
 
 async function updateListing(
-    db: Kysely<Database>,
-    listingId: string,
-    updates: ListingUpdate,
+  db: Kysely<Database>,
+  listingId: string,
+  updates: ListingUpdate,
 ): Promise<void>
 
 async function softDeleteListing(
-    db: Kysely<Database>,
-    listingId: string,
+  db: Kysely<Database>,
+  listingId: string,
 ): Promise<void>
 
 // Lazy expiration - mark expired listings on read
@@ -1194,57 +1193,57 @@ async function markExpiredListings(db: Kysely<Database>): Promise<number> // Ret
 
 // Contact Requests
 async function insertContactRequest(
-    db: Kysely<Database>,
-    request: ContactRequestInsert,
+  db: Kysely<Database>,
+  request: ContactRequestInsert,
 ): Promise<string>
 
 // Check for duplicate contact request (UNIQUE constraint will also enforce this)
 async function hasExistingContactRequest(
-    db: Kysely<Database>,
-    listingId: string,
-    buyerId: string,
+  db: Kysely<Database>,
+  listingId: string,
+  buyerId: string,
 ): Promise<boolean>
 
 async function getContactRequestById(
-    db: Kysely<Database>,
-    requestId: string,
+  db: Kysely<Database>,
+  requestId: string,
 ): Promise<ContactRequest | null>
 
 async function getContactRequestsForSeller(
-    db: Kysely<Database>,
-    sellerId: string,
-    status?: ContactRequestStatus,
+  db: Kysely<Database>,
+  sellerId: string,
+  status?: ContactRequestStatus,
 ): Promise<ContactRequest[]>
 
 async function getContactRequestsForBuyer(
-    db: Kysely<Database>,
-    buyerId: string,
+  db: Kysely<Database>,
+  buyerId: string,
 ): Promise<ContactRequest[]>
 
 async function updateContactRequestStatus(
-    db: Kysely<Database>,
-    requestId: string,
-    status: 'approved' | 'denied',
-    responseMessage?: string,
+  db: Kysely<Database>,
+  requestId: string,
+  status: 'approved' | 'denied',
+  responseMessage?: string,
 ): Promise<void>
 
 // Views & Analytics (with deduplication)
 async function recordListingView(
-    db: Kysely<Database>,
-    listingId: string,
-    viewerId: string | null,
-    viewerIp: string | null,
+  db: Kysely<Database>,
+  listingId: string,
+  viewerId: string | null,
+  viewerIp: string | null,
 ): Promise<boolean> // Returns false if duplicate view (already viewed today)
 
 async function getListingAnalytics(
-    db: Kysely<Database>,
-    listingId: string,
+  db: Kysely<Database>,
+  listingId: string,
 ): Promise<ListingAnalytics>
 
 // Verification
 async function getSellerVerificationStatus(
-    db: Kysely<Database>,
-    sellerId: string,
+  db: Kysely<Database>,
+  sellerId: string,
 ): Promise<{ isVerified: boolean; verifiedAt: Date | null }>
 ```
 
@@ -1364,58 +1363,58 @@ CREATE INDEX idx_listing_views_date ON listing_views(viewed_at);
 ```typescript
 // Marketplace Listing
 interface MarketplaceListingTable {
-    id: Generated<string>
-    sellerId: string
-    livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
-    species: string
-    quantity: number
-    minPrice: string // DECIMAL
-    maxPrice: string // DECIMAL
-    currency: string // Store seller's currency at listing time (e.g., 'NGN', 'USD')
-    latitude: string // DECIMAL
-    longitude: string // DECIMAL
-    country: string
-    region: string
-    locality: string
-    formattedAddress: string
-    description: string | null
-    photoUrls: string[] | null // R2 URLs or base64 fallback
-    fuzzingLevel: 'low' | 'medium' | 'high'
-    contactPreference: 'app' | 'phone' | 'both'
-    batchId: string | null // NULL if linked batch was deleted
-    status: 'active' | 'paused' | 'sold' | 'expired'
-    expiresAt: Date
-    viewCount: Generated<number>
-    contactCount: Generated<number>
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date> // For conflict detection
-    deletedAt: Date | null
+  id: Generated<string>
+  sellerId: string
+  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  species: string
+  quantity: number
+  minPrice: string // DECIMAL
+  maxPrice: string // DECIMAL
+  currency: string // Store seller's currency at listing time (e.g., 'NGN', 'USD')
+  latitude: string // DECIMAL
+  longitude: string // DECIMAL
+  country: string
+  region: string
+  locality: string
+  formattedAddress: string
+  description: string | null
+  photoUrls: string[] | null // R2 URLs or base64 fallback
+  fuzzingLevel: 'low' | 'medium' | 'high'
+  contactPreference: 'app' | 'phone' | 'both'
+  batchId: string | null // NULL if linked batch was deleted
+  status: 'active' | 'paused' | 'sold' | 'expired'
+  expiresAt: Date
+  viewCount: Generated<number>
+  contactCount: Generated<number>
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date> // For conflict detection
+  deletedAt: Date | null
 }
 
 // Contact Request
 interface ListingContactRequestTable {
-    id: Generated<string>
-    listingId: string
-    buyerId: string
-    message: string
-    contactMethod: 'app' | 'phone' | 'email'
-    phoneNumber: string | null
-    email: string | null
-    status: 'pending' | 'approved' | 'denied'
-    responseMessage: string | null
-    respondedAt: Date | null
-    createdAt: Generated<Date>
-    // Note: UNIQUE(listing_id, buyer_id) prevents duplicate requests
+  id: Generated<string>
+  listingId: string
+  buyerId: string
+  message: string
+  contactMethod: 'app' | 'phone' | 'email'
+  phoneNumber: string | null
+  email: string | null
+  status: 'pending' | 'approved' | 'denied'
+  responseMessage: string | null
+  respondedAt: Date | null
+  createdAt: Generated<Date>
+  // Note: UNIQUE(listing_id, buyer_id) prevents duplicate requests
 }
 
 // Listing View
 interface ListingViewTable {
-    id: Generated<string>
-    listingId: string
-    viewerId: string | null
-    viewerIp: string | null
-    viewedAt: Generated<Date>
-    // Note: UNIQUE constraint prevents spam views (one per user/IP per day)
+  id: Generated<string>
+  listingId: string
+  viewerId: string | null
+  viewerIp: string | null
+  viewedAt: Generated<Date>
+  // Note: UNIQUE constraint prevents spam views (one per user/IP per day)
 }
 ```
 
@@ -1668,91 +1667,91 @@ tests/features/marketplace/
 ```typescript
 // Property 3: Quantity Fuzzing
 describe('Quantity Fuzzing', () => {
-    it('Property 3: Fuzzed quantity range contains exact value', () => {
-        fc.assert(
-            fc.property(fc.integer({ min: 1, max: 10000 }), (quantity) => {
-                const fuzzed = fuzzQuantity(quantity)
-                const [min, max] = parseRange(fuzzed)
-                expect(quantity).toBeGreaterThanOrEqual(min)
-                expect(quantity).toBeLessThanOrEqual(max)
-            }),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 3: Fuzzed quantity range contains exact value', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 10000 }), (quantity) => {
+        const fuzzed = fuzzQuantity(quantity)
+        const [min, max] = parseRange(fuzzed)
+        expect(quantity).toBeGreaterThanOrEqual(min)
+        expect(quantity).toBeLessThanOrEqual(max)
+      }),
+      { numRuns: 100 },
+    )
+  })
 })
 
 // Property 11: Distance Filter
 describe('Distance Filter', () => {
-    it('Property 11: All results within radius', () => {
-        fc.assert(
-            fc.property(
-                fc.float({ min: -90, max: 90 }), // viewer lat
-                fc.float({ min: -180, max: 180 }), // viewer lon
-                fc.integer({ min: 25, max: 200 }), // radius km
-                fc.array(
-                    fc.record({
-                        lat: fc.float({ min: -90, max: 90 }),
-                        lon: fc.float({ min: -180, max: 180 }),
-                    }),
-                    { minLength: 1, maxLength: 50 },
-                ),
-                (viewerLat, viewerLon, radius, listings) => {
-                    const filtered = filterByDistance(
-                        listings,
-                        viewerLat,
-                        viewerLon,
-                        radius,
-                    )
-                    filtered.forEach((listing) => {
-                        const distance = calculateDistance(
-                            viewerLat,
-                            viewerLon,
-                            listing.lat,
-                            listing.lon,
-                        )
-                        expect(distance).toBeLessThanOrEqual(radius)
-                    })
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 11: All results within radius', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: -90, max: 90 }), // viewer lat
+        fc.float({ min: -180, max: 180 }), // viewer lon
+        fc.integer({ min: 25, max: 200 }), // radius km
+        fc.array(
+          fc.record({
+            lat: fc.float({ min: -90, max: 90 }),
+            lon: fc.float({ min: -180, max: 180 }),
+          }),
+          { minLength: 1, maxLength: 50 },
+        ),
+        (viewerLat, viewerLon, radius, listings) => {
+          const filtered = filterByDistance(
+            listings,
+            viewerLat,
+            viewerLon,
+            radius,
+          )
+          filtered.forEach((listing) => {
+            const distance = calculateDistance(
+              viewerLat,
+              viewerLon,
+              listing.lat,
+              listing.lon,
+            )
+            expect(distance).toBeLessThanOrEqual(radius)
+          })
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 
 // Property 15: Last-Write-Wins
 describe('Conflict Resolution', () => {
-    it('Property 15: More recent update wins', () => {
-        fc.assert(
-            fc.property(fc.date(), fc.date(), (date1, date2) => {
-                const local = { ...baseListing, updatedAt: date1 }
-                const remote = { ...baseListing, updatedAt: date2 }
-                const resolved = resolveConflict(local, remote)
-                const expected = date1 > date2 ? local : remote
-                expect(resolved.updatedAt).toEqual(expected.updatedAt)
-            }),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 15: More recent update wins', () => {
+    fc.assert(
+      fc.property(fc.date(), fc.date(), (date1, date2) => {
+        const local = { ...baseListing, updatedAt: date1 }
+        const remote = { ...baseListing, updatedAt: date2 }
+        const resolved = resolveConflict(local, remote)
+        const expected = date1 > date2 ? local : remote
+        expect(resolved.updatedAt).toEqual(expected.updatedAt)
+      }),
+      { numRuns: 100 },
+    )
+  })
 })
 
 // Property 12: Distance Symmetry
 describe('Distance Calculation', () => {
-    it('Property 12: Distance is symmetric', () => {
-        fc.assert(
-            fc.property(
-                fc.float({ min: -90, max: 90 }),
-                fc.float({ min: -180, max: 180 }),
-                fc.float({ min: -90, max: 90 }),
-                fc.float({ min: -180, max: 180 }),
-                (lat1, lon1, lat2, lon2) => {
-                    const d1 = calculateDistance(lat1, lon1, lat2, lon2)
-                    const d2 = calculateDistance(lat2, lon2, lat1, lon1)
-                    expect(d1).toBeCloseTo(d2, 5)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 12: Distance is symmetric', () => {
+    fc.assert(
+      fc.property(
+        fc.float({ min: -90, max: 90 }),
+        fc.float({ min: -180, max: 180 }),
+        fc.float({ min: -90, max: 90 }),
+        fc.float({ min: -180, max: 180 }),
+        (lat1, lon1, lat2, lon2) => {
+          const d1 = calculateDistance(lat1, lon1, lat2, lon2)
+          const d2 = calculateDistance(lat2, lon2, lat1, lon1)
+          expect(d1).toBeCloseTo(d2, 5)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 ```
 

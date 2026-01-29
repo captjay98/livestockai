@@ -291,14 +291,14 @@ export function Currency({ amount, compact }: CurrencyProps) {
 ```typescript
 // In checkNeedsOnboardingFn
 const userSettings = await db
-    .selectFrom('user_settings')
-    .select(['onboardingCompleted'])
-    .where('userId', '=', session.user.id)
-    .executeTakeFirst()
+  .selectFrom('user_settings')
+  .select(['onboardingCompleted'])
+  .where('userId', '=', session.user.id)
+  .executeTakeFirst()
 
 // If settings exist and onboarding completed, don't need onboarding
 if (userSettings?.onboardingCompleted) {
-    return { needsOnboarding: false, hasFarms: true }
+  return { needsOnboarding: false, hasFarms: true }
 }
 ```
 
@@ -310,19 +310,19 @@ if (userSettings?.onboardingCompleted) {
 
 ```typescript
 export const markOnboardingCompleteFn = createServerFn({
-    method: 'POST',
+  method: 'POST',
 }).handler(async () => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    const { db } = await import('~/lib/db')
+  const { requireAuth } = await import('../auth/server-middleware')
+  const session = await requireAuth()
+  const { db } = await import('~/lib/db')
 
-    await db
-        .updateTable('user_settings')
-        .set({ onboardingCompleted: true })
-        .where('userId', '=', session.user.id)
-        .execute()
+  await db
+    .updateTable('user_settings')
+    .set({ onboardingCompleted: true })
+    .where('userId', '=', session.user.id)
+    .execute()
 
-    return { success: true }
+  return { success: true }
 })
 ```
 
@@ -334,19 +334,19 @@ export const markOnboardingCompleteFn = createServerFn({
 
 ```typescript
 export const resetOnboardingFn = createServerFn({ method: 'POST' }).handler(
-    async () => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        const { db } = await import('~/lib/db')
+  async () => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    const { db } = await import('~/lib/db')
 
-        await db
-            .updateTable('user_settings')
-            .set({ onboardingCompleted: false, onboardingStep: 0 })
-            .where('userId', '=', session.user.id)
-            .execute()
+    await db
+      .updateTable('user_settings')
+      .set({ onboardingCompleted: false, onboardingStep: 0 })
+      .where('userId', '=', session.user.id)
+      .execute()
 
-        return { success: true }
-    },
+    return { success: true }
+  },
 )
 ```
 
@@ -382,24 +382,24 @@ No new unit tests required - this is primarily a wiring fix. Existing tests shou
 ### Manual Testing
 
 1. **Currency Settings Test:**
-    - Go to Settings → Regional
-    - Change currency to USD
-    - Navigate to Dashboard - verify amounts show $ instead of ₦
-    - Navigate to Sales - verify amounts show $
-    - Change to EUR - verify € symbol and European formatting (1.234,56)
+   - Go to Settings → Regional
+   - Change currency to USD
+   - Navigate to Dashboard - verify amounts show $ instead of ₦
+   - Navigate to Sales - verify amounts show $
+   - Change to EUR - verify € symbol and European formatting (1.234,56)
 
 2. **Onboarding Test (New User):**
-    - Create new user account
-    - Verify redirected to /onboarding
-    - Complete all steps
-    - Verify redirected to dashboard
-    - Refresh page - should NOT see onboarding again
+   - Create new user account
+   - Verify redirected to /onboarding
+   - Complete all steps
+   - Verify redirected to dashboard
+   - Refresh page - should NOT see onboarding again
 
 3. **Restart Onboarding Test:**
-    - Go to Settings → Regional
-    - Click "Start Tour" / "Restart Onboarding"
-    - Verify redirected to /onboarding
-    - Can complete or skip
+   - Go to Settings → Regional
+   - Click "Start Tour" / "Restart Onboarding"
+   - Verify redirected to /onboarding
+   - Can complete or skip
 
 ---
 

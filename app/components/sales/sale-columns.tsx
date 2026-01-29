@@ -6,133 +6,122 @@ import { Button } from '~/components/ui/button'
 import { PAYMENT_STATUSES } from '~/features/sales/server'
 
 export interface Sale {
-    id: string
-    farmId?: string
-    farmName?: string | null
-    customerId?: string | null
-    customerName: string | null
-    livestockType: string
-    quantity: number
-    unitPrice: string
-    totalAmount: string
-    date: Date
-    notes: string | null
-    batchSpecies: string | null
-    unitType: string | null
-    ageWeeks: number | null
-    averageWeightKg: string | null
-    paymentStatus: string | null
-    paymentMethod: string | null
+  id: string
+  farmId?: string
+  farmName?: string | null
+  customerId?: string | null
+  customerName: string | null
+  livestockType: string
+  quantity: number
+  unitPrice: string
+  totalAmount: string
+  date: Date
+  notes: string | null
+  batchSpecies: string | null
+  unitType: string | null
+  ageWeeks: number | null
+  averageWeightKg: string | null
+  paymentStatus: string | null
+  paymentMethod: string | null
 }
 
 interface GetSaleColumnsProps {
-    t: (key: string, options?: any) => string
-    formatCurrency: (amount: number) => string
-    formatDate: (date: Date) => string
-    onView: (sale: Sale) => void
-    onEdit: (sale: Sale) => void
-    onDelete: (sale: Sale) => void
+  t: (key: string, options?: any) => string
+  formatCurrency: (amount: number) => string
+  formatDate: (date: Date) => string
+  onView: (sale: Sale) => void
+  onEdit: (sale: Sale) => void
+  onDelete: (sale: Sale) => void
 }
 
 export const getSaleColumns = ({
-    t,
-    formatCurrency,
-    formatDate,
-    onView,
-    onEdit,
-    onDelete,
+  t,
+  formatCurrency,
+  formatDate,
+  onView,
+  onEdit,
+  onDelete,
 }: GetSaleColumnsProps): Array<ColumnDef<Sale>> => [
-    {
-        accessorKey: 'livestockType',
-        header: t('labels.type'),
-        cell: ({ row }) => (
-            <div className="flex items-center gap-2">
-                <div
-                    className={`h-8 w-8 rounded-full flex items-center justify-center ${TYPE_COLORS[row.original.livestockType] || 'bg-muted'}`}
-                >
-                    {getTypeIcon(row.original.livestockType)}
-                </div>
-                <span className="capitalize font-medium">
-                    {row.original.livestockType}
-                </span>
-            </div>
-        ),
+  {
+    accessorKey: 'livestockType',
+    header: t('labels.type'),
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <div
+          className={`h-8 w-8 rounded-full flex items-center justify-center ${TYPE_COLORS[row.original.livestockType] || 'bg-muted'}`}
+        >
+          {getTypeIcon(row.original.livestockType)}
+        </div>
+        <span className="capitalize font-medium">
+          {row.original.livestockType}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'customerName',
+    header: t('labels.customer'),
+    cell: ({ row }) => (
+      <span className="text-muted-foreground">
+        {row.original.customerName ||
+          t('sales:walkIn', { defaultValue: 'Walk-in' })}
+      </span>
+    ),
+  },
+  {
+    accessorKey: 'quantity',
+    header: t('labels.quantity'),
+    cell: ({ row }) => (
+      <span className="font-medium">{row.original.quantity}</span>
+    ),
+  },
+  {
+    accessorKey: 'totalAmount',
+    header: t('labels.amount'),
+    cell: ({ row }) => (
+      <span className="font-medium text-success">
+        {formatCurrency(Number(row.original.totalAmount))}
+      </span>
+    ),
+  },
+  {
+    accessorKey: 'paymentStatus',
+    header: t('labels.payment'),
+    cell: ({ row }) => {
+      const status =
+        PAYMENT_STATUSES.find((s) => s.value === row.original.paymentStatus) ||
+        PAYMENT_STATUSES[0]
+      return (
+        <Badge className={`${status.color} border-0`}>{status.label}</Badge>
+      )
     },
-    {
-        accessorKey: 'customerName',
-        header: t('labels.customer'),
-        cell: ({ row }) => (
-            <span className="text-muted-foreground">
-                {row.original.customerName ||
-                    t('sales:walkIn', { defaultValue: 'Walk-in' })}
-            </span>
-        ),
-    },
-    {
-        accessorKey: 'quantity',
-        header: t('labels.quantity'),
-        cell: ({ row }) => (
-            <span className="font-medium">{row.original.quantity}</span>
-        ),
-    },
-    {
-        accessorKey: 'totalAmount',
-        header: t('labels.amount'),
-        cell: ({ row }) => (
-            <span className="font-medium text-success">
-                {formatCurrency(Number(row.original.totalAmount))}
-            </span>
-        ),
-    },
-    {
-        accessorKey: 'paymentStatus',
-        header: t('labels.payment'),
-        cell: ({ row }) => {
-            const status =
-                PAYMENT_STATUSES.find(
-                    (s) => s.value === row.original.paymentStatus,
-                ) || PAYMENT_STATUSES[0]
-            return (
-                <Badge className={`${status.color} border-0`}>
-                    {status.label}
-                </Badge>
-            )
-        },
-    },
-    {
-        accessorKey: 'date',
-        header: t('labels.date'),
-        cell: ({ row }) => (
-            <Badge variant="outline">{formatDate(row.original.date)}</Badge>
-        ),
-    },
-    {
-        id: 'actions',
-        cell: ({ row }) => (
-            <div className="flex gap-1 justify-end">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onView(row.original)}
-                >
-                    <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEdit(row.original)}
-                >
-                    <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => onDelete(row.original)}
-                >
-                    <Trash2 className="h-4 w-4" />
-                </Button>
-            </div>
-        ),
-    },
+  },
+  {
+    accessorKey: 'date',
+    header: t('labels.date'),
+    cell: ({ row }) => (
+      <Badge variant="outline">{formatDate(row.original.date)}</Badge>
+    ),
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => (
+      <div className="flex gap-1 justify-end">
+        <Button variant="ghost" size="sm" onClick={() => onView(row.original)}>
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => onEdit(row.original)}>
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={() => onDelete(row.original)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    ),
+  },
 ]

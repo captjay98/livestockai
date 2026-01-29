@@ -77,7 +77,7 @@ const { format: formatWeight } = useFormatWeight()
 
 // Display converted value
 {
-    formatWeight(parseFloat(selectedSale.averageWeightKg))
+  formatWeight(parseFloat(selectedSale.averageWeightKg))
 }
 // Shows: "5.51 lbs" when user has lbs selected
 // Shows: "2.50 kg" when user has kg selected
@@ -94,7 +94,7 @@ const { format: formatArea } = useFormatArea()
 
 // Display converted value
 {
-    formatArea(parseFloat(structure.areaSqm))
+  formatArea(parseFloat(structure.areaSqm))
 }
 // Shows: "1076.39 ft²" when user has sqft selected
 // Shows: "100.00 m²" when user has sqm selected
@@ -111,7 +111,7 @@ const { format: formatTemperature } = useFormatTemperature()
 
 // Display converted value
 {
-    formatTemperature(parseFloat(record.temperatureCelsius))
+  formatTemperature(parseFloat(record.temperatureCelsius))
 }
 // Shows: "77.0°F" when user has fahrenheit selected
 // Shows: "25.0°C" when user has celsius selected
@@ -166,9 +166,9 @@ Ensure TypeScript compiles and manual testing confirms all conversions work.
 - **ADD HOOK**: `const { format: formatWeight } = useFormatWeight()`
 - **FIND**: Column definition for `averageWeightKg` (line ~258)
 - **UPDATE CELL**:
-    ```typescript
-    cell: ({ row }) => formatWeight(parseFloat(row.original.averageWeightKg))
-    ```
+  ```typescript
+  cell: ({ row }) => formatWeight(parseFloat(row.original.averageWeightKg))
+  ```
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep weight/index`
 
 ### Task 3: UPDATE `app/routes/_auth/reports/index.tsx`
@@ -185,13 +185,13 @@ Ensure TypeScript compiles and manual testing confirms all conversions work.
 - **ADD HOOK**: `const { format: formatWeight } = useFormatWeight()` (already has label)
 - **FIND**: Feed records table column for `quantityKg` (line ~355)
 - **UPDATE**: Add cell formatter:
-    ```typescript
-    {
-      accessorKey: 'quantityKg',
-      header: `Qty (${weightLabel})`,
-      cell: ({ row }) => formatWeight(parseFloat(row.original.quantityKg))
-    }
-    ```
+  ```typescript
+  {
+    accessorKey: 'quantityKg',
+    header: `Qty (${weightLabel})`,
+    cell: ({ row }) => formatWeight(parseFloat(row.original.quantityKg))
+  }
+  ```
 - **VALIDATE**: `npx tsc --noEmit 2>&1 | grep batchId/index`
 
 ### Task 5: UPDATE `app/components/dialogs/weight-dialog.tsx`
@@ -263,17 +263,17 @@ Ensure TypeScript compiles and manual testing confirms all conversions work.
 
 1. Go to Settings → Regional
 2. **Test Weight Conversion:**
-    - Change weight unit from kg to lbs
-    - Navigate to: Feed, Weight, Reports, Batch details, Inventory
-    - Verify: 2.5 kg → 5.51 lbs, 10 kg → 22.05 lbs
+   - Change weight unit from kg to lbs
+   - Navigate to: Feed, Weight, Reports, Batch details, Inventory
+   - Verify: 2.5 kg → 5.51 lbs, 10 kg → 22.05 lbs
 3. **Test Area Conversion:**
-    - Change area unit from m² to ft²
-    - Navigate to: Farms (structure details)
-    - Verify: 100 m² → 1076.39 ft²
+   - Change area unit from m² to ft²
+   - Navigate to: Farms (structure details)
+   - Verify: 100 m² → 1076.39 ft²
 4. **Test Temperature Conversion:**
-    - Change temperature unit from Celsius to Fahrenheit
-    - Navigate to: Water Quality records
-    - Verify: 25°C → 77.0°F, 30°C → 86.0°F
+   - Change temperature unit from Celsius to Fahrenheit
+   - Navigate to: Water Quality records
+   - Verify: 25°C → 77.0°F, 30°C → 86.0°F
 5. Change all units back, verify values revert correctly
 
 ### Edge Cases
@@ -316,9 +316,9 @@ bun run lint
 - [ ] All temperature values convert when unit changes (°C ↔ °F)
 - [ ] Labels and values both show correct unit
 - [ ] Conversion factors are accurate:
-    - Weight: 2.20462 lbs per kg
-    - Area: 10.7639 ft² per m²
-    - Temperature: (C × 9/5) + 32 = F
+  - Weight: 2.20462 lbs per kg
+  - Area: 10.7639 ft² per m²
+  - Temperature: (C × 9/5) + 32 = F
 - [ ] TypeScript compiles with 0 errors
 - [ ] ESLint passes with 0 errors
 - [ ] No regressions in existing functionality

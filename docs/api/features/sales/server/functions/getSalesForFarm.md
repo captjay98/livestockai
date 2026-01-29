@@ -56,6 +56,6 @@ If user lacks access to the farm
 
 ```typescript
 const sales = await getSalesForFarm('user_1', 'farm_A', {
-    startDate: new Date('2024-01-01'),
+  startDate: new Date('2024-01-01'),
 })
 ```

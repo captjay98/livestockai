@@ -13,70 +13,70 @@ type FeedType = Database['feed_inventory']['feedType']
  * Data for inserting a new expense
  */
 export interface ExpenseInsert {
-    farmId: string
-    batchId: string | null
-    category: ExpenseCategory
-    amount: string
-    date: Date
-    description: string
-    supplierId: string | null
-    isRecurring: boolean
+  farmId: string
+  batchId: string | null
+  category: ExpenseCategory
+  amount: string
+  date: Date
+  description: string
+  supplierId: string | null
+  isRecurring: boolean
 }
 
 /**
  * Data for updating an expense
  */
 export interface ExpenseUpdate {
-    category?: ExpenseCategory
-    amount?: string
-    date?: Date
-    description?: string
-    batchId?: string | null
-    supplierId?: string | null
-    isRecurring?: boolean
+  category?: ExpenseCategory
+  amount?: string
+  date?: Date
+  description?: string
+  batchId?: string | null
+  supplierId?: string | null
+  isRecurring?: boolean
 }
 
 /**
  * Filters for expense queries
  */
 export interface ExpenseFilters {
-    startDate?: Date
-    endDate?: Date
-    category?: string
-    batchId?: string
-    search?: string
+  startDate?: Date
+  endDate?: Date
+  category?: string
+  batchId?: string
+  search?: string
 }
 
 /**
  * Result from expense query with joins
  */
 export interface ExpenseWithJoins {
-    id: string
-    farmId: string
-    farmName: string | null
-    category: string
-    amount: string
-    date: Date
-    description: string
-    supplierId: string | null
-    supplierName: string | null
-    batchId: string | null
-    batchSpecies: string | null
-    batchType: string | null
-    isRecurring: boolean
-    createdAt: Date
+  id: string
+  farmId: string
+  farmName: string | null
+  category: string
+  amount: string
+  date: Date
+  description: string
+  supplierId: string | null
+  supplierName: string | null
+  batchId: string | null
+  batchSpecies: string | null
+  batchType: string | null
+  isRecurring: boolean
+  createdAt: Date
 }
 
 /**
  * Feed inventory record
  */
 export interface FeedInventory {
-    id: string
-    farmId: string
-    feedType: FeedType
-    quantityKg: string
-    minThresholdKg: string
-    updatedAt: Date
+  id: string
+  farmId: string
+  feedType: FeedType
+  quantityKg: string
+  minThresholdKg: string
+  updatedAt: Date
 }
 
 /**
@@ -87,15 +87,15 @@ export interface FeedInventory {
  * @returns The ID of the created expense
  */
 export async function insertExpense(
-    db: Kysely<Database>,
-    data: ExpenseInsert,
+  db: Kysely<Database>,
+  data: ExpenseInsert,
 ): Promise<string> {
-    const result = await db
-        .insertInto('expenses')
-        .values(data)
-        .returning('id')
-        .executeTakeFirstOrThrow()
-    return result.id
+  const result = await db
+    .insertInto('expenses')
+    .values(data)
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
 }
 
 /**
@@ -106,34 +106,34 @@ export async function insertExpense(
  * @returns The expense data or null if not found
  */
 export async function getExpenseById(
-    db: Kysely<Database>,
-    expenseId: string,
+  db: Kysely<Database>,
+  expenseId: string,
 ): Promise<ExpenseWithJoins | null> {
-    const expense = await db
-        .selectFrom('expenses')
-        .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-        .leftJoin('batches', 'batches.id', 'expenses.batchId')
-        .leftJoin('farms', 'farms.id', 'expenses.farmId')
-        .select([
-            'expenses.id',
-            'expenses.farmId',
-            'expenses.category',
-            'expenses.amount',
-            'expenses.date',
-            'expenses.description',
-            'expenses.supplierId',
-            'expenses.batchId',
-            'expenses.isRecurring',
-            'expenses.createdAt',
-            'suppliers.name as supplierName',
-            'batches.species as batchSpecies',
-            'batches.livestockType as batchType',
-            'farms.name as farmName',
-        ])
-        .where('expenses.id', '=', expenseId)
-        .executeTakeFirst()
+  const expense = await db
+    .selectFrom('expenses')
+    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+    .leftJoin('batches', 'batches.id', 'expenses.batchId')
+    .leftJoin('farms', 'farms.id', 'expenses.farmId')
+    .select([
+      'expenses.id',
+      'expenses.farmId',
+      'expenses.category',
+      'expenses.amount',
+      'expenses.date',
+      'expenses.description',
+      'expenses.supplierId',
+      'expenses.batchId',
+      'expenses.isRecurring',
+      'expenses.createdAt',
+      'suppliers.name as supplierName',
+      'batches.species as batchSpecies',
+      'batches.livestockType as batchType',
+      'farms.name as farmName',
+    ])
+    .where('expenses.id', '=', expenseId)
+    .executeTakeFirst()
 
-    return (expense as ExpenseWithJoins | null) ?? null
+  return (expense as ExpenseWithJoins | null) ?? null
 }
 
 /**
@@ -143,10 +143,10 @@ export async function getExpenseById(
  * @param expenseId - ID of the expense to delete
  */
 export async function deleteExpense(
-    db: Kysely<Database>,
-    expenseId: string,
+  db: Kysely<Database>,
+  expenseId: string,
 ): Promise<void> {
-    await db.deleteFrom('expenses').where('id', '=', expenseId).execute()
+  await db.deleteFrom('expenses').where('id', '=', expenseId).execute()
 }
 
 /**
@@ -157,15 +157,15 @@ export async function deleteExpense(
  * @param data - Fields to update
  */
 export async function updateExpense(
-    db: Kysely<Database>,
-    expenseId: string,
-    data: ExpenseUpdate,
+  db: Kysely<Database>,
+  expenseId: string,
+  data: ExpenseUpdate,
 ): Promise<void> {
-    await db
-        .updateTable('expenses')
-        .set(data)
-        .where('id', '=', expenseId)
-        .execute()
+  await db
+    .updateTable('expenses')
+    .set(data)
+    .where('id', '=', expenseId)
+    .execute()
 }
 
 /**
@@ -177,54 +177,54 @@ export async function updateExpense(
  * @returns Array of expenses with joined entity names
  */
 export async function getExpensesByFarm(
-    db: Kysely<Database>,
-    farmIds: Array<string>,
-    filters?: ExpenseFilters,
+  db: Kysely<Database>,
+  farmIds: Array<string>,
+  filters?: ExpenseFilters,
 ): Promise<Array<ExpenseWithJoins>> {
-    let query = db
-        .selectFrom('expenses')
-        .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-        .leftJoin('batches', 'batches.id', 'expenses.batchId')
-        .leftJoin('farms', 'farms.id', 'expenses.farmId')
-        .select([
-            'expenses.id',
-            'expenses.farmId',
-            'expenses.category',
-            'expenses.amount',
-            'expenses.date',
-            'expenses.description',
-            'expenses.supplierId',
-            'expenses.batchId',
-            'expenses.isRecurring',
-            'expenses.createdAt',
-            'suppliers.name as supplierName',
-            'batches.species as batchSpecies',
-            'batches.livestockType as batchType',
-            'farms.name as farmName',
-        ])
-        .where('expenses.farmId', 'in', farmIds)
+  let query = db
+    .selectFrom('expenses')
+    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+    .leftJoin('batches', 'batches.id', 'expenses.batchId')
+    .leftJoin('farms', 'farms.id', 'expenses.farmId')
+    .select([
+      'expenses.id',
+      'expenses.farmId',
+      'expenses.category',
+      'expenses.amount',
+      'expenses.date',
+      'expenses.description',
+      'expenses.supplierId',
+      'expenses.batchId',
+      'expenses.isRecurring',
+      'expenses.createdAt',
+      'suppliers.name as supplierName',
+      'batches.species as batchSpecies',
+      'batches.livestockType as batchType',
+      'farms.name as farmName',
+    ])
+    .where('expenses.farmId', 'in', farmIds)
 
-    if (filters?.startDate) {
-        query = query.where('expenses.date', '>=', filters.startDate)
-    }
+  if (filters?.startDate) {
+    query = query.where('expenses.date', '>=', filters.startDate)
+  }
 
-    if (filters?.endDate) {
-        query = query.where('expenses.date', '<=', filters.endDate)
-    }
+  if (filters?.endDate) {
+    query = query.where('expenses.date', '<=', filters.endDate)
+  }
 
-    if (filters?.category) {
-        query = query.where(
-            'expenses.category',
-            '=',
-            filters.category as ExpenseCategory,
-        )
-    }
+  if (filters?.category) {
+    query = query.where(
+      'expenses.category',
+      '=',
+      filters.category as ExpenseCategory,
+    )
+  }
 
-    if (filters?.batchId) {
-        query = query.where('expenses.batchId', '=', filters.batchId)
-    }
+  if (filters?.batchId) {
+    query = query.where('expenses.batchId', '=', filters.batchId)
+  }
 
-    return await query.orderBy('expenses.date', 'desc').execute()
+  return await query.orderBy('expenses.date', 'desc').execute()
 }
 
 /**
@@ -236,36 +236,36 @@ export async function getExpensesByFarm(
  * @returns Array of category summary results
  */
 export async function getExpensesSummary(
-    db: Kysely<Database>,
-    farmIds: Array<string>,
-    filters?: { startDate?: Date; endDate?: Date },
+  db: Kysely<Database>,
+  farmIds: Array<string>,
+  filters?: { startDate?: Date; endDate?: Date },
 ): Promise<
-    Array<{ category: string; amount: string; count?: string | number }>
+  Array<{ category: string; amount: string; count?: string | number }>
 > {
-    let query = db
-        .selectFrom('expenses')
-        .select([
-            'category',
-            db.fn.count('id').as('count'),
-            db.fn.sum<string>('amount').as('totalAmount'),
-        ])
-        .where('farmId', 'in', farmIds)
-        .groupBy('category')
+  let query = db
+    .selectFrom('expenses')
+    .select([
+      'category',
+      db.fn.count('id').as('count'),
+      db.fn.sum<string>('amount').as('totalAmount'),
+    ])
+    .where('farmId', 'in', farmIds)
+    .groupBy('category')
 
-    if (filters?.startDate) {
-        query = query.where('date', '>=', filters.startDate)
-    }
+  if (filters?.startDate) {
+    query = query.where('date', '>=', filters.startDate)
+  }
 
-    if (filters?.endDate) {
-        query = query.where('date', '<=', filters.endDate)
-    }
+  if (filters?.endDate) {
+    query = query.where('date', '<=', filters.endDate)
+  }
 
-    const results = await query.execute()
-    return results.map((r) => ({
-        category: r.category,
-        count: r.count,
-        amount: r.totalAmount,
-    })) as Array<{ category: string; amount: string; count?: string | number }>
+  const results = await query.execute()
+  return results.map((r) => ({
+    category: r.category,
+    count: r.count,
+    amount: r.totalAmount,
+  })) as Array<{ category: string; amount: string; count?: string | number }>
 }
 
 /**
@@ -277,25 +277,25 @@ export async function getExpensesSummary(
  * @returns Total amount as decimal string
  */
 export async function getTotalExpenses(
-    db: Kysely<Database>,
-    farmIds: Array<string>,
-    filters?: { startDate?: Date; endDate?: Date },
+  db: Kysely<Database>,
+  farmIds: Array<string>,
+  filters?: { startDate?: Date; endDate?: Date },
 ): Promise<string> {
-    let query = db
-        .selectFrom('expenses')
-        .select(db.fn.sum<string>('amount').as('total'))
-        .where('farmId', 'in', farmIds)
+  let query = db
+    .selectFrom('expenses')
+    .select(db.fn.sum<string>('amount').as('total'))
+    .where('farmId', 'in', farmIds)
 
-    if (filters?.startDate) {
-        query = query.where('date', '>=', filters.startDate)
-    }
+  if (filters?.startDate) {
+    query = query.where('date', '>=', filters.startDate)
+  }
 
-    if (filters?.endDate) {
-        query = query.where('date', '<=', filters.endDate)
-    }
+  if (filters?.endDate) {
+    query = query.where('date', '<=', filters.endDate)
+  }
 
-    const result = await query.executeTakeFirst()
-    return result?.total || '0'
+  const result = await query.executeTakeFirst()
+  return result?.total || '0'
 }
 
 /**
@@ -307,172 +307,172 @@ export async function getTotalExpenses(
  * @returns Paginated result with data and metadata
  */
 export async function getExpensesPaginated(
-    db: Kysely<Database>,
-    farmIds: Array<string>,
-    filters: ExpenseFilters & {
-        page?: number
-        pageSize?: number
-        sortBy?: string
-        sortOrder?: 'asc' | 'desc'
-    },
+  db: Kysely<Database>,
+  farmIds: Array<string>,
+  filters: ExpenseFilters & {
+    page?: number
+    pageSize?: number
+    sortBy?: string
+    sortOrder?: 'asc' | 'desc'
+  },
 ): Promise<{
-    data: Array<{
-        id: string
-        farmId: string
-        farmName: string | null
-        category: string
-        amount: string
-        date: Date
-        description: string
-        supplierName: string | null
-        batchSpecies: string | null
-        batchType: string | null
-        isRecurring: boolean
-    }>
-    total: number
-    page: number
-    pageSize: number
-    totalPages: number
+  data: Array<{
+    id: string
+    farmId: string
+    farmName: string | null
+    category: string
+    amount: string
+    date: Date
+    description: string
+    supplierName: string | null
+    batchSpecies: string | null
+    batchType: string | null
+    isRecurring: boolean
+  }>
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }> {
-    const page = filters.page || 1
-    const pageSize = filters.pageSize || 10
-    const sortBy = filters.sortBy || 'date'
-    const sortOrder = filters.sortOrder || 'desc'
-    const search = filters.search || ''
+  const page = filters.page || 1
+  const pageSize = filters.pageSize || 10
+  const sortBy = filters.sortBy || 'date'
+  const sortOrder = filters.sortOrder || 'desc'
+  const search = filters.search || ''
 
-    // Build base query for counting and data
-    let baseQuery = db
-        .selectFrom('expenses')
-        .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-        .leftJoin('batches', 'batches.id', 'expenses.batchId')
-        .leftJoin('farms', 'farms.id', 'expenses.farmId')
-        .where('expenses.farmId', 'in', farmIds)
+  // Build base query for counting and data
+  let baseQuery = db
+    .selectFrom('expenses')
+    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+    .leftJoin('batches', 'batches.id', 'expenses.batchId')
+    .leftJoin('farms', 'farms.id', 'expenses.farmId')
+    .where('expenses.farmId', 'in', farmIds)
 
-    // Apply search filter
-    if (search) {
-        baseQuery = baseQuery.where((eb) =>
-            eb.or([
-                eb('expenses.description', 'ilike', `%${search}%`),
-                eb('suppliers.name', 'ilike', `%${search}%`),
-                eb('batches.species', 'ilike', `%${search}%`),
-            ]),
-        )
-    }
+  // Apply search filter
+  if (search) {
+    baseQuery = baseQuery.where((eb) =>
+      eb.or([
+        eb('expenses.description', 'ilike', `%${search}%`),
+        eb('suppliers.name', 'ilike', `%${search}%`),
+        eb('batches.species', 'ilike', `%${search}%`),
+      ]),
+    )
+  }
 
-    // Apply category filter
-    if (filters.category) {
-        baseQuery = baseQuery.where(
-            'expenses.category',
-            '=',
-            filters.category as ExpenseCategory,
-        )
-    }
+  // Apply category filter
+  if (filters.category) {
+    baseQuery = baseQuery.where(
+      'expenses.category',
+      '=',
+      filters.category as ExpenseCategory,
+    )
+  }
 
-    // Apply batch filter
-    if (filters.batchId) {
-        baseQuery = baseQuery.where('expenses.batchId', '=', filters.batchId)
-    }
+  // Apply batch filter
+  if (filters.batchId) {
+    baseQuery = baseQuery.where('expenses.batchId', '=', filters.batchId)
+  }
 
-    // Apply date filters
-    if (filters.startDate) {
-        baseQuery = baseQuery.where('expenses.date', '>=', filters.startDate)
-    }
+  // Apply date filters
+  if (filters.startDate) {
+    baseQuery = baseQuery.where('expenses.date', '>=', filters.startDate)
+  }
 
-    if (filters.endDate) {
-        baseQuery = baseQuery.where('expenses.date', '<=', filters.endDate)
-    }
+  if (filters.endDate) {
+    baseQuery = baseQuery.where('expenses.date', '<=', filters.endDate)
+  }
 
-    // Get total count
-    const { sql } = await import('kysely')
-    const countResult = await baseQuery
-        .select(sql<number>`count(*)`.as('count'))
-        .executeTakeFirst()
-    const total = Number(countResult?.count || 0)
-    const totalPages = Math.ceil(total / pageSize)
+  // Get total count
+  const { sql } = await import('kysely')
+  const countResult = await baseQuery
+    .select(sql<number>`count(*)`.as('count'))
+    .executeTakeFirst()
+  const total = Number(countResult?.count || 0)
+  const totalPages = Math.ceil(total / pageSize)
 
-    // Build data query with explicit column selection
-    let dataQuery = db
-        .selectFrom('expenses')
-        .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
-        .leftJoin('batches', 'batches.id', 'expenses.batchId')
-        .leftJoin('farms', 'farms.id', 'expenses.farmId')
-        .select([
-            'expenses.id',
-            'expenses.farmId',
-            'expenses.category',
-            'expenses.amount',
-            'expenses.date',
-            'expenses.description',
-            'expenses.isRecurring',
-            'suppliers.name as supplierName',
-            'batches.species as batchSpecies',
-            'batches.livestockType as batchType',
-            'farms.name as farmName',
-        ])
-        .where('expenses.farmId', 'in', farmIds)
+  // Build data query with explicit column selection
+  let dataQuery = db
+    .selectFrom('expenses')
+    .leftJoin('suppliers', 'suppliers.id', 'expenses.supplierId')
+    .leftJoin('batches', 'batches.id', 'expenses.batchId')
+    .leftJoin('farms', 'farms.id', 'expenses.farmId')
+    .select([
+      'expenses.id',
+      'expenses.farmId',
+      'expenses.category',
+      'expenses.amount',
+      'expenses.date',
+      'expenses.description',
+      'expenses.isRecurring',
+      'suppliers.name as supplierName',
+      'batches.species as batchSpecies',
+      'batches.livestockType as batchType',
+      'farms.name as farmName',
+    ])
+    .where('expenses.farmId', 'in', farmIds)
 
-    // Re-apply all filters to data query
-    if (search) {
-        dataQuery = dataQuery.where((eb) =>
-            eb.or([
-                eb('expenses.description', 'ilike', `%${search}%`),
-                eb('suppliers.name', 'ilike', `%${search}%`),
-                eb('batches.species', 'ilike', `%${search}%`),
-            ]),
-        )
-    }
+  // Re-apply all filters to data query
+  if (search) {
+    dataQuery = dataQuery.where((eb) =>
+      eb.or([
+        eb('expenses.description', 'ilike', `%${search}%`),
+        eb('suppliers.name', 'ilike', `%${search}%`),
+        eb('batches.species', 'ilike', `%${search}%`),
+      ]),
+    )
+  }
 
-    if (filters.category) {
-        dataQuery = dataQuery.where(
-            'expenses.category',
-            '=',
-            filters.category as ExpenseCategory,
-        )
-    }
+  if (filters.category) {
+    dataQuery = dataQuery.where(
+      'expenses.category',
+      '=',
+      filters.category as ExpenseCategory,
+    )
+  }
 
-    if (filters.batchId) {
-        dataQuery = dataQuery.where('expenses.batchId', '=', filters.batchId)
-    }
+  if (filters.batchId) {
+    dataQuery = dataQuery.where('expenses.batchId', '=', filters.batchId)
+  }
 
-    if (filters.startDate) {
-        dataQuery = dataQuery.where('expenses.date', '>=', filters.startDate)
-    }
+  if (filters.startDate) {
+    dataQuery = dataQuery.where('expenses.date', '>=', filters.startDate)
+  }
 
-    if (filters.endDate) {
-        dataQuery = dataQuery.where('expenses.date', '<=', filters.endDate)
-    }
+  if (filters.endDate) {
+    dataQuery = dataQuery.where('expenses.date', '<=', filters.endDate)
+  }
 
-    // Apply sorting and pagination
-    const sortColumn =
-        sortBy === 'amount'
-            ? 'expenses.amount'
-            : sortBy === 'category'
-              ? 'expenses.category'
-              : sortBy === 'description'
-                ? 'expenses.description'
-                : sortBy === 'supplierName'
-                  ? 'suppliers.name'
-                  : 'expenses.date'
+  // Apply sorting and pagination
+  const sortColumn =
+    sortBy === 'amount'
+      ? 'expenses.amount'
+      : sortBy === 'category'
+        ? 'expenses.category'
+        : sortBy === 'description'
+          ? 'expenses.description'
+          : sortBy === 'supplierName'
+            ? 'suppliers.name'
+            : 'expenses.date'
 
-    const data = await dataQuery
-        .orderBy(sortColumn as any, sortOrder)
-        .limit(pageSize)
-        .offset((page - 1) * pageSize)
-        .execute()
+  const data = await dataQuery
+    .orderBy(sortColumn as any, sortOrder)
+    .limit(pageSize)
+    .offset((page - 1) * pageSize)
+    .execute()
 
-    return {
-        data: data.map((d) => ({
-            ...d,
-            farmName: d.farmName || null,
-            supplierName: d.supplierName || null,
-            batchSpecies: d.batchSpecies || null,
-            batchType: d.batchType || null,
-        })),
-        total,
-        page,
-        pageSize,
-        totalPages,
-    }
+  return {
+    data: data.map((d) => ({
+      ...d,
+      farmName: d.farmName || null,
+      supplierName: d.supplierName || null,
+      batchSpecies: d.batchSpecies || null,
+      batchType: d.batchType || null,
+    })),
+    total,
+    page,
+    pageSize,
+    totalPages,
+  }
 }
 
 /**
@@ -484,25 +484,25 @@ export async function getExpensesPaginated(
  * @returns Feed inventory record or null if not found
  */
 export async function getFeedInventory(
-    db: Kysely<Database>,
-    farmId: string,
-    feedType: FeedType,
+  db: Kysely<Database>,
+  farmId: string,
+  feedType: FeedType,
 ): Promise<FeedInventory | null> {
-    const inventory = await db
-        .selectFrom('feed_inventory')
-        .select([
-            'id',
-            'farmId',
-            'feedType',
-            'quantityKg',
-            'minThresholdKg',
-            'updatedAt',
-        ])
-        .where('farmId', '=', farmId)
-        .where('feedType', '=', feedType)
-        .executeTakeFirst()
+  const inventory = await db
+    .selectFrom('feed_inventory')
+    .select([
+      'id',
+      'farmId',
+      'feedType',
+      'quantityKg',
+      'minThresholdKg',
+      'updatedAt',
+    ])
+    .where('farmId', '=', farmId)
+    .where('feedType', '=', feedType)
+    .executeTakeFirst()
 
-    return (inventory as FeedInventory | null) ?? null
+  return (inventory as FeedInventory | null) ?? null
 }
 
 /**
@@ -513,18 +513,18 @@ export async function getFeedInventory(
  * @param quantity - New quantity (as decimal string)
  */
 export async function updateFeedInventory(
-    db: Kysely<Database>,
-    inventoryId: string,
-    quantity: string,
+  db: Kysely<Database>,
+  inventoryId: string,
+  quantity: string,
 ): Promise<void> {
-    await db
-        .updateTable('feed_inventory')
-        .set({
-            quantityKg: quantity,
-            updatedAt: new Date(),
-        })
-        .where('id', '=', inventoryId)
-        .execute()
+  await db
+    .updateTable('feed_inventory')
+    .set({
+      quantityKg: quantity,
+      updatedAt: new Date(),
+    })
+    .where('id', '=', inventoryId)
+    .execute()
 }
 
 /**
@@ -535,26 +535,26 @@ export async function updateFeedInventory(
  * @returns The ID of the created inventory record
  */
 export async function insertFeedInventory(
-    db: Kysely<Database>,
-    data: {
-        farmId: string
-        feedType: FeedType
-        quantityKg: string | number
-        minThresholdKg: string
-    },
+  db: Kysely<Database>,
+  data: {
+    farmId: string
+    feedType: FeedType
+    quantityKg: string | number
+    minThresholdKg: string
+  },
 ): Promise<string> {
-    const result = await db
-        .insertInto('feed_inventory')
-        .values({
-            farmId: data.farmId,
-            feedType: data.feedType,
-            quantityKg: data.quantityKg.toString(),
-            minThresholdKg: data.minThresholdKg,
-            updatedAt: new Date(),
-        })
-        .returning('id')
-        .executeTakeFirstOrThrow()
-    return result.id
+  const result = await db
+    .insertInto('feed_inventory')
+    .values({
+      farmId: data.farmId,
+      feedType: data.feedType,
+      quantityKg: data.quantityKg.toString(),
+      minThresholdKg: data.minThresholdKg,
+      updatedAt: new Date(),
+    })
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
 }
 
 /**
@@ -565,14 +565,14 @@ export async function insertFeedInventory(
  * @returns Farm ID or null if not found
  */
 export async function getExpenseFarmId(
-    db: Kysely<Database>,
-    expenseId: string,
+  db: Kysely<Database>,
+  expenseId: string,
 ): Promise<string | null> {
-    const expense = await db
-        .selectFrom('expenses')
-        .select('farmId')
-        .where('id', '=', expenseId)
-        .executeTakeFirst()
+  const expense = await db
+    .selectFrom('expenses')
+    .select('farmId')
+    .where('id', '=', expenseId)
+    .executeTakeFirst()
 
-    return expense?.farmId || null
+  return expense?.farmId || null
 }

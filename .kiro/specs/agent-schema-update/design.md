@@ -61,57 +61,57 @@ The new agent configuration schema includes these fields:
 
 ```typescript
 interface AgentConfiguration {
-    // Schema reference (NEW - required)
-    $schema?: string
+  // Schema reference (NEW - required)
+  $schema?: string
 
-    // Core fields (existing)
-    name: string
-    description: string
-    prompt: string
+  // Core fields (existing)
+  name: string
+  description: string
+  prompt: string
 
-    // Tool configuration (existing)
-    tools?: string[]
-    allowedTools?: string[]
-    toolAliases?: Record<string, string>
-    toolsSettings?: Record<string, ToolSettings>
+  // Tool configuration (existing)
+  tools?: string[]
+  allowedTools?: string[]
+  toolAliases?: Record<string, string>
+  toolsSettings?: Record<string, ToolSettings>
 
-    // Resources (existing)
-    resources?: string[]
+  // Resources (existing)
+  resources?: string[]
 
-    // MCP configuration (existing + updated)
-    mcpServers?: Record<string, McpServerConfig>
-    useLegacyMcpJson?: boolean // Replaces includeMcpJson
+  // MCP configuration (existing + updated)
+  mcpServers?: Record<string, McpServerConfig>
+  useLegacyMcpJson?: boolean // Replaces includeMcpJson
 
-    // Hooks (existing)
-    hooks?: HooksConfiguration
+  // Hooks (existing)
+  hooks?: HooksConfiguration
 
-    // Model selection (existing)
-    model?: string
+  // Model selection (existing)
+  model?: string
 
-    // UX features (NEW)
-    keyboardShortcut?: string
-    welcomeMessage?: string
+  // UX features (NEW)
+  keyboardShortcut?: string
+  welcomeMessage?: string
 }
 
 interface McpServerConfig {
-    command: string
-    args: string[]
-    disabled?: boolean
-    autoApprove?: string[]
+  command: string
+  args: string[]
+  disabled?: boolean
+  autoApprove?: string[]
 }
 
 interface HooksConfiguration {
-    agentSpawn?: HookCommand[]
-    postToolUse?: PostToolUseHook[]
+  agentSpawn?: HookCommand[]
+  postToolUse?: PostToolUseHook[]
 }
 
 interface HookCommand {
-    command: string
-    timeout_ms: number
+  command: string
+  timeout_ms: number
 }
 
 interface PostToolUseHook extends HookCommand {
-    matcher: string
+  matcher: string
 }
 ```
 
@@ -142,26 +142,26 @@ Example configurations:
 
 ```json
 {
-    "neon": {
-        "command": "bunx",
-        "args": [
-            "mcp-remote",
-            "https://mcp.neon.tech/mcp",
-            "3334",
-            "--cache-dir",
-            "${HOME}/.mcp-cache/neon"
-        ]
-    },
-    "cloudflare-bindings": {
-        "command": "bunx",
-        "args": [
-            "mcp-remote",
-            "https://bindings.mcp.cloudflare.com/mcp",
-            "3335",
-            "--cache-dir",
-            "${HOME}/.mcp-cache/cloudflare-bindings"
-        ]
-    }
+  "neon": {
+    "command": "bunx",
+    "args": [
+      "mcp-remote",
+      "https://mcp.neon.tech/mcp",
+      "3334",
+      "--cache-dir",
+      "${HOME}/.mcp-cache/neon"
+    ]
+  },
+  "cloudflare-bindings": {
+    "command": "bunx",
+    "args": [
+      "mcp-remote",
+      "https://bindings.mcp.cloudflare.com/mcp",
+      "3335",
+      "--cache-dir",
+      "${HOME}/.mcp-cache/cloudflare-bindings"
+    ]
+  }
 }
 ```
 

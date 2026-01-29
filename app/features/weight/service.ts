@@ -10,10 +10,10 @@ import type { CreateWeightSampleInput, UpdateWeightSampleInput } from './server'
  * Used for growth rate comparisons and alert generation
  */
 export const EXPECTED_ADG_BY_SPECIES: Record<string, number> = {
-    broiler: 0.05, // 50g/day
-    layer: 0.02, // 20g/day
-    catfish: 0.015, // 15g/day
-    tilapia: 0.01, // 10g/day
+  broiler: 0.05, // 50g/day
+  layer: 0.02, // 20g/day
+  catfish: 0.015, // 15g/day
+  tilapia: 0.01, // 10g/day
 }
 
 /**
@@ -41,42 +41,42 @@ export const EXPECTED_ADG_BY_SPECIES: Record<string, number> = {
  * ```
  */
 export function validateWeightRecord(
-    data: CreateWeightSampleInput,
+  data: CreateWeightSampleInput,
 ): string | null {
-    if (data.batchId.trim() === '') {
-        return 'Batch ID is required'
-    }
+  if (data.batchId.trim() === '') {
+    return 'Batch ID is required'
+  }
 
-    if (isNaN(data.date.getTime())) {
-        return 'Valid measurement date is required'
-    }
+  if (isNaN(data.date.getTime())) {
+    return 'Valid measurement date is required'
+  }
 
-    if (data.sampleSize <= 0) {
-        return 'Sample size must be greater than 0'
-    }
+  if (data.sampleSize <= 0) {
+    return 'Sample size must be greater than 0'
+  }
 
-    if (data.averageWeightKg <= 0) {
-        return 'Average weight must be greater than 0'
-    }
+  if (data.averageWeightKg <= 0) {
+    return 'Average weight must be greater than 0'
+  }
 
-    if (data.minWeightKg != null && data.minWeightKg <= 0) {
-        return 'Minimum weight must be greater than 0'
-    }
+  if (data.minWeightKg != null && data.minWeightKg <= 0) {
+    return 'Minimum weight must be greater than 0'
+  }
 
-    if (data.maxWeightKg != null && data.maxWeightKg <= 0) {
-        return 'Maximum weight must be greater than 0'
-    }
+  if (data.maxWeightKg != null && data.maxWeightKg <= 0) {
+    return 'Maximum weight must be greater than 0'
+  }
 
-    // Validate min/max relationship
-    if (
-        data.minWeightKg != null &&
-        data.maxWeightKg != null &&
-        data.minWeightKg > data.maxWeightKg
-    ) {
-        return 'Minimum weight cannot be greater than maximum weight'
-    }
+  // Validate min/max relationship
+  if (
+    data.minWeightKg != null &&
+    data.maxWeightKg != null &&
+    data.minWeightKg > data.maxWeightKg
+  ) {
+    return 'Minimum weight cannot be greater than maximum weight'
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -95,17 +95,17 @@ export function validateWeightRecord(
  * ```
  */
 export function calculateAverageWeight(
-    records: Array<{ averageWeightKg: string }>,
+  records: Array<{ averageWeightKg: string }>,
 ): number {
-    if (records.length === 0) {
-        return 0
-    }
+  if (records.length === 0) {
+    return 0
+  }
 
-    const total = records.reduce((sum, record) => {
-        return sum + parseFloat(record.averageWeightKg)
-    }, 0)
+  const total = records.reduce((sum, record) => {
+    return sum + parseFloat(record.averageWeightKg)
+  }, 0)
 
-    return total / records.length
+  return total / records.length
 }
 
 /**
@@ -125,30 +125,30 @@ export function calculateAverageWeight(
  * ```
  */
 export function calculateGrowthRate(
-    current: { weight: number; date: Date },
-    previous: { weight: number; date: Date },
+  current: { weight: number; date: Date },
+  previous: { weight: number; date: Date },
 ): number | null {
-    const currentDate = current.date.getTime()
-    const previousDate = previous.date.getTime()
+  const currentDate = current.date.getTime()
+  const previousDate = previous.date.getTime()
 
-    if (currentDate <= previousDate) {
-        return null
-    }
+  if (currentDate <= previousDate) {
+    return null
+  }
 
-    const daysBetween = (currentDate - previousDate) / (1000 * 60 * 60 * 24)
+  const daysBetween = (currentDate - previousDate) / (1000 * 60 * 60 * 24)
 
-    if (daysBetween <= 0) {
-        return null
-    }
+  if (daysBetween <= 0) {
+    return null
+  }
 
-    const weightGain = current.weight - previous.weight
+  const weightGain = current.weight - previous.weight
 
-    if (weightGain < 0) {
-        // Weight loss - still return negative rate
-        return weightGain / daysBetween
-    }
-
+  if (weightGain < 0) {
+    // Weight loss - still return negative rate
     return weightGain / daysBetween
+  }
+
+  return weightGain / daysBetween
 }
 
 /**
@@ -165,7 +165,7 @@ export function calculateGrowthRate(
  * ```
  */
 export function calculateWeightGain(current: number, initial: number): number {
-    return current - initial
+  return current - initial
 }
 
 /**
@@ -182,21 +182,21 @@ export function calculateWeightGain(current: number, initial: number): number {
  * ```
  */
 export function determineGrowthStatus(
-    growthRate: number,
+  growthRate: number,
 ): 'normal' | 'slow' | 'rapid' {
-    // Normal: 80-120% of expected baseline (0.04 kg/day)
-    const baseline = 0.04
-    const ratio = growthRate / baseline
+  // Normal: 80-120% of expected baseline (0.04 kg/day)
+  const baseline = 0.04
+  const ratio = growthRate / baseline
 
-    if (ratio < 0.7) {
-        return 'slow'
-    }
+  if (ratio < 0.7) {
+    return 'slow'
+  }
 
-    if (ratio > 1.3) {
-        return 'rapid'
-    }
+  if (ratio > 1.3) {
+    return 'rapid'
+  }
 
-    return 'normal'
+  return 'normal'
 }
 
 /**
@@ -214,11 +214,11 @@ export function determineGrowthStatus(
  * ```
  */
 export function calculateProjectedWeight(
-    current: number,
-    growthRate: number,
-    days: number,
+  current: number,
+  growthRate: number,
+  days: number,
 ): number {
-    return current + growthRate * days
+  return current + growthRate * days
 }
 
 /**
@@ -237,57 +237,56 @@ export function calculateProjectedWeight(
  * ```
  */
 export function buildWeightStats(
-    records: Array<{
-        averageWeightKg: string
-        date: Date
-        sampleSize?: number
-    }>,
+  records: Array<{
+    averageWeightKg: string
+    date: Date
+    sampleSize?: number
+  }>,
 ): {
-    averageWeight: number
-    totalGain: number
-    dailyGain: number | null
-    recordCount: number
-    latestRecord: (typeof records)[0] | null
-    firstRecord: (typeof records)[0] | null
-    daysBetween: number | null
+  averageWeight: number
+  totalGain: number
+  dailyGain: number | null
+  recordCount: number
+  latestRecord: (typeof records)[0] | null
+  firstRecord: (typeof records)[0] | null
+  daysBetween: number | null
 } {
-    if (records.length === 0) {
-        return {
-            averageWeight: 0,
-            totalGain: 0,
-            dailyGain: null,
-            recordCount: 0,
-            latestRecord: null,
-            firstRecord: null,
-            daysBetween: null,
-        }
-    }
-
-    const averageWeight = calculateAverageWeight(records)
-    const latestRecord = records[records.length - 1]
-    const firstRecord = records[0]
-
-    const latestWeight = parseFloat(latestRecord.averageWeightKg)
-    const firstWeight = parseFloat(firstRecord.averageWeightKg)
-
-    const totalGain = calculateWeightGain(latestWeight, firstWeight)
-
-    const daysBetween =
-        (latestRecord.date.getTime() - firstRecord.date.getTime()) /
-        (1000 * 60 * 60 * 24)
-
-    const dailyGain = daysBetween > 0 ? totalGain / daysBetween : null
-
+  if (records.length === 0) {
     return {
-        averageWeight: Math.round(averageWeight * 1000) / 1000,
-        totalGain: Math.round(totalGain * 1000) / 1000,
-        dailyGain:
-            dailyGain !== null ? Math.round(dailyGain * 1000) / 1000 : null,
-        recordCount: records.length,
-        latestRecord,
-        firstRecord,
-        daysBetween: Math.ceil(daysBetween),
+      averageWeight: 0,
+      totalGain: 0,
+      dailyGain: null,
+      recordCount: 0,
+      latestRecord: null,
+      firstRecord: null,
+      daysBetween: null,
     }
+  }
+
+  const averageWeight = calculateAverageWeight(records)
+  const latestRecord = records[records.length - 1]
+  const firstRecord = records[0]
+
+  const latestWeight = parseFloat(latestRecord.averageWeightKg)
+  const firstWeight = parseFloat(firstRecord.averageWeightKg)
+
+  const totalGain = calculateWeightGain(latestWeight, firstWeight)
+
+  const daysBetween =
+    (latestRecord.date.getTime() - firstRecord.date.getTime()) /
+    (1000 * 60 * 60 * 24)
+
+  const dailyGain = daysBetween > 0 ? totalGain / daysBetween : null
+
+  return {
+    averageWeight: Math.round(averageWeight * 1000) / 1000,
+    totalGain: Math.round(totalGain * 1000) / 1000,
+    dailyGain: dailyGain !== null ? Math.round(dailyGain * 1000) / 1000 : null,
+    recordCount: records.length,
+    latestRecord,
+    firstRecord,
+    daysBetween: Math.ceil(daysBetween),
+  }
 }
 
 /**
@@ -298,43 +297,43 @@ export function buildWeightStats(
  * @returns Validation error message, or null if data is valid
  */
 export function validateUpdateData(
-    data: UpdateWeightSampleInput,
+  data: UpdateWeightSampleInput,
 ): string | null {
-    // Validate date if provided
-    if (data.date != null && isNaN(data.date.getTime())) {
-        return 'Date must be valid'
-    }
+  // Validate date if provided
+  if (data.date != null && isNaN(data.date.getTime())) {
+    return 'Date must be valid'
+  }
 
-    // Validate sample size if provided
-    if (data.sampleSize !== undefined && data.sampleSize <= 0) {
-        return 'Sample size must be greater than 0'
-    }
+  // Validate sample size if provided
+  if (data.sampleSize !== undefined && data.sampleSize <= 0) {
+    return 'Sample size must be greater than 0'
+  }
 
-    // Validate average weight if provided
-    if (data.averageWeightKg !== undefined && data.averageWeightKg <= 0) {
-        return 'Average weight must be greater than 0'
-    }
+  // Validate average weight if provided
+  if (data.averageWeightKg !== undefined && data.averageWeightKg <= 0) {
+    return 'Average weight must be greater than 0'
+  }
 
-    // Validate min weight if provided
-    if (data.minWeightKg != null && data.minWeightKg <= 0) {
-        return 'Minimum weight must be greater than 0'
-    }
+  // Validate min weight if provided
+  if (data.minWeightKg != null && data.minWeightKg <= 0) {
+    return 'Minimum weight must be greater than 0'
+  }
 
-    // Validate max weight if provided
-    if (data.maxWeightKg != null && data.maxWeightKg <= 0) {
-        return 'Maximum weight must be greater than 0'
-    }
+  // Validate max weight if provided
+  if (data.maxWeightKg != null && data.maxWeightKg <= 0) {
+    return 'Maximum weight must be greater than 0'
+  }
 
-    // Validate min/max relationship if both provided
-    if (
-        data.minWeightKg != null &&
-        data.maxWeightKg != null &&
-        data.minWeightKg > data.maxWeightKg
-    ) {
-        return 'Minimum weight cannot be greater than maximum weight'
-    }
+  // Validate min/max relationship if both provided
+  if (
+    data.minWeightKg != null &&
+    data.maxWeightKg != null &&
+    data.minWeightKg > data.maxWeightKg
+  ) {
+    return 'Minimum weight cannot be greater than maximum weight'
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -344,8 +343,8 @@ export function validateUpdateData(
  * @returns Expected ADG in kg/day, or default value if species not found
  */
 export function getExpectedAdg(species: string): number {
-    const normalizedSpecies = species.toLowerCase()
-    return EXPECTED_ADG_BY_SPECIES[normalizedSpecies] ?? 0.03
+  const normalizedSpecies = species.toLowerCase()
+  return EXPECTED_ADG_BY_SPECIES[normalizedSpecies] ?? 0.03
 }
 
 /**
@@ -356,13 +355,13 @@ export function getExpectedAdg(species: string): number {
  * @returns Percentage of expected ADG (can be > 100 or < 0)
  */
 export function calculateAdgPercentage(
-    actualAdg: number,
-    expectedAdg: number,
+  actualAdg: number,
+  expectedAdg: number,
 ): number {
-    if (expectedAdg <= 0) {
-        return 100 // Default to 100% if no expected value
-    }
-    return (actualAdg / expectedAdg) * 100
+  if (expectedAdg <= 0) {
+    return 100 // Default to 100% if no expected value
+  }
+  return (actualAdg / expectedAdg) * 100
 }
 
 /**
@@ -372,7 +371,7 @@ export function calculateAdgPercentage(
  * @returns 'warning' or 'critical' severity level
  */
 export function getAlertSeverity(
-    percentOfExpected: number,
+  percentOfExpected: number,
 ): 'warning' | 'critical' {
-    return percentOfExpected < 50 ? 'critical' : 'warning'
+  return percentOfExpected < 50 ? 'critical' : 'warning'
 }

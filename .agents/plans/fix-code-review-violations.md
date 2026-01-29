@@ -54,11 +54,11 @@ None - all fixes are in existing files
 ### Relevant Documentation - SHOULD READ BEFORE IMPLEMENTING
 
 - [Zod Documentation - Object Validation](https://zod.dev/?id=objects)
-    - Why: Need to create proper validation schemas
+  - Why: Need to create proper validation schemas
 - [TanStack Start - Server Functions](https://tanstack.com/start/latest/docs/framework/react/guide/server-functions)
-    - Why: Understand `.inputValidator()` pattern
+  - Why: Understand `.inputValidator()` pattern
 - OpenLivestock AGENTS.md - Better Auth and access control patterns
-    - Why: Understand `checkFarmAccess()` usage
+  - Why: Understand `checkFarmAccess()` usage
 
 ### Patterns to Follow
 
@@ -67,24 +67,24 @@ None - all fixes are in existing files
 ```typescript
 // ✅ CORRECT - Zod schema validation
 export const createBatchFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            batch: z.object({
-                farmId: z.string().uuid(),
-                batchName: z.string().min(1).max(100),
-                species: z.string(),
-                initialQuantity: z.number().int().positive(),
-                acquisitionDate: z.coerce.date(),
-                costPerUnit: z.number().nonnegative(),
-            }),
-        }),
-    )
-    .handler(async ({ data }) => {
-        // data is now validated
-    })
+  .inputValidator(
+    z.object({
+      batch: z.object({
+        farmId: z.string().uuid(),
+        batchName: z.string().min(1).max(100),
+        species: z.string(),
+        initialQuantity: z.number().int().positive(),
+        acquisitionDate: z.coerce.date(),
+        costPerUnit: z.number().nonnegative(),
+      }),
+    }),
+  )
+  .handler(async ({ data }) => {
+    // data is now validated
+  })
 
-    // ❌ WRONG - Type assertion (current violation)
-    .inputValidator((data: { batch: CreateBatchData }) => data)
+  // ❌ WRONG - Type assertion (current violation)
+  .inputValidator((data: { batch: CreateBatchData }) => data)
 ```
 
 **Proper Farm Access Control Pattern:**
@@ -92,25 +92,25 @@ export const createBatchFn = createServerFn({ method: 'POST' })
 ```typescript
 // ✅ CORRECT - Check farm access
 export const getCustomers = createServerFn({ method: 'GET' })
-    .inputValidator(z.object({ farmId: z.string().uuid() }))
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
+  .inputValidator(z.object({ farmId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
 
-        const { checkFarmAccess } = await import('../auth/utils')
-        const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
-        if (!hasAccess) {
-            throw new AppError('ACCESS_DENIED', {
-                metadata: { farmId: data.farmId },
-            })
-        }
+    const { checkFarmAccess } = await import('../auth/utils')
+    const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: data.farmId },
+      })
+    }
 
-        const { db } = await import('~/lib/db')
-        return db
-            .selectFrom('customers')
-            .where('farmId', '=', data.farmId)
-            .execute()
-    })
+    const { db } = await import('~/lib/db')
+    return db
+      .selectFrom('customers')
+      .where('farmId', '=', data.farmId)
+      .execute()
+  })
 ```
 
 **Batch Query Pattern (Fix N+1):**
@@ -172,50 +172,50 @@ Verify all fixes with tests and validation commands.
 
 ```typescript
 const createBatchSchema = z.object({
-    farmId: z.string().uuid(),
-    livestockType: z.enum([
-        'poultry',
-        'fish',
-        'cattle',
-        'goats',
-        'sheep',
-        'bees',
-    ]),
-    species: z.string().min(1).max(100),
-    initialQuantity: z.number().int().positive(),
-    acquisitionDate: z.coerce.date(),
-    costPerUnit: z.number().nonnegative(),
-    batchName: z.string().max(100).nullable().optional(),
-    sourceSize: z.string().max(50).nullable().optional(),
-    structureId: z.string().uuid().nullable().optional(),
-    targetHarvestDate: z.coerce.date().nullable().optional(),
-    target_weight_g: z.number().positive().nullable().optional(),
-    supplierId: z.string().uuid().nullable().optional(),
-    notes: z.string().max(500).nullable().optional(),
+  farmId: z.string().uuid(),
+  livestockType: z.enum([
+    'poultry',
+    'fish',
+    'cattle',
+    'goats',
+    'sheep',
+    'bees',
+  ]),
+  species: z.string().min(1).max(100),
+  initialQuantity: z.number().int().positive(),
+  acquisitionDate: z.coerce.date(),
+  costPerUnit: z.number().nonnegative(),
+  batchName: z.string().max(100).nullable().optional(),
+  sourceSize: z.string().max(50).nullable().optional(),
+  structureId: z.string().uuid().nullable().optional(),
+  targetHarvestDate: z.coerce.date().nullable().optional(),
+  target_weight_g: z.number().positive().nullable().optional(),
+  supplierId: z.string().uuid().nullable().optional(),
+  notes: z.string().max(500).nullable().optional(),
 })
 
 const updateBatchSchema = z.object({
-    species: z.string().min(1).max(100).optional(),
-    status: z.enum(['active', 'depleted', 'sold']).optional(),
-    batchName: z.string().max(100).nullable().optional(),
-    sourceSize: z.string().max(50).nullable().optional(),
-    structureId: z.string().uuid().nullable().optional(),
-    targetHarvestDate: z.coerce.date().nullable().optional(),
-    target_weight_g: z.number().positive().nullable().optional(),
-    notes: z.string().max(500).nullable().optional(),
+  species: z.string().min(1).max(100).optional(),
+  status: z.enum(['active', 'depleted', 'sold']).optional(),
+  batchName: z.string().max(100).nullable().optional(),
+  sourceSize: z.string().max(50).nullable().optional(),
+  structureId: z.string().uuid().nullable().optional(),
+  targetHarvestDate: z.coerce.date().nullable().optional(),
+  target_weight_g: z.number().positive().nullable().optional(),
+  notes: z.string().max(500).nullable().optional(),
 })
 
 const paginatedQuerySchema = z.object({
-    page: z.number().int().positive().optional().default(1),
-    pageSize: z.number().int().positive().max(100).optional().default(10),
-    sortBy: z.string().optional(),
-    sortOrder: z.enum(['asc', 'desc']).optional(),
-    search: z.string().optional(),
-    farmId: z.string().uuid().optional(),
-    status: z.enum(['active', 'depleted', 'sold']).optional(),
-    livestockType: z
-        .enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'])
-        .optional(),
+  page: z.number().int().positive().optional().default(1),
+  pageSize: z.number().int().positive().max(100).optional().default(10),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  search: z.string().optional(),
+  farmId: z.string().uuid().optional(),
+  status: z.enum(['active', 'depleted', 'sold']).optional(),
+  livestockType: z
+    .enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'])
+    .optional(),
 })
 ```
 
@@ -400,7 +400,7 @@ const paginatedQuerySchema = z.object({
 const { checkFarmAccess } = await import('../auth/utils')
 const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
 if (!hasAccess) {
-    throw new AppError('ACCESS_DENIED', { metadata: { farmId: data.farmId } })
+  throw new AppError('ACCESS_DENIED', { metadata: { farmId: data.farmId } })
 }
 ```
 
@@ -532,42 +532,42 @@ for (const item of lowMedItems) {
 
 ```typescript
 const createCustomerSchema = z.object({
-    farmId: z.string().uuid(),
-    name: z.string().min(1).max(100),
-    phone: z.string().min(1).max(20),
-    email: z.string().email().optional().nullable(),
-    location: z.string().max(200).optional().nullable(),
-    customerType: z
-        .enum([
-            'individual',
-            'restaurant',
-            'retailer',
-            'wholesaler',
-            'processor',
-            'exporter',
-            'government',
-        ])
-        .optional()
-        .nullable(),
+  farmId: z.string().uuid(),
+  name: z.string().min(1).max(100),
+  phone: z.string().min(1).max(20),
+  email: z.string().email().optional().nullable(),
+  location: z.string().max(200).optional().nullable(),
+  customerType: z
+    .enum([
+      'individual',
+      'restaurant',
+      'retailer',
+      'wholesaler',
+      'processor',
+      'exporter',
+      'government',
+    ])
+    .optional()
+    .nullable(),
 })
 
 const updateCustomerSchema = z.object({
-    name: z.string().min(1).max(100).optional(),
-    phone: z.string().min(1).max(20).optional(),
-    email: z.string().email().optional().nullable(),
-    location: z.string().max(200).optional().nullable(),
-    customerType: z
-        .enum([
-            'individual',
-            'restaurant',
-            'retailer',
-            'wholesaler',
-            'processor',
-            'exporter',
-            'government',
-        ])
-        .optional()
-        .nullable(),
+  name: z.string().min(1).max(100).optional(),
+  phone: z.string().min(1).max(20).optional(),
+  email: z.string().email().optional().nullable(),
+  location: z.string().max(200).optional().nullable(),
+  customerType: z
+    .enum([
+      'individual',
+      'restaurant',
+      'retailer',
+      'wholesaler',
+      'processor',
+      'exporter',
+      'government',
+    ])
+    .optional()
+    .nullable(),
 })
 ```
 

@@ -96,12 +96,12 @@ Verify Command Center pattern on batch pages:
 ```tsx
 // Required Action Grid structure
 <div className="grid grid-cols-3 gap-3">
-    <ActionButton icon={Utensils} label="Feed" />
-    <ActionButton icon={Skull} label="Death" />
-    <ActionButton icon={DollarSign} label="Sale" />
-    <ActionButton icon={Scale} label="Weigh" />
-    <ActionButton icon={Syringe} label="Vax" />
-    <ActionButton icon={Droplet} label="Water" />
+  <ActionButton icon={Utensils} label="Feed" />
+  <ActionButton icon={Skull} label="Death" />
+  <ActionButton icon={DollarSign} label="Sale" />
+  <ActionButton icon={Scale} label="Weigh" />
+  <ActionButton icon={Syringe} label="Vax" />
+  <ActionButton icon={Droplet} label="Water" />
 </div>
 ```
 

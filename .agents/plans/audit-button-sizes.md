@@ -332,9 +332,9 @@ bun run test --run
 - [ ] All validation commands pass
 - [ ] `size="sm"` count reduced from 42 to ~18
 - [ ] Remaining `size="sm"` are only:
-    - Pagination buttons (4)
-    - Table row action icons (12)
-    - Audit log pagination (2)
+  - Pagination buttons (4)
+  - Table row action icons (12)
+  - Audit log pagination (2)
 - [ ] No visual regressions in upgraded buttons
 - [ ] Build succeeds
 

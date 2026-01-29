@@ -100,25 +100,25 @@ npx lighthouse http://localhost:3001 --view --only-categories=pwa,performance
 
 ```json
 {
-    "name": "OpenLivestock Manager",
-    "short_name": "Livestock",
-    "description": "Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#10b981",
-    "icons": [
-        {
-            "src": "/icons/icon-192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/icons/icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+  "name": "OpenLivestock Manager",
+  "short_name": "Livestock",
+  "description": "Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
 ```
 
@@ -136,26 +136,26 @@ npx lighthouse http://localhost:3001 --view --only-categories=pwa,performance
 ```typescript
 // vite.config.ts
 VitePWA({
-    registerType: 'autoUpdate',
-    workbox: {
-        // Cache static assets
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+  registerType: 'autoUpdate',
+  workbox: {
+    // Cache static assets
+    globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
 
-        // Runtime caching for API
-        runtimeCaching: [
-            {
-                urlPattern: /^https:\/\/api\./,
-                handler: 'StaleWhileRevalidate',
-                options: {
-                    cacheName: 'api-cache',
-                    expiration: {
-                        maxEntries: 100,
-                        maxAgeSeconds: 60 * 60 * 24, // 24 hours
-                    },
-                },
-            },
-        ],
-    },
+    // Runtime caching for API
+    runtimeCaching: [
+      {
+        urlPattern: /^https:\/\/api\./,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'api-cache',
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 60 * 60 * 24, // 24 hours
+          },
+        },
+      },
+    ],
+  },
 })
 ```
 
@@ -201,12 +201,12 @@ const ReportsPage = lazy(() => import('./routes/reports'))
 
 ```html
 <img
-    srcset="image-320.webp 320w, image-640.webp 640w, image-1280.webp 1280w"
-    sizes="(max-width: 320px) 280px,
+  srcset="image-320.webp 320w, image-640.webp 640w, image-1280.webp 1280w"
+  sizes="(max-width: 320px) 280px,
          (max-width: 640px) 600px,
          1200px"
-    src="image-640.webp"
-    alt="Description"
+  src="image-640.webp"
+  alt="Description"
 />
 ```
 
@@ -227,9 +227,9 @@ const ReportsPage = lazy(() => import('./routes/reports'))
 
 ```css
 @font-face {
-    font-family: 'Inter';
-    font-display: swap;
-    src: url('/fonts/inter.woff2') format('woff2');
+  font-family: 'Inter';
+  font-display: swap;
+  src: url('/fonts/inter.woff2') format('woff2');
 }
 ```
 
@@ -246,7 +246,7 @@ const ReportsPage = lazy(() => import('./routes/reports'))
 ```typescript
 // Register for background sync
 navigator.serviceWorker.ready.then((registration) => {
-    registration.sync.register('sync-data')
+  registration.sync.register('sync-data')
 })
 ```
 
@@ -286,19 +286,19 @@ navigator.serviceWorker.ready.then((registration) => {
 **Validate PWA optimization:**
 
 1. **Re-run Lighthouse:**
-    - PWA score should be 100
-    - Performance > 90
-    - All checks passing
+   - PWA score should be 100
+   - Performance > 90
+   - All checks passing
 
 2. **Test installation:**
-    - Install prompt appears
-    - App installs successfully
-    - Launches from home screen
+   - Install prompt appears
+   - App installs successfully
+   - Launches from home screen
 
 3. **Test offline:**
-    - Disconnect network
-    - App still works
-    - Data persists
+   - Disconnect network
+   - App still works
+   - Data persists
 
 **Ask user:**
 

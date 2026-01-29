@@ -27,34 +27,34 @@ Note: Pin 3 of DHT22 is not connected (NC).
 - Arduino IDE 2.0+ or PlatformIO
 - ESP32 board support package
 - Required libraries:
-    - WiFi (built-in)
-    - HTTPClient (built-in)
-    - DHT sensor library by Adafruit
-    - ArduinoJson
+  - WiFi (built-in)
+  - HTTPClient (built-in)
+  - DHT sensor library by Adafruit
+  - ArduinoJson
 
 ## Installation
 
 ### Arduino IDE
 
 1. Install ESP32 board support:
-    - Go to File → Preferences
-    - Add to "Additional Board Manager URLs":
-        ```
-        https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-        ```
-    - Go to Tools → Board → Boards Manager
-    - Search for "esp32" and install
+   - Go to File → Preferences
+   - Add to "Additional Board Manager URLs":
+     ```
+     https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+     ```
+   - Go to Tools → Board → Boards Manager
+   - Search for "esp32" and install
 
 2. Install required libraries:
-    - Go to Sketch → Include Library → Manage Libraries
-    - Search and install:
-        - "DHT sensor library" by Adafruit
-        - "ArduinoJson" by Benoit Blanchon
+   - Go to Sketch → Include Library → Manage Libraries
+   - Search and install:
+     - "DHT sensor library" by Adafruit
+     - "ArduinoJson" by Benoit Blanchon
 
 3. Open `sensor.ino` and configure:
-    - WiFi credentials
-    - API endpoint URL
-    - Sensor API key
+   - WiFi credentials
+   - API endpoint URL
+   - Sensor API key
 
 4. Select your board (ESP32 Dev Module) and upload
 

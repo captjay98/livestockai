@@ -8,19 +8,19 @@ import { FAQSection } from '~/components/landing/FAQSection'
 import { CTASection } from '~/components/landing/CTASection'
 
 export const Route = createFileRoute('/pricing')({
-    component: PricingPage,
+  component: PricingPage,
 })
 
 function PricingPage() {
-    const [currency, setCurrency] = useState<'USD' | 'NGN'>('USD')
+  const [currency, setCurrency] = useState<'USD' | 'NGN'>('USD')
 
-    return (
-        <LandingLayout>
-            <PricingHero currency={currency} setCurrency={setCurrency} />
-            <PricingCards currency={currency} />
-            <ComparisonTable />
-            <FAQSection />
-            <CTASection />
-        </LandingLayout>
-    )
+  return (
+    <LandingLayout>
+      <PricingHero currency={currency} setCurrency={setCurrency} />
+      <PricingCards currency={currency} />
+      <ComparisonTable />
+      <FAQSection />
+      <CTASection />
+    </LandingLayout>
+  )
 }

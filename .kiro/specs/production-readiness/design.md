@@ -44,19 +44,19 @@ The changes follow the existing application architecture:
 ```typescript
 // BEFORE (lines 130-131)
 export const deleteExpenseFn = createServerFn({ method: 'POST' }).handler(
-    async ({ data }) => {
-        // ...
-        return deleteExpense(session.user.id, data.expenseId)
-        return deleteExpense(session.user.id, data.expenseId) // DUPLICATE
-    },
+  async ({ data }) => {
+    // ...
+    return deleteExpense(session.user.id, data.expenseId)
+    return deleteExpense(session.user.id, data.expenseId) // DUPLICATE
+  },
 )
 
 // AFTER
 export const deleteExpenseFn = createServerFn({ method: 'POST' }).handler(
-    async ({ data }) => {
-        // ...
-        return deleteExpense(session.user.id, data.expenseId)
-    },
+  async ({ data }) => {
+    // ...
+    return deleteExpense(session.user.id, data.expenseId)
+  },
 )
 ```
 
@@ -68,21 +68,21 @@ export const deleteExpenseFn = createServerFn({ method: 'POST' }).handler(
 
 ```typescript
 interface SaleFormData {
-    // Existing fields
-    livestockType: 'poultry' | 'fish' | 'eggs' | ''
-    batchId: string
-    quantity: string
-    unitPrice: string
-    date: string
-    notes: string
+  // Existing fields
+  livestockType: 'poultry' | 'fish' | 'eggs' | ''
+  batchId: string
+  quantity: string
+  unitPrice: string
+  date: string
+  notes: string
 
-    // NEW fields
-    customerId: string // Optional customer selector
-    unitType: string // bird | kg | crate | piece
-    ageWeeks: string // For poultry sales
-    averageWeightKg: string // Weight at sale
-    paymentStatus: string // paid | pending | partial (default: paid)
-    paymentMethod: string // cash | transfer | credit
+  // NEW fields
+  customerId: string // Optional customer selector
+  unitType: string // bird | kg | crate | piece
+  ageWeeks: string // For poultry sales
+  averageWeightKg: string // Weight at sale
+  paymentStatus: string // paid | pending | partial (default: paid)
+  paymentMethod: string // cash | transfer | credit
 }
 ```
 
@@ -128,16 +128,16 @@ interface SaleFormData {
 
 ```typescript
 interface ExpenseFormData {
-    // Existing fields
-    category: string
-    amount: string
-    date: string
-    description: string
-    supplierId: string
-    isRecurring: boolean
+  // Existing fields
+  category: string
+  amount: string
+  date: string
+  description: string
+  supplierId: string
+  isRecurring: boolean
 
-    // NEW field
-    batchId: string // Optional batch selector
+  // NEW field
+  batchId: string // Optional batch selector
 }
 ```
 
@@ -149,19 +149,19 @@ interface ExpenseFormData {
 
 ```typescript
 interface FeedFormData {
-    // Existing fields
-    batchId: string
-    feedType: string
-    quantityKg: string
-    cost: string
-    date: string
+  // Existing fields
+  batchId: string
+  feedType: string
+  quantityKg: string
+  cost: string
+  date: string
 
-    // NEW fields
-    brandName: string // e.g., "Aller Aqua", "Ultima Plus"
-    bagSizeKg: string // 15, 25, etc.
-    numberOfBags: string // How many bags
-    supplierId: string // Supplier selector
-    notes: string // Additional notes
+  // NEW fields
+  brandName: string // e.g., "Aller Aqua", "Ultima Plus"
+  bagSizeKg: string // 15, 25, etc.
+  numberOfBags: string // How many bags
+  supplierId: string // Supplier selector
+  notes: string // Additional notes
 }
 ```
 
@@ -195,22 +195,22 @@ router.invalidate()
 ```css
 /* Prevent horizontal overflow on mobile */
 .dashboard-container {
-    @apply overflow-x-hidden;
+  @apply overflow-x-hidden;
 }
 
 /* Responsive card grid */
 .stats-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
 }
 
 /* Constrain card widths */
 .stat-card {
-    @apply min-w-0 overflow-hidden;
+  @apply min-w-0 overflow-hidden;
 }
 
 /* Table horizontal scroll container */
 .table-container {
-    @apply overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
+  @apply overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
 }
 ```
 

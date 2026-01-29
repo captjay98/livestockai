@@ -119,31 +119,31 @@ Find the tasks table creation and add 4 new columns:
 ```typescript
 // In the tasks table creation section (~line 801)
 await db.schema
-    .createTable('tasks')
-    .addColumn('id', 'uuid', (col) =>
-        col.primaryKey().defaultTo(sql`uuid_generate_v4()`),
-    )
-    .addColumn('farmId', 'uuid', (col) =>
-        col.notNull().references('farms.id').onDelete('cascade'),
-    )
-    .addColumn('title', 'varchar(255)', (col) => col.notNull())
-    .addColumn('description', 'text')
-    .addColumn('frequency', 'varchar(10)', (col) => col.notNull())
-    .addColumn('isDefault', 'boolean', (col) => col.notNull().defaultTo(false))
-    // NEW: Context linking
-    .addColumn('batchId', 'uuid', (col) =>
-        col.references('batches.id').onDelete('set null'),
-    )
-    .addColumn('structureId', 'uuid', (col) =>
-        col.references('structures.id').onDelete('set null'),
-    )
-    .addColumn('moduleKey', 'varchar(20)')
-    // NEW: Assignment
-    .addColumn('assignedTo', 'uuid', (col) =>
-        col.references('users.id').onDelete('set null'),
-    )
-    .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
-    .execute()
+  .createTable('tasks')
+  .addColumn('id', 'uuid', (col) =>
+    col.primaryKey().defaultTo(sql`uuid_generate_v4()`),
+  )
+  .addColumn('farmId', 'uuid', (col) =>
+    col.notNull().references('farms.id').onDelete('cascade'),
+  )
+  .addColumn('title', 'varchar(255)', (col) => col.notNull())
+  .addColumn('description', 'text')
+  .addColumn('frequency', 'varchar(10)', (col) => col.notNull())
+  .addColumn('isDefault', 'boolean', (col) => col.notNull().defaultTo(false))
+  // NEW: Context linking
+  .addColumn('batchId', 'uuid', (col) =>
+    col.references('batches.id').onDelete('set null'),
+  )
+  .addColumn('structureId', 'uuid', (col) =>
+    col.references('structures.id').onDelete('set null'),
+  )
+  .addColumn('moduleKey', 'varchar(20)')
+  // NEW: Assignment
+  .addColumn('assignedTo', 'uuid', (col) =>
+    col.references('users.id').onDelete('set null'),
+  )
+  .addColumn('createdAt', 'timestamptz', (col) => col.defaultTo(sql`now()`))
+  .execute()
 ```
 
 Also add indexes after the existing `idx_tasks_farm_id` index:
@@ -151,20 +151,20 @@ Also add indexes after the existing `idx_tasks_farm_id` index:
 ```typescript
 // After idx_tasks_farm_id (~line 823)
 await db.schema
-    .createIndex('idx_tasks_batch_id')
-    .on('tasks')
-    .column('batchId')
-    .execute()
+  .createIndex('idx_tasks_batch_id')
+  .on('tasks')
+  .column('batchId')
+  .execute()
 await db.schema
-    .createIndex('idx_tasks_assigned_to')
-    .on('tasks')
-    .column('assignedTo')
-    .execute()
+  .createIndex('idx_tasks_assigned_to')
+  .on('tasks')
+  .column('assignedTo')
+  .execute()
 await db.schema
-    .createIndex('idx_tasks_module_key')
-    .on('tasks')
-    .column('moduleKey')
-    .execute()
+  .createIndex('idx_tasks_module_key')
+  .on('tasks')
+  .column('moduleKey')
+  .execute()
 ```
 
 **VALIDATE**: `bun run db:reset && bun run db:migrate`
@@ -181,19 +181,19 @@ Update `TaskTable`:
 
 ```typescript
 export interface TaskTable {
-    id: Generated<string>
-    farmId: string
-    title: string
-    description: string | null
-    frequency: 'daily' | 'weekly' | 'monthly'
-    isDefault: Generated<boolean>
-    // NEW: Context linking
-    batchId: string | null
-    structureId: string | null
-    moduleKey: string | null // 'poultry' | 'aquaculture' | etc.
-    // NEW: Assignment
-    assignedTo: string | null // userId - null means anyone
-    createdAt: Generated<Date>
+  id: Generated<string>
+  farmId: string
+  title: string
+  description: string | null
+  frequency: 'daily' | 'weekly' | 'monthly'
+  isDefault: Generated<boolean>
+  // NEW: Context linking
+  batchId: string | null
+  structureId: string | null
+  moduleKey: string | null // 'poultry' | 'aquaculture' | etc.
+  // NEW: Assignment
+  assignedTo: string | null // userId - null means anyone
+  createdAt: Generated<Date>
 }
 ```
 
@@ -209,8 +209,8 @@ export interface TaskTable {
 2. Update `TaskWithCompletionRow` to include new fields
 3. Update `insertTask` to handle new columns
 4. Update `getTasksWithCompletions` to:
-    - Select new columns
-    - Add optional `assignedTo` filter parameter
+   - Select new columns
+   - Add optional `assignedTo` filter parameter
 
 **VALIDATE**: `npx tsc --noEmit`
 

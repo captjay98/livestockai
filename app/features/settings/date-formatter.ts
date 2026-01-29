@@ -12,9 +12,9 @@ import type { UserSettings } from './currency-presets'
  * Map user-friendly date format strings to date-fns format patterns
  */
 const DATE_FORMAT_MAP: Record<UserSettings['dateFormat'], string> = {
-    'MM/DD/YYYY': 'MM/dd/yyyy',
-    'DD/MM/YYYY': 'dd/MM/yyyy',
-    'YYYY-MM-DD': 'yyyy-MM-dd',
+  'MM/DD/YYYY': 'MM/dd/yyyy',
+  'DD/MM/YYYY': 'dd/MM/yyyy',
+  'YYYY-MM-DD': 'yyyy-MM-dd',
 }
 
 /**
@@ -25,11 +25,11 @@ const DATE_FORMAT_MAP: Record<UserSettings['dateFormat'], string> = {
  * @returns Formatted date string (e.g., "01/15/2025" or "15/01/2025")
  */
 export function formatDate(
-    date: Date | string,
-    settings: Pick<UserSettings, 'dateFormat'>,
+  date: Date | string,
+  settings: Pick<UserSettings, 'dateFormat'>,
 ): string {
-    const d = typeof date === 'string' ? new Date(date) : date
-    return dateFnsFormat(d, DATE_FORMAT_MAP[settings.dateFormat])
+  const d = typeof date === 'string' ? new Date(date) : date
+  return dateFnsFormat(d, DATE_FORMAT_MAP[settings.dateFormat])
 }
 
 /**
@@ -40,11 +40,11 @@ export function formatDate(
  * @returns Formatted time string (e.g., "2:30 PM" or "14:30")
  */
 export function formatTime(
-    date: Date | string,
-    settings: Pick<UserSettings, 'timeFormat'>,
+  date: Date | string,
+  settings: Pick<UserSettings, 'timeFormat'>,
 ): string {
-    const d = typeof date === 'string' ? new Date(date) : date
-    return dateFnsFormat(d, settings.timeFormat === '12h' ? 'h:mm a' : 'HH:mm')
+  const d = typeof date === 'string' ? new Date(date) : date
+  return dateFnsFormat(d, settings.timeFormat === '12h' ? 'h:mm a' : 'HH:mm')
 }
 
 /**
@@ -55,10 +55,10 @@ export function formatTime(
  * @returns Formatted date and time string (e.g., "01/15/2025 2:30 PM")
  */
 export function formatDateTime(
-    date: Date | string,
-    settings: Pick<UserSettings, 'dateFormat' | 'timeFormat'>,
+  date: Date | string,
+  settings: Pick<UserSettings, 'dateFormat' | 'timeFormat'>,
 ): string {
-    return `${formatDate(date, settings)} ${formatTime(date, settings)}`
+  return `${formatDate(date, settings)} ${formatTime(date, settings)}`
 }
 
 /**
@@ -69,16 +69,16 @@ export function formatDateTime(
  * @returns Short formatted date (e.g., "Jan 15" or "15 Jan")
  */
 export function formatShortDate(
-    date: Date | string,
-    settings: Pick<UserSettings, 'dateFormat'>,
+  date: Date | string,
+  settings: Pick<UserSettings, 'dateFormat'>,
 ): string {
-    const d = typeof date === 'string' ? new Date(date) : date
+  const d = typeof date === 'string' ? new Date(date) : date
 
-    // Use day-first or month-first based on user preference
-    if (settings.dateFormat === 'DD/MM/YYYY') {
-        return dateFnsFormat(d, 'd MMM')
-    }
-    return dateFnsFormat(d, 'MMM d')
+  // Use day-first or month-first based on user preference
+  if (settings.dateFormat === 'DD/MM/YYYY') {
+    return dateFnsFormat(d, 'd MMM')
+  }
+  return dateFnsFormat(d, 'MMM d')
 }
 
 /**
@@ -89,17 +89,17 @@ export function formatShortDate(
  * @returns Long formatted date (e.g., "January 15, 2025" or "15 January 2025")
  */
 export function formatLongDate(
-    date: Date | string,
-    settings: Pick<UserSettings, 'dateFormat'>,
+  date: Date | string,
+  settings: Pick<UserSettings, 'dateFormat'>,
 ): string {
-    const d = typeof date === 'string' ? new Date(date) : date
+  const d = typeof date === 'string' ? new Date(date) : date
 
-    if (settings.dateFormat === 'DD/MM/YYYY') {
-        return dateFnsFormat(d, 'd MMMM yyyy')
-    } else if (settings.dateFormat === 'YYYY-MM-DD') {
-        return dateFnsFormat(d, 'yyyy MMMM d')
-    }
-    return dateFnsFormat(d, 'MMMM d, yyyy')
+  if (settings.dateFormat === 'DD/MM/YYYY') {
+    return dateFnsFormat(d, 'd MMMM yyyy')
+  } else if (settings.dateFormat === 'YYYY-MM-DD') {
+    return dateFnsFormat(d, 'yyyy MMMM d')
+  }
+  return dateFnsFormat(d, 'MMMM d, yyyy')
 }
 
 /**
@@ -110,23 +110,23 @@ export function formatLongDate(
  * @returns Relative date string or formatted date if too far in the past
  */
 export function formatRelativeDate(
-    date: Date | string,
-    settings: Pick<UserSettings, 'dateFormat'>,
+  date: Date | string,
+  settings: Pick<UserSettings, 'dateFormat'>,
 ): string {
-    const d = typeof date === 'string' ? new Date(date) : date
-    const now = new Date()
-    const diffMs = now.getTime() - d.getTime()
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  const d = typeof date === 'string' ? new Date(date) : date
+  const now = new Date()
+  const diffMs = now.getTime() - d.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-    if (diffDays === 0) {
-        return 'Today'
-    } else if (diffDays === 1) {
-        return 'Yesterday'
-    } else if (diffDays < 7) {
-        return `${diffDays} days ago`
-    } else {
-        return formatDate(d, settings)
-    }
+  if (diffDays === 0) {
+    return 'Today'
+  } else if (diffDays === 1) {
+    return 'Yesterday'
+  } else if (diffDays < 7) {
+    return `${diffDays} days ago`
+  } else {
+    return formatDate(d, settings)
+  }
 }
 
 /**
@@ -136,7 +136,7 @@ export function formatRelativeDate(
  * @returns String pattern (e.g., "MM/dd/yyyy")
  */
 export function getDateFormatPattern(
-    settings: Pick<UserSettings, 'dateFormat'>,
+  settings: Pick<UserSettings, 'dateFormat'>,
 ): string {
-    return DATE_FORMAT_MAP[settings.dateFormat]
+  return DATE_FORMAT_MAP[settings.dateFormat]
 }

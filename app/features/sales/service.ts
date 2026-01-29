@@ -22,13 +22,13 @@ import { multiply, toDbString } from '~/features/settings/currency'
  * ```
  */
 export function calculateSaleTotal(
-    quantity: number,
-    unitPrice: number,
+  quantity: number,
+  unitPrice: number,
 ): string {
-    if (quantity <= 0 || unitPrice < 0) {
-        return toDbString(0)
-    }
-    return toDbString(multiply(quantity, unitPrice))
+  if (quantity <= 0 || unitPrice < 0) {
+    return toDbString(0)
+  }
+  return toDbString(multiply(quantity, unitPrice))
 }
 
 /**
@@ -58,61 +58,57 @@ export function calculateSaleTotal(
  * ```
  */
 export function validateSaleData(
-    data: CreateSaleInput,
-    batchQuantity: number | null,
+  data: CreateSaleInput,
+  batchQuantity: number | null,
 ): string | null {
-    if (data.farmId === '' || data.farmId.trim() === '') {
-        return 'Farm ID is required'
-    }
+  if (data.farmId === '' || data.farmId.trim() === '') {
+    return 'Farm ID is required'
+  }
 
-    if (data.quantity <= 0) {
-        return 'Quantity must be greater than 0'
-    }
+  if (data.quantity <= 0) {
+    return 'Quantity must be greater than 0'
+  }
 
-    if (data.unitPrice < 0) {
-        return 'Unit price cannot be negative'
-    }
+  if (data.unitPrice < 0) {
+    return 'Unit price cannot be negative'
+  }
 
-    if (isNaN(data.date.getTime())) {
-        return 'Sale date is required'
-    }
+  if (isNaN(data.date.getTime())) {
+    return 'Sale date is required'
+  }
 
-    // Validate quantity against batch if provided
-    if (
-        data.batchId &&
-        batchQuantity !== null &&
-        data.livestockType !== 'eggs'
-    ) {
-        if (data.quantity > batchQuantity) {
-            return `Insufficient stock in batch. Available: ${batchQuantity}, Requested: ${data.quantity}`
-        }
+  // Validate quantity against batch if provided
+  if (data.batchId && batchQuantity !== null && data.livestockType !== 'eggs') {
+    if (data.quantity > batchQuantity) {
+      return `Insufficient stock in batch. Available: ${batchQuantity}, Requested: ${data.quantity}`
     }
+  }
 
-    // Validate payment status if provided
-    if (
-        data.paymentStatus &&
-        !['paid', 'pending', 'partial'].includes(data.paymentStatus)
-    ) {
-        return 'Invalid payment status'
-    }
+  // Validate payment status if provided
+  if (
+    data.paymentStatus &&
+    !['paid', 'pending', 'partial'].includes(data.paymentStatus)
+  ) {
+    return 'Invalid payment status'
+  }
 
-    // Validate payment method if provided
-    if (
-        data.paymentMethod &&
-        !['cash', 'transfer', 'credit'].includes(data.paymentMethod)
-    ) {
-        return 'Invalid payment method'
-    }
+  // Validate payment method if provided
+  if (
+    data.paymentMethod &&
+    !['cash', 'transfer', 'credit'].includes(data.paymentMethod)
+  ) {
+    return 'Invalid payment method'
+  }
 
-    // Validate unit type if provided
-    if (
-        data.unitType &&
-        !['bird', 'kg', 'crate', 'piece'].includes(data.unitType)
-    ) {
-        return 'Invalid unit type'
-    }
+  // Validate unit type if provided
+  if (
+    data.unitType &&
+    !['bird', 'kg', 'crate', 'piece'].includes(data.unitType)
+  ) {
+    return 'Invalid unit type'
+  }
 
-    return null
+  return null
 }
 
 /**
@@ -129,11 +125,11 @@ export function validateSaleData(
  * ```
  */
 export function calculateNewBatchQuantity(
-    currentQuantity: number,
-    soldQuantity: number,
+  currentQuantity: number,
+  soldQuantity: number,
 ): number {
-    const newQuantity = currentQuantity - soldQuantity
-    return Math.max(0, newQuantity)
+  const newQuantity = currentQuantity - soldQuantity
+  return Math.max(0, newQuantity)
 }
 
 /**
@@ -151,14 +147,14 @@ export function calculateNewBatchQuantity(
  * ```
  */
 export function determineBatchStatusAfterSale(
-    newQuantity: number,
-    soldQuantity: number,
+  newQuantity: number,
+  soldQuantity: number,
 ): 'active' | 'sold' {
-    // If all units were sold, mark as sold
-    if (soldQuantity > 0 && newQuantity === 0) {
-        return 'sold'
-    }
-    return 'active'
+  // If all units were sold, mark as sold
+  if (soldQuantity > 0 && newQuantity === 0) {
+    return 'sold'
+  }
+  return 'active'
 }
 
 /**
@@ -176,10 +172,10 @@ export function determineBatchStatusAfterSale(
  * ```
  */
 export function calculateQuantityDifference(
-    originalQuantity: number,
-    newQuantity: number,
+  originalQuantity: number,
+  newQuantity: number,
 ): number {
-    return newQuantity - originalQuantity
+  return newQuantity - originalQuantity
 }
 
 /**
@@ -196,10 +192,10 @@ export function calculateQuantityDifference(
  * ```
  */
 export function calculateNewTotalAmount(
-    quantity: number,
-    unitPrice: number,
+  quantity: number,
+  unitPrice: number,
 ): string {
-    return calculateSaleTotal(quantity, unitPrice)
+  return calculateSaleTotal(quantity, unitPrice)
 }
 
 /**
@@ -218,40 +214,40 @@ export function calculateNewTotalAmount(
  * ```
  */
 export function buildSalesSummary(
-    sales: Array<{
-        livestockType: 'poultry' | 'fish' | 'eggs'
-        count: string | number
-        totalQuantity: string | number
-        totalRevenue: string
-    }>,
+  sales: Array<{
+    livestockType: 'poultry' | 'fish' | 'eggs'
+    count: string | number
+    totalQuantity: string | number
+    totalRevenue: string
+  }>,
 ): {
-    poultry: { count: number; quantity: number; revenue: number }
-    fish: { count: number; quantity: number; revenue: number }
-    eggs: { count: number; quantity: number; revenue: number }
-    total: { count: number; quantity: number; revenue: number }
+  poultry: { count: number; quantity: number; revenue: number }
+  fish: { count: number; quantity: number; revenue: number }
+  eggs: { count: number; quantity: number; revenue: number }
+  total: { count: number; quantity: number; revenue: number }
 } {
-    const summary = {
-        poultry: { count: 0, quantity: 0, revenue: 0 },
-        fish: { count: 0, quantity: 0, revenue: 0 },
-        eggs: { count: 0, quantity: 0, revenue: 0 },
-        total: { count: 0, quantity: 0, revenue: 0 },
+  const summary = {
+    poultry: { count: 0, quantity: 0, revenue: 0 },
+    fish: { count: 0, quantity: 0, revenue: 0 },
+    eggs: { count: 0, quantity: 0, revenue: 0 },
+    total: { count: 0, quantity: 0, revenue: 0 },
+  }
+
+  for (const row of sales) {
+    const type = row.livestockType as keyof typeof summary
+    if (type in summary) {
+      const count = Number(row.count)
+      const quantity = Number(row.totalQuantity)
+      const revenue = parseFloat(row.totalRevenue)
+
+      summary[type] = { count, quantity, revenue }
+      summary.total.count += count
+      summary.total.quantity += quantity
+      summary.total.revenue += revenue
     }
+  }
 
-    for (const row of sales) {
-        const type = row.livestockType as keyof typeof summary
-        if (type in summary) {
-            const count = Number(row.count)
-            const quantity = Number(row.totalQuantity)
-            const revenue = parseFloat(row.totalRevenue)
-
-            summary[type] = { count, quantity, revenue }
-            summary.total.count += count
-            summary.total.quantity += quantity
-            summary.total.revenue += revenue
-        }
-    }
-
-    return summary
+  return summary
 }
 
 /**
@@ -262,14 +258,14 @@ export function buildSalesSummary(
  * @returns Transformed sales array
  */
 export function transformPaginatedResults(
-    sales: Array<SaleWithJoins>,
+  sales: Array<SaleWithJoins>,
 ): Array<SaleWithJoins> {
-    return sales.map((sale) => ({
-        ...sale,
-        farmName: sale.farmName ?? null,
-        customerName: sale.customerName ?? null,
-        batchSpecies: sale.batchSpecies ?? null,
-    }))
+  return sales.map((sale) => ({
+    ...sale,
+    farmName: sale.farmName ?? null,
+    customerName: sale.customerName ?? null,
+    batchSpecies: sale.batchSpecies ?? null,
+  }))
 }
 
 /**
@@ -279,41 +275,41 @@ export function transformPaginatedResults(
  * @returns Validation error message, or null if valid
  */
 export function validateUpdateData(data: UpdateSaleInput): string | null {
-    if (data.quantity !== undefined && data.quantity <= 0) {
-        return 'Quantity must be greater than 0'
-    }
+  if (data.quantity !== undefined && data.quantity <= 0) {
+    return 'Quantity must be greater than 0'
+  }
 
-    if (data.unitPrice !== undefined && data.unitPrice < 0) {
-        return 'Unit price cannot be negative'
-    }
+  if (data.unitPrice !== undefined && data.unitPrice < 0) {
+    return 'Unit price cannot be negative'
+  }
 
-    if (data.date !== undefined && isNaN(data.date.getTime())) {
-        return 'Sale date is invalid'
-    }
+  if (data.date !== undefined && isNaN(data.date.getTime())) {
+    return 'Sale date is invalid'
+  }
 
-    // Validate payment status if provided
-    if (
-        data.paymentStatus &&
-        !['paid', 'pending', 'partial'].includes(data.paymentStatus)
-    ) {
-        return 'Invalid payment status'
-    }
+  // Validate payment status if provided
+  if (
+    data.paymentStatus &&
+    !['paid', 'pending', 'partial'].includes(data.paymentStatus)
+  ) {
+    return 'Invalid payment status'
+  }
 
-    // Validate payment method if provided
-    if (
-        data.paymentMethod &&
-        !['cash', 'transfer', 'credit'].includes(data.paymentMethod)
-    ) {
-        return 'Invalid payment method'
-    }
+  // Validate payment method if provided
+  if (
+    data.paymentMethod &&
+    !['cash', 'transfer', 'credit'].includes(data.paymentMethod)
+  ) {
+    return 'Invalid payment method'
+  }
 
-    // Validate unit type if provided
-    if (
-        data.unitType &&
-        !['bird', 'kg', 'crate', 'piece'].includes(data.unitType)
-    ) {
-        return 'Invalid unit type'
-    }
+  // Validate unit type if provided
+  if (
+    data.unitType &&
+    !['bird', 'kg', 'crate', 'piece'].includes(data.unitType)
+  ) {
+    return 'Invalid unit type'
+  }
 
-    return null
+  return null
 }

@@ -18,10 +18,10 @@ OpenLivestock supports aquaculture with specialized tracking for catfish and til
 
 ```typescript
 const fishSourceSizes = [
-    { value: 'fingerling', label: 'Fingerling (3-5cm)' },
-    { value: 'juvenile', label: 'Juvenile (5-10cm)' },
-    { value: 'post-fingerling', label: 'Post-Fingerling' },
-    { value: 'table-size', label: 'Table Size' },
+  { value: 'fingerling', label: 'Fingerling (3-5cm)' },
+  { value: 'juvenile', label: 'Juvenile (5-10cm)' },
+  { value: 'post-fingerling', label: 'Post-Fingerling' },
+  { value: 'table-size', label: 'Table Size' },
 ]
 ```
 

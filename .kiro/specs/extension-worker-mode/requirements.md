@@ -5,12 +5,14 @@
 Extension Worker Mode transforms OpenLivestock from a single-farm management tool into a multi-farm oversight platform for agricultural extension workers. Extension workers are government or NGO field agents who advise multiple farmers in a geographic region, helping them improve livestock production practices and connecting them with resources.
 
 **Core Vision (from ROADMAP.md):**
+
 - **Observer Pattern:** Agents observe linked farms, they don't own farm data
 - **Linked Accounts:** OAuth-style handshake where Farmer grants scope-limited access to Agent
 - **Remote Triage:** Agents view aggregated mortality/growth charts across their district to spot disease outbreaks early
 - **Digital Prescriptions:** Visit Records created by Agents sync to farmer's "Vet Visits" tab
 
 **Key Design Decisions:**
+
 - **Extend FarmRole:** Add 'observer' role to existing user_farms table (like Digital Foreman added 'worker')
 - **District Assignment:** New user_districts table for district-level assignments (separate from farm-level access)
 - **Time-Limited Access:** OAuth-style consent with 90-day default expiration
@@ -35,6 +37,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an administrator, I want to configure geographic regions so extension workers can be assigned to districts.
 
 **Acceptance Criteria:**
+
 1. System stores countries with ISO 3166-1 alpha-2 codes
 2. System supports 2-level hierarchy: Region (level 1) → District (level 2)
 3. Regions have unique names within country (constraint: country_code + parent_id + name)
@@ -47,6 +50,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an administrator, I want to assign extension worker roles so agents can access district oversight features.
 
 **Acceptance Criteria:**
+
 1. System adds 'observer' to FarmRole type (like 'worker' in Digital Foreman)
 2. System creates user_districts table for district-level assignments
 3. Extension workers are assigned to districts via user_districts (not user_farms)
@@ -59,6 +63,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As a farmer, I want to assign my farm to a district so local extension workers can find me.
 
 **Acceptance Criteria:**
+
 1. Farms have optional district_id (level 2 region only)
 2. System validates district is level 2 (trigger or check constraint)
 3. Farms without district are excluded from extension worker views
@@ -70,6 +75,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As a farmer, I want to control who can see my farm data through an approval workflow.
 
 **Acceptance Criteria:**
+
 1. Extension workers request access to specific farms (access_requests table)
 2. Requests include: purpose, requested duration (30-365 days, default 90)
 3. Farmers receive notification of access requests
@@ -85,6 +91,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want to see only farms that granted me access.
 
 **Acceptance Criteria:**
+
 1. Extension workers see farms where: district matches AND access_grant is active
 2. Financial data (costs, revenue, profit) hidden unless financial_visibility = true
 3. All data access logged in audit_logs
@@ -95,6 +102,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want a dashboard showing all accessible farms in my district.
 
 **Acceptance Criteria:**
+
 1. Shows farms with active access grants in worker's assigned districts
 2. Each farm shows health status (green/amber/red) using species-specific thresholds
 3. Aggregate stats: total farms, total livestock, average mortality
@@ -109,6 +117,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want to view a farm's health details to provide informed advice.
 
 **Acceptance Criteria:**
+
 1. Read-only view (no edit capabilities)
 2. Shows: batch overview, mortality rates, growth metrics, vaccination status
 3. Shows visit history from all extension workers
@@ -120,6 +129,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want health status to reflect species-appropriate thresholds.
 
 **Acceptance Criteria:**
+
 1. Health status uses species-specific mortality thresholds:
    - Broiler: green ≤5%, amber ≤10%, red >10%
    - Layer: green ≤3%, amber ≤7%, red >7%
@@ -136,6 +146,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want alerts when multiple farms show high mortality.
 
 **Acceptance Criteria:**
+
 1. Alert when 3+ farms in same district exceed species-specific red threshold within 7 days
 2. Detection is species-specific (broiler outbreak ≠ catfish outbreak)
 3. Minimum batch size: 50 animals (ignore small batches)
@@ -150,6 +161,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want to manage outbreak alerts.
 
 **Acceptance Criteria:**
+
 1. Dashboard shows active alerts for worker's districts
 2. Alert detail shows affected farms with health metrics
 3. Timeline shows when each farm reported issues
@@ -162,6 +174,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As a supervisor, I want to see aggregated data across multiple districts.
 
 **Acceptance Criteria:**
+
 1. Shows all districts where user is supervisor
 2. Per-district stats: farm count, livestock count, health distribution
 3. Highlights districts with active outbreak alerts
@@ -174,6 +187,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want to record farm visits digitally.
 
 **Acceptance Criteria:**
+
 1. Create visit records for farms with active access
 2. Required fields: visit_date, findings, recommendations
 3. Optional: attachments (photos, PDFs), follow_up_date
@@ -188,6 +202,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want notifications for important events.
 
 **Acceptance Criteria:**
+
 1. Notification types:
    - accessRequest: Farmer receives access request
    - accessGranted: Agent receives approval
@@ -204,6 +219,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want navigation to reflect my role.
 
 **Acceptance Criteria:**
+
 1. If user has user_districts entries → show extension navigation
 2. Extension nav: District Dashboard, Outbreak Alerts, My Visits
 3. If user also owns farms → show role switcher
@@ -214,6 +230,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an administrator, I want complete audit trail of extension activities.
 
 **Acceptance Criteria:**
+
 1. Log: farm data views, alert status changes, visit records, consent changes
 2. Include: user_id, action, entity_type, entity_id, timestamp, ip_address
 3. Uses existing audit_logs table
@@ -224,6 +241,7 @@ Extension Worker Mode transforms OpenLivestock from a single-farm management too
 **User Story:** As an extension worker, I want to export district data for reports.
 
 **Acceptance Criteria:**
+
 1. Export district summary to CSV
 2. Export outbreak history to CSV
 3. Only include farms with active access

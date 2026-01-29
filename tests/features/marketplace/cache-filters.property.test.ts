@@ -14,34 +14,45 @@ vi.mock('idb-keyval', () => ({
 }))
 
 describe('Cache Filter Property Tests', () => {
-  const listingArb = fc.record({
+  // Create a FuzzedListing arbitrary that matches the actual type
+  const fuzzedListingArb = fc.record({
     id: fc.uuid(),
     sellerId: fc.uuid(),
-    livestockType: fc.constantFrom('poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'),
+    livestockType: fc.constantFrom(
+      'poultry',
+      'fish',
+      'cattle',
+      'goats',
+      'sheep',
+      'bees',
+    ),
     species: fc.string({ minLength: 1 }),
-    quantity: fc.integer({ min: 1, max: 1000 }),
-    minPrice: fc.integer({ min: 100, max: 10000 }).map(n => n.toString()),
-    maxPrice: fc.integer({ min: 100, max: 10000 }).map(n => n.toString()),
-    currency: fc.constantFrom('NGN', 'USD', 'EUR'),
-    latitude: fc.double({ min: -90, max: 90, noNaN: true }).map(n => n.toString()),
-    longitude: fc.double({ min: -180, max: 180, noNaN: true }).map(n => n.toString()),
-    country: fc.constantFrom('Nigeria', 'Kenya', 'Ghana'),
-    region: fc.constantFrom('Lagos', 'Kano', 'Nairobi', 'Accra'),
-    locality: fc.string({ minLength: 1 }),
-    formattedAddress: fc.string(),
+    quantity: fc.constantFrom('1-10', '10-25', '25-50', '50-100', '100-250'),
+    priceRange: fc
+      .integer({ min: 100, max: 10000 })
+      .chain((min) =>
+        fc
+          .integer({ min, max: min + 5000 })
+          .map(
+            (max) => `₦${min.toLocaleString()}-${max.toLocaleString()}/unit`,
+          ),
+      ),
+    location: fc.constantFrom(
+      'Lagos, Lagos',
+      'Kano, Kano',
+      'Nairobi, Kenya',
+      'Accra, Ghana',
+    ),
     description: fc.oneof(fc.string(), fc.constant(null)),
     photoUrls: fc.oneof(fc.array(fc.string()), fc.constant(null)),
-    fuzzingLevel: fc.constantFrom('low', 'medium', 'high'),
     contactPreference: fc.constantFrom('app', 'phone', 'both'),
-    batchId: fc.oneof(fc.uuid(), fc.constant(null)),
     status: fc.constantFrom('active', 'paused', 'sold', 'expired'),
-    expiresAt: fc.date(),
     viewCount: fc.integer({ min: 0 }),
-    contactCount: fc.integer({ min: 0 }),
-    createdAt: fc.date(),
-    updatedAt: fc.date(),
-    deletedAt: fc.constant(null),
-  }) as unknown as fc.Arbitrary<FuzzedListing>
+    createdAt: fc.date({
+      min: new Date('2020-01-01'),
+      max: new Date('2030-01-01'),
+    }),
+  }) as fc.Arbitrary<FuzzedListing>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -51,23 +62,25 @@ describe('Cache Filter Property Tests', () => {
     vi.restoreAllMocks()
   })
 
-  // Property 8: Livestock Type Filter
-  it('Property 8: Livestock Type Filter Returns Only Matching Type', async () => {
+  // Property 8: Location Filter (the actual implementation uses location string matching)
+  it('Property 8: Location Filter Returns Matching Locations', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(listingArb, { minLength: 5, maxLength: 20 }),
-        fc.constantFrom('poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees'),
-        async (listings, filterType) => {
+        fc.array(fuzzedListingArb, { minLength: 5, maxLength: 20 }),
+        fc.constantFrom('Lagos', 'Kano', 'Nairobi'),
+        async (listings, filterLocation) => {
           vi.mocked(get).mockResolvedValue(listings)
-          
-          const result = await getCachedListings({ livestockType: filterType } as any)
-          
-          result.forEach(listing => {
-            expect(listing.livestockType).toBe(filterType)
+
+          const result = await getCachedListings({
+            location: filterLocation,
           })
-        }
+
+          result.forEach((listing) => {
+            expect(listing.location).toContain(filterLocation)
+          })
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     )
   })
 
@@ -75,19 +88,24 @@ describe('Cache Filter Property Tests', () => {
   it('Property 9: Min Price Filter Returns Listings >= Min', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(listingArb, { minLength: 5, maxLength: 20 }),
+        fc.array(fuzzedListingArb, { minLength: 5, maxLength: 20 }),
         fc.integer({ min: 100, max: 5000 }),
         async (listings, minPrice) => {
           vi.mocked(get).mockResolvedValue(listings)
-          
+
           const result = await getCachedListings({ minPrice })
-          
-          result.forEach(listing => {
-            expect(parseFloat((listing as any).minPrice)).toBeGreaterThanOrEqual(minPrice)
+
+          result.forEach((listing) => {
+            // Extract min price from priceRange like '₦1,000-2,000/unit'
+            const priceStr = listing.priceRange
+              .split('-')[0]
+              .replace(/[^\d.]/g, '')
+            const price = parseFloat(priceStr)
+            expect(price).toBeGreaterThanOrEqual(minPrice)
           })
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     )
   })
 
@@ -95,46 +113,61 @@ describe('Cache Filter Property Tests', () => {
   it('Property 10: Max Price Filter Returns Listings <= Max', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(listingArb, { minLength: 5, maxLength: 20 }),
-        fc.integer({ min: 5000, max: 10000 }),
+        fc.array(fuzzedListingArb, { minLength: 5, maxLength: 20 }),
+        fc.integer({ min: 5000, max: 15000 }),
         async (listings, maxPrice) => {
           vi.mocked(get).mockResolvedValue(listings)
-          
+
           const result = await getCachedListings({ maxPrice })
-          
-          result.forEach(listing => {
-            expect(parseFloat((listing as any).maxPrice)).toBeLessThanOrEqual(maxPrice)
+
+          result.forEach((listing) => {
+            // Extract max price from priceRange like '₦1,000-2,000/unit'
+            const priceStr = listing.priceRange
+              .split('-')[1]
+              .split('/')[0]
+              .replace(/[^\d.]/g, '')
+            const price = parseFloat(priceStr)
+            expect(price).toBeLessThanOrEqual(maxPrice)
           })
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     )
   })
 
-  // Property 11: Region Filter
-  it('Property 11: Region Filter Returns Matching Regions', async () => {
+  // Property 11: Combined Filters
+  it('Property 11: Combined Filters Work Together', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(listingArb, { minLength: 5, maxLength: 20 }),
-        fc.constantFrom('Lagos', 'Kano', 'Nairobi'),
-        async (listings, region) => {
+        fc.array(fuzzedListingArb, { minLength: 5, maxLength: 20 }),
+        fc.integer({ min: 100, max: 3000 }),
+        fc.integer({ min: 5000, max: 15000 }),
+        async (listings, minPrice, maxPrice) => {
           vi.mocked(get).mockResolvedValue(listings)
-          
-          const result = await getCachedListings({ region } as any)
-          
-          result.forEach(listing => {
-            expect((listing as any).region).toContain(region)
+
+          const result = await getCachedListings({ minPrice, maxPrice })
+
+          result.forEach((listing) => {
+            const minPriceStr = listing.priceRange
+              .split('-')[0]
+              .replace(/[^\d.]/g, '')
+            const maxPriceStr = listing.priceRange
+              .split('-')[1]
+              .split('/')[0]
+              .replace(/[^\d.]/g, '')
+            expect(parseFloat(minPriceStr)).toBeGreaterThanOrEqual(minPrice)
+            expect(parseFloat(maxPriceStr)).toBeLessThanOrEqual(maxPrice)
           })
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     )
   })
 
   // Property 14: Empty Cache Returns Empty Array
   it('Property 14: Empty Cache Returns Empty Array', async () => {
     vi.mocked(get).mockResolvedValue(null)
-    
+
     const result = await getCachedListings()
     expect(result).toEqual([])
   })

@@ -41,15 +41,15 @@ import { handleScheduled } from '~/features/extension/scheduled'
 import { default as startHandler } from '@tanstack/react-start/server-entry'
 
 export default {
-    // Handle HTTP requests with TanStack Start
-    async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-        return startHandler.fetch(request, env, ctx)
-    },
+  // Handle HTTP requests with TanStack Start
+  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    return startHandler.fetch(request, env, ctx)
+  },
 
-    // Handle scheduled events
-    async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-        ctx.waitUntil(handleScheduled(event, env))
-    },
+  // Handle scheduled events
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(handleScheduled(event, env))
+  },
 }
 ```
 
@@ -57,8 +57,8 @@ Then update `wrangler.jsonc`:
 
 ```jsonc
 {
-    "main": "./app/worker-entry.ts",
-    // ... rest of config
+  "main": "./app/worker-entry.ts",
+  // ... rest of config
 }
 ```
 
@@ -72,28 +72,28 @@ import { createServerFn } from '@tanstack/react-start'
 import { handleScheduled } from './scheduled'
 
 export const runScheduledTasksFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            task: z.enum(['expire', 'warnings', 'outbreaks']),
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('~/lib/auth')
-        await requireAuth() // Ensure only authenticated users can trigger
+  .inputValidator(
+    z.object({
+      task: z.enum(['expire', 'warnings', 'outbreaks']),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/lib/auth')
+    await requireAuth() // Ensure only authenticated users can trigger
 
-        const mockEvent = {
-            cron:
-                data.task === 'expire'
-                    ? '0 */6 * * *'
-                    : data.task === 'warnings'
-                      ? '0 0 * * *'
-                      : '0 9 * * *',
-            scheduledTime: Date.now(),
-        }
+    const mockEvent = {
+      cron:
+        data.task === 'expire'
+          ? '0 */6 * * *'
+          : data.task === 'warnings'
+            ? '0 0 * * *'
+            : '0 9 * * *',
+      scheduledTime: Date.now(),
+    }
 
-        await handleScheduled(mockEvent, process.env as any)
-        return { success: true }
-    })
+    await handleScheduled(mockEvent, process.env as any)
+    return { success: true }
+  })
 ```
 
 ## Scheduled Functions

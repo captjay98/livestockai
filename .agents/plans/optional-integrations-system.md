@@ -16,15 +16,15 @@ Build a zero-config livestock management system that works perfectly offline, wi
 ```typescript
 // config.ts
 export const INTEGRATIONS = {
-    email: !!process.env.RESEND_API_KEY,
-    sms: !!process.env.SMS_API_KEY,
-    whatsapp: !!process.env.WHATSAPP_TOKEN,
-    weather: !!process.env.WEATHER_API_KEY,
-    storage: !!process.env.R2_BUCKET_NAME,
+  email: !!process.env.RESEND_API_KEY,
+  sms: !!process.env.SMS_API_KEY,
+  whatsapp: !!process.env.WHATSAPP_TOKEN,
+  weather: !!process.env.WEATHER_API_KEY,
+  storage: !!process.env.R2_BUCKET_NAME,
 }
 
 export const getAvailableIntegrations = () =>
-    Object.entries(INTEGRATIONS).filter(([_, enabled]) => enabled)
+  Object.entries(INTEGRATIONS).filter(([_, enabled]) => enabled)
 ```
 
 ### 1.2 Enhanced Export System (45 min)
@@ -70,13 +70,13 @@ export const getAvailableIntegrations = () =>
 ```typescript
 // Graceful degradation
 const sendAlert = async (alert) => {
-    // Always create in-app notification
-    await createNotification(alert)
+  // Always create in-app notification
+  await createNotification(alert)
 
-    // Optionally send email if configured
-    if (INTEGRATIONS.email) {
-        await sendEmail(alert)
-    }
+  // Optionally send email if configured
+  if (INTEGRATIONS.email) {
+    await sendEmail(alert)
+  }
 }
 ```
 

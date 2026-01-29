@@ -29,9 +29,9 @@ app/features/i18n/
 
 ```typescript
 export const en = {
-    common: { dashboard: 'Dashboard', save: 'Save' },
-    batches: { title: 'Livestock Batches', create: 'Add Batch' },
-    errors: { notFound: 'Not found', accessDenied: 'Access denied' },
+  common: { dashboard: 'Dashboard', save: 'Save' },
+  batches: { title: 'Livestock Batches', create: 'Add Batch' },
+  errors: { notFound: 'Not found', accessDenied: 'Access denied' },
 }
 ```
 

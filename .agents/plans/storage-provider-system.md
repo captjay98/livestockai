@@ -103,17 +103,17 @@ Create a storage provider system following the established SMS/Email pattern:
 ### Relevant Documentation - YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [Cloudflare R2 API](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/)
-    - Specific section: Workers API Reference
-    - Why: Required for R2 provider implementation (put, get, delete operations)
+  - Specific section: Workers API Reference
+  - Why: Required for R2 provider implementation (put, get, delete operations)
 - [AWS SDK v3 S3 Client](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/s3/)
-    - Specific section: PutObjectCommand, GetObjectCommand, DeleteObjectCommand
-    - Why: Required for S3 provider implementation
+  - Specific section: PutObjectCommand, GetObjectCommand, DeleteObjectCommand
+  - Why: Required for S3 provider implementation
 - [AWS S3 Presigned URLs](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-s3-request-presigner/)
-    - Specific section: getSignedUrl function
-    - Why: Required for temporary access URLs in S3 provider
+  - Specific section: getSignedUrl function
+  - Why: Required for temporary access URLs in S3 provider
 - [Node.js fs/promises](https://nodejs.org/api/fs.html#promises-api)
-    - Specific section: writeFile, readFile, unlink, mkdir
-    - Why: Required for local filesystem provider
+  - Specific section: writeFile, readFile, unlink, mkdir
+  - Why: Required for local filesystem provider
 
 ### Patterns to Follow
 
@@ -121,14 +121,14 @@ Create a storage provider system following the established SMS/Email pattern:
 
 ```typescript
 export interface ProviderResult {
-    success: boolean
-    messageId?: string
-    error?: string
+  success: boolean
+  messageId?: string
+  error?: string
 }
 
 export interface SMSProvider {
-    readonly name: string
-    send: (to: string, message: string) => Promise<ProviderResult>
+  readonly name: string
+  send: (to: string, message: string) => Promise<ProviderResult>
 }
 ```
 
@@ -138,32 +138,32 @@ export interface SMSProvider {
 type ProviderFactory = () => Promise<SMSProvider>
 
 const providers = new Map<string, ProviderFactory>([
-    [
-        'console',
-        async () => new (await import('./providers/console')).ConsoleProvider(),
-    ],
-    [
-        'termii',
-        async () => new (await import('./providers/termii')).TermiiProvider(),
-    ],
+  [
+    'console',
+    async () => new (await import('./providers/console')).ConsoleProvider(),
+  ],
+  [
+    'termii',
+    async () => new (await import('./providers/termii')).TermiiProvider(),
+  ],
 ])
 
 async function getProvider(): Promise<SMSProvider | null> {
-    const name = process.env.SMS_PROVIDER
-    if (!name) return null
-    const factory = providers.get(name)
-    if (!factory) return null
-    return factory()
+  const name = process.env.SMS_PROVIDER
+  if (!name) return null
+  const factory = providers.get(name)
+  if (!factory) return null
+  return factory()
 }
 
 export async function sendSMS(
-    options: SendSMSOptions,
+  options: SendSMSOptions,
 ): Promise<IntegrationResult> {
-    const provider = await getProvider()
-    if (!provider) {
-        return { success: false, error: 'SMS provider not configured' }
-    }
-    return provider.send(options.to, options.message)
+  const provider = await getProvider()
+  if (!provider) {
+    return { success: false, error: 'SMS provider not configured' }
+  }
+  return provider.send(options.to, options.message)
 }
 ```
 
@@ -182,17 +182,17 @@ import { env } from 'cloudflare:workers'
 
 ```typescript
 try {
-    // API call
-    const response = await fetch(url, options)
-    if (!response.ok) {
-        return { success: false, error: `HTTP ${response.status}` }
-    }
-    return { success: true, messageId: data.id }
+  // API call
+  const response = await fetch(url, options)
+  if (!response.ok) {
+    return { success: false, error: `HTTP ${response.status}` }
+  }
+  return { success: true, messageId: data.id }
 } catch (error) {
-    return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-    }
+  return {
+    success: false,
+    error: error instanceof Error ? error.message : 'Unknown error',
+  }
 }
 ```
 
@@ -272,25 +272,25 @@ IMPORTANT: Execute every task in order, top to bottom. Each task is atomic and i
  * Implement this interface to add a new storage provider
  */
 export interface StorageProvider {
-    readonly name: string
-    upload: (
-        key: string,
-        content: ArrayBuffer | Uint8Array,
-        contentType: string,
-    ) => Promise<StorageResult>
-    download: (key: string) => Promise<StorageDownloadResult>
-    delete: (key: string) => Promise<ProviderResult>
-    getSignedUrl?: (key: string, expiresIn: number) => Promise<string>
+  readonly name: string
+  upload: (
+    key: string,
+    content: ArrayBuffer | Uint8Array,
+    contentType: string,
+  ) => Promise<StorageResult>
+  download: (key: string) => Promise<StorageDownloadResult>
+  delete: (key: string) => Promise<ProviderResult>
+  getSignedUrl?: (key: string, expiresIn: number) => Promise<string>
 }
 
 export interface StorageResult extends ProviderResult {
-    url?: string
-    key?: string
+  url?: string
+  key?: string
 }
 
 export interface StorageDownloadResult extends ProviderResult {
-    content?: ArrayBuffer
-    contentType?: string
+  content?: ArrayBuffer
+  contentType?: string
 }
 ```
 
@@ -305,106 +305,101 @@ export interface StorageDownloadResult extends ProviderResult {
 
 ```typescript
 import type {
-    StorageProvider,
-    StorageResult,
-    StorageDownloadResult,
-    ProviderResult,
+  StorageProvider,
+  StorageResult,
+  StorageDownloadResult,
+  ProviderResult,
 } from '../../contracts'
 
 export class R2Provider implements StorageProvider {
-    readonly name = 'r2'
+  readonly name = 'r2'
 
-    async upload(
-        key: string,
-        content: ArrayBuffer | Uint8Array,
-        contentType: string,
-    ): Promise<StorageResult> {
-        try {
-            const { env } = await import('cloudflare:workers')
-            const bucket = env.CREDIT_REPORTS_BUCKET
+  async upload(
+    key: string,
+    content: ArrayBuffer | Uint8Array,
+    contentType: string,
+  ): Promise<StorageResult> {
+    try {
+      const { env } = await import('cloudflare:workers')
+      const bucket = env.CREDIT_REPORTS_BUCKET
 
-            if (!bucket) {
-                return { success: false, error: 'R2 bucket not configured' }
-            }
+      if (!bucket) {
+        return { success: false, error: 'R2 bucket not configured' }
+      }
 
-            await bucket.put(key, content, {
-                httpMetadata: { contentType },
-            })
+      await bucket.put(key, content, {
+        httpMetadata: { contentType },
+      })
 
-            const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`
+      const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`
 
-            return {
-                success: true,
-                url: publicUrl,
-                key,
-            }
-        } catch (error) {
-            return {
-                success: false,
-                error:
-                    error instanceof Error ? error.message : 'R2 upload failed',
-            }
-        }
+      return {
+        success: true,
+        url: publicUrl,
+        key,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'R2 upload failed',
+      }
     }
+  }
 
-    async download(key: string): Promise<StorageDownloadResult> {
-        try {
-            const { env } = await import('cloudflare:workers')
-            const bucket = env.CREDIT_REPORTS_BUCKET
+  async download(key: string): Promise<StorageDownloadResult> {
+    try {
+      const { env } = await import('cloudflare:workers')
+      const bucket = env.CREDIT_REPORTS_BUCKET
 
-            if (!bucket) {
-                return { success: false, error: 'R2 bucket not configured' }
-            }
+      if (!bucket) {
+        return { success: false, error: 'R2 bucket not configured' }
+      }
 
-            const object = await bucket.get(key)
-            if (!object) {
-                return { success: false, error: 'File not found' }
-            }
+      const object = await bucket.get(key)
+      if (!object) {
+        return { success: false, error: 'File not found' }
+      }
 
-            const content = await object.arrayBuffer()
+      const content = await object.arrayBuffer()
 
-            return {
-                success: true,
-                content,
-                contentType: object.httpMetadata?.contentType,
-            }
-        } catch (error) {
-            return {
-                success: false,
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'R2 download failed',
-            }
-        }
+      return {
+        success: true,
+        content,
+        contentType: object.httpMetadata?.contentType,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'R2 download failed',
+      }
     }
+  }
 
-    async delete(key: string): Promise<ProviderResult> {
-        try {
-            const { env } = await import('cloudflare:workers')
-            const bucket = env.CREDIT_REPORTS_BUCKET
+  async delete(key: string): Promise<ProviderResult> {
+    try {
+      const { env } = await import('cloudflare:workers')
+      const bucket = env.CREDIT_REPORTS_BUCKET
 
-            if (!bucket) {
-                return { success: false, error: 'R2 bucket not configured' }
-            }
+      if (!bucket) {
+        return { success: false, error: 'R2 bucket not configured' }
+      }
 
-            await bucket.delete(key)
+      await bucket.delete(key)
 
-            return { success: true }
-        } catch (error) {
-            return {
-                success: false,
-                error:
-                    error instanceof Error ? error.message : 'R2 delete failed',
-            }
-        }
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'R2 delete failed',
+      }
     }
+  }
 
-    async getSignedUrl(key: string, _expiresIn: number): Promise<string> {
-        // R2 presigned URLs require additional setup
-        // For now, return public URL (implement presigned URLs in future iteration)
-        return `${process.env.R2_PUBLIC_URL}/${key}`
-    }
+  async getSignedUrl(key: string, _expiresIn: number): Promise<string> {
+    // R2 presigned URLs require additional setup
+    // For now, return public URL (implement presigned URLs in future iteration)
+    return `${process.env.R2_PUBLIC_URL}/${key}`
+  }
 }
 ```
 
@@ -419,137 +414,127 @@ export class R2Provider implements StorageProvider {
 
 ```typescript
 import type {
-    StorageProvider,
-    StorageResult,
-    StorageDownloadResult,
-    ProviderResult,
+  StorageProvider,
+  StorageResult,
+  StorageDownloadResult,
+  ProviderResult,
 } from '../../contracts'
 
 export class S3Provider implements StorageProvider {
-    readonly name = 's3'
+  readonly name = 's3'
 
-    async upload(
-        key: string,
-        content: ArrayBuffer | Uint8Array,
-        contentType: string,
-    ): Promise<StorageResult> {
-        const bucket = process.env.S3_BUCKET
-        const region = process.env.AWS_REGION
+  async upload(
+    key: string,
+    content: ArrayBuffer | Uint8Array,
+    contentType: string,
+  ): Promise<StorageResult> {
+    const bucket = process.env.S3_BUCKET
+    const region = process.env.AWS_REGION
 
-        if (!bucket || !region) {
-            return {
-                success: false,
-                error: 'S3 bucket or region not configured',
-            }
-        }
-
-        try {
-            const { S3Client, PutObjectCommand } =
-                await import('@aws-sdk/client-s3')
-
-            const client = new S3Client({ region })
-            await client.send(
-                new PutObjectCommand({
-                    Bucket: bucket,
-                    Key: key,
-                    Body: content,
-                    ContentType: contentType,
-                }),
-            )
-
-            const url = `https://${bucket}.s3.${region}.amazonaws.com/${key}`
-
-            return { success: true, url, key }
-        } catch (error) {
-            return {
-                success: false,
-                error:
-                    error instanceof Error ? error.message : 'S3 upload failed',
-            }
-        }
+    if (!bucket || !region) {
+      return {
+        success: false,
+        error: 'S3 bucket or region not configured',
+      }
     }
 
-    async download(key: string): Promise<StorageDownloadResult> {
-        const bucket = process.env.S3_BUCKET
-        const region = process.env.AWS_REGION
+    try {
+      const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3')
 
-        if (!bucket || !region) {
-            return {
-                success: false,
-                error: 'S3 bucket or region not configured',
-            }
-        }
+      const client = new S3Client({ region })
+      await client.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: key,
+          Body: content,
+          ContentType: contentType,
+        }),
+      )
 
-        try {
-            const { S3Client, GetObjectCommand } =
-                await import('@aws-sdk/client-s3')
+      const url = `https://${bucket}.s3.${region}.amazonaws.com/${key}`
 
-            const client = new S3Client({ region })
-            const response = await client.send(
-                new GetObjectCommand({ Bucket: bucket, Key: key }),
-            )
+      return { success: true, url, key }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'S3 upload failed',
+      }
+    }
+  }
 
-            const content = await response.Body?.transformToByteArray()
+  async download(key: string): Promise<StorageDownloadResult> {
+    const bucket = process.env.S3_BUCKET
+    const region = process.env.AWS_REGION
 
-            return {
-                success: true,
-                content: content?.buffer,
-                contentType: response.ContentType,
-            }
-        } catch (error) {
-            return {
-                success: false,
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'S3 download failed',
-            }
-        }
+    if (!bucket || !region) {
+      return {
+        success: false,
+        error: 'S3 bucket or region not configured',
+      }
     }
 
-    async delete(key: string): Promise<ProviderResult> {
-        const bucket = process.env.S3_BUCKET
-        const region = process.env.AWS_REGION
+    try {
+      const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3')
 
-        if (!bucket || !region) {
-            return {
-                success: false,
-                error: 'S3 bucket or region not configured',
-            }
-        }
+      const client = new S3Client({ region })
+      const response = await client.send(
+        new GetObjectCommand({ Bucket: bucket, Key: key }),
+      )
 
-        try {
-            const { S3Client, DeleteObjectCommand } =
-                await import('@aws-sdk/client-s3')
+      const content = await response.Body?.transformToByteArray()
 
-            const client = new S3Client({ region })
-            await client.send(
-                new DeleteObjectCommand({ Bucket: bucket, Key: key }),
-            )
+      return {
+        success: true,
+        content: content?.buffer,
+        contentType: response.ContentType,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'S3 download failed',
+      }
+    }
+  }
 
-            return { success: true }
-        } catch (error) {
-            return {
-                success: false,
-                error:
-                    error instanceof Error ? error.message : 'S3 delete failed',
-            }
-        }
+  async delete(key: string): Promise<ProviderResult> {
+    const bucket = process.env.S3_BUCKET
+    const region = process.env.AWS_REGION
+
+    if (!bucket || !region) {
+      return {
+        success: false,
+        error: 'S3 bucket or region not configured',
+      }
     }
 
-    async getSignedUrl(key: string, expiresIn: number): Promise<string> {
-        const bucket = process.env.S3_BUCKET
-        const region = process.env.AWS_REGION
+    try {
+      const { S3Client, DeleteObjectCommand } =
+        await import('@aws-sdk/client-s3')
 
-        const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner')
-        const { S3Client, GetObjectCommand } =
-            await import('@aws-sdk/client-s3')
+      const client = new S3Client({ region })
+      await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }))
 
-        const client = new S3Client({ region })
-        const command = new GetObjectCommand({ Bucket: bucket, Key: key })
-
-        return getSignedUrl(client, command, { expiresIn })
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'S3 delete failed',
+      }
     }
+  }
+
+  async getSignedUrl(key: string, expiresIn: number): Promise<string> {
+    const bucket = process.env.S3_BUCKET
+    const region = process.env.AWS_REGION
+
+    const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner')
+    const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3')
+
+    const client = new S3Client({ region })
+    const command = new GetObjectCommand({ Bucket: bucket, Key: key })
+
+    return getSignedUrl(client, command, { expiresIn })
+  }
 }
 ```
 
@@ -564,93 +549,84 @@ export class S3Provider implements StorageProvider {
 
 ```typescript
 import type {
-    StorageProvider,
-    StorageResult,
-    StorageDownloadResult,
-    ProviderResult,
+  StorageProvider,
+  StorageResult,
+  StorageDownloadResult,
+  ProviderResult,
 } from '../../contracts'
 
 export class LocalProvider implements StorageProvider {
-    readonly name = 'local'
+  readonly name = 'local'
 
-    async upload(
-        key: string,
-        content: ArrayBuffer | Uint8Array,
-        contentType: string,
-    ): Promise<StorageResult> {
-        try {
-            const fs = await import('node:fs/promises')
-            const path = await import('node:path')
+  async upload(
+    key: string,
+    content: ArrayBuffer | Uint8Array,
+    contentType: string,
+  ): Promise<StorageResult> {
+    try {
+      const fs = await import('node:fs/promises')
+      const path = await import('node:path')
 
-            const storageDir = process.env.LOCAL_STORAGE_PATH || './storage'
-            const filePath = path.join(storageDir, key)
+      const storageDir = process.env.LOCAL_STORAGE_PATH || './storage'
+      const filePath = path.join(storageDir, key)
 
-            await fs.mkdir(path.dirname(filePath), { recursive: true })
-            await fs.writeFile(filePath, Buffer.from(content))
+      await fs.mkdir(path.dirname(filePath), { recursive: true })
+      await fs.writeFile(filePath, Buffer.from(content))
 
-            return {
-                success: true,
-                url: `/storage/${key}`,
-                key,
-            }
-        } catch (error) {
-            return {
-                success: false,
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'Local upload failed',
-            }
-        }
+      return {
+        success: true,
+        url: `/storage/${key}`,
+        key,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Local upload failed',
+      }
     }
+  }
 
-    async download(key: string): Promise<StorageDownloadResult> {
-        try {
-            const fs = await import('node:fs/promises')
-            const path = await import('node:path')
+  async download(key: string): Promise<StorageDownloadResult> {
+    try {
+      const fs = await import('node:fs/promises')
+      const path = await import('node:path')
 
-            const storageDir = process.env.LOCAL_STORAGE_PATH || './storage'
-            const filePath = path.join(storageDir, key)
+      const storageDir = process.env.LOCAL_STORAGE_PATH || './storage'
+      const filePath = path.join(storageDir, key)
 
-            const content = await fs.readFile(filePath)
+      const content = await fs.readFile(filePath)
 
-            return {
-                success: true,
-                content: content.buffer,
-                contentType: 'application/octet-stream',
-            }
-        } catch (error) {
-            return {
-                success: false,
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'Local download failed',
-            }
-        }
+      return {
+        success: true,
+        content: content.buffer,
+        contentType: 'application/octet-stream',
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Local download failed',
+      }
     }
+  }
 
-    async delete(key: string): Promise<ProviderResult> {
-        try {
-            const fs = await import('node:fs/promises')
-            const path = await import('node:path')
+  async delete(key: string): Promise<ProviderResult> {
+    try {
+      const fs = await import('node:fs/promises')
+      const path = await import('node:path')
 
-            const storageDir = process.env.LOCAL_STORAGE_PATH || './storage'
-            const filePath = path.join(storageDir, key)
+      const storageDir = process.env.LOCAL_STORAGE_PATH || './storage'
+      const filePath = path.join(storageDir, key)
 
-            await fs.unlink(filePath)
+      await fs.unlink(filePath)
 
-            return { success: true }
-        } catch (error) {
-            return {
-                success: false,
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'Local delete failed',
-            }
-        }
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Local delete failed',
+      }
     }
+  }
 }
 ```
 
@@ -664,77 +640,77 @@ export class LocalProvider implements StorageProvider {
 
 ```typescript
 import type {
-    StorageProvider,
-    StorageResult,
-    StorageDownloadResult,
-    ProviderResult,
+  StorageProvider,
+  StorageResult,
+  StorageDownloadResult,
+  ProviderResult,
 } from '../contracts'
 
 type ProviderFactory = () => Promise<StorageProvider>
 
 const providers = new Map<string, ProviderFactory>([
-    ['r2', async () => new (await import('./providers/r2')).R2Provider()],
-    ['s3', async () => new (await import('./providers/s3')).S3Provider()],
-    [
-        'local',
-        async () => new (await import('./providers/local')).LocalProvider(),
-    ],
+  ['r2', async () => new (await import('./providers/r2')).R2Provider()],
+  ['s3', async () => new (await import('./providers/s3')).S3Provider()],
+  [
+    'local',
+    async () => new (await import('./providers/local')).LocalProvider(),
+  ],
 ])
 
 async function getProvider(): Promise<StorageProvider | null> {
-    const name = process.env.STORAGE_PROVIDER
-    if (!name) return null
-    const factory = providers.get(name)
-    if (!factory) return null
-    return factory()
+  const name = process.env.STORAGE_PROVIDER
+  if (!name) return null
+  const factory = providers.get(name)
+  if (!factory) return null
+  return factory()
 }
 
 export async function uploadFile(
-    key: string,
-    content: ArrayBuffer | Uint8Array,
-    contentType: string,
+  key: string,
+  content: ArrayBuffer | Uint8Array,
+  contentType: string,
 ): Promise<StorageResult> {
-    const provider = await getProvider()
-    if (!provider) {
-        return { success: false, error: 'Storage provider not configured' }
-    }
-    return provider.upload(key, content, contentType)
+  const provider = await getProvider()
+  if (!provider) {
+    return { success: false, error: 'Storage provider not configured' }
+  }
+  return provider.upload(key, content, contentType)
 }
 
 export async function downloadFile(
-    key: string,
+  key: string,
 ): Promise<StorageDownloadResult> {
-    const provider = await getProvider()
-    if (!provider) {
-        return { success: false, error: 'Storage provider not configured' }
-    }
-    return provider.download(key)
+  const provider = await getProvider()
+  if (!provider) {
+    return { success: false, error: 'Storage provider not configured' }
+  }
+  return provider.download(key)
 }
 
 export async function deleteFile(key: string): Promise<ProviderResult> {
-    const provider = await getProvider()
-    if (!provider) {
-        return { success: false, error: 'Storage provider not configured' }
-    }
-    return provider.delete(key)
+  const provider = await getProvider()
+  if (!provider) {
+    return { success: false, error: 'Storage provider not configured' }
+  }
+  return provider.delete(key)
 }
 
 export async function getSignedUrl(
-    key: string,
-    expiresIn = 3600,
+  key: string,
+  expiresIn = 3600,
 ): Promise<string | null> {
-    const provider = await getProvider()
-    if (!provider?.getSignedUrl) return null
-    return provider.getSignedUrl(key, expiresIn)
+  const provider = await getProvider()
+  if (!provider?.getSignedUrl) return null
+  return provider.getSignedUrl(key, expiresIn)
 }
 
 export function getStorageProviderName(): string | null {
-    return process.env.STORAGE_PROVIDER || null
+  return process.env.STORAGE_PROVIDER || null
 }
 
 export function isStorageConfigured(): boolean {
-    const name = process.env.STORAGE_PROVIDER
-    return !!name && providers.has(name)
+  const name = process.env.STORAGE_PROVIDER
+  return !!name && providers.has(name)
 }
 ```
 
@@ -748,12 +724,12 @@ export function isStorageConfigured(): boolean {
 ```typescript
 // Add to existing exports
 export {
-    uploadFile,
-    downloadFile,
-    deleteFile,
-    getSignedUrl,
-    getStorageProviderName,
-    isStorageConfigured,
+  uploadFile,
+  downloadFile,
+  deleteFile,
+  getSignedUrl,
+  getStorageProviderName,
+  isStorageConfigured,
 } from './storage'
 ```
 
@@ -767,23 +743,23 @@ export {
 ```typescript
 // Add after isEmailConfigured()
 export function isStorageConfigured(): boolean {
-    const provider = process.env.STORAGE_PROVIDER
+  const provider = process.env.STORAGE_PROVIDER
 
-    switch (provider) {
-        case 'local':
-            return true // No credentials needed
-        case 'r2':
-            return !!process.env.R2_PUBLIC_URL
-        case 's3':
-            return !!(
-                process.env.S3_BUCKET &&
-                process.env.AWS_REGION &&
-                process.env.AWS_ACCESS_KEY_ID &&
-                process.env.AWS_SECRET_ACCESS_KEY
-            )
-        default:
-            return false
-    }
+  switch (provider) {
+    case 'local':
+      return true // No credentials needed
+    case 'r2':
+      return !!process.env.R2_PUBLIC_URL
+    case 's3':
+      return !!(
+        process.env.S3_BUCKET &&
+        process.env.AWS_REGION &&
+        process.env.AWS_ACCESS_KEY_ID &&
+        process.env.AWS_SECRET_ACCESS_KEY
+      )
+    default:
+      return false
+  }
 }
 ```
 
@@ -796,14 +772,14 @@ export function isStorageConfigured(): boolean {
 
 ```jsonc
 {
-    // ... existing config
-    "r2_buckets": [
-        {
-            "binding": "CREDIT_REPORTS_BUCKET",
-            "bucket_name": "openlivestock-credit-reports",
-            "preview_bucket_name": "openlivestock-credit-reports-preview",
-        },
-    ],
+  // ... existing config
+  "r2_buckets": [
+    {
+      "binding": "CREDIT_REPORTS_BUCKET",
+      "bucket_name": "openlivestock-credit-reports",
+      "preview_bucket_name": "openlivestock-credit-reports-preview",
+    },
+  ],
 }
 ```
 
@@ -838,10 +814,10 @@ LOCAL_STORAGE_PATH=./storage
 
 ```json
 {
-    "dependencies": {
-        "@aws-sdk/client-s3": "^3.700.0",
-        "@aws-sdk/s3-request-presigner": "^3.700.0"
-    }
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.700.0",
+    "@aws-sdk/s3-request-presigner": "^3.700.0"
+  }
 }
 ```
 
@@ -856,90 +832,90 @@ LOCAL_STORAGE_PATH=./storage
 ```typescript
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
-    uploadFile,
-    downloadFile,
-    deleteFile,
-    getStorageProviderName,
-    isStorageConfigured,
+  uploadFile,
+  downloadFile,
+  deleteFile,
+  getStorageProviderName,
+  isStorageConfigured,
 } from '~/features/integrations/storage'
 
 describe('Storage Facade', () => {
-    const originalEnv = process.env
+  const originalEnv = process.env
 
-    beforeEach(() => {
-        vi.resetModules()
-        process.env = { ...originalEnv }
+  beforeEach(() => {
+    vi.resetModules()
+    process.env = { ...originalEnv }
+  })
+
+  afterEach(() => {
+    process.env = originalEnv
+  })
+
+  describe('getStorageProviderName', () => {
+    it('should return null when STORAGE_PROVIDER not set', () => {
+      delete process.env.STORAGE_PROVIDER
+      expect(getStorageProviderName()).toBeNull()
     })
 
-    afterEach(() => {
-        process.env = originalEnv
+    it('should return provider name when set', () => {
+      process.env.STORAGE_PROVIDER = 'local'
+      expect(getStorageProviderName()).toBe('local')
+    })
+  })
+
+  describe('isStorageConfigured', () => {
+    it('should return false when no provider set', () => {
+      delete process.env.STORAGE_PROVIDER
+      expect(isStorageConfigured()).toBe(false)
     })
 
-    describe('getStorageProviderName', () => {
-        it('should return null when STORAGE_PROVIDER not set', () => {
-            delete process.env.STORAGE_PROVIDER
-            expect(getStorageProviderName()).toBeNull()
-        })
-
-        it('should return provider name when set', () => {
-            process.env.STORAGE_PROVIDER = 'local'
-            expect(getStorageProviderName()).toBe('local')
-        })
+    it('should return true for local provider', () => {
+      process.env.STORAGE_PROVIDER = 'local'
+      expect(isStorageConfigured()).toBe(true)
     })
 
-    describe('isStorageConfigured', () => {
-        it('should return false when no provider set', () => {
-            delete process.env.STORAGE_PROVIDER
-            expect(isStorageConfigured()).toBe(false)
-        })
-
-        it('should return true for local provider', () => {
-            process.env.STORAGE_PROVIDER = 'local'
-            expect(isStorageConfigured()).toBe(true)
-        })
-
-        it('should return false for unknown provider', () => {
-            process.env.STORAGE_PROVIDER = 'unknown'
-            expect(isStorageConfigured()).toBe(false)
-        })
+    it('should return false for unknown provider', () => {
+      process.env.STORAGE_PROVIDER = 'unknown'
+      expect(isStorageConfigured()).toBe(false)
     })
+  })
 
-    describe('uploadFile', () => {
-        it('should return error when provider not configured', async () => {
-            delete process.env.STORAGE_PROVIDER
+  describe('uploadFile', () => {
+    it('should return error when provider not configured', async () => {
+      delete process.env.STORAGE_PROVIDER
 
-            const result = await uploadFile(
-                'test.pdf',
-                new Uint8Array([1, 2, 3]),
-                'application/pdf',
-            )
+      const result = await uploadFile(
+        'test.pdf',
+        new Uint8Array([1, 2, 3]),
+        'application/pdf',
+      )
 
-            expect(result.success).toBe(false)
-            expect(result.error).toContain('not configured')
-        })
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('not configured')
     })
+  })
 
-    describe('downloadFile', () => {
-        it('should return error when provider not configured', async () => {
-            delete process.env.STORAGE_PROVIDER
+  describe('downloadFile', () => {
+    it('should return error when provider not configured', async () => {
+      delete process.env.STORAGE_PROVIDER
 
-            const result = await downloadFile('test.pdf')
+      const result = await downloadFile('test.pdf')
 
-            expect(result.success).toBe(false)
-            expect(result.error).toContain('not configured')
-        })
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('not configured')
     })
+  })
 
-    describe('deleteFile', () => {
-        it('should return error when provider not configured', async () => {
-            delete process.env.STORAGE_PROVIDER
+  describe('deleteFile', () => {
+    it('should return error when provider not configured', async () => {
+      delete process.env.STORAGE_PROVIDER
 
-            const result = await deleteFile('test.pdf')
+      const result = await deleteFile('test.pdf')
 
-            expect(result.success).toBe(false)
-            expect(result.error).toContain('not configured')
-        })
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('not configured')
     })
+  })
 })
 ```
 
@@ -956,90 +932,90 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { LocalProvider } from '~/features/integrations/storage/providers/local'
 
 describe('LocalProvider', () => {
-    const originalEnv = process.env
+  const originalEnv = process.env
 
-    beforeEach(() => {
-        process.env = {
-            ...originalEnv,
-            LOCAL_STORAGE_PATH: './test-storage',
-        }
-    })
+  beforeEach(() => {
+    process.env = {
+      ...originalEnv,
+      LOCAL_STORAGE_PATH: './test-storage',
+    }
+  })
 
-    afterEach(() => {
-        process.env = originalEnv
-    })
+  afterEach(() => {
+    process.env = originalEnv
+  })
 
-    it('should have correct name', () => {
-        const provider = new LocalProvider()
-        expect(provider.name).toBe('local')
-    })
+  it('should have correct name', () => {
+    const provider = new LocalProvider()
+    expect(provider.name).toBe('local')
+  })
 
-    it('should upload file successfully', async () => {
-        const provider = new LocalProvider()
-        const content = new Uint8Array([1, 2, 3, 4])
+  it('should upload file successfully', async () => {
+    const provider = new LocalProvider()
+    const content = new Uint8Array([1, 2, 3, 4])
 
-        const result = await provider.upload(
-            'test/file.pdf',
-            content,
-            'application/pdf',
-        )
+    const result = await provider.upload(
+      'test/file.pdf',
+      content,
+      'application/pdf',
+    )
 
-        expect(result.success).toBe(true)
-        expect(result.key).toBe('test/file.pdf')
-        expect(result.url).toContain('/storage/test/file.pdf')
-    })
+    expect(result.success).toBe(true)
+    expect(result.key).toBe('test/file.pdf')
+    expect(result.url).toContain('/storage/test/file.pdf')
+  })
 
-    it('should download file successfully', async () => {
-        const provider = new LocalProvider()
-        const content = new Uint8Array([1, 2, 3, 4])
+  it('should download file successfully', async () => {
+    const provider = new LocalProvider()
+    const content = new Uint8Array([1, 2, 3, 4])
 
-        // Upload first
-        await provider.upload('test/file.pdf', content, 'application/pdf')
+    // Upload first
+    await provider.upload('test/file.pdf', content, 'application/pdf')
 
-        // Then download
-        const result = await provider.download('test/file.pdf')
+    // Then download
+    const result = await provider.download('test/file.pdf')
 
-        expect(result.success).toBe(true)
-        expect(result.content).toBeDefined()
-    })
+    expect(result.success).toBe(true)
+    expect(result.content).toBeDefined()
+  })
 
-    it('should delete file successfully', async () => {
-        const provider = new LocalProvider()
-        const content = new Uint8Array([1, 2, 3, 4])
+  it('should delete file successfully', async () => {
+    const provider = new LocalProvider()
+    const content = new Uint8Array([1, 2, 3, 4])
 
-        // Upload first
-        await provider.upload('test/file.pdf', content, 'application/pdf')
+    // Upload first
+    await provider.upload('test/file.pdf', content, 'application/pdf')
 
-        // Then delete
-        const result = await provider.delete('test/file.pdf')
+    // Then delete
+    const result = await provider.delete('test/file.pdf')
 
-        expect(result.success).toBe(true)
-    })
+    expect(result.success).toBe(true)
+  })
 
-    it('should return error for non-existent file', async () => {
-        const provider = new LocalProvider()
+  it('should return error for non-existent file', async () => {
+    const provider = new LocalProvider()
 
-        const result = await provider.download('nonexistent.pdf')
+    const result = await provider.download('nonexistent.pdf')
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBeDefined()
-    })
+    expect(result.success).toBe(false)
+    expect(result.error).toBeDefined()
+  })
 })
 
 // Note: R2Provider and S3Provider tests would mock the external APIs
 // Example structure (not full implementation):
 describe('R2Provider', () => {
-    it('should return error when bucket not configured', async () => {
-        // Mock cloudflare:workers to return undefined bucket
-        // Test that provider returns appropriate error
-    })
+  it('should return error when bucket not configured', async () => {
+    // Mock cloudflare:workers to return undefined bucket
+    // Test that provider returns appropriate error
+  })
 })
 
 describe('S3Provider', () => {
-    it('should return error when credentials missing', async () => {
-        delete process.env.S3_BUCKET
-        // Test that provider returns appropriate error
-    })
+  it('should return error when credentials missing', async () => {
+    delete process.env.S3_BUCKET
+    // Test that provider returns appropriate error
+  })
 })
 ```
 
@@ -1190,21 +1166,21 @@ bun run check && bun run test --run && bun run build
 ## ACCEPTANCE CRITERIA
 
 - [ ] Feature implements all specified functionality:
-    - [ ] StorageProvider interface defined in contracts
-    - [ ] R2Provider implemented with Cloudflare Workers API
-    - [ ] S3Provider implemented with AWS SDK v3
-    - [ ] LocalProvider implemented with Node.js fs/promises
-    - [ ] Storage facade with provider registry
-    - [ ] uploadFile(), downloadFile(), deleteFile(), getSignedUrl() functions
+  - [ ] StorageProvider interface defined in contracts
+  - [ ] R2Provider implemented with Cloudflare Workers API
+  - [ ] S3Provider implemented with AWS SDK v3
+  - [ ] LocalProvider implemented with Node.js fs/promises
+  - [ ] Storage facade with provider registry
+  - [ ] uploadFile(), downloadFile(), deleteFile(), getSignedUrl() functions
 - [ ] All validation commands pass: `bun run check && bun run test --run && bun run build`
 - [ ] Test coverage meets requirements (80%+ overall)
 - [ ] Integration tests verify local provider operations
 - [ ] Code follows OpenLivestock patterns:
-    - [ ] Dynamic imports in all providers (no static imports)
-    - [ ] ProviderResult return type for all operations
-    - [ ] Graceful error handling (no thrown exceptions)
-    - [ ] Provider registry pattern matches SMS/Email
-    - [ ] Configuration detection in config.ts
+  - [ ] Dynamic imports in all providers (no static imports)
+  - [ ] ProviderResult return type for all operations
+  - [ ] Graceful error handling (no thrown exceptions)
+  - [ ] Provider registry pattern matches SMS/Email
+  - [ ] Configuration detection in config.ts
 - [ ] No regressions in existing functionality (all tests pass)
 - [ ] Wrangler configuration updated with R2 binding
 - [ ] Environment variables documented in .env.example
@@ -1223,9 +1199,9 @@ bun run check && bun run test --run && bun run build
 - [ ] Full test suite passes (unit + integration)
 - [ ] No linting or type checking errors
 - [ ] Manual testing confirms feature works:
-    - [ ] Local provider uploads/downloads files
-    - [ ] R2 provider works in Cloudflare Workers (if deployed)
-    - [ ] S3 provider works with AWS credentials (if configured)
+  - [ ] Local provider uploads/downloads files
+  - [ ] R2 provider works in Cloudflare Workers (if deployed)
+  - [ ] S3 provider works with AWS credentials (if configured)
 - [ ] Acceptance criteria all met
 - [ ] Code reviewed for quality and maintainability
 - [ ] Documentation updated (INTEGRATIONS.md)
@@ -1315,30 +1291,30 @@ The Credit Passport feature will use storage like this:
 import { uploadFile, downloadFile } from '~/features/integrations/storage'
 
 export const generateReportFn = createServerFn({ method: 'POST' }).handler(
-    async ({ data }) => {
-        // Generate PDF
-        const pdfBuffer = await generateReportPDF(metrics)
+  async ({ data }) => {
+    // Generate PDF
+    const pdfBuffer = await generateReportPDF(metrics)
 
-        // Upload to storage (R2/S3/local based on env)
-        const result = await uploadFile(
-            `reports/${reportId}.pdf`,
-            pdfBuffer,
-            'application/pdf',
-        )
+    // Upload to storage (R2/S3/local based on env)
+    const result = await uploadFile(
+      `reports/${reportId}.pdf`,
+      pdfBuffer,
+      'application/pdf',
+    )
 
-        if (!result.success) {
-            throw new AppError('STORAGE_ERROR', {
-                metadata: { error: result.error },
-            })
-        }
+    if (!result.success) {
+      throw new AppError('STORAGE_ERROR', {
+        metadata: { error: result.error },
+      })
+    }
 
-        // Store URL in database
-        await db.insertInto('credit_reports').values({
-            id: reportId,
-            pdfUrl: result.url,
-            // ...
-        })
-    },
+    // Store URL in database
+    await db.insertInto('credit_reports').values({
+      id: reportId,
+      pdfUrl: result.url,
+      // ...
+    })
+  },
 )
 ```
 
@@ -1426,26 +1402,26 @@ AWS_SECRET_ACCESS_KEY=your_secret
 
 ```typescript
 import {
-    uploadFile,
-    downloadFile,
-    deleteFile,
+  uploadFile,
+  downloadFile,
+  deleteFile,
 } from '~/features/integrations/storage'
 
 // Upload a file
 const result = await uploadFile(
-    'reports/report-123.pdf',
-    pdfBuffer,
-    'application/pdf',
+  'reports/report-123.pdf',
+  pdfBuffer,
+  'application/pdf',
 )
 
 if (result.success) {
-    console.log('Uploaded to:', result.url)
+  console.log('Uploaded to:', result.url)
 }
 
 // Download a file
 const download = await downloadFile('reports/report-123.pdf')
 if (download.success) {
-    const pdfContent = download.content
+  const pdfContent = download.content
 }
 
 // Delete a file

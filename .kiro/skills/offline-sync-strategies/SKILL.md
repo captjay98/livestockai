@@ -39,11 +39,11 @@ The Sync Queue must process operations serially per entity.
 
 ```typescript
 interface SyncOperation {
-    id: string
-    entityId: string // Partition key for ordering
-    type: 'CREATE' | 'UPDATE' | 'DELETE'
-    payload: any
-    occurredAt: number
+  id: string
+  entityId: string // Partition key for ordering
+  type: 'CREATE' | 'UPDATE' | 'DELETE'
+  payload: any
+  occurredAt: number
 }
 ```
 

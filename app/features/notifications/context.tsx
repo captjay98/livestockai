@@ -8,30 +8,30 @@
 import { createContext, useContext } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-    deleteNotificationFn,
-    getNotificationsFn,
-    markAllAsReadFn,
-    markAsReadFn,
+  deleteNotificationFn,
+  getNotificationsFn,
+  markAllAsReadFn,
+  markAsReadFn,
 } from './server'
 import type { ReactNode } from 'react'
 import type { Notification } from './types'
 
 interface NotificationsContextValue {
-    notifications: Array<Notification>
-    unreadCount: number
-    isLoading: boolean
-    markAsRead: (notificationId: string) => Promise<void>
-    markAllAsRead: () => Promise<void>
-    deleteNotification: (notificationId: string) => Promise<void>
-    refetch: () => void
+  notifications: Array<Notification>
+  unreadCount: number
+  isLoading: boolean
+  markAsRead: (notificationId: string) => Promise<void>
+  markAllAsRead: () => Promise<void>
+  deleteNotification: (notificationId: string) => Promise<void>
+  refetch: () => void
 }
 
 const NotificationsContext = createContext<NotificationsContextValue | null>(
-    null,
+  null,
 )
 
 interface NotificationsProviderProps {
-    children: ReactNode
+  children: ReactNode
 }
 
 /**
@@ -41,81 +41,81 @@ interface NotificationsProviderProps {
  * Auto-refreshes every 30 seconds.
  */
 export function NotificationsProvider({
-    children,
+  children,
 }: NotificationsProviderProps) {
-    const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
 
-    // Fetch notifications with auto-refresh
-    const {
-        data: notifications = [],
-        isLoading,
-        refetch,
-    } = useQuery({
-        queryKey: ['notifications'],
-        queryFn: () => getNotificationsFn({ data: { limit: 50 } }),
-        refetchInterval: 30000, // 30 seconds
-        staleTime: 25000, // Consider stale after 25 seconds
-    })
+  // Fetch notifications with auto-refresh
+  const {
+    data: notifications = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => getNotificationsFn({ data: { limit: 50 } }),
+    refetchInterval: 30000, // 30 seconds
+    staleTime: 25000, // Consider stale after 25 seconds
+  })
 
-    // Calculate unread count
-    const unreadCount = notifications.filter((n) => !n.read).length
+  // Calculate unread count
+  const unreadCount = notifications.filter((n) => !n.read).length
 
-    // Mark as read mutation
-    const markAsReadMutation = useMutation({
-        mutationFn: (notificationId: string) =>
-            markAsReadFn({ data: { notificationId } }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] })
-        },
-    })
+  // Mark as read mutation
+  const markAsReadMutation = useMutation({
+    mutationFn: (notificationId: string) =>
+      markAsReadFn({ data: { notificationId } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+  })
 
-    // Mark all as read mutation
-    const markAllAsReadMutation = useMutation({
-        mutationFn: () => markAllAsReadFn({ data: {} }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] })
-        },
-    })
+  // Mark all as read mutation
+  const markAllAsReadMutation = useMutation({
+    mutationFn: () => markAllAsReadFn({ data: {} }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+  })
 
-    // Delete notification mutation
-    const deleteNotificationMutation = useMutation({
-        mutationFn: (notificationId: string) =>
-            deleteNotificationFn({ data: { notificationId } }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] })
-        },
-    })
+  // Delete notification mutation
+  const deleteNotificationMutation = useMutation({
+    mutationFn: (notificationId: string) =>
+      deleteNotificationFn({ data: { notificationId } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+  })
 
-    const value: NotificationsContextValue = {
-        notifications,
-        unreadCount,
-        isLoading,
-        markAsRead: (notificationId: string) =>
-            markAsReadMutation.mutateAsync(notificationId),
-        markAllAsRead: () => markAllAsReadMutation.mutateAsync(),
-        deleteNotification: (notificationId: string) =>
-            deleteNotificationMutation.mutateAsync(notificationId),
-        refetch: () => {
-            refetch()
-        },
-    }
+  const value: NotificationsContextValue = {
+    notifications,
+    unreadCount,
+    isLoading,
+    markAsRead: (notificationId: string) =>
+      markAsReadMutation.mutateAsync(notificationId),
+    markAllAsRead: () => markAllAsReadMutation.mutateAsync(),
+    deleteNotification: (notificationId: string) =>
+      deleteNotificationMutation.mutateAsync(notificationId),
+    refetch: () => {
+      refetch()
+    },
+  }
 
-    return (
-        <NotificationsContext.Provider value={value}>
-            {children}
-        </NotificationsContext.Provider>
-    )
+  return (
+    <NotificationsContext.Provider value={value}>
+      {children}
+    </NotificationsContext.Provider>
+  )
 }
 
 /**
  * Hook to access notifications context
  */
 export function useNotifications() {
-    const context = useContext(NotificationsContext)
-    if (!context) {
-        throw new Error(
-            'useNotifications must be used within NotificationsProvider',
-        )
-    }
-    return context
+  const context = useContext(NotificationsContext)
+  if (!context) {
+    throw new Error(
+      'useNotifications must be used within NotificationsProvider',
+    )
+  }
+  return context
 }

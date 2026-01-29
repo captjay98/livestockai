@@ -34,20 +34,20 @@ app/lib/db/seeds/market-data/
 
 ```typescript
 export interface MarketDataPackage {
-    id: string
-    name: string
-    country: string
-    currency: string
-    description: string
-    author: string
-    lastUpdated: Date
-    data: {
-        marketPrices: MarketPrice[]
-        vaccinationSchedules?: VaccinationSchedule[]
-        commonDiseases?: Disease[]
-        localBreeds?: Breed[]
-        feedBrands?: FeedBrand[]
-    }
+  id: string
+  name: string
+  country: string
+  currency: string
+  description: string
+  author: string
+  lastUpdated: Date
+  data: {
+    marketPrices: MarketPrice[]
+    vaccinationSchedules?: VaccinationSchedule[]
+    commonDiseases?: Disease[]
+    localBreeds?: Breed[]
+    feedBrands?: FeedBrand[]
+  }
 }
 ```
 
@@ -74,8 +74,8 @@ Step 5: Regional Data (Optional)
 
 ```typescript
 interface UserSettings {
-    // ... existing settings
-    marketDataPackages: string[] // ['nigeria', 'kenya']
+  // ... existing settings
+  marketDataPackages: string[] // ['nigeria', 'kenya']
 }
 ```
 
@@ -85,9 +85,9 @@ interface UserSettings {
 2. Create `app/lib/db/seeds/market-data/{country}.ts`
 3. Follow template structure
 4. Submit PR with:
-    - Data sources cited
-    - Last updated date
-    - Author information
+   - Data sources cited
+   - Last updated date
+   - Author information
 5. Review and merge
 
 ### Implementation Estimate

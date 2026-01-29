@@ -7,9 +7,9 @@
  */
 
 export {
-    checkFarmAccess,
-    getUserFarms,
-    assignUserToFarm,
-    removeUserFromFarm,
-    verifyFarmAccess,
+  checkFarmAccess,
+  getUserFarms,
+  assignUserToFarm,
+  removeUserFromFarm,
+  verifyFarmAccess,
 } from './utils'

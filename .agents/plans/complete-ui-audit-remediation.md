@@ -113,126 +113,126 @@ Run full validation suite.
 ```typescript
 // Replace getNavigationSections (lines 40-77) with:
 export const getNavigationSections = (t: any) => [
-    {
-        title: t('common:operations', { defaultValue: 'Operations' }),
-        items: [
-            {
-                name: t('common:dashboard', { defaultValue: 'Dashboard' }),
-                href: '/dashboard',
-                icon: Home,
-            },
-            {
-                name: t('common:batches', { defaultValue: 'Batches' }),
-                href: '/batches',
-                icon: Package,
-            },
-            {
-                name: t('common:tasks', { defaultValue: 'Tasks' }),
-                href: '/tasks',
-                icon: CheckSquare,
-            },
-        ],
-    },
-    {
-        title: t('common:dailyOps', { defaultValue: 'Daily Ops' }),
-        items: [
-            {
-                name: t('common:feed', { defaultValue: 'Feed' }),
-                href: '/feed',
-                icon: Wheat,
-            },
-            {
-                name: t('common:mortality', { defaultValue: 'Mortality' }),
-                href: '/mortality',
-                icon: TrendingDown,
-            },
-            {
-                name: t('common:weight', { defaultValue: 'Weight' }),
-                href: '/weight',
-                icon: Scale,
-            },
-            {
-                name: t('common:health', { defaultValue: 'Health' }),
-                href: '/vaccinations',
-                icon: Syringe,
-            },
-            {
-                name: t('common:water', { defaultValue: 'Water' }),
-                href: '/water-quality',
-                icon: Droplets,
-            },
-            {
-                name: t('common:eggs', { defaultValue: 'Eggs' }),
-                href: '/eggs',
-                icon: Egg,
-            },
-        ],
-    },
-    {
-        title: t('common:inventory', { defaultValue: 'Inventory' }),
-        items: [
-            {
-                name: t('common:inventory', { defaultValue: 'Inventory' }),
-                href: '/inventory',
-                icon: Warehouse,
-            },
-        ],
-    },
-    {
-        title: t('common:finance', { defaultValue: 'Finance' }),
-        items: [
-            {
-                name: t('common:sales', { defaultValue: 'Sales' }),
-                href: '/sales',
-                icon: ShoppingCart,
-            },
-            {
-                name: t('common:expenses', { defaultValue: 'Expenses' }),
-                href: '/expenses',
-                icon: Receipt,
-            },
-            {
-                name: t('common:invoices', { defaultValue: 'Invoices' }),
-                href: '/invoices',
-                icon: FileText,
-            },
-            {
-                name: t('common:reports', { defaultValue: 'Reports' }),
-                href: '/reports',
-                icon: BarChart3,
-            },
-        ],
-    },
-    {
-        title: t('common:network', { defaultValue: 'Network' }),
-        items: [
-            {
-                name: t('common:customers', { defaultValue: 'Customers' }),
-                href: '/customers',
-                icon: UserCircle,
-            },
-            {
-                name: t('common:suppliers', { defaultValue: 'Suppliers' }),
-                href: '/suppliers',
-                icon: Truck,
-            },
-        ],
-    },
-    {
-        title: t('common:setup', { defaultValue: 'Setup' }),
-        items: [
-            {
-                name: t('common:farms', { defaultValue: 'Farms' }),
-                href: '/farms',
-                icon: Building2,
-            },
-            {
-                name: t('common:settings', { defaultValue: 'Settings' }),
-                href: '/settings',
-                icon: Settings,
-            },
-        ],
-    },
+  {
+    title: t('common:operations', { defaultValue: 'Operations' }),
+    items: [
+      {
+        name: t('common:dashboard', { defaultValue: 'Dashboard' }),
+        href: '/dashboard',
+        icon: Home,
+      },
+      {
+        name: t('common:batches', { defaultValue: 'Batches' }),
+        href: '/batches',
+        icon: Package,
+      },
+      {
+        name: t('common:tasks', { defaultValue: 'Tasks' }),
+        href: '/tasks',
+        icon: CheckSquare,
+      },
+    ],
+  },
+  {
+    title: t('common:dailyOps', { defaultValue: 'Daily Ops' }),
+    items: [
+      {
+        name: t('common:feed', { defaultValue: 'Feed' }),
+        href: '/feed',
+        icon: Wheat,
+      },
+      {
+        name: t('common:mortality', { defaultValue: 'Mortality' }),
+        href: '/mortality',
+        icon: TrendingDown,
+      },
+      {
+        name: t('common:weight', { defaultValue: 'Weight' }),
+        href: '/weight',
+        icon: Scale,
+      },
+      {
+        name: t('common:health', { defaultValue: 'Health' }),
+        href: '/vaccinations',
+        icon: Syringe,
+      },
+      {
+        name: t('common:water', { defaultValue: 'Water' }),
+        href: '/water-quality',
+        icon: Droplets,
+      },
+      {
+        name: t('common:eggs', { defaultValue: 'Eggs' }),
+        href: '/eggs',
+        icon: Egg,
+      },
+    ],
+  },
+  {
+    title: t('common:inventory', { defaultValue: 'Inventory' }),
+    items: [
+      {
+        name: t('common:inventory', { defaultValue: 'Inventory' }),
+        href: '/inventory',
+        icon: Warehouse,
+      },
+    ],
+  },
+  {
+    title: t('common:finance', { defaultValue: 'Finance' }),
+    items: [
+      {
+        name: t('common:sales', { defaultValue: 'Sales' }),
+        href: '/sales',
+        icon: ShoppingCart,
+      },
+      {
+        name: t('common:expenses', { defaultValue: 'Expenses' }),
+        href: '/expenses',
+        icon: Receipt,
+      },
+      {
+        name: t('common:invoices', { defaultValue: 'Invoices' }),
+        href: '/invoices',
+        icon: FileText,
+      },
+      {
+        name: t('common:reports', { defaultValue: 'Reports' }),
+        href: '/reports',
+        icon: BarChart3,
+      },
+    ],
+  },
+  {
+    title: t('common:network', { defaultValue: 'Network' }),
+    items: [
+      {
+        name: t('common:customers', { defaultValue: 'Customers' }),
+        href: '/customers',
+        icon: UserCircle,
+      },
+      {
+        name: t('common:suppliers', { defaultValue: 'Suppliers' }),
+        href: '/suppliers',
+        icon: Truck,
+      },
+    ],
+  },
+  {
+    title: t('common:setup', { defaultValue: 'Setup' }),
+    items: [
+      {
+        name: t('common:farms', { defaultValue: 'Farms' }),
+        href: '/farms',
+        icon: Building2,
+      },
+      {
+        name: t('common:settings', { defaultValue: 'Settings' }),
+        href: '/settings',
+        icon: Settings,
+      },
+    ],
+  },
 ]
 ```
 
@@ -256,52 +256,52 @@ npx tsc --noEmit
 
 ```typescript
 export const NAVIGATION_SECTIONS = [
-    {
-        title: 'Operations',
-        items: [
-            { name: 'Dashboard', href: '/dashboard', icon: Home },
-            { name: 'Batches', href: '/batches', icon: Package },
-            { name: 'Tasks', href: '/tasks', icon: CheckSquare },
-        ],
-    },
-    {
-        title: 'Daily Ops',
-        items: [
-            { name: 'Feed', href: '/feed', icon: Wheat },
-            { name: 'Mortality', href: '/mortality', icon: TrendingDown },
-            { name: 'Weight', href: '/weight', icon: Scale },
-            { name: 'Health', href: '/vaccinations', icon: Syringe },
-            { name: 'Water', href: '/water-quality', icon: Droplets },
-            { name: 'Eggs', href: '/eggs', icon: Egg },
-        ],
-    },
-    {
-        title: 'Inventory',
-        items: [{ name: 'Inventory', href: '/inventory', icon: Warehouse }],
-    },
-    {
-        title: 'Finance',
-        items: [
-            { name: 'Sales', href: '/sales', icon: ShoppingCart },
-            { name: 'Expenses', href: '/expenses', icon: Receipt },
-            { name: 'Invoices', href: '/invoices', icon: FileText },
-            { name: 'Reports', href: '/reports', icon: BarChart3 },
-        ],
-    },
-    {
-        title: 'Network',
-        items: [
-            { name: 'Customers', href: '/customers', icon: UserCircle },
-            { name: 'Suppliers', href: '/suppliers', icon: Truck },
-        ],
-    },
-    {
-        title: 'Setup',
-        items: [
-            { name: 'Farms', href: '/farms', icon: Building2 },
-            { name: 'Settings', href: '/settings', icon: Settings },
-        ],
-    },
+  {
+    title: 'Operations',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: Home },
+      { name: 'Batches', href: '/batches', icon: Package },
+      { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+    ],
+  },
+  {
+    title: 'Daily Ops',
+    items: [
+      { name: 'Feed', href: '/feed', icon: Wheat },
+      { name: 'Mortality', href: '/mortality', icon: TrendingDown },
+      { name: 'Weight', href: '/weight', icon: Scale },
+      { name: 'Health', href: '/vaccinations', icon: Syringe },
+      { name: 'Water', href: '/water-quality', icon: Droplets },
+      { name: 'Eggs', href: '/eggs', icon: Egg },
+    ],
+  },
+  {
+    title: 'Inventory',
+    items: [{ name: 'Inventory', href: '/inventory', icon: Warehouse }],
+  },
+  {
+    title: 'Finance',
+    items: [
+      { name: 'Sales', href: '/sales', icon: ShoppingCart },
+      { name: 'Expenses', href: '/expenses', icon: Receipt },
+      { name: 'Invoices', href: '/invoices', icon: FileText },
+      { name: 'Reports', href: '/reports', icon: BarChart3 },
+    ],
+  },
+  {
+    title: 'Network',
+    items: [
+      { name: 'Customers', href: '/customers', icon: UserCircle },
+      { name: 'Suppliers', href: '/suppliers', icon: Truck },
+    ],
+  },
+  {
+    title: 'Setup',
+    items: [
+      { name: 'Farms', href: '/farms', icon: Building2 },
+      { name: 'Settings', href: '/settings', icon: Settings },
+    ],
+  },
 ]
 ```
 

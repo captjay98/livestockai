@@ -34,10 +34,10 @@ OpenLivestock supports ruminant farming including cattle, goats, and sheep.
 
 ```typescript
 const ruminantSourceSizes = [
-    { value: 'calf', label: 'Calf/Kid/Lamb' },
-    { value: 'weaner', label: 'Weaner' },
-    { value: 'yearling', label: 'Yearling' },
-    { value: 'adult', label: 'Adult' },
+  { value: 'calf', label: 'Calf/Kid/Lamb' },
+  { value: 'weaner', label: 'Weaner' },
+  { value: 'yearling', label: 'Yearling' },
+  { value: 'adult', label: 'Adult' },
 ]
 ```
 

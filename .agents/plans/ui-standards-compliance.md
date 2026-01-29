@@ -295,15 +295,15 @@ The 32 `size="icon"` buttons use `size-10` (40px). Per WCAG 2.5.5:
 These hardcoded colors are intentional and should NOT be migrated:
 
 1. **Livestock type icons** (`batch-header.tsx`):
-    - `text-orange-600` (poultry), `text-blue-600` (fish), etc.
-    - These differentiate livestock types visually
+   - `text-orange-600` (poultry), `text-blue-600` (fish), etc.
+   - These differentiate livestock types visually
 
 2. **Action icons** (`command-center.tsx`, `fab.tsx`):
-    - `text-orange-600` (feed), `text-blue-500` (water), `text-red-500` (mortality)
-    - These are semantic to the action, not state
+   - `text-orange-600` (feed), `text-blue-500` (water), `text-red-500` (mortality)
+   - These are semantic to the action, not state
 
 3. **Landing pages** (`app/features/landing/`):
-    - Marketing/brand colors, not part of app UI system
+   - Marketing/brand colors, not part of app UI system
 
 ### Confidence Score: 9/10
 

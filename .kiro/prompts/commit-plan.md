@@ -26,9 +26,9 @@ git status
 
 1. **If no changes**: "Working tree clean. Nothing to commit."
 2. **If changes exist**:
-    - "Found X modified files. Run validation first? (y/n)"
-    - "Commit strategy: (a)tomic commits or (g)rouped by feature?"
-    - "Include all changes or (s)elective files?"
+   - "Found X modified files. Run validation first? (y/n)"
+   - "Commit strategy: (a)tomic commits or (g)rouped by feature?"
+   - "Include all changes or (s)elective files?"
 
 **If validation requested:**
 

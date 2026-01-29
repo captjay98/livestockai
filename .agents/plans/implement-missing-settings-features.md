@@ -90,33 +90,33 @@ Implement the 4 missing features in order of ROI:
 **Existing Alert System:**
 
 - `app/features/monitoring/alerts.ts` (lines 1-200) - Alert generation logic, types, thresholds
-    - Why: Foundation for notification system, already checks mortality/water quality
-    - Pattern: Returns `BatchAlert[]` with type, source, message
+  - Why: Foundation for notification system, already checks mortality/water quality
+  - Pattern: Returns `BatchAlert[]` with type, source, message
 
 **Settings Infrastructure:**
 
 - `app/features/settings/hooks.ts` (lines 233-280) - Settings hooks pattern
-    - Why: Shows how to create domain-specific hooks (useAlertThresholds, useDashboardPreferences)
+  - Why: Shows how to create domain-specific hooks (useAlertThresholds, useDashboardPreferences)
 - `app/features/settings/context.tsx` (lines 1-100) - Settings context and provider
-    - Why: Pattern for accessing user settings throughout app
+  - Why: Pattern for accessing user settings throughout app
 
 **Dashboard Structure:**
 
 - `app/routes/_auth/dashboard/index.tsx` (lines 350-520) - Dashboard cards layout
-    - Why: Shows 4 top cards (revenue, expenses, profit, batches) that need conditional rendering
-    - Pattern: Card components with stats display
+  - Why: Shows 4 top cards (revenue, expenses, profit, batches) that need conditional rendering
+  - Pattern: Card components with stats display
 
 **Reports:**
 
 - `app/routes/_auth/reports/index.tsx` (lines 1-300) - Current reporting UI
-    - Why: Date range selection that needs fiscal year awareness
+  - Why: Date range selection that needs fiscal year awareness
 - `app/features/reports/server.ts` (lines 1-200) - Report data aggregation
-    - Why: Server functions that calculate financial metrics
+  - Why: Server functions that calculate financial metrics
 
 **Toast Notifications:**
 
 - `app/routes/__root.tsx` (line 89) - Sonner Toaster already mounted
-    - Why: Toast infrastructure exists, just need to trigger notifications
+  - Why: Toast infrastructure exists, just need to trigger notifications
 - Multiple files using `toast.success()` - Pattern for showing toasts
 
 ### New Files to Create
@@ -152,23 +152,23 @@ Implement the 4 missing features in order of ROI:
 **Sonner (Toast Notifications):**
 
 - [Sonner Docs](https://sonner.emilkowal.ski/)
-    - Already installed and mounted in \_\_root.tsx
-    - Why: Shows toast.success/error/info patterns
+  - Already installed and mounted in \_\_root.tsx
+  - Why: Shows toast.success/error/info patterns
 
 **react-i18next:**
 
 - [react-i18next Quick Start](https://react.i18next.com/latest/using-with-hooks)
-    - Specific section: useTranslation hook
-    - Why: Standard i18n solution for React apps
+  - Specific section: useTranslation hook
+  - Why: Standard i18n solution for React apps
 - [i18next Configuration](https://www.i18next.com/overview/configuration-options)
-    - Specific section: Language detection
-    - Why: Auto-detect user language from settings
+  - Specific section: Language detection
+  - Why: Auto-detect user language from settings
 
 **TanStack Query (for notifications):**
 
 - [Queries](https://tanstack.com/query/latest/docs/framework/react/guides/queries)
-    - Already used throughout app
-    - Why: Pattern for fetching notifications with auto-refresh
+  - Already used throughout app
+  - Why: Pattern for fetching notifications with auto-refresh
 
 ### Patterns to Follow
 
@@ -177,10 +177,10 @@ Implement the 4 missing features in order of ROI:
 ```typescript
 // From app/features/settings/hooks.ts
 export function useDashboardPreferences() {
-    const settings = useSettingsValue()
-    return {
-        cards: settings.dashboardCards,
-    }
+  const settings = useSettingsValue()
+  return {
+    cards: settings.dashboardCards,
+  }
 }
 ```
 
@@ -200,13 +200,13 @@ toast.info('Low stock alert')
 ```typescript
 // From app/features/batches/server.ts
 export const getBatchesFn = createServerFn({ method: 'GET' })
-    .inputValidator((data: { farmId?: string }) => data)
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
-        const { db } = await import('~/lib/db')
-        // ... query logic
-    })
+  .inputValidator((data: { farmId?: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
+    const { db } = await import('~/lib/db')
+    // ... query logic
+  })
 ```
 
 **Conditional Rendering Pattern:**
@@ -283,19 +283,19 @@ Start with infrastructure, add translations incrementally.
 - **IMPLEMENT**: Add `notifications` table to migration
 - **PATTERN**: Mirror `audit_logs` table structure (app/lib/db/migrations/2025-01-08-001-initial-schema.ts:500-520)
 - **SCHEMA**:
-    ```typescript
-    .createTable('notifications')
-      .addColumn('id', 'uuid', (col) => col.primaryKey().defaultTo(sql`gen_random_uuid()`))
-      .addColumn('userId', 'uuid', (col) => col.notNull().references('users.id').onDelete('cascade'))
-      .addColumn('farmId', 'uuid', (col) => col.references('farms.id').onDelete('cascade'))
-      .addColumn('type', 'varchar(50)', (col) => col.notNull()) // 'lowStock', 'highMortality', 'invoiceDue', 'batchHarvest'
-      .addColumn('title', 'text', (col) => col.notNull())
-      .addColumn('message', 'text', (col) => col.notNull())
-      .addColumn('read', 'boolean', (col) => col.notNull().defaultTo(false))
-      .addColumn('actionUrl', 'text')
-      .addColumn('metadata', 'jsonb')
-      .addColumn('createdAt', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
-    ```
+  ```typescript
+  .createTable('notifications')
+    .addColumn('id', 'uuid', (col) => col.primaryKey().defaultTo(sql`gen_random_uuid()`))
+    .addColumn('userId', 'uuid', (col) => col.notNull().references('users.id').onDelete('cascade'))
+    .addColumn('farmId', 'uuid', (col) => col.references('farms.id').onDelete('cascade'))
+    .addColumn('type', 'varchar(50)', (col) => col.notNull()) // 'lowStock', 'highMortality', 'invoiceDue', 'batchHarvest'
+    .addColumn('title', 'text', (col) => col.notNull())
+    .addColumn('message', 'text', (col) => col.notNull())
+    .addColumn('read', 'boolean', (col) => col.notNull().defaultTo(false))
+    .addColumn('actionUrl', 'text')
+    .addColumn('metadata', 'jsonb')
+    .addColumn('createdAt', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
+  ```
 - **VALIDATE**: `bun run db:migrate && bun -e "import { db } from './app/lib/db'; console.log(await db.selectFrom('notifications').selectAll().execute())"`
 
 #### Task 1.2: CREATE notification types and interfaces
@@ -303,26 +303,26 @@ Start with infrastructure, add translations incrementally.
 - **FILE**: `app/features/notifications/types.ts`
 - **IMPLEMENT**:
 
-    ```typescript
-    export type NotificationType =
-        | 'lowStock'
-        | 'highMortality'
-        | 'invoiceDue'
-        | 'batchHarvest'
+  ```typescript
+  export type NotificationType =
+    | 'lowStock'
+    | 'highMortality'
+    | 'invoiceDue'
+    | 'batchHarvest'
 
-    export interface Notification {
-        id: string
-        userId: string
-        farmId: string | null
-        type: NotificationType
-        title: string
-        message: string
-        read: boolean
-        actionUrl: string | null
-        metadata: Record<string, any> | null
-        createdAt: Date
-    }
-    ```
+  export interface Notification {
+    id: string
+    userId: string
+    farmId: string | null
+    type: NotificationType
+    title: string
+    message: string
+    read: boolean
+    actionUrl: string | null
+    metadata: Record<string, any> | null
+    createdAt: Date
+  }
+  ```
 
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -331,11 +331,11 @@ Start with infrastructure, add translations incrementally.
 - **FILE**: `app/features/notifications/server.ts`
 - **PATTERN**: Mirror `app/features/batches/server.ts` server function structure
 - **IMPLEMENT**:
-    - `createNotification(userId, data)` - Insert notification
-    - `getNotifications(userId, { unreadOnly?, limit? })` - Fetch user notifications
-    - `markAsRead(notificationId)` - Mark notification read
-    - `markAllAsRead(userId)` - Mark all read
-    - `deleteNotification(notificationId)` - Delete notification
+  - `createNotification(userId, data)` - Insert notification
+  - `getNotifications(userId, { unreadOnly?, limit? })` - Fetch user notifications
+  - `markAsRead(notificationId)` - Mark notification read
+  - `markAllAsRead(userId)` - Mark all read
+  - `deleteNotification(notificationId)` - Delete notification
 - **IMPORTS**: `createServerFn`, `requireAuth`, dynamic `db` import
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -344,9 +344,9 @@ Start with infrastructure, add translations incrementally.
 - **FILE**: `app/features/notifications/context.tsx`
 - **PATTERN**: Mirror `app/features/settings/context.tsx` (lines 1-100)
 - **IMPLEMENT**:
-    - NotificationProvider with TanStack Query
-    - useNotifications hook returning { notifications, unreadCount, markAsRead, markAllAsRead, refetch }
-    - Auto-refetch every 30 seconds
+  - NotificationProvider with TanStack Query
+  - useNotifications hook returning { notifications, unreadCount, markAsRead, markAllAsRead, refetch }
+  - Auto-refetch every 30 seconds
 - **VALIDATE**: `npx tsc --noEmit`
 
 #### Task 1.5: CREATE notification bell component
@@ -354,10 +354,10 @@ Start with infrastructure, add translations incrementally.
 - **FILE**: `app/components/notifications/bell-icon.tsx`
 - **PATTERN**: Similar to theme-toggle.tsx button structure
 - **IMPLEMENT**:
-    - Bell icon with badge showing unread count
-    - Dropdown with notification list (max 10 recent)
-    - "Mark all as read" button
-    - Link to each notification's actionUrl
+  - Bell icon with badge showing unread count
+  - Dropdown with notification list (max 10 recent)
+  - "Mark all as read" button
+  - Link to each notification's actionUrl
 - **IMPORTS**: `Bell` from lucide-react, `useNotifications`
 - **VALIDATE**: Visual inspection in browser
 
@@ -374,22 +374,22 @@ Start with infrastructure, add translations incrementally.
 - **UPDATE**: `getAllBatchAlerts` function to create notifications
 - **IMPLEMENT**:
 
-    ```typescript
-    // After generating alerts
-    const { notifications: notifPrefs } = await getUserSettings(userId)
+  ```typescript
+  // After generating alerts
+  const { notifications: notifPrefs } = await getUserSettings(userId)
 
-    for (const alert of alerts) {
-        if (alert.source === 'mortality' && notifPrefs.highMortality) {
-            await createNotification(userId, {
-                type: 'highMortality',
-                title: 'High Mortality Alert',
-                message: alert.message,
-                farmId: batch.farmId,
-                actionUrl: `/batches/${alert.batchId}`,
-            })
-        }
+  for (const alert of alerts) {
+    if (alert.source === 'mortality' && notifPrefs.highMortality) {
+      await createNotification(userId, {
+        type: 'highMortality',
+        title: 'High Mortality Alert',
+        message: alert.message,
+        farmId: batch.farmId,
+        actionUrl: `/batches/${alert.batchId}`,
+      })
     }
-    ```
+  }
+  ```
 
 - **VALIDATE**: Create mortality record, check notifications table
 
@@ -421,15 +421,15 @@ Start with infrastructure, add translations incrementally.
 
 - **FILE**: `app/routes/_auth/dashboard/index.tsx` (around line 380)
 - **PATTERN**:
-    ```typescript
-    {cards.revenue && (
-      <Card>
-        <CardContent className="p-3 shadow-none">
-          {/* Revenue card content */}
-        </CardContent>
-      </Card>
-    )}
-    ```
+  ```typescript
+  {cards.revenue && (
+    <Card>
+      <CardContent className="p-3 shadow-none">
+        {/* Revenue card content */}
+      </CardContent>
+    </Card>
+  )}
+  ```
 - **VALIDATE**: Toggle revenue in settings, verify card hides
 
 #### Task 2.3: WRAP expenses card in conditional
@@ -466,18 +466,18 @@ Start with infrastructure, add translations incrementally.
 
 - **FILE**: `app/routes/_auth/dashboard/index.tsx`
 - **IMPLEMENT**:
-    ```typescript
-    {!Object.values(cards).some(Boolean) && (
-      <Card>
-        <CardContent className="p-8 text-center">
-          <p className="text-muted-foreground">
-            All dashboard cards are hidden.
-            <Link to="/settings" className="text-primary">Customize dashboard</Link>
-          </p>
-        </CardContent>
-      </Card>
-    )}
-    ```
+  ```typescript
+  {!Object.values(cards).some(Boolean) && (
+    <Card>
+      <CardContent className="p-8 text-center">
+        <p className="text-muted-foreground">
+          All dashboard cards are hidden.
+          <Link to="/settings" className="text-primary">Customize dashboard</Link>
+        </p>
+      </CardContent>
+    </Card>
+  )}
+  ```
 - **VALIDATE**: Hide all cards, verify empty state shows
 
 ---
@@ -489,37 +489,37 @@ Start with infrastructure, add translations incrementally.
 - **FILE**: `app/features/reports/fiscal-year.ts`
 - **IMPLEMENT**:
 
-    ```typescript
-    export function getFiscalYearStart(
-        fiscalStartMonth: number,
-        date: Date = new Date(),
-    ): Date {
-        const year = date.getFullYear()
-        const month = date.getMonth() + 1
+  ```typescript
+  export function getFiscalYearStart(
+    fiscalStartMonth: number,
+    date: Date = new Date(),
+  ): Date {
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
 
-        if (month < fiscalStartMonth) {
-            return new Date(year - 1, fiscalStartMonth - 1, 1)
-        }
-        return new Date(year, fiscalStartMonth - 1, 1)
+    if (month < fiscalStartMonth) {
+      return new Date(year - 1, fiscalStartMonth - 1, 1)
     }
+    return new Date(year, fiscalStartMonth - 1, 1)
+  }
 
-    export function getFiscalYearEnd(
-        fiscalStartMonth: number,
-        date: Date = new Date(),
-    ): Date {
-        const start = getFiscalYearStart(fiscalStartMonth, date)
-        return new Date(start.getFullYear() + 1, start.getMonth(), 0)
-    }
+  export function getFiscalYearEnd(
+    fiscalStartMonth: number,
+    date: Date = new Date(),
+  ): Date {
+    const start = getFiscalYearStart(fiscalStartMonth, date)
+    return new Date(start.getFullYear() + 1, start.getMonth(), 0)
+  }
 
-    export function getFiscalYearLabel(
-        fiscalStartMonth: number,
-        date: Date = new Date(),
-    ): string {
-        const start = getFiscalYearStart(fiscalStartMonth, date)
-        const end = getFiscalYearEnd(fiscalStartMonth, date)
-        return `FY ${start.getFullYear()}-${end.getFullYear()}`
-    }
-    ```
+  export function getFiscalYearLabel(
+    fiscalStartMonth: number,
+    date: Date = new Date(),
+  ): string {
+    const start = getFiscalYearStart(fiscalStartMonth, date)
+    const end = getFiscalYearEnd(fiscalStartMonth, date)
+    return `FY ${start.getFullYear()}-${end.getFullYear()}`
+  }
+  ```
 
 - **VALIDATE**: `bun test fiscal-year`
 
@@ -529,12 +529,12 @@ Start with infrastructure, add translations incrementally.
 - **UPDATE**: Date range calculations to use fiscal year functions
 - **IMPLEMENT**: Accept `useFiscalYear: boolean` parameter
 - **PATTERN**:
-    ```typescript
-    const { fiscalYearStartMonth } = await getUserSettings(userId)
-    const startDate = useFiscalYear
-        ? getFiscalYearStart(fiscalYearStartMonth)
-        : new Date(year, 0, 1)
-    ```
+  ```typescript
+  const { fiscalYearStartMonth } = await getUserSettings(userId)
+  const startDate = useFiscalYear
+    ? getFiscalYearStart(fiscalYearStartMonth)
+    : new Date(year, 0, 1)
+  ```
 - **VALIDATE**: `npx tsc --noEmit`
 
 #### Task 3.3: ADD fiscal year toggle to reports UI
@@ -564,24 +564,24 @@ Start with infrastructure, add translations incrementally.
 - **FILE**: `app/features/i18n/config.ts`
 - **IMPLEMENT**:
 
-    ```typescript
-    import i18n from 'i18next'
-    import { initReactI18next } from 'react-i18next'
+  ```typescript
+  import i18n from 'i18next'
+  import { initReactI18next } from 'react-i18next'
 
-    i18n.use(initReactI18next).init({
-        resources: {
-            en: { common: require('../../../public/locales/en/common.json') },
-            ha: { common: require('../../../public/locales/ha/common.json') },
-        },
-        lng: 'en',
-        fallbackLng: 'en',
-        ns: ['common'],
-        defaultNS: 'common',
-        interpolation: { escapeValue: false },
-    })
+  i18n.use(initReactI18next).init({
+    resources: {
+      en: { common: require('../../../public/locales/en/common.json') },
+      ha: { common: require('../../../public/locales/ha/common.json') },
+    },
+    lng: 'en',
+    fallbackLng: 'en',
+    ns: ['common'],
+    defaultNS: 'common',
+    interpolation: { escapeValue: false },
+  })
 
-    export default i18n
-    ```
+  export default i18n
+  ```
 
 - **VALIDATE**: `npx tsc --noEmit`
 
@@ -589,23 +589,23 @@ Start with infrastructure, add translations incrementally.
 
 - **FILE**: `public/locales/en/common.json`
 - **IMPLEMENT**: Start with dashboard and navigation strings
-    ```json
-    {
-        "nav": {
-            "dashboard": "Dashboard",
-            "batches": "Batches",
-            "inventory": "Inventory",
-            "sales": "Sales",
-            "expenses": "Expenses"
-        },
-        "dashboard": {
-            "title": "Dashboard",
-            "revenue": "Revenue",
-            "expenses": "Expenses",
-            "profit": "Profit"
-        }
+  ```json
+  {
+    "nav": {
+      "dashboard": "Dashboard",
+      "batches": "Batches",
+      "inventory": "Inventory",
+      "sales": "Sales",
+      "expenses": "Expenses"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "revenue": "Revenue",
+      "expenses": "Expenses",
+      "profit": "Profit"
     }
-    ```
+  }
+  ```
 - **VALIDATE**: JSON syntax check
 
 #### Task 4.4: CREATE Hausa translation file (partial)
@@ -620,21 +620,21 @@ Start with infrastructure, add translations incrementally.
 - **FILE**: `app/features/i18n/provider.tsx`
 - **IMPLEMENT**:
 
-    ```typescript
-    import { I18nextProvider } from 'react-i18next'
-    import i18n from './config'
-    import { usePreferences } from '~/features/settings'
+  ```typescript
+  import { I18nextProvider } from 'react-i18next'
+  import i18n from './config'
+  import { usePreferences } from '~/features/settings'
 
-    export function I18nProvider({ children }: { children: ReactNode }) {
-      const { language } = usePreferences()
+  export function I18nProvider({ children }: { children: ReactNode }) {
+    const { language } = usePreferences()
 
-      useEffect(() => {
-        i18n.changeLanguage(language)
-      }, [language])
+    useEffect(() => {
+      i18n.changeLanguage(language)
+    }, [language])
 
-      return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
-    }
-    ```
+    return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+  }
+  ```
 
 - **VALIDATE**: `npx tsc --noEmit`
 

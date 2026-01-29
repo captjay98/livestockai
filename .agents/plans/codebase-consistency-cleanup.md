@@ -148,32 +148,32 @@ Run TypeScript and lint checks to ensure no regressions.
  * Standard pagination query parameters
  */
 export interface PaginatedQuery {
-    page?: number
-    pageSize?: number
-    sortBy?: string
-    sortOrder?: 'asc' | 'desc'
-    search?: string
-    farmId?: string
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  search?: string
+  farmId?: string
 }
 
 /**
  * Standard paginated response wrapper
  */
 export interface PaginatedResult<T> {
-    data: Array<T>
-    total: number
-    page: number
-    pageSize: number
-    totalPages: number
+  data: Array<T>
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }
 
 /**
  * Base record with timestamps
  */
 export interface BaseRecord {
-    id: string
-    createdAt: Date
-    updatedAt?: Date
+  id: string
+  createdAt: Date
+  updatedAt?: Date
 }
 ```
 
@@ -254,34 +254,34 @@ export type { CreateBatchData, UpdateBatchData }
 
 // Add type for batch details (used by routes)
 export interface BatchDetails {
-    batch: {
-        id: string
-        farmId: string
-        batchName: string | null
-        livestockType: string
-        species: string
-        // ... other fields from getBatchById
-    }
-    mortality: {
-        totalDeaths: number
-        totalQuantity: number
-        rate: number
-    }
-    feed: {
-        totalFeedings: number
-        totalKg: number
-        totalCost: number
-        fcr: number | null
-    }
-    sales: {
-        totalSales: number
-        totalQuantity: number
-        totalRevenue: number
-    }
-    expenses: {
-        total: number
-    }
-    currentWeight: number | null
+  batch: {
+    id: string
+    farmId: string
+    batchName: string | null
+    livestockType: string
+    species: string
+    // ... other fields from getBatchById
+  }
+  mortality: {
+    totalDeaths: number
+    totalQuantity: number
+    rate: number
+  }
+  feed: {
+    totalFeedings: number
+    totalKg: number
+    totalCost: number
+    fcr: number | null
+  }
+  sales: {
+    totalSales: number
+    totalQuantity: number
+    totalRevenue: number
+  }
+  expenses: {
+    total: number
+  }
+  currentWeight: number | null
 }
 ```
 
@@ -308,7 +308,7 @@ const [sales, setSales] = useState<Array<any>>([])
 const [details, setDetails] = useState<BatchDetails | null>(null)
 const [feedRecords, setFeedRecords] = useState<Array<FeedRecord>>([])
 const [mortalityRecords, setMortalityRecords] = useState<
-    Array<MortalityRecord>
+  Array<MortalityRecord>
 >([])
 const [expenses, setExpenses] = useState<Array<ExpenseRecord>>([])
 const [sales, setSales] = useState<Array<SaleRecord>>([])

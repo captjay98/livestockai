@@ -27,44 +27,44 @@ Browser → Cloudflare Worker → TanStack Start → Server Functions → Kysely
 
 1. **Server Functions**: All database operations use TanStack Start's `createServerFn()`:
 
-    ```typescript
-    // app/features/batches/server.ts
-    export const getBatches = createServerFn({ method: 'GET' })
-        .inputValidator(z.object({ farmId: z.string().uuid() }))
-        .handler(async ({ data }) => {
-            const { getDb } = await import('~/lib/db')
-            const db = await getDb()
-            return db
-                .selectFrom('batches')
-                .where('farmId', '=', data.farmId)
-                .execute()
-        })
-    ```
+   ```typescript
+   // app/features/batches/server.ts
+   export const getBatches = createServerFn({ method: 'GET' })
+     .inputValidator(z.object({ farmId: z.string().uuid() }))
+     .handler(async ({ data }) => {
+       const { getDb } = await import('~/lib/db')
+       const db = await getDb()
+       return db
+         .selectFrom('batches')
+         .where('farmId', '=', data.farmId)
+         .execute()
+     })
+   ```
 
 2. **Async Database Access**: Database access MUST use `getDb()` inside server functions for Cloudflare Workers compatibility:
 
-    ```typescript
-    // ✅ Correct - works on Cloudflare Workers
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
+   ```typescript
+   // ✅ Correct - works on Cloudflare Workers
+   const { getDb } = await import('~/lib/db')
+   const db = await getDb()
 
-    // ❌ Wrong - old pattern
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
+   // ❌ Wrong - old pattern
+   const { getDb } = await import('~/lib/db')
+   const db = await getDb()
 
-    // ❌ Wrong - will break on Cloudflare
-    import { db } from '~/lib/db'
-    ```
+   // ❌ Wrong - will break on Cloudflare
+   import { db } from '~/lib/db'
+   ```
 
 3. **Type-Safe Queries**: Use Kysely's type-safe query builder:
-    ```typescript
-    // Types are inferred from app/lib/db/types.ts
-    const batches = await db
-        .selectFrom('batches')
-        .leftJoin('farms', 'farms.id', 'batches.farmId')
-        .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
-        .execute()
-    ```
+   ```typescript
+   // Types are inferred from app/lib/db/types.ts
+   const batches = await db
+     .selectFrom('batches')
+     .leftJoin('farms', 'farms.id', 'batches.farmId')
+     .select(['batches.id', 'batches.batchName', 'farms.name as farmName'])
+     .execute()
+   ```
 
 ---
 
@@ -147,16 +147,16 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 export const myFunction = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            // Define input schema
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { getDb } = await import('~/lib/db')
-        const db = await getDb()
-        // Database operations
-    })
+  .inputValidator(
+    z.object({
+      // Define input schema
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    // Database operations
+  })
 ```
 
 ### Adding a New Route
@@ -199,10 +199,10 @@ import { db } from '~/lib/db'
 
 // Create a user with authentication
 const result = await createUserWithAuth(db, {
-    email: 'user@example.com',
-    password: 'securepassword',
-    name: 'John Doe',
-    role: 'user', // or 'admin'
+  email: 'user@example.com',
+  password: 'securepassword',
+  name: 'John Doe',
+  role: 'user', // or 'admin'
 })
 
 // Returns: { userId, email, name, role }
@@ -214,23 +214,23 @@ console.log(`Created user: ${result.email}`)
 1. Hashes the password using PBKDF2 (100,000 iterations, SHA-256)
 2. Creates an entry in the `users` table (profile data only)
 3. Creates an entry in the `account` table with:
-    - `userId`: Links to the users table
-    - `providerId`: Set to `'credential'` for email/password auth
-    - `accountId`: Set to the user's email
-    - `password`: The hashed password
+   - `userId`: Links to the users table
+   - `providerId`: Set to `'credential'` for email/password auth
+   - `accountId`: Set to the user's email
+   - `password`: The hashed password
 
 #### ❌ WRONG - Don't Do This
 
 ```typescript
 // This will NOT work for authentication!
 await db
-    .insertInto('users')
-    .values({
-        email: 'user@example.com',
-        password: 'hashedpassword', // ❌ users table has no password field!
-        name: 'John Doe',
-    })
-    .execute()
+  .insertInto('users')
+  .values({
+    email: 'user@example.com',
+    password: 'hashedpassword', // ❌ users table has no password field!
+    name: 'John Doe',
+  })
+  .execute()
 ```
 
 ---

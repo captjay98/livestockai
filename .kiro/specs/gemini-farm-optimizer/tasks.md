@@ -1,0 +1,381 @@
+# Implementation Plan: Farm Optimizer
+
+## Overview
+
+This implementation plan breaks down the Farm Optimizer autonomous optimization agent into discrete coding tasks. The plan follows a bottom-up approach: database schema first, then core services, then Gemini integration, and finally the UI layer.
+
+The implementation uses TypeScript throughout, following the existing OpenLivestock patterns with the three-layer architecture (server → service → repository).
+
+## Tasks
+
+- [ ] 1. Database Schema and Types
+  - [ ] 1.1 Create database migration for optimizer tables
+    - Create `optimization_strategies` table with status tracking
+    - Create `verification_artifacts` table with JSONB content
+    - Create `deployed_strategies` table with outcome tracking
+    - Create `optimization_cycles` table for execution logging
+    - Add appropriate indexes for farm_id, status, and timestamps
+    - _Requirements: 6.5, 9.1, 11.7_
+  - [ ] 1.2 Add TypeScript types to database types file
+    - Add `OptimizationStrategyTable`, `VerificationArtifactTable` interfaces
+    - Add `DeployedStrategyTable`, `OptimizationCycleTable` interfaces
+    - Add to Database interface
+    - _Requirements: 6.5, 9.1_
+  - [ ] 1.3 Run migration and verify schema
+    - Execute migration on development database
+    - Verify tables created correctly
+    - _Requirements: 6.5_
+
+- [ ] 2. Core Data Types and Interfaces
+  - [ ] 2.1 Create optimizer types file
+    - Define `PerformanceAnalysis`, `FarmMetrics`, `IndustryBenchmarks` interfaces
+    - Define `GeneratedStrategy`, `BacktestResult`, `VerificationResult` interfaces
+    - Define `VerificationArtifact`, `ImplementationPlan`, `DeployedStrategy` interfaces
+    - Define `RollbackTrigger`, `MonitoringCheckpoint` interfaces
+    - _Requirements: 1.6, 2.3, 3.4, 4.2, 6.2, 7.6, 8.2_
+  - [ ] 2.2 Create species benchmarks constants
+    - Define benchmarks for broilers (Cobb 500, Ross 308)
+    - Define benchmarks for layers
+    - Define benchmarks for catfish, tilapia
+    - Define benchmarks for cattle, goats, sheep
+    - _Requirements: 1.5, 12.1, 12.3_
+  - [ ]\* 2.3 Write property tests for type validation
+    - **Property 1: Analysis Data Completeness**
+    - **Property 17: Species-Specific Benchmarks**
+    - **Validates: Requirements 1.1-1.4, 12.1**
+
+- [ ] 3. Repository Layer
+  - [ ] 3.1 Create optimizer repository functions
+    - `insertStrategy`, `getStrategyById`, `updateStrategy`, `getStrategiesByFarm`
+    - `insertArtifact`, `getArtifactByStrategy`
+    - `insertDeployment`, `getDeploymentById`, `updateDeployment`, `getDeploymentsByFarm`
+    - `insertCycle`, `updateCycle`, `getCyclesByFarm`
+    - Use dynamic imports for Cloudflare Workers compatibility
+    - _Requirements: 6.5, 9.1, 11.7_
+  - [ ] 3.2 Create data access repository functions
+    - `getCompletedBatches` - fetch batches with all related records
+    - `getBatchMetrics` - calculate FCR, mortality, growth for a batch
+    - `getGrowthStandards` - fetch species-specific standards
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 13.1, 13.2_
+
+- [ ] 4. Performance Analyzer Service
+  - [ ] 4.1 Create performance analyzer service
+    - Implement `analyzeFarm()` - orchestrate full analysis
+    - Implement `calculateFarmMetrics()` - aggregate batch metrics
+    - Implement `getBenchmarks()` - load species benchmarks
+    - Implement `calculateDeviations()` - compare metrics to benchmarks
+    - Implement `calculateFinancialImpact()` - cost per deviation
+    - Implement `identifyOpportunities()` - rank improvement areas
+    - _Requirements: 1.1-1.8_
+  - [ ] 4.2 Handle insufficient data scenarios
+    - Check minimum batch count (3)
+    - Return appropriate error for insufficient data
+    - _Requirements: 1.9_
+  - [ ]\* 4.3 Write property tests for performance analysis
+    - **Property 2: Minimum Batch Requirement**
+    - **Validates: Requirements 1.9**
+
+- [ ] 5. Checkpoint - Analysis Service Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 6. Strategy Generator Service
+  - [ ] 6.1 Create strategy generator service
+    - Implement `generateStrategies()` - call Gemini for strategy generation
+    - Build system prompt with farm context and benchmarks
+    - Parse Gemini response into structured strategies
+    - _Requirements: 2.1, 2.2, 2.6_
+  - [ ] 6.2 Implement strategy ranking and filtering
+    - Calculate expected ROI for each strategy
+    - Rank strategies by ROI
+    - Filter out strategies requiring unavailable equipment
+    - _Requirements: 2.4, 2.5, 2.8_
+  - [ ]\* 6.3 Write property tests for strategy generation
+    - **Property 3: Strategy Generation Count**
+    - **Property 4: Strategy ROI Ranking**
+    - **Validates: Requirements 2.1, 2.5**
+
+- [ ] 7. Backtest Engine Service
+  - [ ] 7.1 Create backtest engine service
+    - Implement `backtest()` - run strategy against historical batches
+    - Implement `simulateBatch()` - calculate what-if metrics for one batch
+    - Implement `calculateAggregateResults()` - average, stddev, success rate
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+  - [ ] 7.2 Implement variance and side effect detection
+    - Flag high variance results
+    - Check mortality and weight impact
+    - _Requirements: 3.6, 5.2, 5.3_
+  - [ ] 7.3 Handle statistical validity
+    - Check minimum batch count (4)
+    - Flag reduced confidence for fewer batches
+    - _Requirements: 3.8, 3.9_
+  - [ ]\* 7.4 Write property tests for backtesting
+    - **Property 5: Backtest Batch Coverage**
+    - **Property 6: Backtest Statistical Validity**
+    - **Validates: Requirements 3.1, 3.8, 3.9**
+
+- [ ] 8. Verification Engine Service
+  - [ ] 8.1 Create verification engine service
+    - Implement `verify()` - run all verification checks
+    - Implement verification checks: success rate, side effects, cost-benefit, confidence
+    - Return detailed pass/fail for each check
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+  - [ ] 8.2 Implement strategy refinement
+    - Implement `refineStrategy()` - adjust parameters based on failures
+    - Track refinement attempts
+    - Limit to 3 refinement iterations
+    - _Requirements: 5.6, 5.7, 5.8_
+  - [ ]\* 8.3 Write property tests for verification
+    - **Property 8: Verification Success Rate Threshold**
+    - **Property 9: Verification Side Effect Check**
+    - **Property 10: Verification Cost-Benefit Check**
+    - **Property 11: Refinement Limit**
+    - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.7**
+
+- [ ] 9. Checkpoint - Core Services Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 10. Projection Service
+  - [ ] 10.1 Create projection service
+    - Implement `projectOutcomes()` - calculate expected results for next batch
+    - Implement `calculateConfidenceIntervals()` - 80% and 95% intervals
+    - Implement `projectAnnualSavings()` - extrapolate to yearly impact
+    - Implement `calculateBreakEven()` - days to recover implementation cost
+    - _Requirements: 4.1, 4.2, 4.3, 4.6, 4.7_
+  - [ ] 10.2 Handle seasonality
+    - Detect seasonal patterns in historical data
+    - Adjust projections for seasonality
+    - _Requirements: 4.4_
+  - [ ]\* 10.3 Write property tests for projections
+    - **Property 7: Confidence Interval Calculation**
+    - **Validates: Requirements 4.2**
+
+- [ ] 11. Artifact Generator Service
+  - [ ] 11.1 Create artifact generator service
+    - Implement `generateArtifact()` - create complete verification artifact
+    - Include strategy summary, backtest results, verification checklist
+    - Include projections and risk analysis
+    - Generate chart data for visualization
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.7_
+  - [ ] 11.2 Implement artifact storage
+    - Save artifact to database
+    - Link to strategy
+    - Support versioning
+    - _Requirements: 6.5, 6.7_
+  - [ ]\* 11.3 Write property tests for artifacts
+    - **Property 12: Artifact Completeness**
+    - **Validates: Requirements 6.2, 6.3, 6.4**
+
+- [ ] 12. Implementation Plan Generator Service
+  - [ ] 12.1 Create implementation plan generator
+    - Implement `generatePlan()` - create step-by-step instructions
+    - Generate timeline with weekly milestones
+    - Identify prerequisites (supplies, schedule changes)
+    - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.7, 7.8_
+  - [ ] 12.2 Create rollback trigger generator
+    - Define metric-specific rollback conditions
+    - Set appropriate thresholds and durations
+    - Generate rollback procedure steps
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.7_
+  - [ ] 12.3 Create monitoring checkpoint generator
+    - Define checkpoints at key milestones
+    - Set expected values and acceptable ranges
+    - _Requirements: 7.5_
+  - [ ]\* 12.4 Write property tests for implementation plans
+    - **Property 13: Implementation Plan Structure**
+    - **Property 14: Rollback Trigger Specification**
+    - **Validates: Requirements 7.2, 7.3, 7.5, 7.6, 8.2, 8.3, 8.4**
+
+- [ ] 13. Deployment Tracker Service
+  - [ ] 13.1 Create deployment tracker service
+    - Implement `deployStrategy()` - mark strategy as deployed
+    - Implement `trackProgress()` - compare actual vs projected
+    - Implement `checkRollbackConditions()` - monitor triggers
+    - _Requirements: 9.1, 9.2, 9.3, 9.4_
+  - [ ] 13.2 Implement outcome tracking
+    - Calculate variance between actual and projected
+    - Update strategy confidence based on outcomes
+    - Generate post-implementation report
+    - _Requirements: 9.5, 9.6, 9.7_
+  - [ ] 13.3 Implement learning from outcomes
+    - Store deployment outcomes
+    - Use outcomes to improve future strategy generation
+    - _Requirements: 9.7, 9.8_
+  - [ ]\* 13.4 Write property tests for deployment tracking
+    - **Property 15: Deployment Tracking**
+    - **Property 16: Outcome-Based Learning**
+    - **Validates: Requirements 9.3, 9.4, 9.5, 9.7**
+
+- [ ] 14. Checkpoint - All Services Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 15. Gemini Integration
+  - [ ] 15.1 Create Gemini client for optimizer
+    - Implement API client with authentication
+    - Handle rate limiting with exponential backoff
+    - _Requirements: 14.4_
+  - [ ] 15.2 Create optimizer system prompt
+    - Include farm context and benchmarks
+    - Define strategy generation format
+    - Include reasoning requirements
+    - _Requirements: 2.6, 2.7_
+  - [ ] 15.3 Define optimizer tools for Gemini
+    - `query_batch_data` - fetch historical batch metrics
+    - `calculate_roi` - compute return on investment
+    - `simulate_strategy` - run backtest simulation
+    - _Requirements: 3.2, 4.1_
+
+- [ ] 16. Server Functions
+  - [ ] 16.1 Create optimizer server functions
+    - `runOptimizationCycleFn` - trigger full optimization cycle
+    - `getPerformanceAnalysisFn` - get current farm analysis
+    - `getStrategiesFn` - get strategies with pagination
+    - `getStrategyDetailFn` - get single strategy with artifact
+    - _Requirements: 10.2, 10.3, 11.3_
+  - [ ] 16.2 Create deployment server functions
+    - `deployStrategyFn` - mark strategy as deployed
+    - `getDeploymentProgressFn` - get current progress
+    - `getDeploymentReportFn` - get post-implementation report
+    - _Requirements: 9.1, 9.3, 9.6, 10.4_
+  - [ ] 16.3 Create artifact server functions
+    - `getArtifactFn` - get verification artifact
+    - `exportArtifactFn` - export artifact as PDF-ready format
+    - _Requirements: 6.5, 6.6, 6.8_
+
+- [ ] 17. Scheduled Execution
+  - [ ] 17.1 Create cron trigger handler
+    - Add scheduled handler for weekly optimization
+    - Process all farms with sufficient data
+    - _Requirements: 11.1, 11.5_
+  - [ ] 17.2 Create batch completion trigger
+    - Trigger optimization when batch completes
+    - _Requirements: 11.2_
+  - [ ] 17.3 Create manual trigger endpoint
+    - Add API endpoint for manual optimization
+    - _Requirements: 11.3_
+  - [ ] 17.4 Implement notifications
+    - Notify farmer when new verified strategies available
+    - _Requirements: 11.4_
+
+- [ ] 18. Checkpoint - Backend Complete
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 19. Dashboard UI Components
+  - [ ] 19.1 Create performance summary card
+    - Display current metrics vs benchmarks
+    - Show top improvement opportunities
+    - Color-coded deviation indicators
+    - _Requirements: 10.2_
+  - [ ] 19.2 Create strategies list component
+    - Display verified strategies with expected improvements
+    - Show status badges (verified, deployed, etc.)
+    - Deploy button for each strategy
+    - _Requirements: 10.3, 10.6_
+  - [ ] 19.3 Create deployed strategies card
+    - Display active deployments with progress
+    - Show actual vs projected comparison
+    - Rollback status indicator
+    - _Requirements: 10.4_
+  - [ ] 19.4 Create optimization history component
+    - List past strategies and outcomes
+    - Filter by status and date
+    - _Requirements: 10.7_
+
+- [ ] 20. Strategy Detail Components
+  - [ ] 20.1 Create strategy detail view
+    - Display full strategy description and reasoning
+    - Show expected outcomes with confidence intervals
+    - Display implementation plan
+    - _Requirements: 2.6, 4.2, 7.1_
+  - [ ] 20.2 Create verification artifact viewer
+    - Display backtest results table
+    - Show verification checklist with pass/fail
+    - Display charts (backtest comparison, improvement distribution)
+    - _Requirements: 6.2, 6.3, 6.4, 6.6_
+  - [ ] 20.3 Create implementation plan viewer
+    - Display timeline with steps
+    - Show prerequisites checklist
+    - Display monitoring checkpoints
+    - Show rollback trigger conditions
+    - _Requirements: 7.2, 7.3, 7.5, 7.6, 8.1_
+
+- [ ] 21. Deployment Components
+  - [ ] 21.1 Create deploy strategy dialog
+    - Select target batch
+    - Confirm deployment
+    - Show projected outcomes
+    - _Requirements: 9.1, 9.2, 10.6_
+  - [ ] 21.2 Create deployment progress view
+    - Display current metrics vs projected
+    - Show checkpoint status
+    - Rollback warning if triggered
+    - _Requirements: 9.3, 9.4, 8.5, 8.6_
+  - [ ] 21.3 Create deployment report view
+    - Display final outcome comparison
+    - Show variance analysis
+    - Display learnings and recommendations
+    - _Requirements: 9.6_
+
+- [ ] 22. Dashboard Route
+  - [ ] 22.1 Create optimizer dashboard route
+    - Add route at `/_auth/optimizer/`
+    - Load performance analysis, strategies, deployments
+    - Compose dashboard components
+    - Add to navigation
+    - _Requirements: 10.1_
+  - [ ] 22.2 Create strategy detail route
+    - Add route at `/_auth/optimizer/strategy/$strategyId`
+    - Load strategy, artifact, implementation plan
+    - _Requirements: 10.5, 10.6_
+
+- [ ] 23. Integration with Existing Pages
+  - [ ] 23.1 Add optimizer status to farm dashboard
+    - Show mini performance card
+    - Link to full optimizer dashboard
+    - _Requirements: 10.1_
+  - [ ] 23.2 Add optimization suggestions to batch detail
+    - Show relevant strategies for the batch
+    - Link to optimizer for details
+    - _Requirements: 10.3_
+
+- [ ] 24. Privacy and Audit Integration
+  - [ ] 24.1 Implement access control
+    - Verify user has access to farm
+    - Respect opt-out settings
+    - _Requirements: 14.1, 14.6_
+  - [ ] 24.2 Implement audit logging
+    - Log strategy generation
+    - Log deployments and rollbacks
+    - _Requirements: 13.4, 14.3_
+  - [ ]\* 24.3 Write property tests for audit logging
+    - **Property 18: Audit Logging**
+    - **Validates: Requirements 13.4**
+
+- [ ] 25. Final Checkpoint - Feature Complete
+  - Ensure all tests pass, ask the user if questions arise.
+  - Verify scheduled optimization works
+  - Test manual optimization trigger
+  - Verify artifact generation and viewing
+  - Test deployment and tracking flow
+
+- [ ] 26. Demo Preparation
+  - [ ] 26.1 Create demo seed data
+    - Sample farm with 6+ completed batches
+    - Varied performance data showing improvement opportunities
+    - Pre-generated verified strategies
+    - _Requirements: All_
+  - [ ] 26.2 Create demo script documentation
+    - Step-by-step demo flow showing verification loop
+    - Key talking points for hackathon judges
+    - Highlight: "AI that proves, not just suggests"
+    - _Requirements: All_
+
+## Notes
+
+- Tasks marked with `*` are optional property-based tests that can be skipped for faster MVP
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases
+- The implementation follows the existing three-layer architecture (server → service → repository)
+- All database operations use dynamic imports for Cloudflare Workers compatibility
+- The Gemini API requires a valid API key configured in environment variables

@@ -16,16 +16,16 @@ import { AppError } from '~/lib/errors'
 
 // Throwing errors
 throw new AppError('BATCH_NOT_FOUND', {
-    metadata: { batchId: '123' },
+  metadata: { batchId: '123' },
 })
 
 throw new AppError('VALIDATION_ERROR', {
-    message: 'Custom message',
-    metadata: { field: 'quantity' },
+  message: 'Custom message',
+  metadata: { field: 'quantity' },
 })
 
 throw new AppError('ACCESS_DENIED', {
-    metadata: { farmId: 'abc' },
+  metadata: { farmId: 'abc' },
 })
 ```
 
@@ -44,11 +44,11 @@ Common error codes defined in `app/lib/errors/error-map.ts`:
 
 ```typescript
 class AppError extends Error {
-    reason: ReasonCode // e.g., 'BATCH_NOT_FOUND'
-    code: number // Internal code
-    httpStatus: number // HTTP status code
-    category: string // Error category
-    metadata: ErrorMetadata // Additional context
+  reason: ReasonCode // e.g., 'BATCH_NOT_FOUND'
+  code: number // Internal code
+  httpStatus: number // HTTP status code
+  category: string // Error category
+  metadata: ErrorMetadata // Additional context
 }
 ```
 
@@ -56,47 +56,47 @@ class AppError extends Error {
 
 ```typescript
 export const getBatchFn = createServerFn({ method: 'GET' })
-    .inputValidator(z.object({ batchId: z.string().uuid() }))
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
+  .inputValidator(z.object({ batchId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
 
-        const { getDb } = await import('~/lib/db')
-        const db = await getDb()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
 
-        const batch = await getBatchById(db, data.batchId)
-        if (!batch) {
-            throw new AppError('BATCH_NOT_FOUND', {
-                metadata: { batchId: data.batchId },
-            })
-        }
+    const batch = await getBatchById(db, data.batchId)
+    if (!batch) {
+      throw new AppError('BATCH_NOT_FOUND', {
+        metadata: { batchId: data.batchId },
+      })
+    }
 
-        const hasAccess = await checkFarmAccess(session.user.id, batch.farmId)
-        if (!hasAccess) {
-            throw new AppError('ACCESS_DENIED', {
-                metadata: { farmId: batch.farmId },
-            })
-        }
+    const hasAccess = await checkFarmAccess(session.user.id, batch.farmId)
+    if (!hasAccess) {
+      throw new AppError('ACCESS_DENIED', {
+        metadata: { farmId: batch.farmId },
+      })
+    }
 
-        return batch
-    })
+    return batch
+  })
 ```
 
 ## Error Handling Pattern
 
 ```typescript
 try {
-    // Operation
+  // Operation
 } catch (error) {
-    if (error instanceof AppError) {
-        // Re-throw known errors
-        throw error
-    }
-    // Wrap unknown errors
-    throw new AppError('DATABASE_ERROR', {
-        message: 'Failed to complete operation',
-        cause: error,
-    })
+  if (error instanceof AppError) {
+    // Re-throw known errors
+    throw error
+  }
+  // Wrap unknown errors
+  throw new AppError('DATABASE_ERROR', {
+    message: 'Failed to complete operation',
+    cause: error,
+  })
 }
 ```
 
@@ -104,9 +104,9 @@ try {
 
 ```typescript
 if (AppError.isAppError(error)) {
-    console.log(error.reason) // 'BATCH_NOT_FOUND'
-    console.log(error.httpStatus) // 404
-    console.log(error.metadata) // { batchId: '123' }
+  console.log(error.reason) // 'BATCH_NOT_FOUND'
+  console.log(error.httpStatus) // 404
+  console.log(error.metadata) // { batchId: '123' }
 }
 ```
 
@@ -134,16 +134,16 @@ import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 const mutation = useMutation({
-    mutationFn: createBatchFn,
-    onError: (error) => {
-        if (error.message.includes('ACCESS_DENIED')) {
-            toast.error('You do not have access to this farm')
-        } else if (error.message.includes('VALIDATION_ERROR')) {
-            toast.error('Please check your input')
-        } else {
-            toast.error('An error occurred. Please try again.')
-        }
-    },
+  mutationFn: createBatchFn,
+  onError: (error) => {
+    if (error.message.includes('ACCESS_DENIED')) {
+      toast.error('You do not have access to this farm')
+    } else if (error.message.includes('VALIDATION_ERROR')) {
+      toast.error('Please check your input')
+    } else {
+      toast.error('An error occurred. Please try again.')
+    }
+  },
 })
 ```
 

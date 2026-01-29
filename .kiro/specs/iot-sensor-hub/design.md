@@ -34,48 +34,47 @@ import { z } from 'zod'
 import { AppError } from '~/lib/errors'
 
 export const createSensorFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            farmId: z.string().uuid(),
-            structureId: z.string().uuid().optional(),
-            name: z.string().min(1).max(100),
-            sensorType: z.enum([...SENSOR_TYPES]),
-            pollingIntervalMinutes: z.number().int().min(5).max(60).default(15),
-        }),
-    )
-    .handler(async ({ data }) => {
-        try {
-            // 1. Auth middleware (dynamic import for Cloudflare Workers)
-            const { requireAuth } =
-                await import('~/features/auth/server-middleware')
-            const session = await requireAuth()
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid(),
+      structureId: z.string().uuid().optional(),
+      name: z.string().min(1).max(100),
+      sensorType: z.enum([...SENSOR_TYPES]),
+      pollingIntervalMinutes: z.number().int().min(5).max(60).default(15),
+    }),
+  )
+  .handler(async ({ data }) => {
+    try {
+      // 1. Auth middleware (dynamic import for Cloudflare Workers)
+      const { requireAuth } = await import('~/features/auth/server-middleware')
+      const session = await requireAuth()
 
-            // 2. Database access (MUST use getDb() for Cloudflare Workers)
-            const { getDb } = await import('~/lib/db')
-            const db = await getDb()
+      // 2. Database access (MUST use getDb() for Cloudflare Workers)
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
-            // 3. Service layer for business logic
-            const { generateApiKey, hashApiKey } = await import('./service')
-            const apiKey = generateApiKey()
-            const apiKeyHash = await hashApiKey(apiKey)
+      // 3. Service layer for business logic
+      const { generateApiKey, hashApiKey } = await import('./service')
+      const apiKey = generateApiKey()
+      const apiKeyHash = await hashApiKey(apiKey)
 
-            // 4. Repository layer for database operations
-            const { insertSensor } = await import('./repository')
-            const sensorId = await insertSensor(db, {
-                ...data,
-                apiKeyHash,
-            })
+      // 4. Repository layer for database operations
+      const { insertSensor } = await import('./repository')
+      const sensorId = await insertSensor(db, {
+        ...data,
+        apiKeyHash,
+      })
 
-            // Return sensor with plain API key (only time it's shown)
-            return { sensorId, apiKey }
-        } catch (error) {
-            if (error instanceof AppError) throw error
-            throw new AppError('DATABASE_ERROR', {
-                message: 'Failed to create sensor',
-                cause: error,
-            })
-        }
-    })
+      // Return sensor with plain API key (only time it's shown)
+      return { sensorId, apiKey }
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to create sensor',
+        cause: error,
+      })
+    }
+  })
 ```
 
 ### Repository Layer Pattern
@@ -86,28 +85,28 @@ import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 export async function insertSensor(
-    db: Kysely<Database>,
-    sensor: SensorInsert,
+  db: Kysely<Database>,
+  sensor: SensorInsert,
 ): Promise<string> {
-    const result = await db
-        .insertInto('sensors')
-        .values(sensor)
-        .returning('id')
-        .executeTakeFirstOrThrow()
-    return result.id
+  const result = await db
+    .insertInto('sensors')
+    .values(sensor)
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
 }
 
 export async function getSensorByApiKeyHash(
-    db: Kysely<Database>,
-    apiKeyHash: string,
+  db: Kysely<Database>,
+  apiKeyHash: string,
 ) {
-    return db
-        .selectFrom('sensors')
-        .selectAll()
-        .where('apiKeyHash', '=', apiKeyHash)
-        .where('isActive', '=', true)
-        .where('deletedAt', 'is', null)
-        .executeTakeFirst()
+  return db
+    .selectFrom('sensors')
+    .selectAll()
+    .where('apiKeyHash', '=', apiKeyHash)
+    .where('isActive', '=', true)
+    .where('deletedAt', 'is', null)
+    .executeTakeFirst()
 }
 ```
 
@@ -261,70 +260,70 @@ erDiagram
 ```typescript
 // Sensor types supported
 export type SensorType =
-    | 'temperature'
-    | 'humidity'
-    | 'ammonia'
-    | 'dissolved_oxygen'
-    | 'ph'
-    | 'water_level'
-    | 'water_temperature'
-    | 'hive_weight'
-    | 'hive_temperature'
-    | 'hive_humidity'
+  | 'temperature'
+  | 'humidity'
+  | 'ammonia'
+  | 'dissolved_oxygen'
+  | 'ph'
+  | 'water_level'
+  | 'water_temperature'
+  | 'hive_weight'
+  | 'hive_temperature'
+  | 'hive_humidity'
 
 export interface Sensor {
-    id: string
-    farmId: string
-    structureId: string | null
-    name: string
-    sensorType: SensorType
-    apiKeyHash: string
-    pollingIntervalMinutes: number
-    isActive: boolean
-    lastReadingAt: Date | null
-    thresholds: SensorThresholds | null
-    trendConfig: TrendConfig | null
-    createdAt: Date
-    deletedAt: Date | null
+  id: string
+  farmId: string
+  structureId: string | null
+  name: string
+  sensorType: SensorType
+  apiKeyHash: string
+  pollingIntervalMinutes: number
+  isActive: boolean
+  lastReadingAt: Date | null
+  thresholds: SensorThresholds | null
+  trendConfig: TrendConfig | null
+  createdAt: Date
+  deletedAt: Date | null
 }
 
 export interface SensorThresholds {
-    minValue: number | null
-    maxValue: number | null
-    warningMinValue: number | null
-    warningMaxValue: number | null
+  minValue: number | null
+  maxValue: number | null
+  warningMinValue: number | null
+  warningMaxValue: number | null
 }
 
 export interface TrendConfig {
-    rateThreshold: number // e.g., 5 (degrees per hour)
-    rateWindowMinutes: number // e.g., 60
+  rateThreshold: number // e.g., 5 (degrees per hour)
+  rateWindowMinutes: number // e.g., 60
 }
 
 // Repository functions
 async function insertSensor(
-    db: Kysely<Database>,
-    data: SensorInsert,
+  db: Kysely<Database>,
+  data: SensorInsert,
 ): Promise<string>
 async function getSensorById(
-    db: Kysely<Database>,
-    id: string,
+  db: Kysely<Database>,
+  id: string,
 ): Promise<Sensor | null>
 async function getSensorsByFarm(
-    db: Kysely<Database>,
-    farmId: string,
+  db: Kysely<Database>,
+  farmId: string,
 ): Promise<Sensor[]>
 async function getSensorsByStructure(
-    db: Kysely<Database>,
-    structureId: string,
+  db: Kysely<Database>,
+  structureId: string,
 ): Promise<Sensor[]>
 async function getSensorByApiKey(
-    db: Kysely<Database>,
-    apiKeyHash: string,
+  db: Kysely<Database>,
+  apiKeyHash: string,
 ): Promise<Sensor | null>
 async function updateSensor(
-    db: Kysely<Database>,
-    id: string,
-    data: SensorUpdate,
+  db: Kysely<Database>,
+  id: string,
+  data: SensorUpdate,
 ): Promise<void>
 async function softDeleteSensor(db: Kysely<Database>, id: string): Promise<void>
 ```
@@ -333,41 +332,41 @@ async function softDeleteSensor(db: Kysely<Database>, id: string): Promise<void>
 
 ```typescript
 export interface SensorReading {
-    id: string
-    sensorId: string
-    value: string // DECIMAL
-    recordedAt: Date
-    isAnomaly: boolean
-    metadata: Record<string, any> | null
-    createdAt: Date
+  id: string
+  sensorId: string
+  value: string // DECIMAL
+  recordedAt: Date
+  isAnomaly: boolean
+  metadata: Record<string, any> | null
+  createdAt: Date
 }
 
 // Repository functions
 async function insertReading(
-    db: Kysely<Database>,
-    data: ReadingInsert,
+  db: Kysely<Database>,
+  data: ReadingInsert,
 ): Promise<string>
 async function insertReadingsBatch(
-    db: Kysely<Database>,
-    readings: ReadingInsert[],
+  db: Kysely<Database>,
+  readings: ReadingInsert[],
 ): Promise<number>
 async function getLatestReading(
-    db: Kysely<Database>,
-    sensorId: string,
+  db: Kysely<Database>,
+  sensorId: string,
 ): Promise<SensorReading | null>
 async function getReadingsInRange(
-    db: Kysely<Database>,
-    sensorId: string,
-    startDate: Date,
-    endDate: Date,
-    limit?: number,
+  db: Kysely<Database>,
+  sensorId: string,
+  startDate: Date,
+  endDate: Date,
+  limit?: number,
 ): Promise<SensorReading[]>
 async function getReadingsForChart(
-    db: Kysely<Database>,
-    sensorId: string,
-    startDate: Date,
-    endDate: Date,
-    bucketMinutes: number, // For downsampling
+  db: Kysely<Database>,
+  sensorId: string,
+  startDate: Date,
+  endDate: Date,
+  bucketMinutes: number, // For downsampling
 ): Promise<ChartDataPoint[]>
 ```
 
@@ -375,41 +374,41 @@ async function getReadingsForChart(
 
 ```typescript
 export interface AlertCheckResult {
-    shouldAlert: boolean
-    alertType:
-        | 'threshold_high'
-        | 'threshold_low'
-        | 'trend_rising'
-        | 'trend_falling'
-    severity: 'warning' | 'critical'
-    message: string
-    triggerValue: number
-    thresholdValue: number
+  shouldAlert: boolean
+  alertType:
+    | 'threshold_high'
+    | 'threshold_low'
+    | 'trend_rising'
+    | 'trend_falling'
+  severity: 'warning' | 'critical'
+  message: string
+  triggerValue: number
+  thresholdValue: number
 }
 
 // Pure service functions (no DB access)
 function checkThresholdAlert(
-    value: number,
-    thresholds: SensorThresholds,
-    sensorType: SensorType,
+  value: number,
+  thresholds: SensorThresholds,
+  sensorType: SensorType,
 ): AlertCheckResult | null
 
 function checkTrendAlert(
-    readings: SensorReading[],
-    trendConfig: TrendConfig,
-    sensorType: SensorType,
+  readings: SensorReading[],
+  trendConfig: TrendConfig,
+  sensorType: SensorType,
 ): AlertCheckResult | null
 
 function isInCooldown(
-    lastAlertTime: Date | null,
-    cooldownMinutes: number,
+  lastAlertTime: Date | null,
+  cooldownMinutes: number,
 ): boolean
 
 function getSensorTypeDefaults(sensorType: SensorType): {
-    thresholds: SensorThresholds
-    trendConfig: TrendConfig
-    unit: string
-    displayName: string
+  thresholds: SensorThresholds
+  trendConfig: TrendConfig
+  unit: string
+  displayName: string
 }
 ```
 
@@ -455,28 +454,28 @@ export const regenerateApiKeyFn = createServerFn({ method: 'POST' })
 // Instead, it uses API key authentication
 
 export const Route = createAPIFileRoute('/api/sensors/readings')({
-    POST: async ({ request }) => {
-        const apiKey = request.headers.get('X-Sensor-Key')
-        if (!apiKey) {
-            return new Response(JSON.stringify({ error: 'Missing API key' }), {
-                status: 401,
-                headers: { 'Content-Type': 'application/json' },
-            })
-        }
+  POST: async ({ request }) => {
+    const apiKey = request.headers.get('X-Sensor-Key')
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: 'Missing API key' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
 
-        // 1. Hash the API key and look up sensor
-        // 2. Validate payload (single reading or batch)
-        // 3. Validate values against sensor type ranges
-        // 4. Insert readings
-        // 5. Check for alerts
-        // 6. Return success
+    // 1. Hash the API key and look up sensor
+    // 2. Validate payload (single reading or batch)
+    // 3. Validate values against sensor type ranges
+    // 4. Insert readings
+    // 5. Check for alerts
+    // 6. Return success
 
-        const body = await request.json()
-        // Handle single reading or array of readings
-        const readings = Array.isArray(body) ? body : [body]
+    const body = await request.json()
+    // Handle single reading or array of readings
+    const readings = Array.isArray(body) ? body : [body]
 
-        // Process and return
-    },
+    // Process and return
+  },
 })
 ```
 
@@ -487,16 +486,16 @@ export const Route = createAPIFileRoute('/api/sensors/readings')({
 // Topic format: openlivestock/{farm_id}/sensors/{sensor_id}/readings
 
 export async function handleMQTTMessage(
-    topic: string,
-    payload: Buffer,
-    username: string, // sensor_id
-    password: string, // api_key
+  topic: string,
+  payload: Buffer,
+  username: string, // sensor_id
+  password: string, // api_key
 ): Promise<void> {
-    // 1. Parse topic to extract farm_id and sensor_id
-    // 2. Verify API key matches sensor
-    // 3. Parse payload as JSON
-    // 4. Insert reading
-    // 5. Check for alerts
+  // 1. Parse topic to extract farm_id and sensor_id
+  // 2. Verify API key matches sensor
+  // 3. Parse payload as JSON
+  // 4. Insert reading
+  // 5. Check for alerts
 }
 ```
 
@@ -618,98 +617,98 @@ CREATE TABLE sensor_alert_config (
 ```typescript
 // Add to Database interface
 export interface Database {
-    // ... existing tables ...
-    sensors: SensorTable
-    sensor_readings: SensorReadingTable
-    sensor_aggregates: SensorAggregateTable
-    sensor_alerts: SensorAlertTable
-    sensor_alert_config: SensorAlertConfigTable
+  // ... existing tables ...
+  sensors: SensorTable
+  sensor_readings: SensorReadingTable
+  sensor_aggregates: SensorAggregateTable
+  sensor_alerts: SensorAlertTable
+  sensor_alert_config: SensorAlertConfigTable
 }
 
 export interface SensorTable {
-    id: Generated<string>
-    farmId: string
-    structureId: string | null
-    name: string
-    sensorType:
-        | 'temperature'
-        | 'humidity'
-        | 'ammonia'
-        | 'dissolved_oxygen'
-        | 'ph'
-        | 'water_level'
-        | 'water_temperature'
-        | 'hive_weight'
-        | 'hive_temperature'
-        | 'hive_humidity'
-    apiKeyHash: string
-    pollingIntervalMinutes: number
-    isActive: Generated<boolean>
-    lastReadingAt: Date | null
-    thresholds: {
-        minValue: number | null
-        maxValue: number | null
-        warningMinValue: number | null
-        warningMaxValue: number | null
-    } | null
-    trendConfig: {
-        rateThreshold: number
-        rateWindowMinutes: number
-    } | null
-    createdAt: Generated<Date>
-    deletedAt: Date | null
+  id: Generated<string>
+  farmId: string
+  structureId: string | null
+  name: string
+  sensorType:
+    | 'temperature'
+    | 'humidity'
+    | 'ammonia'
+    | 'dissolved_oxygen'
+    | 'ph'
+    | 'water_level'
+    | 'water_temperature'
+    | 'hive_weight'
+    | 'hive_temperature'
+    | 'hive_humidity'
+  apiKeyHash: string
+  pollingIntervalMinutes: number
+  isActive: Generated<boolean>
+  lastReadingAt: Date | null
+  thresholds: {
+    minValue: number | null
+    maxValue: number | null
+    warningMinValue: number | null
+    warningMaxValue: number | null
+  } | null
+  trendConfig: {
+    rateThreshold: number
+    rateWindowMinutes: number
+  } | null
+  createdAt: Generated<Date>
+  deletedAt: Date | null
 }
 
 export interface SensorReadingTable {
-    id: Generated<string>
-    sensorId: string
-    value: string // DECIMAL
-    recordedAt: Date
-    isAnomaly: Generated<boolean>
-    metadata: Record<string, any> | null
-    createdAt: Generated<Date>
+  id: Generated<string>
+  sensorId: string
+  value: string // DECIMAL
+  recordedAt: Date
+  isAnomaly: Generated<boolean>
+  metadata: Record<string, any> | null
+  createdAt: Generated<Date>
 }
 
 export interface SensorAggregateTable {
-    id: Generated<string>
-    sensorId: string
-    periodType: 'hourly' | 'daily'
-    periodStart: Date
-    avgValue: string // DECIMAL
-    minValue: string // DECIMAL
-    maxValue: string // DECIMAL
-    readingCount: number
+  id: Generated<string>
+  sensorId: string
+  periodType: 'hourly' | 'daily'
+  periodStart: Date
+  avgValue: string // DECIMAL
+  minValue: string // DECIMAL
+  maxValue: string // DECIMAL
+  readingCount: number
 }
 
 export interface SensorAlertTable {
-    id: Generated<string>
-    sensorId: string
-    alertType:
-        | 'threshold_high'
-        | 'threshold_low'
-        | 'trend_rising'
-        | 'trend_falling'
-    severity: 'warning' | 'critical'
-    triggerValue: string // DECIMAL
-    thresholdValue: string // DECIMAL
-    message: string
-    acknowledged: Generated<boolean>
-    acknowledgedAt: Date | null
-    acknowledgedBy: string | null
-    createdAt: Generated<Date>
+  id: Generated<string>
+  sensorId: string
+  alertType:
+    | 'threshold_high'
+    | 'threshold_low'
+    | 'trend_rising'
+    | 'trend_falling'
+  severity: 'warning' | 'critical'
+  triggerValue: string // DECIMAL
+  thresholdValue: string // DECIMAL
+  message: string
+  acknowledged: Generated<boolean>
+  acknowledgedAt: Date | null
+  acknowledgedBy: string | null
+  createdAt: Generated<Date>
 }
 
 export interface SensorAlertConfigTable {
-    id: Generated<string>
-    sensorId: string
-    alertType: string
-    minThreshold: string | null // DECIMAL
-    maxThreshold: string | null // DECIMAL
-    rateThreshold: string | null // DECIMAL
-    rateWindowMinutes: number
-    cooldownMinutes: number
-    smsEnabled: Generated<boolean>
-    emailEnabled: Generated<boolean>
+  id: Generated<string>
+  sensorId: string
+  alertType: string
+  minThreshold: string | null // DECIMAL
+  maxThreshold: string | null // DECIMAL
+  rateThreshold: string | null // DECIMAL
+  rateWindowMinutes: number
+  cooldownMinutes: number
+  smsEnabled: Generated<boolean>
+  emailEnabled: Generated<boolean>
 }
 ```
 
@@ -719,203 +718,203 @@ export interface SensorAlertConfigTable {
 // app/features/sensors/constants.ts
 
 export const SENSOR_TYPE_DEFAULTS: Record<SensorType, SensorTypeConfig> = {
-    temperature: {
-        displayName: 'Temperature',
-        unit: '°C',
-        validRange: { min: -40, max: 100 },
-        defaultThresholds: {
-            // Poultry defaults
-            minValue: 18,
-            maxValue: 32,
-            warningMinValue: 20,
-            warningMaxValue: 30,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 5, // 5°C per hour is concerning
-            rateWindowMinutes: 60,
-        },
+  temperature: {
+    displayName: 'Temperature',
+    unit: '°C',
+    validRange: { min: -40, max: 100 },
+    defaultThresholds: {
+      // Poultry defaults
+      minValue: 18,
+      maxValue: 32,
+      warningMinValue: 20,
+      warningMaxValue: 30,
     },
-    humidity: {
-        displayName: 'Humidity',
-        unit: '%',
-        validRange: { min: 0, max: 100 },
-        defaultThresholds: {
-            minValue: 40,
-            maxValue: 80,
-            warningMinValue: 50,
-            warningMaxValue: 70,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 20,
-            rateWindowMinutes: 60,
-        },
+    defaultTrendConfig: {
+      rateThreshold: 5, // 5°C per hour is concerning
+      rateWindowMinutes: 60,
     },
-    ammonia: {
-        displayName: 'Ammonia',
-        unit: 'ppm',
-        validRange: { min: 0, max: 100 },
-        defaultThresholds: {
-            minValue: null,
-            maxValue: 25, // Critical for poultry
-            warningMinValue: null,
-            warningMaxValue: 15,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 10,
-            rateWindowMinutes: 60,
-        },
+  },
+  humidity: {
+    displayName: 'Humidity',
+    unit: '%',
+    validRange: { min: 0, max: 100 },
+    defaultThresholds: {
+      minValue: 40,
+      maxValue: 80,
+      warningMinValue: 50,
+      warningMaxValue: 70,
     },
-    dissolved_oxygen: {
-        displayName: 'Dissolved Oxygen',
-        unit: 'mg/L',
-        validRange: { min: 0, max: 20 },
-        defaultThresholds: {
-            minValue: 4, // Critical for fish
-            maxValue: null,
-            warningMinValue: 5,
-            warningMaxValue: null,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 2,
-            rateWindowMinutes: 30, // Fish are sensitive - shorter window
-        },
+    defaultTrendConfig: {
+      rateThreshold: 20,
+      rateWindowMinutes: 60,
     },
-    ph: {
-        displayName: 'pH',
-        unit: '',
-        validRange: { min: 0, max: 14 },
-        defaultThresholds: {
-            minValue: 6.5,
-            maxValue: 8.5,
-            warningMinValue: 7.0,
-            warningMaxValue: 8.0,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 0.5,
-            rateWindowMinutes: 60,
-        },
+  },
+  ammonia: {
+    displayName: 'Ammonia',
+    unit: 'ppm',
+    validRange: { min: 0, max: 100 },
+    defaultThresholds: {
+      minValue: null,
+      maxValue: 25, // Critical for poultry
+      warningMinValue: null,
+      warningMaxValue: 15,
     },
-    water_level: {
-        displayName: 'Water Level',
-        unit: 'cm',
-        validRange: { min: 0, max: 500 },
-        defaultThresholds: {
-            minValue: 50, // Minimum safe level
-            maxValue: null,
-            warningMinValue: 75,
-            warningMaxValue: null,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 20,
-            rateWindowMinutes: 60,
-        },
+    defaultTrendConfig: {
+      rateThreshold: 10,
+      rateWindowMinutes: 60,
     },
-    water_temperature: {
-        displayName: 'Water Temperature',
-        unit: '°C',
-        validRange: { min: 0, max: 50 },
-        defaultThresholds: {
-            minValue: 24, // Catfish optimal range
-            maxValue: 32,
-            warningMinValue: 26,
-            warningMaxValue: 30,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 3,
-            rateWindowMinutes: 60,
-        },
+  },
+  dissolved_oxygen: {
+    displayName: 'Dissolved Oxygen',
+    unit: 'mg/L',
+    validRange: { min: 0, max: 20 },
+    defaultThresholds: {
+      minValue: 4, // Critical for fish
+      maxValue: null,
+      warningMinValue: 5,
+      warningMaxValue: null,
     },
-    hive_weight: {
-        displayName: 'Hive Weight',
-        unit: 'kg',
-        validRange: { min: 0, max: 200 },
-        defaultThresholds: {
-            minValue: 15, // Minimum healthy hive
-            maxValue: null,
-            warningMinValue: 20,
-            warningMaxValue: null,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 5, // Sudden weight loss = swarm or robbing
-            rateWindowMinutes: 1440, // Daily
-        },
+    defaultTrendConfig: {
+      rateThreshold: 2,
+      rateWindowMinutes: 30, // Fish are sensitive - shorter window
     },
-    hive_temperature: {
-        displayName: 'Hive Temperature',
-        unit: '°C',
-        validRange: { min: -10, max: 60 },
-        defaultThresholds: {
-            minValue: 32, // Brood nest temperature
-            maxValue: 38,
-            warningMinValue: 34,
-            warningMaxValue: 36,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 5,
-            rateWindowMinutes: 60,
-        },
+  },
+  ph: {
+    displayName: 'pH',
+    unit: '',
+    validRange: { min: 0, max: 14 },
+    defaultThresholds: {
+      minValue: 6.5,
+      maxValue: 8.5,
+      warningMinValue: 7.0,
+      warningMaxValue: 8.0,
     },
-    hive_humidity: {
-        displayName: 'Hive Humidity',
-        unit: '%',
-        validRange: { min: 0, max: 100 },
-        defaultThresholds: {
-            minValue: 40,
-            maxValue: 80,
-            warningMinValue: 50,
-            warningMaxValue: 70,
-        },
-        defaultTrendConfig: {
-            rateThreshold: 15,
-            rateWindowMinutes: 60,
-        },
+    defaultTrendConfig: {
+      rateThreshold: 0.5,
+      rateWindowMinutes: 60,
     },
+  },
+  water_level: {
+    displayName: 'Water Level',
+    unit: 'cm',
+    validRange: { min: 0, max: 500 },
+    defaultThresholds: {
+      minValue: 50, // Minimum safe level
+      maxValue: null,
+      warningMinValue: 75,
+      warningMaxValue: null,
+    },
+    defaultTrendConfig: {
+      rateThreshold: 20,
+      rateWindowMinutes: 60,
+    },
+  },
+  water_temperature: {
+    displayName: 'Water Temperature',
+    unit: '°C',
+    validRange: { min: 0, max: 50 },
+    defaultThresholds: {
+      minValue: 24, // Catfish optimal range
+      maxValue: 32,
+      warningMinValue: 26,
+      warningMaxValue: 30,
+    },
+    defaultTrendConfig: {
+      rateThreshold: 3,
+      rateWindowMinutes: 60,
+    },
+  },
+  hive_weight: {
+    displayName: 'Hive Weight',
+    unit: 'kg',
+    validRange: { min: 0, max: 200 },
+    defaultThresholds: {
+      minValue: 15, // Minimum healthy hive
+      maxValue: null,
+      warningMinValue: 20,
+      warningMaxValue: null,
+    },
+    defaultTrendConfig: {
+      rateThreshold: 5, // Sudden weight loss = swarm or robbing
+      rateWindowMinutes: 1440, // Daily
+    },
+  },
+  hive_temperature: {
+    displayName: 'Hive Temperature',
+    unit: '°C',
+    validRange: { min: -10, max: 60 },
+    defaultThresholds: {
+      minValue: 32, // Brood nest temperature
+      maxValue: 38,
+      warningMinValue: 34,
+      warningMaxValue: 36,
+    },
+    defaultTrendConfig: {
+      rateThreshold: 5,
+      rateWindowMinutes: 60,
+    },
+  },
+  hive_humidity: {
+    displayName: 'Hive Humidity',
+    unit: '%',
+    validRange: { min: 0, max: 100 },
+    defaultThresholds: {
+      minValue: 40,
+      maxValue: 80,
+      warningMinValue: 50,
+      warningMaxValue: 70,
+    },
+    defaultTrendConfig: {
+      rateThreshold: 15,
+      rateWindowMinutes: 60,
+    },
+  },
 }
 
 // Species-specific threshold overrides
 export const SPECIES_SENSOR_OVERRIDES: Record<
-    string,
-    Partial<Record<SensorType, Partial<SensorThresholds>>>
+  string,
+  Partial<Record<SensorType, Partial<SensorThresholds>>>
 > = {
-    Broiler: {
-        temperature: {
-            minValue: 20,
-            maxValue: 30,
-            warningMinValue: 22,
-            warningMaxValue: 28,
-        },
-        humidity: { minValue: 50, maxValue: 70 },
-        ammonia: { maxValue: 20, warningMaxValue: 10 },
+  Broiler: {
+    temperature: {
+      minValue: 20,
+      maxValue: 30,
+      warningMinValue: 22,
+      warningMaxValue: 28,
     },
-    Layer: {
-        temperature: {
-            minValue: 18,
-            maxValue: 28,
-            warningMinValue: 20,
-            warningMaxValue: 26,
-        },
-        humidity: { minValue: 45, maxValue: 75 },
+    humidity: { minValue: 50, maxValue: 70 },
+    ammonia: { maxValue: 20, warningMaxValue: 10 },
+  },
+  Layer: {
+    temperature: {
+      minValue: 18,
+      maxValue: 28,
+      warningMinValue: 20,
+      warningMaxValue: 26,
     },
-    Catfish: {
-        dissolved_oxygen: { minValue: 3, warningMinValue: 4 },
-        water_temperature: {
-            minValue: 25,
-            maxValue: 32,
-            warningMinValue: 27,
-            warningMaxValue: 30,
-        },
-        ph: { minValue: 6.5, maxValue: 8.0 },
+    humidity: { minValue: 45, maxValue: 75 },
+  },
+  Catfish: {
+    dissolved_oxygen: { minValue: 3, warningMinValue: 4 },
+    water_temperature: {
+      minValue: 25,
+      maxValue: 32,
+      warningMinValue: 27,
+      warningMaxValue: 30,
     },
-    Tilapia: {
-        dissolved_oxygen: { minValue: 4, warningMinValue: 5 },
-        water_temperature: {
-            minValue: 24,
-            maxValue: 30,
-            warningMinValue: 26,
-            warningMaxValue: 28,
-        },
-        ph: { minValue: 6.5, maxValue: 9.0 },
+    ph: { minValue: 6.5, maxValue: 8.0 },
+  },
+  Tilapia: {
+    dissolved_oxygen: { minValue: 4, warningMinValue: 5 },
+    water_temperature: {
+      minValue: 24,
+      maxValue: 30,
+      warningMinValue: 26,
+      warningMaxValue: 28,
     },
+    ph: { minValue: 6.5, maxValue: 9.0 },
+  },
 }
 ```
 
@@ -977,96 +976,96 @@ openlivestock/{farm_id}/sensors/{sensor_id}/alerts
 // app/features/sensors/alert-processor.ts
 
 export async function processReading(
-    db: Kysely<Database>,
-    sensor: Sensor,
-    reading: SensorReading,
+  db: Kysely<Database>,
+  sensor: Sensor,
+  reading: SensorReading,
 ): Promise<void> {
-    // 1. Get alert config for this sensor
-    const config = await getAlertConfig(db, sensor.id)
+  // 1. Get alert config for this sensor
+  const config = await getAlertConfig(db, sensor.id)
 
-    // 2. Check threshold alerts
-    const thresholdAlert = checkThresholdAlert(
-        parseFloat(reading.value),
-        sensor.thresholds ||
-            SENSOR_TYPE_DEFAULTS[sensor.sensorType].defaultThresholds,
-        sensor.sensorType,
-    )
+  // 2. Check threshold alerts
+  const thresholdAlert = checkThresholdAlert(
+    parseFloat(reading.value),
+    sensor.thresholds ||
+      SENSOR_TYPE_DEFAULTS[sensor.sensorType].defaultThresholds,
+    sensor.sensorType,
+  )
 
-    // 3. Check trend alerts (need recent readings)
-    const recentReadings = await getReadingsInRange(
-        db,
-        sensor.id,
-        subMinutes(new Date(), config?.rateWindowMinutes || 60),
-        new Date(),
-    )
-    const trendAlert = checkTrendAlert(
-        recentReadings,
-        sensor.trendConfig ||
-            SENSOR_TYPE_DEFAULTS[sensor.sensorType].defaultTrendConfig,
-        sensor.sensorType,
-    )
+  // 3. Check trend alerts (need recent readings)
+  const recentReadings = await getReadingsInRange(
+    db,
+    sensor.id,
+    subMinutes(new Date(), config?.rateWindowMinutes || 60),
+    new Date(),
+  )
+  const trendAlert = checkTrendAlert(
+    recentReadings,
+    sensor.trendConfig ||
+      SENSOR_TYPE_DEFAULTS[sensor.sensorType].defaultTrendConfig,
+    sensor.sensorType,
+  )
 
-    // 4. Check cooldown
-    const lastAlert = await getLastAlert(db, sensor.id)
-    const cooldownMinutes = config?.cooldownMinutes || 30
+  // 4. Check cooldown
+  const lastAlert = await getLastAlert(db, sensor.id)
+  const cooldownMinutes = config?.cooldownMinutes || 30
 
-    // 5. Create alerts if needed
-    for (const alert of [thresholdAlert, trendAlert].filter(Boolean)) {
-        if (!isInCooldown(lastAlert?.createdAt, cooldownMinutes)) {
-            await createSensorAlert(db, sensor.id, alert)
+  // 5. Create alerts if needed
+  for (const alert of [thresholdAlert, trendAlert].filter(Boolean)) {
+    if (!isInCooldown(lastAlert?.createdAt, cooldownMinutes)) {
+      await createSensorAlert(db, sensor.id, alert)
 
-            // 6. Send notifications
-            await sendAlertNotifications(db, sensor, alert, config)
-        }
+      // 6. Send notifications
+      await sendAlertNotifications(db, sensor, alert, config)
     }
+  }
 }
 
 async function sendAlertNotifications(
-    db: Kysely<Database>,
-    sensor: Sensor,
-    alert: AlertCheckResult,
-    config: SensorAlertConfig | null,
+  db: Kysely<Database>,
+  sensor: Sensor,
+  alert: AlertCheckResult,
+  config: SensorAlertConfig | null,
 ): Promise<void> {
-    // Get farm owner
-    const farmOwner = await getFarmOwner(db, sensor.farmId)
+  // Get farm owner
+  const farmOwner = await getFarmOwner(db, sensor.farmId)
 
-    // Always create in-app notification
-    await createNotification({
-        userId: farmOwner.id,
-        farmId: sensor.farmId,
-        type: 'sensorAlert',
-        title: `${alert.severity === 'critical' ? '🔴' : '🟡'} ${sensor.name} Alert`,
-        message: alert.message,
-        actionUrl: `/sensors/${sensor.id}`,
-        metadata: {
-            sensorId: sensor.id,
-            sensorType: sensor.sensorType,
-            alertType: alert.alertType,
-            value: alert.triggerValue,
-        },
+  // Always create in-app notification
+  await createNotification({
+    userId: farmOwner.id,
+    farmId: sensor.farmId,
+    type: 'sensorAlert',
+    title: `${alert.severity === 'critical' ? '🔴' : '🟡'} ${sensor.name} Alert`,
+    message: alert.message,
+    actionUrl: `/sensors/${sensor.id}`,
+    metadata: {
+      sensorId: sensor.id,
+      sensorType: sensor.sensorType,
+      alertType: alert.alertType,
+      value: alert.triggerValue,
+    },
+  })
+
+  // SMS for critical alerts (if enabled)
+  if (alert.severity === 'critical' && config?.smsEnabled) {
+    const { sendSMS } = await import('~/features/integrations/sms')
+    const userPhone = await getUserPhone(db, farmOwner.id)
+    if (userPhone) {
+      await sendSMS({
+        to: userPhone,
+        message: `ALERT: ${sensor.name} - ${alert.message}`,
+      })
+    }
+  }
+
+  // Email (if enabled)
+  if (config?.emailEnabled) {
+    const { sendEmail } = await import('~/features/integrations/email')
+    await sendEmail({
+      to: farmOwner.email,
+      subject: `${alert.severity === 'critical' ? '🔴 CRITICAL' : '🟡 Warning'}: ${sensor.name}`,
+      html: generateAlertEmailHtml(sensor, alert),
     })
-
-    // SMS for critical alerts (if enabled)
-    if (alert.severity === 'critical' && config?.smsEnabled) {
-        const { sendSMS } = await import('~/features/integrations/sms')
-        const userPhone = await getUserPhone(db, farmOwner.id)
-        if (userPhone) {
-            await sendSMS({
-                to: userPhone,
-                message: `ALERT: ${sensor.name} - ${alert.message}`,
-            })
-        }
-    }
-
-    // Email (if enabled)
-    if (config?.emailEnabled) {
-        const { sendEmail } = await import('~/features/integrations/email')
-        await sendEmail({
-            to: farmOwner.email,
-            subject: `${alert.severity === 'critical' ? '🔴 CRITICAL' : '🟡 Warning'}: ${sensor.name}`,
-            html: generateAlertEmailHtml(sensor, alert),
-        })
-    }
+  }
 }
 ```
 
@@ -1077,57 +1076,55 @@ async function sendAlertNotifications(
 // Run as scheduled job (Cloudflare Cron Trigger)
 
 export async function aggregateHourlyReadings(): Promise<void> {
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
-    // Find readings older than 90 days that haven't been aggregated
-    const cutoffDate = subDays(new Date(), 90)
+  // Find readings older than 90 days that haven't been aggregated
+  const cutoffDate = subDays(new Date(), 90)
 
-    // Group by sensor and hour, calculate aggregates
-    const aggregates = await db
-        .selectFrom('sensor_readings')
-        .select([
-            'sensorId',
-            sql`date_trunc('hour', recorded_at)`.as('periodStart'),
-            sql`avg(value)`.as('avgValue'),
-            sql`min(value)`.as('minValue'),
-            sql`max(value)`.as('maxValue'),
-            sql`count(*)`.as('readingCount'),
-        ])
-        .where('recordedAt', '<', cutoffDate)
-        .groupBy(['sensorId', sql`date_trunc('hour', recorded_at)`])
-        .execute()
+  // Group by sensor and hour, calculate aggregates
+  const aggregates = await db
+    .selectFrom('sensor_readings')
+    .select([
+      'sensorId',
+      sql`date_trunc('hour', recorded_at)`.as('periodStart'),
+      sql`avg(value)`.as('avgValue'),
+      sql`min(value)`.as('minValue'),
+      sql`max(value)`.as('maxValue'),
+      sql`count(*)`.as('readingCount'),
+    ])
+    .where('recordedAt', '<', cutoffDate)
+    .groupBy(['sensorId', sql`date_trunc('hour', recorded_at)`])
+    .execute()
 
-    // Insert aggregates
-    for (const agg of aggregates) {
-        await db
-            .insertInto('sensor_aggregates')
-            .values({
-                sensorId: agg.sensorId,
-                periodType: 'hourly',
-                periodStart: agg.periodStart,
-                avgValue: agg.avgValue,
-                minValue: agg.minValue,
-                maxValue: agg.maxValue,
-                readingCount: agg.readingCount,
-            })
-            .onConflict((oc) =>
-                oc
-                    .columns(['sensorId', 'periodType', 'periodStart'])
-                    .doNothing(),
-            )
-            .execute()
-    }
-
-    // Delete aggregated raw readings
+  // Insert aggregates
+  for (const agg of aggregates) {
     await db
-        .deleteFrom('sensor_readings')
-        .where('recordedAt', '<', cutoffDate)
-        .execute()
+      .insertInto('sensor_aggregates')
+      .values({
+        sensorId: agg.sensorId,
+        periodType: 'hourly',
+        periodStart: agg.periodStart,
+        avgValue: agg.avgValue,
+        minValue: agg.minValue,
+        maxValue: agg.maxValue,
+        readingCount: agg.readingCount,
+      })
+      .onConflict((oc) =>
+        oc.columns(['sensorId', 'periodType', 'periodStart']).doNothing(),
+      )
+      .execute()
+  }
+
+  // Delete aggregated raw readings
+  await db
+    .deleteFrom('sensor_readings')
+    .where('recordedAt', '<', cutoffDate)
+    .execute()
 }
 
 export async function aggregateDailyReadings(): Promise<void> {
-    // Similar logic for hourly -> daily aggregation after 1 year
+  // Similar logic for hourly -> daily aggregation after 1 year
 }
 ```
 
@@ -1370,39 +1367,35 @@ tests/features/sensors/
 
 ```typescript
 describe('Alert Service', () => {
-    it('Property 2: threshold alerts trigger correctly', () => {
-        fc.assert(
-            fc.property(
-                fc.record({
-                    value: fc.float({ min: -50, max: 150 }),
-                    minThreshold: fc.float({ min: -40, max: 50 }),
-                    maxThreshold: fc.float({ min: 50, max: 100 }),
-                }),
-                ({ value, minThreshold, maxThreshold }) => {
-                    fc.pre(minThreshold < maxThreshold)
+  it('Property 2: threshold alerts trigger correctly', () => {
+    fc.assert(
+      fc.property(
+        fc.record({
+          value: fc.float({ min: -50, max: 150 }),
+          minThreshold: fc.float({ min: -40, max: 50 }),
+          maxThreshold: fc.float({ min: 50, max: 100 }),
+        }),
+        ({ value, minThreshold, maxThreshold }) => {
+          fc.pre(minThreshold < maxThreshold)
 
-                    const thresholds = {
-                        minValue: minThreshold,
-                        maxValue: maxThreshold,
-                    }
-                    const result = checkThresholdAlert(
-                        value,
-                        thresholds,
-                        'temperature',
-                    )
+          const thresholds = {
+            minValue: minThreshold,
+            maxValue: maxThreshold,
+          }
+          const result = checkThresholdAlert(value, thresholds, 'temperature')
 
-                    if (value > maxThreshold) {
-                        expect(result?.alertType).toBe('threshold_high')
-                    } else if (value < minThreshold) {
-                        expect(result?.alertType).toBe('threshold_low')
-                    } else {
-                        expect(result).toBeNull()
-                    }
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+          if (value > maxThreshold) {
+            expect(result?.alertType).toBe('threshold_high')
+          } else if (value < minThreshold) {
+            expect(result?.alertType).toBe('threshold_low')
+          } else {
+            expect(result).toBeNull()
+          }
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 ```
 

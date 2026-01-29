@@ -1,135 +1,129 @@
 {
-    "name": "security-engineer",
-    "description": "Security specialist for authentication and data protection - guardian of user trust",
-    "keyboardShortcut": "ctrl+shift+6",
-    "welcomeMessage": "🔐 Security Engineer ready. I audit auth, validate inputs, and protect user data.",
-    "prompt": "file://../prompts/agents/security-engineer.md",
-    "tools": [
-        "read",
-        "write",
-        "shell",
-        "grep",
-        "glob",
-        "aws",
-        "code",
-        "web_search",
-        "web_fetch",
-        "knowledge",
-        "todo_list",
-        "thinking",
-        "introspect",
-        "subagent",
-        "@sequential-thinking"
-    ],
-    "allowedTools": [
-        "read",
-        "write",
-        "shell",
-        "grep",
-        "glob",
-        "aws",
-        "code",
-        "web_search",
-        "web_fetch",
-        "knowledge",
-        "todo_list",
-        "thinking",
-        "introspect",
-        "subagent",
-        "@sequential-thinking"
-    ],
-    "toolsSettings": {
-        "write": {
-            "allowedPaths": [
-                "app/features/auth/**",
-                "app/routes/_auth.tsx",
-                "app/lib/validation/**",
-                "tests/**",
-                "*.md"
-            ]
-        },
-        "shell": {
-            "allowedCommands": [
-                "cat *",
-                "ls *",
-                "grep *",
-                "find *",
-                "head *",
-                "tail *",
-                "git status",
-                "git diff *",
-                "bun run lint *"
-            ],
-            "autoAllowReadonly": true,
-            "deniedCommands": [
-                "*secret*",
-                "*password*",
-                "*key*",
-                "env",
-                "printenv"
-            ]
-        }
+  "name": "security-engineer",
+  "description": "Security specialist for authentication and data protection - guardian of user trust",
+  "keyboardShortcut": "ctrl+shift+6",
+  "welcomeMessage": "🔐 Security Engineer ready. I audit auth, validate inputs, and protect user data.",
+  "prompt": "file://../prompts/agents/security-engineer.md",
+  "tools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking"
+  ],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": [
+        "app/features/auth/**",
+        "app/routes/_auth.tsx",
+        "app/lib/validation/**",
+        "tests/**",
+        "*.md"
+      ]
     },
-    "resources": [
-        "file://AGENTS.md",
-        "file://README.md",
-        "file://app/features/auth/config.ts",
-        "file://app/features/auth/server-middleware.ts",
-        "file://app/features/auth/utils.ts",
-        "file://app/routes/_auth.tsx",
-        "file://app/lib/errors/index.ts",
-        {
-            "type": "knowledgeBase",
-            "source": "file://./docs",
-            "name": "ProjectDocs",
-            "description": "Architecture, database, deployment, testing, and API documentation",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        {
-            "type": "knowledgeBase",
-            "source": "file://./DEVLOG.md",
-            "name": "DevLog",
-            "description": "Development history, decisions, and progress tracking",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        {
-            "type": "knowledgeBase",
-            "source": "file://./app/features/auth",
-            "name": "AuthCode",
-            "description": "Authentication feature - Better Auth config, middleware, utilities",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        {
-            "type": "knowledgeBase",
-            "source": "file://./app/lib/validation",
-            "name": "ValidationPatterns",
-            "description": "Input validation schemas and patterns",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        "skill://.kiro/skills/better-auth/SKILL.md",
-        "skill://.kiro/skills/zod-validation/SKILL.md",
-        "skill://.kiro/skills/error-handling/SKILL.md",
-        "skill://.kiro/skills/three-layer-architecture/SKILL.md"
-    ],
-    "hooks": {
-        "agentSpawn": [
-            {
-                "command": "echo '🔐 Security Engineer ready.' && grep -r 'requireAuth' app/routes 2>/dev/null | wc -l | xargs -I {} echo '{} protected routes found'",
-                "timeout_ms": 5000
-            }
-        ],
-        "postToolUse": [
-            {
-                "matcher": "fs_write",
-                "command": "bun run lint --fix 2>/dev/null || true",
-                "timeout_ms": 30000
-            }
-        ]
+    "shell": {
+      "allowedCommands": [
+        "cat *",
+        "ls *",
+        "grep *",
+        "find *",
+        "head *",
+        "tail *",
+        "git status",
+        "git diff *",
+        "bun run lint *"
+      ],
+      "autoAllowReadonly": true,
+      "deniedCommands": ["*secret*", "*password*", "*key*", "env", "printenv"]
+    }
+  },
+  "resources": [
+    "file://AGENTS.md",
+    "file://README.md",
+    "file://app/features/auth/config.ts",
+    "file://app/features/auth/server-middleware.ts",
+    "file://app/features/auth/utils.ts",
+    "file://app/routes/_auth.tsx",
+    "file://app/lib/errors/index.ts",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
     },
-    "includeMcpJson": true,
-    "model": "claude-sonnet-4.5"
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/features/auth",
+      "name": "AuthCode",
+      "description": "Authentication feature - Better Auth config, middleware, utilities",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/lib/validation",
+      "name": "ValidationPatterns",
+      "description": "Input validation schemas and patterns",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    "skill://.kiro/skills/better-auth/SKILL.md",
+    "skill://.kiro/skills/zod-validation/SKILL.md",
+    "skill://.kiro/skills/error-handling/SKILL.md",
+    "skill://.kiro/skills/three-layer-architecture/SKILL.md"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "echo '🔐 Security Engineer ready.' && grep -r 'requireAuth' app/routes 2>/dev/null | wc -l | xargs -I {} echo '{} protected routes found'",
+        "timeout_ms": 5000
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "fs_write",
+        "command": "bun run lint --fix 2>/dev/null || true",
+        "timeout_ms": 30000
+      }
+    ]
+  },
+  "includeMcpJson": true,
+  "model": "claude-sonnet-4.5"
 }

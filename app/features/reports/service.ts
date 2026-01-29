@@ -9,27 +9,27 @@ import type { DateRange } from './server'
  * Report configuration data for creation
  */
 export interface ReportConfigData {
-    name: string
-    farmId: string
-    reportType: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
-    dateRangeType: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
-    customStartDate?: Date | null
-    customEndDate?: Date | null
-    includeCharts: boolean
-    includeDetails: boolean
+  name: string
+  farmId: string
+  reportType: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
+  dateRangeType: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
+  customStartDate?: Date | null
+  customEndDate?: Date | null
+  includeCharts: boolean
+  includeDetails: boolean
 }
 
 /**
  * Report configuration data for updates
  */
 export interface UpdateReportConfigData {
-    name?: string
-    reportType?: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
-    dateRangeType?: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
-    customStartDate?: Date | null
-    customEndDate?: Date | null
-    includeCharts?: boolean
-    includeDetails?: boolean
+  name?: string
+  reportType?: 'profit_loss' | 'inventory' | 'sales' | 'feed' | 'egg'
+  dateRangeType?: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
+  customStartDate?: Date | null
+  customEndDate?: Date | null
+  includeCharts?: boolean
+  includeDetails?: boolean
 }
 
 /**
@@ -53,66 +53,64 @@ export interface UpdateReportConfigData {
  * ```
  */
 export function validateReportConfig(data: ReportConfigData): string | null {
-    if (!data.name || data.name.trim() === '') {
-        return 'Report name is required'
-    }
+  if (!data.name || data.name.trim() === '') {
+    return 'Report name is required'
+  }
 
-    if (data.name.length > 100) {
-        return 'Report name cannot exceed 100 characters'
-    }
+  if (data.name.length > 100) {
+    return 'Report name cannot exceed 100 characters'
+  }
 
-    if (!data.farmId || data.farmId.trim() === '') {
-        return 'Farm ID is required'
-    }
+  if (!data.farmId || data.farmId.trim() === '') {
+    return 'Farm ID is required'
+  }
 
-    const validReportTypes = [
-        'profit_loss',
-        'inventory',
-        'sales',
-        'feed',
-        'egg',
-    ] as const
+  const validReportTypes = [
+    'profit_loss',
+    'inventory',
+    'sales',
+    'feed',
+    'egg',
+  ] as const
 
+  if (!(validReportTypes as ReadonlyArray<string>).includes(data.reportType)) {
+    return 'Invalid report type'
+  }
+
+  const validDateRangeTypes = [
+    'today',
+    'week',
+    'month',
+    'quarter',
+    'year',
+    'custom',
+  ] as const
+
+  if (!validDateRangeTypes.includes(data.dateRangeType)) {
+    return 'Invalid date range type'
+  }
+
+  if (
+    data.dateRangeType === 'custom' &&
+    (!data.customStartDate || !data.customEndDate)
+  ) {
+    return 'Custom date range requires both start and end dates'
+  }
+
+  if (data.dateRangeType === 'custom') {
     if (
-        !(validReportTypes as ReadonlyArray<string>).includes(data.reportType)
+      isNaN(data.customStartDate!.getTime()) ||
+      isNaN(data.customEndDate!.getTime())
     ) {
-        return 'Invalid report type'
+      return 'Custom dates must be valid dates'
     }
 
-    const validDateRangeTypes = [
-        'today',
-        'week',
-        'month',
-        'quarter',
-        'year',
-        'custom',
-    ] as const
-
-    if (!validDateRangeTypes.includes(data.dateRangeType)) {
-        return 'Invalid date range type'
+    if (data.customStartDate! > data.customEndDate!) {
+      return 'Start date must be before or equal to end date'
     }
+  }
 
-    if (
-        data.dateRangeType === 'custom' &&
-        (!data.customStartDate || !data.customEndDate)
-    ) {
-        return 'Custom date range requires both start and end dates'
-    }
-
-    if (data.dateRangeType === 'custom') {
-        if (
-            isNaN(data.customStartDate!.getTime()) ||
-            isNaN(data.customEndDate!.getTime())
-        ) {
-            return 'Custom dates must be valid dates'
-        }
-
-        if (data.customStartDate! > data.customEndDate!) {
-            return 'Start date must be before or equal to end date'
-        }
-    }
-
-    return null
+  return null
 }
 
 /**
@@ -131,70 +129,66 @@ export function validateReportConfig(data: ReportConfigData): string | null {
  * ```
  */
 export function calculateDateRange(
-    period: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom',
-    customStartDate?: Date | null,
-    customEndDate?: Date | null,
+  period: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom',
+  customStartDate?: Date | null,
+  customEndDate?: Date | null,
 ): DateRange {
-    const now = new Date()
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
-    switch (period) {
-        case 'today':
-            return {
-                startDate: today,
-                endDate: today,
-            }
+  switch (period) {
+    case 'today':
+      return {
+        startDate: today,
+        endDate: today,
+      }
 
-        case 'week': {
-            const weekAgo = new Date(today)
-            weekAgo.setDate(weekAgo.getDate() - 7)
-            return {
-                startDate: weekAgo,
-                endDate: today,
-            }
-        }
-
-        case 'month': {
-            const monthStart = new Date(
-                today.getFullYear(),
-                today.getMonth(),
-                1,
-            )
-            return {
-                startDate: monthStart,
-                endDate: today,
-            }
-        }
-
-        case 'quarter': {
-            const quarter = Math.floor(today.getMonth() / 3)
-            const quarterStart = new Date(today.getFullYear(), quarter * 3, 1)
-            return {
-                startDate: quarterStart,
-                endDate: today,
-            }
-        }
-
-        case 'year': {
-            const yearStart = new Date(today.getFullYear(), 0, 1)
-            return {
-                startDate: yearStart,
-                endDate: today,
-            }
-        }
-
-        case 'custom':
-            return {
-                startDate: customStartDate || today,
-                endDate: customEndDate || today,
-            }
-
-        default:
-            return {
-                startDate: today,
-                endDate: today,
-            }
+    case 'week': {
+      const weekAgo = new Date(today)
+      weekAgo.setDate(weekAgo.getDate() - 7)
+      return {
+        startDate: weekAgo,
+        endDate: today,
+      }
     }
+
+    case 'month': {
+      const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+      return {
+        startDate: monthStart,
+        endDate: today,
+      }
+    }
+
+    case 'quarter': {
+      const quarter = Math.floor(today.getMonth() / 3)
+      const quarterStart = new Date(today.getFullYear(), quarter * 3, 1)
+      return {
+        startDate: quarterStart,
+        endDate: today,
+      }
+    }
+
+    case 'year': {
+      const yearStart = new Date(today.getFullYear(), 0, 1)
+      return {
+        startDate: yearStart,
+        endDate: today,
+      }
+    }
+
+    case 'custom':
+      return {
+        startDate: customStartDate || today,
+        endDate: customEndDate || today,
+      }
+
+    default:
+      return {
+        startDate: today,
+        endDate: today,
+      }
+  }
 }
 
 /**
@@ -212,57 +206,57 @@ export function calculateDateRange(
  * ```
  */
 export function aggregateReportData<
-    T extends Record<string, unknown>,
-    TKey extends keyof T,
+  T extends Record<string, unknown>,
+  TKey extends keyof T,
 >(
-    records: Array<T>,
-    groupBy: TKey,
+  records: Array<T>,
+  groupBy: TKey,
 ): {
-    total: number
-    count: number
-    byGroup: Array<{ group: string; value: number; count: number }>
+  total: number
+  count: number
+  byGroup: Array<{ group: string; value: number; count: number }>
 } {
-    if (records.length === 0) {
-        return {
-            total: 0,
-            count: 0,
-            byGroup: [],
-        }
-    }
-
-    const groupMap = new Map<string, { value: number; count: number }>()
-
-    for (const record of records) {
-        const group = String(record[groupBy])
-        const existing = groupMap.get(group) || { value: 0, count: 0 }
-
-        // Sum all numeric fields except the group key
-        let recordValue = 0
-        for (const [key, val] of Object.entries(record)) {
-            if (key !== groupBy && typeof val === 'number') {
-                recordValue += val
-            }
-        }
-
-        groupMap.set(group, {
-            value: existing.value + recordValue,
-            count: existing.count + 1,
-        })
-    }
-
-    const byGroup = Array.from(groupMap.entries()).map(([group, data]) => ({
-        group,
-        value: Math.round(data.value * 100) / 100,
-        count: data.count,
-    }))
-
-    const total = byGroup.reduce((sum, g) => sum + g.value, 0)
-
+  if (records.length === 0) {
     return {
-        total: Math.round(total * 100) / 100,
-        count: records.length,
-        byGroup,
+      total: 0,
+      count: 0,
+      byGroup: [],
     }
+  }
+
+  const groupMap = new Map<string, { value: number; count: number }>()
+
+  for (const record of records) {
+    const group = String(record[groupBy])
+    const existing = groupMap.get(group) || { value: 0, count: 0 }
+
+    // Sum all numeric fields except the group key
+    let recordValue = 0
+    for (const [key, val] of Object.entries(record)) {
+      if (key !== groupBy && typeof val === 'number') {
+        recordValue += val
+      }
+    }
+
+    groupMap.set(group, {
+      value: existing.value + recordValue,
+      count: existing.count + 1,
+    })
+  }
+
+  const byGroup = Array.from(groupMap.entries()).map(([group, data]) => ({
+    group,
+    value: Math.round(data.value * 100) / 100,
+    count: data.count,
+  }))
+
+  const total = byGroup.reduce((sum, g) => sum + g.value, 0)
+
+  return {
+    total: Math.round(total * 100) / 100,
+    count: records.length,
+    byGroup,
+  }
 }
 
 /**
@@ -279,35 +273,35 @@ export function aggregateReportData<
  * ```
  */
 export function formatReportOutput<T extends object>(
-    data: T,
-    format: 'json' | 'summary' | 'detailed',
+  data: T,
+  format: 'json' | 'summary' | 'detailed',
 ): object {
-    switch (format) {
-        case 'json':
-            return data
+  switch (format) {
+    case 'json':
+      return data
 
-        case 'summary':
-            // Extract key metrics for summary view
-            if ('summary' in data && typeof data.summary === 'object') {
-                return {
-                    ...data,
-                    records: undefined,
-                    data: undefined,
-                }
-            }
-            return { ...data }
+    case 'summary':
+      // Extract key metrics for summary view
+      if ('summary' in data && typeof data.summary === 'object') {
+        return {
+          ...data,
+          records: undefined,
+          data: undefined,
+        }
+      }
+      return { ...data }
 
-        case 'detailed':
-            // Include all data with additional metadata
-            return {
-                ...data,
-                generatedAt: new Date().toISOString(),
-                version: '1.0',
-            }
+    case 'detailed':
+      // Include all data with additional metadata
+      return {
+        ...data,
+        generatedAt: new Date().toISOString(),
+        version: '1.0',
+      }
 
-        default:
-            return data
-    }
+    default:
+      return data
+  }
 }
 
 /**
@@ -324,17 +318,17 @@ export function formatReportOutput<T extends object>(
  * ```
  */
 export function calculateProfitMargin(
-    revenue: number,
-    expenses: number,
+  revenue: number,
+  expenses: number,
 ): number {
-    if (revenue <= 0) {
-        return 0
-    }
+  if (revenue <= 0) {
+    return 0
+  }
 
-    const profit = revenue - expenses
-    const margin = (profit / revenue) * 100
+  const profit = revenue - expenses
+  const margin = (profit / revenue) * 100
 
-    return Math.round(margin * 10) / 10
+  return Math.round(margin * 10) / 10
 }
 
 /**
@@ -351,17 +345,17 @@ export function calculateProfitMargin(
  * ```
  */
 export function calculateMortalityRate(
-    initialQuantity: number,
-    currentQuantity: number,
+  initialQuantity: number,
+  currentQuantity: number,
 ): number {
-    if (initialQuantity <= 0) {
-        return 0
-    }
+  if (initialQuantity <= 0) {
+    return 0
+  }
 
-    const mortality = initialQuantity - currentQuantity
-    const rate = (mortality / initialQuantity) * 100
+  const mortality = initialQuantity - currentQuantity
+  const rate = (mortality / initialQuantity) * 100
 
-    return Math.round(rate * 10) / 10
+  return Math.round(rate * 10) / 10
 }
 
 /**
@@ -371,53 +365,53 @@ export function calculateMortalityRate(
  * @returns Validation error message, or null if valid
  */
 export function validateUpdateData(
-    data: UpdateReportConfigData,
+  data: UpdateReportConfigData,
 ): string | null {
-    if (data.name !== undefined && data.name.trim() === '') {
-        return 'Report name cannot be empty'
+  if (data.name !== undefined && data.name.trim() === '') {
+    return 'Report name cannot be empty'
+  }
+
+  if (data.name !== undefined && data.name.length > 100) {
+    return 'Report name cannot exceed 100 characters'
+  }
+
+  if (data.reportType !== undefined) {
+    const validReportTypes = [
+      'profit_loss',
+      'inventory',
+      'sales',
+      'feed',
+      'egg',
+    ] as const
+
+    if (!validReportTypes.includes(data.reportType)) {
+      return 'Invalid report type'
+    }
+  }
+
+  if (data.dateRangeType !== undefined) {
+    const validDateRangeTypes = [
+      'today',
+      'week',
+      'month',
+      'quarter',
+      'year',
+      'custom',
+    ] as const
+
+    if (!validDateRangeTypes.includes(data.dateRangeType)) {
+      return 'Invalid date range type'
     }
 
-    if (data.name !== undefined && data.name.length > 100) {
-        return 'Report name cannot exceed 100 characters'
+    if (
+      data.dateRangeType === 'custom' &&
+      (!data.customStartDate || !data.customEndDate)
+    ) {
+      return 'Custom date range requires both start and end dates'
     }
+  }
 
-    if (data.reportType !== undefined) {
-        const validReportTypes = [
-            'profit_loss',
-            'inventory',
-            'sales',
-            'feed',
-            'egg',
-        ] as const
-
-        if (!validReportTypes.includes(data.reportType)) {
-            return 'Invalid report type'
-        }
-    }
-
-    if (data.dateRangeType !== undefined) {
-        const validDateRangeTypes = [
-            'today',
-            'week',
-            'month',
-            'quarter',
-            'year',
-            'custom',
-        ] as const
-
-        if (!validDateRangeTypes.includes(data.dateRangeType)) {
-            return 'Invalid date range type'
-        }
-
-        if (
-            data.dateRangeType === 'custom' &&
-            (!data.customStartDate || !data.customEndDate)
-        ) {
-            return 'Custom date range requires both start and end dates'
-        }
-    }
-
-    return null
+  return null
 }
 
 /**
@@ -435,16 +429,16 @@ export function validateUpdateData(
  * ```
  */
 export function calculateLayingPercentage(
-    totalEggs: number,
-    layerBirds: number,
-    days: number,
+  totalEggs: number,
+  layerBirds: number,
+  days: number,
 ): number {
-    if (layerBirds <= 0 || days <= 0) {
-        return 0
-    }
+  if (layerBirds <= 0 || days <= 0) {
+    return 0
+  }
 
-    const average = (totalEggs / (layerBirds * days)) * 100
-    return Math.round(average * 10) / 10
+  const average = (totalEggs / (layerBirds * days)) * 100
+  return Math.round(average * 10) / 10
 }
 
 /**
@@ -459,30 +453,30 @@ export function calculateLayingPercentage(
  * ```
  */
 export function calculateEggInventory(
-    records: Array<{
-        collected: number
-        broken: number
-        sold: number
-    }>,
-): Array<{
+  records: Array<{
     collected: number
     broken: number
     sold: number
-    inventory: number
+  }>,
+): Array<{
+  collected: number
+  broken: number
+  sold: number
+  inventory: number
 }> {
-    let runningInventory = 0
+  let runningInventory = 0
 
-    return records
-        .slice()
-        .reverse()
-        .map((r) => {
-            runningInventory += r.collected - r.broken - r.sold
-            return {
-                collected: r.collected,
-                broken: r.broken,
-                sold: r.sold,
-                inventory: runningInventory,
-            }
-        })
-        .reverse()
+  return records
+    .slice()
+    .reverse()
+    .map((r) => {
+      runningInventory += r.collected - r.broken - r.sold
+      return {
+        collected: r.collected,
+        broken: r.broken,
+        sold: r.sold,
+        inventory: runningInventory,
+      }
+    })
+    .reverse()
 }

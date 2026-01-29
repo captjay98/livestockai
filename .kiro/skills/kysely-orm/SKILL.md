@@ -13,23 +13,23 @@ The database schema is defined in `app/lib/db/types.ts`:
 
 ```typescript
 export interface Database {
-    users: UsersTable
-    batches: BatchesTable
-    farms: FarmsTable
-    sales: SalesTable
-    // ... 23+ tables
+  users: UsersTable
+  batches: BatchesTable
+  farms: FarmsTable
+  sales: SalesTable
+  // ... 23+ tables
 }
 
 export interface BatchesTable {
-    id: Generated<string>
-    farmId: string
-    livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
-    species: string
-    initialQuantity: number
-    currentQuantity: number
-    status: 'active' | 'depleted' | 'sold'
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
+  id: Generated<string>
+  farmId: string
+  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  species: string
+  initialQuantity: number
+  currentQuantity: number
+  status: 'active' | 'depleted' | 'sold'
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
 ```
 
@@ -40,44 +40,44 @@ export interface BatchesTable {
 ```typescript
 // Prefer explicit columns over selectAll()
 const batches = await db
-    .selectFrom('batches')
-    .select(['id', 'species', 'currentQuantity', 'status'])
-    .where('farmId', '=', farmId)
-    .execute()
+  .selectFrom('batches')
+  .select(['id', 'species', 'currentQuantity', 'status'])
+  .where('farmId', '=', farmId)
+  .execute()
 ```
 
 ### Joins
 
 ```typescript
 const batchesWithFarm = await db
-    .selectFrom('batches')
-    .leftJoin('farms', 'farms.id', 'batches.farmId')
-    .leftJoin('breeds', 'breeds.id', 'batches.breedId')
-    .select([
-        'batches.id',
-        'batches.species',
-        'farms.name as farmName',
-        'breeds.displayName as breedName',
-    ])
-    .where('batches.status', '=', 'active')
-    .execute()
+  .selectFrom('batches')
+  .leftJoin('farms', 'farms.id', 'batches.farmId')
+  .leftJoin('breeds', 'breeds.id', 'batches.breedId')
+  .select([
+    'batches.id',
+    'batches.species',
+    'farms.name as farmName',
+    'breeds.displayName as breedName',
+  ])
+  .where('batches.status', '=', 'active')
+  .execute()
 ```
 
 ### Insert with Returning
 
 ```typescript
 const result = await db
-    .insertInto('batches')
-    .values({
-        farmId,
-        livestockType: 'poultry',
-        species: 'Broiler',
-        initialQuantity: 500,
-        currentQuantity: 500,
-        status: 'active',
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow()
+  .insertInto('batches')
+  .values({
+    farmId,
+    livestockType: 'poultry',
+    species: 'Broiler',
+    initialQuantity: 500,
+    currentQuantity: 500,
+    status: 'active',
+  })
+  .returning('id')
+  .executeTakeFirstOrThrow()
 
 console.log(result.id) // UUID of new batch
 ```
@@ -86,14 +86,14 @@ console.log(result.id) // UUID of new batch
 
 ```typescript
 await db
-    .updateTable('batches')
-    .set({
-        currentQuantity: newQuantity,
-        status: 'depleted',
-        updatedAt: new Date(),
-    })
-    .where('id', '=', batchId)
-    .execute()
+  .updateTable('batches')
+  .set({
+    currentQuantity: newQuantity,
+    status: 'depleted',
+    updatedAt: new Date(),
+  })
+  .where('id', '=', batchId)
+  .execute()
 ```
 
 ### Delete
@@ -108,50 +108,50 @@ await db.deleteFrom('batches').where('id', '=', batchId).execute()
 import { sql } from 'kysely'
 
 const stats = await db
-    .selectFrom('sales')
-    .select([
-        sql<number>`count(*)`.as('totalSales'),
-        sql<number>`sum(quantity)`.as('totalQuantity'),
-        sql<string>`sum(total_amount)`.as('totalRevenue'),
-    ])
-    .where('batchId', '=', batchId)
-    .executeTakeFirst()
+  .selectFrom('sales')
+  .select([
+    sql<number>`count(*)`.as('totalSales'),
+    sql<number>`sum(quantity)`.as('totalQuantity'),
+    sql<string>`sum(total_amount)`.as('totalRevenue'),
+  ])
+  .where('batchId', '=', batchId)
+  .executeTakeFirst()
 ```
 
 ### Complex Filters
 
 ```typescript
 const batches = await db
-    .selectFrom('batches')
-    .selectAll()
-    .where((eb) =>
-        eb.or([
-            eb('species', 'ilike', `%${search}%`),
-            eb('batchName', 'ilike', `%${search}%`),
-        ]),
-    )
-    .where('status', '=', 'active')
-    .orderBy('acquisitionDate', 'desc')
-    .limit(pageSize)
-    .offset((page - 1) * pageSize)
-    .execute()
+  .selectFrom('batches')
+  .selectAll()
+  .where((eb) =>
+    eb.or([
+      eb('species', 'ilike', `%${search}%`),
+      eb('batchName', 'ilike', `%${search}%`),
+    ]),
+  )
+  .where('status', '=', 'active')
+  .orderBy('acquisitionDate', 'desc')
+  .limit(pageSize)
+  .offset((page - 1) * pageSize)
+  .execute()
 ```
 
 ### Subqueries
 
 ```typescript
 const batchesWithStats = await db
-    .selectFrom('batches')
-    .select([
-        'batches.id',
-        'batches.species',
-        db
-            .selectFrom('mortality_records')
-            .select(sql<number>`sum(quantity)`.as('total'))
-            .whereRef('mortality_records.batchId', '=', 'batches.id')
-            .as('totalMortality'),
-    ])
-    .execute()
+  .selectFrom('batches')
+  .select([
+    'batches.id',
+    'batches.species',
+    db
+      .selectFrom('mortality_records')
+      .select(sql<number>`sum(quantity)`.as('total'))
+      .whereRef('mortality_records.batchId', '=', 'batches.id')
+      .as('totalMortality'),
+  ])
+  .execute()
 ```
 
 ## Repository Pattern
@@ -164,23 +164,23 @@ import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 export async function insertBatch(
-    db: Kysely<Database>,
-    data: BatchInsert,
+  db: Kysely<Database>,
+  data: BatchInsert,
 ): Promise<string> {
-    const result = await db
-        .insertInto('batches')
-        .values(data)
-        .returning('id')
-        .executeTakeFirstOrThrow()
-    return result.id
+  const result = await db
+    .insertInto('batches')
+    .values(data)
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
 }
 
 export async function getBatchById(db: Kysely<Database>, id: string) {
-    return db
-        .selectFrom('batches')
-        .selectAll()
-        .where('id', '=', id)
-        .executeTakeFirst()
+  return db
+    .selectFrom('batches')
+    .selectAll()
+    .where('id', '=', id)
+    .executeTakeFirst()
 }
 ```
 
@@ -204,13 +204,13 @@ type BatchUpdate = Updateable<BatchesTable>
 
 ```typescript
 await db.transaction().execute(async (trx) => {
-    // All operations use trx instead of db
-    await trx.insertInto('sales').values(saleData).execute()
-    await trx
-        .updateTable('batches')
-        .set({ currentQuantity: newQuantity })
-        .where('id', '=', batchId)
-        .execute()
+  // All operations use trx instead of db
+  await trx.insertInto('sales').values(saleData).execute()
+  await trx
+    .updateTable('batches')
+    .set({ currentQuantity: newQuantity })
+    .where('id', '=', batchId)
+    .execute()
 })
 ```
 

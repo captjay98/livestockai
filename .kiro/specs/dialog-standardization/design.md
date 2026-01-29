@@ -56,7 +56,7 @@ const [dialogOpen, setDialogOpen] = useState(false)
 
 // Form data state
 const [formData, setFormData] = useState({
-    // entity-specific fields
+  // entity-specific fields
 })
 
 // Submission state
@@ -65,28 +65,28 @@ const [error, setError] = useState('')
 
 // Reset form helper
 const resetForm = () => {
-    setFormData({
-        /* initial values */
-    })
-    setError('')
+  setFormData({
+    /* initial values */
+  })
+  setError('')
 }
 
 // Submit handler
 const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError('')
+  e.preventDefault()
+  setIsSubmitting(true)
+  setError('')
 
-    try {
-        await createEntityAction({ data: formData })
-        setDialogOpen(false)
-        resetForm()
-        loadData() // Refresh list
-    } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create')
-    } finally {
-        setIsSubmitting(false)
-    }
+  try {
+    await createEntityAction({ data: formData })
+    setDialogOpen(false)
+    resetForm()
+    loadData() // Refresh list
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Failed to create')
+  } finally {
+    setIsSubmitting(false)
+  }
 }
 ```
 
@@ -273,11 +273,11 @@ Each list page will need these additional imports:
 
 ```typescript
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '~/components/ui/dialog'
 ```

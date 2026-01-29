@@ -34,10 +34,10 @@ Unlike other livestock, bees are tracked by:
 
 ```typescript
 const beeSourceSizes = [
-    { value: 'nucleus', label: 'Nucleus Colony (Nuc)' },
-    { value: 'package', label: 'Package Bees' },
-    { value: 'established', label: 'Established Hive' },
-    { value: 'swarm', label: 'Captured Swarm' },
+  { value: 'nucleus', label: 'Nucleus Colony (Nuc)' },
+  { value: 'package', label: 'Package Bees' },
+  { value: 'established', label: 'Established Hive' },
+  { value: 'swarm', label: 'Captured Swarm' },
 ]
 ```
 

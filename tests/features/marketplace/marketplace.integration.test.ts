@@ -3,21 +3,31 @@
  * Tests properties 14, 19, 20, 24, 25
  */
 
-import { beforeEach, describe, expect, it } from 'vitest'
-import { getTestDb, seedTestUser, truncateAllTables } from '../../helpers/db-integration'
-import type {ContactRequestInsert, ListingInsert} from '~/features/marketplace/repository';
+import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
-  
-  
+  closeTestDb,
+  getTestDb,
+  resetTestDb,
+  seedTestUser,
+  truncateAllTables,
+} from '../../helpers/db-integration'
+import type {
+  ContactRequestInsert,
+  ListingInsert,
+} from '~/features/marketplace/repository'
+import {
   getListings,
   hasExistingContactRequest,
   insertContactRequest,
   insertListing,
-  recordListingView
+  recordListingView,
 } from '~/features/marketplace/repository'
 
 // Helper to create test listing
-async function createTestListing(sellerId: string, overrides: Partial<ListingInsert> = {}): Promise<string> {
+async function createTestListing(
+  sellerId: string,
+  overrides: Partial<ListingInsert> = {},
+): Promise<string> {
   const db = getTestDb()
   const listing: ListingInsert = {
     sellerId,
@@ -50,10 +60,20 @@ describe('Marketplace Integration Tests', () => {
     await truncateAllTables()
   })
 
+  afterEach(() => {
+    resetTestDb()
+  })
+
+  afterAll(async () => {
+    await closeTestDb()
+  })
+
   describe('Property 14: Pagination Boundaries', () => {
     it('should return correct subset with page/pageSize params', async () => {
       const db = getTestDb()
-      const seller = await seedTestUser({ email: 'seller@test.com' })
+      const seller = await seedTestUser({
+        email: `seller-${Date.now()}@test.com`,
+      })
 
       // Create 5 test listings
       const listingIds = []
@@ -86,10 +106,10 @@ describe('Marketplace Integration Tests', () => {
       expect(page4.total).toBe(5)
 
       // Verify no overlap between pages
-      const page1Ids = page1.data.map(l => l.id)
-      const page2Ids = page2.data.map(l => l.id)
-      const page3Ids = page3.data.map(l => l.id)
-      
+      const page1Ids = page1.data.map((l) => l.id)
+      const page2Ids = page2.data.map((l) => l.id)
+      const page3Ids = page3.data.map((l) => l.id)
+
       expect(page1Ids).not.toEqual(expect.arrayContaining(page2Ids))
       expect(page1Ids).not.toEqual(expect.arrayContaining(page3Ids))
       expect(page2Ids).not.toEqual(expect.arrayContaining(page3Ids))
@@ -99,8 +119,12 @@ describe('Marketplace Integration Tests', () => {
   describe('Property 19: View Count Increment', () => {
     it('should increment viewCount when recordListingView is called', async () => {
       const db = getTestDb()
-      const seller = await seedTestUser({ email: 'seller@test.com' })
-      const viewer = await seedTestUser({ email: 'viewer@test.com' })
+      const seller = await seedTestUser({
+        email: `seller-${Date.now()}@test.com`,
+      })
+      const viewer = await seedTestUser({
+        email: `viewer-${Date.now()}@test.com`,
+      })
 
       const listingId = await createTestListing(seller.userId)
 
@@ -113,7 +137,12 @@ describe('Marketplace Integration Tests', () => {
       expect(initialListing.viewCount).toBe(0)
 
       // Record a view
-      const success = await recordListingView(db, listingId, viewer.userId, '192.168.1.1')
+      const success = await recordListingView(
+        db,
+        listingId,
+        viewer.userId,
+        '192.168.1.1',
+      )
       expect(success).toBe(true)
 
       // Verify view count incremented
@@ -125,7 +154,9 @@ describe('Marketplace Integration Tests', () => {
       expect(updatedListing.viewCount).toBe(1)
 
       // Record another view from different user
-      const viewer2 = await seedTestUser({ email: 'viewer2@test.com' })
+      const viewer2 = await seedTestUser({
+        email: `viewer2-${Date.now()}@test.com`,
+      })
       await recordListingView(db, listingId, viewer2.userId, '192.168.1.2')
 
       // Verify view count incremented again
@@ -141,8 +172,12 @@ describe('Marketplace Integration Tests', () => {
   describe('Property 20: Contact Count Increment', () => {
     it('should increment contactCount when contact request is created', async () => {
       const db = getTestDb()
-      const seller = await seedTestUser({ email: 'seller@test.com' })
-      const buyer = await seedTestUser({ email: 'buyer@test.com' })
+      const seller = await seedTestUser({
+        email: `seller-${Date.now()}@test.com`,
+      })
+      const buyer = await seedTestUser({
+        email: `buyer-${Date.now()}@test.com`,
+      })
 
       const listingId = await createTestListing(seller.userId)
 
@@ -177,8 +212,12 @@ describe('Marketplace Integration Tests', () => {
   describe('Property 24: Duplicate Contact Request Rejection', () => {
     it('should prevent same buyer from requesting twice for same listing', async () => {
       const db = getTestDb()
-      const seller = await seedTestUser({ email: 'seller@test.com' })
-      const buyer = await seedTestUser({ email: 'buyer@test.com' })
+      const seller = await seedTestUser({
+        email: `seller-${Date.now()}@test.com`,
+      })
+      const buyer = await seedTestUser({
+        email: `buyer-${Date.now()}@test.com`,
+      })
 
       const listingId = await createTestListing(seller.userId)
 
@@ -194,7 +233,11 @@ describe('Marketplace Integration Tests', () => {
       expect(firstRequestId).toBeDefined()
 
       // Check that request exists
-      const exists = await hasExistingContactRequest(db, listingId, buyer.userId)
+      const exists = await hasExistingContactRequest(
+        db,
+        listingId,
+        buyer.userId,
+      )
       expect(exists).toBe(true)
 
       // Second request should return existing ID (not create duplicate)
@@ -215,13 +258,22 @@ describe('Marketplace Integration Tests', () => {
   describe('Property 25: View Deduplication', () => {
     it('should prevent same viewer from incrementing view count twice per day', async () => {
       const db = getTestDb()
-      const seller = await seedTestUser({ email: 'seller@test.com' })
-      const viewer = await seedTestUser({ email: 'viewer@test.com' })
+      const seller = await seedTestUser({
+        email: `seller-${Date.now()}@test.com`,
+      })
+      const viewer = await seedTestUser({
+        email: `viewer-${Date.now()}@test.com`,
+      })
 
       const listingId = await createTestListing(seller.userId)
 
       // First view should succeed
-      const firstView = await recordListingView(db, listingId, viewer.userId, '192.168.1.1')
+      const firstView = await recordListingView(
+        db,
+        listingId,
+        viewer.userId,
+        '192.168.1.1',
+      )
       expect(firstView).toBe(true)
 
       // Verify view count is 1
@@ -233,7 +285,12 @@ describe('Marketplace Integration Tests', () => {
       expect(listing.viewCount).toBe(1)
 
       // Second view from same user should fail (duplicate)
-      const secondView = await recordListingView(db, listingId, viewer.userId, '192.168.1.1')
+      const secondView = await recordListingView(
+        db,
+        listingId,
+        viewer.userId,
+        '192.168.1.1',
+      )
       expect(secondView).toBe(false)
 
       // Verify view count is still 1
@@ -254,8 +311,15 @@ describe('Marketplace Integration Tests', () => {
       expect(viewRecords).toHaveLength(1)
 
       // Different viewer should still be able to view
-      const viewer2 = await seedTestUser({ email: 'viewer2@test.com' })
-      const thirdView = await recordListingView(db, listingId, viewer2.userId, '192.168.1.2')
+      const viewer2 = await seedTestUser({
+        email: `viewer2-${Date.now()}@test.com`,
+      })
+      const thirdView = await recordListingView(
+        db,
+        listingId,
+        viewer2.userId,
+        '192.168.1.2',
+      )
       expect(thirdView).toBe(true)
 
       // Verify view count is now 2

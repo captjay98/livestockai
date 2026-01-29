@@ -15,18 +15,18 @@ import type { Database } from '~/lib/db/types'
  * @returns True if user is assigned to the district
  */
 export async function checkDistrictMembership(
-    db: Kysely<Database>,
-    userId: string,
-    districtId: string,
+  db: Kysely<Database>,
+  userId: string,
+  districtId: string,
 ): Promise<boolean> {
-    const result = await db
-        .selectFrom('user_districts')
-        .select('userId')
-        .where('userId', '=', userId)
-        .where('districtId', '=', districtId)
-        .executeTakeFirst()
+  const result = await db
+    .selectFrom('user_districts')
+    .select('userId')
+    .where('userId', '=', userId)
+    .where('districtId', '=', districtId)
+    .executeTakeFirst()
 
-    return !!result
+  return !!result
 }
 
 /**
@@ -38,20 +38,20 @@ export async function checkDistrictMembership(
  * @returns True if user owns the farm
  */
 export async function checkFarmOwnership(
-    db: Kysely<Database>,
-    userId: string,
-    requestId: string,
+  db: Kysely<Database>,
+  userId: string,
+  requestId: string,
 ): Promise<boolean> {
-    const result = await db
-        .selectFrom('access_requests')
-        .innerJoin('user_farms', 'user_farms.farmId', 'access_requests.farmId')
-        .select('user_farms.userId')
-        .where('access_requests.id', '=', requestId)
-        .where('user_farms.userId', '=', userId)
-        .where('user_farms.role', 'in', ['owner', 'manager'])
-        .executeTakeFirst()
+  const result = await db
+    .selectFrom('access_requests')
+    .innerJoin('user_farms', 'user_farms.farmId', 'access_requests.farmId')
+    .select('user_farms.userId')
+    .where('access_requests.id', '=', requestId)
+    .where('user_farms.userId', '=', userId)
+    .where('user_farms.role', 'in', ['owner', 'manager'])
+    .executeTakeFirst()
 
-    return !!result
+  return !!result
 }
 
 /**
@@ -63,18 +63,18 @@ export async function checkFarmOwnership(
  * @returns True if user owns the farm
  */
 export async function checkGrantOwnership(
-    db: Kysely<Database>,
-    userId: string,
-    grantId: string,
+  db: Kysely<Database>,
+  userId: string,
+  grantId: string,
 ): Promise<boolean> {
-    const result = await db
-        .selectFrom('access_grants')
-        .innerJoin('user_farms', 'user_farms.farmId', 'access_grants.farmId')
-        .select('user_farms.userId')
-        .where('access_grants.id', '=', grantId)
-        .where('user_farms.userId', '=', userId)
-        .where('user_farms.role', 'in', ['owner', 'manager'])
-        .executeTakeFirst()
+  const result = await db
+    .selectFrom('access_grants')
+    .innerJoin('user_farms', 'user_farms.farmId', 'access_grants.farmId')
+    .select('user_farms.userId')
+    .where('access_grants.id', '=', grantId)
+    .where('user_farms.userId', '=', userId)
+    .where('user_farms.role', 'in', ['owner', 'manager'])
+    .executeTakeFirst()
 
-    return !!result
+  return !!result
 }

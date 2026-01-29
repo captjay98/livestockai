@@ -20,10 +20,10 @@ OpenLivestock supports poultry farming with specialized tracking for broilers an
 
 ```typescript
 const poultrySourceSizes = [
-    { value: 'day-old', label: 'Day Old Chicks (DOC)' },
-    { value: 'week-old', label: 'Week Old' },
-    { value: 'point-of-lay', label: 'Point of Lay (POL)' },
-    { value: 'grower', label: 'Grower' },
+  { value: 'day-old', label: 'Day Old Chicks (DOC)' },
+  { value: 'week-old', label: 'Week Old' },
+  { value: 'point-of-lay', label: 'Point of Lay (POL)' },
+  { value: 'grower', label: 'Grower' },
 ]
 ```
 
@@ -49,15 +49,14 @@ Broiler growth follows a sigmoid curve:
 ```typescript
 // Simplified growth model
 function estimateWeight(ageInDays: number): number {
-    // Gompertz growth curve parameters for broilers
-    const maxWeight = 3000 // grams
-    const growthRate = 0.05
-    const inflectionPoint = 35 // days
+  // Gompertz growth curve parameters for broilers
+  const maxWeight = 3000 // grams
+  const growthRate = 0.05
+  const inflectionPoint = 35 // days
 
-    return (
-        maxWeight *
-        Math.exp(-Math.exp(-growthRate * (ageInDays - inflectionPoint)))
-    )
+  return (
+    maxWeight * Math.exp(-Math.exp(-growthRate * (ageInDays - inflectionPoint)))
+  )
 }
 ```
 

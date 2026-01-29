@@ -1,123 +1,123 @@
 {
-    "name": "i18n-engineer",
-    "description": "i18n specialist for translations and localization - guardian of multilingual accessibility",
-    "keyboardShortcut": "ctrl+shift+8",
-    "welcomeMessage": "🌍 i18n Engineer ready. I maintain translations across 15 languages.",
-    "prompt": "file://../prompts/agents/i18n-engineer.md",
-    "tools": [
-        "read",
-        "write",
-        "shell",
-        "grep",
-        "glob",
-        "aws",
-        "code",
-        "web_search",
-        "web_fetch",
-        "knowledge",
-        "todo_list",
-        "thinking",
-        "introspect",
-        "subagent",
-        "@sequential-thinking"
-    ],
-    "allowedTools": [
-        "read",
-        "write",
-        "shell",
-        "grep",
-        "glob",
-        "aws",
-        "code",
-        "web_search",
-        "web_fetch",
-        "knowledge",
-        "todo_list",
-        "thinking",
-        "introspect",
-        "subagent",
-        "@sequential-thinking"
-    ],
-    "toolsSettings": {
-        "write": {
-            "allowedPaths": ["app/lib/i18n/**", "*.md"]
-        },
-        "shell": {
-            "allowedCommands": [
-                "bun *",
-                "grep *",
-                "find *",
-                "wc *",
-                "head *",
-                "tail *"
-            ],
-            "autoAllowReadonly": true,
-            "deniedCommands": ["rm -rf *", "sudo *"]
-        }
+  "name": "i18n-engineer",
+  "description": "i18n specialist for translations and localization - guardian of multilingual accessibility",
+  "keyboardShortcut": "ctrl+shift+8",
+  "welcomeMessage": "🌍 i18n Engineer ready. I maintain translations across 15 languages.",
+  "prompt": "file://../prompts/agents/i18n-engineer.md",
+  "tools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "aws",
+    "code",
+    "web_search",
+    "web_fetch",
+    "knowledge",
+    "todo_list",
+    "thinking",
+    "introspect",
+    "subagent",
+    "@sequential-thinking"
+  ],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": ["app/lib/i18n/**", "*.md"]
     },
-    "resources": [
-        "file://AGENTS.md",
-        "file://README.md",
-        "file://app/lib/i18n/config.ts",
-        "file://app/lib/i18n/provider.tsx",
-        "file://scripts/audit-translations.ts",
-        {
-            "type": "knowledgeBase",
-            "source": "file://./docs",
-            "name": "ProjectDocs",
-            "description": "Architecture, database, deployment, testing, and API documentation",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        {
-            "type": "knowledgeBase",
-            "source": "file://./docs/i18n",
-            "name": "TranslationDocs",
-            "description": "Translated documentation in multiple languages",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        {
-            "type": "knowledgeBase",
-            "source": "file://./app/lib/i18n/locales",
-            "name": "LocaleFiles",
-            "description": "All translation locale files",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        {
-            "type": "knowledgeBase",
-            "source": "file://./DEVLOG.md",
-            "name": "DevLog",
-            "description": "Development history, decisions, and progress tracking",
-            "indexType": "best",
-            "autoUpdate": true
-        },
-        "skill://.kiro/skills/i18n-patterns/SKILL.md",
-        "skill://.kiro/skills/multi-currency/SKILL.md"
-    ],
-    "hooks": {
-        "agentSpawn": [
-            {
-                "command": "echo '🌍 i18n Engineer ready. Languages: 15 | Keys per language: 1146+' && find app/lib/i18n/locales -name '*.ts' | wc -l | xargs echo 'Locale files:'",
-                "timeout_ms": 3000
-            }
-        ],
-        "preToolUse": [
-            {
-                "matcher": "fs_write",
-                "command": "echo 'Validating locale file format...'",
-                "timeout_ms": 2000
-            }
-        ],
-        "postToolUse": [
-            {
-                "matcher": "fs_write",
-                "command": "bun run scripts/audit-translations.ts 2>/dev/null || true",
-                "timeout_ms": 30000
-            }
-        ]
+    "shell": {
+      "allowedCommands": [
+        "bun *",
+        "grep *",
+        "find *",
+        "wc *",
+        "head *",
+        "tail *"
+      ],
+      "autoAllowReadonly": true,
+      "deniedCommands": ["rm -rf *", "sudo *"]
+    }
+  },
+  "resources": [
+    "file://AGENTS.md",
+    "file://README.md",
+    "file://app/lib/i18n/config.ts",
+    "file://app/lib/i18n/provider.tsx",
+    "file://scripts/audit-translations.ts",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs",
+      "name": "ProjectDocs",
+      "description": "Architecture, database, deployment, testing, and API documentation",
+      "indexType": "best",
+      "autoUpdate": true
     },
-    "includeMcpJson": true,
-    "model": "claude-sonnet-4.5"
+    {
+      "type": "knowledgeBase",
+      "source": "file://./docs/i18n",
+      "name": "TranslationDocs",
+      "description": "Translated documentation in multiple languages",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./app/lib/i18n/locales",
+      "name": "LocaleFiles",
+      "description": "All translation locale files",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    {
+      "type": "knowledgeBase",
+      "source": "file://./DEVLOG.md",
+      "name": "DevLog",
+      "description": "Development history, decisions, and progress tracking",
+      "indexType": "best",
+      "autoUpdate": true
+    },
+    "skill://.kiro/skills/i18n-patterns/SKILL.md",
+    "skill://.kiro/skills/multi-currency/SKILL.md"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "echo '🌍 i18n Engineer ready. Languages: 15 | Keys per language: 1146+' && find app/lib/i18n/locales -name '*.ts' | wc -l | xargs echo 'Locale files:'",
+        "timeout_ms": 3000
+      }
+    ],
+    "preToolUse": [
+      {
+        "matcher": "fs_write",
+        "command": "echo 'Validating locale file format...'",
+        "timeout_ms": 2000
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "fs_write",
+        "command": "bun run scripts/audit-translations.ts 2>/dev/null || true",
+        "timeout_ms": 30000
+      }
+    ]
+  },
+  "includeMcpJson": true,
+  "model": "claude-sonnet-4.5"
 }

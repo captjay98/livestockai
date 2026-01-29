@@ -192,11 +192,11 @@ Check if feature affects:
 ## Relevant Documentation
 
 - [Library Official Docs](https://example.com/docs#section)
-    - Specific feature implementation guide
-    - Why: Needed for X functionality
+  - Specific feature implementation guide
+  - Why: Needed for X functionality
 - [Framework Guide](https://example.com/guide#integration)
-    - Integration patterns section
-    - Why: Shows how to connect components
+  - Integration patterns section
+  - Why: Shows how to connect components
 ```
 
 ### Phase 4: Deep Strategic Thinking
@@ -277,11 +277,11 @@ So that <benefit/value>
 ### Relevant Documentation YOU SHOULD READ THESE BEFORE IMPLEMENTING!
 
 - [Documentation Link 1](https://example.com/doc1#section)
-    - Specific section: Authentication setup
-    - Why: Required for implementing secure endpoints
+  - Specific section: Authentication setup
+  - Why: Required for implementing secure endpoints
 - [Documentation Link 2](https://example.com/doc2#integration)
-    - Specific section: Database integration
-    - Why: Shows proper async database patterns
+  - Specific section: Database integration
+  - Why: Shows proper async database patterns
 
 ### Patterns to Follow
 
@@ -296,24 +296,24 @@ import { z } from 'zod'
 import { AppError } from '~/lib/errors'
 
 export const myFunction = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            /* schema */
-        }),
-    )
-    .handler(async ({ data }) => {
-        const { requireAuth } = await import('../auth/server-middleware')
-        const session = await requireAuth()
+  .inputValidator(
+    z.object({
+      /* schema */
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    const session = await requireAuth()
 
-        const { db } = await import('~/lib/db') // MUST be dynamic
+    const { db } = await import('~/lib/db') // MUST be dynamic
 
-        try {
-            // Implementation
-        } catch (error) {
-            if (error instanceof AppError) throw error
-            throw new AppError('DATABASE_ERROR', { cause: error })
-        }
-    })
+    try {
+      // Implementation
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', { cause: error })
+    }
+  })
 ```
 ````
 
@@ -342,11 +342,11 @@ const { t } = useTranslation(['feature', 'common'])
 ```typescript
 // Explicit column selection, type-safe
 const results = await db
-    .selectFrom('batches')
-    .leftJoin('farms', 'farms.id', 'batches.farmId')
-    .select(['batches.id', 'batches.species', 'farms.name as farmName'])
-    .where('batches.farmId', '=', farmId)
-    .execute()
+  .selectFrom('batches')
+  .leftJoin('farms', 'farms.id', 'batches.farmId')
+  .select(['batches.id', 'batches.species', 'farms.name as farmName'])
+  .where('batches.farmId', '=', farmId)
+  .execute()
 ```
 
 **Error Handling Pattern:**
@@ -561,12 +561,12 @@ OpenLivestock feature completion checklist:
 - [ ] Test coverage meets requirements (80%+ overall, 90%+ business logic, 100% financial)
 - [ ] Integration tests verify end-to-end workflows
 - [ ] Code follows OpenLivestock patterns:
-    - [ ] Dynamic imports in server functions
-    - [ ] AppError for error handling
-    - [ ] useFormatCurrency() for currency display
-    - [ ] useTranslation() for user-facing strings
-    - [ ] requireAuth() and checkFarmAccess() for protected operations
-    - [ ] Kysely type-safe queries with explicit column selection
+  - [ ] Dynamic imports in server functions
+  - [ ] AppError for error handling
+  - [ ] useFormatCurrency() for currency display
+  - [ ] useTranslation() for user-facing strings
+  - [ ] requireAuth() and checkFarmAccess() for protected operations
+  - [ ] Kysely type-safe queries with explicit column selection
 - [ ] No regressions in existing functionality (all 300+ tests pass)
 - [ ] Database migration created (if schema changed)
 - [ ] Types updated in `app/lib/db/types.ts` (if schema changed)

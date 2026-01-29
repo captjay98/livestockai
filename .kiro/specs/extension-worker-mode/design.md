@@ -5,6 +5,7 @@
 Extension Worker Mode enables government/NGO field agents to monitor farm health across their assigned districts through an OAuth-style consent model. The design follows OpenLivestock's three-layer architecture and integrates with existing systems.
 
 **Key Design Decisions:**
+
 1. **Extend FarmRole:** Add 'observer' to existing type (like Digital Foreman added 'worker')
 2. **user_districts table:** District-level assignments separate from farm-level access
 3. **access_grants table:** Time-limited consent with expiration
@@ -44,7 +45,7 @@ CREATE TABLE regions (
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  
+
   CONSTRAINT unique_region_name UNIQUE (country_code, parent_id, name),
   CONSTRAINT unique_region_slug UNIQUE (slug)
 );
@@ -64,7 +65,7 @@ CREATE TABLE user_districts (
   is_supervisor BOOLEAN DEFAULT false,
   assigned_at TIMESTAMP DEFAULT NOW(),
   assigned_by UUID REFERENCES users(id) ON DELETE SET NULL,
-  
+
   CONSTRAINT unique_user_district UNIQUE (user_id, district_id)
 );
 
@@ -109,8 +110,8 @@ CREATE TABLE access_grants (
   revoked_at TIMESTAMP,
   revoked_by UUID REFERENCES users(id) ON DELETE SET NULL,
   revoked_reason TEXT,
-  
-  CONSTRAINT unique_active_grant UNIQUE (user_id, farm_id) 
+
+  CONSTRAINT unique_active_grant UNIQUE (user_id, farm_id)
     DEFERRABLE INITIALLY DEFERRED
 );
 
@@ -118,15 +119,15 @@ CREATE TABLE access_grants (
 -- Note: We only check revoked_at IS NULL, not expires_at > NOW()
 -- because NOW() is evaluated at index creation time, not query time.
 -- Expiration is checked at query time via idx_access_grants_check.
-CREATE UNIQUE INDEX idx_active_access_grant 
-  ON access_grants(user_id, farm_id) 
+CREATE UNIQUE INDEX idx_active_access_grant
+  ON access_grants(user_id, farm_id)
   WHERE revoked_at IS NULL;
 
 -- Composite index for access check queries (covers the common WHERE clause)
 CREATE INDEX idx_access_grants_check ON access_grants(user_id, farm_id, expires_at, revoked_at);
 
 -- Index for expiration cron job
-CREATE INDEX idx_access_grants_expiring ON access_grants(expires_at) 
+CREATE INDEX idx_access_grants_expiring ON access_grants(expires_at)
   WHERE revoked_at IS NULL;
 
 CREATE INDEX idx_access_grants_farm ON access_grants(farm_id);
@@ -202,7 +203,7 @@ CREATE TABLE species_thresholds (
   amber_threshold DECIMAL(5,2) NOT NULL,
   red_threshold DECIMAL(5,2) NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
-  
+
   CONSTRAINT unique_species_region UNIQUE (species, region_id)
 );
 
@@ -286,6 +287,7 @@ export function validateFarmRole(role: string): string | null {
 ```
 
 **Why observer differs from worker:**
+
 - `worker`: `['batch:read', 'finance:read']` - Farm employees need to see costs for purchasing
 - `observer`: `['batch:read', 'farm:read']` - Extension agents should NOT see finances by default
 - Financial visibility for observers is controlled separately via `access_grants.financialVisibility`
@@ -361,8 +363,8 @@ export interface VisitRecordTable {
   findings: string
   recommendations: string
   attachments: Array<{
-    key: string        // Storage key
-    filename: string   // Original filename
+    key: string // Storage key
+    filename: string // Original filename
     contentType: string
     uploadedAt: string // ISO date
   }> | null
@@ -376,8 +378,8 @@ export interface VisitRecordTable {
 export interface OutbreakAlertTable {
   id: Generated<string>
   districtId: string
-  species: string        // Specific: "broiler", "catfish", "angus"
-  livestockType: string  // General: "poultry", "fish", "cattle" (for filtering/grouping)
+  species: string // Specific: "broiler", "catfish", "angus"
+  livestockType: string // General: "poultry", "fish", "cattle" (for filtering/grouping)
   severity: 'watch' | 'alert' | 'critical'
   status: 'active' | 'monitoring' | 'resolved' | 'false_positive'
   detectedAt: Generated<Date>
@@ -558,12 +560,15 @@ const DEFAULT_THRESHOLDS: Record<string, { amber: number; red: number }> = {
 export function calculateHealthStatus(
   mortalityRate: number,
   species: string,
-  customThresholds?: SpeciesThreshold
+  customThresholds?: SpeciesThreshold,
 ): 'green' | 'amber' | 'red' {
-  const thresholds = customThresholds 
-    ? { amber: customThresholds.amberThreshold, red: customThresholds.redThreshold }
+  const thresholds = customThresholds
+    ? {
+        amber: customThresholds.amberThreshold,
+        red: customThresholds.redThreshold,
+      }
     : DEFAULT_THRESHOLDS[species.toLowerCase()] || { amber: 5, red: 10 }
-  
+
   if (mortalityRate > thresholds.red) return 'red'
   if (mortalityRate > thresholds.amber) return 'amber'
   return 'green'
@@ -571,7 +576,7 @@ export function calculateHealthStatus(
 
 export function calculateMortalityRate(
   initialQuantity: number,
-  currentQuantity: number
+  currentQuantity: number,
 ): number {
   if (initialQuantity === 0) return 0
   const deaths = initialQuantity - currentQuantity
@@ -592,9 +597,9 @@ interface FarmMortalityData {
   mortalityRate: number
   batchSize: number
   batchAgeDays: number
-  hadRecentSale: boolean  // true if farm has sales in last 7 days for this batch
-                          // This prevents false positives when farmers sell livestock
-                          // (reduced currentQuantity looks like mortality)
+  hadRecentSale: boolean // true if farm has sales in last 7 days for this batch
+  // This prevents false positives when farmers sell livestock
+  // (reduced currentQuantity looks like mortality)
   reportedAt: Date
 }
 
@@ -604,13 +609,13 @@ export function detectOutbreaks(
   minFarms: number = 3,
   minBatchSize: number = 50,
   minBatchAge: number = 7,
-  windowDays: number = 7
+  windowDays: number = 7,
 ): OutbreakPattern[] {
   const now = new Date()
   const windowStart = new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000)
-  
+
   // Filter to valid concerning farms
-  const concerningFarms = mortalityData.filter(f => {
+  const concerningFarms = mortalityData.filter((f) => {
     const threshold = thresholds.get(f.species.toLowerCase()) || 10
     return (
       f.mortalityRate > threshold &&
@@ -620,7 +625,7 @@ export function detectOutbreaks(
       !f.hadRecentSale
     )
   })
-  
+
   // Group by district + species
   const clusters = new Map<string, FarmMortalityData[]>()
   for (const farm of concerningFarms) {
@@ -628,7 +633,7 @@ export function detectOutbreaks(
     if (!clusters.has(key)) clusters.set(key, [])
     clusters.get(key)!.push(farm)
   }
-  
+
   // Create patterns for clusters with 3+ farms
   const patterns: OutbreakPattern[] = []
   for (const [_, farms] of clusters) {
@@ -638,15 +643,17 @@ export function detectOutbreaks(
         species: farms[0].species,
         livestockType: farms[0].livestockType,
         affectedFarms: farms,
-        severity: classifySeverity(farms.length)
+        severity: classifySeverity(farms.length),
       })
     }
   }
-  
+
   return patterns
 }
 
-export function classifySeverity(farmCount: number): 'watch' | 'alert' | 'critical' {
+export function classifySeverity(
+  farmCount: number,
+): 'watch' | 'alert' | 'critical' {
   if (farmCount >= 10) return 'critical'
   if (farmCount >= 5) return 'alert'
   return 'watch'
@@ -661,58 +668,67 @@ export function classifySeverity(farmCount: number): 'watch' | 'alert' | 'critic
 // app/features/extension/server.ts
 
 export const getDistrictDashboardFn = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({
-    districtId: z.string().uuid(),
-    page: z.number().int().positive().default(1),
-    pageSize: z.number().int().min(10).max(100).default(50),
-    livestockType: z.string().optional(),
-    healthStatus: z.enum(['green', 'amber', 'red']).optional(),
-    search: z.string().optional()
-  }))
+  .inputValidator(
+    z.object({
+      districtId: z.string().uuid(),
+      page: z.number().int().positive().default(1),
+      pageSize: z.number().int().min(10).max(100).default(50),
+      livestockType: z.string().optional(),
+      healthStatus: z.enum(['green', 'amber', 'red']).optional(),
+      search: z.string().optional(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     const session = await requireAuth()
-    
+
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
-    
+
     // Verify user is assigned to district
     const assignment = await db
       .selectFrom('user_districts')
       .where('userId', '=', session.user.id)
       .where('districtId', '=', data.districtId)
       .executeTakeFirst()
-    
+
     if (!assignment) {
       throw new AppError('NOT_DISTRICT_MEMBER')
     }
-    
+
     // Single optimized query with CTEs
     const { sql } = await import('kysely')
-    
+
     const farms = await db
       .with('farm_mortality', (qb) =>
-        qb.selectFrom('batches')
+        qb
+          .selectFrom('batches')
           .select([
             'farmId',
             'species',
             'livestockType',
             sql<number>`SUM(initial_quantity)`.as('totalInitial'),
             sql<number>`SUM(current_quantity)`.as('totalCurrent'),
-            sql<number>`COUNT(*)`.as('batchCount')
+            sql<number>`COUNT(*)`.as('batchCount'),
           ])
           .where('status', '=', 'active')
-          .groupBy(['farmId', 'species', 'livestockType'])
+          .groupBy(['farmId', 'species', 'livestockType']),
       )
-      .with('thresholds', (qb) =>
-        qb.selectFrom('species_thresholds')
-          .select(['species', 'amberThreshold', 'redThreshold'])
-          .where('regionId', 'is', null) // Global defaults
+      .with(
+        'thresholds',
+        (qb) =>
+          qb
+            .selectFrom('species_thresholds')
+            .select(['species', 'amberThreshold', 'redThreshold'])
+            .where('regionId', 'is', null), // Global defaults
       )
       .selectFrom('farms')
       .innerJoin('access_grants', 'access_grants.farmId', 'farms.id')
       .leftJoin('farm_mortality', 'farm_mortality.farmId', 'farms.id')
-      .leftJoin('thresholds', sql`LOWER(thresholds.species) = LOWER(farm_mortality.species)`)
+      .leftJoin(
+        'thresholds',
+        sql`LOWER(thresholds.species) = LOWER(farm_mortality.species)`,
+      )
       .select([
         'farms.id',
         'farms.name',
@@ -724,7 +740,7 @@ export const getDistrictDashboardFn = createServerFn({ method: 'GET' })
         'farm_mortality.batchCount',
         'thresholds.amberThreshold',
         'thresholds.redThreshold',
-        'access_grants.financialVisibility'
+        'access_grants.financialVisibility',
       ])
       .where('farms.districtId', '=', data.districtId)
       .where('access_grants.userId', '=', session.user.id)
@@ -734,25 +750,28 @@ export const getDistrictDashboardFn = createServerFn({ method: 'GET' })
       .limit(data.pageSize)
       .offset((data.page - 1) * data.pageSize)
       .execute()
-    
+
     // Calculate health status for each farm
-    const { calculateHealthStatus, calculateMortalityRate } = await import('./health-service')
-    
-    const farmsWithHealth = farms.map(farm => {
+    const { calculateHealthStatus, calculateMortalityRate } =
+      await import('./health-service')
+
+    const farmsWithHealth = farms.map((farm) => {
       const mortalityRate = calculateMortalityRate(
         Number(farm.totalInitial || 0),
-        Number(farm.totalCurrent || 0)
+        Number(farm.totalCurrent || 0),
       )
       const healthStatus = calculateHealthStatus(
         mortalityRate,
         farm.species || 'broiler',
-        farm.amberThreshold && farm.redThreshold ? {
-          species: farm.species!,
-          amberThreshold: Number(farm.amberThreshold),
-          redThreshold: Number(farm.redThreshold)
-        } : undefined
+        farm.amberThreshold && farm.redThreshold
+          ? {
+              species: farm.species!,
+              amberThreshold: Number(farm.amberThreshold),
+              redThreshold: Number(farm.redThreshold),
+            }
+          : undefined,
       )
-      
+
       return {
         id: farm.id,
         name: farm.name,
@@ -763,14 +782,16 @@ export const getDistrictDashboardFn = createServerFn({ method: 'GET' })
         totalLivestock: Number(farm.totalCurrent || 0),
         mortalityRate,
         healthStatus,
-        financialVisibility: farm.financialVisibility
+        financialVisibility: farm.financialVisibility,
       }
     })
-    
+
     // Sort by urgency (red first)
     const sortOrder = { red: 0, amber: 1, green: 2 }
-    farmsWithHealth.sort((a, b) => sortOrder[a.healthStatus] - sortOrder[b.healthStatus])
-    
+    farmsWithHealth.sort(
+      (a, b) => sortOrder[a.healthStatus] - sortOrder[b.healthStatus],
+    )
+
     return { farms: farmsWithHealth }
   })
 ```
@@ -792,13 +813,13 @@ export type NotificationType =
   | 'taskRejected'
   | 'flaggedCheckIn'
   // Extension Worker Mode - NEW
-  | 'accessRequest'        // Farmer receives access request from agent
-  | 'accessGranted'        // Agent receives approval notification
-  | 'accessDenied'         // Agent receives denial notification
-  | 'accessExpiring'       // Both parties, 7 days before expiration
-  | 'accessExpired'        // Both parties, when grant expires
-  | 'outbreakAlert'        // Agent receives outbreak alert for their district
-  | 'visitRecordCreated'   // Farmer receives notification of new visit record
+  | 'accessRequest' // Farmer receives access request from agent
+  | 'accessGranted' // Agent receives approval notification
+  | 'accessDenied' // Agent receives denial notification
+  | 'accessExpiring' // Both parties, 7 days before expiration
+  | 'accessExpired' // Both parties, when grant expires
+  | 'outbreakAlert' // Agent receives outbreak alert for their district
+  | 'visitRecordCreated' // Farmer receives notification of new visit record
 ```
 
 ## File Storage
@@ -807,14 +828,18 @@ Visit record attachments use the existing storage abstraction layer (`app/featur
 
 ```typescript
 // Use existing storage service - NOT hardcoded R2
-import { uploadFile, getSignedUrl, deleteFile } from '~/features/integrations/storage'
+import {
+  uploadFile,
+  getSignedUrl,
+  deleteFile,
+} from '~/features/integrations/storage'
 
 // Upload attachment
 const result = await uploadFile(
   `visit-records/${visitId}/${filename}`,
   fileBuffer,
   contentType,
-  { access: 'private', metadata: { visitId, agentId } }
+  { access: 'private', metadata: { visitId, agentId } },
 )
 
 // Get signed URL for viewing (1-hour expiration)
@@ -822,6 +847,7 @@ const url = await getSignedUrl(`visit-records/${visitId}/${filename}`, 3600)
 ```
 
 **Storage Configuration:**
+
 - Provider: Configured via `STORAGE_PROVIDER` env var (r2, s3, local)
 - Bucket: Uses `PRIVATE_STORAGE_BUCKET` binding (not hardcoded)
 - Path convention: `visit-records/{visitId}/{filename}`
@@ -832,21 +858,24 @@ const url = await getSignedUrl(`visit-records/${visitId}/${filename}`, 3600)
 
 These values should be stored in a `extension_settings` table or environment variables for flexibility:
 
-| Setting | Default | Env Var | Description |
-|---------|---------|---------|-------------|
-| Visit edit window | 24 hours | `VISIT_EDIT_WINDOW_HOURS` | Time window for editing visit records |
-| Outbreak detection interval | 6 hours | Cron config | Background job frequency |
-| Access request expiration | 30 days | `ACCESS_REQUEST_EXPIRY_DAYS` | Auto-expire pending requests |
-| Access grant default duration | 90 days | `ACCESS_GRANT_DEFAULT_DAYS` | Default grant duration |
-| Expiration warning days | 7 days | `ACCESS_EXPIRY_WARNING_DAYS` | Days before expiry to warn |
+| Setting                       | Default  | Env Var                      | Description                           |
+| ----------------------------- | -------- | ---------------------------- | ------------------------------------- |
+| Visit edit window             | 24 hours | `VISIT_EDIT_WINDOW_HOURS`    | Time window for editing visit records |
+| Outbreak detection interval   | 6 hours  | Cron config                  | Background job frequency              |
+| Access request expiration     | 30 days  | `ACCESS_REQUEST_EXPIRY_DAYS` | Auto-expire pending requests          |
+| Access grant default duration | 90 days  | `ACCESS_GRANT_DEFAULT_DAYS`  | Default grant duration                |
+| Expiration warning days       | 7 days   | `ACCESS_EXPIRY_WARNING_DAYS` | Days before expiry to warn            |
 
 ```typescript
 // app/features/extension/constants.ts
 export const EXTENSION_DEFAULTS = {
   VISIT_EDIT_WINDOW_HOURS: Number(process.env.VISIT_EDIT_WINDOW_HOURS) || 24,
-  ACCESS_REQUEST_EXPIRY_DAYS: Number(process.env.ACCESS_REQUEST_EXPIRY_DAYS) || 30,
-  ACCESS_GRANT_DEFAULT_DAYS: Number(process.env.ACCESS_GRANT_DEFAULT_DAYS) || 90,
-  ACCESS_EXPIRY_WARNING_DAYS: Number(process.env.ACCESS_EXPIRY_WARNING_DAYS) || 7,
+  ACCESS_REQUEST_EXPIRY_DAYS:
+    Number(process.env.ACCESS_REQUEST_EXPIRY_DAYS) || 30,
+  ACCESS_GRANT_DEFAULT_DAYS:
+    Number(process.env.ACCESS_GRANT_DEFAULT_DAYS) || 90,
+  ACCESS_EXPIRY_WARNING_DAYS:
+    Number(process.env.ACCESS_EXPIRY_WARNING_DAYS) || 7,
 } as const
 ```
 
@@ -872,7 +901,7 @@ export default {
         await sendExpirationWarnings(env)
         break
     }
-  }
+  },
 }
 
 // 1. Expire access grants (daily at midnight UTC)
@@ -925,16 +954,16 @@ For critical/fast-spreading outbreaks, consider adding real-time detection trigg
 
 ## Integration Points
 
-| System | Integration |
-|--------|-------------|
-| auth/utils.ts | Add 'observer' to FarmRole, ROLE_PERMISSIONS, create checkObserverAccess() |
-| user_farms | Observer role uses access_grants table, NOT user_farms |
-| notifications | 7 new notification types |
-| audit_logs | Log all extension worker actions |
-| batches | Read mortality data for health status |
-| farms | Add district_id column |
-| Cloudflare R2 | Store visit attachments in PRIVATE_STORAGE_BUCKET |
-| wrangler.jsonc | Add cron triggers for background jobs |
+| System         | Integration                                                                |
+| -------------- | -------------------------------------------------------------------------- |
+| auth/utils.ts  | Add 'observer' to FarmRole, ROLE_PERMISSIONS, create checkObserverAccess() |
+| user_farms     | Observer role uses access_grants table, NOT user_farms                     |
+| notifications  | 7 new notification types                                                   |
+| audit_logs     | Log all extension worker actions                                           |
+| batches        | Read mortality data for health status                                      |
+| farms          | Add district_id column                                                     |
+| Cloudflare R2  | Store visit attachments in PRIVATE_STORAGE_BUCKET                          |
+| wrangler.jsonc | Add cron triggers for background jobs                                      |
 
 ## Auth System Changes
 
@@ -946,16 +975,16 @@ For critical/fast-spreading outbreaks, consider adding real-time detection trigg
 /**
  * Check if user has observer access to a farm via access_grants.
  * This is SEPARATE from checkFarmAccess which uses user_farms.
- * 
+ *
  * @returns Object with access status and financial visibility flag
  */
 export async function checkObserverAccess(
   userId: string,
-  farmId: string
+  farmId: string,
 ): Promise<{ hasAccess: boolean; financialVisibility: boolean }> {
   const { getDb } = await import('~/lib/db')
   const db = await getDb()
-  
+
   const grant = await db
     .selectFrom('access_grants')
     .select(['financialVisibility'])
@@ -964,10 +993,10 @@ export async function checkObserverAccess(
     .where('expiresAt', '>', new Date())
     .where('revokedAt', 'is', null)
     .executeTakeFirst()
-  
+
   return {
     hasAccess: !!grant,
-    financialVisibility: grant?.financialVisibility ?? false
+    financialVisibility: grant?.financialVisibility ?? false,
   }
 }
 
@@ -976,19 +1005,21 @@ export async function checkObserverAccess(
  */
 export async function getObserverGrant(
   userId: string,
-  farmId: string
+  farmId: string,
 ): Promise<AccessGrant | null> {
   const { getDb } = await import('~/lib/db')
   const db = await getDb()
-  
-  return db
-    .selectFrom('access_grants')
-    .selectAll()
-    .where('userId', '=', userId)
-    .where('farmId', '=', farmId)
-    .where('expiresAt', '>', new Date())
-    .where('revokedAt', 'is', null)
-    .executeTakeFirst() ?? null
+
+  return (
+    db
+      .selectFrom('access_grants')
+      .selectAll()
+      .where('userId', '=', userId)
+      .where('farmId', '=', farmId)
+      .where('expiresAt', '>', new Date())
+      .where('revokedAt', 'is', null)
+      .executeTakeFirst() ?? null
+  )
 }
 ```
 
@@ -999,7 +1030,7 @@ export async function getObserverGrant(
 
 export async function getUserPermissions(
   userId: string,
-  farmId: string
+  farmId: string,
 ): Promise<Array<Permission>> {
   const { getDb } = await import('~/lib/db')
   const db = await getDb()

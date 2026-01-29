@@ -107,16 +107,16 @@ Use `$paramName` for dynamic segments:
 ```typescript
 // app/routes/_auth/batches/$batchId.tsx
 export const Route = createFileRoute('/_auth/batches/$batchId')({
-    loader: async ({ params }) => {
-        return getBatchDetailsFn({ data: { batchId: params.batchId } })
-    },
-    component: BatchDetailPage,
+  loader: async ({ params }) => {
+    return getBatchDetailsFn({ data: { batchId: params.batchId } })
+  },
+  component: BatchDetailPage,
 })
 
 function BatchDetailPage() {
-    const { batch, stats } = Route.useLoaderData()
-    const { batchId } = Route.useParams()
-    // ...
+  const { batch, stats } = Route.useLoaderData()
+  const { batchId } = Route.useParams()
+  // ...
 }
 ```
 

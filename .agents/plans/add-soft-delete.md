@@ -89,22 +89,22 @@ Add `deletedAt` column to primary entities. Change delete operations to set `del
 ```typescript
 // Soft delete indexes
 await db.schema
-    .createIndex('idx_batches_deleted_at')
-    .on('batches')
-    .column('deletedAt')
-    .execute()
+  .createIndex('idx_batches_deleted_at')
+  .on('batches')
+  .column('deletedAt')
+  .execute()
 
 await db.schema
-    .createIndex('idx_customers_deleted_at')
-    .on('customers')
-    .column('deletedAt')
-    .execute()
+  .createIndex('idx_customers_deleted_at')
+  .on('customers')
+  .column('deletedAt')
+  .execute()
 
 await db.schema
-    .createIndex('idx_suppliers_deleted_at')
-    .on('suppliers')
-    .column('deletedAt')
-    .execute()
+  .createIndex('idx_suppliers_deleted_at')
+  .on('suppliers')
+  .column('deletedAt')
+  .execute()
 ```
 
 **IMPORTANT**: After modifying the initial migration, you must reset and re-run:
@@ -133,14 +133,14 @@ deletedAt: Date | null
 
 ```typescript
 export async function deleteBatch(
-    db: Kysely<Database>,
-    id: string,
+  db: Kysely<Database>,
+  id: string,
 ): Promise<void> {
-    await db
-        .updateTable('batches')
-        .set({ deletedAt: new Date() })
-        .where('id', '=', id)
-        .execute()
+  await db
+    .updateTable('batches')
+    .set({ deletedAt: new Date() })
+    .where('id', '=', id)
+    .execute()
 }
 ```
 
@@ -164,14 +164,14 @@ Same pattern as Task 3.
 
 ```typescript
 export async function restoreBatch(
-    db: Kysely<Database>,
-    id: string,
+  db: Kysely<Database>,
+  id: string,
 ): Promise<void> {
-    await db
-        .updateTable('batches')
-        .set({ deletedAt: null })
-        .where('id', '=', id)
-        .execute()
+  await db
+    .updateTable('batches')
+    .set({ deletedAt: null })
+    .where('id', '=', id)
+    .execute()
 }
 ```
 

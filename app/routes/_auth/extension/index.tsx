@@ -6,45 +6,44 @@ import { Button } from '~/components/ui/button'
 import { PageHeader } from '~/components/page-header'
 
 export const Route = createFileRoute('/dashboard' as any)({
-    loader: async () => {
-        return getUserDistrictsFn()
-    },
-    component: ExtensionHomePage,
+  loader: async () => {
+    return getUserDistrictsFn()
+  },
+  component: ExtensionHomePage,
 })
 
 function ExtensionHomePage() {
-    const districts = Route.useLoaderData()
+  const districts = Route.useLoaderData()
 
-    return (
-        <div className="space-y-6">
-            <PageHeader
-                title="Extension Worker Dashboard"
-                description="Manage your assigned districts and monitor farm health"
-                icon={Users}
-            />
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Extension Worker Dashboard"
+        description="Manage your assigned districts and monitor farm health"
+        icon={Users}
+      />
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {districts && districts.map((district: any) => (
-                    <Card key={district.id}>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <MapPin className="h-5 w-5" />
-                                {district.name}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground mb-4">
-                                {district.farmCount} farms assigned
-                            </p>
-                            <Button asChild className="w-full">
-                                <Link to="/dashboard">
-                                    View Dashboard
-                                </Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        </div>
-    )
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {districts &&
+          districts.map((district: any) => (
+            <Card key={district.id}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  {district.name}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {district.farmCount} farms assigned
+                </p>
+                <Button asChild className="w-full">
+                  <Link to="/dashboard">View Dashboard</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+      </div>
+    </div>
+  )
 }

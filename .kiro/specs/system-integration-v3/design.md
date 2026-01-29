@@ -25,21 +25,21 @@ Key integration points:
 ```typescript
 // app/lib/feed/server.ts - Enhanced createFeedRecord
 interface CreateFeedRecordInput {
-    batchId: string
-    feedType: FeedType
-    brandName?: string
-    bagSizeKg?: number
-    numberOfBags?: number
-    quantityKg: string
-    cost: string
-    date: Date
-    supplierId?: string
-    notes?: string
+  batchId: string
+  feedType: FeedType
+  brandName?: string
+  bagSizeKg?: number
+  numberOfBags?: number
+  quantityKg: string
+  cost: string
+  date: Date
+  supplierId?: string
+  notes?: string
 }
 
 // Automatically deducts from feed_inventory when creating a feed record
 async function createFeedRecord(
-    input: CreateFeedRecordInput,
+  input: CreateFeedRecordInput,
 ): Promise<FeedRecord>
 
 // Automatically restores to feed_inventory when deleting a feed record
@@ -51,10 +51,10 @@ async function deleteFeedRecord(id: string): Promise<void>
 ```typescript
 // app/routes/_auth.customers.$customerId.tsx
 interface CustomerDetailData {
-    customer: Customer
-    salesHistory: Sale[]
-    totalPurchases: number
-    invoices: Invoice[]
+  customer: Customer
+  salesHistory: Sale[]
+  totalPurchases: number
+  invoices: Invoice[]
 }
 ```
 
@@ -63,10 +63,10 @@ interface CustomerDetailData {
 ```typescript
 // app/routes/_auth.suppliers.$supplierId.tsx - Already exists, needs fixing
 interface SupplierDetailData {
-    supplier: Supplier
-    purchaseHistory: Expense[]
-    batchesSupplied: Batch[]
-    totalSpent: number
+  supplier: Supplier
+  purchaseHistory: Expense[]
+  batchesSupplied: Batch[]
+  totalSpent: number
 }
 ```
 
@@ -75,12 +75,12 @@ interface SupplierDetailData {
 ```typescript
 // app/components/dialogs/invoice-dialog.tsx
 interface InvoiceDialogProps {
-    open: boolean
-    onOpenChange: (open: boolean) => void
-    farmId: string
-    customerId?: string
-    saleId?: string // Optional: create invoice from sale
-    onSuccess?: () => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  farmId: string
+  customerId?: string
+  saleId?: string // Optional: create invoice from sale
+  onSuccess?: () => void
 }
 ```
 
@@ -89,11 +89,11 @@ interface InvoiceDialogProps {
 ```typescript
 // app/lib/feed/constants.ts
 const FEED_TYPE_LABELS: Record<FeedType, string> = {
-    starter: 'Starter Feed',
-    grower: 'Grower Feed',
-    finisher: 'Finisher Feed',
-    layer_mash: 'Layer Mash',
-    fish_feed: 'Fish Feed',
+  starter: 'Starter Feed',
+  grower: 'Grower Feed',
+  finisher: 'Finisher Feed',
+  layer_mash: 'Layer Mash',
+  fish_feed: 'Fish Feed',
 }
 
 const POULTRY_FEED_TYPES = ['starter', 'grower', 'finisher', 'layer_mash']

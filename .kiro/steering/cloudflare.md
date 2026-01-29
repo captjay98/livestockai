@@ -22,9 +22,9 @@ Cloudflare Workers does NOT support `process.env`. You MUST use the async `getDb
 ```typescript
 // ✅ Correct - works on Cloudflare Workers
 export const getData = createServerFn({ method: 'GET' }).handler(async () => {
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    return db.selectFrom('table').execute()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
+  return db.selectFrom('table').execute()
 })
 
 // ❌ Wrong - breaks on Cloudflare (process.env not available)
@@ -80,12 +80,12 @@ Use cloudflare-observability server to search and filter logs.
 ### Common Issues
 
 1. **"Cannot find module" errors**
-    - Use dynamic imports for database connections
-    - Check that all Node.js APIs are polyfilled
+   - Use dynamic imports for database connections
+   - Check that all Node.js APIs are polyfilled
 
 2. **Cold start latency**
-    - Minimize bundle size
+   - Minimize bundle size
 
 3. **Memory limits**
-    - Workers have 128MB memory limit
-    - Stream large responses instead of buffering
+   - Workers have 128MB memory limit
+   - Stream large responses instead of buffering

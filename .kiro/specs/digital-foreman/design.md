@@ -41,42 +41,40 @@ import { z } from 'zod'
 import { AppError } from '~/lib/errors'
 
 export const checkInFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            farmId: z.string().uuid(),
-            latitude: z.number().min(-90).max(90),
-            longitude: z.number().min(-180).max(180),
-            accuracy: z.number().positive().optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        try {
-            // 1. Auth middleware (dynamic import for Cloudflare Workers)
-            const { requireAuth } =
-                await import('~/features/auth/server-middleware')
-            const session = await requireAuth()
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid(),
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+      accuracy: z.number().positive().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    try {
+      // 1. Auth middleware (dynamic import for Cloudflare Workers)
+      const { requireAuth } = await import('~/features/auth/server-middleware')
+      const session = await requireAuth()
 
-            // 2. Database access (MUST use getDb() for Cloudflare Workers)
-            const { getDb } = await import('~/lib/db')
-            const db = await getDb()
+      // 2. Database access (MUST use getDb() for Cloudflare Workers)
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
 
-            // 3. Repository layer for database operations
-            const { getGeofenceByFarm, insertCheckIn } =
-                await import('./repository')
+      // 3. Repository layer for database operations
+      const { getGeofenceByFarm, insertCheckIn } = await import('./repository')
 
-            // 4. Service layer for business logic
-            const { verifyLocationInGeofence, isDuplicateCheckIn } =
-                await import('./geofence-service')
+      // 4. Service layer for business logic
+      const { verifyLocationInGeofence, isDuplicateCheckIn } =
+        await import('./geofence-service')
 
-            // ... implementation
-        } catch (error) {
-            if (error instanceof AppError) throw error
-            throw new AppError('DATABASE_ERROR', {
-                message: 'Failed to record check-in',
-                cause: error,
-            })
-        }
-    })
+      // ... implementation
+    } catch (error) {
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to record check-in',
+        cause: error,
+      })
+    }
+  })
 ```
 
 ### Repository Layer Pattern
@@ -87,23 +85,23 @@ import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 export async function insertCheckIn(
-    db: Kysely<Database>,
-    checkIn: CheckInInsert,
+  db: Kysely<Database>,
+  checkIn: CheckInInsert,
 ): Promise<string> {
-    const result = await db
-        .insertInto('worker_check_ins')
-        .values(checkIn)
-        .returning('id')
-        .executeTakeFirstOrThrow()
-    return result.id
+  const result = await db
+    .insertInto('worker_check_ins')
+    .values(checkIn)
+    .returning('id')
+    .executeTakeFirstOrThrow()
+  return result.id
 }
 
 export async function getGeofenceByFarm(db: Kysely<Database>, farmId: string) {
-    return db
-        .selectFrom('farm_geofences')
-        .selectAll()
-        .where('farmId', '=', farmId)
-        .executeTakeFirst()
+  return db
+    .selectFrom('farm_geofences')
+    .selectAll()
+    .where('farmId', '=', farmId)
+    .executeTakeFirst()
 }
 ```
 
@@ -377,47 +375,47 @@ Pure functions for geofence verification. No side effects, easily testable.
 ```typescript
 // Geofence types
 interface CircularGeofence {
-    type: 'circle'
-    centerLat: number
-    centerLng: number
-    radiusMeters: number
-    toleranceMeters: number
+  type: 'circle'
+  centerLat: number
+  centerLng: number
+  radiusMeters: number
+  toleranceMeters: number
 }
 
 interface PolygonGeofence {
-    type: 'polygon'
-    vertices: Array<{ lat: number; lng: number }>
-    toleranceMeters: number
+  type: 'polygon'
+  vertices: Array<{ lat: number; lng: number }>
+  toleranceMeters: number
 }
 
 type Geofence = CircularGeofence | PolygonGeofence
 
 interface LocationVerificationResult {
-    verified: boolean
-    distanceMeters: number
-    withinTolerance: boolean
-    status: 'verified' | 'outside_geofence' | 'within_tolerance'
+  verified: boolean
+  distanceMeters: number
+  withinTolerance: boolean
+  status: 'verified' | 'outside_geofence' | 'within_tolerance'
 }
 
 // Service functions
 function verifyLocationInGeofence(
-    coords: { lat: number; lng: number },
-    geofence: Geofence,
+  coords: { lat: number; lng: number },
+  geofence: Geofence,
 ): LocationVerificationResult
 
 function calculateHaversineDistance(
-    point1: { lat: number; lng: number },
-    point2: { lat: number; lng: number },
+  point1: { lat: number; lng: number },
+  point2: { lat: number; lng: number },
 ): number
 
 function isPointInPolygon(
-    point: { lat: number; lng: number },
-    polygon: Array<{ lat: number; lng: number }>,
+  point: { lat: number; lng: number },
+  polygon: Array<{ lat: number; lng: number }>,
 ): boolean
 
 function calculateDistanceToPolygon(
-    point: { lat: number; lng: number },
-    polygon: Array<{ lat: number; lng: number }>,
+  point: { lat: number; lng: number },
+  polygon: Array<{ lat: number; lng: number }>,
 ): number
 ```
 
@@ -427,55 +425,55 @@ Business logic for attendance tracking and hours calculation.
 
 ```typescript
 interface CheckInRecord {
-    id: string
-    workerId: string
-    farmId: string
-    checkInTime: Date
-    checkInLat: number
-    checkInLng: number
-    checkInAccuracy: number
-    verificationStatus:
-        | 'verified'
-        | 'outside_geofence'
-        | 'manual'
-        | 'pending_sync'
-    checkOutTime: Date | null
-    checkOutLat: number | null
-    checkOutLng: number | null
-    hoursWorked: number | null
+  id: string
+  workerId: string
+  farmId: string
+  checkInTime: Date
+  checkInLat: number
+  checkInLng: number
+  checkInAccuracy: number
+  verificationStatus:
+    | 'verified'
+    | 'outside_geofence'
+    | 'manual'
+    | 'pending_sync'
+  checkOutTime: Date | null
+  checkOutLat: number | null
+  checkOutLng: number | null
+  hoursWorked: number | null
 }
 
 interface AttendanceSummary {
-    workerId: string
-    workerName: string
-    totalHours: number
-    totalDays: number
-    onTimeCheckIns: number
-    lateCheckIns: number
-    flaggedCheckIns: number
-    averageHoursPerDay: number
+  workerId: string
+  workerName: string
+  totalHours: number
+  totalDays: number
+  onTimeCheckIns: number
+  lateCheckIns: number
+  flaggedCheckIns: number
+  averageHoursPerDay: number
 }
 
 // Service functions
 function calculateHoursWorked(checkIn: Date, checkOut: Date): number
 
 function calculateAttendanceSummary(
-    checkIns: CheckInRecord[],
-    periodStart: Date,
-    periodEnd: Date,
+  checkIns: CheckInRecord[],
+  periodStart: Date,
+  periodEnd: Date,
 ): AttendanceSummary
 
 function isDuplicateCheckIn(
-    existingCheckIns: CheckInRecord[],
-    newCheckInTime: Date,
-    thresholdMinutes: number,
+  existingCheckIns: CheckInRecord[],
+  newCheckInTime: Date,
+  thresholdMinutes: number,
 ): boolean
 
 function shouldAutoCheckOut(checkIn: CheckInRecord, currentTime: Date): boolean
 
 function validateCheckInCoordinates(
-    lat: number,
-    lng: number,
+  lat: number,
+  lng: number,
 ): { valid: boolean; error?: string }
 ```
 
@@ -485,63 +483,63 @@ Business logic for task assignments and completion workflow.
 
 ```typescript
 interface TaskAssignment {
-    id: string
-    taskId: string
-    workerId: string
-    assignedBy: string
-    farmId: string
-    dueDate: Date | null
-    priority: 'low' | 'medium' | 'high' | 'urgent'
-    status:
-        | 'pending'
-        | 'in_progress'
-        | 'completed'
-        | 'pending_approval'
-        | 'verified'
-        | 'rejected'
-    requiresPhoto: boolean
-    requiresApproval: boolean
-    notes: string | null
-    completedAt: Date | null
-    completionNotes: string | null
-    approvedBy: string | null
-    approvedAt: Date | null
-    rejectionReason: string | null
+  id: string
+  taskId: string
+  workerId: string
+  assignedBy: string
+  farmId: string
+  dueDate: Date | null
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  status:
+    | 'pending'
+    | 'in_progress'
+    | 'completed'
+    | 'pending_approval'
+    | 'verified'
+    | 'rejected'
+  requiresPhoto: boolean
+  requiresApproval: boolean
+  notes: string | null
+  completedAt: Date | null
+  completionNotes: string | null
+  approvedBy: string | null
+  approvedAt: Date | null
+  rejectionReason: string | null
 }
 
 interface TaskPhoto {
-    id: string
-    assignmentId: string
-    photoUrl: string
-    capturedLat: number
-    capturedLng: number
-    capturedAt: Date
-    uploadedAt: Date
+  id: string
+  assignmentId: string
+  photoUrl: string
+  capturedLat: number
+  capturedLng: number
+  capturedAt: Date
+  uploadedAt: Date
 }
 
 // Service functions
 function validateTaskCompletion(
-    assignment: TaskAssignment,
-    workerId: string,
-    hasPhoto: boolean,
+  assignment: TaskAssignment,
+  workerId: string,
+  hasPhoto: boolean,
 ): { valid: boolean; error?: string }
 
 function determineCompletionStatus(
-    requiresApproval: boolean,
+  requiresApproval: boolean,
 ): 'completed' | 'pending_approval'
 
 function calculateTaskMetrics(assignments: TaskAssignment[]): {
-    total: number
-    completed: number
-    pending: number
-    overdue: number
-    completionRate: number
+  total: number
+  completed: number
+  pending: number
+  overdue: number
+  completionRate: number
 }
 
 function isTaskOverdue(assignment: TaskAssignment, currentTime: Date): boolean
 
 function calculateAverageCompletionTime(
-    assignments: TaskAssignment[],
+  assignments: TaskAssignment[],
 ): number | null
 ```
 
@@ -551,69 +549,69 @@ Business logic for wage calculations and payroll management.
 
 ```typescript
 interface WorkerWageConfig {
-    rateAmount: number
-    rateType: 'hourly' | 'daily' | 'monthly'
-    currency: string
+  rateAmount: number
+  rateType: 'hourly' | 'daily' | 'monthly'
+  currency: string
 }
 
 interface PayrollPeriod {
-    id: string
-    farmId: string
-    periodType: 'weekly' | 'bi-weekly' | 'monthly'
-    startDate: Date
-    endDate: Date
-    status: 'open' | 'closed'
+  id: string
+  farmId: string
+  periodType: 'weekly' | 'bi-weekly' | 'monthly'
+  startDate: Date
+  endDate: Date
+  status: 'open' | 'closed'
 }
 
 interface WorkerPayrollSummary {
-    workerId: string
-    workerName: string
-    hoursWorked: number
-    daysWorked: number
-    grossWages: number
-    paymentsMade: number
-    outstandingBalance: number
-    currency: string
+  workerId: string
+  workerName: string
+  hoursWorked: number
+  daysWorked: number
+  grossWages: number
+  paymentsMade: number
+  outstandingBalance: number
+  currency: string
 }
 
 interface WagePayment {
-    id: string
-    workerId: string
-    payrollPeriodId: string
-    amount: number
-    paymentDate: Date
-    paymentMethod: 'cash' | 'bank_transfer' | 'mobile_money'
-    notes: string | null
+  id: string
+  workerId: string
+  payrollPeriodId: string
+  amount: number
+  paymentDate: Date
+  paymentMethod: 'cash' | 'bank_transfer' | 'mobile_money'
+  notes: string | null
 }
 
 // Service functions
 function calculateGrossWages(
-    hoursWorked: number,
-    daysWorked: number,
-    wageConfig: WorkerWageConfig,
+  hoursWorked: number,
+  daysWorked: number,
+  wageConfig: WorkerWageConfig,
 ): number
 
 function calculateOutstandingBalance(
-    grossWages: number,
-    paymentsMade: number,
+  grossWages: number,
+  paymentsMade: number,
 ): number
 
 function generatePayrollSummary(
-    workers: Array<{ id: string; name: string; wageConfig: WorkerWageConfig }>,
-    attendance: AttendanceSummary[],
-    payments: WagePayment[],
+  workers: Array<{ id: string; name: string; wageConfig: WorkerWageConfig }>,
+  attendance: AttendanceSummary[],
+  payments: WagePayment[],
 ): WorkerPayrollSummary[]
 
 function validatePayrollPeriod(
-    startDate: Date,
-    endDate: Date,
-    existingPeriods: PayrollPeriod[],
+  startDate: Date,
+  endDate: Date,
+  existingPeriods: PayrollPeriod[],
 ): { valid: boolean; error?: string }
 
 function calculateDaysWorked(
-    checkIns: CheckInRecord[],
-    periodStart: Date,
-    periodEnd: Date,
+  checkIns: CheckInRecord[],
+  periodStart: Date,
+  periodEnd: Date,
 ): number
 ```
 
@@ -623,57 +621,57 @@ Module-specific permission checking for workers.
 
 ```typescript
 type ModulePermission =
-    | 'feed:log'
-    | 'mortality:log'
-    | 'weight:log'
-    | 'vaccination:log'
-    | 'water_quality:log'
-    | 'egg:log'
-    | 'sales:view'
-    | 'task:complete'
-    | 'batch:view'
+  | 'feed:log'
+  | 'mortality:log'
+  | 'weight:log'
+  | 'vaccination:log'
+  | 'water_quality:log'
+  | 'egg:log'
+  | 'sales:view'
+  | 'task:complete'
+  | 'batch:view'
 
 interface WorkerPermissions {
-    workerId: string
-    farmId: string
-    permissions: ModulePermission[]
+  workerId: string
+  farmId: string
+  permissions: ModulePermission[]
 }
 
 const PERMISSION_TEMPLATES = {
-    feed_handler: ['feed:log', 'batch:view', 'task:complete'],
-    health_monitor: [
-        'mortality:log',
-        'vaccination:log',
-        'water_quality:log',
-        'batch:view',
-        'task:complete',
-    ],
-    full_access: [
-        'feed:log',
-        'mortality:log',
-        'weight:log',
-        'vaccination:log',
-        'water_quality:log',
-        'egg:log',
-        'sales:view',
-        'task:complete',
-        'batch:view',
-    ],
+  feed_handler: ['feed:log', 'batch:view', 'task:complete'],
+  health_monitor: [
+    'mortality:log',
+    'vaccination:log',
+    'water_quality:log',
+    'batch:view',
+    'task:complete',
+  ],
+  full_access: [
+    'feed:log',
+    'mortality:log',
+    'weight:log',
+    'vaccination:log',
+    'water_quality:log',
+    'egg:log',
+    'sales:view',
+    'task:complete',
+    'batch:view',
+  ],
 } as const
 
 // Service functions
 function hasPermission(
-    workerPermissions: WorkerPermissions,
-    requiredPermission: ModulePermission,
+  workerPermissions: WorkerPermissions,
+  requiredPermission: ModulePermission,
 ): boolean
 
 function getPermissionsFromTemplate(
-    template: keyof typeof PERMISSION_TEMPLATES,
+  template: keyof typeof PERMISSION_TEMPLATES,
 ): ModulePermission[]
 
 function validatePermissions(permissions: string[]): {
-    valid: boolean
-    invalidPermissions: string[]
+  valid: boolean
+  invalidPermissions: string[]
 }
 ```
 
@@ -684,157 +682,155 @@ Server functions following the three-layer architecture pattern.
 ```typescript
 // Worker Profile Management
 export const createWorkerProfileFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            userId: z.string().uuid(),
-            farmId: z.string().uuid(),
-            phone: z.string().min(10).max(20),
-            wageRateAmount: z.number().positive(),
-            wageRateType: z.enum(['hourly', 'daily', 'monthly']),
-            wageCurrency: z.string().length(3),
-            emergencyContactName: z.string().max(100).optional(),
-            emergencyContactPhone: z.string().max(20).optional(),
-            structureIds: z.array(z.string().uuid()).optional(),
-            permissions: z.array(z.string()).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .inputValidator(
+    z.object({
+      userId: z.string().uuid(),
+      farmId: z.string().uuid(),
+      phone: z.string().min(10).max(20),
+      wageRateAmount: z.number().positive(),
+      wageRateType: z.enum(['hourly', 'daily', 'monthly']),
+      wageCurrency: z.string().length(3),
+      emergencyContactName: z.string().max(100).optional(),
+      emergencyContactPhone: z.string().max(20).optional(),
+      structureIds: z.array(z.string().uuid()).optional(),
+      permissions: z.array(z.string()).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // Attendance
 export const checkInFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            farmId: z.string().uuid(),
-            latitude: z.number().min(-90).max(90),
-            longitude: z.number().min(-180).max(180),
-            accuracy: z.number().positive().optional(),
-            isOffline: z.boolean().default(false),
-            offlineTimestamp: z.coerce.date().optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid(),
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+      accuracy: z.number().positive().optional(),
+      isOffline: z.boolean().default(false),
+      offlineTimestamp: z.coerce.date().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 export const checkOutFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            checkInId: z.string().uuid(),
-            latitude: z.number().min(-90).max(90),
-            longitude: z.number().min(-180).max(180),
-            accuracy: z.number().positive().optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .inputValidator(
+    z.object({
+      checkInId: z.string().uuid(),
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+      accuracy: z.number().positive().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // Task Assignment
 export const assignTaskFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            taskId: z.string().uuid(),
-            workerId: z.string().uuid(),
-            farmId: z.string().uuid(),
-            dueDate: z.coerce.date().optional(),
-            priority: z
-                .enum(['low', 'medium', 'high', 'urgent'])
-                .default('medium'),
-            requiresPhoto: z.boolean().default(false),
-            requiresApproval: z.boolean().default(false),
-            notes: z.string().max(500).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .inputValidator(
+    z.object({
+      taskId: z.string().uuid(),
+      workerId: z.string().uuid(),
+      farmId: z.string().uuid(),
+      dueDate: z.coerce.date().optional(),
+      priority: z.enum(['low', 'medium', 'high', 'urgent']).default('medium'),
+      requiresPhoto: z.boolean().default(false),
+      requiresApproval: z.boolean().default(false),
+      notes: z.string().max(500).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 export const completeTaskFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            assignmentId: z.string().uuid(),
-            completionNotes: z.string().max(500).optional(),
-            photoData: z
-                .object({
-                    base64: z.string(),
-                    latitude: z.number().min(-90).max(90),
-                    longitude: z.number().min(-180).max(180),
-                    capturedAt: z.coerce.date(),
-                })
-                .optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .inputValidator(
+    z.object({
+      assignmentId: z.string().uuid(),
+      completionNotes: z.string().max(500).optional(),
+      photoData: z
+        .object({
+          base64: z.string(),
+          latitude: z.number().min(-90).max(90),
+          longitude: z.number().min(-180).max(180),
+          capturedAt: z.coerce.date(),
+        })
+        .optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 export const approveTaskFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            assignmentId: z.string().uuid(),
-            approved: z.boolean(),
-            rejectionReason: z.string().max(500).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .inputValidator(
+    z.object({
+      assignmentId: z.string().uuid(),
+      approved: z.boolean(),
+      rejectionReason: z.string().max(500).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // Payroll
 export const createPayrollPeriodFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            farmId: z.string().uuid(),
-            periodType: z.enum(['weekly', 'bi-weekly', 'monthly']),
-            startDate: z.coerce.date(),
-            endDate: z.coerce.date(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid(),
+      periodType: z.enum(['weekly', 'bi-weekly', 'monthly']),
+      startDate: z.coerce.date(),
+      endDate: z.coerce.date(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 export const recordPaymentFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            workerId: z.string().uuid(),
-            payrollPeriodId: z.string().uuid(),
-            amount: z.number().positive(),
-            paymentMethod: z.enum(['cash', 'bank_transfer', 'mobile_money']),
-            paymentDate: z.coerce.date(),
-            notes: z.string().max(500).optional(),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .inputValidator(
+    z.object({
+      workerId: z.string().uuid(),
+      payrollPeriodId: z.string().uuid(),
+      amount: z.number().positive(),
+      paymentMethod: z.enum(['cash', 'bank_transfer', 'mobile_money']),
+      paymentDate: z.coerce.date(),
+      notes: z.string().max(500).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 // Geofence
 export const saveGeofenceFn = createServerFn({ method: 'POST' })
-    .inputValidator(
-        z.object({
-            farmId: z.string().uuid(),
-            geofenceType: z.enum(['circle', 'polygon']),
-            centerLat: z.number().min(-90).max(90).optional(),
-            centerLng: z.number().min(-180).max(180).optional(),
-            radiusMeters: z.number().positive().optional(),
-            vertices: z
-                .array(
-                    z.object({
-                        lat: z.number().min(-90).max(90),
-                        lng: z.number().min(-180).max(180),
-                    }),
-                )
-                .max(20)
-                .optional(),
-            toleranceMeters: z.number().positive().default(100),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid(),
+      geofenceType: z.enum(['circle', 'polygon']),
+      centerLat: z.number().min(-90).max(90).optional(),
+      centerLng: z.number().min(-180).max(180).optional(),
+      radiusMeters: z.number().positive().optional(),
+      vertices: z
+        .array(
+          z.object({
+            lat: z.number().min(-90).max(90),
+            lng: z.number().min(-180).max(180),
+          }),
+        )
+        .max(20)
+        .optional(),
+      toleranceMeters: z.number().positive().default(100),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 ```
 
 ### 7. Repository Layer (`app/features/digital-foreman/repository.ts`)
@@ -847,159 +843,159 @@ import type { Database } from '~/lib/db/types'
 
 // Worker Profiles
 async function insertWorkerProfile(
-    db: Kysely<Database>,
-    profile: WorkerProfileInsert,
+  db: Kysely<Database>,
+  profile: WorkerProfileInsert,
 ): Promise<string>
 async function getWorkerProfileById(
-    db: Kysely<Database>,
-    profileId: string,
+  db: Kysely<Database>,
+  profileId: string,
 ): Promise<WorkerProfile | null>
 async function getWorkerProfileByUserId(
-    db: Kysely<Database>,
-    userId: string,
-    farmId: string,
+  db: Kysely<Database>,
+  userId: string,
+  farmId: string,
 ): Promise<WorkerProfile | null>
 async function getWorkersByFarm(
-    db: Kysely<Database>,
-    farmId: string,
+  db: Kysely<Database>,
+  farmId: string,
 ): Promise<WorkerProfile[]>
 async function updateWorkerProfile(
-    db: Kysely<Database>,
-    profileId: string,
-    updates: Partial<WorkerProfile>,
+  db: Kysely<Database>,
+  profileId: string,
+  updates: Partial<WorkerProfile>,
 ): Promise<void>
 
 // Check-ins
 async function insertCheckIn(
-    db: Kysely<Database>,
-    checkIn: CheckInInsert,
+  db: Kysely<Database>,
+  checkIn: CheckInInsert,
 ): Promise<string>
 async function getCheckInById(
-    db: Kysely<Database>,
-    checkInId: string,
+  db: Kysely<Database>,
+  checkInId: string,
 ): Promise<CheckInRecord | null>
 async function getOpenCheckIn(
-    db: Kysely<Database>,
-    workerId: string,
-    farmId: string,
+  db: Kysely<Database>,
+  workerId: string,
+  farmId: string,
 ): Promise<CheckInRecord | null>
 async function updateCheckOut(
-    db: Kysely<Database>,
-    checkInId: string,
-    checkOut: CheckOutData,
+  db: Kysely<Database>,
+  checkInId: string,
+  checkOut: CheckOutData,
 ): Promise<void>
 async function getCheckInsByWorker(
-    db: Kysely<Database>,
-    workerId: string,
-    startDate: Date,
-    endDate: Date,
+  db: Kysely<Database>,
+  workerId: string,
+  startDate: Date,
+  endDate: Date,
 ): Promise<CheckInRecord[]>
 async function getCheckInsByFarm(
-    db: Kysely<Database>,
-    farmId: string,
-    date: Date,
+  db: Kysely<Database>,
+  farmId: string,
+  date: Date,
 ): Promise<CheckInRecord[]>
 
 // Geofences
 async function upsertGeofence(
-    db: Kysely<Database>,
-    geofence: GeofenceInsert,
+  db: Kysely<Database>,
+  geofence: GeofenceInsert,
 ): Promise<string>
 async function getGeofenceByFarm(
-    db: Kysely<Database>,
-    farmId: string,
+  db: Kysely<Database>,
+  farmId: string,
 ): Promise<Geofence | null>
 
 // Task Assignments
 async function insertTaskAssignment(
-    db: Kysely<Database>,
-    assignment: TaskAssignmentInsert,
+  db: Kysely<Database>,
+  assignment: TaskAssignmentInsert,
 ): Promise<string>
 async function getTaskAssignmentById(
-    db: Kysely<Database>,
-    assignmentId: string,
+  db: Kysely<Database>,
+  assignmentId: string,
 ): Promise<TaskAssignment | null>
 async function getAssignmentsByWorker(
-    db: Kysely<Database>,
-    workerId: string,
-    status?: string,
+  db: Kysely<Database>,
+  workerId: string,
+  status?: string,
 ): Promise<TaskAssignment[]>
 async function getAssignmentsByFarm(
-    db: Kysely<Database>,
-    farmId: string,
-    filters?: AssignmentFilters,
+  db: Kysely<Database>,
+  farmId: string,
+  filters?: AssignmentFilters,
 ): Promise<TaskAssignment[]>
 async function updateTaskAssignment(
-    db: Kysely<Database>,
-    assignmentId: string,
-    updates: Partial<TaskAssignment>,
+  db: Kysely<Database>,
+  assignmentId: string,
+  updates: Partial<TaskAssignment>,
 ): Promise<void>
 async function getPendingApprovals(
-    db: Kysely<Database>,
-    farmId: string,
+  db: Kysely<Database>,
+  farmId: string,
 ): Promise<TaskAssignment[]>
 
 // Task Photos
 async function insertTaskPhoto(
-    db: Kysely<Database>,
-    photo: TaskPhotoInsert,
+  db: Kysely<Database>,
+  photo: TaskPhotoInsert,
 ): Promise<string>
 async function getPhotosByAssignment(
-    db: Kysely<Database>,
-    assignmentId: string,
+  db: Kysely<Database>,
+  assignmentId: string,
 ): Promise<TaskPhoto[]>
 
 // Payroll
 async function insertPayrollPeriod(
-    db: Kysely<Database>,
-    period: PayrollPeriodInsert,
+  db: Kysely<Database>,
+  period: PayrollPeriodInsert,
 ): Promise<string>
 async function getPayrollPeriodById(
-    db: Kysely<Database>,
-    periodId: string,
+  db: Kysely<Database>,
+  periodId: string,
 ): Promise<PayrollPeriod | null>
 async function getPayrollPeriodsByFarm(
-    db: Kysely<Database>,
-    farmId: string,
+  db: Kysely<Database>,
+  farmId: string,
 ): Promise<PayrollPeriod[]>
 async function getOverlappingPeriods(
-    db: Kysely<Database>,
-    farmId: string,
-    startDate: Date,
-    endDate: Date,
+  db: Kysely<Database>,
+  farmId: string,
+  startDate: Date,
+  endDate: Date,
 ): Promise<PayrollPeriod[]>
 
 // Wage Payments
 async function insertWagePayment(
-    db: Kysely<Database>,
-    payment: WagePaymentInsert,
+  db: Kysely<Database>,
+  payment: WagePaymentInsert,
 ): Promise<string>
 async function getPaymentsByPeriod(
-    db: Kysely<Database>,
-    periodId: string,
+  db: Kysely<Database>,
+  periodId: string,
 ): Promise<WagePayment[]>
 async function getPaymentsByWorker(
-    db: Kysely<Database>,
-    workerId: string,
-    periodId?: string,
+  db: Kysely<Database>,
+  workerId: string,
+  periodId?: string,
 ): Promise<WagePayment[]>
 async function getTotalPaymentsByWorkerAndPeriod(
-    db: Kysely<Database>,
-    workerId: string,
-    periodId: string,
+  db: Kysely<Database>,
+  workerId: string,
+  periodId: string,
 ): Promise<number>
 
 // Worker Permissions
 async function upsertWorkerPermissions(
-    db: Kysely<Database>,
-    workerId: string,
-    farmId: string,
-    permissions: string[],
+  db: Kysely<Database>,
+  workerId: string,
+  farmId: string,
+  permissions: string[],
 ): Promise<void>
 async function getWorkerPermissions(
-    db: Kysely<Database>,
-    workerId: string,
-    farmId: string,
+  db: Kysely<Database>,
+  workerId: string,
+  farmId: string,
 ): Promise<string[]>
 ```
 
@@ -1235,127 +1231,127 @@ CREATE INDEX idx_wage_payments_farm_id ON wage_payments(farm_id);
 ```typescript
 // Worker Profile
 interface WorkerProfileTable {
-    id: Generated<string>
-    userId: string
-    farmId: string
-    phone: string
-    emergencyContactName: string | null
-    emergencyContactPhone: string | null
-    profilePhotoUrl: string | null
-    employmentStatus: 'active' | 'inactive' | 'terminated'
-    startDate: Date
-    endDate: Date | null
-    wageRateAmount: string // DECIMAL
-    wageRateType: 'hourly' | 'daily' | 'monthly'
-    wageCurrency: string
-    assignedStructureIds: string[] // JSONB
-    permissions: string[] // JSONB
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
+  id: Generated<string>
+  userId: string
+  farmId: string
+  phone: string
+  emergencyContactName: string | null
+  emergencyContactPhone: string | null
+  profilePhotoUrl: string | null
+  employmentStatus: 'active' | 'inactive' | 'terminated'
+  startDate: Date
+  endDate: Date | null
+  wageRateAmount: string // DECIMAL
+  wageRateType: 'hourly' | 'daily' | 'monthly'
+  wageCurrency: string
+  assignedStructureIds: string[] // JSONB
+  permissions: string[] // JSONB
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
 
 // Worker Check-in
 interface WorkerCheckInTable {
-    id: Generated<string>
-    workerId: string
-    farmId: string
-    checkInTime: Date
-    checkInLat: string // DECIMAL
-    checkInLng: string // DECIMAL
-    checkInAccuracy: string | null // DECIMAL
-    verificationStatus:
-        | 'verified'
-        | 'outside_geofence'
-        | 'manual'
-        | 'pending_sync'
-    distanceFromGeofence: string | null // DECIMAL
-    checkOutTime: Date | null
-    checkOutLat: string | null // DECIMAL
-    checkOutLng: string | null // DECIMAL
-    hoursWorked: string | null // DECIMAL
-    syncStatus: 'synced' | 'pending_sync' | 'sync_failed'
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
+  id: Generated<string>
+  workerId: string
+  farmId: string
+  checkInTime: Date
+  checkInLat: string // DECIMAL
+  checkInLng: string // DECIMAL
+  checkInAccuracy: string | null // DECIMAL
+  verificationStatus:
+    | 'verified'
+    | 'outside_geofence'
+    | 'manual'
+    | 'pending_sync'
+  distanceFromGeofence: string | null // DECIMAL
+  checkOutTime: Date | null
+  checkOutLat: string | null // DECIMAL
+  checkOutLng: string | null // DECIMAL
+  hoursWorked: string | null // DECIMAL
+  syncStatus: 'synced' | 'pending_sync' | 'sync_failed'
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
 
 // Farm Geofence
 interface FarmGeofenceTable {
-    id: Generated<string>
-    farmId: string
-    geofenceType: 'circle' | 'polygon'
-    centerLat: string | null // DECIMAL
-    centerLng: string | null // DECIMAL
-    radiusMeters: string | null // DECIMAL
-    vertices: Array<{ lat: number; lng: number }> | null // JSONB
-    toleranceMeters: string // DECIMAL
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
+  id: Generated<string>
+  farmId: string
+  geofenceType: 'circle' | 'polygon'
+  centerLat: string | null // DECIMAL
+  centerLng: string | null // DECIMAL
+  radiusMeters: string | null // DECIMAL
+  vertices: Array<{ lat: number; lng: number }> | null // JSONB
+  toleranceMeters: string // DECIMAL
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
 
 // Task Assignment
 interface TaskAssignmentTable {
-    id: Generated<string>
-    taskId: string
-    workerId: string
-    assignedBy: string
-    farmId: string
-    dueDate: Date | null
-    priority: 'low' | 'medium' | 'high' | 'urgent'
-    status:
-        | 'pending'
-        | 'in_progress'
-        | 'completed'
-        | 'pending_approval'
-        | 'verified'
-        | 'rejected'
-    notes: string | null
-    requiresPhoto: boolean
-    requiresApproval: boolean
-    completedAt: Date | null
-    completionNotes: string | null
-    approvedBy: string | null
-    approvedAt: Date | null
-    rejectionReason: string | null
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
+  id: Generated<string>
+  taskId: string
+  workerId: string
+  assignedBy: string
+  farmId: string
+  dueDate: Date | null
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  status:
+    | 'pending'
+    | 'in_progress'
+    | 'completed'
+    | 'pending_approval'
+    | 'verified'
+    | 'rejected'
+  notes: string | null
+  requiresPhoto: boolean
+  requiresApproval: boolean
+  completedAt: Date | null
+  completionNotes: string | null
+  approvedBy: string | null
+  approvedAt: Date | null
+  rejectionReason: string | null
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
 
 // Task Photo
 interface TaskPhotoTable {
-    id: Generated<string>
-    assignmentId: string
-    photoUrl: string
-    photoSizeBytes: number
-    capturedLat: string // DECIMAL
-    capturedLng: string // DECIMAL
-    capturedAt: Date
-    uploadedAt: Generated<Date>
+  id: Generated<string>
+  assignmentId: string
+  photoUrl: string
+  photoSizeBytes: number
+  capturedLat: string // DECIMAL
+  capturedLng: string // DECIMAL
+  capturedAt: Date
+  uploadedAt: Generated<Date>
 }
 
 // Payroll Period
 interface PayrollPeriodTable {
-    id: Generated<string>
-    farmId: string
-    periodType: 'weekly' | 'bi-weekly' | 'monthly'
-    startDate: Date
-    endDate: Date
-    status: 'open' | 'closed'
-    createdAt: Generated<Date>
-    updatedAt: Generated<Date>
+  id: Generated<string>
+  farmId: string
+  periodType: 'weekly' | 'bi-weekly' | 'monthly'
+  startDate: Date
+  endDate: Date
+  status: 'open' | 'closed'
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
 }
 
 // Wage Payment
 interface WagePaymentTable {
-    id: Generated<string>
-    workerId: string
-    payrollPeriodId: string
-    farmId: string
-    amount: string // DECIMAL
-    currency: string
-    paymentDate: Date
-    paymentMethod: 'cash' | 'bank_transfer' | 'mobile_money'
-    notes: string | null
-    createdAt: Generated<Date>
+  id: Generated<string>
+  workerId: string
+  payrollPeriodId: string
+  farmId: string
+  amount: string // DECIMAL
+  currency: string
+  paymentDate: Date
+  paymentMethod: 'cash' | 'bank_transfer' | 'mobile_money'
+  notes: string | null
+  createdAt: Generated<Date>
 }
 ```
 
@@ -1369,14 +1365,14 @@ export type FarmRole = 'owner' | 'manager' | 'viewer' | 'worker'
 
 // Add new tables to Database interface
 export interface Database {
-    // ... existing tables ...
-    worker_profiles: WorkerProfileTable
-    worker_check_ins: WorkerCheckInTable
-    farm_geofences: FarmGeofenceTable
-    task_assignments: TaskAssignmentTable
-    task_photos: TaskPhotoTable
-    payroll_periods: PayrollPeriodTable
-    wage_payments: WagePaymentTable
+  // ... existing tables ...
+  worker_profiles: WorkerProfileTable
+  worker_check_ins: WorkerCheckInTable
+  farm_geofences: FarmGeofenceTable
+  task_assignments: TaskAssignmentTable
+  task_photos: TaskPhotoTable
+  payroll_periods: PayrollPeriodTable
+  wage_payments: WagePaymentTable
 }
 ```
 

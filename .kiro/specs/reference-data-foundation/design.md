@@ -115,38 +115,38 @@ erDiagram
 
 ```typescript
 interface Breed {
-    id: string
-    moduleKey: ModuleKey
-    speciesKey: string
-    breedName: string
-    displayName: string
-    typicalMarketWeightG: number
-    typicalDaysToMarket: number
-    typicalFcr: string // DECIMAL as string
-    sourceSizes: string[] // JSON array
-    regions: string[] // JSON array
-    isDefault: boolean
-    isActive: boolean
-    createdAt: Date
+  id: string
+  moduleKey: ModuleKey
+  speciesKey: string
+  breedName: string
+  displayName: string
+  typicalMarketWeightG: number
+  typicalDaysToMarket: number
+  typicalFcr: string // DECIMAL as string
+  sourceSizes: string[] // JSON array
+  regions: string[] // JSON array
+  isDefault: boolean
+  isActive: boolean
+  createdAt: Date
 }
 
 // Repository functions
 async function getAllBreeds(db: Kysely<Database>): Promise<Breed[]>
 async function getBreedsByModule(
-    db: Kysely<Database>,
-    moduleKey: ModuleKey,
+  db: Kysely<Database>,
+  moduleKey: ModuleKey,
 ): Promise<Breed[]>
 async function getBreedsBySpecies(
-    db: Kysely<Database>,
-    speciesKey: string,
+  db: Kysely<Database>,
+  speciesKey: string,
 ): Promise<Breed[]>
 async function getBreedById(
-    db: Kysely<Database>,
-    id: string,
+  db: Kysely<Database>,
+  id: string,
 ): Promise<Breed | undefined>
 async function getDefaultBreedForSpecies(
-    db: Kysely<Database>,
-    speciesKey: string,
+  db: Kysely<Database>,
+  speciesKey: string,
 ): Promise<Breed | undefined>
 ```
 
@@ -155,33 +155,33 @@ async function getDefaultBreedForSpecies(
 ```typescript
 // Server function signatures
 export const getBreedsForModuleFn = createServerFn({ method: 'GET' })
-    .validator(
-        z.object({
-            moduleKey: z.enum([
-                'poultry',
-                'aquaculture',
-                'cattle',
-                'goats',
-                'sheep',
-                'bees',
-            ]),
-        }),
-    )
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .validator(
+    z.object({
+      moduleKey: z.enum([
+        'poultry',
+        'aquaculture',
+        'cattle',
+        'goats',
+        'sheep',
+        'bees',
+      ]),
+    }),
+  )
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 export const getBreedsForSpeciesFn = createServerFn({ method: 'GET' })
-    .validator(z.object({ speciesKey: z.string().min(1) }))
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .validator(z.object({ speciesKey: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 
 export const getBreedByIdFn = createServerFn({ method: 'GET' })
-    .validator(z.object({ breedId: z.string().uuid() }))
-    .handler(async ({ data }) => {
-        /* ... */
-    })
+  .validator(z.object({ breedId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    /* ... */
+  })
 ```
 
 ### 3. Growth Standards Repository Updates (`app/features/batches/repository.ts`)
@@ -203,41 +203,41 @@ export const getBreedByIdFn = createServerFn({ method: 'GET' })
  * 3. Return standards ordered by day ascending
  */
 export async function getGrowthStandards(
-    db: Kysely<Database>,
-    species: string,
-    breedId?: string | null,
+  db: Kysely<Database>,
+  species: string,
+  breedId?: string | null,
 ): Promise<
-    Array<{
-        id: string
-        species: string
-        day: number
-        expected_weight_g: number
-        breedId: string | null
-    }>
+  Array<{
+    id: string
+    species: string
+    day: number
+    expected_weight_g: number
+    breedId: string | null
+  }>
 > {
-    // Try breed-specific standards first if breedId provided
-    if (breedId) {
-        const breedStandards = await db
-            .selectFrom('growth_standards')
-            .select(['id', 'species', 'day', 'expected_weight_g', 'breedId'])
-            .where('species', '=', species)
-            .where('breedId', '=', breedId)
-            .orderBy('day', 'asc')
-            .execute()
+  // Try breed-specific standards first if breedId provided
+  if (breedId) {
+    const breedStandards = await db
+      .selectFrom('growth_standards')
+      .select(['id', 'species', 'day', 'expected_weight_g', 'breedId'])
+      .where('species', '=', species)
+      .where('breedId', '=', breedId)
+      .orderBy('day', 'asc')
+      .execute()
 
-        if (breedStandards.length > 0) {
-            return breedStandards
-        }
+    if (breedStandards.length > 0) {
+      return breedStandards
     }
+  }
 
-    // Fall back to species-level standards (breedId IS NULL)
-    return db
-        .selectFrom('growth_standards')
-        .select(['id', 'species', 'day', 'expected_weight_g', 'breedId'])
-        .where('species', '=', species)
-        .where('breedId', 'is', null)
-        .orderBy('day', 'asc')
-        .execute()
+  // Fall back to species-level standards (breedId IS NULL)
+  return db
+    .selectFrom('growth_standards')
+    .select(['id', 'species', 'day', 'expected_weight_g', 'breedId'])
+    .where('species', '=', species)
+    .where('breedId', 'is', null)
+    .orderBy('day', 'asc')
+    .execute()
 }
 ```
 
@@ -247,36 +247,8 @@ export async function getGrowthStandards(
 
 ```typescript
 const batch = await db
-    .selectFrom('batches')
-    .select([
-        'id',
-        'farmId',
-        'batchName',
-        'livestockType',
-        'species',
-        'sourceSize',
-        'initialQuantity',
-        'currentQuantity',
-        'acquisitionDate',
-        'costPerUnit',
-        'totalCost',
-        'status',
-        'supplierId',
-        'structureId',
-        'targetHarvestDate',
-        'target_weight_g',
-        'targetPricePerUnit',
-        'notes',
-        'createdAt',
-        'updatedAt',
-    ])
-// ... missing 'breedId' in select!
-```
-
-**UPDATED CODE - add breedId to select:**
-
-```typescript
-const batch = await db.selectFrom('batches').select([
+  .selectFrom('batches')
+  .select([
     'id',
     'farmId',
     'batchName',
@@ -297,7 +269,35 @@ const batch = await db.selectFrom('batches').select([
     'notes',
     'createdAt',
     'updatedAt',
-    'breedId', // ADD THIS
+  ])
+// ... missing 'breedId' in select!
+```
+
+**UPDATED CODE - add breedId to select:**
+
+```typescript
+const batch = await db.selectFrom('batches').select([
+  'id',
+  'farmId',
+  'batchName',
+  'livestockType',
+  'species',
+  'sourceSize',
+  'initialQuantity',
+  'currentQuantity',
+  'acquisitionDate',
+  'costPerUnit',
+  'totalCost',
+  'status',
+  'supplierId',
+  'structureId',
+  'targetHarvestDate',
+  'target_weight_g',
+  'targetPricePerUnit',
+  'notes',
+  'createdAt',
+  'updatedAt',
+  'breedId', // ADD THIS
 ])
 ```
 
@@ -305,11 +305,11 @@ const batch = await db.selectFrom('batches').select([
 
 ```typescript
 const growthStandard = await db
-    .selectFrom('growth_standards')
-    .select(['id', 'species', 'day', 'expected_weight_g'])
-    .where('species', '=', batch.species)
-    .orderBy('day', 'asc')
-    .execute()
+  .selectFrom('growth_standards')
+  .select(['id', 'species', 'day', 'expected_weight_g'])
+  .where('species', '=', batch.species)
+  .orderBy('day', 'asc')
+  .execute()
 ```
 
 **UPDATED CODE - use repository function with breed fallback:**
@@ -319,9 +319,9 @@ import { getGrowthStandards, getBreedById } from './repository'
 
 // Replace inline query with repository function
 const growthStandard = await getGrowthStandards(
-    db,
-    batch.species,
-    batch.breedId,
+  db,
+  batch.species,
+  batch.breedId,
 )
 ```
 
@@ -337,11 +337,11 @@ const feedNeededKg = totalWeightToGain * 1.6 // FCR 1.6 conserv
 // Get breed-specific FCR if available
 let fcr = 1.6 // Default FCR
 if (batch.breedId) {
-    const { getBreedById } = await import('~/features/breeds/repository')
-    const breed = await getBreedById(db, batch.breedId)
-    if (breed?.typicalFcr) {
-        fcr = parseFloat(breed.typicalFcr)
-    }
+  const { getBreedById } = await import('~/features/breeds/repository')
+  const breed = await getBreedById(db, batch.breedId)
+  if (breed?.typicalFcr) {
+    fcr = parseFloat(breed.typicalFcr)
+  }
 }
 const feedNeededKg = totalWeightToGain * fcr
 ```
@@ -350,68 +350,68 @@ const feedNeededKg = totalWeightToGain * fcr
 
 ```typescript
 export async function calculateBatchProjection(
-    batchId: string,
+  batchId: string,
 ): Promise<ProjectionResult | null> {
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
 
-    // 1. Fetch batch WITH breedId
-    const batch = await db
-        .selectFrom('batches')
-        .select([
-            'id',
-            'farmId',
-            'batchName',
-            'livestockType',
-            'species',
-            'sourceSize',
-            'initialQuantity',
-            'currentQuantity',
-            'acquisitionDate',
-            'costPerUnit',
-            'totalCost',
-            'status',
-            'supplierId',
-            'structureId',
-            'targetHarvestDate',
-            'target_weight_g',
-            'targetPricePerUnit',
-            'notes',
-            'createdAt',
-            'updatedAt',
-            'breedId', // NEW: include breedId
-        ])
-        .where('id', '=', batchId)
-        .executeTakeFirst()
+  // 1. Fetch batch WITH breedId
+  const batch = await db
+    .selectFrom('batches')
+    .select([
+      'id',
+      'farmId',
+      'batchName',
+      'livestockType',
+      'species',
+      'sourceSize',
+      'initialQuantity',
+      'currentQuantity',
+      'acquisitionDate',
+      'costPerUnit',
+      'totalCost',
+      'status',
+      'supplierId',
+      'structureId',
+      'targetHarvestDate',
+      'target_weight_g',
+      'targetPricePerUnit',
+      'notes',
+      'createdAt',
+      'updatedAt',
+      'breedId', // NEW: include breedId
+    ])
+    .where('id', '=', batchId)
+    .executeTakeFirst()
 
-    if (!batch || !batch.target_weight_g || batch.status === 'sold') return null
+  if (!batch || !batch.target_weight_g || batch.status === 'sold') return null
 
-    // 2. Get growth standards (breed-specific with species fallback)
-    const { getGrowthStandards } = await import('./repository')
-    const growthStandard = await getGrowthStandards(
-        db,
-        batch.species,
-        batch.breedId,
-    )
+  // 2. Get growth standards (breed-specific with species fallback)
+  const { getGrowthStandards } = await import('./repository')
+  const growthStandard = await getGrowthStandards(
+    db,
+    batch.species,
+    batch.breedId,
+  )
 
-    if (growthStandard.length === 0) return null
+  if (growthStandard.length === 0) return null
 
-    // ... rest of calculation logic ...
+  // ... rest of calculation logic ...
 
-    // 3. Get breed-specific FCR if available
-    let fcr = 1.6 // Default FCR
-    if (batch.breedId) {
-        const { getBreedById } = await import('~/features/breeds/repository')
-        const breed = await getBreedById(db, batch.breedId)
-        if (breed?.typicalFcr) {
-            fcr = parseFloat(breed.typicalFcr)
-        }
+  // 3. Get breed-specific FCR if available
+  let fcr = 1.6 // Default FCR
+  if (batch.breedId) {
+    const { getBreedById } = await import('~/features/breeds/repository')
+    const breed = await getBreedById(db, batch.breedId)
+    if (breed?.typicalFcr) {
+      fcr = parseFloat(breed.typicalFcr)
     }
+  }
 
-    // Use fcr in feed cost calculation
-    const feedNeededKg = totalWeightToGain * fcr
+  // Use fcr in feed cost calculation
+  const feedNeededKg = totalWeightToGain * fcr
 
-    // ... rest of function ...
+  // ... rest of function ...
 }
 ```
 
@@ -424,16 +424,16 @@ const [selectedBreed, setSelectedBreed] = useState<Breed | null>(null)
 
 // Fetch breeds when species changes
 useEffect(() => {
-    if (formData.species) {
-        getBreedsForSpeciesFn({ data: { speciesKey: formData.species } }).then(
-            setBreeds,
-        )
-    }
+  if (formData.species) {
+    getBreedsForSpeciesFn({ data: { speciesKey: formData.species } }).then(
+      setBreeds,
+    )
+  }
 }, [formData.species])
 
 // Update source sizes based on selected breed
 const sourceSizeOptions =
-    selectedBreed?.sourceSizes || SOURCE_SIZE_OPTIONS[formData.livestockType]
+  selectedBreed?.sourceSizes || SOURCE_SIZE_OPTIONS[formData.livestockType]
 ```
 
 ## Data Models
@@ -446,67 +446,61 @@ import { sql } from 'kysely'
 import type { Kysely } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
-    // Create breeds table
-    await db.schema
-        .createTable('breeds')
-        .addColumn('id', 'uuid', (col) =>
-            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
-        )
-        .addColumn('moduleKey', 'varchar(20)', (col) => col.notNull())
-        .addColumn('speciesKey', 'varchar(50)', (col) => col.notNull())
-        .addColumn('breedName', 'varchar(100)', (col) => col.notNull())
-        .addColumn('displayName', 'varchar(100)', (col) => col.notNull())
-        .addColumn('typicalMarketWeightG', 'integer', (col) => col.notNull())
-        .addColumn('typicalDaysToMarket', 'integer', (col) => col.notNull())
-        .addColumn('typicalFcr', 'decimal(4,2)', (col) => col.notNull())
-        .addColumn('sourceSizes', 'jsonb', (col) =>
-            col.notNull().defaultTo(sql`'[]'`),
-        )
-        .addColumn('regions', 'jsonb', (col) =>
-            col.notNull().defaultTo(sql`'[]'`),
-        )
-        .addColumn('isDefault', 'boolean', (col) =>
-            col.notNull().defaultTo(false),
-        )
-        .addColumn('isActive', 'boolean', (col) =>
-            col.notNull().defaultTo(true),
-        )
-        .addColumn('createdAt', 'timestamptz', (col) =>
-            col.notNull().defaultTo(sql`now()`),
-        )
-        .execute()
+  // Create breeds table
+  await db.schema
+    .createTable('breeds')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('moduleKey', 'varchar(20)', (col) => col.notNull())
+    .addColumn('speciesKey', 'varchar(50)', (col) => col.notNull())
+    .addColumn('breedName', 'varchar(100)', (col) => col.notNull())
+    .addColumn('displayName', 'varchar(100)', (col) => col.notNull())
+    .addColumn('typicalMarketWeightG', 'integer', (col) => col.notNull())
+    .addColumn('typicalDaysToMarket', 'integer', (col) => col.notNull())
+    .addColumn('typicalFcr', 'decimal(4,2)', (col) => col.notNull())
+    .addColumn('sourceSizes', 'jsonb', (col) =>
+      col.notNull().defaultTo(sql`'[]'`),
+    )
+    .addColumn('regions', 'jsonb', (col) => col.notNull().defaultTo(sql`'[]'`))
+    .addColumn('isDefault', 'boolean', (col) => col.notNull().defaultTo(false))
+    .addColumn('isActive', 'boolean', (col) => col.notNull().defaultTo(true))
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .execute()
 
-    // Add unique constraint
-    await db.schema
-        .createIndex('breeds_module_species_name_unique')
-        .on('breeds')
-        .columns(['moduleKey', 'speciesKey', 'breedName'])
-        .unique()
-        .execute()
+  // Add unique constraint
+  await db.schema
+    .createIndex('breeds_module_species_name_unique')
+    .on('breeds')
+    .columns(['moduleKey', 'speciesKey', 'breedName'])
+    .unique()
+    .execute()
 
-    // Create indexes (Kysely pattern - runs in transaction)
-    await db.schema
-        .createIndex('idx_breeds_module')
-        .on('breeds')
-        .column('moduleKey')
-        .execute()
+  // Create indexes (Kysely pattern - runs in transaction)
+  await db.schema
+    .createIndex('idx_breeds_module')
+    .on('breeds')
+    .column('moduleKey')
+    .execute()
 
-    await db.schema
-        .createIndex('idx_breeds_species')
-        .on('breeds')
-        .column('speciesKey')
-        .execute()
+  await db.schema
+    .createIndex('idx_breeds_species')
+    .on('breeds')
+    .column('speciesKey')
+    .execute()
 
-    await db.schema
-        .createIndex('idx_breeds_active')
-        .on('breeds')
-        .column('isActive')
-        .where('isActive', '=', true)
-        .execute()
+  await db.schema
+    .createIndex('idx_breeds_active')
+    .on('breeds')
+    .column('isActive')
+    .where('isActive', '=', true)
+    .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-    await db.schema.dropTable('breeds').ifExists().execute()
+  await db.schema.dropTable('breeds').ifExists().execute()
 }
 ```
 
@@ -515,36 +509,36 @@ export async function down(db: Kysely<any>): Promise<void> {
 ```typescript
 // Add to migration: 2026-01-26-001-breeds-table.ts
 export async function up(db: Kysely<any>): Promise<void> {
-    // ... breeds table creation above ...
+  // ... breeds table creation above ...
 
-    // Add breed_id to growth_standards
-    await db.schema
-        .alterTable('growth_standards')
-        .addColumn('breedId', 'uuid', (col) =>
-            col.references('breeds.id').onDelete('set null'),
-        )
-        .execute()
+  // Add breed_id to growth_standards
+  await db.schema
+    .alterTable('growth_standards')
+    .addColumn('breedId', 'uuid', (col) =>
+      col.references('breeds.id').onDelete('set null'),
+    )
+    .execute()
 
-    await db.schema
-        .createIndex('idx_growth_standards_breed')
-        .on('growth_standards')
-        .column('breedId')
-        .execute()
+  await db.schema
+    .createIndex('idx_growth_standards_breed')
+    .on('growth_standards')
+    .column('breedId')
+    .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-    // Drop indexes first
-    await db.schema.dropIndex('idx_growth_standards_breed').ifExists().execute()
+  // Drop indexes first
+  await db.schema.dropIndex('idx_growth_standards_breed').ifExists().execute()
 
-    // Drop column
-    await db.schema
-        .alterTable('growth_standards')
-        .dropColumn('breedId')
-        .ifExists()
-        .execute()
+  // Drop column
+  await db.schema
+    .alterTable('growth_standards')
+    .dropColumn('breedId')
+    .ifExists()
+    .execute()
 
-    // Drop breeds table
-    await db.schema.dropTable('breeds').ifExists().execute()
+  // Drop breeds table
+  await db.schema.dropTable('breeds').ifExists().execute()
 }
 ```
 
@@ -553,17 +547,17 @@ export async function down(db: Kysely<any>): Promise<void> {
 ```typescript
 // Already included in migration above - add breed_id to batches
 await db.schema
-    .alterTable('batches')
-    .addColumn('breedId', 'uuid', (col) =>
-        col.references('breeds.id').onDelete('set null'),
-    )
-    .execute()
+  .alterTable('batches')
+  .addColumn('breedId', 'uuid', (col) =>
+    col.references('breeds.id').onDelete('set null'),
+  )
+  .execute()
 
 await db.schema
-    .createIndex('idx_batches_breed')
-    .on('batches')
-    .column('breedId')
-    .execute()
+  .createIndex('idx_batches_breed')
+  .on('batches')
+  .column('breedId')
+  .execute()
 ```
 
 ### Complete Migration with Rollback
@@ -574,114 +568,108 @@ import { sql } from 'kysely'
 import type { Kysely } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
-    // 1. Create breeds table
-    await db.schema
-        .createTable('breeds')
-        .addColumn('id', 'uuid', (col) =>
-            col.primaryKey().defaultTo(sql`gen_random_uuid()`),
-        )
-        .addColumn('moduleKey', 'varchar(20)', (col) => col.notNull())
-        .addColumn('speciesKey', 'varchar(50)', (col) => col.notNull())
-        .addColumn('breedName', 'varchar(100)', (col) => col.notNull())
-        .addColumn('displayName', 'varchar(100)', (col) => col.notNull())
-        .addColumn('typicalMarketWeightG', 'integer', (col) => col.notNull())
-        .addColumn('typicalDaysToMarket', 'integer', (col) => col.notNull())
-        .addColumn('typicalFcr', 'decimal(4,2)', (col) => col.notNull())
-        .addColumn('sourceSizes', 'jsonb', (col) =>
-            col.notNull().defaultTo(sql`'[]'`),
-        )
-        .addColumn('regions', 'jsonb', (col) =>
-            col.notNull().defaultTo(sql`'[]'`),
-        )
-        .addColumn('isDefault', 'boolean', (col) =>
-            col.notNull().defaultTo(false),
-        )
-        .addColumn('isActive', 'boolean', (col) =>
-            col.notNull().defaultTo(true),
-        )
-        .addColumn('createdAt', 'timestamptz', (col) =>
-            col.notNull().defaultTo(sql`now()`),
-        )
-        .execute()
+  // 1. Create breeds table
+  await db.schema
+    .createTable('breeds')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('moduleKey', 'varchar(20)', (col) => col.notNull())
+    .addColumn('speciesKey', 'varchar(50)', (col) => col.notNull())
+    .addColumn('breedName', 'varchar(100)', (col) => col.notNull())
+    .addColumn('displayName', 'varchar(100)', (col) => col.notNull())
+    .addColumn('typicalMarketWeightG', 'integer', (col) => col.notNull())
+    .addColumn('typicalDaysToMarket', 'integer', (col) => col.notNull())
+    .addColumn('typicalFcr', 'decimal(4,2)', (col) => col.notNull())
+    .addColumn('sourceSizes', 'jsonb', (col) =>
+      col.notNull().defaultTo(sql`'[]'`),
+    )
+    .addColumn('regions', 'jsonb', (col) => col.notNull().defaultTo(sql`'[]'`))
+    .addColumn('isDefault', 'boolean', (col) => col.notNull().defaultTo(false))
+    .addColumn('isActive', 'boolean', (col) => col.notNull().defaultTo(true))
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .execute()
 
-    // 2. Add unique constraint
-    await db.schema
-        .createIndex('breeds_module_species_name_unique')
-        .on('breeds')
-        .columns(['moduleKey', 'speciesKey', 'breedName'])
-        .unique()
-        .execute()
+  // 2. Add unique constraint
+  await db.schema
+    .createIndex('breeds_module_species_name_unique')
+    .on('breeds')
+    .columns(['moduleKey', 'speciesKey', 'breedName'])
+    .unique()
+    .execute()
 
-    // 3. Create indexes
-    await db.schema
-        .createIndex('idx_breeds_module')
-        .on('breeds')
-        .column('moduleKey')
-        .execute()
+  // 3. Create indexes
+  await db.schema
+    .createIndex('idx_breeds_module')
+    .on('breeds')
+    .column('moduleKey')
+    .execute()
 
-    await db.schema
-        .createIndex('idx_breeds_species')
-        .on('breeds')
-        .column('speciesKey')
-        .execute()
+  await db.schema
+    .createIndex('idx_breeds_species')
+    .on('breeds')
+    .column('speciesKey')
+    .execute()
 
-    await db.schema
-        .createIndex('idx_breeds_active')
-        .on('breeds')
-        .column('isActive')
-        .where('isActive', '=', true)
-        .execute()
+  await db.schema
+    .createIndex('idx_breeds_active')
+    .on('breeds')
+    .column('isActive')
+    .where('isActive', '=', true)
+    .execute()
 
-    // 4. Add breed_id to growth_standards
-    await db.schema
-        .alterTable('growth_standards')
-        .addColumn('breedId', 'uuid', (col) =>
-            col.references('breeds.id').onDelete('set null'),
-        )
-        .execute()
+  // 4. Add breed_id to growth_standards
+  await db.schema
+    .alterTable('growth_standards')
+    .addColumn('breedId', 'uuid', (col) =>
+      col.references('breeds.id').onDelete('set null'),
+    )
+    .execute()
 
-    await db.schema
-        .createIndex('idx_growth_standards_breed')
-        .on('growth_standards')
-        .column('breedId')
-        .execute()
+  await db.schema
+    .createIndex('idx_growth_standards_breed')
+    .on('growth_standards')
+    .column('breedId')
+    .execute()
 
-    // 5. Add breed_id to batches
-    await db.schema
-        .alterTable('batches')
-        .addColumn('breedId', 'uuid', (col) =>
-            col.references('breeds.id').onDelete('set null'),
-        )
-        .execute()
+  // 5. Add breed_id to batches
+  await db.schema
+    .alterTable('batches')
+    .addColumn('breedId', 'uuid', (col) =>
+      col.references('breeds.id').onDelete('set null'),
+    )
+    .execute()
 
-    await db.schema
-        .createIndex('idx_batches_breed')
-        .on('batches')
-        .column('breedId')
-        .execute()
+  await db.schema
+    .createIndex('idx_batches_breed')
+    .on('batches')
+    .column('breedId')
+    .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-    // Drop in reverse order
+  // Drop in reverse order
 
-    // 1. Drop batches breed_id
-    await db.schema.dropIndex('idx_batches_breed').ifExists().execute()
-    await db.schema
-        .alterTable('batches')
-        .dropColumn('breedId')
-        .ifExists()
-        .execute()
+  // 1. Drop batches breed_id
+  await db.schema.dropIndex('idx_batches_breed').ifExists().execute()
+  await db.schema
+    .alterTable('batches')
+    .dropColumn('breedId')
+    .ifExists()
+    .execute()
 
-    // 2. Drop growth_standards breed_id
-    await db.schema.dropIndex('idx_growth_standards_breed').ifExists().execute()
-    await db.schema
-        .alterTable('growth_standards')
-        .dropColumn('breedId')
-        .ifExists()
-        .execute()
+  // 2. Drop growth_standards breed_id
+  await db.schema.dropIndex('idx_growth_standards_breed').ifExists().execute()
+  await db.schema
+    .alterTable('growth_standards')
+    .dropColumn('breedId')
+    .ifExists()
+    .execute()
 
-    // 3. Drop breeds table (cascades to indexes and constraints)
-    await db.schema.dropTable('breeds').ifExists().execute()
+  // 3. Drop breeds table (cascades to indexes and constraints)
+  await db.schema.dropTable('breeds').ifExists().execute()
 }
 ```
 
@@ -753,31 +741,31 @@ export interface BatchTable {
 ```typescript
 // Breed seed data example - note species uses Title Case to match growth_standards
 const POULTRY_BREEDS: BreedSeedData[] = [
-    {
-        moduleKey: 'poultry',
-        speciesKey: 'Broiler', // Title Case - matches growth_standards.species
-        breedName: 'cobb_500',
-        displayName: 'Cobb 500',
-        typicalMarketWeightG: 2800,
-        typicalDaysToMarket: 42,
-        typicalFcr: '1.65',
-        sourceSizes: ['day-old', 'grower'], // lowercase - matches SOURCE_SIZE_OPTIONS values
-        regions: ['global'],
-        isDefault: true,
-    },
-    {
-        moduleKey: 'poultry',
-        speciesKey: 'Broiler',
-        breedName: 'ross_308',
-        displayName: 'Ross 308',
-        typicalMarketWeightG: 2900,
-        typicalDaysToMarket: 42,
-        typicalFcr: '1.60',
-        sourceSizes: ['day-old', 'grower'],
-        regions: ['global'],
-        isDefault: false,
-    },
-    // ... more breeds
+  {
+    moduleKey: 'poultry',
+    speciesKey: 'Broiler', // Title Case - matches growth_standards.species
+    breedName: 'cobb_500',
+    displayName: 'Cobb 500',
+    typicalMarketWeightG: 2800,
+    typicalDaysToMarket: 42,
+    typicalFcr: '1.65',
+    sourceSizes: ['day-old', 'grower'], // lowercase - matches SOURCE_SIZE_OPTIONS values
+    regions: ['global'],
+    isDefault: true,
+  },
+  {
+    moduleKey: 'poultry',
+    speciesKey: 'Broiler',
+    breedName: 'ross_308',
+    displayName: 'Ross 308',
+    typicalMarketWeightG: 2900,
+    typicalDaysToMarket: 42,
+    typicalFcr: '1.60',
+    sourceSizes: ['day-old', 'grower'],
+    regions: ['global'],
+    isDefault: false,
+  },
+  // ... more breeds
 ]
 ```
 
@@ -910,40 +898,38 @@ tests/features/breeds/
 ```typescript
 // Property 1: Breed Data Round-Trip
 describe('Breed Repository', () => {
-    it('Property 1: breed data round-trip preserves all fields', () => {
-        fc.assert(
-            fc.property(
-                fc.record({
-                    moduleKey: fc.constantFrom(
-                        'poultry',
-                        'aquaculture',
-                        'cattle',
-                        'goats',
-                        'sheep',
-                        'bees',
-                    ),
-                    speciesKey: fc.string({ minLength: 1, maxLength: 50 }),
-                    breedName: fc.string({ minLength: 1, maxLength: 100 }),
-                    displayName: fc.string({ minLength: 1, maxLength: 100 }),
-                    typicalMarketWeightG: fc.integer({ min: 1, max: 1000000 }),
-                    typicalDaysToMarket: fc.integer({ min: 1, max: 1000 }),
-                    typicalFcr: fc
-                        .float({ min: 0.1, max: 10 })
-                        .map((n) => n.toFixed(2)),
-                    sourceSizes: fc.array(fc.string(), { maxLength: 10 }),
-                    regions: fc.array(fc.string(), { maxLength: 10 }),
-                    isDefault: fc.boolean(),
-                    isActive: fc.boolean(),
-                }),
-                async (breedData) => {
-                    const id = await insertBreed(db, breedData)
-                    const retrieved = await getBreedById(db, id)
-                    expect(retrieved).toMatchObject(breedData)
-                },
-            ),
-            { numRuns: 100 },
-        )
-    })
+  it('Property 1: breed data round-trip preserves all fields', () => {
+    fc.assert(
+      fc.property(
+        fc.record({
+          moduleKey: fc.constantFrom(
+            'poultry',
+            'aquaculture',
+            'cattle',
+            'goats',
+            'sheep',
+            'bees',
+          ),
+          speciesKey: fc.string({ minLength: 1, maxLength: 50 }),
+          breedName: fc.string({ minLength: 1, maxLength: 100 }),
+          displayName: fc.string({ minLength: 1, maxLength: 100 }),
+          typicalMarketWeightG: fc.integer({ min: 1, max: 1000000 }),
+          typicalDaysToMarket: fc.integer({ min: 1, max: 1000 }),
+          typicalFcr: fc.float({ min: 0.1, max: 10 }).map((n) => n.toFixed(2)),
+          sourceSizes: fc.array(fc.string(), { maxLength: 10 }),
+          regions: fc.array(fc.string(), { maxLength: 10 }),
+          isDefault: fc.boolean(),
+          isActive: fc.boolean(),
+        }),
+        async (breedData) => {
+          const id = await insertBreed(db, breedData)
+          const retrieved = await getBreedById(db, id)
+          expect(retrieved).toMatchObject(breedData)
+        },
+      ),
+      { numRuns: 100 },
+    )
+  })
 })
 ```
 

@@ -5,6 +5,7 @@
 This plan implements Extension Worker Mode in 4 phases over 8 weeks, following the patterns established by Digital Foreman and IoT Sensor Hub.
 
 **Key Patterns from Codebase:**
+
 - Three-layer architecture (Server → Service → Repository)
 - FarmRole extension (like 'worker' in Digital Foreman)
 - Dynamic imports for Cloudflare Workers
@@ -72,9 +73,9 @@ This plan implements Extension Worker Mode in 4 phases over 8 weeks, following t
 
 - [ ] 1.10 Configure Cloudflare cron triggers
   - Add triggers section to wrangler.jsonc
-  - Cron: "0 */6 * * *" for outbreak detection
-  - Cron: "0 0 * * *" for access grant expiration
-  - Cron: "0 9 * * *" for expiration warnings
+  - Cron: "0 _/6 _ \* \*" for outbreak detection
+  - Cron: "0 0 \* \* \*" for access grant expiration
+  - Cron: "0 9 \* \* \*" for expiration warnings
   - Create app/features/extension/scheduled.ts with handler functions
   - Document integration with TanStack Start entry point
 
@@ -329,6 +330,7 @@ This plan implements Extension Worker Mode in 4 phases over 8 weeks, following t
 ## Success Criteria
 
 ### Phase 1 Success
+
 - [ ] All migrations run successfully
 - [ ] TypeScript types compile
 - [ ] Property tests pass
@@ -336,18 +338,21 @@ This plan implements Extension Worker Mode in 4 phases over 8 weeks, following t
 - [ ] validateFarmRole() includes 'worker' and 'observer'
 
 ### Phase 2 Success
+
 - [ ] Agents can request access
 - [ ] Farmers can approve/deny
 - [ ] Dashboard shows accessible farms
 - [ ] Health status is species-specific
 
 ### Phase 3 Success
+
 - [ ] Outbreak detection finds patterns
 - [ ] Alerts created and notified
 - [ ] Visit records can be created
 - [ ] File uploads work
 
 ### Phase 4 Success
+
 - [ ] Supervisor dashboard works
 - [ ] Navigation transforms correctly
 - [ ] Data export works with audit logging
@@ -359,26 +364,26 @@ This plan implements Extension Worker Mode in 4 phases over 8 weeks, following t
 
 ## Requirements Traceability
 
-| Requirement | Task(s) | Notes |
-|-------------|---------|-------|
-| R5 (Rate limiting) | 2.6 | Max 5 pending requests per agent per day |
-| R8 (Configurable thresholds) | 1.5, 7.5 | DB table + admin UI |
-| R15 (2-year retention) | 7.6 | Cleanup in daily cron |
-| R16 (Export audit logging) | 7.4 | Log all exports to audit_logs |
+| Requirement                  | Task(s)  | Notes                                    |
+| ---------------------------- | -------- | ---------------------------------------- |
+| R5 (Rate limiting)           | 2.6      | Max 5 pending requests per agent per day |
+| R8 (Configurable thresholds) | 1.5, 7.5 | DB table + admin UI                      |
+| R15 (2-year retention)       | 7.6      | Cleanup in daily cron                    |
+| R16 (Export audit logging)   | 7.4      | Log all exports to audit_logs            |
 
 ---
 
 ## Risk Mitigation
 
-| Risk | Mitigation |
-|------|------------|
-| N+1 query performance | CTE-based queries, pagination |
-| False positive outbreaks | Species-specific thresholds, filters |
-| File upload failures | Retry logic, size limits |
-| Access expiration race | Indexed queries, background job |
-| Offline sync conflicts | Last-write-wins, audit trail |
-| Observer bypasses user_farms | checkObserverAccess uses access_grants, not user_farms |
-| Cron handler not triggered | Verify wrangler.jsonc triggers section, test with wrangler dev |
+| Risk                         | Mitigation                                                     |
+| ---------------------------- | -------------------------------------------------------------- |
+| N+1 query performance        | CTE-based queries, pagination                                  |
+| False positive outbreaks     | Species-specific thresholds, filters                           |
+| File upload failures         | Retry logic, size limits                                       |
+| Access expiration race       | Indexed queries, background job                                |
+| Offline sync conflicts       | Last-write-wins, audit trail                                   |
+| Observer bypasses user_farms | checkObserverAccess uses access_grants, not user_farms         |
+| Cron handler not triggered   | Verify wrangler.jsonc triggers section, test with wrangler dev |
 
 ---
 
@@ -392,30 +397,33 @@ This plan implements Extension Worker Mode in 4 phases over 8 weeks, following t
 
 ## Timeline Summary
 
-| Phase | Duration | Deliverable |
-|-------|----------|-------------|
-| Phase 1 | 2 weeks | Database + core types |
-| Phase 2 | 2 weeks | Access workflow + dashboard |
-| Phase 3 | 2 weeks | Outbreak detection + visits |
-| Phase 4 | 2 weeks | Supervisor + polish |
-| **Total** | **8 weeks** | Complete feature |
+| Phase     | Duration    | Deliverable                 |
+| --------- | ----------- | --------------------------- |
+| Phase 1   | 2 weeks     | Database + core types       |
+| Phase 2   | 2 weeks     | Access workflow + dashboard |
+| Phase 3   | 2 weeks     | Outbreak detection + visits |
+| Phase 4   | 2 weeks     | Supervisor + polish         |
+| **Total** | **8 weeks** | Complete feature            |
 
 ---
 
 ## Notes
 
 ### Patterns from Digital Foreman
+
 - FarmRole extension (added 'worker', we add 'observer')
 - GPS verification in service layer (we use district assignment)
 - Photo storage in R2 (we use for visit attachments)
 - Offline-first with sync (we use for access checks)
 
 ### Patterns from IoT Sensor Hub
+
 - Background job for detection (we use for outbreak detection)
 - Threshold configuration (we use species_thresholds table)
 - Alert management (we use outbreak_alerts)
 
 ### Key Differences from Original Spec
+
 1. user_districts table (not global role)
 2. Species-specific thresholds (not fixed 5%/10%)
 3. Junction table for alerts (not TEXT[])

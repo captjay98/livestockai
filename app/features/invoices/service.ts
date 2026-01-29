@@ -10,36 +10,36 @@ import { multiply, toDbString } from '~/features/settings/currency'
  * Line item for invoice calculations
  */
 export interface InvoiceItem {
-    description: string
-    quantity: number
-    unitPrice: number
+  description: string
+  quantity: number
+  unitPrice: number
 }
 
 /**
  * Invoice data with parsed numeric amounts
  */
 export interface InvoiceWithParsedAmounts {
+  id: string
+  invoiceNumber: string
+  totalAmount: number
+  status: 'unpaid' | 'partial' | 'paid'
+  date: Date
+  dueDate: Date | null
+  notes: string | null
+  customerId: string
+  customerName: string
+  customerPhone: string | null
+  customerEmail: string | null
+  customerLocation: string | null
+  farmName: string
+  farmLocation: string | null
+  items: Array<{
     id: string
-    invoiceNumber: string
-    totalAmount: number
-    status: 'unpaid' | 'partial' | 'paid'
-    date: Date
-    dueDate: Date | null
-    notes: string | null
-    customerId: string
-    customerName: string
-    customerPhone: string | null
-    customerEmail: string | null
-    customerLocation: string | null
-    farmName: string
-    farmLocation: string | null
-    items: Array<{
-        id: string
-        description: string
-        quantity: number
-        unitPrice: number
-        total: number
-    }>
+    description: string
+    quantity: number
+    unitPrice: number
+    total: number
+  }>
 }
 
 /**
@@ -57,28 +57,28 @@ export interface InvoiceWithParsedAmounts {
  * ```
  */
 export function generateInvoiceNumber(lastNumber: string | null): string {
-    const year = new Date().getFullYear()
-    const prefix = `INV-${year}-`
+  const year = new Date().getFullYear()
+  const prefix = `INV-${year}-`
 
-    if (!lastNumber || !lastNumber.startsWith(prefix)) {
-        // First invoice of the year or format mismatch
-        return `${prefix}0001`
-    }
+  if (!lastNumber || !lastNumber.startsWith(prefix)) {
+    // First invoice of the year or format mismatch
+    return `${prefix}0001`
+  }
 
-    // Extract the numeric portion after the prefix
-    const numericPortion = lastNumber.replace(prefix, '')
-    const lastSequence = parseInt(numericPortion, 10)
+  // Extract the numeric portion after the prefix
+  const numericPortion = lastNumber.replace(prefix, '')
+  const lastSequence = parseInt(numericPortion, 10)
 
-    if (isNaN(lastSequence)) {
-        // Invalid format, start fresh
-        return `${prefix}0001`
-    }
+  if (isNaN(lastSequence)) {
+    // Invalid format, start fresh
+    return `${prefix}0001`
+  }
 
-    const nextSequence = lastSequence + 1
-    // Pad to 4 digits minimum, but allow overflow beyond 9999
-    const paddedSequence = nextSequence.toString().padStart(4, '0')
+  const nextSequence = lastSequence + 1
+  // Pad to 4 digits minimum, but allow overflow beyond 9999
+  const paddedSequence = nextSequence.toString().padStart(4, '0')
 
-    return `${prefix}${paddedSequence}`
+  return `${prefix}${paddedSequence}`
 }
 
 /**
@@ -97,13 +97,13 @@ export function generateInvoiceNumber(lastNumber: string | null): string {
  * ```
  */
 export function calculateItemTotal(
-    quantity: number,
-    unitPrice: number,
+  quantity: number,
+  unitPrice: number,
 ): string {
-    if (quantity <= 0 || unitPrice < 0) {
-        return toDbString(0)
-    }
-    return toDbString(multiply(quantity, unitPrice))
+  if (quantity <= 0 || unitPrice < 0) {
+    return toDbString(0)
+  }
+  return toDbString(multiply(quantity, unitPrice))
 }
 
 /**
@@ -122,21 +122,21 @@ export function calculateItemTotal(
  * ```
  */
 export function calculateInvoiceTotal(
-    items: Array<{ quantity: number; unitPrice: number }>,
+  items: Array<{ quantity: number; unitPrice: number }>,
 ): string {
-    if (items.length === 0) {
-        return toDbString(0)
-    }
+  if (items.length === 0) {
+    return toDbString(0)
+  }
 
-    const total = items.reduce(
-        (sum, item) => {
-            const itemTotal = multiply(item.quantity, item.unitPrice)
-            return sum.plus(itemTotal)
-        },
-        multiply(0, 0),
-    )
+  const total = items.reduce(
+    (sum, item) => {
+      const itemTotal = multiply(item.quantity, item.unitPrice)
+      return sum.plus(itemTotal)
+    },
+    multiply(0, 0),
+  )
 
-    return toDbString(total)
+  return toDbString(total)
 }
 
 /**
@@ -147,26 +147,24 @@ export function calculateInvoiceTotal(
  * @returns Invoice data with parsed numeric amounts
  */
 export function transformInvoiceData(
-    invoice: InvoiceWithParsedAmounts,
+  invoice: InvoiceWithParsedAmounts,
 ): InvoiceWithParsedAmounts {
-    return {
-        ...invoice,
-        totalAmount:
-            typeof invoice.totalAmount === 'string'
-                ? parseFloat(invoice.totalAmount)
-                : invoice.totalAmount,
-        items: invoice.items.map((item) => ({
-            ...item,
-            unitPrice:
-                typeof item.unitPrice === 'string'
-                    ? parseFloat(item.unitPrice)
-                    : item.unitPrice,
-            total:
-                typeof item.total === 'string'
-                    ? parseFloat(item.total)
-                    : item.total,
-        })),
-    }
+  return {
+    ...invoice,
+    totalAmount:
+      typeof invoice.totalAmount === 'string'
+        ? parseFloat(invoice.totalAmount)
+        : invoice.totalAmount,
+    items: invoice.items.map((item) => ({
+      ...item,
+      unitPrice:
+        typeof item.unitPrice === 'string'
+          ? parseFloat(item.unitPrice)
+          : item.unitPrice,
+      total:
+        typeof item.total === 'string' ? parseFloat(item.total) : item.total,
+    })),
+  }
 }
 
 /**
@@ -193,36 +191,36 @@ export function transformInvoiceData(
  * ```
  */
 export function validateInvoiceData(data: CreateInvoiceInput): string | null {
-    if (!data.customerId || data.customerId.trim() === '') {
-        return 'Customer is required'
+  if (!data.customerId || data.customerId.trim() === '') {
+    return 'Customer is required'
+  }
+
+  if (!data.farmId || data.farmId.trim() === '') {
+    return 'Farm is required'
+  }
+
+  if (data.items.length === 0) {
+    return 'At least one item is required'
+  }
+
+  // Validate each item
+  for (let i = 0; i < data.items.length; i++) {
+    const item = data.items[i]
+
+    if (!item.description || item.description.trim() === '') {
+      return `Item ${i + 1} description is required`
     }
 
-    if (!data.farmId || data.farmId.trim() === '') {
-        return 'Farm is required'
+    if (item.quantity <= 0) {
+      return `Item ${i + 1} quantity must be greater than 0`
     }
 
-    if (data.items.length === 0) {
-        return 'At least one item is required'
+    if (item.unitPrice < 0) {
+      return `Item ${i + 1} unit price cannot be negative`
     }
+  }
 
-    // Validate each item
-    for (let i = 0; i < data.items.length; i++) {
-        const item = data.items[i]
-
-        if (!item.description || item.description.trim() === '') {
-            return `Item ${i + 1} description is required`
-        }
-
-        if (item.quantity <= 0) {
-            return `Item ${i + 1} quantity must be greater than 0`
-        }
-
-        if (item.unitPrice < 0) {
-            return `Item ${i + 1} unit price cannot be negative`
-        }
-    }
-
-    return null
+  return null
 }
 
 /**
@@ -234,14 +232,14 @@ export function validateInvoiceData(data: CreateInvoiceInput): string | null {
  * @returns Validation error message, or null if valid
  */
 export function validateUpdateData(data: {
-    status?: 'unpaid' | 'partial' | 'paid'
+  status?: 'unpaid' | 'partial' | 'paid'
 }): string | null {
-    if (data.status !== undefined) {
-        const validStatuses = ['unpaid', 'partial', 'paid']
-        if (!validStatuses.includes(data.status)) {
-            return `Status must be one of: ${validStatuses.join(', ')}`
-        }
+  if (data.status !== undefined) {
+    const validStatuses = ['unpaid', 'partial', 'paid']
+    if (!validStatuses.includes(data.status)) {
+      return `Status must be one of: ${validStatuses.join(', ')}`
     }
+  }
 
-    return null
+  return null
 }

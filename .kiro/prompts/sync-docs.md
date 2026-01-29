@@ -16,25 +16,25 @@
 ## What This Prompt Does
 
 1. **Audits JSDoc Coverage**
-    - Scans all server.ts files for JSDoc comments
-    - Identifies functions missing documentation
-    - Checks for @param, @returns, @example tags
-    - Reports coverage statistics
+   - Scans all server.ts files for JSDoc comments
+   - Identifies functions missing documentation
+   - Checks for @param, @returns, @example tags
+   - Reports coverage statistics
 
 2. **Checks for Changes**
-    - Compares current JSDoc with last generation
-    - Identifies new/modified functions
-    - Detects removed functions
+   - Compares current JSDoc with last generation
+   - Identifies new/modified functions
+   - Detects removed functions
 
 3. **Regenerates Documentation**
-    - Runs `bun run docs:generate`
-    - Updates docs/api/ directory
-    - Preserves custom README
+   - Runs `bun run docs:generate`
+   - Updates docs/api/ directory
+   - Preserves custom README
 
 4. **Validates Output**
-    - Checks for TypeDoc errors
-    - Verifies all modules documented
-    - Reports generation statistics
+   - Checks for TypeDoc errors
+   - Verifies all modules documented
+   - Reports generation statistics
 
 ---
 
