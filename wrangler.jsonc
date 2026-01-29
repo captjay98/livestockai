@@ -1,46 +1,60 @@
 {
-    "$schema": "./node_modules/wrangler/config-schema.json",
+  "$schema": "./node_modules/wrangler/config-schema.json",
 
-    // Project name - change this to your own
-    "name": "jayfarms",
+  // Project name - change this to your own
+  "name": "jayfarms",
 
-    // Uncomment and set your Cloudflare account ID for deployment
-    // Get it from: https://dash.cloudflare.com → Workers & Pages → Overview
-    // "account_id": "your-account-id-here",
+  // Uncomment and set your Cloudflare account ID for deployment
+  // Get it from: https://dash.cloudflare.com → Workers & Pages → Overview
+  // "account_id": "your-account-id-here",
 
-    "compatibility_date": "2025-03-11",
-    "compatibility_flags": [
-        "nodejs_compat",
-        "no_handle_cross_request_promise_resolution",
+  "compatibility_date": "2025-03-11",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "no_handle_cross_request_promise_resolution",
+  ],
+
+  // TanStack Start entry point - do not change
+  "main": "@tanstack/react-start/server-entry",
+
+  // Development-only: Load environment variables from .dev.vars file
+  // These are NOT used in production - set secrets via wrangler secret put
+  "vars": {},
+
+  // Scheduled triggers for Extension Worker Mode
+  "triggers": {
+    "crons": [
+      "0 */6 * * *", // Every 6 hours - expire access grants/requests
+      "0 0 * * *", // Daily at midnight - expiration warnings
+      "0 9 * * *", // Daily at 9 AM - outbreak detection
     ],
+  },
 
-    // TanStack Start entry point - do not change
-    "main": "@tanstack/react-start/server-entry",
-
-    // Development-only: Load environment variables from .dev.vars file
-    // These are NOT used in production - set secrets via wrangler secret put
-    "vars": {},
-
-    // Scheduled triggers for Extension Worker Mode
-    "triggers": {
-        "crons": [
-            "0 */6 * * *", // Every 6 hours - expire access grants/requests
-            "0 0 * * *", // Daily at midnight - expiration warnings
-            "0 9 * * *", // Daily at 9 AM - outbreak detection
-        ],
+  // R2 Storage Buckets
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_STORAGE_BUCKET",
+      "bucket_name": "openlivestock-public",
+      "preview_bucket_name": "openlivestock-public-preview",
     },
+    {
+      "binding": "PRIVATE_STORAGE_BUCKET",
+      "bucket_name": "openlivestock-private",
+      "preview_bucket_name": "openlivestock-private-preview",
+    },
+  ],
 
-    // R2 Storage Buckets
-    "r2_buckets": [
-        {
-            "binding": "PUBLIC_STORAGE_BUCKET",
-            "bucket_name": "openlivestock-public",
-            "preview_bucket_name": "openlivestock-public-preview",
-        },
-        {
-            "binding": "PRIVATE_STORAGE_BUCKET",
-            "bucket_name": "openlivestock-private",
-            "preview_bucket_name": "openlivestock-private-preview",
-        },
-    ],
+  // Hyperdrive - PostgreSQL connection pooling for full transaction support
+  // Setup instructions:
+  // 1. Go to Cloudflare Dashboard → Hyperdrive → Create configuration
+  // 2. Enter your Neon PostgreSQL connection string
+  // 3. Copy the configuration ID and replace the placeholder below
+  // 4. For local dev, localConnectionString uses DATABASE_URL from .dev.vars
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "<your-hyperdrive-configuration-id>",
+      "localConnectionString": "env:DATABASE_URL",
+    },
+  ],
 }

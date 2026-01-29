@@ -12,8 +12,8 @@ config()
 
 // Verify DATABASE_URL is available
 if (!process.env.DATABASE_URL) {
-    console.warn('DATABASE_URL not found in environment variables')
-    console.warn('Database tests may fail')
+  console.warn('DATABASE_URL not found in environment variables')
+  console.warn('Database tests may fail')
 }
 
 // Optimize database connections for tests
@@ -23,27 +23,32 @@ process.env.DATABASE_IDLE_TIMEOUT = '1000'
 let dbSetupAttempted = false
 
 beforeAll(async () => {
-    // Only attempt to set up database if DATABASE_URL is available
-    // This allows unit tests to run without a database connection
-    if (!process.env.DATABASE_URL) {
-        console.info('No DATABASE_URL - skipping database setup for unit tests')
-        return
-    }
+  // Only attempt to set up database if DATABASE_URL is available
+  // This allows unit tests to run without a database connection
+  if (!process.env.DATABASE_URL) {
+    console.info('No DATABASE_URL - skipping database setup for unit tests')
+    return
+  }
 
-    // Dynamic import to ensure env is loaded first
-    const { setupTestDb } = await import('./helpers/db-integration')
-    await setupTestDb()
-    dbSetupAttempted = true
+  // Dynamic import to ensure env is loaded first
+  const { setupTestDb } = await import('./helpers/db-integration')
+  await setupTestDb()
+  dbSetupAttempted = true
 }, 30000) // Increase timeout to 30s for slow connections
 
 afterAll(async () => {
-    // Only close database connection if we actually set it up
-    if (dbSetupAttempted) {
-        // Dynamic import to ensure env is loaded first
-        // Note: In test environment (Node.js), we can use the static db export
-        const { db } = await import('~/lib/db')
-        if (typeof db.destroy === 'function') {
-            await db.destroy()
-        }
+  // Only close database connection if we actually set it up
+  if (dbSetupAttempted && process.env.DATABASE_URL) {
+    try {
+      // Dynamic import to ensure env is loaded first
+      // Use getDb() which handles the async connection properly
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
+      if (typeof db.destroy === 'function') {
+        await db.destroy()
+      }
+    } catch {
+      // Ignore errors during cleanup - connection may already be closed
     }
+  }
 })
