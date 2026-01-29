@@ -49,8 +49,7 @@ export function CTASection() {
           className="text-lg mb-12 font-light max-w-2xl mx-auto leading-relaxed transition-colors duration-500"
           style={{ color: 'var(--text-landing-secondary)' }}
         >
-          Deploy the world's most advanced open-source livestock protocols.{' '}
-          <br />
+          Deploy the world's most advanced livestock management platform. <br />
           Zero infrastructure required.
         </p>
 

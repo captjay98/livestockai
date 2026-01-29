@@ -29,7 +29,7 @@ export function CommunitySection() {
             >
               <Github className="w-4 h-4 text-neutral-800 dark:text-white" />
               <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-                Open Source Protocol
+                Extension Protocol
               </span>
             </div>
 

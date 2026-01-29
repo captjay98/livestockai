@@ -235,9 +235,7 @@ function VerificationPage() {
         {/* Footer */}
         <div className="text-center py-8 text-sm text-muted-foreground">
           <p>This report is cryptographically signed and tamper-proof.</p>
-          <p>
-            Powered by LivestockAI Manager - Open Source Livestock Management
-          </p>
+          <p>Powered by LivestockAI - Advanced Livestock Management</p>
         </div>
       </div>
     </div>

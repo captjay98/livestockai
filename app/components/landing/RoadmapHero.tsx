@@ -43,8 +43,8 @@ export function RoadmapHero() {
             transitionDelay: '300ms',
           }}
         >
-          Track our journey as we build the world's most advanced open-source
-          livestock management system. Transparency is our core protocol.
+          Track our journey as we build the world's most advanced livestock
+          management system. Transparency is our core protocol.
         </p>
       </div>
     </section>
