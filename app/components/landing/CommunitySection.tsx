@@ -47,7 +47,7 @@ export function CommunitySection() {
               className="text-lg font-light leading-relaxed max-w-xl mb-10 transition-colors duration-500"
               style={{ color: 'var(--text-landing-secondary)' }}
             >
-              OpenLivestock is more than software; it's a movement. Built by
+              LivestockAI is more than software; it's a movement. Built by
               farmers and developers working together to democratize
               agricultural technology.
             </p>

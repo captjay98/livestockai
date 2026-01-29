@@ -9,12 +9,12 @@ export function Logo({ className = 'h-8', variant = 'wordmark' }: LogoProps) {
       <div className={`relative ${className}`}>
         <img
           src="/logo-icon.svg"
-          alt="OpenLivestock"
+          alt="LivestockAI"
           className="h-full w-auto object-contain dark:hidden"
         />
         <img
           src="/logo-icon-dark.svg"
-          alt="OpenLivestock"
+          alt="LivestockAI"
           className="hidden h-full w-auto object-contain dark:block"
         />
       </div>
@@ -26,12 +26,12 @@ export function Logo({ className = 'h-8', variant = 'wordmark' }: LogoProps) {
       <div className={`relative ${className}`}>
         <img
           src="/logo-full.svg"
-          alt="OpenLivestock"
+          alt="LivestockAI"
           className="h-full w-auto object-contain dark:hidden"
         />
         <img
           src="/logo-full-dark.svg"
-          alt="OpenLivestock"
+          alt="LivestockAI"
           className="hidden h-full w-auto object-contain dark:block"
         />
       </div>
@@ -43,12 +43,12 @@ export function Logo({ className = 'h-8', variant = 'wordmark' }: LogoProps) {
     <div className={`relative ${className}`}>
       <img
         src="/logo-wordmark.svg"
-        alt="OpenLivestock"
+        alt="LivestockAI"
         className="h-full w-auto object-contain dark:hidden"
       />
       <img
         src="/logo-wordmark-dark.svg"
-        alt="OpenLivestock"
+        alt="LivestockAI"
         className="hidden h-full w-auto object-contain dark:block"
       />
     </div>

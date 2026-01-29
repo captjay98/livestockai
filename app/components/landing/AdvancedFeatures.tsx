@@ -195,7 +195,7 @@ export function AdvancedFeatures() {
             className="text-xl font-light"
             style={{ color: 'var(--text-landing-secondary)' }}
           >
-            Beyond standard management. OpenLivestock equips you with
+            Beyond standard management. LivestockAI equips you with
             enterprise-grade tools to secure capital, automate operations, and
             access global markets.
           </p>

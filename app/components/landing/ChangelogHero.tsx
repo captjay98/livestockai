@@ -54,7 +54,7 @@ export function ChangelogHero() {
             transitionDelay: '300ms',
           }}
         >
-          New updates and improvements to OpenLivestock.
+          New updates and improvements to LivestockAI.
         </p>
       </div>
     </section>

@@ -1,6 +1,6 @@
 {
-  "short_name": "OpenLivestock",
-  "name": "OpenLivestock Manager",
+  "short_name": "LivestockAI",
+  "name": "LivestockAI Manager",
   "icons": [
     {
       "src": "favicon.ico",

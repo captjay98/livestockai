@@ -39,10 +39,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icons/*.png'],
       manifest: {
-        name: 'OpenLivestock Manager',
-        short_name: 'OpenLivestock',
+        name: 'LivestockAI Manager',
+        short_name: 'LivestockAI',
         description:
-          'Offline-first livestock management for poultry and aquaculture farms',
+          'AI-powered livestock management for poultry and aquaculture farms',
         theme_color: '#059669',
         background_color: '#ffffff',
         display: 'standalone',

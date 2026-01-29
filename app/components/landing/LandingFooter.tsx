@@ -33,7 +33,7 @@ export function LandingFooter() {
           className="text-[25vw] font-bold font-manrope tracking-tighter"
           style={{ color: 'var(--landing-grid-color)' }}
         >
-          OPENLIVESTOCK
+          LIVESTOCKAI
         </span>
       </div>
 
@@ -164,7 +164,7 @@ export function LandingFooter() {
           color: 'var(--text-landing-secondary)',
         }}
       >
-        <span>© 2026 OpenLivestock. All rights reserved.</span>
+        <span>© 2026 LivestockAI. All rights reserved.</span>
         <span>Last updated: {time}</span>
       </div>
     </footer>

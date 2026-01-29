@@ -43,7 +43,7 @@ export function DocsHero() {
             transitionDelay: '300ms',
           }}
         >
-          Everything you need to deploy, configure, and extend OpenLivestock.
+          Everything you need to deploy, configure, and extend LivestockAI.
         </p>
 
         {/* Search Placeholder */}

@@ -34,13 +34,13 @@
   "r2_buckets": [
     {
       "binding": "PUBLIC_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-public",
-      "preview_bucket_name": "openlivestock-public-preview",
+      "bucket_name": "livestockai-public",
+      "preview_bucket_name": "livestockai-public-preview",
     },
     {
       "binding": "PRIVATE_STORAGE_BUCKET",
-      "bucket_name": "openlivestock-private",
-      "preview_bucket_name": "openlivestock-private-preview",
+      "bucket_name": "livestockai-private",
+      "preview_bucket_name": "livestockai-private-preview",
     },
   ],
 

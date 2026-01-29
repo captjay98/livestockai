@@ -97,7 +97,7 @@ export function AgentReadySection() {
               className="text-lg font-light leading-relaxed mb-10 max-w-xl transition-colors duration-500"
               style={{ color: 'var(--text-landing-secondary)' }}
             >
-              OpenLivestock isn't just for humans. Our architecture is
+              LivestockAI isn't just for humans. Our architecture is
               meticulously optimized for AI agents, providing the structured
               data and CLI tooling needed for fully autonomous management.
             </p>

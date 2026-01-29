@@ -14,7 +14,7 @@ const SUPPORT_CHANNELS = [
       'Peer-to-peer help',
     ],
     cta: 'Join WhatsApp',
-    link: 'https://chat.whatsapp.com/openlivestock', // Placeholder
+    link: 'https://chat.whatsapp.com/livestockai', // Placeholder
   },
   {
     name: 'Documentation',
@@ -44,7 +44,7 @@ const SUPPORT_CHANNELS = [
       'Dedicated support',
     ],
     cta: 'Contact Us',
-    link: 'mailto:enterprise@openlivestock.com',
+    link: 'mailto:enterprise@livestockai.com',
   },
 ]
 
@@ -137,7 +137,7 @@ export function SupportTiers() {
             className="mb-8"
             style={{ color: 'var(--text-landing-secondary)' }}
           >
-            Found an issue? Help us improve OpenLivestock by reporting it on
+            Found an issue? Help us improve LivestockAI by reporting it on
             GitHub.
           </p>
           <a

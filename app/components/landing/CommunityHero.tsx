@@ -61,13 +61,13 @@ export function CommunityHero() {
             Star on GitHub
           </a>
           <a
-            href="https://chat.whatsapp.com/openlivestock"
+            href="https://chat.whatsapp.com/livestockai"
             className="px-8 py-4 rounded-lg bg-[#25D366] text-white font-semibold tracking-tight hover:bg-[#128C7E] transition-colors hover:scale-105 transform"
           >
             Join WhatsApp
           </a>
           <a
-            href="https://discord.gg/openlivestock"
+            href="https://discord.gg/livestockai"
             className="px-8 py-4 rounded-lg bg-[#5865F2] text-white font-semibold tracking-tight hover:bg-[#4752C4] transition-colors hover:scale-105 transform"
           >
             Join Discord

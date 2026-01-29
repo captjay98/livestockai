@@ -9,7 +9,7 @@ const faqs = [
   {
     question: 'Is self-hosting really free forever?',
     answer:
-      'Absolutely. OpenLivestock is open-source under the FSL license, converting to Apache 2.0 after 2 years. You can self-host without any licensing fees, ever.',
+      'Yes. LivestockAI offers a free tier for small farms. For larger operations, we offer affordable paid plans with additional features and support.',
   },
   {
     question: 'What payment methods do you accept?',
