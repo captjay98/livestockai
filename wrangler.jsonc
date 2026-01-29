@@ -49,12 +49,16 @@
   // 1. Go to Cloudflare Dashboard → Hyperdrive → Create configuration
   // 2. Enter your Neon PostgreSQL connection string
   // 3. Copy the configuration ID and replace the placeholder below
-  // 4. For local dev, localConnectionString uses DATABASE_URL from .dev.vars
-  "hyperdrive": [
-    {
-      "binding": "HYPERDRIVE",
-      "id": "<your-hyperdrive-configuration-id>",
-      "localConnectionString": "env:DATABASE_URL",
-    },
-  ],
+  // 4. For local dev, the app uses DATABASE_URL from .dev.vars directly
+  //
+  // NOTE: Uncomment this section after setting up Hyperdrive in Cloudflare dashboard
+  // For local development, the app falls back to process.env.DATABASE_URL
+  //
+  // "hyperdrive": [
+  //   {
+  //     "binding": "HYPERDRIVE",
+  //     "id": "<your-hyperdrive-configuration-id>",
+  //     "localConnectionString": "postgresql://user:pass@host/db"
+  //   },
+  // ],
 }
