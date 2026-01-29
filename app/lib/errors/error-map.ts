@@ -516,6 +516,24 @@ export const ErrorMap = {
     category: 'VALIDATION',
     message: 'Rate limit exceeded',
   },
+  RATE_LIMITED: {
+    code: 42901,
+    httpStatus: 429,
+    category: 'VALIDATION',
+    message: 'Too many requests',
+  },
+  CSRF_TOKEN_MISSING: {
+    code: 40018,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'CSRF token is required',
+  },
+  CSRF_TOKEN_INVALID: {
+    code: 40019,
+    httpStatus: 400,
+    category: 'VALIDATION',
+    message: 'Invalid CSRF token',
+  },
 
   // Server (500xx)
   INTERNAL_ERROR: {
