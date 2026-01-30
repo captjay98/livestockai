@@ -1,0 +1,46 @@
+export const auth = {
+  required: 'Wajib diisi',
+  email: 'Harap masukkan alamat email yang valid',
+  min: 'Minimal {{min}} karakter',
+  max: 'Maksimal {{max}} karakter',
+  url: 'Harap masukkan URL yang valid',
+  numeric: 'Harus berupa angka',
+  login: {
+    title: 'Masuk',
+    noAccount: 'Belum punya akun?',
+    createAccount: 'Buat akun',
+    description: 'Masuk untuk mengelola peternakan Anda',
+    email: 'Email',
+    password: 'Kata Sandi',
+    submit: 'Masuk',
+    submitting: 'Sedang masuk...',
+    contactAdmin: 'Hubungi administrator jika Anda memerlukan akun',
+    placeholder: {
+      email: 'Masukkan email Anda',
+      password: 'Masukkan kata sandi Anda',
+    },
+    logo: 'Logo Peternakan',
+    errors: {
+      invalid_credentials: 'Email atau kata sandi salah',
+      default: 'Gagal masuk',
+      unexpected: 'Terjadi kesalahan yang tidak terduga',
+    },
+  },
+  register: {
+    title: 'Buat Akun',
+    description: 'Bergabung dengan masa depan pertanian',
+    name: 'Nama Lengkap',
+    submitting: 'Membuat akun...',
+    submit: 'Buat Akun',
+    haveAccount: 'Sudah punya akun?',
+    placeholder: {
+      name: 'Budi Santoso',
+    },
+    errors: {
+      invalid_credentials: 'Email atau kata sandi tidak valid',
+      default: 'Pendaftaran gagal',
+      unexpected: 'Terjadi kesalahan yang tidak terduga',
+      email_exists: 'Email sudah terdaftar',
+    },
+  },
+}

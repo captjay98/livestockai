@@ -1,0 +1,527 @@
+export const settings = {
+  theme: {
+    label: 'Tema',
+    light: 'Claro',
+    dark: 'Oscuro',
+    system: 'Sistema',
+  },
+  title: 'Configuración',
+  description: 'Gestionar preferencias y configuración de la granja',
+  language: 'Idioma',
+  languageDescription: 'Idioma de la interfaz',
+  save: 'Guardar Configuración',
+  saved: 'Configuración guardada con éxito',
+  saveError: 'Error al guardar configuración',
+  tabs: {
+    regional: 'Regional',
+    preferences: 'Preferencias',
+    notifications: 'Notificaciones',
+    business: 'Negocio',
+    modules: 'Módulos',
+    integrations: 'Integraciones',
+  },
+  regional: {
+    title: 'Configuración Regional',
+    reset: 'Restablecer Todo',
+    currency: {
+      title: 'Moneda',
+      label: 'Moneda',
+      preview: 'Vista previa',
+    },
+    dateTime: {
+      title: 'Fecha y Hora',
+      dateFormat: 'Formato de Fecha',
+      timeFormat: 'Formato de Hora',
+      firstDay: 'Primer Día de la Semana',
+      days: {
+        sunday: 'Domingo',
+        monday: 'Lunes',
+        saturday: 'Sábado',
+      },
+    },
+    units: {
+      title: 'Unidades de Medida',
+      weight: 'Peso',
+      area: 'Área',
+      temperature: 'Temperatura',
+    },
+    formats: {
+      us: 'MM/DD/AAAA (EE.UU.)',
+      eu: 'DD/MM/AAAA (UK/UE)',
+      iso: 'AAAA-MM-DD (ISO)',
+      h12: '12 horas (2:30 PM)',
+      h24: '24 horas (14:30)',
+    },
+  },
+  notifications: {
+    title: 'Umbrales de Alerta',
+    emailTitle: 'Notificaciones por Email',
+    emailDesc: 'Elija qué notificaciones recibir por email.',
+    lowStock: 'Umbral Stock Bajo (%)',
+    lowStockDesc:
+      'Alertar cuando el inventario caiga por debajo de este porcentaje',
+    mortalityPercent: 'Alerta Mortalidad (%)',
+    mortalityPercentDesc:
+      'Alertar cuando la tasa de mortalidad supere este porcentaje',
+    mortalityQty: 'Alerta Mortalidad (Cantidad)',
+    mortalityQtyDesc:
+      'Alertar cuando las muertes superen este número en un día',
+    highMortality: 'Mortalidad Alta',
+    highMortalityDesc: 'Cuando la mortalidad supera los umbrales',
+    waterQuality: 'Alerta Calidad del Agua',
+    waterQualityDesc: 'Cuando pH, temp, o amoníaco están fuera de rango',
+    vaccinationDue: 'Vacunación Pendiente',
+    vaccinationDueDesc: '3 días antes de las vacunaciones programadas',
+    medicationExpiry: 'Vencimiento Medicamento',
+    medicationExpiryDesc: '30 días antes del vencimiento',
+    invoiceDue: 'Factura Vence',
+    invoiceDueDesc: '7 días antes de la fecha de vencimiento',
+    batchHarvest: 'Cosecha de Lote',
+    batchHarvestDesc: '7 días antes de la fecha de cosecha objetivo',
+    paymentReceived: 'Pago Recibido',
+    paymentReceivedDesc: 'Cuando las facturas son marcadas como pagadas',
+    weeklySummary: 'Resumen Semanal',
+    weeklySummaryDesc: 'Resumen del rendimiento de la granja cada lunes',
+  },
+  business: {
+    title: 'Configuraciones de Negocio',
+    paymentTerms: 'Términos de Pago Predeterminados (Días)',
+    paymentTermsDesc:
+      'Fecha de vencimiento predeterminada para facturas (ej. 30 días)',
+    fiscalYear: 'Mes de Inicio del Año Fiscal',
+    fiscalYearDesc: 'Mes de inicio para informes financieros',
+  },
+  modules: {
+    title: 'Módulos Funcionales',
+    description: 'Habilitar o deshabilitar tipos de ganado para su granja.',
+    noFarm: 'Ninguna Granja Seleccionada',
+    noFarmDesc: 'Seleccione una granja para gestionar sus módulos.',
+  },
+  integrations: {
+    title: 'Integraciones',
+    email: 'Correo',
+    emailDesc: 'Enviar alertas críticas vía email',
+    sms: 'SMS',
+    smsDesc: 'Enviar alertas críticas vía SMS',
+    testEmail: 'Email de prueba',
+    testSMS: 'SMS de prueba',
+    messages: {
+      enterEmail: 'Por favor, ingrese una dirección de correo electrónico',
+      testEmailSuccess: '¡Correo de prueba enviado!',
+      testEmailFailed: 'Error al enviar el correo de prueba',
+      enterPhone: 'Por favor, ingrese un número de téléphone',
+      testSMSSuccess: '¡SMS de prueba enviado!',
+      testSMSFailed: 'Error al enviar el SMS de prueba',
+    },
+    howItWorks: 'Cómo funciona',
+    howItWorksDesc1:
+      'Las integraciones son opcionales - la app funciona sin ellas',
+    howItWorksDesc2:
+      'Cuando se configuran, las alertas se envían vía email/SMS',
+    howItWorksDesc3: 'Active notificaciones en Configuración → Alertas',
+  },
+  storage: {
+    messages: {
+      syncSuccess: 'Sincronización completada exitosamente',
+      syncFailed: 'Sincronización fallida. Por favor intente de nuevo.',
+      cacheCleared: 'Caché limpiado exitosamente',
+      cacheClearFailed: 'Error al limpiar caché',
+    },
+  },
+  help: {
+    title: '¿Necesita un repaso?',
+    description:
+      'Reiniciar el recorrido para aprender sobre todas las funciones',
+    restart: 'Reiniciar Recorrido',
+    resetOnboardingFailed: 'Error al reiniciar la inducción',
+  },
+  users: {
+    title: 'Gestión de Usuarios',
+    description: 'Gestionar usuarios, roles y permisos',
+    add: 'Añadir Usuario',
+    search: 'Buscar usuarios...',
+    empty: {
+      title: 'No se encontraron usuarios',
+      desc: 'Intente otro término de búsqueda',
+      descEmpty: 'Añada su primer usuario para comenzar',
+    },
+    roles: {
+      admin: 'Administrador',
+      user: 'Usuario',
+    },
+    status: {
+      banned: 'Baneado',
+      joined: 'Unido',
+    },
+    actions: {
+      manageFarms: 'Gestionar Granjas',
+      resetPassword: 'Restablecer Contraseña',
+      makeAdmin: 'Hacer Admin',
+      removeAdmin: 'Quitar Admin',
+      ban: 'Banear Usuario',
+      unban: 'Desbanear Usuario',
+      delete: 'Eliminar Usuario',
+    },
+    banReason: 'Razón del baneo',
+    dialogs: {
+      add: {
+        title: 'Añadir Nuevo Usuario',
+        desc: 'Crear una nueva cuenta de usuario.',
+        submit: 'Crear Usuario',
+      },
+      ban: {
+        title: 'Banear Usuario',
+        desc: '¿Está seguro de querer banear a {{name}}?',
+        reason: 'Razón (opcional)',
+        submit: 'Banear Usuario',
+      },
+      delete: {
+        title: 'Eliminar Usuario',
+        desc: '¿Está seguro de querer eliminar a {{name}}?',
+        submit: 'Eliminar',
+      },
+      reset: {
+        title: 'Restablecer Contraseña',
+        desc: 'Establecer nueva contraseña para {{name}}.',
+        submit: 'Actualizar Contraseña',
+      },
+      farms: {
+        title: 'Asignaciones de Granja',
+        desc: 'Gestionar acceso a granja para {{name}}',
+        empty: 'Sin asignaciones de granja todavía',
+        selectFarm: 'Seleccionar Granja',
+        noFarms: 'No hay granjas disponibles',
+        role: 'Rol',
+        owner: 'Propietario - Acceso total',
+        manager: 'Gerente - Puede editar datos',
+        viewer: 'Espectador - Solo lectura',
+        assign: 'Asignar',
+        assigned: 'Todas las granjas asignadas',
+        add: 'Añadir Asignación',
+      },
+    },
+    form: {
+      name: 'Nombre',
+      namePlaceholder: 'Juan Pérez',
+      email: 'Correo',
+      emailPlaceholder: 'juan@example.com',
+      password: 'Contraseña',
+      passwordPlaceholder: 'Mínimo 8 caracteres',
+      newPassword: 'Nueva Contraseña',
+      role: 'Rol',
+      roleDesc:
+        'Los administradores pueden gestionar todos los usuarios y granjas. Los usuarios regulares necesitan asignaciones.',
+    },
+    unnamed: 'Sin nombre',
+    errors: {
+      refresh: 'Error al actualizar usuarios',
+      loadAssignments: 'Error al cargar asignaciones de granja',
+      ban: 'Error al banear usuario',
+      unban: 'Error al desbanear usuario',
+      delete: 'Error al eliminar usuario',
+      role: 'Error al actualizar el rol',
+      create: 'Error al crear usuario',
+      resetPassword: 'Error al restablecer la contraseña',
+      assignFarm: 'Error al asignar la granja',
+      updateFarmRole: 'Error al actualizar el rol',
+      removeFromFarm: 'Error al eliminar de la granja',
+    },
+  },
+  audit: {
+    title: 'Registros de Auditoría',
+    description: 'Ver y rastrear actividad del sistema y cambios.',
+    search: 'Buscar registros...',
+    filters: {
+      action: 'Acción',
+      entity: 'Entidad',
+      allActions: 'Todas las Acciones',
+      allEntities: 'Todas las Entidades',
+      reset: 'Restablecer filtros',
+    },
+    table: {
+      date: 'Fecha',
+      user: 'Usuario',
+      action: 'Acción',
+      entity: 'Entidad',
+      details: 'Detalles',
+      empty: 'No se encontraron registros de auditoría.',
+    },
+    dialog: {
+      title: 'Detalles del Cambio',
+    },
+  },
+  security: {
+    title: 'Seguridad',
+    description: 'Gestione la seguridad y la autenticación de su cuenta',
+    changePassword: 'Cambiar Contraseña',
+    twoFactor: {
+      title: 'Autenticación de dos factores',
+      description: 'Añada una capa extra de seguridad a su cuenta',
+      enable: 'Activar 2FA',
+      disable: 'Desactivar 2FA',
+    },
+    sessions: {
+      title: 'Sesiones Activas',
+      description: 'Gestione sus dispositivos y sesiones activas',
+      logoutOthers: 'Cerrar sesión en todos los otros dispositivos',
+    },
+  },
+  marketing: {
+    title: 'Preferencias de Marketing',
+    description: 'Gestione cómo recibe actualizaciones y comunicaciones',
+    newsletter: 'Boletín',
+    promotions: 'Promociones y actualizaciones',
+  },
+}
+
+export const reports = {
+  title: 'Informes',
+  description: 'Generar y exportar informes comerciales',
+  generate: 'Generar Informe',
+  labels: {
+    farm: 'Granja',
+    allFarms: 'Todas las Granjas',
+    useFiscalYear: 'Usar Año Fiscal',
+    startDate: 'Fecha de Inicio',
+    endDate: 'Fecha de Fin',
+  },
+  actions: {
+    excel: 'Excel',
+    pdf: 'PDF',
+  },
+  types: {
+    profitLoss: 'Pérdidas y Ganancias',
+    inventory: 'Inventario',
+    sales: 'Ventas',
+    feed: 'Alimentación',
+    eggs: 'Producción de Huevos',
+  },
+  profitLoss: {
+    totalRevenue: 'Ingresos Totales',
+    totalExpenses: 'Gastos Totales',
+    netProfit: 'Beneficio Neto',
+    margin: 'margen',
+    revenueByType: 'Ingresos por Tipo',
+    expensesByCategory: 'Gastos por Categoría',
+  },
+  inventory: {
+    columns: {
+      species: 'Especie',
+      type: 'Tipo',
+      initial: 'Inicial',
+      current: 'Actual',
+      mortality: 'Mortalidad',
+      rate: 'Tasa',
+      status: 'Estado',
+    },
+    summary: {
+      totalPoultry: 'Total Avícola',
+      totalFish: 'Total Peces',
+      totalMortality: 'Mortalidad Total',
+      mortalityRate: 'Tasa de Mortalidad',
+    },
+    empty: {
+      title: 'Sin datos de inventario',
+      description: 'Los datos de inventario aparecerán aquí.',
+    },
+  },
+  sales: {
+    columns: {
+      date: 'Fecha',
+      type: 'Tipo',
+      quantity: 'Cantidad',
+      price: 'Precio',
+      total: 'Total',
+      customer: 'Cliente',
+    },
+    summary: {
+      totalSales: 'Ventas Totales',
+      totalRevenue: 'Ingresos Totales',
+      byType: 'Por Tipo',
+    },
+    empty: {
+      title: 'Sin datos de ventas',
+      description: 'Los registros de ventas aparecerán aquí.',
+    },
+  },
+  feed: {
+    columns: {
+      species: 'Especie',
+      type: 'Tipo de Alimento',
+      quantity: 'Cantidad',
+      cost: 'Costo',
+    },
+    summary: {
+      totalFeed: 'Alimentación Total',
+      totalCost: 'Costo Total',
+      byType: 'Por Tipo',
+    },
+    empty: {
+      title: 'Sin datos de alimentación',
+      description: 'Los registros de alimentación aparecerán aquí.',
+    },
+  },
+  eggs: {
+    columns: {
+      date: 'Fecha',
+      collected: 'Recolectados',
+      broken: 'Rotos',
+      sold: 'Vendidos',
+      inventory: 'Inventario',
+    },
+    summary: {
+      totalCollected: 'Total Recolectados',
+      totalSold: 'Total Vendidos',
+      totalBroken: 'Total Rotos',
+    },
+  },
+  export: {
+    generating: 'Generando exportación...',
+    autoDownload: 'Su descarga debería comenzar automáticamente.',
+    back: 'Volver a Informes',
+    xlsxNotAvailable: 'Exportación a Excel no disponible',
+    xlsxNotAvailableDesc:
+      'La exportación a Excel aún no está implementada. Por favor, use la exportación a CSV en su lugar.',
+    pdfNotAvailable: 'Exportación a PDF no disponible',
+    pdfNotAvailableDesc:
+      'La exportación a PDF está desactivada temporalmente debido a limitaciones de tamaño. Por favor, use la exportación a CSV en su lugar.',
+  },
+  exportNotAvailable: {
+    excel: {
+      title: 'Exportación a Excel no disponible',
+      description:
+        'La exportación a Excel aún no está implementada. Por favor, use la exportación a CSV en su lugar.',
+    },
+    pdf: {
+      title: 'Exportación a PDF no disponible',
+      description:
+        'La exportación a PDF está desactivada temporalmente debido a limitaciones de tamaño. Por favor, use la exportación a CSV en su lugar.',
+    },
+  },
+}
+
+export const onboarding = {
+  header: {
+    title: 'Comenzando',
+    skip: 'Omitir Configuración',
+    step: 'Paso {{current}} de {{total}}',
+    percent: '{{percent}}% completado',
+  },
+  welcome: {
+    title: '¡Bienvenido a Livestock AI!',
+    descUser: 'Configuremos su granja en unos minutos.',
+    descAdmin: 'Ha sido añadido a una granja. Hagamos un recorrido rápido.',
+    start: 'Comenzar',
+    benefits: {
+      livestock: {
+        title: 'Rastree su Ganado',
+        desc: 'Monitoree lotes desde adquisición hasta venta',
+      },
+      growth: {
+        title: 'Pronóstico de Crecimiento',
+        desc: 'Pronostique fechas de cosecha y puntos de referencia de peso',
+      },
+      financials: {
+        title: 'Información Financiera',
+        desc: 'Rastree costos, ingresos y márgenes de ganancia',
+      },
+      records: {
+        title: 'Registros Completos',
+        desc: 'Alimentación, mortalidad, vacunaciones y más',
+      },
+    },
+  },
+  createFarm: {
+    title: 'Cree Su Granja',
+    desc: 'Una granja es su espacio de trabajo principal con sus propios lotes y registros.',
+    success: 'Granja creada',
+    error: 'Error al crear granja',
+    form: {
+      name: 'Nombre de la Granja',
+      location: 'Ubicación',
+      type: 'Tipo de Granja',
+      namePlaceholder: 'ej. Granjas del Valle',
+      locationPlaceholder: 'ej. Madrid, España',
+      submitting: 'Creando...',
+      submit: 'Crear Granja',
+    },
+  },
+  enableModules: {
+    title: 'Elija Sus Módulos',
+    desc: 'Seleccione los tipos de ganado que gestiona.',
+    descEmpty: 'Cree una granja primero para habilitar módulos de ganado.',
+  },
+  createStructure: {
+    title: 'Organización de la Granja',
+    desc: 'Cómo Livestock AI organiza sus datos.',
+    items: {
+      farm: 'Su espacio de trabajo principal',
+      batches: 'Grupos de animales adquiridos juntos',
+      recordsTitle: 'Registros',
+      records: 'Entradas diarias para alimento, mortalidad, peso',
+    },
+    tip: 'Comience creando un lote para su ganado actual.',
+    submit: 'Entendido',
+  },
+  createBatch: {
+    title: 'Cree Su Primer Lote',
+    desc: 'Un lote es un grupo de animales adquiridos juntos.',
+    descEmpty: 'Cree una granja primero para añadir lotes de ganado.',
+    farmFirst: {
+      title: 'Cree una Granja Primero',
+      desc: 'Necesita una granja antes de añadir lotes.',
+    },
+    success: 'Lote creado',
+    error: 'Error al crear lote',
+    form: {
+      submitting: 'Creando...',
+      submit: 'Crear Lote',
+    },
+  },
+  preferences: {
+    title: 'Sus Preferencias',
+    desc: 'Configure su moneda y unidades.',
+    submit: 'Guardar y Continuar',
+  },
+  tour: {
+    title: 'Recorrido Rápido',
+    summary: 'Explore las funciones clave de Livestock AI',
+    finish: 'Terminar Recorrido',
+    dashboard: {
+      title: 'Panel de Control',
+      desc: 'Su centro de comando - vea la salud de la granja de un vistazo.',
+      tip: 'Revise diariamente para estar al tanto de las operaciones.',
+    },
+    batches: {
+      desc: 'Vea lotes, registre alimentación, ingrese mortalidad, rastree pesos.',
+      tip: 'Haga clic en cualquier lote para registros detallados.',
+    },
+    finance: {
+      title: 'Ventas y Gastos',
+      desc: 'Rastree cada transacción - ventas y costos.',
+      tip: 'Registros precisos revelan márgenes de ganancia verdaderos.',
+    },
+    reports: {
+      desc: 'Tasas de crecimiento, comparaciones de lotes, análisis de ganancias.',
+      tip: 'Identifique qué lotes tienen mejor rendimiento.',
+    },
+    settings: {
+      desc: 'Gestionar módulos, preferencias y cuenta.',
+      tip: 'Habilite solo los módulos que necesita.',
+    },
+  },
+  complete: {
+    title: '¡Está Listo! 🎉',
+    desc: 'Su granja está lista. ¡Comience a rastrear su ganado!',
+    accomplished: 'Lo que ha logrado',
+    items: {
+      farm: 'Creó su granja',
+      batch: 'Añadió su primer lote',
+      preferences: 'Configuró preferencias',
+      tour: 'Completó el recorrido',
+    },
+    submit: 'Ir al Panel de Control',
+    finishing: 'Finalizando...',
+    help: '¿Necesita ayuda? Reinicie el recorrido en cualquier momento desde Configuración.',
+  },
+}

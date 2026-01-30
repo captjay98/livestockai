@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'Msimamizi wa Kidijitali',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'Kazi imeidhinishwa',
+    taskRejected: 'Kazi imekataliwa',
+    taskApprovalFailed: 'Imeshindwa kuidhinisha kazi',
+    taskRejectionFailed: 'Imeshindwa kukataa kazi',
+    rejectionReasonRequired: 'Tafadhali toa sababu ya kukataa',
+    workerRemoved: 'Mfanyakazi ameondolewa shambani',
+    workerRemovalFailed: 'Imeshindwa kumwondoa mfanyakazi',
+    profileCreated: 'Wasifu wa mfanyakazi umeundwa',
+    profileCreationFailed: 'Imeshindwa kuunda wasifu',
+    profileUpdated: 'Wasifu wa mfanyakazi umesasishwa',
+    profileUpdateFailed: 'Imeshindwa kusasisha wasifu',
+    geofenceSaved: 'Mipaka ya kijiografia imehifadhiwa',
+    geofenceSaveFailed: 'Imeshindwa kuhifadhi mipaka ya kijiografia',
+    attendanceExported: 'Mahudhurio yamehamishwa',
+    exportFailed: 'Uhamishaji umeshindwa',
+    taskCompleted: 'Kazi imekamilika',
+    taskCompletionFailed: 'Imeshindwa kukamilisha kazi',
+    photoRequired: 'Picha inahitajika',
+    paymentRecorded: 'Malipo yameandikwa kwa mafanikio',
+    paymentRecordingFailed: 'Imeshindwa kuandika malipo',
+    fillRequiredFields: 'Tafadhali jaza sehemu zote zinazohitajika',
+    checkInSuccess: 'Umeingia kwa mafanikio',
+    checkInFailed: 'Kuingia kumeshindwa',
+    checkOutSuccess: 'Umetoka kwa mafanikio',
+    checkOutFailed: 'Kutoka kumeshindwa',
+    locationError: 'Haikuweza kupata eneo',
+  },
+
+  // UI labels
+  totalHours: 'Jumla ya Saa',
+  hoursWorkedToday: 'Saa zilizofanya kazi leo',
+  performanceTrends: 'Mienendo ya Utendaji',
+  totalWages: 'Jumla ya Mishahara',
+  totalPaid: 'Jumla Iliyolipwa',
+  payrollHistory: 'Historia ya Malipo',
+  noPayrollPeriods: 'Hakuna vipindi vya malipo vilivyopatikana',
+  noPerformanceData: 'Hakuna data ya utendaji inayopatikana',
+  noWorkersFound:
+    'Hakuna wafanyakazi waliopatikana. Ongeza mfanyakazi wako wa kwanza ili kuanza.',
+  attendanceTracking: 'Ufuatiliaji wa Mahudhurio',
+  payrollCommand: 'Amri ya Malipo',
+  downloadReceipt: 'Pakua Risiti',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'Wafanyakazi Wote',
+    status: 'Hali',
+    priority: 'Umuhimu',
+    completionNotes: 'Ongeza maelezo ya ukamilishaji...',
+    rejectionReason: 'Eleza kwa nini kazi hii inakataliwa...',
+    selectWorker: 'Chagua mfanyakazi',
+    paymentNotes: 'Ongeza maelezo yoyote kuhusu malipo haya...',
+    selectTemplate: 'Tumia kiolezo...',
+    locatePeriod: 'Tafuta kipindi...',
+  },
+}

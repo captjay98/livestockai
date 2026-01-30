@@ -143,3 +143,10 @@ export const waterQuality = {
     ammonia: 'Ammonia (mg/L)',
   },
 }
+
+export const health = {
+  mortality,
+  vaccinations,
+  weight,
+  waterQuality,
+}

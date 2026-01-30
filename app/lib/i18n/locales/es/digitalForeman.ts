@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'Capataz Digital',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'Tarea aprobada',
+    taskRejected: 'Tarea rechazada',
+    taskApprovalFailed: 'Error al aprobar la tarea',
+    taskRejectionFailed: 'Error al rechazar la tarea',
+    rejectionReasonRequired: 'Por favor, proporcione un motivo de rechazo',
+    workerRemoved: 'Trabajador eliminado de la granja',
+    workerRemovalFailed: 'Error al eliminar al trabajador',
+    profileCreated: 'Perfil del trabajador creado',
+    profileCreationFailed: 'Error al crear el perfil',
+    profileUpdated: 'Perfil del trabajador actualizado',
+    profileUpdateFailed: 'Error al actualizar el perfil',
+    geofenceSaved: 'Geocerca guardada',
+    geofenceSaveFailed: 'Error al guardar la geocerca',
+    attendanceExported: 'Asistencia exportada',
+    exportFailed: 'Error al exportar',
+    taskCompleted: 'Tarea completada',
+    taskCompletionFailed: 'Error al completar la tarea',
+    photoRequired: 'Se requiere foto',
+    paymentRecorded: 'Pago registrado con éxito',
+    paymentRecordingFailed: 'Error al registrar el pago',
+    fillRequiredFields: 'Por favor, complete todos los campos requeridos',
+    checkInSuccess: 'Entrada registrada con éxito',
+    checkInFailed: 'Error al registrar entrada',
+    checkOutSuccess: 'Salida registrada con éxito',
+    checkOutFailed: 'Error al registrar salida',
+    locationError: 'No se pudo obtener la ubicación',
+  },
+
+  // UI labels
+  totalHours: 'Total de Horas',
+  hoursWorkedToday: 'Horas trabajadas hoy',
+  performanceTrends: 'Tendencias de Rendimiento',
+  totalWages: 'Total de Salarios',
+  totalPaid: 'Total Pagado',
+  payrollHistory: 'Historial de Nómina',
+  noPayrollPeriods: 'No se encontraron periodos de nómina',
+  noPerformanceData: 'No hay datos de rendimiento disponibles',
+  noWorkersFound:
+    'No se encontraron trabajadores. Añade tu primer trabajador para empezar.',
+  attendanceTracking: 'Seguimiento de Asistencia',
+  payrollCommand: 'Comando de Nómina',
+  downloadReceipt: 'Descargar Recibo',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'Todos los Trabajadores',
+    status: 'Estado',
+    priority: 'Prioridad',
+    completionNotes: 'Añadir notas de finalización...',
+    rejectionReason: 'Explique por qué se rechaza esta tarea...',
+    selectWorker: 'Seleccionar trabajador',
+    paymentNotes: 'Añadir cualquier nota sobre este pago...',
+    selectTemplate: 'Aplicar plantilla...',
+    locatePeriod: 'Localizar periodo...',
+  },
+}

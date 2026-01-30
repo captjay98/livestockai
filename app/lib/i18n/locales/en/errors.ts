@@ -30,4 +30,6 @@ export const errors = {
   lastOwnerRemove: 'Cannot remove the last owner from a farm',
   lastOwnerDemote: 'Cannot demote the last owner of a farm',
   accessDeniedFarm: 'Access denied to this farm',
+  noFarmSelected: 'Please select a farm first',
+  exportNotAvailable: 'Export format not available',
 }

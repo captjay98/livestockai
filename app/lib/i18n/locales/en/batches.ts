@@ -20,6 +20,10 @@ export const batches = {
   livestockTypes: {
     poultry: 'Poultry',
     fish: 'Fish',
+    cattle: 'Cattle',
+    goats: 'Goats',
+    sheep: 'Sheep',
+    bees: 'Bees',
   },
   totalLivestock: 'Total Livestock',
   totalInvestment: 'Total Investment',
@@ -78,6 +82,20 @@ export const batches = {
     profit: 'Profit / Loss',
     roi: 'ROI',
     days: 'days',
+  },
+  noTarget: 'No Target',
+  schedule: 'Schedule',
+  currentWeight: 'Weight',
+  avgWeight: 'Avg Weight',
+  performanceIndex: 'PI',
+  index: 'Index',
+  fcr: 'FCR',
+  projections: {
+    currentWeight: 'Current Weight',
+    expectedWeight: 'Expected Weight',
+    performanceIndex: 'Performance Index',
+    expectedAdg: 'Expected ADG',
+    daysRemaining: 'Days Remaining',
   },
   tabs: {
     feed: 'Feed Logs',
@@ -142,34 +160,6 @@ export const batches = {
     selectBreed: 'Select breed',
     allBreeds: 'All Breeds',
   },
-}
-
-export const farms = {
-  createFirst: 'Create Your First Farm',
-  updated: 'Farm updated',
-  created: 'Farm created',
-  error: {
-    update: 'Failed to update farm',
-    create: 'Failed to create farm',
-  },
-  editFarm: 'Edit Farm',
-  createNewFarm: 'Create New Farm',
-  editDescription: 'Update the details of your farm',
-  createDescription: 'Enter the basic information for your new farm',
-  farmName: 'Farm Name',
-  namePlaceholder: 'e.g. Green Valley Farms',
-  location: 'Location',
-  locationPlaceholder: 'e.g. Lagos, Nigeria',
-  farmType: 'Farm Type',
-  createFarm: 'Create Farm',
-  updateFarm: 'Update Farm',
-  placeholders: {
-    location: 'Enter farm location',
-    name: 'Enter farm name',
-  },
-  types: {
-    poultry: 'Poultry',
-    aquaculture: 'Aquaculture',
-    mixed: 'Mixed',
-  },
+  farmLocation: 'Farm Location',
+  backToBatches: 'Back to batches',
 }

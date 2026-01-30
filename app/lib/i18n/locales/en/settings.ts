@@ -95,15 +95,32 @@ export const settings = {
     smsDesc: 'Send critical alerts via SMS',
     testEmail: 'Test Email',
     testSMS: 'Test SMS',
+    messages: {
+      enterEmail: 'Please enter an email address',
+      testEmailSuccess: 'Test email sent!',
+      testEmailFailed: 'Failed to send test email',
+      enterPhone: 'Please enter a phone number',
+      testSMSSuccess: 'Test SMS sent!',
+      testSMSFailed: 'Failed to send test SMS',
+    },
     howItWorks: 'How it works',
     howItWorksDesc1: 'Integrations are optional - app works without them',
     howItWorksDesc2: 'When configured, alerts sent via email/SMS',
     howItWorksDesc3: 'Toggle notifications in Settings → Alerts',
   },
+  storage: {
+    messages: {
+      syncSuccess: 'Sync completed successfully',
+      syncFailed: 'Sync failed. Please try again.',
+      cacheCleared: 'Cache cleared successfully',
+      cacheClearFailed: 'Failed to clear cache',
+    },
+  },
   help: {
     title: 'Need a refresher?',
     description: 'Restart the feature tour to learn about all the features',
     restart: 'Restart Tour',
+    resetOnboardingFailed: 'Failed to reset onboarding',
   },
   theme: {
     label: 'Theme',
@@ -226,6 +243,28 @@ export const settings = {
       title: 'Change Details',
     },
   },
+  security: {
+    title: 'Security',
+    description: 'Manage your account security and authentication',
+    changePassword: 'Change Password',
+    twoFactor: {
+      title: 'Two-Factor Authentication',
+      description: 'Add an extra layer of security to your account',
+      enable: 'Enable 2FA',
+      disable: 'Disable 2FA',
+    },
+    sessions: {
+      title: 'Active Sessions',
+      description: 'Manage your active devices and sessions',
+      logoutOthers: 'Logout of all other devices',
+    },
+  },
+  marketing: {
+    title: 'Marketing Preferences',
+    description: 'Manage how you receive updates and communications',
+    newsletter: 'Newsletter',
+    promotions: 'Promotions and updates',
+  },
 }
 
 export const reports = {
@@ -333,5 +372,23 @@ export const reports = {
     generating: 'Generating export...',
     autoDownload: 'Your download should start automatically.',
     back: 'Back to reports',
+    xlsxNotAvailable: 'Excel Export Not Available',
+    xlsxNotAvailableDesc:
+      'Excel export is not yet implemented. Please use CSV export instead.',
+    pdfNotAvailable: 'PDF Export Not Available',
+    pdfNotAvailableDesc:
+      'PDF export is temporarily disabled due to bundle size constraints. Please use CSV export instead.',
+  },
+  exportNotAvailable: {
+    excel: {
+      title: 'Excel Export Not Available',
+      description:
+        'Excel export is not yet implemented. Please use CSV export instead.',
+    },
+    pdf: {
+      title: 'PDF Export Not Available',
+      description:
+        'PDF export is temporarily disabled due to bundle size constraints. Please use CSV export instead.',
+    },
   },
 }

@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'Alábòójútó Orí-Ẹ̀rọ',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'A ti fọwọ́ sí iṣẹ́ náà',
+    taskRejected: 'A kò fọwọ́ sí iṣẹ́ náà',
+    taskApprovalFailed: 'Ìfọwọ́sí iṣẹ́ náà kò yorí sí rere',
+    taskRejectionFailed: 'Ìkọ̀sílẹ̀ iṣẹ́ náà kò yorí sí rere',
+    rejectionReasonRequired: 'Ẹ jọ̀wọ́ ẹ pèsè ìdí tí ẹ kò fi fọwọ́ sí i',
+    workerRemoved: 'A ti yọ òṣìṣẹ́ kúrò ní oko',
+    workerRemovalFailed: 'Yíyọ òṣìṣẹ́ kúrò kò yorí sí rere',
+    profileCreated: 'A ti ṣẹ̀dá ìwé ìròyìn òṣìṣẹ́',
+    profileCreationFailed: 'Ìṣẹ̀dá ìwé ìròyìn kò yorí sí rere',
+    profileUpdated: 'A ti sọ ìwé ìròyìn òṣìṣẹ́ dọ̀tun',
+    profileUpdateFailed: 'Ṣíṣọ ìwé ìròyìn òṣìṣẹ́ dọ̀tun kò yorí sí rere',
+    geofenceSaved: 'A ti pa ààlà oko mọ́',
+    geofenceSaveFailed: 'Pípamọ́ ààlà oko kò yorí sí rere',
+    attendanceExported: 'A ti gbé ìròyìn wíwá sí iṣẹ́ jáde',
+    exportFailed: 'Gbígbé jáde kò yorí sí rere',
+    taskCompleted: 'Iṣẹ́ ti parí',
+    taskCompletionFailed: 'Pípari iṣẹ́ kò yorí sí rere',
+    photoRequired: 'A fẹ́ àwòrán',
+    paymentRecorded: 'A ti gba owó sínú àkọsílẹ̀',
+    paymentRecordingFailed: 'Ìgbà owó sínú àkọsílẹ̀ kò yorí sí rere',
+    fillRequiredFields: 'Ẹ jọ̀wọ́ ẹ kọ gbogbo ohun tí a fẹ́ sínú ìwé',
+    checkInSuccess: 'A ti wọlé sí iṣẹ́ ní àṣeyọrí',
+    checkInFailed: 'Wíwọlé sí iṣẹ́ kò yorí sí rere',
+    checkOutSuccess: 'A ti jáde ní iṣẹ́ ní àṣeyọrí',
+    checkOutFailed: 'Jíjáde ní iṣẹ́ kò yorí sí rere',
+    locationError: 'A kò rí ibi tí ẹ wà',
+  },
+
+  // UI labels
+  totalHours: 'Àpapọ̀ Wákàtí',
+  hoursWorkedToday: 'Wákàtí tí ẹ ṣiṣẹ́ lónìí',
+  performanceTrends: 'Ìlànà Iṣẹ́',
+  totalWages: 'Àpapọ̀ Owó-iṣẹ́',
+  totalPaid: 'Àpapọ̀ Owó tí a san',
+  payrollHistory: 'Ìtàn Owó-iṣẹ́',
+  noPayrollPeriods: 'A kò rí ìbẹ̀rẹ̀ owó-iṣẹ́ kankan',
+  noPerformanceData: 'Kò sí ìròyìn iṣẹ́ kankan lówọ́',
+  noWorkersFound:
+    'A kò rí òṣìṣẹ́ kankan. Ẹ kọ òṣìṣẹ́ àkọ́kọ́ yín sínú ìwé láti bẹ̀rẹ̀.',
+  attendanceTracking: 'Ìtọpinpin Wíwá sí iṣẹ́',
+  payrollCommand: 'Àṣẹ Owó-iṣẹ́',
+  downloadReceipt: 'Gba Ìwe-ẹ̀rí owó',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'Gbogbo Àwọn Òṣìṣẹ́',
+    status: 'Ipò',
+    priority: 'Pàtàkì',
+    completionNotes: 'Kọ ohun tí ẹ ṣe...',
+    rejectionReason: 'Sọ ìdí tí ẹ kò fi fọwọ́ sí iṣẹ́ yìí...',
+    selectWorker: 'Yan òṣìṣẹ́',
+    paymentNotes: 'Kọ ohunkóhun nípa owó yìí...',
+    selectTemplate: 'Lo àpẹẹrẹ...',
+    locatePeriod: 'Wá àkókò náà...',
+  },
+}

@@ -6,6 +6,16 @@ export const sales = {
     poultry: 'Poultry',
     fish: 'Fish',
     eggs: 'Eggs',
+    cattle: 'Cattle',
+    goats: 'Goats',
+    sheep: 'Sheep',
+    honey: 'Honey',
+    milk: 'Milk',
+    wool: 'Wool',
+    beeswax: 'Beeswax',
+    propolis: 'Propolis',
+    royal_jelly: 'Royal Jelly',
+    manure: 'Manure',
   },
   labels: {
     type: 'Type',
@@ -58,8 +68,14 @@ export const expenses = {
     livestock: 'Livestock',
     livestock_chicken: 'Livestock (Chicken)',
     livestock_fish: 'Livestock (Fish)',
+    livestock_cattle: 'Livestock (Cattle)',
+    livestock_goats: 'Livestock (Goats)',
+    livestock_sheep: 'Livestock (Sheep)',
+    livestock_bees: 'Livestock (Bees)',
     maintenance: 'Maintenance',
     marketing: 'Marketing',
+    insurance: 'Insurance',
+    veterinary: 'Veterinary',
     other: 'Other',
     all: 'All Categories',
   },
@@ -209,6 +225,12 @@ export const customers = {
     create: 'Add Customer',
     save: 'Save Changes',
     createSuccess: 'Customer added successfully',
+    placeholders: {
+      email: 'customer@example.com',
+      phone: '08012345678',
+      name: 'Customer name',
+      location: 'City or address',
+    },
   },
   details: {
     title: 'Customer Details',
@@ -281,6 +303,9 @@ export const suppliers = {
     cancel: 'Cancel',
     add: 'Add Supplier',
     addSuccess: 'Supplier added successfully',
+    placeholders: {
+      email: 'supplier@example.com',
+    },
   },
   details: {
     title: 'Supplier Details',
@@ -307,4 +332,12 @@ export const suppliers = {
     title: 'No suppliers found',
     desc: 'Start by adding your regular farm suppliers.',
   },
+}
+
+export const financial = {
+  sales,
+  expenses,
+  invoices,
+  customers,
+  suppliers,
 }

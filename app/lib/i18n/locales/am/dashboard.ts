@@ -1,0 +1,15 @@
+export const dashboard = {
+  welcome: 'እንኳን ወደ Livestock AI በደህና መጡ',
+  welcomeDescription: 'የዶሮ እና የዓሳ እርባታ አስተዳደር መፍትሄዎ። የመጀመሪያ እርሻዎን በመፍጠር ይጀምሩ።',
+  subtitle: 'በእርሻዎ ውስጥ እየተከናወነ ያለውን ይመልከቱ።',
+  noDataTitle: 'ምንም መረጃ የለም',
+  noDataDescription: 'መለኪያዎችን ለማየት ባች ማከል ይጀምሩ።',
+  netMargin: 'የተጣራ ትርፍ',
+  active: 'ንቁ',
+  rate: 'ተመን %',
+  allCardsHidden: 'ሁሉም የዳሽቦርድ ካርዶች ተደብቀዋል።',
+  customize: 'ዳሽቦርድ አስተካክል',
+  quickActions: 'ፈጣን ተግባራት',
+  newSale: 'አዲስ ሽያጭ',
+  alerts: 'ማስጠንቀቂያዎች',
+}

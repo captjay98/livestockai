@@ -1,0 +1,527 @@
+export const settings = {
+  title: 'Paramètres',
+  description: 'Gérer vos préférences et la configuration de la ferme',
+  language: 'Langue',
+  languageDescription: "Langue de l'interface",
+  save: 'Enregistrer Paramètres',
+  saved: 'Paramètres enregistrés avec succès',
+  saveError: "Échec de l'enregistrement des paramètres",
+  tabs: {
+    regional: 'Régional',
+    preferences: 'Préférences',
+    notifications: 'Notifications',
+    business: 'Entreprise',
+    modules: 'Modules',
+    integrations: 'Intégrations',
+  },
+  regional: {
+    title: 'Paramètres Régionaux',
+    reset: 'Tout Réinitialiser',
+    currency: {
+      title: 'Devise',
+      label: 'Devise',
+      preview: 'Aperçu',
+    },
+    dateTime: {
+      title: 'Date et Heure',
+      dateFormat: 'Format de Date',
+      timeFormat: "Format d'Heure",
+      firstDay: 'Premier Jour de la Semaine',
+      days: {
+        sunday: 'Dimanche',
+        monday: 'Lundi',
+        saturday: 'Samedi',
+      },
+    },
+    units: {
+      title: 'Unités de Mesure',
+      weight: 'Poids',
+      area: 'Surface',
+      temperature: 'Température',
+    },
+    formats: {
+      us: 'MM/JJ/AAAA (US)',
+      eu: 'JJ/MM/AAAA (UK/EU)',
+      iso: 'AAAA-MM-JJ (ISO)',
+      h12: '12 heures (2:30 PM)',
+      h24: '24 heures (14:30)',
+    },
+  },
+  notifications: {
+    title: "Seuils d'Alerte",
+    emailTitle: 'Notifications Email',
+    emailDesc: 'Choisissez quelles notifications recevoir par email.',
+    lowStock: 'Seuil Stock Faible (%)',
+    lowStockDesc: "Alerter quand l'inventaire tombe sous ce pourcentage",
+    mortalityPercent: 'Alerte Mortalité (%)',
+    mortalityPercentDesc:
+      'Alerter quand le taux de mortalité dépasse ce pourcentage',
+    mortalityQty: 'Alerte Mortalité (Quantité)',
+    mortalityQtyDesc: 'Alerter quand les décès dépassent ce nombre en un jour',
+    highMortality: 'Mortalité Élevée',
+    highMortalityDesc: 'Quand la mortalité dépasse les seuils',
+    waterQuality: 'Alerte Qualité Eau',
+    waterQualityDesc: 'Quand pH, temp, ou ammoniaque est hors normes',
+    vaccinationDue: 'Vaccination Échue',
+    vaccinationDueDesc: '3 jours avant les vaccinations prévues',
+    medicationExpiry: 'Expiration Médicament',
+    medicationExpiryDesc: "30 jours avant l'expiration des médicaments",
+    invoiceDue: 'Facture Due',
+    invoiceDueDesc: "7 jours avant la date d'échéance",
+    batchHarvest: 'Récolte du Lot',
+    batchHarvestDesc: '7 jours avant la date de récolte prévue',
+    paymentReceived: 'Paiement Reçu',
+    paymentReceivedDesc: 'Quand les factures sont marquées payées',
+    weeklySummary: 'Résumé Hebdomadaire',
+    weeklySummaryDesc: 'Aperçu de la performance de la ferme chaque lundi',
+  },
+  business: {
+    title: 'Paramètres commerciaux',
+    paymentTerms: 'Conditions de Paiement par Défaut (Jours)',
+    paymentTermsDesc:
+      'Délai de paiement par défaut pour les factures (ex: 30 jours)',
+    fiscalYear: 'Mois de Début de l’Année Fiscale',
+    fiscalYearDesc: 'Mois de début pour les rapports financiers annuels',
+  },
+  modules: {
+    title: 'Modules Fonctionnels',
+    description: 'Activer ou désactiver les types de bétail pour votre ferme.',
+    noFarm: 'Aucune ferme sélectionnée',
+    noFarmDesc: 'Sélectionnez une ferme pour gérer ses modules.',
+  },
+  integrations: {
+    title: 'Intégrations',
+    email: 'Email',
+    emailDesc: 'Envoyer des alertes critiques par email',
+    sms: 'SMS',
+    smsDesc: 'Envoyer des alertes critiques par SMS',
+    testEmail: 'Email de test',
+    testSMS: 'SMS de test',
+    messages: {
+      enterEmail: 'Veuillez entrer une adresse email',
+      testEmailSuccess: 'Email de test envoyé !',
+      testEmailFailed: "Échec de l'envoi de l'email de test",
+      enterPhone: 'Veuillez entrer un numéro de téléphone',
+      testSMSSuccess: 'SMS de test envoyé !',
+      testSMSFailed: "Échec de l'envoi du SMS de test",
+    },
+    howItWorks: 'Comment ça marche',
+    howItWorksDesc1:
+      "Les intégrations sont optionnelles - l'application fonctionne sans elles",
+    howItWorksDesc2:
+      'Une fois configurées, les alertes sont envoyées par email/SMS',
+    howItWorksDesc3: 'Basculer les notifications dans Paramètres → Alertes',
+  },
+  storage: {
+    messages: {
+      syncSuccess: 'Synchronisation terminée avec succès',
+      syncFailed: 'Échec de la synchronisation. Veuillez réessayer.',
+      cacheCleared: 'Cache effacé avec succès',
+      cacheClearFailed: "Échec de l'effacement du cache",
+    },
+  },
+  help: {
+    title: "Besoin d'un rappel ?",
+    description:
+      'Redémarrer la visite guidée pour découvrir toutes les fonctionnalités',
+    restart: 'Redémarrer la visite',
+    resetOnboardingFailed: "Échec de la réinitialisation de l'onboarding",
+  },
+  theme: {
+    label: 'Thème',
+    light: 'Clair',
+    dark: 'Sombre',
+    system: 'Système',
+  },
+  users: {
+    title: 'Gestion des Utilisateurs',
+    description: 'Gérer les utilisateurs, rôles et permissions',
+    add: 'Ajouter Utilisateur',
+    search: 'Rechercher utilisateurs...',
+    empty: {
+      title: 'Aucun utilisateur trouvé',
+      desc: 'Essayez un autre terme de recherche',
+      descEmpty: 'Ajoutez votre premier utilisateur pour commencer',
+    },
+    roles: {
+      admin: 'Administrateur',
+      user: 'Utilisateur',
+    },
+    status: {
+      banned: 'Banni',
+      joined: 'Rejoint',
+    },
+    actions: {
+      manageFarms: 'Gérer Fermes',
+      resetPassword: 'Réinitialiser Mot de passe',
+      makeAdmin: 'Rendre Admin',
+      removeAdmin: 'Retirer Admin',
+      ban: 'Bannir Utilisateur',
+      unban: 'Débannir Utilisateur',
+      delete: 'Supprimer Utilisateur',
+    },
+    banReason: 'Raison du bannissement',
+    dialogs: {
+      add: {
+        title: 'Ajouter Nouvel Utilisateur',
+        desc: 'Créer un nouveau compte utilisateur.',
+        submit: 'Créer Utilisateur',
+      },
+      ban: {
+        title: 'Bannir Utilisateur',
+        desc: 'Êtes-vous sûr de vouloir bannir {{name}} ?',
+        reason: 'Raison (optionnel)',
+        submit: 'Bannir Utilisateur',
+      },
+      delete: {
+        title: 'Supprimer Utilisateur',
+        desc: 'Êtes-vous sûr de vouloir supprimer {{name}} ?',
+        submit: 'Supprimer',
+      },
+      reset: {
+        title: 'Réinitialiser Mot de passe',
+        desc: 'Définir un nouveau mot de passe pour {{name}}.',
+        submit: 'Mettre à jour le mot de passe',
+      },
+      farms: {
+        title: 'Assignations de Ferme',
+        desc: "Gérer l'accès à la ferme pour {{name}}",
+        empty: "Aucune assignation de ferme pour l'instant",
+        selectFarm: 'Sélectionner Ferme',
+        noFarms: 'Aucune ferme disponible',
+        role: 'Rôle',
+        owner: 'Propriétaire - Accès complet',
+        manager: 'Manager - Peut modifier les données',
+        viewer: 'Spectateur - Lecture seule',
+        assign: 'Assigner',
+        assigned: 'Toutes les fermes assignées',
+        add: 'Ajouter Assignation',
+      },
+    },
+    form: {
+      name: 'Nom',
+      namePlaceholder: 'Jean Dupont',
+      email: 'Email',
+      emailPlaceholder: 'jean@example.com',
+      password: 'Mot de passe',
+      passwordPlaceholder: 'Minimum 8 caractères',
+      newPassword: 'Nouveau mot de passe',
+      role: 'Rôle',
+      roleDesc:
+        "Les administrateurs peuvent gérer tous les utilisateurs et fermes. Les utilisateurs réguliers ont besoin d'assignations.",
+    },
+    unnamed: 'Sans nom',
+    errors: {
+      refresh: 'Échec de l’actualisation des utilisateurs',
+      loadAssignments: 'Échec du chargement des affectations de ferme',
+      ban: 'Échec du bannissement de l’utilisateur',
+      unban: 'Échec de la réactivation de l’utilisateur',
+      delete: 'Échec de la suppression de l’utilisateur',
+      role: 'Échec de la mise à jour du rôle',
+      create: 'Échec de la création de l’utilisateur',
+      resetPassword: 'Échec de la réinitialisation du mot de passe',
+      assignFarm: 'Échec de l’affectation de la ferme',
+      updateFarmRole: 'Échec de la mise à jour du rôle',
+      removeFromFarm: 'Échec de la suppression de la ferme',
+    },
+  },
+  audit: {
+    title: "Journaux d'Audit",
+    description: "Voir et suivre l'activité du système et les changements.",
+    search: 'Rechercher journaux...',
+    filters: {
+      action: 'Action',
+      entity: 'Entité',
+      allActions: 'Toutes Actions',
+      allEntities: 'Toutes Entités',
+      reset: 'Réinitialiser filtres',
+    },
+    table: {
+      date: 'Date',
+      user: 'Utilisateur',
+      action: 'Action',
+      entity: 'Entité',
+      details: 'Détails',
+      empty: "Aucun journal d'audit trouvé.",
+    },
+    dialog: {
+      title: 'Détails du Changement',
+    },
+  },
+  security: {
+    title: 'Sécurité',
+    description: "Gérer la sécurité et l'authentification de votre compte",
+    changePassword: 'Changer le mot de passe',
+    twoFactor: {
+      title: 'Authentification à deux facteurs',
+      description:
+        'Ajoutez une couche de sécurité supplémentaire à votre compte',
+      enable: 'Activer la 2FA',
+      disable: 'Désactiver la 2FA',
+    },
+    sessions: {
+      title: 'Sessions Actives',
+      description: 'Gérer vos appareils et sessions actives',
+      logoutOthers: 'Se déconnecter de tous les autres appareils',
+    },
+  },
+  marketing: {
+    title: 'Préférences Marketing',
+    description:
+      'Gérer la façon dont vous recevez les mises à jour et les communications',
+    newsletter: 'Bulletin',
+    promotions: 'Promotions et mises à jour',
+  },
+}
+
+export const reports = {
+  title: 'Rapports',
+  description: "Générer et exporter des rapports d'activité",
+  generate: 'Générer Rapport',
+  labels: {
+    farm: 'Ferme',
+    allFarms: 'Toutes les fermes',
+    useFiscalYear: "Utiliser l'année fiscale",
+    startDate: 'Date de début',
+    endDate: 'Date de fin',
+  },
+  actions: {
+    excel: 'Excel',
+    pdf: 'PDF',
+  },
+  types: {
+    profitLoss: 'Pertes et Profits',
+    inventory: 'Inventaire',
+    sales: 'Ventes',
+    feed: 'Alimentation',
+    eggs: "Production d'œufs",
+  },
+  profitLoss: {
+    totalRevenue: 'Revenu Total',
+    totalExpenses: 'Dépenses Totales',
+    netProfit: 'Profit Net',
+    margin: 'marge',
+    revenueByType: 'Revenu par Type',
+    expensesByCategory: 'Dépenses par Catégorie',
+  },
+  inventory: {
+    columns: {
+      species: 'Espèce',
+      type: 'Type',
+      initial: 'Initial',
+      current: 'Actuel',
+      mortality: 'Mortalité',
+      rate: 'Taux',
+      status: 'Statut',
+    },
+    summary: {
+      totalPoultry: 'Total Volaille',
+      totalFish: 'Total Poisson',
+      totalMortality: 'Mortalité Totale',
+      mortalityRate: 'Taux de Mortalité',
+    },
+    empty: {
+      title: "Aucune donnée d'inventaire",
+      description: "Les données d'inventaire apparaîtront ici.",
+    },
+  },
+  sales: {
+    columns: {
+      date: 'Date',
+      type: 'Type',
+      quantity: 'Quantité',
+      price: 'Prix',
+      total: 'Total',
+      customer: 'Client',
+    },
+    summary: {
+      totalSales: 'Ventes Totales',
+      totalRevenue: 'Revenu Total',
+      byType: 'Par Type',
+    },
+    empty: {
+      title: 'Aucune donnée de vente',
+      description: 'Les enregistrements de vente apparaîtront ici.',
+    },
+  },
+  feed: {
+    columns: {
+      species: 'Espèce',
+      type: "Type d'aliment",
+      quantity: 'Quantité',
+      cost: 'Coût',
+    },
+    summary: {
+      totalFeed: 'Alimentation Totale',
+      totalCost: 'Coût Total',
+      byType: "Par Type d'Aliment",
+    },
+    empty: {
+      title: "Aucune donnée d'alimentation",
+      description: "Les enregistrements d'alimentation apparaîtront ici.",
+    },
+  },
+  eggs: {
+    columns: {
+      date: 'Date',
+      collected: 'Collectés',
+      broken: 'Cassés',
+      sold: 'Vendus',
+      inventory: 'Inventaire',
+    },
+    summary: {
+      totalCollected: 'Total Collectés',
+      totalSold: 'Total Vendus',
+      totalBroken: 'Total Cassés',
+    },
+  },
+  export: {
+    generating: "Génération de l'export...",
+    autoDownload: 'Votre téléchargement devrait démarrer automatiquement.',
+    back: 'Retour aux rapports',
+    xlsxNotAvailable: 'Export Excel non disponible',
+    xlsxNotAvailableDesc:
+      'L’export Excel n’est pas encore implémenté. Veuillez utiliser l’export CSV à la place.',
+    pdfNotAvailable: 'Export PDF non disponible',
+    pdfNotAvailableDesc:
+      'L’export PDF est temporairement désactivé en raison de contraintes de taille. Veuillez utiliser l’export CSV à la place.',
+  },
+  exportNotAvailable: {
+    excel: {
+      title: 'Export Excel non disponible',
+      description:
+        "L'export Excel n'est pas encore implémenté. Veuillez utiliser l'export CSV à la place.",
+    },
+    pdf: {
+      title: 'Export PDF non disponible',
+      description:
+        "L'export PDF est temporairement désactivé pour des raisons de taille. Veuillez utiliser l'export CSV à la place.",
+    },
+  },
+}
+
+export const onboarding = {
+  header: {
+    title: 'Démarrage',
+    skip: 'Passer la configuration',
+    step: 'Étape {{current}} sur {{total}}',
+    percent: '{{percent}}% terminé',
+  },
+  welcome: {
+    title: 'Bienvenue sur Livestock AI !',
+    descUser: 'Configurons votre ferme en quelques minutes.',
+    descAdmin: 'Vous avez été ajouté à une ferme. Faisons un tour rapide.',
+    start: 'Commencer',
+    benefits: {
+      livestock: {
+        title: 'Suivez Votre Bétail',
+        desc: "Surveillez les lots de l'acquisition à la vente",
+      },
+      growth: {
+        title: 'Prévision de Croissance',
+        desc: 'Prévoyez les dates de récolte et les poids',
+      },
+      financials: {
+        title: 'Insights Financiers',
+        desc: 'Suivez les coûts, les revenus et les marges bénéficiaires',
+      },
+      records: {
+        title: 'Registres Complets',
+        desc: 'Alimentation, mortalité, vaccinations, et plus',
+      },
+    },
+  },
+  createFarm: {
+    title: 'Créez Votre Ferme',
+    desc: 'Une ferme est votre espace de travail principal avec ses propres lots et dossiers.',
+    success: 'Ferme créée',
+    error: 'Échec de la création de la ferme',
+    form: {
+      name: 'Nom de la Ferme',
+      location: 'Emplacement',
+      type: 'Type de Ferme',
+      namePlaceholder: 'ex: Ferme de la Vallée Verte',
+      locationPlaceholder: 'ex: Paris, France',
+      submitting: 'Création...',
+      submit: 'Créer Ferme',
+    },
+  },
+  enableModules: {
+    title: 'Choisissez Vos Modules',
+    desc: 'Sélectionnez les types de bétail que vous gérez.',
+    descEmpty: "Créez d'abord une ferme pour activer les modules de bétail.",
+  },
+  createStructure: {
+    title: 'Organisation de la Ferme',
+    desc: 'Comment Livestock AI organise vos données.',
+    items: {
+      farm: 'Votre espace de travail principal',
+      batches: "Groupes d'animaux acquis ensemble",
+      recordsTitle: 'Registres',
+      records: 'Entrées quotidiennes pour alimentation, mortalité, poids',
+    },
+    tip: 'Commencez par créer un lot pour votre bétail actuel.',
+    submit: 'Compris',
+  },
+  createBatch: {
+    title: 'Créez Votre Premier Lot',
+    desc: "Un lot est un groupe d'animaux acquis ensemble.",
+    descEmpty: "Créez d'abord une ferme pour ajouter des lots de bétail.",
+    farmFirst: {
+      title: "D'abord Créer une Ferme",
+      desc: "Vous avez besoin d'une ferme avant d'ajouter des lots.",
+    },
+    success: 'Lot créé',
+    error: 'Échec de la création du lot',
+    form: {
+      submitting: 'Création...',
+      submit: 'Créer Lot',
+    },
+  },
+  preferences: {
+    title: 'Vos Préférences',
+    desc: 'Définissez votre devise et vos unités.',
+    submit: 'Enregistrer & Continuer',
+  },
+  tour: {
+    title: 'Visite Rapide',
+    summary: "Explorez les fonctionnalités clés d'Livestock AI",
+    finish: 'Terminer la Visite',
+    dashboard: {
+      title: 'Tableau de bord',
+      desc: "Votre centre de commande - voir la santé de la ferme en un coup d'œil.",
+      tip: 'Vérifiez quotidiennement pour rester au top des opérations.',
+    },
+    batches: {
+      desc: "Voir les lots, enregistrer l'alimentation, consigner la mortalité, suivre les poids.",
+      tip: "Cliquez sur n'importe quel lot pour des registres détaillés.",
+    },
+    finance: {
+      title: 'Ventes & Dépenses',
+      desc: 'Suivez chaque transaction - ventes et coûts.',
+      tip: 'Des registres précis révèlent les vraies marges bénéficiaires.',
+    },
+    reports: {
+      desc: 'Courbes de croissance, comparaisons de lots, analyse de rentabilité.',
+      tip: 'Identifiez quels lots performent le mieux.',
+    },
+    settings: {
+      desc: 'Gérer les modules, préférences et compte.',
+      tip: 'Activez uniquement les modules dont vous avez besoin.',
+    },
+  },
+  complete: {
+    title: 'Vous Êtes Prêt ! 🎉',
+    desc: 'Votre ferme est prête. Commencez à suivre votre bétail !',
+    accomplished: 'Ce que vous avez accompli',
+    items: {
+      farm: 'Créé votre ferme',
+      batch: 'Ajouté votre premier lot',
+      preferences: 'Configuré les préférences',
+      tour: 'Terminé la visite',
+    },
+    submit: 'Aller au Tableau de bord',
+    finishing: 'Finalisation...',
+    help: "Besoin d'aide ? Redémarrez la visite à tout moment depuis les Paramètres.",
+  },
+}

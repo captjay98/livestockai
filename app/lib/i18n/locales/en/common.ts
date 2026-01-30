@@ -17,9 +17,14 @@ export const common = {
   customers: 'Customers',
   suppliers: 'Suppliers',
   invoices: 'Invoices',
+  sensors: 'Sensors',
+  workers: 'Staff',
+  attendance: 'Attendance',
+  payroll: 'Payroll',
 
   // Common actions
   selectFarm: 'Please select a farm first',
+  setupRequired: 'Setup Required',
   add: 'Add',
   edit: 'Edit',
   delete: 'Delete',
@@ -58,8 +63,12 @@ export const common = {
   user: 'User',
   preview: 'Preview',
   done: 'Done',
+  growthChart: 'Growth Chart',
+  sensorSettings: 'Sensor Settings',
   livestock: {
     poultry: 'Poultry',
+    aquaculture: 'Aquaculture',
+    multi: 'Multi-Species',
     fish: 'Fish',
     eggs: 'Eggs',
     cattle: 'Cattle',
@@ -101,9 +110,31 @@ export const common = {
     deleted: 'Deleted successfully',
     updated: 'Updated successfully',
     error: 'An error occurred',
+    success: 'Success',
+    modulesUpdated: 'Modules updated',
   },
-  loading: {
+  loadingState: {
     details: 'Loading details...',
+  },
+  loading: 'Loading...',
+  noFarmSelected: 'No farm selected',
+  noData: 'No data',
+  close: 'Close',
+  toggleTheme: 'Toggle theme',
+  toggleMenu: 'Toggle menu',
+  noFarms: 'No farms',
+  placeholders: {
+    email: 'your@email.com',
+  },
+
+  // Accessibility labels
+  a11y: {
+    actionsFor: 'Actions for {{entity}}',
+    view: 'View',
+    edit: 'Edit',
+    delete: 'Delete',
+    deleteNotification: 'Delete notification',
+    structure: 'Structure',
   },
 }
 
@@ -123,7 +154,28 @@ export const tasks = {
     weekly: 'This Week',
     monthly: 'This Month',
   },
+  // UI strings
+  addTask: 'Add Task',
+  createTask: 'Create Task',
+  createTaskDesc: 'Add a custom task to your checklist',
+  taskTitle: 'Task Title',
+  taskTitlePlaceholder: 'e.g., Check water pressure',
+  taskDescription: 'Description',
+  taskDescriptionPlaceholder: 'Optional details about this task',
+  frequency: 'Frequency',
+  validation: {
+    titleMinLength: 'Title must be at least 3 characters',
+  },
   defaults: {
+    // Farm-level tasks (general maintenance)
+    checkEquipment: 'Check Equipment',
+    checkEquipmentDesc: 'Inspect farm equipment for issues',
+    inventoryCheck: 'Inventory Check',
+    inventoryCheckDesc: 'Review feed and supply levels',
+    maintenanceReview: 'Maintenance Review',
+    maintenanceReviewDesc: 'Review equipment maintenance schedule',
+
+    // Poultry tasks
     checkWater: 'Check Water Lines',
     checkWaterDesc: 'Ensure water is flowing properly',
     feedMorning: 'Feed Morning',
@@ -140,7 +192,77 @@ export const tasks = {
     cleanFeedersDesc: 'Remove old feed and clean equipment',
     vaccinationReview: 'Vaccination Review',
     vaccinationReviewDesc: 'Review upcoming vaccination schedule',
-    deepClean: 'Deep Clean Coop',
+    deepClean: 'Deep Clean',
     deepCleanDesc: 'Full disinfection and cleaning',
+
+    // Aquaculture tasks
+    checkWaterQuality: 'Check Water Quality',
+    checkWaterQualityDesc: 'Test pH, oxygen, and ammonia levels',
+    feedFish: 'Feed Fish',
+    feedFishDesc: 'Distribute fish feed ration',
+    checkAeration: 'Check Aeration',
+    checkAerationDesc: 'Ensure aerators are working properly',
+    checkMortality: 'Check for Mortality',
+    checkMortalityDesc: 'Remove dead fish and record count',
+    sampleWeight: 'Sample Weight',
+    sampleWeightDesc: 'Weigh sample fish for growth tracking',
+    cleanFilters: 'Clean Filters',
+    cleanFiltersDesc: 'Clean and maintain filtration system',
+    pondMaintenance: 'Pond Maintenance',
+    pondMaintenanceDesc: 'Check pond banks and water levels',
+
+    // Cattle tasks
+    checkWaterTroughs: 'Check Water Troughs',
+    checkWaterTroughsDesc: 'Ensure troughs are clean and full',
+    feedCattle: 'Feed Cattle',
+    feedCattleDesc: 'Distribute feed and hay',
+    checkHerdHealth: 'Check Herd Health',
+    checkHerdHealthDesc: 'Visual inspection of cattle',
+    weighCattle: 'Weigh Cattle',
+    weighCattleDesc: 'Record weight samples',
+    checkFencing: 'Check Fencing',
+    checkFencingDesc: 'Inspect fences for damage',
+    hoofCare: 'Hoof Care',
+    hoofCareDesc: 'Check and trim hooves as needed',
+    dewormingCheck: 'Deworming Check',
+    dewormingCheckDesc: 'Review deworming schedule',
+
+    // Goat tasks
+    checkWaterGoats: 'Check Water',
+    checkWaterGoatsDesc: 'Ensure clean water is available',
+    feedGoats: 'Feed Goats',
+    feedGoatsDesc: 'Distribute feed and browse',
+    checkGoatHealth: 'Check Goat Health',
+    checkGoatHealthDesc: 'Visual inspection for illness',
+    weighGoats: 'Weigh Goats',
+    weighGoatsDesc: 'Record weight samples',
+    checkPasture: 'Check Pasture',
+    checkPastureDesc: 'Inspect pasture condition',
+    hoofTrimming: 'Hoof Trimming',
+    hoofTrimmingDesc: 'Trim hooves as needed',
+
+    // Sheep tasks
+    checkWaterSheep: 'Check Water',
+    checkWaterSheepDesc: 'Ensure clean water is available',
+    feedSheep: 'Feed Sheep',
+    feedSheepDesc: 'Distribute feed and hay',
+    checkFlockHealth: 'Check Flock Health',
+    checkFlockHealthDesc: 'Visual inspection for illness',
+    weighSheep: 'Weigh Sheep',
+    weighSheepDesc: 'Record weight samples',
+    checkWool: 'Check Wool Condition',
+    checkWoolDesc: 'Inspect wool for parasites',
+    footBath: 'Foot Bath',
+    footBathDesc: 'Run sheep through foot bath',
+
+    // Bee tasks
+    hiveInspection: 'Hive Inspection',
+    hiveInspectionDesc: 'Check hive health and activity',
+    checkQueenActivity: 'Check Queen Activity',
+    checkQueenActivityDesc: 'Verify queen is laying',
+    pestControl: 'Pest Control',
+    pestControlDesc: 'Check for mites and pests',
+    honeyHarvest: 'Honey Harvest Check',
+    honeyHarvestDesc: 'Assess honey readiness for harvest',
   },
 }

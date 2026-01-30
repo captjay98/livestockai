@@ -1,0 +1,36 @@
+export const errors = {
+  UNAUTHORIZED: 'Por favor, entre para continuar',
+  INVALID_CREDENTIALS: 'E-mail ou senha inválidos',
+  SESSION_EXPIRED: 'Sua sessão expirou. Por favor, entre novamente',
+  ACCESS_DENIED: 'Você não tem permissão para acessar este recurso',
+  BANNED: 'Sua conta foi suspensa',
+  NOT_FOUND: 'O recurso solicitado não foi encontrado',
+  FARM_NOT_FOUND: 'Fazenda não encontrada',
+  BATCH_NOT_FOUND: 'Lote não encontrado',
+  CUSTOMER_NOT_FOUND: 'Cliente não encontrado',
+  SUPPLIER_NOT_FOUND: 'Fornecedor não encontrado',
+  INVOICE_NOT_FOUND: 'Fatura não encontrada',
+  STRUCTURE_NOT_FOUND: 'Estrutura não encontrada',
+  SALE_NOT_FOUND: 'Venda não encontrada',
+  VALIDATION_ERROR: 'Por favor, verifique seus dados e tente novamente',
+  INVALID_INPUT: 'Dados inválidos fornecidos',
+  INSUFFICIENT_STOCK: 'Estoque insuficiente disponível',
+  ALREADY_EXISTS: 'O recurso já existe',
+  INTERNAL_ERROR: 'Algo deu errado. Por favor, tente novamente mais tarde',
+  DATABASE_ERROR:
+    'Ocorreu um erro no banco de dados. Por favor, tente novamente',
+  unknown: 'Ocorreu um erro desconhecido',
+  userNotFound: 'Usuário não encontrado',
+  saveFailed: 'Falha ao salvar as configurações',
+  resetFailed: 'Falha ao redefinir as configurações',
+  farmDeleteFailed:
+    'Não é possível excluir uma fazenda com registros existentes',
+  userNotAssigned: 'O usuário não está atribuído a esta fazenda',
+  lastOwnerRemove:
+    'Não é possível remover o último proprietário de uma fazenda',
+  lastOwnerDemote:
+    'Não é possível rebaixar o último proprietário de uma fazenda',
+  accessDeniedFarm: 'Acesso negado a esta fazenda',
+  noFarmSelected: 'Por favor, selecione uma fazenda primeiro',
+  exportNotAvailable: 'Formato de exportação não disponível',
+}

@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'Contremaître Numérique',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'Tâche approuvée',
+    taskRejected: 'Tâche rejetée',
+    taskApprovalFailed: "Échec de l'approbation de la tâche",
+    taskRejectionFailed: 'Échec du rejet de la tâche',
+    rejectionReasonRequired: 'Veuillez fournir un motif de rejet',
+    workerRemoved: 'Employé retiré de la ferme',
+    workerRemovalFailed: "Échec du retrait de l'employé",
+    profileCreated: "Profil de l'employé créé",
+    profileCreationFailed: 'Échec de la création du profil',
+    profileUpdated: "Profil de l'employé mis à jour",
+    profileUpdateFailed: 'Échec de la mise à jour du profil',
+    geofenceSaved: 'Géo-clôture enregistrée',
+    geofenceSaveFailed: "Échec de l'enregistrement de la géo-clôture",
+    attendanceExported: 'Présences exportées',
+    exportFailed: "Échec de l'exportation",
+    taskCompleted: 'Tâche terminée',
+    taskCompletionFailed: 'Échec de la réalisation de la tâche',
+    photoRequired: 'Une photo est requise',
+    paymentRecorded: 'Paiement enregistré avec succès',
+    paymentRecordingFailed: "Échec de l'enregistrement du paiement",
+    fillRequiredFields: 'Veuillez remplir tous les champs requis',
+    checkInSuccess: 'Entrée enregistrée avec succès',
+    checkInFailed: "Échec de l'entrée",
+    checkOutSuccess: 'Sortie enregistrée avec succès',
+    checkOutFailed: 'Échec de la sortie',
+    locationError: "Impossible d'obtenir la localisation",
+  },
+
+  // UI labels
+  totalHours: 'Total des Heures',
+  hoursWorkedToday: "Heures travaillées aujourd'hui",
+  performanceTrends: 'Tendances de Performance',
+  totalWages: 'Total des Salaires',
+  totalPaid: 'Total Payé',
+  payrollHistory: 'Historique de la Paie',
+  noPayrollPeriods: 'Aucune période de paie trouvée',
+  noPerformanceData: 'Aucune donnée de performance disponible',
+  noWorkersFound:
+    'Aucun employé trouvé. Ajoutez votre premier employé pour commencer.',
+  attendanceTracking: 'Suivi des Présences',
+  payrollCommand: 'Commande de Paie',
+  downloadReceipt: 'Télécharger le Reçu',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'Tous les Employés',
+    status: 'Statut',
+    priority: 'Priorité',
+    completionNotes: 'Ajouter des notes de réalisation...',
+    rejectionReason: 'Expliquez pourquoi cette tâche est rejetée...',
+    selectWorker: 'Sélectionner un employé',
+    paymentNotes: 'Ajouter des notes sur ce paiement...',
+    selectTemplate: 'Appliquer un modèle...',
+    locatePeriod: 'Localiser la période...',
+  },
+}

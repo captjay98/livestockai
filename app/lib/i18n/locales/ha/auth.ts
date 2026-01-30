@@ -1,0 +1,47 @@
+export const auth = {
+  required: 'Ana buƙatar wannan filin',
+  email: 'Da fatan a shigar da adireshin imel mai inganci',
+  minLength: 'Dole ne ya kasance aƙalla haruffa {{min}}',
+  min: 'Dole ne ya kasance aƙalla haruffa {{min}}',
+  max: 'Dole ne ya kasance aƙalla haruffa {{max}}',
+  url: 'Da fatan a shigar da URL mai inganci',
+  numeric: 'Dole ne ya kasance lamba',
+  login: {
+    title: 'Shiga',
+    noAccount: 'Ba ku da asusu?',
+    createAccount: 'Ƙirƙiri asusu',
+    description: 'Shiga don sarrafa gonar ku',
+    email: 'Imel',
+    password: 'Kalmar sirri',
+    submit: 'Shiga',
+    submitting: 'Ana shiga...',
+    contactAdmin: 'Tuntuɓi mai kula da ku idan kuna buƙatar asusu',
+    placeholder: {
+      email: 'Shigar da imel ɗin ku',
+      password: 'Shigar da kalmar sirri',
+    },
+    logo: 'Alamar gona',
+    errors: {
+      invalid_credentials: 'Imel ko kalmar sirri ba daidai ba',
+      default: 'An gaza shiga',
+      unexpected: 'Wani kuskure da ba a zata ba ya faru',
+    },
+  },
+  register: {
+    title: 'Ƙirƙiri Asusun',
+    description: 'Shiga cikin makomar noma',
+    name: 'Cikakken Suna',
+    submitting: 'Ana ƙirƙirar asusun...',
+    submit: 'Ƙirƙiri Asusun',
+    haveAccount: 'Kuna da asusu?',
+    placeholder: {
+      name: 'Musa Ibrahim',
+    },
+    errors: {
+      invalid_credentials: 'Imel ko kalmar sirri ba daidai ba',
+      default: 'An kasa shiga',
+      unexpected: 'An sami kuskuren da ba a zata ba',
+      email_exists: 'Imel ya riga ya yi rajista',
+    },
+  },
+}

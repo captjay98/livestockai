@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'Quản Đốc Kỹ Thuật Số',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'Đã phê duyệt công việc',
+    taskRejected: 'Đã từ chối công việc',
+    taskApprovalFailed: 'Phê duyệt công việc thất bại',
+    taskRejectionFailed: 'Từ chối công việc thất bại',
+    rejectionReasonRequired: 'Vui lòng cung cấp lý do từ chối',
+    workerRemoved: 'Đã xóa công nhân khỏi trang trại',
+    workerRemovalFailed: 'Xóa công nhân thất bại',
+    profileCreated: 'Đã tạo hồ sơ công nhân',
+    profileCreationFailed: 'Tạo hồ sơ thất bại',
+    profileUpdated: 'Đã cập nhật hồ sơ công nhân',
+    profileUpdateFailed: 'Cập nhật hồ sơ thất bại',
+    geofenceSaved: 'Đã lưu hàng rào địa lý',
+    geofenceSaveFailed: 'Lưu hàng rào địa lý thất bại',
+    attendanceExported: 'Đã xuất dữ liệu chuyên cần',
+    exportFailed: 'Xuất dữ liệu thất bại',
+    taskCompleted: 'Đã hoàn thành công việc',
+    taskCompletionFailed: 'Hoàn thành công việc thất bại',
+    photoRequired: 'Yêu cầu phải có ảnh',
+    paymentRecorded: 'Đã ghi nhận thanh toán thành công',
+    paymentRecordingFailed: 'Ghi nhận thanh toán thất bại',
+    fillRequiredFields: 'Vui lòng điền đầy đủ các trường bắt buộc',
+    checkInSuccess: 'Điểm danh vào thành công',
+    checkInFailed: 'Điểm danh vào thất bại',
+    checkOutSuccess: 'Điểm danh ra thành công',
+    checkOutFailed: 'Điểm danh ra thất bại',
+    locationError: 'Không thể lấy được vị trí',
+  },
+
+  // UI labels
+  totalHours: 'Tổng Số Giờ',
+  hoursWorkedToday: 'Số giờ làm việc hôm nay',
+  performanceTrends: 'Xu Hướng Hi hiệu Suất',
+  totalWages: 'Tổng Lương',
+  totalPaid: 'Tổng Đã Thanh Toán',
+  payrollHistory: 'Lịch Sử Bảng Lương',
+  noPayrollPeriods: 'Không tìm thấy kỳ lương nào',
+  noPerformanceData: 'Không có dữ liệu hiệu suất',
+  noWorkersFound:
+    'Không tìm thấy công nhân nào. Thêm công nhân đầu tiên của bạn để bắt đầu.',
+  attendanceTracking: 'Theo Dõi Chuyên Cần',
+  payrollCommand: 'Lệnh Bảng Lương',
+  downloadReceipt: 'Tải Hóa Đơn',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'Tất Cả Công Nhân',
+    status: 'Trạng thái',
+    priority: 'Độ ưu tiên',
+    completionNotes: 'Thêm ghi chú hoàn thành...',
+    rejectionReason: 'Giải thích lý do tại sao công việc này bị từ chối...',
+    selectWorker: 'Chọn công nhân',
+    paymentNotes: 'Thêm bất kỳ ghi chú nào về khoản thanh toán này...',
+    selectTemplate: 'Áp dụng mẫu...',
+    locatePeriod: 'Tìm kỳ hạn...',
+  },
+}

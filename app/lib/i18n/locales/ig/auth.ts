@@ -1,0 +1,46 @@
+export const auth = {
+  required: 'A chọrọ ubi a',
+  email: 'Biko tinye adreesị email ziri ezi',
+  min: 'Aghaghị ọ dịkarịa ala {{min}} mkpụrụedemede',
+  max: 'Aghaghị ọ karịa {{max}} mkpụrụedemede',
+  url: 'Biko tinye URL ziri ezi',
+  numeric: 'Aghaghị ọ bụrụ ọnụọgụ',
+  login: {
+    title: 'Banye',
+    noAccount: 'Ị nweghị akaụntụ?',
+    createAccount: 'Mepụta akaụntụ',
+    description: 'Banye iji jikwaa ugbo gị',
+    email: 'Email',
+    password: 'Okwuntụghe',
+    submit: 'Banye',
+    submitting: 'Na-abanye...',
+    contactAdmin: 'Kpọtụrụ onye nchịkwa gị ma ọ bụrụ na ị chọrọ akaụntụ',
+    placeholder: {
+      email: 'Tinye email gị',
+      password: 'Tinye okwuntụghe gị',
+    },
+    logo: 'Logo Ugbo',
+    errors: {
+      invalid_credentials: 'Email ma ọ bụ okwuntụghe gị adịghị mma',
+      default: 'Banye kụlẹ',
+      unexpected: 'Otu mmejọ a na-atụghị anya ya emeela',
+    },
+  },
+  register: {
+    title: 'Mepụta Akaụntụ',
+    description: "Banye n'ọdịnihu nke ọrụ ugbo",
+    name: 'Aha zuru oke',
+    submitting: 'Na-emepụta akaụntụ...',
+    submit: 'Mepụta Akaụntụ',
+    haveAccount: 'I nwere akaụntụ ugbua?',
+    placeholder: {
+      name: 'Chinedu Okeke',
+    },
+    errors: {
+      invalid_credentials: 'Email ma ọ bụ okwuntughe adịghị mma',
+      default: 'Ndebanye aha kụlẹ',
+      unexpected: 'Otu mmejọ a na-atụghị anya ya emeela',
+      email_exists: 'Email edebanye aha rịị',
+    },
+  },
+}

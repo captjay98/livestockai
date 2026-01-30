@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'Encarregado Digital',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'Tarefa aprovada',
+    taskRejected: 'Tarefa rejeitada',
+    taskApprovalFailed: 'Falha ao aprovar tarefa',
+    taskRejectionFailed: 'Falha ao rejeitar tarefa',
+    rejectionReasonRequired: 'Por favor, forneça um motivo de rejeição',
+    workerRemoved: 'Trabalhador removido da fazenda',
+    workerRemovalFailed: 'Falha ao remover trabalhador',
+    profileCreated: 'Perfil do trabalhador criado',
+    profileCreationFailed: 'Falha ao criar perfil',
+    profileUpdated: 'Perfil do trabalhador atualizado',
+    profileUpdateFailed: 'Falha ao atualizar perfil',
+    geofenceSaved: 'Cerca eletrônica salva',
+    geofenceSaveFailed: 'Falha ao salvar cerca eletrônica',
+    attendanceExported: 'Frequência exportada',
+    exportFailed: 'Falha na exportação',
+    taskCompleted: 'Tarefa concluída',
+    taskCompletionFailed: 'Falha ao concluir tarefa',
+    photoRequired: 'A foto é obrigatória',
+    paymentRecorded: 'Pagamento registrado com sucesso',
+    paymentRecordingFailed: 'Falha ao registrar pagamento',
+    fillRequiredFields: 'Por favor, preencha todos os campos obrigatórios',
+    checkInSuccess: 'Entrada registrada com sucesso',
+    checkInFailed: 'Falha na entrada',
+    checkOutSuccess: 'Saída registrada com sucesso',
+    checkOutFailed: 'Falha na saída',
+    locationError: 'Não foi possível obter a localização',
+  },
+
+  // UI labels
+  totalHours: 'Total de Horas',
+  hoursWorkedToday: 'Horas trabalhadas hoje',
+  performanceTrends: 'Tendências de Desempenho',
+  totalWages: 'Total de Salários',
+  totalPaid: 'Total Pago',
+  payrollHistory: 'Historial de Folha de Pagamento',
+  noPayrollPeriods: 'Nenhum período de folha de pagamento encontrado',
+  noPerformanceData: 'Nenhum dado de desempenho disponível',
+  noWorkersFound:
+    'Nenhum trabalhador encontrado. Adicione seu primeiro trabalhador para começar.',
+  attendanceTracking: 'Rastreamento de Frequência',
+  payrollCommand: 'Comando de Folha de Pagamento',
+  downloadReceipt: 'Baixar Recibo',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'Todos os Trabalhadores',
+    status: 'Status',
+    priority: 'Prioridade',
+    completionNotes: 'Adicionar notas de conclusão...',
+    rejectionReason: 'Explique por que esta tarefa está sendo rejeitada...',
+    selectWorker: 'Selecionar trabalhador',
+    paymentNotes: 'Adicionar quaisquer notas sobre este pagamento...',
+    selectTemplate: 'Aplicar modelo...',
+    locatePeriod: 'Localizar período...',
+  },
+}

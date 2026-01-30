@@ -1,0 +1,36 @@
+export const errors = {
+  UNAUTHORIZED: 'Veuillez vous connecter pour continuer',
+  INVALID_CREDENTIALS: 'Email ou mot de passe invalide',
+  SESSION_EXPIRED: 'Votre session a expiré. Veuillez vous reconnecter',
+  ACCESS_DENIED: "Vous n'avez pas la permission d'accéder à cette ressource",
+  BANNED: 'Votre compte a été suspendu',
+  NOT_FOUND: 'La ressource demandée est introuvable',
+  FARM_NOT_FOUND: 'Ferme introuvable',
+  BATCH_NOT_FOUND: 'Lot introuvable',
+  CUSTOMER_NOT_FOUND: 'Client introuvable',
+  SUPPLIER_NOT_FOUND: 'Fournisseur introuvable',
+  INVOICE_NOT_FOUND: 'Facture introuvable',
+  STRUCTURE_NOT_FOUND: 'Structure introuvable',
+  SALE_NOT_FOUND: 'Vente introuvable',
+  VALIDATION_ERROR: 'Veuillez vérifier vos informations et réessayer',
+  INVALID_INPUT: 'Informations invalides fournies',
+  INSUFFICIENT_STOCK: 'Stock insuffisant',
+  ALREADY_EXISTS: 'La ressource existe déjà',
+  INTERNAL_ERROR: 'Une erreur est survenue. Veuillez réessayer plus tard',
+  DATABASE_ERROR:
+    'Une erreur de base de données est survenue. Veuillez réessayer',
+  unknown: 'Une erreur inconnue est survenue',
+  userNotFound: 'Utilisateur introuvable',
+  saveFailed: 'Échec de l’enregistrement des paramètres',
+  resetFailed: 'Échec de la réinitialisation des paramètres',
+  farmDeleteFailed:
+    'Impossible de supprimer une ferme avec des enregistrements existants',
+  userNotAssigned: 'L’utilisateur n’est pas affecté à cette ferme',
+  lastOwnerRemove:
+    'Impossible de supprimer le dernier propriétaire d’une ferme',
+  lastOwnerDemote:
+    'Impossible de rétrograder le dernier propriétaire d’une ferme',
+  accessDeniedFarm: 'Accès refusé à cette ferme',
+  noFarmSelected: 'Veuillez d’abord sélectionner une ferme',
+  exportNotAvailable: 'Format d’exportation non disponible',
+}

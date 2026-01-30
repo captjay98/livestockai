@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'Mandor Digital',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'Tugas disetujui',
+    taskRejected: 'Tugas ditolak',
+    taskApprovalFailed: 'Gagal menyetujui tugas',
+    taskRejectionFailed: 'Gagal menolak tugas',
+    rejectionReasonRequired: 'Harap berikan alasan penolakan',
+    workerRemoved: 'Pekerja dihapus dari pertanian',
+    workerRemovalFailed: 'Gagal menghapus pekerja',
+    profileCreated: 'Profil pekerja dibuat',
+    profileCreationFailed: 'Gagal membuat profil',
+    profileUpdated: 'Profil pekerja diperbarui',
+    profileUpdateFailed: 'Gagal memperbarui profil',
+    geofenceSaved: 'Geofence disimpan',
+    geofenceSaveFailed: 'Gagal menyimpan geofence',
+    attendanceExported: 'Kehadiran diekspor',
+    exportFailed: 'Ekspor gagal',
+    taskCompleted: 'Tugas selesai',
+    taskCompletionFailed: 'Gagal menyelesaikan tugas',
+    photoRequired: 'Foto diperlukan',
+    paymentRecorded: 'Pembayaran berhasil dicatat',
+    paymentRecordingFailed: 'Gagal mencatat pembayaran',
+    fillRequiredFields: 'Harap isi semua bidang yang diperlukan',
+    checkInSuccess: 'Berhasil check-in',
+    checkInFailed: 'Gagal check-in',
+    checkOutSuccess: 'Berhasil check-out',
+    checkOutFailed: 'Gagal check-out',
+    locationError: 'Tidak dapat mendapatkan lokasi',
+  },
+
+  // UI labels
+  totalHours: 'Total Jam',
+  hoursWorkedToday: 'Jam kerja hari ini',
+  performanceTrends: 'Tren Performa',
+  totalWages: 'Total Upah',
+  totalPaid: 'Total Dibayar',
+  payrollHistory: 'Riwayat Penggajian',
+  noPayrollPeriods: 'Tidak ada periode penggajian ditemukan',
+  noPerformanceData: 'Tidak ada data performa tersedia',
+  noWorkersFound:
+    'Tidak ada pekerja ditemukan. Tambah pekerja pertama Anda untuk memulai.',
+  attendanceTracking: 'Pelacakan Kehadiran',
+  payrollCommand: 'Komando Penggajian',
+  downloadReceipt: 'Unduh Tanda Terima',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'Semua Pekerja',
+    status: 'Status',
+    priority: 'Prioritas',
+    completionNotes: 'Tambah catatan penyelesaian...',
+    rejectionReason: 'Jelaskan mengapa tugas ini ditolak...',
+    selectWorker: 'Pilih pekerja',
+    paymentNotes: 'Tambah catatan tentang pembayaran ini...',
+    selectTemplate: 'Gunakan templat...',
+    locatePeriod: 'Cari periode...',
+  },
+}

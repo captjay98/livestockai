@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'डिजिटल फोरमैन',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'कार्य स्वीकृत',
+    taskRejected: 'कार्य अस्वीकृत',
+    taskApprovalFailed: 'कार्य स्वीकृत करने में विफल',
+    taskRejectionFailed: 'कार्य अस्वीकार करने में विफल',
+    rejectionReasonRequired: 'कृपया अस्वीकृति का कारण बताएं',
+    workerRemoved: 'श्रमिक को फार्म से हटा दिया गया',
+    workerRemovalFailed: 'श्रमिक को हटाने में विफल',
+    profileCreated: 'श्रमिक प्रोफाइल बनाई गई',
+    profileCreationFailed: 'प्रोफाइल बनाने में विफल',
+    profileUpdated: 'श्रमिक प्रोफाइल अपडेट की गई',
+    profileUpdateFailed: 'प्रोफाइल अपडेट करने में विफल',
+    geofenceSaved: 'जियोफेंस सहेजा गया',
+    geofenceSaveFailed: 'जियोफेंस सहेजने में विफल',
+    attendanceExported: 'उपस्थिति निर्यात की गई',
+    exportFailed: 'निर्यात विफल रहा',
+    taskCompleted: 'कार्य पूर्ण',
+    taskCompletionFailed: 'कार्य पूर्ण करने में विफल',
+    photoRequired: 'फोटो अनिवार्य है',
+    paymentRecorded: 'भुगतान सफलतापूर्वक दर्ज किया गया',
+    paymentRecordingFailed: 'भुगतान दर्ज करने में विफल',
+    fillRequiredFields: 'कृपया सभी अनिवार्य फ़ील्ड भरें',
+    checkInSuccess: 'सफलतापूर्वक चेक-इन किया गया',
+    checkInFailed: 'चेक-इन विफल रहा',
+    checkOutSuccess: 'सफलतापूर्वक चेक-आउट किया गया',
+    checkOutFailed: 'चेक-आउट विफल रहा',
+    locationError: 'स्थान प्राप्त नहीं किया जा सका',
+  },
+
+  // UI labels
+  totalHours: 'कुल घंटे',
+  hoursWorkedToday: 'आज काम किए गए घंटे',
+  performanceTrends: 'प्रदर्शन के रुझान',
+  totalWages: 'कुल मजदूरी',
+  totalPaid: 'कुल भुगतान',
+  payrollHistory: 'पेरोल इतिहास',
+  noPayrollPeriods: 'कोई पेरोल अवधि नहीं मिली',
+  noPerformanceData: 'कोई प्रदर्शन डेटा उपलब्ध नहीं है',
+  noWorkersFound:
+    'कोई श्रमिक नहीं मिला। शुरू करने के लिए अपना पहला श्रमिक जोड़ें।',
+  attendanceTracking: 'उपस्थिति ट्रैकिंग',
+  payrollCommand: 'पेरोल कमांड',
+  downloadReceipt: 'रसीद डाउनलोड करें',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'सभी श्रमिक',
+    status: 'स्थिति',
+    priority: 'प्राथमिकता',
+    completionNotes: 'पूर्णता नोट जोड़ें...',
+    rejectionReason: 'बताएं कि यह कार्य क्यों अस्वीकार किया जा रहा है...',
+    selectWorker: 'श्रमिक चुनें',
+    paymentNotes: 'इस भुगतान के बारे में कोई नोट जोड़ें...',
+    selectTemplate: 'टेम्पलेट लागू करें...',
+    locatePeriod: 'अवधि खोजें...',
+  },
+}

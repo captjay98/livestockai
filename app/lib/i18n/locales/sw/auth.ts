@@ -1,0 +1,46 @@
+export const auth = {
+  required: 'Uwanja huu unahitajika',
+  email: 'Tafadhali ingiza barua pepe halali',
+  min: 'Lazima iwe na angalau herufi {{min}}',
+  max: 'Lazima iwe na herufi {{max}} zaidi',
+  url: 'Tafadhali ingiza URL halali',
+  numeric: 'Lazima iwe nambari',
+  login: {
+    title: 'Ingia',
+    noAccount: 'Huna akaunti?',
+    createAccount: 'Unda akaunti',
+    description: 'Ingia ili kusimamia shamba lako',
+    email: 'Barua Pepe',
+    password: 'Nenosiri',
+    submit: 'Ingia',
+    submitting: 'Inaingia...',
+    contactAdmin: 'Wasiliana na msimamizi wako ikiwa unahitaji akaunti',
+    placeholder: {
+      email: 'Ingiza barua pepe yako',
+      password: 'Ingiza nenosiri lako',
+    },
+    logo: 'Nembo ya Shamba',
+    errors: {
+      invalid_credentials: 'Barua pepe au nenosiri si sahihi',
+      default: 'Imeshindwa kuingia',
+      unexpected: 'Hitilafu isiyotarajiwa imetokea',
+    },
+  },
+  register: {
+    title: 'Unda Akaunti',
+    description: 'Jiunge na mustakabali wa kilimo',
+    name: 'Jina Kamili',
+    submitting: 'Inaunda akaunti...',
+    submit: 'Unda Akaunti',
+    haveAccount: 'Tayari unayo akaunti?',
+    placeholder: {
+      name: 'Juma Juma',
+    },
+    errors: {
+      invalid_credentials: 'Barua pepe au nenosiri si sahihi',
+      default: 'Usajili umeshindwa',
+      unexpected: 'Hitilafu isiyotarajiwa imetokea',
+      email_exists: 'Barua pepe tayari imesajiliwa',
+    },
+  },
+}

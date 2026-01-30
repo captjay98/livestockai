@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'ডিজিটাল ফোরম্যান',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'কাজটি অনুমোদিত হয়েছে',
+    taskRejected: 'কাজটি প্রত্যাখ্যাত হয়েছে',
+    taskApprovalFailed: 'কাজটি অনুমোদন করতে ব্যর্থ হয়েছে',
+    taskRejectionFailed: 'কাজটি প্রত্যাখ্যান করতে ব্যর্থ হয়েছে',
+    rejectionReasonRequired: 'অনগ্রহ করে প্রত্যাখ্যানের কারণ প্রদান করুন',
+    workerRemoved: 'খামার থেকে কর্মীকে অপসারণ করা হয়েছে',
+    workerRemovalFailed: 'কর্মীকে অপসারণ করতে ব্যর্থ হয়েছে',
+    profileCreated: 'কর্মীর প্রোফাইল তৈরি করা হয়েছে',
+    profileCreationFailed: 'প্রোফাইল তৈরি করতে ব্যর্থ হয়েছে',
+    profileUpdated: 'কর্মীর প্রোফাইল আপডেট করা হয়েছে',
+    profileUpdateFailed: 'প্রোফাইল আপডেট করতে ব্যর্থ হয়েছে',
+    geofenceSaved: 'জিওফেন্স সংরক্ষিত হয়েছে',
+    geofenceSaveFailed: 'জিওফেন্স সংরক্ষণ করতে ব্যর্থ হয়েছে',
+    attendanceExported: 'উপস্থিতি তালিকা রপ্তানি করা হয়েছে',
+    exportFailed: 'রপ্তানি ব্যর্থ হয়েছে',
+    taskCompleted: 'কাজটি সম্পন্ন হয়েছে',
+    taskCompletionFailed: 'কাজটি সম্পন্ন করতে ব্যর্থ হয়েছে',
+    photoRequired: 'ছবি প্রয়োজন',
+    paymentRecorded: 'পেমেন্ট সফলভাবে রেকর্ড করা হয়েছে',
+    paymentRecordingFailed: 'পেমেন্ট রেকর্ড করতে ব্যর্থ হয়েছে',
+    fillRequiredFields: 'অনুগ্রহ করে সব প্রয়োজনীয় ক্ষেত্র পূরণ করুন',
+    checkInSuccess: 'সফলভাবে চেক-ইন করা হয়েছে',
+    checkInFailed: 'চেক-ইন ব্যর্থ হয়েছে',
+    checkOutSuccess: 'সফলভাবে চেক-আউট করা হয়েছে',
+    checkOutFailed: 'চেক-আউট ব্যর্থ হয়েছে',
+    locationError: 'অবস্থান পাওয়া যায়নি',
+  },
+
+  // UI labels
+  totalHours: 'মোট ঘন্টা',
+  hoursWorkedToday: 'আজ কত ঘন্টা কাজ হয়েছে',
+  performanceTrends: 'পারফরম্যান্স ট্রেন্ডস',
+  totalWages: 'মোট মজুরি',
+  totalPaid: 'মোট পরিশোধিত',
+  payrollHistory: 'পেরোল ইতিহাস',
+  noPayrollPeriods: 'কোন পেরোল পিরিয়ড পাওয়া যায়নি',
+  noPerformanceData: 'কোন পারফরম্যান্স ডেটা উপলব্ধ নেই',
+  noWorkersFound:
+    'কোন কর্মী পাওয়া যায়নি। শুরু করতে আপনার প্রথম কর্মী যোগ করুন।',
+  attendanceTracking: 'উপস্থিতি ট্র্যাকিং',
+  payrollCommand: 'পেরোল কমান্ড',
+  downloadReceipt: 'রসিদ ডাউনলোড করুন',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'সব কর্মী',
+    status: 'অবস্থা',
+    priority: 'অগ্রাধিকার',
+    completionNotes: 'সমাপ্তি নোট যোগ করুন...',
+    rejectionReason: 'এই কাজটি কেন প্রত্যাখ্যান করা হচ্ছে তা ব্যাখ্যা করুন...',
+    selectWorker: 'কর্মী নির্বাচন করুন',
+    paymentNotes: 'এই পেমেন্ট সম্পর্কে কোন নোট যোগ করুন...',
+    selectTemplate: 'টেমপ্লেট প্রয়োগ করুন...',
+    locatePeriod: 'পিরিয়ড খুঁজুন...',
+  },
+}

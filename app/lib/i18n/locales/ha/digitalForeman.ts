@@ -1,0 +1,61 @@
+export const digitalForeman = {
+  title: 'Sufeto Na Dijital',
+
+  // Toast messages
+  messages: {
+    taskApproved: 'An amince da aikin',
+    taskRejected: 'An ƙi amincewa da aikin',
+    taskApprovalFailed: 'An kasa amincewa da aikin',
+    taskRejectionFailed: 'An kasa ƙin amincewa da aikin',
+    rejectionReasonRequired: 'Tabbatar ka bayar da dalilin ƙin amincewa',
+    workerRemoved: 'An cire ma’aikaci daga gona',
+    workerRemovalFailed: 'An kasa cire ma’aikaci',
+    profileCreated: 'An samar da bayanan ma’aikaci',
+    profileCreationFailed: 'An kasa samar da bayanan ma’aikaci',
+    profileUpdated: 'An sabunta bayanan ma’aikaci',
+    profileUpdateFailed: 'An kasa sabunta bayanan ma’aikaci',
+    geofenceSaved: 'An adana iyakokin gona',
+    geofenceSaveFailed: 'An kasa adana iyakokin gona',
+    attendanceExported: 'An fitar da bayanan halarta',
+    exportFailed: 'An kasa fitar da bayanan',
+    taskCompleted: 'An kammala aiki',
+    taskCompletionFailed: 'An kasa kammala aiki',
+    photoRequired: 'Ana buƙatar hoto',
+    paymentRecorded: 'An yi nasarar rikodin biya',
+    paymentRecordingFailed: 'An kasa rikodin biya',
+    fillRequiredFields: 'Tabbatar ka cike dukkan guraren da ake buƙata',
+    checkInSuccess: 'An yi nasarar shiga (Check-in)',
+    checkInFailed: 'An kasa yin shiga (Check-in)',
+    checkOutSuccess: 'An yi nasarar fita (Check-out)',
+    checkOutFailed: 'An kasa yin fita (Check-out)',
+    locationError: 'An kasa samun inda kake (Location)',
+  },
+
+  // UI labels
+  totalHours: 'Jimillar Sa’o’i',
+  hoursWorkedToday: 'Sa’o’in da aka yi aiki yau',
+  performanceTrends: 'Alƙaluman Aiki',
+  totalWages: 'Jimillar Albashi',
+  totalPaid: 'Jimillar Abin Da Aka Biya',
+  payrollHistory: 'Tarihin Biya',
+  noPayrollPeriods: 'Ba a sami tarihin biya ba',
+  noPerformanceData: 'Babu alƙaluman aiki a yanzu',
+  noWorkersFound:
+    'Ba a sami ma’aikata ba. Shigar da ma’aikaci na farko don farawa.',
+  attendanceTracking: 'Bibiyar Halarta',
+  payrollCommand: 'Tsarin Biya',
+  downloadReceipt: 'Sauke Rasidi',
+
+  // Placeholders
+  placeholders: {
+    allWorkers: 'Dukkan Ma’aikata',
+    status: 'Yanayi',
+    priority: 'Muhimmanci',
+    completionNotes: 'Ƙara bayanin kammalawa...',
+    rejectionReason: 'Bayyana dalilin ƙin amincewa da aikin...',
+    selectWorker: 'Zaɓi ma’aikaci',
+    paymentNotes: 'Ƙara bayanai game da wannan biyan...',
+    selectTemplate: 'Yi amfani da samfuri...',
+    locatePeriod: 'Nemo lokacin biya...',
+  },
+}

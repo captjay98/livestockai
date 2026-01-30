@@ -1,22 +1,6 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import {
-  am,
-  bn,
-  en,
-  es,
-  fr,
-  ha,
-  hi,
-  id,
-  ig,
-  pt,
-  sw,
-  th,
-  tr,
-  vi,
-  yo,
-} from './locales'
+import { en } from './locales'
 
 // Storage key for language preference
 export const LANGUAGE_STORAGE_KEY = 'app-language'
@@ -27,23 +11,10 @@ const getSavedLanguage = (): string | null => {
   return localStorage.getItem(LANGUAGE_STORAGE_KEY)
 }
 
-// English translations (baseline)
+// Only load English initially (fallback language)
+// Other languages will be loaded on demand via lazy-loader.ts
 const resources = {
   en,
-  fr,
-  pt,
-  sw,
-  es,
-  tr,
-  hi,
-  ha,
-  yo,
-  ig,
-  id,
-  bn,
-  th,
-  vi,
-  am,
 }
 
 i18n.use(initReactI18next).init({
@@ -73,10 +44,20 @@ i18n.use(initReactI18next).init({
     'errors',
     'onboarding',
     'marketplace',
+    'sensors',
+    'extension',
+    'workers',
+    'credit-passport',
   ],
   defaultNS: 'common',
   interpolation: {
     escapeValue: false,
+  },
+  // React-specific options for proper re-rendering on language change
+  react: {
+    useSuspense: false,
+    bindI18n: 'languageChanged loaded',
+    bindI18nStore: 'added removed',
   },
 })
 
