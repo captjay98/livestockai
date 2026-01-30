@@ -145,7 +145,9 @@ export function ContactSellerDialog({
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+234 xxx xxx xxxx"
+                placeholder={t('placeholders.phonePlaceholder', {
+                  defaultValue: '+234 xxx xxx xxxx',
+                })}
                 required
               />
             </div>
@@ -164,7 +166,9 @@ export function ContactSellerDialog({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder={t('placeholders.emailPlaceholder', {
+                  defaultValue: 'your@email.com',
+                })}
                 required
               />
             </div>

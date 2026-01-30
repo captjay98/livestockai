@@ -476,9 +476,14 @@ export async function insertContactRequest(
       .execute()
 
     return result.id
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Handle unique constraint violation (race condition)
-    if (error?.code === '23505') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === '23505'
+    ) {
       const existing = await db
         .selectFrom('listing_contact_requests')
         .select('id')

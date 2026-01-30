@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent } from '~/components/ui/dialog'
 
@@ -9,6 +10,7 @@ interface PhotoGalleryProps {
 }
 
 export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
+  const { t } = useTranslation(['marketplace'])
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
   const openModal = (index: number) => {
@@ -63,7 +65,9 @@ export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
               size="icon"
               className="absolute top-4 right-4 z-10 text-white hover:bg-white/20"
               onClick={closeModal}
-              aria-label="Close photo gallery"
+              aria-label={t('marketplace:closeGallery', {
+                defaultValue: 'Close photo gallery',
+              })}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -83,7 +87,9 @@ export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
                       size="icon"
                       className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20"
                       onClick={goToPrevious}
-                      aria-label="Previous photo"
+                      aria-label={t('marketplace:previousPhoto', {
+                        defaultValue: 'Previous photo',
+                      })}
                     >
                       <ChevronLeft className="h-6 w-6" />
                     </Button>
@@ -93,7 +99,9 @@ export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
                       size="icon"
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20"
                       onClick={goToNext}
-                      aria-label="Next photo"
+                      aria-label={t('marketplace:nextPhoto', {
+                        defaultValue: 'Next photo',
+                      })}
                     >
                       <ChevronRight className="h-6 w-6" />
                     </Button>

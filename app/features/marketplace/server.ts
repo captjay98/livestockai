@@ -395,24 +395,33 @@ export const getMyListingsFn = createServerFn({ method: 'GET' })
   .inputValidator(getMyListingsSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
+    const session = await requireAuth()
 
     try {
       const { getDb } = await import('~/lib/db')
       const db = await getDb()
 
-      // Get user's listings with analytics
-      const { getListings } = await import('./repository')
-      const result = await getListings(
+      // Get user's listings filtered by sellerId
+      const { getListingsBySeller } = await import('./repository')
+      const listings = await getListingsBySeller(
         db,
-        {},
-        {
-          page: data.page,
-          pageSize: data.pageSize,
-        },
+        session.user.id,
+        data.status,
       )
 
-      return result
+      // Apply pagination manually since getListingsBySeller returns all
+      const startIndex = (data.page - 1) * data.pageSize
+      const paginatedListings = listings.slice(
+        startIndex,
+        startIndex + data.pageSize,
+      )
+
+      return {
+        data: paginatedListings,
+        total: listings.length,
+        page: data.page,
+        pageSize: data.pageSize,
+      }
     } catch (error) {
       if (error instanceof AppError) throw error
       throw new AppError('DATABASE_ERROR', {
@@ -427,9 +436,35 @@ export const getMyListingsFn = createServerFn({ method: 'GET' })
  */
 export const recordListingViewFn = createServerFn({ method: 'POST' })
   .inputValidator(recordListingViewSchema)
-  .handler(() => {
-    // Simple success response for view recording
-    return { success: true }
+  .handler(async ({ data }) => {
+    try {
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
+
+      // Try to get viewer ID if authenticated
+      let viewerId: string | null = null
+      try {
+        const { requireAuth } = await import('../auth/server-middleware')
+        const session = await requireAuth()
+        viewerId = session.user.id
+      } catch {
+        // Anonymous viewer - continue without viewerId
+      }
+
+      // Record the view (viewerIp would come from request headers in production)
+      const { recordListingView } = await import('./repository')
+      const recorded = await recordListingView(
+        db,
+        data.listingId,
+        viewerId,
+        null,
+      )
+
+      return { success: true, recorded }
+    } catch (error) {
+      // Don't throw on view recording failures - it's not critical
+      return { success: false, recorded: false }
+    }
   })
 
 // Contact request schemas
@@ -530,27 +565,47 @@ export const respondToRequestFn = createServerFn({ method: 'POST' })
 
     try {
       const { getDb } = await import('~/lib/db')
-      await getDb()
+      const db = await getDb()
 
-      // Get request and verify ownership (simplified)
-      const request = {
-        sellerId: session.user.id,
-        status: 'pending',
-        species: 'livestock',
-        buyerId: '',
-        listingId: '',
-      } as any
+      // Get the contact request from database
+      const { getContactRequestById, updateContactRequestStatus } =
+        await import('./repository')
+      const request = await getContactRequestById(db, data.requestId)
+
+      if (!request) {
+        throw new AppError('NOT_FOUND', {
+          metadata: { requestId: data.requestId },
+        })
+      }
+
+      // Get the listing to verify ownership
+      const { getListingById } = await import('./repository')
+      const listing = await getListingById(db, request.listingId)
+
+      if (!listing) {
+        throw new AppError('NOT_FOUND', {
+          metadata: { listingId: request.listingId },
+        })
+      }
+
+      // Verify the current user owns the listing
+      if (listing.sellerId !== session.user.id) {
+        throw new AppError('NOT_LISTING_OWNER')
+      }
 
       // Check request is still pending
       if (request.status !== 'pending') {
         throw new AppError('REQUEST_ALREADY_RESPONDED')
       }
 
-      // Update request status (simplified)
-      const updatedRequest = {
-        ...request,
-        status: data.approved ? 'approved' : 'denied',
-      }
+      // Update request status
+      const newStatus = data.approved ? 'approved' : 'denied'
+      await updateContactRequestStatus(
+        db,
+        data.requestId,
+        newStatus,
+        data.responseMessage,
+      )
 
       // Create notification for buyer
       const { createNotification } = await import('../notifications/server')
@@ -561,15 +616,20 @@ export const respondToRequestFn = createServerFn({ method: 'POST' })
           ? 'Contact Request Approved'
           : 'Contact Request Denied',
         message: data.approved
-          ? `Your request for ${request.species} was approved`
-          : `Your request for ${request.species} was denied`,
+          ? `Your request for ${listing.species} was approved`
+          : `Your request for ${listing.species} was denied`,
         metadata: {
           listingId: request.listingId,
           requestId: data.requestId,
         },
       })
 
-      return updatedRequest
+      return {
+        ...request,
+        status: newStatus,
+        responseMessage: data.responseMessage || null,
+        respondedAt: new Date(),
+      }
     } catch (error) {
       if (error instanceof AppError) throw error
       throw new AppError('DATABASE_ERROR', {
@@ -586,21 +646,33 @@ export const getContactRequestsFn = createServerFn({ method: 'GET' })
   .inputValidator(getContactRequestsSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../auth/server-middleware')
-    await requireAuth()
+    const session = await requireAuth()
 
     try {
       const { getDb } = await import('~/lib/db')
-      await getDb()
+      const db = await getDb()
 
-      // Get requests for seller's listings (simplified)
-      const result = {
-        data: [],
-        total: 0,
+      // Get requests for seller's listings from database
+      const { getContactRequestsForSeller } = await import('./repository')
+      const requests = await getContactRequestsForSeller(
+        db,
+        session.user.id,
+        data.status,
+      )
+
+      // Apply pagination manually
+      const startIndex = (data.page - 1) * data.pageSize
+      const paginatedRequests = requests.slice(
+        startIndex,
+        startIndex + data.pageSize,
+      )
+
+      return {
+        data: paginatedRequests,
+        total: requests.length,
         page: data.page,
         pageSize: data.pageSize,
       }
-
-      return result
     } catch (error) {
       if (error instanceof AppError) throw error
       throw new AppError('DATABASE_ERROR', {
@@ -625,11 +697,7 @@ export const getMyContactRequestsFn = createServerFn({ method: 'GET' })
 
       const requests = await db
         .selectFrom('listing_contact_requests as lcr')
-        .leftJoin(
-          'marketplace_listings as ml',
-          'ml.id',
-          'lcr.listingId',
-        )
+        .leftJoin('marketplace_listings as ml', 'ml.id', 'lcr.listingId')
         .select([
           'lcr.id',
           'lcr.listingId',
@@ -641,7 +709,8 @@ export const getMyContactRequestsFn = createServerFn({ method: 'GET' })
           'lcr.createdAt',
           'ml.species',
           'ml.quantity',
-          'ml.pricePerUnit',
+          'ml.minPrice',
+          'ml.maxPrice',
         ])
         .where('lcr.buyerId', '=', session.user.id)
         .orderBy('lcr.createdAt', 'desc')

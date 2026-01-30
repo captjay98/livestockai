@@ -195,7 +195,11 @@ export function CreateListingForm({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select livestock type" />
+                  <SelectValue
+                    placeholder={t('placeholders.selectType', {
+                      defaultValue: 'Select livestock type',
+                    })}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {LIVESTOCK_TYPES.map((type) => (
@@ -213,7 +217,9 @@ export function CreateListingForm({
                 id="species"
                 value={formData.species}
                 onChange={(e) => updateFormData('species', e.target.value)}
-                placeholder="e.g., Broiler, Catfish, Holstein"
+                placeholder={t('placeholders.speciesPlaceholder', {
+                  defaultValue: 'e.g., Broiler, Catfish, Holstein',
+                })}
               />
             </div>
           </div>
@@ -229,7 +235,9 @@ export function CreateListingForm({
                 type="number"
                 value={formData.quantity}
                 onChange={(e) => updateFormData('quantity', e.target.value)}
-                placeholder="Number of animals"
+                placeholder={t('placeholders.quantityPlaceholder', {
+                  defaultValue: 'Number of animals',
+                })}
               />
             </div>
 
@@ -241,7 +249,7 @@ export function CreateListingForm({
                   type="number"
                   value={formData.minPrice}
                   onChange={(e) => updateFormData('minPrice', e.target.value)}
-                  placeholder="0"
+                  placeholder={t('placeholders.zero', { defaultValue: '0' })}
                 />
               </div>
               <div>
@@ -251,7 +259,9 @@ export function CreateListingForm({
                   type="number"
                   value={formData.maxPrice}
                   onChange={(e) => updateFormData('maxPrice', e.target.value)}
-                  placeholder="Optional"
+                  placeholder={t('placeholders.optional', {
+                    defaultValue: 'Optional',
+                  })}
                 />
               </div>
             </div>
@@ -269,7 +279,9 @@ export function CreateListingForm({
                 id="address"
                 value={formData.address}
                 onChange={(e) => updateFormData('address', e.target.value)}
-                placeholder="Farm address or nearest landmark"
+                placeholder={t('placeholders.addressPlaceholder', {
+                  defaultValue: 'Farm address or nearest landmark',
+                })}
               />
             </div>
 
@@ -279,7 +291,9 @@ export function CreateListingForm({
                 id="coordinates"
                 value={formData.coordinates}
                 onChange={(e) => updateFormData('coordinates', e.target.value)}
-                placeholder="Latitude, Longitude"
+                placeholder={t('placeholders.gpsPlaceholder', {
+                  defaultValue: 'Latitude, Longitude',
+                })}
               />
             </div>
 
@@ -319,7 +333,10 @@ export function CreateListingForm({
                 id="description"
                 value={formData.description}
                 onChange={(e) => updateFormData('description', e.target.value)}
-                placeholder="Describe your livestock, health status, feeding, etc."
+                placeholder={t('placeholders.descriptionPlaceholder', {
+                  defaultValue:
+                    'Describe your livestock, health status, feeding, etc.',
+                })}
                 rows={4}
               />
             </div>

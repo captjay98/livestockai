@@ -97,7 +97,9 @@ export function ListingFilters({
         <Label>{t('filters.minPrice', { defaultValue: 'Min Price' })}</Label>
         <Input
           type="number"
-          placeholder="0"
+          placeholder={t('filters.minPricePlaceholder', {
+            defaultValue: '0',
+          })}
           value={filters.minPrice}
           onChange={(e) => updateFilter('minPrice', e.target.value)}
         />
@@ -107,7 +109,9 @@ export function ListingFilters({
         <Label>{t('filters.maxPrice', { defaultValue: 'Max Price' })}</Label>
         <Input
           type="number"
-          placeholder="10000"
+          placeholder={t('filters.maxPricePlaceholder', {
+            defaultValue: '10000',
+          })}
           value={filters.maxPrice}
           onChange={(e) => updateFilter('maxPrice', e.target.value)}
         />

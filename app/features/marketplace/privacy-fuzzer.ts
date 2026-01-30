@@ -11,7 +11,7 @@ export interface FuzzedListing {
   sellerId: string
   livestockType: string
   species: string
-  quantity: number
+  quantity: string // Exact value as string for owner, fuzzed range for others
   priceRange: string // Fuzzed price like '₦4,500-5,500/unit'
   location: string // Fuzzed location based on privacy level
   description: string | null
@@ -110,6 +110,8 @@ export function fuzzListing(
   viewerLocation?: { lat: number; lon: number },
   currencySymbol = '₦',
 ): FuzzedListing {
+  const quantity = Number(listing.quantity) || 0
+
   // No fuzzing for the seller viewing their own listing
   if (viewerId === listing.sellerId) {
     return {
@@ -117,7 +119,7 @@ export function fuzzListing(
       sellerId: listing.sellerId,
       livestockType: listing.livestockType,
       species: listing.species,
-      quantity: Number(listing.quantity) || 0,
+      quantity: quantity.toString(),
       priceRange: `${currencySymbol}${Number(listing.minPrice).toLocaleString()}-${Number(listing.maxPrice).toLocaleString()}/unit`,
       location: `${listing.locality}, ${listing.region}`,
       description: listing.description,
@@ -135,7 +137,7 @@ export function fuzzListing(
     sellerId: listing.sellerId,
     livestockType: listing.livestockType,
     species: listing.species,
-    quantity: listing.quantity,
+    quantity: fuzzQuantity(quantity),
     priceRange: fuzzPrice(
       Number(listing.minPrice),
       Number(listing.maxPrice),
