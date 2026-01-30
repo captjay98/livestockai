@@ -16,6 +16,7 @@ import {
   QuickActions,
   StatsCards,
 } from '~/components/dashboard'
+import { InventoryStats } from '~/components/dashboard/inventory-stats'
 import { BatchesAttention } from '~/components/dashboard/batches-attention'
 import { UpcomingHarvests } from '~/components/dashboard/upcoming-harvests'
 import { DashboardWelcome } from '~/components/dashboard/welcome'
@@ -24,16 +25,13 @@ import { DashboardTopCustomers } from '~/components/dashboard/dashboard-top-cust
 import { ActivityTimelineCard } from '~/components/dashboard/activity-timeline-card'
 import { DashboardSkeleton } from '~/components/dashboard/dashboard-skeleton'
 import { SensorStatusCard } from '~/components/sensors/sensor-status-card'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/dashboard/')({
   component: DashboardPage,
   pendingComponent: DashboardSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-6 text-center">
-      <p className="text-destructive">
-        Failed to load dashboard: {error.message}
-      </p>
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   loader: async () => {
     return getDashboardDataFn()
@@ -53,7 +51,6 @@ function DashboardPage() {
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false)
   const [editFarmDialogOpen, setEditFarmDialogOpen] = useState(false)
   const [batchDialogOpen, setBatchDialogOpen] = useState(false)
-  const [saleDialogOpen, setSaleDialogOpen] = useState(false)
   const [feedDialogOpen, setFeedDialogOpen] = useState(false)
   const [eggDialogOpen, setEggDialogOpen] = useState(false)
   const [mortalityDialogOpen, setMortalityDialogOpen] = useState(false)
@@ -76,9 +73,6 @@ function DashboardPage() {
         break
       case 'expense':
         setExpenseDialogOpen(true)
-        break
-      case 'sale':
-        setSaleDialogOpen(true)
         break
       case 'mortality':
         setMortalityDialogOpen(true)
@@ -155,10 +149,17 @@ function DashboardPage() {
               </Card>
             )}
 
-          <QuickActions
-            selectedFarmId={selectedFarmId}
-            onAction={handleAction}
-          />
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+            <InventoryStats
+              stats={stats}
+              enabledModules={enabledModules}
+              cards={cards}
+            />
+            <QuickActions
+              selectedFarmId={selectedFarmId}
+              onAction={handleAction}
+            />
+          </div>
 
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-4 sm:space-y-6">
@@ -183,8 +184,6 @@ function DashboardPage() {
         setEditFarmDialogOpen={setEditFarmDialogOpen}
         batchDialogOpen={batchDialogOpen}
         setBatchDialogOpen={setBatchDialogOpen}
-        saleDialogOpen={saleDialogOpen}
-        setSaleDialogOpen={setSaleDialogOpen}
         feedDialogOpen={feedDialogOpen}
         setFeedDialogOpen={setFeedDialogOpen}
         eggDialogOpen={eggDialogOpen}

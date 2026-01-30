@@ -1,7 +1,15 @@
 import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
+import {
+  AlertCircle,
+  ArrowRight,
+  Loader2,
+  ShoppingCart,
+  Tractor,
+  Users,
+} from 'lucide-react'
+import { toast } from 'sonner'
 import { registerFn } from '~/features/auth/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -38,6 +46,8 @@ function RegisterPage() {
           userType,
         },
       })
+
+      toast.success(t('register.success', 'Account created successfully!'))
 
       await router.invalidate()
 
@@ -145,7 +155,7 @@ function RegisterPage() {
                 type="button"
                 onClick={() => setUserType('farmer')}
                 disabled={isLoading}
-                className={`h-12 px-4 rounded-md font-medium transition-all ${
+                className={`h-12 px-4 rounded-md font-medium transition-all flex items-center justify-center gap-2 ${
                   userType === 'farmer'
                     ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
                     : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10'
@@ -156,13 +166,14 @@ function RegisterPage() {
                     : undefined
                 }
               >
-                🌾 {t('register.farmer', 'Farmer')}
+                <Tractor className="w-4 h-4" />
+                {t('register.farmer', 'Farmer')}
               </button>
               <button
                 type="button"
                 onClick={() => setUserType('buyer')}
                 disabled={isLoading}
-                className={`h-12 px-4 rounded-md font-medium transition-all ${
+                className={`h-12 px-4 rounded-md font-medium transition-all flex items-center justify-center gap-2 ${
                   userType === 'buyer'
                     ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
                     : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10'
@@ -173,13 +184,14 @@ function RegisterPage() {
                     : undefined
                 }
               >
-                🛒 {t('register.buyer', 'Buyer')}
+                <ShoppingCart className="w-4 h-4" />
+                {t('register.buyer', 'Buyer')}
               </button>
               <button
                 type="button"
                 onClick={() => setUserType('both')}
                 disabled={isLoading}
-                className={`h-12 px-4 rounded-md font-medium transition-all ${
+                className={`h-12 px-4 rounded-md font-medium transition-all flex items-center justify-center gap-2 ${
                   userType === 'both'
                     ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
                     : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10'
@@ -190,7 +202,8 @@ function RegisterPage() {
                     : undefined
                 }
               >
-                🌾🛒 {t('register.both', 'Both')}
+                <Users className="w-4 h-4" />
+                {t('register.both', 'Both')}
               </button>
             </div>
             <p

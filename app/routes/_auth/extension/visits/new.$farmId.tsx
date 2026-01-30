@@ -90,7 +90,12 @@ function CreateVisitRecord() {
     for (const file of files) {
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error(`File ${file.name} is too large. Maximum size is 5MB.`)
+        toast.error(
+          t('extension:messages.fileTooLarge', {
+            defaultValue: 'File {{name}} is too large. Maximum size is 5MB.',
+            name: file.name,
+          }),
+        )
         continue
       }
 
@@ -98,7 +103,11 @@ function CreateVisitRecord() {
       const validTypes = ['image/jpeg', 'image/png', 'application/pdf']
       if (!validTypes.includes(file.type)) {
         toast.error(
-          `File ${file.name} has invalid type. Only JPG, PNG, and PDF are allowed.`,
+          t('extension:messages.invalidFileType', {
+            defaultValue:
+              'File {{name}} has invalid type. Only JPG, PNG, and PDF are allowed.',
+            name: file.name,
+          }),
         )
         continue
       }
@@ -368,7 +377,9 @@ function CreateVisitRecord() {
                     })}
                   </Button>
                   <span className="text-sm text-muted-foreground">
-                    Max 5MB per file, JPG/PNG/PDF only
+                    {t('extension:form.attachmentLimits', {
+                      defaultValue: 'Max 5MB per file, JPG/PNG/PDF only',
+                    })}
                   </span>
                 </div>
 

@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Toaster } from 'sonner'
 import type { QueryClient } from '@tanstack/react-query'
 import { createPersister } from '~/lib/query-client'
@@ -19,6 +19,7 @@ import { NotificationsProvider } from '~/features/notifications'
 import { I18nProvider } from '~/lib/i18n'
 import { NotFoundPage } from '~/components/not-found'
 import { ErrorPage } from '~/components/error-page'
+import { initSentry } from '~/lib/sentry'
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 
 import appCss from '~/styles.css?url'
@@ -88,6 +89,11 @@ function RootComponent() {
   const queryClient = (router.options.context as { queryClient: QueryClient })
     .queryClient
   const persister = useMemo(() => createPersister(), [])
+
+  // Initialize Sentry on client side
+  useEffect(() => {
+    initSentry()
+  }, [])
 
   // Common content that should be identical on server and client
   const content = (

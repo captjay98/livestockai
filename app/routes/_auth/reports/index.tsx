@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import {
   BarChart3,
   Egg,
+  FileDown,
   FileSpreadsheet,
   FileText,
   Package,
@@ -18,7 +19,10 @@ import type {
 } from '~/features/reports/server'
 import { fetchReportData } from '~/features/reports/server'
 import { useReportPage } from '~/features/reports/use-report-page'
+import { useFarm } from '~/features/farms/context'
 import { PageHeader } from '~/components/page-header'
+import { Button } from '~/components/ui/button'
+import { ErrorPage } from '~/components/error-page'
 import {
   EggReportView,
   FeedReportView,
@@ -68,10 +72,8 @@ export const Route = createFileRoute('/_auth/reports/')({
       },
     }),
   pendingComponent: ReportsSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading reports: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
 })
 
@@ -86,6 +88,7 @@ const reportTypes = [
 function ReportsPage() {
   const { farms, report, reportType } = Route.useLoaderData()
   const search = Route.useSearch()
+  const { selectedFarmId } = useFarm()
 
   const {
     selectedReport,
@@ -104,7 +107,8 @@ function ReportsPage() {
     t,
   } = useReportPage({
     initialReportType: reportType,
-    initialFarmId: search.farmId,
+    // Initialize from global farm selector, fallback to URL or "all"
+    initialFarmId: search.farmId || selectedFarmId || 'all',
     initialStartDate: search.startDate,
     initialEndDate: search.endDate,
   })
@@ -117,6 +121,17 @@ function ReportsPage() {
           description={t('description')}
           icon={BarChart3}
         />
+
+        {/* Info about farm selection */}
+        {selectedFarmId && selectedFarm === 'all' && (
+          <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              💡 <strong>Tip:</strong> Reports default to your selected farm (
+              {farms.find((f) => f.id === selectedFarmId)?.name}), but you can
+              choose "All Farms" below to compare across all your farms.
+            </p>
+          </div>
+        )}
 
         <ReportFilters
           reportTypes={reportTypes}
@@ -136,49 +151,69 @@ function ReportsPage() {
         />
 
         {report && (
-          <div className="bg-card rounded-lg border p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">
+          <div className="bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden border p-6 relative">
+            {/* Decorative Orb */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-32 translate-x-32 pointer-events-none" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 relative z-10">
+              <h2 className="text-2xl font-black tracking-tight">
                 {t(
                   `types.${reportType === 'profit-loss' ? 'profitLoss' : reportType}` as any,
                 )}{' '}
-                {t('labels.reportSuffix', {
-                  defaultValue: 'Report',
-                })}
+                <span className="text-muted-foreground/60">
+                  {t('labels.reportSuffix', {
+                    defaultValue: 'Report',
+                  })}
+                </span>
               </h2>
               <div className="flex gap-2">
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleExport('csv')}
+                  className="rounded-xl font-bold bg-white/50 dark:bg-white/5 border-white/20 hover:bg-white/70 shadow-sm"
+                >
+                  <FileDown className="h-4 w-4 mr-2 text-blue-600" />
+                  CSV
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleExport('xlsx')}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3"
+                  className="rounded-xl font-bold bg-white/50 dark:bg-white/5 border-white/20 hover:bg-white/70 shadow-sm"
                 >
-                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  <FileSpreadsheet className="h-4 w-4 mr-2 text-emerald-600" />
                   {t('actions.excel')}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleExport('pdf')}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-muted h-9 px-3"
+                  className="rounded-xl font-bold bg-white/50 dark:bg-white/5 border-white/20 hover:bg-white/70 shadow-sm"
                 >
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="h-4 w-4 mr-2 text-red-600" />
                   {t('actions.pdf')}
-                </button>
+                </Button>
               </div>
             </div>
 
-            {reportType === 'profit-loss' && (
-              <ProfitLossReportView report={report as ProfitLossReport} />
-            )}
-            {reportType === 'inventory' && (
-              <InventoryReportView report={report as InventoryReport} />
-            )}
-            {reportType === 'sales' && (
-              <SalesReportView report={report as SalesReport} />
-            )}
-            {reportType === 'feed' && (
-              <FeedReportView report={report as FeedReport} />
-            )}
-            {reportType === 'eggs' && (
-              <EggReportView report={report as EggReport} />
-            )}
+            <div className="relative z-10">
+              {reportType === 'profit-loss' && (
+                <ProfitLossReportView report={report as ProfitLossReport} />
+              )}
+              {reportType === 'inventory' && (
+                <InventoryReportView report={report as InventoryReport} />
+              )}
+              {reportType === 'sales' && (
+                <SalesReportView report={report as SalesReport} />
+              )}
+              {reportType === 'feed' && (
+                <FeedReportView report={report as FeedReport} />
+              )}
+              {reportType === 'eggs' && (
+                <EggReportView report={report as EggReport} />
+              )}
+            </div>
           </div>
         )}
       </main>

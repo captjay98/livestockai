@@ -2,12 +2,18 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { getMyContactRequestsFn } from '~/features/marketplace/server'
 import { RequestCard } from '~/components/marketplace/request-card'
+import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/buyer/contacts')({
   loader: async () => {
     return getMyContactRequestsFn({ data: {} })
   },
   component: BuyerContactsPage,
+  pendingComponent: DataTableSkeleton,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
 })
 
 function BuyerContactsPage() {

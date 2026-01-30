@@ -26,6 +26,7 @@ import {
 } from '~/components/eggs'
 import { EggFilters } from '~/components/eggs/egg-filters'
 import { EggsSkeleton } from '~/components/eggs/eggs-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/eggs/')({
   validateSearch: validateEggSearch,
@@ -40,10 +41,8 @@ export const Route = createFileRoute('/_auth/eggs/')({
     return getEggDataForFarmFn({ data: deps })
   },
   pendingComponent: EggsSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading egg records: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: EggsPage,
 })

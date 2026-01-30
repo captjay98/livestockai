@@ -1,13 +1,17 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Plus, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { CustomerSearchParams } from '~/features/customers/types'
+import { useState } from 'react'
+import type {
+  CustomerRecord,
+  CustomerSearchParams,
+} from '~/features/customers/types'
 import { validateCustomerSearch } from '~/features/customers/validation'
 import {
   getCustomersPaginatedFn,
   getTopCustomersFn,
 } from '~/features/customers/server'
-import { useCustomerActions } from '~/features/customers/hooks'
+import { useCustomerMutations } from '~/features/customers/mutations'
 import { Button } from '~/components/ui/button'
 import { DataTable } from '~/components/ui/data-table'
 import { PageHeader } from '~/components/page-header'
@@ -16,6 +20,7 @@ import { CustomerFormDialog } from '~/components/customers/customer-form-dialog'
 import { CustomerFilters } from '~/components/customers/customer-filters'
 import { getCustomerColumns } from '~/components/customers/customer-columns'
 import { CustomersSkeleton } from '~/components/customers/customers-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/customers/')({
   validateSearch: validateCustomerSearch,
@@ -35,10 +40,8 @@ export const Route = createFileRoute('/_auth/customers/')({
     return { paginatedCustomers, topCustomers }
   },
   pendingComponent: CustomersSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading customers: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: CustomersPage,
 })
@@ -51,16 +54,56 @@ function CustomersPage() {
   // Get data from loader
   const { paginatedCustomers, topCustomers } = Route.useLoaderData()
 
-  const {
-    dialogOpen,
-    setDialogOpen,
-    dialogMode,
-    selectedCustomer,
-    isSubmitting,
-    handleCreateOpen,
-    handleEditOpen,
-    handleFormSubmit,
-  } = useCustomerActions()
+  // Local dialog state
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<CustomerRecord | null>(null)
+
+  // Use mutations
+  const { createCustomer, updateCustomer, isPending } = useCustomerMutations()
+
+  const handleCreateOpen = () => {
+    setDialogMode('create')
+    setSelectedCustomer(null)
+    setDialogOpen(true)
+  }
+
+  const handleEditOpen = (customer: CustomerRecord) => {
+    setDialogMode('edit')
+    setSelectedCustomer(customer)
+    setDialogOpen(true)
+  }
+
+  const handleFormSubmit = async (data: any) => {
+    try {
+      if (dialogMode === 'create') {
+        await createCustomer.mutateAsync({
+          customer: {
+            farmId: '', // This will be set by the mutation based on farm context
+            ...data,
+            email: data.email || null,
+            location: data.location || null,
+            customerType: data.customerType || null,
+          },
+        })
+      } else if (selectedCustomer) {
+        await updateCustomer.mutateAsync({
+          customerId: selectedCustomer.id,
+          data: {
+            name: data.name,
+            phone: data.phone,
+            email: data.email || null,
+            location: data.location || null,
+            customerType: data.customerType || null,
+          },
+        })
+      }
+      setDialogOpen(false)
+    } catch (error) {
+      // Error handling is done in the mutations
+    }
+  }
 
   const updateSearch = (updates: Partial<CustomerSearchParams>) => {
     navigate({
@@ -98,13 +141,14 @@ function CustomersPage() {
         page={paginatedCustomers.page}
         pageSize={paginatedCustomers.pageSize}
         totalPages={paginatedCustomers.totalPages}
-        sortBy={searchParams.sortBy}
-        sortOrder={searchParams.sortOrder}
-        searchValue={searchParams.q || ''}
+        sortBy={searchParams.sortBy as string | undefined}
+        sortOrder={searchParams.sortOrder as 'asc' | 'desc' | undefined}
+        searchValue={(searchParams.q as string) || ''}
         searchPlaceholder={t('customers:search')}
+        containerClassName="bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden"
         filters={
           <CustomerFilters
-            customerType={searchParams.customerType}
+            customerType={searchParams.customerType as string | undefined}
             onCustomerTypeChange={(customerType) =>
               updateSearch({ customerType, page: 1 })
             }
@@ -119,7 +163,11 @@ function CustomersPage() {
         onSearchChange={(q) => {
           updateSearch({ q, page: 1 })
         }}
-        emptyIcon={<Users className="h-12 w-12 text-muted-foreground" />}
+        emptyIcon={
+          <div className="p-4 rounded-full bg-white/40 dark:bg-white/10 w-fit mx-auto mb-6 shadow-inner border border-white/20">
+            <Users className="h-10 w-10 text-primary/40" />
+          </div>
+        }
         emptyTitle={t('customers:empty.title')}
         emptyDescription={t('customers:empty.desc')}
       />
@@ -140,7 +188,7 @@ function CustomersPage() {
             : null
         }
         onSubmit={handleFormSubmit}
-        isSubmitting={isSubmitting}
+        isSubmitting={isPending}
       />
     </div>
   )

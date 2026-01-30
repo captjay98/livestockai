@@ -1,12 +1,14 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Plus, TrendingUp, Users } from 'lucide-react'
+import { format } from 'date-fns'
 import { checkObserverAccess } from '~/auth/utils'
 import { getVisitRecordsFn } from '~/features/visits/server'
 import { getFarmHealthComparisonFn } from '~/features/farms/server'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { VisitCard } from '~/components/extension/visit-card'
+import { Skeleton } from '~/components/ui/skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/extension/farm/$farmId')({
   loader: async ({ params }) => {
@@ -38,6 +40,10 @@ export const Route = createFileRoute('/_auth/extension/farm/$farmId')({
       hasFinancialAccess: accessGrant?.financialVisibility ?? false,
     }
   },
+  pendingComponent: () => <Skeleton className="h-96 w-full" />,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
   component: FarmHealthSummary,
 })
 
@@ -110,7 +116,10 @@ function FarmHealthSummary() {
             <div className="text-2xl font-bold">2.3%</div>
             <p className="text-xs text-muted-foreground">
               {healthComparison.districtAvgMortality !== null ? (
-                <>District avg: {healthComparison.districtAvgMortality}%</>
+                <>
+                  {t('extension:districtAvg', { defaultValue: 'District avg' })}
+                  : {healthComparison.districtAvgMortality}%
+                </>
               ) : (
                 t('extension:overview.mortalityDesc', {
                   defaultValue: 'Within normal range',
@@ -137,7 +146,11 @@ function FarmHealthSummary() {
             </div>
             <p className="text-xs text-muted-foreground">
               {healthComparison.percentileRank !== null ? (
-                <>Farms with higher mortality</>
+                <>
+                  {t('extension:farmsHigherMortality', {
+                    defaultValue: 'Farms with higher mortality',
+                  })}
+                </>
               ) : (
                 'No district data'
               )}
@@ -160,15 +173,16 @@ function FarmHealthSummary() {
               <CardContent className="pt-6">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-medium">{formatDate(visit.visitDate)}</p>
+                    <p className="font-medium">
+                      {format(new Date(visit.visitDate), 'PP')}
+                    </p>
                     <p className="text-sm text-muted-foreground">
-                      {visit.purpose}
+                      {visit.visitType.charAt(0).toUpperCase() +
+                        visit.visitType.slice(1).replace('_', ' ')}
                     </p>
                   </div>
                 </div>
-                {visit.notes && (
-                  <p className="mt-2 text-sm">{visit.notes}</p>
-                )}
+                {/* visit.notes usage removed */}
               </CardContent>
             </Card>
           ))

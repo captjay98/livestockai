@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
+import { PageHeader } from '~/components/page-header'
 import { getSettingsPageDataFn } from '~/features/settings/server'
 import { useSettingsTabs } from '~/features/settings/use-settings-tabs'
 import { ModulesTab } from '~/components/settings/modules-tab'
@@ -22,16 +23,15 @@ import { NotificationsTab } from '~/components/settings/notifications-tab'
 import { BusinessTab } from '~/components/settings/business-tab'
 import { IntegrationsTab } from '~/components/settings/integrations-tab'
 import { SettingsSkeleton } from '~/components/settings/settings-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/settings/')({
   loader: async () => {
     return getSettingsPageDataFn({ data: {} })
   },
   pendingComponent: SettingsSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading settings: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: SettingsPage,
 })
@@ -53,14 +53,12 @@ function SettingsPage() {
   } = useSettingsTabs(initialSettings)
 
   return (
-    <div className="container max-w-4xl py-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <Settings className="h-8 w-8" />
-        <div>
-          <h1 className="text-2xl font-bold">{t('title')}</h1>
-          <p className="text-muted-foreground">{t('description')}</p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title={t('title')}
+        description={t('description')}
+        icon={Settings}
+      />
 
       {saveError && (
         <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md">
@@ -74,29 +72,47 @@ function SettingsPage() {
         </div>
       )}
 
-      <Tabs defaultValue="regional" className="space-y-4">
-        <TabsList className="flex-wrap">
-          <TabsTrigger value="regional" className="gap-2">
+      <Tabs defaultValue="regional" className="space-y-6">
+        <TabsList className="bg-white/40 dark:bg-white/5 backdrop-blur-md border border-white/20 dark:border-white/10 p-1.5 rounded-2xl h-auto flex flex-wrap gap-1 shadow-sm">
+          <TabsTrigger
+            value="regional"
+            className="gap-2 rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-lg dark:data-[state=active]:bg-white/10 transition-all px-4 py-2.5"
+          >
             <DollarSign className="h-4 w-4" />
             {t('tabs.regional')}
           </TabsTrigger>
-          <TabsTrigger value="preferences" className="gap-2">
+          <TabsTrigger
+            value="preferences"
+            className="gap-2 rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-lg dark:data-[state=active]:bg-white/10 transition-all px-4 py-2.5"
+          >
             <Settings className="h-4 w-4" />
             {t('tabs.preferences')}
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
+          <TabsTrigger
+            value="notifications"
+            className="gap-2 rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-lg dark:data-[state=active]:bg-white/10 transition-all px-4 py-2.5"
+          >
             <ClipboardList className="h-4 w-4" />
             {t('tabs.notifications')}
           </TabsTrigger>
-          <TabsTrigger value="business" className="gap-2">
+          <TabsTrigger
+            value="business"
+            className="gap-2 rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-lg dark:data-[state=active]:bg-white/10 transition-all px-4 py-2.5"
+          >
             <Boxes className="h-4 w-4" />
             {t('tabs.business')}
           </TabsTrigger>
-          <TabsTrigger value="modules" className="gap-2">
+          <TabsTrigger
+            value="modules"
+            className="gap-2 rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-lg dark:data-[state=active]:bg-white/10 transition-all px-4 py-2.5"
+          >
             <Layers className="h-4 w-4" />
             {t('tabs.modules')}
           </TabsTrigger>
-          <TabsTrigger value="integrations" className="gap-2">
+          <TabsTrigger
+            value="integrations"
+            className="gap-2 rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-lg dark:data-[state=active]:bg-white/10 transition-all px-4 py-2.5"
+          >
             <Plug className="h-4 w-4" />
             {t('tabs.integrations')}
           </TabsTrigger>
@@ -148,16 +164,20 @@ function SettingsPage() {
         </TabsContent>
       </Tabs>
 
-      <Card className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold">{t('help.title')}</h3>
-            <p className="text-sm text-muted-foreground">
+      <Card className="p-8 bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-xl border relative overflow-hidden group">
+        <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-primary/10 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition-transform" />
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+          <div className="text-center sm:text-left">
+            <h3 className="text-lg font-black tracking-tight mb-1">
+              {t('help.title')}
+            </h3>
+            <p className="text-sm text-muted-foreground font-medium">
               {t('help.description')}
             </p>
           </div>
           <Button
             variant="outline"
+            className="rounded-xl font-bold bg-white/50 dark:bg-white/5 border-white/20 hover:bg-white/70 shadow-sm"
             onClick={async () => {
               try {
                 const { resetOnboardingFn } =
@@ -166,7 +186,11 @@ function SettingsPage() {
                 localStorage.removeItem('livestockai_onboarding')
                 window.location.href = '/onboarding'
               } catch (err) {
-                toast.error('Failed to reset onboarding')
+                toast.error(
+                  t('settings:help.resetOnboardingFailed', {
+                    defaultValue: 'Failed to reset onboarding',
+                  }),
+                )
               }
             }}
           >

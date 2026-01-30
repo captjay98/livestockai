@@ -17,34 +17,50 @@ import { ExpensesTab } from '~/components/batches/batch-details/expenses-tab'
 import { SalesTab } from '~/components/batches/batch-details/sales-tab'
 import { getBatchDetailsFn } from '~/features/batches/server'
 import { DetailSkeleton } from '~/components/ui/detail-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 function FormulationCard({ formulation }: { formulation: any }) {
   const { t } = useTranslation(['batches'])
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
+    <Card className="bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl overflow-hidden relative group max-w-sm">
+      {/* Decorative Orbs */}
+      <div className="absolute -top-8 -right-8 w-24 h-24 bg-primary/10 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition-transform" />
+
+      <CardHeader className="relative z-10 pb-2">
+        <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">
           {t('formulation.title', {
             defaultValue: 'Feed Formulation',
           })}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-3 relative z-10">
         <div>
-          <span className="font-medium">{formulation.name}</span>
+          <span className="text-lg font-black tracking-tight">
+            {formulation.name}
+          </span>
         </div>
-        <div className="text-sm text-muted-foreground">
-          {formulation.species} • {formulation.stage}
+        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
+          <span className="bg-white/40 dark:bg-white/10 px-2 py-0.5 rounded-md border border-white/10">
+            {formulation.species}
+          </span>
+          <span className="opacity-30">•</span>
+          <span className="bg-white/40 dark:bg-white/10 px-2 py-0.5 rounded-md border border-white/10">
+            {formulation.stage}
+          </span>
         </div>
-        <div className="text-sm">
-          <span className="font-medium">Cost: </span>
-          {formulation.costPerKg}/kg
+        <div className="p-3 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-between">
+          <div className="text-xs font-medium text-muted-foreground">
+            Cost per Kg
+          </div>
+          <div className="text-base font-black text-primary">
+            {formulation.costPerKg}/kg
+          </div>
         </div>
         <Link
           to="/feed-formulation"
           search={{ highlight: formulation.id }}
-          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+          className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:text-primary/80 transition-colors pt-1"
         >
           View Details <ExternalLink className="h-3 w-3" />
         </Link>
@@ -66,10 +82,8 @@ export const Route = createFileRoute('/_auth/batches/$batchId/')({
       ]}
     />
   ),
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading batch details: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: BatchDetailsPage,
 })
@@ -126,30 +140,35 @@ function BatchDetailsPage() {
 
       <BatchCommandCenter batchId={batchId} />
 
-      <BatchKPIs metrics={metrics} batchId={batchId} />
+      <BatchKPIs
+        metrics={metrics}
+        batchId={batchId}
+        acquisitionDate={batch.acquisitionDate}
+        targetHarvestDate={batch.targetHarvestDate}
+      />
 
       {batch.formulation && <FormulationCard formulation={batch.formulation} />}
 
       <Tabs defaultValue="feed" className="w-full">
-        <TabsList>
-          <TabsTrigger value="feed">
+        <TabsList className="w-full grid grid-cols-3 lg:grid-cols-6 h-auto p-1.5">
+          <TabsTrigger value="feed" className="w-full">
             {t('tabs.feed', { defaultValue: 'Feed Logs' })}
           </TabsTrigger>
-          <TabsTrigger value="growth">
+          <TabsTrigger value="growth" className="w-full">
             {t('tabs.growth', { defaultValue: 'Growth' })}
           </TabsTrigger>
-          <TabsTrigger value="projections">
+          <TabsTrigger value="projections" className="w-full">
             {t('tabs.projections', { defaultValue: 'Projections' })}
           </TabsTrigger>
-          <TabsTrigger value="health">
+          <TabsTrigger value="health" className="w-full">
             {t('tabs.health', {
               defaultValue: 'Mortality & Health',
             })}
           </TabsTrigger>
-          <TabsTrigger value="expenses">
+          <TabsTrigger value="expenses" className="w-full">
             {t('tabs.expenses', { defaultValue: 'Expenses' })}
           </TabsTrigger>
-          <TabsTrigger value="sales">
+          <TabsTrigger value="sales" className="w-full">
             {t('tabs.sales', { defaultValue: 'Sales' })}
           </TabsTrigger>
         </TabsList>
@@ -167,19 +186,22 @@ function BatchDetailsPage() {
 
         <TabsContent value="projections" className="mt-4">
           {!batch.target_weight_g && !targetWeightPromptDismissed && (
-            <Alert className="mb-4">
-              <Target className="h-4 w-4" />
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <AlertTitle>Set Target Weight</AlertTitle>
-                  <AlertDescription>
+            <Alert className="mb-6 bg-primary/5 dark:bg-primary/10 border-primary/20 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-primary/5 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none -translate-y-12 translate-x-12" />
+              <Target className="h-5 w-5 text-primary mt-0.5" />
+              <div className="flex items-start justify-between relative z-10">
+                <div className="flex-1 ml-4">
+                  <AlertTitle className="text-lg font-black tracking-tight text-primary">
+                    Set Target Weight
+                  </AlertTitle>
+                  <AlertDescription className="text-sm font-medium text-muted-foreground/80 mt-1 max-w-xl">
                     Add a target weight to enable growth projections and harvest
                     date predictions.
                   </AlertDescription>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="mt-2"
+                    className="mt-4 rounded-xl font-bold bg-white/40 dark:bg-white/5 border-primary/20 hover:bg-primary/10 text-primary transition-all shadow-sm"
                     onClick={() => {
                       /* TODO: Implement edit dialog */
                     }}
@@ -191,9 +213,9 @@ function BatchDetailsPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setTargetWeightPromptDismissed(true)}
-                  className="ml-2 h-6 w-6 p-0"
+                  className="ml-2 h-8 w-8 p-0 rounded-full hover:bg-primary/10 text-primary/60 hover:text-primary transition-all"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </Button>
               </div>
             </Alert>

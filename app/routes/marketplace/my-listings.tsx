@@ -3,19 +3,25 @@ import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { checkAuthFn } from '~/features/auth/server'
 import {
   deleteListingFn,
   getMyListingsFn,
   updateListingFn,
 } from '~/features/marketplace/server'
 import { MyListingsTable } from '~/components/marketplace/my-listings-table'
+import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 const myListingsSearchSchema = z.object({
   status: z.enum(['active', 'paused', 'sold', 'expired', 'all']).default('all'),
   page: z.number().int().positive().default(1),
 })
 
-export const Route = createFileRoute('/_auth/marketplace/my-listings')({
+export const Route = createFileRoute('/marketplace/my-listings')({
+  beforeLoad: async () => {
+    await checkAuthFn({ data: {} })
+  },
   validateSearch: myListingsSearchSchema,
   loaderDeps: ({ search }) => ({ status: search.status, page: search.page }),
   loader: async ({ deps }) => {
@@ -27,6 +33,8 @@ export const Route = createFileRoute('/_auth/marketplace/my-listings')({
       },
     })
   },
+  pendingComponent: DataTableSkeleton,
+  errorComponent: ({ error }) => <ErrorPage error={error} />,
   component: MyListingsPage,
 })
 
@@ -39,22 +47,40 @@ function MyListingsPage() {
   const updateListingMutation = useMutation({
     mutationFn: updateListingFn,
     onSuccess: () => {
-      toast.success('Listing updated successfully')
+      toast.success(
+        t('marketplace:messages.listingUpdated', {
+          defaultValue: 'Listing updated successfully',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['my-listings'] })
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update listing')
+    onError: (error: Error) => {
+      toast.error(
+        error.message ||
+          t('marketplace:messages.updateFailed', {
+            defaultValue: 'Failed to update listing',
+          }),
+      )
     },
   })
 
   const deleteListingMutation = useMutation({
     mutationFn: deleteListingFn,
     onSuccess: () => {
-      toast.success('Listing deleted successfully')
+      toast.success(
+        t('marketplace:messages.listingDeleted', {
+          defaultValue: 'Listing deleted successfully',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['my-listings'] })
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to delete listing')
+    onError: (error: Error) => {
+      toast.error(
+        error.message ||
+          t('marketplace:messages.deleteFailed', {
+            defaultValue: 'Failed to delete listing',
+          }),
+      )
     },
   })
 
@@ -101,7 +127,7 @@ function MyListingsPage() {
       </div>
 
       <MyListingsTable
-        listings={data.data as any}
+        listings={data.data}
         onAction={(listingId, action) => handleAction(action, listingId)}
       />
     </div>

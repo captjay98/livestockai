@@ -14,6 +14,7 @@ import { SupplierDialog } from '~/components/suppliers/supplier-dialog'
 import { SupplierFilters } from '~/components/suppliers/supplier-filters'
 import { getSupplierColumns } from '~/components/suppliers/supplier-columns'
 import { SuppliersSkeleton } from '~/components/suppliers/suppliers-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/suppliers/')({
   validateSearch: validateSupplierSearch,
@@ -29,10 +30,8 @@ export const Route = createFileRoute('/_auth/suppliers/')({
     return getSuppliersPaginatedFn({ data: deps })
   },
   pendingComponent: SuppliersSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading suppliers: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: SuppliersPage,
 })
@@ -90,6 +89,7 @@ function SuppliersPage() {
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
         searchPlaceholder={t('suppliers:search')}
+        containerClassName="bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden"
         filters={
           <SupplierFilters
             supplierType={searchParams.supplierType}
@@ -110,7 +110,11 @@ function SuppliersPage() {
         onSearchChange={(q) => {
           updateSearch({ q, page: 1 })
         }}
-        emptyIcon={<Building2 className="h-12 w-12 text-muted-foreground" />}
+        emptyIcon={
+          <div className="p-4 rounded-full bg-white/40 dark:bg-white/10 w-fit mx-auto mb-6 shadow-inner border border-white/20">
+            <Building2 className="h-10 w-10 text-primary/40" />
+          </div>
+        }
         emptyTitle={t('suppliers:empty.title')}
         emptyDescription={t('suppliers:empty.desc')}
       />

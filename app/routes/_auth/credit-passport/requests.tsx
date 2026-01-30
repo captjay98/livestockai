@@ -2,10 +2,12 @@ import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { CheckCircle, Clock, UserCheck, XCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { DataTable } from '~/components/ui/data-table'
+import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
 import { PageHeader } from '~/components/page-header'
 import { Textarea } from '~/components/ui/textarea'
 import { Label } from '~/components/ui/label'
@@ -23,11 +25,16 @@ import {
   getReportRequestsFn,
 } from '~/features/credit-passport/server'
 import { useFormatDate } from '~/features/settings'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/credit-passport/requests')({
   loader: async () => {
     return getReportRequestsFn({ data: {} })
   },
+  pendingComponent: DataTableSkeleton,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
   component: ReportRequestsPage,
 })
 
@@ -45,6 +52,7 @@ const REQUEST_TYPE_LABELS = {
 }
 
 function ReportRequestsPage() {
+  const { t } = useTranslation(['credit-passport', 'common'])
   const router = useRouter()
   const { format: formatDate } = useFormatDate()
   const data = Route.useLoaderData()
@@ -67,15 +75,27 @@ function ReportRequestsPage() {
             requestId: selectedRequest.id,
           },
         })
-        toast.success('Request approved successfully')
+        toast.success(
+          t('credit-passport:requestApproved', {
+            defaultValue: 'Request approved successfully',
+          }),
+        )
       } else {
         await denyRequestFn({
           data: {
             requestId: selectedRequest.id,
-            reason: responseMessage || 'Request denied',
+            reason:
+              responseMessage ||
+              t('credit-passport:requestDenied', {
+                defaultValue: 'Request denied',
+              }),
           },
         })
-        toast.success('Request denied')
+        toast.success(
+          t('credit-passport:requestDenied', {
+            defaultValue: 'Request denied',
+          }),
+        )
       }
 
       setActionDialogOpen(false)
@@ -83,7 +103,12 @@ function ReportRequestsPage() {
       setResponseMessage('')
       router.invalidate()
     } catch (error) {
-      toast.error(`Failed to ${actionType} request`)
+      toast.error(
+        t('credit-passport:actionFailed', {
+          defaultValue: 'Failed to {{action}} request',
+          action: actionType,
+        }),
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -173,13 +198,20 @@ function ReportRequestsPage() {
     },
   ]
 
-  const pendingCount = requests.filter((r) => r.status === 'pending').length
+  const pendingCount = (requests as Array<any>).filter(
+    (r: any) => r.status === 'pending',
+  ).length
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Report Requests"
-        description="Manage third-party requests for your credit passport reports"
+        title={t('credit-passport:reportRequests', {
+          defaultValue: 'Report Requests',
+        })}
+        description={t('credit-passport:requestsDescription', {
+          defaultValue:
+            'Manage third-party requests for your credit passport reports',
+        })}
         icon={UserCheck}
       />
 
@@ -188,13 +220,19 @@ function ReportRequestsPage() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-yellow-800">
               <Clock className="h-5 w-5" />
-              Pending Requests
+              {t('credit-passport:pendingRequests', {
+                defaultValue: 'Pending Requests',
+              })}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-yellow-700">
-              You have {pendingCount} pending request
-              {pendingCount !== 1 ? 's' : ''} that require your attention.
+              {t('credit-passport:pendingRequestsMessage', {
+                defaultValue:
+                  'You have {{count}} pending request{{suffix}} that require your attention.',
+                count: pendingCount,
+                suffix: pendingCount !== 1 ? 's' : '',
+              })}
             </p>
           </CardContent>
         </Card>
@@ -203,27 +241,44 @@ function ReportRequestsPage() {
       <DataTable
         columns={columns}
         data={requests}
-        total={data.pagination.total}
-        page={data.pagination.page}
-        pageSize={data.pagination.pageSize}
-        totalPages={data.pagination.totalPages}
+        total={data.total}
+        page={data.page}
+        pageSize={data.pageSize}
+        totalPages={data.totalPages}
         onPaginationChange={() => {}}
         onSortChange={() => {}}
         emptyIcon={<UserCheck className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No requests found"
-        emptyDescription="Third-party requests for your reports will appear here."
+        emptyTitle={t('credit-passport:empty.requestsTitle', {
+          defaultValue: 'No requests found',
+        })}
+        emptyDescription={t('credit-passport:empty.requestsDesc', {
+          defaultValue:
+            'Third-party requests for your reports will appear here.',
+        })}
       />
 
       <Dialog open={actionDialogOpen} onOpenChange={setActionDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {actionType === 'approve' ? 'Approve Request' : 'Deny Request'}
+              {actionType === 'approve'
+                ? t('credit-passport:dialogs.approveTitle', {
+                    defaultValue: 'Approve Request',
+                  })
+                : t('credit-passport:dialogs.denyTitle', {
+                    defaultValue: 'Deny Request',
+                  })}
             </DialogTitle>
             <DialogDescription>
               {actionType === 'approve'
-                ? 'This will generate and share the requested report with the requester.'
-                : 'This will decline the request and notify the requester.'}
+                ? t('credit-passport:dialogs.approveDesc', {
+                    defaultValue:
+                      'This will generate and share the requested report with the requester.',
+                  })
+                : t('credit-passport:dialogs.denyDesc', {
+                    defaultValue:
+                      'This will decline the request and notify the requester.',
+                  })}
             </DialogDescription>
           </DialogHeader>
 
@@ -231,32 +286,59 @@ function ReportRequestsPage() {
             <div className="space-y-4">
               <div className="p-4 bg-muted rounded-lg space-y-2">
                 <div>
-                  <strong>Requester:</strong> {selectedRequest.requesterName}
+                  <strong>
+                    {t('credit-passport:requester', {
+                      defaultValue: 'Requester',
+                    })}
+                    :
+                  </strong>{' '}
+                  {selectedRequest.requesterName}
                 </div>
                 <div>
-                  <strong>Email:</strong> {selectedRequest.requesterEmail}
+                  <strong>
+                    {t('common:email', { defaultValue: 'Email' })}:
+                  </strong>{' '}
+                  {selectedRequest.requesterEmail}
                 </div>
                 <div>
-                  <strong>Organization:</strong>{' '}
-                  {selectedRequest.organization || 'Not specified'}
+                  <strong>
+                    {t('credit-passport:organization', {
+                      defaultValue: 'Organization',
+                    })}
+                    :
+                  </strong>{' '}
+                  {selectedRequest.organization ||
+                    t('common:notSpecified', { defaultValue: 'Not specified' })}
                 </div>
                 <div>
-                  <strong>Purpose:</strong> {selectedRequest.purpose}
+                  <strong>
+                    {t('credit-passport:purpose', { defaultValue: 'Purpose' })}:
+                  </strong>{' '}
+                  {selectedRequest.purpose}
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="responseMessage">
                   {actionType === 'approve'
-                    ? 'Message (Optional)'
-                    : 'Reason for Denial'}
+                    ? t('common:messageOptional', {
+                        defaultValue: 'Message (Optional)',
+                      })
+                    : t('credit-passport:dialogs.denyReasonLabel', {
+                        defaultValue: 'Reason for Denial',
+                      })}
                 </Label>
                 <Textarea
                   id="responseMessage"
                   placeholder={
                     actionType === 'approve'
-                      ? 'Add a message for the requester...'
-                      : 'Explain why this request is being denied...'
+                      ? t('credit-passport:placeholders.approveMessage', {
+                          defaultValue: 'Add a message for the requester...',
+                        })
+                      : t('credit-passport:placeholders.denyMessage', {
+                          defaultValue:
+                            'Explain why this request is being denied...',
+                        })
                   }
                   value={responseMessage}
                   onChange={(e) => setResponseMessage(e.target.value)}
@@ -272,7 +354,7 @@ function ReportRequestsPage() {
               onClick={() => setActionDialogOpen(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               onClick={handleAction}
@@ -281,11 +363,17 @@ function ReportRequestsPage() {
             >
               {isSubmitting
                 ? actionType === 'approve'
-                  ? 'Approving...'
-                  : 'Denying...'
+                  ? t('common:status.approving', {
+                      defaultValue: 'Approving...',
+                    })
+                  : t('common:status.denying', { defaultValue: 'Denying...' })
                 : actionType === 'approve'
-                  ? 'Approve & Generate'
-                  : 'Deny Request'}
+                  ? t('credit-passport:actions.approveAndGenerate', {
+                      defaultValue: 'Approve & Generate',
+                    })
+                  : t('credit-passport:actions.denyRequest', {
+                      defaultValue: 'Deny Request',
+                    })}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { Key, Settings } from 'lucide-react'
 import type { SensorType } from '~/lib/db/types'
 import {
@@ -8,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card'
+import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
+import { ErrorPage } from '~/components/error-page'
 import { SENSOR_TYPE_CONFIG } from '~/features/sensors/constants'
 
 interface LoaderData {
@@ -19,16 +22,21 @@ interface LoaderData {
   }>
 }
 
-export const Route = createFileRoute('/_auth/settings/sensors' as any)({
+export const Route = createFileRoute('/_auth/settings/sensors')({
   loader: async (): Promise<LoaderData> => {
     const { getSensorsFn } = await import('~/features/sensors/server')
     const sensors = await getSensorsFn({ data: {} })
     return { sensors }
   },
+  pendingComponent: DataTableSkeleton,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
   component: SensorSettingsPage,
 })
 
 function SensorSettingsPage() {
+  const { t } = useTranslation(['sensors', 'settings', 'common'])
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const { sensors } = Route.useLoaderData() as LoaderData
 
@@ -36,13 +44,19 @@ function SensorSettingsPage() {
     <div className="container py-6 space-y-6">
       <div className="flex items-center gap-2">
         <Settings className="h-6 w-6" />
-        <h1 className="text-2xl font-bold">Sensor Settings</h1>
+        <h1 className="text-2xl font-bold">
+          {t('common:sensorSettings', { defaultValue: 'Sensor Settings' })}
+        </h1>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Default Thresholds</CardTitle>
+            <CardTitle>
+              {t('sensors:defaultThresholds', {
+                defaultValue: 'Default Thresholds',
+              })}
+            </CardTitle>
             <CardDescription>
               Default alert thresholds by sensor type
             </CardDescription>

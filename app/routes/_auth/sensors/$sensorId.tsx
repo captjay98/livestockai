@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { Skeleton } from '~/components/ui/skeleton'
 import { SensorCard } from '~/components/sensors/sensor-card'
 import { SensorFormDialog } from '~/components/sensors/sensor-form-dialog'
 import { AlertHistory } from '~/components/sensors/alert-history'
@@ -26,9 +28,10 @@ import {
   getSensorFn,
   updateSensorFn,
 } from '~/features/sensors/server'
+import { ErrorPage } from '~/components/error-page'
 
-export const Route = createFileRoute('/_auth/sensors/$sensorId' as any)({
-  loader: async ({ params }: { params: { sensorId: string } }) => {
+export const Route = createFileRoute('/_auth/sensors/$sensorId')({
+  loader: async ({ params }) => {
     const sensor = await getSensorFn({
       data: { sensorId: params.sensorId },
     })
@@ -43,10 +46,24 @@ export const Route = createFileRoute('/_auth/sensors/$sensorId' as any)({
     })
     return { sensor, readings, alerts: [] as Array<any> }
   },
+  pendingComponent: () => (
+    <div className="container py-6 space-y-6">
+      <Skeleton className="h-8 w-48" />
+      <div className="grid gap-6 md:grid-cols-2">
+        <Skeleton className="h-32" />
+        <Skeleton className="h-32" />
+      </div>
+      <Skeleton className="h-64" />
+    </div>
+  ),
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
   component: SensorDetailPage,
 })
 
 function SensorDetailPage() {
+  const { t } = useTranslation(['sensors', 'common'])
   const data = Route.useLoaderData()
   const { sensor, readings, alerts } = data
   const params = Route.useParams()
@@ -61,23 +78,35 @@ function SensorDetailPage() {
     isActive?: boolean
   }) => {
     await updateSensorFn({ data: { sensorId, ...formData } })
-    toast.success('Sensor updated')
+    toast.success(
+      t('sensors:messages.updated', {
+        defaultValue: 'Sensor updated',
+      }),
+    )
     navigate({
-      to: '/sensors/$sensorId' as any,
-      params: { sensorId } as any,
+      to: '/sensors/$sensorId',
+      params: { sensorId },
     })
     return { sensorId }
   }
 
   const handleDelete = async () => {
     await deleteSensorFn({ data: { sensorId } })
-    toast.success('Sensor deleted')
-    navigate({ to: '/sensors' as any })
+    toast.success(
+      t('sensors:messages.deleted', {
+        defaultValue: 'Sensor deleted',
+      }),
+    )
+    navigate({ to: '/sensors' })
   }
 
   const handleAcknowledge = async (alertId: string) => {
     await acknowledgeAlertFn({ data: { alertId } })
-    toast.success('Alert acknowledged')
+    toast.success(
+      t('sensors:messages.acknowledged', {
+        defaultValue: 'Alert acknowledged',
+      }),
+    )
   }
 
   const latestReading = readings[0]
@@ -88,7 +117,7 @@ function SensorDetailPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate({ to: '/sensors' as any })}
+          onClick={() => navigate({ to: '/sensors' })}
         >
           <ArrowLeft className="h-4 w-4 mr-2" /> Back
         </Button>
@@ -104,14 +133,18 @@ function SensorDetailPage() {
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Sensor</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t('sensors:deleteTitle', { defaultValue: 'Delete Sensor' })}
+              </AlertDialogTitle>
               <AlertDialogDescription>
                 This will delete the sensor. Historical data will be retained
                 for 90 days.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>
+                {t('common:cancel', { defaultValue: 'Cancel' })}
+              </AlertDialogCancel>
               <AlertDialogAction onClick={handleDelete}>
                 Delete
               </AlertDialogAction>
@@ -127,17 +160,10 @@ function SensorDetailPage() {
             name: sensor.name,
             sensorType: sensor.sensorType,
             status: 'online',
-            latestValue: latestReading?.value ?? null,
+            latestValue: latestReading.value,
             structureName: null,
           }}
-          latestReading={
-            latestReading
-              ? {
-                  value: latestReading.value,
-                  recordedAt: new Date(latestReading.recordedAt),
-                }
-              : undefined
-          }
+          latestReading={latestReading}
         />
 
         <SensorChart sensorId={sensorId} sensorType={sensor.sensorType} />
@@ -145,7 +171,9 @@ function SensorDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Alert History</CardTitle>
+          <CardTitle>
+            {t('sensors:alertHistory', { defaultValue: 'Alert History' })}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <AlertHistory alerts={alerts} onAcknowledge={handleAcknowledge} />

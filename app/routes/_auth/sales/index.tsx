@@ -3,6 +3,8 @@ import { Plus, Receipt, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useMemo, useState } from 'react'
 import type { Sale } from '~/components/sales/sale-columns'
+import type { SaleTable } from '~/lib/db/types/financial'
+import type { SalesSummaryData } from '~/components/sales/sales-summary'
 import { getSaleColumns } from '~/components/sales/sale-columns'
 import { validateSalesSearch } from '~/features/sales/types'
 import { getSalesPageDataFn } from '~/features/sales/server'
@@ -24,6 +26,9 @@ import {
 import { SaleFilters } from '~/components/sales/sale-filters'
 import { DeleteSaleDialog } from '~/components/sales/delete-dialog'
 import { SalesSkeleton } from '~/components/sales/sales-skeleton'
+import { ErrorPage } from '~/components/error-page'
+
+// ... existing imports
 
 export const Route = createFileRoute('/_auth/sales/')({
   validateSearch: validateSalesSearch,
@@ -35,9 +40,7 @@ export const Route = createFileRoute('/_auth/sales/')({
     sortOrder: search.sortOrder,
     search: search.q,
     livestockType: search.livestockType as
-      | 'poultry'
-      | 'fish'
-      | 'eggs'
+      | SaleTable['livestockType']
       | undefined,
     paymentStatus: search.paymentStatus as
       | 'paid'
@@ -49,8 +52,8 @@ export const Route = createFileRoute('/_auth/sales/')({
     return getSalesPageDataFn({ data: deps })
   },
   pendingComponent: SalesSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">Error loading sales: {error.message}</div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: SalesPage,
 })
@@ -145,7 +148,10 @@ function SalesPage() {
         }
       />
 
-      <SalesSummary summary={summary} formatCurrency={formatCurrency} />
+      <SalesSummary
+        summary={summary as SalesSummaryData}
+        formatCurrency={formatCurrency}
+      />
 
       <DataTable
         columns={columns}
@@ -157,6 +163,7 @@ function SalesPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
+        containerClassName="bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden"
         onPaginationChange={(page, pageSize) =>
           updateSearch({ page, pageSize })
         }
@@ -176,7 +183,11 @@ function SalesPage() {
             }
           />
         }
-        emptyIcon={<Users className="h-12 w-12 text-muted-foreground" />}
+        emptyIcon={
+          <div className="p-4 rounded-full bg-white/40 dark:bg-white/10 w-fit mx-auto mb-6 shadow-inner border border-white/20">
+            <Users className="h-10 w-10 text-primary/40" />
+          </div>
+        }
         emptyTitle={t('empty.title', {
           defaultValue: 'No sales found',
         })}

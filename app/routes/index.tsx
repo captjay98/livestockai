@@ -17,10 +17,10 @@ function Index() {
     <LandingLayout>
       <LandingHero />
       <FeaturesSection />
-      <ExtensionSection />
       <SmartEcosystemSection />
       <TechStackSection />
       <AgentReadySection />
+      <ExtensionSection />
       <CTASection />
     </LandingLayout>
   )

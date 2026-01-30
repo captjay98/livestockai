@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { RotateCcw, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
 import { getAuditLogsFn } from '~/lib/logging/audit'
 import { AuditLogTable } from '~/components/settings/audit-log-table'
 import { Card, CardContent } from '~/components/ui/card'
@@ -15,23 +16,18 @@ import {
 } from '~/components/ui/select'
 import { Button } from '~/components/ui/button'
 import { AuditSkeleton } from '~/components/settings/audit-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
-interface AuditSearchParams {
-  page?: number
-  q?: string
-  action?: string
-  entityType?: string
-}
+const auditSearchSchema = z.object({
+  page: z.number().optional().default(1),
+  q: z.string().optional(),
+  action: z.string().optional(),
+  entityType: z.string().optional(),
+})
 
 export const Route = createFileRoute('/_auth/settings/audit')({
   component: AuditLogPage,
-  validateSearch: (search: Record<string, unknown>): AuditSearchParams => ({
-    page: typeof search.page === 'number' ? search.page : 1,
-    q: typeof search.q === 'string' ? search.q : undefined,
-    action: typeof search.action === 'string' ? search.action : undefined,
-    entityType:
-      typeof search.entityType === 'string' ? search.entityType : undefined,
-  }),
+  validateSearch: auditSearchSchema,
   loaderDeps: ({ search }) => ({
     page: search.page || 1,
     q: search.q,
@@ -50,10 +46,8 @@ export const Route = createFileRoute('/_auth/settings/audit')({
     })
   },
   pendingComponent: AuditSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading audit logs: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
 })
 
@@ -75,9 +69,11 @@ function AuditLogPage() {
     return () => clearTimeout(timeout)
   }, [search, searchParams.q])
 
-  const updateParams = (updates: Partial<AuditSearchParams>) => {
+  const updateParams = (
+    updates: Partial<z.infer<typeof auditSearchSchema>>,
+  ) => {
     navigate({
-      search: (prev: AuditSearchParams) => ({ ...prev, ...updates }),
+      search: (prev) => ({ ...prev, ...updates }),
       replace: true,
     })
   }

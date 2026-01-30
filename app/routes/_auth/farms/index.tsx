@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { getFarmsWithStatsFn } from '~/features/farms/farm-stats'
 import { useFarmsPage } from '~/features/farms/use-farms-page'
 import { Button } from '~/components/ui/button'
-import { FarmDialog } from '~/components/dialogs/farm-dialog'
+import { FarmDialog } from '~/components/farms/farm-dialog'
 import { PageHeader } from '~/components/page-header'
 import { FarmList } from '~/components/farms/farm-list'
 import { FarmEmptyState } from '~/components/farms/farm-empty-state'
 import { FarmsSkeleton } from '~/components/farms/farms-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/farms/')({
   component: FarmsIndexPage,
@@ -24,8 +25,8 @@ export const Route = createFileRoute('/_auth/farms/')({
     }
   },
   pendingComponent: FarmsSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">Error loading farms: {error.message}</div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
 })
 
@@ -54,7 +55,7 @@ function FarmsIndexPage() {
       <FarmDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        farm={selectedFarm}
+        farm={selectedFarm as any}
       />
 
       {farms.length === 0 ? (

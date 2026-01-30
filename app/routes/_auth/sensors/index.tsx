@@ -1,38 +1,59 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Plus, Server } from 'lucide-react'
 import { toast } from 'sonner'
-import { Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
 import type { SensorType } from '~/lib/db/types'
-import { Button } from '~/components/ui/button'
-import { SensorList } from '~/components/sensors/sensor-list'
+import { PageHeader } from '~/components/page-header'
 import { SensorFormDialog } from '~/components/sensors/sensor-form-dialog'
-import {
-  createSensorFn,
-  deleteSensorFn,
-  getSensorsFn,
-} from '~/features/sensors/server'
+import { SensorList } from '~/components/sensors/sensor-list'
+import { SensorsSkeleton } from '~/components/sensors/sensors-skeleton'
+import { Button } from '~/components/ui/button'
+import { useFarm } from '~/features/farms/context'
+import { useSensorMutations } from '~/features/sensors/mutations'
+import { getSensorsFn } from '~/features/sensors/server'
+import { ErrorPage } from '~/components/error-page'
 
-export const Route = createFileRoute('/_auth/sensors/' as any)({
-  loader: async () => {
-    const { getStructuresFn } = await import('~/features/structures/server')
-    const { getUserSettingsFn } = await import('~/features/settings/server')
+const sensorsSearchSchema = z.object({
+  farmId: z.string().optional(),
+})
 
-    const settings = await getUserSettingsFn({ data: {} })
-    const farmId = settings.defaultFarmId
+export const Route = createFileRoute('/_auth/sensors/')({
+  validateSearch: sensorsSearchSchema,
+  loaderDeps: ({ search }) => ({
+    farmId: search.farmId,
+  }),
+  loader: async ({ deps }) => {
+    if (!deps.farmId) return { sensors: [], structures: [] }
+
+    const farmId = deps.farmId // Type narrowing
 
     const [sensors, structures] = await Promise.all([
-      getSensorsFn({ data: {} }),
-      farmId ? getStructuresFn({ data: { farmId } }) : Promise.resolve([]),
+      getSensorsFn({ data: { farmId } }),
+      (async () => {
+        const { getStructuresFn } = await import('~/features/structures/server')
+        return getStructuresFn({ data: { farmId } })
+      })(),
     ])
-    return { sensors, structures, farmId }
+
+    return { sensors, structures }
   },
+  pendingComponent: SensorsSkeleton,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
   component: SensorsPage,
 })
 
 function SensorsPage() {
-  const { sensors, structures, farmId } = Route.useLoaderData()
+  const { t } = useTranslation(['sensors', 'common'])
+  const { selectedFarmId } = useFarm()
   const navigate = useNavigate()
   const [dialogOpen, setDialogOpen] = useState(false)
+  const { sensors, structures } = Route.useLoaderData()
+
+  const { createSensor, deleteSensor } = useSensorMutations()
 
   const handleCreate = async (data: {
     name: string
@@ -40,44 +61,69 @@ function SensorsPage() {
     structureId?: string
     pollingIntervalMinutes: number
   }): Promise<{ sensorId: string; apiKey?: string }> => {
-    if (!farmId) {
-      toast.error('Please set a default farm in settings')
+    if (!selectedFarmId) {
+      toast.error(
+        t('common:selectFarmFirst', {
+          defaultValue: 'Please select a farm first',
+        }),
+      )
       return { sensorId: '' }
     }
-    const result = await createSensorFn({ data: { ...data, farmId } })
-    toast.success(`Sensor created! API Key: ${result.apiKey}`)
-    navigate({ to: '/sensors' as any })
-    return result
+
+    return new Promise((resolve, reject) => {
+      createSensor.mutate(
+        { ...data, farmId: selectedFarmId },
+        {
+          onSuccess: (result) => {
+            resolve(result)
+          },
+          onError: (err) => {
+            reject(err)
+          },
+        },
+      )
+    })
   }
 
-  const handleDelete = async (id: string) => {
-    await deleteSensorFn({ data: { sensorId: id } })
-    toast.success('Sensor deleted')
-    navigate({ to: '/sensors' as any })
+  const handleDelete = (id: string) => {
+    deleteSensor.mutate(id)
   }
 
   const handleView = (id: string) => {
     navigate({
-      to: '/sensors/$sensorId' as any,
-      params: { sensorId: id } as any,
+      to: '/sensors/$sensorId',
+      params: { sensorId: id },
     })
   }
 
   return (
-    <div className="container py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Sensors</h1>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" /> Add Sensor
-        </Button>
-      </div>
-
-      <SensorList
-        sensors={sensors}
-        structures={structures}
-        onDelete={handleDelete}
-        onView={handleView}
+    <div className="space-y-6">
+      <PageHeader
+        title={t('sensors:title', { defaultValue: 'IoT Sensors' })}
+        description={t('sensors:description', {
+          defaultValue:
+            'Monitor your farm environment with real-time sensor data and alerts.',
+        })}
+        icon={Server}
+        actions={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />{' '}
+            {t('sensors:addSensor', { defaultValue: 'Add Sensor' })}
+          </Button>
+        }
       />
+
+      <div className="bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden border relative p-4 sm:p-6">
+        {/* Decorative Orb */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+
+        <SensorList
+          sensors={sensors}
+          structures={structures}
+          onDelete={handleDelete}
+          onView={handleView}
+        />
+      </div>
 
       <SensorFormDialog
         open={dialogOpen}

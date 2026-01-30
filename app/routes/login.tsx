@@ -2,6 +2,7 @@ import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { loginFn } from '~/features/auth/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -38,9 +39,10 @@ function LoginPage() {
       })
 
       logger.debug('Login successful', { result })
+      toast.success(t('login.success', 'Welcome back!'))
 
       await router.invalidate()
-      
+
       // Redirect based on user type
       const user = result.user as any
       if (user.userType === 'buyer') {

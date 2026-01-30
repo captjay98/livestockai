@@ -1,8 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { useFormatCurrency } from '~/features/settings'
 import { toNumber } from '~/features/settings/currency'
+import { Skeleton } from '~/components/ui/skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/shared/$shareCode')({
   loader: async ({ params }) => {
@@ -47,9 +50,14 @@ export const Route = createFileRoute('/shared/$shareCode')({
     return formulation
   },
   component: SharedFormulationPage,
+  pendingComponent: () => <Skeleton className="h-96 w-full" />,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
 })
 
 function SharedFormulationPage() {
+  const { t } = useTranslation(['feedFormulation'])
   const formulation = Route.useLoaderData()
   const { format } = useFormatCurrency()
 
@@ -71,7 +79,11 @@ function SharedFormulationPage() {
               <div className="text-2xl font-bold">
                 {format(formulation.totalCostPerKg)}
               </div>
-              <div className="text-sm text-muted-foreground">Cost per kg</div>
+              <div className="text-sm text-muted-foreground">
+                {t('feedFormulation:costPerKg', {
+                  defaultValue: 'Cost per kg',
+                })}
+              </div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
               <div className="text-2xl font-bold">
@@ -80,7 +92,11 @@ function SharedFormulationPage() {
                     toNumber(formulation.batchSizeKg),
                 )}
               </div>
-              <div className="text-sm text-muted-foreground">Total cost</div>
+              <div className="text-sm text-muted-foreground">
+                {t('feedFormulation:totalBatchCost', {
+                  defaultValue: 'Total cost',
+                })}
+              </div>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
               <div className="text-2xl font-bold">
@@ -112,7 +128,11 @@ function SharedFormulationPage() {
 
           {/* Nutritional Profile */}
           <div>
-            <h4 className="font-medium mb-3">Nutritional Profile</h4>
+            <h4 className="font-medium mb-3">
+              {t('feedFormulation:nutritionalProfile', {
+                defaultValue: 'Nutritional Profile',
+              })}
+            </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-3 bg-muted rounded-lg">
                 <div className="text-lg font-bold">
@@ -146,7 +166,11 @@ function SharedFormulationPage() {
           {/* Mixing Instructions */}
           {formulation.mixingInstructions && (
             <div>
-              <h4 className="font-medium mb-3">Mixing Instructions</h4>
+              <h4 className="font-medium mb-3">
+                {t('feedFormulation:mixingInstructions', {
+                  defaultValue: 'Mixing Instructions',
+                })}
+              </h4>
               <div className="p-4 bg-muted rounded-lg whitespace-pre-wrap">
                 {formulation.mixingInstructions}
               </div>

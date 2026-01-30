@@ -3,18 +3,24 @@ import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { checkAuthFn } from '~/features/auth/server'
 import {
   getContactRequestsFn,
   respondToRequestFn,
 } from '~/features/marketplace/server'
 import { ContactInbox } from '~/components/marketplace/contact-inbox'
+import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 const inboxSearchSchema = z.object({
   status: z.enum(['pending', 'approved', 'denied', 'all']).default('pending'),
   page: z.number().int().positive().default(1),
 })
 
-export const Route = createFileRoute('/_auth/marketplace/inbox')({
+export const Route = createFileRoute('/marketplace/inbox')({
+  beforeLoad: async () => {
+    await checkAuthFn({ data: {} })
+  },
   validateSearch: inboxSearchSchema,
   loaderDeps: ({ search }) => ({ status: search.status, page: search.page }),
   loader: async ({ deps }) => {
@@ -26,6 +32,8 @@ export const Route = createFileRoute('/_auth/marketplace/inbox')({
       },
     })
   },
+  pendingComponent: DataTableSkeleton,
+  errorComponent: ({ error }) => <ErrorPage error={error} />,
   component: InboxPage,
 })
 
@@ -38,11 +46,20 @@ function InboxPage() {
   const respondMutation = useMutation({
     mutationFn: respondToRequestFn,
     onSuccess: () => {
-      toast.success('Response sent successfully')
+      toast.success(
+        t('marketplace:messages.responseSent', {
+          defaultValue: 'Response sent successfully',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['contact-requests'] })
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to respond to request')
+    onError: (error: Error) => {
+      toast.error(
+        error.message ||
+          t('marketplace:messages.respondFailed', {
+            defaultValue: 'Failed to respond to request',
+          }),
+      )
     },
   })
 
@@ -69,7 +86,7 @@ function InboxPage() {
         </p>
       </div>
 
-      <ContactInbox requests={data.data as any} onRespond={handleRespond} />
+      <ContactInbox requests={data.data} onRespond={handleRespond} />
     </div>
   )
 }

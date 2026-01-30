@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import {
   AlertTriangle,
   Calendar,
@@ -11,32 +12,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Progress } from '~/components/ui/progress'
 import { verifyReportFn } from '~/features/credit-passport/server'
+import { Skeleton } from '~/components/ui/skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/verify/$reportId')({
   loader: async ({ params }) => {
     return verifyReportFn({ data: { reportId: params.reportId } })
   },
   component: VerificationPage,
-  errorComponent: ({ error }) => (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <CardTitle className="text-red-600">Verification Failed</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <p className="text-muted-foreground">
-            {error.message ||
-              'This report could not be verified. It may be invalid or expired.'}
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+  pendingComponent: () => <Skeleton className="h-96 w-full" />,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
 })
 
 function VerificationPage() {
-  const report = Route.useLoaderData()
+  const { t } = useTranslation(['creditPassport'])
+  const report = Route.useLoaderData() as any // Type assertion to fix 'never' type
+
+  if (!report) {
+    return (
+      <div>
+        {t('creditPassport:notFound', { defaultValue: 'Report not found' })}
+      </div>
+    )
+  }
 
   const isExpired = report.expired
   const isValid = report.isValid && !isExpired
@@ -48,9 +48,15 @@ function VerificationPage() {
   }
 
   const getStatusText = () => {
-    if (isExpired) return 'Expired'
-    if (isValid) return 'Verified'
-    return 'Invalid'
+    if (isExpired)
+      return t('creditPassport:verification.expired', {
+        defaultValue: 'Expired',
+      })
+    if (isValid)
+      return t('creditPassport:verification.verified', {
+        defaultValue: 'Verified',
+      })
+    return t('creditPassport:verification.invalid', { defaultValue: 'Invalid' })
   }
 
   const getStatusColor = () => {
@@ -91,7 +97,11 @@ function VerificationPage() {
         <div className="text-center py-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Shield className="h-10 w-10 text-blue-600" />
-            <h1 className="text-3xl font-bold">LivestockAI Credit Passport</h1>
+            <h1 className="text-3xl font-bold">
+              {t('creditPassport:fullTitle', {
+                defaultValue: 'LivestockAI Credit Passport',
+              })}
+            </h1>
           </div>
           <p className="text-muted-foreground">
             Blockchain-verified livestock farming credentials
@@ -182,7 +192,11 @@ function VerificationPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Freshness Level</span>
+                  <span className="text-sm font-medium">
+                    {t('creditPassport:verification.freshnessLevel', {
+                      defaultValue: 'Freshness Level',
+                    })}
+                  </span>
                   <span className={`text-sm font-medium ${freshness.color}`}>
                     {freshness.label}
                   </span>
@@ -200,12 +214,20 @@ function VerificationPage() {
         {/* Report Details */}
         <Card>
           <CardHeader>
-            <CardTitle>Report Information</CardTitle>
+            <CardTitle>
+              {t('creditPassport:reportInformation', {
+                defaultValue: 'Report Information',
+              })}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <span className="text-sm font-medium">Report Type:</span>
+                <span className="text-sm font-medium">
+                  {t('creditPassport:verification.reportType', {
+                    defaultValue: 'Report Type:',
+                  })}
+                </span>
                 <p className="text-sm text-muted-foreground capitalize">
                   {report.reportType.replace('_', ' ')}
                 </p>
@@ -223,7 +245,11 @@ function VerificationPage() {
                 </p>
               </div>
               <div>
-                <span className="text-sm font-medium">Verification Count:</span>
+                <span className="text-sm font-medium">
+                  {t('creditPassport:verification.verificationCount', {
+                    defaultValue: 'Verification Count:',
+                  })}
+                </span>
                 <p className="text-sm text-muted-foreground">
                   {report.verificationCount || 0} times
                 </p>
@@ -232,10 +258,19 @@ function VerificationPage() {
           </CardContent>
         </Card>
 
-        {/* Footer */}
         <div className="text-center py-8 text-sm text-muted-foreground">
-          <p>This report is cryptographically signed and tamper-proof.</p>
-          <p>Powered by LivestockAI - Advanced Livestock Management</p>
+          <p>
+            {t('creditPassport:cryptoSigned', {
+              defaultValue:
+                'This report is cryptographically signed and tamper-proof.',
+            })}
+          </p>
+          <p>
+            {t('common:poweredBy', {
+              defaultValue:
+                'Powered by LivestockAI - Advanced Livestock Management',
+            })}
+          </p>
         </div>
       </div>
     </div>

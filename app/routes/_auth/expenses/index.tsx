@@ -27,6 +27,7 @@ import {
 import { ExpenseFilters } from '~/components/expenses/expense-filters'
 import { DeleteExpenseDialog } from '~/components/expenses/delete-dialog'
 import { ExpensesSkeleton } from '~/components/expenses/expenses-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/expenses/')({
   validateSearch: validateExpenseSearch,
@@ -59,10 +60,8 @@ export const Route = createFileRoute('/_auth/expenses/')({
     }
   },
   pendingComponent: ExpensesSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading expenses: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: ExpensesPage,
 })
@@ -224,6 +223,7 @@ function ExpensesPage() {
         sortBy={searchParams.sortBy}
         sortOrder={searchParams.sortOrder}
         searchValue={searchParams.q}
+        containerClassName="bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden"
         onPaginationChange={(page, pageSize) =>
           updateSearch({ page, pageSize })
         }
@@ -242,7 +242,11 @@ function ExpensesPage() {
             }
           />
         }
-        emptyIcon={<Users className="h-12 w-12 text-muted-foreground" />}
+        emptyIcon={
+          <div className="p-4 rounded-full bg-white/40 dark:bg-white/10 w-fit mx-auto mb-6 shadow-inner border border-white/20">
+            <Users className="h-10 w-10 text-primary/40" />
+          </div>
+        }
         emptyTitle={t('empty.title', {
           defaultValue: 'No expenses found',
         })}

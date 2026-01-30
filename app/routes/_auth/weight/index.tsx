@@ -17,6 +17,7 @@ import { WeightFilters } from '~/components/weight/weight-filters'
 import { getWeightColumns } from '~/components/weight/weight-columns'
 import { WeightSkeleton } from '~/components/weight/weight-skeleton'
 import { getWeightDataForFarmFn } from '~/features/weight/server'
+import { ErrorPage } from '~/components/error-page'
 
 const weightSearchSchema = z.object({
   farmId: z.string().optional(),
@@ -31,30 +32,20 @@ const weightSearchSchema = z.object({
 export const Route = createFileRoute('/_auth/weight/')({
   validateSearch: weightSearchSchema,
   loaderDeps: ({ search }) => ({
-    farmId: search.farmId || undefined,
-    page: search.page,
-    pageSize: search.pageSize,
+    farmId: search.farmId,
+    page: search.page as number | undefined,
+    pageSize: search.pageSize as number | undefined,
     sortBy: search.sortBy,
     sortOrder: search.sortOrder,
     search: search.q,
+    batchId: search.batchId,
   }),
   loader: async ({ deps }) => {
-    return getWeightDataForFarmFn({
-      data: {
-        farmId: deps.farmId,
-        page: deps.page,
-        pageSize: deps.pageSize,
-        sortBy: deps.sortBy,
-        sortOrder: deps.sortOrder,
-        search: deps.search,
-      },
-    })
+    return getWeightDataForFarmFn({ data: deps })
   },
   pendingComponent: WeightSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading weight data: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: WeightPage,
 })
@@ -65,7 +56,9 @@ function WeightPage() {
   const { format: formatWeight } = useFormatWeight()
   const { selectedFarmId } = useFarm()
   const searchParams = Route.useSearch()
-  const { paginatedRecords, batches, alerts } = Route.useLoaderData()
+
+  // Get data from loader
+  const data = Route.useLoaderData()
 
   const {
     selectedRecord,
@@ -98,6 +91,9 @@ function WeightPage() {
       }),
     [t, formatDate, formatWeight],
   )
+
+  // Extract data
+  const { paginatedRecords, batches, alerts } = data
 
   return (
     <div className="space-y-6">
@@ -177,7 +173,7 @@ function WeightPage() {
         }
         batchSpecies={selectedRecord?.batchSpecies}
         batches={batches}
-        onSubmit={(data) => handleFormSubmit(data, dialogMode)}
+        onSubmit={(formData) => handleFormSubmit(formData, dialogMode)}
         isSubmitting={isSubmitting}
       />
 

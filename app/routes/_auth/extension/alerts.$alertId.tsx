@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { AlertTriangle, Calendar, MapPin, Save, Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -19,15 +20,22 @@ import {
   updateOutbreakAlertFn,
 } from '~/features/extension/server'
 import { useErrorMessage } from '~/hooks/useErrorMessage'
+import { Skeleton } from '~/components/ui/skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/extension/alerts/$alertId')({
   loader: async ({ params }) => {
     return getOutbreakAlertFn({ data: { alertId: params.alertId } })
   },
+  pendingComponent: () => <Skeleton className="h-96 w-full" />,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
   component: AlertDetailPage,
 })
 
 function AlertDetailPage() {
+  const { t } = useTranslation(['extension', 'common'])
   const getErrorMessage = useErrorMessage()
   const alert = Route.useLoaderData()
   const [status, setStatus] = useState(alert.status)
@@ -44,7 +52,11 @@ function AlertDetailPage() {
           notes: notes !== alert.notes ? notes : undefined,
         },
       })
-      toast.success('Alert updated successfully')
+      toast.success(
+        t('extension:alertUpdated', {
+          defaultValue: 'Alert updated successfully',
+        }),
+      )
     } catch (err) {
       toast.error(getErrorMessage(err))
     } finally {
@@ -85,9 +97,14 @@ function AlertDetailPage() {
       <div className="flex items-center gap-3">
         <AlertTriangle className="h-8 w-8 text-orange-500" />
         <div>
-          <h1 className="text-3xl font-bold">Alert Details</h1>
+          <h1 className="text-3xl font-bold">
+            {t('extension:alertDetails', { defaultValue: 'Alert Details' })}
+          </h1>
           <p className="text-muted-foreground">
-            {alert.livestockType} outbreak in district
+            {t('extension:alertDetailsDescription', {
+              defaultValue: '{{livestockType}} outbreak in district',
+              livestockType: alert.livestockType,
+            })}
           </p>
         </div>
       </div>
@@ -116,7 +133,10 @@ function AlertDetailPage() {
             </div>
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>Species: {alert.livestockType}</span>
+              <span>
+                {t('extension:species', { defaultValue: 'Species' })}:{' '}
+                {alert.livestockType}
+              </span>
             </div>
             {alert.resolvedAt && (
               <div className="flex items-center gap-2 text-sm">
@@ -133,7 +153,10 @@ function AlertDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Affected Farms ({alert.farms.length || 0})
+              {t('extension:affectedFarms', {
+                defaultValue: 'Affected Farms',
+              })}{' '}
+              ({alert.farms.length || 0})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -147,18 +170,23 @@ function AlertDetailPage() {
                     <div>
                       <p className="font-medium">{farm.farmName}</p>
                       <p className="text-sm text-muted-foreground">
-                        Reported:{' '}
+                        {t('common:reportedAt', { defaultValue: 'Reported' })}:{' '}
                         {new Date(farm.reportedAt).toLocaleDateString()}
                       </p>
                     </div>
                     <Badge variant="destructive">
-                      {Number(farm.mortalityRate).toFixed(1)}% mortality
+                      {Number(farm.mortalityRate).toFixed(1)}%{' '}
+                      {t('extension:mortality', { defaultValue: 'mortality' })}
                     </Badge>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No farms affected</p>
+              <p className="text-sm text-muted-foreground">
+                {t('extension:noFarmsAffected', {
+                  defaultValue: 'No farms affected',
+                })}
+              </p>
             )}
           </CardContent>
         </Card>
@@ -166,31 +194,49 @@ function AlertDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Update Alert</CardTitle>
+          <CardTitle>
+            {t('extension:updateAlert', { defaultValue: 'Update Alert' })}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <Select value={status} onValueChange={setStatus}>
+            <Label htmlFor="status">
+              {t('common:status', { defaultValue: 'Status' })}
+            </Label>
+            <Select value={status} onValueChange={(val: any) => setStatus(val)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="monitoring">Monitoring</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-                <SelectItem value="false_positive">False Positive</SelectItem>
+                <SelectItem value="active">
+                  {t('extension:active', { defaultValue: 'Active' })}
+                </SelectItem>
+                <SelectItem value="monitoring">
+                  {t('extension:monitoring', { defaultValue: 'Monitoring' })}
+                </SelectItem>
+                <SelectItem value="resolved">
+                  {t('extension:resolved', { defaultValue: 'Resolved' })}
+                </SelectItem>
+                <SelectItem value="false_positive">
+                  {t('extension:falsePositive', {
+                    defaultValue: 'False Positive',
+                  })}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">
+              {t('common:notes', { defaultValue: 'Notes' })}
+            </Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add notes about this alert..."
+              placeholder={t('extension:placeholders.alertNotes', {
+                defaultValue: 'Add notes about this alert...',
+              })}
               rows={4}
             />
           </div>
@@ -201,7 +247,11 @@ function AlertDetailPage() {
             className="w-full"
           >
             <Save className="h-4 w-4 mr-2" />
-            {isSubmitting ? 'Saving...' : 'Save Changes'}
+            {isSubmitting
+              ? t('common:status.saving', { defaultValue: 'Saving...' })
+              : t('common:actions.saveChanges', {
+                  defaultValue: 'Save Changes',
+                })}
           </Button>
         </CardContent>
       </Card>

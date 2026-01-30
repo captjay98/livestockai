@@ -6,7 +6,15 @@ import {
 } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { ArrowLeft, Edit, Mail, MapPin, Phone, Trash2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  Edit,
+  Mail,
+  MapPin,
+  Phone,
+  Trash2,
+  TrendingUp,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   deleteCustomerFn,
@@ -34,15 +42,14 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { CustomerDetailSkeleton } from '~/components/customers/customer-detail-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/customers/$customerId')({
   loader: ({ params }) =>
     getCustomerWithSalesFn({ data: { customerId: params.customerId } }),
   pendingComponent: CustomerDetailSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading customer: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: CustomerDetailPage,
 })
@@ -195,7 +202,11 @@ function CustomerDetailPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
+            <Button
+              variant="outline"
+              onClick={() => setEditDialogOpen(true)}
+              className="glass border-white/20 dark:border-white/10"
+            >
               <Edit className="h-4 w-4 mr-2" />
               {t('customers:details.edit', {
                 defaultValue: 'Edit',
@@ -204,7 +215,7 @@ function CustomerDetailPage() {
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(true)}
-              className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              className="border-destructive/30 text-destructive hover:bg-destructive hover:text-white glass-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               {t('customers:details.delete', {
@@ -215,61 +226,103 @@ function CustomerDetailPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="font-semibold mb-4">
+          <div className="bg-white/30 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+            {/* Decorative Background */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -translate-y-10 translate-x-10 pointer-events-none" />
+
+            <h2 className="font-bold text-lg mb-6 flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
               {t('customers:details.contactInfo', {
                 defaultValue: 'Contact Information',
               })}
             </h2>
-            <div className="space-y-3">
-              <div className="flex items-center text-sm">
-                <Phone className="h-4 w-4 mr-3 text-muted-foreground" />
-                {customer.phone}
+            <div className="space-y-4 relative z-10">
+              <div className="flex items-center p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-white/10">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mr-4">
+                  <Phone className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-0.5">
+                    Phone
+                  </p>
+                  <p className="font-medium">{customer.phone}</p>
+                </div>
               </div>
+
               {customer.email && (
-                <div className="flex items-center text-sm">
-                  <Mail className="h-4 w-4 mr-3 text-muted-foreground" />
-                  {customer.email}
+                <div className="flex items-center p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-white/10">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mr-4">
+                    <Mail className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-0.5">
+                      Email
+                    </p>
+                    <p className="font-medium">{customer.email}</p>
+                  </div>
                 </div>
               )}
+
               {customer.location && (
-                <div className="flex items-center text-sm">
-                  <MapPin className="h-4 w-4 mr-3 text-muted-foreground" />
-                  {customer.location}
+                <div className="flex items-center p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-white/10">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mr-4">
+                    <MapPin className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mb-0.5">
+                      Location
+                    </p>
+                    <p className="font-medium">{customer.location}</p>
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="bg-card rounded-lg border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold">
+          <div className="bg-white/30 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
+            {/* Decorative Background */}
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-green-500/5 rounded-full blur-3xl translate-y-10 -translate-x-10 pointer-events-none" />
+
+            <div className="flex items-center justify-between mb-8 relative z-10">
+              <h2 className="font-bold text-lg flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-green-600" />
                 {t('customers:details.purchaseSummary', {
                   defaultValue: 'Purchase Summary',
                 })}
               </h2>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">
-                  {t('customers:table.totalSpent', {
-                    defaultValue: 'Total Spent',
-                  })}
-                </p>
-                <p className="text-2xl font-bold text-primary">
-                  {formatCurrency(customer.totalSpent)}
-                </p>
-              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {customer.salesCount}{' '}
-              {t('customers:details.purchasesRecorded', {
-                defaultValue: 'purchases recorded',
-              })}
-            </p>
+
+            <div className="flex flex-col items-center justify-center py-6 relative z-10">
+              <div className="w-32 h-32 rounded-full bg-green-500/10 flex items-center justify-center mb-4 border-4 border-green-500/5 group-hover:scale-110 transition-transform duration-500">
+                <span className="text-3xl font-black text-green-600 dark:text-green-400">
+                  {formatCurrency(customer.totalSpent).split('.')[0]}
+                  <span className="text-sm opacity-50">
+                    .{formatCurrency(customer.totalSpent).split('.')[1] || '00'}
+                  </span>
+                </span>
+              </div>
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">
+                {t('customers:table.totalSpent', {
+                  defaultValue: 'Total Spent',
+                })}
+              </p>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-white/10 text-center relative z-10">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-bold text-foreground">
+                  {customer.salesCount}
+                </span>{' '}
+                {t('customers:details.purchasesRecorded', {
+                  defaultValue: 'purchases recorded',
+                })}
+              </p>
+            </div>
           </div>
 
           {customer.sales.length > 0 && (
-            <div className="bg-card rounded-lg border p-6 md:col-span-2">
-              <h2 className="font-semibold mb-4">
+            <div className="bg-white/30 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-sm relative overflow-hidden md:col-span-2">
+              <h2 className="font-bold text-lg mb-6">
                 {t('customers:details.recentPurchases', {
                   defaultValue: 'Recent Purchases',
                 })}
@@ -277,28 +330,28 @@ function CustomerDetailPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2 font-medium">
+                    <tr className="border-b border-white/10">
+                      <th className="text-left py-3 px-2 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">
                         {t('customers:table.date', {
                           defaultValue: 'Date',
                         })}
                       </th>
-                      <th className="text-left py-2 font-medium">
+                      <th className="text-left py-3 px-2 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">
                         {t('customers:table.type', {
                           defaultValue: 'Type',
                         })}
                       </th>
-                      <th className="text-right py-2 font-medium">
+                      <th className="text-right py-3 px-2 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">
                         {t('customers:table.quantity', {
                           defaultValue: 'Quantity',
                         })}
                       </th>
-                      <th className="text-right py-2 font-medium">
+                      <th className="text-right py-3 px-2 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">
                         {t('customers:table.unitPrice', {
                           defaultValue: 'Unit Price',
                         })}
                       </th>
-                      <th className="text-right py-2 font-medium">
+                      <th className="text-right py-3 px-2 font-bold text-muted-foreground uppercase text-[10px] tracking-wider">
                         {t('customers:table.total', {
                           defaultValue: 'Total',
                         })}
@@ -307,16 +360,28 @@ function CustomerDetailPage() {
                   </thead>
                   <tbody>
                     {customer.sales.slice(0, 10).map((sale) => (
-                      <tr key={sale.id} className="border-b last:border-0">
-                        <td className="py-2">{formatDate(sale.date)}</td>
-                        <td className="py-2 capitalize">
-                          {sale.livestockType}
+                      <tr
+                        key={sale.id}
+                        className="border-b border-dashed border-white/10 last:border-0 hover:bg-white/5 transition-colors"
+                      >
+                        <td className="py-3 px-2 font-medium">
+                          {formatDate(sale.date)}
                         </td>
-                        <td className="py-2 text-right">{sale.quantity}</td>
-                        <td className="py-2 text-right">
+                        <td className="py-3 px-2 capitalize">
+                          <Badge
+                            variant="secondary"
+                            className="bg-white/20 dark:bg-white/5 font-normal"
+                          >
+                            {sale.livestockType}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-2 text-right">
+                          {sale.quantity}
+                        </td>
+                        <td className="py-3 px-2 text-right text-muted-foreground">
                           {formatCurrency(parseFloat(sale.unitPrice))}
                         </td>
-                        <td className="py-2 text-right font-medium">
+                        <td className="py-3 px-2 text-right font-bold">
                           {formatCurrency(parseFloat(sale.totalAmount))}
                         </td>
                       </tr>
@@ -330,7 +395,7 @@ function CustomerDetailPage() {
 
         {/* Edit Dialog */}
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-lg bg-white/80 dark:bg-black/80 backdrop-blur-xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl">
             <DialogHeader>
               <DialogTitle>
                 {t('customers:form.editTitle', {
@@ -476,7 +541,7 @@ function CustomerDetailPage() {
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-lg bg-white/80 dark:bg-black/80 backdrop-blur-xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl">
             <DialogHeader>
               <DialogTitle>
                 {t('customers:dialog.deleteTitle', {

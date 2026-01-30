@@ -25,12 +25,39 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
+import { Skeleton } from '~/components/ui/skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/suppliers/$supplierId')({
   component: SupplierDetailPage,
   loader: async ({ params }) => {
     return getSupplierWithExpenses(params.supplierId)
   },
+  pendingComponent: () => (
+    <div className="min-h-screen bg-background">
+      <main className="space-y-6">
+        <Skeleton className="h-6 w-32" />
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-32 mt-1" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-20" />
+            <Skeleton className="h-10 w-20" />
+          </div>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-48 md:col-span-2" />
+        </div>
+      </main>
+    </div>
+  ),
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
 })
 
 function SupplierDetailPage() {

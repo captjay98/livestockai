@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { useFormatCurrency } from '~/features/settings'
+import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/feed-formulation/prices')({
   loader: async () => {
@@ -21,6 +23,10 @@ export const Route = createFileRoute('/_auth/feed-formulation/prices')({
     return getIngredientsWithPricesFn()
   },
   component: PricesPage,
+  pendingComponent: DataTableSkeleton,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
 })
 
 function PricesPage() {

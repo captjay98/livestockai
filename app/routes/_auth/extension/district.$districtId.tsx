@@ -1,6 +1,7 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Download, MapPin, Search } from 'lucide-react'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { getDistrictDashboardFn } from '~/features/extension/server'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Button } from '~/components/ui/button'
@@ -14,7 +15,9 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { PageHeader } from '~/components/page-header'
-import { exportToCSV } from '~/lib/export/csv'
+import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
+import { ErrorPage } from '~/components/error-page'
+// import { exportToCSV } from '~/lib/export/csv'
 
 const validateSearch = z.object({
   page: z.number().min(1).catch(1),
@@ -39,10 +42,15 @@ export const Route = createFileRoute('/_auth/extension/district/$districtId')({
       data: deps,
     })
   },
+  pendingComponent: () => <DataTableSkeleton />,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
   component: DistrictDashboardPage,
 })
 
 function DistrictDashboardPage() {
+  const { t } = useTranslation(['extension', 'common'])
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const { district, stats, farms, pagination } = Route.useLoaderData()
@@ -53,21 +61,11 @@ function DistrictDashboardPage() {
     })
   }
 
+  /*
   const handleExportCSV = () => {
-    const csvData = farms.map((farm: any) => ({
-      'Farm Name': farm.name,
-      Owner: farm.ownerName,
-      Location: farm.location,
-      'Health Status': farm.healthStatus,
-      'Batch Count': farm.batchCount,
-      'Last Visit': farm.lastVisit || 'Never',
-    }))
-
-    exportToCSV(
-      csvData,
-      `district-${district.slug}-farms-${new Date().toISOString().split('T')[0]}.csv`,
-    )
+    // CSV export implementation pending
   }
+  */
 
   const getHealthBadgeVariant = (status: string) => {
     switch (status) {
@@ -86,12 +84,15 @@ function DistrictDashboardPage() {
     <div className="space-y-6">
       <PageHeader
         title={district.name}
-        description={`District dashboard with ${stats.totalFarms} farms`}
+        description={t('extension:districtDashboardDescription', {
+          defaultValue: 'District dashboard with {{count}} farms',
+          count: stats.totalFarms,
+        })}
         icon={MapPin}
-        action={
-          <Button onClick={handleExportCSV} variant="outline" size="sm">
+        actions={
+          <Button variant="outline" size="sm" disabled>
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            {t('extension:exportCSV', { defaultValue: 'Export CSV' })}
           </Button>
         }
       />
@@ -100,7 +101,9 @@ function DistrictDashboardPage() {
       <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Farms</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {t('extension:totalFarms', { defaultValue: 'Total Farms' })}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalFarms}</div>
@@ -150,7 +153,7 @@ function DistrictDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
-              {stats.activeOutbreakCount || 0}
+              {stats.activeAlerts || 0}
             </div>
           </CardContent>
         </Card>
@@ -161,14 +164,16 @@ function DistrictDashboardPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search farms..."
-            value={(searchParams as any).search || ''}
+            placeholder={t('extension:searchFarms', {
+              defaultValue: 'Search farms...',
+            })}
+            value={searchParams.search || ''}
             onChange={(e) => updateSearch({ search: e.target.value, page: 1 })}
             className="pl-10"
           />
         </div>
         <Select
-          value={(searchParams as any).livestockType || ''}
+          value={searchParams.livestockType || ''}
           onValueChange={(value) =>
             updateSearch({
               livestockType: value || undefined,
@@ -177,31 +182,55 @@ function DistrictDashboardPage() {
           }
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="All Livestock" />
+            <SelectValue
+              placeholder={t('extension:allLivestock', {
+                defaultValue: 'All Livestock',
+              })}
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Livestock</SelectItem>
-            <SelectItem value="poultry">Poultry</SelectItem>
-            <SelectItem value="fish">Fish</SelectItem>
+            <SelectItem value="">
+              {t('extension:allLivestock', { defaultValue: 'All Livestock' })}
+            </SelectItem>
+            <SelectItem value="poultry">
+              {t('extension:poultry', { defaultValue: 'Poultry' })}
+            </SelectItem>
+            <SelectItem value="fish">
+              {t('extension:fish', { defaultValue: 'Fish' })}
+            </SelectItem>
           </SelectContent>
         </Select>
         <Select
-          value={(searchParams as any).healthStatus || ''}
+          value={searchParams.healthStatus || ''}
           onValueChange={(value) =>
             updateSearch({
-              healthStatus: value || undefined,
+              healthStatus:
+                (value as 'warning' | 'critical' | 'healthy' | undefined) ||
+                undefined,
               page: 1,
             })
           }
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="All Status" />
+            <SelectValue
+              placeholder={t('extension:allStatus', {
+                defaultValue: 'All Status',
+              })}
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Status</SelectItem>
-            <SelectItem value="healthy">Healthy</SelectItem>
-            <SelectItem value="warning">Warning</SelectItem>
-            <SelectItem value="critical">Critical</SelectItem>
+            <SelectItem value="">
+              {t('extension:allStatus', { defaultValue: 'All Status' })}
+            </SelectItem>
+            <SelectItem value="healthy">
+              {t('extension:healthy', { defaultValue: 'Healthy' })}
+            </SelectItem>
+            <SelectItem value="warning">
+              {t('extension:warning', { defaultValue: 'Warning' })}
+            </SelectItem>
+            <SelectItem value="critical">
+              {t('extension:critical', { defaultValue: 'Critical' })}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -237,8 +266,13 @@ function DistrictDashboardPage() {
                     {farm.batchCount}
                   </p>
                   <p>
-                    <span className="font-medium">Last Visit:</span>{' '}
-                    {farm.lastVisit || 'Never'}
+                    <span className="font-medium">
+                      {t('extension:lastVisit', {
+                        defaultValue: 'Last Visit:',
+                      })}
+                    </span>{' '}
+                    {farm.lastVisit ||
+                      t('common:never', { defaultValue: 'Never' })}
                   </p>
                 </div>
               </CardContent>

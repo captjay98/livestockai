@@ -12,23 +12,23 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
+import { ErrorPage } from '~/components/error-page'
+import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
 
-export const Route = createFileRoute('/dashboard' as any)({
+export const Route = createFileRoute('/_auth/farms/$farmId/access')({
   component: AccessManagementPage,
-  loader: () => {
-    const farmId = 'farm-1' // Mock farm ID
-    return getAccessRequestsFn({ data: { farmId } })
+  loader: ({ params }) => {
+    return getAccessRequestsFn({ data: { farmId: params.farmId } })
   },
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading access data: {error.message}
-    </div>
+  pendingComponent: DataTableSkeleton,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
 })
 
 function AccessManagementPage() {
   const { t } = useTranslation(['common', 'farms'])
-  const farmId = 'farm-1' // Mock farm ID
+  const { farmId } = Route.useParams()
   const { pendingRequests, activeGrants } = Route.useLoaderData()
   const queryClient = useQueryClient()
 

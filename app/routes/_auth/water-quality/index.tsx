@@ -22,25 +22,32 @@ import { PageHeader } from '~/components/page-header'
 import { WaterQualityFormDialog } from '~/components/water-quality'
 import { WaterQualityFilters } from '~/components/water-quality/water-quality-filters'
 import { WaterQualitySkeleton } from '~/components/water-quality/water-quality-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/water-quality/')({
   validateSearch: validateWaterQualitySearch,
   loaderDeps: ({ search }) => ({
-    farmId: null, // Will be handled by server function
     page: search.page,
     pageSize: search.pageSize,
     sortBy: search.sortBy,
     sortOrder: search.sortOrder,
-    search: search.q,
+    q: search.q,
   }),
   loader: async ({ deps }) => {
-    return getWaterQualityDataForFarmFn({ data: deps })
+    return getWaterQualityDataForFarmFn({
+      data: {
+        farmId: undefined,
+        page: deps.page,
+        pageSize: deps.pageSize,
+        sortBy: deps.sortBy,
+        sortOrder: deps.sortOrder,
+        search: deps.q,
+      },
+    })
   },
   pendingComponent: WaterQualitySkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading water quality data: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: WaterQualityPage,
 })
@@ -52,8 +59,8 @@ function WaterQualityPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  // Get data from loader
-  const { paginatedRecords, batches } = Route.useLoaderData()
+  // Fetch data from loader
+  const data = Route.useLoaderData()
 
   const {
     selectedRecord,
@@ -90,6 +97,9 @@ function WaterQualityPage() {
       setDeleteDialogOpen(true)
     },
   })
+
+  // Extract data (loader handles loading/error states)
+  const { paginatedRecords, batches } = data
 
   return (
     <div className="space-y-6">
@@ -147,8 +157,8 @@ function WaterQualityPage() {
       <WaterQualityFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onSubmit={async (data) => {
-          await handleAddSubmit(data)
+        onSubmit={async (formData) => {
+          await handleAddSubmit(formData)
           setDialogOpen(false)
         }}
         batches={batches}
@@ -162,8 +172,8 @@ function WaterQualityPage() {
       <WaterQualityFormDialog
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
-        onSubmit={async (data) => {
-          await handleEditSubmit(data)
+        onSubmit={async (formData) => {
+          await handleEditSubmit(formData)
           setEditDialogOpen(false)
         }}
         batches={batches}

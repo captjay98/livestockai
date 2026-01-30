@@ -8,13 +8,14 @@ import { getInvoicesPaginatedFn } from '~/features/invoices/server'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { DataTable } from '~/components/ui/data-table'
-import { InvoiceDialog } from '~/components/dialogs/invoice-dialog'
+import { InvoiceDialog } from '~/components/invoices/invoice-dialog'
 import { InvoiceFilters } from '~/components/invoices/invoice-filters'
 import { InvoiceViewDialog } from '~/components/invoices/invoice-view-dialog'
 import { getInvoiceColumns } from '~/components/invoices/invoice-columns'
 import { useFarm } from '~/features/farms/context'
 import { PageHeader } from '~/components/page-header'
 import { InvoicesSkeleton } from '~/components/invoices/invoices-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/invoices/')({
   validateSearch: validateInvoiceSearch,
@@ -30,10 +31,8 @@ export const Route = createFileRoute('/_auth/invoices/')({
     return getInvoicesPaginatedFn({ data: deps })
   },
   pendingComponent: InvoicesSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading invoices: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: InvoicesPage,
 })

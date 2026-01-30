@@ -4,42 +4,89 @@ import {
   redirect,
   useLocation,
 } from '@tanstack/react-router'
+import type { User } from '~/features/auth/types'
 import { checkAuthFn } from '~/features/auth/server'
 import { checkNeedsOnboardingFn } from '~/features/onboarding/server'
 import { AppShell } from '~/components/layout/shell'
 import { FarmProvider, useFarm } from '~/features/farms/context'
 import { ModuleProvider } from '~/features/modules/context'
 
+// Type for Better Auth user with custom fields
+interface BetterAuthUser {
+  id: string
+  email: string
+  name: string | null
+  role: 'admin' | 'user'
+  banned: boolean
+  banReason: string | null
+  banExpires: Date | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Type guard to check if user has custom fields
+function hasCustomFields(user: unknown): user is BetterAuthUser {
+  return (
+    typeof user === 'object' &&
+    user !== null &&
+    'role' in user &&
+    'banned' in user
+  )
+}
+
+// Map Better Auth user to our User type with safe defaults
+function mapAuthUser(authUser: BetterAuthUser) {
+  return {
+    id: authUser.id,
+    email: authUser.email,
+    name: authUser.name,
+    role: authUser.role,
+    banned: authUser.banned,
+    banReason: authUser.banReason,
+    banExpires: authUser.banExpires,
+    createdAt: authUser.createdAt,
+    updatedAt: authUser.updatedAt,
+  }
+}
+
 export const Route = createFileRoute('/_auth')({
+  // Disable caching for this loader since onboarding status can change
+  staleTime: 0,
+  gcTime: 0,
   beforeLoad: async ({ location }) => {
     try {
-      const { user: authUser } = await checkAuthFn({ data: {} })
+      // Fetch auth and onboarding status in parallel
+      const [authResult, onboardingResult] = await Promise.all([
+        checkAuthFn({ data: {} }),
+        location.pathname.startsWith('/onboarding')
+          ? Promise.resolve({ needsOnboarding: false })
+          : checkNeedsOnboardingFn({ data: {} }),
+      ])
 
-      // Map to our User type (cast to any to access custom fields)
-      const user = {
-        id: authUser.id,
-        email: authUser.email,
-        name: authUser.name,
-        role: (authUser as any).role as 'admin' | 'user',
-        banned: (authUser as any).banned || false,
-        banReason: (authUser as any).banReason || null,
-        banExpires: (authUser as any).banExpires || null,
-        createdAt: authUser.createdAt,
-        updatedAt: authUser.updatedAt,
+      const { user: authUser } = authResult || { user: null }
+      const { needsOnboarding } = onboardingResult
+
+      if (!authUser) {
+        throw redirect({ to: '/login' })
       }
 
-      // Skip onboarding check if already on onboarding page
-      if (location.pathname === '/onboarding') {
-        return { user, needsOnboarding: false }
-      }
-
-      // Check if user needs onboarding
-      const { needsOnboarding } = await checkNeedsOnboardingFn({
-        data: {},
-      })
+      // Safely map user with type guard
+      const user = hasCustomFields(authUser)
+        ? mapAuthUser(authUser)
+        : {
+            id: authUser.id,
+            email: authUser.email,
+            name: authUser.name,
+            role: 'user' as const,
+            banned: false,
+            banReason: null,
+            banExpires: null,
+            createdAt: authUser.createdAt,
+            updatedAt: authUser.updatedAt,
+          }
 
       // Redirect new users to onboarding
-      if (needsOnboarding) {
+      if (needsOnboarding && !location.pathname.startsWith('/onboarding')) {
         throw redirect({ to: '/onboarding' })
       }
 
@@ -54,7 +101,7 @@ export const Route = createFileRoute('/_auth')({
         error &&
         typeof error === 'object' &&
         'reason' in error &&
-        (error as any).reason === 'UNAUTHORIZED'
+        (error as { reason?: string }).reason === 'UNAUTHORIZED'
       ) {
         throw redirect({ to: '/login' })
       }
@@ -83,7 +130,7 @@ function AuthLayout() {
   return (
     <FarmProvider>
       <ModuleProviderWrapper>
-        <AppShell user={user}>
+        <AppShell user={user as User}>
           <Outlet />
         </AppShell>
       </ModuleProviderWrapper>

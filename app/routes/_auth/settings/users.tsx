@@ -5,6 +5,7 @@ import type { FarmData, UserData } from '~/components/settings/users'
 import { listUsersFn } from '~/features/users/server'
 import { getUserFarmsWithRolesFn } from '~/features/farms/server'
 import { UsersSkeleton } from '~/components/settings/users-skeleton'
+import { ErrorPage } from '~/components/error-page'
 import { Button } from '~/components/ui/button'
 import {
   AlertDialog,
@@ -44,8 +45,8 @@ export const Route = createFileRoute('/_auth/settings/users')({
   },
   component: UsersSettingsPage,
   pendingComponent: UsersSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">Error loading users: {error.message}</div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
 })
 

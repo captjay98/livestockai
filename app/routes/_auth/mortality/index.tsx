@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Plus, Skull, TrendingDown } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import type { MortalityRecord } from '~/components/mortality/mortality-columns'
 import { validateMortalitySearch } from '~/features/mortality/validation'
 import { getMortalityDataForFarmFn } from '~/features/mortality/server'
 import { useMortalityPage } from '~/features/mortality/use-mortality-page'
@@ -19,6 +20,7 @@ import { DeleteMortalityDialog } from '~/components/mortality/delete-dialog'
 import { getMortalityColumns } from '~/components/mortality/mortality-columns'
 import { MortalityFilters } from '~/components/mortality/mortality-filters'
 import { MortalitySkeleton } from '~/components/mortality/mortality-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/mortality/')({
   validateSearch: validateMortalitySearch,
@@ -34,10 +36,8 @@ export const Route = createFileRoute('/_auth/mortality/')({
     return getMortalityDataForFarmFn({ data: deps })
   },
   pendingComponent: MortalitySkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading mortality data: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: MortalityPage,
 })
@@ -132,7 +132,7 @@ function MortalityPage() {
 
       <DataTable
         columns={columns}
-        data={paginatedRecords.data as any}
+        data={paginatedRecords.data as Array<MortalityRecord>}
         total={paginatedRecords.total}
         page={paginatedRecords.page}
         pageSize={paginatedRecords.pageSize}

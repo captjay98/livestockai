@@ -13,6 +13,7 @@ import { DeleteHealthDialog } from '~/components/vaccinations/delete-dialog'
 import { VaccinationTabs } from '~/components/vaccinations/vaccination-tabs'
 import { HealthDataTable } from '~/components/vaccinations/health-data-table'
 import { VaccinationsSkeleton } from '~/components/vaccinations/vaccinations-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/vaccinations/')({
   validateSearch: (search: Record<string, unknown>): PaginatedQuery => {
@@ -41,7 +42,6 @@ export const Route = createFileRoute('/_auth/vaccinations/')({
     }
   },
   loaderDeps: ({ search }) => ({
-    farmId: null, // Will be handled by server function
     page: search.page,
     pageSize: search.pageSize,
     sortBy: search.sortBy,
@@ -50,13 +50,21 @@ export const Route = createFileRoute('/_auth/vaccinations/')({
     type: search.type,
   }),
   loader: async ({ deps }) => {
-    return getHealthDataForFarmFn({ data: deps })
+    return getHealthDataForFarmFn({
+      data: {
+        farmId: undefined,
+        page: deps.page,
+        pageSize: deps.pageSize,
+        sortBy: deps.sortBy,
+        sortOrder: deps.sortOrder,
+        search: deps.search,
+        type: deps.type,
+      },
+    })
   },
   pendingComponent: VaccinationsSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading vaccinations: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: VaccinationsPage,
 })
@@ -69,8 +77,8 @@ function VaccinationsPage() {
   const searchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  // Get data from loader
-  const { paginatedRecords, batches, alerts } = Route.useLoaderData()
+  // Fetch data from loader
+  const data = Route.useLoaderData()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -97,6 +105,9 @@ function VaccinationsPage() {
     await router.invalidate()
   }
 
+  // Extract data (loader handles loading/error states)
+  const { paginatedRecords, batches, alerts } = data
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -117,7 +128,9 @@ function VaccinationsPage() {
         }
       />
 
-      <HealthAlerts alerts={alerts} formatDate={formatDate} />
+      <div className="grid gap-6 md:grid-cols-2">
+        <HealthAlerts alerts={alerts} formatDate={formatDate} />
+      </div>
 
       <HealthDataTable
         paginatedRecords={paginatedRecords}
@@ -149,8 +162,8 @@ function VaccinationsPage() {
       <HealthFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onSubmit={(data) =>
-          handleFormSubmit(data, selectedFarmId || '', handleSuccess)
+        onSubmit={(formData) =>
+          handleFormSubmit(formData, selectedFarmId || '', handleSuccess)
         }
         batches={batches}
         type={dialogType}

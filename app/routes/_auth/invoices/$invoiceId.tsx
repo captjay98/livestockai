@@ -23,12 +23,18 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
+import { Skeleton } from '~/components/ui/skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/invoices/$invoiceId')({
   component: InvoiceDetailPage,
   loader: async ({ params }) => {
     return getInvoiceByIdFn({ data: { invoiceId: params.invoiceId } })
   },
+  pendingComponent: () => <Skeleton className="h-96 w-full" />,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
 })
 
 function InvoiceDetailPage() {

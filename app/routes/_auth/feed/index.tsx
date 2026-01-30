@@ -21,15 +21,17 @@ import { DataTable } from '~/components/ui/data-table'
 import { useFarm } from '~/features/farms/context'
 import { PageHeader } from '~/components/page-header'
 import { FeedFormDialog, FeedSummary } from '~/components/feed'
+import { FeedInventorySummary } from '~/components/feed/feed-inventory-summary'
 import { DeleteFeedDialog } from '~/components/feed/delete-dialog'
 import { getFeedColumns } from '~/components/feed/feed-columns'
 import { FeedFilters } from '~/components/feed/feed-filters'
 import { FeedSkeleton } from '~/components/feed/feed-skeleton'
+import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/feed/')({
   validateSearch: validateFeedSearch,
   loaderDeps: ({ search }) => ({
-    farmId: search.farmId || undefined,
+    farmId: search.farmId,
     page: search.page,
     pageSize: search.pageSize,
     sortBy: search.sortBy,
@@ -41,10 +43,8 @@ export const Route = createFileRoute('/_auth/feed/')({
     return getFeedDataForFarmFn({ data: deps })
   },
   pendingComponent: FeedSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading feed records: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: FeedPage,
 })
@@ -87,7 +87,7 @@ function FeedPage() {
     setDeleteDialogOpen(true)
   }
 
-  const handleCreateSubmit = async (data: any) => {
+  const handleCreateSubmit = async (formData: any) => {
     if (!selectedFarmId) return
     setIsSubmitting(true)
     try {
@@ -95,9 +95,9 @@ function FeedPage() {
         data: {
           farmId: selectedFarmId,
           record: {
-            ...data,
-            quantityKg: parseFloat(data.quantityKg),
-            cost: parseFloat(data.cost),
+            ...formData,
+            quantityKg: parseFloat(formData.quantityKg),
+            cost: parseFloat(formData.cost),
           },
         },
       })
@@ -110,7 +110,7 @@ function FeedPage() {
     }
   }
 
-  const handleEditSubmit = async (data: any) => {
+  const handleEditSubmit = async (formData: any) => {
     if (!selectedRecord || !selectedFarmId) return
     setIsSubmitting(true)
     try {
@@ -119,10 +119,10 @@ function FeedPage() {
           farmId: selectedFarmId,
           recordId: selectedRecord.id,
           data: {
-            ...data,
-            quantityKg: parseFloat(data.quantityKg),
-            cost: parseFloat(data.cost),
-            date: new Date(data.date),
+            ...formData,
+            quantityKg: parseFloat(formData.quantityKg),
+            cost: parseFloat(formData.cost),
+            date: new Date(formData.date),
           },
         },
       })
@@ -167,6 +167,8 @@ function FeedPage() {
     [t, formatDate, formatCurrency, formatWeight],
   )
 
+  // Extract data
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -181,7 +183,20 @@ function FeedPage() {
         }
       />
 
-      <FeedSummary summary={summary} inventoryCount={inventory.length} />
+      {/* Summary Stats */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
+        <FeedSummary
+          summary={{
+            totalQuantityKg: summary.totalQuantityKg,
+            totalCost: summary.totalCost,
+            recordCount: summary.recordCount,
+          }}
+          inventoryCount={inventory.length}
+        />
+      </div>
+
+      {/* Inventory Card */}
+      <FeedInventorySummary inventory={inventory as any} />
 
       <DataTable
         columns={columns}
@@ -215,8 +230,8 @@ function FeedPage() {
       <FeedFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onSubmit={async (data) => {
-          await handleCreateSubmit(data)
+        onSubmit={async (feedData) => {
+          await handleCreateSubmit(feedData)
           setDialogOpen(false)
         }}
         batches={batches}
@@ -229,8 +244,8 @@ function FeedPage() {
       <FeedFormDialog
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
-        onSubmit={async (data) => {
-          await handleEditSubmit(data)
+        onSubmit={async (feedData) => {
+          await handleEditSubmit(feedData)
           setEditDialogOpen(false)
         }}
         batches={batches}

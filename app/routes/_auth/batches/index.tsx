@@ -1,68 +1,67 @@
-import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Package, Plus, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
+import type { z } from 'zod'
 import type { Batch } from '~/components/batches/batch-columns'
 import { validateBatchSearch } from '~/features/batches/validation'
-import {
-  deleteBatchFn,
-  getBatchesForFarmFn,
-  updateBatchFn,
-} from '~/features/batches/server'
+import { getBatchesForFarmFn } from '~/features/batches/server'
 import { useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { DataTable } from '~/components/ui/data-table'
 import { PageHeader } from '~/components/page-header'
-import { BatchDialog } from '~/components/dialogs/batch-dialog'
+import { BatchDialog } from '~/components/batches/batch-dialog'
 import { BatchSummaryCards } from '~/components/batches/batch-summary-cards'
 import { BatchEditDialog } from '~/components/batches/batch-edit-dialog'
 import { BatchDeleteDialog } from '~/components/batches/batch-delete-dialog'
 import { getBatchColumns } from '~/components/batches/batch-columns'
 import { BatchFilters } from '~/components/batches/batch-filters'
 import { BatchesSkeleton } from '~/components/batches/batches-skeleton'
+import { useBatchMutations } from '~/features/batches/mutations'
+import { ErrorPage } from '~/components/error-page'
+
+type BatchSearchParams = z.infer<typeof validateBatchSearch>
 
 export const Route = createFileRoute('/_auth/batches/')({
   validateSearch: validateBatchSearch,
   loaderDeps: ({ search }) => ({
-    farmId: search.farmId,
-    page: search.page,
-    pageSize: search.pageSize,
-    sortBy: search.sortBy,
-    sortOrder: search.sortOrder,
-    search: search.q,
-    status: search.status,
-    livestockType: search.livestockType,
-    breedId: search.breedId,
+    farmId: search.farmId as string | undefined,
+    page: search.page as number | undefined,
+    pageSize: search.pageSize as number | undefined,
+    sortBy: search.sortBy as string | undefined,
+    sortOrder: search.sortOrder as 'asc' | 'desc' | undefined,
+    search: search.q as string | undefined,
+    status: search.status as string | undefined,
+    livestockType: search.livestockType as string | undefined,
+    breedId: search.breedId as string | undefined,
   }),
   loader: async ({ deps }) => {
     return getBatchesForFarmFn({ data: deps })
   },
   pendingComponent: BatchesSkeleton,
-  errorComponent: ({ error }) => (
-    <div className="p-4 text-red-600">
-      Error loading batches: {error.message}
-    </div>
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
   ),
   component: BatchesPage,
 })
 
 function BatchesPage() {
-  const router = useRouter()
   const { t } = useTranslation(['batches', 'common'])
   const { format: formatDate } = useFormatDate()
-  const searchParams = Route.useSearch()
+  const searchParams: BatchSearchParams = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  // Get data from loader
-  const { paginatedBatches, summary } = Route.useLoaderData()
+  // Fetch data from loader
+  const data = Route.useLoaderData()
 
   // Dialog states
   const [batchDialogOpen, setBatchDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { updateBatch, deleteBatch } = useBatchMutations()
+  const isSubmitting = updateBatch.isPending || deleteBatch.isPending
 
   // Navigation helper for search params
   const updateSearch = (updates: Partial<typeof searchParams>) => {
@@ -76,49 +75,25 @@ function BatchesPage() {
   }
 
   // Edit batch handler
-  const handleEditSubmit = async (data: any) => {
+  const handleEditSubmit = async (formData: {
+    currentQuantity: string
+    status: 'active' | 'depleted' | 'sold'
+    breedId: string | null
+  }) => {
     if (!selectedBatch) return
 
-    setIsSubmitting(true)
-    try {
-      await updateBatchFn({ data: { id: selectedBatch.id, ...data } })
-      toast.success(
-        t('edit.success', {
-          defaultValue: 'Batch updated successfully',
-        }),
-      )
-      setEditDialogOpen(false)
-      setSelectedBatch(null)
-      // Invalidate and refetch
-      await router.invalidate()
-    } catch (error) {
-      toast.error(t('edit.error', { defaultValue: 'Failed to update batch' }))
-    } finally {
-      setIsSubmitting(false)
-    }
+    await updateBatch.mutateAsync({ batchId: selectedBatch.id, batch: formData })
+    setEditDialogOpen(false)
+    setSelectedBatch(null)
   }
 
   // Delete batch handler
   const handleDeleteConfirm = async () => {
     if (!selectedBatch) return
 
-    setIsSubmitting(true)
-    try {
-      await deleteBatchFn({ data: { batchId: selectedBatch.id } })
-      toast.success(
-        t('delete.success', {
-          defaultValue: 'Batch deleted successfully',
-        }),
-      )
-      setDeleteDialogOpen(false)
-      setSelectedBatch(null)
-      // Invalidate and refetch
-      await router.invalidate()
-    } catch (error) {
-      toast.error(t('delete.error', { defaultValue: 'Failed to delete batch' }))
-    } finally {
-      setIsSubmitting(false)
-    }
+    await deleteBatch.mutateAsync({ batchId: selectedBatch.id })
+    setDeleteDialogOpen(false)
+    setSelectedBatch(null)
   }
 
   const handleEditBatch = (batch: Batch) => {
@@ -141,6 +116,9 @@ function BatchesPage() {
       }),
     [t, formatDate],
   )
+
+  // Extract data (loader handles loading/error states)
+  const { paginatedBatches, summary } = data
 
   return (
     <div className="space-y-6">
@@ -168,16 +146,17 @@ function BatchesPage() {
         page={paginatedBatches.page}
         pageSize={paginatedBatches.pageSize}
         totalPages={paginatedBatches.totalPages}
-        sortBy={searchParams.sortBy}
-        sortOrder={searchParams.sortOrder}
-        searchValue={searchParams.q}
+        sortBy={searchParams.sortBy as string | undefined}
+        sortOrder={searchParams.sortOrder as 'asc' | 'desc' | undefined}
+        searchValue={searchParams.q as string | undefined}
         searchPlaceholder={t('common:search', {
           defaultValue: 'Search...',
         })}
+        containerClassName="bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden"
         filters={
           <BatchFilters
-            livestockType={searchParams.livestockType}
-            breedId={searchParams.breedId}
+            livestockType={searchParams.livestockType as string | undefined}
+            breedId={searchParams.breedId as string | undefined}
             onStatusChange={(status) => updateSearch({ status, page: 1 })}
             onLivestockTypeChange={(livestockType) =>
               updateSearch({
@@ -198,7 +177,11 @@ function BatchesPage() {
         onSearchChange={(q) => {
           updateSearch({ q, page: 1 })
         }}
-        emptyIcon={<Users className="h-12 w-12 text-muted-foreground" />}
+        emptyIcon={
+          <div className="p-4 rounded-full bg-white/40 dark:bg-white/10 w-fit mx-auto mb-6 shadow-inner border border-white/20">
+            <Users className="h-10 w-10 text-primary/40" />
+          </div>
+        }
         emptyTitle={t('empty.title', {
           defaultValue: 'No batches found',
         })}

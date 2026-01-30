@@ -3,9 +3,11 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { Download, Eye, History, Trash2 } from 'lucide-react'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import { DataTable } from '~/components/ui/data-table'
+import { DataTableSkeleton } from '~/components/ui/data-table-skeleton'
 import { PageHeader } from '~/components/page-header'
 import {
   Select,
@@ -30,6 +32,7 @@ import {
   getReportsHistoryFn,
 } from '~/features/credit-passport/server'
 import { useFormatDate } from '~/features/settings'
+import { ErrorPage } from '~/components/error-page'
 
 const searchSchema = z.object({
   page: z.number().int().positive().optional().default(1),
@@ -45,6 +48,10 @@ export const Route = createFileRoute('/_auth/credit-passport/history')({
   loader: async ({ deps }) => {
     return getReportsHistoryFn({ data: deps })
   },
+  pendingComponent: DataTableSkeleton,
+  errorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
   component: ReportHistoryPage,
 })
 
@@ -61,7 +68,23 @@ const REPORT_TYPE_LABELS = {
   impact_report: 'Impact Report',
 }
 
+interface ReportHistoryData {
+  reports: Array<{
+    id: string
+    reportType: string
+    status: string
+    createdAt: string
+    verificationCount?: number
+    expiresAt?: string
+  }>
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
 function ReportHistoryPage() {
+  const { t } = useTranslation(['credit-passport', 'common'])
   const router = useRouter()
   const navigate = useNavigate()
   const { format: formatDate } = useFormatDate()
@@ -71,15 +94,17 @@ function ReportHistoryPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedReport, setSelectedReport] = useState<
-    (typeof loaderData.reports)[number] | null
+    ReportHistoryData['reports'][number] | null
   >(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const filteredReports = loaderData.reports.filter((report) => {
-    if (typeFilter !== 'all' && report.reportType !== typeFilter) return false
-    if (statusFilter !== 'all' && report.status !== statusFilter) return false
-    return true
-  })
+  const filteredReports = (loaderData.reports as Array<any>).filter(
+    (report: any) => {
+      if (typeFilter !== 'all' && report.reportType !== typeFilter) return false
+      if (statusFilter !== 'all' && report.status !== statusFilter) return false
+      return true
+    },
+  )
 
   const handlePaginationChange = (page: number, pageSize: number) => {
     navigate({
@@ -94,7 +119,7 @@ function ReportHistoryPage() {
 
   const handleDownload = async (reportId: string) => {
     try {
-      const result = await downloadReportFn({ data: { reportId } })
+      const result = (await downloadReportFn({ data: { reportId } })) as any
       // Convert base64 content to blob
       const binaryString = atob(result.content)
       const bytes = new Uint8Array(binaryString.length)
@@ -111,7 +136,11 @@ function ReportHistoryPage() {
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (error) {
-      toast.error('Failed to download report')
+      toast.error(
+        t('credit-passport:downloadFailed', {
+          defaultValue: 'Failed to download report',
+        }),
+      )
     }
   }
 
@@ -121,12 +150,20 @@ function ReportHistoryPage() {
     setIsDeleting(true)
     try {
       await deleteReportFn({ data: { reportId: selectedReport.id } })
-      toast.success('Report deleted successfully')
+      toast.success(
+        t('credit-passport:reportDeleted', {
+          defaultValue: 'Report deleted successfully',
+        }),
+      )
       setDeleteDialogOpen(false)
       setSelectedReport(null)
       router.invalidate()
     } catch (error) {
-      toast.error('Failed to delete report')
+      toast.error(
+        t('credit-passport:deleteFailed', {
+          defaultValue: 'Failed to delete report',
+        }),
+      )
     } finally {
       setIsDeleting(false)
     }
@@ -209,12 +246,19 @@ function ReportHistoryPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Report History"
-        description="View and manage your generated credit passport reports"
+        title={t('credit-passport:reportHistory', {
+          defaultValue: 'Report History',
+        })}
+        description={t('credit-passport:historyDescription', {
+          defaultValue:
+            'View and manage your generated credit passport reports',
+        })}
         icon={History}
         actions={
           <Button onClick={() => router.navigate({ to: '/credit-passport' })}>
-            Generate New Report
+            {t('credit-passport:generateNewReport', {
+              defaultValue: 'Generate New Report',
+            })}
           </Button>
         }
       />
@@ -225,15 +269,33 @@ function ReportHistoryPage() {
           onValueChange={(value) => setTypeFilter(value ?? 'all')}
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by type" />
+            <SelectValue
+              placeholder={t('credit-passport:filters.filterByType', {
+                defaultValue: 'Filter by type',
+              })}
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="credit_assessment">Credit Assessment</SelectItem>
-            <SelectItem value="production_certificate">
-              Production Certificate
+            <SelectItem value="all">
+              {t('credit-passport:filters.allTypes', {
+                defaultValue: 'All Types',
+              })}
             </SelectItem>
-            <SelectItem value="impact_report">Impact Report</SelectItem>
+            <SelectItem value="credit_assessment">
+              {t('credit-passport:types.creditAssessment', {
+                defaultValue: 'Credit Assessment',
+              })}
+            </SelectItem>
+            <SelectItem value="production_certificate">
+              {t('credit-passport:types.productionCertificate', {
+                defaultValue: 'Production Certificate',
+              })}
+            </SelectItem>
+            <SelectItem value="impact_report">
+              {t('credit-passport:types.impactReport', {
+                defaultValue: 'Impact Report',
+              })}
+            </SelectItem>
           </SelectContent>
         </Select>
 
@@ -242,14 +304,30 @@ function ReportHistoryPage() {
           onValueChange={(value) => setStatusFilter(value ?? 'all')}
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue
+              placeholder={t('credit-passport:filters.filterByStatus', {
+                defaultValue: 'Filter by status',
+              })}
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="failed">Failed</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
+            <SelectItem value="all">
+              {t('credit-passport:filters.allStatus', {
+                defaultValue: 'All Status',
+              })}
+            </SelectItem>
+            <SelectItem value="pending">
+              {t('common:status.pending', { defaultValue: 'Pending' })}
+            </SelectItem>
+            <SelectItem value="completed">
+              {t('common:status.completed', { defaultValue: 'Completed' })}
+            </SelectItem>
+            <SelectItem value="failed">
+              {t('common:status.failed', { defaultValue: 'Failed' })}
+            </SelectItem>
+            <SelectItem value="expired">
+              {t('common:status.expired', { defaultValue: 'Expired' })}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -257,13 +335,18 @@ function ReportHistoryPage() {
       <DataTable
         columns={columns}
         data={filteredReports}
-        total={loaderData.pagination.total}
-        page={loaderData.pagination.page}
-        pageSize={loaderData.pagination.pageSize}
-        totalPages={loaderData.pagination.totalPages}
+        total={loaderData.total}
+        page={loaderData.page}
+        pageSize={loaderData.pageSize}
+        totalPages={loaderData.totalPages}
         emptyIcon={<History className="h-12 w-12 text-muted-foreground" />}
-        emptyTitle="No reports found"
-        emptyDescription="Generate your first credit passport report to get started."
+        emptyTitle={t('credit-passport:empty.total', {
+          defaultValue: 'No reports found',
+        })}
+        emptyDescription={t('credit-passport:empty.desc', {
+          defaultValue:
+            'Generate your first credit passport report to get started.',
+        })}
         onPaginationChange={handlePaginationChange}
         onSortChange={handleSortChange}
       />
@@ -271,20 +354,28 @@ function ReportHistoryPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Report</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t('credit-passport:deleteReport', {
+                defaultValue: 'Delete Report',
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete this report? This action cannot be
               undone. The report will no longer be accessible for verification.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              {t('common:cancel', { defaultValue: 'Cancel' })}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting
+                ? t('common:status.deleting', { defaultValue: 'Deleting...' })
+                : t('common:delete', { defaultValue: 'Delete' })}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
