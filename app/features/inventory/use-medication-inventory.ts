@@ -1,18 +1,16 @@
-import { useState } from 'react'
-import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import {
-  createMedicationFn,
-  deleteMedicationFn,
-  updateMedicationFn,
-} from './medication-server'
+import { useMedicationMutations } from './mutations'
 import type { MedicationUnit } from './index'
 
 export function useMedicationInventory(selectedFarmId: string | null) {
-  const { t } = useTranslation(['inventory'])
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { t } = useTranslation(['errors'])
+  const {
+    createMedication: createMedicationM,
+    updateMedication: updateMedicationM,
+    deleteMedication: deleteMedicationM,
+    isPending: isSubmitting,
+  } = useMedicationMutations()
 
   const createMedication = async (data: {
     medicationName: string
@@ -22,19 +20,20 @@ export function useMedicationInventory(selectedFarmId: string | null) {
     minThreshold: number
   }) => {
     if (!selectedFarmId) {
-      toast.error('No farm selected')
+      toast.error(
+        t('errors:noFarmSelected', {
+          defaultValue: 'No farm selected',
+        }),
+      )
       return
     }
-    setIsSubmitting(true)
-    try {
-      await createMedicationFn({
-        data: { input: { farmId: selectedFarmId, ...data } },
-      })
-      toast.success(t('medication.recorded'))
-      await router.invalidate() // Reload to refresh loader data
-    } finally {
-      setIsSubmitting(false)
-    }
+    await createMedicationM.mutateAsync({
+      farmId: selectedFarmId,
+      medicationName: data.medicationName,
+      quantity: data.quantity,
+      unit: data.unit,
+      minThreshold: data.minThreshold,
+    })
   }
 
   const updateMedication = async (
@@ -45,24 +44,11 @@ export function useMedicationInventory(selectedFarmId: string | null) {
       minThreshold: number
     },
   ) => {
-    setIsSubmitting(true)
-    try {
-      await updateMedicationFn({ data: { id, input: data } })
-      await router.invalidate() // Reload to refresh loader data
-    } finally {
-      setIsSubmitting(false)
-    }
+    await updateMedicationM.mutateAsync({ id, ...data })
   }
 
   const deleteMedication = async (id: string) => {
-    setIsSubmitting(true)
-    try {
-      await deleteMedicationFn({ data: { id } })
-      toast.success(t('medication.deleted'))
-      await router.invalidate() // Reload to refresh loader data
-    } finally {
-      setIsSubmitting(false)
-    }
+    await deleteMedicationM.mutateAsync(id)
   }
 
   return {

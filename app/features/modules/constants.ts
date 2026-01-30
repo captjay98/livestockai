@@ -22,12 +22,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'grower', label: 'Grower (4-8 weeks)' },
       { value: 'point-of-lay', label: 'Point-of-lay (16-18 weeks)' },
     ],
-    feedTypes: [
-      'starter-crumble',
-      'grower-pellet',
-      'finisher-pellet',
-      'layer-mash',
-    ],
+    feedTypes: ['starter', 'grower', 'finisher', 'layer_mash'],
     structureTypes: ['house', 'pen', 'cage'],
   },
 
@@ -43,7 +38,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'juvenile', label: 'Juvenile (4-6 inches)' },
       { value: 'jumbo', label: 'Jumbo (6+ inches)' },
     ],
-    feedTypes: ['fish-feed'],
+    feedTypes: ['fish_feed'],
     structureTypes: ['pond', 'cage'],
   },
 
@@ -60,7 +55,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'yearling', label: 'Yearling (12-24 months)' },
       { value: 'adult', label: 'Adult (24+ months)' },
     ],
-    feedTypes: ['cattle-feed', 'hay', 'silage'],
+    feedTypes: ['cattle_feed', 'hay', 'silage'],
     structureTypes: ['barn', 'pasture', 'pen', 'milking_parlor'],
   },
 
@@ -77,7 +72,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'yearling', label: 'Yearling (12-24 months)' },
       { value: 'adult', label: 'Adult (24+ months)' },
     ],
-    feedTypes: ['goat-feed', 'hay'],
+    feedTypes: ['goat_feed', 'hay'],
     structureTypes: ['barn', 'pasture', 'pen', 'milking_parlor'],
   },
 
@@ -94,7 +89,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'yearling', label: 'Yearling (12-24 months)' },
       { value: 'adult', label: 'Adult (24+ months)' },
     ],
-    feedTypes: ['sheep-feed', 'hay'],
+    feedTypes: ['sheep_feed', 'hay'],
     structureTypes: ['barn', 'pasture', 'pen', 'shearing_shed'],
   },
 
@@ -111,7 +106,7 @@ export const MODULE_METADATA: Record<ModuleKey, ModuleMetadata> = {
       { value: 'swarm', label: 'Captured Swarm' },
       { value: 'established', label: 'Established Colony' },
     ],
-    feedTypes: ['bee-feed'],
+    feedTypes: ['bee_feed'],
     structureTypes: ['hive'],
   },
 }
@@ -131,8 +126,10 @@ export const DEFAULT_MODULES_BY_FARM_TYPE: Record<string, Array<ModuleKey>> = {
 // Core navigation items (always visible regardless of modules)
 export const CORE_NAVIGATION = [
   'Dashboard',
+  'Tasks',
   'Reports',
   'Workers',
+  'Staff',
   'Attendance',
   'Payroll',
   'Sales',
@@ -140,8 +137,13 @@ export const CORE_NAVIGATION = [
   'Invoices',
   'Customers',
   'Suppliers',
+  'Sensors',
+  'Credit Passport',
+  'Browse Listings',
   'Farms',
+  'My Farms',
   'Settings',
+  'Preferences',
 ]
 
 // Extension worker navigation items (only visible if user has user_districts entries)
@@ -150,6 +152,7 @@ export const EXTENSION_NAVIGATION = ['District Dashboard', 'My Grants']
 // Module-specific navigation items
 export const MODULE_NAVIGATION: Record<ModuleKey, Array<string>> = {
   poultry: [
+    'Livestock',
     'Batches',
     'Mortality',
     'Feed',
@@ -157,8 +160,10 @@ export const MODULE_NAVIGATION: Record<ModuleKey, Array<string>> = {
     'Sales',
     'Health',
     'Inventory',
+    'Eggs',
   ],
   aquaculture: [
+    'Livestock',
     'Batches',
     'Mortality',
     'Feed',
@@ -166,9 +171,11 @@ export const MODULE_NAVIGATION: Record<ModuleKey, Array<string>> = {
     'Sales',
     'Health',
     'Water',
+    'Water Quality',
     'Inventory',
   ],
   cattle: [
+    'Livestock',
     'Batches',
     'Mortality',
     'Feed',
@@ -178,6 +185,7 @@ export const MODULE_NAVIGATION: Record<ModuleKey, Array<string>> = {
     'Inventory',
   ],
   goats: [
+    'Livestock',
     'Batches',
     'Mortality',
     'Feed',
@@ -187,6 +195,7 @@ export const MODULE_NAVIGATION: Record<ModuleKey, Array<string>> = {
     'Inventory',
   ],
   sheep: [
+    'Livestock',
     'Batches',
     'Mortality',
     'Feed',
@@ -195,5 +204,5 @@ export const MODULE_NAVIGATION: Record<ModuleKey, Array<string>> = {
     'Health',
     'Inventory',
   ],
-  bees: ['Batches', 'Sales', 'Inventory'],
+  bees: ['Livestock', 'Batches', 'Sales', 'Inventory'],
 }

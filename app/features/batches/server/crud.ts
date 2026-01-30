@@ -96,6 +96,15 @@ export async function createBatch(
       notes: data.notes || null,
     })
 
+    // Seed batch-specific tasks based on livestock type
+    try {
+      const { seedBatchTasks } = await import('../../tasks/server')
+      await seedBatchTasks(data.farmId, result, data.livestockType)
+    } catch (taskError) {
+      // Log but don't fail batch creation if task seeding fails
+      console.error('Failed to seed batch tasks:', taskError)
+    }
+
     return result
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -304,11 +313,21 @@ export async function updateBatchQuantity(
 
 // Server function for client-side calls
 export const createBatchFn = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ batch: createBatchSchema }))
+  .inputValidator((input: unknown) => {
+    const schema = z.object({ batch: createBatchSchema })
+    const result = schema.safeParse(input)
+    if (!result.success) {
+      const fieldErrors = result.error.issues.map(
+        (e) => `${e.path.join('.')}: ${e.message}`,
+      )
+      // Use plain Error - AppError doesn't serialize across network boundary in inputValidator
+      throw new Error(`Validation failed: ${fieldErrors.join('; ')}`)
+    }
+    return result.data
+  })
   .handler(async ({ data }) => {
     const { requireAuth } = await import('../../auth/server-middleware')
     const session = await requireAuth()
-    // Type assertion to ensure compatibility with CreateBatchData interface
     return createBatch(session.user.id, data.batch as CreateBatchData)
   })
 

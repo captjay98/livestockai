@@ -18,8 +18,10 @@ export default [
       'prettier.config.js',
       'public/docs/**',
       'public/typedocs/**',
+      'public/sw.js',
       'examples/**',
       'vitest.*.ts',
+      'app/lib/db/seeds/development.ts',
     ],
   },
   {

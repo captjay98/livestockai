@@ -154,9 +154,7 @@ export function BatchFilters({
           <SelectTrigger className="w-[180px] h-10">
             <SelectValue>
               {isLoadingBreeds
-                ? t('common.loading', {
-                    defaultValue: 'Loading...',
-                  })
+                ? t('common:loading')
                 : breedId
                   ? breeds.find((b: any) => b.id === breedId)?.displayName
                   : t('placeholders.allBreeds', {

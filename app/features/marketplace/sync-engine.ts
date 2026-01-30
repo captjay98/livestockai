@@ -9,7 +9,7 @@ export interface PendingItem {
   id: string
   type: 'listing' | 'contact_request'
   action: 'create' | 'update' | 'delete'
-  data: any
+  data: unknown
   createdAt: Date
   retryCount: number
 }
@@ -115,10 +115,62 @@ export async function syncPendingItems(): Promise<{
 }
 
 /**
- * Placeholder for actual API sync
+ * Sync a single item to the server
  */
-function syncItem(_item: PendingItem): void {
-  // TODO: Implement actual API calls based on item.type and item.action
-  // This would use the existing server functions pattern
-  throw new Error('Sync not implemented')
+async function syncItem(item: PendingItem): Promise<void> {
+  if (item.type === 'listing') {
+    await syncListing(item)
+  } else {
+    await syncContactRequest(item)
+  }
+}
+
+/**
+ * Sync a listing to the server
+ */
+async function syncListing(item: PendingItem): Promise<void> {
+  const { createListingFn, updateListingFn, deleteListingFn } =
+    await import('./server')
+
+  switch (item.action) {
+    case 'create':
+      await createListingFn({ data: item.data as any })
+      break
+    case 'update':
+      await updateListingFn({
+        data: {
+          listingId: item.id,
+          ...(item.data as any),
+        },
+      })
+      break
+    case 'delete':
+      await deleteListingFn({ data: { listingId: item.id } })
+      break
+  }
+}
+
+/**
+ * Sync a contact request to the server
+ */
+async function syncContactRequest(item: PendingItem): Promise<void> {
+  const { createContactRequestFn, respondToRequestFn } =
+    await import('./server')
+
+  switch (item.action) {
+    case 'create':
+      await createContactRequestFn({ data: item.data as any })
+      break
+    case 'update':
+      // Contact request updates are responses (approve/deny)
+      await respondToRequestFn({
+        data: {
+          requestId: item.id,
+          approved: (item.data as any).approved,
+          responseMessage: (item.data as any).responseMessage,
+        },
+      })
+      break
+    // Contact requests cannot be deleted
+  }
 }

@@ -1,34 +1,21 @@
 import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import type { Batch } from '~/components/batches/batch-columns'
-import type { BatchSearchParams } from '~/features/batches/types'
 import { deleteBatchFn, updateBatchFn } from '~/features/batches/server'
+import { BATCH_QUERY_KEYS } from '~/features/batches/mutations'
 
 interface UseBatchPageProps {
-  selectedFarmId?: string | null
-  routePath: string
+  // Reserved for future use
 }
 
-export function useBatchPage({ selectedFarmId, routePath }: UseBatchPageProps) {
+export function useBatchPage(_props: UseBatchPageProps = {}) {
   const { t } = useTranslation(['batches'])
-  const navigate = useNavigate({ from: routePath as any })
   const queryClient = useQueryClient()
 
   const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const updateSearch = (updates: Partial<BatchSearchParams>) => {
-    // TanStack Router type limitation - search params are dynamically typed
-    navigate({
-      search: ((prev: BatchSearchParams) => ({
-        ...prev,
-        ...updates,
-      })) as any,
-    })
-  }
 
   const handleEditSubmit = async (data: {
     currentQuantity: string
@@ -48,7 +35,7 @@ export function useBatchPage({ selectedFarmId, routePath }: UseBatchPageProps) {
       })
       toast.success(t('messages.updated', { defaultValue: 'Batch updated' }))
       queryClient.invalidateQueries({
-        queryKey: ['batches'],
+        queryKey: BATCH_QUERY_KEYS.all,
       })
     } finally {
       setIsSubmitting(false)
@@ -65,10 +52,10 @@ export function useBatchPage({ selectedFarmId, routePath }: UseBatchPageProps) {
       })
       toast.success(t('messages.deleted', { defaultValue: 'Batch deleted' }))
       queryClient.invalidateQueries({
-        queryKey: ['farm-modules', selectedFarmId],
+        queryKey: BATCH_QUERY_KEYS.farmModules,
       })
       queryClient.invalidateQueries({
-        queryKey: ['batches'],
+        queryKey: BATCH_QUERY_KEYS.all,
       })
     } finally {
       setIsSubmitting(false)
@@ -79,7 +66,6 @@ export function useBatchPage({ selectedFarmId, routePath }: UseBatchPageProps) {
     selectedBatch,
     setSelectedBatch,
     isSubmitting,
-    updateSearch,
     handleEditSubmit,
     handleDeleteConfirm,
   }

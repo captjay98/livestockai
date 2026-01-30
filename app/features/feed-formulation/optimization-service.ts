@@ -54,8 +54,8 @@ export interface OptimizationResult {
 
 // HiGHS WASM module type (external library)
 type HighsModule = {
-  solve: (model: any) => any
-  [key: string]: any
+  solve: (model: unknown) => unknown
+  [key: string]: unknown
 }
 
 let highsInstance: HighsModule | null = null
@@ -66,7 +66,8 @@ let highsInstance: HighsModule | null = null
 async function getHiGHS(): Promise<HighsModule> {
   if (!highsInstance) {
     const { default: highs } = await import('highs')
-    highsInstance = await highs()
+    const solver = (await highs()) as HighsModule
+    highsInstance = solver
   }
   return highsInstance
 }
@@ -149,7 +150,7 @@ export async function buildOptimizationModel(
       variables: variableBounds,
     })
 
-    return parseSolution(solution, ingredients)
+    return parseSolution(solution as HighsSolution, ingredients)
   } catch (error) {
     return {
       feasible: false,

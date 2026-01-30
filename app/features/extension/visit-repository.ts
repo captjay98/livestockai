@@ -39,7 +39,7 @@ export async function createVisitRecord(
     .insertInto('visit_records')
     .values({
       ...data,
-      attachments: data.attachments || [],
+      attachments: JSON.stringify(data.attachments || []) as any,
     })
     .returning('id')
     .executeTakeFirstOrThrow()
@@ -51,12 +51,19 @@ export async function updateVisitRecord(
   id: string,
   data: VisitRecordUpdate,
 ): Promise<void> {
+  const updateData: Partial<VisitRecordUpdate> & { updatedAt: Date } = {
+    ...data,
+    updatedAt: new Date(),
+  }
+
+  // Keep attachments as array if provided, convert to JSON string for database
+  if (data.attachments !== undefined) {
+    updateData.attachments = JSON.stringify(data.attachments) as any
+  }
+
   await db
     .updateTable('visit_records')
-    .set({
-      ...data,
-      updatedAt: new Date(),
-    })
+    .set(updateData)
     .where('id', '=', id)
     .execute()
 }
@@ -139,6 +146,7 @@ export async function acknowledgeVisit(
   db: Kysely<Database>,
   id: string,
 ): Promise<void> {
+  // Only update if not already acknowledged (idempotent operation)
   await db
     .updateTable('visit_records')
     .set({
@@ -146,5 +154,6 @@ export async function acknowledgeVisit(
       farmerAcknowledgedAt: new Date(),
     })
     .where('id', '=', id)
+    .where('farmerAcknowledged', '=', false)
     .execute()
 }

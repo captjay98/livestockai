@@ -1,18 +1,16 @@
-import { useState } from 'react'
-import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import {
-  createFeedInventoryFn,
-  deleteFeedInventoryFn,
-  updateFeedInventoryFn,
-} from './feed-server'
-import type { FeedType } from './index'
+import { useFeedMutations } from './mutations'
+import type { FeedType } from '~/features/feed/constants'
 
 export function useFeedInventory(selectedFarmId: string | null) {
-  const { t } = useTranslation(['inventory'])
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { t } = useTranslation(['errors'])
+  const {
+    createFeed: createFeedM,
+    updateFeed: updateFeedM,
+    deleteFeed: deleteFeedM,
+    isPending: isSubmitting,
+  } = useFeedMutations()
 
   const createFeed = async (data: {
     feedType: FeedType
@@ -20,19 +18,14 @@ export function useFeedInventory(selectedFarmId: string | null) {
     minThresholdKg: number
   }) => {
     if (!selectedFarmId) {
-      toast.error('No farm selected')
+      toast.error(
+        t('errors:noFarmSelected', {
+          defaultValue: 'No farm selected',
+        }),
+      )
       return
     }
-    setIsSubmitting(true)
-    try {
-      await createFeedInventoryFn({
-        data: { input: { farmId: selectedFarmId, ...data } },
-      })
-      toast.success(t('feed.recorded'))
-      await router.invalidate() // Reload to refresh loader data
-    } finally {
-      setIsSubmitting(false)
-    }
+    await createFeedM.mutateAsync({ farmId: selectedFarmId, ...data })
   }
 
   const updateFeed = async (
@@ -42,24 +35,11 @@ export function useFeedInventory(selectedFarmId: string | null) {
       minThresholdKg: number
     },
   ) => {
-    setIsSubmitting(true)
-    try {
-      await updateFeedInventoryFn({ data: { id, input: data } })
-      await router.invalidate() // Reload to refresh loader data
-    } finally {
-      setIsSubmitting(false)
-    }
+    await updateFeedM.mutateAsync({ id, ...data })
   }
 
   const deleteFeed = async (id: string) => {
-    setIsSubmitting(true)
-    try {
-      await deleteFeedInventoryFn({ data: { id } })
-      toast.success(t('feed.deleted'))
-      await router.invalidate() // Reload to refresh loader data
-    } finally {
-      setIsSubmitting(false)
-    }
+    await deleteFeedM.mutateAsync(id)
   }
 
   return {

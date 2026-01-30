@@ -183,7 +183,7 @@ export function BatchEditDialog({
                   <Label htmlFor="edit-breed">{t('breed')}</Label>
                   {isLoadingBreeds && (
                     <span className="text-[10px] text-muted-foreground animate-pulse">
-                      Loading...
+                      {t('common:loading')}
                     </span>
                   )}
                 </div>
