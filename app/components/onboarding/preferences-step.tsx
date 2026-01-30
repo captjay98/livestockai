@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Settings } from 'lucide-react'
+import { toast } from 'sonner'
 import type { UserSettings } from '~/features/settings'
 import { useOnboarding } from '~/features/onboarding/context'
 import {
@@ -9,7 +10,6 @@ import {
   useSettings,
 } from '~/features/settings'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent } from '~/components/ui/card'
 import { Label } from '~/components/ui/label'
 import {
   Select,
@@ -37,20 +37,25 @@ export function PreferencesStep() {
         ...settings,
         ...localSettings,
       } as UserSettings)
-    } catch {
-      /* continue */
+      setIsSaving(false)
+      completeStep('preferences')
+    } catch (error) {
+      setIsSaving(false)
+      toast.error(
+        t('common:saveFailed', {
+          defaultValue: 'Failed to save preferences. Please try again.',
+        }),
+      )
     }
-    setIsSaving(false)
-    completeStep('preferences')
   }
 
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-2">
           <Settings className="h-6 w-6" />
         </div>
-        <h2 className="text-2xl font-bold">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
           {t('preferences.title', {
             defaultValue: 'Your Preferences',
           })}
@@ -61,10 +66,11 @@ export function PreferencesStep() {
           })}
         </p>
       </div>
-      <Card className="max-w-md mx-auto">
-        <CardContent className="pt-6 space-y-4">
+
+      <div className="max-w-md mx-auto border-white/10 bg-white/20 dark:bg-black/40 backdrop-blur-2xl shadow-2xl overflow-hidden glass-card rounded-[2rem]">
+        <div className="p-8 space-y-6">
           <div className="space-y-2">
-            <Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
               {t('settings:regional.currency.title', {
                 defaultValue: 'Currency',
               })}
@@ -82,7 +88,10 @@ export function PreferencesStep() {
                 }
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -95,7 +104,7 @@ export function PreferencesStep() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
               {t('settings:regional.units.weight', {
                 defaultValue: 'Weight Unit',
               })}
@@ -110,7 +119,10 @@ export function PreferencesStep() {
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -128,7 +140,7 @@ export function PreferencesStep() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
               {t('settings:regional.dateTime.dateFormat', {
                 defaultValue: 'Date Format',
               })}
@@ -143,7 +155,10 @@ export function PreferencesStep() {
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -153,13 +168,23 @@ export function PreferencesStep() {
               </SelectContent>
             </Select>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
       <div className="flex justify-center gap-3 pt-4">
-        <Button variant="outline" onClick={skipStep}>
+        <Button
+          variant="ghost"
+          onClick={skipStep}
+          className="h-11 rounded-xl hover:bg-white/5"
+          style={{ color: 'var(--text-landing-secondary)' }}
+        >
           {t('common:skip', { defaultValue: 'Skip' })}
         </Button>
-        <Button onClick={handleSave} disabled={isSaving}>
+        <Button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="h-11 bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 rounded-xl font-bold tracking-wide px-8"
+        >
           {isSaving
             ? t('common:saving', { defaultValue: 'Saving...' })
             : t('preferences.submit', {

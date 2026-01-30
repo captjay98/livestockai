@@ -12,11 +12,15 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useLocation } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { DEFAULT_SETTINGS } from './currency-presets'
 import { getUserSettingsFn, updateUserSettingsFn } from './server'
 import type { ReactNode } from 'react'
 import type { UserSettings } from './currency-presets'
+import { AppError } from '~/lib/errors/app-error'
+import { LANGUAGE_STORAGE_KEY } from '~/lib/i18n/config'
 
 interface SettingsContextValue {
   settings: UserSettings
@@ -32,6 +36,26 @@ interface SettingsProviderProps {
   initialSettings?: UserSettings
 }
 
+// Public paths that don't require settings to be loaded
+const PUBLIC_PATHS = [
+  '/',
+  '/login',
+  '/signup',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+  '/extension-workers',
+  '/changelog',
+  '/community',
+  '/docs',
+  '/features',
+  '/pricing',
+  '/roadmap',
+  '/support',
+  '/marketplace',
+]
+
 /**
  * Settings Provider Component
  *
@@ -42,15 +66,41 @@ export function SettingsProvider({
   children,
   initialSettings,
 }: SettingsProviderProps) {
-  const [settings, setSettings] = useState<UserSettings>(
-    initialSettings ?? DEFAULT_SETTINGS,
-  )
+  const { t } = useTranslation(['errors'])
+  const [settings, setSettings] = useState<UserSettings>(() => {
+    const base = initialSettings ?? DEFAULT_SETTINGS
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem(LANGUAGE_STORAGE_KEY)
+      if (savedLang) {
+        return { ...base, language: savedLang as UserSettings['language'] }
+      }
+    }
+    return base
+  })
   const [isLoading, setIsLoading] = useState(!initialSettings)
   const [error, setError] = useState<string | null>(null)
+
+  // Use TanStack Router's location hook for SSR-safe path detection
+  const location = useLocation()
+  const pathname = location.pathname
 
   // Load settings on mount if not provided
   useEffect(() => {
     if (initialSettings) return
+
+    // Skip loading settings on public pages (landing, login, signup, etc.)
+    // This prevents unnecessary server calls and potential timeouts
+    const isPublicPage =
+      PUBLIC_PATHS.includes(pathname) ||
+      pathname.startsWith('/auth/') ||
+      pathname.startsWith('/login') ||
+      pathname.startsWith('/signup') ||
+      pathname.startsWith('/verify/')
+
+    if (isPublicPage) {
+      setIsLoading(false)
+      return
+    }
 
     async function loadSettings() {
       try {
@@ -59,8 +109,33 @@ export function SettingsProvider({
         const loadedSettings = await getUserSettingsFn({ data: {} })
         setSettings(loadedSettings)
       } catch (err) {
-        setError('Failed to load settings')
-        toast.error('Failed to load settings')
+        // Log the actual error for debugging
+        // Check for auth error before logging
+        const errString = String(err).toLowerCase()
+        const errMessage = err instanceof Error ? err.message.toLowerCase() : ''
+        const isAuthError =
+          (AppError.isAppError(err) &&
+            (err.reason === 'UNAUTHORIZED' ||
+              err.httpStatus === 401 ||
+              err.httpStatus === 403)) ||
+          errString.includes('unauthorized') ||
+          errString.includes('unauthenticated') ||
+          errString.includes('access denied') ||
+          errString.includes('401') ||
+          errString.includes('403') ||
+          errString.includes('not authenticated') ||
+          errString.includes('no session') ||
+          errString.includes('session') ||
+          errMessage.includes('unauthorized') ||
+          errMessage.includes('unauthenticated')
+
+        if (!isAuthError) {
+          console.error('[SettingsProvider] Error loading settings:', err)
+          setError('Failed to load settings')
+          toast.error(
+            t('errors:saveFailed', { defaultValue: 'Failed to load settings' }),
+          )
+        }
         // Keep default settings on error
       } finally {
         setIsLoading(false)
@@ -68,7 +143,7 @@ export function SettingsProvider({
     }
 
     loadSettings()
-  }, [initialSettings])
+  }, [initialSettings, pathname])
 
   // Update settings with optimistic update
   const handleUpdateSettings = useCallback(
@@ -80,6 +155,18 @@ export function SettingsProvider({
       setSettings(mergedSettings)
       setError(null)
 
+      // Skip server sync on public pages - just keep local state
+      const isPublicPage =
+        PUBLIC_PATHS.includes(pathname) ||
+        pathname.startsWith('/auth/') ||
+        pathname.startsWith('/login') ||
+        pathname.startsWith('/signup') ||
+        pathname.startsWith('/verify/')
+
+      if (isPublicPage) {
+        return
+      }
+
       try {
         await updateUserSettingsFn({ data: newSettings })
       } catch (err) {
@@ -87,34 +174,41 @@ export function SettingsProvider({
         const errString = String(err).toLowerCase()
         const msg = err instanceof Error ? err.message.toLowerCase() : ''
 
-        if (
+        // Check for any auth-related error patterns
+        const isAuthError =
+          (AppError.isAppError(err) &&
+            (err.reason === 'UNAUTHORIZED' ||
+              err.httpStatus === 401 ||
+              err.httpStatus === 403)) ||
           errString.includes('unauthorized') ||
+          errString.includes('unauthenticated') ||
           errString.includes('access denied') ||
           errString.includes('401') ||
           errString.includes('403') ||
+          errString.includes('not authenticated') ||
+          errString.includes('no session') ||
+          errString.includes('session') ||
           msg.includes('unauthorized') ||
+          msg.includes('unauthenticated') ||
           msg.includes('access denied') ||
-          (err &&
-            typeof err === 'object' &&
-            'status' in err &&
-            (err.status === 401 || err.status === 403)) ||
-          (err &&
-            typeof err === 'object' &&
-            'statusCode' in err &&
-            (err.statusCode === 401 || err.statusCode === 403))
-        ) {
-          // Keep local state for unauthorized errors
+          msg.includes('not authenticated') ||
+          msg.includes('no session')
+
+        if (isAuthError) {
+          // Keep local state for unauthorized errors - don't show toast
           return
         }
 
         // Rollback on other errors
         setSettings(previousSettings)
         setError('Failed to save settings')
-        toast.error('Failed to save settings')
+        toast.error(
+          t('errors:saveFailed', { defaultValue: 'Failed to save settings' }),
+        )
         throw err
       }
     },
-    [settings],
+    [settings, pathname],
   )
 
   const value: SettingsContextValue = {
