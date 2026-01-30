@@ -54,9 +54,7 @@ export function RegionTree({ tree }: RegionTreeProps) {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(tree.map((c) => c.id)),
   )
-  const [expandedRegions, setExpandedRegions] = useState<Set<string>>(
-    new Set(),
-  )
+  const [expandedRegions, setExpandedRegions] = useState<Set<string>>(new Set())
   const [editingRegion, setEditingRegion] = useState<Region | District | null>(
     null,
   )

@@ -422,15 +422,14 @@ export const respondToAccessRequestFn = createServerFn({ method: 'POST' })
       const expiresAt = new Date()
       expiresAt.setDate(expiresAt.getDate() + durationDays)
 
-      await createAccessGrant(
-        db,
-        request.requesterId,
-        request.farmId,
-        session.user.id,
+      await createAccessGrant(db, {
+        userId: request.requesterId,
+        farmId: request.farmId,
+        grantedBy: session.user.id,
         expiresAt,
-        data.financialVisibility || false,
-        data.requestId,
-      )
+        financialVisibility: data.financialVisibility || false,
+        accessRequestId: data.requestId,
+      })
 
       // Create notification for requester
       await db

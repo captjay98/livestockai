@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,
@@ -49,6 +50,7 @@ export function CreateRegionDialog({
   defaultParentId,
   onSuccess,
 }: CreateRegionDialogProps) {
+  const { t } = useTranslation(['extension', 'common'])
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -111,10 +113,16 @@ export function CreateRegionDialog({
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add Region or District</DialogTitle>
+            <DialogTitle>
+              {t('extension:admin.createRegion', {
+                defaultValue: 'Add Region or District',
+              })}
+            </DialogTitle>
             <DialogDescription>
-              Create a new region (level 1) or district (level 2) for extension
-              services.
+              {t('extension:admin.createRegionDesc', {
+                defaultValue:
+                  'Create a new region (level 1) or district (level 2) for extension services.',
+              })}
             </DialogDescription>
           </DialogHeader>
 
@@ -133,7 +141,11 @@ export function CreateRegionDialog({
                 disabled={!!defaultCountryId}
               >
                 <SelectTrigger id="country">
-                  <SelectValue placeholder="Select country" />
+                  <SelectValue
+                    placeholder={t('extension:placeholders.selectCountry', {
+                      defaultValue: 'Select country',
+                    })}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
@@ -171,7 +183,14 @@ export function CreateRegionDialog({
                   disabled={!!defaultParentId || !countryId}
                 >
                   <SelectTrigger id="parent">
-                    <SelectValue placeholder="Select parent region" />
+                    <SelectValue
+                      placeholder={t(
+                        'extension:placeholders.selectParentRegion',
+                        {
+                          defaultValue: 'Select parent region',
+                        },
+                      )}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {level1Regions?.map((region) => (
@@ -190,7 +209,9 @@ export function CreateRegionDialog({
                 id="name"
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="e.g., Kano, Lagos, Abuja"
+                placeholder={t('extension:placeholders.regionName', {
+                  defaultValue: 'e.g., Kano, Lagos, Abuja',
+                })}
                 required
               />
             </div>
@@ -201,7 +222,9 @@ export function CreateRegionDialog({
                 id="slug"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                placeholder="e.g., kano, lagos, abuja"
+                placeholder={t('extension:placeholders.slug', {
+                  defaultValue: 'e.g., kano, lagos, abuja',
+                })}
                 required
               />
               <p className="text-xs text-muted-foreground">
@@ -229,8 +252,10 @@ export function CreateRegionDialog({
                 (level === '2' && !parentId)
               }
             >
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {t('common:create', { defaultValue: 'Create' })}
             </Button>
           </DialogFooter>
         </form>

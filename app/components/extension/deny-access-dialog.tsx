@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { XCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -13,7 +15,6 @@ import { Button } from '~/components/ui/button'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import { respondToAccessRequestFn } from '~/features/extension/server'
-import { useToast } from '~/hooks/use-toast'
 
 interface DenyAccessDialogProps {
   open: boolean
@@ -28,7 +29,7 @@ export function DenyAccessDialog({
   requestId,
   onSuccess,
 }: DenyAccessDialogProps) {
-  const { toast } = useToast()
+  const { t } = useTranslation(['extension', 'common'])
   const [reason, setReason] = useState('')
 
   const denyMutation = useMutation({
@@ -41,18 +42,31 @@ export function DenyAccessDialog({
         },
       }),
     onSuccess: () => {
-      toast({
-        title: 'Access Denied',
-        description: 'The access request has been denied.',
-      })
+      toast.success(
+        t('extension:messages.accessDenied', {
+          defaultValue: 'Access Denied',
+        }),
+        {
+          description: t('extension:messages.accessDeniedDesc', {
+            defaultValue: 'The access request has been denied.',
+          }),
+        },
+      )
       onSuccess()
     },
     onError: (error: any) => {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to deny access request',
-        variant: 'destructive',
-      })
+      toast.error(
+        t('extension:messages.error', {
+          defaultValue: 'Error',
+        }),
+        {
+          description:
+            error.message ||
+            t('extension:messages.denyAccessFailed', {
+              defaultValue: 'Failed to deny access request',
+            }),
+        },
+      )
     },
   })
 
@@ -78,7 +92,9 @@ export function DenyAccessDialog({
             <Label htmlFor="reason">Reason (Optional)</Label>
             <Textarea
               id="reason"
-              placeholder="e.g., Not authorized by farm management"
+              placeholder={t('placeholders.denyReason', {
+                defaultValue: 'e.g., Not authorized by farm management',
+              })}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={4}

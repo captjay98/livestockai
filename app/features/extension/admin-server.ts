@@ -259,7 +259,6 @@ export const toggleSupervisorStatusFn = createServerFn({ method: 'POST' })
     return { success: true }
   })
 
-
 // ============================================
 // Region Management Functions
 // ============================================
@@ -535,7 +534,6 @@ export const deactivateRegionFn = createServerFn({ method: 'POST' })
     return { success: true }
   })
 
-
 // ============================================
 // Threshold Configuration Schemas
 // ============================================
@@ -591,9 +589,8 @@ export const getSpeciesThresholdsFn = createServerFn({ method: 'GET' }).handler(
       .execute()
 
     // Get default thresholds from health service
-    const { DEFAULT_THRESHOLDS } = await import(
-      '~/features/extension/health-service'
-    )
+    const { DEFAULT_THRESHOLDS } =
+      await import('~/features/extension/health-service')
 
     // Build response with defaults and overrides
     const species = [

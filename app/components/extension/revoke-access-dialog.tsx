@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { AlertTriangle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -13,7 +15,6 @@ import { Button } from '~/components/ui/button'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import { revokeAccessFn } from '~/features/extension/server'
-import { useToast } from '~/hooks/use-toast'
 
 interface RevokeAccessDialogProps {
   open: boolean
@@ -28,7 +29,7 @@ export function RevokeAccessDialog({
   grantId,
   onSuccess,
 }: RevokeAccessDialogProps) {
-  const { toast } = useToast()
+  const { t } = useTranslation(['extension', 'common'])
   const [reason, setReason] = useState('')
 
   const revokeMutation = useMutation({
@@ -40,18 +41,32 @@ export function RevokeAccessDialog({
         },
       }),
     onSuccess: () => {
-      toast({
-        title: 'Access Revoked',
-        description: 'The extension worker no longer has access to your farm.',
-      })
+      toast.success(
+        t('extension:messages.accessRevoked', {
+          defaultValue: 'Access Revoked',
+        }),
+        {
+          description: t('extension:messages.accessRevokedDesc', {
+            defaultValue:
+              'The extension worker no longer has access to your farm.',
+          }),
+        },
+      )
       onSuccess()
     },
     onError: (error: any) => {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to revoke access',
-        variant: 'destructive',
-      })
+      toast.error(
+        t('extension:messages.error', {
+          defaultValue: 'Error',
+        }),
+        {
+          description:
+            error.message ||
+            t('extension:messages.revokeAccessFailed', {
+              defaultValue: 'Failed to revoke access',
+            }),
+        },
+      )
     },
   })
 
@@ -78,7 +93,9 @@ export function RevokeAccessDialog({
             <Label htmlFor="revoke-reason">Reason (Optional)</Label>
             <Textarea
               id="revoke-reason"
-              placeholder="e.g., Access no longer needed"
+              placeholder={t('placeholders.revokeReason', {
+                defaultValue: 'e.g., Access no longer needed',
+              })}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={4}

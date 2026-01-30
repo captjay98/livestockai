@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tantml:query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -33,6 +34,7 @@ export function AssignUserDialog({
   onOpenChange,
   districts,
 }: AssignUserDialogProps) {
+  const { t } = useTranslation(['extension'])
   const queryClient = useQueryClient()
   const getErrorMessage = useErrorMessage()
   const [selectedUserId, setSelectedUserId] = useState('')
@@ -65,7 +67,11 @@ export function AssignUserDialog({
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['district-assignments'] })
-      toast.success('User assigned to district')
+      toast.success(
+        t('extension:messages.userAssigned', {
+          defaultValue: 'User assigned to district',
+        }),
+      )
       onOpenChange(false)
       // Reset form
       setSelectedUserId('')
@@ -80,7 +86,11 @@ export function AssignUserDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedUserId || !selectedDistrictId) {
-      toast.error('Please select both user and district')
+      toast.error(
+        t('extension:messages.selectBothFields', {
+          defaultValue: 'Please select both user and district',
+        }),
+      )
       return
     }
     assignMutation.mutate()
@@ -90,18 +100,32 @@ export function AssignUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Assign User to District</DialogTitle>
+          <DialogTitle>
+            {t('extension:admin.assignUserTitle', {
+              defaultValue: 'Assign User to District',
+            })}
+          </DialogTitle>
           <DialogDescription>
-            Select a user and district to create a new assignment
+            {t('extension:admin.assignUserDesc', {
+              defaultValue:
+                'Select a user and district to create a new assignment',
+            })}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="user">User</Label>
-            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+            <Select
+              value={selectedUserId}
+              onValueChange={(val) => val && setSelectedUserId(val)}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Select user" />
+                <SelectValue
+                  placeholder={t('extension:placeholders.selectUser', {
+                    defaultValue: 'Select user',
+                  })}
+                />
               </SelectTrigger>
               <SelectContent>
                 {users.map((user: any) => (
@@ -117,10 +141,14 @@ export function AssignUserDialog({
             <Label htmlFor="district">District</Label>
             <Select
               value={selectedDistrictId}
-              onValueChange={setSelectedDistrictId}
+              onValueChange={(val) => val && setSelectedDistrictId(val)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select district" />
+                <SelectValue
+                  placeholder={t('extension:placeholders.selectDistrict', {
+                    defaultValue: 'Select district',
+                  })}
+                />
               </SelectTrigger>
               <SelectContent>
                 {districts.map((district) => (
@@ -136,9 +164,7 @@ export function AssignUserDialog({
             <Checkbox
               id="supervisor"
               checked={isSupervisor}
-              onCheckedChange={(checked) =>
-                setIsSupervisor(checked as boolean)
-              }
+              onCheckedChange={(checked) => setIsSupervisor(checked as boolean)}
             />
             <Label
               htmlFor="supervisor"
@@ -158,7 +184,13 @@ export function AssignUserDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={assignMutation.isPending}>
-              {assignMutation.isPending ? 'Assigning...' : 'Assign User'}
+              {assignMutation.isPending
+                ? t('extension:actions.assigning', {
+                    defaultValue: 'Assigning...',
+                  })
+                : t('extension:actions.assignUser', {
+                    defaultValue: 'Assign User',
+                  })}
             </Button>
           </DialogFooter>
         </form>

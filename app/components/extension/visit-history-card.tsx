@@ -26,15 +26,17 @@ interface VisitHistoryCardProps {
   visits?: Array<Visit>
 }
 
-export function VisitHistoryCard({ farmId, visits = [] }: VisitHistoryCardProps) {
+export function VisitHistoryCard({
+  farmId,
+  visits = [],
+}: VisitHistoryCardProps) {
   const { t } = useTranslation(['extension', 'common'])
   const getErrorMessage = useErrorMessage()
   const queryClient = useQueryClient()
   const [expandedVisits, setExpandedVisits] = useState<Set<string>>(new Set())
 
   const acknowledgeMutation = useMutation({
-    mutationFn: (visitId: string) =>
-      acknowledgeVisitFn({ data: { visitId } }),
+    mutationFn: (visitId: string) => acknowledgeVisitFn({ data: { visitId } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['farm-details', farmId] })
       toast.success(
@@ -62,11 +64,21 @@ export function VisitHistoryCard({ farmId, visits = [] }: VisitHistoryCardProps)
 
   const getVisitTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      routine: t('extension:visitTypes.routine', { defaultValue: 'Routine Check' }),
-      health: t('extension:visitTypes.health', { defaultValue: 'Health Assessment' }),
-      vaccination: t('extension:visitTypes.vaccination', { defaultValue: 'Vaccination' }),
-      emergency: t('extension:visitTypes.emergency', { defaultValue: 'Emergency' }),
-      training: t('extension:visitTypes.training', { defaultValue: 'Training' }),
+      routine: t('extension:visitTypes.routine', {
+        defaultValue: 'Routine Check',
+      }),
+      health: t('extension:visitTypes.health', {
+        defaultValue: 'Health Assessment',
+      }),
+      vaccination: t('extension:visitTypes.vaccination', {
+        defaultValue: 'Vaccination',
+      }),
+      emergency: t('extension:visitTypes.emergency', {
+        defaultValue: 'Emergency',
+      }),
+      training: t('extension:visitTypes.training', {
+        defaultValue: 'Training',
+      }),
     }
     return labels[type] || type
   }
@@ -111,7 +123,9 @@ export function VisitHistoryCard({ farmId, visits = [] }: VisitHistoryCardProps)
           return (
             <Card
               key={visit.id}
-              className={isUnacknowledged ? 'border-amber-200 bg-amber-50/50' : ''}
+              className={
+                isUnacknowledged ? 'border-amber-200 bg-amber-50/50' : ''
+              }
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">

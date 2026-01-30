@@ -75,10 +75,10 @@ export async function getDistrictDashboard(
   db: Kysely<Database>,
   params: DistrictDashboardParams,
 ) {
-  const { districtId, page = 1, pageSize = 20 } = params
+  const { districtId, page = 1, pageSize = 20, livestockType } = params
 
-  // Get farms in district with active access grants
-  const farms = await db
+  // Build base query for farms in district with active access grants
+  let farmsQuery = db
     .selectFrom('farms')
     .innerJoin('access_grants', 'access_grants.farmId', 'farms.id')
     .leftJoin('batches', 'batches.farmId', 'farms.id')
@@ -91,19 +91,39 @@ export async function getDistrictDashboard(
     .where('farms.districtId', '=', districtId)
     .where('access_grants.revokedAt', 'is', null)
     .where('access_grants.expiresAt', '>', new Date())
+
+  // Filter by livestock type if provided (filter by batch livestockType)
+  if (livestockType) {
+    farmsQuery = farmsQuery.where(
+      'batches.livestockType',
+      '=',
+      livestockType as any,
+    )
+  }
+
+  const farms = await farmsQuery
     .groupBy(['farms.id', 'farms.name', 'farms.location'])
     .limit(pageSize)
     .offset((page - 1) * pageSize)
     .execute()
 
-  // Get total count
-  const countResult = await db
+  // Build count query with same filters
+  let countQuery = db
     .selectFrom('farms')
     .innerJoin('access_grants', 'access_grants.farmId', 'farms.id')
-    .select(db.fn.countAll().as('total'))
     .where('farms.districtId', '=', districtId)
     .where('access_grants.revokedAt', 'is', null)
     .where('access_grants.expiresAt', '>', new Date())
+
+  // Apply livestock type filter to count query as well
+  if (livestockType) {
+    countQuery = countQuery
+      .innerJoin('batches', 'batches.farmId', 'farms.id')
+      .where('batches.livestockType', '=', livestockType as any)
+  }
+
+  const countResult = await countQuery
+    .select(db.fn.countAll().as('total'))
     .executeTakeFirst()
 
   return {

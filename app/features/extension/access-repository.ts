@@ -11,27 +11,29 @@ import type { Database } from '~/lib/db/types'
  */
 export async function createAccessRequest(
   db: Kysely<Database>,
-  requesterId: string,
-  farmId: string,
-  purpose: string,
-  durationDays: number,
+  data: {
+    requesterId: string
+    farmId: string
+    purpose: string
+    requestedDurationDays: number
+  },
 ) {
   const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + 30) // Request expires in 30 days if not responded
+  expiresAt.setDate(expiresAt.getDate() + 30)
 
   const result = await db
     .insertInto('access_requests')
     .values({
-      requesterId,
-      farmId,
-      purpose,
-      requestedDurationDays: durationDays,
+      requesterId: data.requesterId,
+      farmId: data.farmId,
+      purpose: data.purpose,
+      requestedDurationDays: data.requestedDurationDays,
       status: 'pending',
       expiresAt,
     })
-    .returning('id')
+    .returning(['id', 'status'])
     .executeTakeFirstOrThrow()
-  return result.id
+  return result
 }
 
 /**
@@ -134,14 +136,14 @@ export async function respondToAccessRequest(
   id: string,
   responderId: string,
   approved: boolean,
-  rejectionReason?: string,
+  rejectionReason?: string | null,
 ) {
   await db
     .updateTable('access_requests')
     .set({
       status: approved ? 'approved' : 'denied',
       responderId,
-      rejectionReason: rejectionReason || null,
+      rejectionReason: rejectionReason ?? null,
       respondedAt: new Date(),
     })
     .where('id', '=', id)
@@ -153,22 +155,24 @@ export async function respondToAccessRequest(
  */
 export async function createAccessGrant(
   db: Kysely<Database>,
-  userId: string,
-  farmId: string,
-  grantedBy: string,
-  expiresAt: Date,
-  financialVisibility: boolean = false,
-  accessRequestId?: string,
+  data: {
+    userId: string
+    farmId: string
+    grantedBy: string
+    expiresAt: Date
+    financialVisibility?: boolean
+    accessRequestId?: string
+  },
 ) {
   const result = await db
     .insertInto('access_grants')
     .values({
-      userId,
-      farmId,
-      grantedBy,
-      expiresAt,
-      financialVisibility,
-      accessRequestId: accessRequestId || null,
+      userId: data.userId,
+      farmId: data.farmId,
+      grantedBy: data.grantedBy,
+      expiresAt: data.expiresAt,
+      financialVisibility: data.financialVisibility ?? false,
+      accessRequestId: data.accessRequestId || null,
     })
     .returning('id')
     .executeTakeFirstOrThrow()
@@ -176,14 +180,14 @@ export async function createAccessGrant(
 }
 
 /**
- * Get active access grant
+ * Get active access grant - returns null if no active grant found
  */
 export async function getActiveAccessGrant(
   db: Kysely<Database>,
   userId: string,
   farmId: string,
 ) {
-  return await db
+  const result = await db
     .selectFrom('access_grants')
     .select([
       'id',
@@ -203,6 +207,8 @@ export async function getActiveAccessGrant(
     .where('revokedAt', 'is', null)
     .where('expiresAt', '>', new Date())
     .executeTakeFirst()
+
+  return result ?? null
 }
 
 /**
@@ -232,7 +238,7 @@ export async function revokeAccessGrant(
   db: Kysely<Database>,
   id: string,
   revokedBy: string,
-  reason: string,
+  reason: string | null,
 ) {
   await db
     .updateTable('access_grants')

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AlertCircle, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,
@@ -18,7 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { getRegionTreeFn, updateSpeciesThresholdFn  } from '~/features/extension/admin-server'
+import {
+  getRegionTreeFn,
+  updateSpeciesThresholdFn,
+} from '~/features/extension/admin-server'
 import { Badge } from '~/components/ui/badge'
 
 interface EditThresholdDialogProps {
@@ -40,6 +44,7 @@ export function EditThresholdDialog({
   threshold,
   onSuccess,
 }: EditThresholdDialogProps) {
+  const { t } = useTranslation(['extension', 'common'])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [regions, setRegions] = useState<
@@ -67,7 +72,7 @@ export function EditThresholdDialog({
               name: `${region.name} (${country.name})`,
               level: region.level,
             })
-            region.districts?.forEach((district) => {
+            region.districts.forEach((district) => {
               allRegions.push({
                 id: district.id,
                 name: `${district.name} (${region.name})`,
@@ -83,7 +88,8 @@ export function EditThresholdDialog({
 
   const amber = parseFloat(amberThreshold)
   const red = parseFloat(redThreshold)
-  const isValid = !isNaN(amber) && !isNaN(red) && amber > 0 && red > 0 && amber < red
+  const isValid =
+    !isNaN(amber) && !isNaN(red) && amber > 0 && red > 0 && amber < red
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -109,7 +115,9 @@ export function EditThresholdDialog({
       onSuccess?.()
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update threshold')
+      setError(
+        err instanceof Error ? err.message : 'Failed to update threshold',
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -132,7 +140,13 @@ export function EditThresholdDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
-              {threshold.regionId ? 'Edit' : 'Add'} Threshold Override
+              {threshold.regionId
+                ? t('extension:admin.editThreshold', {
+                    defaultValue: 'Edit Threshold Override',
+                  })
+                : t('extension:admin.addThreshold', {
+                    defaultValue: 'Add Threshold Override',
+                  })}
             </DialogTitle>
             <DialogDescription>
               Configure mortality thresholds for{' '}
@@ -156,7 +170,11 @@ export function EditThresholdDialog({
                   onValueChange={(v) => setRegionId(v || '')}
                 >
                   <SelectTrigger id="region">
-                    <SelectValue placeholder="Global default (no region)" />
+                    <SelectValue
+                      placeholder={t('extension:placeholders.globalDefault', {
+                        defaultValue: 'Global default (no region)',
+                      })}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Global default</SelectItem>
@@ -248,8 +266,10 @@ export function EditThresholdDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting || !isValid}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {t('common:save', { defaultValue: 'Save' })}
             </Button>
           </DialogFooter>
         </form>

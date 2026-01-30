@@ -12,6 +12,7 @@ export type Species =
   | 'cattle'
   | 'goats'
   | 'sheep'
+  | 'bees'
 
 export interface HealthThresholds {
   amber: number
@@ -33,6 +34,7 @@ export const DEFAULT_THRESHOLDS: Record<Species, HealthThresholds> = {
   cattle: { amber: 2, red: 5 },
   goats: { amber: 3, red: 6 },
   sheep: { amber: 3, red: 6 },
+  bees: { amber: 10, red: 20 },
 }
 
 /**

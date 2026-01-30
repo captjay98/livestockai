@@ -1,5 +1,6 @@
 import { Shield, Trash2, UserCheck } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
   Table,
@@ -32,13 +33,10 @@ interface Assignment {
 
 interface AssignmentTableProps {
   assignments: Array<Assignment>
-  districts: Array<{ id: string; name: string }>
 }
 
-export function AssignmentTable({
-  assignments,
-  districts,
-}: AssignmentTableProps) {
+export function AssignmentTable({ assignments }: AssignmentTableProps) {
+  const { t } = useTranslation(['extension'])
   const queryClient = useQueryClient()
   const getErrorMessage = useErrorMessage()
 
@@ -47,7 +45,11 @@ export function AssignmentTable({
       removeUserFromDistrictFn({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['district-assignments'] })
-      toast.success('User removed from district')
+      toast.success(
+        t('extension:messages.userRemoved', {
+          defaultValue: 'User removed from district',
+        }),
+      )
     },
     onError: (error) => {
       toast.error(getErrorMessage(error))
@@ -59,7 +61,11 @@ export function AssignmentTable({
       toggleSupervisorStatusFn({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['district-assignments'] })
-      toast.success('Supervisor status updated')
+      toast.success(
+        t('extension:messages.supervisorUpdated', {
+          defaultValue: 'Supervisor status updated',
+        }),
+      )
     },
     onError: (error) => {
       toast.error(getErrorMessage(error))
@@ -70,7 +76,11 @@ export function AssignmentTable({
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">No assignments found</p>
+          <p className="text-muted-foreground">
+            {t('extension:noAssignments', {
+              defaultValue: 'No assignments found',
+            })}
+          </p>
         </CardContent>
       </Card>
     )
@@ -132,7 +142,9 @@ export function AssignmentTable({
                                 })
                               }
                               disabled={toggleSupervisorMutation.isPending}
-                              title="Toggle supervisor status"
+                              title={t('extension:toggleSupervisor', {
+                                defaultValue: 'Toggle supervisor status',
+                              })}
                             >
                               <UserCheck className="h-3 w-3" />
                             </Button>
@@ -147,7 +159,9 @@ export function AssignmentTable({
                                 })
                               }
                               disabled={removeMutation.isPending}
-                              title="Remove from district"
+                              title={t('extension:removeFromDistrict', {
+                                defaultValue: 'Remove from district',
+                              })}
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>

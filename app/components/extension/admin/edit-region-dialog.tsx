@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import {
@@ -49,6 +50,7 @@ export function EditRegionDialog({
   region,
   onSuccess,
 }: EditRegionDialogProps) {
+  const { t } = useTranslation(['extension', 'common'])
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -108,7 +110,9 @@ export function EditRegionDialog({
       setShowDeactivateDialog(false)
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to deactivate region')
+      setError(
+        err instanceof Error ? err.message : 'Failed to deactivate region',
+      )
       setShowDeactivateDialog(false)
     } finally {
       setIsSubmitting(false)
@@ -123,9 +127,15 @@ export function EditRegionDialog({
         <DialogContent className="sm:max-w-[500px]">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>Edit Region</DialogTitle>
+              <DialogTitle>
+                {t('extension:admin.editRegion', {
+                  defaultValue: 'Edit Region',
+                })}
+              </DialogTitle>
               <DialogDescription>
-                Update the name and slug for this region.
+                {t('extension:admin.editRegionDescription', {
+                  defaultValue: 'Update the name and slug for this region.',
+                })}
               </DialogDescription>
             </DialogHeader>
 
@@ -142,7 +152,9 @@ export function EditRegionDialog({
                   id="name"
                   value={name}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  placeholder="e.g., Kano, Lagos, Abuja"
+                  placeholder={t('admin.placeholders.regionName', {
+                    defaultValue: 'e.g., Kano, Lagos, Abuja',
+                  })}
                   required
                 />
               </div>
@@ -153,7 +165,9 @@ export function EditRegionDialog({
                   id="slug"
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  placeholder="e.g., kano, lagos, abuja"
+                  placeholder={t('admin.placeholders.regionSlug', {
+                    defaultValue: 'e.g., kano, lagos, abuja',
+                  })}
                   required
                 />
                 <p className="text-xs text-muted-foreground">
@@ -166,10 +180,17 @@ export function EditRegionDialog({
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                     <div>
-                      <p className="font-medium">Cannot deactivate</p>
+                      <p className="font-medium">
+                        {t('extension:cannotDeactivate', {
+                          defaultValue: 'Cannot deactivate',
+                        })}
+                      </p>
                       <p className="mt-1 text-xs">
-                        This region has {region.farmCount} farm(s) assigned.
-                        Reassign farms before deactivating.
+                        {t('extension:regionHasFarms', {
+                          defaultValue:
+                            'This region has {{count}} farm(s) assigned. Reassign farms before deactivating.',
+                          count: region.farmCount,
+                        })}
                       </p>
                     </div>
                   </div>
@@ -203,7 +224,7 @@ export function EditRegionDialog({
                   {isSubmitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Save Changes
+                  {t('common:saveChanges', { defaultValue: 'Save Changes' })}
                 </Button>
               </div>
             </DialogFooter>
@@ -217,20 +238,31 @@ export function EditRegionDialog({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Deactivate Region</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t('extension:admin.deactivateRegion', {
+                defaultValue: 'Deactivate Region',
+              })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to deactivate "{region.name}"? This will
-              hide it from selection lists but preserve historical data.
+              {t('extension:admin.deactivateRegionDescription', {
+                defaultValue:
+                  'Are you sure you want to deactivate "{{name}}"? This will hide it from selection lists but preserve historical data.',
+                name: region.name,
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isSubmitting}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeactivate}
               disabled={isSubmitting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Deactivate
             </AlertDialogAction>
           </AlertDialogFooter>
