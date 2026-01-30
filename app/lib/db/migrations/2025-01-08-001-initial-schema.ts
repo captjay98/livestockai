@@ -8,7 +8,8 @@ import type { Kysely } from 'kysely'
  * ─────────────────────────────────────────────────────────
  * 1.  AUTH & USERS          users, user_settings, sessions, account, verification
  * 2.  FARMS & CONTACTS      farms (with lat/lng), user_farms, farm_modules, customers, suppliers
- * 3.  INFRASTRUCTURE        structures, breeds, breed_requests, feed_inventory, medication_inventory
+ * 3.  INFRASTRUCTURE        structures, breeds, breed_requests, feed_inventory, medication_inventory,
+ *                           supplies_inventory
  * 4.  BATCHES & PRODUCTION  batches, mortality_records, feed_records, egg_records, weight_samples,
  *                           water_quality, vaccinations, treatments
  * 5.  FINANCE               invoices, invoice_items, sales, expenses
@@ -43,6 +44,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     // Note: password is stored in the 'account' table, not here (Better Auth pattern)
     .addColumn('name', 'varchar(255)', (col) => col.notNull())
     .addColumn('role', 'varchar(10)', (col) => col.notNull().defaultTo('user'))
+    .addColumn('userType', 'varchar(10)', (col) =>
+      col.notNull().defaultTo('farmer'),
+    )
     .addColumn('emailVerified', 'boolean', (col) => col.defaultTo(false))
     .addColumn('image', 'text') // PRIVATE storage - avatar URL
     // Admin plugin fields
@@ -54,6 +58,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
   await sql`ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('admin', 'user'))`.execute(
+    db,
+  )
+  await sql`ALTER TABLE users ADD CONSTRAINT users_user_type_check CHECK ("userType" IN ('farmer', 'buyer', 'both'))`.execute(
     db,
   )
 
@@ -106,6 +113,10 @@ export async function up(db: Kysely<any>): Promise<void> {
     // Onboarding state
     .addColumn('onboardingCompleted', 'boolean', (col) => col.defaultTo(false))
     .addColumn('onboardingStep', 'integer', (col) => col.defaultTo(0))
+    // User type (farmer, buyer, both)
+    .addColumn('userType', 'varchar(10)', (col) =>
+      col.notNull().defaultTo('farmer'),
+    )
     // Preferences
     .addColumn('defaultFarmId', 'uuid', (col) => col)
     .addColumn('language', 'varchar(10)', (col) =>
@@ -158,6 +169,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     db,
   )
   await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_time_format_check CHECK ("timeFormat" IN ('12h', '24h'))`.execute(
+    db,
+  )
+  await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_user_type_check CHECK ("userType" IN ('farmer', 'buyer', 'both'))`.execute(
     db,
   )
   await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_weight_unit_check CHECK ("weightUnit" IN ('kg', 'lbs'))`.execute(
@@ -520,6 +534,69 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
   await sql`ALTER TABLE feed_inventory ADD CONSTRAINT feed_inventory_feed_type_check CHECK ("feedType" IN ('starter', 'grower', 'finisher', 'layer_mash', 'fish_feed', 'cattle_feed', 'goat_feed', 'sheep_feed', 'hay', 'silage', 'bee_feed'))`.execute(
+    db,
+  )
+
+  // Supplies Inventory (general farm supplies)
+  await db.schema
+    .createTable('supplies_inventory')
+    .addColumn('id', 'uuid', (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`),
+    )
+    .addColumn('farmId', 'uuid', (col) =>
+      col.notNull().references('farms.id').onDelete('cascade'),
+    )
+    .addColumn('itemName', 'varchar(200)', (col) => col.notNull())
+    .addColumn('category', 'varchar(50)', (col) => col.notNull())
+    .addColumn('quantityKg', sql`decimal(10,2)`, (col) =>
+      col.notNull().defaultTo('0.00'),
+    )
+    .addColumn('unit', 'varchar(20)', (col) => col.notNull())
+    .addColumn('minThresholdKg', sql`decimal(10,2)`, (col) =>
+      col.notNull().defaultTo('0.00'),
+    )
+    .addColumn('costPerUnit', sql`decimal(10,2)`)
+    .addColumn('supplierId', 'uuid', (col) =>
+      col.references('suppliers.id').onDelete('set null'),
+    )
+    .addColumn('lastRestocked', 'timestamptz')
+    .addColumn('expiryDate', 'timestamptz')
+    .addColumn('notes', 'text')
+    .addColumn('createdAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .addColumn('updatedAt', 'timestamptz', (col) =>
+      col.notNull().defaultTo(sql`now()`),
+    )
+    .execute()
+
+  await db.schema
+    .createIndex('supplies_inventory_farmId_idx')
+    .on('supplies_inventory')
+    .column('farmId')
+    .execute()
+
+  await db.schema
+    .createIndex('supplies_inventory_farmId_category_idx')
+    .on('supplies_inventory')
+    .columns(['farmId', 'category'])
+    .execute()
+
+  await db.schema
+    .createIndex('supplies_inventory_expiryDate_idx')
+    .on('supplies_inventory')
+    .column('expiryDate')
+    .execute()
+
+  await sql`ALTER TABLE supplies_inventory ADD CONSTRAINT supplies_inventory_quantityKg_check CHECK ("quantityKg" >= 0)`.execute(
+    db,
+  )
+
+  await sql`ALTER TABLE supplies_inventory ADD CONSTRAINT supplies_inventory_minThresholdKg_check CHECK ("minThresholdKg" >= 0)`.execute(
+    db,
+  )
+
+  await sql`ALTER TABLE supplies_inventory ADD CONSTRAINT supplies_inventory_costPerUnit_check CHECK ("costPerUnit" IS NULL OR "costPerUnit" >= 0)`.execute(
     db,
   )
 
@@ -1016,6 +1093,10 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('farmId', 'uuid', (col) =>
       col.notNull().references('farms.id').onDelete('cascade'),
     )
+    .addColumn('batchId', 'uuid', (col) =>
+      col.references('batches.id').onDelete('cascade'),
+    ) // Optional - null for farm-level tasks, set for batch-specific tasks
+    .addColumn('moduleKey', 'varchar(20)') // Optional - which module this task belongs to (poultry, aquaculture, etc.)
     .addColumn('title', 'varchar(255)', (col) => col.notNull())
     .addColumn('description', 'text')
     .addColumn('frequency', 'varchar(10)', (col) => col.notNull())
@@ -2598,6 +2679,7 @@ export async function down(db: Kysely<any>): Promise<void> {
     'batches',
     'medication_inventory',
     'feed_inventory',
+    'supplies_inventory',
     'structures',
     'breed_requests',
     'breeds',

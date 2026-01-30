@@ -69,6 +69,7 @@ import type {
   SpeciesThresholdTable,
   StructureTable,
   SupplierTable,
+  SuppliesInventoryTable,
   TaskAssignmentTable,
   TaskCompletionTable,
   TaskPhotoTable,
@@ -249,6 +250,8 @@ export interface Database {
   feed_inventory: FeedInventoryTable
   /** Medication inventory tracking */
   medication_inventory: MedicationInventoryTable
+  /** Supplies inventory tracking */
+  supplies_inventory: SuppliesInventoryTable
   /** Feed ingredients master data */
   feed_ingredients: FeedIngredientTable
   /** Nutritional requirements by species and stage */

@@ -47,6 +47,7 @@ export type {
   FeedTable,
   FeedInventoryTable,
   MedicationInventoryTable,
+  SuppliesInventoryTable,
   FeedIngredientTable,
   NutritionalRequirementTable,
   UserIngredientPriceTable,

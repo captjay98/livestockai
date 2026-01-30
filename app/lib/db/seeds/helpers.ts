@@ -117,6 +117,7 @@ export async function createUserWithAuth(
       name,
       role,
       emailVerified: true, // Mark seeded users as verified
+      userType: 'farmer', // Default to farmer for seeded users
       // Note: password is NOT stored here - it goes in the account table
     })
     .returningAll()

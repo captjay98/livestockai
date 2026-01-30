@@ -127,19 +127,72 @@ export async function getConnectionString(): Promise<string> {
  * })
  * ```
  */
+/**
+ * Lightweight Pool implementation for Cloudflare Workers.
+ *
+ * PROBLEM: Standard pg.Pool sets up idle timers and keep-alive handles
+ * that prevent the Worker runtime from finishing/freezing, leading to "Worker hung" errors.
+ *
+ * SOLUTION: This adapter mimics a Pool but creates a separate Client for each request,
+ * relying on Cloudflare Hyperdrive to handle the actual connection pooling at the infrastructure level.
+ */
+class WorkerPool {
+  private connectionString: string
+
+  constructor(config: { connectionString: string; max?: number }) {
+    this.connectionString = config.connectionString
+  }
+
+  async connect() {
+    // Dynamic import to avoid bundling issues if unused
+    const { Client } = await import('pg')
+    const client = new Client({
+      connectionString: this.connectionString,
+    })
+
+    await client.connect()
+
+    // Add release method expected by Kysely
+    // @ts-expect-error - Adding dynamic property
+    client.release = async () => {
+      await client.end()
+    }
+
+    return client
+  }
+
+  async end() {
+    // No-op since we don't maintain a pool
+    return Promise.resolve()
+  }
+
+  on() {
+    // No-op event listener
+    return this
+  }
+}
+
 export async function getDb(): Promise<Kysely<Database>> {
   if (!dbInstance) {
     const connectionString = await getConnectionString()
 
-    // Create a Pool with the connection string
-    // In Cloudflare Workers with Hyperdrive, the pool is managed by Hyperdrive
-    // In Node.js/Bun, this creates a standard pg Pool
-    const pool = new Pool({
-      connectionString,
-      // Hyperdrive handles connection pooling, so we use minimal pool settings
-      // For Node.js/Bun, these are reasonable defaults
-      max: 10,
-    })
+    // Check if we are in Cloudflare Worker environment (has Hyperdrive)
+    const isWorker =
+      typeof navigator !== 'undefined' &&
+      navigator.userAgent.includes('Cloudflare-Workers')
+
+    let pool: any
+
+    if (isWorker) {
+      // Use lightweight WorkerPool for Cloudflare
+      pool = new WorkerPool({ connectionString })
+    } else {
+      // Use standard pg.Pool for Node.js/Bun (CLI, migrations)
+      pool = new Pool({
+        connectionString,
+        max: 10,
+      })
+    }
 
     dbInstance = new Kysely<Database>({
       dialect: new PostgresDialect({ pool }),

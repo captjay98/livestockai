@@ -7,20 +7,7 @@ export interface SaleTable {
   batchId: string | null
   customerId: string | null
   invoiceId: string | null // Link to invoice if generated
-  livestockType:
-    | 'poultry'
-    | 'fish'
-    | 'eggs'
-    | 'cattle'
-    | 'goats'
-    | 'sheep'
-    | 'honey'
-    | 'milk'
-    | 'wool'
-    | 'beeswax'
-    | 'propolis'
-    | 'royal_jelly'
-    | 'manure'
+  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
   quantity: number
   unitPrice: string // DECIMAL(19,2) - returned as string from pg
   totalAmount: string // DECIMAL(19,2) - returned as string from pg

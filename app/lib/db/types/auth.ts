@@ -14,6 +14,8 @@ export interface UserTable {
   banned: Generated<boolean>
   banReason: string | null
   banExpires: Date | null
+  // User type for marketplace integration
+  userType: 'farmer' | 'buyer' | 'both'
   createdAt: Generated<Date>
   updatedAt: Generated<Date>
 }

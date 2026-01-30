@@ -62,12 +62,17 @@ export interface NotificationTable {
 // Tasks (Farm Checklists)
 /**
  * Recurring farm tasks for daily/weekly/monthly check-ins.
+ * Tasks can be farm-level (general maintenance) or batch-level (species-specific).
  */
 export interface TaskTable {
   /** Unique task identifier */
   id: Generated<string>
   /** Farm this task belongs to */
   farmId: string
+  /** Optional batch this task is associated with (null for farm-level tasks) */
+  batchId: string | null
+  /** Optional module key for module-specific tasks (poultry, aquaculture, etc.) */
+  moduleKey: string | null
   /** Task title (e.g., "Check Water Lines") */
   title: string
   /** Optional description */

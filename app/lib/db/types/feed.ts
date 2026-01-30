@@ -60,6 +60,29 @@ export interface MedicationInventoryTable {
   updatedAt: Generated<Date>
 }
 
+export interface SuppliesInventoryTable {
+  id: Generated<string>
+  farmId: string
+  itemName: string
+  category:
+    | 'disinfectant'
+    | 'bedding'
+    | 'chemical'
+    | 'pest_control'
+    | 'fuel'
+    | 'packaging'
+  quantityKg: string // DECIMAL(10,2)
+  unit: 'kg' | 'liters' | 'pieces' | 'bags'
+  minThresholdKg: string // DECIMAL(10,2)
+  costPerUnit: string | null // DECIMAL(10,2)
+  supplierId: string | null
+  lastRestocked: Date | null
+  expiryDate: Date | null
+  notes: string | null
+  createdAt: Generated<Date>
+  updatedAt: Generated<Date>
+}
+
 // Feed Formulation Tables
 
 /**
