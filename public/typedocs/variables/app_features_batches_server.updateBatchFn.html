@@ -131,7 +131,10 @@
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">ZodOptional</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodDate</span
+          ><span class="tsd-signature-type">ZodCoercedDate</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">unknown</span
+          ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">;</span
           ><br />                    <span class="tsd-kind-property">notes</span
@@ -168,17 +171,26 @@
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">ZodOptional</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodEnum</span
+          ><br />                        <span class="tsd-signature-type"
+            >ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">[</span
-          ><span class="tsd-signature-type">&quot;active&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
+          ><span class="tsd-signature-symbol">{</span>
+          <span class="tsd-kind-property">active</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;active&quot;</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">depleted</span
+          ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">&quot;depleted&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;sold&quot;</span
-          ><span class="tsd-signature-symbol">]</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">sold</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;sold&quot;</span>
+          <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                    <span class="tsd-signature-symbol"
+            >&gt;</span
           ><span class="tsd-signature-symbol">;</span
           ><br />                    <span class="tsd-kind-property"
             >structureId</span
@@ -209,143 +221,16 @@
           ><span class="tsd-signature-symbol">&lt;</span
           ><span class="tsd-signature-type">ZodNullable</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodDate</span
+          ><span class="tsd-signature-type">ZodCoercedDate</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">unknown</span
           ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">;</span
           ><br />                <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-symbol">{</span
-          ><br />                    <span class="tsd-kind-property"
-            >batchName</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >expectedUpdatedAt</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >sourceSize</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >species</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >status</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;active&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;depleted&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sold&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >structureId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >target_weight_g</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >targetHarvestDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-signature-symbol">}</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-symbol">{</span
-          ><br />                    <span class="tsd-kind-property"
-            >batchName</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >expectedUpdatedAt</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >sourceSize</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >species</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >status</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;active&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;depleted&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sold&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >structureId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >target_weight_g</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >targetHarvestDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-signature-symbol">}</span
+          ><br />                <span class="tsd-signature-type">$strip</span
           ><span class="tsd-signature-symbol">,</span><br />            <span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -359,158 +244,7 @@
             >}</span
           ><span class="tsd-signature-symbol">,</span><br />        <span
             class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">batch</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >batchName</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >expectedUpdatedAt</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >sourceSize</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">species</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">status</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;active&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;depleted&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sold&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >structureId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >target_weight_g</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >targetHarvestDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >batchId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">batch</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >batchName</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >expectedUpdatedAt</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >sourceSize</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">species</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">status</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;active&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;depleted&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sold&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >structureId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >target_weight_g</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >targetHarvestDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >batchId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
+            >$strip</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -529,7 +263,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in features/batches/server/crud.ts:316</li>
+            <li>Defined in features/batches/server/crud.ts:326</li>
           </ul>
         </aside>
       </div>

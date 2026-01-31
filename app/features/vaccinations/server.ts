@@ -187,7 +187,17 @@ export async function createVaccination(
  */
 export const createVaccinationFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { farmId: string; data: CreateVaccinationInput }) => data,
+    z.object({
+      farmId: z.string().uuid(),
+      data: z.object({
+        batchId: z.string().uuid(),
+        vaccineName: z.string().min(1),
+        dateAdministered: z.coerce.date(),
+        dosage: z.string().min(1),
+        nextDueDate: z.coerce.date().nullish(),
+        notes: z.string().nullish(),
+      }),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -261,7 +271,18 @@ export async function createTreatment(
  */
 export const createTreatmentFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { farmId: string; data: CreateTreatmentInput }) => data,
+    z.object({
+      farmId: z.string().uuid(),
+      data: z.object({
+        batchId: z.string().uuid(),
+        medicationName: z.string().min(1),
+        reason: z.string().min(1),
+        date: z.coerce.date(),
+        dosage: z.string().min(1),
+        withdrawalDays: z.number().int().nonnegative(),
+        notes: z.string().nullish(),
+      }),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -283,6 +304,7 @@ export async function getHealthRecordsPaginated(
   const { getUserFarms } = await import('~/features/auth/utils')
   const { getHealthRecordsPaginated: getRecordsPaginated } =
     await import('~/features/vaccinations/repository')
+  const { getDb } = await import('~/lib/db')
 
   try {
     let targetFarmIds: Array<string> = []
@@ -304,8 +326,9 @@ export async function getHealthRecordsPaginated(
     const sortBy = mapSortColumnToDbColumn(query.sortBy || 'date')
     const sortOrder = query.sortOrder || 'desc'
 
+    const db = await getDb()
     return await getRecordsPaginated(
-      await import('~/lib/db').then((m) => m.db),
+      db,
       filters,
       page,
       pageSize,
@@ -313,6 +336,7 @@ export async function getHealthRecordsPaginated(
       sortOrder,
     )
   } catch (error) {
+    console.error('[getHealthRecordsPaginated] Database error:', error)
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to fetch health records',
@@ -334,7 +358,7 @@ export const getHealthRecordsPaginatedFn = createServerFn({ method: 'GET' })
       search: z.string().optional(),
       farmId: z.string().uuid().optional(),
       batchId: z.string().uuid().optional(),
-      type: z.enum(['vaccination', 'treatment']).optional(),
+      type: z.enum(['all', 'vaccination', 'treatment']).optional(),
     }),
   )
   .handler(async ({ data }) => {
@@ -514,7 +538,16 @@ export async function updateVaccination(
  */
 export const updateVaccinationFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { recordId: string; data: UpdateVaccinationInput }) => data,
+    z.object({
+      recordId: z.string().uuid(),
+      data: z.object({
+        vaccineName: z.string().min(1).optional(),
+        dateAdministered: z.coerce.date().optional(),
+        dosage: z.string().min(1).optional(),
+        nextDueDate: z.coerce.date().nullish(),
+        notes: z.string().nullish(),
+      }),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -654,7 +687,17 @@ export async function updateTreatment(
  */
 export const updateTreatmentFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    (data: { recordId: string; data: UpdateTreatmentInput }) => data,
+    z.object({
+      recordId: z.string().uuid(),
+      data: z.object({
+        medicationName: z.string().min(1).optional(),
+        reason: z.string().min(1).optional(),
+        date: z.coerce.date().optional(),
+        dosage: z.string().min(1).optional(),
+        withdrawalDays: z.number().int().nonnegative().optional(),
+        notes: z.string().nullish(),
+      }),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -720,15 +763,15 @@ export const deleteTreatmentFn = createServerFn({ method: 'POST' })
  */
 export const getHealthDataForFarmFn = createServerFn({ method: 'GET' })
   .inputValidator(
-    (data: {
-      farmId?: string | null
-      page?: number
-      pageSize?: number
-      sortBy?: string
-      sortOrder?: 'asc' | 'desc'
-      search?: string
-      type?: 'all' | 'vaccination' | 'treatment'
-    }) => data,
+    z.object({
+      farmId: z.string().uuid().nullish(),
+      page: z.number().int().positive().optional(),
+      pageSize: z.number().int().positive().max(100).optional(),
+      sortBy: z.string().optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+      search: z.string().optional(),
+      type: z.enum(['all', 'vaccination', 'treatment']).optional(),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -756,4 +799,97 @@ export const getHealthDataForFarmFn = createServerFn({ method: 'GET' })
       alerts,
       batches: allBatches.filter((b) => b.status === 'active'),
     }
+  })
+
+/**
+ * Server function to get recent medication usage summary
+ */
+export const getRecentMedicationUsageFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid().optional(),
+      days: z.number().int().positive().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    const { getUserFarms } = await import('~/features/auth/utils')
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+
+    const days = data.days || 7
+    const cutoffDate = new Date()
+    cutoffDate.setDate(cutoffDate.getDate() - days)
+
+    let targetFarmIds: Array<string> = []
+    if (data.farmId) {
+      targetFarmIds = [data.farmId]
+    } else {
+      targetFarmIds = await getUserFarms(session.user.id)
+    }
+
+    if (targetFarmIds.length === 0) return []
+
+    // Get vaccination usage
+    const vaccinationResults = await db
+      .selectFrom('vaccinations')
+      .innerJoin('batches', 'batches.id', 'vaccinations.batchId')
+      .select([
+        'vaccinations.vaccineName as medicationName',
+        db.fn.count('vaccinations.id').as('recordCount'),
+      ])
+      .where('batches.farmId', 'in', targetFarmIds)
+      .where('vaccinations.dateAdministered', '>=', cutoffDate)
+      .groupBy('vaccinations.vaccineName')
+      .execute()
+
+    // Get treatment usage
+    const treatmentResults = await db
+      .selectFrom('treatments')
+      .innerJoin('batches', 'batches.id', 'treatments.batchId')
+      .select([
+        'treatments.medicationName',
+        db.fn.count('treatments.id').as('recordCount'),
+      ])
+      .where('batches.farmId', 'in', targetFarmIds)
+      .where('treatments.date', '>=', cutoffDate)
+      .groupBy('treatments.medicationName')
+      .execute()
+
+    // Combine and aggregate by medication name
+    const combined = new Map<
+      string,
+      { totalDoses: number; recordCount: number }
+    >()
+
+    vaccinationResults.forEach((r) => {
+      const existing = combined.get(r.medicationName) || {
+        totalDoses: 0,
+        recordCount: 0,
+      }
+      combined.set(r.medicationName, {
+        totalDoses: existing.totalDoses + Number(r.recordCount),
+        recordCount: existing.recordCount + Number(r.recordCount),
+      })
+    })
+
+    treatmentResults.forEach((r) => {
+      const existing = combined.get(r.medicationName) || {
+        totalDoses: 0,
+        recordCount: 0,
+      }
+      combined.set(r.medicationName, {
+        totalDoses: existing.totalDoses + Number(r.recordCount),
+        recordCount: existing.recordCount + Number(r.recordCount),
+      })
+    })
+
+    return Array.from(combined.entries()).map(
+      ([medicationName, innerData]) => ({
+        medicationName,
+        totalDoses: innerData.totalDoses,
+        recordCount: innerData.recordCount,
+      }),
+    )
   })

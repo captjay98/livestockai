@@ -75,6 +75,7 @@ export interface BatchQuantityData {
   id: string
   currentQuantity: number
   farmId: string
+  farmName: string | null
 }
 
 /**
@@ -161,7 +162,7 @@ export async function getSaleById(
       'customers.name as customerName',
       'batches.species as batchSpecies',
       'farms.name as farmName',
-    ])
+    ] as const)
     .where('sales.id', '=', saleId)
     .executeTakeFirst()
 
@@ -173,19 +174,37 @@ export async function getSaleById(
  *
  * @param db - Kysely database instance
  * @param batchId - ID of the batch to retrieve
- * @returns The batch data or null if not found
+ * @returns The batch data with farm info or null if not found
  */
 export async function getBatchById(
   db: Kysely<Database>,
   batchId: string,
-): Promise<BatchQuantityData | null> {
+): Promise<{
+  id: string
+  currentQuantity: number
+  farmId: string
+  farmName: string | null
+} | null> {
   const batch = await db
     .selectFrom('batches')
-    .select(['id', 'currentQuantity', 'farmId'])
-    .where('id', '=', batchId)
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .select([
+      'batches.id',
+      'batches.currentQuantity',
+      'batches.farmId',
+      'farms.name as farmName',
+    ] as const)
+    .where('batches.id', '=', batchId)
     .executeTakeFirst()
 
-  return (batch as BatchQuantityData | null) ?? null
+  return (
+    (batch as {
+      id: string
+      currentQuantity: number
+      farmId: string
+      farmName: string | null
+    } | null) ?? null
+  )
 }
 
 /**
@@ -282,7 +301,7 @@ export async function getSalesByFarm(
       'customers.name as customerName',
       'batches.species as batchSpecies',
       'farms.name as farmName',
-    ])
+    ] as const)
     .where('sales.farmId', 'in', farmIds)
 
   if (filters?.startDate) {
@@ -323,7 +342,21 @@ export async function getSalesSummary(
   },
 ): Promise<
   Array<{
-    livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+    livestockType:
+      | 'poultry'
+      | 'fish'
+      | 'cattle'
+      | 'goats'
+      | 'sheep'
+      | 'bees'
+      | 'eggs'
+      | 'honey'
+      | 'milk'
+      | 'wool'
+      | 'beeswax'
+      | 'propolis'
+      | 'royal_jelly'
+      | 'manure'
     count: string
     totalQuantity: string
     totalRevenue: string
@@ -336,7 +369,7 @@ export async function getSalesSummary(
       (eb) => eb.fn.count('id').as('count'),
       (eb) => eb.fn.sum('quantity').as('totalQuantity'),
       (eb) => eb.fn.sum('totalAmount').as('totalRevenue'),
-    ])
+    ] as const)
     .where('farmId', 'in', farmIds)
     .groupBy('livestockType')
 
@@ -349,7 +382,21 @@ export async function getSalesSummary(
   }
 
   return (await query.execute()) as Array<{
-    livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+    livestockType:
+      | 'poultry'
+      | 'fish'
+      | 'cattle'
+      | 'goats'
+      | 'sheep'
+      | 'bees'
+      | 'eggs'
+      | 'honey'
+      | 'milk'
+      | 'wool'
+      | 'beeswax'
+      | 'propolis'
+      | 'royal_jelly'
+      | 'manure'
     count: string
     totalQuantity: string
     totalRevenue: string
@@ -521,7 +568,7 @@ export async function getSalesPaginated(
       'customers.name as customerName',
       'batches.species as batchSpecies',
       'farms.name as farmName',
-    ])
+    ] as const)
     .where('sales.farmId', 'in', farmIds)
 
   // Re-apply filters
@@ -560,7 +607,7 @@ export async function getSalesPaginated(
     .execute()
 
   return {
-    data: data as Array<SaleWithJoins>,
+    data: data as unknown as Array<SaleWithJoins>,
     total,
     page,
     pageSize,

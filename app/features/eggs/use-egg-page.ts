@@ -7,7 +7,7 @@ import {
   deleteEggRecordFn,
   updateEggRecordFn,
 } from './server'
-import type { EggSearchParams } from './types'
+import type { EggSearchParams, UpdateEggRecordInput } from './types'
 import type { EggCollectionWithDetails } from './repository'
 
 interface UseEggPageProps {
@@ -61,7 +61,7 @@ export function useEggPage({ selectedFarmId, routePath }: UseEggPageProps) {
     }
   }
 
-  const handleEditSubmit = async (data: any) => {
+  const handleEditSubmit = async (data: UpdateEggRecordInput) => {
     if (!selectedRecord) return
     setIsSubmitting(true)
     try {

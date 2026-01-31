@@ -283,7 +283,7 @@ describe.skipIf(!process.env.DATABASE_URL_TEST)(
         .values({
           farmId,
           batchId: null,
-          livestockType: 'eggs',
+          livestockType: 'poultry' as const,
           quantity: 30,
           unitPrice: '50.00',
           totalAmount: '1500.00',
@@ -295,12 +295,12 @@ describe.skipIf(!process.env.DATABASE_URL_TEST)(
         .selectFrom('sales')
         .selectAll()
         .where('farmId', '=', farmId)
-        .where('livestockType', '=', 'eggs')
+        .where('livestockType', '=', 'poultry')
         .executeTakeFirst()
 
       expect(sale).toBeDefined()
       expect(sale!.batchId).toBeNull()
-      expect(sale!.livestockType).toBe('eggs')
+      expect(sale!.livestockType).toBe('poultry')
       expect(sale!.totalAmount).toBe('1500.00')
     })
   },

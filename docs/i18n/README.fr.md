@@ -98,27 +98,25 @@
 
 ## Captures d'écran
 
-<!-- TODO: Add screenshots -->
-
 | Tableau de Bord                                                   | Gestion des Lots                                          |
 | ----------------------------------------------------------------- | --------------------------------------------------------- |
-| ![Tableau de Bord](../../screenshots/dashboard.png)               | ![Lots](../../screenshots/batches.png)                    |
+| ![Tableau de Bord](../../public/screenshots/dashboard.png)        | ![Lots](../../public/screenshots/batches.png)             |
 | _Vue d'ensemble de la ferme avec KPI, alertes et actions rapides_ | _Liste des lots avec statut, espèce et taux de mortalité_ |
 
 | Détail du Lot                                                | Rapports Financiers                                    |
 | ------------------------------------------------------------ | ------------------------------------------------------ |
-| ![Détail du Lot](../../screenshots/batch-detail.png)         | ![Rapports](../../screenshots/reports.png)             |
+| ![Détail du Lot](../../public/screenshots/batch-details.png) | ![Rapports](../../public/screenshots/reports.png)      |
 | _Graphique de croissance, projections et chronologie du lot_ | _Analyse Profits/Pertes avec ventilation des dépenses_ |
 
-| Vue Mobile                                       | Mode Hors Ligne                              |
-| ------------------------------------------------ | -------------------------------------------- |
-| ![Mobile](../../screenshots/mobile.png)          | ![Hors Ligne](../../screenshots/offline.png) |
-| _Design réactif pour utilisation sur le terrain_ | _Fonctionne sans connexion internet_         |
+| Vue Mobile                                               | Mode Hors Ligne                                     |
+| -------------------------------------------------------- | --------------------------------------------------- |
+| ![Mobile](../../public/screenshots/mobile-dashboard.png) | ![Hors Ligne](../../public/screenshots/offline.png) |
+| _Design réactif pour utilisation sur le terrain_         | _Fonctionne sans connexion internet_                |
 
-| Paramètres                                    | Factures                                      |
-| --------------------------------------------- | --------------------------------------------- |
-| ![Paramètres](../../screenshots/settings.png) | ![Factures](../../screenshots/invoices.png)   |
-| _Préférences de devise, date et unités_       | _Facturation client avec suivi des paiements_ |
+| Paramètres                                           | Factures                                           |
+| ---------------------------------------------------- | -------------------------------------------------- |
+| ![Paramètres](../../public/screenshots/settings.png) | ![Factures](../../public/screenshots/invoices.png) |
+| _Préférences de devise, date et unités_              | _Facturation client avec suivi des paiements_      |
 
 ## Stack Technique
 

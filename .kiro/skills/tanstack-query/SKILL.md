@@ -187,6 +187,39 @@ export const Route = createFileRoute('/_auth/batches/')({
 })
 ```
 
+## useServerFn() vs Direct Import
+
+**For mutations wrapped in `useMutation`, direct imports work correctly:**
+
+```typescript
+// ✅ Correct - direct import with useMutation
+import { createBatchFn } from '~/features/batches/server'
+
+const mutation = useMutation({
+  mutationFn: createBatchFn,
+})
+```
+
+The TanStack Start build process replaces server function implementations with RPC stubs in client bundles, so static imports are safe.
+
+**When `useServerFn()` IS needed:**
+
+- Calling server functions directly in event handlers (not wrapped in useMutation)
+- When you need automatic redirect/not-found handling outside of route lifecycles
+
+```typescript
+// useServerFn is for direct calls in components
+const getPosts = useServerFn(getServerPosts)
+
+// Then use with useQuery
+const { data } = useQuery({
+  queryKey: ['posts'],
+  queryFn: () => getPosts(),
+})
+```
+
+**Reference:** [TanStack Start Server Functions](https://tanstack.com/start/latest/docs/framework/react/guide/server-functions)
+
 ## Related Skills
 
 - `tanstack-router` - Route loaders for data fetching

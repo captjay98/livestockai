@@ -2,15 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 // Import service and repository functions
-import { validateStructureData, validateUpdateData } from './service'
-import {
-  deleteStructure as deleteStructureDb,
-  getStructureById as getStructureByIdDb,
-  getStructuresByFarm as getStructuresByFarmDb,
-  getStructuresWithCounts as getStructuresWithCountsDb,
-  insertStructure as insertStructureDb,
-  updateStructure as updateStructureDb,
-} from './repository'
+// Imports moved to dynamic imports inside handlers
 
 /**
  * Valid physical structure types for housing livestock.
@@ -123,6 +115,8 @@ export async function getStructures(userId: string, farmId: string) {
   try {
     await verifyFarmAccess(userId, farmId)
 
+    const { getStructuresByFarm: getStructuresByFarmDb } =
+      await import('./repository')
     return await getStructuresByFarmDb(db, farmId)
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -160,6 +154,8 @@ export async function getStructure(userId: string, structureId: string) {
 
   try {
     const farmIds = await getUserFarms(userId)
+    const { getStructureById: getStructureByIdDb } =
+      await import('./repository')
 
     const structure = await getStructureByIdDb(db, structureId)
 
@@ -231,6 +227,7 @@ export async function createStructure(
     await verifyFarmAccess(userId, input.farmId)
 
     // Business logic validation from service layer
+    const { validateStructureData } = await import('./service')
     const validationError = validateStructureData(input)
     if (validationError) {
       throw new AppError('VALIDATION_ERROR', {
@@ -238,6 +235,7 @@ export async function createStructure(
       })
     }
 
+    const { insertStructure: insertStructureDb } = await import('./repository')
     const id = await insertStructureDb(db, {
       farmId: input.farmId,
       name: input.name,
@@ -317,6 +315,10 @@ export async function updateStructure(
   try {
     const farmIds = await getUserFarms(userId)
 
+    const {
+      getStructureById: getStructureByIdDb,
+      updateStructure: updateStructureDb,
+    } = await import('./repository')
     const structure = await getStructureByIdDb(db, id)
 
     if (!structure) {
@@ -331,6 +333,7 @@ export async function updateStructure(
     }
 
     // Business logic validation from service layer
+    const { validateUpdateData } = await import('./service')
     const validationError = validateUpdateData(input)
     if (validationError) {
       throw new AppError('VALIDATION_ERROR', {
@@ -419,6 +422,10 @@ export async function deleteStructure(userId: string, id: string) {
   try {
     const farmIds = await getUserFarms(userId)
 
+    const {
+      getStructureById: getStructureByIdDb,
+      deleteStructure: deleteStructureDb,
+    } = await import('./repository')
     const structure = await getStructureByIdDb(db, id)
 
     if (!structure) {
@@ -484,7 +491,8 @@ export async function getStructuresWithCounts(userId: string, farmId: string) {
 
   try {
     await verifyFarmAccess(userId, farmId)
-
+    const { getStructuresWithCounts: getStructuresWithCountsDb } =
+      await import('./repository')
     return await getStructuresWithCountsDb(db, farmId)
   } catch (error) {
     if (error instanceof AppError) throw error

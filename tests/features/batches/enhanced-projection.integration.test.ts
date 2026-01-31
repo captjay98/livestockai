@@ -46,7 +46,7 @@ describe('Enhanced Projection - Integration Tests', () => {
         })
         .execute()
 
-      const result = await calculateEnhancedProjection(batchId)
+      const result = await calculateEnhancedProjection(batchId, db)
 
       if (result) {
         // Check all required fields exist
@@ -75,6 +75,7 @@ describe('Enhanced Projection - Integration Tests', () => {
     })
 
     it('Property 16: Gracefully handles missing growth standards', async () => {
+      const db = getTestDb()
       const { userId } = await seedTestUser({
         email: `test-${Date.now()}@example.com`,
       })
@@ -84,13 +85,14 @@ describe('Enhanced Projection - Integration Tests', () => {
         target_weight_g: 2000,
       })
 
-      const result = await calculateEnhancedProjection(batchId)
+      const result = await calculateEnhancedProjection(batchId, db)
 
       // Should return null gracefully
       expect(result).toBeNull()
     })
 
     it('should handle batch without target weight', async () => {
+      const db = getTestDb()
       const { userId } = await seedTestUser({
         email: `test-${Date.now()}@example.com`,
       })
@@ -100,7 +102,7 @@ describe('Enhanced Projection - Integration Tests', () => {
         target_weight_g: null, // No target weight
       })
 
-      const result = await calculateEnhancedProjection(batchId)
+      const result = await calculateEnhancedProjection(batchId, db)
 
       // Should return null when no target weight
       expect(result).toBeNull()

@@ -3,12 +3,15 @@ import type { IntegrationResult, SendEmailOptions } from '../types'
 
 type ProviderFactory = () => Promise<EmailProvider>
 
+// Note: SMTP provider removed to reduce bundle size for Cloudflare Workers
+// Use Resend (edge-compatible) instead
 const providers = new Map<string, ProviderFactory>([
   [
     'resend',
     async () => new (await import('./providers/resend')).ResendProvider(),
   ],
-  ['smtp', async () => new (await import('./providers/smtp')).SMTPProvider()],
+  // SMTP disabled - nodemailer is not edge-compatible and adds 400KB to bundle
+  // ['smtp', async () => new (await import('./providers/smtp')).SMTPProvider()],
 ])
 
 async function getProvider(): Promise<EmailProvider | null> {

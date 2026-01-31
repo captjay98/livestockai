@@ -12,6 +12,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { ABBREVIATED_STEPS, DEFAULT_PROGRESS, ONBOARDING_STEPS } from './types'
 import type { ModuleKey } from '~/features/modules/types'
@@ -53,6 +54,7 @@ export function OnboardingProvider({
   initialIsAdminAdded,
   initialFarmId,
 }: OnboardingProviderProps) {
+  const { t } = useTranslation(['settings'])
   const [isLoading, setIsLoading] = useState(true)
   const [needsOnboarding, setNeedsOnboarding] = useState(initialNeedsOnboarding)
   const [isAdminAdded] = useState(initialIsAdminAdded)
@@ -67,28 +69,82 @@ export function OnboardingProvider({
   // Get the appropriate steps based on whether user was admin-added
   const steps = isAdminAdded ? ABBREVIATED_STEPS : ONBOARDING_STEPS
 
-  // Load progress from localStorage on mount
+  // Load progress from server on mount (sync across devices)
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored) as OnboardingProgress
-        setProgress(parsed)
-        // If onboarding was completed or skipped, don't need it
-        if (parsed.completedAt || parsed.skipped) {
+    async function init() {
+      try {
+        const { getOnboardingProgressFn } = await import('./server')
+        const data = await getOnboardingProgressFn({ data: {} })
+
+        // Server is the source of truth
+        if (!data.needsOnboarding) {
+          // User has completed onboarding or is a buyer
           setNeedsOnboarding(false)
+          setProgress(data.progress)
+          // Clear any stale localStorage
+          localStorage.removeItem(STORAGE_KEY)
+        } else {
+          // User needs onboarding
+          setNeedsOnboarding(true)
+
+          // If server has progress beyond welcome, use it
+          if (data.progress.currentStep !== 'welcome') {
+            setProgress(data.progress)
+          } else {
+            // Server says start from welcome - check localStorage for resume
+            const stored = localStorage.getItem(STORAGE_KEY)
+            if (stored) {
+              try {
+                const parsed = JSON.parse(stored) as OnboardingProgress
+                // Only use localStorage if it's not at 'complete' (stale data)
+                if (parsed.currentStep !== 'complete') {
+                  setProgress(parsed)
+                } else {
+                  // Stale localStorage showing complete but server says needs onboarding
+                  // Trust server and clear localStorage
+                  localStorage.removeItem(STORAGE_KEY)
+                  setProgress(data.progress)
+                }
+              } catch {
+                // Invalid localStorage, use server data
+                setProgress(data.progress)
+              }
+            } else {
+              // No localStorage, use server data
+              setProgress(data.progress)
+            }
+          }
         }
+      } catch (err) {
+        console.error('Failed to sync onboarding state', err)
+        // Fallback to local storage only if server fails
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY)
+          if (stored) {
+            const parsed = JSON.parse(stored) as OnboardingProgress
+            setProgress(parsed)
+          }
+        } catch {}
+      } finally {
+        setIsLoading(false)
       }
-    } catch {
-      // Ignore parse errors, use default
     }
-    setIsLoading(false)
+
+    init()
   }, [])
 
-  // Save progress to localStorage whenever it changes
+  // Save progress to server and localStorage whenever it changes
   useEffect(() => {
     if (!isLoading) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
+
+      // Debounce or fire-and-forget server save
+      // We don't want to block UI, so we just call it
+      import('./server').then(({ saveOnboardingProgressFn }) => {
+        saveOnboardingProgressFn({ data: { progress } }).catch(() => {
+          // Silent fail on save is acceptable for now, local storage is backup
+        })
+      })
     }
   }, [progress, isLoading])
 
@@ -156,21 +212,21 @@ export function OnboardingProvider({
   }, [steps])
 
   const skipOnboarding = useCallback(async () => {
-    // Persist to database FIRST before updating local state
+    // Persist to database FIRST before navigating
     try {
       const { markOnboardingCompleteFn } = await import('./server')
       await markOnboardingCompleteFn({ data: {} })
+      // Use full page reload to ensure fresh state from server
+      window.location.href = '/dashboard'
     } catch (err) {
-      toast.error('Failed to mark onboarding complete')
+      toast.error(
+        t('settings:help.resetOnboardingFailed', {
+          defaultValue: 'Failed to mark onboarding complete',
+        }),
+      )
+      // Even on error, try to navigate - the DB update may have succeeded
+      window.location.href = '/dashboard'
     }
-
-    // Only update local state after database is updated
-    setProgress((prev) => ({
-      ...prev,
-      skipped: true,
-      completedAt: new Date().toISOString(),
-    }))
-    setNeedsOnboarding(false)
   }, [])
 
   const restartTour = useCallback(() => {

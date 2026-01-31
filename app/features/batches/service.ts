@@ -162,33 +162,6 @@ export function calculateMortalityRate(
 }
 
 /**
- * Calculate Feed Conversion Ratio (FCR)
- * FCR = Total Feed Consumed / Total Weight Gain
- * Lower FCR is better (more efficient feed conversion)
- *
- * @deprecated Use calculateFCR from ~/lib/utils/calculations instead
- * @param totalFeedKg - Total feed consumed in kilograms
- * @param weightGainKg - Total weight gain in kilograms
- * @returns FCR as a number rounded to 2 decimals, or null if calculation is not possible
- *
- * @example
- * ```ts
- * const fcr = calculateFCR(150, 100)
- * // Returns: 1.5 (1.5 kg feed per 1 kg weight gain)
- * ```
- */
-export function calculateFCR(
-  totalFeedKg: number,
-  weightGainKg: number,
-): number | null {
-  // Re-export from shared utility
-  const {
-    calculateFCR: sharedCalculateFCR,
-  } = require('~/lib/utils/calculations')
-  return sharedCalculateFCR(totalFeedKg, weightGainKg)
-}
-
-/**
  * Calculate new batch quantity after a mortality event
  *
  * @param currentQuantity - Quantity before mortality

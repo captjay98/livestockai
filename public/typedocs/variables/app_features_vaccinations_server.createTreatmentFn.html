@@ -105,39 +105,78 @@
             class="tsd-signature-type"
             >undefined</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-type"
+            >ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
             class="tsd-signature-symbol"
-            >(</span
-          ><br />        <span class="tsd-kind-parameter">data</span
+            >{</span
+          ><br />            <span class="tsd-kind-property">data</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span>
-          <span class="tsd-kind-property">data</span
+          <span class="tsd-signature-type">ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                <span class="tsd-signature-symbol">{</span
+          ><br />                    <span class="tsd-kind-property"
+            >batchId</span
           ><span class="tsd-signature-symbol">:</span>
-          <a
-            href="../interfaces/app_features_vaccinations_server.CreateTreatmentInput.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >CreateTreatmentInput</a
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">farmId</span
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">date</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">}</span
+          <span class="tsd-signature-type">ZodCoercedDate</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">unknown</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >dosage</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >medicationName</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">notes</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNullable</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >reason</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >withdrawalDays</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodNumber</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-type">$strip</span
+          ><span class="tsd-signature-symbol">,</span><br />            <span
+            class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >$strip</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
-            >)</span
-          >
-          <span class="tsd-signature-symbol">=&gt;</span>
-          <span class="tsd-signature-symbol">{</span>
-          <span class="tsd-kind-property">data</span
-          ><span class="tsd-signature-symbol">:</span>
-          <a
-            href="../interfaces/app_features_vaccinations_server.CreateTreatmentInput.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >CreateTreatmentInput</a
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">}</span
+            >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-type"
             >Promise</span
@@ -154,7 +193,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in features/vaccinations/server.ts:262</li>
+            <li>Defined in features/vaccinations/server.ts:272</li>
           </ul>
         </aside>
       </div>

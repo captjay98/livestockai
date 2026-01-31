@@ -100,645 +100,134 @@
         <div class="tsd-signature">
           <span class="tsd-kind-variable">createBatchFn</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">RequiredFetcher</span
+          <span class="tsd-signature-type">OptionalFetcher</span
           ><span class="tsd-signature-symbol">&lt;</span><br />    <span
             class="tsd-signature-type"
             >undefined</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
-            class="tsd-signature-type"
-            >ZodObject</span
-          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
             class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">batch</span
+            >(</span
+          ><br />        <span class="tsd-kind-parameter">input</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodObject</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><br />                <span class="tsd-signature-symbol">{</span
-          ><br />                    <span class="tsd-kind-property"
-            >acquisitionDate</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodDate</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >batchName</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodOptional</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNullable</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >breedId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodOptional</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNullable</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >costPerUnit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodNumber</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >initialQuantity</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodNumber</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >livestockType</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodEnum</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >[</span
-          ><span class="tsd-signature-type">&quot;poultry&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;fish&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;cattle&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;goats&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;sheep&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;bees&quot;</span
-          ><span class="tsd-signature-symbol">]</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                    <span class="tsd-signature-symbol"
-            >&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodOptional</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNullable</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >sourceSize</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodOptional</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNullable</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >species</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >structureId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodOptional</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNullable</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >supplierId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodOptional</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNullable</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >target_weight_g</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodOptional</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNullable</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNumber</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >targetHarvestDate</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodOptional</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNullable</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodDate</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >targetPricePerUnit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodOptional</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNullable</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodNumber</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-signature-symbol">}</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-symbol">{</span
-          ><br />                    <span class="tsd-kind-property"
-            >acquisitionDate</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >batchName</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >breedId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >costPerUnit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >initialQuantity</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >livestockType</span
-          ><span class="tsd-signature-symbol">:</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;poultry&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;fish&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;cattle&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;goats&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;sheep&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;bees&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >sourceSize</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >species</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >structureId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >supplierId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >target_weight_g</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >targetHarvestDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >targetPricePerUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-signature-symbol">}</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-symbol">{</span
-          ><br />                    <span class="tsd-kind-property"
-            >acquisitionDate</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >batchName</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >breedId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >costPerUnit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >initialQuantity</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >livestockType</span
-          ><span class="tsd-signature-symbol">:</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;poultry&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;fish&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;cattle&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;goats&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;sheep&quot;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >|</span
-          >
-          <span class="tsd-signature-type">&quot;bees&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >sourceSize</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >species</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >structureId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >supplierId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >target_weight_g</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >targetHarvestDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >targetPricePerUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-signature-symbol">}</span
-          ><span class="tsd-signature-symbol">,</span><br />            <span
-            class="tsd-signature-symbol"
-            >&gt;</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">batch</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >acquisitionDate</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">batchName</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">breedId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >costPerUnit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >initialQuantity</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >livestockType</span
-          ><span class="tsd-signature-symbol">:</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;poultry&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;fish&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;cattle&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;goats&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sheep&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;bees&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >sourceSize</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">species</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >structureId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >supplierId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >target_weight_g</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >targetHarvestDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >targetPricePerUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">batch</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >acquisitionDate</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">batchName</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">breedId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >costPerUnit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >initialQuantity</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >livestockType</span
-          ><span class="tsd-signature-symbol">:</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;poultry&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;fish&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;cattle&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;goats&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sheep&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;bees&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >sourceSize</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">species</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >structureId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >supplierId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >target_weight_g</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >targetHarvestDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">Date</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >targetPricePerUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
+          <span class="tsd-signature-type">unknown</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
-            >&gt;</span
+            >)</span
+          >
+          <span class="tsd-signature-symbol">=&gt;</span>
+          <span class="tsd-signature-symbol">{</span><br />        <span
+            class="tsd-kind-property"
+            >batch</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-symbol">{</span><br />            <span
+            class="tsd-kind-property"
+            >acquisitionDate</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">Date</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >batchName</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >breedId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >costPerUnit</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >initialQuantity</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">number</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >livestockType</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;poultry&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;fish&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;cattle&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;goats&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;sheep&quot;</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;bees&quot;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >notes</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >sourceSize</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >species</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >structureId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >supplierId</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">string</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >target_weight_g</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >targetHarvestDate</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">Date</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >targetPricePerUnit</span
+          ><span class="tsd-signature-symbol">?:</span>
+          <span class="tsd-signature-type">number</span>
+          <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">null</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">;</span><br />    <span
+            class="tsd-signature-symbol"
+            >}</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-type"
             >Promise</span

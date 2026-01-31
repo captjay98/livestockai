@@ -31,7 +31,6 @@ export function validateFeedSearch(
       typeof search.feedType === 'string'
         ? search.feedType.replace(/_/g, '-')
         : undefined,
-    farmId: typeof search.farmId === 'string' ? search.farmId : undefined,
   }
 }
 

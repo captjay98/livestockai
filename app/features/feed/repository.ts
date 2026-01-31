@@ -73,6 +73,7 @@ export interface BatchRecord {
   id: string
   farmId: string
   currentQuantity: number
+  farmName: string | null
 }
 
 /**
@@ -166,16 +167,27 @@ export async function getFeedRecordById(
  *
  * @param db - Kysely database instance
  * @param batchId - ID of the batch
- * @returns The batch record or null if not found
+ * @returns The batch record with farm info or null if not found
  */
 export async function getBatchById(
   db: Kysely<Database>,
   batchId: string,
-): Promise<BatchRecord | null> {
+): Promise<{
+  id: string
+  farmId: string
+  currentQuantity: number
+  farmName: string | null
+} | null> {
   const batch = await db
     .selectFrom('batches')
-    .select(['id', 'farmId', 'currentQuantity'])
-    .where('id', '=', batchId)
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .select([
+      'batches.id',
+      'batches.farmId',
+      'batches.currentQuantity',
+      'farms.name as farmName',
+    ])
+    .where('batches.id', '=', batchId)
     .executeTakeFirst()
 
   return batch ?? null

@@ -780,3 +780,53 @@ export const getFeedInventoryForFarmFn = createServerFn({ method: 'GET' })
       .where('farmId', '=', data.farmId)
       .execute()
   })
+
+/**
+ * Server function to get recent feed consumption summary
+ */
+export const getRecentFeedConsumptionFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      farmId: z.string().uuid().optional(),
+      days: z.number().int().positive().optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    const { getUserFarms } = await import('~/features/auth/utils')
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+
+    const days = data.days || 7
+    const cutoffDate = new Date()
+    cutoffDate.setDate(cutoffDate.getDate() - days)
+
+    let targetFarmIds: Array<string> = []
+    if (data.farmId) {
+      targetFarmIds = [data.farmId]
+    } else {
+      targetFarmIds = await getUserFarms(session.user.id)
+    }
+
+    if (targetFarmIds.length === 0) return []
+
+    const results = await db
+      .selectFrom('feed_records')
+      .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+      .select([
+        'feed_records.feedType',
+        db.fn.sum('feed_records.quantityKg').as('totalQuantityKg'),
+        db.fn.count('feed_records.id').as('recordCount'),
+      ])
+      .where('batches.farmId', 'in', targetFarmIds)
+      .where('feed_records.date', '>=', cutoffDate)
+      .groupBy('feed_records.feedType')
+      .execute()
+
+    return results.map((r) => ({
+      feedType: r.feedType,
+      totalQuantityKg: parseFloat(r.totalQuantityKg as string),
+      recordCount: Number(r.recordCount),
+    }))
+  })

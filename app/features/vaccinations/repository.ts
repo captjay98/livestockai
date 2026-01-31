@@ -157,19 +157,23 @@ export async function getVaccinationById(
  *
  * @param db - Kysely database instance
  * @param batchId - ID of the batch
- * @returns The batch data with farm ID or null if not found
+ * @returns The batch data with farm ID and name or null if not found
  */
 export async function getBatchById(
   db: Kysely<Database>,
   batchId: string,
-): Promise<{ id: string; farmId: string } | null> {
+): Promise<{ id: string; farmId: string; farmName: string | null } | null> {
   const batch = await db
     .selectFrom('batches')
-    .select(['id', 'farmId'])
-    .where('id', '=', batchId)
+    .leftJoin('farms', 'farms.id', 'batches.farmId')
+    .select(['batches.id', 'batches.farmId', 'farms.name as farmName'])
+    .where('batches.id', '=', batchId)
     .executeTakeFirst()
 
-  return (batch as { id: string; farmId: string } | null) ?? null
+  return (
+    (batch as { id: string; farmId: string; farmName: string | null } | null) ??
+    null
+  )
 }
 
 /**
@@ -365,16 +369,14 @@ export async function getHealthRecordsPaginated(
 
   // Get paginated data - validate sort column to prevent SQL injection
   const allowedSortCols = [
-    'dateAdministered',
-    'vaccineName',
-    'nextDueDate',
-    'createdAt',
     'date',
-    'medicationName',
+    'name',
+    'dosage',
+    'nextDueDate',
+    'species',
+    'farmName',
   ]
-  const safeSortBy = allowedSortCols.includes(sortBy)
-    ? sortBy
-    : 'dateAdministered'
+  const safeSortBy = allowedSortCols.includes(sortBy) ? sortBy : 'date'
 
   const dataQuery = db
     .with('union_table', () => finalQuery)

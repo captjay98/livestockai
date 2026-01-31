@@ -90,8 +90,12 @@ export async function truncateAllTables(): Promise<void> {
   const { sql } = await import('kysely')
 
   // Single TRUNCATE CASCADE is fastest - resets all tables at once
+  // Includes extension worker tables: visit_records, outbreak_alert_farms, outbreak_alerts,
+  // species_thresholds, access_grants, access_requests, user_districts, regions, countries
   await sql`
     TRUNCATE TABLE 
+      visit_records, outbreak_alert_farms, outbreak_alerts, species_thresholds,
+      access_grants, access_requests, user_districts, regions, countries,
       listing_views, listing_contact_requests, marketplace_listings,
       invoice_items, water_quality, treatments, vaccinations, weight_samples, 
       egg_records, feed_records, mortality_records, sales, expenses, batches,
@@ -135,6 +139,7 @@ export async function seedTestUser(
       name,
       role,
       emailVerified: true,
+      userType: 'farmer',
     })
     .returning('id')
     .executeTakeFirstOrThrow()
@@ -377,7 +382,7 @@ export async function cleanupTestData(): Promise<void> {
 export async function isTestDbAvailable(): Promise<boolean> {
   try {
     const db = getTestDb()
-    await db.selectFrom('users').select('id').limit(1).execute()
+    await db.selectFrom('users').selectAll().limit(1).execute()
     return true
   } catch {
     return false

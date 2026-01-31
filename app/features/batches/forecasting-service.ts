@@ -6,6 +6,147 @@
 import { addDays, differenceInDays } from 'date-fns'
 
 /**
+ * Species-specific initial weights (grams)
+ * Based on typical acquisition weights for each species
+ */
+const INITIAL_WEIGHTS: Record<string, number> = {
+  // Poultry
+  broiler: 40,
+  layer: 38,
+  turkey: 55,
+  duck: 45,
+  'guinea fowl': 25,
+  'local chicken': 35,
+
+  // Fish
+  catfish: 2,
+  tilapia: 1,
+  'african catfish': 2,
+  'hybrid catfish': 2,
+
+  // Cattle (born much heavier)
+  cattle: 35000, // ~35kg
+  angus: 35000,
+  'dairy cattle': 40000,
+
+  // Goats
+  goats: 3000, // ~3kg
+  boer: 3500,
+  'west african dwarf': 2000,
+  'red sokoto': 2500,
+
+  // Sheep
+  sheep: 4000, // ~4kg
+  merino: 4500,
+  dorper: 4000,
+  'west african dwarf sheep': 3000,
+  yankasa: 3500,
+  uda: 4000,
+
+  // Bees (colony weight, not individual)
+  bees: 2000, // ~2kg for small colony
+}
+
+/**
+ * Source size adjustments for initial weights
+ * Maps sourceSize to weight multipliers or specific weights
+ */
+const SOURCE_SIZE_WEIGHTS: Record<string, Record<string, number>> = {
+  // Fish
+  catfish: {
+    fingerling: 2, // 2-4 inches
+    juvenile: 35, // 4-6 inches
+    jumbo: 150, // 6+ inches
+  },
+  'african catfish': {
+    fingerling: 2,
+    juvenile: 35,
+    jumbo: 150,
+  },
+  tilapia: {
+    fingerling: 1,
+    juvenile: 25,
+    jumbo: 100,
+  },
+
+  // Poultry
+  broiler: {
+    'day-old': 40,
+    grower: 500, // 4-8 weeks
+  },
+  layer: {
+    'day-old': 38,
+    grower: 450,
+    'point-of-lay': 1400, // 16-18 weeks
+  },
+  turkey: {
+    'day-old': 55,
+    grower: 1200, // 8-12 weeks
+  },
+  duck: {
+    'day-old': 45,
+    grower: 800, // 6-8 weeks
+  },
+  'guinea fowl': {
+    'day-old': 25,
+    grower: 400, // 8-10 weeks
+  },
+
+  // Cattle
+  cattle: {
+    calf: 35000, // 0-6 months
+    weaner: 150000, // 6-12 months (150kg)
+    yearling: 250000, // 12-24 months (250kg)
+    adult: 400000, // 24+ months (400kg)
+  },
+
+  // Goats
+  goats: {
+    kid: 3000, // 0-6 months
+    weaner: 12000, // 6-12 months (12kg)
+    yearling: 20000, // 12-24 months (20kg)
+    adult: 30000, // 24+ months (30kg)
+  },
+
+  // Sheep
+  sheep: {
+    lamb: 4000, // 0-6 months
+    weaner: 15000, // 6-12 months (15kg)
+    yearling: 30000, // 12-24 months (30kg)
+    adult: 45000, // 24+ months (45kg)
+  },
+}
+
+const DEFAULT_INITIAL_WEIGHT = 40 // Default to broiler chick weight
+
+/**
+ * Get initial weight based on species and source size
+ *
+ * @param species - Species name
+ * @param sourceSize - Optional source size (e.g., 'fingerling', 'jumbo')
+ * @returns Initial weight in grams
+ */
+function getInitialWeight(species: string, sourceSize?: string | null): number {
+  const speciesLower = species.toLowerCase()
+
+  // Check for source size specific weight
+  if (sourceSize) {
+    const speciesWeights = SOURCE_SIZE_WEIGHTS[speciesLower]
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (speciesWeights) {
+      const sourceSizeLower = sourceSize.toLowerCase()
+
+      const weight = speciesWeights[sourceSizeLower]
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (weight !== undefined) return weight
+    }
+  }
+
+  // Fall back to species default
+  return INITIAL_WEIGHTS[speciesLower] || DEFAULT_INITIAL_WEIGHT
+}
+
+/**
  * Weight sample data structure
  */
 export interface WeightSample {
@@ -41,6 +182,8 @@ export interface ADGResult {
  * @param acquisitionDate - Date when batch was acquired
  * @param currentAgeDays - Current age of batch in days
  * @param growthStandards - Growth curve data points
+ * @param species - Species name for initial weight lookup
+ * @param sourceSize - Optional source size (e.g., 'fingerling', 'jumbo')
  * @returns ADG in grams per day
  */
 export function calculateADG(
@@ -48,6 +191,8 @@ export function calculateADG(
   acquisitionDate: Date,
   currentAgeDays: number,
   growthStandards: Array<GrowthStandard>,
+  species: string,
+  sourceSize?: string | null,
 ): ADGResult {
   // Case 1: Two or more samples - use most recent two
   if (samples.length >= 2) {
@@ -65,6 +210,8 @@ export function calculateADG(
         acquisitionDate,
         currentAgeDays,
         growthStandards,
+        species,
+        sourceSize,
       )
     }
 
@@ -81,15 +228,23 @@ export function calculateADG(
 
     if (daysSinceAcquisition <= 0) {
       // Sample date before acquisition, use growth curve estimate
-      return calculateADG([], acquisitionDate, currentAgeDays, growthStandards)
+      return calculateADG(
+        [],
+        acquisitionDate,
+        currentAgeDays,
+        growthStandards,
+        species,
+        sourceSize,
+      )
     }
 
-    // Assume initial weight is 0 or very small (day-old chick ~40g, fingerling ~1g)
-    // For simplicity, calculate from 0
-    const weightG = sample.averageWeightKg * 1000
+    // Use species-specific initial weight with source size adjustment
+    const initialWeightG = getInitialWeight(species, sourceSize)
+    const currentWeightG = sample.averageWeightKg * 1000
+    const weightGain = currentWeightG - initialWeightG
 
     return {
-      adgGramsPerDay: weightG / daysSinceAcquisition,
+      adgGramsPerDay: weightGain / daysSinceAcquisition,
       method: 'single_sample',
     }
   }

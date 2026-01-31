@@ -45,7 +45,10 @@ export function validateCreateUserInput(
     return { valid: false, message: 'Email is required' }
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  // RFC 5322 compliant email validation (simplified but more robust)
+  // Validates: local-part@domain.tld
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
   if (!emailRegex.test(data.email)) {
     return { valid: false, message: 'Invalid email format' }
   }

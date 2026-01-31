@@ -375,7 +375,7 @@ describe('Vaccination Service', () => {
   describe('mapSortColumnToDbColumn', () => {
     it('should map known columns correctly', () => {
       expect(mapSortColumnToDbColumn('date')).toBe('dateAdministered')
-      expect(mapSortColumnToDbColumn('vaccineName')).toBe('vaccineName')
+      expect(mapSortColumnToDbColumn('vaccineName')).toBe('name')
       expect(mapSortColumnToDbColumn('dosage')).toBe('dosage')
       expect(mapSortColumnToDbColumn('nextDueDate')).toBe('nextDueDate')
       expect(mapSortColumnToDbColumn('species')).toBe('species')

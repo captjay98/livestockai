@@ -82,7 +82,10 @@ function BatchesPage() {
   }) => {
     if (!selectedBatch) return
 
-    await updateBatch.mutateAsync({ batchId: selectedBatch.id, batch: formData })
+    await updateBatch.mutateAsync({
+      batchId: selectedBatch.id,
+      batch: formData,
+    })
     setEditDialogOpen(false)
     setSelectedBatch(null)
   }

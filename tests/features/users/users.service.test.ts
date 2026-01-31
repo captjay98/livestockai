@@ -467,7 +467,15 @@ describe('Users Service', () => {
 
   describe('Property Tests', () => {
     // Custom email generator for fast-check
-    const validEmail = fc.stringMatching(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    // Generate valid email addresses that conform to RFC 5322 (simplified)
+    const validEmail = fc
+      .tuple(
+        fc.stringMatching(/^[a-zA-Z0-9][a-zA-Z0-9._%+-]*$/), // Must start with alphanumeric
+        fc.stringMatching(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/), // Domain
+        fc.stringMatching(/^[a-zA-Z]{2,}$/), // TLD
+      )
+      .map(([local, domain, tld]) => `${local}@${domain}.${tld}`)
+      .filter((email) => email.length >= 5 && email.length <= 254) // RFC 5321 limits
 
     describe('validateCreateUserInput - property tests', () => {
       it('should accept valid email formats', () => {

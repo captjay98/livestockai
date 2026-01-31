@@ -107,39 +107,83 @@
             class="tsd-signature-type"
             >undefined</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-type"
+            >ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
             class="tsd-signature-symbol"
-            >(</span
-          ><br />        <span class="tsd-kind-parameter">data</span
+            >{</span
+          ><br />            <span class="tsd-kind-property">data</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span>
-          <span class="tsd-kind-property">data</span
+          <span class="tsd-signature-type">ZodObject</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                <span class="tsd-signature-symbol">{</span
+          ><br />                    <span class="tsd-kind-property"
+            >batchId</span
           ><span class="tsd-signature-symbol">:</span>
-          <a
-            href="../interfaces/app_features_vaccinations_server.CreateVaccinationInput.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >CreateVaccinationInput</a
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">farmId</span
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >dateAdministered</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">}</span
+          <span class="tsd-signature-type">ZodCoercedDate</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">unknown</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >dosage</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >nextDueDate</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNullable</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodCoercedDate</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">unknown</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property">notes</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodNullable</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-kind-property"
+            >vaccineName</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-type">$strip</span
+          ><span class="tsd-signature-symbol">,</span><br />            <span
+            class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >farmId</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />        <span
+            class="tsd-signature-type"
+            >$strip</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
-            >)</span
-          >
-          <span class="tsd-signature-symbol">=&gt;</span>
-          <span class="tsd-signature-symbol">{</span>
-          <span class="tsd-kind-property">data</span
-          ><span class="tsd-signature-symbol">:</span>
-          <a
-            href="../interfaces/app_features_vaccinations_server.CreateVaccinationInput.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >CreateVaccinationInput</a
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">}</span
+            >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-type"
             >Promise</span

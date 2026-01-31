@@ -98,19 +98,6 @@ describe('Sales Service', () => {
       )
     })
 
-    it('should not check batch stock for eggs', () => {
-      const result = validateSaleData(
-        {
-          ...validData,
-          batchId: 'batch-1',
-          livestockType: 'eggs',
-          quantity: 100,
-        },
-        30, // batch quantity (should be ignored for eggs)
-      )
-      expect(result).toBeNull()
-    })
-
     it('should accept sale within batch stock', () => {
       const result = validateSaleData(
         {
@@ -303,7 +290,7 @@ describe('Sales Service', () => {
           totalRevenue: '500.00',
         },
         {
-          livestockType: 'eggs' as const,
+          livestockType: 'cattle' as const,
           count: '10',
           totalQuantity: '500',
           totalRevenue: '250.00',
@@ -322,7 +309,7 @@ describe('Sales Service', () => {
         quantity: 100,
         revenue: 500.0,
       })
-      expect(result.eggs).toEqual({
+      expect(result.cattle).toEqual({
         count: 10,
         quantity: 500,
         revenue: 250.0,
@@ -343,7 +330,7 @@ describe('Sales Service', () => {
         revenue: 0,
       })
       expect(result.fish).toEqual({ count: 0, quantity: 0, revenue: 0 })
-      expect(result.eggs).toEqual({ count: 0, quantity: 0, revenue: 0 })
+      expect(result.cattle).toEqual({ count: 0, quantity: 0, revenue: 0 })
       expect(result.total).toEqual({ count: 0, quantity: 0, revenue: 0 })
     })
 
@@ -361,7 +348,7 @@ describe('Sales Service', () => {
 
       expect(result.poultry.count).toBe(5)
       expect(result.fish.count).toBe(0)
-      expect(result.eggs.count).toBe(0)
+      expect(result.cattle.count).toBe(0)
       expect(result.total.count).toBe(5)
     })
   })

@@ -9,7 +9,7 @@ export function useDashboard(selectedFarmId: string | null) {
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false)
   const [editFarmDialogOpen, setEditFarmDialogOpen] = useState(false)
   const [batchDialogOpen, setBatchDialogOpen] = useState(false)
-  const [saleDialogOpen, setSaleDialogOpen] = useState(false)
+
   const [feedDialogOpen, setFeedDialogOpen] = useState(false)
   const [eggDialogOpen, setEggDialogOpen] = useState(false)
   const [mortalityDialogOpen, setMortalityDialogOpen] = useState(false)
@@ -33,9 +33,6 @@ export function useDashboard(selectedFarmId: string | null) {
       case 'expense':
         setExpenseDialogOpen(true)
         break
-      case 'sale':
-        setSaleDialogOpen(true)
-        break
       case 'mortality':
         setMortalityDialogOpen(true)
         break
@@ -57,8 +54,6 @@ export function useDashboard(selectedFarmId: string | null) {
     setEditFarmDialogOpen,
     batchDialogOpen,
     setBatchDialogOpen,
-    saleDialogOpen,
-    setSaleDialogOpen,
     feedDialogOpen,
     setFeedDialogOpen,
     eggDialogOpen,

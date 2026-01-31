@@ -1,129 +1,67 @@
 /**
- * Security headers middleware for enhanced protection
- * Adds CSP, X-Frame-Options, and other security headers
+ * Security Headers Middleware
+ *
+ * Applies security headers to all responses:
+ * - Content Security Policy (CSP)
+ * - X-Frame-Options
+ * - X-Content-Type-Options
+ * - Strict-Transport-Security (HSTS)
+ * - X-XSS-Protection
+ * - Referrer-Policy
+ * - Permissions-Policy
+ *
+ * Usage in TanStack Start:
+ * Apply via server.ts fetch handler
  */
 
-interface SecurityHeadersOptions {
-  isDevelopment?: boolean
-  allowInlineStyles?: boolean
-  allowInlineScripts?: boolean
+import { addSecurityHeaders } from '~/lib/security-headers'
+
+/**
+ * Middleware to apply security headers to response
+ *
+ * Usage in server.ts:
+ * ```typescript
+ * const response = await handler(request, ...args)
+ * return withSecurityHeaders(response)
+ * ```
+ */
+export function withSecurityHeaders(response: Response): Response {
+  return addSecurityHeaders(response)
 }
 
 /**
- * Get security headers for responses
+ * Check if request needs security headers
+ * Skip for certain paths (e.g., API endpoints that set their own headers)
  */
-export function getSecurityHeaders(
-  options: SecurityHeadersOptions = {},
-): Record<string, string> {
-  const {
-    isDevelopment = false,
-    allowInlineStyles = true,
-    allowInlineScripts = false,
-  } = options
-
-  // Content Security Policy
-  const cspDirectives = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-eval'" +
-      (allowInlineScripts || isDevelopment ? " 'unsafe-inline'" : ''),
-    "style-src 'self'" + (allowInlineStyles ? " 'unsafe-inline'" : ''),
-    "img-src 'self' data: blob: https:",
-    "font-src 'self' data:",
-    "connect-src 'self' https://api.neon.tech wss://api.neon.tech",
-    "media-src 'self'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'",
-    isDevelopment ? 'upgrade-insecure-requests' : '',
-  ]
-    .filter(Boolean)
-    .join('; ')
-
-  return {
-    // Content Security Policy
-    'Content-Security-Policy': cspDirectives,
-
-    // Prevent clickjacking
-    'X-Frame-Options': 'DENY',
-
-    // Prevent MIME type sniffing
-    'X-Content-Type-Options': 'nosniff',
-
-    // Referrer policy
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-
-    // Permissions policy (restrict dangerous features)
-    'Permissions-Policy': [
-      'camera=()',
-      'microphone=()',
-      'geolocation=(self)',
-      'payment=()',
-      'usb=()',
-    ].join(', '),
-
-    // Strict Transport Security (only for HTTPS)
-    ...(isDevelopment
-      ? {}
-      : {
-          'Strict-Transport-Security':
-            'max-age=31536000; includeSubDomains; preload',
-        }),
-
-    // Cross-Origin policies
-    'Cross-Origin-Embedder-Policy': 'require-corp',
-    'Cross-Origin-Opener-Policy': 'same-origin',
-    'Cross-Origin-Resource-Policy': 'same-origin',
+export function shouldApplySecurityHeaders(url: URL): boolean {
+  // Skip for Better Auth API routes (they handle their own headers)
+  if (url.pathname.startsWith('/api/auth')) {
+    return false
   }
-}
 
-/**
- * Apply security headers to a Response
- */
-export function applySecurityHeaders(
-  response: Response,
-  options?: SecurityHeadersOptions,
-): Response {
-  const headers = getSecurityHeaders(options)
-
-  // Create new response with security headers
-  const newResponse = new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: new Headers(response.headers),
-  })
-
-  // Add security headers
-  Object.entries(headers).forEach(([key, value]) => {
-    newResponse.headers.set(key, value)
-  })
-
-  return newResponse
-}
-
-/**
- * Middleware function for TanStack Start
- */
-export async function securityHeaders(
-  options?: SecurityHeadersOptions,
-): Promise<Record<string, string>> {
-  // Determine if in development
-  const isDevelopment = await getIsDevelopment()
-
-  return getSecurityHeaders({
-    isDevelopment,
-    ...options,
-  })
-}
-
-/**
- * Get environment - works in both Node.js and Cloudflare Workers
- */
-async function getIsDevelopment(): Promise<boolean> {
-  try {
-    const { env } = await import('cloudflare:workers')
-    return env.NODE_ENV === 'development'
-  } catch {
-    return process.env.NODE_ENV === 'development'
+  // Skip for health check endpoints
+  if (url.pathname === '/health' || url.pathname === '/ping') {
+    return false
   }
+
+  // Apply to all other routes
+  return true
+}
+
+/**
+ * Middleware wrapper for server functions
+ * Automatically applies security headers to response
+ */
+export async function withSecurityHeadersMiddleware(
+  handler: () => Promise<Response>,
+  request: Request,
+): Promise<Response> {
+  const response = await handler()
+  const url = new URL(request.url)
+
+  if (shouldApplySecurityHeaders(url)) {
+    return withSecurityHeaders(response)
+  }
+
+  return response
 }

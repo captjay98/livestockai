@@ -90,7 +90,7 @@ export async function createSale(
     const totalAmount = calculateSaleTotal(input.quantity, input.unitPrice)
 
     // Get batch for validation if selling from batch
-    if (input.batchId && input.livestockType !== 'eggs') {
+    if (input.batchId) {
       const batch = await getBatchById(db, input.batchId)
       if (!batch) {
         throw new AppError('BATCH_NOT_FOUND', {
@@ -190,7 +190,14 @@ export const createSaleFn = createServerFn({ method: 'POST' })
         farmId: z.string().uuid(),
         batchId: z.string().uuid().optional().nullable(),
         customerId: z.string().uuid().optional().nullable(),
-        livestockType: z.enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees']),
+        livestockType: z.enum([
+          'poultry',
+          'fish',
+          'cattle',
+          'goats',
+          'sheep',
+          'bees',
+        ]),
         quantity: z.number().int().positive(),
         unitPrice: z.number().nonnegative(),
         date: z.coerce.date(),
@@ -261,7 +268,7 @@ export async function deleteSale(userId: string, saleId: string) {
     }
 
     // If sale was from a batch (not eggs), restore the quantity
-    if (sale.batchId && sale.livestockType !== 'eggs') {
+    if (sale.batchId) {
       await restoreBatchQuantityOnDelete(db, sale.batchId, sale.quantity)
     }
 
@@ -348,8 +355,7 @@ export async function updateSale(
       if (
         data.quantity !== undefined &&
         data.quantity !== sale.quantity &&
-        sale.batchId &&
-        sale.livestockType !== 'eggs'
+        sale.batchId
       ) {
         const quantityDiff = calculateQuantityDifference(
           sale.quantity,
@@ -718,7 +724,24 @@ export const getSalesPaginatedFn = createServerFn({ method: 'GET' })
       sortOrder: z.enum(['asc', 'desc']).optional(),
       search: z.string().optional(),
       farmId: z.string().uuid().optional(),
-      livestockType: z.enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees']).optional(),
+      livestockType: z
+        .enum([
+          'poultry',
+          'fish',
+          'cattle',
+          'goats',
+          'sheep',
+          'bees',
+          'eggs',
+          'honey',
+          'milk',
+          'wool',
+          'beeswax',
+          'propolis',
+          'royal_jelly',
+          'manure',
+        ])
+        .optional(),
       startDate: z.coerce.date().optional(),
       endDate: z.coerce.date().optional(),
       paymentStatus: z.enum(['paid', 'pending', 'partial']).optional(),
@@ -753,7 +776,24 @@ export const getSalesPageDataFn = createServerFn({ method: 'GET' })
       sortBy: z.string().optional(),
       sortOrder: z.enum(['asc', 'desc']).optional(),
       search: z.string().optional(),
-      livestockType: z.enum(['poultry', 'fish', 'cattle', 'goats', 'sheep', 'bees']).optional(),
+      livestockType: z
+        .enum([
+          'poultry',
+          'fish',
+          'cattle',
+          'goats',
+          'sheep',
+          'bees',
+          'eggs',
+          'honey',
+          'milk',
+          'wool',
+          'beeswax',
+          'propolis',
+          'royal_jelly',
+          'manure',
+        ])
+        .optional(),
       paymentStatus: z.enum(['paid', 'pending', 'partial']).optional(),
     }),
   )

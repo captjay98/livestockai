@@ -7,7 +7,6 @@ import type {
 import {
   calculateBatchTotalCost,
   calculateDepletionPercentage,
-  calculateFCR,
   calculateMortalityRate,
   calculateNewQuantity,
   canDeleteBatch,
@@ -15,6 +14,7 @@ import {
   validateBatchData,
   validateUpdateData,
 } from '~/features/batches/service'
+import { calculateFCR } from '~/lib/utils/calculations'
 
 describe('Batch Service', () => {
   describe('calculateBatchTotalCost', () => {

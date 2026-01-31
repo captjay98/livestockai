@@ -5,6 +5,9 @@
 
 import type { DateRange } from './server'
 
+// Constants
+const MAX_REPORT_NAME_LENGTH = 100
+
 /**
  * Report configuration data for creation
  */
@@ -57,8 +60,8 @@ export function validateReportConfig(data: ReportConfigData): string | null {
     return 'Report name is required'
   }
 
-  if (data.name.length > 100) {
-    return 'Report name cannot exceed 100 characters'
+  if (data.name.length > MAX_REPORT_NAME_LENGTH) {
+    return `Report name cannot exceed ${MAX_REPORT_NAME_LENGTH} characters`
   }
 
   if (!data.farmId || data.farmId.trim() === '') {

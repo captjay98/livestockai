@@ -1,87 +1,233 @@
+/**
+ * Rate Limiting Middleware
+ *
+ * Tiered rate limiting for different endpoint types:
+ * - Auth: 5 requests/minute (login, register)
+ * - Mutation: 30 requests/minute (create, update, delete)
+ * - Query: 100 requests/minute (read operations)
+ *
+ * Uses Cloudflare KV for distributed rate limiting in production
+ * Falls back to in-memory for development
+ */
+
 import { AppError } from '~/lib/errors'
+
+export type RateLimitTier = 'auth' | 'mutation' | 'query'
+
+interface RateLimitConfig {
+  requests: number
+  windowSeconds: number
+}
+
+const RATE_LIMITS: Record<RateLimitTier, RateLimitConfig> = {
+  auth: { requests: 5, windowSeconds: 60 }, // 5/min for auth
+  mutation: { requests: 30, windowSeconds: 60 }, // 30/min for writes
+  query: { requests: 100, windowSeconds: 60 }, // 100/min for reads
+}
 
 interface RateLimitEntry {
   count: number
   resetTime: number
 }
 
-// In-memory store for rate limiting (use Redis/KV in production)
-const rateLimitStore = new Map<string, RateLimitEntry>()
+// In-memory store for development (resets on restart)
+const memoryStore = new Map<string, RateLimitEntry>()
 
-interface RateLimitOptions {
-  windowMs: number // Time window in milliseconds
-  maxRequests: number // Max requests per window
-  keyGenerator?: (request: Request) => string
+/**
+ * Check rate limit using Cloudflare KV (production) or memory (dev)
+ */
+export async function checkRateLimit(
+  ip: string,
+  tier: RateLimitTier = 'query',
+): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
+  const config = RATE_LIMITS[tier]
+  const key = `rate_limit:${tier}:${ip}`
+
+  // Try to use Cloudflare KV if available
+  const kv = await getKVNamespace()
+
+  if (kv) {
+    return checkRateLimitKV(kv, key, config)
+  }
+
+  // Fallback to in-memory for development
+  return checkRateLimitMemory(key, config)
 }
 
 /**
- * Rate limiting middleware for public routes
- * Designed for /shared/* routes that don't require authentication
+ * Cloudflare KV-based rate limiting (production)
  */
-export function rateLimit(
-  request: Request,
-  options: RateLimitOptions = {
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    maxRequests: 100, // 100 requests per 15 minutes
-  },
-): void {
-  const key = options.keyGenerator
-    ? options.keyGenerator(request)
-    : getClientIP(request)
-
+async function checkRateLimitKV(
+  kv: KVNamespace,
+  key: string,
+  config: RateLimitConfig,
+): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
   const now = Date.now()
-  const entry = rateLimitStore.get(key)
+  const resetAt = now + config.windowSeconds * 1000
 
-  // Clean up expired entries
-  if (entry && now > entry.resetTime) {
-    rateLimitStore.delete(key)
+  try {
+    const value = await kv.get(key)
+
+    if (!value) {
+      // First request in window
+      await kv.put(key, '1', { expirationTtl: config.windowSeconds })
+      return {
+        allowed: true,
+        remaining: config.requests - 1,
+        resetAt,
+      }
+    }
+
+    const count = parseInt(value, 10)
+
+    if (count >= config.requests) {
+      // Rate limit exceeded
+      return {
+        allowed: false,
+        remaining: 0,
+        resetAt,
+      }
+    }
+
+    // Increment counter
+    await kv.put(key, (count + 1).toString(), {
+      expirationTtl: config.windowSeconds,
+    })
+
+    return {
+      allowed: true,
+      remaining: config.requests - count - 1,
+      resetAt,
+    }
+  } catch (error) {
+    console.error('KV rate limit error:', error)
+    // Allow request on error (fail open)
+    return {
+      allowed: true,
+      remaining: config.requests,
+      resetAt,
+    }
+  }
+}
+
+/**
+ * In-memory rate limiting (development)
+ */
+function checkRateLimitMemory(
+  key: string,
+  config: RateLimitConfig,
+): { allowed: boolean; remaining: number; resetAt: number } {
+  const now = Date.now()
+  const entry = memoryStore.get(key)
+
+  if (!entry || now > entry.resetTime) {
+    // First request or window expired
+    const resetAt = now + config.windowSeconds * 1000
+    memoryStore.set(key, {
+      count: 1,
+      resetTime: resetAt,
+    })
+    return {
+      allowed: true,
+      remaining: config.requests - 1,
+      resetAt,
+    }
   }
 
-  const currentEntry = rateLimitStore.get(key) || {
-    count: 0,
-    resetTime: now + options.windowMs,
+  if (entry.count >= config.requests) {
+    // Rate limit exceeded
+    return {
+      allowed: false,
+      remaining: 0,
+      resetAt: entry.resetTime,
+    }
   }
 
-  currentEntry.count++
-  rateLimitStore.set(key, currentEntry)
+  // Increment counter
+  entry.count++
 
-  if (currentEntry.count > options.maxRequests) {
-    throw new AppError('RATE_LIMITED', {
-      message: 'Too many requests',
+  return {
+    allowed: true,
+    remaining: config.requests - entry.count,
+    resetAt: entry.resetTime,
+  }
+}
+
+/**
+ * Get Cloudflare KV namespace if available
+ */
+async function getKVNamespace(): Promise<KVNamespace | null> {
+  try {
+    // Try to get KV from Cloudflare Workers env
+    const { env } = await import('cloudflare:workers')
+    return (env as any).RATE_LIMIT_KV || null
+  } catch {
+    // Not in Cloudflare Workers or KV not configured
+    return null
+  }
+}
+
+/**
+ * Middleware wrapper for server functions
+ * Usage: await withRateLimit(() => yourFunction(), ip, 'mutation')
+ */
+export async function withRateLimit<T>(
+  handler: () => Promise<T>,
+  ip: string,
+  tier: RateLimitTier = 'query',
+): Promise<T> {
+  const { allowed, resetAt } = await checkRateLimit(ip, tier)
+
+  if (!allowed) {
+    throw new AppError('RATE_LIMIT_EXCEEDED', {
+      message: 'Too many requests. Please try again later.',
       metadata: {
-        limit: options.maxRequests,
-        windowMs: options.windowMs,
-        resetTime: currentEntry.resetTime,
+        resetAt: new Date(resetAt).toISOString(),
+        tier,
       },
     })
   }
+
+  // Add rate limit info to response headers (if possible)
+  // Note: This requires access to response object, which varies by framework
+
+  return handler()
 }
 
 /**
- * Get client IP from request headers
+ * Get client IP from request
+ * Works with Cloudflare Workers
  */
-function getClientIP(request: Request): string {
-  // Check Cloudflare headers first
-  const cfConnectingIP = request.headers.get('CF-Connecting-IP')
-  if (cfConnectingIP) return cfConnectingIP
+export function getClientIP(request: Request): string {
+  // Cloudflare provides CF-Connecting-IP header
+  const cfIP = request.headers.get('CF-Connecting-IP')
+  if (cfIP) return cfIP
 
-  // Check other common headers
-  const xForwardedFor = request.headers.get('X-Forwarded-For')
-  if (xForwardedFor) return xForwardedFor.split(',')[0].trim()
+  // Fallback to X-Forwarded-For
+  const forwardedFor = request.headers.get('X-Forwarded-For')
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim()
+  }
 
-  const xRealIP = request.headers.get('X-Real-IP')
-  if (xRealIP) return xRealIP
+  // Fallback to X-Real-IP
+  const realIP = request.headers.get('X-Real-IP')
+  if (realIP) return realIP
 
-  // Fallback
+  // Last resort
   return 'unknown'
 }
 
 /**
- * Rate limit for shared routes (more restrictive)
+ * Get rate limit headers for response
  */
-export function rateLimitShared(request: Request): void {
-  return rateLimit(request, {
-    windowMs: 5 * 60 * 1000, // 5 minutes
-    maxRequests: 20, // 20 requests per 5 minutes for shared routes
-  })
+export function getRateLimitHeaders(
+  remaining: number,
+  resetAt: number,
+  limit: number,
+): Record<string, string> {
+  return {
+    'X-RateLimit-Limit': limit.toString(),
+    'X-RateLimit-Remaining': remaining.toString(),
+    'X-RateLimit-Reset': Math.ceil(resetAt / 1000).toString(),
+  }
 }

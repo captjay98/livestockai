@@ -11,6 +11,8 @@ import type { Database } from '~/lib/db/types'
  */
 export interface TaskInsert {
   farmId: string
+  batchId?: string | null
+  moduleKey?: string | null
   title: string
   description?: string | null
   frequency: 'daily' | 'weekly' | 'monthly'
@@ -23,6 +25,8 @@ export interface TaskInsert {
 export interface TaskWithCompletionRow {
   id: string
   farmId: string
+  batchId: string | null
+  moduleKey: string | null
   title: string
   description: string | null
   frequency: string
@@ -47,6 +51,8 @@ export async function insertTask(
     .insertInto('tasks')
     .values({
       farmId: data.farmId,
+      batchId: data.batchId || null,
+      moduleKey: data.moduleKey || null,
       title: data.title,
       description: data.description || null,
       frequency: data.frequency,
@@ -58,17 +64,17 @@ export async function insertTask(
 }
 
 /**
- * Get all tasks for a farm with completion records for a specific user
+ * Get all tasks for a farm (or all user's farms) with completion records for a specific user
  *
  * @param db - Kysely database instance
  * @param userId - ID of the user
- * @param farmId - ID of the farm
+ * @param farmId - Optional ID of the farm (if not provided, fetches from all user's farms)
  * @param frequency - Optional frequency filter
  */
 export async function getTasksWithCompletions(
   db: Kysely<Database>,
   userId: string,
-  farmId: string,
+  farmId?: string,
   frequency?: 'daily' | 'weekly' | 'monthly',
 ): Promise<Array<TaskWithCompletionRow>> {
   let query = db
@@ -78,10 +84,11 @@ export async function getTasksWithCompletions(
         .onRef('task_completions.taskId', '=', 'tasks.id')
         .on('task_completions.userId', '=', userId),
     )
-    .where('tasks.farmId', '=', farmId)
     .select([
       'tasks.id',
       'tasks.farmId',
+      'tasks.batchId',
+      'tasks.moduleKey',
       'tasks.title',
       'tasks.description',
       'tasks.frequency',
@@ -91,6 +98,16 @@ export async function getTasksWithCompletions(
       'task_completions.periodStart',
     ])
     .orderBy('tasks.title', 'asc')
+
+  if (farmId) {
+    // Filter by specific farm
+    query = query.where('tasks.farmId', '=', farmId)
+  } else {
+    // Filter by all farms the user has access to
+    query = query.where('tasks.farmId', 'in', (qb) =>
+      qb.selectFrom('user_farms').select('farmId').where('userId', '=', userId),
+    )
+  }
 
   if (frequency) {
     query = query.where('tasks.frequency', '=', frequency)

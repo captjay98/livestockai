@@ -125,46 +125,69 @@
           <span class="tsd-signature-type">ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
           ><br />                        <span class="tsd-signature-symbol"
-            >[</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;disease&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;predator&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;weather&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;unknown&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;other&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;starvation&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;injury&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;poisoning&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;suffocation&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                            <span class="tsd-signature-type"
-            >&quot;culling&quot;</span
-          ><span class="tsd-signature-symbol">,</span
+            >{</span
+          ><br />                            <span class="tsd-kind-property"
+            >culling</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;culling&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >disease</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;disease&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >injury</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;injury&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >other</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;other&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >poisoning</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;poisoning&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >predator</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;predator&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >starvation</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;starvation&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >suffocation</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;suffocation&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >unknown</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;unknown&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >weather</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;weather&quot;</span
+          ><span class="tsd-signature-symbol">;</span
           ><br />                        <span class="tsd-signature-symbol"
-            >]</span
+            >}</span
           ><span class="tsd-signature-symbol">,</span
           ><br />                    <span class="tsd-signature-symbol"
             >&gt;</span
           ><span class="tsd-signature-symbol">;</span
           ><br />                    <span class="tsd-kind-property">date</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodDate</span
+          <span class="tsd-signature-type">ZodCoercedDate</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-type">unknown</span
+          ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">;</span
           ><br />                    <span class="tsd-kind-property">notes</span
           ><span class="tsd-signature-symbol">:</span>
@@ -183,103 +206,7 @@
           ><span class="tsd-signature-symbol">;</span
           ><br />                <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-symbol">{</span
-          ><br />                    <span class="tsd-kind-property"
-            >batchId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">cause</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;unknown&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;disease&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;predator&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;weather&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;other&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;starvation&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;injury&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;poisoning&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;suffocation&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;culling&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">date</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >quantity</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-signature-symbol">}</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                <span class="tsd-signature-symbol">{</span
-          ><br />                    <span class="tsd-kind-property"
-            >batchId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">cause</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;unknown&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;disease&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;predator&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;weather&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;other&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;starvation&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;injury&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;poisoning&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;suffocation&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;culling&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">date</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                    <span class="tsd-kind-property"
-            >quantity</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-signature-symbol">}</span
+          ><br />                <span class="tsd-signature-type">$strip</span
           ><span class="tsd-signature-symbol">,</span><br />            <span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -293,126 +220,7 @@
             >}</span
           ><span class="tsd-signature-symbol">,</span><br />        <span
             class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">data</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >batchId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">cause</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;unknown&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;disease&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;predator&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;weather&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;other&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;starvation&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;injury&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;poisoning&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;suffocation&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;culling&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">date</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">quantity</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">data</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >batchId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">cause</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;unknown&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;disease&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;predator&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;weather&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;other&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;starvation&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;injury&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;poisoning&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;suffocation&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;culling&quot;</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">date</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">Date</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">notes</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">quantity</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >farmId</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
+            >$strip</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
             >&gt;</span

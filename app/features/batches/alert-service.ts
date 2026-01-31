@@ -6,6 +6,37 @@ import type { Kysely } from 'kysely'
 import type { Database } from '~/lib/db/types'
 
 /**
+ * Breed performance adjustment factors
+ * Local/indigenous breeds have lower baseline expectations
+ */
+const BREED_ADJUSTMENT: Record<string, number> = {
+  // Poultry - local breeds
+  'local chicken': 0.7, // 70% of standard growth
+  'guinea fowl': 0.75,
+
+  // Poultry - hybrid/improved indigenous
+  noiler: 0.85, // Hybrid (popular in Nigeria)
+  kuroiler: 0.9, // Improved indigenous
+  sasso: 0.95, // Colored broiler
+
+  // Goats - local breeds
+  'west african dwarf': 0.75,
+  'red sokoto': 0.8,
+
+  // Sheep - local breeds
+  'west african dwarf sheep': 0.75,
+  yankasa: 0.8,
+  uda: 0.85,
+
+  // Improved breeds (baseline)
+  'cobb 500': 1.0,
+  'ross 308': 1.0,
+  boer: 1.0,
+  dorper: 1.0,
+  merino: 1.0,
+}
+
+/**
  * Alert severity levels
  */
 export type AlertSeverity = 'info' | 'warning' | 'critical'
@@ -34,13 +65,22 @@ export interface AlertResult {
  * - > 110: Info (ahead of schedule, early harvest opportunity)
  *
  * @param performanceIndex - Performance Index percentage
+ * @param breedName - Optional breed name for adjustment
  * @returns Alert result with severity and recommendation
  */
 export function determineAlertSeverity(
   performanceIndex: number,
+  breedName?: string,
 ): AlertResult | null {
-  // Critical: Severely behind schedule
-  if (performanceIndex < 80) {
+  // Adjust threshold based on breed
+  const adjustment = breedName
+    ? BREED_ADJUSTMENT[breedName.toLowerCase()] || 1.0
+    : 1.0
+
+  const adjustedPI = performanceIndex / adjustment
+
+  // Critical: Severely behind schedule (adjusted)
+  if (adjustedPI < 80) {
     return {
       shouldAlert: true,
       severity: 'critical',
@@ -49,8 +89,8 @@ export function determineAlertSeverity(
     }
   }
 
-  // Warning: Behind schedule
-  if (performanceIndex < 90) {
+  // Warning: Behind schedule (adjusted)
+  if (adjustedPI < 90) {
     return {
       shouldAlert: true,
       severity: 'warning',
@@ -60,7 +100,7 @@ export function determineAlertSeverity(
   }
 
   // Info: Ahead of schedule
-  if (performanceIndex > 110) {
+  if (adjustedPI > 110) {
     return {
       shouldAlert: true,
       severity: 'info',
@@ -122,11 +162,14 @@ export async function shouldCreateAlert(
   const { sql } = await import('kysely')
 
   // Check for recent alerts (within 24 hours)
+  // Use parameterized query to prevent SQL injection
   const recentAlert = await db
     .selectFrom('notifications')
     .select('id')
     .where('type', '=', alertType)
-    .where((eb) => eb(sql`metadata::text`, 'like', `%${batchId}%`))
+    .where((eb) =>
+      eb(sql`metadata::text`, 'like', sql`'%' || ${batchId} || '%'`),
+    )
     .where((eb) => eb(sql`"createdAt"`, '>', sql`NOW() - INTERVAL '24 hours'`))
     .executeTakeFirst()
 

@@ -6,6 +6,7 @@
  */
 
 import { createContext, useContext } from 'react'
+import { useLocation } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   deleteNotificationFn,
@@ -34,6 +35,17 @@ interface NotificationsProviderProps {
   children: ReactNode
 }
 
+// Public paths that don't require notifications to be loaded
+const PUBLIC_PATHS = [
+  '/',
+  '/login',
+  '/signup',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+]
+
 /**
  * Notifications Provider Component
  *
@@ -45,7 +57,13 @@ export function NotificationsProvider({
 }: NotificationsProviderProps) {
   const queryClient = useQueryClient()
 
-  // Fetch notifications with auto-refresh
+  // Use TanStack Router's location hook for SSR-safe path detection
+  const location = useLocation()
+  const pathname = location.pathname
+  const isPublicPage =
+    PUBLIC_PATHS.includes(pathname) || pathname.startsWith('/auth/')
+
+  // Fetch notifications with auto-refresh (disabled on public pages)
   const {
     data: notifications = [],
     isLoading,
@@ -53,12 +71,13 @@ export function NotificationsProvider({
   } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => getNotificationsFn({ data: { limit: 50 } }),
-    refetchInterval: 30000, // 30 seconds
+    refetchInterval: isPublicPage ? false : 30000, // 30 seconds, disabled on public pages
     staleTime: 25000, // Consider stale after 25 seconds
+    enabled: !isPublicPage, // Don't fetch on public pages
   })
 
   // Calculate unread count
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const unreadCount = notifications.filter((n: Notification) => !n.read).length
 
   // Mark as read mutation
   const markAsReadMutation = useMutation({

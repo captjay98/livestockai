@@ -3,6 +3,8 @@ import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { admin } from 'better-auth/plugins'
 import { neon } from '@neondatabase/serverless'
 import { NeonDialect } from 'kysely-neon'
+import { PostgresDialect } from 'kysely'
+import pg from 'pg'
 
 // Environment variables cache (populated on first access)
 let envCache: {
@@ -36,6 +38,38 @@ async function getEnv() {
     }
   }
   return envCache
+}
+
+/**
+ * Check if the DATABASE_URL points to a local PostgreSQL instance.
+ * Local URLs typically use localhost, 127.0.0.1, or don't have neon.tech in them.
+ */
+function isLocalDatabase(url: string): boolean {
+  return (
+    url.includes('localhost') ||
+    url.includes('127.0.0.1') ||
+    !url.includes('neon.tech')
+  )
+}
+
+/**
+ * Create the appropriate Kysely dialect based on the database URL.
+ * - Local PostgreSQL: uses pg driver with PostgresDialect
+ * - Neon: uses @neondatabase/serverless with NeonDialect
+ */
+function createDialect(databaseUrl: string) {
+  if (isLocalDatabase(databaseUrl)) {
+    // Local PostgreSQL - use standard pg driver
+    return new PostgresDialect({
+      pool: new pg.Pool({
+        connectionString: databaseUrl,
+      }),
+    })
+  }
+  // Neon serverless - use HTTP driver
+  return new NeonDialect({
+    neon: neon(databaseUrl),
+  })
 }
 
 // Web Crypto API compatible password hashing (works on Cloudflare Workers)
@@ -117,20 +151,24 @@ async function createAuth() {
     await error('[AUTH CONFIG] DATABASE_URL is missing!')
     throw new Error('DATABASE_URL environment variable is not set')
   }
+
+  const isLocal = isLocalDatabase(env.DATABASE_URL)
+  await debug('[AUTH CONFIG] Using local database:', isLocal)
+
   return betterAuth({
     database: {
-      dialect: new NeonDialect({
-        neon: neon(env.DATABASE_URL),
-      }),
+      dialect: createDialect(env.DATABASE_URL),
       type: 'postgres',
     },
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
     // Generate UUIDs instead of nanoid (matches our database schema)
     advanced: {
-      generateId: () => crypto.randomUUID(),
       cookiePrefix: 'livestockai',
-      useSecureCookies: true,
+      useSecureCookies: process.env.NODE_ENV === 'production',
+      database: {
+        generateId: () => crypto.randomUUID(),
+      },
     },
     emailAndPassword: {
       enabled: true,

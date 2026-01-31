@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { useErrorMessage } from './useErrorMessage'
 
 interface UseFormDialogOptions<T> {
@@ -21,6 +22,7 @@ export function useFormDialog<T extends Record<string, any>>(
   const getErrorMessage = useErrorMessage()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { t } = useTranslation(['common'])
 
   const open = () => setIsOpen(true)
   const close = () => {
@@ -40,7 +42,7 @@ export function useFormDialog<T extends Record<string, any>>(
       if (options.onSuccess) {
         options.onSuccess()
       } else {
-        toast.success('Success')
+        toast.success(t('common:messages.success', { defaultValue: 'Success' }))
         close()
         router.invalidate()
         queryClient.invalidateQueries()

@@ -4,12 +4,12 @@ import type { CreateFeedRecordInput } from '~/features/feed/server'
 import {
   buildFeedStats,
   buildFeedSummary,
-  calculateFCR,
   calculateNewInventoryQuantity,
   mapSortColumnToDbColumn,
   validateFeedRecord,
   validateUpdateData,
 } from '~/features/feed/service'
+import { calculateFCR } from '~/lib/utils/calculations'
 
 describe('Feed Service', () => {
   describe('calculateNewInventoryQuantity', () => {
@@ -67,13 +67,13 @@ describe('Feed Service', () => {
   })
 
   describe('validateFeedRecord', () => {
-    const validData: CreateFeedRecordInput = {
+    const validData = {
       batchId: 'batch-1',
-      feedType: 'starter-crumble',
+      feedType: 'starter',
       quantityKg: 25,
       cost: 15000,
       date: new Date('2024-01-01'),
-    }
+    } as CreateFeedRecordInput
 
     it('should accept valid data', () => {
       const result = validateFeedRecord(validData)
@@ -82,21 +82,24 @@ describe('Feed Service', () => {
 
     it('should accept all valid feed types', () => {
       const validFeedTypes = [
-        'starter-crumble',
-        'grower-pellet',
-        'finisher-pellet',
-        'layer-mash',
-        'fish-feed',
-        'cattle-feed',
-        'goat-feed',
-        'sheep-feed',
+        'starter',
+        'grower',
+        'finisher',
+        'layer_mash',
+        'fish_feed',
+        'cattle_feed',
+        'goat_feed',
+        'sheep_feed',
         'hay',
         'silage',
-        'bee-feed',
-      ] as const
+        'bee_feed',
+      ]
 
       for (const feedType of validFeedTypes) {
-        const result = validateFeedRecord({ ...validData, feedType })
+        const result = validateFeedRecord({
+          ...validData,
+          feedType,
+        } as CreateFeedRecordInput)
         expect(result).toBeNull()
       }
     })
@@ -159,9 +162,9 @@ describe('Feed Service', () => {
   describe('buildFeedSummary', () => {
     it('should calculate total quantity and cost', () => {
       const records = [
-        { feedType: 'starter-crumble', quantityKg: '25.00', cost: '15000.00' },
-        { feedType: 'grower-pellet', quantityKg: '30.00', cost: '18000.00' },
-        { feedType: 'starter-crumble', quantityKg: '15.00', cost: '9000.00' },
+        { feedType: 'starter', quantityKg: '25.00', cost: '15000.00' },
+        { feedType: 'grower', quantityKg: '30.00', cost: '18000.00' },
+        { feedType: 'starter', quantityKg: '15.00', cost: '9000.00' },
       ]
 
       const result = buildFeedSummary(records)
@@ -173,9 +176,9 @@ describe('Feed Service', () => {
 
     it('should group by feed type', () => {
       const records = [
-        { feedType: 'starter-crumble', quantityKg: '25.00', cost: '15000.00' },
-        { feedType: 'grower-pellet', quantityKg: '30.00', cost: '18000.00' },
-        { feedType: 'starter-crumble', quantityKg: '15.00', cost: '9000.00' },
+        { feedType: 'starter', quantityKg: '25.00', cost: '15000.00' },
+        { feedType: 'grower', quantityKg: '30.00', cost: '18000.00' },
+        { feedType: 'starter', quantityKg: '15.00', cost: '9000.00' },
       ]
 
       const result = buildFeedSummary(records)
@@ -202,8 +205,8 @@ describe('Feed Service', () => {
 
     it('should handle decimal values correctly', () => {
       const records = [
-        { feedType: 'starter-crumble', quantityKg: '25.75', cost: '15000.50' },
-        { feedType: 'grower-pellet', quantityKg: '30.25', cost: '18000.75' },
+        { feedType: 'starter', quantityKg: '25.75', cost: '15000.50' },
+        { feedType: 'grower', quantityKg: '30.25', cost: '18000.75' },
       ]
 
       const result = buildFeedSummary(records)
@@ -214,7 +217,7 @@ describe('Feed Service', () => {
 
     it('should handle single record', () => {
       const records = [
-        { feedType: 'starter-crumble', quantityKg: '100.00', cost: '50000.00' },
+        { feedType: 'starter', quantityKg: '100.00', cost: '50000.00' },
       ]
 
       const result = buildFeedSummary(records)
@@ -231,36 +234,31 @@ describe('Feed Service', () => {
 
   describe('calculateFCR', () => {
     it('should calculate feed conversion ratio', () => {
-      expect(calculateFCR(150, 100, 100)).toBe(1.5)
-      expect(calculateFCR(200, 100, 100)).toBe(2)
-      expect(calculateFCR(100, 50, 100)).toBe(2)
+      expect(calculateFCR(150, 100)).toBe(1.5)
+      expect(calculateFCR(200, 100)).toBe(2)
+      expect(calculateFCR(100, 50)).toBe(2)
     })
 
     it('should return null for zero or negative feed', () => {
-      expect(calculateFCR(0, 100, 100)).toBeNull()
-      expect(calculateFCR(-10, 100, 100)).toBeNull()
+      expect(calculateFCR(0, 100)).toBeNull()
+      expect(calculateFCR(-10, 100)).toBeNull()
     })
 
     it('should return null for zero or negative weight gain', () => {
-      expect(calculateFCR(100, 0, 100)).toBeNull()
-      expect(calculateFCR(100, -10, 100)).toBeNull()
-    })
-
-    it('should return null for zero or negative initial quantity', () => {
-      expect(calculateFCR(100, 100, 0)).toBeNull()
-      expect(calculateFCR(100, 100, -10)).toBeNull()
+      expect(calculateFCR(100, 0)).toBeNull()
+      expect(calculateFCR(100, -10)).toBeNull()
     })
 
     it('should round to 2 decimal places', () => {
-      expect(calculateFCR(157.5, 100, 100)).toBe(1.58)
-      expect(calculateFCR(100.333, 100, 100)).toBe(1)
-      expect(calculateFCR(100.666, 100, 100)).toBe(1.01)
+      expect(calculateFCR(157.5, 100)).toBe(1.58)
+      expect(calculateFCR(100.333, 100)).toBe(1)
+      expect(calculateFCR(100.666, 100)).toBe(1.01)
     })
 
     it('should handle realistic poultry FCR values', () => {
       // Typical broiler FCR is 1.5-2.5
-      expect(calculateFCR(300, 150, 100)).toBe(2)
-      expect(calculateFCR(225, 150, 100)).toBe(1.5)
+      expect(calculateFCR(300, 150)).toBe(2)
+      expect(calculateFCR(225, 150)).toBe(1.5)
     })
 
     it('should handle property-based testing', () => {
@@ -268,9 +266,8 @@ describe('Feed Service', () => {
         fc.property(
           fc.double({ min: 0.1, max: 100000, noNaN: true }), // totalFeedKg
           fc.double({ min: 0.1, max: 10000, noNaN: true }), // weightGainKg
-          fc.integer({ min: 10, max: 10000 }), // initialQuantity
-          (totalFeedKg, weightGainKg, _initialQuantity) => {
-            const fcr = calculateFCR(totalFeedKg, weightGainKg, 100)
+          (totalFeedKg, weightGainKg) => {
+            const fcr = calculateFCR(totalFeedKg, weightGainKg)
             expect(fcr).not.toBeNull()
             if (fcr !== null) {
               expect(fcr).toBeGreaterThanOrEqual(0) // FCR can be 0 for very small feed amounts
@@ -400,12 +397,12 @@ describe('Feed Service', () => {
   })
 
   describe('validateUpdateData', () => {
-    const validData: Partial<CreateFeedRecordInput> = {
+    const validData = {
       quantityKg: 25,
       cost: 15000,
-      feedType: 'starter-crumble',
+      feedType: 'starter',
       date: new Date('2024-01-01'),
-    }
+    } as Partial<CreateFeedRecordInput>
 
     it('should accept valid data', () => {
       const result = validateUpdateData(validData)
@@ -415,7 +412,11 @@ describe('Feed Service', () => {
     it('should accept partial updates', () => {
       expect(validateUpdateData({ quantityKg: 30 })).toBeNull()
       expect(validateUpdateData({ cost: 20000 })).toBeNull()
-      expect(validateUpdateData({ feedType: 'grower-pellet' })).toBeNull()
+      expect(
+        validateUpdateData({
+          feedType: 'grower',
+        } as Partial<CreateFeedRecordInput>),
+      ).toBeNull()
       expect(validateUpdateData({})).toBeNull()
     })
 
@@ -454,8 +455,8 @@ describe('Feed Service', () => {
 
     it('should accept all valid feed types', () => {
       const validFeedTypes = [
-        'starter-crumble',
-        'grower-pellet',
+        'starter',
+        'grower',
         'finisher-pellet',
         'layer-mash',
         'fish-feed',
@@ -465,10 +466,12 @@ describe('Feed Service', () => {
         'hay',
         'silage',
         'bee-feed',
-      ] as const
+      ]
 
       for (const feedType of validFeedTypes) {
-        const result = validateUpdateData({ feedType })
+        const result = validateUpdateData({
+          feedType,
+        } as Partial<CreateFeedRecordInput>)
         expect(result).toBeNull()
       }
     })

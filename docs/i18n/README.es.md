@@ -98,27 +98,25 @@
 
 ## Capturas de Pantalla
 
-<!-- TODO: Add screenshots -->
-
 | Tablero                                                 | Gestión de Lotes                                           |
 | ------------------------------------------------------- | ---------------------------------------------------------- |
-| ![Tablero](../../screenshots/dashboard.png)             | ![Lotes](../../screenshots/batches.png)                    |
+| ![Tablero](../../public/screenshots/dashboard.png)      | ![Lotes](../../public/screenshots/batches.png)             |
 | _Resumen de granja con KPI, alertas y acciones rápidas_ | _Lista de lotes con estado, especie y tasas de mortalidad_ |
 
-| Detalle del Lote                                             | Informes Financieros                                    |
-| ------------------------------------------------------------ | ------------------------------------------------------- |
-| ![Detalle del Lote](../../screenshots/batch-detail.png)      | ![Informes](../../screenshots/reports.png)              |
-| _Gráfico de crecimiento, proyecciones y cronograma del lote_ | _Análisis de Pérdidas/Ganancias con desglose de gastos_ |
+| Detalle del Lote                                                | Informes Financieros                                    |
+| --------------------------------------------------------------- | ------------------------------------------------------- |
+| ![Detalle del Lote](../../public/screenshots/batch-details.png) | ![Informes](../../public/screenshots/reports.png)       |
+| _Gráfico de crecimiento, proyecciones y cronograma del lote_    | _Análisis de Pérdidas/Ganancias con desglose de gastos_ |
 
-| Vista Móvil                            | Modo Sin Conexión                              |
-| -------------------------------------- | ---------------------------------------------- |
-| ![Móvil](../../screenshots/mobile.png) | ![Sin Conexión](../../screenshots/offline.png) |
-| _Diseño sensible para uso en campo_    | _Funciona sin conexión a internet_             |
+| Vista Móvil                                             | Modo Sin Conexión                                     |
+| ------------------------------------------------------- | ----------------------------------------------------- |
+| ![Móvil](../../public/screenshots/mobile-dashboard.png) | ![Sin Conexión](../../public/screenshots/offline.png) |
+| _Diseño sensible para uso en campo_                     | _Funciona sin conexión a internet_                    |
 
-| Configuración                                    | Facturas                                           |
-| ------------------------------------------------ | -------------------------------------------------- |
-| ![Configuración](../../screenshots/settings.png) | ![Facturas](../../screenshots/invoices.png)        |
-| _Preferencias de moneda, fecha y unidades_       | _Facturación de clientes con seguimiento de pagos_ |
+| Configuración                                           | Facturas                                           |
+| ------------------------------------------------------- | -------------------------------------------------- |
+| ![Configuración](../../public/screenshots/settings.png) | ![Facturas](../../public/screenshots/invoices.png) |
+| _Preferencias de moneda, fecha y unidades_              | _Facturación de clientes con seguimiento de pagos_ |
 
 ## Stack Tecnológico
 

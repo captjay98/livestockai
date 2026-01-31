@@ -16,7 +16,7 @@ export const getRouter = () => {
     context: {
       queryClient,
     },
-    // Dehydrate/Hydrate QueryClient
+    // Dehydrate/Hydrate QueryClient with proper types
     dehydrate: () => {
       return {
         queryClientState: dehydrate(queryClient) as any,

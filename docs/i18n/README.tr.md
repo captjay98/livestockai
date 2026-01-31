@@ -98,27 +98,25 @@
 
 ## Ekran Görüntüleri
 
-<!-- TODO: Add screenshots -->
+| Kontrol Paneli                                                 | Parti Yönetimi                                    |
+| -------------------------------------------------------------- | ------------------------------------------------- |
+| ![Panel](../../public/screenshots/dashboard.png)               | ![Partiler](../../public/screenshots/batches.png) |
+| _KPI'lar, uyarılar ve hızlı eylemler ile çiftlik genel bakışı_ | _Durum, tür ve ölüm oranları ile parti listesi_   |
 
-| Kontrol Paneli                                                 | Parti Yönetimi                                  |
-| -------------------------------------------------------------- | ----------------------------------------------- |
-| ![Panel](../../screenshots/dashboard.png)                      | ![Partiler](../../screenshots/batches.png)      |
-| _KPI'lar, uyarılar ve hızlı eylemler ile çiftlik genel bakışı_ | _Durum, tür ve ölüm oranları ile parti listesi_ |
+| Parti Detayı                                                | Finansal Raporlar                                 |
+| ----------------------------------------------------------- | ------------------------------------------------- |
+| ![Parti Detayı](../../public/screenshots/batch-details.png) | ![Raporlar](../../public/screenshots/reports.png) |
+| _Büyüme grafiği, projeksiyonlar ve parti zaman çizelgesi_   | _Gider dökümü ile Kâr/Zarar analizi_              |
 
-| Parti Detayı                                              | Finansal Raporlar                          |
-| --------------------------------------------------------- | ------------------------------------------ |
-| ![Parti Detayı](../../screenshots/batch-detail.png)       | ![Raporlar](../../screenshots/reports.png) |
-| _Büyüme grafiği, projeksiyonlar ve parti zaman çizelgesi_ | _Gider dökümü ile Kâr/Zarar analizi_       |
+| Mobil Görünüm                                           | Çevrimdışı Mod                                      |
+| ------------------------------------------------------- | --------------------------------------------------- |
+| ![Mobil](../../public/screenshots/mobile-dashboard.png) | ![Çevrimdışı](../../public/screenshots/offline.png) |
+| _Saha kullanımı için duyarlı tasarım_                   | _İnternet bağlantısı olmadan çalışır_               |
 
-| Mobil Görünüm                          | Çevrimdışı Mod                               |
-| -------------------------------------- | -------------------------------------------- |
-| ![Mobil](../../screenshots/mobile.png) | ![Çevrimdışı](../../screenshots/offline.png) |
-| _Saha kullanımı için duyarlı tasarım_  | _İnternet bağlantısı olmadan çalışır_        |
-
-| Ayarlar                                    | Faturalar                                    |
-| ------------------------------------------ | -------------------------------------------- |
-| ![Ayarlar](../../screenshots/settings.png) | ![Faturalar](../../screenshots/invoices.png) |
-| _Para birimi, tarih ve birim tercihleri_   | _Ödeme takibi ile müşteri faturalandırması_  |
+| Ayarlar                                           | Faturalar                                           |
+| ------------------------------------------------- | --------------------------------------------------- |
+| ![Ayarlar](../../public/screenshots/settings.png) | ![Faturalar](../../public/screenshots/invoices.png) |
+| _Para birimi, tarih ve birim tercihleri_          | _Ödeme takibi ile müşteri faturalandırması_         |
 
 ## Teknoloji Yığını
 

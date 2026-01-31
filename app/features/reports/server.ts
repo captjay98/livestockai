@@ -30,6 +30,9 @@ import {
 } from './repository'
 import { AppError } from '~/lib/errors'
 
+// Constants
+const MAX_REPORT_NAME_LENGTH = 100
+
 /**
  * Universal date range for report generation.
  */
@@ -537,7 +540,7 @@ export const getEggReport = createServerFn({ method: 'GET' })
 export const saveReportConfig = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      name: z.string().min(1).max(100),
+      name: z.string().min(1).max(MAX_REPORT_NAME_LENGTH),
       farmId: z.string().uuid(),
       reportType: z.enum(['profit_loss', 'inventory', 'sales', 'feed', 'egg']),
       dateRangeType: z.enum([
@@ -629,7 +632,7 @@ export const updateReportConfigFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string().uuid(),
-      name: z.string().min(1).max(100).optional(),
+      name: z.string().min(1).max(MAX_REPORT_NAME_LENGTH).optional(),
       reportType: z
         .enum(['profit_loss', 'inventory', 'sales', 'feed', 'egg'])
         .optional(),
@@ -698,6 +701,14 @@ export const fetchReportData = createServerFn({ method: 'GET' })
 
     const farms = await getFarms()
 
+    // Convert date strings to ISO datetime format if needed
+    const startDateISO = data.startDate.includes('T')
+      ? data.startDate
+      : `${data.startDate}T00:00:00.000Z`
+    const endDateISO = data.endDate.includes('T')
+      ? data.endDate
+      : `${data.endDate}T23:59:59.999Z`
+
     let report:
       | ProfitLossReport
       | InventoryReport
@@ -711,8 +722,8 @@ export const fetchReportData = createServerFn({ method: 'GET' })
         report = await getProfitLossReport({
           data: {
             farmId: data.farmId,
-            startDate: data.startDate,
-            endDate: data.endDate,
+            startDate: startDateISO,
+            endDate: endDateISO,
             dateRangeType: 'custom',
           },
         })
@@ -726,8 +737,8 @@ export const fetchReportData = createServerFn({ method: 'GET' })
         report = await getSalesReport({
           data: {
             farmId: data.farmId,
-            startDate: data.startDate,
-            endDate: data.endDate,
+            startDate: startDateISO,
+            endDate: endDateISO,
             dateRangeType: 'custom',
           },
         })
@@ -736,8 +747,8 @@ export const fetchReportData = createServerFn({ method: 'GET' })
         report = await getFeedReport({
           data: {
             farmId: data.farmId,
-            startDate: data.startDate,
-            endDate: data.endDate,
+            startDate: startDateISO,
+            endDate: endDateISO,
             dateRangeType: 'custom',
           },
         })
@@ -746,8 +757,8 @@ export const fetchReportData = createServerFn({ method: 'GET' })
         report = await getEggReport({
           data: {
             farmId: data.farmId,
-            startDate: data.startDate,
-            endDate: data.endDate,
+            startDate: startDateISO,
+            endDate: endDateISO,
             dateRangeType: 'custom',
           },
         })

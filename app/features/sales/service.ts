@@ -8,6 +8,22 @@ import type { SaleWithJoins } from './repository'
 import { multiply, toDbString } from '~/features/settings/currency'
 
 /**
+ * Build sales summary from raw sales data
+ * Groups by livestock type and calculates totals
+ *
+ * @param sales - Array of sales with aggregations
+ * @returns Summary object with counts, quantities, and revenue by type
+ *
+ * @example
+ * ```ts
+ * const summary = buildSalesSummary([
+ *   { livestockType: 'poultry', count: '5', totalQuantity: '250', totalRevenue: '1250.00' },
+ *   { livestockType: 'fish', count: '3', totalQuantity: '100', totalRevenue: '500.00' }
+ * ])
+ * ```
+ */
+
+/**
  * Calculate sale total amount from quantity and unit price
  * Pure function - no side effects, easily testable
  *
@@ -78,7 +94,7 @@ export function validateSaleData(
   }
 
   // Validate quantity against batch if provided
-  if (data.batchId && batchQuantity !== null && data.livestockType !== 'eggs') {
+  if (data.batchId && batchQuantity !== null) {
     if (data.quantity > batchQuantity) {
       return `Insufficient stock in batch. Available: ${batchQuantity}, Requested: ${data.quantity}`
     }
@@ -198,24 +214,9 @@ export function calculateNewTotalAmount(
   return calculateSaleTotal(quantity, unitPrice)
 }
 
-/**
- * Build sales summary from raw sales data
- * Groups by livestock type and calculates totals
- *
- * @param sales - Array of sales with aggregations
- * @returns Summary object with counts, quantities, and revenue by type
- *
- * @example
- * ```ts
- * const summary = buildSalesSummary([
- *   { livestockType: 'poultry', count: '5', totalQuantity: '250', totalRevenue: '1250.00' },
- *   { livestockType: 'fish', count: '3', totalQuantity: '100', totalRevenue: '500.00' }
- * ])
- * ```
- */
 export function buildSalesSummary(
   sales: Array<{
-    livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+    livestockType: string
     count: string | number
     totalQuantity: string | number
     totalRevenue: string
@@ -223,27 +224,56 @@ export function buildSalesSummary(
 ): {
   poultry: { count: number; quantity: number; revenue: number }
   fish: { count: number; quantity: number; revenue: number }
-  eggs: { count: number; quantity: number; revenue: number }
+  cattle: { count: number; quantity: number; revenue: number }
+  goats: { count: number; quantity: number; revenue: number }
+  sheep: { count: number; quantity: number; revenue: number }
+  bees: { count: number; quantity: number; revenue: number }
   total: { count: number; quantity: number; revenue: number }
 } {
   const summary = {
     poultry: { count: 0, quantity: 0, revenue: 0 },
     fish: { count: 0, quantity: 0, revenue: 0 },
-    eggs: { count: 0, quantity: 0, revenue: 0 },
+    cattle: { count: 0, quantity: 0, revenue: 0 },
+    goats: { count: 0, quantity: 0, revenue: 0 },
+    sheep: { count: 0, quantity: 0, revenue: 0 },
+    bees: { count: 0, quantity: 0, revenue: 0 },
     total: { count: 0, quantity: 0, revenue: 0 },
   }
 
-  for (const row of sales) {
-    const type = row.livestockType as keyof typeof summary
-    if (type in summary) {
-      const count = Number(row.count)
-      const quantity = Number(row.totalQuantity)
-      const revenue = parseFloat(row.totalRevenue)
+  // Map product types to their parent livestock type
+  const productToLivestock: Record<string, keyof typeof summary | null> = {
+    poultry: 'poultry',
+    fish: 'fish',
+    cattle: 'cattle',
+    goats: 'goats',
+    sheep: 'sheep',
+    bees: 'bees',
+    eggs: 'poultry',
+    honey: 'bees',
+    milk: 'cattle',
+    wool: 'sheep',
+    beeswax: 'bees',
+    propolis: 'bees',
+    royal_jelly: 'bees',
+    manure: null, // Manure doesn't map to a specific livestock type
+  }
 
-      summary[type] = { count, quantity, revenue }
-      summary.total.count += count
-      summary.total.quantity += quantity
-      summary.total.revenue += revenue
+  for (const row of sales) {
+    const type = productToLivestock[row.livestockType]
+    const count = Number(row.count)
+    const quantity = Number(row.totalQuantity)
+    const revenue = parseFloat(row.totalRevenue)
+
+    // Always add to total
+    summary.total.count += count
+    summary.total.quantity += quantity
+    summary.total.revenue += revenue
+
+    // Add to specific livestock type if mapped
+    if (type && type !== 'total') {
+      summary[type].count += count
+      summary[type].quantity += quantity
+      summary[type].revenue += revenue
     }
   }
 

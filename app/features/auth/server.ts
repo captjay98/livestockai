@@ -97,24 +97,63 @@ export const registerFn = createServerFn({ method: 'POST' })
       const { email, password, name, userType } = data
       const auth = await getAuth()
 
-      // Register user with Better Auth (includes userType in additionalFields)
-      // Better Auth will add userType to the users table
+      // Register user with Better Auth
       const res = await auth.api.signUpEmail({
-        body: { email, password, name, userType },
+        body: { email, password, name },
         headers,
       })
 
-      return { success: true, user: res.user }
+      // Create user_settings and update userType in a transaction
+      const { getDb } = await import('~/lib/db')
+      const db = await getDb()
+      const { DEFAULT_SETTINGS } =
+        await import('~/features/settings/currency-presets')
+
+      const updatedUser = await db.transaction().execute(async (trx) => {
+        // Update userType if not default
+        if (userType !== 'farmer') {
+          await trx
+            .updateTable('users')
+            .set({ userType })
+            .where('id', '=', res.user.id)
+            .execute()
+        }
+
+        // Create user_settings with proper defaults
+        await trx
+          .insertInto('user_settings')
+          .values({
+            userId: res.user.id,
+            onboardingCompleted: false,
+            onboardingStep: 0,
+            ...DEFAULT_SETTINGS,
+          })
+          .execute()
+
+        // Fetch updated user INSIDE transaction to prevent race condition
+        return await trx
+          .selectFrom('users')
+          .select(['id', 'email', 'name', 'userType'])
+          .where('id', '=', res.user.id)
+          .executeTakeFirst()
+      })
+
+      return { success: true, user: updatedUser || { ...res.user, userType } }
     } catch (e: unknown) {
-      // Check for duplicate email error
-      if (e instanceof Error && e.message.toLowerCase().includes('duplicate')) {
+      // Check for duplicate email error (Better Auth or Database)
+      const errorMessage = e instanceof Error ? e.message.toLowerCase() : ''
+      if (
+        errorMessage.includes('duplicate') ||
+        errorMessage.includes('exists') ||
+        errorMessage.includes('already in use')
+      ) {
         throw new AppError('ALREADY_EXISTS', {
-          message: 'Email already registered',
+          message: 'register.errors.email_exists',
           cause: e,
         })
       }
       throw new AppError('VALIDATION_ERROR', {
-        message: 'Registration failed',
+        message: 'register.errors.default', // Use translation key
         cause: e,
       })
     }

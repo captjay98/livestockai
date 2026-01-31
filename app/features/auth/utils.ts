@@ -34,6 +34,7 @@ export async function checkFarmAccess(
     return !!assignment
   } catch (error) {
     logAndThrow('checkFarmAccess', error, 'DATABASE_ERROR')
+    return false
   }
 }
 
@@ -77,6 +78,7 @@ export async function checkMultipleFarmAccess(
     return Object.fromEntries(farmIds.map((id) => [id, accessibleSet.has(id)]))
   } catch (error) {
     logAndThrow('checkMultipleFarmAccess', error, 'DATABASE_ERROR')
+    return {}
   }
 }
 
@@ -112,6 +114,7 @@ export async function getUserFarms(userId: string): Promise<Array<string>> {
     return assignments.map((a) => a.farmId)
   } catch (error) {
     logAndThrow('getUserFarms', error, 'DATABASE_ERROR')
+    return []
   }
 }
 
@@ -171,6 +174,7 @@ export async function assignUserToFarm(
   } catch (error) {
     if (error instanceof AppError) throw error
     logAndThrow('assignUserToFarm', error, 'DATABASE_ERROR')
+    return false
   }
 }
 
@@ -209,6 +213,7 @@ export async function removeUserFromFarm(
   } catch (error) {
     if (error instanceof AppError) throw error
     logAndThrow('removeUserFromFarm', error, 'DATABASE_ERROR')
+    return false
   }
 }
 
@@ -231,6 +236,7 @@ export async function isAdmin(userId: string): Promise<boolean> {
     return user?.role === 'admin'
   } catch (error) {
     logAndThrow('isAdmin', error, 'DATABASE_ERROR')
+    return false
   }
 }
 
@@ -256,6 +262,7 @@ export async function getUserFarmRole(
     )
   } catch (error) {
     logAndThrow('getUserFarmRole', error, 'DATABASE_ERROR')
+    return null
   }
 }
 
@@ -295,6 +302,7 @@ export async function getUserFarmsWithRoles(
     }))
   } catch (error) {
     logAndThrow('getUserFarmsWithRoles', error, 'DATABASE_ERROR')
+    return []
   }
 }
 
@@ -400,6 +408,7 @@ export async function hasPermission(
     return roleHasPermission(farmRole, permission)
   } catch (error) {
     logAndThrow('hasPermission', error, 'DATABASE_ERROR')
+    return false
   }
 }
 
@@ -481,6 +490,7 @@ export async function getUserPermissions(
     return []
   } catch (error) {
     logAndThrow('getUserPermissions', error, 'DATABASE_ERROR')
+    return []
   }
 }
 

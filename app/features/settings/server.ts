@@ -135,30 +135,31 @@ export const getUserSettingsFn = createServerFn({ method: 'GET' })
   .inputValidator(z.object({}))
   .handler(async () => {
     const { getDb } = await import('~/lib/db')
-    const db = await getDb()
+    const { error: logError } = await import('~/lib/logger')
     const { requireAuth } = await import('../auth/server-middleware')
 
-    let session
+    const db = await getDb()
+    const session = await requireAuth()
+
     try {
-      session = await requireAuth()
-      if (!session.user.id) {
-        return DEFAULT_SETTINGS
+      const settings = await getUserSettingsFromDb(db, session.user.id)
+
+      if (!settings) {
+        return { ...DEFAULT_SETTINGS } as UserSettings
       }
-    } catch (error) {
-      return DEFAULT_SETTINGS
+
+      // Merge with defaults to ensure all fields exist
+      return {
+        ...DEFAULT_SETTINGS,
+        ...settings,
+      } as UserSettings
+    } catch (err) {
+      logError('[getUserSettingsFn] Failed to get user settings', err)
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to fetch settings',
+        cause: err,
+      })
     }
-
-    const settings = await getUserSettingsFromDb(db, session.user.id)
-
-    if (!settings) {
-      return DEFAULT_SETTINGS
-    }
-
-    // Merge with defaults to ensure all fields exist
-    return {
-      ...DEFAULT_SETTINGS,
-      ...settings,
-    } as UserSettings
   })
 
 /**
@@ -175,8 +176,14 @@ export const updateUserSettingsFn = createServerFn({ method: 'POST' })
     const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
-    const session = await requireAuth()
-    const userId = session.user.id
+    let userId: string
+    try {
+      const session = await requireAuth()
+      userId = session.user.id
+    } catch (err) {
+      // If unauthorized, we can't update. This might happen if session expired.
+      throw new AppError('UNAUTHORIZED', { cause: err })
+    }
 
     try {
       // Validate using service layer
@@ -263,15 +270,18 @@ export const resetUserSettingsFn = createServerFn({ method: 'POST' })
     const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
-    const session = await requireAuth()
-    const userId = session.user.id
-
     try {
+      const session = await requireAuth()
+      const userId = session.user.id
+
       // Delete existing settings - they'll be recreated with defaults on next fetch
       await deleteUserSettingsFromDb(db, userId)
 
       return { success: true }
     } catch (error) {
+      if (error instanceof AppError && error.reason === 'UNAUTHORIZED') {
+        throw error
+      }
       throw new AppError('DATABASE_ERROR', {
         message: 'errors.resetFailed',
         cause: error,
@@ -291,10 +301,13 @@ export const getDefaultFarmFn = createServerFn({ method: 'GET' })
     const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
-    const session = await requireAuth()
-    const userId = session.user.id
-
-    return await getDefaultFarmId(db, userId)
+    try {
+      const session = await requireAuth()
+      const userId = session.user.id
+      return await getDefaultFarmId(db, userId)
+    } catch {
+      return null
+    }
   })
 
 /**
@@ -310,12 +323,17 @@ export const setDefaultFarmFn = createServerFn({ method: 'POST' })
     const db = await getDb()
     const { requireAuth } = await import('../auth/server-middleware')
 
-    const session = await requireAuth()
-    const userId = session.user.id
-
-    await setDefaultFarmIdInDb(db, userId, data.farmId)
-
-    return { success: true }
+    try {
+      const session = await requireAuth()
+      const userId = session.user.id
+      await setDefaultFarmIdInDb(db, userId, data.farmId)
+      return { success: true }
+    } catch (error) {
+      if (error instanceof AppError && error.reason === 'UNAUTHORIZED') {
+        throw error
+      }
+      return { success: false }
+    }
   })
 
 /**

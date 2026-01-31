@@ -13,8 +13,10 @@ import {
   insertTaskCompletion,
 } from './repository'
 import {
-  DEFAULT_TASKS,
+  FARM_DEFAULT_TASKS,
+  MODULE_DEFAULT_TASKS,
   calculateCompletionStatus,
+  getModuleKeyFromLivestockType,
   getPeriodStart,
   validateTaskData,
 } from './service'
@@ -24,11 +26,11 @@ import { AppError } from '~/lib/errors'
 export type { TaskWithStatus, CreateTaskInput }
 
 /**
- * Get tasks for a specific farm with completion status for the current period.
+ * Get tasks for a specific farm (or all farms) with completion status for the current period.
  */
 export async function getTasks(
   userId: string,
-  farmId: string,
+  farmId?: string,
   frequency?: 'daily' | 'weekly' | 'monthly',
 ): Promise<Array<TaskWithStatus>> {
   const { getDb } = await import('~/lib/db')
@@ -36,9 +38,12 @@ export async function getTasks(
   const { checkFarmAccess } = await import('../auth/utils')
 
   try {
-    const hasAccess = await checkFarmAccess(userId, farmId)
-    if (!hasAccess) {
-      throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+    // If farmId is provided, check access to that specific farm
+    if (farmId) {
+      const hasAccess = await checkFarmAccess(userId, farmId)
+      if (!hasAccess) {
+        throw new AppError('ACCESS_DENIED', { metadata: { farmId } })
+      }
     }
 
     const rows = await getTasksWithCompletions(db, userId, farmId, frequency)
@@ -57,8 +62,10 @@ export async function getTasks(
  */
 export const getTasksFn = createServerFn({ method: 'GET' })
   .inputValidator(
-    (data: { farmId: string; frequency?: 'daily' | 'weekly' | 'monthly' }) =>
-      data,
+    z.object({
+      farmId: z.string().uuid().optional(),
+      frequency: z.enum(['daily', 'weekly', 'monthly']).optional(),
+    }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
@@ -183,7 +190,11 @@ export async function createTask(
 
     return await insertTask(db, {
       farmId,
-      ...input,
+      batchId: input.batchId || null,
+      moduleKey: input.moduleKey || null,
+      title: input.title,
+      description: input.description,
+      frequency: input.frequency,
       isDefault: false,
     })
   } catch (error) {
@@ -206,6 +217,8 @@ export const createTaskFn = createServerFn({ method: 'POST' })
         title: z.string().min(3),
         description: z.string().optional().nullable(),
         frequency: z.enum(['daily', 'weekly', 'monthly']),
+        batchId: z.string().uuid().optional().nullable(),
+        moduleKey: z.string().optional().nullable(),
       }),
     }),
   )
@@ -260,22 +273,71 @@ export const deleteTaskFn = createServerFn({ method: 'POST' })
 
 /**
  * Seed default tasks for a farm.
+ * Only seeds farm-level tasks (general maintenance).
+ * Batch-specific tasks are seeded when batches are created.
  */
 export async function seedDefaultTasks(farmId: string): Promise<void> {
   const { getDb } = await import('~/lib/db')
   const db = await getDb()
 
   try {
-    for (const task of DEFAULT_TASKS) {
+    for (const task of FARM_DEFAULT_TASKS) {
       await insertTask(db, {
         farmId,
-        ...task,
+        batchId: null,
+        moduleKey: null,
+        title: task.title,
+        description: task.description,
+        frequency: task.frequency,
         isDefault: true,
       })
     }
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to seed default tasks',
+      cause: error,
+    })
+  }
+}
+
+/**
+ * Seed batch-specific tasks when a batch is created.
+ * Creates module-appropriate tasks linked to the batch.
+ */
+export async function seedBatchTasks(
+  farmId: string,
+  batchId: string,
+  livestockType: string,
+): Promise<void> {
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
+
+  try {
+    const moduleKey = getModuleKeyFromLivestockType(livestockType)
+    if (!moduleKey) {
+      // Unknown livestock type, skip task seeding
+      return
+    }
+
+    const tasks = MODULE_DEFAULT_TASKS[moduleKey]
+    if (tasks.length === 0) {
+      return
+    }
+
+    for (const task of tasks) {
+      await insertTask(db, {
+        farmId,
+        batchId,
+        moduleKey,
+        title: task.title,
+        description: task.description,
+        frequency: task.frequency,
+        isDefault: true,
+      })
+    }
+  } catch (error) {
+    throw new AppError('DATABASE_ERROR', {
+      message: 'Failed to seed batch tasks',
       cause: error,
     })
   }

@@ -98,27 +98,25 @@
 
 ## Capturas de Tela
 
-<!-- TODO: Add screenshots -->
-
 | Painel de Controle                                         | Gestão de Lotes                                             |
 | ---------------------------------------------------------- | ----------------------------------------------------------- |
-| ![Painel](../../screenshots/dashboard.png)                 | ![Lotes](../../screenshots/batches.png)                     |
+| ![Painel](../../public/screenshots/dashboard.png)          | ![Lotes](../../public/screenshots/batches.png)              |
 | _Visão geral da fazenda com KPIs, alertas e ações rápidas_ | _Lista de lotes com status, espécie e taxas de mortalidade_ |
 
-| Detalhe do Lote                                          | Relatórios Financeiros                                  |
-| -------------------------------------------------------- | ------------------------------------------------------- |
-| ![Detalhe do Lote](../../screenshots/batch-detail.png)   | ![Relatórios](../../screenshots/reports.png)            |
-| _Gráfico de crescimento, projeções e cronograma do lote_ | _Análise de Lucros/Perdas com detalhamento de despesas_ |
+| Detalhe do Lote                                                | Relatórios Financeiros                                  |
+| -------------------------------------------------------------- | ------------------------------------------------------- |
+| ![Detalhe do Lote](../../public/screenshots/batch-details.png) | ![Relatórios](../../public/screenshots/reports.png)     |
+| _Gráfico de crescimento, projeções e cronograma do lote_       | _Análise de Lucros/Perdas com detalhamento de despesas_ |
 
-| Visualização Móvel                     | Modo Offline                              |
-| -------------------------------------- | ----------------------------------------- |
-| ![Móvel](../../screenshots/mobile.png) | ![Offline](../../screenshots/offline.png) |
-| _Design responsivo para uso em campo_  | _Funciona sem conexão com a internet_     |
+| Visualização Móvel                                      | Modo Offline                                     |
+| ------------------------------------------------------- | ------------------------------------------------ |
+| ![Móvel](../../public/screenshots/mobile-dashboard.png) | ![Offline](../../public/screenshots/offline.png) |
+| _Design responsivo para uso em campo_                   | _Funciona sem conexão com a internet_            |
 
-| Configurações                                    | Faturas                                                |
-| ------------------------------------------------ | ------------------------------------------------------ |
-| ![Configurações](../../screenshots/settings.png) | ![Faturas](../../screenshots/invoices.png)             |
-| _Preferências de moeda, data e unidades_         | _Faturamento de cliente com rastreamento de pagamento_ |
+| Configurações                                           | Faturas                                                |
+| ------------------------------------------------------- | ------------------------------------------------------ |
+| ![Configurações](../../public/screenshots/settings.png) | ![Faturas](../../public/screenshots/invoices.png)      |
+| _Preferências de moeda, data e unidades_                | _Faturamento de cliente com rastreamento de pagamento_ |
 
 ## Stack Tecnológico
 

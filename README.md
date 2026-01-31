@@ -1,7 +1,7 @@
 # Livestock AI Manager
 
 <p align="center">
-  <img src="public/logo-icon.png" alt="Livestock AI Logo" width="120" />
+  <img src="public/logo-icon.svg" alt="Livestock AI Logo" width="120" />
 </p>
 
 <p align="center">
@@ -103,42 +103,71 @@
 - **Role-based access** — Admin and staff roles
 - **Protected routes** — All farm data behind authentication
 
+### 🏛️ Extension Worker Mode (B2G)
+
+- **District monitoring** — Extension workers monitor multiple farms in assigned districts
+- **Outbreak detection** — Automatic alerts when mortality exceeds thresholds across farms
+- **Digital visit records** — GPS-verified farm visits with farmer acknowledgment
+- **Privacy-first access** — Time-limited, farmer-approved access with audit trails
+
+### 💳 Credit Passport
+
+- **Verifiable credit reports** — Cryptographically signed reports for lenders and buyers
+- **Metrics snapshot** — Financial, operational, asset, and track record metrics
+- **QR verification** — Public verification portal without authentication
+- **Access control** — Third-party request workflow with farmer approval
+
+### 📡 IoT Sensor Hub
+
+- **Real-time monitoring** — Temperature, humidity, air quality sensors
+- **Automated alerts** — Threshold-based notifications with 24-hour deduplication
+- **Data aggregation** — Hourly/daily rollups for efficient chart queries
+- **ESP32 firmware** — Example firmware for DHT22 sensors included
+
+---
+
+## 🎥 Demo Video
+
+**[Watch LivestockAI in Action](https://youtu.be/DQR8wo2yqEc)**
+
+See the complete platform in action: offline functionality, 15-language support, multi-species management, financial tracking, and real-world farming workflows.
+
 ---
 
 ## Screenshots
 
-<!-- TODO: Add screenshots -->
-
 | Dashboard                                            | Batch Management                                       |
 | ---------------------------------------------------- | ------------------------------------------------------ |
-| ![Dashboard](screenshots/dashboard.png)              | ![Batches](screenshots/batches.png)                    |
+| ![Dashboard](public/screenshots/dashboard.png)       | ![Batches](public/screenshots/batches.png)             |
 | _Farm overview with KPIs, alerts, and quick actions_ | _Batch list with status, species, and mortality rates_ |
 
-| Batch Detail                                    | Financial Reports                             |
-| ----------------------------------------------- | --------------------------------------------- |
-| ![Batch Detail](screenshots/batch-detail.png)   | ![Reports](screenshots/reports.png)           |
-| _Growth chart, projections, and batch timeline_ | _Profit/Loss analysis with expense breakdown_ |
+| Batch Detail                                          | Financial Reports                             |
+| ----------------------------------------------------- | --------------------------------------------- |
+| ![Batch Detail](public/screenshots/batch-details.png) | ![Reports](public/screenshots/reports.png)    |
+| _Growth chart, projections, and batch timeline_       | _Profit/Loss analysis with expense breakdown_ |
 
-| Mobile View                       | Offline Mode                        |
-| --------------------------------- | ----------------------------------- |
-| ![Mobile](screenshots/mobile.png) | ![Offline](screenshots/offline.png) |
-| _Responsive design for field use_ | _Works without internet connection_ |
+| Mobile View                                        | Offline Mode                               |
+| -------------------------------------------------- | ------------------------------------------ |
+| ![Mobile](public/screenshots/mobile-dashboard.png) | ![Offline](public/screenshots/offline.png) |
+| _Responsive design for field use_                  | _Works without internet connection_        |
 
-| Settings                               | Invoices                                   |
-| -------------------------------------- | ------------------------------------------ |
-| ![Settings](screenshots/settings.png)  | ![Invoices](screenshots/invoices.png)      |
-| _Currency, date, and unit preferences_ | _Customer invoicing with payment tracking_ |
+| Settings                                     | Invoices                                     |
+| -------------------------------------------- | -------------------------------------------- |
+| ![Settings](public/screenshots/settings.png) | ![Invoices](public/screenshots/invoices.png) |
+| _Currency, date, and unit preferences_       | _Customer invoicing with payment tracking_   |
 
 ## Tech Stack
 
 | Layer      | Technology                                                           |
 | ---------- | -------------------------------------------------------------------- |
 | Framework  | [TanStack Start](https://tanstack.com/start) (React 19, SSR)         |
-| Database   | PostgreSQL via [Neon](https://neon.tech) (serverless)                |
+| Database   | PostgreSQL via [Neon](https://neon.tech) (serverless) + Hyperdrive   |
 | ORM        | [Kysely](https://kysely.dev) (type-safe SQL)                         |
 | Styling    | [Tailwind CSS v4](https://tailwindcss.com)                           |
 | State      | [TanStack Query](https://tanstack.com/query) + IndexedDB persistence |
 | Deployment | [Cloudflare Workers](https://workers.cloudflare.com)                 |
+| i18n       | i18next + react-i18next (15 languages)                               |
+| Docs       | TypeDoc (API reference)                                              |
 
 ---
 
@@ -387,6 +416,34 @@ See [AGENTS.md](AGENTS.md) for details.
 │   └── specs/          # Feature specifications
 └── ...
 ```
+
+---
+
+## Testing
+
+**Comprehensive test suite with 1,903 tests across 124 test files:**
+
+| Test Type      | Files | Tests | Coverage                               |
+| -------------- | ----- | ----- | -------------------------------------- |
+| Unit Tests     | 109   | 1,804 | Service layer, utilities, calculations |
+| Integration    | 15    | 99    | Database operations, API workflows     |
+| Property Tests | 45+   | 600+  | Mathematical invariants (fast-check)   |
+
+**Test Commands:**
+
+```bash
+bun run test              # Run unit & property tests
+bun run test:integration  # Run integration tests (requires test DB)
+bun run test:all          # Run all tests
+bun run test:coverage     # Generate coverage report
+```
+
+**Key Testing Features:**
+
+- Property-based testing with fast-check for business logic invariants
+- Integration tests with dedicated test database
+- Zero TypeScript/ESLint errors
+- Comprehensive service layer coverage
 
 ---
 

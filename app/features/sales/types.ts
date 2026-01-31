@@ -1,14 +1,18 @@
 import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 
+/**
+ * Input data for creating a new sales record
+ */
+import type { SaleTable } from '~/lib/db/types/financial'
+
 export type { PaginatedResult }
 
 export type UnitType = 'bird' | 'kg' | 'crate' | 'piece'
 export type PaymentStatus = 'paid' | 'pending' | 'partial'
 export type PaymentMethod = 'cash' | 'transfer' | 'credit'
 
-/**
- * Input data for creating a new sales record
- */
+// ... existing imports
+
 export interface CreateSaleInput {
   /** ID of the farm the sale belongs to */
   farmId: string
@@ -17,7 +21,7 @@ export interface CreateSaleInput {
   /** Optional ID of the customer who made the purchase */
   customerId?: string | null
   /** The type of item sold (livestock type) */
-  livestockType: 'poultry' | 'fish' | 'cattle' | 'goats' | 'sheep' | 'bees'
+  livestockType: SaleTable['livestockType']
   /** Quantity of items sold */
   quantity: number
   /** Unit price for the item sold */
@@ -93,7 +97,10 @@ export interface SalesSearchParams {
 export interface SalesSummaryData {
   poultry: { count: number; quantity: number; revenue: number }
   fish: { count: number; quantity: number; revenue: number }
-  eggs: { count: number; quantity: number; revenue: number }
+  cattle: { count: number; quantity: number; revenue: number }
+  goats: { count: number; quantity: number; revenue: number }
+  sheep: { count: number; quantity: number; revenue: number }
+  bees: { count: number; quantity: number; revenue: number }
   total: { count: number; quantity: number; revenue: number }
 }
 

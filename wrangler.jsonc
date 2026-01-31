@@ -1,26 +1,19 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-
   // Project name - change this to your own
-  "name": "jayfarms",
-
-  // Uncomment and set your Cloudflare account ID for deployment
-  // Get it from: https://dash.cloudflare.com → Workers & Pages → Overview
-  // "account_id": "your-account-id-here",
-
+  "name": "livestockai",
+  // Cloudflare account ID for deployment
+  "account_id": "9016ab965fe4980700cc9775a88812a5",
   "compatibility_date": "2025-03-11",
   "compatibility_flags": [
     "nodejs_compat",
     "no_handle_cross_request_promise_resolution",
   ],
-
   // TanStack Start entry point - do not change
   "main": "@tanstack/react-start/server-entry",
-
   // Development-only: Load environment variables from .dev.vars file
   // These are NOT used in production - set secrets via wrangler secret put
   "vars": {},
-
   // Scheduled triggers for Extension Worker Mode
   "triggers": {
     "crons": [
@@ -29,7 +22,6 @@
       "0 9 * * *", // Daily at 9 AM - outbreak detection
     ],
   },
-
   // R2 Storage Buckets
   "r2_buckets": [
     {
@@ -43,7 +35,14 @@
       "preview_bucket_name": "livestockai-private-preview",
     },
   ],
-
+  // KV Namespace for Rate Limiting
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT_KV",
+      "id": "your-kv-namespace-id",
+      "preview_id": "your-preview-kv-namespace-id",
+    },
+  ],
   // Hyperdrive - PostgreSQL connection pooling for full transaction support
   // Setup instructions:
   // 1. Go to Cloudflare Dashboard → Hyperdrive → Create configuration

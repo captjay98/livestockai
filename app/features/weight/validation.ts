@@ -78,8 +78,20 @@ export function validateWeightForAge(
   const ranges = livestockRanges[speciesKey as keyof typeof livestockRanges]
 
   // Find appropriate age range
-  const ageRange = (ranges as Array<any>).find(
-    (range: any) => ageInDays >= range.minDays && ageInDays <= range.maxDays,
+  const ageRange = (
+    ranges as Array<{
+      minDays: number
+      maxDays: number
+      minWeight?: number
+      maxWeight?: number
+    }>
+  ).find(
+    (range: {
+      minDays: number
+      maxDays: number
+      minWeight?: number
+      maxWeight?: number
+    }) => ageInDays >= range.minDays && ageInDays <= range.maxDays,
   )
 
   if (!ageRange) {
@@ -87,12 +99,12 @@ export function validateWeightForAge(
     return null
   }
 
-  if (weightInGrams < ageRange.minWeight) {
-    return `Weight ${weightInGrams}g is below expected range (${ageRange.minWeight}g - ${ageRange.maxWeight}g) for ${species} at ${ageInDays} days old`
+  if (weightInGrams < (ageRange.minWeight ?? 0)) {
+    return `Weight ${weightInGrams}g is below expected range (${ageRange.minWeight ?? 0}g - ${ageRange.maxWeight ?? 0}g) for ${species} at ${ageInDays} days old`
   }
 
-  if (weightInGrams > ageRange.maxWeight * 2) {
-    return `Weight ${weightInGrams}g is significantly above expected range (${ageRange.minWeight}g - ${ageRange.maxWeight}g) for ${species} at ${ageInDays} days old`
+  if (weightInGrams > (ageRange.maxWeight ?? 0) * 2) {
+    return `Weight ${weightInGrams}g is significantly above expected range (${ageRange.minWeight ?? 0}g - ${ageRange.maxWeight ?? 0}g) for ${species} at ${ageInDays} days old`
   }
 
   return null

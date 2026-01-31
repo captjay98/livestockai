@@ -2,7 +2,7 @@ import * as fc from 'fast-check'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { QueryClient } from '@tanstack/react-query'
 
-import type { BatchRecord } from '~/features/batches/use-batch-mutations'
+import type { BatchRecord } from '~/features/batches/mutations'
 import {
   TEMP_ID_PREFIX,
   addOptimisticRecord,

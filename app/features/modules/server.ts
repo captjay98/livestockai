@@ -236,52 +236,61 @@ export const getFarmModulesFn = createServerFn({ method: 'GET' })
 export const toggleModuleFn = createServerFn({ method: 'POST' })
   .inputValidator(toggleModuleSchema)
   .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const { checkFarmAccess } = await import('../auth/utils')
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      const { checkFarmAccess } = await import('../auth/utils')
 
-    const session = await requireAuth()
-    const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
+      const session = await requireAuth()
+      const hasAccess = await checkFarmAccess(session.user.id, data.farmId)
 
-    if (!hasAccess) {
-      throw new AppError('ACCESS_DENIED', {
-        metadata: { farmId: data.farmId },
-      })
-    }
-
-    // Validate toggle input
-    const validationError = validateToggleInput({
-      farmId: data.farmId,
-      moduleKey: data.moduleKey,
-      enabled: data.enabled,
-    })
-    if (validationError) {
-      throw new AppError('VALIDATION_ERROR', { message: validationError })
-    }
-
-    // If disabling, check for active batches
-    if (!data.enabled) {
-      const canDisable = await canDisableModule(data.farmId, data.moduleKey)
-      const disableError = validateCanDisable(!canDisable, data.moduleKey)
-      if (disableError) {
-        throw new AppError('VALIDATION_ERROR', {
-          message: disableError,
+      if (!hasAccess) {
+        throw new AppError('ACCESS_DENIED', {
+          metadata: { farmId: data.farmId },
         })
       }
+
+      // Validate toggle input
+      const validationError = validateToggleInput({
+        farmId: data.farmId,
+        moduleKey: data.moduleKey,
+        enabled: data.enabled,
+      })
+      if (validationError) {
+        throw new AppError('VALIDATION_ERROR', { message: validationError })
+      }
+
+      // If disabling, check for active batches
+      if (!data.enabled) {
+        const canDisable = await canDisableModule(data.farmId, data.moduleKey)
+        const disableError = validateCanDisable(!canDisable, data.moduleKey)
+        if (disableError) {
+          throw new AppError('VALIDATION_ERROR', {
+            message: disableError,
+          })
+        }
+      }
+
+      await toggleModule(data.farmId, data.moduleKey, data.enabled)
+
+      // Log audit
+      const { logAudit } = await import('~/lib/logging/audit')
+      await logAudit({
+        userId: session.user.id,
+        action: data.enabled ? 'enable_module' : 'disable_module',
+        entityType: 'farm_module',
+        entityId: data.farmId,
+        details: { moduleKey: data.moduleKey, enabled: data.enabled },
+      })
+
+      return { success: true }
+    } catch (error) {
+      console.error('[toggleModuleFn] Error:', error)
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to toggle module',
+        cause: error,
+      })
     }
-
-    await toggleModule(data.farmId, data.moduleKey, data.enabled)
-
-    // Log audit
-    const { logAudit } = await import('~/lib/logging/audit')
-    await logAudit({
-      userId: session.user.id,
-      action: data.enabled ? 'enable_module' : 'disable_module',
-      entityType: 'farm_module',
-      entityId: data.farmId,
-      details: { moduleKey: data.moduleKey, enabled: data.enabled },
-    })
-
-    return { success: true }
   })
 
 /**

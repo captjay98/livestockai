@@ -40,7 +40,7 @@ export type { CreateFarmData, UpdateFarmData }
 
 /**
  * Create a new farm and assign the creator as the owner.
- * Automatically initializes default modules for the farm.
+ * Automatically initializes default modules and tasks for the farm.
  *
  * @param data - Farm details (name, location, type)
  * @param creatorUserId - ID of the user creating the farm (optional)
@@ -53,6 +53,7 @@ export async function createFarm(
   const { getDb } = await import('~/lib/db')
   const db = await getDb()
   const { createDefaultModules } = await import('~/features/modules/server')
+  const { seedDefaultTasks } = await import('~/features/tasks/server')
 
   try {
     // Validate input
@@ -68,6 +69,9 @@ export async function createFarm(
 
     // Create default modules based on farm type
     await createDefaultModules(farmId, data.type)
+
+    // Seed default tasks for the farm
+    await seedDefaultTasks(farmId)
 
     // Assign creator as owner if userId provided
     if (creatorUserId) {
@@ -422,9 +426,18 @@ const createFarmSchema = z.object({
 export const createFarmFn = createServerFn({ method: 'POST' })
   .inputValidator(createFarmSchema)
   .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    return createFarm(data, session.user.id)
+    try {
+      const { requireAuth } = await import('../auth/server-middleware')
+      const session = await requireAuth()
+      return await createFarm(data, session.user.id)
+    } catch (error) {
+      console.error('[createFarmFn] Error:', error)
+      if (error instanceof AppError) throw error
+      throw new AppError('DATABASE_ERROR', {
+        message: 'Failed to create farm',
+        cause: error,
+      })
+    }
   })
 
 // Schema definitions for farm assignments

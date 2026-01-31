@@ -116,18 +116,25 @@
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">ZodOptional</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodOptional</span
+          ><br />                <span class="tsd-signature-type"
+            >ZodOptional</span
           ><span class="tsd-signature-symbol">&lt;</span
           ><span class="tsd-signature-type">ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">[</span
-          ><span class="tsd-signature-type">&quot;sqm&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
+          ><span class="tsd-signature-symbol">{</span>
+          <span class="tsd-kind-property">sqft</span
+          ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">&quot;sqft&quot;</span
-          ><span class="tsd-signature-symbol">]</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">sqm</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;sqm&quot;</span>
+          <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">,</span><br />            <span
+            class="tsd-signature-symbol"
+            >&gt;</span
           ><span class="tsd-signature-symbol">;</span><br />            <span
             class="tsd-kind-property"
             >currencyCode</span
@@ -172,11 +179,15 @@
           ><span class="tsd-signature-symbol">&lt;</span
           ><span class="tsd-signature-type">ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">[</span
-          ><span class="tsd-signature-type">&quot;before&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
+          ><span class="tsd-signature-symbol">{</span>
+          <span class="tsd-kind-property">after</span
+          ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">&quot;after&quot;</span
-          ><span class="tsd-signature-symbol">]</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">before</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;before&quot;</span>
+          <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />            <span
@@ -230,80 +241,7 @@
             >}</span
           ><span class="tsd-signature-symbol">,</span
           ><br />                        <span class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >{</span
-          ><br />                            <span class="tsd-kind-property"
-            >expenses</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >feed</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >inventory</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >mortality</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >profit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >revenue</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >{</span
-          ><br />                            <span class="tsd-kind-property"
-            >expenses</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >feed</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >inventory</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >mortality</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >profit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >revenue</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >}</span
+            >$strip</span
           ><span class="tsd-signature-symbol">,</span
           ><br />                    <span class="tsd-signature-symbol"
             >&gt;</span
@@ -321,17 +259,33 @@
           ><br />                <span class="tsd-signature-type"
             >ZodOptional</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodEnum</span
+          ><br />                    <span class="tsd-signature-type"
+            >ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">[</span
-          ><span class="tsd-signature-type">&quot;MM/DD/YYYY&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
+          ><br />                        <span class="tsd-signature-symbol"
+            >{</span
+          ><br />                            <span class="tsd-kind-property"
+            >&quot;DD/MM/YYYY&quot;</span
+          ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">&quot;DD/MM/YYYY&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >&quot;MM/DD/YYYY&quot;</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;MM/DD/YYYY&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                            <span class="tsd-kind-property"
+            >&quot;YYYY-MM-DD&quot;</span
+          ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">&quot;YYYY-MM-DD&quot;</span
-          ><span class="tsd-signature-symbol">]</span
-          ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                    <span class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />            <span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -395,53 +349,83 @@
           ><span class="tsd-signature-symbol">&lt;</span
           ><br />                <span class="tsd-signature-type">ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><br />                    <span class="tsd-signature-symbol">[</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;en&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;ha&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;yo&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;ig&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;fr&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;pt&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;sw&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;es&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;hi&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;tr&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;id&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;bn&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;th&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;vi&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >&quot;am&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                    <span class="tsd-signature-symbol">]</span
+          ><br />                    <span class="tsd-signature-symbol">{</span
+          ><br />                        <span class="tsd-kind-property"
+            >am</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;am&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >bn</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;bn&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >en</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;en&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >es</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;es&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >fr</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;fr&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >ha</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;ha&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >hi</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;hi&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >id</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;id&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >ig</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;ig&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >pt</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;pt&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >sw</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;sw&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >th</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;th&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >tr</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;tr&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >vi</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;vi&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >yo</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;yo&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">,</span
           ><br />                <span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />            <span
@@ -577,130 +561,7 @@
             >}</span
           ><span class="tsd-signature-symbol">,</span
           ><br />                        <span class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >{</span
-          ><br />                            <span class="tsd-kind-property"
-            >batchHarvest</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >batchPerformance</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >dailySales</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >highMortality</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >invoiceDue</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >lowStock</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >medicationExpiry</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >paymentReceived</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >vaccinationDue</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >waterQualityAlert</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >weeklySummary</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">,</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >{</span
-          ><br />                            <span class="tsd-kind-property"
-            >batchHarvest</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >batchPerformance</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >dailySales</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >highMortality</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >invoiceDue</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >lowStock</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >medicationExpiry</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >paymentReceived</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >vaccinationDue</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >waterQualityAlert</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                            <span class="tsd-kind-property"
-            >weeklySummary</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                        <span class="tsd-signature-symbol"
-            >}</span
+            >$strip</span
           ><span class="tsd-signature-symbol">,</span
           ><br />                    <span class="tsd-signature-symbol"
             >&gt;</span
@@ -718,15 +579,21 @@
           ><br />                <span class="tsd-signature-type"
             >ZodOptional</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodEnum</span
+          ><br />                    <span class="tsd-signature-type"
+            >ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">[</span
-          ><span class="tsd-signature-type">&quot;celsius&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;fahrenheit&quot;</span
-          ><span class="tsd-signature-symbol">]</span
+          ><span class="tsd-signature-symbol">{</span>
+          <span class="tsd-kind-property">celsius</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;celsius&quot;</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">fahrenheit</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;fahrenheit&quot;</span>
+          <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />            <span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -736,17 +603,25 @@
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">ZodOptional</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodEnum</span
+          ><br />                <span class="tsd-signature-type">ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">[</span
-          ><span class="tsd-signature-type">&quot;light&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
+          ><span class="tsd-signature-symbol">{</span>
+          <span class="tsd-kind-property">dark</span
+          ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">&quot;dark&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;system&quot;</span
-          ><span class="tsd-signature-symbol">]</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">light</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;light&quot;</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">system</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;system&quot;</span>
+          <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">,</span><br />            <span
+            class="tsd-signature-symbol"
+            >&gt;</span
           ><span class="tsd-signature-symbol">;</span><br />            <span
             class="tsd-kind-property"
             >thousandSeparator</span
@@ -764,18 +639,25 @@
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">ZodOptional</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-type">ZodOptional</span
+          ><br />                <span class="tsd-signature-type"
+            >ZodOptional</span
           ><span class="tsd-signature-symbol">&lt;</span
           ><span class="tsd-signature-type">ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">[</span
-          ><span class="tsd-signature-type">&quot;12h&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;24h&quot;</span
-          ><span class="tsd-signature-symbol">]</span
+          ><span class="tsd-signature-symbol">{</span>
+          <span class="tsd-kind-property">&quot;12h&quot;</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;12h&quot;</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">&quot;24h&quot;</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;24h&quot;</span>
+          <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">&gt;</span
-          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">,</span><br />            <span
+            class="tsd-signature-symbol"
+            >&gt;</span
           ><span class="tsd-signature-symbol">;</span><br />            <span
             class="tsd-kind-property"
             >weightUnit</span
@@ -786,11 +668,15 @@
           ><span class="tsd-signature-symbol">&lt;</span
           ><span class="tsd-signature-type">ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">[</span
-          ><span class="tsd-signature-type">&quot;kg&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;lbs&quot;</span
-          ><span class="tsd-signature-symbol">]</span
+          ><span class="tsd-signature-symbol">{</span>
+          <span class="tsd-kind-property">kg</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;kg&quot;</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">lbs</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;lbs&quot;</span>
+          <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">&gt;</span
@@ -799,502 +685,7 @@
             >}</span
           ><span class="tsd-signature-symbol">,</span><br />        <span
             class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">areaUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;sqm&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sqft&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >currencyCode</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >currencyDecimals</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >currencySymbol</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >currencySymbolPosition</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;before&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;after&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >dashboardCards</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >expenses</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">feed</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">inventory</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">mortality</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">profit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">revenue</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >dateFormat</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;MM/DD/YYYY&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;DD/MM/YYYY&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;YYYY-MM-DD&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >decimalSeparator</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >defaultFarmId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >defaultPaymentTermsDays</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >firstDayOfWeek</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >fiscalYearStartMonth</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >language</span
-          ><span class="tsd-signature-symbol">?:</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;id&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;en&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;ha&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;yo&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;ig&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;fr&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;pt&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sw&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;es&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;hi&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;tr&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;bn&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;th&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;vi&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;am&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >lowStockThresholdPercent</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >mortalityAlertPercent</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >mortalityAlertQuantity</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >notifications</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >batchHarvest</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >batchPerformance</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >dailySales</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >highMortality</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >invoiceDue</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">lowStock</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >medicationExpiry</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >paymentReceived</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >vaccinationDue</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >waterQualityAlert</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >weeklySummary</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >temperatureUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;celsius&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;fahrenheit&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >theme</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;light&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;dark&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;system&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >thousandSeparator</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >timeFormat</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;12h&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;24h&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >weightUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;kg&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;lbs&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">areaUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;sqm&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sqft&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >currencyCode</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >currencyDecimals</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >currencySymbol</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >currencySymbolPosition</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;before&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;after&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >dashboardCards</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >expenses</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">feed</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">inventory</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">mortality</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">profit</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">revenue</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >dateFormat</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;MM/DD/YYYY&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;DD/MM/YYYY&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;YYYY-MM-DD&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >decimalSeparator</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >defaultFarmId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">null</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >defaultPaymentTermsDays</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >firstDayOfWeek</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >fiscalYearStartMonth</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >language</span
-          ><span class="tsd-signature-symbol">?:</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;id&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;en&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;ha&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;yo&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;ig&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;fr&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;pt&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;sw&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;es&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;hi&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;tr&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;bn&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;th&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;vi&quot;</span
-          ><br />                <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;am&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >lowStockThresholdPercent</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >mortalityAlertPercent</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >mortalityAlertQuantity</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">number</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >notifications</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-symbol">{</span><br />                <span
-            class="tsd-kind-property"
-            >batchHarvest</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >batchPerformance</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >dailySales</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >highMortality</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >invoiceDue</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property">lowStock</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >medicationExpiry</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >paymentReceived</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >vaccinationDue</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >waterQualityAlert</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span
-          ><br />                <span class="tsd-kind-property"
-            >weeklySummary</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">boolean</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >temperatureUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;celsius&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;fahrenheit&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >theme</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;light&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;dark&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;system&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >thousandSeparator</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >timeFormat</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;12h&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;24h&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >weightUnit</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">&quot;kg&quot;</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;lbs&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
+            >$strip</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -1358,7 +749,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in features/settings/server.ts:171</li>
+            <li>Defined in features/settings/server.ts:172</li>
           </ul>
         </aside>
       </div>

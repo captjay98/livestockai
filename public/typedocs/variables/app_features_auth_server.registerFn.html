@@ -110,76 +110,102 @@
           ><span class="tsd-signature-symbol">&lt;</span><br />        <span
             class="tsd-signature-symbol"
             >{</span
-          >
-          <span class="tsd-kind-property">email</span
+          ><br />            <span class="tsd-kind-property">email</span
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">name</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >name</span
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">ZodString</span
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">password</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >password</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">ZodString</span>
+          <span class="tsd-signature-type">ZodString</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >userType</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">ZodDefault</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                <span class="tsd-signature-type"
+            >ZodOptional</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><br />                    <span class="tsd-signature-type"
+            >ZodEnum</span
+          ><span class="tsd-signature-symbol">&lt;</span
+          ><span class="tsd-signature-symbol">{</span>
+          <span class="tsd-kind-property">both</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;both&quot;</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">buyer</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;buyer&quot;</span
+          ><span class="tsd-signature-symbol">;</span>
+          <span class="tsd-kind-property">farmer</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;farmer&quot;</span>
           <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">,</span><br />            <span
+            class="tsd-signature-symbol"
+            >&gt;</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
           ><span class="tsd-signature-symbol">,</span><br />        <span
             class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          >
-          <span class="tsd-kind-property">email</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">name</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">password</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">}</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          >
-          <span class="tsd-kind-property">email</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">name</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">password</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-type">string</span>
-          <span class="tsd-signature-symbol">}</span
+            >$strip</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
             >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-type"
             >Promise</span
-          ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">{</span>
-          <span class="tsd-kind-property">success</span
+          ><span class="tsd-signature-symbol">&lt;</span><br />        <span
+            class="tsd-signature-symbol"
+            >{</span
+          ><br />            <span class="tsd-kind-property">success</span
           ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">true</span
-          ><span class="tsd-signature-symbol">;</span>
-          <span class="tsd-kind-property">user</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-kind-property"
+            >user</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">{}</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-symbol">{}</span>
-          <span class="tsd-signature-symbol">}</span
-          ><span class="tsd-signature-symbol">&gt;</span
+          <span class="tsd-signature-symbol">{</span><br />                <span
+            class="tsd-kind-property"
+            >email</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">id</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">name</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">string</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                <span class="tsd-kind-property">userType</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;farmer&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;buyer&quot;</span
+          ><br />                <span class="tsd-signature-symbol">|</span>
+          <span class="tsd-signature-type">&quot;both&quot;</span
+          ><span class="tsd-signature-symbol">;</span><br />            <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">;</span><br />        <span
+            class="tsd-signature-symbol"
+            >}</span
+          ><span class="tsd-signature-symbol">,</span><br />    <span
+            class="tsd-signature-symbol"
+            >&gt;</span
           ><span class="tsd-signature-symbol">,</span><br /><span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -190,7 +216,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in features/auth/server.ts:90</li>
+            <li>Defined in features/auth/server.ts:91</li>
           </ul>
         </aside>
       </div>

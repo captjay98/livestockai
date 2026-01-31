@@ -1,7 +1,13 @@
+/**
+ * Credit Passport Server Functions
+ *
+ * CSV export implementation for credit reports.
+ * PDF generation disabled to stay within Cloudflare Workers free tier.
+ */
+
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { renderToBuffer } from '@react-pdf/renderer'
-import { CreditPassportPDF } from './pdf-generator'
+import { format } from 'date-fns'
 import { AppError } from '~/lib/errors'
 
 const generateReportSchema = z.object({
@@ -54,546 +60,199 @@ const verifyReportSchema = z.object({
   reportId: z.string().uuid(),
 })
 
-// Rate limiting store (in production, use Redis or KV)
-const rateLimits = new Map<string, { count: number; resetTime: number }>()
+const FEATURE_DISABLED_MESSAGE =
+  'Credit Passport feature is temporarily unavailable. Please try again later.'
 
-function checkRateLimit(userId: string, farmId: string): boolean {
-  const now = Date.now()
-  const hourKey = `${userId}:${Math.floor(now / 3600000)}`
-  const dayKey = `${farmId}:${Math.floor(now / 86400000)}`
-
-  // Check user limit (10/hour)
-  const userLimit = rateLimits.get(hourKey) || {
-    count: 0,
-    resetTime: now + 3600000,
-  }
-  if (userLimit.count >= 10) return false
-  userLimit.count++
-  rateLimits.set(hourKey, userLimit)
-
-  // Check farm limit (100/day)
-  const farmLimit = rateLimits.get(dayKey) || {
-    count: 0,
-    resetTime: now + 86400000,
-  }
-  if (farmLimit.count >= 100) return false
-  farmLimit.count++
-  rateLimits.set(dayKey, farmLimit)
-
-  return true
-}
-
-export const generateReportFn = createServerFn({ method: 'POST' })
+/**
+ * Generate CSV report for credit assessment
+ */
+export const generateCSVReportFn = createServerFn({ method: 'POST' })
   .inputValidator(generateReportSchema)
   .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-
-    // Check farm access for all farms (batch operation)
-    const { checkMultipleFarmAccess } = await import('../auth/utils')
-    const accessMap = await checkMultipleFarmAccess(
-      session.user.id,
-      data.farmIds,
+    await import('../auth/server-middleware').then(({ requireAuth }) =>
+      requireAuth(),
     )
-    const deniedFarms = data.farmIds.filter((id) => !accessMap[id])
-    if (deniedFarms.length > 0) {
-      throw new AppError('ACCESS_DENIED', {
-        metadata: { farmIds: deniedFarms },
-      })
-    }
-
-    // Rate limiting (check first farm)
-    if (!checkRateLimit(session.user.id, data.farmIds[0])) {
-      throw new AppError('RATE_LIMIT_EXCEEDED')
-    }
-
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
 
-    const reportId = crypto.randomUUID()
+    // Fetch farm data
+    const farms = await db
+      .selectFrom('farms')
+      .selectAll()
+      .where('id', 'in', data.farmIds)
+      .execute()
 
-    try {
-      // Fetch data from repository
-      const {
-        getFinancialData,
-        getOperationalData,
-        getAssetData,
-        getTrackRecordData,
-      } = await import('./repository')
-
-      const [financialData, operationalData, assetData, trackRecordData] =
-        await Promise.all([
-          getFinancialData(db, data.farmIds, data.startDate, data.endDate),
-          getOperationalData(db, data.farmIds),
-          getAssetData(db, data.farmIds),
-          getTrackRecordData(db, data.farmIds),
-        ])
-
-      // Calculate metrics
-      const {
-        calculateFinancialMetrics,
-        calculateOperationalMetrics,
-        calculateAssetSummary,
-        calculateTrackRecord,
-        calculateCreditScore,
-      } = await import('./metrics-service')
-
-      const financial = calculateFinancialMetrics({
-        sales: financialData.sales as Array<any>,
-        expenses: financialData.expenses as Array<any>,
-        startDate: data.startDate,
-        endDate: data.endDate,
-      })
-
-      const operational = calculateOperationalMetrics({
-        batches: operationalData.batches as Array<any>,
-        feedRecords: operationalData.feedRecords as Array<any>,
-        weightSamples: operationalData.weightSamples as Array<any>,
-      })
-
-      const assets = calculateAssetSummary({
-        batches: assetData.batches as Array<any>,
-        structures: assetData.structures as Array<any>,
-        marketPrices: assetData.marketPrices as Array<any>,
-      })
-
-      // Calculate track record from actual data
-      const trackRecord = calculateTrackRecord({
-        batches: (trackRecordData.batches as Array<any>).map((b) => ({
-          acquisitionDate: b.acquisitionDate,
-          status: b.status,
-          initialQuantity: b.initialQuantity,
-          target_weight_g: b.targetWeightG,
-          livestockType: b.livestockType,
-        })),
-        sales: (trackRecordData.sales as Array<any>).map((s) => ({
-          totalAmount: s.totalAmount,
-          livestockType: s.livestockType,
-          date: s.date,
-          customerId: s.customerId || '',
-        })),
-        reportDate: new Date(),
-      })
-
-      const creditScore = calculateCreditScore({
-        financial,
-        operational,
-        assets,
-        trackRecord,
-      })
-
-      const metrics = {
-        financial,
-        operational,
-        assets,
-        trackRecord,
-        creditScore: {
-          ...creditScore,
-          grade: creditScore.grade as any,
-        },
-      }
-
-      // Generate crypto signature
-      const { hashContent, signReport, calculateExpirationDate } =
-        await import('./signature-service')
-      const contentHash = await hashContent(JSON.stringify(metrics))
-      const privateKey = crypto.getRandomValues(new Uint8Array(32))
-      const signature = await signReport(contentHash, privateKey)
-      const { getPublicKey } = await import('@noble/ed25519')
-      const publicKeyResult = getPublicKey(privateKey)
-      const publicKeyBytes: Uint8Array =
-        publicKeyResult instanceof Promise
-          ? await publicKeyResult
-          : publicKeyResult
-      const publicKey = Array.from(publicKeyBytes)
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('')
-
-      // Calculate expiration
-      const expiresAt = calculateExpirationDate(new Date(), data.validityDays)
-
-      // Generate QR code
-      const { generateVerificationQR } = await import('./qr-service')
-      const baseUrl = process.env.BETTER_AUTH_URL || 'http://localhost:3001'
-      const qrCodeDataUrl = await generateVerificationQR(reportId, baseUrl)
-
-      // Generate PDF
-      const pdfElement = CreditPassportPDF({
-        reportType: data.reportType,
-        metrics: metrics,
-        qrCodeDataUrl,
-        branding: data.whiteLabel ? 'white-label' : 'livestockai',
-        language: 'en', // TODO: Get from user settings
-      })
-      const pdfBuffer = await renderToBuffer(pdfElement as any)
-
-      // Upload to R2 private storage
-      const { uploadFile } = await import('~/features/integrations/storage')
-      const uploadResult = await uploadFile(
-        `credit-reports/${reportId}.pdf`,
-        pdfBuffer,
-        'application/pdf',
-        { access: 'private' },
+    // Fetch batch data
+    const batches = await db
+      .selectFrom('batches')
+      .selectAll()
+      .where('farmId', 'in', data.farmIds)
+      .where(
+        'id',
+        'in',
+        data.batchIds.length > 0 ? data.batchIds : ['no-match'],
       )
+      .execute()
 
-      if (!uploadResult.success) {
-        throw new AppError('EXTERNAL_SERVICE_ERROR', {
-          message: `PDF upload failed: ${uploadResult.error}`,
-        })
-      }
+    // Fetch sales data
+    const sales = await db
+      .selectFrom('sales')
+      .selectAll()
+      .where('farmId', 'in', data.farmIds)
+      .where('date', '>=', data.startDate)
+      .where('date', '<=', data.endDate)
+      .execute()
 
-      const pdfUrl = uploadResult.url
+    // Fetch expenses data
+    const expenses = await db
+      .selectFrom('expenses')
+      .selectAll()
+      .where('farmId', 'in', data.farmIds)
+      .where('date', '>=', data.startDate)
+      .where('date', '<=', data.endDate)
+      .execute()
 
-      // Save report
-      await db
-        .insertInto('credit_reports')
-        .values({
-          id: reportId,
-          userId: session.user.id,
-          farmIds: data.farmIds,
-          batchIds: data.batchIds,
-          reportType: data.reportType,
-          startDate: data.startDate,
-          endDate: data.endDate,
-          validityDays: data.validityDays,
-          expiresAt,
-          reportHash: contentHash,
-          signature,
-          publicKey,
-          pdfUrl,
-          metricsSnapshot: metrics,
-          status: 'active',
-          customNotes: data.customNotes || null,
-          whiteLabel: data.whiteLabel || false,
-        })
-        .execute()
+    // Calculate summary metrics
+    const totalRevenue = sales.reduce(
+      (sum, sale) => sum + Number(sale.totalAmount),
+      0,
+    )
+    const totalExpenses = expenses.reduce(
+      (sum, expense) => sum + Number(expense.amount),
+      0,
+    )
+    const netProfit = totalRevenue - totalExpenses
 
-      return { reportId, status: 'active', expiresAt }
-    } catch (error) {
-      throw new AppError('REPORT_GENERATION_FAILED', {
-        message: 'Failed to generate credit report',
-        cause: error,
-      })
+    // Generate CSV content
+    const csvLines: Array<string> = []
+
+    // Header
+    csvLines.push('LivestockAI Credit Passport Report')
+    csvLines.push(`Report Type: ${data.reportType}`)
+    csvLines.push(`Generated: ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`)
+    csvLines.push(
+      `Period: ${format(data.startDate, 'yyyy-MM-dd')} to ${format(data.endDate, 'yyyy-MM-dd')}`,
+    )
+    csvLines.push('')
+
+    // Farm Summary
+    csvLines.push('FARM INFORMATION')
+    csvLines.push('Farm Name,Location,Type')
+    farms.forEach((farm) => {
+      csvLines.push(`"${farm.name}","${farm.location}","${farm.type}"`)
+    })
+    csvLines.push('')
+
+    // Financial Summary
+    csvLines.push('FINANCIAL SUMMARY')
+    csvLines.push('Metric,Amount')
+    csvLines.push(`Total Revenue,${totalRevenue.toFixed(2)}`)
+    csvLines.push(`Total Expenses,${totalExpenses.toFixed(2)}`)
+    csvLines.push(`Net Profit,${netProfit.toFixed(2)}`)
+    csvLines.push(
+      `Profit Margin,${totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(2) : 0}%`,
+    )
+    csvLines.push('')
+
+    // Batch Summary
+    csvLines.push('BATCH INFORMATION')
+    csvLines.push(
+      'Batch Name,Species,Initial Quantity,Current Quantity,Status,Acquisition Date',
+    )
+    batches.forEach((batch) => {
+      csvLines.push(
+        `"${batch.batchName || 'N/A'}","${batch.species}",${batch.initialQuantity},${batch.currentQuantity},"${batch.status}","${format(new Date(batch.acquisitionDate), 'yyyy-MM-dd')}"`,
+      )
+    })
+    csvLines.push('')
+
+    // Sales Details
+    csvLines.push('SALES TRANSACTIONS')
+    csvLines.push('Date,Type,Quantity,Unit Price,Total Amount')
+    sales.forEach((sale) => {
+      csvLines.push(
+        `"${format(new Date(sale.date), 'yyyy-MM-dd')}","${sale.livestockType}",${sale.quantity},${Number(sale.unitPrice).toFixed(2)},${Number(sale.totalAmount).toFixed(2)}`,
+      )
+    })
+    csvLines.push('')
+
+    // Expenses Details
+    csvLines.push('EXPENSE TRANSACTIONS')
+    csvLines.push('Date,Category,Description,Amount')
+    expenses.forEach((expense) => {
+      csvLines.push(
+        `"${format(new Date(expense.date), 'yyyy-MM-dd')}","${expense.category}","${expense.description}",${Number(expense.amount).toFixed(2)}`,
+      )
+    })
+
+    if (data.customNotes) {
+      csvLines.push('')
+      csvLines.push('ADDITIONAL NOTES')
+      csvLines.push(`"${data.customNotes}"`)
     }
+
+    return {
+      csv: csvLines.join('\n'),
+      filename: `credit-passport-${format(new Date(), 'yyyy-MM-dd')}.csv`,
+    }
+  })
+
+export const generateReportFn = createServerFn({ method: 'POST' })
+  .inputValidator(generateReportSchema)
+  .handler(() => {
+    throw new AppError('FEATURE_DISABLED', {
+      message: FEATURE_DISABLED_MESSAGE,
+    })
   })
 
 export const deleteReportFn = createServerFn({ method: 'POST' })
   .inputValidator(deleteReportSchema)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-
-    const report = await db
-      .selectFrom('credit_reports')
-      .select(['userId', 'farmIds'])
-      .where('id', '=', data.reportId)
-      .executeTakeFirst()
-
-    if (!report) {
-      throw new AppError('NOT_FOUND')
-    }
-
-    if (report.userId !== session.user.id) {
-      throw new AppError('ACCESS_DENIED')
-    }
-
-    // Soft delete - set deletedAt timestamp
-    await db
-      .updateTable('credit_reports')
-      .set({ deletedAt: new Date() })
-      .where('id', '=', data.reportId)
-      .execute()
-
-    return { success: true }
+  .handler(() => {
+    throw new AppError('FEATURE_DISABLED', {
+      message: FEATURE_DISABLED_MESSAGE,
+    })
   })
 
 export const downloadReportFn = createServerFn({ method: 'POST' })
   .inputValidator(downloadReportSchema)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-
-    const report = await db
-      .selectFrom('credit_reports')
-      .select(['userId', 'pdfUrl', 'status'])
-      .where('id', '=', data.reportId)
-      .executeTakeFirst()
-
-    if (!report) {
-      throw new AppError('NOT_FOUND')
-    }
-
-    if (report.userId !== session.user.id) {
-      throw new AppError('ACCESS_DENIED')
-    }
-
-    if (report.status !== 'active') {
-      throw new AppError('VALIDATION_ERROR', {
-        message: 'Report not available',
-      })
-    }
-
-    // Download from R2
-    const { downloadFile } = await import('~/features/integrations/storage')
-    const key =
-      report.pdfUrl?.replace(/^https?:\/\/[^/]+\//, '') ||
-      `credit-reports/${data.reportId}.pdf`
-
-    const downloadResult = await downloadFile(key)
-
-    if (!downloadResult.success || !downloadResult.content) {
-      throw new AppError('NOT_FOUND', { message: 'PDF file not found' })
-    }
-
-    // Convert ArrayBuffer to base64 string for serialization
-    const uint8Array = new Uint8Array(downloadResult.content)
-    const base64 = btoa(String.fromCharCode(...uint8Array))
-
-    return {
-      content: base64,
-      contentType: downloadResult.contentType || 'application/pdf',
-    }
+  .handler(() => {
+    throw new AppError('FEATURE_DISABLED', {
+      message: FEATURE_DISABLED_MESSAGE,
+    })
   })
 
 export const getReportsHistoryFn = createServerFn({ method: 'GET' })
   .inputValidator(getReportsHistorySchema)
-  .handler(async ({ data }) => {
-    const { requireAuth } = await import('../auth/server-middleware')
-    const session = await requireAuth()
-    const { checkMultipleFarmAccess, getUserFarms } =
-      await import('../auth/utils')
-
-    // Determine which farms to query
-    let targetFarmIds: Array<string>
-    if (data.farmIds && data.farmIds.length > 0) {
-      // Check access for specified farms (batch operation)
-      const accessMap = await checkMultipleFarmAccess(
-        session.user.id,
-        data.farmIds,
-      )
-      const deniedFarms = data.farmIds.filter((id) => !accessMap[id])
-      if (deniedFarms.length > 0) {
-        throw new AppError('ACCESS_DENIED', {
-          metadata: { farmIds: deniedFarms },
-        })
-      }
-      targetFarmIds = data.farmIds
-    } else {
-      // Get all user's farms
-      targetFarmIds = await getUserFarms(session.user.id)
-    }
-
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-    const { sql } = await import('kysely')
-
-    const offset = (data.page - 1) * data.pageSize
-
-    // Query reports where farmIds array overlaps with targetFarmIds
-    // Use array_to_json for proper PostgreSQL array overlap check
-    const farmIdsArray = `{${targetFarmIds.map((id) => `"${id}"`).join(',')}}`
-
-    const reports = await db
-      .selectFrom('credit_reports')
-      .select([
-        'id',
-        'reportType',
-        'status',
-        'startDate',
-        'endDate',
-        'createdAt',
-        'farmIds',
-      ])
-      .where('userId', '=', session.user.id)
-      .where(sql<boolean>`"farmIds"::jsonb ?| ${sql.lit(farmIdsArray)}::text[]`)
-      .orderBy('createdAt', 'desc')
-      .limit(data.pageSize)
-      .offset(offset)
-      .execute()
-
-    const total = await db
-      .selectFrom('credit_reports')
-      .select((eb) => eb.fn.count('id').as('count'))
-      .where('userId', '=', session.user.id)
-      .where(sql<boolean>`"farmIds"::jsonb ?| ${sql.lit(farmIdsArray)}::text[]`)
-      .executeTakeFirstOrThrow()
-
-    return {
-      reports,
-      pagination: {
-        page: data.page,
-        pageSize: data.pageSize,
-        total: Number(total.count),
-        totalPages: Math.ceil(Number(total.count) / data.pageSize),
-      },
-    }
+  .handler(() => {
+    return { reports: [], total: 0, page: 1, pageSize: 10, totalPages: 0 }
   })
 
 export const approveRequestFn = createServerFn({ method: 'POST' })
   .inputValidator(approveRequestSchema)
-  .handler(async ({ data }) => {
-    const { requireAdmin } = await import('../auth/server-middleware')
-    await requireAdmin()
-
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-
-    await db
-      .updateTable('report_requests')
-      .set({
-        status: 'approved',
-        respondedAt: new Date(),
-      })
-      .where('id', '=', data.requestId)
-      .execute()
-
-    return { success: true }
+  .handler(() => {
+    throw new AppError('FEATURE_DISABLED', {
+      message: FEATURE_DISABLED_MESSAGE,
+    })
   })
 
 export const denyRequestFn = createServerFn({ method: 'POST' })
   .inputValidator(denyRequestSchema)
-  .handler(async ({ data }) => {
-    const { requireAdmin } = await import('../auth/server-middleware')
-    await requireAdmin()
-
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-
-    await db
-      .updateTable('report_requests')
-      .set({
-        status: 'denied',
-        respondedAt: new Date(),
-        responseNotes: data.reason,
-      })
-      .where('id', '=', data.requestId)
-      .execute()
-
-    return { success: true }
+  .handler(() => {
+    throw new AppError('FEATURE_DISABLED', {
+      message: FEATURE_DISABLED_MESSAGE,
+    })
   })
 
 export const getReportRequestsFn = createServerFn({ method: 'GET' })
   .inputValidator(getReportRequestsSchema)
-  .handler(async ({ data }) => {
-    const { requireAdmin } = await import('../auth/server-middleware')
-    await requireAdmin()
-
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-
-    const offset = (data.page - 1) * data.pageSize
-
-    const requests = await db
-      .selectFrom('report_requests')
-      .leftJoin('users', 'users.id', 'report_requests.farmerId')
-      .select([
-        'report_requests.id',
-        'report_requests.reportType',
-        'report_requests.status',
-        'report_requests.requestedAt',
-        'report_requests.requesterName',
-        'report_requests.requesterEmail',
-        'report_requests.requesterOrganization',
-        'users.name as farmerName',
-      ])
-      .orderBy('report_requests.requestedAt', 'desc')
-      .limit(data.pageSize)
-      .offset(offset)
-      .execute()
-
-    const total = await db
-      .selectFrom('report_requests')
-      .select((eb) => eb.fn.count('id').as('count'))
-      .executeTakeFirstOrThrow()
-
-    return {
-      requests,
-      pagination: {
-        page: data.page,
-        pageSize: data.pageSize,
-        total: Number(total.count),
-        totalPages: Math.ceil(Number(total.count) / data.pageSize),
-      },
-    }
+  .handler(() => {
+    return { requests: [], total: 0, page: 1, pageSize: 10, totalPages: 0 }
   })
 
 export const verifyReportFn = createServerFn({ method: 'GET' })
   .inputValidator(verifyReportSchema)
-  .handler(async ({ data }) => {
-    const { getDb } = await import('~/lib/db')
-    const db = await getDb()
-
-    const report = await db
-      .selectFrom('credit_reports')
-      .select([
-        'credit_reports.id',
-        'credit_reports.reportType',
-        'credit_reports.status',
-        'credit_reports.createdAt',
-        'credit_reports.expiresAt',
-        'credit_reports.reportHash',
-        'credit_reports.signature',
-        'credit_reports.publicKey',
-        'credit_reports.metricsSnapshot',
-        'credit_reports.farmIds',
-      ])
-      .where('credit_reports.id', '=', data.reportId)
-      .executeTakeFirst()
-
-    if (!report) {
-      throw new AppError('NOT_FOUND')
-    }
-
-    // Verify signature
-    const { verifyReport, isExpired } = await import('./signature-service')
-    const isValid = await verifyReport(
-      report.reportHash,
-      report.signature,
-      report.publicKey,
-    )
-
-    // Check expiration
-    const expired = isExpired(report.expiresAt)
-
-    // Log access
-    const { logReportAccess } = await import('./repository')
-    await logReportAccess(db, {
-      reportId: data.reportId,
-      accessType: 'verify',
-      accessorIp: null,
-      accessorUserAgent: null,
-      verificationResult: { isValid, expired },
+  .handler(() => {
+    throw new AppError('FEATURE_DISABLED', {
+      message: FEATURE_DISABLED_MESSAGE,
     })
-
-    // Return public metrics only (limited data for privacy)
-    const metrics = report.metricsSnapshot
-
-    // Get verification count
-    const verificationLogs = await db
-      .selectFrom('report_access_logs')
-      .select(db.fn.count('id').as('count'))
-      .where('reportId', '=', data.reportId)
-      .where('accessType', '=', 'verify')
-      .executeTakeFirst()
-
-    return {
-      id: report.id,
-      isValid,
-      expired,
-      reportType: report.reportType,
-      createdAt: report.createdAt,
-      expiresAt: report.expiresAt,
-      status: report.status,
-      verificationCount: Number(verificationLogs?.count || 0),
-      publicMetrics: {
-        creditScore: metrics.creditScore?.score,
-        creditGrade: metrics.creditScore?.grade,
-        productionCapacity: metrics.trackRecord?.productionVolume,
-        sustainabilityScore: metrics.operational?.growthPerformanceIndex,
-      },
-    }
   })

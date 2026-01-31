@@ -59,17 +59,48 @@ export const FEED_COMPATIBILITY_MATRIX = {
 } as const
 
 /**
- * Type for all available feed types
+ * Type for feed compatibility matrix keys (detailed feed types for recommendations)
  */
-export type FeedType = keyof typeof FEED_COMPATIBILITY_MATRIX
+export type FeedCompatibilityKey = keyof typeof FEED_COMPATIBILITY_MATRIX
 
 /**
- * Array of all feed types for UI components
+ * Database-compatible feed types.
+ * These match the CHECK constraint in the database schema.
+ * Use these for forms and database operations.
  */
-export const FEED_TYPES = Object.keys(FEED_COMPATIBILITY_MATRIX).map((key) => ({
-  value: key,
-  label: key.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
-}))
+export const FEED_TYPE_VALUES = [
+  'starter',
+  'grower',
+  'finisher',
+  'layer_mash',
+  'fish_feed',
+  'cattle_feed',
+  'goat_feed',
+  'sheep_feed',
+  'hay',
+  'silage',
+  'bee_feed',
+] as const
+
+export type FeedType = (typeof FEED_TYPE_VALUES)[number]
+
+/**
+ * Array of feed types for UI components (dropdowns, filters)
+ * Labels are human-readable versions of the database values
+ */
+export const FEED_TYPES: Array<{ value: FeedType; label: string }> = [
+  { value: 'starter', label: 'Starter' },
+  { value: 'grower', label: 'Grower' },
+  { value: 'finisher', label: 'Finisher' },
+  { value: 'layer_mash', label: 'Layer Mash' },
+  { value: 'fish_feed', label: 'Fish Feed' },
+  { value: 'cattle_feed', label: 'Cattle Feed' },
+  { value: 'goat_feed', label: 'Goat Feed' },
+  { value: 'sheep_feed', label: 'Sheep Feed' },
+  { value: 'hay', label: 'Hay' },
+  { value: 'silage', label: 'Silage' },
+  { value: 'bee_feed', label: 'Bee Feed' },
+]
 
 /**
  * Get compatible feed types for a livestock type

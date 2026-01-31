@@ -6,6 +6,13 @@
     "prettier.config.js",
     "vite.config.js"
   ],
+  "exclude": [
+    "examples",
+    "node_modules",
+    "dist",
+    "vitest.*.ts",
+    "app/lib/db/seeds/development.ts"
+  ],
 
   "compilerOptions": {
     "target": "ES2022",
@@ -32,6 +39,5 @@
       "@/*": ["./app/*"],
       "~/*": ["./app/*"]
     }
-  },
-  "exclude": ["examples", "node_modules", "dist", "vitest.*.ts"]
+  }
 }

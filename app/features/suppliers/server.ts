@@ -1,7 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import * as repository from './repository'
-import * as service from './service'
+// Imports moved to dynamic imports inside handlers
 import type {
   CreateSupplierInput,
   PaginatedResult,
@@ -108,11 +107,13 @@ export async function createSupplier(
 
   try {
     // Validate input
+    const service = await import('./service')
     const validationError = service.validateSupplierData(input)
     if (validationError) {
       throw new AppError('VALIDATION_ERROR', { message: validationError })
     }
 
+    const repository = await import('./repository')
     return await repository.insertSupplier(db, input)
   } catch (error) {
     if (error instanceof AppError) throw error
@@ -142,6 +143,7 @@ export async function getSuppliers(): Promise<Array<SupplierRecord>> {
   const db = await getDb()
 
   try {
+    const repository = await import('./repository')
     return await repository.getAllSuppliers(db)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
@@ -170,6 +172,7 @@ export async function getSupplierById(supplierId: string) {
   const db = await getDb()
 
   try {
+    const repository = await import('./repository')
     return await repository.getSupplierById(db, supplierId)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
@@ -192,6 +195,7 @@ export async function updateSupplier(
   try {
     // Validate input if provided
     if (Object.keys(input).length > 0) {
+      const service = await import('./service')
       const validationError = service.validateSupplierData(
         input as CreateSupplierInput,
       )
@@ -202,6 +206,7 @@ export async function updateSupplier(
       }
     }
 
+    const repository = await import('./repository')
     await repository.updateSupplier(db, supplierId, input)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {
@@ -230,6 +235,7 @@ export async function deleteSupplier(supplierId: string): Promise<void> {
   const db = await getDb()
 
   try {
+    const repository = await import('./repository')
     await repository.deleteSupplier(db, supplierId)
   } catch (error) {
     if (String(error).includes('foreign key constraint')) {
@@ -264,6 +270,7 @@ export async function getSupplierWithExpenses(supplierId: string) {
   const db = await getDb()
 
   try {
+    const repository = await import('./repository')
     const supplier = await repository.getSupplierById(db, supplierId)
     if (!supplier) return null
 
@@ -296,6 +303,7 @@ export async function getSuppliersPaginated(query: SupplierQuery = {}) {
   const db = await getDb()
 
   try {
+    const repository = await import('./repository')
     return await repository.getSuppliersPaginated(db, query)
   } catch (error) {
     throw new AppError('DATABASE_ERROR', {

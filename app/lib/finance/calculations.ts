@@ -34,12 +34,30 @@ export function calculateBatchProfit(financials: BatchFinancials): number {
  * Calculates the Return on Investment (ROI) percentage.
  * Formula: (Net Profit / Total Investment) * 100
  *
- * @param profit - The net profit (or loss)
+ * Returns 0 for zero or negative investments to prevent division errors
+ * and invalid ROI calculations.
+ *
+ * @param profit - The net profit (or loss, can be negative)
  * @param totalInvestment - The total amount invested (all costs)
- * @returns ROI percentage (e.g., 25.5 for 25.5%)
+ * @returns ROI percentage (e.g., 25.5 for 25.5%), or 0 if investment is invalid
+ *
+ * @example
+ * ```typescript
+ * // Profitable batch
+ * calculateROI(250, 1000)  // Returns: 25 (25% ROI)
+ *
+ * // Loss-making batch
+ * calculateROI(-100, 1000) // Returns: -10 (10% loss)
+ *
+ * // Invalid investment (zero)
+ * calculateROI(100, 0)     // Returns: 0 (prevents division by zero)
+ *
+ * // Invalid investment (negative)
+ * calculateROI(100, -500)  // Returns: 0 (invalid investment amount)
+ * ```
  */
 export function calculateROI(profit: number, totalInvestment: number): number {
-  if (totalInvestment === 0) return 0
+  if (totalInvestment <= 0) return 0
   return (profit / totalInvestment) * 100
 }
 

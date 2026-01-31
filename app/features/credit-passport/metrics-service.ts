@@ -5,7 +5,7 @@
 
 import { differenceInMonths } from 'date-fns'
 import { toNumber } from '~/features/settings/currency'
-import { calculateFCR } from '~/features/batches/service'
+import { calculateFCR } from '~/lib/utils/calculations'
 
 /**
  * Sale record structure from database

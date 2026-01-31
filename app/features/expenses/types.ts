@@ -3,7 +3,7 @@ import type { BasePaginatedQuery, PaginatedResult } from '~/lib/types'
 export type { PaginatedResult }
 
 /**
- * Expense category type
+ * Expense category type - must match database constraint
  */
 export type ExpenseCategory =
   | 'feed'
@@ -15,8 +15,14 @@ export type ExpenseCategory =
   | 'livestock'
   | 'livestock_chicken'
   | 'livestock_fish'
+  | 'livestock_cattle'
+  | 'livestock_goats'
+  | 'livestock_sheep'
+  | 'livestock_bees'
   | 'maintenance'
   | 'marketing'
+  | 'insurance'
+  | 'veterinary'
   | 'other'
 
 /**

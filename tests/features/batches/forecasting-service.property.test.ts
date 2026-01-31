@@ -28,7 +28,14 @@ describe('Forecasting Service - Property Tests', () => {
               { averageWeightKg: weight1, date: date1 },
             ]
 
-            const result = calculateADG(samples, date1, daysDiff, [])
+            const result = calculateADG(
+              samples,
+              date1,
+              daysDiff,
+              [],
+              'broiler',
+              null,
+            )
 
             const expectedADG = ((weight2 - weight1) * 1000) / daysDiff
             expect(result.adgGramsPerDay).toBeCloseTo(expectedADG, 2)
@@ -51,9 +58,17 @@ describe('Forecasting Service - Property Tests', () => {
 
             const samples = [{ averageWeightKg: weight, date: sampleDate }]
 
-            const result = calculateADG(samples, acquisitionDate, days, [])
+            const result = calculateADG(
+              samples,
+              acquisitionDate,
+              days,
+              [],
+              'broiler',
+              null,
+            )
 
-            const expectedADG = (weight * 1000) / days
+            // With initial weight of 40g, expected ADG is (weight*1000 - 40) / days
+            const expectedADG = (weight * 1000 - 40) / days
             expect(result.adgGramsPerDay).toBeCloseTo(expectedADG, 2)
             expect(result.method).toBe('single_sample')
           },
@@ -77,6 +92,8 @@ describe('Forecasting Service - Property Tests', () => {
               new Date(),
               currentAge,
               growthStandards,
+              'broiler',
+              null,
             )
 
             expect(result.adgGramsPerDay).toBeGreaterThan(0)
@@ -101,7 +118,14 @@ describe('Forecasting Service - Property Tests', () => {
               { averageWeightKg: weight1, date: date1 },
             ]
 
-            const result = calculateADG(samples, date1, days, [])
+            const result = calculateADG(
+              samples,
+              date1,
+              days,
+              [],
+              'broiler',
+              null,
+            )
 
             // ADG should be in grams (weight diff in kg * 1000 / days)
             expect(typeof result.adgGramsPerDay).toBe('number')
@@ -121,7 +145,7 @@ describe('Forecasting Service - Property Tests', () => {
         { averageWeightKg: 2.0, date: date1 },
       ]
 
-      const result = calculateADG(samples, date1, 10, [])
+      const result = calculateADG(samples, date1, 10, [], 'broiler', null)
 
       expect(result.adgGramsPerDay).toBeLessThan(0)
       expect(result.method).toBe('two_samples')

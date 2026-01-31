@@ -4,26 +4,14 @@
  */
 
 import type { Database } from '~/lib/db/types'
+import type { FeedType } from '~/features/feed/constants'
 
 // ============================================================================
-// Feed Types & Constants
+// Feed Types & Constants - Re-exported from feed/constants for backward compatibility
 // ============================================================================
 
-export type FeedType = Database['feed_inventory']['feedType']
-
-export const FEED_TYPES: Array<{ value: FeedType; label: string }> = [
-  { value: 'starter', label: 'Starter' },
-  { value: 'grower', label: 'Grower' },
-  { value: 'finisher', label: 'Finisher' },
-  { value: 'layer_mash', label: 'Layer Mash' },
-  { value: 'fish_feed', label: 'Fish Feed' },
-  { value: 'cattle_feed', label: 'Cattle Feed' },
-  { value: 'goat_feed', label: 'Goat Feed' },
-  { value: 'sheep_feed', label: 'Sheep Feed' },
-  { value: 'hay', label: 'Hay' },
-  { value: 'silage', label: 'Silage' },
-  { value: 'bee_feed', label: 'Bee Feed' },
-]
+export type { FeedType } from '~/features/feed/constants'
+export { FEED_TYPES } from '~/features/feed/constants'
 
 // ============================================================================
 // Medication Types & Constants

@@ -578,6 +578,12 @@ export const ErrorMap = {
     category: 'SERVER',
     message: 'Failed to generate credit report',
   },
+  FEATURE_DISABLED: {
+    code: 50100,
+    httpStatus: 501,
+    category: 'SERVER',
+    message: 'Feature is not yet implemented',
+  },
 } as const
 
 export type ReasonCode = keyof typeof ErrorMap

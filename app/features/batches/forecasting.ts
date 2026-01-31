@@ -2,6 +2,8 @@ import { sql } from 'kysely'
 import { addDays, differenceInDays } from 'date-fns'
 import { z } from 'zod'
 import { createServerFn } from '@tanstack/react-start'
+import type { Kysely } from 'kysely'
+import type { Database } from '~/lib/db/types'
 
 interface ProjectionResult {
   projectedHarvestDate: Date
@@ -14,9 +16,15 @@ interface ProjectionResult {
 
 export async function calculateBatchProjection(
   batchId: string,
+  injectedDb?: Kysely<Database>,
 ): Promise<ProjectionResult | null> {
-  const { getDb } = await import('~/lib/db')
-  const db = await getDb()
+  let db: Kysely<Database>
+  if (injectedDb) {
+    db = injectedDb
+  } else {
+    const { getDb } = await import('~/lib/db')
+    db = await getDb()
+  }
   const batch = await db
     .selectFrom('batches')
     .select([
@@ -66,7 +74,40 @@ export async function calculateBatchProjection(
     batch.breedId,
   )
 
-  if (growthStandard.length === 0) return null
+  // Fallback: If no growth standards, use linear growth model
+  if (growthStandard.length === 0) {
+    // Use target weight and typical days to market for linear projection
+    const targetWeightG = batch.target_weight_g || 2000
+    const typicalDays = 56 // Default broiler cycle
+
+    // Simple linear growth: weight increases uniformly over time
+    const dailyGainG = targetWeightG / typicalDays
+    const currentWeightG = latestWeight
+      ? Number(latestWeight.averageWeightKg) * 1000
+      : ageDays * dailyGainG
+
+    const daysRemaining = Math.max(
+      0,
+      Math.ceil((targetWeightG - currentWeightG) / dailyGainG),
+    )
+    const projectedHarvestDate = addDays(new Date(), daysRemaining)
+
+    // Simple status based on linear expectation
+    const expectedWeight = ageDays * dailyGainG
+    let status: 'on_track' | 'behind' | 'ahead' = 'on_track'
+    if (currentWeightG > expectedWeight * 1.05) status = 'ahead'
+    else if (currentWeightG < expectedWeight * 0.95) status = 'behind'
+
+    return {
+      projectedHarvestDate,
+      daysRemaining,
+      projectedRevenue:
+        batch.currentQuantity * Number(batch.targetPricePerUnit || 0),
+      projectedFeedCost: 0, // Cannot estimate without growth curve
+      estimatedProfit: 0, // Cannot estimate without growth curve
+      currentStatus: status,
+    }
+  }
 
   // Calculate current weight - use sample if available, otherwise estimate from age
   let currentWeightG = 0
@@ -91,9 +132,7 @@ export async function calculateBatchProjection(
   )
   const targetDay = targetDayRecord ? targetDayRecord.day : 56 // Default if not found
 
-  // Calculate Harvest Date
-  // If we are currently at day X with weight W, are we ahead or behind?
-  // Expected weight at current age:
+  // Calculate status based on current vs expected weight
   const expectedAtCurrentAge =
     growthStandard.find((g) => g.day === ageDays)?.expected_weight_g || 0
 
@@ -103,30 +142,7 @@ export async function calculateBatchProjection(
     const ratio = currentWeightG / expectedAtCurrentAge
     if (ratio > 1.05) status = 'ahead'
     else if (ratio < 0.95) status = 'behind'
-
-    // Adjust effective age based on weight?
-    // Simple approach: Projected harvest date is fixed based on target day from start,
-    // unless we re-estimate based on current growth rate.
-    // Let's stick to standard curve for remaining growth from CURRENT weight.
-
-    // Find expected day for CURRENT weight
-    const currentWeightDayFull = growthStandard.find(
-      (g) => g.expected_weight_g >= currentWeightG,
-    )
-    if (currentWeightDayFull) {
-      // If our bird is 1000g (which is day 22 std) but actual age is 25, it's slow.
-      // Remaining growth: target 2000g (day 35).
-      // Growth needed: 1000g.
-      // We can assume standard daily gain from this point?
-      // Let's simple projection: targetDay - currentWeightDay
-      // remainingDays = targetDay - currentWeightDayFull.day
-    }
   }
-
-  // Simplified: Target Date = Acquisition + TargetDays from standard
-  // If behind/ahead, maybe shift the date?
-  // Let's keep it simple: Target Date is determined by the standard curve reaching the target weight.
-  // Unless we want to account for current performance.
 
   const projectedHarvestDate = addDays(batch.acquisitionDate, targetDay)
   const daysRemaining = differenceInDays(projectedHarvestDate, new Date())
@@ -149,10 +165,49 @@ export async function calculateBatchProjection(
     }
   }
 
-  const weightToGainKg = ((batch.target_weight_g || 0) - currentWeightG) / 1000
+  const weightToGainKg = Math.max(
+    0,
+    ((batch.target_weight_g || 0) - currentWeightG) / 1000,
+  )
   const totalWeightToGain = weightToGainKg * batch.currentQuantity
   const feedNeededKg = totalWeightToGain * fcr
-  const estFeedCostPerKg = 1000 // approx N1000/kg
+
+  // Get average feed cost from recent feed records (more accurate than expenses)
+  const avgFeedCostResult = await db
+    .selectFrom('feed_records')
+    .select(
+      sql<string>`AVG(cost / NULLIF(CAST("quantityKg" AS NUMERIC), 0))`.as(
+        'avgCostPerKg',
+      ),
+    )
+    .where('batchId', '=', batchId)
+    .where('quantityKg', '>', '0')
+    .executeTakeFirst()
+
+  // Fallback: Get farm-level average feed cost from all batches
+  let estFeedCostPerKg = Number(avgFeedCostResult?.avgCostPerKg || 0)
+
+  if (estFeedCostPerKg === 0) {
+    const farmFeedCostResult = await db
+      .selectFrom('feed_records')
+      .innerJoin('batches', 'batches.id', 'feed_records.batchId')
+      .select(
+        sql<string>`AVG(feed_records.cost / NULLIF(CAST(feed_records."quantityKg" AS NUMERIC), 0))`.as(
+          'avgCostPerKg',
+        ),
+      )
+      .where('batches.farmId', '=', batch.farmId)
+      .where('feed_records.quantityKg', '>', '0')
+      .executeTakeFirst()
+
+    estFeedCostPerKg = Number(farmFeedCostResult?.avgCostPerKg || 0)
+  }
+
+  // Final fallback: Use default feed cost
+  if (estFeedCostPerKg === 0) {
+    estFeedCostPerKg = 1000 // Default N1000/kg
+  }
+
   const projectedFeedCost = feedNeededKg * estFeedCostPerKg
 
   // Estimated Profit
@@ -206,18 +261,31 @@ export interface EnhancedProjectionResult extends ProjectionResult {
  */
 export async function calculateEnhancedProjection(
   batchId: string,
+  injectedDb?: Kysely<Database>,
 ): Promise<EnhancedProjectionResult | null> {
-  const { getDb } = await import('~/lib/db')
-  const db = await getDb()
+  let db: Kysely<Database>
+  if (injectedDb) {
+    db = injectedDb
+  } else {
+    const { getDb } = await import('~/lib/db')
+    db = await getDb()
+  }
 
   // Get basic projection first
-  const basicProjection = await calculateBatchProjection(batchId)
+  const basicProjection = await calculateBatchProjection(batchId, db)
   if (!basicProjection) return null
 
   // Get batch data
   const batch = await db
     .selectFrom('batches')
-    .select(['id', 'species', 'breedId', 'acquisitionDate', 'target_weight_g'])
+    .select([
+      'id',
+      'species',
+      'breedId',
+      'sourceSize',
+      'acquisitionDate',
+      'target_weight_g',
+    ])
     .where('id', '=', batchId)
     .executeTakeFirst()
 
@@ -257,6 +325,8 @@ export async function calculateEnhancedProjection(
     batch.acquisitionDate,
     currentAgeDays,
     growthStandards,
+    batch.species,
+    batch.sourceSize,
   )
 
   // Get current and expected weight

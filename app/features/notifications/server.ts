@@ -180,13 +180,22 @@ export const getNotificationsFn = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
+    const { requireAuth } = await import('../auth/server-middleware')
+    let session
     try {
-      const { requireAuth } = await import('../auth/server-middleware')
-      const session = await requireAuth()
-      return await getNotifications(session.user.id, data)
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      throw new AppError('INTERNAL_ERROR', { cause: error })
+      session = await requireAuth()
+    } catch {
+      return []
+    }
+
+    try {
+      const notifications = await getNotifications(session.user.id, data)
+      // Force serialization of Dates and remove any non-plain properties
+      return JSON.parse(JSON.stringify(notifications))
+    } catch (err) {
+      const { error: logError } = await import('~/lib/logger')
+      logError('[getNotificationsFn] Failed to get notifications', err)
+      return []
     }
   })
 
@@ -201,7 +210,9 @@ export const markAsReadFn = createServerFn({ method: 'POST' })
       await requireAuth()
       return await markAsRead(data.notificationId)
     } catch (error) {
-      if (error instanceof AppError) throw error
+      if (error instanceof AppError && error.reason === 'UNAUTHORIZED') {
+        throw error
+      }
       throw new AppError('INTERNAL_ERROR', { cause: error })
     }
   })
@@ -217,7 +228,9 @@ export const markAllAsReadFn = createServerFn({ method: 'POST' })
       const session = await requireAuth()
       return await markAllAsRead(session.user.id)
     } catch (error) {
-      if (error instanceof AppError) throw error
+      if (error instanceof AppError && error.reason === 'UNAUTHORIZED') {
+        throw error
+      }
       throw new AppError('INTERNAL_ERROR', { cause: error })
     }
   })
@@ -233,7 +246,9 @@ export const deleteNotificationFn = createServerFn({ method: 'POST' })
       await requireAuth()
       return await deleteNotification(data.notificationId)
     } catch (error) {
-      if (error instanceof AppError) throw error
+      if (error instanceof AppError && error.reason === 'UNAUTHORIZED') {
+        throw error
+      }
       throw new AppError('INTERNAL_ERROR', { cause: error })
     }
   })

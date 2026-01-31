@@ -4,7 +4,7 @@
  */
 
 import type { Kysely } from 'kysely'
-import type { Database, UserSettingsTable } from '~/lib/db/types'
+import type { Database } from '~/lib/db/types'
 
 /**
  * Batch data for monitoring
@@ -33,6 +33,8 @@ export interface WaterQualityData {
   date: Date
   ph: string
   ammoniaMgL: string
+  temperatureC: string | null
+  dissolvedOxygenMgL: string | null
 }
 
 /**
@@ -177,6 +179,57 @@ export async function getTotalMortality(
 }
 
 /**
+ * BATCH QUERY FUNCTIONS - Optimized for N+1 prevention
+ */
+
+/**
+ * Get recent mortality for multiple batches (batch query)
+ *
+ * @param db - Kysely database instance
+ * @param batchIds - Array of batch IDs to query
+ * @param sinceDate - Start date for the query
+ * @returns Map of batchId to mortality data
+ */
+export async function getRecentMortalityBatch(
+  db: Kysely<Database>,
+  batchIds: Array<string>,
+  sinceDate: Date,
+): Promise<Map<string, MortalityData>> {
+  const results = await db
+    .selectFrom('mortality_records')
+    .select(['batchId', ({ fn }) => fn.sum<number>('quantity').as('run_total')])
+    .where('batchId', 'in', batchIds)
+    .where('date', '>=', sinceDate)
+    .groupBy('batchId')
+    .execute()
+
+  return new Map(
+    results.map((r) => [r.batchId, { runTotal: r.run_total, total: 0 }]),
+  )
+}
+
+/**
+ * Get total mortality for multiple batches (batch query)
+ *
+ * @param db - Kysely database instance
+ * @param batchIds - Array of batch IDs to query
+ * @returns Map of batchId to total mortality count
+ */
+export async function getTotalMortalityBatch(
+  db: Kysely<Database>,
+  batchIds: Array<string>,
+): Promise<Map<string, number>> {
+  const results = await db
+    .selectFrom('mortality_records')
+    .select(['batchId', ({ fn }) => fn.sum<number>('quantity').as('total')])
+    .where('batchId', 'in', batchIds)
+    .groupBy('batchId')
+    .execute()
+
+  return new Map(results.map((r) => [r.batchId, Number(r.total || 0)]))
+}
+
+/**
  * Get most recent water quality record for a batch
  *
  * @param db - Kysely database instance
@@ -189,7 +242,13 @@ export async function getRecentWaterQuality(
 ): Promise<WaterQualityData | null> {
   const result = await db
     .selectFrom('water_quality')
-    .select(['date', 'ph', 'ammoniaMgL'])
+    .select([
+      'date',
+      'ph',
+      'ammoniaMgL',
+      'temperatureCelsius',
+      'dissolvedOxygenMgL',
+    ])
     .where('batchId', '=', batchId)
     .orderBy('date', 'desc')
     .limit(1)
@@ -201,6 +260,8 @@ export async function getRecentWaterQuality(
     date: result.date,
     ph: result.ph,
     ammoniaMgL: result.ammoniaMgL,
+    temperatureC: result.temperatureCelsius,
+    dissolvedOxygenMgL: result.dissolvedOxygenMgL,
   }
 }
 
@@ -343,14 +404,14 @@ export async function getUserSettings(
 export async function getUserSettingsFull(
   db: Kysely<Database>,
   userId: string,
-): Promise<Pick<UserSettingsTable, 'notifications'> | null> {
+): Promise<any> {
   const result = await db
     .selectFrom('user_settings')
     .select(['notifications'])
     .where('userId', '=', userId)
     .executeTakeFirst()
 
-  return (result as Pick<UserSettingsTable, 'notifications'> | null) ?? null
+  return result || null
 }
 
 /**

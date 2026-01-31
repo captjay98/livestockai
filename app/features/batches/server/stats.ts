@@ -1,14 +1,12 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import {
-  calculateFCR as calculateFeedConversionRatio,
-  calculateMortalityRate,
-} from '../service'
+import { calculateMortalityRate } from '../service'
 import {
   getBatchStats,
   getInventorySummary as getInventorySummaryFromDb,
   getWeightSamples,
 } from '../repository'
+import { calculateFCR } from '~/lib/utils/calculations'
 import { AppError } from '~/lib/errors'
 import { toNumber } from '~/features/settings/currency'
 
@@ -63,7 +61,7 @@ export async function getBatchStatsWrapper(userId: string, batchId: string) {
         const totalWeightGain = weightGainPerBird * batch.currentQuantity
 
         if (totalWeightGain > 0) {
-          fcr = calculateFeedConversionRatio(totalFeedKg, totalWeightGain)
+          fcr = calculateFCR(totalFeedKg, totalWeightGain)
         }
       }
     }

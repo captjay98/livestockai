@@ -354,7 +354,10 @@ export function buildComplianceStats(
 export function mapSortColumnToDbColumn(sortBy: string): string {
   const columnMap: Record<string, string> = {
     date: 'dateAdministered',
-    vaccineName: 'vaccineName',
+    dateAdministered: 'dateAdministered',
+    vaccineName: 'name',
+    medicationName: 'name',
+    name: 'name',
     dosage: 'dosage',
     nextDueDate: 'nextDueDate',
     species: 'species',

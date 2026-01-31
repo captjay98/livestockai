@@ -98,16 +98,25 @@ export function validateFeedRecord(data: CreateFeedRecordInput): string | null {
 
   const validFeedTypes = [
     'starter',
+    'starter-crumble',
     'grower',
+    'grower-pellet',
     'finisher',
+    'finisher-pellet',
     'layer_mash',
+    'layer-mash',
     'fish_feed',
+    'fish-feed',
     'cattle_feed',
+    'cattle-feed',
     'goat_feed',
+    'goat-feed',
     'sheep_feed',
+    'sheep-feed',
     'hay',
     'silage',
     'bee_feed',
+    'bee-feed',
   ] as const
 
   if (!(validFeedTypes as ReadonlyArray<string>).includes(data.feedType)) {
@@ -148,7 +157,10 @@ export function buildFeedSummary(
 
   const byType: Record<string, FeedSummaryByType> = {}
   for (const record of records) {
-    const key = record.feedType
+    // Normalize feed type by removing suffixes (e.g., 'starter-crumble' -> 'starter')
+    const normalizedType = record.feedType.split('-')[0]
+    const key = normalizedType
+
     if (!(key in byType)) {
       byType[key] = {
         quantityKg: parseFloat(record.quantityKg),
@@ -175,35 +187,31 @@ export function buildFeedSummary(
  * Lower FCR indicates better feed efficiency
  *
  * @param totalFeedKg - Total feed consumed in kilograms
- * @param weightGainKg - Total weight gain in kilograms
- * @param initialQuantity - Initial batch quantity (for validation)
- * @returns FCR as number rounded to 2 decimals, or null if calculation is not possible
+/**
+ * Calculate Feed Conversion Ratio (FCR)
+ * FCR = Total Feed Consumed (kg) / Total Weight Gain (kg)
+ * Lower FCR indicates better feed efficiency
  *
- * @deprecated Use calculateFCR from ~/lib/utils/calculations instead
  * @param totalFeedKg - Total feed consumed in kilograms
- * @param weightGainKg - Total weight gain in kilograms
- * @param initialQuantity - Initial quantity (unused, kept for backward compatibility)
- * @returns FCR as number rounded to 2 decimals, or null if calculation is not possible
+ * @param totalWeightGainKg - Total weight gain in kilograms
+ * @param batchQuantity - Number of animals in the batch
+ * @returns FCR value or 0 if calculation is not possible
  *
  * @example
  * ```ts
- * const fcr = calculateFCR(150, 100, 100)
- * // Returns: 1.5 (1.5 kg feed per 1 kg weight gain)
- *
- * const invalidFcr = calculateFCR(100, 0, 100)
- * // Returns: null (no weight gain)
+ * const fcr = calculateFCR(100, 60, 50)
+ * // Returns: 1.67 (100kg feed / 60kg weight gain)
  * ```
  */
 export function calculateFCR(
   totalFeedKg: number,
-  weightGainKg: number,
-  initialQuantity: number,
-): number | null {
-  // Re-export from shared utility (initialQuantity unused)
-  const {
-    calculateFCR: sharedCalculateFCR,
-  } = require('~/lib/utils/calculations')
-  return sharedCalculateFCR(totalFeedKg, weightGainKg)
+  totalWeightGainKg: number,
+  batchQuantity: number,
+): number {
+  if (totalWeightGainKg <= 0 || batchQuantity <= 0) {
+    return 0
+  }
+  return Number((totalFeedKg / totalWeightGainKg).toFixed(2))
 }
 
 /**
@@ -308,16 +316,25 @@ export function validateUpdateData(
 
   const validFeedTypes = [
     'starter',
+    'starter-crumble',
     'grower',
+    'grower-pellet',
     'finisher',
+    'finisher-pellet',
     'layer_mash',
+    'layer-mash',
     'fish_feed',
+    'fish-feed',
     'cattle_feed',
+    'cattle-feed',
     'goat_feed',
+    'goat-feed',
     'sheep_feed',
+    'sheep-feed',
     'hay',
     'silage',
     'bee_feed',
+    'bee-feed',
   ] as const
 
   if (

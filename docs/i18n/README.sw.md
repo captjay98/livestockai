@@ -98,27 +98,25 @@
 
 ## Picha za Skrini
 
-<!-- TODO: Add screenshots -->
-
 | Dashibodi                                                  | Usimamizi wa Makundi                                   |
 | ---------------------------------------------------------- | ------------------------------------------------------ |
-| ![Dashibodi](../../screenshots/dashboard.png)              | ![Makundi](../../screenshots/batches.png)              |
+| ![Dashibodi](../../public/screenshots/dashboard.png)       | ![Makundi](../../public/screenshots/batches.png)       |
 | _Muhtasari wa shamba na KPI, arifa, na vitendo vya haraka_ | _Orodha ya makundi na hali, aina, na viwango vya vifo_ |
 
-| Maelezo ya Kundi                                        | Ripoti za Fedha                                       |
-| ------------------------------------------------------- | ----------------------------------------------------- |
-| ![Maelezo ya Kundi](../../screenshots/batch-detail.png) | ![Ripoti](../../screenshots/reports.png)              |
-| _Chati ya ukuaji, makadirio, na ratiba ya kundi_        | _Uchambuzi wa Faida/Hasara na mchanganuo wa matumizi_ |
+| Maelezo ya Kundi                                                | Ripoti za Fedha                                       |
+| --------------------------------------------------------------- | ----------------------------------------------------- |
+| ![Maelezo ya Kundi](../../public/screenshots/batch-details.png) | ![Ripoti](../../public/screenshots/reports.png)       |
+| _Chati ya ukuaji, makadirio, na ratiba ya kundi_                | _Uchambuzi wa Faida/Hasara na mchanganuo wa matumizi_ |
 
-| Mwonekano wa Simu                          | Hali ya Nje ya Mtandao                           |
-| ------------------------------------------ | ------------------------------------------------ |
-| ![Simu](../../screenshots/mobile.png)      | ![Nje ya Mtandao](../../screenshots/offline.png) |
-| _Muundo unaojibu kwa matumizi ya nyanjani_ | _Inafanya kazi bila muunganisho wa intaneti_     |
+| Mwonekano wa Simu                                      | Hali ya Nje ya Mtandao                                  |
+| ------------------------------------------------------ | ------------------------------------------------------- |
+| ![Simu](../../public/screenshots/mobile-dashboard.png) | ![Nje ya Mtandao](../../public/screenshots/offline.png) |
+| _Muundo unaojibu kwa matumizi ya nyanjani_             | _Inafanya kazi bila muunganisho wa intaneti_            |
 
-| Mipangilio                                    | Ankara                                     |
-| --------------------------------------------- | ------------------------------------------ |
-| ![Mipangilio](../../screenshots/settings.png) | ![Ankara](../../screenshots/invoices.png)  |
-| _Mapendeleo ya sarafu, tarehe, na vipimo_     | _Ankara za mteja na ufuatiliaji wa malipo_ |
+| Mipangilio                                           | Ankara                                           |
+| ---------------------------------------------------- | ------------------------------------------------ |
+| ![Mipangilio](../../public/screenshots/settings.png) | ![Ankara](../../public/screenshots/invoices.png) |
+| _Mapendeleo ya sarafu, tarehe, na vipimo_            | _Ankara za mteja na ufuatiliaji wa malipo_       |
 
 ## Teknolojia
 

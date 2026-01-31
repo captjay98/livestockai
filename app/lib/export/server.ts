@@ -21,7 +21,7 @@ export interface ExportOptions {
   /** The logic/data source (e.g., 'profit-loss', 'inventory') */
   reportType: string
   /** Output file format */
-  format: 'xlsx' | 'pdf'
+  format: 'csv' | 'xlsx' | 'pdf'
   /** Optional specific farm filter */
   farmId?: string
   /** Lower bound for date-filtered data (ISO string) */
@@ -50,8 +50,8 @@ export async function generateExportData(options: ExportOptions): Promise<{
         const report = await getProfitLossReport({
           data: {
             farmId: options.farmId,
-            startDate: options.startDate,
-            endDate: options.endDate,
+            startDate: new Date(options.startDate).toISOString(),
+            endDate: new Date(options.endDate).toISOString(),
             dateRangeType: 'custom',
           },
         })
@@ -106,8 +106,8 @@ export async function generateExportData(options: ExportOptions): Promise<{
         const report = await getSalesReport({
           data: {
             farmId: options.farmId,
-            startDate: options.startDate,
-            endDate: options.endDate,
+            startDate: new Date(options.startDate).toISOString(),
+            endDate: new Date(options.endDate).toISOString(),
             dateRangeType: 'custom',
           },
         })
@@ -139,8 +139,8 @@ export async function generateExportData(options: ExportOptions): Promise<{
         const report = await getFeedReport({
           data: {
             farmId: options.farmId,
-            startDate: options.startDate,
-            endDate: options.endDate,
+            startDate: new Date(options.startDate).toISOString(),
+            endDate: new Date(options.endDate).toISOString(),
             dateRangeType: 'custom',
           },
         })
@@ -172,8 +172,8 @@ export async function generateExportData(options: ExportOptions): Promise<{
         const report = await getEggReport({
           data: {
             farmId: options.farmId,
-            startDate: options.startDate,
-            endDate: options.endDate,
+            startDate: new Date(options.startDate).toISOString(),
+            endDate: new Date(options.endDate).toISOString(),
             dateRangeType: 'custom',
           },
         })

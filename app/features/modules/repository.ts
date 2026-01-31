@@ -67,7 +67,7 @@ export async function upsertFarmModule(
     .insertInto('farm_modules')
     .values({ farmId, moduleKey, enabled })
     .onConflict((oc) =>
-      oc.column('farmId').column('moduleKey').doUpdateSet({ enabled }),
+      oc.columns(['farmId', 'moduleKey']).doUpdateSet({ enabled }),
     )
     .execute()
 }

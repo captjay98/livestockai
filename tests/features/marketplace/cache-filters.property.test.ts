@@ -52,7 +52,7 @@ describe('Cache Filter Property Tests', () => {
       min: new Date('2020-01-01'),
       max: new Date('2030-01-01'),
     }),
-  }) as fc.Arbitrary<FuzzedListing>
+  }) as unknown as fc.Arbitrary<FuzzedListing>
 
   beforeEach(() => {
     vi.clearAllMocks()

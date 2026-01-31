@@ -15,6 +15,16 @@ export default defineConfig({
     port: 3000,
   },
 
+  // Fix React SSR issues with TanStack Query
+  ssr: {
+    noExternal: ['@tanstack/react-query'],
+  },
+
+  // Prevent server-only packages from being bundled in browser
+  optimizeDeps: {
+    exclude: ['@sentry/node'],
+  },
+
   build: {
     rollupOptions: {
       external: [
@@ -22,6 +32,8 @@ export default defineConfig({
         'node:stream/web',
         'node:async_hooks',
         'cloudflare:workers',
+        'pg-native', // pg driver optionally imports this, not available in CF Workers
+        '@sentry/node', // Server-only, never bundle in browser
       ],
     },
   },
@@ -37,7 +49,13 @@ export default defineConfig({
     viteReact(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icons/*.png'],
+      injectRegister: 'auto',
+      strategies: 'generateSW',
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
+      includeAssets: ['favicon.ico', 'logo-icon.svg'],
       manifest: {
         name: 'LivestockAI Manager',
         short_name: 'LivestockAI',
@@ -49,32 +67,33 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/icons/icon-192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: '/icons/icon-512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: '/icons/icon-512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
+            src: '/logo-icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any maskable',
           },
         ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        navigateFallback: null,
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/.*\.neon\.tech\/.*/i,
+            urlPattern: ({ url }) => url.pathname.startsWith('/_serverFn'),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds: 300 },
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 100, maxAgeSeconds: 3600 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'image',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images',
+              expiration: { maxEntries: 60, maxAgeSeconds: 2592000 },
             },
           },
         ],

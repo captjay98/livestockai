@@ -118,20 +118,40 @@
           ><span class="tsd-signature-symbol">&lt;</span
           ><br />                <span class="tsd-signature-type">ZodEnum</span
           ><span class="tsd-signature-symbol">&lt;</span
-          ><span class="tsd-signature-symbol">[</span
-          ><span class="tsd-signature-type">&quot;today&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;week&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;month&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;quarter&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
-          <span class="tsd-signature-type">&quot;year&quot;</span
-          ><span class="tsd-signature-symbol">,</span>
+          ><br />                    <span class="tsd-signature-symbol">{</span
+          ><br />                        <span class="tsd-kind-property"
+            >custom</span
+          ><span class="tsd-signature-symbol">:</span>
           <span class="tsd-signature-type">&quot;custom&quot;</span
-          ><span class="tsd-signature-symbol">]</span
-          ><span class="tsd-signature-symbol">&gt;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >month</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;month&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >quarter</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;quarter&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >today</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;today&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >week</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;week&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                        <span class="tsd-kind-property"
+            >year</span
+          ><span class="tsd-signature-symbol">:</span>
+          <span class="tsd-signature-type">&quot;year&quot;</span
+          ><span class="tsd-signature-symbol">;</span
+          ><br />                    <span class="tsd-signature-symbol">}</span
+          ><span class="tsd-signature-symbol">,</span
+          ><br />                <span class="tsd-signature-symbol">&gt;</span
           ><span class="tsd-signature-symbol">,</span><br />            <span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -164,80 +184,7 @@
             >}</span
           ><span class="tsd-signature-symbol">,</span><br />        <span
             class="tsd-signature-type"
-            >&quot;strip&quot;</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-type"
-            >ZodTypeAny</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">dateRangeType</span
-          ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;custom&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;today&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;week&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;month&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;quarter&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;year&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >endDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >farmId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >startDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
-          ><span class="tsd-signature-symbol">,</span><br />        <span
-            class="tsd-signature-symbol"
-            >{</span
-          ><br />            <span class="tsd-kind-property">dateRangeType</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;custom&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;today&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;week&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;month&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;quarter&quot;</span
-          ><br />            <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;year&quot;</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >endDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >farmId</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />            <span
-            class="tsd-kind-property"
-            >startDate</span
-          ><span class="tsd-signature-symbol">?:</span>
-          <span class="tsd-signature-type">string</span
-          ><span class="tsd-signature-symbol">;</span><br />        <span
-            class="tsd-signature-symbol"
-            >}</span
+            >$strip</span
           ><span class="tsd-signature-symbol">,</span><br />    <span
             class="tsd-signature-symbol"
             >&gt;</span
@@ -342,12 +289,9 @@
           ><span class="tsd-signature-symbol">;</span
           ><br />                    <span class="tsd-kind-property">type</span
           ><span class="tsd-signature-symbol">:</span>
-          <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;poultry&quot;</span
           ><br />                    <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;fish&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;eggs&quot;</span
           ><br />                    <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;cattle&quot;</span
           ><br />                    <span class="tsd-signature-symbol">|</span>
@@ -355,19 +299,7 @@
           ><br />                    <span class="tsd-signature-symbol">|</span>
           <span class="tsd-signature-type">&quot;sheep&quot;</span
           ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;honey&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;milk&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;wool&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;beeswax&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;propolis&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;royal_jelly&quot;</span
-          ><br />                    <span class="tsd-signature-symbol">|</span>
-          <span class="tsd-signature-type">&quot;manure&quot;</span
+          <span class="tsd-signature-type">&quot;bees&quot;</span
           ><span class="tsd-signature-symbol">;</span
           ><br />                <span class="tsd-signature-symbol">}</span
           ><span class="tsd-signature-symbol">[]</span
@@ -397,7 +329,7 @@
         </div>
         <aside class="tsd-sources">
           <ul>
-            <li>Defined in features/reports/server.ts:173</li>
+            <li>Defined in features/reports/server.ts:176</li>
           </ul>
         </aside>
       </div>

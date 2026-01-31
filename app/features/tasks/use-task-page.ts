@@ -2,14 +2,14 @@ import { useRouter } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { completeTaskFn, uncompleteTaskFn } from './server'
 import type { TaskWithStatus } from './server'
-import { useSettings } from '~/features/settings'
+import { useFarm } from '~/features/farms/context'
 
 export function useTaskPage(tasks: Array<TaskWithStatus>) {
   const router = useRouter()
-  const { settings } = useSettings()
+  const { selectedFarmId } = useFarm()
   const [loading, setLoading] = useState<string | null>(null)
 
-  const farmId = settings.defaultFarmId
+  const farmId = selectedFarmId
   const hasFarm = Boolean(farmId)
 
   const { dailyTasks, weeklyTasks, monthlyTasks } = useMemo(

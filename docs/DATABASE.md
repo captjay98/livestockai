@@ -49,15 +49,95 @@ LivestockAI uses:
 
 ### Supporting Tables
 
-| Table                  | Purpose           | Key Columns                          |
-| ---------------------- | ----------------- | ------------------------------------ |
-| `customers`            | Customer contacts | id, name, phone, customerType        |
-| `suppliers`            | Supplier contacts | id, name, products, supplierType     |
-| `feed_inventory`       | Feed stock        | id, farmId, feedType, quantityKg     |
-| `medication_inventory` | Medicine stock    | id, farmId, medicationName, quantity |
-| `notifications`        | In-app alerts     | id, userId, type, message, read      |
-| `audit_logs`           | Activity history  | id, userId, action, entityType       |
-| `growth_standards`     | Reference data    | species, day, expected_weight_g      |
+| Table                  | Purpose           | Key Columns                                      |
+| ---------------------- | ----------------- | ------------------------------------------------ |
+| `customers`            | Customer contacts | id, name, phone, customerType                    |
+| `suppliers`            | Supplier contacts | id, name, products, supplierType                 |
+| `feed_inventory`       | Feed stock        | id, farmId, feedType, quantityKg                 |
+| `medication_inventory` | Medicine stock    | id, farmId, medicationName, quantity             |
+| `supplies_inventory`   | General supplies  | id, farmId, itemName, category, unit             |
+| `tasks`                | Farm checklists   | id, farmId, batchId, moduleKey, title, frequency |
+| `task_completions`     | Task completion   | id, taskId, userId, periodStart                  |
+| `notifications`        | In-app alerts     | id, userId, type, message, read                  |
+| `audit_logs`           | Activity history  | id, userId, action, entityType                   |
+| `growth_standards`     | Reference data    | species, day, expected_weight_g                  |
+
+---
+
+## Database Connection
+
+### Hyperdrive (Production)
+
+LivestockAI uses **Cloudflare Hyperdrive** for connection pooling and transaction support:
+
+```typescript
+// In server functions - REQUIRED pattern
+export const getData = createServerFn({ method: 'GET' }).handler(async () => {
+  const { getDb } = await import('~/lib/db')
+  const db = await getDb()
+  return db.selectFrom('table').execute()
+})
+```
+
+**Why Hyperdrive?**
+
+- **Connection Pooling**: Reuses connections at the edge for better performance
+- **Transaction Support**: Enables full ACID transactions with SERIALIZABLE isolation
+- **Edge Performance**: Maintains low latency while supporting complex operations
+
+**Configuration** (`wrangler.jsonc`):
+
+```json
+{
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "your-hyperdrive-id",
+      "localConnectionString": "postgresql://..."
+    }
+  ]
+}
+```
+
+### Environment Detection
+
+The `getDb()` function automatically detects the environment:
+
+1. **Node.js/Bun** (CLI scripts, migrations): Uses `process.env.DATABASE_URL`
+2. **Cloudflare Workers** (production): Uses Hyperdrive binding
+3. **Local dev** (wrangler dev): Uses `localConnectionString` from wrangler.jsonc
+
+### Transaction Support
+
+Hyperdrive enables full interactive transactions:
+
+```typescript
+const { getDb } = await import('~/lib/db')
+const db = await getDb()
+
+await db.transaction().execute(async (trx) => {
+  // All operations use the same transaction
+  await trx.insertInto('mortality_records').values(data).execute()
+  await trx
+    .updateTable('batches')
+    .set({ currentQuantity: newQty })
+    .where('id', '=', batchId)
+    .execute()
+})
+```
+
+**Isolation Levels**:
+
+```typescript
+import { sql } from 'kysely'
+
+await db.transaction().execute(async (trx) => {
+  // Set SERIALIZABLE for conflict detection
+  await sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`.execute(trx)
+
+  // Your operations here
+})
+```
 
 ---
 

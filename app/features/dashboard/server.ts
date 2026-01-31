@@ -150,18 +150,17 @@ export async function getDashboardStats(
         .executeTakeFirst(),
     ])
 
-    const totalPoultry =
-      inventoryByType.find((i) => i.livestockType === 'poultry')?.total || 0
-    const totalFish =
-      inventoryByType.find((i) => i.livestockType === 'fish')?.total || 0
-    const totalCattle =
-      inventoryByType.find((i) => i.livestockType === 'cattle')?.total || 0
-    const totalGoats =
-      inventoryByType.find((i) => i.livestockType === 'goats')?.total || 0
-    const totalSheep =
-      inventoryByType.find((i) => i.livestockType === 'sheep')?.total || 0
-    const totalBees =
-      inventoryByType.find((i) => i.livestockType === 'bees')?.total || 0
+    // Optimize: Use Map instead of repeated .find() calls
+    const inventoryMap = new Map(
+      inventoryByType.map((i) => [i.livestockType, i.total]),
+    )
+
+    const totalPoultry = inventoryMap.get('poultry') || 0
+    const totalFish = inventoryMap.get('fish') || 0
+    const totalCattle = inventoryMap.get('cattle') || 0
+    const totalGoats = inventoryMap.get('goats') || 0
+    const totalSheep = inventoryMap.get('sheep') || 0
+    const totalBees = inventoryMap.get('bees') || 0
 
     const activeBatches = Number(activeBatchesResult?.count || 0)
     const monthlyRevenue = parseFloat(salesResult?.total || '0')
@@ -185,7 +184,6 @@ export async function getDashboardStats(
       mortalityQuery,
       initialQuantityQuery,
       feedQuery,
-      totalWeightQuery,
     ] = await Promise.all([
       // Eggs this month
       db
@@ -240,16 +238,6 @@ export async function getDashboardStats(
         .where('feed_records.date', '<=', endOfMonth)
         .where('batches.farmId', 'in', targetFarmIds)
         .executeTakeFirst(),
-
-      // Total quantity for FCR
-      db
-        .selectFrom('batches')
-        .select([
-          sql<number>`COALESCE(SUM("currentQuantity"), 0)`.as('totalQuantity'),
-        ])
-        .where('status', '=', 'active')
-        .where('farmId', 'in', targetFarmIds)
-        .executeTakeFirst(),
     ])
 
     const eggsThisMonth = Number(eggsQuery?.totalEggs || 0)
@@ -274,7 +262,7 @@ export async function getDashboardStats(
         .innerJoin('weight_samples as ws2', (join) =>
           join
             .onRef('ws1.batchId', '=', 'ws2.batchId')
-            .on('ws1.sampledAt', '<', 'ws2.sampledAt'),
+            .on(sql`ws1."date"`, '<', sql`ws2."date"`),
         )
         .innerJoin('batches', 'batches.id', 'ws1.batchId')
         .select([
@@ -303,6 +291,7 @@ export async function getDashboardStats(
             sql<string>`COALESCE(SUM(CAST(sales."totalAmount" AS DECIMAL)), 0)`.as(
               'totalSpent',
             ),
+            sql<number>`COUNT(sales.id)`.as('salesCount'),
           ])
           .where((eb) =>
             eb.or([
@@ -352,9 +341,14 @@ export async function getDashboardStats(
 
         // Alerts (parallelize dynamic import and call)
         (async () => {
-          const { getAllBatchAlerts } =
-            await import('~/features/monitoring/server')
-          return getAllBatchAlerts(userId, farmId)
+          try {
+            const { getAllBatchAlerts } =
+              await import('~/features/monitoring/server')
+            return await getAllBatchAlerts(userId, farmId)
+          } catch (e) {
+            console.error('Failed to load alerts:', e)
+            return []
+          }
         })(),
       ])
 
@@ -399,15 +393,17 @@ export async function getDashboardStats(
         totalKg: feedTotalKg,
         fcr: Math.round(fcr * 100) / 100,
       },
-      alerts,
+      alerts: alerts,
       topCustomers: topCustomers.map((c) => ({
         id: c.id,
         name: c.name,
         totalSpent: parseFloat(String(c.totalSpent)),
+        salesCount: Number(c.salesCount || 0),
       })),
       recentTransactions,
     }
   } catch (error) {
+    console.error('Dashboard Stats Error:', error)
     if (error instanceof AppError) throw error
     throw new AppError('DATABASE_ERROR', {
       message: 'Failed to load dashboard statistics',

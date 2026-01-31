@@ -18,7 +18,12 @@ export class AppError extends Error {
     },
   ) {
     const def = ErrorMap[reason]
-    super(options?.message || def.message)
+    // Auto-use metadata.error as message if no explicit message provided
+    const message =
+      options?.message ||
+      (options?.metadata?.error as string | undefined) ||
+      def.message
+    super(message)
     this.name = 'AppError'
     this.reason = reason
     this.code = def.code

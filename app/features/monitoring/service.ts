@@ -6,7 +6,17 @@
 import { differenceInDays, subHours } from 'date-fns'
 import {
   DEFAULT_MORTALITY_THRESHOLD,
+  DO_CRITICAL_MIN,
+  DO_WARNING_MIN,
   MORTALITY_THRESHOLD_BY_SPECIES,
+  WATER_TEMP_CATFISH_CRITICAL_MAX,
+  WATER_TEMP_CATFISH_CRITICAL_MIN,
+  WATER_TEMP_CATFISH_MAX,
+  WATER_TEMP_CATFISH_MIN,
+  WATER_TEMP_TILAPIA_CRITICAL_MAX,
+  WATER_TEMP_TILAPIA_CRITICAL_MIN,
+  WATER_TEMP_TILAPIA_MAX,
+  WATER_TEMP_TILAPIA_MIN,
 } from './constants'
 import type {
   AlertThresholds,
@@ -36,6 +46,15 @@ export type AlertSource =
   | 'growth'
 
 /**
+ * Type-safe alert metadata based on source
+ */
+export type AlertMetadata =
+  | { type: 'vaccination'; vaccineName: string; dueDate: Date }
+  | { type: 'feed'; targetFcr: number; actualFcr: number }
+  | { type: 'growth'; expectedKg: number; actualKg: number; ageWeeks: number }
+  | { type: 'default' }
+
+/**
  * Alert data structure
  */
 export interface BatchAlert {
@@ -47,7 +66,7 @@ export interface BatchAlert {
   message: string
   timestamp: Date
   value?: number
-  metadata?: Record<string, any>
+  metadata?: AlertMetadata
 }
 
 /**
@@ -215,6 +234,103 @@ export function checkWaterQualityAlerts(
     })
   }
 
+  // Check dissolved oxygen (critical for fish survival)
+  if (waterQuality.dissolvedOxygenMgL) {
+    const dissolvedOxygen = parseFloat(waterQuality.dissolvedOxygenMgL)
+
+    if (dissolvedOxygen < DO_CRITICAL_MIN) {
+      alerts.push({
+        id: `do-critical-${batch.id}-${Date.now()}`,
+        batchId: batch.id,
+        species: batch.species,
+        type: 'critical',
+        source: 'water_quality',
+        message: `Critical Low Oxygen: ${dissolvedOxygen.toFixed(1)} mg/L (minimum: ${DO_CRITICAL_MIN} mg/L)`,
+        timestamp: waterQuality.date,
+        value: dissolvedOxygen,
+      })
+    } else if (dissolvedOxygen < DO_WARNING_MIN) {
+      alerts.push({
+        id: `do-warning-${batch.id}-${Date.now()}`,
+        batchId: batch.id,
+        species: batch.species,
+        type: 'warning',
+        source: 'water_quality',
+        message: `Low Oxygen: ${dissolvedOxygen.toFixed(1)} mg/L (recommended: >${DO_WARNING_MIN} mg/L)`,
+        timestamp: waterQuality.date,
+        value: dissolvedOxygen,
+      })
+    }
+  }
+
+  // Check temperature (critical for fish health)
+  if (waterQuality.temperatureC) {
+    const temp = parseFloat(waterQuality.temperatureC)
+    const species = batch.species.toLowerCase()
+
+    if (species === 'catfish' || species === 'african catfish') {
+      if (
+        temp < WATER_TEMP_CATFISH_CRITICAL_MIN ||
+        temp > WATER_TEMP_CATFISH_CRITICAL_MAX
+      ) {
+        alerts.push({
+          id: `temp-critical-${batch.id}-${Date.now()}`,
+          batchId: batch.id,
+          species: batch.species,
+          type: 'critical',
+          source: 'water_quality',
+          message: `Critical Temperature: ${temp}°C (safe range: ${WATER_TEMP_CATFISH_MIN}-${WATER_TEMP_CATFISH_MAX}°C)`,
+          timestamp: waterQuality.date,
+          value: temp,
+        })
+      } else if (
+        temp < WATER_TEMP_CATFISH_MIN ||
+        temp > WATER_TEMP_CATFISH_MAX
+      ) {
+        alerts.push({
+          id: `temp-warning-${batch.id}-${Date.now()}`,
+          batchId: batch.id,
+          species: batch.species,
+          type: 'warning',
+          source: 'water_quality',
+          message: `Suboptimal Temperature: ${temp}°C (optimal: ${WATER_TEMP_CATFISH_MIN}-${WATER_TEMP_CATFISH_MAX}°C)`,
+          timestamp: waterQuality.date,
+          value: temp,
+        })
+      }
+    } else if (species === 'tilapia') {
+      if (
+        temp < WATER_TEMP_TILAPIA_CRITICAL_MIN ||
+        temp > WATER_TEMP_TILAPIA_CRITICAL_MAX
+      ) {
+        alerts.push({
+          id: `temp-critical-${batch.id}-${Date.now()}`,
+          batchId: batch.id,
+          species: batch.species,
+          type: 'critical',
+          source: 'water_quality',
+          message: `Critical Temperature: ${temp}°C (safe range: ${WATER_TEMP_TILAPIA_MIN}-${WATER_TEMP_TILAPIA_MAX}°C)`,
+          timestamp: waterQuality.date,
+          value: temp,
+        })
+      } else if (
+        temp < WATER_TEMP_TILAPIA_MIN ||
+        temp > WATER_TEMP_TILAPIA_MAX
+      ) {
+        alerts.push({
+          id: `temp-warning-${batch.id}-${Date.now()}`,
+          batchId: batch.id,
+          species: batch.species,
+          type: 'warning',
+          source: 'water_quality',
+          message: `Suboptimal Temperature: ${temp}°C (optimal: ${WATER_TEMP_TILAPIA_MIN}-${WATER_TEMP_TILAPIA_MAX}°C)`,
+          timestamp: waterQuality.date,
+          value: temp,
+        })
+      }
+    }
+  }
+
   return alerts
 }
 
@@ -248,6 +364,7 @@ export function checkVaccinationAlerts(
         message: `Overdue Vaccine: ${v.vaccineName}`,
         timestamp: v.nextDueDate,
         metadata: {
+          type: 'vaccination',
           vaccineName: v.vaccineName,
           dueDate: v.nextDueDate,
         },
@@ -263,6 +380,7 @@ export function checkVaccinationAlerts(
         message: `Upcoming Vaccine: ${v.vaccineName}`,
         timestamp: v.nextDueDate,
         metadata: {
+          type: 'vaccination',
           vaccineName: v.vaccineName,
           dueDate: v.nextDueDate,
         },
@@ -326,7 +444,9 @@ export function checkFeedAlerts(
     : 0
 
   if (totalFeedKg > 0 && avgWeightKg > 0 && batch.currentQuantity > 0) {
-    const totalWeightGainKg = avgWeightKg * batch.currentQuantity
+    // Calculate average population (accounting for mortality)
+    const avgPopulation = (batch.initialQuantity + batch.currentQuantity) / 2
+    const totalWeightGainKg = avgWeightKg * avgPopulation
     const fcr = totalFeedKg / totalWeightGainKg
 
     // Industry standards: Broiler FCR ~1.6-1.8, Catfish FCR ~1.2-1.5
@@ -345,7 +465,7 @@ export function checkFeedAlerts(
         message: `High FCR: ${fcr.toFixed(2)} (target: ${targetFcr})`,
         timestamp: new Date(),
         value: fcr,
-        metadata: { targetFcr, actualFcr: fcr },
+        metadata: { type: 'feed', targetFcr, actualFcr: fcr },
       })
     }
   }
@@ -392,6 +512,7 @@ export function checkGrowthAlerts(
         timestamp: new Date(),
         value: performanceRatio * 100,
         metadata: {
+          type: 'growth',
           expectedKg,
           actualKg,
           ageWeeks: Math.floor(ageInDays / 7),

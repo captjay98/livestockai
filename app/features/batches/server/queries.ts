@@ -227,7 +227,7 @@ export async function getBatchesPaginated(
       .execute()
 
     return {
-      data: data.map((d: any) => ({
+      data: data.map((d) => ({
         ...d,
         farmName: d.farmName || null,
       })),

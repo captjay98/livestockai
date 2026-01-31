@@ -112,6 +112,8 @@ describe('checkWaterQualityAlerts', () => {
     const alerts = checkWaterQualityAlerts(baseBatch, {
       ph: '5.5',
       ammoniaMgL: '0.1',
+      temperatureC: null,
+      dissolvedOxygenMgL: null,
       date: new Date(),
     })
     expect(alerts.some((a) => a.message.includes('pH'))).toBe(true)
@@ -121,6 +123,8 @@ describe('checkWaterQualityAlerts', () => {
     const alerts = checkWaterQualityAlerts(baseBatch, {
       ph: '9.0',
       ammoniaMgL: '0.1',
+      temperatureC: null,
+      dissolvedOxygenMgL: null,
       date: new Date(),
     })
     expect(alerts.some((a) => a.message.includes('pH'))).toBe(true)
@@ -130,6 +134,8 @@ describe('checkWaterQualityAlerts', () => {
     const alerts = checkWaterQualityAlerts(baseBatch, {
       ph: '7.0',
       ammoniaMgL: '2.5',
+      temperatureC: null,
+      dissolvedOxygenMgL: null,
       date: new Date(),
     })
     expect(alerts.some((a) => a.message.includes('Ammonia'))).toBe(true)
@@ -142,6 +148,8 @@ describe('checkWaterQualityAlerts', () => {
     const alerts = checkWaterQualityAlerts(baseBatch, {
       ph: '7.2',
       ammoniaMgL: '0.5',
+      temperatureC: null,
+      dissolvedOxygenMgL: null,
       date: new Date(),
     })
     expect(alerts).toHaveLength(0)

@@ -235,9 +235,49 @@ export async function getBatchesByFarm(
     query = query.where('batches.breedId', '=', filters.breedId)
   }
 
-  return (await query.execute()).map((batch) => ({
+  const batches = await query.execute()
+
+  // Get formulation data for all batches in a single query
+  const batchIds = batches.map((b) => b.id)
+  const formulations =
+    batchIds.length > 0
+      ? await db
+          .selectFrom('formulation_usage')
+          .leftJoin(
+            'saved_formulations',
+            'formulation_usage.formulationId',
+            'saved_formulations.id',
+          )
+          .select([
+            'formulation_usage.batchId',
+            'saved_formulations.name',
+            'saved_formulations.species',
+            'saved_formulations.productionStage',
+            'saved_formulations.totalCostPerKg',
+          ])
+          .where('formulation_usage.batchId', 'in', batchIds)
+          .distinctOn('formulation_usage.batchId')
+          .orderBy('formulation_usage.batchId')
+          .orderBy('formulation_usage.createdAt', 'desc')
+          .execute()
+      : []
+
+  // Create a map for quick lookup
+  const formulationMap = new Map(
+    formulations.map((f) => [
+      f.batchId,
+      {
+        name: f.name,
+        species: f.species,
+        stage: f.productionStage,
+        costPerKg: f.totalCostPerKg,
+      },
+    ]),
+  )
+
+  return batches.map((batch) => ({
     ...batch,
-    formulation: null, // TODO: Implement formulation lookup if needed
+    formulation: formulationMap.get(batch.id) || null,
   })) as Array<BatchWithFarmName>
 }
 
@@ -260,6 +300,8 @@ export async function updateBatch(
  * Update batch fields with conflict detection.
  * Returns the updated batch if successful, or null if there's a conflict.
  *
+ * Uses SERIALIZABLE isolation level to prevent race conditions under high concurrency.
+ *
  * @param db - Kysely database instance
  * @param batchId - ID of the batch to update
  * @param data - Fields to update
@@ -272,8 +314,13 @@ export async function updateBatchWithConflictCheck(
   data: BatchUpdate,
   expectedUpdatedAt: Date,
 ): Promise<BatchWithFarmName | null> {
-  // Use a transaction to ensure atomicity
+  const { sql } = await import('kysely')
+
+  // Use a transaction with SERIALIZABLE isolation level to prevent race conditions
   return await db.transaction().execute(async (trx) => {
+    // Set isolation level to SERIALIZABLE for this transaction
+    await sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`.execute(trx)
+
     // Get current batch state
     const currentBatch = await trx
       .selectFrom('batches')
@@ -730,7 +777,7 @@ export async function getBatchesByFarmPaginated(
 
   // Re-apply filters
   if (search) {
-    dataQuery = dataQuery.where((eb: any) =>
+    dataQuery = dataQuery.where((eb) =>
       eb.or([
         eb('batches.batchName', 'ilike', `%${search}%`),
         eb('batches.species', 'ilike', `%${search}%`),
