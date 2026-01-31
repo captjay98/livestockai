@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { Calendar } from 'lucide-react'
@@ -27,6 +28,7 @@ export function PayrollHistory({
   onSelectPeriod,
   selectedPeriodId,
 }: PayrollHistoryProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const { format: formatCurrency } = useFormatCurrency()
 
   const { data: periods = [], isLoading } = useQuery({
@@ -35,7 +37,7 @@ export function PayrollHistory({
     enabled: !!farmId,
   })
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) return <div>{t('common:loading')}</div>
 
   if (periods.length === 0) {
     return (
@@ -43,12 +45,16 @@ export function PayrollHistory({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Payroll History
+            {t('digitalForeman:payrollHistory', {
+              defaultValue: 'Payroll History',
+            })}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-center py-4">
-            No payroll periods found
+            {t('digitalForeman:noPayrollPeriods', {
+              defaultValue: 'No payroll periods found',
+            })}
           </p>
         </CardContent>
       </Card>
@@ -76,8 +82,14 @@ export function PayrollHistory({
               <TableHead>Period</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Total Wages</TableHead>
-              <TableHead className="text-right">Total Paid</TableHead>
+              <TableHead className="text-right">
+                {t('digitalForeman:totalWages', {
+                  defaultValue: 'Total Wages',
+                })}
+              </TableHead>
+              <TableHead className="text-right">
+                {t('digitalForeman:totalPaid', { defaultValue: 'Total Paid' })}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

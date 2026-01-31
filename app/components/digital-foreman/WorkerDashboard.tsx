@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { CheckInButton } from './CheckInButton'
 import { TodaysTasks } from './TodaysTasks'
@@ -19,6 +20,7 @@ export function WorkerDashboard({
   isCheckedIn,
   hoursToday = 0,
 }: WorkerDashboardProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const { data: tasks = [] } = useQuery({
     queryKey: ['worker-tasks'],
     queryFn: () => getAssignmentsByWorkerFn({ data: {} }),
@@ -28,12 +30,20 @@ export function WorkerDashboard({
     <div className="space-y-4 p-4">
       <Card>
         <CardHeader>
-          <CardTitle>Today's Status</CardTitle>
+          <CardTitle>
+            {t('digitalForeman:workerDashboard.todaysStatus', {
+              defaultValue: "Today's Status",
+            })}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center mb-4">
             <div className="text-4xl font-bold">{hoursToday.toFixed(1)}h</div>
-            <div className="text-muted-foreground">Hours worked today</div>
+            <div className="text-muted-foreground">
+              {t('digitalForeman:workerDashboard.hoursWorkedToday', {
+                defaultValue: 'Hours worked today',
+              })}
+            </div>
           </div>
           <CheckInButton
             farmId={farmId}

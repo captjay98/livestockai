@@ -1,6 +1,5 @@
-'use client'
-
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Camera } from 'lucide-react'
 import { toast } from 'sonner'
@@ -28,6 +27,7 @@ export function TaskCompletionDialog({
   open,
   onOpenChange,
 }: TaskCompletionDialogProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const queryClient = useQueryClient()
   const [notes, setNotes] = useState('')
   const [photo, setPhoto] = useState<string | null>(null)
@@ -36,14 +36,23 @@ export function TaskCompletionDialog({
   const complete = useMutation({
     mutationFn: completeTaskFn,
     onSuccess: () => {
-      toast.success('Task completed')
+      toast.success(
+        t('digitalForeman:messages.taskCompleted', {
+          defaultValue: 'Task completed',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['worker-tasks'] })
       queryClient.invalidateQueries({ queryKey: ['task-assignments'] })
       onOpenChange(false)
       setNotes('')
       setPhoto(null)
     },
-    onError: () => toast.error('Failed to complete task'),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.taskCompletionFailed', {
+          defaultValue: 'Failed to complete task',
+        }),
+      ),
   })
 
   const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +66,11 @@ export function TaskCompletionDialog({
 
   const handleSubmit = () => {
     if (requiresPhoto && !photo) {
-      toast.error('Photo is required')
+      toast.error(
+        t('digitalForeman:messages.photoRequired', {
+          defaultValue: 'Photo is required',
+        }),
+      )
       return
     }
 
@@ -84,7 +97,9 @@ export function TaskCompletionDialog({
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add completion notes..."
+              placeholder={t('digitalForeman:placeholders.addCompletionNotes', {
+                defaultValue: 'Add completion notes...',
+              })}
             />
           </div>
 
@@ -123,7 +138,9 @@ export function TaskCompletionDialog({
             disabled={complete.isPending}
             className="w-full"
           >
-            Complete Task
+            {t('digitalForeman:actions.completeTask', {
+              defaultValue: 'Complete Task',
+            })}
           </Button>
         </div>
       </DialogContent>

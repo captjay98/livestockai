@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { ModulePermission } from '~/lib/db/types'
 import {
   PERMISSION_TEMPLATES,
@@ -76,6 +77,7 @@ export function PermissionTemplateSelector({
   value,
   onChange,
 }: PermissionTemplateSelectorProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const [template, setTemplate] = useState<TemplateName>('custom')
 
   // Detect if current permissions match a template
@@ -124,7 +126,11 @@ export function PermissionTemplateSelector({
           onValueChange={(v) => handleTemplateChange(v as TemplateName)}
         >
           <SelectTrigger className="h-11">
-            <SelectValue placeholder="Select template" />
+            <SelectValue
+              placeholder={t('digitalForeman:placeholders.selectTemplate', {
+                defaultValue: 'Select template',
+              })}
+            />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="feed_handler">Feed Handler</SelectItem>

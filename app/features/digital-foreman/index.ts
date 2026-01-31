@@ -10,6 +10,7 @@ export {
   createWorkerProfileFn,
   updateWorkerProfileFn,
   getWorkersByFarmFn,
+  getWorkerProfileByUserIdFn,
   removeWorkerFromFarmFn,
   getOpenCheckInForCurrentUserFn,
   // Attendance

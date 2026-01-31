@@ -35,3 +35,8 @@ export { WorkerPerformanceCard } from './WorkerPerformanceCard'
 export { PerformanceTrends } from './PerformanceTrends'
 export type { WorkerPerformanceData } from './WorkerPerformanceCard'
 export type { TrendDataPoint, WorkerTrendData } from './PerformanceTrends'
+
+// Skeletons
+export { AttendanceSkeleton } from './attendance-skeleton'
+export { TaskOverviewSkeleton } from './task-overview-skeleton'
+export { PayrollSkeleton } from './payroll-skeleton'

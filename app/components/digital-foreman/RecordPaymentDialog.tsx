@@ -1,6 +1,5 @@
-'use client'
-
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { recordPaymentFn } from '~/features/digital-foreman/server-payroll'
@@ -45,6 +44,7 @@ export function RecordPaymentDialog({
   payrollPeriodId,
   preselectedWorkerId,
 }: RecordPaymentDialogProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const queryClient = useQueryClient()
   const { format, symbol } = useFormatCurrency()
   const [workerId, setWorkerId] = useState(preselectedWorkerId || '')
@@ -59,12 +59,21 @@ export function RecordPaymentDialog({
   const recordPayment = useMutation({
     mutationFn: recordPaymentFn,
     onSuccess: () => {
-      toast.success('Payment recorded successfully')
+      toast.success(
+        t('digitalForeman:messages.paymentRecorded', {
+          defaultValue: 'Payment recorded successfully',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['payroll-summary'] })
       onOpenChange(false)
       resetForm()
     },
-    onError: () => toast.error('Failed to record payment'),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.paymentRecordFailed', {
+          defaultValue: 'Failed to record payment',
+        }),
+      ),
   })
 
   const resetForm = () => {
@@ -76,7 +85,11 @@ export function RecordPaymentDialog({
 
   const handleSubmit = () => {
     if (!workerId || !amount || Number(amount) <= 0) {
-      toast.error('Please fill in all required fields')
+      toast.error(
+        t('digitalForeman:messages.fillRequiredFields', {
+          defaultValue: 'Please fill in all required fields',
+        }),
+      )
       return
     }
 
@@ -113,7 +126,11 @@ export function RecordPaymentDialog({
               onValueChange={(value) => setWorkerId(value || '')}
             >
               <SelectTrigger className="h-11">
-                <SelectValue placeholder="Select worker" />
+                <SelectValue
+                  placeholder={t('digitalForeman:placeholders.selectWorker', {
+                    defaultValue: 'Select worker',
+                  })}
+                />
               </SelectTrigger>
               <SelectContent>
                 {workers.map((worker) => (
@@ -155,7 +172,9 @@ export function RecordPaymentDialog({
               step="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
+              placeholder={t('digitalForeman:placeholders.amount', {
+                defaultValue: '0.00',
+              })}
               className="h-11"
             />
           </div>
@@ -183,7 +202,9 @@ export function RecordPaymentDialog({
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any notes about this payment..."
+              placeholder={t('digitalForeman:placeholders.paymentNotes', {
+                defaultValue: 'Add any notes about this payment...',
+              })}
             />
           </div>
         </div>

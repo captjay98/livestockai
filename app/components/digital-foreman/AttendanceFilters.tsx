@@ -1,7 +1,7 @@
-'use client'
-
-import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
+import { CalendarIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import {
   Select,
@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { cn } from '~/lib/utils'
 
 export interface AttendanceFiltersState {
   date: Date
@@ -34,6 +33,7 @@ export function AttendanceFilters({
   onFiltersChange,
   workers,
 }: AttendanceFiltersProps) {
+  const { t } = useTranslation(['digitalForeman', 'common'])
   return (
     <div className="flex flex-wrap gap-3 mb-4">
       <Button
@@ -54,10 +54,18 @@ export function AttendanceFilters({
         }
       >
         <SelectTrigger className="h-11 min-w-[160px]">
-          <SelectValue placeholder="All Workers" />
+          <SelectValue
+            placeholder={t('digitalForeman:placeholders.allWorkers', {
+              defaultValue: 'All Workers',
+            })}
+          />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Workers</SelectItem>
+          <SelectItem value="all">
+            {t('digitalForeman:placeholders.allWorkers', {
+              defaultValue: 'All Workers',
+            })}
+          </SelectItem>
           {workers.map((worker) => (
             <SelectItem key={worker.id} value={worker.id}>
               {worker.userName || 'Unknown'}
@@ -76,10 +84,14 @@ export function AttendanceFilters({
         }
       >
         <SelectTrigger className="h-11 min-w-[140px]">
-          <SelectValue placeholder="Status" />
+          <SelectValue
+            placeholder={t('common:status', { defaultValue: 'Status' })}
+          />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Status</SelectItem>
+          <SelectItem value="all">
+            {t('common:allStatus', { defaultValue: 'All Status' })}
+          </SelectItem>
           <SelectItem value="verified">Verified</SelectItem>
           <SelectItem value="flagged">Flagged</SelectItem>
           <SelectItem value="pending">Pending</SelectItem>

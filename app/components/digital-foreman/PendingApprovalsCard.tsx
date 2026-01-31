@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { CheckCircle, Clock, Image as ImageIcon } from 'lucide-react'
@@ -15,6 +16,7 @@ interface PendingApprovalsCardProps {
 }
 
 export function PendingApprovalsCard({ farmId }: PendingApprovalsCardProps) {
+  const { t } = useTranslation('common')
   const [selectedTask, setSelectedTask] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -24,7 +26,7 @@ export function PendingApprovalsCard({ farmId }: PendingApprovalsCardProps) {
     enabled: !!farmId,
   })
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) return <div>{t('loading')}</div>
 
   if (pendingTasks.length === 0) {
     return (

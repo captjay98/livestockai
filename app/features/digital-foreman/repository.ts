@@ -624,3 +624,56 @@ export async function getTotalPaymentsByWorkerAndPeriod(
     .where('payrollPeriodId', '=', payrollPeriodId)
     .executeTakeFirst()
 }
+
+// Multi-farm functions
+export async function getCheckInsByFarms(
+  db: Kysely<Database>,
+  farmIds: Array<string>,
+  date: Date,
+) {
+  const startOfDay = new Date(date)
+  startOfDay.setHours(0, 0, 0, 0)
+  const endOfDay = new Date(date)
+  endOfDay.setHours(23, 59, 59, 999)
+  return db
+    .selectFrom('worker_check_ins as wc')
+    .leftJoin('worker_profiles as wp', 'wp.id', 'wc.workerId')
+    .leftJoin('users as u', 'u.id', 'wp.userId')
+    .leftJoin('farms as f', 'f.id', 'wc.farmId')
+    .select([
+      'wc.id',
+      'wc.checkInTime',
+      'wc.checkOutTime',
+      'wc.hoursWorked',
+      'wc.verificationStatus',
+      'u.name as workerName',
+      'f.name as farmName',
+    ])
+    .where('wc.farmId', 'in', farmIds)
+    .where('wc.checkInTime', '>=', startOfDay)
+    .where('wc.checkInTime', '<=', endOfDay)
+    .execute()
+}
+
+export async function getPayrollPeriodsByFarms(
+  db: Kysely<Database>,
+  farmIds: Array<string>,
+) {
+  return db
+    .selectFrom('payroll_periods as pp')
+    .leftJoin('farms as f', 'f.id', 'pp.farmId')
+    .select([
+      'pp.id',
+      'pp.farmId',
+      'pp.periodType',
+      'pp.startDate',
+      'pp.endDate',
+      'pp.status',
+      'pp.createdAt',
+      'pp.updatedAt',
+      'f.name as farmName',
+    ])
+    .where('pp.farmId', 'in', farmIds)
+    .orderBy('pp.startDate', 'desc')
+    .execute()
+}

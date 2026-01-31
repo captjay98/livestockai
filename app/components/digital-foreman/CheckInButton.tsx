@@ -1,6 +1,5 @@
-'use client'
-
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { LogIn, LogOut, MapPin } from 'lucide-react'
@@ -18,25 +17,44 @@ export function CheckInButton({
   checkInId,
   isCheckedIn,
 }: CheckInButtonProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const [loading, setLoading] = useState(false)
   const queryClient = useQueryClient()
 
   const checkIn = useMutation({
     mutationFn: checkInFn,
     onSuccess: () => {
-      toast.success('Checked in successfully')
+      toast.success(
+        t('digitalForeman:messages.checkInSuccess', {
+          defaultValue: 'Checked in successfully',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['attendance'] })
     },
-    onError: () => toast.error('Check-in failed'),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.checkInFailed', {
+          defaultValue: 'Check-in failed',
+        }),
+      ),
   })
 
   const checkOut = useMutation({
     mutationFn: checkOutFn,
     onSuccess: () => {
-      toast.success('Checked out successfully')
+      toast.success(
+        t('digitalForeman:messages.checkOutSuccess', {
+          defaultValue: 'Checked out successfully',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['attendance'] })
     },
-    onError: () => toast.error('Check-out failed'),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.checkOutFailed', {
+          defaultValue: 'Check-out failed',
+        }),
+      ),
   })
 
   const handleClick = async () => {
@@ -62,7 +80,11 @@ export function CheckInButton({
         })
       }
     } catch (error) {
-      toast.error('Could not get location')
+      toast.error(
+        t('digitalForeman:messages.locationError', {
+          defaultValue: 'Could not get location',
+        }),
+      )
     } finally {
       setLoading(false)
     }
@@ -83,7 +105,9 @@ export function CheckInButton({
       ) : (
         <LogIn className="mr-2 h-6 w-6" />
       )}
-      {isCheckedIn ? 'Check Out' : 'Check In'}
+      {isCheckedIn
+        ? t('digitalForeman:checkOut', { defaultValue: 'Check Out' })
+        : t('digitalForeman:checkIn', { defaultValue: 'Check In' })}
     </Button>
   )
 }

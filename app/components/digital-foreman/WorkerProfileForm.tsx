@@ -1,6 +1,5 @@
-'use client'
-
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
@@ -52,6 +51,7 @@ export function WorkerProfileForm({
   existingProfile,
   onSuccess,
 }: WorkerProfileFormProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const queryClient = useQueryClient()
   const [phone, setPhone] = useState(existingProfile?.phone || '')
   const [wageRateAmount, setWageRateAmount] = useState(
@@ -67,21 +67,39 @@ export function WorkerProfileForm({
   const create = useMutation({
     mutationFn: createWorkerProfileFn,
     onSuccess: () => {
-      toast.success('Worker profile created')
+      toast.success(
+        t('digitalForeman:messages.profileCreated', {
+          defaultValue: 'Worker profile created',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['workers'] })
       onSuccess?.()
     },
-    onError: () => toast.error('Failed to create profile'),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.profileCreationFailed', {
+          defaultValue: 'Failed to create profile',
+        }),
+      ),
   })
 
   const update = useMutation({
     mutationFn: updateWorkerProfileFn,
     onSuccess: () => {
-      toast.success('Worker profile updated')
+      toast.success(
+        t('digitalForeman:messages.profileUpdated', {
+          defaultValue: 'Worker profile updated',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['workers'] })
       onSuccess?.()
     },
-    onError: () => toast.error('Failed to update profile'),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.profileUpdateFailed', {
+          defaultValue: 'Failed to update profile',
+        }),
+      ),
   })
 
   const handleSubmit = () => {
@@ -139,7 +157,9 @@ export function WorkerProfileForm({
           <Input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="+234..."
+            placeholder={t('digitalForeman:placeholders.phonePlaceholder', {
+              defaultValue: '+234...',
+            })}
           />
         </div>
 
@@ -178,7 +198,11 @@ export function WorkerProfileForm({
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Apply template..." />
+              <SelectValue
+                placeholder={t('digitalForeman:placeholders.applyTemplate', {
+                  defaultValue: 'Apply template...',
+                })}
+              />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="feed_handler">Feed Handler</SelectItem>

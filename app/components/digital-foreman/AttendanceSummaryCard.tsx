@@ -1,6 +1,5 @@
-'use client'
-
 import { AlertTriangle, Clock, UserCheck, UserX } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '~/components/ui/card'
 
 interface AttendanceSummaryCardProps {
@@ -18,6 +17,7 @@ export function AttendanceSummaryCard({
   flagged,
   totalHours,
 }: AttendanceSummaryCardProps) {
+  const { t } = useTranslation(['digitalForeman', 'common'])
   return (
     <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
       <Card>
@@ -26,7 +26,11 @@ export function AttendanceSummaryCard({
             <UserCheck className="h-5 w-5 text-green-600" />
             <div>
               <div className="text-2xl font-bold">{present}</div>
-              <div className="text-xs text-muted-foreground">Present</div>
+              <div className="text-xs text-muted-foreground">
+                {t('digitalForeman:attendance.present', {
+                  defaultValue: 'Present',
+                })}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -38,7 +42,11 @@ export function AttendanceSummaryCard({
             <UserX className="h-5 w-5 text-red-600" />
             <div>
               <div className="text-2xl font-bold">{absent}</div>
-              <div className="text-xs text-muted-foreground">Absent</div>
+              <div className="text-xs text-muted-foreground">
+                {t('digitalForeman:attendance.absent', {
+                  defaultValue: 'Absent',
+                })}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -50,7 +58,9 @@ export function AttendanceSummaryCard({
             <Clock className="h-5 w-5 text-amber-600" />
             <div>
               <div className="text-2xl font-bold">{late}</div>
-              <div className="text-xs text-muted-foreground">Late</div>
+              <div className="text-xs text-muted-foreground">
+                {t('digitalForeman:attendance.late', { defaultValue: 'Late' })}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -62,7 +72,11 @@ export function AttendanceSummaryCard({
             <AlertTriangle className="h-5 w-5 text-orange-600" />
             <div>
               <div className="text-2xl font-bold">{flagged}</div>
-              <div className="text-xs text-muted-foreground">Flagged</div>
+              <div className="text-xs text-muted-foreground">
+                {t('digitalForeman:attendance.flagged', {
+                  defaultValue: 'Flagged',
+                })}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -74,7 +88,11 @@ export function AttendanceSummaryCard({
             <Clock className="h-5 w-5 text-blue-600" />
             <div>
               <div className="text-2xl font-bold">{totalHours.toFixed(1)}h</div>
-              <div className="text-xs text-muted-foreground">Total Hours</div>
+              <div className="text-xs text-muted-foreground">
+                {t('digitalForeman:attendance.totalHours', {
+                  defaultValue: 'Total Hours',
+                })}
+              </div>
             </div>
           </div>
         </CardContent>

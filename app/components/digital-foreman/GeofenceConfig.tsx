@@ -1,6 +1,5 @@
-'use client'
-
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
@@ -23,9 +22,11 @@ type GeofenceType = 'circle' | 'polygon'
 
 interface GeofenceConfigProps {
   farmId: string
+  initialData?: Awaited<ReturnType<typeof getGeofenceFn>>
 }
 
-export function GeofenceConfig({ farmId }: GeofenceConfigProps) {
+export function GeofenceConfig({ farmId, initialData }: GeofenceConfigProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const [type, setType] = useState<GeofenceType>('circle')
   const [centerLat, setCenterLat] = useState(0)
   const [centerLng, setCenterLng] = useState(0)
@@ -36,6 +37,7 @@ export function GeofenceConfig({ farmId }: GeofenceConfigProps) {
     queryKey: ['geofence', farmId],
     queryFn: () => getGeofenceFn({ data: { farmId } }),
     enabled: !!farmId,
+    initialData,
   })
 
   useEffect(() => {
@@ -52,8 +54,18 @@ export function GeofenceConfig({ farmId }: GeofenceConfigProps) {
 
   const save = useMutation({
     mutationFn: saveGeofenceFn,
-    onSuccess: () => toast.success('Geofence saved'),
-    onError: () => toast.error('Failed to save geofence'),
+    onSuccess: () =>
+      toast.success(
+        t('digitalForeman:messages.geofenceSaved', {
+          defaultValue: 'Geofence saved',
+        }),
+      ),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.geofenceSaveFailed', {
+          defaultValue: 'Failed to save geofence',
+        }),
+      ),
   })
 
   const handleSave = () => {

@@ -1,6 +1,5 @@
-'use client'
-
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { MoreHorizontal, Pencil, Trash2, UserPlus } from 'lucide-react'
@@ -49,6 +48,7 @@ export function WorkerList({
   onAddWorker,
   onEditWorker,
 }: WorkerListProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const queryClient = useQueryClient()
   const { format } = useFormatCurrency()
   const [workerToRemove, setWorkerToRemove] = useState<{
@@ -66,14 +66,23 @@ export function WorkerList({
   const removeWorker = useMutation({
     mutationFn: removeWorkerFromFarmFn,
     onSuccess: () => {
-      toast.success('Worker removed from farm')
+      toast.success(
+        t('digitalForeman:messages.workerRemoved', {
+          defaultValue: 'Worker removed from farm',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['workers', farmId] })
       setWorkerToRemove(null)
     },
-    onError: () => toast.error('Failed to remove worker'),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.workerRemovalFailed', {
+          defaultValue: 'Failed to remove worker',
+        }),
+      ),
   })
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) return <div>{t('common:loading')}</div>
 
   const statusColors = {
     active: 'default',

@@ -1,7 +1,7 @@
-'use client'
-
-import { CalendarIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { format } from 'date-fns'
+import { CalendarIcon } from 'lucide-react'
+import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import {
   Select,
@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { cn } from '~/lib/utils'
 
 export interface TaskFiltersState {
   workerId: string | null
@@ -43,6 +42,7 @@ export function TaskFilters({
   onFiltersChange,
   workers,
 }: TaskFiltersProps) {
+  const { t } = useTranslation(['digitalForeman', 'common'])
   return (
     <div className="flex flex-wrap gap-3 mb-4">
       <Select
@@ -55,10 +55,18 @@ export function TaskFilters({
         }
       >
         <SelectTrigger className="h-11 min-w-[160px]">
-          <SelectValue placeholder="All Workers" />
+          <SelectValue
+            placeholder={t('digitalForeman:placeholders.allWorkers', {
+              defaultValue: 'All Workers',
+            })}
+          />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Workers</SelectItem>
+          <SelectItem value="all">
+            {t('digitalForeman:placeholders.allWorkers', {
+              defaultValue: 'All Workers',
+            })}
+          </SelectItem>
           {workers.map((worker) => (
             <SelectItem key={worker.id} value={worker.id}>
               {worker.userName || 'Unknown'}
@@ -77,10 +85,14 @@ export function TaskFilters({
         }
       >
         <SelectTrigger className="h-11 min-w-[150px]">
-          <SelectValue placeholder="Status" />
+          <SelectValue
+            placeholder={t('common:status', { defaultValue: 'Status' })}
+          />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Status</SelectItem>
+          <SelectItem value="all">
+            {t('common:allStatus', { defaultValue: 'All Status' })}
+          </SelectItem>
           <SelectItem value="pending">Pending</SelectItem>
           <SelectItem value="in_progress">In Progress</SelectItem>
           <SelectItem value="completed">Completed</SelectItem>
@@ -100,10 +112,14 @@ export function TaskFilters({
         }
       >
         <SelectTrigger className="h-11 min-w-[130px]">
-          <SelectValue placeholder="Priority" />
+          <SelectValue
+            placeholder={t('common:priority', { defaultValue: 'Priority' })}
+          />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Priority</SelectItem>
+          <SelectItem value="all">
+            {t('common:allPriority', { defaultValue: 'All Priority' })}
+          </SelectItem>
           <SelectItem value="low">Low</SelectItem>
           <SelectItem value="medium">Medium</SelectItem>
           <SelectItem value="high">High</SelectItem>
@@ -119,7 +135,9 @@ export function TaskFilters({
         )}
       >
         <CalendarIcon className="mr-2 h-4 w-4" />
-        {filters.dueDateFrom ? format(filters.dueDateFrom, 'MMM d') : 'From'}
+        {filters.dueDateFrom
+          ? format(filters.dueDateFrom, 'MMM d')
+          : t('common:from', { defaultValue: 'From' })}
       </Button>
 
       <Button
@@ -130,7 +148,9 @@ export function TaskFilters({
         )}
       >
         <CalendarIcon className="mr-2 h-4 w-4" />
-        {filters.dueDateTo ? format(filters.dueDateTo, 'MMM d') : 'To'}
+        {filters.dueDateTo
+          ? format(filters.dueDateTo, 'MMM d')
+          : t('common:to', { defaultValue: 'To' })}
       </Button>
 
       {(filters.workerId ||
@@ -151,7 +171,7 @@ export function TaskFilters({
             })
           }
         >
-          Clear
+          {t('common:clear', { defaultValue: 'Clear' })}
         </Button>
       )}
     </div>

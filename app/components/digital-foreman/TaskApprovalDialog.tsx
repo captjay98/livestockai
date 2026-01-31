@@ -1,6 +1,5 @@
-'use client'
-
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { Check, Clock, Image as ImageIcon, User, X } from 'lucide-react'
@@ -46,6 +45,7 @@ export function TaskApprovalDialog({
   open,
   onOpenChange,
 }: TaskApprovalDialogProps) {
+  const { t } = useTranslation(['digitalForeman'])
   const queryClient = useQueryClient()
   const [rejectionReason, setRejectionReason] = useState('')
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
@@ -53,22 +53,40 @@ export function TaskApprovalDialog({
   const approve = useMutation({
     mutationFn: approveTaskFn,
     onSuccess: () => {
-      toast.success('Task approved')
+      toast.success(
+        t('digitalForeman:messages.taskApproved', {
+          defaultValue: 'Task approved',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['task-assignments'] })
       onOpenChange(false)
     },
-    onError: () => toast.error('Failed to approve task'),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.taskApprovalFailed', {
+          defaultValue: 'Failed to approve task',
+        }),
+      ),
   })
 
   const reject = useMutation({
     mutationFn: approveTaskFn,
     onSuccess: () => {
-      toast.success('Task rejected')
+      toast.success(
+        t('digitalForeman:messages.taskRejected', {
+          defaultValue: 'Task rejected',
+        }),
+      )
       queryClient.invalidateQueries({ queryKey: ['task-assignments'] })
       onOpenChange(false)
       setRejectionReason('')
     },
-    onError: () => toast.error('Failed to reject task'),
+    onError: () =>
+      toast.error(
+        t('digitalForeman:messages.taskRejectionFailed', {
+          defaultValue: 'Failed to reject task',
+        }),
+      ),
   })
 
   if (!task) return null
@@ -79,7 +97,11 @@ export function TaskApprovalDialog({
 
   const handleReject = () => {
     if (!rejectionReason.trim()) {
-      toast.error('Please provide a rejection reason')
+      toast.error(
+        t('digitalForeman:messages.rejectionReasonRequired', {
+          defaultValue: 'Please provide a rejection reason',
+        }),
+      )
       return
     }
     reject.mutate({
@@ -175,7 +197,9 @@ export function TaskApprovalDialog({
               </Label>
               <Textarea
                 id="rejection-reason"
-                placeholder="Explain why this task is being rejected..."
+                placeholder={t('digitalForeman:placeholders.rejectionReason', {
+                  defaultValue: 'Explain why this task is being rejected...',
+                })}
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 className="mt-1"

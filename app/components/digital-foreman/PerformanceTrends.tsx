@@ -1,6 +1,7 @@
 'use client'
 
 import { Minus, TrendingDown, TrendingUp } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import {
   Select,
@@ -91,10 +92,16 @@ export function PerformanceTrends({
   periodType,
   onPeriodTypeChange,
 }: PerformanceTrendsProps) {
+  const { t } = useTranslation(['digitalForeman'])
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg">Performance Trends</CardTitle>
+        <CardTitle className="text-lg">
+          {t('digitalForeman:performanceTrends', {
+            defaultValue: 'Performance Trends',
+          })}
+        </CardTitle>
         <Select
           value={periodType}
           onValueChange={(v) => onPeriodTypeChange(v as 'weekly' | 'monthly')}
@@ -111,7 +118,9 @@ export function PerformanceTrends({
       <CardContent>
         {workers.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">
-            No performance data available
+            {t('digitalForeman:noPerformanceData', {
+              defaultValue: 'No performance data available',
+            })}
           </p>
         ) : (
           <Table>

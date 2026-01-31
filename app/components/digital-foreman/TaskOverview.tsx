@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { Clock } from 'lucide-react'
@@ -20,13 +21,14 @@ interface TaskOverviewProps {
 }
 
 export function TaskOverview({ farmId }: TaskOverviewProps) {
+  const { t } = useTranslation('common')
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ['task-assignments', farmId],
     queryFn: () => getAssignmentsByFarmFn({ data: { farmId } }),
     enabled: !!farmId,
   })
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading) return <div>{t('loading')}</div>
 
   const priorityColors = {
     low: 'secondary',

@@ -10,7 +10,7 @@ const createPayrollPeriodSchema = z.object({
 })
 
 const getPayrollSummarySchema = z.object({
-  farmId: z.string().uuid(),
+  farmId: z.string().uuid().optional(),
   payrollPeriodId: z.string().uuid(),
 })
 
@@ -91,12 +91,15 @@ export const getPayrollSummaryFn = createServerFn({ method: 'GET' })
       .executeTakeFirst()
     if (!period) throw new AppError('PAYROLL_PERIOD_NOT_FOUND')
 
+    // Use farmId from data or fall back to period's farmId
+    const farmId = data.farmId || period.farmId
+
     const farm = await db
       .selectFrom('farms')
       .select(['name'])
-      .where('id', '=', data.farmId)
+      .where('id', '=', farmId)
       .executeTakeFirst()
-    const workers = await getWorkersByFarm(db, data.farmId)
+    const workers = await getWorkersByFarm(db, farmId)
     const payments = await getPaymentsByPeriod(db, data.payrollPeriodId)
 
     const workerSummaries = await Promise.all(
@@ -178,14 +181,25 @@ export const recordPaymentFn = createServerFn({ method: 'POST' })
   })
 
 export const getPayrollHistoryFn = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({ farmId: z.string().uuid() }))
+  .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
-    await requireAuth()
+    const session = await requireAuth()
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
-    const { getPayrollPeriodsByFarm } = await import('./repository')
-    return getPayrollPeriodsByFarm(db, data.farmId)
+    const { getPayrollPeriodsByFarm, getPayrollPeriodsByFarms } =
+      await import('./repository')
+    const { getUserFarms } = await import('~/features/auth/utils')
+
+    if (data.farmId) {
+      return getPayrollPeriodsByFarm(db, data.farmId)
+    }
+
+    // Get all farms for user
+    const farmIds = await getUserFarms(session.user.id)
+    if (farmIds.length === 0) return []
+
+    return getPayrollPeriodsByFarms(db, farmIds)
   })
 
 export const saveGeofenceFn = createServerFn({ method: 'POST' })
@@ -223,16 +237,31 @@ export const getGeofenceFn = createServerFn({ method: 'GET' })
 export const exportAttendanceCsvFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
-      farmId: z.string().uuid(),
+      farmId: z.string().uuid().optional(),
       startDate: z.coerce.date(),
       endDate: z.coerce.date(),
     }),
   )
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
-    await requireAuth()
+    const session = await requireAuth()
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
+    const { getUserFarms } = await import('~/features/auth/utils')
+
+    // Get farm IDs to query
+    let farmIds: Array<string>
+    if (data.farmId) {
+      farmIds = [data.farmId]
+    } else {
+      farmIds = await getUserFarms(session.user.id)
+      if (farmIds.length === 0) {
+        return {
+          csv: 'Worker,Check In,Check Out,Hours Worked,Status\n',
+          filename: `attendance-${data.startDate.toISOString().split('T')[0]}-${data.endDate.toISOString().split('T')[0]}.csv`,
+        }
+      }
+    }
 
     const records = await db
       .selectFrom('worker_check_ins as wc')
@@ -245,7 +274,7 @@ export const exportAttendanceCsvFn = createServerFn({ method: 'GET' })
         'wc.hoursWorked',
         'wc.verificationStatus',
       ])
-      .where('wc.farmId', '=', data.farmId)
+      .where('wc.farmId', 'in', farmIds)
       .where('wc.checkInTime', '>=', data.startDate)
       .where('wc.checkInTime', '<=', data.endDate)
       .orderBy('wc.checkInTime', 'desc')
@@ -264,7 +293,7 @@ export const exportAttendanceCsvFn = createServerFn({ method: 'GET' })
 export const exportPayrollCsvFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
-      farmId: z.string().uuid(),
+      farmId: z.string().uuid().optional(),
       payrollPeriodId: z.string().uuid(),
     }),
   )
@@ -293,7 +322,10 @@ export const exportPayrollCsvFn = createServerFn({ method: 'GET' })
       .executeTakeFirst()
     if (!period) throw new AppError('PAYROLL_PERIOD_NOT_FOUND')
 
-    const workers = await getWorkersByFarm(db, data.farmId)
+    // Use farmId from data or fall back to period's farmId
+    const farmId = data.farmId || period.farmId
+
+    const workers = await getWorkersByFarm(db, farmId)
     const payments = await getPaymentsByPeriod(db, data.payrollPeriodId)
 
     let csv =

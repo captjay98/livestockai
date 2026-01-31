@@ -40,7 +40,7 @@ const checkOutSchema = z.object({
 })
 
 const getAttendanceSchema = z.object({
-  farmId: z.string().uuid(),
+  farmId: z.string().uuid().optional(),
   date: z.coerce.date().optional(),
 })
 
@@ -118,6 +118,22 @@ export const getWorkersByFarmFn = createServerFn({ method: 'GET' })
     const db = await getDb()
     const { getWorkersByFarm } = await import('./repository')
     return getWorkersByFarm(db, data.farmId)
+  })
+
+export const getWorkerProfileByUserIdFn = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      userId: z.string().uuid(),
+      farmId: z.string().uuid(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    await requireAuth()
+    const { getDb } = await import('~/lib/db')
+    const db = await getDb()
+    const { getWorkerProfileByUserId } = await import('./repository')
+    return getWorkerProfileByUserId(db, data.userId, data.farmId)
   })
 
 // Attendance Functions
@@ -294,11 +310,24 @@ export const getAttendanceByFarmFn = createServerFn({ method: 'GET' })
   .inputValidator(getAttendanceSchema)
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
-    await requireAuth()
+    const session = await requireAuth()
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
-    const { getCheckInsByFarm } = await import('./repository')
-    return getCheckInsByFarm(db, data.farmId, data.date || new Date())
+    const { getCheckInsByFarm, getCheckInsByFarms } =
+      await import('./repository')
+    const { getUserFarms } = await import('~/features/auth/utils')
+
+    const date = data.date || new Date()
+
+    if (data.farmId) {
+      return getCheckInsByFarm(db, data.farmId, date)
+    }
+
+    // Get all farms for user
+    const farmIds = await getUserFarms(session.user.id)
+    if (farmIds.length === 0) return []
+
+    return getCheckInsByFarms(db, farmIds, date)
   })
 
 // Get open check-in for current user (used by worker dashboard)
